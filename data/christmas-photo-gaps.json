@@ -1,0 +1,2680 @@
+{
+ "generated": "2026-10-14",
+ "count": 382,
+ "gaps": [
+  {
+   "id": "epcot-candlelight-2026",
+   "name": "Candlelight Processional at EPCOT",
+   "city": "Bay Lake",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wdw-holiday-season-2026",
+   "name": "Holidays at Walt Disney World: Magic Kingdom and Animal Kingdom decor and shows",
+   "city": "Bay Lake",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "dazzlingnights-leu-2026",
+   "name": "Dazzling Nights at Leu Gardens",
+   "city": "Orlando",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "legoland-christmas-bricktacular-2026",
+   "name": "LEGOLAND Christmas Bricktacular",
+   "city": "Winter Haven",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. place_id fails isGooglePlaceId format, rung 3 skipped"
+  },
+  {
+   "id": "stetson-mansion-christmas-2026-2",
+   "name": "The Christmas Mansion (Christmas Spectacular Holiday Home Tour)",
+   "city": "DeLand",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "nights-of-lights-staug-2026",
+   "name": "St. Augustine Nights of Lights",
+   "city": "St. Augustine",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "dickens-on-centre-2026",
+   "name": "Dickens on Centre",
+   "city": "Fernandina Beach",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "live-oak-suwannee-lights-2026",
+   "name": "Suwannee Lights",
+   "city": "Live Oak",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ocala-wec-winter-wonderland-2026",
+   "name": "WEC Winter Wonderland",
+   "city": "Ocala",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "pensacola-winterfest-2026",
+   "name": "Pensacola Winterfest",
+   "city": "Pensacola",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "christmas-reflections-defuniak-2026",
+   "name": "Christmas Reflections",
+   "city": "DeFuniak Springs",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winterfest-boat-parade-2026",
+   "name": "Seminole Hard Rock Winterfest Boat Parade",
+   "city": "Fort Lauderdale",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "key-west-harbor-walk-of-lights-2026",
+   "name": "Key West Harbor Walk of Lights",
+   "city": "Key West",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "magic-of-lights-daytona-2026",
+   "name": "Magic of Lights at Daytona International Speedway",
+   "city": "Daytona Beach",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "selby-lights-in-bloom-2026",
+   "name": "Lights in Bloom",
+   "city": "Sarasota",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fishermens-village-festival-of-lights-2026",
+   "name": "Fishermen's Village Holiday Festival of Lights",
+   "city": "Punta Gorda",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wpb-holiday-in-paradise-2026",
+   "name": "Holiday in Paradise and Sandi the Sand Tree",
+   "city": "West Palm Beach",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "delray-100ft-tree-2026",
+   "name": "Delray Beach 100 Foot Christmas Tree and Holiday Village",
+   "city": "Delray Beach",
+   "headliner": true,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "kissimmee-festival-of-lights-2026",
+   "name": "Kissimmee Festival of Lights Parade",
+   "city": "Kissimmee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "celebration-tree-lighting-2026",
+   "name": "Celebration Tree Lighting Ceremony",
+   "city": "Celebration",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "celebration-now-snowing-2026",
+   "name": "Now Snowing Nightly in Celebration",
+   "city": "Celebration",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "lake-eola-tree-lighting-2026",
+   "name": "City of Orlando Tree Lighting Celebration",
+   "city": "Orlando",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "frontyard-holiday-festival-2026",
+   "name": "Frontyard Holiday Festival at Dr. Phillips Center",
+   "city": "Orlando",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "orlando-phil-fierce-holiday-2026",
+   "name": "Home for the Holidays: Michael James Scott's A Fierce Holiday",
+   "city": "Orlando",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "orlando-phil-messiah-2026",
+   "name": "Handel's Messiah",
+   "city": "Orlando",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "holiday-pops-winter-park-2026",
+   "name": "Holiday Pops in Winter Park",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "bach-classic-christmas-2026",
+   "name": "A Classic Christmas",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winter-on-the-avenue-2026",
+   "name": "Winter on the Avenue",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winter-park-christmas-parade-2026",
+   "name": "74th Annual Winter Park Christmas Parade",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "morse-christmas-in-the-park-2026",
+   "name": "Christmas in the Park (48th annual)",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "holidays-on-park-2026",
+   "name": "Holidays on Park: Cathedral of Lights and Holiday Carousel",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winter-park-christmas-cruise-2026",
+   "name": "The Winter Park Old Fashioned Christmas Cruise",
+   "city": "Winter Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lake-nona-oh-what-fun-2026",
+   "name": "Oh, What Fun! Holiday Festival",
+   "city": "Orlando",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wekiva-island-winter-wonderland-2026",
+   "name": "Winter Wonderland at Wekiva Island",
+   "city": "Longwood",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "sanford-parade-of-lights-2026",
+   "name": "Holiday Parade of Lights",
+   "city": "Sanford",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "cf-zoo-lantern-festival-2026",
+   "name": "Asian Lantern Festival: Into the Wild",
+   "city": "Sanford",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "mount-dora-christmas-parade-2026",
+   "name": "Mount Dora Christmas Parade",
+   "city": "Mount Dora",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "mount-dora-tour-of-homes-2026",
+   "name": "46th Annual Holiday Tour of Homes",
+   "city": "Mount Dora",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tavares-christmas-parade-2026",
+   "name": "Tavares Christmas Parade & Festival",
+   "city": "Tavares",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "leesburg-light-up-venetian-gardens-2026",
+   "name": "Light Up Venetian Gardens and lighted boat parade",
+   "city": "Leesburg",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "leesburg-christmas-parade-2026",
+   "name": "Leesburg Christmas Festival and 59th Annual Christmas Parade",
+   "city": "Leesburg",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "sorrento-light-up-2026",
+   "name": "Mrs. Claus's Holiday Bazaar and Light Up Sorrento",
+   "city": "Sorrento",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "light-up-clermont-2026",
+   "name": "Light Up Clermont",
+   "city": "Clermont",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "clermont-christmas-parade-2026",
+   "name": "Clermont Christmas Parade",
+   "city": "Clermont",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "clermont-enchanted-forest-2026",
+   "name": "Enchanted Forest of Trees",
+   "city": "Clermont",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winter-garden-light-up-2026",
+   "name": "39th Annual Light Up Winter Garden",
+   "city": "Winter Garden",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "winter-garden-christmas-parade-2026",
+   "name": "Winter Garden Christmas Parade",
+   "city": "Winter Garden",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "winter-garden-light-show-2026",
+   "name": "A Merry Winter Garden Light Show",
+   "city": "Winter Garden",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winter-garden-golf-cart-parade-night-market-2026",
+   "name": "Winter Garden Christmas Golf Cart Parade and Holiday Night Market",
+   "city": "Winter Garden",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "winter-garden-oranges-ornaments-2026",
+   "name": "Oranges and Ornaments: A Festival of Trees and Wreaths",
+   "city": "Winter Garden",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "winter-garden-wonderful-life-2026",
+   "name": "It's a Wonderful Life: A Live Radio Play",
+   "city": "Winter Garden",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ocoee-jolly-jamboree-2026",
+   "name": "Jolly Jamboree and Tree Lighting",
+   "city": "Ocoee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "apopka-tree-lighting-2026",
+   "name": "City of Apopka Tree Lighting",
+   "city": "Apopka",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lakeland-christmas-parade-2026",
+   "name": "45th Annual Lakeland Christmas Parade",
+   "city": "Lakeland",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "lakeland-snowfest-2026",
+   "name": "Snowfest at Lake Mirror (44th annual)",
+   "city": "Lakeland",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "havendale-christmas-parade-2026",
+   "name": "Havendale Christmas Parade",
+   "city": "Winter Haven",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "light-up-night-staug-2026",
+   "name": "Light-Up! Night (Nights of Lights kickoff)",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "old-town-trolley-nol-2026",
+   "name": "Old Town Trolley Nights of Lights Tour",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ripleys-red-train-nol-2026",
+   "name": "Ripley's Red Train Nights of Lights Tours",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "regatta-of-lights-staug-2026",
+   "name": "Regatta of Lights",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "staug-christmas-parade-2026",
+   "name": "St. Augustine Christmas Parade (68th annual)",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "lighthouse-illuminations-2026",
+   "name": "Lighthouse Illuminations: Tides, Tidings, and Trees",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "staug-ballet-nutcracker-2026",
+   "name": "The Nutcracker (Saint Augustine Ballet, 18th annual)",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "palm-valley-boat-parade-2026",
+   "name": "Palm Valley Boat Parade",
+   "city": "Ponte Vedra Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "staug-beach-light-up-art-walk-2026",
+   "name": "Light Up the Beach Art Walk",
+   "city": "St. Augustine Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "staug-tasting-tours-santa-ride-2026",
+   "name": "Tasting Tours Magical Ride with Santa",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "florida-water-tours-nol-2026",
+   "name": "Nights of Lights Cruises (Florida Water Tours)",
+   "city": "St. Augustine",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jax-holiday-river-fest-2026",
+   "name": "Jacksonville Holiday River Fest and Christmas Tree Lighting",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jax-light-boat-parade-2026",
+   "name": "Jacksonville Light Boat Parade and Waterfall Fireworks",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "deck-the-chairs-2026",
+   "name": "Jacksonville Beach Deck the Chairs",
+   "city": "Jacksonville Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gingerbread-extravaganza-jax-2026",
+   "name": "Gingerbread Extravaganza",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ram-holiday-market-2026",
+   "name": "RAM Holiday Market (Riverside)",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "san-marco-tree-lighting-2026",
+   "name": "San Marco Holiday Magic Tree Lighting",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "san-marco-luminaria-2026",
+   "name": "San Marco Holiday Luminaria",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "firstcoastnutcracker-jaxsymphony-2026",
+   "name": "First Coast Nutcracker (Jacksonville Symphony)",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "florida-ballet-nutcracker-2026",
+   "name": "The Florida Ballet's The Nutcracker",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "florida-theatre-nutcracker-magical-2026",
+   "name": "Nutcracker! Magical Christmas Ballet",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "miracle-sidecar-san-marco-2026",
+   "name": "Miracle at Sidecar San Marco",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ritz-carlton-tree-lighting-2026",
+   "name": "Ritz-Carlton Amelia Island Christmas Tree Lighting",
+   "city": "Amelia Island (Fernandina Beach)",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "omni-amelia-holiday-lights-2026",
+   "name": "Holiday Lights Celebration at The Shops at Omni Amelia Island",
+   "city": "Amelia Island (Fernandina Beach)",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fernandina-tree-lighting-2026",
+   "name": "Historic Downtown Fernandina Beach Tree Lighting",
+   "city": "Fernandina Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fernandina-downtown-lights-2026",
+   "name": "Downtown Fernandina Beach holiday lighting",
+   "city": "Fernandina Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "fernandina-lighted-parade-2026",
+   "name": "Fernandina Lighted Christmas Parade",
+   "city": "Fernandina Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "fernandina-holiday-home-tour-2026",
+   "name": "Amelia Island Holiday Home Tour",
+   "city": "Fernandina Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tidings-twinkle-fernandina-2026",
+   "name": "Tidings & Twinkle community holiday celebration",
+   "city": "Fernandina Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "scrooge-amelia-musical-playhouse-2026",
+   "name": "Scrooge (Amelia Musical Playhouse)",
+   "city": "Fernandina Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "callahan-christmas-parade-2026",
+   "name": "Callahan Christmas Parade and Craft Fair",
+   "city": "Callahan",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "green-cove-christmas-parade-2026",
+   "name": "Christmas on Walnut Street, Parade and Tree Lighting",
+   "city": "Green Cove Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "green-cove-parade-of-trees-2026",
+   "name": "Parade of Trees in Spring Park",
+   "city": "Green Cove Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "palm-coast-tree-lighting-2026",
+   "name": "Palm Coast Christmas Tree Lighting",
+   "city": "Palm Coast",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "fantasy-lights-palm-coast-2026",
+   "name": "Fantasy Lights Festival (21st annual)",
+   "city": "Palm Coast",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "palm-coast-starlight-parade-2026",
+   "name": "Palm Coast Starlight Parade",
+   "city": "Palm Coast",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "palm-coast-boat-parade-2026",
+   "name": "Palm Coast Holiday Boat Parade (43rd annual)",
+   "city": "Palm Coast",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "putnam-festival-of-lights-2026",
+   "name": "Putnam's Festival of Lights (2nd annual)",
+   "city": "East Palatka",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-winter-festival-2026",
+   "name": "Winter Festival: A Celebration of Lights, Music and the Arts (40th annual)",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-candy-cane-lane-2026",
+   "name": "Candy Cane Lane at McCarty Park",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-cascades-holiday-stroll-2026",
+   "name": "Holiday Stroll at Cascades Park",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-oven-park-lights-2026",
+   "name": "Dorothy B. Oven Park Holiday Lights and Elf Night",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "havana-allison-christmas-spectacular-2026",
+   "name": "The Allison Christmas Spectacular",
+   "city": "Havana",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-ballet-nutcracker-2026",
+   "name": "The Nutcracker (40th anniversary), Tallahassee Ballet",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-candlelight-christmas-classics-2026",
+   "name": "Candlelight: Christmas Classics",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tallahassee-ugly-sweater-pub-crawl-2026",
+   "name": "Do The Ugly Sweater Pub Crawl Tallahassee",
+   "city": "Tallahassee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "monticello-christmas-2026",
+   "name": "Monticello Christmas (Light Parade and Tree Lighting)",
+   "city": "Monticello",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "live-oak-christmas-on-the-square-2026",
+   "name": "42nd Annual Christmas on the Square",
+   "city": "Live Oak",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "white-springs-festival-of-lights-2026",
+   "name": "Stephen Foster Festival of Lights",
+   "city": "White Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lake-city-christmas-parade-2026",
+   "name": "Lake City Rotary Christmas Parade",
+   "city": "Lake City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lake-city-light-up-the-night-2026",
+   "name": "Light Up The Night Christmas Tree Celebration",
+   "city": "Lake City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lake-city-christmas-in-columbia-market-2026",
+   "name": "Christmas in Columbia Holiday Market",
+   "city": "Lake City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "high-springs-christmas-parade-2026",
+   "name": "High Springs Twilight Christmas Parade (Christmas of Yesteryear)",
+   "city": "High Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "high-springs-tree-lighting-2026",
+   "name": "High Springs Christmas Tree Lighting",
+   "city": "High Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gainesville-very-gnv-holiday-parade-2026",
+   "name": "A Very GNV Holiday Parade, dance party and tree lighting",
+   "city": "Gainesville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "gainesville-hippodrome-christmas-carol-2026",
+   "name": "A Christmas Carol at the Hippodrome",
+   "city": "Gainesville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gainesville-nutcracker-phillips-center-2026",
+   "name": "The Nutcracker with the Ocala Symphony Orchestra",
+   "city": "Gainesville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gainesville-holiday-at-santa-fe-2026",
+   "name": "Holiday at Santa Fe",
+   "city": "Gainesville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ocala-light-up-ocala-2026",
+   "name": "Light Up Ocala (42nd)",
+   "city": "Ocala",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ocala-christmas-parade-2026",
+   "name": "71st Annual Ocala Christmas Parade",
+   "city": "Ocala",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "ocala-christmas-market-2026",
+   "name": "Ocala Christmas Market",
+   "city": "Ocala",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ocala-golf-cart-parade-2026",
+   "name": "8th Annual Downtown Ocala Christmas Golf Cart Parade",
+   "city": "Ocala",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "ocala-metro-ballet-nutcracker-2026",
+   "name": "The Nutcracker, Ocala Metro Ballet Theatre (debut)",
+   "city": "Ocala",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "dunnellon-small-town-christmas-parade-2026",
+   "name": "Dunnellon Christmas Parade (A Florida Christmas)",
+   "city": "Dunnellon",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "weirsdale-cottom-farm-christmas-village-2026",
+   "name": "Cottom Farm's Christmas Village Nights",
+   "city": "Weirsdale",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "crystal-river-christmas-parade-2026",
+   "name": "Crystal River Christmas Parade",
+   "city": "Crystal River",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "inverness-christmas-parade-2026",
+   "name": "Inverness Christmas Parade",
+   "city": "Inverness",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "brooksville-christmas-on-main-2026",
+   "name": "Christmas on Main Tree Lighting",
+   "city": "Brooksville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "brooksville-kiwanis-christmas-parade-2026",
+   "name": "52nd Annual Brooksville Christmas Parade",
+   "city": "Brooksville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "brooksville-family-sensory-christmas-2026",
+   "name": "Family Sensory Christmas Celebration (4th annual)",
+   "city": "Brooksville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "carrabelle-holiday-on-the-harbor-2026",
+   "name": "Holiday on the Harbor Festival and Boat Parade of Lights",
+   "city": "Carrabelle",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "pensacola-elf-parade-2026",
+   "name": "Winterfest Elf Parade and Christmas Jubilee",
+   "city": "Pensacola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "pensacola-downtown-first-city-lights-2026",
+   "name": "Downtown Pensacola tree lighting and First City Lights",
+   "city": "Pensacola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "pensacola-christmas-parade-2026",
+   "name": "Spectrum Pensacola Christmas Parade",
+   "city": "Pensacola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "pensacola-beach-fireworks-cruise-2026",
+   "name": "Lighted Boat Parade and Fireworks Cruise",
+   "city": "Pensacola Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "pensacola-beach-surfin-santa-parade-2026",
+   "name": "Surfin' Santa Beach Parade",
+   "city": "Pensacola Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "north-hill-tour-of-homes-2026",
+   "name": "North Hill Tour of Homes",
+   "city": "Pensacola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "pensacola-little-theatre-trailer-park-christmas-2026",
+   "name": "Ebenezer's Trailer Park Christmas Speck-Tac-Yule-R!",
+   "city": "Pensacola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "christmas-with-chris-tomlin-pensacola-2026",
+   "name": "Christmas with Chris Tomlin",
+   "city": "Pensacola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gulf-breeze-jolly-holiday-market-2026",
+   "name": "Jolly Holiday Market",
+   "city": "Gulf Breeze",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "navarre-tree-lighting-2026",
+   "name": "Navarre Community Christmas Tree Lighting",
+   "city": "Navarre",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "destin-tree-lighting-2026",
+   "name": "City of Destin Christmas Tree Lighting",
+   "city": "Destin",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "destin-christmas-parade-2026",
+   "name": "City of Destin Christmas Parade",
+   "city": "Destin",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "destin-holly-jolly-market-2026",
+   "name": "Holly Jolly Holiday Market on the Harbor",
+   "city": "Destin",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "destin-holiday-craft-show-2026",
+   "name": "Destin Holiday Craft Show",
+   "city": "Destin",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "grand-boulevard-holiday-parade-2026",
+   "name": "Grand Boulevard Hometown Holiday Parade and Tree Lighting",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "baytowne-nights-of-lights-2026",
+   "name": "Nights of Lights",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "baytowne-lantern-parade-2026",
+   "name": "Lantern Parade",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "baytowne-wednesday-concerts-santa-2026",
+   "name": "Holiday Wednesday Concerts with Santa",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "baytowne-tuba-christmas-2026",
+   "name": "Tuba Christmas",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "baytowne-grinchmas-2026",
+   "name": "Grinchmas",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "hotel-effie-nutcracker-afternoon-2026",
+   "name": "A Nutcracker Holiday Afternoon at Ovide",
+   "city": "Miramar Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "seaside-turn-on-the-town-2026",
+   "name": "Seaside Holiday Parade and Turn On The Town",
+   "city": "Santa Rosa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "seaside-photos-with-santa-2026",
+   "name": "Photos with Santa in Seaside Christmas Village",
+   "city": "Santa Rosa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "eden-gardens-christmas-luminaries-2026",
+   "name": "Christmas Luminaries and Wesley House Tour",
+   "city": "Santa Rosa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "alys-in-winter-wonderland-2026",
+   "name": "Alys in Winter Wonderland",
+   "city": "Alys Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "miracle-at-the-daytrader-2026",
+   "name": "Miracle at The Daytrader",
+   "city": "Seaside",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "northwest-florida-ballet-nutcracker-2026",
+   "name": "The Nutcracker (Northwest Florida Ballet)",
+   "city": "Niceville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "nfso-holiday-pops-candlelight-christmas-2026",
+   "name": "NFSO Holiday Pops: A Candlelight Christmas",
+   "city": "Niceville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "crestview-christmas-parade-2026",
+   "name": "Main Street Crestview Christmas Parade",
+   "city": "Crestview",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "merry-main-street-defuniak-2026",
+   "name": "Merry Main Street",
+   "city": "DeFuniak Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "panama-city-christmas-parade-2026",
+   "name": "Panama City Downtown Christmas Parade",
+   "city": "Panama City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "panama-city-boat-parade-of-lights-2026",
+   "name": "40th Annual Boat Parade of Lights",
+   "city": "Panama City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "panama-city-ballet-nutcracker-2026",
+   "name": "The Nutcracker (Panama City Ballet)",
+   "city": "Panama City Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "beach-home-for-the-holidays-2026",
+   "name": "Beach Home for the Holidays",
+   "city": "Panama City Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lynn-haven-christmas-tree-lighting-2026",
+   "name": "Lynn Haven Christmas Tree Lighting",
+   "city": "Lynn Haven",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lynn-haven-christmas-parade-2026",
+   "name": "Lynn Haven Christmas Parade",
+   "city": "Lynn Haven",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "port-st-joe-christmas-on-the-coast-2026",
+   "name": "Christmas on the Coast Parade",
+   "city": "Port St. Joe",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "apalachicola-downtown-christmas-2026",
+   "name": "Apalachicola Downtown Christmas Celebration",
+   "city": "Apalachicola",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "mexico-beach-tree-lighting-2026",
+   "name": "Mexico Beach Christmas Tree Lighting and Golf Cart Parade",
+   "city": "Mexico Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "marianna-christmas-in-wonderland-2026",
+   "name": "Christmas in Wonderland Parade and Festival",
+   "city": "Marianna",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "hidden-cypress-farm-christmas-2026",
+   "name": "Christmas on the Farm (Hidden Cypress Farm)",
+   "city": "Cottondale",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "chipley-christmas-fest-2026",
+   "name": "Chipley Christmas Fest",
+   "city": "Chipley",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "christmas-on-las-olas-2026",
+   "name": "Christmas on Las Olas (64th annual)",
+   "city": "Fort Lauderdale",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "light-up-the-galt-2026",
+   "name": "Light Up the Galt tree lighting",
+   "city": "Fort Lauderdale",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "light-up-carter-park-2026",
+   "name": "Light Up Carter Park",
+   "city": "Fort Lauderdale",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "light-up-sistrunk-2026",
+   "name": "Light Up Sistrunk",
+   "city": "Fort Lauderdale",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "pompano-holiday-boat-parade-2026",
+   "name": "Greater Pompano Beach Chamber Holiday Boat Parade (64th)",
+   "city": "Pompano Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "deerfield-ocean-way-holiday-2026",
+   "name": "Ocean Way Holiday",
+   "city": "Deerfield Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "holiday-fantasy-of-lights-2026",
+   "name": "Holiday Fantasy of Lights (32nd annual)",
+   "city": "Coconut Creek",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "hollywood-candy-cane-parade-2026",
+   "name": "Candy Cane Parade and Concert",
+   "city": "Hollywood",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "plantation-walk-holiday-nights-2026",
+   "name": "Holiday Nights at Plantation Walk",
+   "city": "Plantation",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "plantation-baptist-christmas-lights-acres-2026",
+   "name": "Christmas Lights in The Acres",
+   "city": "Plantation",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "pembroke-pines-snowfest-2026",
+   "name": "SnowFest and Tree Lighting",
+   "city": "Pembroke Pines",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "miami-city-ballet-nutcracker-2026",
+   "name": "Miami City Ballet George Balanchine's The Nutcracker",
+   "city": "Miami",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "coral-gables-tree-lighting-2026",
+   "name": "Coral Gables Christmas Tree Lighting and Holiday Park",
+   "city": "Coral Gables",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "junior-orange-bowl-miracle-on-the-mile-2026",
+   "name": "Junior Orange Bowl Miracle on the Mile Holiday Parade",
+   "city": "Coral Gables",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "homestead-winter-wonderland-2026",
+   "name": "Discover Homestead: Winter Wonderland Experience",
+   "city": "Homestead",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "miracle-on-calle-ocho-casa-tiki-2026",
+   "name": "Miracle on Calle Ocho at Casa Tiki",
+   "city": "Miami",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "key-west-lighted-boat-parade-2026",
+   "name": "Key West Lighted Boat Parade (35th, Schooner Wharf)",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "key-west-hometown-holiday-parade-2026",
+   "name": "Key West Hometown Holiday Parade",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "key-west-custom-house-concert-bazaar-2026",
+   "name": "Holiday Concert & Bazaar at the Custom House",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "studios-of-key-west-holiday-makers-market-2026",
+   "name": "Holiday Makers Market at The Studios of Key West",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wesley-house-holiday-village-belighted-2026",
+   "name": "Holiday Village & BeLighted Bike Ride",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "key-west-waterfront-winter-wonderland-2026",
+   "name": "Waterfront Winter Wonderland (2nd annual)",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "nutcracker-key-west-2026",
+   "name": "Nutcracker Key West",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "conch-train-holiday-lights-tour-2026",
+   "name": "Conch Tour Train Holiday Sights and Festive Nights Tour",
+   "city": "Key West",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "islamorada-holiday-fest-2026",
+   "name": "Islamorada Holiday Fest (22nd annual)",
+   "city": "Islamorada",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "key-largo-boat-parade-2026",
+   "name": "Key Largo Boat Parade (41st)",
+   "city": "Key Largo",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "marathon-festival-of-trees-2026",
+   "name": "Zonta Festival of Trees (16th)",
+   "city": "Marathon",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "key-colony-beach-boat-parade-2026",
+   "name": "Key Colony Beach Christmas Boat Parade",
+   "city": "Key Colony Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "deland-christmas-boat-parade-2026",
+   "name": "DeLand Christmas Boat Parade",
+   "city": "DeLand",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "deland-christmas-craft-fair-2026",
+   "name": "DeLand Christmas Craft Fair",
+   "city": "DeLand",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "daytona-christmas-parade-2026",
+   "name": "Daytona Beach Christmas Parade",
+   "city": "Daytona Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "volusia-civic-ballet-nutcracker-2026",
+   "name": "Volusia Civic Ballet's The Nutcracker",
+   "city": "Daytona Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "mannheim-steamroller-peabody-2026",
+   "name": "Mannheim Steamroller Christmas",
+   "city": "Daytona Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "we-three-kings-peabody-2026",
+   "name": "We Three Kings: The Irish Dance Christmas Sensation",
+   "city": "Daytona Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ormond-home-for-holidays-2026",
+   "name": "Home for the Holidays Nighttime Parade and Tree Lighting",
+   "city": "Ormond Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "nsb-spark-the-spirit-2026",
+   "name": "Spark the Spirit: Christmas on Canal Street tree lighting",
+   "city": "New Smyrna Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "nsb-coastal-christmas-market-2026",
+   "name": "Coastal Christmas Market on Canal Street",
+   "city": "New Smyrna Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "port-orange-christmas-in-the-park-2026",
+   "name": "Christmas in the Park",
+   "city": "Port Orange",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "port-orange-holiday-parade-2026",
+   "name": "Port Orange Holiday Parade",
+   "city": "Port Orange",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "debary-tree-lighting-chili-2026",
+   "name": "DeBary Tree Lighting & Chili Cook-off",
+   "city": "DeBary",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "debary-winter-walk-of-lights-2026",
+   "name": "Winter Walk of Lights",
+   "city": "DeBary",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "debary-christmas-parade-2026",
+   "name": "DeBary Christmas Parade",
+   "city": "DeBary",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "deltona-holiday-parade-2026",
+   "name": "Deltona's Holiday Parade: Sounds of the Season",
+   "city": "Deltona",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "edgewater-light-up-the-night-2026",
+   "name": "Light Up the Night at Hawks Park",
+   "city": "Edgewater",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "edgewater-edgefest-christmas-parade-2026",
+   "name": "Edgewater EDGEfest Christmas Parade",
+   "city": "Edgewater",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "titusville-christmas-parade-2026",
+   "name": "Titusville Christmas Parade",
+   "city": "Titusville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "titusville-gift-of-light-2026",
+   "name": "Gift of Light Community Celebration",
+   "city": "Titusville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "titusville-jolly-jubilee-2026",
+   "name": "Jolly Jubilee",
+   "city": "Titusville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "titusville-playhouse-christmas-carol-2026",
+   "name": "A Christmas Carol at Titusville Playhouse",
+   "city": "Titusville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "titusville-playhouse-hoop-holidays-2026",
+   "name": "Steven's Hoop N' Holidays",
+   "city": "Titusville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "cocoa-village-holiday-bazaar-2026",
+   "name": "Cocoa Village Holiday Art and Craft Bazaar",
+   "city": "Cocoa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "cocoa-village-hot-cocoa-holidays-2026",
+   "name": "Hot Cocoa Holidays in Cocoa Village",
+   "city": "Cocoa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "merritt-island-holiday-parade-2026",
+   "name": "Merritt Island Holiday Parade",
+   "city": "Merritt Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "merritt-island-christmas-market-magnolia-2026",
+   "name": "Christmas Market on Magnolia",
+   "city": "Merritt Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "merritt-island-light-up-magnolia-2026",
+   "name": "Light Up Magnolia",
+   "city": "Merritt Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "surfing-santas-cocoa-beach-2026",
+   "name": "Surfing Santas of Cocoa Beach",
+   "city": "Cocoa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "cocoa-beach-boat-parade-2026",
+   "name": "Cocoa Beach Holiday Boat Parade",
+   "city": "Cocoa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "cocoa-beach-christmas-parade-2026",
+   "name": "Cocoa Beach Christmas Parade",
+   "city": "Cocoa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "cocoa-beach-winterfest-2026",
+   "name": "Cocoa Beach WinterFest",
+   "city": "Cocoa Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "port-canaveral-disney-merrytime-cruise-2026",
+   "name": "Disney Very Merrytime Cruise from Port Canaveral",
+   "city": "Cape Canaveral",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "melbourne-holiday-market-2026",
+   "name": "City of Melbourne Holiday Market",
+   "city": "Melbourne",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "melbourne-breakfast-santa-2026",
+   "name": "Breakfast with Santa (City of Melbourne)",
+   "city": "Melbourne",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "egad-tree-lighting-2026",
+   "name": "Eau Gallie Arts District Tree Lighting",
+   "city": "Melbourne",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "festival-of-trees-melbourne-2026",
+   "name": "Festival of Trees (Junior League of the Space Coast)",
+   "city": "Melbourne",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "space-coast-nutcracker-king-center-2026",
+   "name": "The Nutcracker (Space Coast Ballet)",
+   "city": "Melbourne",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "space-coast-holiday-food-fest-2026",
+   "name": "Space Coast Holiday Food Fest & Craft Fair",
+   "city": "Melbourne",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "light-up-rockledge-2026",
+   "name": "Light Up Rockledge",
+   "city": "Rockledge",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "palm-bay-holiday-light-parade-2026",
+   "name": "Palm Bay Holiday Light Parade",
+   "city": "Palm Bay",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "indialantic-tree-lighting-2026",
+   "name": "Indialantic Christmas Tree Lighting",
+   "city": "Indialantic",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "sebastian-light-up-night-2026",
+   "name": "Light Up Night Sebastian",
+   "city": "Sebastian",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "manatee-river-boat-parade-2026",
+   "name": "Manatee River Holiday Boat Parade",
+   "city": "Bradenton",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "bradenton-winter-wonderland-2026",
+   "name": "Winter Wonderland on Old Main Street",
+   "city": "Bradenton",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "lwr-holiday-of-the-arts-2026",
+   "name": "Lakewood Ranch Holiday of the Arts",
+   "city": "Lakewood Ranch",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "lwr-christmas-on-main-2026",
+   "name": "Christmas on Main",
+   "city": "Lakewood Ranch",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "light-up-longboat-2026",
+   "name": "Light Up Longboat",
+   "city": "Longboat Key",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "sarasota-holiday-parade-2026",
+   "name": "Sarasota Holiday Parade (30th)",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "sarasota-holiday-boat-parade-2026",
+   "name": "Sarasota Holiday Boat Parade",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "st-armands-holiday-night-of-lights-2026",
+   "name": "Holiday Night of Lights (48th)",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "utc-holidays-2026",
+   "name": "Holidays at UTC (season)",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "utc-rink-2026",
+   "name": "The Rink at UTC",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "utc-wonderland-circus-2026",
+   "name": "Wonderland Circus by Nik Wallenda",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "asolo-wonderful-life-2026",
+   "name": "It's a Wonderful Life: A Live Radio Play",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wbtt-motown-christmas-2026",
+   "name": "A Motown Christmas",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "sarasota-orchestra-happy-holley-days-2026",
+   "name": "Happy Holley Days",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ugly-sweater-pub-crawl-sarasota-2026",
+   "name": "Do The Ugly Sweater Pub Crawl Sarasota",
+   "city": "Sarasota",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "siesta-key-holiday-parade-2026",
+   "name": "Siesta Key Holiday Parade and Santa Visit",
+   "city": "Siesta Key",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "venice-holiday-parade-2026",
+   "name": "City of Venice Holiday Parade (50th)",
+   "city": "Venice",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "venice-christmas-walk-2026",
+   "name": "Christmas Walk (Downtown Venice)",
+   "city": "Venice",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "venice-christmas-boat-parade-2026",
+   "name": "Venice Christmas Boat Parade",
+   "city": "Venice",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "wellen-wonderland-2026",
+   "name": "Wellen Wonderland",
+   "city": "Venice",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "north-port-poinsettia-parade-2026",
+   "name": "Poinsettia Parade and Festival",
+   "city": "North Port",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "fort-myers-holiday-house-stroll-2026",
+   "name": "Holiday House and Holiday House Stroll (Fort Myers River District)",
+   "city": "Fort Myers",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "river-district-december-art-walk-holiday-market-2026",
+   "name": "December Art Walk and Holiday Artisan Market",
+   "city": "Fort Myers",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fort-myers-santacon-bar-crawl-2026",
+   "name": "Fort Myers SantaCon Bar Crawl 2026",
+   "city": "Fort Myers",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "bbmann-gulfshore-ballet-nutcracker-2026",
+   "name": "The Nutcracker with Gulfshore Ballet and Gulf Coast Symphony",
+   "city": "Fort Myers",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "bbmann-nutcracker-magical-christmas-ballet-2026",
+   "name": "NUTCRACKER! Magical Christmas Ballet (touring production)",
+   "city": "Fort Myers",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fmb-illuminations-walking-parade-2026",
+   "name": "Illuminations Walking Parade (2nd annual)",
+   "city": "Fort Myers Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "cape-coral-holiday-festival-of-lights-2026",
+   "name": "Holiday Festival of Lights (Cape Coral Parkway)",
+   "city": "Cape Coral",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "cultural-park-theatre-holiday-lighting-2026",
+   "name": "4th Annual Holiday Lighting Ceremony at Cultural Park Theatre",
+   "city": "Cape Coral",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "coconut-point-tropical-holiday-celebration-2026",
+   "name": "Coconut Point Tropical Holiday Celebration (4th annual)",
+   "city": "Estero",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "bonita-kris-kringle-village-2026",
+   "name": "Kris Kringle Village",
+   "city": "Bonita Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "bonita-christmas-eve-candlelight-2026",
+   "name": "Christmas Eve Candle Light Service at Riverside Park",
+   "city": "Bonita Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "miracle-bonita-springs-naples-coastal-kitchen-2026",
+   "name": "Miracle at Naples Coastal Kitchen (holiday pop up bar)",
+   "city": "Bonita Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "sanibel-luminary-holiday-stroll-2026",
+   "name": "Sanibel Luminary Holiday Stroll (40th annual)",
+   "city": "Sanibel",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "captiva-luminary-celebration-2026",
+   "name": "Captiva Luminary Celebration",
+   "city": "Captiva",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "captiva-holiday-golf-cart-parade-2026",
+   "name": "Captiva Holiday Golf Cart Parade",
+   "city": "Captiva",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "christmas-on-third-naples-2026",
+   "name": "Christmas on Third (49th annual): Tree Lighting and Thanksgiving Week Snowfall",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "fifth-avenue-south-christmas-walk-2026",
+   "name": "Christmas on 5th Avenue: Christmas Walk and Tree Lighting",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "naples-christmas-parade-2026",
+   "name": "City of Naples Christmas Parade",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "naples-bay-christmas-boat-parade-2026",
+   "name": "Christmas Boat Parade on Naples Bay",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "artis-naples-holiday-pops-2026",
+   "name": "Holiday Pops with the Naples Philharmonic",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "naples-ballet-nutcracker-artis-2026",
+   "name": "The Nutcracker with Naples Ballet and the Naples Philharmonic",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gulfshore-playhouse-christmas-carol-2026",
+   "name": "A Christmas Carol (new adaptation by Kristen Coury)",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "marco-tree-lighting-christmas-island-style-2026",
+   "name": "Marco Island Tree Lighting and Community Celebration",
+   "city": "Marco Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "marco-street-parade-2026",
+   "name": "Christmas Island Style Annual Street Parade",
+   "city": "Marco Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "marco-boat-parade-2026",
+   "name": "Christmas Island Style 39th Annual Boat Parade",
+   "city": "Marco Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "immokalee-cowboy-christmas-2026",
+   "name": "Cowboy Christmas",
+   "city": "Immokalee",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "clewiston-santa-express-2026",
+   "name": "Santa Express from Clewiston",
+   "city": "Clewiston",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "firehouse-theatre-doublewide-texas-christmas-2026",
+   "name": "A Doublewide, Texas Christmas",
+   "city": "LaBelle",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "king-fisher-christmas-light-canal-cruise-2026",
+   "name": "Punta Gorda Christmas Light Canal Cruises",
+   "city": "Punta Gorda",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "punta-gorda-isles-boat-parade-2026",
+   "name": "Saturday Night Before Christmas Eve Boat Parade",
+   "city": "Punta Gorda",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "charlotte-county-chamber-christmas-parade-2026",
+   "name": "48th Annual Charlotte County Chamber Christmas Parade",
+   "city": "Punta Gorda",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "punta-gorda-light-up-the-night-2026",
+   "name": "Light Up the Night Tree Lighting",
+   "city": "Punta Gorda",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "enchanted-holiday-experience-port-charlotte-2026",
+   "name": "Enchanted Holiday Circus and Santa's Village",
+   "city": "Port Charlotte",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "boca-grande-tree-lighting-2026",
+   "name": "Boca Grande Annual Christmas Tree Lighting",
+   "city": "Boca Grande",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tampa-santa-fest-parade-tree-lighting-2026",
+   "name": "Tampa Santa Fest Parade and Tree Lighting",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "tampa-riverwalk-holiday-harbour-tree-lighting-2026",
+   "name": "Holiday Harbour Tree Lighting and Holiday Spectacular",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "water-street-season-spectacular-2026",
+   "name": "Season Spectacular",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "hallucination-before-christmas-castle-ybor-2026",
+   "name": "Hallucination Before Christmas",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tampa-ugly-sweater-pub-crawl-2026",
+   "name": "Do The Ugly Sweater Pub Crawl Tampa",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "miracle-strandhill-tampa-2026",
+   "name": "Miracle at Strandhill Public",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "yacht-starship-tampa-santa-brunch-cruise-2026",
+   "name": "Tampa Santa Brunch Cruise",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "yacht-starship-tampa-christmas-eve-dinner-2026",
+   "name": "Tampa Christmas Eve Dinner Cruise",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "yacht-starship-tampa-boat-parade-dinner-cruise-2026",
+   "name": "Holiday Lighted Boat Parade Dinner Cruise",
+   "city": "Tampa",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "christmas-lane-plant-city-2026",
+   "name": "Christmas Lane",
+   "city": "Plant City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "plant-city-lights-of-love-tree-lighting-2026",
+   "name": "Lights of Love Tree Lighting",
+   "city": "Plant City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "plant-city-merry-market-2026",
+   "name": "Plant City Merry Market",
+   "city": "Plant City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wiregrass-symphony-in-lights-2026",
+   "name": "Symphony in Lights Kickoff",
+   "city": "Wesley Chapel",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "celebration-of-lights-concourse-2026",
+   "name": "Celebration of Lights at The Concourse",
+   "city": "Shady Hills",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "dade-city-christmas-parade-2026",
+   "name": "Dade City Christmas Parade",
+   "city": "Dade City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "dade-city-christmas-stroll-2026",
+   "name": "Dade City Christmas Stroll",
+   "city": "Dade City",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "brandon-parade-of-lights-2026",
+   "name": "Brandon Parade of Lights",
+   "city": "Brandon",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "st-pete-santa-parade-tree-lighting-2026",
+   "name": "98th Annual Santa Parade and Tree Lighting",
+   "city": "St. Petersburg",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "st-pete-santacon-bar-crawl-2026",
+   "name": "St. Petersburg SantaCon Bar Crawl 2026",
+   "city": "St. Petersburg",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "star-trolley-st-pete-holiday-lights-2026",
+   "name": "St. Pete Holiday Lights Trolley Tour",
+   "city": "St. Petersburg",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "st-pete-christmas-classic-car-cart-parade-2026",
+   "name": "Christmas Classic Car and Cart Parade",
+   "city": "Treasure Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "clearwater-bright-beautiful-tree-lighting-2026",
+   "name": "Clearwater's Bright and Beautiful Tree Lighting",
+   "city": "Clearwater",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "clearwater-festival-of-trees-2026",
+   "name": "Festival of Trees",
+   "city": "Clearwater",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "clearwater-yacht-club-holiday-boat-parade-2026",
+   "name": "52nd Annual Holiday Lighted Boat Parade",
+   "city": "Clearwater",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "florida-botanical-gardens-holiday-lights-2026",
+   "name": "Holiday Lights in the Gardens",
+   "city": "Largo",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "dunedin-holiday-parade-old-fashioned-christmas-2026",
+   "name": "Holiday Parade and Old Fashioned Christmas",
+   "city": "Dunedin",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "safety-harbor-tree-lighting-2026",
+   "name": "Safety Harbor Tree Lighting",
+   "city": "Safety Harbor",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "safety-harbor-holiday-parade-2026",
+   "name": "Safety Harbor Holiday Parade",
+   "city": "Safety Harbor",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "safety-harbor-holiday-arts-crafts-show-2026",
+   "name": "Holiday Arts and Crafts Show",
+   "city": "Safety Harbor",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "tarpon-springs-snow-place-boat-parade-2026",
+   "name": "There's Snow Place Like Tarpon Springs and Boat Parade",
+   "city": "Tarpon Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tarpon-springs-cartin-tarpon-golf-cart-parade-2026",
+   "name": "Cartin' Tarpon Christmas Golf Cart Parade",
+   "city": "Tarpon Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "madeira-beach-merry-beach-market-2026",
+   "name": "Merry Beach Market Holiday Festival",
+   "city": "Madeira Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "madeira-beach-festival-of-lights-boat-parade-2026",
+   "name": "60th Annual Madeira Beach Festival of Lights Boat Parade",
+   "city": "Madeira Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "treasure-island-holiday-lighted-boat-parade-2026",
+   "name": "Treasure Island Holiday Lighted Boat Parade",
+   "city": "Treasure Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "indian-rocks-beach-christmas-boat-parade-2026",
+   "name": "Indian Rocks Beach Christmas Boat Parade",
+   "city": "Indian Rocks Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "indian-rocks-beach-tree-lighting-2026",
+   "name": "Indian Rocks Beach Christmas Tree Lighting",
+   "city": "Indian Rocks Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "gulfport-boca-ciega-christmas-boat-parade-2026",
+   "name": "Boca Ciega Yacht Club Christmas Boat Parade",
+   "city": "Gulfport",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "palm-harbor-christmas-parade-tree-lighting-2026",
+   "name": "Palm Harbor Christmas Parade and Tree Lighting",
+   "city": "Palm Harbor",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "pinellas-park-holiday-christmas-parade-2026",
+   "name": "Pinellas Park Holiday Christmas Parade",
+   "city": "Pinellas Park",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "vero-beach-christmas-parade-2026",
+   "name": "Vero Beach Christmas Parade",
+   "city": "Vero Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "vero-boat-parade-2026",
+   "name": "Vero Beach Christmas Boat Parade",
+   "city": "Vero Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "ballet-vb-nutcracker-2026",
+   "name": "Nutcracker on the Indian River (Ballet Vero Beach)",
+   "city": "Vero Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "vero-mythical-christmas-tree-2026",
+   "name": "The Mythical Christmas Tree",
+   "city": "Vero Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "elc-wintergreen-2026",
+   "name": "WinterGreen Night Lights",
+   "city": "Vero Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fort-pierce-sights-sounds-2026",
+   "name": "Sights and Sounds on Second Christmas Parade and Tree Lighting",
+   "city": "Fort Pierce",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fort-pierce-sunrise-nutcracker-2026",
+   "name": "St. Lucie Ballet's The Nutcracker",
+   "city": "Fort Pierce",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "fairgrounds-festival-of-lights-2026",
+   "name": "Fairgrounds Festival of Lights",
+   "city": "Fort Pierce",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "st-lucie-boat-parade-2026",
+   "name": "St. Lucie County Christmas Boat Parade",
+   "city": "Fort Pierce",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "psl-festival-of-lights-2026",
+   "name": "Festival of Lights and Tree Lighting",
+   "city": "Port St. Lucie",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "psl-noche-buena-2026",
+   "name": "Noche Buena at The Port",
+   "city": "Port St. Lucie",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "tradition-tree-lighting-2026",
+   "name": "Tradition Annual Tree Lighting",
+   "city": "Port St. Lucie",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "stuart-christmas-on-main-2026",
+   "name": "Christmas on Main (Stuart Tree Lighting)",
+   "city": "Stuart",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "stuart-christmas-parade-2026",
+   "name": "Stuart Christmas Parade",
+   "city": "Stuart",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "martin-boat-parade-2026",
+   "name": "Martin County Christmas Boat Parade",
+   "city": "Stuart",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "stuart-lyric-nutcracker-2026",
+   "name": "St. Lucie Ballet's The Nutcracker at the Lyric",
+   "city": "Stuart",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "stuart-fadc-nutcracker-2026",
+   "name": "FADC's The Nutcracker at the Lyric",
+   "city": "Stuart",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jensen-beach-tree-lighting-2026",
+   "name": "Jensen Beach Christmas Tree Lighting",
+   "city": "Jensen Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "hobe-sound-christmas-parade-2026",
+   "name": "Hobe Sound Christmas Parade (40th)",
+   "city": "Hobe Sound",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "palm-beach-boat-parade-2026",
+   "name": "Palm Beach Holiday Boat Parade",
+   "city": "Juno Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "jupiter-luminary-nights-2026",
+   "name": "Luminary Nights at Jupiter Inlet Lighthouse",
+   "city": "Jupiter",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jupiter-rendezvous-light-2026",
+   "name": "Rendezvous at the Light",
+   "city": "Jupiter",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jupiter-tree-lighting-2026",
+   "name": "Jupiter Holiday Tree Lighting",
+   "city": "Jupiter",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jtaa-jupiter-tequesta-parade-2026",
+   "name": "Jupiter Tequesta Christmas Parade (50th)",
+   "city": "Jupiter",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "busch-hootenanny-2026",
+   "name": "Holiday Hootenanny at Busch Wildlife Sanctuary",
+   "city": "Jupiter",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "npb-tree-lighting-2026",
+   "name": "North Palm Beach Tree Lighting Ceremony",
+   "city": "North Palm Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "pbg-tree-lighting-2026",
+   "name": "Palm Beach Gardens Tree Lighting",
+   "city": "Palm Beach Gardens",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ballet-palm-beach-nutcracker-2026",
+   "name": "The Nutcracker (Ballet Palm Beach)",
+   "city": "West Palm Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lwb-tree-lighting-2026",
+   "name": "Lake Worth Beach Tree Lighting",
+   "city": "Lake Worth Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "lwb-holiday-parade-2026",
+   "name": "Lake Worth Beach Holiday Parade",
+   "city": "Lake Worth Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "agc-christkindlmarkt-2026",
+   "name": "Christkindlmarkt at the American German Club",
+   "city": "Lake Worth",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "boynton-tree-lighting-2026",
+   "name": "Boynton Beach Holiday Tree Lighting (55th)",
+   "city": "Boynton Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "boynton-boat-parade-2026",
+   "name": "Boynton Beach Holiday Boat Parade (Lantana to Delray)",
+   "city": "Boynton Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "miracle-novecento-delray-2026",
+   "name": "Miracle at Novecento Delray",
+   "city": "Delray Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "boca-tree-lighting-2026",
+   "name": "Boca Raton Holiday Tree Lighting and Mizner Park lights",
+   "city": "Boca Raton",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "boca-street-parade-2026",
+   "name": "Boca Raton Holiday Street Parade (54th)",
+   "city": "Boca Raton",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "boca-holiday-pops-2026",
+   "name": "Holiday Pops with The Symphonia",
+   "city": "Boca Raton",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "merry-in-mizner-2026",
+   "name": "Merry in Mizner",
+   "city": "Boca Raton",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wellington-holiday-parade-2026",
+   "name": "Wellington Holiday Parade (42nd)",
+   "city": "Wellington",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "wellington-tree-lighting-2026",
+   "name": "Wellington Holiday Cultural Celebration and Tree Lighting",
+   "city": "Wellington",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "rpb-winter-fest-2026",
+   "name": "Royal Palm Beach Winter Fest and Tree Lighting",
+   "city": "Royal Palm Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "palm-springs-tree-lighting-2026",
+   "name": "Village of Palm Springs Holiday Tree Lighting",
+   "city": "Palm Springs",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. corrected viewing spot, place_id intentionally null"
+  },
+  {
+   "id": "seminolegulf-northpolenoir-fortmyers-2026",
+   "name": "North Pole Noir Christmas Murder Mystery Dinner Train",
+   "city": "Fort Myers",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "ritz-amelia-santa-gingerbread-2026",
+   "name": "Ritz-Carlton Amelia Island Santa Breakfast, Storybook Tea and Gingerbread Workshops",
+   "city": "Amelia Island",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "doncesar-christmas-brunch-2026",
+   "name": "Christmas Brunch at The Don CeSar",
+   "city": "St. Pete Beach",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "communitynutcracker-jax-2026",
+   "name": "Community Nutcracker",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "jaxsymphony-holidaypops-2026",
+   "name": "Holiday Pops (Jacksonville Symphony)",
+   "city": "Jacksonville",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "naplescommunity-holidaypops-2026",
+   "name": "Holiday Pops (Naples Community Orchestra)",
+   "city": "Naples",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  },
+  {
+   "id": "wdw-holidays-2026",
+   "name": "Holidays at Walt Disney World",
+   "city": "Bay Lake",
+   "headliner": false,
+   "reason": "no licensed photo added: image downloads blocked in this lane (commons.wikimedia.org API and upload.wikimedia.org return HTTP 429/400 from the shared egress IP; Exa returns text only), so nothing could be fetched, cropped or license-verified. no place_id (no venue identity resolved)"
+  }
+ ]
+}
