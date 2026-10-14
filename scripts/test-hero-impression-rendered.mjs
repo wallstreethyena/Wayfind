@@ -20,6 +20,7 @@ import path from "node:path";
 import { createRequire } from "node:module";
 
 const ts = createRequire(import.meta.url)("typescript");
+const A = await import(path.resolve("lib/analytics.js"));
 const src = readFileSync(path.resolve("app/home.js"), "utf8");
 const sf = ts.createSourceFile("home.js", src, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JSX);
 
@@ -74,6 +75,9 @@ for (const call of calls) {
   }
 }
 
+// Real lib/analytics.js: both hero events stay analytics-only (never a conversion).
+ok(A.classify("hero_impression") === "analytics" && A.classify("hero_tap") === "analytics", "lib/analytics.js (real import) classifies hero events analytics-only");
+ok(A.PRIMARY_EVENTS.indexOf("hero_impression") < 0, "hero_impression is not a primary conversion");
 // Anchor: the guard must be able to see the thing it protects.
 ok(decls.has("heroImpression") && decls.has("heroTap"), "heroImpression/heroTap helpers are still declared (analytics-only events stay classified)");
 ok(sf.statements.length > 100, "home.js parsed to a real program (a 0 here would prove nothing)");
