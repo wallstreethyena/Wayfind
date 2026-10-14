@@ -3,6 +3,7 @@
 // like a modal: destination photography on the left, a warm editorial panel on
 // the right, an immediate product promise, and a single route into Wayfind.
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+import SafeImg from "./SafeImg";
 export default function PremiumIntentHero({ eyebrow, location, title, description, image, primaryHref = null, primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
   // A page that cannot be left is a dead end; default out to the app root.
   backHref = null, backLabel = "Wayfind",
@@ -76,7 +77,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
       </div>
       <header className="wf-intent-hero">
         <div className="wf-intent-photo">
-          <img src={image} alt="" />
+          <SafeImg src={image} alt="" fallbackStyle={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
           <div className="wf-intent-caption">{caption || <>A better decision<br />is closer than you think.</>}</div>
         </div>
         <div className="wf-intent-panel">

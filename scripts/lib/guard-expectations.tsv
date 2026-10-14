@@ -314,7 +314,7 @@ scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	75
 scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	24ed6d53c226e2ab040a9fe0ab92e8b73eb03f0d513a6cd6a036e7118e92aa23
 scripts/check-photo-credit-under-headline.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	1c37d6aa092454eacc832ab61f7c3442363cc6c30424ad0dd852adf7c99e8cc4
 scripts/check-photo-outcome-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	94e684a594407efa3310a4775d949b69abca7bd5397e6cb19b28a9db202e9d7f
-scripts/check-photo-surface-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	52a172d4792e0d22065f18445c60087005e685ced91594f8b5761ff2abe428c2
+scripts/check-photo-surface-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	94804163d80e44f6875741803a277472c13397e6db868f53c6ccd498877ddfd5
 scripts/check-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	0f42671f28fa7d2880c503f655e25bf018ec955eeb148042c6198f1853a5a85e
 scripts/check-pick-medallion.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	7	2	2	f76832d4b34fa0cb56455d18deba640e9ca9f1f6352afdb4755390b07ddf5ce0
 scripts/check-pin-quarantine-live.mjs	0	RENDER	blocks-ci-and-deploy	1	Revenue QA	44	0	0	3bd1c8938ac355bebcaf21c428367e62840f6984a5151765a97629080fed19eb
@@ -673,6 +673,7 @@ scripts/test-hotel-image-resolver.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	3
 scripts/test-house-card-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	2ad4a866acba6fa3520517283f64059f9366e58a6535cfc0c555b0f467a31083
 scripts/test-idle-defer.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	8feabfde61417041b34e6c57e33297d5f8adbc84944ee2f28b80f00587bfc3fd
 scripts/test-image-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	1dc194826a9b316fc079409203adf83e793789f9f162b5c045632ace442365a9
+scripts/test-image-health.mjs	0	RENDER	blocks-ci-and-deploy	1	-	67	0	0	3fa94ec4f0dc05ad42b15a605e484850c04b48c98f49508c7f79ffe5894b167b
 scripts/test-image-score.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0	54b58d2f15300f2d6902703a73cefc646485fe29d92e1ef86b89907e234066b3
 scripts/test-intent-composition.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	d7625b1da6451ca20ece21e7b512b8f6c334a078836fe7f935545f3249bae999
 scripts/test-intent-header-clarity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	733eb9df463b7e7dc682fdd685426d17bb2179e2f059507dea43d1d83a52bcfc

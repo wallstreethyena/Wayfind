@@ -18,6 +18,7 @@
 // history-back-to-close via ctx.sheetDragStart et al, wired in home.js the
 // same way DetailSheet is).
 import { useMemo } from "react";
+import SafeImg from "../SafeImg";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage, creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../../../lib/creatorVideos";
 import { captionFor } from "../../../lib/creatorCaptions";
@@ -263,7 +264,7 @@ export default function SocialFindSheet({ ctx }) {
         <Grabber />
         <div style={{ position: "relative", height: 190, overflow: "hidden", borderRadius: "20px 20px 0 0" }}>
           {photo
-            ? <img src={photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+            ? <SafeImg src={photo} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
             : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${plat.color}3D 0%, #171C26 55%, #0B0E14 100%)` }} />}
           <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.1) 0%, rgba(0,0,0,.42) 55%, rgba(0,0,0,.9) 100%)" }} />
           <button onClick={close} aria-label="Close" style={closeBtnOverlay}>✕</button>
@@ -308,7 +309,7 @@ export default function SocialFindSheet({ ctx }) {
                       style={{ flexShrink: 0, width: 130, textAlign: "left", scrollSnapAlign: "start", background: "none", border: "none", padding: 0, cursor: "pointer" }}
                     >
                       <div style={{ position: "relative", width: 130, height: 90, borderRadius: 12, overflow: "hidden", background: C.card, marginBottom: 6 }}>
-                        {ophoto ? <img src={ophoto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${op.color}3D 0%, #171C26 100%)` }} />}
+                        {ophoto ? <SafeImg src={ophoto} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${op.color}3D 0%, #171C26 100%)` }} />}
                         <div aria-hidden="true" style={{ position: "absolute", top: 5, left: 5, width: 8, height: 8, borderRadius: "50%", background: op.color, boxShadow: `0 0 6px 1px ${op.color}` }} />
                       </div>
                       <div style={{ fontSize: 12, fontWeight: 700, color: C.text, lineHeight: 1.25, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{o.place.name}</div>

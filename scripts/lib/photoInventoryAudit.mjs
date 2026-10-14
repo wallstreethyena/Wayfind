@@ -143,9 +143,10 @@ const IMPORT_SIGNALS = [
   ["cardPhotoRequest", /\bcardPhotoRequest\b/],
   ["railPhotoSrc", /\brailPhotoSrc\b/],
   ["FallbackImg", /\bFallbackImg\b/],
+  ["SafeImg", /\bSafeImg\b/],
   ["<img", /<img\b/],
 ];
-const FALLBACK_RX = /FallbackImg|onError|monogram|imageState|<CardPhoto\b|<RailCard\b|<IconicPlaceCard\b/;
+const FALLBACK_RX = /FallbackImg|SafeImg|PhotoFallbackTile|onError|monogram|imageState|<CardPhoto\b|<RailCard\b|<IconicPlaceCard\b/;
 
 function stripComments(src) {
   return src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:\\])\/\/.*$/gm, "$1");
