@@ -489,7 +489,7 @@ async function main() {
   let res;
   try { res = await runWatch({ anchors, today, fetchImpl, sb, paceMs, probeLink }); }
   catch (e) {
-    const note = `cannot run: ${String(e && e.message || e).slice(0, 150)}`;
+    const note = `unavailable: cannot run: ${String(e && e.message || e).slice(0, 150)}`; // "unavailable:" is a deterministic-failure prefix (lib/jobPulse): job-watch pages on ONE such run, not after two days
     console.error("anchor-watch: " + note);
     if (!o.dry) { try { await recordPulse("anchor-watch", { attempted: anchors.length, succeeded: 0, failed: anchors.length, note }); } catch { /* fail-soft */ } }
     process.exit(1);

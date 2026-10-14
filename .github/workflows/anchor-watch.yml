@@ -18,6 +18,17 @@
 # 11:17 UTC is deliberately off the :00/:30/:50 canaries and the 04:20
 # photo-repair worker. Heartbeat tolerance for the `anchor-watch` pulse is in
 # supabase/migrations/20261014120000_wf_heartbeat_anchor_watch.sql.
+# TWO JOBS, TWO TRUST LEVELS.
+#   watch        schedule + dispatch. contents:read, issues:write. Reads the DB
+#                (GET only) and opens an issue. Never writes wf_events.
+#   apply-fixes  workflow_dispatch ONLY, and only with fixes_file set. Runs in the
+#                `production-data` environment (add required reviewers there:
+#                repo Settings -> Environments -> production-data). contents:read
+#                only. dry run first (fails on any conflict), then the conditional
+#                apply, then audit.jsonl + rollback.json are uploaded.
+# The service-role key is referenced ONLY by the DB-reading step of `watch` and
+# the two apply steps of `apply-fixes`. fixes_file reaches the shell via env
+# only, never by interpolation.
 name: anchor-watch
 on:
   schedule:
@@ -30,23 +41,26 @@ on:
         default: ""
 permissions:
   contents: read
-  issues: write
-concurrency:
-  group: anchor-watch
-  cancel-in-progress: false
 
 jobs:
   watch:
     name: major Florida events watch
     runs-on: ubuntu-latest
     timeout-minutes: 20   # ~1s pacing per page; a few dozen anchors finish in minutes
+    permissions:
+      contents: read
+      issues: write
+    concurrency:
+      group: anchor-watch
+      cancel-in-progress: false
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-      - name: Require watcher credentials
+      - name: Run anchor watch (requires credentials; reads the database)
+        id: watch
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -55,12 +69,7 @@ jobs:
             echo "::error::anchor-watch requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
             exit 1
           fi
-      - name: Run anchor watch
-        id: watch
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-        run: node scripts/anchor-events/watch.mjs --out report.md
+          node scripts/anchor-events/watch.mjs --out report.md
       - name: Open one issue per day when there are findings
         if: steps.watch.outputs.findings != '' && steps.watch.outputs.findings != '0'
         env:
@@ -75,20 +84,74 @@ jobs:
             exit 0
           fi
           gh issue create --title "$TITLE" --body-file report.md
-      # The scheduled run NEVER applies: fixes_file is only ever set by a person
-      # starting this workflow by hand, and only for a file that is committed in
-      # this repo (reviewed in a PR). apply.mjs enforces the field allowlist,
-      # an https source_url and the Florida bounding box before any request.
-      - name: Apply reviewed fixes (manual runs only)
-        if: github.event_name == 'workflow_dispatch' && inputs.fixes_file != ''
-        env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          FIXES_FILE: ${{ inputs.fixes_file }}
+
+  apply-fixes:
+    name: apply reviewed fixes (manual, approved)
+    # Never on the schedule; only a person starting the workflow with a file.
+    if: github.event_name == 'workflow_dispatch' && inputs.fixes_file != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production-data
+    permissions:
+      contents: read
+    concurrency:
+      group: anchor-fixes
+      cancel-in-progress: false
+    env:
+      FIXES_FILE: ${{ inputs.fixes_file }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Validate fixes_file path
         run: |
           case "$FIXES_FILE" in
             scripts/anchor-events/fixes/*.json) ;;
             *) echo "::error::fixes_file must be scripts/anchor-events/fixes/*.json"; exit 1 ;;
           esac
           case "$FIXES_FILE" in *..*) echo "::error::bad path"; exit 1 ;; esac
-          node scripts/anchor-events/apply.mjs --apply "$FIXES_FILE"
+          [ -f "$FIXES_FILE" ] || { echo "::error::fixes_file not found in this checkout"; exit 1; }
+      - name: Dry run (fails on any conflict, refusal or read error)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -o pipefail
+          node scripts/anchor-events/apply.mjs --dry "$FIXES_FILE" | tee dry-run.txt
+      - name: Apply (conditional writes, re-checked at write time)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          set -o pipefail
+          node scripts/anchor-events/apply.mjs --apply --audit audit.jsonl --rollback rollback.json "$FIXES_FILE" | tee apply.txt
+      - name: Upload audit log and rollback file
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: anchor-fixes-${{ github.run_id }}
+          path: |
+            audit.jsonl
+            rollback.json
+            dry-run.txt
+            apply.txt
+          if-no-files-found: warn
+          retention-days: 90
+      - name: Summary
+        if: always()
+        run: |
+          {
+            echo "### anchor fixes: \`$FIXES_FILE\`"
+            echo
+            if [ -s audit.jsonl ]; then
+              echo "| event_id | field | before | after |"
+              echo "|---|---|---|---|"
+              node -e 'for (const l of require("fs").readFileSync("audit.jsonl","utf8").trim().split("\n")) { const c = JSON.parse(l); const t = (v) => "`" + String(JSON.stringify(v)).replace(/[|`\n]/g, " ").slice(0, 80) + "`"; console.log("| " + [c.event_id, c.field, t(c.before), t(c.after)].join(" | ") + " |"); }'
+              echo
+              echo "Rollback: download \`rollback.json\` from the artifact, commit it as a new fixes file, and run this workflow on it."
+            else
+              echo "No fields were changed (nothing to apply, a conflict, or a failure before any write)."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
