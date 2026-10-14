@@ -12,7 +12,7 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runWatch, noProbeReason, NO_PROBE_HOSTS, daysUntilWindow, detectCancellation, datesNearName, renderReport, UA } from "./anchor-events/watch.mjs";
+import { runWatch, noProbeReason, NO_PROBE_HOSTS, daysUntilWindow, anchorSeriesId, detectCancellation, datesNearName, renderReport, UA } from "./anchor-events/watch.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURE = path.join(ROOT, "scripts/anchor-events/fixtures/anchors.sample.json");
@@ -150,6 +150,9 @@ ok(noProbeReason({ official_domain: "gasparillapiratefest.example", expected_edi
 // ---- series matching: anchor_id differs from event_series_id
 ok(!has(neg.res, "fx-series-anchor", "missing_edition"), "series row (event_series_id=series-xyz, other event_id) satisfies the anchor");
 ok(has(pos.res, "fx-series-anchor", "missing_edition"), "POSITIVE: with no row for the series the anchor is missing an edition");
+ok(anchorSeriesId({ anchor_id: "x", expected_edition: { event_series_id: "s1" } }) === "s1", "series id read from expected_edition (the #1751 file shape)");
+ok(anchorSeriesId({ anchor_id: "x", event_series_id: "s2", expected_edition: {} }) === "s2", "top-level series id honored");
+ok(anchorSeriesId({ anchor_id: "x", expected_edition: {} }) === null, "no series id -> null (negative control)");
 
 // ---- noise cuts
 ok(datesNearName("Siesta Key Crystal Classic tickets on sale November 20, 2026", "Siesta Key Crystal Classic", 2026).length === 0, "negative: 'on sale' date is ignored");
