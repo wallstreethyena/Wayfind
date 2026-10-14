@@ -671,6 +671,12 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr)}
 .wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
+.wf-place-card-remind{gap:4px;min-width:0!important}
+.wf-sheet-card-actions>.wf-place-card-remind{padding-inline:5px!important}
+.wf-place-card-remind>svg{width:13px;height:13px;flex:0 0 auto}
+.wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:auto 38px 38px auto auto;gap:4px!important}
+.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-like,.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-dislike{width:38px!important;min-width:38px!important;flex-basis:38px}
+.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-save,.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-share{padding-inline:6px!important}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
@@ -689,11 +695,17 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   .wf-place-card-actions{--wf-act-h:34px;padding-top:4px}
   .wf-sheet-card-actions{grid-template-columns:44px 26px 26px minmax(0,1fr);gap:4px!important}
   .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:44px 26px 26px minmax(0,1fr)}
+  .wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:auto 26px 26px auto auto;gap:3px!important}
+  .wf-sheet-card-actions>.wf-place-card-remind{gap:3px;padding-inline:3px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-like,.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex-basis:auto}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-save{padding-inline:0!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-share{padding-inline:1px!important}
   .wf-sheet-card-actions>.wf-place-card-like,.wf-sheet-card-actions>.wf-place-card-dislike{width:100%!important;min-width:0!important;flex:1 1 auto;padding-inline:0!important}
   .wf-sheet-card-actions>.wf-place-card-share{padding-inline:1px!important}
   .wf-sheet-card-actions>.wf-place-card-save{padding-inline:0!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
+@media(max-width:380px){.wf-sheet-card-actions>.wf-place-card-remind>svg{display:none!important}}
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:${PLACE_CARD_MEDIA_DESKTOP_PX}px}
   .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:${PLACE_CARD_MEDIA_DESKTOP_PX}px!important}

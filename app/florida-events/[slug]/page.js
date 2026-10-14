@@ -21,7 +21,9 @@ import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
-import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
+import { eventDatesLabel, occurrenceDatesFor } from "../../../lib/eventOccurrences.js";
+import { reminderFacts } from "../../../lib/eventReminder.js";
+import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import ShareButton from "../../components/ShareButton";
@@ -211,6 +213,9 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
+  // "Remind me" (owner, 2026-10-14): only for an event with a real date. An
+  // undated season, a watchlist twin and a past event get no button.
+  const remind = reminderFacts(e, { occurrences: occurrenceDatesFor(e) });
   const socialPosts = eventSocialPosts(e.event_id) || [];
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
@@ -317,6 +322,7 @@ export default async function CuratedEventPage({ params }) {
             image={heroSrc}
             url={shareUrl}
           />
+          <RemindMe facts={remind} variant="page" ticketHref={ticket && ticket.kind === "affiliate" ? ticket.href : null} surface="event_page" />
           <ShareButton
             url={shareUrl}
             title={eventTitleWithYear(e.event_name, e.year)}

@@ -8,6 +8,7 @@ import RailGuideSlot from "./RailGuideSlot";
 // the one bulk /api/events/christmas fetch (see lib/railPage.js).
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
+import { reminderFacts } from "../../lib/eventReminder.js";
 import RailHeading from "./RailHeading";
 import RailLoading from "./RailLoading";
 import { RailDevError, RailMascotBusy } from "./kit.js";
@@ -125,6 +126,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}
             visitFacts={isEvent ? card : null}
+            remind={isEvent && card.detailHref ? reminderFacts(card) : null} remindTicketHref={card.ticket?.href || null}
             photoPosition={card.photoPosition || "50% 50%"}
             photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null} place={place}
             title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[rail.id] || rail.title} rank={rank}

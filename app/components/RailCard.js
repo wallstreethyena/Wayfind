@@ -55,6 +55,7 @@ import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // 2026-08-20: "this button for the likes still not working under the exploding
 // trends near you" — DaypartRail renders <ExplodingNearby> with isSaved and
 // onSave and nothing else.
+import RemindMe from "./RemindMe";
 import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
 import { useContentCardActions } from "../../lib/contentCardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
@@ -370,6 +371,10 @@ export default function RailCard({
   // `<RailCard ref={…}>`, so a prop avoids forwardRef's wrapper cost for the
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
+  // "Remind me" (lib/eventReminder.reminderFacts): set only for an event with a
+  // real, upcoming date and a page; null for every other card, which then
+  // renders the byte-identical four-control row.
+  remind = null, remindTicketHref = null,
 }) {
   // Interactive place cards always open the full /p/{id} detail experience.
   // /places/{id} remains the durable SEO document. Normalizing at this shared
@@ -677,6 +682,7 @@ export default function RailCard({
               title={isDislikedNow ? "Remove dislike" : "Not for me"}
               onClick={(e) => stayOnRailReaction(e, doDislike)}
             ><ThumbIcon down /></button>
+            {remind ? <RemindMe facts={remind} variant="card" ticketHref={remindTicketHref} surface="rail_card" /> : null}
             <button
               type="button"
               className="wf-place-card-share"

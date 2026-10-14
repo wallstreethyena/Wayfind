@@ -7,6 +7,7 @@
 // card component. Honesty labels come from lib/christmasCardCopy.js.
 import { useEffect, useRef, useState } from "react";
 import RailCard from "./RailCard";
+import { reminderFacts } from "../../lib/eventReminder.js";
 import { WF_PLACE_CARD_CSS } from "./css.js";
 import { CHRISTMAS_CARD_LABELS, christmasCardChips } from "../../lib/christmasCardCopy.js";
 
@@ -24,7 +25,7 @@ export function ChristmasBrowseCard({ card, rank, today }) {
   const chips = christmasCardChips(card, today);
   return <RailCard className="wf-exploding-primary"
     photo={card.image || null} placeholder={!card.image ? card.placeholder || null : null} photoTile={card.tile || null}
-    visitFacts={card} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}
+    visitFacts={card} remind={card.detailHref ? reminderFacts(card) : null} remindTicketHref={card.ticket?.href || null} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}
     when={card.when || null} facts={[card.city || null, distanceFact(card) || card.region || null].filter(Boolean)}
     chips={chips.slice(0, 4)} take={card.hook || null}
     href={card.detailHref || card.url || null} external={!card.detailHref}

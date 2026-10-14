@@ -2173,3 +2173,14 @@ node scripts/check-synthetic-map-contracts.mjs
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
+
+# Remind me (2026-10-14, owner: "add a reminder to the person's phone about the event because i would forget
+# ... and ask the user when they would like to be reminded."): a dated event gets a Remind me button
+# (rail cards, browse, event page) that opens a sheet asking which night and when, then downloads a
+# calendar invite (GET /api/events/reminder) with one alert at that time. The builder test executes the ICS
+# (alarm instants across the Nov 1 2026 change, Jan 2027, folding, escaping, /api/<x>/go ticket link,
+# undated refused), the route test asserts on response bodies and headers (200, 400s, 404, 503), the render
+# test renders the button and sheet. Hermetic. Red-proven by mutation, see the PR.
+node scripts/test-event-reminder.mjs
+node scripts/test-event-reminder-route.mjs
+node scripts/test-event-reminder-render.mjs
