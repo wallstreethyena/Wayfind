@@ -36,6 +36,7 @@ import {
   mergeCapturedRailWindows,
   composedRows,
   reconcileRenderedCards,
+  partitionRailCards,
   exactRenderedIdSet,
   railsRequestMatchesOrigin,
 } from "./menuPosterIntegrity.mjs";
@@ -344,6 +345,8 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
     const cards = [...root.querySelectorAll(`[data-rail^="${prefix}"] .wf-place-card`)];
     const renderedCards = cards.map((card) => ({
       id: card.getAttribute("data-place-id") || "",
+      guideId: card.getAttribute("data-guide-id") || "",
+      matchedId: card.getAttribute("data-guide-matched-id") || "",
       name: (card.querySelector(".wf-place-card-name")?.textContent || "").trim(),
     }));
     const text = root.innerText || "";
@@ -357,7 +360,12 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
   ctx.ok(`${posterId}: no loading state remains after the source settled`, !surface.busy, false, surface.busy);
   ctx.ok(`${posterId}: no ranking/load error is presented as cards`, !surface.error, false, surface.error ? surface.text : "none");
 
-  const reconciliation = reconcileRenderedCards(expectedRows, surface.cards);
+  // Guide cards are an owned product insert (lib/railGuideSlot.js), identified
+  // by data-guide-id. Split them off first; anything with NEITHER id still
+  // reaches the data-place-id checks below and fails.
+  const partition = partitionRailCards(surface.cards, expectedRows.map((row) => String(row?.id || "")).filter(Boolean));
+  ctx.ok(`${posterId}: at most one guide card, at the rail's guide slot, matched to a place in this rail`, partition.guideCount <= 1 && partition.guideMisplaced.length === 0 && partition.guideUnmatched.length === 0, "0-1 data-guide-id card at index 2 whose matched place is in the captured rail", { guides: partition.guides });
+  const reconciliation = reconcileRenderedCards(expectedRows, surface.cards.filter((card) => !(card.guideId && !card.id)));
   ctx.ok(`${posterId}: every rendered card exposes an exact data-place-id`, reconciliation.missingDomIds.length === 0, "0 cards without data-place-id", reconciliation.missingDomIds);
   ctx.ok(`${posterId}: every rendered card maps to a captured place id`, reconciliation.unknownNames.length === 0, "0 unknown fallback card names", reconciliation.unknownNames);
   ctx.ok(`${posterId}: rendered cards exactly match the captured response's composed ids`, reconciliation.missingIds.length === 0 && reconciliation.extraIds.length === 0 && reconciliation.duplicateRenderedIds.length === 0, "no missing, extra, or duplicate ids", {

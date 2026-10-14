@@ -167,8 +167,11 @@ for (const rel of PAGES) {
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
   ok(usesCanonicalDirections(src),
     `${rel} passes the row's appleDirectionsUrl result to EventWhere, never the Google ladder (weaker check, source)`);
-  ok(!/maps\/search/.test(withoutGooglePhotoCredits(src, rel)),
-    `${rel} has no hand-built map-search navigation; a visible, row-bound Google photo source credit is attribution only (weaker check, source)`);
+  // 2026-10-13: event pages use Apple Maps PERMANENTLY, so even the photo
+  // credit may not LINK to Google Maps (synthetic event-apple-maps counts every
+  // a[href*="google.com/maps"]). The attribution stays as visible plain text.
+  ok(!/maps\/search|google\.com\/maps/.test(src),
+    `${rel} has no Google Maps URL at all; the Google photo source credit is plain visible text, not a link (weaker check, source)`);
   ok(/addressLine\(/.test(src),
     `${rel} states the street through addressLine, so the page and the JSON-LD cannot disagree about where something is`);
 }
@@ -178,16 +181,13 @@ for (const rel of PAGES) {
 {
   const rel = PAGES[0];
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/maps\/search/.test(src) && !/maps\/search/.test(withoutGooglePhotoCredits(src, rel)),
-    "positive control: the existing visible Google Maps photo credit is accepted separately from directions");
+  ok(/\}Google Maps<|>Google Maps\.|Google Maps<\/>|Google Maps\.<\/>/.test(src) || /Photo: <>[^]*Google Maps/.test(src),
+    "positive control: the visible Google Maps photo credit text is still rendered (as text, not a link)");
   for (const [label, from, to] of [
     ["a map search assigned to directions", "const dirs = appleDirectionsUrl(e);", 'const dirs = "https://www.google.com/maps/search/?api=1&query=Sarasota";'],
-    ["a navigation label disguised as a source credit", ">Google Maps</PhotoCreditLink>", ">Directions</PhotoCreditLink>"],
-    ["an unbound Google photo credit", "encodeURIComponent(e.place_id)", "encodeURIComponent(e.neighbour_place_id)"],
-    ["a noncanonical component claiming to be a credit", 'from "../../components/PhotoCreditLink"', 'from "../../components/OtherLink"'],
   ]) {
     const mutated = src.replace(from, to);
-    ok(mutated !== src && /maps\/search/.test(withoutGooglePhotoCredits(mutated, rel)), `RED PROOF: rejects ${label}`);
+    ok(mutated !== src && /maps\/search|google\.com\/maps/.test(mutated), `RED PROOF: rejects ${label}`);
   }
   const brokenBinding = src.replace("directionsHref={dirs}", 'directionsHref={"https://maps.apple.com/?daddr=Sarasota"}');
   ok(brokenBinding !== src && !usesCanonicalDirections(brokenBinding),

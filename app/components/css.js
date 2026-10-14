@@ -717,7 +717,7 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 }
 .wf-rail::-webkit-scrollbar{display:none}
 .wf-rail-solo{max-width:min(100%,${PLACE_CARD_MAX_WIDTH_PX}px);margin:0;padding:0 0 4px}
-.wf-rail>.wf-place-card,.wf-rail>.wf-rail-card,.wf8-pcrail>.wf-place-card,.wf8-pcrail>.wf-rail-card{
+.wf-rail>.wf-place-card,.wf-rail>.wf-rail-card,.wf8-pcrail>.wf-place-card,.wf8-pcrail>.wf-rail-card,.wf-rail-guide-slot>.wf-place-card{
   margin-bottom:0!important;
   scroll-snap-align:start;
 }

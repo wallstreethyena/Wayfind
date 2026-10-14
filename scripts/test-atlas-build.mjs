@@ -197,7 +197,7 @@ ok(/wf_affiliate_opportunity_seen/.test(oppLib) && /suggested_partner/.test(oppL
     if (p.length === 1) {
       ok(p[0].attempted === 0 && p[0].succeeded === 0 && p[0].failed === 0,
         `${job}: skip pulse was ${JSON.stringify(p[0])} — must be 0/0/0 so classifyHealth reads it as IDLE and a deliberately parked job never pages anyone.`);
-      ok(/^intentional skip: gate=free/.test(p[0].note || ""),
+      ok(/^budget limit reached: paid generation disabled \(gate=free\)/.test(p[0].note || ""),
         `${job}: skip note was ${JSON.stringify(p[0].note)} — it must name the reason, and must NOT begin with billing:/quota:, which classifyHealth anchors its escalation match to.`);
     }
   }
