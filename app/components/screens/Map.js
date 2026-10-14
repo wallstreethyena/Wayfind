@@ -8,6 +8,8 @@ import { selectMapPlaces, mergeMapAreaContext, validMapBounds, keepMapPreview } 
 import { byGovernedScore } from "../../../lib/lawfulOrder.js";
 import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
+import { accountListOnMap } from "../../../lib/mapListAccounting.js";
+import { NO_PERMITTED_COORDINATE } from "../../../lib/coordProvenance.js";
 import AppleExplorerMap from "../AppleExplorerMap";
 import IconicPlaceCard from "../IconicPlaceCard";
 import useMissingPlacePhotos from "../useMissingPlacePhotos";
@@ -98,6 +100,26 @@ export default function MapScreen({ ctx }) {
     const selected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
     return mapMode === "fifa" ? selected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selected;
   }, [liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, mapListOverride]);
+  // LIST/MAP ACCOUNTING (2026-10-14, lib/mapListAccounting.js): every card on
+  // the list gets exactly one map status. A place the map may not pin (no
+  // coordinate inside its source's permitted window, lib/coordProvenance.js)
+  // is counted and said on screen, never silently missing.
+  const listAccounting = useMemo(() => (mapMode === "places" && !explicitList
+    ? accountListOnMap({ listPlaces: contextualView || [], pins: view, areaPlaces: liveAreaPlaces, areaStatus })
+    : null), [mapMode, explicitList, contextualView, view, liveAreaPlaces, areaStatus]);
+  const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
+  const unpinnedNote = unpinnedForCoord > 0
+    ? `${unpinnedForCoord} of the ${listAccounting.total} places on your list ${unpinnedForCoord === 1 ? "isn't" : "aren't"} pinned. We only pin a location confirmed in the last 30 days, and ${unpinnedForCoord === 1 ? "this one is" : "these are"} due for a re-check.`
+    : null;
+  // Diagnostic only (the synthetic monitor reads it next to __wfMapPins).
+  useEffect(() => {
+    try {
+      if (typeof window === "undefined") return;
+      window.__wfMapList = listAccounting
+        ? { listIds: listAccounting.rows.map((r) => r.id), pinned: listAccounting.rows.filter((r) => r.status === "pinned").map((r) => r.id), unmapped: listAccounting.unmapped, counts: listAccounting.counts, note: unpinnedNote, at: Date.now() }
+        : null;
+    } catch (e) {}
+  }, [listAccounting, unpinnedNote]);
   useEffect(() => {
     if (explicitList) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
     if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus)) setMapPreview(null);
@@ -253,7 +275,9 @@ export default function MapScreen({ ctx }) {
                   {mapMode === "places" && !explicitList && !appleMapFailed && (areaStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
                     {areaStatus === "loading" ? "Finding every 9.2+ place in this area…" : areaStatus === "error" ? "This area could not finish loading." : "No 9.2+ places match these filters here. Move the map or choose All places."}
                     {areaStatus === "error" && <button type="button" onClick={() => setAreaRetry((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>Retry area</button>}
+                    {unpinnedNote && <div data-wf-map-unpinned={unpinnedForCoord} style={{ marginTop: 6, color: C.muted, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   </div>}
+                  {mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ position: "absolute", left: 12, right: 12, bottom: 142, zIndex: 17, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
                       Cup out of season this container rendered as an EMPTY dark box
                       floating on the map — a control with nothing in it. Only mount it
