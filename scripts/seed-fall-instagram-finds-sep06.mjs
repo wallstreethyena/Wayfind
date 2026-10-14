@@ -26,6 +26,7 @@
  *   node scripts/seed-fall-instagram-finds-sep06.mjs
  */
 import { readFileSync } from "node:fs";
+import { gateImageForWrite } from "../lib/imageWriteGate.js";
 
 const DRY = process.argv.includes("--dry");
 function env() {
@@ -124,7 +125,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       if (hit) { r.place_id = hit.place_id; r.lat = hit.lat; r.lng = hit.lng; r.hero_image = `/api/photo?place=${hit.place_id}&w=800`; }
       else { r.place_id = null; r.lat = null; r.lng = null; }
     }
-    out.push(r);
+    out.push(gateImageForWrite(r, { type: "event" }).record); // PUBLICATION GATE: bad image dropped, row kept
     console.log(`${r.place_id ? "pinned    " : r.lat != null ? "coords    " : "UNRESOLVED"} ${r.event_name}  ${r.lat?.toFixed?.(4)},${r.lng?.toFixed?.(4)}`);
   }
   const KEYS = [...new Set(out.flatMap(Object.keys))];

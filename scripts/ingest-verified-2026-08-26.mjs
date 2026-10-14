@@ -41,6 +41,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { extractPlaceFields } from "../lib/seedPlaces.js";
 import { classifyPlace } from "../lib/placeTaxonomy.js";
+import { gateImageForWrite } from "../lib/imageWriteGate.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const COMMIT = process.argv.includes("--commit");
@@ -273,7 +274,7 @@ for (const p of EDITORIAL_ONLY) {
   });
   if (!r1.ok) { console.error(`HHN patch failed ${r1.status}`); process.exit(1); }
   const r2 = await fetch(`${URL_}/rest/v1/wf_events?on_conflict=event_id`, {
-    method: "POST", headers: { ...H, Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify([sideshowRow]),
+    method: "POST", headers: { ...H, Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify([gateImageForWrite(sideshowRow, { type: "event" }).record]), // PUBLICATION GATE: bad image dropped, row kept
   });
   if (!r2.ok) { console.error(`Sideshow insert failed ${r2.status}: ${(await r2.text()).slice(0, 300)}`); process.exit(1); }
   report.events = ["hhn-orlando-2026 (editorial + verification refreshed; dates already correct)", "sideshow-obscura-hhn35-2026 (created; end date deliberately absent)"];

@@ -2217,6 +2217,7 @@ node scripts/test-event-reminder-ics.mjs
 node scripts/test-photo-same-origin-spend.mjs
 node scripts/test-photo-recovered-evidence.mjs
 node scripts/test-photo-visitor-cap.mjs
+node scripts/test-photo-not-place-id.mjs
 node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
