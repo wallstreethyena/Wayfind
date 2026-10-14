@@ -20,12 +20,16 @@ import {
   CHRISTMAS_RESEARCH_ALIASES, CHRISTMAS_DB_RESEARCH_IDS, CHRISTMAS_RESEARCH_CANONICAL, CHRISTMAS_PUBLISHED_RESEARCH, CHRISTMAS_WATCHLIST_2026,
   CHRISTMAS_RESEARCH_CORRECTIONS, CHRISTMAS_SEASON_UNDATED_LINE, mergeChristmasResearch, researchPrice, parseSelectNights, parseResearchTimes,
   christmasResearchEventBySlug, christmasResearchSitemapRows, isDbClaimedResearchId, researchEvent, CHRISTMAS_SLUG_SUFFIX,
+  christmasCorrectionPlaceLine, isChristmasWatchlistTwin, withoutChristmasWatchlistTwins, CHRISTMAS_PUBLISHED_STATES,
 } from "../lib/christmasResearch.js";
+import { appleDirectionsUrl, addressLine } from "../lib/placeWhere.js";
+import { eventTitleWithYear } from "../lib/eventTitle.js";
+import { floridaEventSitemapRows } from "../lib/curatedEvents.js";
 import { composeChristmasIntentRails, christmasEventRail, CHRISTMAS_LOCAL_ONLY_RAILS, CHRISTMAS_STATEWIDE_RAILS, christmasDistanceGroup } from "../lib/christmasIntentRails.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
-import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow } from "../lib/christmasEventPage.js";
+import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow, CHRISTMAS_WATCHLIST_PAGE_LINE } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 
@@ -239,15 +243,18 @@ function CITIES() {
   ok(Object.keys(CHRISTMAS_RESEARCH_CORRECTIONS).length === 4, "four published corrections (Fort Myers Beach is watchlist now)");
   for (const [rid, fix] of Object.entries(CHRISTMAS_RESEARCH_CORRECTIONS)) {
     const pub = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === rid);
-    ok(pub && pub.lat === fix.lat && pub.lng === fix.lng && pub.venue === fix.venue && !pub.approxLocation, `${rid}: the research listing carries the corrected spot`);
+    ok(pub && pub.lat === fix.lat && pub.lng === fix.lng && pub.venue === fix.place && pub.address === fix.address && !pub.approxLocation, `${rid}: the research listing carries the corrected spot`);
     const dbId = Object.keys(CHRISTMAS_DB_RESEARCH_IDS).find((k) => CHRISTMAS_DB_RESEARCH_IDS[k] === rid);
     const m = merged.find((r) => r.event_id === dbId);
-    ok(m && m.lat === fix.lat && m.lng === fix.lng && m.venue === fix.venue, `${dbId}: the wf_events row shows the same corrected spot`);
+    ok(m && m.lat === fix.lat && m.lng === fix.lng && m.venue === fix.place && m.address === fix.address, `${dbId}: the wf_events row shows the same corrected spot`);
     const card = cards.find((c) => c.id === dbId);
     ok(card && card.lat === fix.lat && card.lng === fix.lng, `${dbId}: the card uses it too`);
   }
   ok(CHRISTMAS_RESEARCH_CORRECTIONS["palm-beach-boat-parade-2026"].lat === 26.8736736 && CHRISTMAS_RESEARCH_CORRECTIONS["palm-beach-boat-parade-2026"].lng === -80.0649177, "Palm Beach is Bert Winters Park, OSM way 545518471");
-  ok(/Cove Park/.test(CHRISTMAS_RESEARCH_CORRECTIONS["cocoa-beach-boat-parade-2026"].venue) && /Central Park/.test(CHRISTMAS_RESEARCH_CORRECTIONS["winter-park-christmas-parade-2026"].venue) && /12520 Ulmerton/.test(CHRISTMAS_RESEARCH_CORRECTIONS["florida-botanical-gardens-holiday-lights-2026"].venue), "the viewing labels are the packet's");
+  ok(christmasCorrectionPlaceLine(CHRISTMAS_RESEARCH_CORRECTIONS["cocoa-beach-boat-parade-2026"]) === "Cove Park, 540 McNabb Pkwy"
+    && christmasCorrectionPlaceLine(CHRISTMAS_RESEARCH_CORRECTIONS["palm-beach-boat-parade-2026"]) === "Bert Winters Park, 13425 Ellison Wilson Rd"
+    && christmasCorrectionPlaceLine(CHRISTMAS_RESEARCH_CORRECTIONS["winter-park-christmas-parade-2026"]) === "Central Park, Park Ave"
+    && christmasCorrectionPlaceLine(CHRISTMAS_RESEARCH_CORRECTIONS["florida-botanical-gardens-holiday-lights-2026"]) === "Florida Botanical Gardens, 12520 Ulmerton Rd", "the viewing labels are the lead's (Cove Park, Bert Winters Park, Central Park, Florida Botanical Gardens)");
   ok(!CHRISTMAS_PUBLISHED_RESEARCH.some((r) => r.event_id === "fmb-christmas-boat-parade-2026"), "Fort Myers Beach boat parade is not published");
 }
 
@@ -349,6 +356,97 @@ function CITIES() {
   ok(collided.slug === victim.slug + CHRISTMAS_SLUG_SUFFIX && href === "/florida-events/" + victim.slug + CHRISTMAS_SLUG_SUFFIX && christmasEventPageRow(null, victim.slug + CHRISTMAS_SLUG_SUFFIX)?.event_id === victim.event_id, "a slug collision moves the research page to the suffixed slug, and the card links there and the page resolves it");
   const sm = christmasResearchSitemapRows("https://x", TODAY, new Set([victim.slug]));
   ok(sm.some((r) => r.url === "https://x/florida-events/" + victim.slug + CHRISTMAS_SLUG_SUFFIX) && !sm.some((r) => r.url === "https://x/florida-events/" + victim.slug), "the sitemap lists the same suffixed page, never the slug the other event owns");
+}
+
+// ── 11. Live fixes (2026-10-14, read only check of www.gowayfind.com) ───────
+{
+  // A. Every browse card whose slug has an event page links to it. Counted
+  //    once per card over every listing; each slug resolved through the real
+  //    page loader (christmasEventPageRow), never assumed.
+  const listings = christmasBrowseListings(DB, TODAY);
+  const bySlug = new Map(DB.map((r) => [r.slug, r]));
+  const hasPage = (c) => !!c.slug && !!christmasEventPageRow(bySlug.get(c.slug) || null, c.slug);
+  const withPage = listings.filter(hasPage);
+  const internal = listings.filter((c) => c.detailHref === "/florida-events/" + c.slug);
+  const hrefCount = new Map();
+  for (const c of internal) hrefCount.set(c.detailHref, (hrefCount.get(c.detailHref) || 0) + 1);
+  const dbMerged = listings.filter((c) => bySlug.has(c.slug) && c.christmas_research_id);
+  const offSite = withPage.filter((c) => c.detailHref !== "/florida-events/" + c.slug);
+  ok(dbMerged.length >= 20, `positive control: the fixture holds merged wf_events browse cards (${dbMerged.length})`);
+  ok(offSite.length === 0 && internal.length === withPage.length && [...hrefCount.values()].every((n) => n === 1),
+    `every browse card whose slug has an event page links to it, exactly once each (${internal.length} internal of ${listings.length} cards, ${withPage.length} with a page; off site: ${offSite.map((c) => c.slug).slice(0, 4).join(", ")})`);
+  ok(withPage.length === listings.length, `every browse listing has an event page (${withPage.length} of ${listings.length})`);
+  const page1 = christmasBrowsePage(listings, parseChristmasBrowseQuery({ q: "Palm Beach Holiday Boat Parade" }), TODAY).cards.find((c) => c.slug === "palm-beach-holiday-boat-parade-2026");
+  ok(page1 && page1.detailHref === "/florida-events/palm-beach-holiday-boat-parade-2026", "the browse JSON sends the merged wf_events card with its internal link");
+
+  // B. The corrections: card, page row, pin and directions say one place.
+  //    The wf_events fixture carries the live staging address, which the old
+  //    page sent to Apple Maps.
+  const staging = { "cocoa-beach-holiday-boat-parade-2026": "Marker 101, Banana River, Cocoa Beach, FL 32931", "winter-park-christmas-parade-2026": "Park Ave, Winter Park, FL 32789" };
+  const fixDb = DB.map((r) => (staging[r.event_id] ? { ...r, address: staging[r.event_id], lat: 28.59631, lng: -81.3511 } : r));
+  const fixListings = christmasBrowseListings(fixDb, TODAY);
+  const fixCards = mergeChristmasResearch(fixDb).filter((e) => isTrusted(e) && christmasEventRail(e)).map((e) => christmasEventCard(enrichChristmasEvent(e, new Map()), { today: TODAY }));
+  for (const [rid, fix] of Object.entries(CHRISTMAS_RESEARCH_CORRECTIONS)) {
+    const dbId = Object.keys(CHRISTMAS_DB_RESEARCH_IDS).find((k) => CHRISTMAS_DB_RESEARCH_IDS[k] === rid);
+    const db = fixDb.find((r) => r.event_id === dbId);
+    const line = christmasCorrectionPlaceLine(fix);
+    const label = fix.viewing + ": " + line;
+    const card = fixCards.find((c) => c.id === dbId);
+    const browse = fixListings.find((c) => c.id === dbId);
+    const row = await christmasAwareEventBySlug(db.slug, { fetchRow: async () => db });
+    const dirs = appleDirectionsUrl(row) || "";
+    const daddr = decodeURIComponent((/daddr=([^&]*)/.exec(dirs) || [])[1] || "");
+    const q = decodeURIComponent((/[?&]q=([^&]*)/.exec(dirs) || [])[1] || "");
+    ok(card && browse && card.venue === label && browse.venue === label && card.lat === fix.lat && card.lng === fix.lng && browse.lat === fix.lat, `${dbId}: rail and browse cards say "${label}" at the corrected pin`);
+    ok(row && row.venue === fix.place && row.address === fix.address && row.city === fix.city && row.viewing_label === label && row.lat === fix.lat && row.lng === fix.lng, `${dbId}: the page row carries the same place, street, town, label and pin`);
+    ok(daddr === addressLine(row) && daddr.startsWith(fix.address + ", " + fix.city) && q === fix.place && !/Marker|Banana River|Intracoastal/.test(dirs), `${dbId}: the directions go to "${fix.place}", "${daddr}" (${dirs.slice(0, 90)})`);
+  }
+  // The fifth correction, Fort Myers Beach: watchlist, so no card anywhere,
+  // and its page row's directions agree with its own pin and venue.
+  const fmbDb = { event_id: "fort-myers-beach-christmas-boat-parade-2026", slug: "fort-myers-beach-christmas-boat-parade-2026", event_name: "Fort Myers Beach Christmas Boat Parade", city: "Fort Myers Beach", state: "FL", venue: "North Matanzas Pass", address: null, lat: 26.46465, lng: -81.96484, start_date: "2026-12-05", end_date: null, start_time: "18:00:00", event_status: "scheduled", source_tier: 1, verification_confidence: "medium", card_hook: "Lit-up shrimp boats glide down Matanzas Pass.", why_go: "Watchable free from most of the bay side \u2014 no ticket, no gate.", schedule_note: "Parade runs 6-8 p.m.", is_free: true, tags: [] };
+  const fmbRow = await christmasAwareEventBySlug(fmbDb.slug, { fetchRow: async () => fmbDb });
+  ok(!fixCards.some((c) => c.id === fmbDb.event_id) && !christmasBrowseListings([...fixDb, fmbDb], TODAY).some((c) => c.id === fmbDb.event_id), "Fort Myers Beach: no rail card and no browse card");
+  ok(fmbRow && appleDirectionsUrl(fmbRow) === "https://maps.apple.com/?daddr=26.46465,-81.96484&dirflg=d&q=North%20Matanzas%20Pass", "Fort Myers Beach: its page pin and directions agree");
+
+  // C. The year is said once.
+  ok(eventTitleWithYear("Cocoa Beach Holiday Boat Parade 2026", 2026) === "Cocoa Beach Holiday Boat Parade 2026" && eventTitleWithYear("Cocoa Beach Holiday Boat Parade 2026", "2026") === "Cocoa Beach Holiday Boat Parade 2026", "a name ending in its year keeps one year (number or string)");
+  ok(eventTitleWithYear("Holiday Lights in the Gardens", "2026") === "Holiday Lights in the Gardens 2026" && eventTitleWithYear("Light Up 2026 Gala", 2026) === "Light Up 2026 Gala 2026" && eventTitleWithYear("Night Parade 12026", 2026) === "Night Parade 12026 2026" && eventTitleWithYear("Tree Lighting (2026)", 2026) === "Tree Lighting (2026)" && eventTitleWithYear("X", null) === "X", "otherwise the year is appended (controls: mid title year, a longer number, a bracketed year, no year)");
+  const doubled = [...merged, fmbDb].map((e) => christmasEventPageRow(e, e.slug) || e).filter((r) => r && r.event_name).map((r) => eventTitleWithYear(r.event_name, r.year || "2026")).filter((t) => /\b(\d{4}) \1$/.test(t));
+  const cocoaName = DB.find((r) => r.event_id === "cocoa-beach-holiday-boat-parade-2026")?.event_name || "";
+  ok(/ 2026$/.test(cocoaName) && /\b(\d{4}) \1$/.test(cocoaName + " 2026"), "positive control: the Cocoa Beach name already ends in 2026, so a plain append would double it");
+  ok(doubled.length === 0, `no Christmas event page title repeats its year (${doubled.slice(0, 3).join(" | ")})`);
+  const pageSrc = read("app/florida-events/[slug]/page.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(!/\$\{e\.event_name\} \$\{e\.year\}/.test(pageSrc) && (pageSrc.match(/eventTitleWithYear\(e\.event_name, e\.year\)/g) || []).length === 4, "the page titles (metadata, answer box, share, footer share) all use eventTitleWithYear, 4 call sites (static)");
+
+  // D. Watchlist twins: page stays, says 2026 not confirmed yet, no date, no
+  //    Event JSON-LD, no dash, not in the sitemap. Every wf_events row whose
+  //    research twin is not published.
+  const canon = new Map(CHRISTMAS_RESEARCH_CANONICAL.map((r) => [r.id, r]));
+  const twinIds = Object.entries(CHRISTMAS_DB_RESEARCH_IDS).filter(([, rid]) => { const r = canon.get(CHRISTMAS_RESEARCH_ALIASES[rid] || rid); return r && !CHRISTMAS_PUBLISHED_STATES.includes(r.state); }).map(([dbId]) => dbId);
+  ok(twinIds.length >= 8 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach, ZooTampa among them)`);
+  const twinRow = (id) => ({ ...fmbDb, event_id: id, slug: id === "zootampa-christmas-wild-2026" ? "zootampa-christmas-in-the-wild-2026" : id, event_name: "Twin " + id + " 2026", year: 2026, start_date: "2026-12-05", end_date: "2026-12-06", last_verified_at: "2026-10-06T00:00:00Z" });
+  const twins = twinIds.map(twinRow);
+  for (const db of twins) {
+    const row = await christmasAwareEventBySlug(db.slug, { fetchRow: async () => db });
+    const shown = [row?.when_label, row?.schedule_note, row?.card_hook, row?.why_go, row?.venue, row?.christmas_price_line, row?.event_name];
+    ok(row && row.christmas_watchlist === true && row.when_label === CHRISTMAS_WATCHLIST_PAGE_LINE && /^2026 not confirmed yet\./.test(row.schedule_note), `${db.event_id}: the page stays and says "${CHRISTMAS_WATCHLIST_PAGE_LINE}"`);
+    ok(row && row.start_date === null && row.end_date === null && row.start_time === null && row.end_time === null && !row.occurrence_dates && !row.season_undated, `${db.event_id}: no date or time claim (so no Event JSON-LD)`);
+    ok(row && row.is_free !== true && row.christmas_price_line && !shown.some((t) => typeof t === "string" && CHRISTMAS_DASH_RX.test(t)), `${db.event_id}: no unconfirmed free, no punctuation dash (${shown.filter((t) => typeof t === "string" && CHRISTMAS_DASH_RX.test(t)).join(" | ")})`);
+    ok(isChristmasWatchlistTwin(db), `${db.event_id}: recognised as a watchlist twin`);
+  }
+  ok(/const ld = e\.season_undated \|\| !e\.start_date \? null : eventJsonLd\(e/.test(pageSrc), "the page emits Event JSON-LD only with a start_date (static)");
+  const control = { ...fmbDb, event_id: "db-only-market-2026", slug: "db-only-market-2026", event_name: "Holiday Market" };
+  const smAll = floridaEventSitemapRows([...twins, control, ...DB.filter((r) => r.event_id === "christmas-town-2026")], "https://x", { now: new Date("2026-10-13T12:00:00Z") });
+  const smKept = withoutChristmasWatchlistTwins(smAll, [...twins, control], "https://x");
+  ok(twins.every((t) => smAll.some((r) => r.url === "https://x/florida-events/" + t.slug)), `positive control: before the filter the twins are sitemap rows (${smAll.length})`);
+  ok(twins.every((t) => !smKept.some((r) => r.url === "https://x/florida-events/" + t.slug)) && smKept.some((r) => r.url === "https://x/florida-events/db-only-market-2026") && smKept.some((r) => r.url === "https://x/florida-events/christmas-town-2026"), `the sitemap drops every twin (${twins.length}) and keeps the other events`);
+  ok(/withoutChristmasWatchlistTwins\(events, eventRows, SITE_URL\)/.test(read("app/sitemap.js")), "app/sitemap.js filters the wf_events rows through withoutChristmasWatchlistTwins (static)");
+
+  // E. Florida Botanical Gardens ends Jan 2, 2027 (the page's Nightly
+  //    Illumination schedule and its 37 night count; re-read 2026-10-14).
+  const fbg = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === "florida-botanical-gardens-holiday-lights-2026");
+  const fbgRaw = RAW.find((r) => r.id === "florida-botanical-gardens-holiday-lights-2026");
+  ok(fbg && fbg.start_date === "2026-11-27" && fbg.end_date === "2027-01-02" && /Jan 2, 2027/.test(fbgRaw.evidence_quote) && /37 nights/.test(fbgRaw.evidence_quote), "Florida Botanical Gardens runs Nov 27, 2026 to Jan 2, 2027, with the evidence quote recorded");
 }
 
 // ── 9. Server only ──────────────────────────────────────────────────────────
