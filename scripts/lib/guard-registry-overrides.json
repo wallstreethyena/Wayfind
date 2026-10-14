@@ -831,5 +831,13 @@
       "detail": "A regression could let a scheduled job buy Place Photo media past the owner's monthly ceiling, re-buy photos it already holds every day, or cache a Google photo whose photographer credit was not stored (an uncredited Google photo on the blog or a guide breaks Google's attribution terms)."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-spend-pacing.mjs": {
+    "protects": "The daily spend-pacing forecast classifies every wf_spend_ledger row OK/WARN/CAPPED with exact boundaries, escalates a cap exhausted in the first 10 days to a job-watch incident and everything else to a non-paging warning, never writes the ledger or any cap, and is wired (guards.txt, vercel.json cron, CRON_SECRET, loud on absent config); red-proved by mutating the projection and the CAPPED branch.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "October 2026 capped five metered rows in the first 8 days (details_enterprise, details_pro, provider_viator, anthropic_requests, events_ticketmaster) and nothing warned until user paths degraded; without this guard the early-warning cron can silently stop forecasting or stop paging."
+    },
+    "owner": "Revenue QA"
   }
 }
