@@ -18,6 +18,7 @@
 // through here, and an unregistered file silently drops out of every content
 // guardrail's grep set.
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+import SafeImg from "./SafeImg";
 
 const C = { text: "#F1F5F9", gold: "#E8C97A" };
 
@@ -44,7 +45,7 @@ export default function CollectionHero({ eyebrow, titleTop, titleBottom, subtitl
   const seasonalWordmark = activeSeasonalMark() || NORMAL_MARK;
   return (
     <header style={{ position: "relative", height, overflow: "hidden", ...(radius ? { borderRadius: radius } : null), ...(bleed ? { margin: bleed } : null) }}>
-      {heroImg && <img src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
+      {heroImg && <SafeImg src={heroImg} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
       <div style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(4,8,16,.25) 0%, rgba(4,8,16,.55) 55%, #040810 100%)" }} />
       {topLeft || null}
       {topRight || null}

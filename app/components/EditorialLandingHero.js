@@ -27,6 +27,7 @@
 // selector is shared by every page using BackControl.
 
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
+import SafeImg from "./SafeImg";
 
 export function editorialHeroCss(prefix = "wf-beach-premium") {
   const P = prefix;
@@ -210,7 +211,7 @@ export default function EditorialLandingHero({
       </div>
       <section className={`${P}-hero`} aria-labelledby={headlineId}>
         <div className={`${P}-media`}>
-          {heroImg && <img src={heroImg} alt="" />}
+          {heroImg && <SafeImg src={heroImg} alt="" fallbackStyle={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />}
           <div className={`${P}-image-copy`}>
             <div className={`${P}-image-kicker`}>{imageKicker}</div>
             <div className={`${P}-image-title`}>{imageTitle}</div>

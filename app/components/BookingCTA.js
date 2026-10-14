@@ -14,6 +14,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { C } from "./kit";
+import SafeImg from "./SafeImg";
 import * as Aff from "../../lib/affiliates";
 // v6.71 — the resolver moved DOWN to lib/bookingResolve.js so the SERVER-side
 // guide pages can use the same predicate instead of calling Aff.* directly per
@@ -313,7 +314,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
               }}
               style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", padding: "9px 0", borderTop: i ? `1px solid ${C.border}` : "none" }}
             >
-              {t.image ? <img src={t.image} alt="" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
+              {t.image ? <SafeImg src={t.image} alt="" icon="🎟️" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} /> : <span style={{ width: 58, height: 58, borderRadius: 10, background: C.adim, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>🎟️</span>}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontSize: 13, fontWeight: 700, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
                 <div style={{ fontSize: 11.5, color: C.muted, marginTop: 3 }}>

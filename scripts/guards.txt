@@ -2045,6 +2045,9 @@ node scripts/test-photo-credits.mjs
 # received, tied to the exact fetched photo name (2026-10-01).
 node scripts/test-photo-credit-capture.mjs
 node scripts/test-card-photo-viewer.mjs
+# Every image slot ends in a verified photo or the shared fallback tile: executes getPlacePhoto, railPhotoSrc,
+# CardPhoto, SafeImg and FallbackImg across the outcome matrix in Chromium (2026-10-14).
+node scripts/test-image-health.mjs
 node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card

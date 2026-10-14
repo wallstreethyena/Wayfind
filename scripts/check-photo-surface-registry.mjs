@@ -23,7 +23,8 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PHOTO_SURFACES, extractPlaces, extractPlacesFromHtml, photoRequestFor } from "../lib/photoSurfaces.js";
+import { PHOTO_SURFACES, NON_PHOTO_IMAGE_FILES, extractPlaces, extractPlacesFromHtml, photoRequestFor } from "../lib/photoSurfaces.js";
+import { imageSignals } from "./lib/photoInventoryAudit.mjs";
 import { MENU_PARTNER_OFFERS, HOTLINK_REFUSED_IMAGE_HOSTS } from "../lib/menuPartnerOffers.js";
 import { INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPicks, intentPartnerPick } from "../lib/intentPartnerPicks.js";
 import { isHotlinkRefusedImage } from "../lib/imageHostPolicy.js";
@@ -110,6 +111,54 @@ for (const { rel, hits } of candidates) {
   if (registered.has(rel)) { pass++; continue; }
   if (EXEMPT[rel]) { pass++; continue; }
   failures.push(`${rel}: detected as a place-photo renderer (${hits.join(", ")}) but is not listed in any PHOTO_SURFACES[].components in lib/photoSurfaces.js, and is not in this guard's EXEMPT list. Add it to the surface it belongs to, or add a reasoned EXEMPT entry.`);
+}
+
+// ── IMPORT-BASED DETECTION (2026-10-14) ────────────────────────────────────
+// The literal-only detector above missed app/components/sheets/Detail.js: its
+// 'More like' / 'Worth comparing nearby' / 'Where to go next' rows paint photos
+// through railPhotoSrc (lib/cardPhotoRequest.js) -> FallbackImg -> CardPhoto and
+// never spell "/api/photo", so blank rows there were invisible to this guard.
+// So ALSO: any file under app/ or lib/ that imports/uses CardPhoto, cardPhotoRequest,
+// railPhotoSrc, FallbackImg, SafeImg or renders a literal <img> must be registered,
+// or documented in lib/photoSurfaces.js NON_PHOTO_IMAGE_FILES with a reason.
+// (The modules that DEFINE the helpers are not renderers.)
+const IMAGE_DEFINERS = new Set(["lib/cardPhotoRequest.js", "lib/imageState.js", "lib/photoSurfaces.js"]); // + the registry itself (its component paths are strings, not renderers)
+const registeredAll = new Set(registered);
+const importCandidates = [];
+{
+  const libFiles = walk(path.join(REPO, "lib"), []);
+  for (const abs of [...walk(APP_DIR, []), ...libFiles]) {
+    const rel = path.relative(REPO, abs).replace(/\\/g, "/");
+    if (IMAGE_DEFINERS.has(rel)) continue;
+    const sig = imageSignals(readFileSync(abs, "utf8"));
+    if (sig.length) importCandidates.push({ rel, sig });
+  }
+  ok(importCandidates.length >= 35, `import-based detection found only ${importCandidates.length} image-rendering files under app/ + lib/ (expected >= 35) — this guard has lost its subject`);
+  for (const { rel, sig } of importCandidates) {
+    if (registeredAll.has(rel) || EXEMPT[rel]) { pass++; continue; }
+    if (NON_PHOTO_IMAGE_FILES[rel]) {
+      // The documented reason is enforced: non-photo art never adopts a photo helper.
+      ok(sig.every((n) => n === "<img"), `${rel} is documented as non-photo art in NON_PHOTO_IMAGE_FILES but now uses ${sig.join(", ")} — register it in a PHOTO_SURFACES entry instead`);
+      continue;
+    }
+    failures.push(`${rel}: renders images (${sig.join(", ")}) but is in no PHOTO_SURFACES[].components, no EXEMPT entry here and no NON_PHOTO_IMAGE_FILES reason in lib/photoSurfaces.js. A surface the registry cannot see is a surface blank photos hide on (the Detail.js 'More like' rows).`);
+  }
+  const seen = new Set(importCandidates.map((c) => c.rel));
+  for (const [rel, why] of Object.entries(NON_PHOTO_IMAGE_FILES)) {
+    ok(seen.has(rel), `NON_PHOTO_IMAGE_FILES names ${rel}, which no longer renders an image — remove the stale entry`);
+    ok(typeof why === "string" && why.length > 30, `NON_PHOTO_IMAGE_FILES["${rel}"] needs a real one-line reason`);
+    ok(!registeredAll.has(rel), `${rel} is both registered as a photo surface and listed as non-photo art — pick one`);
+  }
+  // positive controls: the import signals fire on the exact shapes that hid Detail.js, and on nothing else.
+  const has = (src, n) => imageSignals(src).includes(n);
+  ok(has('import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js"; const s = railPhotoSrc(p);', "railPhotoSrc"), "control: railPhotoSrc usage is detected");
+  ok(has('import CardPhoto from "./CardPhoto.js"; <CardPhoto src={x} />', "CardPhoto"), "control: a CardPhoto import is detected");
+  ok(has("<FallbackImg src={x} />", "FallbackImg"), "control: FallbackImg usage is detected");
+  ok(has('import SafeImg from "./SafeImg"; <SafeImg src={x} />', "SafeImg"), "control: SafeImg usage is detected");
+  ok(imageSignals("// railPhotoSrc FallbackImg <img src=x>\nexport const n = 1;").length === 0, "control: comments alone never flag a file (negative control)");
+  const detail = importCandidates.find((c) => c.rel === "app/components/sheets/Detail.js");
+  ok(detail && detail.sig.includes("railPhotoSrc") && detail.sig.includes("FallbackImg"), "precondition: Detail.js is detected by import (railPhotoSrc + FallbackImg), not by an /api/photo literal");
+  ok(registeredAll.has("app/components/sheets/Detail.js"), "app/components/sheets/Detail.js ('More like' / 'Worth comparing nearby' / 'Where to go next' rows) must be in a PHOTO_SURFACES entry");
 }
 
 // ── positive control: every registered file must actually exist ───────────
@@ -231,4 +280,4 @@ if (failures.length) {
   for (const f of failures) console.error("  ✗ " + f);
   process.exit(1);
 }
-console.log(`check-photo-surface-registry: OK — ${pass} assertions; ${candidates.length} candidate files detected, ${PHOTO_SURFACES.length} surfaces registered, ${Object.keys(EXEMPT).length} exemptions`);
+console.log(`check-photo-surface-registry: OK — ${pass} assertions; ${candidates.length} candidate files detected, ${PHOTO_SURFACES.length} surfaces registered, ${Object.keys(EXEMPT).length} exemptions; import-based scan: ${importCandidates.length} image-rendering files across app/ + lib/, ${Object.keys(NON_PHOTO_IMAGE_FILES).length} documented non-photo`);

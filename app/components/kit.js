@@ -11,6 +11,7 @@ import { isPerfectScore } from "../../lib/lawfulOrder";
 import { wayfindScore } from "../../lib/google"; // v6.40: the ONE score formula — chips self-heal from rating signals when wfScore is missing
 // PriceBadge renders these; it never derives a label of its own. See lib/price.js.
 import { priceLabel, priceLevelOf } from "../../lib/price";
+import PhotoFallbackTile from "./PhotoFallbackTile.js";
 
 export const C = {
   bg: "#040810", panel: "#161B22", card: "#1C2230", border: "#2D3748",
@@ -234,15 +235,10 @@ export { imageDisplayState } from "../../lib/imageState.js";
 // Branded artwork fallback — the last link in the chain, shared by every
 // image surface (cards, hero, tiles) so a dead URL always ends here, never a
 // gray box. Matches the share-card prompt's "ends at branded artwork" rule.
-export function BrandedImageFallback({ style, className }) {
-  return (
-    <div className={className} style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #161B22 0%, #1C2230 55%, #232B3A 100%)" }} aria-hidden="true">
-      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="1.5" style={{ opacity: 0.5 }}>
-        <path d="M12 2.5C8.13 2.5 5 5.63 5 9.5c0 4.7 5.95 10.2 6.5 10.7a.74.74 0 0 0 1 0c.55-.5 6.5-6 6.5-10.7 0-3.87-3.13-7-7-7Z" />
-        <circle cx="12" cy="9.4" r="2.4" />
-      </svg>
-    </div>
-  );
+export function BrandedImageFallback({ style, className, name, icon, category }) {
+  // One look for every fallback: app/components/PhotoFallbackTile.js (category glyph
+  // when known, else the brand pin). Compact: callers here are thumbs and tiles.
+  return <PhotoFallbackTile compact className={className} style={style} name={name} icon={icon} category={category} />;
 }
 
 // Calm brand pin (was GlowPin: halo rings + radial bloom + drop shadow — the
