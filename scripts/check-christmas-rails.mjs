@@ -415,7 +415,7 @@ ok(eventPlaceholder("community", { name: "Downtown Christmas Event", christmasRa
 ok(eventPlaceholder("community", { name: "Ugly Sweater Crawl", christmasRail: "parties" }).label === "Christmas party", "a party gets the Christmas party tile by its rail");
 ok(eventPlaceholder("community", { name: "Miracle", christmasRail: "popup-bars" }).label === "Pop up bar", "a pop up bar gets the Pop up bar tile by its rail");
 ok(eventPlaceholder("community", { name: "Halloween Party", christmasRail: "parties" }).label === "Halloween", "a Halloween name still wins over any Christmas rail tile");
-ok(/placeholder: image \? null : eventPlaceholder\("community", \{[^}]*christmasRail: rail \}\)/.test(read("lib/christmasCards.js")) && /const rail = christmasEventRail\(e\)/.test(read("lib/christmasCards.js")) && /\(event\.image \|\| event\.placeholder\)/.test(read("app/api/events/christmas/route.js")), "the shared card picks the tile by the event's rail and the route keeps a no photo event (static)");
+ok(/const tile = eventPlaceholder\("community", \{[^}]*christmasRail: rail \}\);/.test(read("lib/christmasCards.js")) && /placeholder: image \? null : tile,/.test(read("lib/christmasCards.js")) && /const rail = christmasEventRail\(e\)/.test(read("lib/christmasCards.js")) && /\(event\.image \|\| event\.placeholder\)/.test(read("app/api/events/christmas/route.js")), "the shared card picks the tile by the event's rail and the route keeps a no photo event (static)");
 ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/components/ChristmasIntentRails.js")), "the card renders the designed tile (static)");
 {
   const tl = enrichChristmasEvent({ event_id: "x", city: "Tallahassee", state: "FL", lat: null, lng: null }, new Map());
@@ -481,9 +481,12 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
     ok(!/<img/.test(html) && !/wf-place-card-photo-attr/.test(html), `"${n}": no image element and no photo credit on the tile`);
   }
   const withPhoto = renderToStaticMarkup(React.createElement(RailCard, { title: "x", photo: "/api/photo?place=ChIJx&w=640", placeholder: eventPlaceholder("community", { name: "Christmas on Las Olas" }) }));
-  ok(/<img/.test(withPhoto) && !/wf-event-placeholder/.test(withPhoto), "a real venue photo always wins over the tile");
+  // 2026-10-14: the tile holds the slot only until the venue photo loads, and
+  // stays if it cannot (the Chromium replacement is executed in
+  // check-christmas-card-photo-slot).
+  ok(/<img[^>]+src="\/api\/photo\?place=ChIJx&amp;w=640"/.test(withPhoto) && /data-card-photo-fallback="loading"[^>]*>[\s\S]*wf-event-placeholder/.test(withPhoto), "a real venue photo renders, and the tile only sits under it until it paints");
   const routeSrc = read("app/api/events/christmas/route.js");
-  ok(/placeholder: image \? null : eventPlaceholder\(/.test(read("lib/christmasCards.js")) && /\.filter\(\(event\) => \(event\.image \|\| event\.placeholder\) && \(event\.url \|\| event\.place_id \|\| event\.detailHref\)\)/.test(routeSrc), "the route keeps every photoless event that has a destination (static)");
+  ok(/placeholder: image \? null : tile,/.test(read("lib/christmasCards.js")) && /\.filter\(\(event\) => \(event\.image \|\| event\.placeholder\) && \(event\.url \|\| event\.place_id \|\| event\.detailHref\)\)/.test(routeSrc), "the route keeps every photoless event that has a destination (static)");
   const css = (await lc(path.join(ROOT, "app/components/css.js"), ROOT)).WF_PLACE_CARD_CSS;
   ok(/\.wf-event-placeholder:after\{display:none\}/.test(css), "the tile drops the monogram ring, so it reads as flat artwork");
 }

@@ -46,8 +46,12 @@ try{
   ok(renderToStaticMarkup(tree).includes('Original photographer'),'original image starts with its own credit');
   primary.props.onError({currentTarget:{dataset:{fallback:cardProps.photoFallback},src:cardProps.photo}});
   cursor=0;tree=RailCard(cardProps);const fallbackMarkup=renderToStaticMarkup(tree);
-  ok(!fallbackMarkup.includes('Venue photo')&&fallbackMarkup.includes('>©<'),'actual image onError keeps the plain (c) chip and prints no venue caption');
-  ok(fallbackMarkup.includes('Photo: Google Maps')&&!fallbackMarkup.includes('Original photographer'),'fallback cannot retain the old image author credit');
+  // 2026-10-14 (owner): a credit badge sits only on a photo that loaded. The
+  // /api/photo fallback is the credited lane: CardPhoto shows its "Google Maps"
+  // credit once that exact image painted (check-christmas-card-photo-slot), so
+  // the card prints no "(c)" of its own while the request is pending.
+  ok(!fallbackMarkup.includes('Venue photo')&&!fallbackMarkup.includes('>©<')&&/data-card-photo-request=/.test(fallbackMarkup),'actual image onError hands the slot to the credited lane, with no venue caption and no premature (c) chip');
+  ok(!fallbackMarkup.includes('Original photographer'),'fallback cannot retain the old image author credit');
   let fallback=null;walk(tree,(node)=>{if(node.type===CardPhoto&&node.props.src===cardProps.photoFallback&&node.props['data-fallback']!==undefined)fallback=node;});
   ok(!!fallback&&fallback.props['data-fallback']==='','fallback is used once, never an image-error loop');
   fallback.props.onError({currentTarget:{dataset:{fallback:''}}});
