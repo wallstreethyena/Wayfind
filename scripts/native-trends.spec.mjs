@@ -141,7 +141,7 @@ assert.deepEqual([...exclusions[1].matchAll(/[a-f0-9]{64}/g)].map((m) => m[0]).s
 const fixtureHash = createHash('sha256').update('internal-fixture@example.test').digest('hex');
 const fixtureCore = await import('data:text/javascript,' + encodeURIComponent(coreSource.replace(
   exclusions[0], `const INTERNAL_EMAIL_DIGESTS = new Set(["${fixtureHash}"]);`
-)));
+).replace("'../metroRegions.js'", `'${new URL('../lib/metroRegions.js', import.meta.url).href}'`)));
 const fixtureUsers = users.map((u) => u.id === 'owner'
   ? { ...u, email: ' INTERNAL-FIXTURE@EXAMPLE.TEST ', app_metadata: {} }
   : u);
