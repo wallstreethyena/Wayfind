@@ -12,5 +12,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1740",
     "reason": "Data-only repair of 4 wf_events rows (Cortez compromised ticket domain removed, Florida Coffee Festival 404 event link replaced with organizer Eventbrite, Country Thunder dead links removed, Goblin Gathering manual link verification). Written by an agent with read-only DB access; owner reviews then applies. Not applied."
+  },
+  {
+    "file": "supabase/migrations/20261014120000_wf_heartbeat_anchor_watch.sql",
+    "sha256": "d4be30686a0ac1236bba8f16010a7541e5c29802ee813a4d03c2d71a62d66c87",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1752",
+    "reason": "One wf_heartbeat_expected row (anchor-watch, 48h) so heartbeat-watch pages if the daily anchor watcher goes silent. Insert-only, no schema change. Apply only after #1752 merges and the workflow is approved; applying earlier would page on a job that cannot run yet."
   }
 ]
