@@ -1,0 +1,672 @@
+{
+ "_about": "Christmas 2026 venues matched to an existing wf_inventory venue (owner, 2026-10-14: real photos of the actual places). Read only SELECT against wf_inventory on 2026-10-14, no paid lookup. A match needs the same venue name (normalized), the same city, the inventory point within 0.5 mi of the listing's point, and for parades and boat parades never a staging marina. place_id only: no photo names or URLs. Locked by scripts/check-christmas-venue-matches.mjs.",
+ "checked": "2026-10-14",
+ "matches": [
+  {
+   "research_id": "water-street-season-spectacular-2026",
+   "place_id": "ChIJy66Xe53FwogRcpjZQHX4cCI",
+   "rail": "towns-markets",
+   "city": "Tampa",
+   "venue": "Water Street Tampa",
+   "point": {
+    "lat": 27.9419132,
+    "lng": -82.4515734
+   },
+   "inventory": {
+    "name": "Water Street",
+    "locality": null,
+    "lat": 27.943889,
+    "lng": -82.450185
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "wdw-holiday-season-2026",
+   "place_id": "ChIJgUulalN-3YgRGoTaWM2LawY",
+   "rail": "theme-parks",
+   "city": "Bay Lake",
+   "venue": "Magic Kingdom, Animal Kingdom and resort-wide",
+   "point": {
+    "lat": 28.4190753,
+    "lng": -81.5817158
+   },
+   "inventory": {
+    "name": "Magic Kingdom Park",
+    "locality": null,
+    "lat": 28.418816,
+    "lng": -81.581769
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "orlando-festival-of-trees-2026",
+   "place_id": "ChIJ7aIAgJd654gRjUN8WsPaaI4",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Orlando Museum of Art",
+   "point": {
+    "lat": 28.57275,
+    "lng": -81.36512
+   },
+   "inventory": {
+    "name": "Orlando Museum of Art",
+    "locality": null,
+    "lat": 28.57275,
+    "lng": -81.36512
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "wiregrass-symphony-in-lights-2026",
+   "place_id": "ChIJHWXmMdewwogRk8JI-PK3rS0",
+   "rail": "lights",
+   "city": "Wesley Chapel",
+   "venue": "The Shops at Wiregrass",
+   "point": {
+    "lat": 28.1883042,
+    "lng": -82.349507
+   },
+   "inventory": {
+    "name": "The Shops at Wiregrass",
+    "locality": null,
+    "lat": 28.189078,
+    "lng": -82.349682
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "utc-holidays-2026",
+   "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
+   "rail": "lights",
+   "city": "Sarasota",
+   "venue": "Mall at UTC, 140 University Town Center Drive",
+   "point": {
+    "lat": 27.38453,
+    "lng": -82.452866
+   },
+   "inventory": {
+    "name": "The Mall at University Town Center",
+    "locality": null,
+    "lat": 27.384507,
+    "lng": -82.452843
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "lighthouse-illuminations-2026",
+   "place_id": "ChIJS3j7AnEn5IgRj0GbuJwbvpg",
+   "rail": "lights",
+   "city": "St. Augustine",
+   "venue": "St. Augustine Lighthouse, 100 Red Cox Rd",
+   "point": {
+    "lat": 29.8854489,
+    "lng": -81.2885397
+   },
+   "inventory": {
+    "name": "St. Augustine Lighthouse & Maritime Museum",
+    "locality": "St. Augustine",
+    "lat": 29.885384,
+    "lng": -81.288281
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "dazzlingnights-leu-2026",
+   "place_id": "ChIJCRCYGrx654gR3G9qoVbWlpY",
+   "rail": "lights",
+   "city": "Orlando",
+   "venue": "Harry P. Leu Gardens",
+   "point": {
+    "lat": 28.5678838,
+    "lng": -81.3574825
+   },
+   "inventory": {
+    "name": "Harry P Leu Gardens",
+    "locality": null,
+    "lat": 28.567768,
+    "lng": -81.357246
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "hollywood-tree-lighting-artspark-2026",
+   "place_id": "ChIJZwwqAaCr2YgR4P6yyp_dmvg",
+   "rail": "towns-markets",
+   "city": "Hollywood",
+   "venue": "ArtsPark at Young Circle, 1 N Young Circle",
+   "point": {
+    "lat": 26.01153,
+    "lng": -80.14305
+   },
+   "inventory": {
+    "name": "ArtsPark at Young Circle",
+    "locality": null,
+    "lat": 26.011527,
+    "lng": -80.143048
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "ocala-light-up-ocala-2026",
+   "place_id": "ChIJ4aH4U0bV54gR9HE5r_NLsTM",
+   "rail": "towns-markets",
+   "city": "Ocala",
+   "venue": "Downtown Ocala Square",
+   "point": {
+    "lat": 29.186603,
+    "lng": -82.1364827
+   },
+   "inventory": {
+    "name": "Ocala Downtown Square",
+    "locality": null,
+    "lat": 29.186723,
+    "lng": -82.136513
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "winterfest-family-fun-day-2026",
+   "place_id": "ChIJ_WsKgPkA2YgRJM52Qt0LULA",
+   "rail": "towns-markets",
+   "city": "Fort Lauderdale",
+   "venue": "Esplanade Park",
+   "point": {
+    "lat": 26.11997,
+    "lng": -80.14794
+   },
+   "inventory": {
+    "name": "Esplanade Park",
+    "locality": null,
+    "lat": 26.119968,
+    "lng": -80.147943
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "glowing-gardens-2026",
+   "place_id": "ChIJ6_k9TmCz5YgRZoTCykSG8rA",
+   "rail": "lights",
+   "city": "Jacksonville",
+   "venue": "Jacksonville Arboretum & Botanical Gardens, 1445 Millcoe Rd",
+   "point": {
+    "lat": 30.34614,
+    "lng": -81.53978
+   },
+   "inventory": {
+    "name": "Jacksonville Arboretum & Botanical Gardens",
+    "locality": "Jacksonville",
+    "lat": 30.346136,
+    "lng": -81.539776
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "epcot-candlelight-2026",
+   "place_id": "ChIJGxKPmqh_3YgRj80j5HlD-rA",
+   "rail": "shows-outings",
+   "city": "Bay Lake",
+   "venue": "America Gardens Theatre, EPCOT",
+   "point": {
+    "lat": 28.3683005,
+    "lng": -81.5493849
+   },
+   "inventory": {
+    "name": "America Gardens Theater",
+    "locality": null,
+    "lat": 28.368333,
+    "lng": -81.549392
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "frontyard-holiday-festival-2026",
+   "place_id": "ChIJ-7QCIgJ754gRcfF7EG3N1Xs",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Dr. Phillips Center Frontyard and Seneff Arts Plaza",
+   "point": {
+    "lat": 28.5378247,
+    "lng": -81.3773806
+   },
+   "inventory": {
+    "name": "Dr. Phillips Center for the Performing Arts",
+    "locality": null,
+    "lat": 28.537825,
+    "lng": -81.377381
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "light-up-eustis-2026",
+   "place_id": "ChIJlb5TDjSj54gRpJ9aO8JkTyc",
+   "rail": "towns-markets",
+   "city": "Eustis",
+   "venue": "Ferran Park",
+   "point": {
+    "lat": 28.85397,
+    "lng": -81.6865
+   },
+   "inventory": {
+    "name": "Ferran Park",
+    "locality": null,
+    "lat": 28.853974,
+    "lng": -81.6865
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "zoo-lights-miami-2026",
+   "place_id": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+   "rail": "lights",
+   "city": "Miami",
+   "venue": "Zoo Miami, 12400 SW 152nd St",
+   "point": {
+    "lat": 25.60953,
+    "lng": -80.39641
+   },
+   "inventory": {
+    "name": "Zoo Miami",
+    "locality": null,
+    "lat": 25.609532,
+    "lng": -80.396406
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "orlando-phil-fierce-holiday-2026",
+   "place_id": "ChIJ001Ra3p754gRq1bFeHUUxXY",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Steinmetz Hall, Dr. Phillips Center",
+   "point": {
+    "lat": 28.5378247,
+    "lng": -81.3773806
+   },
+   "inventory": {
+    "name": "Steinmetz Hall",
+    "locality": null,
+    "lat": 28.537993,
+    "lng": -81.377413
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "shopapalooza-st-pete-2026",
+   "place_id": "ChIJESS-JgvhwogRnfB1lK46okc",
+   "rail": "towns-markets",
+   "city": "St. Petersburg",
+   "venue": "Vinoy Park",
+   "point": {
+    "lat": 27.7791,
+    "lng": -82.62572
+   },
+   "inventory": {
+    "name": "Vinoy Park",
+    "locality": "St. Petersburg",
+    "lat": 27.7791,
+    "lng": -82.625724
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "siesta-key-holiday-parade-2026",
+   "place_id": "ChIJK1nJH9xrw4gRIr9IhuzYVQI",
+   "rail": "parades",
+   "city": "Siesta Key",
+   "venue": "Siesta Key Village (Beach Road to Ocean Boulevard)",
+   "point": {
+    "lat": 27.2744613,
+    "lng": -82.5642746
+   },
+   "inventory": {
+    "name": "Siesta Key Village",
+    "locality": null,
+    "lat": 27.275968,
+    "lng": -82.564852
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "morse-christmas-in-the-park-2026",
+   "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
+   "rail": "shows-outings",
+   "city": "Winter Park",
+   "venue": "Central Park Main Stage",
+   "point": {
+    "lat": 28.5968485,
+    "lng": -81.3513698
+   },
+   "inventory": {
+    "name": "Central Park",
+    "locality": null,
+    "lat": 28.597845,
+    "lng": -81.351457
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "lake-eola-tree-lighting-2026",
+   "place_id": "ChIJu3hNU-N654gR0x0I9_3iNvc",
+   "rail": "towns-markets",
+   "city": "Orlando",
+   "venue": "Lake Eola Park",
+   "point": {
+    "lat": 28.5437836,
+    "lng": -81.3751922
+   },
+   "inventory": {
+    "name": "Lake Eola Park",
+    "locality": null,
+    "lat": 28.542763,
+    "lng": -81.370929
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "winter-on-the-avenue-2026",
+   "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
+   "rail": "towns-markets",
+   "city": "Winter Park",
+   "venue": "Central Park and Park Avenue",
+   "point": {
+    "lat": 28.5968485,
+    "lng": -81.3513698
+   },
+   "inventory": {
+    "name": "Central Park",
+    "locality": null,
+    "lat": 28.597845,
+    "lng": -81.351457
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "winter-park-christmas-parade-2026",
+   "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
+   "rail": "parades",
+   "city": "Winter Park",
+   "venue": "Central Park",
+   "point": {
+    "lat": 28.5978454,
+    "lng": -81.3514572
+   },
+   "inventory": {
+    "name": "Central Park",
+    "locality": null,
+    "lat": 28.597845,
+    "lng": -81.351457
+   },
+   "target": "correction"
+  },
+  {
+   "research_id": "palm-harbor-christmas-parade-tree-lighting-2026",
+   "place_id": "ChIJPYY9yxPzwogRhFOrmxJ1BLY",
+   "rail": "parades",
+   "city": "Palm Harbor",
+   "venue": "Downtown Palm Harbor, 11th and Georgia Ave",
+   "point": {
+    "lat": 28.0772409,
+    "lng": -82.7578418
+   },
+   "inventory": {
+    "name": "Downtown Palm Harbor",
+    "locality": null,
+    "lat": 28.079023,
+    "lng": -82.763293
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "tampa-santa-fest-parade-tree-lighting-2026",
+   "place_id": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
+   "rail": "parades",
+   "city": "Tampa",
+   "venue": "Downtown Tampa and Curtis Hixon Waterfront Park",
+   "point": {
+    "lat": 27.949047,
+    "lng": -82.4618867
+   },
+   "inventory": {
+    "name": "Curtis Hixon Waterfront Park",
+    "locality": null,
+    "lat": 27.948917,
+    "lng": -82.461649
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "lwr-holiday-of-the-arts-2026",
+   "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
+   "rail": "towns-markets",
+   "city": "Lakewood Ranch",
+   "venue": "Lakewood Ranch Main Street, 8100 Lakewood Main Street",
+   "point": {
+    "lat": 27.3936735,
+    "lng": -82.4356515
+   },
+   "inventory": {
+    "name": "Main Street At Lakewood Ranch",
+    "locality": null,
+    "lat": 27.394537,
+    "lng": -82.435258
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "coconut-point-tropical-holiday-celebration-2026",
+   "place_id": "ChIJ54VrbhEX24gRM9qiRvpFv_8",
+   "rail": "towns-markets",
+   "city": "Estero",
+   "venue": "Coconut Point",
+   "point": {
+    "lat": 26.408682,
+    "lng": -81.8068737
+   },
+   "inventory": {
+    "name": "Coconut Point",
+    "locality": null,
+    "lat": 26.403885,
+    "lng": -81.807185
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "holiday-pops-winter-park-2026",
+   "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
+   "rail": "shows-outings",
+   "city": "Winter Park",
+   "venue": "Central Park Main Stage",
+   "point": {
+    "lat": 28.5968485,
+    "lng": -81.3513698
+   },
+   "inventory": {
+    "name": "Central Park",
+    "locality": null,
+    "lat": 28.597845,
+    "lng": -81.351457
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "hallucination-before-christmas-castle-ybor-2026",
+   "place_id": "ChIJw3ZLa1DEwogR3B-B1fQW7UM",
+   "rail": "parties",
+   "city": "Tampa",
+   "venue": "The Castle Ybor",
+   "point": {
+    "lat": 27.9618792,
+    "lng": -82.4418938
+   },
+   "inventory": {
+    "name": "The Castle",
+    "locality": null,
+    "lat": 27.961914,
+    "lng": -82.441923
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "yacht-starship-tampa-santa-brunch-cruise-2026",
+   "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
+   "rail": "shows-outings",
+   "city": "Tampa",
+   "venue": "Yacht StarShip, 603 Channelside Dr",
+   "point": {
+    "lat": 27.94211,
+    "lng": -82.448354
+   },
+   "inventory": {
+    "name": "Yacht StarShip Cruises & Events",
+    "locality": null,
+    "lat": 27.942211,
+    "lng": -82.448206
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "yacht-starship-tampa-boat-parade-dinner-cruise-2026",
+   "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
+   "rail": "boat-parades",
+   "city": "Tampa",
+   "venue": "Yacht StarShip, 603 Channelside Dr",
+   "point": {
+    "lat": 27.94211,
+    "lng": -82.448354
+   },
+   "inventory": {
+    "name": "Yacht StarShip Cruises & Events",
+    "locality": null,
+    "lat": 27.942211,
+    "lng": -82.448206
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "lwr-christmas-on-main-2026",
+   "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
+   "rail": "towns-markets",
+   "city": "Lakewood Ranch",
+   "venue": "Lakewood Ranch Main Street",
+   "point": {
+    "lat": 27.3952868,
+    "lng": -82.4373428
+   },
+   "inventory": {
+    "name": "Main Street At Lakewood Ranch",
+    "locality": null,
+    "lat": 27.394537,
+    "lng": -82.435258
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "yacht-starship-tampa-christmas-eve-dinner-2026",
+   "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
+   "rail": "shows-outings",
+   "city": "Tampa",
+   "venue": "Yacht StarShip, 603 Channelside Dr",
+   "point": {
+    "lat": 27.94211,
+    "lng": -82.448354
+   },
+   "inventory": {
+    "name": "Yacht StarShip Cruises & Events",
+    "locality": null,
+    "lat": 27.942211,
+    "lng": -82.448206
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "holidays-on-park-2026",
+   "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
+   "rail": "lights",
+   "city": "Winter Park",
+   "venue": "Park Avenue and Central Park",
+   "point": {
+    "lat": 28.5968485,
+    "lng": -81.3513698
+   },
+   "inventory": {
+    "name": "Central Park",
+    "locality": null,
+    "lat": 28.597845,
+    "lng": -81.351457
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "doncesar-christmas-brunch-2026",
+   "place_id": "ChIJWYpZXd0Dw4gRqkbKuCLcZAE",
+   "rail": "shows-outings",
+   "city": "St. Pete Beach",
+   "venue": "The Don CeSar (King Charles Ballroom)",
+   "point": {
+    "lat": 27.7092705,
+    "lng": -82.7372769
+   },
+   "inventory": {
+    "name": "The Don CeSar",
+    "locality": "St. Pete Beach",
+    "lat": 27.709341,
+    "lng": -82.737265
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "st-armands-holiday-night-of-lights-2026",
+   "place_id": "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8",
+   "rail": "towns-markets",
+   "city": "Sarasota",
+   "venue": "St. Armands Circle Park",
+   "point": {
+    "lat": 27.3179935,
+    "lng": -82.5768726
+   },
+   "inventory": {
+    "name": "St. Armands Circle",
+    "locality": null,
+    "lat": 27.318392,
+    "lng": -82.577281
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "utc-rink-2026",
+   "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
+   "rail": "shows-outings",
+   "city": "Sarasota",
+   "venue": "Mall at UTC",
+   "point": {
+    "lat": 27.38453,
+    "lng": -82.452866
+   },
+   "inventory": {
+    "name": "The Mall at University Town Center",
+    "locality": null,
+    "lat": 27.384507,
+    "lng": -82.452843
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "utc-wonderland-circus-2026",
+   "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
+   "rail": "shows-outings",
+   "city": "Sarasota",
+   "venue": "Mall at UTC",
+   "point": {
+    "lat": 27.38453,
+    "lng": -82.452866
+   },
+   "inventory": {
+    "name": "The Mall at University Town Center",
+    "locality": null,
+    "lat": 27.384507,
+    "lng": -82.452843
+   },
+   "target": "research"
+  }
+ ]
+}
