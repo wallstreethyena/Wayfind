@@ -1,12 +1,5 @@
 [
   {
-    "file": "supabase/migrations/20261013180000_event_link_repairs_2026_10_13.sql",
-    "sha256": "7da41a3ca2ebd85fd996ffb60921d7be52ccda9576c4e085d37f10f276a83c49",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#1740",
-    "reason": "Data-only repair of 4 wf_events rows (Cortez compromised ticket domain removed, Florida Coffee Festival 404 event link replaced with organizer Eventbrite, Country Thunder dead links removed, Goblin Gathering manual link verification). Written by an agent with read-only DB access; owner reviews then applies. Not applied."
-  },
-  {
     "file": "supabase/migrations/20261015120000_wf_photo_purchase.sql",
     "sha256": "1aeed474de1e9b21fbe60617dc2b8e38c8d6d3fbabb862ab2fd2f1618ec38f2c",
     "decision_owner": "wallstreethyena",

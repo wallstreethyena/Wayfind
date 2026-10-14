@@ -198,6 +198,7 @@ scripts/check-guide-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0
 scripts/check-guides.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	d64e883cb79afdcc20fa8b05f4f1e6174d151d21534dca983eb2ad410433b4f4
 scripts/check-headers.mjs	0	CALL	manual-npm-script-only	0	-	4	1	0	a9a97281883b4346333568626b328103082402a6a85c11333b93baf2c0cdf213
 scripts/check-heartbeat-tolerance.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	0	0	6d0151483920fd703f0639bed3e761a5af34b7f1ebd1c54d38eb6b6ed31fa554
+scripts/check-held-migrations.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	6dfd7339a68f9184a48c907aafd4698c9901fc88f364a9fabe5e42a06f238564
 scripts/check-hero-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	167	0	0	0b1b41f9cfa3d8c26dc74ac9d3fae7a2bd905b168ee56535da945d3a83c7fd1f
 scripts/check-hero-chrome.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	42da8e5a687cba5b2458019f670ede67c69b319fba59bcf0fdaf167a479d332f
 scripts/check-home-answer-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	143	0	0	706b719a5604d157ee5349ad0f22d3cd39fa3faee7e2da35ac2b32cd871efb69
