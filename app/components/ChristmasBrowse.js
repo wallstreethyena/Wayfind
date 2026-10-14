@@ -23,7 +23,7 @@ function distanceFact(card) {
 export function ChristmasBrowseCard({ card, rank, today }) {
   const chips = christmasCardChips(card, today);
   return <RailCard className="wf-exploding-primary"
-    photo={card.image || null} placeholder={!card.image ? card.placeholder || null : null}
+    photo={card.image || null} placeholder={!card.image ? card.placeholder || null : null} photoFallbackCategory="christmas"
     visitFacts={card} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}
     when={card.when || null} facts={[card.city || null, distanceFact(card) || card.region || null].filter(Boolean)}
     chips={chips.slice(0, 4)} take={card.hook || null}
