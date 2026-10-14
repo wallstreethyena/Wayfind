@@ -66,6 +66,83 @@ for (const e of GUIDE_DESCRIPTION_FILLS) {
   ok(!!pick && !JSON.stringify(out).includes(String(pick.tip || "\u0000never")), `${tag}: the guide's separate tip is not carried over`);
 }
 
+// ── 1b. OFFICIAL-SITE FILLS + the checks that apply to EVERY fill ───────────
+// (2026-10-14) Free coverage from the venue's own page, written in our words.
+const { OFFICIAL_DESCRIPTION_FILLS } = await import(new URL("../lib/officialDescriptionFills.js", import.meta.url).href);
+const FILLER = /\b(hidden gems?|something for everyone|must[- ]visit|must[- ]see|must[- ]try|bucket list|nestled|tucked away|vibrant|bustling|perfect for|a haven|whether you(?:'|’)re|look no further|local favou?rite|world[- ]class|unforgettable|paradise|foodies?|gem of|treasure trove|one[- ]stop|something special|truly unique|second to none|you(?:'|’)ll love|don(?:'|’)t miss|a must)\b/i;
+const SUPERLATIVE = /\b(best|greatest|finest|most|only|largest|biggest|oldest|newest|top[- ]rated|number one|#1|first in|famous|iconic|legendary|award[- ]winning)\b/i;
+const MONTH_OR_SEASON = /\b(january|february|march|april|may|june|july|august|september|october|november|december|summer|autumn|winter|holiday|(?:this|in|every|next|last) (?:spring|fall))\b/i;
+const BAD_SOURCE_HOST = /(google\.|goo\.gl|wikipedia|wikidata|wikimedia|yelp|tripadvisor|facebook|instagram|tiktok|opentable|ubereats|doordash|sarasotamagazine|yourobserver|heraldtribune|disney|reddit)/i;
+const ISO_DAY = /^\d{4}-\d{2}-\d{2}$/;
+const TODAY_CAP = "2026-12-31"; // a verifiedOn date can never be invented far in the future
+const wordCount = (t) => t.trim().split(/\s+/).length;
+const shingles = (t, n = 5) => {
+  const w = t.toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
+  const out = new Set();
+  for (let i = 0; i + n <= w.length; i++) out.add(w.slice(i, i + n).join(" "));
+  return out;
+};
+ok(OFFICIAL_DESCRIPTION_FILLS.length >= 8, `at least the 8 official-site fills are present (${OFFICIAL_DESCRIPTION_FILLS.length})`);
+// One uniform view of every fill (guide-derived and official) so the same rules bind both.
+const ALL = [
+  ...GUIDE_DESCRIPTION_FILLS.map((e) => ({ id: e.placeId, name: e.name, text: e.expected, kind: "guide", verifiedOn: e.verifiedOn, sourceUrl: e.sourceUrl })),
+  ...OFFICIAL_DESCRIPTION_FILLS.map((e) => ({ id: e.placeId, name: e.name, text: e.text, kind: "official", verifiedOn: e.verifiedOn, sourceUrl: e.sourceUrl, entry: e })),
+];
+{
+  const ids = new Set();
+  for (const f of ALL) { ok(!ids.has(f.id), `${f.name}: place_id appears once across guide and official fills`); ids.add(f.id); }
+}
+for (const f of ALL) {
+  const tag = `${f.name} [${f.kind}]`;
+  ok(typeof f.verifiedOn === "string" && ISO_DAY.test(f.verifiedOn) && f.verifiedOn <= TODAY_CAP, `${tag}: carries a verification date (${f.verifiedOn})`);
+  ok(f.text.length >= 80 && f.text.length <= 420, `${tag}: length within 80 to 420 characters (${f.text.length})`);
+  ok(wordCount(f.text) <= 75, `${tag}: at most 75 words (${wordCount(f.text)})`);
+  ok(!DASH.test(f.text) && !/\s-\s/.test(f.text), `${tag}: no dashes of any kind between words`);
+  ok(!FILLER.test(f.text), `${tag}: no generic filler phrase (${(FILLER.exec(f.text) || [])[0] || ""})`);
+  ok(!/wayfind/i.test(f.text), `${tag}: no Wayfind self talk`);
+  ok(operationalData(f.text).length === 0, `${tag}: no hours, days, prices, dates, years, phone or address`);
+  ok(/[.]$/.test(f.text.trim()), `${tag}: ends as a finished sentence`);
+  if (f.kind === "official") {
+    ok(!/\b(free|cheap|affordable|discount|admission|tickets?)\b/i.test(f.text), `${tag}: no price or admission claim`);
+    ok(/^https:\/\/[^/\s]+\//.test(f.sourceUrl + "/"), `${tag}: official sourceUrl is https`);
+    let host = ""; try { host = new URL(f.sourceUrl).hostname; } catch { /* bad */ }
+    ok(!!host && !BAD_SOURCE_HOST.test(host), `${tag}: source host is the venue or its agency, never Google, Wikipedia, a review site, a magazine or Disney (${host})`);
+    ok(!SUPERLATIVE.test(f.text), `${tag}: no ranking or superlative the page cannot back (${(SUPERLATIVE.exec(f.text) || [])[0] || ""})`);
+    ok(!MONTH_OR_SEASON.test(f.text) && !TIME_BOUND.test(f.text.replace(/New York/g, "NY")), `${tag}: no month, season or time bound wording`);
+    ok(f.entry.evidence === "official-site", `${tag}: evidence label is official-site`);
+    const out = guideDescriptionFor(f.id);
+    ok(out && out.why === f.text, `${tag}: guideDescriptionFor serves the locked text`);
+    if (out) {
+      for (const k of ["vibe", "knownFor", "bestFor", "foodMove", "drinkMove", "insiderMove", "proMove", "story", "proof", "goodToKnow", "funFact", "watchOut"]) ok(out[k] === null, `${tag}: ${k} stays empty (no Best time, no Local tip)`);
+      ok(Array.isArray(out.sources) && out.sources.length === 1 && out.sources[0] === host.replace(/^www\./, ""), `${tag}: served sources name the official host`);
+    }
+    ok(!cardIds.has(f.id) && !cardIds.has(resolveAtlasId(f.id)), `${tag}: has no Atlas card (a card always wins)`);
+    ok(!editorialFor(f.name), `${tag}: has no handwritten lib/editorial.js entry`);
+    ok(!retiredIds.has(f.id), `${tag}: is not a retired or held Atlas place`);
+  }
+}
+// No duplicate descriptions across places: identical text, or any shared 5 word run, fails.
+{
+  const seen = new Map();
+  for (const f of ALL) {
+    ok(!seen.has(f.text), `${f.name}: description is not identical to ${seen.get(f.text)}`);
+    seen.set(f.text, f.name);
+  }
+  for (let i = 0; i < ALL.length; i++) {
+    const a = shingles(ALL[i].text);
+    for (let j = i + 1; j < ALL.length; j++) {
+      const shared = [...shingles(ALL[j].text)].filter((s) => a.has(s));
+      ok(shared.length === 0, `${ALL[i].name} / ${ALL[j].name}: share no 5 word run (${shared.slice(0, 2).join(" | ")})`);
+    }
+  }
+}
+// Probes really fire (positive controls), so a green run means something.
+ok(FILLER.test("A hidden gem with something for everyone, a must-visit stop"), "control: the filler probe catches hidden gem / something for everyone / must-visit");
+ok(SUPERLATIVE.test("The best and only spring"), "control: the superlative probe catches best / only");
+ok(BAD_SOURCE_HOST.test("en.wikipedia.org") && BAD_SOURCE_HOST.test("maps.google.com") && BAD_SOURCE_HOST.test("disneyworld.disney.go.com") && !BAD_SOURCE_HOST.test("www.floridastateparks.org"), "control: the source host probe rejects Wikipedia, Google, Disney and accepts a state park site");
+ok([...shingles("Alpha beta gamma delta epsilon zeta")].some((s) => shingles("x alpha beta gamma delta epsilon y").has(s)), "control: the duplicate probe sees a shared run");
+ok(/\s-\s/.test("a - b"), "control: the spaced hyphen probe fires");
+
 // ── 2. NEGATIVE CONTROLS: the resolver fails closed ─────────────────────────
 {
   const e = GUIDE_DESCRIPTION_FILLS[0];
@@ -156,9 +233,32 @@ for (const bad of ["CLOSED_PERMANENTLY", "CLOSED_TEMPORARILY", "EXCLUDED"]) {
   const r = await call(`id=${encodeURIComponent(card.placeId)}`);
   ok(r.body.editorial && r.body.editorial.why !== E.expected, "an Atlas card place is served from its card, not a guide"); }
 
+{ // official-site fills through the REAL route: served by id, last tier, status gated
+  for (const o of OFFICIAL_DESCRIPTION_FILLS) {
+    reset(); setPlace(o.placeId, o.name);
+    const r = await call(`id=${encodeURIComponent(o.placeId)}&name=${encodeURIComponent(o.name)}`);
+    ok(r.body.editorial && r.body.editorial.why === o.text, `route serves the official-site fill for ${o.name}`);
+    ok(r.body.editorial && r.body.editorial.goodToKnow === null && r.body.editorial.insiderMove === null, `${o.name}: served payload has no Best time and no Local tip`);
+    ok(Array.isArray(r.body.sources) && r.body.sources.length === 1, `${o.name}: served payload names its official source host`);
+    reset(); setPlace(o.placeId, o.name, { status: "CLOSED_PERMANENTLY" });
+    const c = await call(`id=${encodeURIComponent(o.placeId)}`);
+    ok(!c.body.editorial && c.body.refused, `${o.name}: a closed place gets NO official-site fill`);
+    reset();
+    const u = await call(`id=${encodeURIComponent(o.placeId)}`);
+    ok(!u.body.editorial && u.body.refused === "refused-unknown-place", `${o.name}: unknown to inventory is refused`);
+    reset(); setPlace(o.placeId, o.name);
+    const n = await call(`name=${encodeURIComponent(o.name)}`);
+    ok(!n.body.editorial, `${o.name}: never reached by name alone`);
+    reset(); setPlace(o.placeId, o.name);
+    state.editorialRows = [{ place_id: o.placeId, hook: "A verified hook of enough length.", why_here: "V".repeat(200), facts: [], verified: true }];
+    const v = await call(`id=${encodeURIComponent(o.placeId)}`);
+    ok(v.body.editorial && v.body.editorial.why === "V".repeat(200), `${o.name}: a verified wf_editorial row still wins over the official-site fill`);
+  }
+}
+
 if (fail.length) {
   console.error(`test-guide-description-fills: FAIL ${fail.length} of ${pass + fail.length}`);
   for (const f of fail) console.error("  - " + f);
   process.exit(1);
 }
-console.log(`test-guide-description-fills: OK ${pass} assertions (${GUIDE_DESCRIPTION_FILLS.length} fills; each re-derived from the live guide blurb, last tier of /api/editorial, ${cards.length} Atlas cards and ${retiredIds.size} held ids checked for overlap)`);
+console.log(`test-guide-description-fills: OK ${pass} assertions (${GUIDE_DESCRIPTION_FILLS.length} guide fills + ${OFFICIAL_DESCRIPTION_FILLS.length} official-site fills; each re-derived from the live guide blurb, last tier of /api/editorial, ${cards.length} Atlas cards and ${retiredIds.size} held ids checked for overlap)`);
