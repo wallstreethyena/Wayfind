@@ -44,7 +44,7 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 
-import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS } from "./lib/synthetic/scenarios.mjs";
+import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS, cardWindowIsStable, CARD_WINDOW_QUIET_MS, SIGNUP_OFFER_SETTLE_MS } from "./lib/synthetic/scenarios.mjs";
 // The product decision itself. Imported so the approved poster list can be
 // checked against it rather than against a copy that drifts (see §0).
 import { RAILS } from "../lib/rails.js";
@@ -615,6 +615,37 @@ if (workflowSrc) {
   ok(/run-synthetic-monitor\.mjs/.test(workflowSrc), "the workflow actually invokes scripts/run-synthetic-monitor.mjs");
   ok(/--all/.test(workflowSrc), "the workflow's scheduled path runs --all, not a single scenario");
   ok(/upload-artifact/.test(workflowSrc), "the workflow uploads failure evidence as a build artifact so a scheduled failure leaves reviewable evidence");
+}
+
+// ── save-share-actions: never tap a card window that is still swapping ──────
+// Live 2026-10-14: the home page paints the default-centre rail, then swaps the
+// same card slots when geolocation lands. A tap in between saved the OLD card
+// (visible Save never flipped) and the one-time signup offer then covered the
+// next click. Contract: the scenario waits for a stable window before the first
+// tap, and dismisses the signup offer before the next one.
+{
+  const swapping = [{ t: 0, key: "Universal" }, { t: 300, key: "Viator" }, { t: 900, key: "Viator" }];
+  const quiet = [{ t: 0, key: "Viator" }, { t: 700, key: "Viator" }, { t: 1500, key: "Viator" }];
+  ok(cardWindowIsStable(swapping, CARD_WINDOW_QUIET_MS) === false, "cardWindowIsStable: a window that swapped 900ms ago is NOT stable (negative control)");
+  ok(cardWindowIsStable(quiet, CARD_WINDOW_QUIET_MS) === true, "cardWindowIsStable: a window unchanged for 1.5s IS stable (positive control)");
+  const noCards = String();
+  ok(cardWindowIsStable([{ t: 0, key: noCards }, { t: 5000, key: noCards }], CARD_WINDOW_QUIET_MS) === false, "cardWindowIsStable: an empty card window is never stable");
+  ok(SIGNUP_OFFER_SETTLE_MS > 1200, "SIGNUP_OFFER_SETTLE_MS outlasts app/home.js offerAccountAfterSave's 1200ms timer");
+  // Whole-line "//" comments dropped (no comment-regex literals here: a literal
+  // containing the two-char closer pairs with an opener elsewhere and breaks
+  // check-guards-can-fail's line numbering).
+  const codeLines = (f) => readFileSync(path.resolve(f), "utf8").split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  const homeSrc = codeLines("./app/home.js");
+  ok(/function offerAccountAfterSave[\s\S]{0,700}setTimeout\([\s\S]{0,400}\},\s*1200\)/.test(homeSrc), "app/home.js still opens the signup offer 1200ms after an anonymous save (the constant above is derived from it)");
+  const scnSrc = codeLines("./scripts/lib/synthetic/scenarios.mjs");
+  const start = scnSrc.indexOf('id: "save-share-actions"');
+  const body = scnSrc.slice(start, scnSrc.indexOf('id: "itinerary-actions"', start));
+  const iWait = body.indexOf("waitForStableCardWindow(page)");
+  const iSave = body.indexOf("toggledAfterClick(saveBtn)");
+  const iClose = body.indexOf("closeSignupOffer(page)");
+  const iLike = body.indexOf("toggledAfterClick(likeBtn)");
+  ok(iWait > 0 && iSave > iWait, "save-share-actions waits for a stable card window BEFORE the first Save tap");
+  ok(iClose > iSave && iLike > iClose, "save-share-actions dismisses the signup offer after Save and BEFORE the Like tap");
 }
 
 // The runner itself must not be swept into the (network-touching-forbidden)
