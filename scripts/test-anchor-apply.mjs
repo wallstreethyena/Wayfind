@@ -5,8 +5,8 @@
 // only under --apply against production.
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { sbEnv } from "../lib/serverCache.js";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { spawnSync } from "node:child_process";
 import { applyFixes, validateEntry, ALLOWED_FIELDS } from "./anchor-events/apply.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -60,13 +60,15 @@ ok(lying.failed === 1 && /does not hold new value/.test(lying.results[0].error),
 const none = await applyFixes([good], { fetchImpl: async () => ({ ok: true, status: 200, json: async () => [] }), sb: SB, apply: true });
 ok(none.failed === 1, "apply: unknown event_id fails");
 
-// the credential path apply.mjs uses: no env => null (CLI exits 2), env => url+key
-{ const sv = { u: process.env.SUPABASE_URL, n: process.env.NEXT_PUBLIC_SUPABASE_URL, k: process.env.SUPABASE_SERVICE_ROLE_KEY };
-  delete process.env.SUPABASE_URL; delete process.env.NEXT_PUBLIC_SUPABASE_URL; delete process.env.SUPABASE_SERVICE_ROLE_KEY;
-  ok(sbEnv() === null, "sbEnv() is null without credentials");
-  process.env.SUPABASE_URL = "https://x.supabase.co"; process.env.SUPABASE_SERVICE_ROLE_KEY = "k";
-  ok(sbEnv() && sbEnv().url === "https://x.supabase.co", "sbEnv() reads the service credentials");
-  for (const [k, v] of [["SUPABASE_URL", sv.u], ["NEXT_PUBLIC_SUPABASE_URL", sv.n], ["SUPABASE_SERVICE_ROLE_KEY", sv.k]]) { if (v === undefined) delete process.env[k]; else process.env[k] = v; } }
+// the credential path apply.mjs uses, run in child processes with an explicit
+// env (hermetic: never reads this shell's credentials).
+{ const probe = (env) => spawnSync(process.execPath, ["--input-type=module", "-e",
+    `import { sbEnv } from ${JSON.stringify(pathToFileURL(path.join(ROOT, "lib/serverCache.js")).href)}; const s = sbEnv(); process.stdout.write(JSON.stringify(s && s.url));`],
+    { env: { PATH: "/usr/bin:/bin", ...env }, encoding: "utf8" });
+  const none = probe({});
+  ok(none.status === 0 && none.stdout === "null", "sbEnv() is null without credentials");
+  const some = probe({ SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k" });
+  ok(some.status === 0 && some.stdout === JSON.stringify("https://x.supabase.co"), "sbEnv() reads the service credentials"); }
 
 const ex = JSON.parse(readFileSync(path.join(ROOT, "scripts/anchor-events/fixes/example.json"), "utf8"));
 ok(Array.isArray(ex) && ex.length === 0, "example fixes file is an empty list");
