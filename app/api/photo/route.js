@@ -6,6 +6,7 @@ import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
+import { recordPhotoPurchase, bucketHash, idempotencyKey, uaClass } from "../../../lib/photoPurchaseLog";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 
@@ -237,6 +238,28 @@ export async function GET(req) {
     }
     if (Number.isFinite(result.refunded) && result.refunded > 0) {
       try { await recordPhotoOutcome("refunded"); } catch { /* same */ }
+    }
+    // PURCHASE LOG (2026-10-15, observe-only): one privacy-safe row when the paid
+    // decision point was reached. Fire-and-forget; never alters the response.
+    if (result.reason === "google" || result.reason === "owned-miss" || result.reason === "spend-denied") {
+      try {
+        const surf = searchParams.get("s") === "card" ? "card" : (searchParams.get("s") === "detail" ? "detail" : null);
+        const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const bucket = bucketHash({ ip, ua });
+        await recordPhotoPurchase({
+          placeId: recoveryPlaceId,
+          surface: surf,
+          requestId: req.headers.get("x-vercel-id"),
+          idempotencyKey: idempotencyKey({ placeId: recoveryPlaceId, surface: surf, bucket }),
+          ledgerReason: result.reason === "spend-denied" ? (result.ledgerReason || null) : "granted",
+          upstream: result.upstream,
+          retried: result.retried,
+          refunded: result.refunded,
+          bucketHash: bucket,
+          uaClass: uaClass(ua),
+          sfs: req.headers.get("sec-fetch-site") || "absent",
+        }).catch(() => {}); // bounded 400ms inside; awaited so a serverless freeze cannot drop the row
+      } catch { /* telemetry only */ }
     }
   }
 
