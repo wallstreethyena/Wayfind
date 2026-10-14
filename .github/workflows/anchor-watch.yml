@@ -1,0 +1,72 @@
+# .github/workflows/anchor-watch.yml — DAILY WATCH ON MAJOR FLORIDA EVENTS.
+#
+# WHY. A marquee festival can go wrong without any code failing: next year's
+# edition never gets added, the organizer moves the date or cancels, or the
+# row we do have loses its photo or its working link. scripts/anchor-events/
+# watch.mjs reads data/florida-anchor-events.json, compares it with wf_events
+# (GET only), politely reads each organizer page (1 request per second), and
+# writes a plain-language report. This workflow runs it once a day and, when
+# there are findings, opens ONE GitHub issue per day with the report so a
+# person can decide. It changes nothing in the database except the usual
+# wf_job_pulse heartbeat.
+#
+# THE EXIT CODE IS NOT THE FINDING. watch.mjs exits 0 with findings; a red job
+# means the instrument could not run (no credentials, database read failed).
+# Missing credentials FAIL the job on purpose: a watcher that silently skips
+# itself reports green while watching nothing (see photo-monitor.yml).
+#
+# 11:17 UTC is deliberately off the :00/:30/:50 canaries and the 04:20
+# photo-repair worker. Heartbeat tolerance for the `anchor-watch` pulse is in
+# supabase/migrations/20261014120000_wf_heartbeat_anchor_watch.sql.
+name: anchor-watch
+on:
+  schedule:
+    - cron: "17 11 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: anchor-watch
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    name: major Florida events watch
+    runs-on: ubuntu-latest
+    timeout-minutes: 20   # ~1s pacing per page; a few dozen anchors finish in minutes
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Require watcher credentials
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::anchor-watch requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
+            exit 1
+          fi
+      - name: Run anchor watch
+        id: watch
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/anchor-events/watch.mjs --out report.md
+      - name: Open one issue per day when there are findings
+        if: steps.watch.outputs.findings != '' && steps.watch.outputs.findings != '0'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          TITLE="Anchor watch $(grep -m1 '^# Anchor watch ' report.md | sed 's/^# Anchor watch //')"
+          EXISTING="$(gh issue list --state open --search "\"$TITLE\" in:title" --json title --jq "[.[] | select(.title == \"$TITLE\")] | length")"
+          if [ "$EXISTING" != "0" ]; then
+            echo "An open issue titled '$TITLE' already exists; not creating another."
+            exit 0
+          fi
+          gh issue create --title "$TITLE" --body-file report.md
