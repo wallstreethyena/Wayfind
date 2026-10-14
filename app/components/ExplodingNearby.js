@@ -134,7 +134,7 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
             onMeaningful("trend_find_similar", place, { concept_key: trend.conceptKey, query: trend.label, proof: "offering" });
             onFindSimilar(trend.label);
           } : undefined },
-      p.hasCreatorVideo ? { key: "creator-video", icon: "🎬", label: "Creator video" } : null,
+      p.hasCreatorVideo ? { key: "creator-video", icon: "🎬", label: "Creator post" } : null,
     ].filter(Boolean);
     const directionHref = directionsUrl(place);
     return (

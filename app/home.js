@@ -321,6 +321,7 @@ const askShareIntent = (o) => {
 };
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
+import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
@@ -4190,7 +4191,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [err, setErr] = useState("");
   const [detail, setDetail] = useState(null);
   const detailOpenRequestRef = useRef(0);
-  useEffect(() => { if (!detail) detailOpenRequestRef.current++; }, [detail]);
+  // One detail_open per closed->open transition: openDetail can be called twice
+  // for one opening (deep-link effect re-runs on supabaseReady). Reset on close.
+  const detailOpenGateRef = useRef(null);
+  if (!detailOpenGateRef.current) detailOpenGateRef.current = createDetailOpenGate();
+  useEffect(() => { if (!detail) { detailOpenRequestRef.current++; detailOpenGateRef.current.close(); } }, [detail]);
   useEffect(() => {
     // The app changes screens inside one route. Sync after the DOM surface
     // marker changes, so the next timer tick cannot charge the old screen.
@@ -6756,7 +6761,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       } catch (e) {}
     }
     if (detailRequest !== detailOpenRequestRef.current) return;
-    try { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null, ...(p?._searchId ? { search_id: p._searchId } : {}) }); } catch (e) {}
+    try { if (detailOpenGateRef.current.shouldEmit(p && p.id)) { const _aud = {}; experienceBadges(p, null, 99, _aud); logEvent("detail_open", p, { identity: _aud.identity || null, blocked: (_aud.blocked || []).length, ctx: typeof context === "string" ? context : null, ...(p?._searchId ? { search_id: p._searchId } : {}) }); } } catch (e) {}
     // v6.08 (PR-C): remember where we were in the list so back returns here, not to the top.
     try { if (scrollRef.current) { const _k = screen + "|" + cat + "|" + sub + "|" + vibe; const _t = scrollRef.current.scrollTop; scrollRestore.current = { key: _k, ...browsePosition(scrollRef.current) };  } } catch (e) {}
     setDetail(p);
@@ -11456,7 +11461,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 // the photo actually on screen.
                 // Google/permitted/licensed credit comes ONLY from the live JSON for the image on screen.
                 const liveCredit = liveCreditFor(detail, lightbox);
-                if (liveCredit) return <div style={{ marginBottom: 3 }}><PhotoCredit credit={liveCredit} style={{ position: "static" }} /></div>;
+                if (liveCredit) return <div style={{ marginBottom: 3 }}><PhotoCredit credit={liveCredit} style={{ color: "rgba(255,255,255,.85)" }} /></div>;
                 const oi = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1;
                 const by = oi >= 0 && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[oi] || "") : "";
                 const singleSourceAttr = detail && Array.isArray(detail.photoAttrs) && detail.photoAttrs.length === 0 ? (detail.photoAttr || "") : "";
@@ -11943,7 +11948,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     engineKeys: _chipKeys,
     selectedKey: selectedBadge,
   }).map((c) => c.kind === "cuisine" ? { key: "cuisine", icon: "🍴", label: _chipCuisine }
-    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: "Creator video" }
+    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: "Creator post" }
     : c.key === "featured" ? { key: "featured", icon: "🏅", label: "Featured" }
     : { key: c.key, icon: EXPERIENCES[c.key].icon, label: EXPERIENCES[c.key].label });
   // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip
