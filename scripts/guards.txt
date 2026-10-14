@@ -2175,3 +2175,4 @@ node scripts/check-synthetic-map-contracts.mjs
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
+node scripts/test-photo-inventory-audit.mjs

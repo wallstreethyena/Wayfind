@@ -754,6 +754,7 @@ scripts/test-photo-credit-capture.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	6e3
 scripts/test-photo-credit-new-tab.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	740f163c03ec04e0853a9f1059ada4c63e14a1d90298f8c6686c4257b42bc6e9
 scripts/test-photo-credit-purge.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	0	0	d85e7865b3d9edd743f9811b7cd6b7602a8e7f4876ec1296b9c6164746c724dc
 scripts/test-photo-credits.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	d6035defb151a037639cf5eeb1b6cae98a27d574e5011c4104bc2eac55944a15
+scripts/test-photo-inventory-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	5fc2268e550bef3ed47d73bb9b8c74a31cc30a429125d6abdd28124f7eb3cd90
 scripts/test-photo-liveness-sweep.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	58b0cad66f9e99a4d6555c67d7e7aafc09baee6043bed4217e8edd5383ab00ea
 scripts/test-photo-monitor-cold-rate.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	c16e4054be219bbc6c487400ad2f90c8e98e6e0328c1a00e54edea799697bdcb
 scripts/test-photo-protection.mjs	0	CALL	blocks-ci-and-deploy	1	-	347	0	0	a43d45af5803e51982337a5d68394a2a00d2e6b9fd1a2f3100e876670468c5b8
