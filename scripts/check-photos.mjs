@@ -59,4 +59,16 @@ for (const [f, s] of [["lib/google.js", google], ["lib/hotels.js", hotels], ["li
   if (/googleapis\.com\/v1\/[^"']*\/media[^"']*key=/.test(s)) fail(`${f} still builds a keyed googleapis media URL for the browser — route it through /api/photo`);
 }
 
+{
+  const detailSrc = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+  const railUses = (detailSrc.match(/<FallbackImg src=\{railPhotoSrc\(p\)\}/g) || []).length;
+  if (railUses !== 3) fail("Detail.js rail rows (Where to go next, More like, Worth comparing nearby) must each source their photo from railPhotoSrc(p); found " + railUses + " of 3");
+  if (/<FallbackImg src=\{p\.photo\} icon="📍"/.test(detailSrc)) fail("a Detail.js rail row went back to raw p.photo, which is blank for places with no stored photo");
+  const { railPhotoSrc } = await import("../lib/cardPhotoRequest.js");
+  if (railPhotoSrc({ id: "ChIJRailPlaceAAAAAAAAAA" }) !== "/api/photo?place=ChIJRailPlaceAAAAAAAAAA") fail("railPhotoSrc must ask for the row's OWN place photo");
+  if (railPhotoSrc({ id: "ChIJRailPlaceAAAAAAAAAA", photo: "/own.jpg" }) !== "/own.jpg") fail("railPhotoSrc must keep Wayfind-owned photos first");
+  if (railPhotoSrc({ id: "evt-1234567890" }) !== null) fail("railPhotoSrc must not open the Google lane for non-place ids");
+  const cp = readFileSync(new URL("../app/components/CardPhoto.js", import.meta.url), "utf8");
+  if (!/viewer\.request === request\s*&&\s*viewer\.photo === photo/.test(cp)) fail("CardPhoto must render the viewer only for the request+photo pair it was opened with");
+}
 console.log("check-photos: OK — proxy only; route reads/writes no Google photo cache, free lookup gates the ledger, only detail and credited card JSON buy Google live, Google answers are private/no-store, same-place recovery is a constant null");

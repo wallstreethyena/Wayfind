@@ -52,7 +52,7 @@ for (const [pid, name, city, vids] of LEAN_CURATED) {
   if (want) { genuine++; if (!positive) positive = { name, t }; }
   if (handles.length >= CORROBORATION_MIN_CREATORS && !want) losers.push(`${name} (${city})`);
 }
-ok(positive && /Filmed by \d+ local creators/.test(positive.t.trend_reason), "POSITIVE CONTROL: a real place with 2+ genuine creators still trends, with its reason");
+ok(positive && /Featured by \d+ local creators/.test(positive.t.trend_reason), "POSITIVE CONTROL: a real place with 2+ genuine creators still trends, with its reason");
 ok(genuine > 0, "some places still trend");
 ok(losers.length > 0, "NEGATIVE CONTROL: at least one place lost the floor (probe finds a known positive)");
 

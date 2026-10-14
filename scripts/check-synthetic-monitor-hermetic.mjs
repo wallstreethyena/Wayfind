@@ -57,6 +57,7 @@ import {
   mergeCapturedRailWindows,
   reconcileRenderedCardNames,
   reconcileRenderedCards,
+  partitionRailCards,
   continuationUiSettled,
   exactRenderedIdSet,
   railsRequestMatchesOrigin,
@@ -327,6 +328,30 @@ for (const s of SCENARIOS) {
   const wrongDomId = reconcileRenderedCards([{ id: "a", name: "One" }], [{ id: "wrong", name: "One" }]);
   ok(wrongDomId.missingIds.includes("a") && wrongDomId.extraIds.includes("wrong"),
     "menu-poster MUTATION RED: changing a rendered data-place-id is detected even when its title stays the same");
+  // Guide cards in place rails (owner rule 2026-10-08, monitor failure 2026-10-13):
+  // an owned data-guide-id card is accepted ONLY at the guide slot, once, matched
+  // to a place in this rail; an unidentified card still fails.
+  {
+    const P = (id) => ({ id, name: id });
+    const G = (guideId, matchedId) => ({ id: "", guideId, matchedId, name: "Guide" });
+    const exp = ["a", "b", "c", "d"];
+    const good = partitionRailCards([P("a"), P("b"), G("g", "c"), P("c"), P("d")], exp);
+    ok(good.guideCount === 1 && good.guideMisplaced.length === 0 && good.guideUnmatched.length === 0 && good.unidentified.length === 0 && good.placeCards.length === 4,
+      "menu-poster positive control: one data-guide-id card, third, matched to a rail place, is accepted");
+    ok(partitionRailCards([P("a"), P("b"), { id: "", guideId: "", name: "Mystery" }, P("c")], exp).unidentified.includes("Mystery"),
+      "menu-poster MUTATION RED: a card with neither data-place-id nor data-guide-id is still unidentified");
+    ok(partitionRailCards([G("g", "c"), P("a"), P("b"), P("c")], exp).guideMisplaced.includes("g"),
+      "menu-poster negative control: a guide outside the third slot fails");
+    ok(partitionRailCards([P("a"), P("b"), G("g", "zzz"), P("c")], exp).guideUnmatched.includes("g")
+      && partitionRailCards([P("a"), P("b"), G("g", ""), P("c")], exp).guideUnmatched.includes("g"),
+      "menu-poster negative control: a guide whose matched place is not in the rail (or has none) fails");
+    ok(partitionRailCards([P("a"), P("b"), G("g", "c"), G("h", "c"), P("c")], exp).guideCount === 2,
+      "menu-poster negative control: two guides in one rail are counted so the scenario can fail them");
+    const rc = readFileSync(path.resolve("./app/components/RailCard.js"), "utf8");
+    const gc = readFileSync(path.resolve("./app/components/GuideDiscoveryCard.js"), "utf8");
+    ok(/data-guide-id=\{variant === "guide" && guideId \? guideId : undefined\}/.test(rc) && /guideId=\{guide\?\.slug \|\| undefined\}/.test(gc),
+      "the rendered guide card really carries data-guide-id (RailCard attribute + GuideDiscoveryCard prop), place cards never do");
+  }
   ok(!continuationUiSettled({ hasMore: true, buttonPresent: true, buttonDisabled: true, loadingLabel: true, visibleFailure: false }),
     "menu-poster delayed-render control: a disabled Loading more button is not settled and cannot start another page click");
   ok(continuationUiSettled({ hasMore: true, buttonPresent: true, buttonDisabled: false, loadingLabel: false, visibleFailure: false }),

@@ -20,7 +20,7 @@ export function seasonalSearchMetadata(slug) {
   };
 }
 
-export default function SeasonalSearchHub({ slug, today = siteTodayStr() }) {
+export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse = null }) {
   const hub = seasonalSearchHub(slug);
   if (!hub) throw new Error("Unknown seasonal search hub: " + slug);
   const sections = seasonalSearchSections(hub, today);
@@ -43,6 +43,8 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr() }) {
       image={null} jumpHref="#plan" jumpLabel="Choose your plan"
       actions={<ShareButton url={shareUrl} title={hub.title} text={hub.description} tone="dark" event="page_share" meta={{ surface: "seasonal_search", slug }} />} />
     <SeasonalSearchNav />
+    {/* Christmas v4: the statewide browse renders here when a hub page passes one. */}
+    {browse ? <div style={{ maxWidth: 1180 }}>{browse}</div> : null}
     <article id="plan" style={{ maxWidth: 780, borderTop: "2px solid " + hub.accent, paddingTop: 20 }}>
       <nav className={styles.regions} aria-label="Choose your seasonal outing">
         {sections.map((section) => <a href={"#" + section.id} key={section.id}>{section.title}</a>)}

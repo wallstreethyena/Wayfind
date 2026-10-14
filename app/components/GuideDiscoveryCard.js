@@ -110,6 +110,8 @@ export default function GuideDiscoveryCard({ guide, matched = null, onOpen, clas
   ) : null;
   return <RailCard
     variant="guide"
+    guideId={guide?.slug || undefined}
+    guideMatchedId={matched?.id || undefined}
     className={`wf-guide-teaser-${lines}${className ? " " + className : ""}`}
     photo={art.src}
     photoAttr={art.credit}

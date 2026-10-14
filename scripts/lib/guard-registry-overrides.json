@@ -688,6 +688,22 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-no-product-review.mjs": {
+    "protects": "NO_EXACT_AFFILIATE_PRODUCT (lib/eventTicketDeals.js) never holds a past-due decision: every row's reviewBy is within 14 days of its reviewedAt and not earlier than the clock passed in (default: the newest reviewedAt in the registry, or --today=YYYY-MM-DD), unless the event has already ended. The staleNoProductDecisions predicate is executed with a positive and a negative control.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-13: all reviewed no-exact-product decisions had lapsed (09-30 to 10-05) with nine sellable events unmapped and no build signal; the only alarm was the nightly coverage job paging. A stale 'no partner product' row silently suppresses re-checking an affiliate catalog that changes weekly (ZooTampa Creatures of the Night became bookable on Tiqets while its row sat expired)."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-partner-path-health.mjs": {
+    "protects": "Each non-Viator earning path (Clipp, Tiqets, Klook, Go City, Undercover Tourist, Stay22) is checked for live eligible offers on a fixed clock: all-expired fails, a required Clipp city with zero live offers fails, a last offer expiring within 14 days warns (13/14 warn, 15 does not) and queues a renewal (owner Gabe, deadline expires-7d), zero clicks alone never pages, an invalid path with healthy traffic does, an unreadable source is UNMEASURED and loud, the real registries are read, and the daily /api/cron/partner-path pulse is wired to job-watch without ever renewing anything.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-13: Clipp's two audit fuses lapsed (51 live coupons -> 0), Undercover Tourist cards fell off /guides and Stay22 hotel cards sat behind a fail-closed gate; non-Viator redirects fell from 61 to 19 a week while revenue-heartbeat stayed green because Viator carries the site-wide ratio. Nothing checked per-provider live inventory, so the loss was found by reading a weekly report."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-menu-partner-offers.mjs": {
     "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) \u2014 the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places \u2014 carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
     "blastRadius": {
@@ -813,6 +829,14 @@
     "blastRadius": {
       "category": "revenue",
       "detail": "A regression could let a scheduled job buy Place Photo media past the owner's monthly ceiling, re-buy photos it already holds every day, or cache a Google photo whose photographer credit was not stored (an uncredited Google photo on the blog or a guide breaks Google's attribution terms)."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-spend-pacing.mjs": {
+    "protects": "The daily spend-pacing forecast classifies every wf_spend_ledger row OK/WARN/CAPPED with exact boundaries, escalates a cap exhausted in the first 10 days to a job-watch incident and everything else to a non-paging warning, never writes the ledger or any cap, and is wired (guards.txt, vercel.json cron, CRON_SECRET, loud on absent config); red-proved by mutating the projection and the CAPPED branch.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "October 2026 capped five metered rows in the first 8 days (details_enterprise, details_pro, provider_viator, anthropic_requests, events_ticketmaster) and nothing warned until user paths degraded; without this guard the early-warning cron can silently stop forecasting or stop paging."
     },
     "owner": "Revenue QA"
   }
