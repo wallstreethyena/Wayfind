@@ -117,14 +117,14 @@ ok(html.includes("/creators\"") || html.includes("href=\"/creators\""), "links b
 // THE MAP PANEL IS ASSERTED THROUGH ITS SIDEBAR, NOT ITS <MapView>. MapView is
 // a next/dynamic({ssr:false}) child: it renders NOTHING on the server, in this
 // guard and in production alike. What must exist in the server HTML is the
-// frame around it — the heading, the honest "she filmed it herself" claim and
+// frame around it — the heading, the creator's source-post attribution and
 // the category rail — because that is the part a crawler and a JS-less reader
 // actually receive.
 ok(/s map<\/h2>/.test(html), "the creator map panel's heading does not render — the owner's interactive map is missing from the page");
 ok(html.includes("wfcm-grid") && html.includes("wfcm-side") && html.includes("wfcm-map"),
   "…the map panel's layout is not in the server HTML");
-ok(/filmed herself/.test(html),
-  "the map does not say whose places these are — 'every pin is a place she filmed herself' is the claim that separates this from a nearby-search");
+ok(html.includes(`Every pin is a place featured in @${FEATURED_CREATOR}&#x27;s posts.`) && !/filmed herself/.test(html),
+  "the map identifies the creator's own source posts without claiming that announcements and roundups prove a filmed visit");
 ok(/All places<\/span><b>\d+<\/b>/.test(html),
   "the category rail has no counted 'All places' row — the counts are the control");
 ok(/Share this page/.test(html),
