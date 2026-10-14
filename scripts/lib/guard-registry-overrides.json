@@ -696,6 +696,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-partner-path-health.mjs": {
+    "protects": "Each non-Viator earning path (Clipp, Tiqets, Klook, Go City, Undercover Tourist, Stay22) is checked for live eligible offers on a fixed clock: all-expired fails, a required Clipp city with zero live offers fails, a last offer expiring within 14 days warns (13/14 warn, 15 does not) and queues a renewal (owner Gabe, deadline expires-7d), zero clicks alone never pages, an invalid path with healthy traffic does, an unreadable source is UNMEASURED and loud, the real registries are read, and the daily /api/cron/partner-path pulse is wired to job-watch without ever renewing anything.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-13: Clipp's two audit fuses lapsed (51 live coupons -> 0), Undercover Tourist cards fell off /guides and Stay22 hotel cards sat behind a fail-closed gate; non-Viator redirects fell from 61 to 19 a week while revenue-heartbeat stayed green because Viator carries the site-wide ratio. Nothing checked per-provider live inventory, so the loss was found by reading a weekly report."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-menu-partner-offers.mjs": {
     "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) \u2014 the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places \u2014 carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
     "blastRadius": {
