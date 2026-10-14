@@ -1,6 +1,6 @@
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
-import { christmasAwareEventBySlug } from "../../../lib/christmasEventPage.js";
+import { christmasEventPageRow } from "../../../lib/christmasEventPage.js";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
@@ -18,7 +18,7 @@ import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
-import { fetchCuratedEvents, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
+import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
 import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }) {
   // Throws on a failed read. Do not catch — an outage is not "this event
   // has no metadata", and catching would hide the same soft-fail the hub
   // used to cache as a successful empty page.
-  const e = await christmasAwareEventBySlug(params.slug).then(withTampaPassFacts);
+  const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
   const desc = `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
@@ -161,7 +161,7 @@ const S = {
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
-  const e = await christmasAwareEventBySlug(params.slug).then(withTampaPassFacts);
+  const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);

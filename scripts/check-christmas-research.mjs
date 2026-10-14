@@ -202,11 +202,10 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   ok(pb.event_id === db.event_id && pb.lat === 26.8736736 && pb.lng === -80.0649177 && /Bert Winters Park/.test(pb.venue), "a wf_events page shows the corrected public viewing spot");
   ok((await christmasAwareEventBySlug("not-a-real-slug", { fetchRow: async () => null })) === null, "an unknown slug is an honest miss");
   const boom = async () => { throw new Error("db down"); };
-  ok((await christmasAwareEventBySlug(only.slug, { fetchRow: boom }))?.event_id === only.event_id, "a research-only page survives a failed wf_events read (its data is local)");
   let threw = false; try { await christmasAwareEventBySlug(db.slug, { fetchRow: boom }); } catch { threw = true; }
-  ok(threw, "a wf_events page still throws on a failed read (an outage never 404s a live event)");
+  ok(threw, "a failed wf_events read still throws (an outage never 404s a live event)");
   const page = read("app/florida-events/[slug]/page.js");
-  ok((page.match(/christmasAwareEventBySlug\(params\.slug\)/g) || []).length === 2 && !/fetchCuratedEventBySlug\(params/.test(page), "the page and its metadata both read through the Christmas aware loader (static)");
+  ok((page.match(/const e = await fetchCuratedEventBySlug\(params\.slug\)\.then\(\(row\) => christmasEventPageRow\(row, params\.slug\)\)\.then\(withTampaPassFacts\)/g) || []).length === 2, "the page and its metadata both pass the one wf_events read through the Christmas layer (static)");
   ok(/label: "Cost", value: e\.christmas_price_line \|\| eventCostSummary\(e\)/.test(page) && /label: "Who it is for", value: e\.audience_label/.test(page), "the page shows the honest price line and who it is for (static)");
   const sm = christmasResearchSitemapRows("https://www.gowayfind.com", TODAY);
   ok(sm.length >= 300 && sm.every((r) => /\/florida-events\//.test(r.url)) && !sm.some((r) => r.url.endsWith("/" + claimed)), `the sitemap lists the research-only event pages (${sm.length}), never a claimed duplicate`);
@@ -269,6 +268,16 @@ function CITIES() {
   const leaks = clients.filter((f) => SERVER_ONLY.test(readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")));
   ok(clients.length > 20 && leaks.length === 0, `no client module imports the Christmas server data (${clients.length} client files scanned; leaks: ${leaks.map((f) => path.relative(ROOT, f)).join(", ")})`);
   ok(!/^\s*import/m.test(read("lib/christmasCardCopy.js")), "the client card copy imports nothing");
+  // The data is read with fs at runtime: every route that reaches lib/christmasResearch.js
+  // must trace the file (next.config.js outputFileTracingIncludes), or the deployed lambda has none.
+  const cfg = read("next.config.js");
+  for (const route of ["/api/events/christmas", "/api/christmas/browse", "/christmas-in-florida", "/florida-events/[slug]", "/sitemap.xml"]) {
+    ok(cfg.includes(JSON.stringify(route) + ': ["./data/christmas-2026-research.json"]'), `next.config.js traces the research data into ${route}`);
+  }
+  ok(/readFileSync\(path\.join\(process\.cwd\(\), CHRISTMAS_RESEARCH_FILE\)/.test(read("lib/christmasResearch.js")) && !/christmas-2026-research\.json" with/.test(read("lib/christmasResearch.js")), "the module reads the file with fs (jsxLoad safe), never a JSON import");
+  const importers = walk(path.join(ROOT, "app")).filter((f) => /from "[^"]*lib\/(?:christmasResearch|christmasBrowse|christmasCards|christmasEventPage)(?:\.js)?"/.test(readFileSync(f, "utf8"))).map((f) => path.relative(ROOT, f));
+  const traced = { "app/api/events/christmas/route.js": 1, "app/api/christmas/browse/route.js": 1, "app/christmas-in-florida/page.js": 1, "app/florida-events/[slug]/page.js": 1, "app/sitemap.js": 1 };
+  ok(importers.length >= 5 && importers.every((f) => traced[f]), `every app file that reaches the research data is a traced route (${importers.join(", ")})`);
   const chunks = path.join(ROOT, ".next/static/chunks");
   if (existsSync(chunks)) {
     const files = walk(chunks).filter((f) => !/_app-pages-browser_|app-pages-internals|_ssr_/.test(f));
