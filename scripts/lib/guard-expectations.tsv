@@ -454,6 +454,7 @@ scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb
 scripts/test-anchor-apply.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	ab7838b88dc8cb2321a1b2af91b259e4231456885655f5be8c635385b67cb1e9
 scripts/test-anchor-watch-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	4265bd532a8558a133cd32efc60c3072ffb383f7bbc8a90013f3e589b9fc0402
 scripts/test-anchor-watch.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	0	0	2ea6ad0f48da50f0ca47caa8379fffc65dcf6ea65548425221993e867c655e85
+scripts/test-anchor-workflow-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	467297bd6c39e77ddca344e627bc0bd23237d3f4119e3a1778410e01d8229ddf
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
 scripts/test-app-rating.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	5b4dc84cbd73a12c5c66af3e8f9048c363058a2ab5b4305956bd33ec217931eb
 scripts/test-apple-explorer-map.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	d0fe6060b3f701b91332fa524c72f75043c9864c0912a8406dc4cd9860e64e79
