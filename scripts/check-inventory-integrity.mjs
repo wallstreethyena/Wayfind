@@ -37,6 +37,7 @@ if (!URL_ || !KEY) {
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability } from "../lib/placePartnerPicks.js";
 import { placeIdentityIssues } from "../lib/placeIdentity.js";
 import { bucketMetro, PROMOTE_METROS } from "../lib/promoteIndex.js";
+import { findAreaTwins } from "../lib/areaTwins.js";
 
 // Documented allowances. These are CEILINGS on known, triaged debt — not targets.
 // Lowering them as the debt is paid is the point; raising one requires a human to
@@ -97,6 +98,17 @@ for (const [k, g] of groups) {
 }
 ok(split.length <= MAX_SPLIT_VENUE_GROUPS,
   `${split.length} venues are stored as multiple records under 800m apart — one place will render as several cards: ${split.slice(0, 5).join("; ")}`);
+
+// 2b. Generic district/area pins stored twice under differently-punctuated names
+// ("Downtown Winter Haven" vs "Downtown, Winter Haven, Fl", 87m, different Google
+// types). Check 2 groups on the exact name and python duplicates() needs the same
+// category, so neither sees it. REPORT-ONLY by design: a human reviews each pair and
+// ships a reversible soft-exclusion migration. Never fails the build, never merges.
+const areaTwins = findAreaTwins(rows);
+if (areaTwins.length) {
+  console.log(`check-inventory-integrity: NOTE - ${areaTwins.length} generic area pin(s) look stored twice (review, do not auto-merge): ` +
+    areaTwins.slice(0, 8).map((t) => `${t.stronger.name} [${t.stronger.place_id}] ~ ${t.weaker.name} [${t.weaker.place_id}] ${t.meters}m`).join("; "));
+}
 
 // 3. Things that are not destinations.
 const junk = rows.filter((r) => r.primary_type && NON_DESTINATION.test(r.primary_type));
