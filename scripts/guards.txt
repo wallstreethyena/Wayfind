@@ -1543,6 +1543,7 @@ node scripts/check-migration-apply-canonical-path.mjs
 # Every migration from 2026-09-29 on must carry an applied receipt or a declared
 # pending decision (2026-10-07: #1636 merged five unapplied migrations silently).
 node scripts/check-migration-receipts.mjs
+node scripts/check-held-migrations.mjs
 
 node scripts/test-known-city-geocode.mjs
 
@@ -2191,6 +2192,23 @@ node scripts/test-detail-open-once.mjs
 node scripts/check-event-jsonld-offset.mjs
 node scripts/test-photo-inventory-audit.mjs
 node scripts/check-place-identity-contract.mjs
+
+# Remind me (2026-10-14, owner: "add a reminder to the person's phone about the event because i would forget
+# ... and ask the user when they would like to be reminded."): a dated event gets a Remind me button
+# (rail cards, browse, event page) that opens a sheet asking which night and when, then downloads a
+# calendar invite (GET /api/events/reminder) with one alert at that time. The builder test executes the ICS
+# (alarm instants across the Nov 1 2026 change, Jan 2027, folding, escaping, /api/<x>/go ticket link,
+# undated refused), the route test asserts on response bodies and headers (200, 400s, 404, 410 for a canceled
+# or postponed event, 503, the stable sha256 UID), the render test renders the button and sheet on Fall,
+# Halloween and Christmas cards, the facts test runs real Fall, Halloween, Christmas and Panhandle rows
+# (DST, called off, past, undated, already started) through lib/eventReminderFacts.js, and the ics test
+# parses every file the route serves with python icalendar and vobject (it says "REAL PARSER NOT RUN"
+# where that is not installed; pass --require-parser where it is). Hermetic. Red-proven by mutation.
+node scripts/test-event-reminder.mjs
+node scripts/test-event-reminder-facts.mjs
+node scripts/test-event-reminder-route.mjs
+node scripts/test-event-reminder-render.mjs
+node scripts/test-event-reminder-ics.mjs
 node scripts/test-photo-same-origin-spend.mjs
 node scripts/test-photo-recovered-evidence.mjs
 node scripts/test-photo-visitor-cap.mjs

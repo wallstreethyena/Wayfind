@@ -4,6 +4,7 @@ import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { reconcileProduction, canonicalSingleStatementHash, verifyLedgerContent } from './lib/migrationReconciliation.mjs';
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const dir = mkdtempSync(path.join(tmpdir(), 'wf-reverse-migrations-'));
@@ -22,8 +23,9 @@ try {
   const ledger = Array.from({ length: 55 }, (_, i) => ({ version: String(20260101000000 + i), name: `fixture_${i}`, statements_sha256: fileHash }));
   for (const r of ledger) writeFileSync(path.join(dir, 'supabase/migrations', `${r.version}_${r.name}.sql`), 'create table example(id int);');
   const preload = path.join(dir, 'fetch.mjs');
-  function run(label, rows, pins, expected, baseline = [], pattern = null) {
+  function run(label, rows, pins, expected, baseline = [], pattern = null, pending = []) {
     writeFileSync(path.join(dir, 'scripts/migration-historical-exceptions.json'), JSON.stringify(pins));
+    writeFileSync(path.join(dir, 'scripts/migration-pending-apply.json'), JSON.stringify(pending));
     writeFileSync(path.join(dir, 'scripts/migration-content-baseline.json'), JSON.stringify(baseline));
     writeFileSync(preload, `globalThis.fetch = async url => ({ok:true,json:async()=>String(url).endsWith('/wf_migration_ledger_hashes')?${JSON.stringify(rows)}:[]});`);
     const r = spawnSync(process.execPath, ['--import', preload, path.join(dir, 'scripts/check-migration-reconciliation.mjs')], {
@@ -80,6 +82,23 @@ try {
   run('repository migration unapplied', ledger.slice(1), [], 1);
   writeFileSync(first, 'update example set id = 2;');
   run('DML migration unapplied', ledger.slice(1), [], 1);
+
+  // Declared-pending semantics (2026-10-14). A file absent from production is
+  // accepted ONLY as an owned, hash-pinned pending declaration; everything
+  // else about pending must stay red.
+  const pFile = `${ledger[0].version}_${ledger[0].name}.sql`;
+  const pRaw = createHash('sha256').update(readFileSync(path.join(dir, 'supabase/migrations', pFile))).digest('hex');
+  const pEntry = { file: `supabase/migrations/${pFile}`, sha256: pRaw, decision_owner: 'fixture-owner', tracking: '#1', reason: 'fixture: held until the owner approves the apply' };
+  run('unapplied file declared pending (hash pinned, owned)', ledger.slice(1), [], 0, [], /PENDING \(declared, NOT applied in production\)/, [pEntry]);
+  run('pending entry with stale file hash stays red', ledger.slice(1), [], 1, [], /declared pending for sha256/, [{ ...pEntry, sha256: 'e'.repeat(64) }]);
+  run('pending entry whose file IS applied is stale', ledger, [], 1, [], /stale pending entry/, [pEntry]);
+  run('pending entry without an owner is malformed', ledger.slice(1), [], 1, [], /malformed pending entry/, [{ ...pEntry, decision_owner: '' }]);
+  run('pending entry for a missing file fails', ledger, [], 1, [], /pending entry for a file that does not exist/, [{ ...pEntry, file: 'supabase/migrations/20990101_gone.sql' }]);
+  run('pending never hides a production-only migration', [...ledger.slice(1), row], [], 1, [], /unreviewed production migration/, [pEntry]);
+  const unrelated = path.join(dir, 'supabase/migrations', '20260105000000_unrelated_unapplied.sql');
+  writeFileSync(unrelated, 'select 1;');
+  run('pending for one file does not cover a different unapplied file', ledger.slice(1), [], 1, [], /no applied ledger entry/, [pEntry]);
+  rmSync(unrelated);
   const duplicate = { ...ledger[0], version: '20260102000000' };
   const mapping = { ...duplicate, reason: 'Reviewed repeated historical application', reviewed_by: 'fixture reviewer', canonical_file: `${ledger[0].version}_${ledger[0].name}.sql` };
   run('unreviewed duplicate canonical name', [...ledger, duplicate], [], 1);
