@@ -61,7 +61,10 @@ export default async function sitemap() {
   try { events = floridaEventSitemapRows(await fetchCuratedEvents(), SITE_URL); } catch { events = []; }
   // Christmas v4 (2026-10-13): the research-only Christmas listings have event
   // pages through the /florida-events/[slug] fallback; list the current ones.
-  const christmasEvents = christmasResearchSitemapRows(SITE_URL, siteTodayStr()).filter((row) => !events.some((e) => e.url === row.url));
+  // A research slug that a different wf_events event already owns gets the
+  // same "-christmas" page the cards link to (lib/christmasResearch.js).
+  const eventSlugs = new Set(events.map((e) => decodeURIComponent(String(e.url).split("/florida-events/")[1] || "")));
+  const christmasEvents = christmasResearchSitemapRows(SITE_URL, siteTodayStr(), eventSlugs).filter((row) => !events.some((e) => e.url === row.url));
   const floridaEvents = [{ url: `${SITE_URL}/florida-events` }, ...events, ...christmasEvents];
   // Dedicated guide routes with their own page.js (robots index:true). The
   // fall-festivals guide has no GUIDES entry, so the loop above never listed

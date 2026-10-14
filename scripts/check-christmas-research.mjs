@@ -19,13 +19,13 @@ import RAW from "../data/christmas-2026-research.json" with { type: "json" };
 import {
   CHRISTMAS_RESEARCH_ALIASES, CHRISTMAS_DB_RESEARCH_IDS, CHRISTMAS_RESEARCH_CANONICAL, CHRISTMAS_PUBLISHED_RESEARCH, CHRISTMAS_WATCHLIST_2026,
   CHRISTMAS_RESEARCH_CORRECTIONS, CHRISTMAS_SEASON_UNDATED_LINE, mergeChristmasResearch, researchPrice, parseSelectNights, parseResearchTimes,
-  christmasResearchEventBySlug, christmasResearchSitemapRows, isDbClaimedResearchId,
+  christmasResearchEventBySlug, christmasResearchSitemapRows, isDbClaimedResearchId, researchEvent, CHRISTMAS_SLUG_SUFFIX,
 } from "../lib/christmasResearch.js";
 import { composeChristmasIntentRails, christmasEventRail, CHRISTMAS_LOCAL_ONLY_RAILS, CHRISTMAS_STATEWIDE_RAILS, christmasDistanceGroup } from "../lib/christmasIntentRails.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
-import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES } from "../lib/christmasBrowse.js";
-import { christmasAwareEventBySlug, christmasPageRow } from "../lib/christmasEventPage.js";
+import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
+import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 
@@ -211,7 +211,7 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   ok(/label: "Cost", value: e\.christmas_price_line \|\| eventCostSummary\(e\)/.test(page) && /label: "Who it is for", value: e\.audience_label/.test(page), "the page shows the honest price line and who it is for (static)");
   const sm = christmasResearchSitemapRows("https://www.gowayfind.com", TODAY);
   ok(sm.length >= 300 && sm.every((r) => /\/florida-events\//.test(r.url)) && !sm.some((r) => r.url.endsWith("/" + claimed)), `the sitemap lists the research-only event pages (${sm.length}), never a claimed duplicate`);
-  ok(/christmasResearchSitemapRows\(SITE_URL, siteTodayStr\(\)\)/.test(read("app/sitemap.js")), "app/sitemap.js includes them (static)");
+  ok(/christmasResearchSitemapRows\(SITE_URL, siteTodayStr\(\), eventSlugs\)/.test(read("app/sitemap.js")), "app/sitemap.js includes them, with the wf_events slugs for collisions (static)");
 }
 
 // ── 7. The ordering law on the real data ────────────────────────────────────
@@ -287,6 +287,68 @@ function CITIES() {
   const ui = ["app/components/ChristmasBrowse.js", "app/christmas-in-florida/page.js", "lib/christmasBrowse.js", "lib/christmasCardCopy.js"].map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""));
   const strings = ui.flatMap((src) => src.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[\u2013\u2014]| - /.test(t) && !/RX|regex|replace/.test(t));
   ok(strings.length === 0, `the new browse copy has no punctuation dash (${strings.slice(0, 3).join(" | ")})`);
+}
+
+// ── 10. Fable audit fixes (2026-10-13) ──────────────────────────────────────
+{
+  // 1. The state decides: a confirmed season with no official dates is never dated.
+  const undatedIds = new Set(RAW.filter((r) => r.state === "confirmed_season_undated").map((r) => r.id));
+  const datedUndated = CHRISTMAS_PUBLISHED_RESEARCH.filter((r) => undatedIds.has(r.event_id) && (r.start_date || r.end_date || !r.season_undated));
+  ok(datedUndated.length === 0, `no published listing whose state is confirmed_season_undated carries a date (${datedUndated.map((r) => r.event_id).slice(0, 4).join(", ")})`);
+  const datedUndatedCards = cards.filter((c) => undatedIds.has(c.christmas_research_id) && (c.start_date || c.end_date || c.when?.value !== "Dates TBA"));
+  ok(datedUndatedCards.length === 0, `no card from a confirmed_season_undated row shows a date (${datedUndatedCards.map((c) => c.id).slice(0, 4).join(", ")})`);
+  const thirdParty = researchEvent({ id: "x-undated", state: "confirmed_season_undated", start_date: "2026-12-12", end_date: "2026-12-12", schedule: "Dec 12 per a third party", times: "6 PM", price: "unannounced", event_name: "X", city: "Naples", primary_rail: "parades" });
+  ok(thirdParty.season_undated === true && thirdParty.start_date === null && thirdParty.end_date === null, "a third party date on an undated row is never published as the date");
+  for (const id of ["high-springs-christmas-parade-2026", "high-springs-tree-lighting-2026", "light-up-sistrunk-2026"]) {
+    const r = RAW.find((x) => x.id === id);
+    ok(r && r.start_date === null && r.end_date === null && /per third party, not official/.test(r.schedule), `${id}: the third party date is text only, marked "per third party, not official"`);
+  }
+  const fst = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === "fst-blunderful-life-2026");
+  ok(fst && fst.christmas_state === "confirmed_dated" && fst.start_date === "2026-11-28" && fst.end_date === "2026-12-19", "It's a Blunderful Life is dated from the official FST page (Nov 28 to Dec 19)");
+  // 2. Price words that say free, in both directions.
+  for (const [p, label] of [["complimentary per tourism site", "Free"], ["photos complimentary", "Free"], ["Parade free; kids activity band $5", "Free to watch"], ["$0 to $20 listed", "Free option"]]) {
+    const r = researchPrice(p);
+    ok(r.kind === "free" && r.is_free === true && r.label === label, `"${p}" is free ("${label}") because the text says so`);
+  }
+  for (const p of ["complimentary (2025 listing)", "not complimentary", "$10 to $20", "parade route announced", "free parking, admission unannounced", "unannounced"]) {
+    ok(researchPrice(p).is_free !== true, `"${p}" is never free`);
+  }
+  // 3. An opened run with no published closing date stays open, labelled, never invented.
+  const lane = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => r.event_id === "christmas-lane-plant-city-2026");
+  ok(lane && lane.start_date === "2026-11-27" && lane.end_date === null && lane.closing_unannounced === true, "Christmas Lane opens Nov 27 with no invented closing date");
+  const laneCard = cards.find((c) => c.christmas_research_id === "christmas-lane-plant-city-2026");
+  ok(laneCard && christmasHonestyChips(laneCard, TODAY).some((x) => x.label === "Closing date not announced"), "its card says Closing date not announced");
+  ok(christmasPageRow(lane).when_label === "Opens Nov 27, 2026, closing date not announced", "its page says so where the date goes");
+  const live = (today) => composeChristmasIntentRails(cards, [], { lat: 28.0158, lng: -82.1183, today }).rails.find((r) => r.id === "lights").cards.some((c) => c.christmas_research_id === "christmas-lane-plant-city-2026");
+  ok(live("2026-12-20") && live("2027-01-06") && !live("2027-01-07"), "an open ended run stays through the season (Jan 6) and not a day longer");
+  const weekly = researchEvent({ id: "x-weekly", state: "confirmed_dated", start_date: "2026-11-27", end_date: null, schedule: "Opens Nov 27; Thursdays to Sundays", times: "6 PM", price: "unannounced", event_name: "Y", city: "Naples", primary_rail: "lights" });
+  const single = researchEvent({ id: "x-single", state: "confirmed_dated", start_date: "2026-12-05", end_date: null, schedule: "single date", times: "6 PM", price: "unannounced", event_name: "Z", city: "Naples", primary_rail: "parades" });
+  ok(weekly.end_date === null && weekly.closing_unannounced === true && single.end_date === "2026-12-05" && !single.closing_unannounced, "a weekly run keeps an open end; a single date ends that day");
+  // 4. The page and the API share one 10 minute cache keyed by the normalized filters.
+  let reads = 0;
+  const fetchRows = async () => { reads += 1; return DB; };
+  const t0 = 1_800_000_000_000;
+  const a1 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { now: t0 });
+  const a2 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { now: t0 + 60_000 });
+  const b1 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Panhandle" }), TODAY, fetchRows, { now: t0 + 61_000 });
+  ok(reads === 1 && a2.cached === true && a1.page.total === a2.page.total && b1.page.total !== a1.page.total, "two requests with the same filters inside 10 minutes read wf_events once; a different filter is its own page");
+  await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { now: t0 + CHRISTMAS_BROWSE_TTL_MS + 5_000 });
+  ok(reads === 2 && CHRISTMAS_BROWSE_TTL_MS === 600_000, "after 10 minutes the listings are read again");
+  ok(/christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/christmas-in-florida/page.js")) && /christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/api/christmas/browse/route.js")), "the page and the API both read through christmasBrowseCached (static)");
+  // 5. Every published detailHref resolves through the page lookup, collisions included.
+  const bySlug = new Map(DB.map((r) => [r.slug, r]));
+  const unresolved = cards.filter((c) => c.detailHref).filter((c) => {
+    const slug = c.detailHref.replace("/florida-events/", "");
+    return !christmasEventPageRow(bySlug.get(slug) || null, slug);
+  });
+  ok(cards.filter((c) => c.detailHref).length >= 400 && unresolved.length === 0, `every card's detailHref resolves to a page (${unresolved.map((c) => c.detailHref).slice(0, 3).join(", ")})`);
+  const victim = CHRISTMAS_PUBLISHED_RESEARCH.find((r) => !isDbClaimedResearchId(r.event_id) && !r.season_undated);
+  const squatter = { event_id: "other-event-2026", slug: victim.slug, event_name: "A different event", city: "Elsewhere", start_date: "2026-11-01", end_date: "2026-11-01", event_status: "scheduled", source_tier: 1, verification_confidence: "high", card_hook: "x", tags: [] };
+  const collided = mergeChristmasResearch([squatter]).find((r) => r.event_id === victim.event_id);
+  const href = christmasEventCard(collided, { today: TODAY, pageSlugs: new Set([victim.slug]) }).detailHref;
+  ok(collided.slug === victim.slug + CHRISTMAS_SLUG_SUFFIX && href === "/florida-events/" + victim.slug + CHRISTMAS_SLUG_SUFFIX && christmasEventPageRow(null, victim.slug + CHRISTMAS_SLUG_SUFFIX)?.event_id === victim.event_id, "a slug collision moves the research page to the suffixed slug, and the card links there and the page resolves it");
+  const sm = christmasResearchSitemapRows("https://x", TODAY, new Set([victim.slug]));
+  ok(sm.some((r) => r.url === "https://x/florida-events/" + victim.slug + CHRISTMAS_SLUG_SUFFIX) && !sm.some((r) => r.url === "https://x/florida-events/" + victim.slug), "the sitemap lists the same suffixed page, never the slug the other event owns");
 }
 
 // ── 9. Server only ──────────────────────────────────────────────────────────

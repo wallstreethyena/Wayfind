@@ -3,7 +3,7 @@ import SeasonalSearchHub, { seasonalSearchMetadata } from "../components/Seasona
 import ChristmasBrowse from "../components/ChristmasBrowse";
 import { fetchCuratedEvents } from "../../lib/curatedEvents";
 import { siteTodayStr } from "../../lib/siteTime";
-import { christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasWatchlist, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
+import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasWatchlist, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
 // sharing, nav, schema, guide sections) plus the full statewide browse,
@@ -16,10 +16,16 @@ export default async function Page({ searchParams }) {
   const today = siteTodayStr();
   const params = (await searchParams) || {};
   const query = parseChristmasBrowseQuery(params);
-  let rows = [];
-  try { rows = await fetchCuratedEvents({ signal: AbortSignal.timeout(4000) }); } catch { rows = []; }
-  const listings = christmasBrowseListings(rows, today);
-  const first = christmasBrowsePage(listings, query, today);
+  // The same 10 minute cache as /api/christmas/browse (lib/christmasBrowse.js
+  // christmasBrowseCached), keyed by the normalized filters. A failed read
+  // renders the research listings uncached, never an empty page.
+  let listings, first;
+  try {
+    ({ listings, page: first } = await christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000) })));
+  } catch {
+    listings = christmasBrowseListings([], today);
+    first = christmasBrowsePage(listings, query, today);
+  }
   const watch = christmasWatchlist();
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
