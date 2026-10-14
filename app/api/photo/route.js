@@ -6,8 +6,11 @@ import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
+import { recordPhotoPurchase, bucketHash, idempotencyKey, uaClass } from "../../../lib/photoPurchaseLog";
+import { takeVisitorToken } from "../../../lib/photoVisitorCap";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
+import { creditedRequest } from "../../../lib/apiGuard.js";
 
 // Licensed/owned photos of THIS place come first. Live Google photos require
 // a credited surface: the detail page or a card with a same-image full-credit
@@ -143,9 +146,20 @@ export async function GET(req) {
   const ua = req.headers.get("user-agent") || "";
   const automated = isAutomatedPhotoReader(ua);
   const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1" || automated;
+  const visitorIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+  const visitorBucket = visitorIp ? bucketHash({ ip: visitorIp, ua }) : null;
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   const wantJson = searchParams.get("fmt") === "json";
-  const googleSurface = GOOGLE_SURFACES.has(searchParams.get("s") || "") && (searchParams.get("s") !== "card" || wantJson);
+  const surfaceWanted = GOOGLE_SURFACES.has(searchParams.get("s") || "") && (searchParams.get("s") !== "card" || wantJson);
+  // PAGE-ORIGINATED ONLY (2026-10-14). The paid lane is reachable by a bare URL
+  // (s=detail / s=card&fmt=json), so a script could drain the cap. Every real
+  // purchase is a same-origin fetch() from lib/photoAnswers.js; anything else
+  // keeps the free rungs and gets a neutral miss, never authorizeSpend.
+  const pageRequest = creditedRequest(req.headers);
+  // A PROBE is exempt from the page-origin test: it can only ever DENY spend (the
+  // resolver short-circuits to probe-no-spend before any authorizer call), and the
+  // monitor/coverage tooling reads that exact reason from non-browser callers.
+  const googleSurface = surfaceWanted && (pageRequest || probe);
   // Same memoized-promise shape as getRecovery(), and the same identity
   // scope (recoveryPlaceId — never a neighbour). Read-only: lib/freePhoto.js
   // never writes wf_place_photo, so a probe hitting this is exactly as safe
@@ -165,7 +179,7 @@ export async function GET(req) {
     return freePhotoPromise;
   };
 
-  const result = await resolvePlacePhoto({
+  const resolved = await resolvePlacePhoto({
     ref,
     place,
     w,
@@ -203,10 +217,19 @@ export async function GET(req) {
       // a free photo of this place exists (no purchase needed) or the owner shut the gate.
       if (shut) return { ok: false, reason: "shut" };
       if (sku === "photos" && free) return { ok: false, reason: "free-photo" };
+      // Per-visitor daily ceiling BEFORE the global grant (fail-open; the global ledger still runs).
+      if (sku === "photos" && visitorBucket) {
+        return takeVisitorToken({ bucket: visitorBucket }).then((v) => (v.ok ? spendAllowPhotosDetailed() : { ok: false, reason: "visitor-cap" }));
+      }
       return sku === "photos" ? spendAllowPhotosDetailed() : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
+  // Name the refusal: a surface that WOULD have been credited but arrived without
+  // page-origin evidence is `not-page-request`, not an anonymous not-google-surface.
+  const result = surfaceWanted && !pageRequest && !probe && resolved.reason === "not-google-surface"
+    ? { ...resolved, reason: "not-page-request" }
+    : resolved;
 
   // QUOTA TRUTH (2026-09-16) — TELEMETRY. Fail-soft, bounded (400ms,
   // lib/photoOutcomes.js), never for a probe (a probe never spends, so it is
@@ -222,7 +245,7 @@ export async function GET(req) {
   // probe-no-spend/no-photo) is a free read with nothing Google-side to
   // count, and correctly records nothing here.
   if (!probe) {
-    const outcomeClass = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.upstream;
+    const outcomeClass = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.reason === "not-page-request" ? "not-page-request" : result.upstream;
     if (outcomeClass) {
       try { await recordPhotoOutcome(outcomeClass); } catch { /* recordPhotoOutcome never throws; defensive anyway */ }
     }
@@ -237,6 +260,28 @@ export async function GET(req) {
     }
     if (Number.isFinite(result.refunded) && result.refunded > 0) {
       try { await recordPhotoOutcome("refunded"); } catch { /* same */ }
+    }
+    // PURCHASE LOG (2026-10-15, observe-only): one privacy-safe row when the paid
+    // decision point was reached. Fire-and-forget; never alters the response.
+    if (result.reason === "google" || result.reason === "owned-miss" || result.reason === "spend-denied") {
+      try {
+        const surf = searchParams.get("s") === "card" ? "card" : (searchParams.get("s") === "detail" ? "detail" : null);
+        const ip = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
+        const bucket = bucketHash({ ip, ua });
+        await recordPhotoPurchase({
+          placeId: recoveryPlaceId,
+          surface: surf,
+          requestId: req.headers.get("x-vercel-id"),
+          idempotencyKey: idempotencyKey({ placeId: recoveryPlaceId, surface: surf, bucket }),
+          ledgerReason: result.reason === "spend-denied" ? (result.ledgerReason || null) : "granted",
+          upstream: result.upstream,
+          retried: result.retried,
+          refunded: result.refunded,
+          bucketHash: bucket,
+          uaClass: uaClass(ua),
+          sfs: req.headers.get("sec-fetch-site") || "absent",
+        }).catch(() => {}); // bounded 400ms inside; awaited so a serverless freeze cannot drop the row
+      } catch { /* telemetry only */ }
     }
   }
 

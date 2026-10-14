@@ -1280,6 +1280,8 @@ node scripts/check-card-photo-error-fallback.mjs
 # injected deps — no network, no lib/spendGate.js import anywhere in this
 # lane, no occurrence of "places.googleapis.com".
 node scripts/test-photo-protection.mjs
+# 2026-10-15: wf_photo_purchase observe-only log: allowed-keys-only body, day-salted hash, fail-soft, !probe scoping in the route.
+node scripts/test-photo-purchase-log.mjs
 node scripts/test-photo-repair-deadline.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
@@ -2189,3 +2191,8 @@ node scripts/test-detail-open-once.mjs
 node scripts/check-event-jsonld-offset.mjs
 node scripts/test-photo-inventory-audit.mjs
 node scripts/check-place-identity-contract.mjs
+node scripts/test-photo-same-origin-spend.mjs
+node scripts/test-photo-recovered-evidence.mjs
+node scripts/test-photo-visitor-cap.mjs
+node scripts/test-image-publication-gate.mjs
+node scripts/check-new-content-images.mjs
