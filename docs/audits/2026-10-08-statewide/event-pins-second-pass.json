@@ -1,0 +1,418 @@
+{
+ "counts": {
+  "verified_move": 17,
+  "unresolved": 6,
+  "current_ok": 1
+ },
+ "total": 24,
+ "arithmetic": "evidence file: 5 far + 14 no-match + 1 burroughs = 20; plus 4 Disney Springs = 24; no combination gives 22 exactly",
+ "cases": [
+  {
+   "event_id": "screamageddon-2026",
+   "slug": "scream-a-geddon-dade-city-2026",
+   "title": "Scream-A-Geddon Horror Park",
+   "current_lat": 28.341,
+   "current_lng": -82.254,
+   "current_address": "27839 Saint Joe Rd, Dade City, FL 33525",
+   "verdict": "verified_move",
+   "new_lat": 28.37711,
+   "new_lng": -82.353044,
+   "distance_mi": 6.52,
+   "sources": [
+    "https://screamageddon.com (schema.org AmusementPark geo 28.37711,-82.353044; address 27839 Saint Joe Rd)",
+    "US Census single match 27839 SAINT JOE RD 28.375317,-82.355116 (0.17 mi from official geo)"
+   ],
+   "evidence": "Official site JSON-LD gives geo for 27839 Saint Joe Rd; Census same-number match is 0.17 mi away, so the old pin was 6.6 mi off."
+  },
+  {
+   "event_id": "fl26-amazing-grace-pumpkin-festival-2026",
+   "slug": "amazing-grace-pumpkin-festival-2026",
+   "title": "Jacksonville Pumpkin Festival at Amazing Grace Family Farms",
+   "current_lat": 29.985,
+   "current_lng": -81.795,
+   "current_address": "4251 SR 21, Green Cove Springs, FL 32043",
+   "verdict": "unresolved",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://www.agcropmaze.com/find-farm",
+    "https://www.agcropmaze.com/"
+   ],
+   "evidence": "Official site conflicts with itself: page title says 4251 State Road 21 (Census puts that at 29.9626,-81.8976, 6.3 mi west of our pin) while its Find the Farm page and structured data say 2899 Wisteria Farms Rd with Wix coordinates 30.046067,-81.778825; Census cannot match Wisteria Farms, and neither point matches our pin, so no move without the farm confirming the entrance."
+  },
+  {
+   "event_id": "fl26-aunt-louise-s-fall-farm-days-2026",
+   "slug": "aunt-louise-s-fall-farm-days-2026",
+   "title": "Aunt Louise's Fall Farm Days",
+   "current_lat": 30.47,
+   "current_lng": -83.98,
+   "current_address": "8101 Waukeenah Hwy, Monticello, FL 32344",
+   "verdict": "unresolved",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://www.auntlouisesfarm.com/"
+   ],
+   "evidence": "Official site gives only 8101 Waukeenah Hwy and a Wix map with no readable coordinates; Census 30.43534,-83.944757 is a rural address interpolation 3.2 mi from our pin and OSM has no match, so entrance unverified."
+  },
+  {
+   "event_id": "fl26-sweet-season-farms-2026",
+   "slug": "sweet-season-farms-2026",
+   "title": "Sweet Season Farms Corn Maze & Pumpkin Patch",
+   "current_lat": 30.72,
+   "current_lng": -87.03,
+   "current_address": "2260 Horn Rd, Milton, FL 32570",
+   "verdict": "unresolved",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://www.sweetseasonfarms.com/plan-a-visit"
+   ],
+   "evidence": "Official site gives only 2260 Horn Road, no map coordinates; Census 30.840471,-87.061446 is rural interpolation 8.5 mi from our pin and OSM has no match, so entrance unverified."
+  },
+  {
+   "event_id": "fl26-holland-farms-corn-maze-2026",
+   "slug": "holland-farms-corn-maze-2026",
+   "title": "Holland Farms Pumpkin Patch & Corn Maze",
+   "current_lat": 30.7,
+   "current_lng": -87.08,
+   "current_address": "2055 Homer Holland Rd, Milton, FL 32570",
+   "verdict": "verified_move",
+   "new_lat": 30.8347859,
+   "new_lng": -87.1124597,
+   "distance_mi": 9.51,
+   "sources": [
+    "https://www.hollandfarmsonline.com/ (JSON-LD latitude 30.8347859, longitude -87.1124597; 2055 Homer Holland Rd)",
+    "US Census single match 30.832607,-87.112338 (0.15 mi from official coords)"
+   ],
+   "evidence": "Official site JSON-LD coordinates for 2055 Homer Holland Rd agree with the Census same-number match within 0.15 mi."
+  },
+  {
+   "event_id": "fl26-psl-fall-fun-fest-2026",
+   "slug": "psl-fall-fun-fest-2026",
+   "title": "Port St. Lucie Fall Fun Fest",
+   "current_lat": 27.249,
+   "current_lng": -80.275,
+   "current_address": "9221 SE Event Center Pl, Port St. Lucie, FL 34952",
+   "verdict": "unresolved",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://visitstlucie.com/event/fall-fun-fest-2/2026-10-31/",
+    "https://visitstlucie.com/venue/midflorida-credit-union-event-center/"
+   ],
+   "evidence": "Venue page lists two different street names (9221 SE Event Center Pl and 9221 SE Civic Center Pl) with no coordinates, Census has no match, and OSM has only the Civic Center Place street centerline (27.2963,-80.2987), so no verified point; pin is 3.4 mi from that street."
+  },
+  {
+   "event_id": "fl26-eden-bar-halloween-films-and-cocktails-2026",
+   "slug": "eden-bar-halloween-films-and-cocktails-2026",
+   "title": "13 Films & Cocktails of Halloween at Eden Bar",
+   "current_lat": 28.619,
+   "current_lng": -81.364,
+   "current_address": "1300 S Orlando Ave, Maitland, FL 32751",
+   "verdict": "current_ok",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://enzian.org/special-programs/eden-bars-halloween-party/ (1300 South Orlando Ave, Maitland, FL 32751)",
+    "Wayfind inventory pin for Enzian Theater 28.6164719,-81.3644008 (0.2 mi from event pin)"
+   ],
+   "evidence": "Census only matches 1300 S Orlando Ave under Winter Park 32789 at 28.5858,-81.3649 (a different property 2.3 mi south of Enzian in Maitland), so that match must NOT be used; the current pin is within 0.2 mi of the Enzian place pin."
+  },
+  {
+   "event_id": "fl26-estuscary-haunted-trail-2026",
+   "slug": "estuscary-haunted-trail-2026",
+   "title": "EstuSCARY Haunted Trail at GTM Research Reserve",
+   "current_lat": 30.021,
+   "current_lng": -81.327,
+   "current_address": "2200 S Ponte Vedra Blvd, Ponte Vedra Beach, FL 32082",
+   "verdict": "verified_move",
+   "new_lat": 30.069517,
+   "new_lng": -81.342974,
+   "distance_mi": 3.49,
+   "sources": [
+    "https://www.floridashistoriccoast.com/events/estuscary-haunted-trail/ (event map marker 30.069517,-81.342974, South Beach Access Parking Lot, 2200 S. Ponte Vedra Blvd)",
+    "https://gtmnerr.org/calendar/estuscary-haunted-trail-oct-29-31/ (organizer lists South Beach Access Parking Lot)"
+   ],
+   "evidence": "Official St. Johns County tourism page gives the event's map marker at the South Beach Access Parking Lot (reverse geocodes to Hammock Road); organizer GTM page confirms the same lot though it prints 1798 Ponte Vedra Blvd, so confidence is medium-high."
+  },
+  {
+   "event_id": "fl26-ocala-polo-club-oktoberfest-2026",
+   "slug": "ocala-polo-club-oktoberfest-2026",
+   "title": "Oktoberfest at Ocala Polo Club",
+   "current_lat": 29.07,
+   "current_lng": -82.13,
+   "current_address": "11008 S Hwy 475, Ocala, FL 34480",
+   "verdict": "unresolved",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://www.ocalamarion.com/events/annual-events/oktoberfest/",
+    "https://ocalapoloclub.com/ (parked 'Coming Soon' page)"
+   ],
+   "evidence": "Only a street address (11008 S Hwy 475) from the county tourism page; Census and OSM have no match and the club site is a parked page, so no point can be verified."
+  },
+  {
+   "event_id": "zoo-miami-monster-masquerade-2026",
+   "slug": "zoo-miami-monster-masquerade-2026",
+   "title": "Zoo Miami Monster Masquerade",
+   "current_lat": 25.613,
+   "current_lng": -80.4,
+   "current_address": "12400 SW 152 St",
+   "verdict": "verified_move",
+   "new_lat": 25.6119236,
+   "new_lng": -80.3975316,
+   "distance_mi": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Zoo Miami's own site links a Google Maps place at 25.6119236,-80.3975316, matching OSM's 12400 SW 152nd St object within 0.07 mi; current pin is a 3-decimal zoo centroid 0.19 mi off."
+  },
+  {
+   "event_id": "zoo-boo-zoo-miami-2026",
+   "slug": "zoo-boo-zoo-miami-2026",
+   "title": "Zoo Boo at Zoo Miami",
+   "current_lat": 25.613,
+   "current_lng": -80.4,
+   "current_address": "12400 SW 152 St",
+   "verdict": "verified_move",
+   "new_lat": 25.6119236,
+   "new_lng": -80.3975316,
+   "distance_mi": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Same Zoo Miami official map point as the other Zoo Miami events (12400 SW 152 St); current pin is a 3-decimal centroid."
+  },
+  {
+   "event_id": "roars-smores-snores-spooktacular-campout-zoo-miami-2026",
+   "slug": "roars-smores-snores-spooktacular-campout-zoo-miami-2026",
+   "title": "Roars, S'mores and Snores Spooktacular Campout at Zoo Miami",
+   "current_lat": 25.613,
+   "current_lng": -80.4,
+   "current_address": "12400 SW 152 St",
+   "verdict": "verified_move",
+   "new_lat": 25.6119236,
+   "new_lng": -80.3975316,
+   "distance_mi": 0.17,
+   "sources": [
+    "https://www.zoomiami.org/zoo-boo (Google Maps place link @25.6119236,-80.3975316)",
+    "https://nominatim.openstreetmap.org (Zoo Miami Foundation, 12400 SW 152nd St, 25.6114,-80.3981)"
+   ],
+   "evidence": "Same Zoo Miami official map point (12400 SW 152 St); current pin is a 3-decimal centroid."
+  },
+  {
+   "event_id": "fl26-seed-to-table-spanish-wine-tasting-2026",
+   "slug": "seed-to-table-spanish-wine-tasting-2026",
+   "title": "Wine Tasting \u2013 A Taste of Spain with Marqu\u00e9s de C\u00e1ceres",
+   "current_lat": 26.271,
+   "current_lng": -81.746,
+   "current_address": "4835 Immokalee Rd, Naples, FL 34110",
+   "verdict": "verified_move",
+   "new_lat": 26.274606,
+   "new_lng": -81.752868,
+   "distance_mi": 0.49,
+   "sources": [
+    "https://seedtotablemarket.com/ (official address 4835 Immokalee Rd)",
+    "OSM way 130862995 Seed to Table, 4835 Immokalee Rd (26.2746059,-81.7528676)"
+   ],
+   "evidence": "Official address 4835 Immokalee Rd matches the OSM way for Seed to Table and the Wayfind place pin (26.2743932,-81.7528735) within 0.03 mi; the event pin was 0.5 mi off."
+  },
+  {
+   "event_id": "fl26-seed-to-table-halloween-bash-2026",
+   "slug": "seed-to-table-halloween-bash-2026",
+   "title": "Halloween 2026 at Seed to Table",
+   "current_lat": 26.271,
+   "current_lng": -81.746,
+   "current_address": "4835 Immokalee Rd, Naples, FL 34110",
+   "verdict": "verified_move",
+   "new_lat": 26.274606,
+   "new_lng": -81.752868,
+   "distance_mi": 0.49,
+   "sources": [
+    "https://seedtotablemarket.com/ (official address 4835 Immokalee Rd)",
+    "OSM way 130862995 Seed to Table, 4835 Immokalee Rd (26.2746059,-81.7528676)"
+   ],
+   "evidence": "Same Seed to Table venue as above; OSM way with the 4835 Immokalee Rd address and the Wayfind place pin agree within 0.03 mi."
+  },
+  {
+   "event_id": "fl26-farmer-mike-s-fall-fest-and-corn-maze-2026",
+   "slug": "farmer-mike-s-fall-fest-and-corn-maze-2026",
+   "title": "Farmer Mike's 12th Annual Fall Festival & Corn Mazes",
+   "current_lat": 26.349,
+   "current_lng": -81.733,
+   "current_address": "26031 Morton Ave, Bonita Springs, FL 34135",
+   "verdict": "verified_move",
+   "new_lat": 26.359583,
+   "new_lng": -81.748936,
+   "distance_mi": 1.23,
+   "sources": [
+    "https://www.farmermikesupick.com/farmermikesfallfest26 (site map location mapLat 26.359583, mapLng -81.748936, 26031 Morton Avenue)",
+    "OSM way 11028659 Morton Avenue (26.3533,-81.7509, street only)"
+   ],
+   "evidence": "Official site's own map block sets the farm at 26.359583,-81.748936 for 26031 Morton Ave, on Morton Avenue per OSM; Census had no match; old pin was 1.2 mi off."
+  },
+  {
+   "event_id": "nightmare-village-xtreme-action-park-2026",
+   "slug": "nightmare-village-xtreme-action-park-2026",
+   "title": "Nightmare Village at Xtreme Action Park",
+   "current_lat": 26.193,
+   "current_lng": -80.154,
+   "current_address": "5300 N Powerline Rd",
+   "verdict": "verified_move",
+   "new_lat": 26.1915977,
+   "new_lng": -80.1534226,
+   "distance_mi": 0.1,
+   "sources": [
+    "https://xtremeactionpark.com/experience-nightmare-village/ (5300 North Powerline Road)",
+    "OSM node 8665236909 Xtreme Action Park, 5300 Powerline Road (26.1915977,-80.1534226)"
+   ],
+   "evidence": "Official address 5300 N Powerline Rd matches the OSM node for the park with the same house number; old pin 0.1 mi off."
+  },
+  {
+   "event_id": "fl26-halloween-symphony-spooktacular-2026",
+   "slug": "halloween-symphony-spooktacular-2026",
+   "title": "FREE Halloween Symphony Spooktacular",
+   "current_lat": 30.432,
+   "current_lng": -84.278,
+   "current_address": "1001 S Gadsden St, Tallahassee, FL 32301",
+   "verdict": "verified_move",
+   "new_lat": 30.4341163,
+   "new_lng": -84.2767584,
+   "distance_mi": 0.16,
+   "sources": [
+    "OSM way 1352432176 Adderley Amphitheater (30.4341163,-84.2767584)",
+    "https://www.tallahasseesymphony.org/event/free-halloween-symphony-spooktacular/ (organizer page, venue named; fetch returned 403 so read earlier via stored verify note)"
+   ],
+   "evidence": "Event is at the Adderley Amphitheater; the venue's own OSM way sits 0.17 mi from the old Cascades Park centroid pin, and Census mis-geocodes 1001 S Gadsden to 1001 N Gadsden so it was not used."
+  },
+  {
+   "event_id": "fl26-pumpkin-towne-wellington-2026",
+   "slug": "pumpkin-towne-wellington-2026",
+   "title": "Pumpkin Towne Pumpkin Patch \u2013 Wellington",
+   "current_lat": 26.645,
+   "current_lng": -80.205,
+   "current_address": "2635 State Road 7, Wellington, FL 33414",
+   "verdict": "verified_move",
+   "new_lat": 26.6412294,
+   "new_lng": -80.2063769,
+   "distance_mi": 0.27,
+   "sources": [
+    "https://www.pumpkintowne.com/location (Wellington lot: Whole Foods shopping plaza, 2635 SR 7, Wellington FL 33414)",
+    "OSM node 2618948099 Whole Foods Market, 2635 State Road 7 (26.6412294,-80.2063769)"
+   ],
+   "evidence": "Official page puts the lot in the Whole Foods plaza at 2635 SR 7, and OSM's Whole Foods node carries exactly 2635 State Road 7; old pin was 0.3 mi north."
+  },
+  {
+   "event_id": "bedners-fall-festival-2026",
+   "slug": "bedners-fall-festival-boynton-beach-2026",
+   "title": "Bedner's Farm Fresh Market Fall Festival",
+   "current_lat": 26.545,
+   "current_lng": -80.145,
+   "current_address": "10066 Lee Road",
+   "verdict": "unresolved",
+   "new_lat": null,
+   "new_lng": null,
+   "distance_mi": null,
+   "sources": [
+    "https://bedners.com/fall-festival/",
+    "https://www.bedners.com (10066 Lee Road)"
+   ],
+   "evidence": "Official site gives only 10066 Lee Road with no coordinates; Census and OSM have no match, event also has no published dates, so no verified point."
+  },
+  {
+   "event_id": "fl26-burroughs-home-paranormal-night-2026",
+   "slug": "burroughs-home-paranormal-night-2026",
+   "title": "Burroughs Home Investigation Event",
+   "current_lat": 26.645,
+   "current_lng": -81.871,
+   "current_address": "2505 First St, Fort Myers, FL 33901",
+   "verdict": "verified_move",
+   "new_lat": 26.646661,
+   "new_lng": -81.865823,
+   "distance_mi": 0.34,
+   "sources": [
+    "https://nominatim.openstreetmap.org OSM way 211240186 Burroughs Home and Gardens, 2505 (26.647344,-81.866103)",
+    "US Census 2505 FIRST ST / 2505 1ST ST single point 26.646661,-81.865823",
+    "Wayfind place pin 26.6469699,-81.8658887"
+   ],
+   "evidence": "The two Census matches are the same point (First St vs 1st St spellings; the 0.34 mi was the pin's offset), and OSM and the place pin agree within 0.05 mi."
+  },
+  {
+   "event_id": "fl26-homecomin-fall-menu-2026",
+   "slug": "homecomin-fall-menu-2026",
+   "title": "Chef Art Smith's Homecomin' Fall Menu",
+   "current_lat": 28.371,
+   "current_lng": -81.519,
+   "current_address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+   "verdict": "verified_move",
+   "new_lat": 28.3704207,
+   "new_lng": -81.5181189,
+   "distance_mi": 0.07,
+   "sources": [
+    "OSM way 519165054 Chef Art Smith's Homecomin' (1602 E Buena Vista Dr)",
+    "Wayfind place pin 28.3704659,-81.5181848"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-frontera-cocina-muertos-treats-2026",
+   "slug": "frontera-cocina-muertos-treats-2026",
+   "title": "Frontera Cocina D\u00eda de Muertos Menu",
+   "current_lat": 28.371,
+   "current_lng": -81.519,
+   "current_address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+   "verdict": "verified_move",
+   "new_lat": 28.3705727,
+   "new_lng": -81.5171607,
+   "distance_mi": 0.12,
+   "sources": [
+    "OSM way 519160063 Frontera Cocina (1604 E Buena Vista Dr)",
+    "Wayfind place pin 28.3706546,-81.5171895"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-raglan-road-halloween-menu-2026",
+   "slug": "raglan-road-halloween-menu-2026",
+   "title": "Raglan Road Halloween Menu",
+   "current_lat": 28.371,
+   "current_lng": -81.519,
+   "current_address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+   "verdict": "verified_move",
+   "new_lat": 28.3713076,
+   "new_lng": -81.5176186,
+   "distance_mi": 0.09,
+   "sources": [
+    "OSM way 292502107 Raglan Road Irish Pub and Restaurant (1640 E Buena Vista Dr)",
+    "Wayfind place pin 28.3710834,-81.5177549"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  },
+  {
+   "event_id": "fl26-everglazed-halloween-donuts-2026",
+   "slug": "everglazed-halloween-donuts-2026",
+   "title": "Everglazed Halloween Donuts",
+   "current_lat": 28.371,
+   "current_lng": -81.519,
+   "current_address": "1486 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+   "verdict": "verified_move",
+   "new_lat": 28.3699227,
+   "new_lng": -81.5211921,
+   "distance_mi": 0.15,
+   "sources": [
+    "OSM node 8677080017 Everglazed Donuts & Cold Brew (1504 E Buena Vista Dr)",
+    "Wayfind place pin 28.36986,-81.5212163"
+   ],
+   "evidence": "Own OSM object for this restaurant (distinct from the other three) agrees with its own Wayfind place pin within 0.02 mi; the shared complex address was not used. Event pin was the shared 28.371,-81.519 point."
+  }
+ ]
+}

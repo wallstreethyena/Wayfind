@@ -335,6 +335,7 @@ node scripts/check-editorial-publish.mjs
 node scripts/check-editorial-publish-symmetry.mjs
 node scripts/check-editorial-read-gate.mjs
 node scripts/test-editorial-endpoint-servable.mjs
+node scripts/test-guide-description-fills.mjs
 node scripts/test-atlas-editorial-row.mjs
 node scripts/test-atlas-extract.mjs
 node scripts/check-no-disney-sources.mjs
@@ -484,6 +485,7 @@ node scripts/check-quota-reservation.mjs
 node scripts/check-commerce-events.mjs
 node scripts/test-provider-health.mjs
 node scripts/check-cuisine-sheet.mjs
+node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
@@ -769,6 +771,7 @@ node scripts/check-event-price-fact.mjs
 # Events without their own photo show a designed category tile, never stock;
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs
+node scripts/check-event-approximate-location.mjs
 # The Events list mounts a page at a time; every event stays reachable.
 node scripts/check-events-paged-list.mjs
 
@@ -1317,6 +1320,7 @@ node scripts/check-link-quarantine.mjs
 # release note read "month_cap 7500 reached" — the real line was the free-tier
 # 4,800. effectiveCap() is now what both the cron and the worker print.
 node scripts/check-spend-effective-cap.mjs
+node scripts/check-budget-limit-reporting.mjs
 # 2026-09-03 TWO DEAD PROVIDERS, found only once the health block said WHY.
 # SerpAPI's google_events engine 400s in every city (Google retired the source)
 # and SerpApi bills per search, so every uncached request bought a guaranteed
@@ -2041,6 +2045,10 @@ node scripts/test-photo-credits.mjs
 # received, tied to the exact fetched photo name (2026-10-01).
 node scripts/test-photo-credit-capture.mjs
 node scripts/test-card-photo-viewer.mjs
+# Every image slot ends in a verified photo or the shared fallback tile: executes getPlacePhoto, railPhotoSrc,
+# CardPhoto, SafeImg and FallbackImg across the outcome matrix in Chromium (2026-10-14).
+node scripts/test-image-health.mjs
+node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
 # never opens the card (#1601).
@@ -2060,6 +2068,7 @@ node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
+node scripts/test-ledger-failure-classes.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
 node scripts/test-photo-monitor-cold-rate.mjs
@@ -2110,6 +2119,8 @@ node scripts/test-event-recovery.mjs
 node scripts/test-lane-lock-ownership.mjs
 # Relevant visual guide discovery
 node scripts/test-guide-discovery.mjs
+# 2026-10-13 owner: a shared venue alone never qualifies a guide for an unrelated rail (Birthday Freebies on Breakfast, Parrish things-to-do on Eat). Explicit rail->topic table, lib/guideRailTopics.js.
+node scripts/check-guide-rail-relevance.mjs
 # Score receipts and independently gated source verdicts (PR #1145 current-main adaptation)
 node scripts/test-score-explanation.mjs
 # Current-main backend residual runtime controls (#1285/#1272).
@@ -2172,3 +2183,7 @@ node scripts/check-synthetic-map-contracts.mjs
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
+# 2026-10-09 event JSON-LD startDate/endDate carry the event's own UTC offset (Central Panhandle vs Eastern, DST-aware).
+node scripts/check-event-jsonld-offset.mjs
+node scripts/test-photo-inventory-audit.mjs
+node scripts/check-place-identity-contract.mjs

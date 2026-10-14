@@ -230,7 +230,8 @@ const render = async (c, s, city) => {
 // ── D. PHOTO ROUTE: the real route + real resolver, fake upstream ────────────
 {
   const { resolvePlacePhoto, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } = await import("../lib/placePhotoServe.js");
-  const { gateShut, spendAllow, spendAllowPhotos } = await import("../lib/spendGate.js");
+  const { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } = await import("../lib/spendGate.js");
+  const { ledgerOutcomeClass } = await import("../lib/photoOutcomes.js");
   const { landingCardPhotoSrc } = await import("../lib/placePhoto.js");
   // #1587: the route keeps photo credits from the Details response it already
   // read. Bound to the REAL keeper: no Google call; its Supabase write lands in
@@ -246,7 +247,7 @@ const render = async (c, s, city) => {
     fetchOwnedUri: async () => { googlePhotoFetches++; return { uri: "https://lh3.googleusercontent.com/p/fake", status: 200, upstream: "ok" }; },
   };
   globalThis.__wfEvergreenGuard = {
-    FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos,
+    FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, ledgerOutcomeClass,
     resolvePlacePhoto: (input) => resolvePlacePhoto(input, deps),
     findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
@@ -414,6 +415,17 @@ const render = async (c, s, city) => {
   ok(importers.includes("lib/landing.js"), "PROBE: the importer scan finds the known importer lib/landing.js");
   ok(JSON.stringify(importers) === JSON.stringify(ALLOWED), `only the landing layer imports lib/evergreenCities.js — a cron or rail that adopts it would start spending on these towns (importers: ${importers.join(", ")})`);
   console.log(`  scanned ${files.length} files for evergreenCities importers`);
+}
+
+{
+  // Evergreen/guide ids are not Google place ids: the client photo lane must stay shut for them.
+  const { getPlacePhoto, resetPhotoAnswers } = await import("../lib/photoAnswers.js");
+  const { railPhotoSrc } = await import("../lib/cardPhotoRequest.js");
+  let leaks = 0;
+  const spy = async () => { leaks++; return { ok: false, status: 500, headers: { get: () => null }, json: async () => ({}) }; };
+  for (const id of ["tampa", "best-beaches-florida", "evt-1234567890", "", null, "a/b/c/d/e/f/g/h"]) { await getPlacePhoto(id, { surface: "card", fetchImpl: spy }); ok(railPhotoSrc({ id }) === null, "evergreen/non-place id " + JSON.stringify(id) + " gets no Google photo source"); }
+  ok(leaks === 0, "non-place ids make zero photo requests (" + leaks + ")");
+  resetPhotoAnswers();
 }
 
 globalThis.fetch = realFetch;

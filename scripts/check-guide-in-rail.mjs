@@ -38,10 +38,10 @@ ok(insertGuideAt(base, null).join() === "a,b,c,d" && insertGuideAt(base, null) !
 ok(insertGuideAt(base, "G").filter((x) => x !== "G").join() === base.join(), "the place order around the guide is unchanged (ranks are not shifted)");
 
 // ── 2. the homepage drop (DaypartRail) selector uses the same slot ─────────
-const guide = { slug: "g", image: { src: "/x.webp" }, placeIds: ["p4"] };
+const guide = { slug: "g", kinds: ["nature"], image: { src: "/x.webp" }, placeIds: ["p4"] };
 const rows = Array.from({ length: 10 }, (_, i) => ({ id: "p" + i }));
-ok(guideForPlaceRail([guide], rows, "rail-a")?.before === 2 && guideForPlaceRail([guide], rows, "rail-b")?.before === 2, "the homepage drop inserts its guide at index 2 on every rail");
-ok(guideForPlaceRail([guide], [{ id: "ad", _sponsored: true }, ...rows], "rail-a")?.before === 2, "an ad in front does not push the guide past the third card");
+ok(guideForPlaceRail([guide], rows, "drive")?.before === 2 && guideForPlaceRail([guide], rows, "today")?.before === 2, "the homepage drop inserts its guide at index 2 on every rail");
+ok(guideForPlaceRail([guide], [{ id: "ad", _sponsored: true }, ...rows], "drive")?.before === 2, "an ad in front does not push the guide past the third card");
 
 // ── 3. the real slot component, rendered ────────────────────────────────────
 const RailGuideSlot = (await loadComponent(path.join(ROOT, "app/components/RailGuideSlot.js"), ROOT)).default;
@@ -84,10 +84,10 @@ ok(!/data-guide-rail/.test(none), "NEGATIVE: a rail with no matched guide render
   ok(page1.filter((x) => x !== "G").join() === Array.from({ length: 20 }, (_, i) => i + 1).join() && page1[3] === "3", "(c) the third place card is rank 3 although it is the fourth tile; ranks run 1..20 with no gap");
   ok(items.length === 20, "(c) counters and dots read the place list (20), which never contains the guide");
   // (d) one guide, one rail per collection.
-  const matchG = { slug: "match", title: "Match", image: { src: "/x.webp" }, placeIds: ["shared"], teaser: "t" };
+  const matchG = { slug: "match", title: "Match", image: { src: "/x.webp" }, placeIds: ["shared"], teaser: "t", kinds: ["destination"] }; // topic fit is required (lib/guideRailCollections.js): destination rides the Today collection
   const three = [0, 1, 2].map((k) => ({ id: "rail-" + k, places: [{ id: "shared", name: "Shared" }, { id: "own-" + k, name: "Own " + k }] }));
   const collectionHtml = renderToStaticMarkup(React.createElement(H.GuideDiscoveryContext.Provider, { value: [matchG] },
-    React.createElement(H.Collection, { rails: three, collectionId: "c" }, three.map((rail) => React.createElement("div", { key: rail.id, className: "wf-rail" },
+    React.createElement(H.Collection, { rails: three, collectionId: "today" }, three.map((rail) => React.createElement("div", { key: rail.id, className: "wf-rail" },
       React.createElement(H.RailGuideSlot, { railId: rail.id }, rankCards(rail.places)))))));
   ok((collectionHtml.match(/data-guide-rail=/g) || []).length === 1, `(d) a guide that matches three rails of one collection shows in exactly one (got ${(collectionHtml.match(/data-guide-rail=/g) || []).length})`);
   const own = ["a", "b", "c", "d", "e"].map((k) => renderToStaticMarkup(React.createElement(H.RailGuideSlot, { railId: k, guide: { ...matchG, slug: "own-" + k } }, rankCards(rowsOf(4)))));

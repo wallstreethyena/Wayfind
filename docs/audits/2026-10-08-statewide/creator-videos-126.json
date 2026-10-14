@@ -1,0 +1,1064 @@
+{
+ "summary": {
+  "total_entries_without_placeId_on_main": 126,
+  "pinned_in_pr1698": 43,
+  "remaining": 83,
+  "by_class": {
+   "i": 14,
+   "iii": 1,
+   "v": 9,
+   "ii": 39,
+   "iv": 20
+  },
+  "by_group_class": {
+   "other15/i": 8,
+   "other15/iii": 1,
+   "other15/v": 6,
+   "zero68/i": 6,
+   "zero68/v": 3,
+   "zero68/ii": 39,
+   "zero68/iv": 20
+  }
+ },
+ "entries": [
+  {
+   "key": "alessi-bakeries-tampa",
+   "placeId": "ChIJJ1tmaHbDwogRxB86-j_tUjw",
+   "evidence": "Alessi Bakeries Food Market, only Alessi row. 0.09 mi from OSM 'Alessi Bakery, 2909 W Cypress St'; WFLA says bakery moving to 3003 W Cypress (geocodes 0.05 mi from row). One business, one row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim.openstreetmap.org",
+    "wfla.com Alessi relocation article"
+   ],
+   "strength": "strong",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "beach-house-coffee-tampa-bay",
+   "placeId": "ChIJEat-JNjDwogRiy9DMSpzID0",
+   "evidence": "Beach House Coffee Company row geocodes to the same point as 3602 S Manhattan Ave, Tampa (0.00 mi), the Beach House Coffee cafe address on thatssotampa.com. Only FL row with that brand.",
+   "sources": [
+    "wf_inventory",
+    "nominatim",
+    "thatssotampa.com/beach-house-coffee-cafe-boutique"
+   ],
+   "strength": "strong",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "pintos-farm-miami",
+   "placeId": "ChIJUczTK5XC2YgRRt4Jp6N3B70",
+   "evidence": "Entry address 14890 SW 216 St = Time Out Miami address for Pinto's Farm; geocodes 0.01 mi from the single inventory row 'Pinto's Farm' (miami-dade).",
+   "sources": [
+    "wf_inventory",
+    "timeout.com/miami/things-to-do/pintos-farm",
+    "nominatim"
+   ],
+   "strength": "strong",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "qamaria-tampa",
+   "placeId": "ChIJIZSp6LPHwogRSuxC6AoeqrY",
+   "evidence": "Of 8 Qamaria rows only one is in the Tampa area; it sits at 28.0519,-82.3927 = OSM 'Qamaria Yemeni Coffee Co, 11301 N 56th St, Temple Terrace'. Other 7 are NC/OH/CA/VA/MD/DC/Jacksonville.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "strong",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "marie-selby-sarasota",
+   "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+   "evidence": "Entry address 1534 Mound St (geocode 0.04 mi). Two rows share the same coordinates: 'Marie Selby Botanical Gardens Downtown Sarasota' (garden listing, recommended) and '...Event Venues' (ChIJT23okT9Aw4gR8qDRB5BlVic). Duplicate-ish: report only.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "strong (flag duplicate row)",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "hh-bagels-altamonte-springs",
+   "placeId": "ChIJtX4Hk65z54gRtgLZczxrtyA",
+   "evidence": "Only FL row named exactly 'H&H Bagels' (orlando metro, 28.6813,-81.4182). Orlando Weekly (2026-05-21) and WFTV put the only Central FL H&H at 931 N SR 434, Altamonte Springs. Could not geocode that address to confirm distance.",
+   "sources": [
+    "wf_inventory",
+    "orlandoweekly.com tip-jar H&H article",
+    "wftv.com"
+   ],
+   "strength": "medium-strong",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "izuki-orlando",
+   "placeId": "ChIJ5-0Tr12B3YgR_Olnei_KEfg",
+   "evidence": "Single row 'Sushi Izuki' (orlando, Dr. Phillips area 28.4064,-81.5024). Orange Observer (2025-07-02): new restaurant Sushi Izuki in Dr. Phillips. Address 8685 Fenton St did not geocode, so distance unconfirmed.",
+   "sources": [
+    "wf_inventory",
+    "orangeobserver.com/news/2025/jul/02/new-sushi-restaurant-opened-in-dr-phillips"
+   ],
+   "strength": "medium",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "byte-burger-tampa",
+   "placeId": "ChIJHQx19tXHwogROEMoNkuy0ZU",
+   "evidence": "'Byte Burgers' (28.0485,-82.3931) is the only Tampa-area Byte row (other is 'Byte and Coffee' in Broward). Byte Burgers is at 10939 N 56th St Temple Terrace per Toast/Hoodline. Brand may have other Tampa branches not in inventory.",
+   "sources": [
+    "wf_inventory",
+    "hoodline/toasttab/whatnow search results"
+   ],
+   "strength": "medium",
+   "group": "other15",
+   "class": "i"
+  },
+  {
+   "key": "gametime-tampa",
+   "placeId": "ChIJK_D-ZlDEwogReadEFEDV-dE",
+   "evidence": "Only Tampa row 'GameTime Tampa' (27.9611,-82.4407) has status CLOSED_PERMANENTLY. Other GameTime rows are Daytona/Ft Myers/Kissimmee/Miami/Ocoee. Do not link a closed row; no Tampa venue left to link.",
+   "sources": [
+    "wf_inventory status"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "iii"
+  },
+  {
+   "key": "perspire-lakewood-ranch",
+   "placeId": null,
+   "evidence": "7 Perspire rows (4 in Sarasota/Manatee, plus Tampa, Orlando, Palm Beach, Seminole). Entry address 309 N Cattlemen Rd geocodes (27.3398,-82.4527) 2.8 mi from nearest row (27.3810,-82.4565); ClassPass lists Sarasota branch at 4924 S Tamiami Trl (= row 27.2827,-82.5321). No evidence which branch the video shows.",
+   "sources": [
+    "wf_inventory",
+    "nominatim",
+    "classpass.com perspire-sauna-studio-sarasota"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "v"
+  },
+  {
+   "key": "bibimgo-wesley-chapel",
+   "placeId": null,
+   "evidence": "Two 'BiBimGo - Korean Rice Bowl' rows: ChIJV10GhanHwogRXsOc6QrYVwk (28.0520,-82.3931, Temple Terrace/N 56th St plaza) and ChIJW_P0Cgi7wogR3WGUqeRvBek (28.1951,-82.3919, Lutz/Land O' Lakes). Neither is in Wesley Chapel (~28.24,-82.33) as the entry says; no branch evidence.",
+   "sources": [
+    "wf_inventory"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "v"
+  },
+  {
+   "key": "fit-bowl-co",
+   "placeId": null,
+   "evidence": "Entry has no city or address. Three Tampa branches: Armature Works ChIJgwLioTXFwogR3ImOHMzWW70, Davis Islands ChIJ-2PAib_EwogRcEZV9U7g1OU, Sparkman Wharf ChIJ6c3Lf0TFwogRPfLDgxsmNIM. No evidence which.",
+   "sources": [
+    "wf_inventory"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "v"
+  },
+  {
+   "key": "food-and-beer-tampa",
+   "placeId": null,
+   "evidence": "9 'Food + Beer' rows (7 Sarasota/Manatee/Venice, 1 Lutz-area 28.1885,-82.3954, 1 Lakeland-area). Creator covers Tampa Bay broadly; Lutz row is the only Hillsborough/Pasco one but video location unproven.",
+   "sources": [
+    "wf_inventory"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "v"
+  },
+  {
+   "key": "florida-avenue-brewing-tampa-bay",
+   "placeId": null,
+   "evidence": "Roundup entry (comment says no exact identity verified). Two rows: Tampa 27.9849,-82.4591 (ChIJf_GumVXFwogR3KW00_zdKw0) and a second taproom 28.1864,-82.3673 (ChIJacFCsRbEwogRyZdZXE89Qi8). Roundup video does not show a branch.",
+   "sources": [
+    "wf_inventory",
+    "lib/creatorVideos.js comment"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "v"
+  },
+  {
+   "key": "the-dark-room-orlando",
+   "placeId": null,
+   "evidence": "Only candidate is 'The Dark Room Spa' (ChIJlXkGCqZ954gRBXSfvKlitoI, 28.4399,-81.4032). Entry category is Night out (date-night creator); a spa is not shown to be the same venue and web search found no matching Dark Room venue. Not enough evidence.",
+   "sources": [
+    "wf_inventory",
+    "web search"
+   ],
+   "strength": "n/a",
+   "group": "other15",
+   "class": "v"
+  },
+  {
+   "key": "catrinas-tacos-tampa",
+   "placeId": "ChIJ8w2n6UbDwogRGn3pnZEbbGQ",
+   "evidence": "'Catrinas Tacos and Tequila Bar' is 0.03 mi from entry address 1611 N Howard Ave (geocode 27.9566,-82.4828). Resolver misses it only because of the apostrophe ('catrina s tacos').",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "strong",
+   "group": "zero68",
+   "class": "i"
+  },
+  {
+   "key": "santas-christmas-tree-forest-eustis",
+   "placeId": "ChIJN3DIZgcK54gRMqXaoB5ateU",
+   "evidence": "'Santa's Farm & Christmas Tree Forest' is 0.07 mi from 35317 Huff Rd, Eustis (geocode 28.8638,-81.5152). Same business; name differs.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "strong",
+   "group": "zero68",
+   "class": "i"
+  },
+  {
+   "key": "great-big-game-show-orlando",
+   "placeId": "ChIJ1-ayjZx_54gRUeVTM6Su9lg",
+   "evidence": "Single row 'Great Big Game Show Orlando' on I-Drive (28.4482,-81.4705). Resolver misses it only due to leading 'The'. Press coverage: venue is on International Drive.",
+   "sources": [
+    "wf_inventory",
+    "greatbiggameshow.com/press/orlando-launch search result"
+   ],
+   "strength": "strong",
+   "group": "zero68",
+   "class": "i"
+  },
+  {
+   "key": "sage-head-spa-winter-park",
+   "placeId": "ChIJd-M9Fi1x54gRiGbH4lfFGrQ",
+   "evidence": "'The Sage HeadSpa - Winter Park' (one row; the other is the Tampa branch). Resolver misses it because 'Head Spa' vs 'HeadSpa'. ClassPass lists the Winter Park studio under that name.",
+   "sources": [
+    "wf_inventory",
+    "classpass.com/studios/the-sage-headspa-winter-park"
+   ],
+   "strength": "strong",
+   "group": "zero68",
+   "class": "i"
+  },
+  {
+   "key": "cococello-st-petersburg",
+   "placeId": "ChIJZSRnIQrjwogRwNcMqBTiPlU",
+   "evidence": "Single row 'Cococello109' in st-pete metro (27.7707,-82.6691, downtown). Distinctive token plus city match; no address in entry and web search did not confirm the address. Resolver misses it because the name has a numeric suffix.",
+   "sources": [
+    "wf_inventory"
+   ],
+   "strength": "medium",
+   "group": "zero68",
+   "class": "i"
+  },
+  {
+   "key": "jekyll-hyde-park-tampa",
+   "placeId": "ChIJB9JCMbHFwogRIHaDQD6I1FE",
+   "evidence": "Single row 'Jekyll' (tampa, 27.9368,-82.4749) sits inside Hyde Park Village; entry name is 'Jekyll Hyde Park'. OpenTable lists a Jekyll in Tampa. Roundup entry, creator may not have visited; identity is still unique.",
+   "sources": [
+    "wf_inventory",
+    "opentable.com/r/jekyll-tampa search result"
+   ],
+   "strength": "medium",
+   "group": "zero68",
+   "class": "i"
+  },
+  {
+   "key": "brewed-awakening-tampa",
+   "placeId": null,
+   "evidence": "Exact-name row is a Houston TX place (metro mislabeled gastonia-nc, 29.78,-95.54): fails the Tampa city gate. Near miss 'Brewed Awakenings Craft Cuban Cafe' (ChIJ-9hjni3jwogR3ETjEXjeVaQ, West Tampa 27.9577,-82.4828) differs by plural and descriptor with no address in entry; weak.",
+   "sources": [
+    "wf_inventory"
+   ],
+   "strength": "weak",
+   "group": "zero68",
+   "class": "v"
+  },
+  {
+   "key": "grove-resort-water-park-winter-garden",
+   "placeId": null,
+   "evidence": "Entry is the resort (address 14501 Grove Resort Ave, geocode 28.3618,-81.6494). Inventory only has 'Surfari Water Park at The Grove Resort' (ChIJb23bW2h93YgR5YP8XiqfO1o), a sub-attraction 0.26 mi away; resort itself has no row. Not the same listing.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "v"
+  },
+  {
+   "key": "catboat-clermont",
+   "placeId": null,
+   "evidence": "Entry address 10354 Cypress Cove Ln is Cypress Cove Marina and Resort (row ChIJF3MwSxuM54gR7h-8CsTFgcA, 0.02 mi). Catboat is a rental operator at the marina, not the marina. Do not link to host venue.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "la-la-cafe-st-petersburg",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "quiero-coffee-sarasota",
+   "placeId": null,
+   "evidence": "No Sarasota row. 'Quiero Caf\u00e9' is in Brazil, 'Quiero mas Colombian food' is Orlando. Not the same.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "annapoorna-rasoi-tampa",
+   "placeId": null,
+   "evidence": "No Annapoorna row. 'Urban Rrasoi - Cutler Bay' (Miami) is unrelated.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "eight-turn-crepe-wesley-chapel",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "99-cafe-tampa",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "doggy-dogs-tampa",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "saki-endless-sushi-hibachi-tampa",
+   "placeId": null,
+   "evidence": "No Saki row. OSM places 'Saki Endless Sushi & Hibachi Eatery' in Clearwater, not Tampa; neither in inventory.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "banus-chai-tampa",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "grind-haus-coffee-lutz",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "bloom-ride-orlando",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "wala-la-noodles-orlando",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "banh-mi-go-orlando",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "hamlin-house-social-orlando",
+   "placeId": null,
+   "evidence": "Only 'Hamlin House' row is at 28.5173,-81.3805 (east Orlando); entry is Hamlin House Social in Hamlin / Horizon West (~28.47,-81.63). Different place, name collision. Do not link.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "blue-man-group-orlando",
+   "placeId": null,
+   "evidence": "No Blue Man Group row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "pizza-ponte-disney-springs",
+   "placeId": null,
+   "evidence": "No Pizza Ponte row (matches were Ponte Vedra Beach places).",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "ivory-nail-lounge-orlando",
+   "placeId": null,
+   "evidence": "No Ivory Nail Lounge row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "dollywood-splash-country",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (no city) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "born-and-bread-bakehouse-lakeland",
+   "placeId": null,
+   "evidence": "OSM: Born & Bread Bakehouse, 1113 S Florida Ave, Lakeland; no row nearby.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "circus-arts-foundry-tampa",
+   "placeId": null,
+   "evidence": "Only 'The Circus Arts Conservatory' (Sarasota). Different venue and city. Do not link.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "loveshackfancy-tampa",
+   "placeId": null,
+   "evidence": "OSM: LoveShackFancy, 1619 W Snow Ave (Hyde Park Village); not in inventory.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "birdettes-tampa",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "book-rescuers",
+   "placeId": null,
+   "evidence": "OSM: The Book Rescuers, 10440 68th St N, Pinellas Park; no inventory row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "sunshine-needlepoint-tampa-bay",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "new-york-bagel-cafe-tampa",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "black-english-bookstore",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "jacks-pumpkin-popup-chicago",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (1265 W Le Moyne St, Chicago, IL 60642) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "adventure-park-sandy-spring",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (16701 Norwood Rd, Sandy Spring, MD 20860) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "halloweenville-warrington",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (Partridge Lakes, Glaziers Lane, Culcheth, Warrington WA3 4AQ) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "buffalo-phils-wisconsin-dells",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (150 Gasser Rd, Wisconsin Dells, WI 53965) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "coffinated-coffee-la-puente",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (1627 N Hacienda Blvd, La Puente, CA 91744) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "wekiva-island-longwood",
+   "placeId": null,
+   "evidence": "No 'Wekiva Island' row (only Wekiva Wild River Tours, Augment Wekiva Springs, Lower Wekiva River Preserve).",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "taza-cafe-fort-myers",
+   "placeId": null,
+   "evidence": "No Taza row in Fort Myers.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "wolfes-produce-riverview",
+   "placeId": null,
+   "evidence": "OSM: Wolfe's Produce Market on US 301, Riverview; no inventory row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "mi-cafecito-tampa",
+   "placeId": null,
+   "evidence": "No Tampa Mi Cafecito row (rows named Cafecito are Jacksonville/Miami/Keys/out of state).",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "roosters-cigars-coffee-tampa",
+   "placeId": null,
+   "evidence": "OSM confirms Roosters Cigars and Coffee at 3103 N Howard Ave (27.9678,-82.4825); no inventory row within 0.25 mi.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "cleveland-metroparks-zoo",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (Cleveland, OH) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "double-six-cafe-tampa",
+   "placeId": null,
+   "evidence": "OSM address 815 E 7th Ave (Ybor/Tampa Heights); no Double Six row within 0.25 mi.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "craftsman-row-saloon-philadelphia",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (Philadelphia, PA) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "frankenstein-bier-keller-edinburgh",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (Old Town, Edinburgh, Scotland) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "little-leopard-coffee-tottington",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (South Royd Street, Tottington, Bury, BL8 3LY, United Kingdom) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "maymont-richmond",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (2201 Shields Lake Dr, Richmond, VA 23220) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "filoli-woodside",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (86 Ca\u00f1ada Rd, Woodside, CA 94062) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "bottoms-up-coffee-columbus",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (Columbus, OH) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "kulturas-pasadena",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (187 N Sierra Madre Blvd, Pasadena, CA 91107) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "at-the-diner-dr-phillips",
+   "placeId": null,
+   "evidence": "Two '@ The Diner' rows: ChIJuTGc8gN_54gRwRztnG7fJ-Y (28.4260,-81.4441) and ChIJUTIu2jqB3YgR8YmZ3ILb4gk (28.3937,-81.5054), ~4 mi apart. Entry gives only 'Dr. Phillips, Orlando' with no street address, so cannot tell which is the Dr. Phillips branch.",
+   "sources": [
+    "wf_inventory"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "v"
+  },
+  {
+   "key": "tinez-farms-miami",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "the-berry-farm-miami",
+   "placeId": null,
+   "evidence": "OSM confirms The Berry Farm, 13720 SW 216th St (25.5657,-80.4186); no inventory row within 0.25 mi ('Bear Tracks Blackberry Farm' is in Lake County, unrelated).",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "flamingo-road-nursery-davie",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "bedners-farm-boynton-beach",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "yesteryear-farm-wilsonville",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (Wilsonville, OR) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "urban-kai-tampa-bay-roundup",
+   "placeId": null,
+   "evidence": "No Urban Kai row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "kerbys-nursery-seffner",
+   "placeId": null,
+   "evidence": "No Kerby's Nursery row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "dead-coconut-club-citywalk-orlando",
+   "placeId": null,
+   "evidence": "CityWalk address 6000 Universal Blvd; only Universal attractions nearby, no Dead Coconut Club row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "blackcraft-coffee-los-angeles",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (457 N Fairfax Ave, Los Angeles, CA 90036) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "lumleys-farm-plant-city",
+   "placeId": null,
+   "evidence": "Searched wf_inventory by exact and loose name (all FL metros) and by 0.25 mi of any geocodable address: no matching row.",
+   "sources": [
+    "wf_inventory",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "ii"
+  },
+  {
+   "key": "valas-pumpkin-patch-gretna",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (12102 S 180th St, Gretna, NE 68028) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "linvilla-orchards-cafe-media",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (137 West Knowlton Road, Media, PA 19063) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "lemos-farm-half-moon-bay",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (12320 San Mateo Road, Half Moon Bay, CA 94019) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  },
+  {
+   "key": "van-cortlandt-manor-croton",
+   "placeId": null,
+   "evidence": "Out of the Gulf Coast / Florida footprint (525 S Riverside Ave, Croton-on-Hudson, NY 10520) or an event; Wayfind inventory has no row for it and should not.",
+   "sources": [
+    "lib/creatorVideos.js entry address",
+    "nominatim"
+   ],
+   "strength": "n/a",
+   "group": "zero68",
+   "class": "iv"
+  }
+ ],
+ "pinned_1698_keys": [
+  "mai-kai-fort-lauderdale",
+  "palaus-restaurant-tampa",
+  "mayfair-grill-miami",
+  "silver-moon-drive-in-lakeland",
+  "old-sugar-mill-pancake-house-de-leon-springs",
+  "main-street-pizza-kissimmee",
+  "arwa-coffee-temple-terrace",
+  "papa-kanafa-temple-terrace",
+  "juice-time-temple-terrace",
+  "qahwtea-tampa",
+  "say-coffee-st-petersburg",
+  "ichiban-sushi-ramen-tampa",
+  "shanghai-dumpling-house-tampa",
+  "aker-sweets-tampa",
+  "pasta-flame-tampa",
+  "la-pinoz-pizza-longwood",
+  "sufrat-ramallah-tampa",
+  "ghawar-restaurant-tampa",
+  "soul-of-korea-tampa",
+  "kubana-kafe-tampa",
+  "rosto-tampa",
+  "akasaka-orlando",
+  "teapioca-lounge-oviedo",
+  "aurora-at-the-celeste-orlando",
+  "azal-coffee-altamonte-springs",
+  "morimoto-asia-orlando",
+  "bar-louie-winter-park",
+  "pisco-peruvian-gastrobar-orlando",
+  "ace-cafe-sanford",
+  "woodhouse-spa-altamonte-springs",
+  "parlor-doughnuts-orlando",
+  "baires-grill-orlando",
+  "four-flamingos-orlando",
+  "color-me-mine-altamonte-springs",
+  "volcano-bay-orlando",
+  "epic-universe-orlando",
+  "aquatica-orlando",
+  "cookie-dough-bliss-tampa",
+  "howard-and-platt-tampa",
+  "dairy-joy-tampa",
+  "zen-glass-studio-st-petersburg",
+  "drip-ybor-tampa",
+  "summer-house-on-the-lake-disney-springs"
+ ]
+}

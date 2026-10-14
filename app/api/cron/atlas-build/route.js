@@ -98,7 +98,7 @@ import { paidAnthropicRequest } from "../../../../lib/paidAi";
 import { sbEnv } from "../../../../lib/serverCache";
 import { recordAffiliateOpportunities, toOpportunityRow } from "../../../../lib/affiliateOpportunity";
 import { resolveOverride } from "../../../../lib/envAudit";
-import { recordPulse } from "../../../../lib/jobPulse";
+import { recordPulse, budgetLimitNote, budgetGateNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../lib/providerHealth.js";
 // Two halves of ONE pipeline, not alternatives:
 //   atlasVerify   — fetches the venue's own page and returns the issue list
@@ -433,7 +433,7 @@ export async function GET(req) {
     // The paid lane bypasses ONLY the free-mode skip; shut always skips.
     if (gateShut() || !lane) {
       const mode = gateShut() ? "shut" : "free";
-      await pulse({ attempted: 0, succeeded: 0, failed: 0, note: `intentional skip: gate=${mode}; paid Atlas re-buy disabled` });
+      await pulse({ attempted: 0, succeeded: 0, failed: 0, note: budgetGateNote(mode, "intentional skip; paid Atlas re-buy disabled") });
       return Response.json({ ok: true, skipped: `gate ${mode}: atlas re-buy is disabled`, gate: mode, ranWork: false });
     }
   }
@@ -813,12 +813,14 @@ export async function GET(req) {
   // classifyHealth() see "work existed, nothing succeeded" instead of "idle"
   // — job-watch pages after DEAD_RUN_THRESHOLD consecutive dead runs, which
   // is the correct outcome: this state does not clear on its own retry.
+  const budgetLed = !stats.providerHalt && rows.length === 0 ? await readLedgerUsage("details_enterprise") : null;
+  const deferBudgetNote = budgetLimitNote("details_enterprise", budgetLed ? budgetLed.used : null, budgetLed ? budgetLed.cap : null);
   const failureNote = stats.providerHalt
     // "billing:"/"quota:" prefix is the escalation hook: classifyHealth
     // treats it as an incident after ONE dead run, not DEAD_RUN_THRESHOLD.
     ? `${stats.providerHalt.kind}: ${stats.providerHalt.msg}`
     : rows.length === 0
-      ? `budget: 0 of ${places.length} candidates written — ${deferred} deferred (spend gate / deadline)`
+      ? `${deferBudgetNote}; ${deferred} of ${places.length} candidates deferred (spend gate / deadline)`
       : publishedCount === 0 && rows.length > 0
         ? `0 published of ${rows.length}: pending=${pending} unverified=${unverified} with_page=${withPage}`
         : null;

@@ -3,7 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import PhotoCreditLink from "./PhotoCreditLink.js";
+import PhotoFallbackTile from "./PhotoFallbackTile.js";
 import { cardPhotoRequest, fetchCardPhoto } from "../../lib/cardPhotoRequest.js";
+import { MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
 
 const control = { background: "#101820", color: "#fff", border: "1px solid #64748b", borderRadius: 6, cursor: "pointer", pointerEvents: "auto" };
 const safe = (href) => typeof href === "string" && /^https:\/\//.test(href) ? href : undefined;
@@ -36,33 +38,59 @@ function PhotoViewer({ photo, alt, close }) {
 
 // Drop-in image: ordinary owned/partner images stay ordinary. Only the photo
 // endpoint uses the credited JSON lane, after this image enters the viewport.
-export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, ...props }) {
+// `compact` = a thumbnail too small to hold the source label (rail rows). The photo
+// then opens the same-photo larger view, which carries the full author credit
+// and the Google Maps link (Google allows this for thumbnails).
+//
+// EVERY outcome ends in a loaded <img> or the shared PhotoFallbackTile (never blank,
+// never a broken glyph): pending = quiet tile, no photo / refused / network / decode
+// error = "Photo not available" tile. `fallbackIcon` / `fallbackCategory` only choose
+// the tile's art; they never reach the <img>.
+export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, ...props }) {
   const request = cardPhotoRequest(src);
   const anchor = useRef(null);
   const [answer, setAnswer] = useState(null);
   const [failed, setFailed] = useState(null);
   const [viewer, setViewer] = useState(null);
+  const [rawFailed, setRawFailed] = useState(null);
   const photo = answer?.request === request ? answer.photo : null;
   useEffect(() => {
     setViewer(null);
     if (!request || !anchor.current) return;
-    let disposed = false, started = false;
+    let disposed = false, started = false, retry = null;
+    // One request now; if the failure was temporary, ONE more after the shared
+    // delay. photoAnswers enforces the attempt limit, so this can never loop.
+    const run = (attempt) => {
+      fetchCardPhoto(request).then((result) => {
+        if (disposed) return;
+        setAnswer({ request, photo: result });
+        setFailed(result ? null : request);
+        if (!result && attempt + 1 < MAX_ATTEMPTS) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
+      });
+    };
     const load = () => {
       if (started) return;
       started = true;
-      fetchCardPhoto(request).then((result) => {
-        if (!disposed) { setAnswer({ request, photo: result }); setFailed(result ? null : request); }
-      });
+      run(0);
     };
     const observer = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0)) { observer.disconnect(); load(); }
     }) : null;
     if (observer) observer.observe(anchor.current); else load();
-    return () => { disposed = true; observer?.disconnect(); };
+    return () => { disposed = true; observer?.disconnect(); if (retry) clearTimeout(retry); };
   }, [request]);
-  if (!request) return <img {...props} src={src} alt={alt} style={style} onError={onError} onLoad={onLoad} onClick={onClick} />;
+  if (!request) {
+    // Ordinary owned/partner image. A caller that passes onError owns its own ladder
+    // (RailCard swaps src in the handler) so the <img> must stay mounted for it. With
+    // no handler this component owns the outcome: an empty src or ONE decode error
+    // swaps to the shared tile, and the handler is gone with the <img> (no loop).
+    if (!onError && (!src || rawFailed === src)) return <PhotoFallbackTile name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} style={style} />;
+    return <img {...props} src={src} alt={alt} style={style} onError={onError || (() => setRawFailed(src))} onLoad={onLoad} onClick={onClick} />;
+  }
   const visible = !!photo && failed !== request;
-  const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer(photo); };
+  // The viewer holds the exact {photo, credit} object of THIS request; a place
+  // change makes viewer.request stale, so an old photo/credit pair can't render.
+  const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer({ request, photo }); };
   const viewerProps = photo?.credit ? {
     role: "button", tabIndex: 0,
     "aria-label": alt ? "View larger photo of " + alt + " and photographer credit" : "View larger photo and photographer credit",
@@ -72,15 +100,12 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   } : { onClick };
   return <>
     {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
-      : <span ref={anchor} data-card-photo-request={request} role="img" aria-label={failed === request ? (alt ? "Photo unavailable for " + alt : "Photo unavailable") : "Loading photo"} style={{ width: "100%", height: "100%", minHeight: 60, ...style, display: "grid", placeContent: "center", textAlign: "center", gap: 8, color: "#acb9c8" }}>
-          {failed === request ? <>
-            <svg aria-hidden="true" width="28" height="34" viewBox="0 0 24 30" fill="none" stroke="currentColor" strokeWidth="1.8" style={{ margin: "0 auto" }}><path d="M12 28S3 17 3 11a9 9 0 1 1 18 0c0 6-9 17-9 17Z"/><circle cx="12" cy="11" r="3"/></svg>
-            <small style={{ fontSize: 10, lineHeight: 1.3, padding: "0 4px" }}>Photo unavailable</small>
-          </> : null}
+      : <span ref={anchor} data-card-photo-request={request} style={{ display: "block", width: "100%", height: "100%", minHeight: compact ? 40 : 60, overflow: "hidden", ...style, borderRadius: style?.borderRadius ?? "inherit" }}>
+          <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />
         </span>}
-    {visible && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
+    {visible && !compact && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
       <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", color: "#fff", textShadow: "-1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000, 0 1px 2px #000", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, lineHeight: "16px", fontWeight: 400, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
     </div> : null}
-    {viewer && visible ? <PhotoViewer photo={viewer} alt={alt} close={() => setViewer(null)} /> : null}
+    {viewer && viewer.request === request && viewer.photo === photo && visible ? <PhotoViewer photo={viewer.photo} alt={alt} close={() => setViewer(null)} /> : null}
   </>;
 }

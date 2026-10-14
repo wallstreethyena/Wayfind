@@ -6,6 +6,7 @@ import { C, scoreLabel, PlaceScoreChip } from "../kit";
 import { shouldApplyMapDefault } from "../../../lib/mapExplorer";
 import { selectMapPlaces, mergeMapAreaContext, validMapBounds, keepMapPreview } from "../../../lib/mapAreaData.js";
 import { byGovernedScore } from "../../../lib/lawfulOrder.js";
+import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
 import AppleExplorerMap from "../AppleExplorerMap";
 import IconicPlaceCard from "../IconicPlaceCard";
@@ -182,7 +183,7 @@ export default function MapScreen({ ctx }) {
               }
               let mapEvents = [];
               if (mapMode === "events") {
-                const src = (events || []).filter((e) => e.lat != null && e.lng != null && (mapDate === "all" || e.date === mapDate));
+                const src = (events || []).filter((e) => eventMapPoint(e) && (mapDate === "all" || e.date === mapDate));
                 const seen = new Set();
                 for (const e of src) { const k = `${e.lat.toFixed(3)},${e.lng.toFixed(3)}`; if (!seen.has(k)) { seen.add(k); mapEvents.push(e); } }
               }

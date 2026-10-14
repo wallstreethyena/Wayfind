@@ -42,7 +42,8 @@
 // again. See the PR/session notes for the full mutation list.
 import { readFileSync } from "node:fs";
 import { findFreePhoto, selectFreePhotoRow, preferPermittedRow } from "../lib/freePhoto.js";
-import { gateShut, spendAllow, spendAllowPhotos } from "../lib/spendGate.js";
+import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } from "../lib/spendGate.js";
+import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
 import { isAutomatedPhotoReader } from "../lib/crawler.js";
 
@@ -227,6 +228,8 @@ async function sourceRoute(routeSource) {
     const gateShut = (...a) => globalThis.__wfFreePhotoTest.gateShut(...a);
     const spendAllow = (...a) => globalThis.__wfFreePhotoTest.spendAllow(...a);
     const spendAllowPhotos = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotos(...a);
+    const spendAllowPhotosDetailed = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotosDetailed(...a);
+    const ledgerOutcomeClass = (...a) => globalThis.__wfFreePhotoTest.ledgerOutcomeClass(...a);
     const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
   `;
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
@@ -243,6 +246,8 @@ globalThis.__wfFreePhotoTest = {
   gateShut,
   spendAllow,
   spendAllowPhotos,
+  spendAllowPhotosDetailed,
+  ledgerOutcomeClass,
   resolvePlacePhoto: null, // set per-scenario
   findSamePlaceCachedPhoto: null, // set per-scenario
   findFreePhoto: null, // set per-scenario

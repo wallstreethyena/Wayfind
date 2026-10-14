@@ -58,7 +58,7 @@ ok("date-only startDate when the time is unknown", () => {
   assert.ok(!String(j.startDate).includes("T"), "must not fabricate a time");
 });
 ok("the time appears only when we hold one", () =>
-  assert.equal(eventJsonLd(ev({ slug: "y", event_name: "P", start_date: "2026-10-16", start_time: "19:00:00" })).startDate, "2026-10-16T19:00:00"));
+  assert.equal(eventJsonLd(ev({ slug: "y", event_name: "P", start_date: "2026-10-16", start_time: "19:00:00" })).startDate, "2026-10-16T19:00:00-04:00")); // Tampa coords, EDT (offset added 2026-10-09)
 ok("a non-displayable event emits no schema", () => {
   assert.equal(eventJsonLd(ev({ event_status: "paused", slug: "s", start_date: "2027-05-01" })), null);
   assert.equal(eventJsonLd(ev({ event_status: "unannounced", slug: "g", start_date: "2026-10-31" })), null);

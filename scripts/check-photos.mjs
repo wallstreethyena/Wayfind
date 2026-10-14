@@ -29,7 +29,7 @@ const recoveryCode = stripComments(recovery);
 {
   const auth = routeCode.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getFreePhoto\(\)\.then\(\(free\)\s*=>\s*\{([\s\S]*?)\}\),/);
   const body = auth ? auth[1] : "";
-  if (!routeCode.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(shut\) return false;/.test(body) || !/if \(sku === "photos" && free\) return false;/.test(body) || !/spendAllowPhotos\(\)/.test(body)) fail("the free permitted/licensed lookup must run at the lazy photo spend boundary (refusing a `photos` grant on a hit) before Google authorization");
+  if (!routeCode.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(shut\) return false;/.test(body) || !/if \(sku === "photos" && free\) return false;/.test(body) || !/spendAllowPhotos(?:Detailed)?\(\)/.test(body)) fail("the free permitted/licensed lookup must run at the lazy photo spend boundary (refusing a `photos` grant on a hit) before Google authorization");
   if (/getRecovery|findSamePlaceCachedPhoto|\bcacheGet\b|\bcacheSet\b|photoCacheKey|photoNegativeKey/.test(routeCode)) fail("app/api/photo/route.js reads or writes a Google photo cache — no Google photo name/URL may be stored or read (COMPLIANT PHOTOS)");
   if (!/const GOOGLE_SURFACES = new Set\(\["detail", "card"\]\);/.test(routeCode) || !/googleSurface,/.test(routeCode) || !routeCode.includes('searchParams.get("s") !== "card" || wantJson')) fail("only detail and credited card JSON may enable the live Google path");
   // Every redirect/JSON that carries a live Google photo must be private, no-store.
@@ -59,4 +59,16 @@ for (const [f, s] of [["lib/google.js", google], ["lib/hotels.js", hotels], ["li
   if (/googleapis\.com\/v1\/[^"']*\/media[^"']*key=/.test(s)) fail(`${f} still builds a keyed googleapis media URL for the browser — route it through /api/photo`);
 }
 
+{
+  const detailSrc = readFileSync(new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
+  const railUses = (detailSrc.match(/<FallbackImg src=\{railPhotoSrc\(p\)\}/g) || []).length;
+  if (railUses !== 3) fail("Detail.js rail rows (Where to go next, More like, Worth comparing nearby) must each source their photo from railPhotoSrc(p); found " + railUses + " of 3");
+  if (/<FallbackImg src=\{p\.photo\} icon="📍"/.test(detailSrc)) fail("a Detail.js rail row went back to raw p.photo, which is blank for places with no stored photo");
+  const { railPhotoSrc } = await import("../lib/cardPhotoRequest.js");
+  if (railPhotoSrc({ id: "ChIJRailPlaceAAAAAAAAAA" }) !== "/api/photo?place=ChIJRailPlaceAAAAAAAAAA") fail("railPhotoSrc must ask for the row's OWN place photo");
+  if (railPhotoSrc({ id: "ChIJRailPlaceAAAAAAAAAA", photo: "/own.jpg" }) !== "/own.jpg") fail("railPhotoSrc must keep Wayfind-owned photos first");
+  if (railPhotoSrc({ id: "evt-1234567890" }) !== null) fail("railPhotoSrc must not open the Google lane for non-place ids");
+  const cp = readFileSync(new URL("../app/components/CardPhoto.js", import.meta.url), "utf8");
+  if (!/viewer\.request === request\s*&&\s*viewer\.photo === photo/.test(cp)) fail("CardPhoto must render the viewer only for the request+photo pair it was opened with");
+}
 console.log("check-photos: OK — proxy only; route reads/writes no Google photo cache, free lookup gates the ledger, only detail and credited card JSON buy Google live, Google answers are private/no-store, same-place recovery is a constant null");

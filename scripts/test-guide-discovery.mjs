@@ -16,21 +16,21 @@ const candidate = local || guides.find(g => g.region === 'Bradenton' && g.placeI
 assert(candidate, 'real local guide with covered venues');
 const places = Array.from({length:12}, (_,i) => ({id: i===4 ? candidate.placeIds[0] : 'unrelated-'+i, _s:100-i}));
 const before=JSON.stringify(places);
-const selected=guideForPlaceRail(guides,places,'outdoors');
+const selected=guideForPlaceRail(guides,places,'drive');
 // OWNER RULE 2026-10-08 (lib/railGuideSlot.js): the guide is the rail's THIRD card.
 assert(selected && selected.before===2, 'the guide is the third card of its rail (index 2)');
 assert(selected.guide.placeIds.some(id=>places.some(p=>p.id===id)), 'exact venue relevance');
 assert.equal(JSON.stringify(places),before,'ranked list untouched');
-assert.deepEqual(guideForPlaceRail(guides,places,'outdoors'),selected,'no render jitter');
-assert.deepEqual(guideForPlaceRail(guides,[...places,{id:'new-page'}],'outdoors'),selected,'paging does not move initial insert');
-assert.equal(guideForPlaceRail(guides,places.map(p=>({...p,id:'miami-'+p.id})),'outdoors'),null,'unrelated city/venue IDs do not match');
-assert.equal(guideForPlaceRail(guides,places.slice(0,3),'outdoors'),null,'thin rails have no insert');
-assert.equal(guideForPlaceRail([{...candidate,image:null}],places,'outdoors'),null,'no unreviewed image insert');
-assert.equal(guideForPlaceRail([candidate],places.map(p=>({...p,_sponsored:true})),'outdoors'),null,'ads never authorize relevance');
-assert(guideForPlaceRail([candidate,candidate],places,'outdoors'),'duplicates yield just one selection');
+assert.deepEqual(guideForPlaceRail(guides,places,'drive'),selected,'no render jitter');
+assert.deepEqual(guideForPlaceRail(guides,[...places,{id:'new-page'}],'drive'),selected,'paging does not move initial insert');
+assert.equal(guideForPlaceRail(guides,places.map(p=>({...p,id:'miami-'+p.id})),'drive'),null,'unrelated city/venue IDs do not match');
+assert.equal(guideForPlaceRail(guides,places.slice(0,3),'drive'),null,'thin rails have no insert');
+assert.equal(guideForPlaceRail([{...candidate,image:null}],places,'drive'),null,'no unreviewed image insert');
+assert.equal(guideForPlaceRail([candidate],places.map(p=>({...p,_sponsored:true})),'drive'),null,'ads never authorize relevance');
+assert(guideForPlaceRail([candidate,candidate],places,'drive'),'duplicates yield just one selection');
 const withAd=[{id:'ad',_sponsored:true},...places];
-assert.equal(guideForPlaceRail(guides,withAd,'outdoors').before,2,'with an ad in front the guide is still the third card the reader sees');
-const positions = new Set(Array.from({length:30},(_,i)=>guideForPlaceRail([candidate],places,'rail-'+i).before));
+assert.equal(guideForPlaceRail(guides,withAd,'drive').before,2,'with an ad in front the guide is still the third card the reader sees');
+const positions = new Set(['drive','family','today','season'].map((rail)=>guideForPlaceRail([candidate],places,rail).before));
 assert(positions.size===1 && positions.has(2),'every rail puts the guide at the same third slot');
 const miami = guideHero('things-to-do-in-miami-florida');
 assert(miami.src.includes('vizcaya'), 'beyond the beach uses covered museum, not beach');
@@ -47,34 +47,35 @@ console.log(`test-guide-discovery: OK — ${guides.length} active guide images, 
 
 // A short first page is the boundary the old length-only test missed.
 const shortPlaces = Array.from({length:4}, (_,i)=>({id:i===1?candidate.placeIds[0]:'short-'+i}));
-const shortSelection = guideForPlaceRail([candidate], shortPlaces, 'short-rail');
+const shortSelection = guideForPlaceRail([candidate], shortPlaces, 'drive');
 assert(shortSelection && shortSelection.before===2);
 const laterGuide={...candidate,slug:'new-guide-on-next-page',placeIds:['late-match']};
 const eight=[...shortPlaces,{id:'late-match'},...Array.from({length:3},(_,i)=>({id:'page-'+i}))];
-const keptEight=guideForPlaceRail([laterGuide,candidate],eight,'short-rail',shortSelection);
+const keptEight=guideForPlaceRail([laterGuide,candidate],eight,'drive',shortSelection);
 assert.equal(keptEight.guide.slug,shortSelection.guide.slug,'4→8 retains selected guide despite newly eligible guide');
 assert.equal(keptEight.before,2,'4→8 keeps the third slot');
-const keptTwelve=guideForPlaceRail([laterGuide,candidate],[...eight,...places.slice(8)],'short-rail',keptEight);
+const keptTwelve=guideForPlaceRail([laterGuide,candidate],[...eight,...places.slice(8)],'drive',keptEight);
 assert.equal(keptTwelve.before,2,'8→12 keeps the third slot');
-assert.equal(guideForPlaceRail([laterGuide],eight,'short-rail',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
+assert.equal(guideForPlaceRail([laterGuide],eight,'drive',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
 
 const {guideRailCandidates,settleGuideRailSelection}=await import('../lib/guideRailCollections.js');
 const rails=[{id:'unrelated',places:[{id:'other'}]},{id:'covered',places:[{id:candidate.placeIds[0],name:'Test Spot'}]},{id:'event',cards:[{id:candidate.placeIds[0],kind:'event'}]},{id:'tour',cards:[{id:candidate.placeIds[0],kind:'tour'}]}];
 const railsBefore=JSON.stringify(rails);
-const matches=guideRailCandidates([candidate,candidate],rails,'collection');
+const matches=guideRailCandidates([candidate,candidate],rails,'today');
 assert.equal(matches.length,1,'one exact guide/rail match, no duplicate event or tour inference');
 assert.equal(matches[0].railId,'covered');
 assert.equal(JSON.stringify(rails),railsBefore,'ranked composer rows untouched');
 const previous=matches[0];
-const nextMatches=guideRailCandidates([candidate,laterGuide],[...rails,{id:'new',places:[{id:'late-match'}]}],'collection');
+const nextMatches=guideRailCandidates([candidate,laterGuide],[...rails,{id:'new',places:[{id:'late-match'}]}],'today');
 assert.equal(settleGuideRailSelection(nextMatches,previous).guide.slug,candidate.slug,'late collection results do not displace a valid guide');
 assert.equal(settleGuideRailSelection([],previous),null,'location/filter/no-match removes stale guide');
-assert.equal(guideRailCandidates([candidate],[{id:'ad',places:[{id:candidate.placeIds[0],_sponsored:true}]}],'collection').length,0,'sponsored rows excluded');
+assert.equal(guideRailCandidates([candidate],[{id:'ad',places:[{id:candidate.placeIds[0],_sponsored:true}]}],'today').length,0,'sponsored rows excluded');
 // Season fit (audit 2026-10-09): the live bug was the Christmas guide third in a Fall rail.
 const {guideSeason,guideFitsCollectionSeason}=await import('../lib/guideRailCollections.js');
-const xmasGuide={...candidate,slug:'florida-holiday-nights-out-2026',title:'Florida Holiday Nights Out 2026: Light Shows, Tree Lightings'};
-const fallGuide={...candidate,slug:'orlando-halloween-food-2026',title:'Orlando Halloween Food 2026'};
-const plainGuide={...candidate,slug:'things-to-do-in-sarasota-florida',title:'Things to Do in Sarasota'};
+// Explicit kinds: the season gate is tested on its own, so each guide is made topically acceptable to the Fall (augtober: events) and Summer (season: rainy) rails.
+const xmasGuide={...candidate,kinds:["events","winter"],slug:'florida-holiday-nights-out-2026',title:'Florida Holiday Nights Out 2026: Light Shows, Tree Lightings'};
+const fallGuide={...candidate,kinds:['fall'],slug:'orlando-halloween-food-2026',title:'Orlando Halloween Food 2026'};
+const plainGuide={...candidate,kinds:['events','rainy'],slug:'things-to-do-in-sarasota-florida',title:'Things to Do in Sarasota'};
 assert.equal(guideSeason(xmasGuide),'winter','POSITIVE: holiday lights guide is a winter-holiday guide');
 assert.equal(guideSeason({slug:'winter-park-scenic-boat-tour',title:'Winter Park Scenic Boat Tour'}),null,'NEGATIVE: Winter Park is a city, not a season');
 assert.equal(guideSeason({slug:'magical-dining-orlando-2026',title:'Visit Orlando Magical Dining 2026: One Winter Park Table, One Orlando Table'}),null,'NEGATIVE: a Winter Park restaurant guide is not a winter guide');
@@ -84,7 +85,7 @@ assert.equal(guideSeason(plainGuide),null,'NEGATIVE: a year-round guide has no s
 assert.equal(guideSeason({slug:'fall-and-winter',title:'Fall and Winter Getaways'}),null,'two seasons read as year-round');
 const seasonRails=[{id:'covered',places:[{id:candidate.placeIds[0],name:'Test Spot'}]}];
 assert.equal(guideRailCandidates([xmasGuide],seasonRails,'fall').length,0,'Christmas guide never matches a Fall collection (the live bug)');
-assert.equal(guideRailCandidates([xmasGuide],seasonRails,'summer').length,0,'Christmas guide never matches a Summer collection');
+assert.equal(guideRailCandidates([{...xmasGuide,kinds:['rainy','winter']}],seasonRails,'summer').length,0,'Christmas guide never matches a Summer collection');
 assert.equal(guideRailCandidates([fallGuide],seasonRails,'fall').length,1,'POSITIVE: Fall guide still matches a Fall collection');
 assert.equal(guideRailCandidates([plainGuide],seasonRails,'fall').length,1,'POSITIVE: year-round guide still matches a Fall collection');
 assert.equal(guideRailCandidates([xmasGuide],seasonRails,'today').length,1,'year-round collections unchanged (lifecycle is the caller\'s job)');
@@ -103,7 +104,7 @@ const {Collection,GuideDiscoveryContext:Context,RailGuideSlot}=await loadCompone
 const track=(rail)=>React.createElement('div',{key:rail.id,className:'wf-rail','data-test-rail':rail.id},
   React.createElement(RailGuideSlot,{railId:rail.id},[0,1,2,3].map(n=>React.createElement('i',{key:n,'data-card':rail.id+'-'+n}))));
 const collectionMarkup=renderToStaticMarkup(React.createElement(Context.Provider,{value:[candidate]},
-  React.createElement(Collection,{rails,collectionId:'collection'},rails.map(track))));
+  React.createElement(Collection,{rails,collectionId:'today'},rails.map(track))));
 const cardAt=collectionMarkup.indexOf('wf-rail-card');
 assert(collectionMarkup.includes('wf-rail-card')&&collectionMarkup.includes('wf-place-card'),'card carries the standard place card classes');
 assert.equal((collectionMarkup.match(/<article/g)||[]).length,1,'actual shared collection renders exactly one guide card, as a standard rail card');
@@ -122,7 +123,7 @@ assert(/wf-place-card-category">Local guide/.test(collectionMarkup),'the filled 
 assert(collectionMarkup.includes('Local guide') && collectionMarkup.includes(`${candidate.mins} min`) && collectionMarkup.includes('Read the guide'),'tag with read time and single CTA');
 assert(collectionMarkup.includes(`/guides/${candidate.slug}`),'internal guide link survives');
 assert.equal((collectionMarkup.match(/data-test-rail=/g)||[]).length,rails.length,'every original rail stays present');
-const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'collection'},rails.map(track)));
+const withoutContext=renderToStaticMarkup(React.createElement(Collection,{rails,collectionId:'today'},rails.map(track)));
 assert(!withoutContext.includes('wf-rail-card'),'no context means no guessed guide suggestions');
 console.log('test-guide-discovery: real React collection/card render passed; one standard guide card, third inside its own rail');
 {

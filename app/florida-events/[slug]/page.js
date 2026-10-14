@@ -24,6 +24,7 @@ import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageIm
 import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
+import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import PhotoCreditLink from "../../components/PhotoCreditLink";
 import SaveEventButton from "./SaveEventButton.js";
@@ -202,6 +203,8 @@ export default async function CuratedEventPage({ params }) {
   // 2026-09-08 — Apple, permanently (owner): the same ladder addressed to
   // Apple Maps, matching the in-page MapKit map and its Apple driving route.
   const dirs = appleDirectionsUrl(e);
+  // Approximate rows (city-level pin only) get no map point and say so.
+  const mapPoint = eventMapPoint(e);
   // v8.99 — the venue's own site, gated exactly like every other outbound
   // link on the row (link_ok, quarantine, safeUrl). Rendered as a BUTTON
   // beside directions, not a text link at the foot of the page — owner,
@@ -404,8 +407,9 @@ export default async function CuratedEventPage({ params }) {
         address={where}
         directionsHref={dirs}
         website={site}
-        lat={e.lat == null || e.lat === "" ? NaN : Number(e.lat)}
-        lng={e.lng == null || e.lng === "" ? NaN : Number(e.lng)}
+        lat={mapPoint ? mapPoint.lat : NaN}
+        lng={mapPoint ? mapPoint.lng : NaN}
+        approximate={isApproximateLocation(e)}
         picks={pairings}
       />
       {pairingResult.unavailable ? (

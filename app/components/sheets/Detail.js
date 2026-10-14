@@ -41,6 +41,7 @@ import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
+import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js";
 import { fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
 import PhotoCredit from "../PhotoCredit";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
@@ -391,7 +392,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
   return (
     <div ref={impressionRef} style={{ display: "flex", gap: 12, alignItems: "center", background: "linear-gradient(145deg,rgba(25,31,41,.98),rgba(11,15,22,.98))", border: `1px solid ${C.border}`, borderRadius: 16, padding: 11, marginBottom: 9, boxShadow: "0 10px 24px rgba(0,0,0,.2)" }}>
       <div onClick={() => openDetail(p)} style={{ display: "flex", gap: 12, alignItems: "center", flex: 1, minWidth: 0, cursor: "pointer" }}>
-        <FallbackImg src={p.photo} icon="📍" style={{ width: 74, height: 74, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
+        <FallbackImg src={railPhotoSrc(p)} icon="📍" style={{ width: 74, height: 74, borderRadius: 12, objectFit: "cover", flexShrink: 0 }} />
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
           {reason ? <div style={{ fontSize: 12, color: C.light, fontWeight: 650, lineHeight: 1.35, marginTop: 3 }}>{reason}</div> : null}
@@ -811,7 +812,7 @@ export default function DetailSheet({ ctx }) {
                 <div style={{ position: "relative" }}>
                   <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg key={src} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                      <FallbackImg key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                   </div>
                   {galleryPhotos.length > 1 && (
@@ -827,7 +828,7 @@ export default function DetailSheet({ ctx }) {
                   )}
                 </div>
               ) : (
-                <FallbackImg src={heroSrc} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: heroSrc ? "zoom-in" : "default" }} />
+                <FallbackImg src={heroSrc} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: heroSrc ? "zoom-in" : "default" }} />
               )}
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "48px 18px 15px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)", pointerEvents: "none" }}>
                 {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}
@@ -1651,7 +1652,7 @@ export default function DetailSheet({ ctx }) {
                     <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Spots nearby with a similar vibe and crowd, matched on what this place is known for.</div>
                     {sim.map((p) => (
                       <div key={"sim-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
-                        <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                        <FallbackImg src={railPhotoSrc(p)} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                           <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
@@ -1673,7 +1674,7 @@ export default function DetailSheet({ ctx }) {
                 const alts = betterAlternatives(detail, altPool, 3);
                 const Row = (p, reasons, knownFor) => (
                   <div key={"alt-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
-                    <FallbackImg src={p.photo} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
+                    <FallbackImg src={railPhotoSrc(p)} icon="📍" style={{ width: 58, height: 58, borderRadius: 10, objectFit: "cover", flexShrink: 0 }} />
                     <div style={{ minWidth: 0, flex: 1 }}>
                       <div style={{ fontSize: 14.5, fontWeight: 800, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>

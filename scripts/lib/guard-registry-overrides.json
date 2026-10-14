@@ -544,6 +544,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-ledger-failure-classes.mjs": {
+    "protects": "A photo refused by the spend ledger is recorded under the reason it was refused (ledger-cap, ledger-timeout, ledger-http, ledger-unconfigured), takeFromLedgerDetailed names granted/cap/timeout/http/unconfigured/invalid from an executed stubbed fetch with exactly one call and no retry, and the resolver threads the reason to the outcome class.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression would again count ledger timeouts and RPC errors as budget refusals (41-92 a day against 3,303 of 10,000 used), hiding an operational failure behind a healthy-looking cap, or a retry would double-grant paid photo spend."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-photo-spend-efficiency.mjs": {
     "protects": "One paid Google photo call per photo: card requests at every width fold onto one canonical fetch and cache key, concurrent requests for the same ref singleflight onto one grant, a stale or HTTP-400 skip self-heal never spends a second grant on the follow URL for the same dead name, an owned-miss whose upstream can never change on retry is negative-cached for 24h, and spendAllowPhotos refuses to spend outside VERCEL_ENV=production unless explicitly overridden.",
     "blastRadius": {
