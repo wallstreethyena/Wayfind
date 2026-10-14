@@ -147,6 +147,19 @@ ok(/probeAndClassify\(/.test(cronSrc) && /link_ok: false/.test(cronSrc) && /wf_l
 const probe = strip(read("lib/linkProbe.js"));
 ok(/isDeniedHost\(host\)/.test(probe) && /"unknown", reason: "denied-host-no-fetch"/.test(probe), "the probe never fetches a denied (Disney) host — AGENTS.md §7");
 
+// wf_link_verdicts upsert (2026-10-13): a batch naming one url twice is a Postgres
+// "cannot affect row a second time" error -> PostgREST 500 -> nothing persisted since 2026-10-02.
+{
+  const q = await import("../lib/linkQuarantine.js");
+  const dup = q.dedupeVerdictRows([
+    { url: "https://a.test/x", verdict: "alive" }, { url: "https://a.test/x", verdict: "dead" },
+    { url: "https://b.test/y", verdict: "alive" }, { url: "https://b.test/y", verdict: "alive" }, null,
+  ]);
+  ok(dup.length === 2 && new Set(dup.map((r) => r.url)).size === 2, "dedupeVerdictRows leaves exactly one row per url");
+  ok(dup.find((r) => r.url === "https://a.test/x").verdict === "dead", "the worst verdict wins for a shared url");
+  ok(/dedupeVerdictRows\(verdictRows\)/.test(cronSrc) && !/JSON\.stringify\(verdictRows\)/.test(cronSrc), "the sweep upserts the DEDUPED rows, never the raw batch");
+}
+
 if (fail.length) {
   console.error("check-link-quarantine: FAIL");
   for (const m of fail) console.error("  - " + m);

@@ -35,6 +35,8 @@ const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
+const venueIdentity = (merchant, norm) => !!(merchant && merchant.partners.some((p) => p.provider === norm.provider && p.offerId === norm.offerId));
+const isExactTiqetsProduct = (dest) => /tiqets\.com\/.+-p\d+\/?$/.test(String(dest || ""));
 // ── 1. product integrity, executed ─────────────────────────────────────────
 const entries = Object.entries(EVENT_TICKET_DEALS);
 ok(entries.length >= 8, `registry holds the eight fall mappings (${entries.length})`);
@@ -62,13 +64,33 @@ for (const [eventId, raw] of entries) {
     const reg = partnerOfferById(norm.offerId, norm.provider);
     ok(reg, `${eventId}: offer "${norm.offerId}" resolves in PARTNER_OFFER_REGISTRY under provider "${norm.provider}"`);
     const discoveryRow = FALL_DISCOVERIES_2026.find((r) => r.event_id === eventId);
-    const organizerUrl = discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url);
+    // wf_events rows that are not in the fall discovery file: organizer URL read
+    // from the live table 2026-10-13 (official_ticket_url || official_event_url).
+    const LIVE_ORGANIZER_URLS = { "hw26-halloween-spookquarium-clearwater-2026": "https://www.cmaquarium.org/event/halloween-spookquarium-2026/", "zootampa-creatures-2026": "https://zootampa.org/events/creatures-of-the-night/" };
+    const organizerUrl = (discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url)) || LIVE_ORGANIZER_URLS[eventId];
     ok(organizerUrl, `${eventId}: a discovery row names the organizer URL this mapping is checked against`);
     const merchant = organizerUrl ? affiliateMerchantForUrl(organizerUrl) : null;
-    ok(merchant && merchant.partners.some((p) => p.provider === norm.provider && p.offerId === norm.offerId),
-      `${eventId}: the organizer URL's merchant (${merchant && merchant.key}) actually lists ${norm.provider}/${norm.offerId} among its partners`);
-    ok(norm.product === "park-admission", `${eventId}: only park-admission is wired for a non-UT provider today`);
+    // Venue identity for EVERY non-UT product: the organizer URL's merchant must
+    // list this exact provider/offerId among its partners (the offer belongs to
+    // the same venue the reader is told about).
+    ok(venueIdentity(merchant, norm), `${eventId}: the organizer URL's merchant (${merchant && merchant.key}) actually lists ${norm.provider}/${norm.offerId} among its partners`);
+    if (norm.product === "event-ticket") {
+      // 2026-10-13: a non-UT EVENT ticket must additionally be an exact product
+      // page (Tiqets "...-p<id>/"), never a venue/location hub.
+      ok(norm.provider === "tiqets" && reg && isExactTiqetsProduct(reg.destination), `${eventId}: a non-UT event-ticket row resolves to an exact Tiqets product page (-p<id>), not a venue hub`);
+    }
+    ok(norm.product === "park-admission" || norm.product === "event-ticket", `${eventId}: a non-UT row names a wired product kind`);
   }
+}
+// NEGATIVE CONTROL (2026-10-13): an event-ticket row that points at a perfectly
+// good Tiqets -p<id> product of a DIFFERENT venue must fail venue identity.
+{
+  const zooMerchant = affiliateMerchantForUrl("https://zootampa.org/events/creatures-of-the-night/");
+  const wrongVenue = { provider: "tiqets", offerId: "tampa-deal-adventure-island", product: "event-ticket" };
+  const wrongReg = partnerOfferById(wrongVenue.offerId, "tiqets");
+  ok(wrongReg && isExactTiqetsProduct(wrongReg.destination), "control fixture: the other venue's offer really is an exact Tiqets product page");
+  ok(!venueIdentity(zooMerchant, wrongVenue), "NEGATIVE CONTROL: a ZooTampa event-ticket row pointing at Adventure Island's Tiqets product FAILS venue identity");
+  ok(!venueIdentity(null, wrongVenue), "NEGATIVE CONTROL: no merchant for the organizer URL fails venue identity");
 }
 for (const eventId of SEPARATELY_TICKETED) {
   const entry = EVENT_TICKET_DEALS[eventId];
@@ -76,7 +98,8 @@ for (const eventId of SEPARATELY_TICKETED) {
 }
 ok(SEPARATELY_TICKETED.includes("hhn-orlando-2026") && SEPARATELY_TICKETED.includes("howl-o-scream-tampa-2026") && SEPARATELY_TICKETED.includes("zootampa-creatures-2026"),
   "the separately-ticketed pin names HHN, Howl-O-Scream and ZooTampa's night event");
-ok(!("zootampa-creatures-2026" in EVENT_TICKET_DEALS), "ZooTampa Creatures of the Night has NO mapping — UT sells only day admission, which is the wrong product");
+ok(EVENT_TICKET_DEALS["zootampa-creatures-2026"]?.provider === "tiqets" && EVENT_TICKET_DEALS["zootampa-creatures-2026"]?.product === "event-ticket" && EVENT_TICKET_DEALS["zootampa-creatures-2026"]?.offerId === "tampa-event-zootampa-creatures-of-the-night",
+  "ZooTampa Creatures of the Night maps ONLY to its exact Tiqets event product (2026-10-13), never to day admission (UT/Tiqets hub)");
 ok(SEPARATELY_TICKETED.includes("roars-smores-snores-spooktacular-campout-zoo-miami-2026") && SEPARATELY_TICKETED.includes("zoo-miami-monster-masquerade-2026"),
   "the two other Zoo Miami nights (own-ticket campout, ticketed masquerade) are pinned separately-ticketed, distinct from the included Zoo Boo");
 ok(!("roars-smores-snores-spooktacular-campout-zoo-miami-2026" in EVENT_TICKET_DEALS) && !("zoo-miami-monster-masquerade-2026" in EVENT_TICKET_DEALS),
@@ -131,7 +154,7 @@ ok(zooBooCta && zooBooCta.offer_id === "miami-hook-zoo-miami" && zooBooCta.deal_
 // liveDeal is a wf_deals concept; passing one for a Tiqets row must not gate it.
 ok(eventTicketCta("zoo-boo-zoo-miami-2026", { liveDeal: null })?.href === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=event&content=zoo-boo-zoo-miami-2026",
   "liveDeal (a UT-only gate) is ignored for a Tiqets row — passing null (which would kill a UT CTA) still resolves");
-ok(eventTicketCta("zootampa-creatures-2026") === null, "ZooTampa's separately-ticketed night event has no CTA at all (no mapping exists)");
+ok(eventTicketCta("zootampa-creatures-2026")?.href === "/api/commerce/go?provider=tiqets&offer=tampa-event-zootampa-creatures-of-the-night&surface=event&content=zootampa-creatures-2026", "ZooTampa's night event CTA is the exact Tiqets event-product redirect");
 const zooBooFeed = curatedToFeedEvent({ event_id: "zoo-boo-zoo-miami-2026", slug: "zoo-boo-zoo-miami-2026", start_date: "2026-10-24", event_name: "Zoo Boo", official_event_url: "https://www.zoomiami.org/zoo-boo" });
 ok(zooBooFeed.url === "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=events_feed&content=zoo-boo-zoo-miami-2026", `curatedToFeedEvent's url for Zoo Boo is the Tiqets redirect (${zooBooFeed.url})`);
 ok(zooBooFeed.ticketVia === "Tiqets" && zooBooFeed.ticketProduct === "park-admission", "…and the feed names Tiqets as the merchant and preserves the park-admission product");

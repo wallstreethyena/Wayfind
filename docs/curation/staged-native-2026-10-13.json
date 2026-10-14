@@ -1,0 +1,1581 @@
+{
+  "auditStatus": "complete",
+  "auditedAt": "2026-10-13",
+  "sourceRef": "origin/main",
+  "sourceCommit": "3e8170c290966c02c7769606b088068a2401073f",
+  "sourceFile": "lib/creatorVideosStaged.js",
+  "summary": {
+    "slots": 38,
+    "entries": 23,
+    "attachmentReady": 36,
+    "verifiedOriginalSlots": 34,
+    "verifiedReplacementCoverage": 2,
+    "identityAmbiguous": 1,
+    "nativeUnavailable": 1,
+    "rateBlockedUnresolvedSlots": 0,
+    "notAttempted": 0,
+    "dispositions": {
+      "native_verified": 34,
+      "identity_ambiguous": 1,
+      "native_unavailable": 1,
+      "native_verified_replacement": 2
+    },
+    "missingCoverageNativePermalinks": 0,
+    "unresolvedHistoricalOriginalNativePermalinks": 2
+  },
+  "method": "Normal public search and authorized browser UI only. Public TikTok/Instagram originals inspected for creator and venue proof. No protected platform fetching, scraping, or bypasses; no paid requests; no code/database changes. Airial browsing stopped after second429 and not retried.",
+  "routeBlocks": [
+    {
+      "url": "https://www.airial.travel/attractions/united-states/bradenton/jiggs-landing-preserve-r3UWTa1H",
+      "route": "normal_browser",
+      "result": "429 Too Many Requests; nginx/1.31.6",
+      "affectedSlots": [
+        "juicys-famous-fair-food-bradenton:1",
+        "juicys-famous-fair-food-bradenton:2",
+        "sweet-krunch-bradenton:1"
+      ],
+      "resolution": "All3 exact sources recovered and verified independently through normal native TikTok search/profile UI."
+    },
+    {
+      "url": "https://airial.travel/attractions/united-states/ellenton/ellenton-premium-outlets--uQsdLV_",
+      "route": "normal_browser",
+      "result": "429 Too Many Requests; nginx/1.31.6",
+      "affectedSlots": [
+        "tookies-and-treats-ellenton:1"
+      ],
+      "resolution": "Exact source recovered and verified independently through normal native TikTok search UI; venue-owned post."
+    }
+  ],
+  "correspondencePolicy": "Two Bradenton Motorsports Park sources are root-authorized verified replacement coverage. Creator and exact venue are proven at native originals, but correspondence to their prior URL-empty placeholders is unresolved. Preserve this distinction and omit old staged view counts.",
+  "slots": [
+    {
+      "slotId": "juicys-famous-fair-food-bradenton:1",
+      "key": "juicys-famous-fair-food-bradenton",
+      "venue": "Juicy's Famous Fair Food",
+      "city": "Bradenton",
+      "address": "2319 Cortez Rd W, Bradenton, FL 34207",
+      "platform": "tiktok",
+      "creator": "camargz",
+      "stagedViews": "1,004,129",
+      "stagedCaption": "A creator's run through the burgers and fair-food classics at this Bradenton spot.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/jiggs-landing-preserve-r3UWTa1H",
+      "nativeUrl": "https://www.tiktok.com/@camargz/video/7549345548751392030",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@camargz/video/7549345548751392030",
+          "detail": "Native creator profile has this pinned fair-food visit at 1M views, matching staged 1,004,129; native caption and location tag explicitly identify Juicy's Famous Fair Food · Bradenton. Posted 2025-09-12."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "juicys-famous-fair-food-bradenton:2",
+      "key": "juicys-famous-fair-food-bradenton",
+      "venue": "Juicy's Famous Fair Food",
+      "city": "Bradenton",
+      "address": "2319 Cortez Rd W, Bradenton, FL 34207",
+      "platform": "tiktok",
+      "creator": "l3xiluthor",
+      "stagedViews": "403,180",
+      "stagedCaption": "A local's taste test of the funnel cakes, corn dogs, and fried Oreos here.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/jiggs-landing-preserve-r3UWTa1H",
+      "nativeUrl": "https://www.tiktok.com/@l3xiluthor/video/7550454681684806926",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@l3xiluthor/video/7550454681684806926",
+          "detail": "Native author AskAlexa; native caption describes burgers, corn dogs, funnel cakes and fried Oreos; exact location Juicys Famous Fair Food · Bradenton. Posted 2025-09-15."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "los-laureles-supermarket-bradenton:1",
+      "key": "los-laureles-supermarket-bradenton",
+      "venue": "Los Laureles Supermarket",
+      "city": "Bradenton",
+      "address": "2424 Manatee Ave E, Bradenton, FL 34208",
+      "platform": "tiktok",
+      "creator": "camargz",
+      "stagedViews": "314,602",
+      "stagedCaption": "A creator's take on the authentic Mexican tacos from this Bradenton market's taqueria.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/palma-sola-causeway-park-EQCElueU",
+      "nativeUrl": "https://www.tiktok.com/@camargz/video/7543029939579227423",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@camargz/video/7543029939579227423",
+          "detail": "Native author Camargz Eatz; caption identifies Los Laureles Supermart Bradenton tacos; exact location Los Laureles Supermarket · Bradenton. Posted 2025-08-26."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "sweet-krunch-bradenton:1",
+      "key": "sweet-krunch-bradenton",
+      "venue": "Sweet Krunch",
+      "city": "Bradenton",
+      "address": "5605 Manatee Ave W, Bradenton, FL 34209",
+      "platform": "tiktok",
+      "creator": "camargz",
+      "stagedViews": "106,107",
+      "stagedCaption": "A creator's visit for the Korean fried chicken at this West Bradenton spot.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/jiggs-landing-preserve-r3UWTa1H",
+      "nativeUrl": "https://www.tiktok.com/@camargz/video/7549676780089560350",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@camargz/video/7549676780089560350",
+          "detail": "Native author Camargz Eatz; caption identifies Korean fried chicken at Sweet Krunch; exact location Sweet Krunch - Bradenton · Bradenton. Posted 2025-09-13."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "wingstop-bradenton:1",
+      "key": "wingstop-bradenton",
+      "venue": "Wingstop",
+      "city": "Bradenton",
+      "address": "3553 1st St E, Bradenton, FL 34208",
+      "platform": "tiktok",
+      "creator": "flossakushie",
+      "stagedViews": "7.4M",
+      "stagedCaption": "A creator reacts to Wingstop's wings.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/bradenton/old-main-street-bradenton-YdfX6sGz",
+      "nativeUrl": "https://www.tiktok.com/@flossakushie/video/7397214452225117486",
+      "disposition": "identity_ambiguous",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/bradenton/old-main-street-bradenton-YdfX6sGz",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@flossakushie/video/7397214452225117486",
+          "detail": "Native author Kushie; caption explicitly says Wingstop in Bradenton and source video shows a restaurant-counter interaction, so this is an actual filmed restaurant visit. No exact branch address or unique place tag was exposed. Cannot bind to staged 3553 1st St E merely from city/chain name. Posted 2024-07-29."
+        }
+      ],
+      "blocker": "Native original is an actual Wingstop counter visit and caption says Bradenton, but no exact branch address or location tag establishes staged3553 1stStE. Brand+city cannot prove this branch.",
+      "final": true,
+      "attachmentReady": false
+    },
+    {
+      "slotId": "pier-22-bradenton:1",
+      "key": "pier-22-bradenton",
+      "venue": "Pier 22",
+      "city": "Bradenton",
+      "address": "1200 1st Ave W, Bradenton, FL 34205",
+      "platform": "tiktok",
+      "creator": "beachsammy",
+      "stagedViews": "1.6K",
+      "stagedCaption": "A creator's stop for calamari, oysters, and steak at this downtown Bradenton waterfront restaurant.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/bradenton/bradenton-riverwalk-eG-mq5BW",
+      "nativeUrl": "https://www.tiktok.com/@sandbarsammy/video/7535066903602040077",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/bradenton/bradenton-riverwalk-eG-mq5BW",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@sandbarsammy/video/7535066903602040077",
+          "detail": "Original Airial link used beachsammy; native page redirects to current sandbarsammy. Native caption explicitly identifies Pier 22, downtown Bradenton Riverwalk waterfront dining. Posted 2025-08-05."
+        }
+      ],
+      "blocker": null,
+      "verifiedCreator": "sandbarsammy",
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "la-violetta-sarasota:1",
+      "key": "la-violetta-sarasota",
+      "venue": "La Violetta",
+      "city": "Sarasota",
+      "address": "4837 Swift Rd Ste 100, Sarasota, FL 34231",
+      "platform": "tiktok",
+      "creator": "thecrazycreativeteacher",
+      "stagedViews": "64.1K",
+      "stagedCaption": "A creator's visit to this rustic Italian restaurant in Sarasota.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/sarasota/marcello-ristorante-6Ph63Fen",
+      "nativeUrl": "https://www.tiktok.com/@thecrazycreativeteacher/video/7560359530710764813",
+      "disposition": "native_unavailable",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/sarasota/marcello-ristorante-6Ph63Fen",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "pending_native_ui",
+          "url": "https://www.tiktok.com/@thecrazycreativeteacher/video/7560359530710764813",
+          "detail": "Airial original card names La Violetta, 4837 Swift Rd Sarasota. Native page did not expose expected article during first inspection; requires reinspection before publication."
+        },
+        {
+          "type": "native_post_browser_block",
+          "url": "https://www.tiktok.com/@thecrazycreativeteacher/video/7560359530710764813",
+          "detail": "Normal browser navigation to recovered exact native permalink shows Video currently unavailable, followed by suggestion to browse trending creators."
+        }
+      ],
+      "blocker": "Exact URL recovered from the visible Airial source card, but native TikTok browser reports 'Video currently unavailable'. Unable to verify original creator/video at native source; hold attachment.",
+      "final": true,
+      "attachmentReady": false
+    },
+    {
+      "slotId": "michelles-brown-bag-cafe-sarasota:1",
+      "key": "michelles-brown-bag-cafe-sarasota",
+      "venue": "Michelle's Brown Bag Cafe",
+      "city": "Sarasota",
+      "address": "630 S Orange Ave, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "thesarasotalocals",
+      "stagedViews": "83K",
+      "stagedCaption": "A local's bagel-and-lunch stop at this downtown Sarasota cafe.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/burns-court-sarasota-cRLOcPRK",
+      "nativeUrl": "https://www.tiktok.com/@thesarasotalocals/video/7522274567675579703",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/burns-court-sarasota-cRLOcPRK",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@thesarasotalocals/video/7522274567675579703",
+          "detail": "Native author The Sarasota Locals | UGC; caption names Michelle's Brown Bag Cafe in Burns Court, Sarasota. Posted 2025-07-01."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "project-coffee-sarasota:1",
+      "key": "project-coffee-sarasota",
+      "venue": "Project Coffee",
+      "city": "Sarasota",
+      "address": "538 S Pineapple Ave, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "makayluhhhhh",
+      "stagedViews": "3.2K",
+      "stagedCaption": "A creator's order of strawberry matcha and a mocha at this Sarasota coffee shop.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/sarasota/rosemary-district-Kl0KoiLK",
+      "nativeUrl": "https://www.tiktok.com/@makayluhhhhh/video/7228925232709471531",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@makayluhhhhh/video/7228925232709471531",
+          "detail": "Native caption explicitly identifies Project Coffee (Rosemary Location), Sarasota. Official projectcoffee.us/pages/locations confirms Rosemary at 1419 5th St; staged 538 S Pineapple Ave is Burns Court and is wrong for this source. Posted 2023-05-03."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "verifiedVenue": {
+        "name": "Project Coffee Rosemary",
+        "city": "Sarasota",
+        "address": "1419 5th St, Sarasota, FL 34236"
+      },
+      "requiresVenueCorrection": true,
+      "officialIdentityUrl": "https://www.projectcoffee.us/pages/locations",
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "ofkors-bakery-sarasota:1",
+      "key": "ofkors-bakery-sarasota",
+      "venue": "OfKors Bakery",
+      "city": "Sarasota",
+      "address": "1359 Main St, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "inna_revega",
+      "stagedViews": "1.8K",
+      "stagedCaption": "A creator's visit for blini, sandwiches, and desserts at this Sarasota European bakery.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/main-street-sarasota--rMBNiqp",
+      "nativeUrl": "https://www.instagram.com/p/C8QwO0Ktk_k/",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/main-street-sarasota--rMBNiqp",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.instagram.com/p/C8QwO0Ktk_k/",
+          "detail": "Native Instagram reel by inna_revega; expanded source caption explicitly names OfKors Bakery, 1359 Main Street Sarasota FL. This resolves Main Street branch; do not attach to Cattlemen Road. Posted 2024-06-15; correct platform is Instagram, not staged TikTok."
+        }
+      ],
+      "blocker": null,
+      "verifiedPlatform": "instagram",
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "arts-and-central-sarasota:1",
+      "key": "arts-and-central-sarasota",
+      "venue": "Arts & Central",
+      "city": "Sarasota",
+      "address": "611 Central Ave, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "sarasotarealtorkatrin",
+      "stagedViews": "4K",
+      "stagedCaption": "A creator's night out for American food and cocktails in Sarasota's Rosemary District.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/sarasota/rosemary-district-Kl0KoiLK",
+      "nativeUrl": "https://www.tiktok.com/@sarasotarealtorkatrin/video/7342258118748917038",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@sarasotarealtorkatrin/video/7342258118748917038",
+          "detail": "Native author Katrin | Sarasota Real Estate; caption explicitly identifies Arts & Central in Rosemary District, Sarasota, dining and cocktails. Exact wording matches indexed original source caption. Posted 2024-03-03."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "arts-and-central-sarasota:2",
+      "key": "arts-and-central-sarasota",
+      "venue": "Arts & Central",
+      "city": "Sarasota",
+      "address": "611 Central Ave, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "srqtiff",
+      "stagedViews": "2.7K",
+      "stagedCaption": "A creator's look at the art-inspired menu at this Rosemary District restaurant.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/sarasota/rosemary-district-Kl0KoiLK",
+      "nativeUrl": "https://www.tiktok.com/@srqtiff/video/7487268590945684767",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_post_browser",
+          "url": "https://www.tiktok.com/@srqtiff/video/7487268590945684767",
+          "detail": "Creator Tiff|SRQ, srqtiff,2025-03-29. Native caption names Arts & Central Sarasota and describes Artist of the Month menus; Rosemary District hashtag. Found from recorded creator's public Oldest profile grid."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "scopeNote": "Original post shows the restaurant menu and names Arts & Central, Sarasota; current native profile views are4776 compared with the older staged2.7K.",
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "tide-tables-cortez:1",
+      "key": "tide-tables-cortez",
+      "venue": "Tide Tables Restaurant and Marina",
+      "city": "Cortez",
+      "address": "12507 Cortez Rd W, Cortez, FL 34215",
+      "platform": "tiktok",
+      "creator": "pinkpalmettotravelclub",
+      "stagedViews": "27.6K",
+      "stagedCaption": "A creator's waterfront meal of grouper and peel-and-eat shrimp in Cortez.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/holmes-beach/tide-tables-restaurant-and-marina-GdciCRDd",
+      "nativeUrl": "https://www.tiktok.com/@pinkpalmettotravelclub/video/7616013279311269151",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/holmes-beach/tide-tables-restaurant-and-marina-GdciCRDd",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@pinkpalmettotravelclub/video/7616013279311269151",
+          "detail": "Native author and caption identify Tide Tables Restaurant in Cortez, near Bradenton/Anna Maria Island."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "tide-tables-cortez:2",
+      "key": "tide-tables-cortez",
+      "venue": "Tide Tables Restaurant and Marina",
+      "city": "Cortez",
+      "address": "12507 Cortez Rd W, Cortez, FL 34215",
+      "platform": "tiktok",
+      "creator": "michaelrenick3",
+      "stagedViews": "23.6K",
+      "stagedCaption": "A creator's plate of grouper and key lime pie at this Cortez marina restaurant.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/holmes-beach/tide-tables-restaurant-and-marina-GdciCRDd",
+      "nativeUrl": "https://www.tiktok.com/@michaelrenick3/video/7611884760050289934",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/holmes-beach/tide-tables-restaurant-and-marina-GdciCRDd",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@michaelrenick3/video/7611884760050289934",
+          "detail": "Native author Team Renick; caption identifies Tide Tables in Cortez and grouper/key lime pie."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "tide-tables-cortez:3",
+      "key": "tide-tables-cortez",
+      "venue": "Tide Tables Restaurant and Marina",
+      "city": "Cortez",
+      "address": "12507 Cortez Rd W, Cortez, FL 34215",
+      "platform": "tiktok",
+      "creator": "mickeyguru_shalon",
+      "stagedViews": "2.8K",
+      "stagedCaption": "A creator's grouper bites with a waterfront view in Cortez.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/holmes-beach/tide-tables-restaurant-and-marina-GdciCRDd",
+      "nativeUrl": "https://www.tiktok.com/@mickeyguru_shalon/video/7442306507250666795",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/holmes-beach/tide-tables-restaurant-and-marina-GdciCRDd",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@mickeyguru_shalon/video/7442306507250666795",
+          "detail": "Native author Shalon Travel Planner; caption names Tide Tables in Cortez; native location tag Cortez. Posted 2024-11-28."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "star-fish-company-cortez:1",
+      "key": "star-fish-company-cortez",
+      "venue": "Star Fish Company",
+      "city": "Cortez",
+      "address": "12306 46th Ave W, Cortez, FL 34215",
+      "platform": "tiktok",
+      "creator": "sarahsoutdooradventuresfl",
+      "stagedViews": "17.1K",
+      "stagedCaption": "A creator's Cortez seafood guide featuring this dockside fish market.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/bradenton/cortez-historic-fishing-village-bboCou8V",
+      "nativeUrl": "https://www.instagram.com/p/DCeTOGwRJOf/",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/bradenton/cortez-historic-fishing-village-bboCou8V",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.instagram.com/p/DCeTOGwRJOf/",
+          "detail": "Native Instagram reel by sarahsoutdooradventuresfl; full caption gives Star Fish Company, 12306 46th Ave W Cortez FL 34215. Multi-venue seafood guide also covers Swordfish Grill and Tide Tables. Posted 2024-11-17; original card is Instagram, not staged TikTok."
+        }
+      ],
+      "blocker": null,
+      "verifiedPlatform": "instagram",
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "star-fish-company-cortez:2",
+      "key": "star-fish-company-cortez",
+      "venue": "Star Fish Company",
+      "city": "Cortez",
+      "address": "12306 46th Ave W, Cortez, FL 34215",
+      "platform": "tiktok",
+      "creator": "movemetolwr",
+      "stagedViews": "8.1K",
+      "stagedCaption": "A creator's fresh dockside seafood stop at this Cortez market.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/bradenton/cortez-historic-fishing-village-bboCou8V",
+      "nativeUrl": "https://www.tiktok.com/@movemetolwr/video/7471030252278435114",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/bradenton/cortez-historic-fishing-village-bboCou8V",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@movemetolwr/video/7471030252278435114",
+          "detail": "Native author and caption explicitly identify Star Fish Company in Cortez Village; posted 2025-02-13."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "dry-dock-longboat-key:1",
+      "key": "dry-dock-longboat-key",
+      "venue": "Dry Dock Waterfront Grill",
+      "city": "Longboat Key",
+      "address": "412 Gulf of Mexico Dr, Longboat Key, FL 34228",
+      "platform": "tiktok",
+      "creator": "godfatherofmeat",
+      "stagedViews": "10.6K",
+      "stagedCaption": "A creator's waterfront dining pick on Longboat Key.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/sarasota/dry-dock-waterfront-grill-RUvJLGtJ",
+      "nativeUrl": "https://www.tiktok.com/@godfatherofmeat/video/7165241533589933354",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/sarasota/dry-dock-waterfront-grill-RUvJLGtJ",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@godfatherofmeat/video/7165241533589933354",
+          "detail": "Native author Godfather of meat; caption names Dry Dock Waterfront Grill and Longboat Key. Posted 2022-11-12."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "dry-dock-longboat-key:2",
+      "key": "dry-dock-longboat-key",
+      "venue": "Dry Dock Waterfront Grill",
+      "city": "Longboat Key",
+      "address": "412 Gulf of Mexico Dr, Longboat Key, FL 34228",
+      "platform": "tiktok",
+      "creator": "beachsammy",
+      "stagedViews": "7K",
+      "stagedCaption": "A creator's Longboat Key waterfront restaurant roundup.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/sarasota/dry-dock-waterfront-grill-RUvJLGtJ",
+      "nativeUrl": "https://www.tiktok.com/@sandbarsammy/video/7163297445613423914",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/sarasota/dry-dock-waterfront-grill-RUvJLGtJ",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@sandbarsammy/video/7163297445613423914",
+          "detail": "Airial attributes old handle beachsammy; native source redirects to sandbarsammy. Caption names Dry Dock in Longboat Key as one of three restaurants, also Jack Dusty and Chart House. Posted 2022-11-07; multi-venue roundup."
+        }
+      ],
+      "blocker": null,
+      "verifiedCreator": "sandbarsammy",
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "dry-dock-longboat-key:3",
+      "key": "dry-dock-longboat-key",
+      "venue": "Dry Dock Waterfront Grill",
+      "city": "Longboat Key",
+      "address": "412 Gulf of Mexico Dr, Longboat Key, FL 34228",
+      "platform": "tiktok",
+      "creator": "explorewithmedaily",
+      "stagedViews": "2.6K",
+      "stagedCaption": "A quick creator visit to this Longboat Key waterfront grill.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/sarasota/dry-dock-waterfront-grill-RUvJLGtJ",
+      "nativeUrl": "https://www.tiktok.com/@explorewithmedaily/video/7517800049158507807",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/sarasota/dry-dock-waterfront-grill-RUvJLGtJ",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@explorewithmedaily/video/7517800049158507807",
+          "detail": "Native author Explore With Me; native location tag Dry Dock Waterfront Grill · Longboat Key and matching caption. Posted 2025-06-19."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "tookies-and-treats-ellenton:1",
+      "key": "tookies-and-treats-ellenton",
+      "venue": "Tookies & Treats",
+      "city": "Ellenton",
+      "address": "5355 Factory Shops Blvd, Ellenton, FL 34222",
+      "platform": "tiktok",
+      "creator": "tookiesandtreats",
+      "stagedViews": "53.5K",
+      "stagedCaption": "A look at the scratch-made cookies and cobblers at this Ellenton bakery.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/ellenton/ellenton-premium-outlets--uQsdLV_",
+      "nativeUrl": "https://www.tiktok.com/@tookiesandtreats/video/7553778984111082765",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@tookiesandtreats/video/7553778984111082765",
+          "detail": "Native creator Tookies and Treats; shop-opening video caption gives 5355 Factory Shops Blvd Ellenton. Exact indexed original-caption match at staged 53.5K views. Venue-owned source, not independent influencer endorsement. Posted 2025-09-24."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "independentCreator": false,
+      "venueOwned": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "olearys-tiki-bar-sarasota:1",
+      "key": "olearys-tiki-bar-sarasota",
+      "venue": "O'Leary's Tiki Bar",
+      "city": "Sarasota",
+      "address": "5 Bayfront Dr, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "explorewithmedaily",
+      "stagedViews": "107K",
+      "stagedCaption": "A creator's visit to this bayfront tiki bar in Sarasota.",
+      "evidenceUrl": "https://airial.travel/restaurants/united-states/sarasota/lido-key-tiki-bar-t97vUvtd",
+      "nativeUrl": "https://www.tiktok.com/@explorewithmedaily/video/7516015035013975326",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/restaurants/united-states/sarasota/lido-key-tiki-bar-t97vUvtd",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@explorewithmedaily/video/7516015035013975326",
+          "detail": "Native caption and location tag identify O'Leary's Tiki Bar & Grill · Sarasota, not the aggregator's Lido Key Tiki Bar. Posted 2025-06-14."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "myakka-river-state-park:1",
+      "key": "myakka-river-state-park",
+      "venue": "Myakka River State Park",
+      "city": "Sarasota",
+      "address": "13208 State Road 72, Sarasota, FL 34241",
+      "platform": "tiktok",
+      "creator": "followmeaway",
+      "stagedViews": "2.1M",
+      "stagedCaption": "A creator's wildlife and alligator encounter at this Sarasota state park.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/myakka-river-state-park-0OHjRrkg",
+      "nativeUrl": "https://www.tiktok.com/@followmeaway/video/7128789441770048810",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/myakka-river-state-park-0OHjRrkg",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@followmeaway/video/7128789441770048810",
+          "detail": "Native author and generic Florida/Sarasota caption verified; source video shows canopy suspension bridge and observation tower. Caption lacks exact park name, location tag is absent, and inspected public comment view did not expose an identifying name. Aggregator attributes Myakka; do not assert exact venue solely from aggregator slug."
+        },
+        {
+          "type": "native_video_landmark_comparison",
+          "url": "https://www.floridastateparks.org/learn/canopy-walkway-myakka",
+          "detail": "Normal browser visual comparison: native opening frame shows a narrow suspended wooden walkway with broad sloped timber handrails, wire/mesh infill, cable hangers, and braced wooden observation tower beyond. The same distinctive walkway construction and overhead bent live-oak limb are visible in official gallery image5, A view looking down the suspension bridge; image3 shows the walkway and braced tower from below; official heading explicitly identifies Myakka River State Park's Canopy Walkway. Later native frame also shows the tower-top panorama. This architectural match supports exact park independently of aggregator slug."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "requiresCaptionCorrection": true,
+      "scopeNote": "Verified as Myakka Canopy Walkway from distinctive structure shown in source video, not generic Florida caption. Use a canopy-walk description; caption mentions alligators but this audit did not verify an alligator encounter in footage.",
+      "officialIdentityUrl": "https://www.floridastateparks.org/learn/canopy-walkway-myakka",
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "siesta-beach-sarasota:1",
+      "key": "siesta-beach-sarasota",
+      "venue": "Siesta Beach",
+      "city": "Sarasota",
+      "address": "948 Beach Rd, Sarasota, FL 34242",
+      "platform": "tiktok",
+      "creator": "thingstodotampabay",
+      "stagedViews": "1.8M",
+      "stagedCaption": "A creator's guide to Siesta Key's famous public beach.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+      "nativeUrl": "https://www.tiktok.com/@thingstodotampabay/video/7279084084511411502",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native TikTok permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@thingstodotampabay/video/7279084084511411502",
+          "detail": "Native author and caption identify Siesta Beach on Siesta Key, Sarasota, FL; native location tag Siesta Key. Posted 2023-09-15."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "siesta-beach-sarasota:2",
+      "key": "siesta-beach-sarasota",
+      "venue": "Siesta Beach",
+      "city": "Sarasota",
+      "address": "948 Beach Rd, Sarasota, FL 34242",
+      "platform": "tiktok",
+      "creator": "sarasotajenn",
+      "stagedViews": "591.1K",
+      "stagedCaption": "A local's Siesta Key beach day and exploration.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+      "nativeUrl": "https://www.tiktok.com/@sarasotajenn/video/7513895727760756010",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native TikTok permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@sarasotajenn/video/7513895727760756010",
+          "detail": "Native author SarasotaJenn; location tag Siesta Beach · Sarasota; caption identifies the beach and free trolley to village. Posted 2025-06-09."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "siesta-beach-sarasota:3",
+      "key": "siesta-beach-sarasota",
+      "venue": "Siesta Beach",
+      "city": "Sarasota",
+      "address": "948 Beach Rd, Sarasota, FL 34242",
+      "platform": "tiktok",
+      "creator": "paolamorenou_",
+      "stagedViews": "542.8K",
+      "stagedCaption": "A creator's take on Siesta Beach as a low-cost Florida day out.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+      "nativeUrl": "https://www.tiktok.com/@paolamorenou_/video/7482954036593921311",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native TikTok permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@paolamorenou_/video/7482954036593921311",
+          "detail": "Native author and caption explicitly identify Siesta Beach, Sarasota; native location tag Siesta Beach · Sarasota. Posted 2025-03-17."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "siesta-beach-sarasota:4",
+      "key": "siesta-beach-sarasota",
+      "venue": "Siesta Beach",
+      "city": "Sarasota",
+      "address": "948 Beach Rd, Sarasota, FL 34242",
+      "platform": "tiktok",
+      "creator": "danaystojeiro",
+      "stagedViews": "415.6K",
+      "stagedCaption": "A creator's guide to Siesta Beach.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+      "nativeUrl": "https://www.tiktok.com/@danaystojeiro/video/7510353154588937514",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native TikTok permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@danaystojeiro/video/7510353154588937514",
+          "detail": "Native author Danays Tojeiro; caption explicitly identifies Siesta Beach, Sarasota. Posted 2025-05-30."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "siesta-beach-sarasota:5",
+      "key": "siesta-beach-sarasota",
+      "venue": "Siesta Beach",
+      "city": "Sarasota",
+      "address": "948 Beach Rd, Sarasota, FL 34242",
+      "platform": "tiktok",
+      "creator": "thingstodo.florida",
+      "stagedViews": "272.0K",
+      "stagedCaption": "A creator's walkthrough of Siesta Key Beach.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+      "nativeUrl": "https://www.tiktok.com/@thingstodo.florida/video/7325114575869807915",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native TikTok permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@thingstodo.florida/video/7325114575869807915",
+          "detail": "Native author Things To Do Florida; caption explicitly identifies Siesta Beach on Florida's west coast; native location Siesta Key. Posted 2024-01-17."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "siesta-key-village:1",
+      "key": "siesta-key-village",
+      "venue": "Siesta Key Village",
+      "city": "Sarasota",
+      "address": "Ocean Blvd & Canal Rd, Sarasota, FL 34242",
+      "platform": "tiktok",
+      "creator": "thingstodotampabay",
+      "stagedViews": "678.7K",
+      "stagedCaption": "A creator's tour of the shops and dining in Siesta Key Village.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+      "nativeUrl": "https://www.tiktok.com/@thingstodotampabay/video/7258302768811773230",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/siesta-key-beach-XLQvli5C",
+          "detail": "Matching creator and staged view count card clicked; normal UI opened exact native TikTok permalink."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@thingstodotampabay/video/7258302768811773230",
+          "detail": "Native author and caption identify Siesta Key island, beaches and Siesta Key Village's shops and restaurants. Posted 2023-07-21. District roundup rather than a single venue."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "gamble-plantation-ellenton:1",
+      "key": "gamble-plantation-ellenton",
+      "venue": "Gamble Plantation Historic State Park",
+      "city": "Ellenton",
+      "address": "3708 Patten Ave, Ellenton, FL 34222",
+      "platform": "tiktok",
+      "creator": "historical.cheese",
+      "stagedViews": "806.3K",
+      "stagedCaption": "A creator's visit to this antebellum historic site in Ellenton.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/ellenton/gamble-plantation-historic-state-park-UYNCdJeC",
+      "nativeUrl": "https://www.tiktok.com/@historical.cheese/video/7488857742883540254",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_ui_retrieval",
+          "url": "https://www.tiktok.com/@historical.cheese/video/7488857742883540254",
+          "detail": "Native public creator profile Popular grid has this Florida haunted-plantations guide at 826.7K views (staged 806.3K). Native caption explicitly names Gamble Plantation and Kingsley Plantation. Historical multi-site guide, not evidence of creator's personal visit. No haunted/paranormal claim should be restated as verified fact. Posted 2025-04-02."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "scopeNote": "Historical multi-site guide; staged visit wording is unsupported.",
+      "requiresCaptionCorrection": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "ca-dzan-the-ringling-sarasota:1",
+      "key": "ca-dzan-the-ringling-sarasota",
+      "venue": "Ca' d'Zan",
+      "city": "Sarasota",
+      "address": "5401 Bay Shore Rd, Sarasota, FL 34243",
+      "platform": "tiktok",
+      "creator": "everencephotography",
+      "stagedViews": "607.4K",
+      "stagedCaption": "A creator's sunset shots of the Ca' d'Zan mansion at The Ringling.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/ca-dzan-CqHZzLpb",
+      "nativeUrl": "https://www.instagram.com/p/Co94wQsDAEn/",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/ca-dzan-CqHZzLpb",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.instagram.com/p/Co94wQsDAEn/",
+          "detail": "Native Instagram reel by everencephotography; caption explicitly names Ca' d'Zan at sunset and The Ringling. Actual platform Instagram, not staged TikTok. Posted 2023-02-22."
+        }
+      ],
+      "blocker": null,
+      "verifiedPlatform": "instagram",
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "ca-dzan-the-ringling-sarasota:2",
+      "key": "ca-dzan-the-ringling-sarasota",
+      "venue": "Ca' d'Zan",
+      "city": "Sarasota",
+      "address": "5401 Bay Shore Rd, Sarasota, FL 34243",
+      "platform": "tiktok",
+      "creator": "thefloridaqueenie_",
+      "stagedViews": "392.2K",
+      "stagedCaption": "A creator's visit to The Ringling and the Ca' d'Zan mansion.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/ca-dzan-CqHZzLpb",
+      "nativeUrl": "https://www.tiktok.com/@thefloridaqueenie_/video/7355975276641275179",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/ca-dzan-CqHZzLpb",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@thefloridaqueenie_/video/7355975276641275179",
+          "detail": "Native caption identifies The Ringling Museum in Sarasota. Source video visually features the Ca' d'Zan mansion exterior among estate grounds; scope is a Ringling estate visit. Do not copy historical free-admission claims. Posted 2024-04-09."
+        }
+      ],
+      "blocker": null,
+      "scopeNote": "The Ringling estate with Ca' d'Zan imagery, not solely a mansion tour.",
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "robinson-preserve-bradenton:1",
+      "key": "robinson-preserve-bradenton",
+      "venue": "Robinson Preserve",
+      "city": "Bradenton",
+      "address": "1704 99th St NW, Bradenton, FL 34209",
+      "platform": "tiktok",
+      "creator": "mustseeflorida",
+      "stagedViews": "246.2K",
+      "stagedCaption": "A creator's outdoor and family guide to this Bradenton nature preserve.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/bradenton/riverview-pointe-preserve-H64Bu1wa",
+      "nativeUrl": "https://www.tiktok.com/@mustseeflorida/video/7521361289831091487",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/bradenton/riverview-pointe-preserve-H64Bu1wa",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@mustseeflorida/video/7521361289831091487",
+          "detail": "Native author Must See Florida; native location Robinson Preserve · Bradenton; caption identifies Robinson Preserve and its two entrances. Posted 2025-06-29."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "st-armands-circle-sarasota:1",
+      "key": "st-armands-circle-sarasota",
+      "venue": "St. Armands Circle",
+      "city": "Sarasota",
+      "address": "300 Madison Dr, Sarasota, FL 34236",
+      "platform": "tiktok",
+      "creator": "sarasota_fl_living",
+      "stagedViews": "89.9K",
+      "stagedCaption": "A local's roundup of restaurants around St. Armands Circle.",
+      "evidenceUrl": "https://airial.travel/attractions/united-states/sarasota/st-armands-circle-gNqAAyh8",
+      "nativeUrl": "https://www.tiktok.com/@sarasota_fl_living/video/7098420679715867947",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "aggregator_ui_original_card",
+          "url": "https://airial.travel/attractions/united-states/sarasota/st-armands-circle-gNqAAyh8",
+          "detail": "Matching staged creator/view-count source card opened native URL through ordinary UI."
+        },
+        {
+          "type": "native_ui",
+          "url": "https://www.tiktok.com/@sarasota_fl_living/video/7098420679715867947",
+          "detail": "Native author Dan Henson; caption identifies a five-restaurant St. Armands Circle Sarasota roundup; source uses Green Screen effect. District guide, not proof of a personal visit to every featured restaurant. Posted 2022-05-16."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "bradenton-motorsports-park:1",
+      "key": "bradenton-motorsports-park",
+      "venue": "Bradenton Motorsports Park",
+      "city": "Bradenton",
+      "address": "21000 State Road 64 E, Bradenton, FL 34212",
+      "platform": "tiktok",
+      "creator": "jairmr2",
+      "stagedViews": "607.6K",
+      "stagedCaption": "A creator's day at the FL2K drag-racing event at Bradenton Motorsports Park.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/lecom-park-bradenton-F-0YByN9",
+      "nativeUrl": "https://www.tiktok.com/@jairmr2/video/7287259639589162245",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_post_browser",
+          "url": "https://www.tiktok.com/@jairmr2/video/7287259639589162245",
+          "detail": "Creator Jairmr2,2023-10-07, source native hashtags explicitly FL2K23 and Bradenton Motorsports Park/Bradenton Motorsports. Public creator Popular grid shows609.2K views close to recorded607.6K and exact matching event caption."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "bradenton-motorsports-park:2",
+      "key": "bradenton-motorsports-park",
+      "venue": "Bradenton Motorsports Park",
+      "city": "Bradenton",
+      "address": "21000 State Road 64 E, Bradenton, FL 34212",
+      "platform": "tiktok",
+      "creator": "f90.0li",
+      "stagedViews": "447.8K",
+      "stagedCaption": "A creator's FL2K drag-racing experience at this Bradenton strip.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/lecom-park-bradenton-F-0YByN9",
+      "nativeUrl": "https://www.tiktok.com/@f90.0li/video/7422667909115219230",
+      "disposition": "native_verified_replacement",
+      "evidence": [
+        {
+          "type": "native_candidate_browser",
+          "url": "https://www.tiktok.com/@f90.0li/video/7422667909115219230",
+          "detail": "Native exact location tag Bradenton Motorsports Park · Lakewood Ranch; creator f90.0li/f90oli,2024-10-06. Caption describes an event with FL2K24 and Bradenton Motorsports Park hashtags. Native search also returned7423021419388357919 and7421870350452935967, so recorded generic staged caption and447.8K historical views do not alone prove which original slot was intended."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "verifiedCandidateVenue": "Bradenton Motorsports Park",
+      "attachmentReady": true,
+      "verifiedReplacementCoverage": true,
+      "originalPlaceholderCorrespondence": "unresolved",
+      "reuseStagedViews": false,
+      "scopeNote": "Verified native creator and exact native venue tag support attachment as replacement coverage, authorized by root. Exact original placeholder source correspondence remains unresolved; do not reuse historical staged view counts or claim this is the exact historical source recovered."
+    },
+    {
+      "slotId": "bradenton-motorsports-park:3",
+      "key": "bradenton-motorsports-park",
+      "venue": "Bradenton Motorsports Park",
+      "city": "Bradenton",
+      "address": "21000 State Road 64 E, Bradenton, FL 34212",
+      "platform": "tiktok",
+      "creator": "racingflorida",
+      "stagedViews": "201.8K",
+      "stagedCaption": "A creator's drag-racing run at Bradenton Motorsports Park.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/lecom-park-bradenton-F-0YByN9",
+      "nativeUrl": "https://www.tiktok.com/@racingflorida/video/7059968549401562415",
+      "disposition": "native_verified",
+      "evidence": [
+        {
+          "type": "native_post_browser",
+          "url": "https://www.tiktok.com/@racingflorida/video/7059968549401562415",
+          "detail": "Creator racingflorida,2022-02-01. Native original caption explicitly identifies2200+hp Alpha Omega Drag Huracan by AMS Performance at Bradenton Motorsports Park. Public creator profile pinned grid shows204.7K views close to recorded201.8K."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "scopeNote": "Original is footage of a2200+hp AMS Alpha Omega Lamborghini Huracan drag-racing run, not necessarily the creator's own run.",
+      "requiresCaptionCorrection": true,
+      "attachmentReady": true,
+      "reuseStagedViews": false
+    },
+    {
+      "slotId": "bradenton-motorsports-park:4",
+      "key": "bradenton-motorsports-park",
+      "venue": "Bradenton Motorsports Park",
+      "city": "Bradenton",
+      "address": "21000 State Road 64 E, Bradenton, FL 34212",
+      "platform": "tiktok",
+      "creator": "visions_chronicles",
+      "stagedViews": "160.2K",
+      "stagedCaption": "A creator's FL2K car experience at this Bradenton drag strip.",
+      "evidenceUrl": "https://www.airial.travel/attractions/united-states/bradenton/lecom-park-bradenton-F-0YByN9",
+      "nativeUrl": "https://www.tiktok.com/@visions_chronicles/video/7558116486108286222",
+      "disposition": "native_verified_replacement",
+      "evidence": [
+        {
+          "type": "native_candidate_browser",
+          "url": "https://www.tiktok.com/@visions_chronicles/video/7558116486108286222",
+          "detail": "Native exact location tag Bradenton Motorsports Park · Lakewood Ranch; creator visions_chronicles/Vision,2025-10-06. Original caption twin-turbo Trackhawk at FL2K and Bradenton Motorsports Park hashtag. Public Popular profile grid shows248.5K views. Multiple other same-creator FL2K originals are visible, including7558176124665203981 at146.5K and7558451049883782455 at1739; staged160.2K count and generic caption cannot uniquely prove historic source correspondence."
+        }
+      ],
+      "blocker": null,
+      "final": true,
+      "verifiedCandidateVenue": "Bradenton Motorsports Park",
+      "attachmentReady": true,
+      "verifiedReplacementCoverage": true,
+      "originalPlaceholderCorrespondence": "unresolved",
+      "reuseStagedViews": false,
+      "scopeNote": "Verified native creator and exact native venue tag support attachment as replacement coverage, authorized by root. Exact original placeholder source correspondence remains unresolved; do not reuse historical staged view counts or claim this is the exact historical source recovered."
+    }
+  ],
+  "release": {
+    "prepared": true,
+    "deploymentVerified": false,
+    "activated": [
+      {
+        "slotId": "juicys-famous-fair-food-bradenton:1",
+        "key": "juicys-famous-fair-food-bradenton",
+        "placeId": "ChIJ22mnlYwXw4gRKPUH9hiP9iQ",
+        "name": "Juicys Famous Fair Food",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@camargz/video/7549345548751392030",
+        "creator": "camargz",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "juicys-famous-fair-food-bradenton:2",
+        "key": "juicys-famous-fair-food-bradenton",
+        "placeId": "ChIJ22mnlYwXw4gRKPUH9hiP9iQ",
+        "name": "Juicys Famous Fair Food",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@l3xiluthor/video/7550454681684806926",
+        "creator": "l3xiluthor",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "los-laureles-supermarket-bradenton:1",
+        "key": "los-laureles-supermarket-bradenton",
+        "placeId": "ChIJ7S5ZSQk9w4gRbnp5OnQPl0U",
+        "name": "Los Laureles Supermarket",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@camargz/video/7543029939579227423",
+        "creator": "camargz",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "sweet-krunch-bradenton:1",
+        "key": "sweet-krunch-bradenton",
+        "placeId": "ChIJb9GcHxQXw4gRB5Az1Wqmm_Y",
+        "name": "Sweet Krunch - Bradenton",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@camargz/video/7549676780089560350",
+        "creator": "camargz",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "pier-22-bradenton:1",
+        "key": "pier-22-bradenton",
+        "placeId": "ChIJ14i7EM4Xw4gRhmjGq7zknhg",
+        "name": "PIER 22",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@sandbarsammy/video/7535066903602040077",
+        "creator": "sandbarsammy",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "michelles-brown-bag-cafe-sarasota:1",
+        "key": "michelles-brown-bag-cafe-sarasota",
+        "placeId": "ChIJbUvbfQBBw4gRI9UHNWn6MK0",
+        "name": "Michelle’s Brown Bag Cafe",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@thesarasotalocals/video/7522274567675579703",
+        "creator": "thesarasotalocals",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "project-coffee-sarasota:1",
+        "key": "project-coffee-sarasota",
+        "placeId": "ChIJK4UHeR1Bw4gRBlMVPK7epPo",
+        "name": "Project Coffee",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@makayluhhhhh/video/7228925232709471531",
+        "creator": "makayluhhhhh",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "ofkors-bakery-sarasota:1",
+        "key": "ofkors-bakery-sarasota",
+        "placeId": "ChIJG-8UUxJAw4gRR5dxpu_5F7c",
+        "name": "ofKors BAKERY",
+        "city": "Sarasota",
+        "platform": "instagram",
+        "nativeUrl": "https://www.instagram.com/p/C8QwO0Ktk_k/",
+        "creator": "inna_revega",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "arts-and-central-sarasota:1",
+        "key": "arts-and-central-sarasota",
+        "placeId": "ChIJ18o-AQ1Aw4gRtAFiokGXSgQ",
+        "name": "Arts & Central",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@sarasotarealtorkatrin/video/7342258118748917038",
+        "creator": "sarasotarealtorkatrin",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "arts-and-central-sarasota:2",
+        "key": "arts-and-central-sarasota",
+        "placeId": "ChIJ18o-AQ1Aw4gRtAFiokGXSgQ",
+        "name": "Arts & Central",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@srqtiff/video/7487268590945684767",
+        "creator": "srqtiff",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "tide-tables-cortez:1",
+        "key": "tide-tables-cortez",
+        "placeId": "ChIJ6fLbnXYRw4gRoW_2igruY88",
+        "name": "Tide Tables Restaurant and Marina",
+        "city": "Cortez",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@pinkpalmettotravelclub/video/7616013279311269151",
+        "creator": "pinkpalmettotravelclub",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "tide-tables-cortez:2",
+        "key": "tide-tables-cortez",
+        "placeId": "ChIJ6fLbnXYRw4gRoW_2igruY88",
+        "name": "Tide Tables Restaurant and Marina",
+        "city": "Cortez",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@michaelrenick3/video/7611884760050289934",
+        "creator": "michaelrenick3",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "tide-tables-cortez:3",
+        "key": "tide-tables-cortez",
+        "placeId": "ChIJ6fLbnXYRw4gRoW_2igruY88",
+        "name": "Tide Tables Restaurant and Marina",
+        "city": "Cortez",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@mickeyguru_shalon/video/7442306507250666795",
+        "creator": "mickeyguru_shalon",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "star-fish-company-cortez:1",
+        "key": "star-fish-company-cortez",
+        "placeId": "ChIJmcZ22HARw4gR5Th1Pxcl9II",
+        "name": "Star Fish Company",
+        "city": "Cortez",
+        "platform": "instagram",
+        "nativeUrl": "https://www.instagram.com/p/DCeTOGwRJOf/",
+        "creator": "sarahsoutdooradventuresfl",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "star-fish-company-cortez:2",
+        "key": "star-fish-company-cortez",
+        "placeId": "ChIJmcZ22HARw4gR5Th1Pxcl9II",
+        "name": "Star Fish Company",
+        "city": "Cortez",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@movemetolwr/video/7471030252278435114",
+        "creator": "movemetolwr",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "dry-dock-longboat-key:1",
+        "key": "dry-dock-longboat-key",
+        "placeId": "ChIJ38CBz8Vqw4gRg0oFYUGBU_s",
+        "name": "Dry Dock Waterfront Grill",
+        "city": "Longboat Key",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@godfatherofmeat/video/7165241533589933354",
+        "creator": "godfatherofmeat",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "dry-dock-longboat-key:2",
+        "key": "dry-dock-longboat-key",
+        "placeId": "ChIJ38CBz8Vqw4gRg0oFYUGBU_s",
+        "name": "Dry Dock Waterfront Grill",
+        "city": "Longboat Key",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@sandbarsammy/video/7163297445613423914",
+        "creator": "sandbarsammy",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "dry-dock-longboat-key:3",
+        "key": "dry-dock-longboat-key",
+        "placeId": "ChIJ38CBz8Vqw4gRg0oFYUGBU_s",
+        "name": "Dry Dock Waterfront Grill",
+        "city": "Longboat Key",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@explorewithmedaily/video/7517800049158507807",
+        "creator": "explorewithmedaily",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "tookies-and-treats-ellenton:1",
+        "key": "tookies-and-treats-ellenton",
+        "placeId": "ChIJu3mmJlU9w4gRX3KqQYNgeuk",
+        "name": "Tookies and Treats Bakery Shop",
+        "city": "Ellenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@tookiesandtreats/video/7553778984111082765",
+        "creator": "tookiesandtreats",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "olearys-tiki-bar-sarasota:1",
+        "key": "olearys-tiki-bar-sarasota",
+        "placeId": "ChIJOT_lQRRAw4gRs8lym-DXpdc",
+        "name": "O'Leary's Tiki Bar & Grill",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@explorewithmedaily/video/7516015035013975326",
+        "creator": "explorewithmedaily",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "myakka-river-state-park:1",
+        "key": "myakka-river-state-park",
+        "placeId": "ChIJxaeEtGVMw4gRd5SI3lZDqnY",
+        "name": "Myakka River State Park",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@followmeaway/video/7128789441770048810",
+        "creator": "followmeaway",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "siesta-beach-sarasota:1",
+        "key": "siesta-beach-sarasota",
+        "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+        "name": "Siesta Beach",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@thingstodotampabay/video/7279084084511411502",
+        "creator": "thingstodotampabay",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "siesta-beach-sarasota:2",
+        "key": "siesta-beach-sarasota",
+        "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+        "name": "Siesta Beach",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@sarasotajenn/video/7513895727760756010",
+        "creator": "sarasotajenn",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "siesta-beach-sarasota:3",
+        "key": "siesta-beach-sarasota",
+        "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+        "name": "Siesta Beach",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@paolamorenou_/video/7482954036593921311",
+        "creator": "paolamorenou_",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "siesta-beach-sarasota:4",
+        "key": "siesta-beach-sarasota",
+        "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+        "name": "Siesta Beach",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@danaystojeiro/video/7510353154588937514",
+        "creator": "danaystojeiro",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "siesta-beach-sarasota:5",
+        "key": "siesta-beach-sarasota",
+        "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
+        "name": "Siesta Beach",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@thingstodo.florida/video/7325114575869807915",
+        "creator": "thingstodo.florida",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "siesta-key-village:1",
+        "key": "siesta-key-village",
+        "placeId": "ChIJK1nJH9xrw4gRIr9IhuzYVQI",
+        "name": "Siesta Key Village",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@thingstodotampabay/video/7258302768811773230",
+        "creator": "thingstodotampabay",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "gamble-plantation-ellenton:1",
+        "key": "gamble-plantation-ellenton",
+        "placeId": "ChIJjZhUvSU9w4gRCuTRgyrctZA",
+        "name": "Gamble Plantation Historic State Park",
+        "city": "Ellenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@historical.cheese/video/7488857742883540254",
+        "creator": "historical.cheese",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "ca-dzan-the-ringling-sarasota:1",
+        "key": "ca-dzan-the-ringling-sarasota",
+        "placeId": "ChIJpXGK53VC24gRWMneFVtK6hY",
+        "name": "Ca' d'Zan",
+        "city": "Sarasota",
+        "platform": "instagram",
+        "nativeUrl": "https://www.instagram.com/p/Co94wQsDAEn/",
+        "creator": "everencephotography",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "ca-dzan-the-ringling-sarasota:2",
+        "key": "ca-dzan-the-ringling-sarasota",
+        "placeId": "ChIJpXGK53VC24gRWMneFVtK6hY",
+        "name": "Ca' d'Zan",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@thefloridaqueenie_/video/7355975276641275179",
+        "creator": "thefloridaqueenie_",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "robinson-preserve-bradenton:1",
+        "key": "robinson-preserve-bradenton",
+        "placeId": "ChIJR0i18icRw4gRbyGIoLLoSo0",
+        "name": "Robinson Preserve",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@mustseeflorida/video/7521361289831091487",
+        "creator": "mustseeflorida",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "st-armands-circle-sarasota:1",
+        "key": "st-armands-circle-sarasota",
+        "placeId": "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8",
+        "name": "St. Armands Circle",
+        "city": "Sarasota",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@sarasota_fl_living/video/7098420679715867947",
+        "creator": "sarasota_fl_living",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "bradenton-motorsports-park:1",
+        "key": "bradenton-motorsports-park",
+        "placeId": "ChIJxfPiwwsxw4gRyzz6Mvlcnm0",
+        "name": "Bradenton Motorsports Park",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@jairmr2/video/7287259639589162245",
+        "creator": "jairmr2",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "bradenton-motorsports-park:2",
+        "key": "bradenton-motorsports-park",
+        "placeId": "ChIJxfPiwwsxw4gRyzz6Mvlcnm0",
+        "name": "Bradenton Motorsports Park",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@f90.0li/video/7422667909115219230",
+        "creator": "f90.0li",
+        "disposition": "native_verified_replacement"
+      },
+      {
+        "slotId": "bradenton-motorsports-park:3",
+        "key": "bradenton-motorsports-park",
+        "placeId": "ChIJxfPiwwsxw4gRyzz6Mvlcnm0",
+        "name": "Bradenton Motorsports Park",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@racingflorida/video/7059968549401562415",
+        "creator": "racingflorida",
+        "disposition": "native_verified"
+      },
+      {
+        "slotId": "bradenton-motorsports-park:4",
+        "key": "bradenton-motorsports-park",
+        "placeId": "ChIJxfPiwwsxw4gRyzz6Mvlcnm0",
+        "name": "Bradenton Motorsports Park",
+        "city": "Bradenton",
+        "platform": "tiktok",
+        "nativeUrl": "https://www.tiktok.com/@visions_chronicles/video/7558116486108286222",
+        "creator": "visions_chronicles",
+        "disposition": "native_verified_replacement"
+      }
+    ],
+    "held": [
+      {
+        "key": "wingstop-bradenton",
+        "nativeUrl": "https://www.tiktok.com/@flossakushie/video/7397214452225117486",
+        "reason": "Native original is an actual Wingstop counter visit and caption says Bradenton, but no exact branch address or location tag establishes staged3553 1stStE. Brand+city cannot prove this branch."
+      },
+      {
+        "key": "la-violetta-sarasota",
+        "nativeUrl": "https://www.tiktok.com/@thecrazycreativeteacher/video/7560359530710764813",
+        "reason": "Exact URL recovered from the visible Airial source card, but native TikTok browser reports 'Video currently unavailable'. Unable to verify original creator/video at native source; hold attachment."
+      }
+    ],
+    "note": "36 reviewed native sources are prepared; two are authorized replacement coverage with unresolved original placeholder correspondence. Wingstop branch and unavailable La Violetta remain held. Production source rendering requires release verification."
+  }
+}

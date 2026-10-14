@@ -79,7 +79,7 @@ function creatorChips(p, onExperience) {
   // v7.15 (owner, 2026-08-11): the experience-tag bubble is gone; the creator
   // video chip stays because it is the row's identity and a score disclosure.
   return [
-    { key: "creatorvideo", icon: "🎬", label: "Creator video", onClick: onExperience ? () => onExperience("creatorvideo", p) : null },
+    { key: "creatorvideo", icon: "🎬", label: "Creator post", onClick: onExperience ? () => onExperience("creatorvideo", p) : null },
   ];
 }
 
@@ -329,7 +329,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               score={h && h.rating ? toDisplayScore(governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true })) : null}
               facts={h ? cardFacts({ reviews: h.reviews, priceLevel: h.priceLevel, oh: h.oh, utcOffset: h.utcOffset }) : [s0.city || null].filter(Boolean)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
-              chips={[{ key: "video", icon: "🎬", label: "Creator video", onClick: () => { if (onBrowse) onBrowse(); } }]}
+              chips={[{ key: "video", icon: "🎬", label: "Creator post", onClick: () => { if (onBrowse) onBrowse(); } }]}
               ariaLabel={"Open " + s0.name}
               onOpen={openRegistry}
               onShare={() => { if (onBrowse) onBrowse(); }}

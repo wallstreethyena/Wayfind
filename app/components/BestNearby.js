@@ -910,7 +910,7 @@ export default function BestNearby({
     { id: "quickbite", label: "The 30-Minute Break", sub: "Half the break dies deciding. The best quick, counter-serve food near you — already ranked.", emoji: "⚡", line: true, intent: "quick-bite", href: "/quick-bite", unit: "quick bites" },
     { id: "todo", label: "What Should We Do Today?", sub: "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now.", icon: "attractions" },
     { id: "gems", label: "Places You'd Never Find", sub: "Loved by the few who've found them, missed by the big lists — and near you.", icon: "gem", line: true, intent: "hidden-gems", href: "/hidden-gems", unit: "hidden gems" },
-    { id: "creators", label: "Creators Pick", sub: "Not a listicle: creators who actually went, matched to places near you.", icon: "film", line: true, slot: "creators" },
+    { id: "creators", label: "Creators Pick", sub: "Creator posts, matched to places near you.", icon: "film", line: true, slot: "creators" },
     { id: "tonight", label: "Tonight's Move", sub: "Plans that fit tonight's hours — not somebody's reheated weekend list.", icon: "ticket", line: true, intent: "tonight", href: "/tonight", unit: "picks for tonight" },
     { id: "drive", label: "Worth the Drive", sub: "An hour in the car has to earn itself. These are the ones that do.", icon: "car", line: true, intent: "worth-the-drive", href: "/worth-the-drive", unit: "day trips" },
     { id: "events", label: "Events Near You", sub: "Stop finding out the day after: concerts, shows and one-nighters near you.", icon: "ticket", line: true, slot: "events" },
@@ -945,7 +945,7 @@ export default function BestNearby({
           ))}
         </div>
       ) : (
-        <div style={{ padding: "8px 2px 2px", fontSize: 12.5, color: C.muted }}>No creator videos linked near you yet — they appear here the moment one is.</div>
+        <div style={{ padding: "8px 2px 2px", fontSize: 12.5, color: C.muted }}>No creator posts linked near you yet — they appear here the moment one is.</div>
       )}
       {d.report ? (
         <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, padding: "8px 2px 4px", borderTop: "1px solid rgba(255,255,255,.06)" }}>{d.report}</div>
@@ -1094,7 +1094,7 @@ export default function BestNearby({
                 const chips = [
                   // byVisibleScore stamps creator_video when it applied the
                   // +0.2, so this label and the score can never disagree.
-                  p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
+                  p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator post" } : null,
                   coupon ? { key: "deal", icon: "🏷️", label: couponChipLabel(coupon) } : null,
                 ].filter(Boolean).slice(0, 4);
                 return (
