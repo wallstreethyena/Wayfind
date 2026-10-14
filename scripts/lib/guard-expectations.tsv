@@ -768,6 +768,7 @@ scripts/test-photo-protection.mjs	0	CALL	blocks-ci-and-deploy	1	-	347	0	0	a43d45
 scripts/test-photo-queue-batch.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	62fb45755ddf4ac3edfe56341f6fae7833476652bcf3b4c8a1a67780e43227cf
 scripts/test-photo-quota-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	108	0	0	1afc16e3381ebdea8c24bd28d3c73d524a47ba55abc5fa934f97dc65ae55bede
 scripts/test-photo-repair-deadline.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	bf63348cdd62471b633afdca44f1cf6e0f40fadad4e5c6c9ac79ac2757165c09
+scripts/test-photo-same-origin-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	26	0	0	72177a1cea5a3e46bd8e30cbc82e0212e4f9d149ad496684d605d54e1635e479
 scripts/test-photo-serving-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	2520217af232a7f8f05022d21b184cb35eebf1636052963ff2990fe6019f7ee4
 scripts/test-photo-spend-efficiency.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	94	0	0	265a5ce1881a0abf593703a9d344454624ad510a5c5ba90424f67b14eaf40f00
 scripts/test-photo-upstream-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	83	0	0	0d18b228f964b9fe5edc7dd3fca293df94a402109fb30b38eb173fe175038897
