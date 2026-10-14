@@ -121,6 +121,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
             placeholder={isEvent && !card.image ? card.placeholder || null : null}
+            photoFallbackCategory="christmas"
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}
             visitFacts={isEvent ? card : null}
