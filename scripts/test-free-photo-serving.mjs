@@ -41,6 +41,8 @@
 // red for each, then the source was restored and this file confirmed green
 // again. See the PR/session notes for the full mutation list.
 import { readFileSync } from "node:fs";
+// Mirrors lib/placePhotoServe.js: an authorizer answers a boolean or { ok, reason }.
+const grantedOf = (g) => (g && typeof g === "object" ? !!g.ok : !!g);
 import { findFreePhoto, selectFreePhotoRow, preferPermittedRow } from "../lib/freePhoto.js";
 import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } from "../lib/spendGate.js";
 import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
@@ -321,7 +323,7 @@ function standardResolve() {
     if (input.gateShut) return miss("gate-shut", input);
     if (!input.serverKey) return miss("unconfigured", input);
     if (input.probe) return miss("probe-no-spend", input);
-    const allowed = await input.authorizeSpend("photos");
+    const allowed = grantedOf(await input.authorizeSpend("photos"));
     if (!allowed) return miss("spend-denied", input);
     return { type: "redirect", location: "https://lh3.googleusercontent.com/p/real-google-photo", cacheControl: "public, max-age=2592000, s-maxage=2592000, immutable", reason: "google" };
   };
@@ -333,7 +335,7 @@ function standardResolve() {
 // (a separate, already-locked question — see check-spend-guard.mjs).
 function detailsOnlyResolve() {
   return async (input) => {
-    const allowed = await input.authorizeSpend("details_ids_only");
+    const allowed = grantedOf(await input.authorizeSpend("details_ids_only"));
     return { type: "miss", location: null, cacheControl: "private, no-store", reason: allowed ? "unconfigured" : "spend-denied", ref: input.ref, __detailsAllowed: allowed };
   };
 }
