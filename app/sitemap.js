@@ -14,6 +14,8 @@ import { creatorSlugs } from "../lib/creatorPages";
 import { sponsorSlugs } from "../lib/sponsoredPlaces";
 import { listIndexedIds } from "../lib/placeIndex";
 import { fetchCuratedEvents, floridaEventSitemapRows } from "../lib/curatedEvents";
+import { christmasResearchSitemapRows } from "../lib/christmasResearch";
+import { siteTodayStr } from "../lib/siteTime";
 
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
@@ -57,7 +59,10 @@ export default async function sitemap() {
   // whole sitemap.
   let events = [];
   try { events = floridaEventSitemapRows(await fetchCuratedEvents(), SITE_URL); } catch { events = []; }
-  const floridaEvents = [{ url: `${SITE_URL}/florida-events` }, ...events];
+  // Christmas v4 (2026-10-13): the research-only Christmas listings have event
+  // pages through the /florida-events/[slug] fallback; list the current ones.
+  const christmasEvents = christmasResearchSitemapRows(SITE_URL, siteTodayStr()).filter((row) => !events.some((e) => e.url === row.url));
+  const floridaEvents = [{ url: `${SITE_URL}/florida-events` }, ...events, ...christmasEvents];
   // Dedicated guide routes with their own page.js (robots index:true). The
   // fall-festivals guide has no GUIDES entry, so the loop above never listed
   // it; a slug that IS in GUIDES is already listed and is skipped here.

@@ -1,5 +1,7 @@
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
+import { christmasAwareEventBySlug } from "../../../lib/christmasEventPage.js";
+import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
 // this is that page.
@@ -16,7 +18,7 @@ import EventExperienceStyles from "../../components/EventExperienceStyles.js";
 import { notFound } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
-import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
+import { fetchCuratedEvents, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
 import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
 import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
@@ -53,7 +55,7 @@ export async function generateMetadata({ params }) {
   // Throws on a failed read. Do not catch — an outage is not "this event
   // has no metadata", and catching would hide the same soft-fail the hub
   // used to cache as a successful empty page.
-  const e = await fetchCuratedEventBySlug(params.slug).then(withTampaPassFacts);
+  const e = await christmasAwareEventBySlug(params.slug).then(withTampaPassFacts);
   if (!e) return {};
   const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
   const desc = `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
@@ -159,7 +161,7 @@ const S = {
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
-  const e = await fetchCuratedEventBySlug(params.slug).then(withTampaPassFacts);
+  const e = await christmasAwareEventBySlug(params.slug).then(withTampaPassFacts);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
@@ -227,7 +229,9 @@ export default async function CuratedEventPage({ params }) {
   // They render inside <EventWhere> (numbered cards + the same numbers as pins).
   const pairingResult = await cachedEventPairings(e);
   const pairings = pairingResult.places.map((p) => ({ ...p, href: pairingHref(p) }));
-  const ld = eventJsonLd(e, { siteUrl: SITE_URL });
+  // Event JSON-LD only with a real date: a confirmed season with no dates yet
+  // gets none (it would publish a fake startDate).
+  const ld = e.season_undated || !e.start_date ? null : eventJsonLd(e, { siteUrl: SITE_URL });
   const crumbs = {
     "@context": "https://schema.org", "@type": "BreadcrumbList",
     itemListElement: [
@@ -265,7 +269,8 @@ export default async function CuratedEventPage({ params }) {
         facts={[
           { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? "–" + clockLabel(e.end_time) : ""}` : ""}` },
           { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
-          { label: "Cost", value: eventCostSummary(e) },
+          { label: "Cost", value: e.christmas_price_line || eventCostSummary(e) },
+          { label: "Who it is for", value: e.audience_label || null },
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
           { label: "Time needed", value: e.duration_recommendation },
           { label: "Crowds", value: e.crowd_level },
@@ -329,6 +334,13 @@ export default async function CuratedEventPage({ params }) {
         <div className="wf-event-photo"><EventPlacePhoto priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
       ) : venueImage ? (
         <div className="wf-event-photo"><EventPlacePhoto priority src={venueImage} name={`${e.venue || e.event_name}, venue photo`} /></div>
+      ) : e.christmas_rail ? (
+        // A Christmas listing with no verified photo: the same labelled
+        // illustration tile its card shows (lib/eventPlaceholder.js), never stock.
+        (() => { const tile = eventPlaceholder("community", { name: e.event_name, tags: e.tags, christmasRail: e.christmas_rail });
+          return <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${tile.label} illustration`} data-artwork="illustration" style={{ background: tile.tint, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <span aria-hidden="true" style={{ fontSize: 46 }}>{tile.icon}</span><span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: "uppercase", color: "#FFE9C7" }}>{tile.label}</span>
+          </div>; })()
       ) : (
         <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.event_name} — no photo available yet`}>
           <div style={S.heroFallbackRing}><span style={S.heroFallbackMark}>{heroInitials(e.short_title || e.event_name)}</span></div>
