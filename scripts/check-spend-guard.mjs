@@ -144,7 +144,7 @@ if (!/spendAllow\("details_enterprise"\)/.test(read("lib/placeDetails.js"))) die
 // takeFromLedger("photos", …) — a bigger cap is still a counted-down ceiling.
 {
   const photoRoute = read("app/api/photo/route.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-  if (!/spendAllowPhotos\(\)/.test(photoRoute)) die("photo route can pay Google without a photos ledger grant (spendAllowPhotos).");
+  if (!/spendAllowPhotos(?:Detailed)?\(\)/.test(photoRoute)) /* Detailed = same atomic photos grant, returns the refusal class (5fcb2d3) */  die("photo route can pay Google without a photos ledger grant (spendAllowPhotos).");
   if (/spendAllow\("photos"\)/.test(photoRoute)) die("photo route bypasses the photo ceiling by calling the bare free-tier spendAllow(\"photos\") — use spendAllowPhotos().");
   if (!/spendAllow\(sku\)/.test(photoRoute)) die("photo route's authorizer no longer meters non-photo SKUs (the expired-ref Details lookup would run ungated).");
   const gateCode = gate.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");

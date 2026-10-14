@@ -2065,6 +2065,7 @@ node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
+node scripts/test-ledger-failure-classes.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
 node scripts/test-photo-monitor-cold-rate.mjs
@@ -2181,3 +2182,4 @@ node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
 # 2026-10-09 event JSON-LD startDate/endDate carry the event's own UTC offset (Central Panhandle vs Eastern, DST-aware).
 node scripts/check-event-jsonld-offset.mjs
+node scripts/test-photo-inventory-audit.mjs
