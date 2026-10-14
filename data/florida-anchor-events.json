@@ -2390,7 +2390,7 @@
       "region": "Tampa Bay",
       "city": "St. Petersburg",
       "venue": "Vinoy Park",
-      "official_domain": "mainsailartsfestival.com",
+      "official_domain": "mainsailart.org",
       "category": "arts",
       "tags": [
         "art",
@@ -2408,7 +2408,8 @@
         "last_checked": "2026-10-14",
         "source_url": null,
         "event_series_id": "mainsail-art-festival"
-      }
+      },
+      "note": "2026-10-14: domain set to mainsailart.org, the official_event_url on the live wf_events row; mainsailartsfestival.com was never confirmed."
     },
     {
       "anchor_id": "firestone-grand-prix-st-pete",
@@ -3073,12 +3074,12 @@
       "note": "WRONG DOMAIN: internationalpoloclub.com now redirects to 3dsom.com, an unrelated site. Replacement organizer domain not confirmed (uspolo.org returned 403 to automation), so the host is flagged probe:false."
     },
     {
-      "anchor_id": "rolling-loud-miami",
-      "name": "Rolling Loud Miami",
-      "region": "SE",
-      "city": "Miami Gardens",
-      "venue": "Hard Rock Stadium",
-      "official_domain": "rollingloud.com",
+      "anchor_id": "rolling-loud-florida",
+      "name": "Rolling Loud Florida",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Camping World Stadium",
+      "official_domain": "florida.rollingloud.com",
       "category": "music",
       "tags": [
         "music",
@@ -3096,10 +3097,10 @@
         "state": "confirmed_dated",
         "event_id": "rolling-loud-florida-2027",
         "last_checked": "2026-10-14",
-        "source_url": null,
+        "source_url": "https://florida.rollingloud.com/",
         "event_series_id": "rolling-loud-florida"
       },
-      "note": "Window from the 2027 row (May 7-9). Rolling Loud Miami has moved between months in past years, so the month is uncertain."
+      "note": "2026-10-14: organizer page florida.rollingloud.com reads 'Join us for Rolling Loud 2027, May 7-9 at Camping World Stadium, Orlando!'. The Florida edition moved from Miami Gardens (Hard Rock Stadium) to Orlando; no 2027 Miami edition was found. The wf_events row (Orlando) is correct."
     },
     {
       "anchor_id": "iii-points",
