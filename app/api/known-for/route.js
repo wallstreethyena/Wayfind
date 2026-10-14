@@ -18,6 +18,7 @@
 // alternative — one request per card — is what makes a sheet feel slow.
 import { knownForMap, knownForLine } from "../../../lib/knownFor";
 import { atlasLinesFor } from "../../../lib/atlasCards";
+import { scrubEditorial } from "../../../lib/editorialScrub.js";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 
 export const runtime = "nodejs";
@@ -54,8 +55,9 @@ export async function POST(req) {
       next: { revalidate: 3600 },
     });
     if (!r.ok) return Response.json({ lines: atlas, found: Object.keys(atlas).length, degraded: "upstream-" + r.status }, { status: 200 });
-    const rows = await r.json();
-    if (!Array.isArray(rows)) return Response.json({ lines: atlas, found: Object.keys(atlas).length, degraded: "bad-shape" }, { status: 200 });
+    const rawRows = await r.json();
+    if (!Array.isArray(rawRows)) return Response.json({ lines: atlas, found: Object.keys(atlas).length, degraded: "bad-shape" }, { status: 200 });
+    const rows = rawRows.map((e) => scrubEditorial(e)); // hook / why_here / local_tip: no staff notes or stale hours
 
     // Atlas wins on conflict. knownForMap already drops unverified / placeholder rows.
     const researched = { ...knownForMap(rows), ...atlas };

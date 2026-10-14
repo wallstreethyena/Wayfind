@@ -517,7 +517,7 @@ export default function IntentRailBody({
               const coupon = couponForPlace(r);
               const facts = [
                 r.reviews ? compactReviews(r.reviews) + " reviews" : null,
-                priceLabel(r.priceLevel),
+                priceLabel(r),
                 st.open === true ? "Open" : st.open === false ? "Closed" : null,
                 milesLabel(r.distMi),
                 // The trend bump is DISCLOSED wherever it is applied — the same

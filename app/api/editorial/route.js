@@ -18,6 +18,7 @@ import { editorialFor, EDITORIAL_COUNT } from "../../../lib/editorial";
 import atlasCards from "../../../data/atlas/editorial-cards.json";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
+import { scrubEditorial } from "../../../lib/editorialScrub.js";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
 import { approveCandidate } from "../../../lib/placeServable";
 
@@ -80,7 +81,10 @@ export async function GET(req) {
   const refuse = (reason) => NextResponse.json({ none: true, refused: reason }, { headers: HEADERS_REFUSED });
   const serve = async (candidate, payload, headers) => {
     const verdict = await approveCandidate(candidate);
-    return verdict.ok ? NextResponse.json(payload, { headers }) : refuse(verdict.reason);
+    // Every tier (Atlas card, fleet row, handwritten) passes the same scrub, so a
+    // staff note or stale-flagged hours can never reach a customer from any tier.
+    const safe = payload && payload.editorial ? { ...payload, editorial: scrubEditorial(payload.editorial) } : payload;
+    return verdict.ok ? NextResponse.json(safe, { headers }) : refuse(verdict.reason);
   };
 
   // Tier 1: the owner's Atlas card always wins — hand curation beats machine.
