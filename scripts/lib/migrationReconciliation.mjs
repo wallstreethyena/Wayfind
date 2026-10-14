@@ -235,3 +235,48 @@ export function verifyLedgerContent({ files, ledger, canonicalHashes, baseline, 
   }
   return { errors, verified, baselined };
 }
+
+// ── Declared-pending migrations ─────────────────────────────────────────────
+// scripts/migration-pending-apply.json is the repo's owned record of "merged,
+// deliberately NOT applied yet" (check-migration-receipts.mjs enforces its
+// shape in prebuild). The canary must agree with it, or a correctly declared
+// pending migration keeps the live canary red until someone applies it, and a
+// chronically red canary is noise (2026-10-14: declared-pending
+// event_link_repairs kept deploy-contract red).
+//
+// A file is accepted as pending ONLY when ALL hold:
+//   - the production ledger has NO row for it (it is in `unresolved`; a ledger
+//     row means it IS applied and goes through reconcile() instead);
+//   - the entry pins the file's exact current raw-bytes sha256 (changed SQL
+//     needs a fresh decision);
+//   - the entry names decision_owner, a #tracking reference and a reason.
+// An entry whose file IS applied in production is STALE and fails: record the
+// receipt and delete the entry. Pending never hides drift and never suppresses
+// the reverse direction (production rows with no file stay red).
+export function resolvePendingDeclarations({ unresolved, applied, pending, rawHashes }) {
+  const errors = [], declared = [];
+  if (!Array.isArray(pending)) return { errors: ["migration-pending-apply.json must be a JSON array"], declared };
+  const byFile = new Map();
+  for (const p of pending) {
+    const ok = p && typeof p.file === "string" && /^[a-f0-9]{64}$/.test(p.sha256 || "") &&
+      typeof p.decision_owner === "string" && p.decision_owner.trim() &&
+      typeof p.tracking === "string" && /#\d+/.test(p.tracking) &&
+      typeof p.reason === "string" && p.reason.trim().length >= 20;
+    if (!ok) { errors.push(`malformed pending entry: ${JSON.stringify(p).slice(0, 120)}`); continue; }
+    if (byFile.has(p.file)) errors.push(`duplicate pending entry: ${p.file}`);
+    byFile.set(p.file, p);
+  }
+  const prefix = "supabase/migrations/";
+  for (const full of byFile.keys()) {
+    const name = full.startsWith(prefix) ? full.slice(prefix.length) : null;
+    if (name && applied.has(name)) errors.push(`stale pending entry: ${full} is already applied in production (ledger row present) — record its applied receipt in scripts/migration-apply-log.jsonl and remove the pending entry`);
+    else if (!name || !rawHashes.has(name)) errors.push(`pending entry for a file that does not exist: ${full}`);
+  }
+  for (const file of unresolved) {
+    const p = byFile.get(prefix + file);
+    if (!p) { errors.push(`${file} has no applied ledger entry or verified historical alias, and is not declared in scripts/migration-pending-apply.json (apply it with owner approval and record a receipt, or declare it pending with a decision owner).`); continue; }
+    if (rawHashes.get(file) !== p.sha256) { errors.push(`${file} is declared pending for sha256 ${p.sha256.slice(0, 12)}… but the file is ${String(rawHashes.get(file)).slice(0, 12)}… — changed SQL needs a fresh decision`); continue; }
+    declared.push({ file, owner: p.decision_owner, tracking: p.tracking });
+  }
+  return { errors, declared };
+}

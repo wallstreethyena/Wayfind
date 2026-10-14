@@ -671,6 +671,10 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr)}
 .wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
+.wf-place-card-remind{gap:4px;min-width:0!important}
+.wf-sheet-card-actions>.wf-place-card-remind{padding-inline:4px!important}
+.wf-place-card-remind>svg{width:13px;height:13px;flex:0 0 auto}
+.wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:minmax(0,.9fr) 38px 38px max-content minmax(0,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
@@ -711,7 +715,35 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-like){grid-template-columns:44px 25px 25px minmax(0,1fr);gap:3px!important}
   .wf-place-card .wf-sheet-card-actions>.wf-place-card-share{padding-inline:0!important;font-size:9px!important}
 }
-@media(min-width:${WF_DESKTOP_BP}px){
+`+
+// 2026-10-14 REMIND ME (owner: "add any dated event to your phone calendar"). Five controls cannot share one
+// line with a readable Share below ~335px: the action row is 153px wide at 320 (Save 44 + 3 thumb-sized tracks +
+// Share >=41), measured in Inter. So the law has two tiers, fixed numbers, no JS, and nothing the 4-control
+// standard card sees: (1) <=410px the bell is icon-only (aria-label "Remind me", the label hides) because the
+// labelled button leaves under 2px of slack at 375/390 (411px and wider keep the label), and <=520px the
+// five-control row uses the same compact type and tracks as the phone standard; (2) <=340px the row keeps the standard four tracks on
+// line one and the bell becomes a full-width second line with its label. Every other card is untouched.
+`@media(max-width:520px){
+  .wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:44px 26px 26px max-content minmax(0,1fr);gap:4px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>a,.wf-sheet-card-actions:has(.wf-place-card-remind)>button{padding-inline:4px!important;font-size:9.5px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-remind{padding-inline:5px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-like,.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-dislike{width:100%!important;min-width:0!important;padding-inline:0!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-save{padding-inline:0!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-share{padding-inline:1px!important}
+}
+@media(max-width:410px){
+  .wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:44px 26px 26px 26px minmax(0,1fr)}
+  .wf-sheet-card-actions>.wf-place-card-remind{padding-inline:0!important}
+  .wf-place-card-remind>.wf-remind-label{display:none}
+}
+@media(max-width:340px){
+  .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-remind){grid-template-columns:44px 25px 25px minmax(0,1fr);gap:3px!important}
+  .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-share{grid-column:4;grid-row:1;padding-inline:0!important;font-size:9px!important}
+  .wf-place-card .wf-sheet-card-actions>.wf-place-card-remind{grid-column:1/-1;grid-row:2;height:28px;min-height:28px;padding-inline:0!important;justify-content:center}
+  .wf-place-card .wf-sheet-card-actions>.wf-place-card-remind>.wf-remind-label{display:inline}
+}
+`+
+`@media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:${PLACE_CARD_MEDIA_DESKTOP_PX}px}
   .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:${PLACE_CARD_MEDIA_DESKTOP_PX}px!important}
   .wf-place-card-name{font-size:17px!important}
