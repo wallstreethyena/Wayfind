@@ -48,6 +48,7 @@ import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } from
 import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
 import { isAutomatedPhotoReader } from "../lib/crawler.js";
+import { creditedRequest } from "../lib/apiGuard.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -233,6 +234,7 @@ async function sourceRoute(routeSource) {
     const spendAllowPhotosDetailed = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotosDetailed(...a);
     const ledgerOutcomeClass = (...a) => globalThis.__wfFreePhotoTest.ledgerOutcomeClass(...a);
     const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
+    const creditedRequest = (...a) => globalThis.__wfFreePhotoTest.creditedRequest(...a);
   `;
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 }
@@ -243,6 +245,7 @@ async function sourceRoute(routeSource) {
 globalThis.__wfFreePhotoTest = {
   FALLBACK_PATH,
   isAutomatedPhotoReader, // real UA rule (lib/crawler.js): automated readers never buy
+  creditedRequest, // real page-origin rule (lib/apiGuard.js)
   PHOTO_REF_RX,
   placeIdFromRef,
   gateShut,

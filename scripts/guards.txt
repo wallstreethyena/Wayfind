@@ -2189,3 +2189,4 @@ node scripts/test-detail-open-once.mjs
 node scripts/check-event-jsonld-offset.mjs
 node scripts/test-photo-inventory-audit.mjs
 node scripts/check-place-identity-contract.mjs
+node scripts/test-photo-same-origin-spend.mjs

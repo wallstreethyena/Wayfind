@@ -14,7 +14,7 @@ import { creatorSlugs } from "../lib/creatorPages";
 import { sponsorSlugs } from "../lib/sponsoredPlaces";
 import { listIndexedIds } from "../lib/placeIndex";
 import { fetchCuratedEvents, floridaEventSitemapRows } from "../lib/curatedEvents";
-import { christmasResearchSitemapRows } from "../lib/christmasResearch";
+import { christmasResearchSitemapRows, withoutChristmasWatchlistTwins } from "../lib/christmasResearch";
 import { siteTodayStr } from "../lib/siteTime";
 
 // Hourly, so the curated events layer below is read at request time. During
@@ -58,14 +58,18 @@ export default async function sitemap() {
   // the single-event page apply. A failed read drops the events, never the
   // whole sitemap.
   let events = [];
-  try { events = floridaEventSitemapRows(await fetchCuratedEvents(), SITE_URL); } catch { events = []; }
+  let eventRows = [];
+  try { events = floridaEventSitemapRows(await fetchCuratedEvents().then((rows) => (eventRows = rows)), SITE_URL); } catch { events = []; eventRows = []; }
   // Christmas v4 (2026-10-13): the research-only Christmas listings have event
   // pages through the /florida-events/[slug] fallback; list the current ones.
   // A research slug that a different wf_events event already owns gets the
   // same "-christmas" page the cards link to (lib/christmasResearch.js).
   const eventSlugs = new Set(events.map((e) => decodeURIComponent(String(e.url).split("/florida-events/")[1] || "")));
   const christmasEvents = christmasResearchSitemapRows(SITE_URL, siteTodayStr(), eventSlugs).filter((row) => !events.some((e) => e.url === row.url));
-  const floridaEvents = [{ url: `${SITE_URL}/florida-events` }, ...events, ...christmasEvents];
+  // A wf_events Christmas row whose 2026 edition is not confirmed (watchlist
+  // twin) keeps its page for link health but is not offered to search engines
+  // (live fix 2026-10-14). Collisions above still use every wf_events slug.
+  const floridaEvents = [{ url: `${SITE_URL}/florida-events` }, ...withoutChristmasWatchlistTwins(events, eventRows, SITE_URL), ...christmasEvents];
   // Dedicated guide routes with their own page.js (robots index:true). The
   // fall-festivals guide has no GUIDES entry, so the loop above never listed
   // it; a slug that IS in GUIDES is already listed and is skipped here.
