@@ -15,7 +15,9 @@ const fail = (m) => { console.error("test-ledger-failure-classes: FAIL - " + m);
 const eq = (a, b, m) => { if (a !== b) fail(`${m} (got ${JSON.stringify(a)}, want ${JSON.stringify(b)})`); pass++; };
 
 const realFetch = globalThis.fetch;
-const saved = { u: process.env.SUPABASE_URL, n: process.env.NEXT_PUBLIC_SUPABASE_URL, k: process.env.SUPABASE_SERVICE_ROLE_KEY };
+// Hermetic: never READ the shell's Supabase env (check-guard-hermeticity). Start from a known-empty baseline and restore to it.
+const saved = { u: undefined, n: undefined, k: undefined };
+for (const k of ["SUPABASE_URL", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) delete process.env[k];
 const restoreEnv = () => {
   for (const [k, v] of [["SUPABASE_URL", saved.u], ["NEXT_PUBLIC_SUPABASE_URL", saved.n], ["SUPABASE_SERVICE_ROLE_KEY", saved.k]]) {
     if (v === undefined) delete process.env[k]; else process.env[k] = v;
