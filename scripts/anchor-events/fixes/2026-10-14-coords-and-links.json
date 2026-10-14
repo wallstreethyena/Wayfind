@@ -1,8 +1,0 @@
-[
-  {
-    "event_id": "country-thunder-fl-2027",
-    "set": { "official_event_url": null },
-    "source_url": "https://www.countrythunder.com/florida",
-    "note": "Dead link repair (#1740 migration, not applied): this URL returned HTTP 404 on 2026-10-14 (curl, redirects followed). Null it rather than keep a dead official link."
-  }
-]
