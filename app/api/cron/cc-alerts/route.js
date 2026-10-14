@@ -141,16 +141,17 @@ async function runDrill(drillId, { resendKey, to, now }) {
   const alert = DRILLS[drillId](now);
   const s = sbAdmin();
   const last = s ? Date.parse(((await settingsGet(s, DRILL_KEY)) || {})[drillId] || 0) || 0 : 0;
+  const head = { drill: true, alert: { id: alert.id, title: alert.title }, at: now.toISOString() };
   if (now.getTime() - last < DRILL_COOLDOWN_MS) {
-    return Response.json({ drill: true, delivered: false, reason: "drill_cooldown_10min", provider_status: null, alert: { id: alert.id, title: alert.title }, at: now.toISOString() });
+    return { body: { ...head, delivered: false, reason: "drill_cooldown_10min", provider_status: null }, pulse: { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: drill suppressed, in 10-min drill cooldown" } };
   }
   const from = resolveOverride("WF_ALERT_FROM").value;
   const { ok, r } = await deliverAlerts({ resendKey, from, to, due: [alert], now });
   if (ok && s) await settingsPut(s, DRILL_KEY, { [drillId]: now.toISOString() });
-  try {
-    await recordPulse(JOB, { attempted: 1, succeeded: ok ? 1 : 0, note: ok ? "drill: delivered" : `drill: email send failed (status ${r ? r.status : "network_error"})`.slice(0, 200) });
-  } catch (e) {}
-  return Response.json({ drill: true, delivered: ok, provider_status: r ? r.status : "network_error", alert: { id: alert.id, title: alert.title }, at: now.toISOString() });
+  return {
+    body: { ...head, delivered: ok, provider_status: r ? r.status : "network_error" },
+    pulse: { attempted: 1, succeeded: ok ? 1 : 0, note: ok ? "drill: delivered" : `drill: email send failed (status ${r ? r.status : "network_error"})`.slice(0, 200) },
+  };
 }
 
 export async function GET(req) {
@@ -165,7 +166,10 @@ export async function GET(req) {
     const sp = new URL(req.url).searchParams;
     if (sp.has("drill")) {
       drillId = sp.get("drill");
-      if (!Object.prototype.hasOwnProperty.call(DRILLS, drillId)) return Response.json({ error: "unknown drill id", allowed: Object.keys(DRILLS) }, { status: 400 });
+      if (!Object.prototype.hasOwnProperty.call(DRILLS, drillId)) {
+        try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: rejected unknown drill id (400)" }); } catch (e2) {}
+        return Response.json({ error: "unknown drill id", allowed: Object.keys(DRILLS) }, { status: 400 });
+      }
     }
   } catch (e) {}
 
@@ -177,7 +181,11 @@ export async function GET(req) {
   }
 
   const now = new Date();
-  if (drillId) return runDrill(drillId, { resendKey, to, now });
+  if (drillId) {
+    const d = await runDrill(drillId, { resendKey, to, now });
+    try { await recordPulse(JOB, d.pulse); } catch (e) {}
+    return Response.json(d.body);
+  }
   // v6.71: gatherAlerts() ran unguarded -- any exception inside the rule
   // engine or one of its upstream panel fetches bubbled up as a bare 500 with
   // no context, indistinguishable in Vercel's logs from every other route
