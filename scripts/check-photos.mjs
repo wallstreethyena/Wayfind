@@ -29,7 +29,7 @@ const recoveryCode = stripComments(recovery);
 {
   const auth = routeCode.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getFreePhoto\(\)\.then\(\(free\)\s*=>\s*\{([\s\S]*?)\}\),/);
   const body = auth ? auth[1] : "";
-  if (!routeCode.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(shut\) return false;/.test(body) || !/if \(sku === "photos" && free\) return false;/.test(body) || !/spendAllowPhotos(?:Detailed)?\(\)/.test(body)) fail("the free permitted/licensed lookup must run at the lazy photo spend boundary (refusing a `photos` grant on a hit) before Google authorization");
+  if (!routeCode.includes("GOOGLE_MAPS_SERVER_KEY") || !auth || !/if \(shut\) return \{ ok: false, reason: "shut" \};/.test(body) || !/if \(sku === "photos" && free\) return \{ ok: false, reason: "free-photo" \};/.test(body) || !/spendAllowPhotos(?:Detailed)?\(\)/.test(body)) fail("the free permitted/licensed lookup must run at the lazy photo spend boundary (refusing a `photos` grant on a hit) before Google authorization");
   if (/getRecovery|findSamePlaceCachedPhoto|\bcacheGet\b|\bcacheSet\b|photoCacheKey|photoNegativeKey/.test(routeCode)) fail("app/api/photo/route.js reads or writes a Google photo cache — no Google photo name/URL may be stored or read (COMPLIANT PHOTOS)");
   if (!/const GOOGLE_SURFACES = new Set\(\["detail", "card"\]\);/.test(routeCode) || !/googleSurface,/.test(routeCode) || !routeCode.includes('searchParams.get("s") !== "card" || wantJson')) fail("only detail and credited card JSON may enable the live Google path");
   // Every redirect/JSON that carries a live Google photo must be private, no-store.

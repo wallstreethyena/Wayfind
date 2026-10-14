@@ -199,8 +199,10 @@ export async function GET(req) {
     // response is what would let a FUTURE `photos` request find a fresher ref;
     // refusing it here would make the free lane quietly worse at healing.
     authorizeSpend: (sku = "photos") => getFreePhoto().then((free) => {
-      if (shut) return false;
-      if (sku === "photos" && free) return false;
+      // Named refusals, so telemetry never files a deliberate skip under a ledger failure:
+      // a free photo of this place exists (no purchase needed) or the owner shut the gate.
+      if (shut) return { ok: false, reason: "shut" };
+      if (sku === "photos" && free) return { ok: false, reason: "free-photo" };
       return sku === "photos" ? spendAllowPhotosDetailed() : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",

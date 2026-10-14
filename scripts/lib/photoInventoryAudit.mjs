@@ -55,13 +55,15 @@ export function histogram(rows, keyFn) {
 // nonprod            preview:/dev: namespaced classes: not production traffic
 // other              a class this audit does not know yet (kept visible, never hidden)
 const GENUINE = new Set(["fresh-nophoto", "stale-heal-nophoto", "unowned", "legacy-miss"]);
-const OPERATIONAL_RX = /^(ledger[a-z0-9_-]*|denied|denied-ceiling:.+|quota[a-z0-9_-]*|key-denied|fresh-failed:.+|stale-heal-.+|stale|owned-miss|network|server|client|badjson|redirect|refunded|place-lookup-.+)$/;
+// A free photo of the place already exists, so the paid take was skipped on purpose. Served, not failed.
+const FREE_SERVED = new Set(["free-photo-preferred"]);
+const OPERATIONAL_RX = /^(ledger[a-z0-9_-]*|denied|denied-ceiling:.+|quota[a-z0-9_-]*|key-denied|fresh-failed:.+|stale-heal-.+|stale|gate-shut|owned-miss|network|server|client|badjson|redirect|refunded|place-lookup-.+)$/;
 
 export function classifyOutcome(cls) {
   const c = String(cls || "").trim();
   if (!c) return "other";
   if (/^(preview|dev|development|staging|test|other):/.test(c)) return "nonprod";
-  if (c === "ok") return "ok";
+  if (c === "ok" || FREE_SERVED.has(c)) return "ok";
   if (GENUINE.has(c)) return "genuine-no-photo";
   if (OPERATIONAL_RX.test(c)) return "operational";
   return "other";
