@@ -26,6 +26,7 @@
   },
   {
    "slug": "nights-of-lights-staug-2026",
+   "shadowed_by_db_photo": true,
    "file": "nights-of-lights-staug-2026.webp",
    "source_url": "https://commons.wikimedia.org/wiki/File:Flagler_College,_St._Augustine,_Florida,_USA4.jpg",
    "creator": "Diego Delso",
@@ -86,6 +87,7 @@
   },
   {
    "slug": "cf-zoo-lantern-festival-2026",
+   "shadowed_by_db_photo": true,
    "file": "cf-zoo-lantern-festival-2026.webp",
    "source_url": "https://commons.wikimedia.org/wiki/File:Central_Florida_Zoo_Entrance.jpg",
    "creator": "Zrowny",

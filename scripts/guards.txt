@@ -1206,6 +1206,7 @@ node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
 node scripts/check-christmas-rails.mjs
 node scripts/check-christmas-research.mjs
+node scripts/check-christmas-browse-credit.mjs
 node scripts/check-christmas-card-photo-slot.mjs
 node scripts/check-christmas-venue-matches.mjs
 node scripts/check-guide-in-rail.mjs
