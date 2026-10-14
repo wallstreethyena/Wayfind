@@ -12,7 +12,7 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runWatch, noProbeReason, NO_PROBE_HOSTS, daysUntilWindow, anchorSeriesId, detectCancellation, datesNearName, renderReport, UA } from "./anchor-events/watch.mjs";
+import { runWatch, noProbeReason, NO_PROBE_HOSTS, daysUntilWindow, anchorSeriesId, detectCancellation, datesNearName, detectVenueDrift, venueTokens, renderReport, UA } from "./anchor-events/watch.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURE = path.join(ROOT, "scripts/anchor-events/fixtures/anchors.sample.json");
@@ -167,6 +167,87 @@ let threw = false;
 try { await runWatch({ anchors, today: TODAY, now: NOW, sb: SB, paceMs: 0, fetchImpl: async () => ({ ok: false, status: 500, json: async () => [] }) }); } catch { threw = true; }
 ok(threw, "a failed database read throws instead of reporting no findings");
 
+// ---- venue_drift / expired_listed / undated_in_window (inline anchors; fixture file untouched)
+const mk = (id, name, venue, o = {}) => ({ anchor_id: id, name, venue, official_domain: `${id}.example`, typical_window: { start_month: 3, end_month: 3 }, ...o.top,
+  expected_edition: { year: 2027, state: "confirmed_dated", event_id: `${id}-2027`, source_url: `https://${id}.example/`, ...o.ed } });
+const liveRow = (id, name, o = {}) => ({ event_id: `${id}-2027`, event_series_id: null, event_name: name, slug: `${id}-s`, start_date: "2027-03-05", end_date: "2027-03-07",
+  event_status: "scheduled", state: "FL", lat: 27.3, lng: -82.5, place_id: null, category: "festival", hero_image: "https://img.test/x.jpg",
+  link_ok: true, link_verdict: "alive", link_checked_at: "2026-10-13T00:00:00Z", last_verified_at: NOW.toISOString(), ...o });
+const vAnchors = [
+  mk("fx-bowl", "Citrus Bowl Fest", "Hard Rock Stadium"),
+  mk("fx-vinoy", "Bay Art Fest", "Straub Park"),
+  mk("fx-same", "Same Place Fest", "Straub Park"),
+  mk("fx-nocue", "No Cue Fest", "Straub Park"),
+  mk("fx-recap", "Recap Fest", "Straub Park"),
+  mk("fx-403", "Blocked Fest", "Straub Park"),
+];
+const vRows = vAnchors.map((a) => liveRow(a.anchor_id, a.name));
+const vRun = (pages, as = vAnchors, rows = vRows) => run({ rows, pages }, { anchors: as });
+const vPages = (m) => { const o = {}; for (const a of vAnchors) o[`https://${a.anchor_id}.example/`] = m[a.anchor_id] || { status: 200, body: "<p>nothing</p>" };
+  for (const r of vRows) o[`https://gowayfind.com/florida-events/${r.slug}`] = { status: 200, body: r.event_name }; return o; };
+const vd = await vRun(vPages({
+  "fx-bowl": { status: 200, body: "<h1>Citrus Bowl Fest</h1><p>March 5-7, 2027. The Citrus Bowl Fest moves to Camping World Stadium this year.</p>" },
+  "fx-vinoy": { status: 200, body: "<h1>Bay Art Fest</h1><p>Bay Art Fest March 5, 2027. Venue: Vinoy Park, downtown.</p>" },
+  "fx-same": { status: 200, body: "<p>Same Place Fest March 5, 2027 at Straub Park, all weekend. Venue: Vinoy Park lot B parking.</p>" },
+  "fx-nocue": { status: 200, body: "<p>No Cue Fest March 5, 2027. Bring friends to Vinoy Park or anywhere, Vinoy Park is lovely.</p>" },
+  "fx-recap": { status: 200, body: "<p>Recap Fest 2025 was held at Waterfront Plaza and was great. Recap Fest 2027 is coming.</p>" },
+  "fx-403": { status: 403, body: "Forbidden" },
+}));
+const vdOf = (id) => vd.res.findings.find((f) => f.anchor_id === id && f.kind === "venue_drift");
+ok(vdOf("fx-bowl") && /Hard Rock Stadium/.test(vdOf("fx-bowl").detail) && /Camping World Stadium/.test(vdOf("fx-bowl").detail), "POSITIVE venue_drift: 'moves to Camping World Stadium' vs Hard Rock Stadium, report names both");
+ok(vdOf("fx-vinoy") && /Straub Park/.test(vdOf("fx-vinoy").detail) && /Vinoy Park/.test(vdOf("fx-vinoy").detail), "POSITIVE venue_drift: 'Venue: Vinoy Park' vs Straub Park");
+ok(!vdOf("fx-same"), "negative: a page that mentions the row venue is not venue_drift");
+ok(!vdOf("fx-nocue"), "negative: a page with the edition date but no explicit venue cue is silent");
+ok(!vdOf("fx-recap"), "negative: past-year recap ('2025 was held at X') with no edition-year date nearby is silent");
+ok(!vdOf("fx-403") && vd.res.unknown.some((u) => u.anchor_id === "fx-403" && u.reason === "http-403"), "negative: 403 page is unknown, not a venue_drift finding");
+ok(vd.res.findings.filter((f) => f.kind === "venue_drift").length === 2, "exactly the two positive controls produce venue_drift");
+ok(detectVenueDrift("Zed Fest March 5, 2027 at Vinoy Park.", "Zed Fest", "Straub Park", 2027)?.phrase === "Vinoy Park", "unit: bare 'at <Proper Noun>' cue near name and edition date");
+ok(detectVenueDrift("Zed Fest March 5, 2027 at 7pm bring a chair", "Zed Fest", "Straub Park", 2027) === null, "negative: 'at 7pm' is not a venue");
+ok(detectVenueDrift("Zed Fest March 5, 2027 at Saturday Market", "Zed Fest", "Straub Park", 2027) === null, "negative: 'at Saturday...' is not a venue");
+ok(detectVenueDrift("Zed Fest March 5, 2027 Venue: Vinoy Park", "Zed Fest", "The Park Center", 2027) === null, "negative: a venue made only of generic words has no tokens, so stay silent");
+ok(venueTokens("The Hard Rock Stadium Downtown").join() === "hard,rock", "venue tokens drop generic words");
+
+// expired_listed
+const exA = [mk("fx-ex", "Ended Fest", "Somewhere Pier"), mk("fx-exok", "Current Fest", "Somewhere Pier"), mk("fx-exsame", "Sameday Fest", "Somewhere Pier"), mk("fx-exundated", "Undated Ended Fest", "Somewhere Pier", { ed: { state: "expected_undated" } })];
+const exRows = [liveRow("fx-ex", "Ended Fest", { start_date: "2026-10-01", end_date: "2026-10-03" }),
+  liveRow("fx-exok", "Current Fest", { start_date: "2026-10-12", end_date: "2026-10-14" }),
+  liveRow("fx-exsame", "Sameday Fest", { start_date: "2026-10-13", end_date: null }),
+  liveRow("fx-exundated", "Undated Ended Fest", { start_date: "2026-10-01", end_date: "2026-10-03" })];
+const ex = await run({ rows: exRows, pages: {} }, { anchors: exA });
+ok(has(ex.res, "fx-ex", "expired_listed") && /edition ended; anchor needs the next edition/.test(ex.res.findings.find((f) => f.anchor_id === "fx-ex" && f.kind === "expired_listed").detail), "POSITIVE expired_listed: confirmed_dated anchor, end_date before today");
+ok(!has(ex.res, "fx-exok", "expired_listed"), "negative: row ending today is not expired");
+ok(has(ex.res, "fx-exsame", "expired_listed"), "POSITIVE expired_listed: no end_date uses start_date (yesterday)");
+ok(!has(ex.res, "fx-exundated", "expired_listed"), "negative: only confirmed_dated anchors are checked for expiry");
+ok(!has((await run({ rows: [...exRows, liveRow("fx-ex", "Ended Fest", { event_id: "fx-ex-2028", event_series_id: "fx-ex", start_date: "2027-10-01", end_date: "2027-10-03" })], pages: {} }, { anchors: exA })).res, "fx-ex", "expired_listed"), "negative: a later live row for the anchor means it has already moved on");
+
+// undated_in_window (rule: replaces missing_edition inside 60 days; beyond that missing_edition stays)
+const uA = [
+  mk("fx-u-now", "Open Now Fest", "Pier", { ed: { state: "expected_undated", event_id: null }, top: { typical_window: { start_month: 10, end_month: 10 } } }),
+  mk("fx-u-soon", "Soon Fest", "Pier", { ed: { state: "expected_undated", event_id: null }, top: { typical_window: { start_month: 12, end_month: 12 } } }),
+  mk("fx-u-mid", "Mid Fest", "Pier", { ed: { state: "expected_undated", event_id: null }, top: { typical_window: { start_month: 1, end_month: 1 } } }),
+  mk("fx-u-far", "Far Fest", "Pier", { ed: { state: "expected_undated", event_id: null } }),
+  mk("fx-u-lead", "Lead Fest", "Pier", { ed: { state: "expected_undated", event_id: null, lead_dates: ["2026-11-20"] }, top: { typical_window: { start_month: 12, end_month: 12 } } }),
+  mk("fx-u-pub", "Published Fest", "Pier", { ed: { state: "expected_undated", event_id: null, year: 2026 }, top: { typical_window: { start_month: 12, end_month: 12 } } }),
+];
+const uPages = { "https://fx-u-pub.example/": { status: 200, body: "<p>Published Fest December 5, 2026</p>" } };
+for (const a of uA) if (a.anchor_id !== "fx-u-pub") uPages[`https://${a.anchor_id}.example/`] = { status: 200, body: "<p>Coming soon</p>" };
+const un = await run({ rows: [], pages: uPages }, { anchors: uA });
+ok(has(un.res, "fx-u-now", "undated_in_window") && !has(un.res, "fx-u-now", "missing_edition"), "POSITIVE undated_in_window: window open now, and NOT double reported as missing_edition");
+ok(has(un.res, "fx-u-soon", "undated_in_window") && !has(un.res, "fx-u-soon", "missing_edition"), "POSITIVE undated_in_window: window opens in 48 days");
+ok(!has(un.res, "fx-u-mid", "undated_in_window") && has(un.res, "fx-u-mid", "missing_edition"), "boundary: window 79 days away stays missing_edition only");
+ok(!has(un.res, "fx-u-far", "undated_in_window") && !has(un.res, "fx-u-far", "missing_edition"), "negative: window 138 days away yields neither");
+ok(!has(un.res, "fx-u-lead", "undated_in_window"), "negative: lead_dates present suppresses undated_in_window");
+ok(!has(un.res, "fx-u-pub", "undated_in_window") && has(un.res, "fx-u-pub", "new_announcement"), "negative: page already shows dates -> new_announcement only, not 'not published'");
+ok(un.res.findings.filter((f) => f.kind === "undated_in_window").length === 2, "exactly two undated_in_window findings");
+
+// legend covers every kind
+{
+  const md = renderReport({ today: TODAY, anchors_total: 0, anchors_checked: 0, findings: [], unknown: [] });
+  for (const k of ["missing_edition", "row_health", "cancel_signal", "date_drift", "new_announcement", "stale_verification", "venue_drift", "expired_listed", "undated_in_window"])
+    ok(md.includes("`" + k + "`"), `legend lists ${k}`);
+  ok(/no pinned or featured field/.test(md), "report keeps the no-pinned-column note");
+}
+
 // ---- CLI
 const env = { ...process.env }; delete env.SUPABASE_URL; delete env.SUPABASE_SERVICE_ROLE_KEY; delete env.NEXT_PUBLIC_SUPABASE_URL; delete env.GITHUB_OUTPUT;
 const cli = (args) => spawnSync(process.execPath, [path.join(ROOT, "scripts/anchor-events/watch.mjs"), ...args], { encoding: "utf8", env, cwd: ROOT });
@@ -186,4 +267,4 @@ if (failures.length) {
   for (const f of failures) console.error("  x " + f);
   process.exit(1);
 }
-console.log(`test-anchor-watch: OK - ${pass} assertions (every finding kind has a positive and a negative control; GET-only; pacing; unknown-not-dead)`);
+console.log(`test-anchor-watch: OK - ${pass} assertions (every finding kind has a positive and a negative control, incl. venue_drift/expired_listed/undated_in_window; GET-only; pacing; unknown-not-dead)`);

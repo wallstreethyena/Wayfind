@@ -33,10 +33,28 @@
 //                         year and it disagrees with our row
 //   new_announcement      an expected_undated anchor's page now shows dates
 //   stale_verification    lib/curatedEvents.needsRecheck says the row is due
-// NOT IMPLEMENTED: expired_live. wf_events has no pinned/featured/spotlight
-// column (checked supabase/migrations), and rows past end_date are already
-// hidden by curatedEvents.isEligible, so there is no reliable "still pinned"
-// signal to read. The report says so on every run.
+//   venue_drift           official page names the edition year AND a different
+//                         place via an explicit cue ("at X", "Venue: X",
+//                         "Location: X", "held at", "returns to", "moves to")
+//                         within 150 chars of the event name, while none of the
+//                         anchor's venue words (generic words dropped) appear
+//                         anywhere on the page. No explicit cue = no finding.
+//                         Uses the page the probe already fetched.
+//   expired_listed        confirmed_dated anchor whose linked row(s) have all
+//                         ended (end_date, else start_date, before today) and
+//                         no live row exists: the anchor needs the next edition
+//   undated_in_window     expected_undated anchor, no live row, no lead_dates,
+//                         typical window open now or opening within 60 days.
+//                         RULE: this REPLACES missing_edition for such an
+//                         anchor (never both). Beyond 60 days (up to the 120
+//                         day lookahead) missing_edition still reports. It is
+//                         withheld when the page already shows dates, because
+//                         new_announcement says the opposite.
+// NOT IMPLEMENTED: expired_live (an ended row that is still pinned/featured).
+// wf_events has no pinned/featured/spotlight column (checked
+// supabase/migrations), and ended rows are already hidden by
+// curatedEvents.isEligible, so there is no reliable "still pinned" signal to
+// read. expired_listed is a different, date-only check on the anchor list.
 //
 // Usage:
 //   node scripts/anchor-events/watch.mjs [--anchors <path>] [--out report.md]
@@ -65,6 +83,7 @@ export const DEFAULT_ANCHORS = path.join(REPO, "data/florida-anchor-events.json"
 export const UA = "WayfindAnchorWatch/1.0 (+https://gowayfind.com)";
 export const SITE = "https://gowayfind.com";
 const LOOKAHEAD_DAYS = 120;
+const UNDATED_WINDOW_DAYS = 60;
 const PAGE_TIMEOUT_MS = 10000;
 const MAX_BODY = 600 * 1024;
 // AGENTS.md section 8 (standing product constraints): "No scraping, polling,
@@ -95,6 +114,20 @@ const KIND_LABEL = {
   date_drift: "Date may have changed",
   new_announcement: "New dates announced",
   stale_verification: "Needs a fresh check",
+  venue_drift: "Venue may have changed",
+  expired_listed: "Edition ended; anchor is stale",
+  undated_in_window: "Dates not published yet",
+};
+const KIND_MEANING = {
+  missing_edition: "Window opens within 120 days and wf_events has no live upcoming row. Add the edition.",
+  row_health: "A live row is missing coordinates, photo or category, or its link or public page is bad.",
+  cancel_signal: "Organizer page says cancelled/postponed/rescheduled near the event name and edition year.",
+  date_drift: "Organizer page shows one clear date for the edition year and it differs from our row.",
+  new_announcement: "An expected_undated anchor's page now shows dates. Promote the anchor.",
+  stale_verification: "The row is due for a re-check by the usual schedule.",
+  venue_drift: "Page names the edition year and an explicit different venue, and none of our venue words appear. Verify the venue.",
+  expired_listed: "Edition ended; anchor needs the next edition.",
+  undated_in_window: "Organizer has not published dates and the window is open or opens within 60 days; re-verify.",
 };
 
 /* ------------------------------------------------------------ pure helpers */
@@ -217,6 +250,45 @@ function looksLikeChallenge(text) {
   return t.length < 1500 && /(just a moment|attention required|verify you are human|enable javascript and cookies|access denied|captcha)/.test(t);
 }
 
+const VENUE_GENERIC = new Set(["park", "center", "centre", "the", "stadium", "arena", "hall", "downtown", "street", "st", "of", "and", "at", "in", "on", "a"]);
+/** Distinctive lowercase words of a venue name (generic words dropped). */
+export function venueTokens(venue) {
+  return norm(venue).split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !VENUE_GENERIC.has(w));
+}
+const MONTH_WEEKDAY = /^(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|mon|tue|wed|thu|fri|sat|sun)[a-z]*$/i;
+/**
+ * Conservative venue-change detector (pure). Returns {venue, phrase, context} or null.
+ * Fires only when ALL hold: the anchor has distinctive venue words; the page
+ * shows an edition-year date near the event name; none of those words appear
+ * anywhere on the page; and an explicit cue + Proper Noun phrase sits within
+ * 150 chars of the event name. Without a cue it returns null (silence over noise).
+ */
+export function detectVenueDrift(text, name, venue, year) {
+  const toks = venueTokens(venue);
+  if (!toks.length) return null;
+  const s = stripTags(text);
+  const sl = s.toLowerCase();
+  if (sl.length !== s.length) return null; // case-mapping changed offsets; stay silent
+  if (!datesNearName(text, name, year).length) return null; // edition year not clearly named near the event
+  if (toks.some((w) => new RegExp("\\b" + w.replace(/[^a-z0-9]/g, "") + "\\b").test(sl))) return null; // page mentions our venue
+  const names = nameIndexes(sl, name);
+  const nameLow = norm(name);
+  const re = /(?:\b[Vv]enue|\b[Ll]ocation):\s*|(?:\b[Hh]eld at|\b[Rr]eturns to|\b[Mm]oves to|\b[Aa]t)\s+/g;
+  const PN = /^((?:[A-Z][A-Za-z0-9'&.\-]*)(?:\s+(?:(?:of|the|at|and|&)\s+)?[A-Z][A-Za-z0-9'&.\-]*){0,5})/;
+  let m;
+  while ((m = re.exec(s))) {
+    if (!names.some((i) => Math.abs(i - m.index) <= 150)) continue;
+    const pm = PN.exec(s.slice(m.index + m[0].length));
+    if (!pm) continue;
+    const phrase = pm[1].replace(/[.,;:\-&]+$/, "").trim();
+    if (!phrase || MONTH_WEEKDAY.test(phrase.split(/\s+/)[0])) continue; // "at March 4", "at Saturday"
+    const pl = phrase.toLowerCase();
+    if (nameLow.includes(pl) || pl.includes(nameLow)) continue; // the event's own name
+    return { venue, phrase, context: s.slice(Math.max(0, m.index - 40), m.index + m[0].length + phrase.length + 20).trim() };
+  }
+  return null;
+}
+
 const rowIsLive = (r, today) =>
   LIVE_STATUS.has(r.event_status) && String(r.end_date || r.start_date || "") >= today;
 
@@ -304,13 +376,27 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
     const live = liveFor(a);
     const win = a.typical_window || {};
 
-    // 1. missing_edition
+    // 1. missing_edition (an undated anchor inside the 60 day window gets undated_in_window instead)
+    const leads = a.lead_dates || ed.lead_dates;
+    const hasLeads = Array.isArray(leads) ? leads.length > 0 : !!leads;
+    let undatedDue = false;
     if (win.start_month && win.end_month) {
       const d = daysUntilWindow(today, win.start_month, win.end_month);
-      if (d <= LOOKAHEAD_DAYS && !live.length) {
+      undatedDue = ed.state === "expected_undated" && !live.length && !hasLeads && d <= UNDATED_WINDOW_DAYS;
+      if (d <= LOOKAHEAD_DAYS && !live.length && !undatedDue) {
         add(a, "missing_edition",
           `${a.name} normally runs in month ${win.start_month}${win.end_month !== win.start_month ? `-${win.end_month}` : ""} (${d === 0 ? "window is open now" : `opens in ${d} days`}) but no live upcoming row is in wf_events` +
           (ed.event_id ? ` (expected event_id ${ed.event_id}; state ${ed.state})` : ` (state ${ed.state})`),
+          ed.source_url || (a.official_domain ? `https://${a.official_domain}` : null));
+      }
+    }
+
+    // expired_listed: the anchor says confirmed_dated but every linked row has ended
+    if (ed.state === "confirmed_dated" && !live.length) {
+      const ended = rowsFor(a).filter((r) => (r.end_date || r.start_date) && String(r.end_date || r.start_date).slice(0, 10) < today);
+      if (ended.length) {
+        const last = ended.map((r) => String(r.end_date || r.start_date).slice(0, 10)).sort().pop();
+        add(a, "expired_listed", `edition ended; anchor needs the next edition (${ended[0].event_id} ended ${last}; anchor still says confirmed_dated ${ed.year})`,
           ed.source_url || (a.official_domain ? `https://${a.official_domain}` : null));
       }
     }
@@ -358,13 +444,15 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
         add(a, "stale_verification", `${r.event_id} last verified ${r.last_verified_at || "never"}; due for a re-check`, null);
     }
 
-    // 3. official page probe
+    // 3. official page probe (labeled block so the undated check below always runs)
+    let pageShowedDates = false;
     const url = ed.source_url || (a.official_domain ? `https://${a.official_domain}` : null);
+    probe: {
     const blocked = noProbeReason(a);
-    if (blocked) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url: null, reason: blocked }); continue; }
-    if (!url) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url: null, reason: "no-url" }); continue; }
+    if (blocked) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url: null, reason: blocked }); break probe; }
+    if (!url) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url: null, reason: "no-url" }); break probe; }
     const p = await getPage(url);
-    if (!p.ok) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url, reason: p.reason }); continue; }
+    if (!p.ok) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url, reason: p.reason }); break probe; }
 
     const year = ed.year;
     const cancel = detectCancellation(p.text, a.name, year);
@@ -378,8 +466,17 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
     }
     if (ed.state === "expected_undated") {
       const seen = datesNearName(p.text, a.name, year);
-      if (seen.length) add(a, "new_announcement", `official page now shows ${year} date(s) near "${a.name}": ${seen.join(", ")}; anchor is still marked expected_undated`, url);
+      if (seen.length) { pageShowedDates = true; add(a, "new_announcement", `official page now shows ${year} date(s) near "${a.name}": ${seen.join(", ")}; anchor is still marked expected_undated`, url); }
     }
+    if (a.venue) {
+      const vd = detectVenueDrift(p.text, a.name, a.venue, year);
+      if (vd) add(a, "venue_drift", `anchor venue "${vd.venue}" is not on the official page, which says "${vd.phrase}" near "${a.name}" ${year}: "${vd.context}"`, url);
+    }
+    }
+
+    if (undatedDue && !pageShowedDates)
+      add(a, "undated_in_window", `organizer has not published dates; re-verify (${a.name} window ${win.start_month}${win.end_month !== win.start_month ? `-${win.end_month}` : ""} is ${daysUntilWindow(today, win.start_month, win.end_month) === 0 ? "open now" : `${daysUntilWindow(today, win.start_month, win.end_month)} days away`}, state expected_undated, no lead_dates)`,
+        ed.source_url || (a.official_domain ? `https://${a.official_domain}` : null));
   }
 
   return { today, anchors_total: anchors.length, anchors_checked: active.length, findings, unknown };
@@ -411,8 +508,12 @@ export function renderReport(res, { dry = false, anchorsPath = "" } = {}) {
     for (const u of res.unknown) L.push(`| ${esc(u.anchor_id)} | ${esc(u.what)} | ${esc(u.reason)} | ${u.url ? esc(u.url) : ""} |`);
     L.push("");
   }
+  L.push("## Legend", "", "| What | Meaning |", "|---|---|");
+  for (const k of Object.keys(KIND_LABEL)) L.push(`| ${esc(KIND_LABEL[k])} (\`${k}\`) | ${esc(KIND_MEANING[k])} |`);
+  L.push("");
   L.push("## Not covered", "",
-    "- Expired but still pinned or featured rows: not checked. wf_events has no pinned or featured field, and ended rows are already hidden by the site, so there is no reliable signal to read.",
+    "- Ended rows that are still pinned or featured: not checked. wf_events has no pinned or featured field, so there is no reliable signal to read. (Ended confirmed_dated anchors are reported separately as expired_listed.)",
+    "- Venue changes are only flagged when the page uses an explicit venue cue next to the event name; anything vaguer stays silent.",
     "- This report only reads. Nothing was changed in the database.");
   return L.join("\n") + "\n";
 }
