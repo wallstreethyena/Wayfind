@@ -44,7 +44,7 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 
-import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS } from "./lib/synthetic/scenarios.mjs";
+import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS } from "./lib/synthetic/scenarios.mjs";
 // The product decision itself. Imported so the approved poster list can be
 // checked against it rather than against a copy that drifts (see §0).
 import { RAILS } from "../lib/rails.js";
@@ -347,6 +347,37 @@ for (const s of SCENARIOS) {
       "menu-poster negative control: a guide whose matched place is not in the rail (or has none) fails");
     ok(partitionRailCards([P("a"), P("b"), G("g", "c"), G("h", "c"), P("c")], exp).guideCount === 2,
       "menu-poster negative control: two guides in one rail are counted so the scenario can fail them");
+    // Composed posters (Eat, Breakfast) are SEVERAL rails; the slot is third in the
+    // guide's OWN rail. Synthetic 2026-10-14: Eat's guide was correctly third in its
+    // own later rail and was reported as "index 8" by a flattened-index check.
+    const R = (rail, c) => ({ ...c, rail });
+    const eatRail1 = ["a", "b", "c", "d", "e"].map((id) => R("r1", P(id)));
+    const multiGood = partitionRailCards([...eatRail1, R("r2", P("f")), R("r2", P("g")), R("r2", G("g1", "h")), R("r2", P("h"))], ["a", "b", "c", "d", "e", "f", "g", "h"]);
+    ok(multiGood.guideCount === 1 && multiGood.guideMisplaced.length === 0 && multiGood.guides[0].index === 7 && multiGood.guides[0].indexInRail === 2,
+      "menu-poster positive control: a guide third in its own SECOND rail (flattened index 7) is accepted");
+    const multiBadSecond = partitionRailCards([...eatRail1, R("r2", P("f")), R("r2", G("g1", "h")), R("r2", P("g")), R("r2", P("h"))], ["a", "b", "c", "d", "e", "f", "g", "h"]);
+    ok(multiBadSecond.guideMisplaced.includes("g1"),
+      "menu-poster MUTATION RED: a guide second in its own later rail is still misplaced");
+    const shortFirst = partitionRailCards([R("r1", P("a")), R("r1", P("b")), R("r2", G("g1", "c")), R("r2", P("c")), R("r2", P("d"))], ["a", "b", "c", "d"]);
+    ok(shortFirst.guideMisplaced.includes("g1"),
+      "menu-poster MUTATION RED: a guide FIRST in its rail is misplaced even when its flattened index happens to be 2");
+    const monitorSrc = readFileSync(path.resolve("./scripts/lib/synthetic/scenarios.mjs"), "utf8");
+    // place-card-controls: a below-the-fold card legitimately shows "Loading photo"
+    // until it is scrolled in (CardPhoto IntersectionObserver). The scenario waits
+    // (bounded) for a terminal state; a STUCK placeholder must still fail.
+    ok(classifyCardMedia({ loading: true }) === "loading" && !CARD_MEDIA_TERMINAL.has(classifyCardMedia({ loading: true })),
+      "place-card-controls MUTATION RED: a card still on the \"Loading photo\" placeholder is NOT a terminal state (stuck loader fails)");
+    ok(classifyCardMedia({}) === "none" && !CARD_MEDIA_TERMINAL.has("none"),
+      "place-card-controls negative control: a card with no media element at all is not terminal");
+    ok(CARD_MEDIA_TERMINAL.has(classifyCardMedia({ imageLoaded: true, loading: true })) && CARD_MEDIA_TERMINAL.has(classifyCardMedia({ monogram: true }))
+      && CARD_MEDIA_TERMINAL.has(classifyCardMedia({ unavailable: true })),
+      "place-card-controls positive control: a loaded image, a monogram and an explicit \"Photo unavailable\" are each terminal");
+    ok(CARD_MEDIA_WAIT_MS > 0 && CARD_MEDIA_WAIT_MS <= 10000, "place-card-controls: the media wait is bounded (<=10s), never open-ended");
+    const pcc = monitorSrc.slice(monitorSrc.indexOf('id: "place-card-controls"'), monitorSrc.indexOf('id: "today"'));
+    ok(/scrollIntoViewIfNeeded\(\)/.test(pcc) && /classifyCardMedia\(/.test(pcc) && /CARD_MEDIA_TERMINAL\.has\(mediaState\)/.test(pcc) && !/hasMedia/.test(pcc),
+      "place-card-controls scenario scrolls the card in, polls classifyCardMedia, and asserts a terminal state (no immediate DOM read)");
+    ok(/rail:\s*card\.closest\("\[data-rail\]"\)/.test(monitorSrc),
+      "menu-poster scenario hands partitionRailCards each card's own [data-rail] so the slot is judged per rail");
     const rc = readFileSync(path.resolve("./app/components/RailCard.js"), "utf8");
     const gc = readFileSync(path.resolve("./app/components/GuideDiscoveryCard.js"), "utf8");
     ok(/data-guide-id=\{variant === "guide" && guideId \? guideId : undefined\}/.test(rc) && /guideId=\{guide\?\.slug \|\| undefined\}/.test(gc),
