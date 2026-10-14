@@ -277,7 +277,7 @@ export default function MapScreen({ ctx }) {
                     {areaStatus === "error" && <button type="button" onClick={() => setAreaRetry((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>Retry area</button>}
                     {unpinnedNote && <div data-wf-map-unpinned={unpinnedForCoord} style={{ marginTop: 6, color: C.muted, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   </div>}
-                  {mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ position: "absolute", left: 12, right: 12, bottom: 142, zIndex: 17, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
+                  {mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ position: "absolute", left: 12, right: 12, bottom: 142, zIndex: 17, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
                       Cup out of season this container rendered as an EMPTY dark box
                       floating on the map — a control with nothing in it. Only mount it

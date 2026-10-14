@@ -15,8 +15,8 @@ import { gateShut, gateFree } from "../../../../lib/spendGate";
 // metro's whole book cycles well inside the window at ~40/hour, refreshes ride
 // the SAME cache-first details path the rest of the site uses, and a Google
 // outage degrades to "rows stay stale one more hour", never to invented
-// content. 2026-10-14: only content fetched live in this call re-dates a row
-// (lib/inventoryRefreshPatch.js); a cached copy never moves refreshed_at.
+// content. 2026-10-14: a row is re-dated only by when Google actually returned
+// its content (lib/inventoryRefreshPatch.js); a cached copy is never dated now.
 //
 // check-cron-honesty: a failed run answers non-2xx via jobFailed; an
 // unconfigured run answers jobCannotRun. No failure hides behind a 200.
@@ -25,7 +25,7 @@ export const maxDuration = 60;
 export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { getPlaceDetailsDated } from "../../../../lib/placeDetails";
-import { inventoryRefreshPatch } from "../../../../lib/inventoryRefreshPatch.js";
+import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "../../../../lib/inventoryRefreshPatch.js";
 import { recordPulse } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -51,13 +51,22 @@ export async function GET(req) {
   const limit = Math.max(1, Math.min(120, Number(u.searchParams.get("limit")) || 40));
   const cutoff = new Date(Date.now() - REFRESH_AFTER_DAYS * 86400000).toISOString();
 
-  const { data: rows, error } = await db
+  // 2026-10-14 — skip rows a refresh must not touch: excluded rows are never
+  // served, and locked (owner-verified) rows carry owner coordinates a Google
+  // patch must not overwrite; permanently closed places have nothing to renew.
+  // Then take this hour's slice of the stalest window (refreshSlice), so a row
+  // that cannot be renewed never wedges the head of the queue.
+  const { data: windowRows, error } = await db
     .from("wf_inventory")
     .select("place_id, metro, refreshed_at")
     .lt("refreshed_at", cutoff)
+    .or("excluded.is.null,excluded.eq.false")
+    .or("locked.is.null,locked.eq.false")
+    .or("status.is.null,status.neq.CLOSED_PERMANENTLY")
     .order("refreshed_at", { ascending: true })
-    .limit(limit);
+    .limit(limit * REFRESH_WINDOW_SLOTS);
   if (error) return jobFailed("inventory-refresh", "stale-row select failed: " + error.message);
+  const rows = refreshSlice(windowRows || [], limit, Math.floor(Date.now() / 3600000));
   if (!rows || !rows.length) {
     // v8.29.12 — recordPulse is (job, opts). This passed `db` as the JOB, so
     // String(db) filed every inventory-refresh pulse under the literal job name
@@ -79,12 +88,13 @@ export async function GET(req) {
       if (!row) return;
       try {
         // 2026-10-14 — NEVER EXTEND BY BUMPING (lib/inventoryRefreshPatch.js):
-        // the patch exists only for content Google returned in THIS call, is
-        // dated by that fetch, and carries the fetched lat/lng. A cached copy
-        // (gate shut, ledger refusal, 429) is not a refresh: the row is left
-        // alone and ages out of the map's 30-day window honestly.
+        // the row is dated by WHEN GOOGLE RETURNED the content (a live fetch =
+        // now; a cached copy = its recorded write time) and carries that
+        // content's lat/lng. Undated or not-newer content is no refresh: the
+        // row is left alone and ages out of the map's 30-day window honestly.
+        // Same single details read as before: no added provider calls.
         const dated = await getPlaceDetailsDated(row.place_id);
-        const patch = inventoryRefreshPatch(row.place_id, dated);
+        const patch = inventoryRefreshPatch(row.place_id, dated, Date.now(), row.refreshed_at);
         if (!patch) { notLive++; continue; }
         const { error: upErr } = await db.from("wf_inventory").update(patch).eq("place_id", row.place_id);
         if (upErr) failed++; else refreshed++;
@@ -97,6 +107,6 @@ export async function GET(req) {
 
   // All-failed is an outage (Google or DB), not a quiet success.
   if (refreshed === 0 && failed > 0) return jobFailed("inventory-refresh", `0/${rows.length} rows refreshed (${failed} failures)`);
-  await recordPulse("inventory-refresh", { attempted: rows.length, succeeded: refreshed, failed, note: `scanned ${rows.length}; ${notLive} left stale (no live Google content this call, never re-dated)` });
+  await recordPulse("inventory-refresh", { attempted: rows.length, succeeded: refreshed, failed, note: `scanned ${rows.length}; ${notLive} left as-is (no newer dated Google content, never re-dated)` });
   return Response.json({ ok: true, refreshed, failed, notLive, scanned: rows.length });
 }

@@ -96,7 +96,7 @@ async function checkFreshness(prov, mapData) {
 
 // ── B ────────────────────────────────────────────────────────────────────────
 async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate = (s) => s }) {
-  const { inventoryRefreshPatch } = patchMod;
+  const { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } = patchMod;
   const details = { id: RYANS, name: "Ryan's Coffee House", lat: 27.54036, lng: -82.48053, types: ["coffee_shop"], businessStatus: "OPERATIONAL", photoRef: "x" };
   const fetchedAt = new Date(NOW - 60000).toISOString();
   const live = inventoryRefreshPatch(RYANS, { details, live: true, fetchedAt }, NOW);
@@ -104,14 +104,35 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
   assert.equal(live.refreshed_at, fetchedAt, "B: refreshed_at is the fetch time, never 'now'");
   assert.equal(live.lat, details.lat, "B: the fetched coordinate is written with its date");
   assert.equal(live.lng, details.lng);
-  assert.equal(inventoryRefreshPatch(RYANS, { details, live: false, fetchedAt: null }, NOW), null, "B: a cached copy never re-dates a row");
-  assert.equal(inventoryRefreshPatch(RYANS, { details, live: false, fetchedAt }, NOW), null, "B: a cached copy never re-dates a row even if it carries a time");
-  assert.equal(inventoryRefreshPatch(RYANS, { details, live: true, fetchedAt: null }, NOW), null, "B: undated content never re-dates a row");
+  const wroteAt = new Date(NOW - 12 * DAY).toISOString();
+  const cachedPatch = inventoryRefreshPatch(RYANS, { details, live: false, fetchedAt: wroteAt }, NOW, "2026-08-01T00:00:00Z");
+  assert.ok(cachedPatch, "B: a cached copy with a recorded write time renews the row (no extra provider call)");
+  assert.equal(cachedPatch.refreshed_at, wroteAt, "B: a cached copy is dated by its write time, never 'now'");
+  assert.equal(cachedPatch.lat, details.lat, "B: the cached copy's own coordinate is written with its date");
+  assert.equal(inventoryRefreshPatch(RYANS, { details, live: false, fetchedAt: null }, NOW), null, "B: an undated cached copy never re-dates a row");
+  assert.equal(inventoryRefreshPatch(RYANS, { details, live: false, fetchedAt: wroteAt }, NOW, new Date(NOW - 5 * DAY).toISOString()), null, "B: content no newer than the row never re-dates it");
   assert.equal(inventoryRefreshPatch(RYANS, { details, live: true, fetchedAt: new Date(NOW + DAY).toISOString() }, NOW), null, "B: future-dated content never re-dates a row");
   assert.equal(inventoryRefreshPatch(RYANS, { details: { ...details, lat: null }, live: true, fetchedAt }, NOW), null, "B: content without a coordinate never re-dates the coordinate");
   assert.equal(inventoryRefreshPatch("other", { details, live: true, fetchedAt }, NOW), null, "B: another place's content never re-dates this row");
 
-  // getPlaceDetailsDated: cache hit is not live; a provider fetch is live.
+  // QUEUE WEDGE: each hour takes a different slice of the stalest window, so a
+  // head row that cannot be renewed is retried every REFRESH_WINDOW_SLOTS hours
+  // and never blocks the rows behind it.
+  const windowRows = Array.from({ length: 40 * REFRESH_WINDOW_SLOTS }, (_, i) => ({ place_id: "w" + String(i).padStart(4, "0") }));
+  const seen = new Set();
+  let headHits = 0;
+  for (let slot = 0; slot < REFRESH_WINDOW_SLOTS; slot++) {
+    const slice = refreshSlice(windowRows, 40, slot);
+    assert.equal(slice.length, 40, "B: each hour processes a full batch");
+    slice.forEach((r) => seen.add(r.place_id));
+    if (slice.some((r) => r.place_id === "w0000")) headHits++;
+  }
+  assert.equal(seen.size, windowRows.length, "B: over REFRESH_WINDOW_SLOTS hours every row in the window gets a turn");
+  assert.equal(headHits, 1, "B: a stuck head row takes 1 of REFRESH_WINDOW_SLOTS hourly slots, not all of them");
+  assert.deepEqual(refreshSlice(windowRows.slice(0, 10), 40, 3).length, 10, "B: a short window is processed whole");
+
+  // getPlaceDetailsDated: cache hits are dated by their RECORDED write time;
+  // a legacy (approximated) write time is undated; a provider fetch is live.
   globalThis.__pd = { cache: null, sets: 0 };
   const pd = await sourceModule("lib/placeDetails.js", `
     const DAY = 86400000;
@@ -126,11 +147,15 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
     process.env.GOOGLE_MAPS_SERVER_KEY = "fixture-not-a-key";
     let provider = 0;
     globalThis.fetch = async (url) => { assert.equal(new URL(url).hostname, "places.googleapis.com"); provider++; return Response.json({ id: RYANS, displayName: { text: "Ryan's" }, location: { latitude: 27.5, longitude: -82.4 } }); };
-    globalThis.__pd.cache = { v: { id: RYANS, name: "Ryan's", lat: 1, lng: 1, photoRef: null }, stale: false, ageMs: 25 * DAY };
+    globalThis.__pd.cache = { v: { id: RYANS, name: "Ryan's", lat: 1, lng: 1, photoRef: null }, stale: false, ageMs: 25 * DAY, wroteKnown: true };
+    const before = Date.now();
     const hit = await pd.getPlaceDetailsDated(RYANS);
     assert.equal(hit.live, false, "B: a cache hit is reported as not live");
-    assert.equal(hit.fetchedAt, null);
+    const hitAt = Date.parse(hit.fetchedAt);
+    assert.ok(Number.isFinite(hitAt) && Math.abs((before - 25 * DAY) - hitAt) < 5000, "B: a cache hit is dated by its recorded write time (now - ageMs), never now");
     assert.equal(provider, 0, "B: the dated read adds no provider call on a cache hit");
+    globalThis.__pd.cache = { v: { id: RYANS, name: "Ryan's", lat: 1, lng: 1, photoRef: null }, stale: false, ageMs: 3 * DAY, wroteKnown: false };
+    assert.equal((await pd.getPlaceDetailsDated(RYANS)).fetchedAt, null, "B: an approximated (legacy) write time leaves the copy undated");
     globalThis.__pd.cache = null;
     const miss = await pd.getPlaceDetailsDated(RYANS);
     assert.equal(miss.live, true, "B: a provider fetch is reported as live");
@@ -142,11 +167,10 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
     delete process.env.GOOGLE_MAPS_SERVER_KEY; // fixture only; each guard is its own process
   }
 
-  // Execute the cron route with stubbed DB + details: a cached copy must not
-  // update the row; live content updates it with its own fetch time.
-  globalThis.__cron = { updates: [], dated: {} };
+  // Execute the cron route with stubbed DB + details.
+  globalThis.__cron = { updates: [], dated: {}, filters: [], limit: null };
   const cron = await sourceModule("app/api/cron/inventory-refresh/route.js", `
-    import { inventoryRefreshPatch } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
+    import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
     const gateShut = () => false; const gateFree = () => false;
     const recordPulse = async () => {};
     const jobCannotRun = (j, m) => Response.json({ cannot: m }, { status: 503 });
@@ -154,23 +178,33 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
     const getPlaceDetailsDated = async (id) => globalThis.__cron.dated[id];
     const createClient = () => ({ from: () => {
       const q = { select: () => q, lt: () => q, order: () => q,
-        limit: async () => ({ data: [{ place_id: "cached1", refreshed_at: "2026-08-01T00:00:00Z" }, { place_id: "live1", refreshed_at: "2026-08-01T00:00:00Z" }], error: null }),
+        or: (f) => { globalThis.__cron.filters.push(f); return q; },
+        limit: async (n) => { globalThis.__cron.limit = n; return { data: [
+          { place_id: "undated1", refreshed_at: "2026-08-01T00:00:00Z" },
+          { place_id: "cached2", refreshed_at: "2026-08-01T00:00:00Z" },
+          { place_id: "live1", refreshed_at: "2026-08-01T00:00:00Z" }], error: null }; },
         update: (patch) => ({ eq: async (col, id) => { globalThis.__cron.updates.push({ id, patch }); return { error: null }; } }) };
       return q; } });
   `, cronMutate);
   const liveAt = new Date(Date.now() - 1000).toISOString();
+  const cachedAt = new Date(Date.now() - 3 * DAY).toISOString();
   globalThis.__cron.dated = {
-    cached1: { details: { ...details, id: "cached1" }, live: false, fetchedAt: null },
+    undated1: { details: { ...details, id: "undated1" }, live: false, fetchedAt: null },
+    cached2: { details: { ...details, id: "cached2" }, live: false, fetchedAt: cachedAt },
     live1: { details: { ...details, id: "live1" }, live: true, fetchedAt: liveAt },
   };
   try {
     process.env.CRON_SECRET = "fixture"; process.env.NEXT_PUBLIC_SUPABASE_URL = "https://db.example.test"; process.env.SUPABASE_SERVICE_ROLE_KEY = "fixture";
-    const res = await cron.GET(new Request("https://fixture.test/api/cron/inventory-refresh", { headers: { authorization: "Bearer fixture" } }));
+    const res = await cron.GET(new Request("https://fixture.test/api/cron/inventory-refresh?limit=40", { headers: { authorization: "Bearer fixture" } }));
     assert.equal(res.status, 200);
-    const ids = globalThis.__cron.updates.map((u) => u.id);
-    assert.deepEqual(ids, ["live1"], "B: the cron updates only the row whose content was fetched live");
-    assert.equal(globalThis.__cron.updates[0].patch.refreshed_at, liveAt, "B: the cron dates the row by the fetch, never by 'now'");
-    assert.equal(globalThis.__cron.updates[0].patch.lat, details.lat, "B: the cron writes the fetched coordinate");
+    const byId = Object.fromEntries(globalThis.__cron.updates.map((u) => [u.id, u.patch]));
+    assert.deepEqual(Object.keys(byId).sort(), ["cached2", "live1"], "B: the cron re-dates only honestly dated content (undated cache copy left alone)");
+    assert.equal(byId.live1.refreshed_at, liveAt, "B: live content is dated by the fetch");
+    assert.equal(byId.cached2.refreshed_at, cachedAt, "B: a cached copy is dated by its write time, never by 'now'");
+    assert.equal(byId.live1.lat, details.lat, "B: the cron writes the dated coordinate");
+    assert.equal(globalThis.__cron.limit, 40 * REFRESH_WINDOW_SLOTS, "B: the cron reads the stalest WINDOW, then slices it");
+    assert.ok(globalThis.__cron.filters.some((f) => /excluded\.eq\.false/.test(f)), "B: excluded rows never enter the queue");
+    assert.ok(globalThis.__cron.filters.some((f) => /locked\.eq\.false/.test(f)), "B: locked (owner-verified) rows are never overwritten by a Google patch");
   } finally {
     for (const k of ["CRON_SECRET", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) delete process.env[k]; // fixture only
   }
@@ -191,7 +225,7 @@ function checkParity(acc, prov) {
   assert.equal(statusOf.pinned1, "pinned", "C: positive control — a drawn place is pinned");
   assert.equal(statusOf.floor1, "below-map-floor");
   assert.equal(statusOf.away1, "not-in-map-area");
-  assert.equal(statusOf.nojudge, "not-in-map-area", "C: an unjudged place is never claimed as a coordinate refusal");
+  assert.equal(statusOf.nojudge, "coordinate-unknown", "C: an unjudged place is accounted as unknown, never claimed as a refusal or dropped");
   assert.equal(Object.values(r.counts).reduce((a, b) => a + b, 0), r.total, "C: counts add up to the list (nothing silently missing)");
   assert.equal(r.unmapped.length, r.total - r.counts.pinned);
   const loading = accountListOnMap({ listPlaces: [ok("a")], pins: [], areaPlaces: [], areaStatus: "loading", now: NOW });
@@ -201,6 +235,15 @@ function checkParity(acc, prov) {
   assert.match(screen, /accountListOnMap\(\{\s*listPlaces:\s*contextualView/, "C: the map accounts for the on-screen list");
   assert.match(screen, /window\.__wfMapList\s*=/, "C: the accounting is published for the synthetic monitor");
   assert.match(screen, /data-wf-map-unpinned=\{unpinnedForCoord\}/, "C: the unpinned count is rendered on screen");
+  assert.match(screen, /!\(areaOffer && searchMapArea\) && <div role="note"/, "C: the unpinned note yields to the Search-this-area pill (same corner)");
+  // TRANSITION: every client inv=1 request carries the list schema, so a
+  // pre-verdict edge-cached payload is never read; the route echoes it.
+  const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  const invFetches = (readFileSync(path.join(ROOT, "app/home.js"), "utf8").match(/fetch\(`\/api\/places\/search\?q=inventory[^\n]*/g) || []);
+  assert.ok(invFetches.length >= 2, `C: probe finds the client inv=1 fetches (found ${invFetches.length})`);
+  for (const f of invFetches) if (/inv=1/.test(f)) assert.match(f, /&schema=\$\{INV_LIST_SCHEMA\}/, "C: every client inv=1 fetch is versioned by INV_LIST_SCHEMA: " + f.slice(0, 80));
+  const route = strip(readFileSync(path.join(ROOT, "app/api/places/search/route.js"), "utf8"));
+  assert.equal((route.match(/source: "inventory-direct", schema: INV_LIST_SCHEMA/g) || []).length, (route.match(/source: "inventory-direct"/g) || []).length, "C: every inv=1 response echoes the schema");
 }
 
 async function loadAll(overrides = {}) {
@@ -221,7 +264,11 @@ async function main() {
   if (process.argv.includes("--red-prove")) {
     const reds = [];
     const expectRed = async (label, fn) => {
-      try { await fn(); } catch (e) { reds.push(label); console.log(`  RED as required: ${label} — ${String(e.message).split("\n")[0]}`); return; }
+      try { await fn(); } catch (e) {
+        // A mutation that did not apply is a broken red-prove, never a RED.
+        if (/red-prove setup|mutation applied/.test(String(e && e.message))) throw new Error(`red-prove: ${label} did not apply — ${e.message}`);
+        reds.push(label); console.log(`  RED as required: ${label} — ${String(e.message).split("\n")[0]}`); return;
+      }
       throw new Error(`red-prove: ${label} stayed GREEN`);
     };
     const provSrc = (find, rep) => mutated("lib/coordProvenance.js", find, rep);
@@ -238,30 +285,50 @@ async function main() {
         .replace(/^import[^;]+;\n/m, 'const placeDiscoveryRef = (id) => "places/" + id + "/photos/wfplacediscovery";\n');
       await checkNoBump({ patchMod: await import("data:text/javascript," + encodeURIComponent(src)) });
     });
-    await expectRed("patch accepts cached content", async () => {
-      const src = mutated("lib/inventoryRefreshPatch.js", "if (!placeId || !dated || dated.live !== true) return null;", "if (!placeId || !dated) return null;")
+    await expectRed("patch accepts content no newer than the row", async () => {
+      const src = mutated("lib/inventoryRefreshPatch.js", "if (Number.isFinite(current) && fetched <= current) return null;", "")
+        .replace(/^import[^;]+;\n/m, 'const placeDiscoveryRef = (id) => "places/" + id + "/photos/wfplacediscovery";\n');
+      await checkNoBump({ patchMod: await import("data:text/javascript," + encodeURIComponent(src)) });
+    });
+    await expectRed("refresh queue always takes the head slice (wedge)", async () => {
+      const src = mutated("lib/inventoryRefreshPatch.js", "return rows.slice(start, start + n);", "return rows.slice(0, n);")
         .replace(/^import[^;]+;\n/m, 'const placeDiscoveryRef = (id) => "places/" + id + "/photos/wfplacediscovery";\n');
       await checkNoBump({ patchMod: await import("data:text/javascript," + encodeURIComponent(src)) });
     });
     await expectRed("cron reverts to stamping now after any details read", async () => {
       await checkNoBump({ patchMod: m.patchMod, cronMutate: (s) => {
-        const out = s.replace("const patch = inventoryRefreshPatch(row.place_id, dated);", "const patch = dated && dated.details ? { refreshed_at: new Date().toISOString(), last_verified_at: new Date().toISOString() } : null;");
+        const out = s.replace("const patch = inventoryRefreshPatch(row.place_id, dated, Date.now(), row.refreshed_at);", "const patch = dated && dated.details ? { refreshed_at: new Date().toISOString(), last_verified_at: new Date().toISOString() } : null;");
         assert.notEqual(out, s, "cron mutation applied"); return out; } });
     });
-    await expectRed("getPlaceDetailsDated reports a cache hit as live", async () => {
+    await expectRed("a cached copy is dated now", async () => {
       await checkNoBump({ patchMod: m.patchMod, placeDetailsMutate: (s) => {
-        const out = s.replace('const cached = (details) => ({ details: details || null, live: false, fetchedAt: null });', 'const cached = (details) => ({ details: details || null, live: true, fetchedAt: new Date().toISOString() });');
+        const out = s.replace("? new Date(Date.now() - c.ageMs).toISOString() : null", "? new Date().toISOString() : null");
         assert.notEqual(out, s, "placeDetails mutation applied"); return out; } });
     });
-    await expectRed("accounting silently drops refused places", async () => {
-      const src = mutated("lib/mapListAccounting.js", "else if (mapCoordAllowedNow(p, now) === false) status = NO_PERMITTED_COORDINATE;", "else if (mapCoordAllowedNow(p, now) === false) continue;")
+    await expectRed("a legacy (approximated) cache write time is trusted", async () => {
+      await checkNoBump({ patchMod: m.patchMod, placeDetailsMutate: (s) => {
+        const out = s.replace("c && c.wroteKnown === true && Number.isFinite(c.ageMs)", "c && Number.isFinite(c.ageMs)");
+        assert.notEqual(out, s, "placeDetails mutation applied"); return out; } });
+    });
+    await expectRed("cron reads locked rows", async () => {
+      await checkNoBump({ patchMod: m.patchMod, cronMutate: (s) => {
+        const out = s.replace('    .or("locked.is.null,locked.eq.false")\n', "");
+        assert.notEqual(out, s, "cron mutation applied"); return out; } });
+    });
+    await expectRed("accounting drops unjudged places into not-in-map-area", async () => {
+      const src = mutated("lib/mapListAccounting.js", 'else if (allowed === null) status = "coordinate-unknown";', "")
         .replace(/^import[^;]+;\n/m, `import { mapCoordAllowedNow, NO_PERMITTED_COORDINATE } from "${fileUrl("lib/coordProvenance.js")}";\n`);
       checkParity(await import("data:text/javascript," + encodeURIComponent(src)), m.prov);
     });
-    console.log(`test-coord-provenance: red-prove OK — ${reds.length}/7 mutations went RED`);
-    assert.equal(reds.length, 7);
+    await expectRed("accounting silently drops refused places", async () => {
+      const src = mutated("lib/mapListAccounting.js", "else if (allowed === false) status = NO_PERMITTED_COORDINATE;", "else if (allowed === false) continue;")
+        .replace(/^import[^;]+;\n/m, `import { mapCoordAllowedNow, NO_PERMITTED_COORDINATE } from "${fileUrl("lib/coordProvenance.js")}";\n`);
+      checkParity(await import("data:text/javascript," + encodeURIComponent(src)), m.prov);
+    });
+    console.log(`test-coord-provenance: red-prove OK — ${reds.length}/11 mutations went RED`);
+    assert.equal(reds.length, 11);
   }
-  console.log("test-coord-provenance: OK — A source-aware freshness (Google 30d window, independent sources by licence, unknown/undated/future refused, map pins + area prefilter), B no timestamp-bump (patch dated by live fetch, cached copy re-dates nothing, cron route executed with stubbed DB), C list/map parity accounting (every list place exactly one status, Ryan's = no-permitted-coordinate).");
+  console.log("test-coord-provenance: OK — A source-aware freshness (Google 30d window, independent sources by licence, unknown/undated/future refused, map pins + area prefilter), B no timestamp-bump (dated by when Google returned it: live = now, cached = recorded write time, legacy = undated; not-newer never re-dates; stalest-window rotation so a stuck row cannot wedge the queue; excluded/locked rows skipped; cron route executed with stubbed DB), C list/map parity accounting (every list place exactly one status, Ryan's = no-permitted-coordinate).");
 }
 
 main().catch((e) => { console.error("test-coord-provenance: FAIL —", e && e.stack || e); process.exit(1); });

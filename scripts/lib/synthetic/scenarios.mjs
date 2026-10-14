@@ -676,6 +676,10 @@ export const SCENARIOS = [
       const apiIds = new Set((payload && Array.isArray(payload.places) ? payload.places : []).map((p) => p && (p.id || p.place_id)).filter(Boolean));
       ctx.ok("the API response carries Ryan's Coffee House", apiIds.has(RYANS_COFFEE_HOUSE.placeId), true, apiIds.has(RYANS_COFFEE_HOUSE.placeId));
       ctx.note(`surface-parity-parrish-cafes: API returned ${apiIds.size} places, hasMore=${payload ? payload.hasMore : "n/a"}`);
+      // The list rows carry the map verdict only from the versioned schema on
+      // (lib/coordProvenance.js INV_LIST_SCHEMA); a payload without it is an
+      // old cached response the client should never have requested.
+      ctx.ok("the inv=1 response is the versioned schema that carries map verdicts", !!payload && typeof payload.schema === "string" && payload.schema.length > 0, "a schema string", payload ? payload.schema : null);
 
       await page.waitForTimeout(2000); // give React time to commit the response into rendered cards
       const renderedIds = await page.evaluate(() => Array.from(document.querySelectorAll("[data-wf-position-key]"))
