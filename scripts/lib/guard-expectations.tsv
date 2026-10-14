@@ -223,7 +223,7 @@ scripts/check-intent-partner-picks.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	
 scripts/check-intent-rail-inventory-fed.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	e714aa92a97b2d3b72a0bd8deb2b821612e1281b24e1445587e6c3ee26441e46
 scripts/check-intro-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	f6da25e1a46c3bb17c71bc72a52297362bc3b3c47a5d07fcde4773a53300d969
 scripts/check-intro-instrumentation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1	0	438db7921dc5d57fd88865af8b0d4828fb893bd0053ce58dc8cce39b4205409f
-scripts/check-inventory-integrity.mjs	0	CALL	scheduled-monitoring-only	0	-	11	0	0	3c2c37eab38d916da4a5ddd18fad1011f49c23c35b7cf071ff41160c94329153
+scripts/check-inventory-integrity.mjs	0	CALL	scheduled-monitoring-only	0	-	16	0	0	b1a998c666f0fdcd6373762ad9738e032e3c7040e9488d1b4c4f4131dcfc29fb
 scripts/check-inventory-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	fc96aafdce3014ea52c8208bded0a982c7ac400e0fc0538af41a83e7f7c3d6ff
 scripts/check-inventory-serve-complete-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	c1719ef8a6276f6123ddc4846e4802cc8354ec05445a8053aaed52e0df459343
 scripts/check-invisible-text.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	88fd6a135aeba3d1cfafc16b6e2f538371b0764258e2e8dd70c356a6bd908a68
@@ -327,6 +327,7 @@ scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	f
 scripts/check-place-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	22f374da4912b35b0827396bc59e106eafa5376e7bd04991932d2c16e2109adc
 scripts/check-place-detail-honest.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	c3abfda36f27e96a3c25e4d526a7b7f055d35cd1b4e7c1a78aecd6be251cbb61
 scripts/check-place-featured-in.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a2a0ffc66e9428b724d0d974c9d0c2aac6881ca1407d49a32996c119e361bba6
+scripts/check-place-identity-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	5924c97eee419dda2be1b160f1a0f1314175dc4b54fc8a6d877a25a09125f5cf
 scripts/check-place-page-partner.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	0a6e3d14c03a26de6ef856fb240b72786f1aa4dda2ac3c629a13f8f2f8bd4bfb
 scripts/check-place-photo-contributions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	0	0	a5b3d60eda59486d718abbcdcfdeb1402f2194c71c7838d1e962035b977fae9b
 scripts/check-place-sitemap-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	9bcb96112a936fa4e1103f2775397adaba74c9ccb1dce5109e764b7367f8c313

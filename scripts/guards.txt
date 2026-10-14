@@ -2186,3 +2186,4 @@ node scripts/test-detail-open-once.mjs
 # 2026-10-09 event JSON-LD startDate/endDate carry the event's own UTC offset (Central Panhandle vs Eastern, DST-aware).
 node scripts/check-event-jsonld-offset.mjs
 node scripts/test-photo-inventory-audit.mjs
+node scripts/check-place-identity-contract.mjs
