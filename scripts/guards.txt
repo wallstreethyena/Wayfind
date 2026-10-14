@@ -1914,6 +1914,7 @@ node scripts/check-provider-empty-answers.mjs
 # entry, and red-proves that removing theme-parks from the registry itself
 # fails (reproducing the exact hole this exists to close).
 node scripts/check-photo-surface-registry.mjs
+node scripts/check-photo-credit-under-headline.mjs
 
 # The self-healing photo-warm cron (app/api/cron/photo-warm): empty visible
 # places get exactly one real /api/photo request each, an already-served place
