@@ -9,6 +9,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { pickBestPhoto } from "../../../../lib/heroImage";
+import { gateImageForWrite } from "../../../../lib/imageWriteGate.js";
 import { jobCannotRun } from "../../../../lib/jobFail";
 import { gateShut, spendAllow } from "../../../../lib/spendGate";
 
@@ -30,6 +31,14 @@ async function photosOf(placeId, key) {
   } catch (e) { return []; }
 }
 
+// PUBLICATION GATE (lib/imageWriteGate): the row's image is the place's own /api/photo
+// reference. A refused one is skipped (the surface keeps its current logic); never throws.
+function imageRefused(placeId, out) {
+  const g = gateImageForWrite({ type: "place", id: placeId, place_id: placeId, image: "/api/photo?place=" + encodeURIComponent(placeId) }, { type: "place" });
+  if (g.refused) out.skipped_image_gate = (out.skipped_image_gate || 0) + 1;
+  return g.refused;
+}
+
 export async function GET(req) {
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
@@ -49,7 +58,7 @@ export async function GET(req) {
     if (pick) {
       out.surfaces++;
       const best = pickBestPhoto(await photosOf(pick.place_id, gkey));
-      if (best) rows.push({ surface: "buzz", key: metro, place_id: pick.place_id, photo_ref: placeDiscoveryRef(pick.place_id), chosen_at: new Date().toISOString(), reason: best.reason });
+      if (best && !imageRefused(pick.place_id, out)) rows.push({ surface: "buzz", key: metro, place_id: pick.place_id, photo_ref: placeDiscoveryRef(pick.place_id), chosen_at: new Date().toISOString(), reason: best.reason });
       else out.skipped_no_better++;
     }
     // family surface (v6.57, owner: the daily image run feeds the SHARE cards
@@ -60,7 +69,7 @@ export async function GET(req) {
     if (fpick) {
       out.surfaces++;
       const best = pickBestPhoto(await photosOf(fpick.place_id, gkey));
-      if (best) rows.push({ surface: "family", key: metro, place_id: fpick.place_id, photo_ref: placeDiscoveryRef(fpick.place_id), chosen_at: new Date().toISOString(), reason: best.reason });
+      if (best && !imageRefused(fpick.place_id, out)) rows.push({ surface: "family", key: metro, place_id: fpick.place_id, photo_ref: placeDiscoveryRef(fpick.place_id), chosen_at: new Date().toISOString(), reason: best.reason });
       else out.skipped_no_better++;
     }
   }
