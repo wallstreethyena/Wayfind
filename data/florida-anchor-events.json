@@ -1,7 +1,7 @@
 {
   "version": 1,
   "updated": "2026-10-14",
-  "criteria": "Statewide or multi-county draw, recurs yearly, organizer has its own website. One entry per recurring tradition, never per year. Regions: NW, NE, Central, Tampa Bay (includes Sarasota and Manatee), SW (Lee, Collier, Charlotte), SE, Keys. Tags florida-icon, major-music-festival, tentpole and only-in-florida are editorial labels copied from wf_events only; entries added from outside wf_events carry none of them. confirmed_dated means a wf_events row with future or in-progress dates is linked via event_id; expected_undated means the next edition has no verified dates and event_id is null. Dates come only from wf_events and are never invented. source_url stays null until an organizer page has been read for that entry.",
+  "criteria": "Statewide or multi-county draw, recurs yearly, organizer has its own website. One entry per recurring tradition, never per year. Regions: NW, NE, Central, Tampa Bay (includes Sarasota and Manatee), SW (Lee, Collier, Charlotte), SE, Keys. Tags florida-icon, major-music-festival, tentpole and only-in-florida are editorial labels copied from wf_events only; entries added from outside wf_events carry none of them. confirmed_dated means a wf_events row with future or in-progress dates is linked via event_id; expected_undated means the next edition has no verified dates; event_id is null unless a wf_events row exists whose event_status is not scheduled (then it stays linked). event_series_id is copied from the linked row. probe:false marks hosts that must never be fetched by automation. note records uncertainty. Dates come only from wf_events and are never invented. source_url stays null until an organizer page has been read for that entry.",
   "anchors": [
     {
       "anchor_id": "epcot-food-and-wine-festival",
@@ -31,8 +31,10 @@
         "state": "confirmed_dated",
         "event_id": "epcot-food-wine-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "epcot-food-wine"
+      },
+      "probe": false
     },
     {
       "anchor_id": "halloween-horror-nights-orlando",
@@ -61,7 +63,8 @@
         "state": "confirmed_dated",
         "event_id": "hhn-orlando-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "hhn-orlando"
       }
     },
     {
@@ -91,7 +94,8 @@
         "state": "confirmed_dated",
         "event_id": "screamageddon-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "screamageddon"
       }
     },
     {
@@ -124,7 +128,8 @@
         "state": "confirmed_dated",
         "event_id": "gatorland-ghosts-goblins-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "gatorland-ghosts-goblins"
       }
     },
     {
@@ -157,7 +162,8 @@
         "state": "confirmed_dated",
         "event_id": "fantasy-fest-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "fantasy-fest"
       }
     },
     {
@@ -189,7 +195,8 @@
         "state": "confirmed_dated",
         "event_id": "hulaween-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "hulaween"
       }
     },
     {
@@ -221,7 +228,8 @@
         "state": "confirmed_dated",
         "event_id": "stone-crab-festival-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "stone-crab-festival"
       }
     },
     {
@@ -251,7 +259,8 @@
         "state": "confirmed_dated",
         "event_id": "flibs-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "flibs"
       }
     },
     {
@@ -282,7 +291,8 @@
         "state": "confirmed_dated",
         "event_id": "florida-seafood-festival-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "florida-seafood-festival"
       }
     },
     {
@@ -311,7 +321,8 @@
         "state": "confirmed_dated",
         "event_id": "edc-orlando-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "edc-orlando"
       }
     },
     {
@@ -343,7 +354,8 @@
         "state": "confirmed_dated",
         "event_id": "tarpon-springs-seafood-festival-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "tarpon-springs-seafood-festival"
       }
     },
     {
@@ -375,7 +387,8 @@
         "state": "confirmed_dated",
         "event_id": "sarasota-medieval-fair-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "sarasota-medieval-fair"
       }
     },
     {
@@ -405,7 +418,8 @@
         "state": "confirmed_dated",
         "event_id": "crystal-classic-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "crystal-classic"
       }
     },
     {
@@ -436,7 +450,8 @@
         "state": "confirmed_dated",
         "event_id": "christmas-at-gaylord-palms-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "christmas-at-gaylord-palms"
       }
     },
     {
@@ -467,7 +482,8 @@
         "state": "confirmed_dated",
         "event_id": "american-sand-sculpting-championship-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "american-sand-sculpting-championship"
       }
     },
     {
@@ -497,7 +513,8 @@
         "state": "confirmed_dated",
         "event_id": "nights-of-lights-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "nights-of-lights"
       }
     },
     {
@@ -528,8 +545,10 @@
         "state": "confirmed_dated",
         "event_id": "epcot-festival-holidays-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "epcot-festival-holidays"
+      },
+      "probe": false
     },
     {
       "anchor_id": "art-basel-miami-beach",
@@ -557,7 +576,8 @@
         "state": "confirmed_dated",
         "event_id": "art-basel-miami-beach-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "art-basel-miami-beach"
       }
     },
     {
@@ -588,7 +608,8 @@
         "state": "confirmed_dated",
         "event_id": "fort-myers-beach-christmas-boat-parade-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "fort-myers-beach-christmas-boat-parade"
       }
     },
     {
@@ -619,7 +640,8 @@
         "state": "confirmed_dated",
         "event_id": "winterfest-boat-parade-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "winterfest-boat-parade"
       }
     },
     {
@@ -648,8 +670,10 @@
         "state": "confirmed_dated",
         "event_id": "epcot-festival-arts-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "epcot-arts"
+      },
+      "probe": false
     },
     {
       "anchor_id": "gasparilla-pirate-fest",
@@ -680,7 +704,8 @@
         "state": "confirmed_dated",
         "event_id": "gasparilla-pirate-fest-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "gasparilla-pirate-fest"
       }
     },
     {
@@ -710,7 +735,8 @@
         "state": "confirmed_dated",
         "event_id": "florida-state-fair-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "florida-state-fair"
       }
     },
     {
@@ -739,7 +765,8 @@
         "state": "confirmed_dated",
         "event_id": "miami-boat-show-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "miami-international-boat-show"
       }
     },
     {
@@ -770,7 +797,8 @@
         "state": "confirmed_dated",
         "event_id": "daytona-500-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "daytona-500"
       }
     },
     {
@@ -800,7 +828,8 @@
         "state": "confirmed_dated",
         "event_id": "sobewff-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "sobewff"
       }
     },
     {
@@ -834,7 +863,8 @@
         "state": "confirmed_dated",
         "event_id": "florida-strawberry-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "florida-strawberry-festival"
       }
     },
     {
@@ -864,7 +894,8 @@
         "state": "confirmed_dated",
         "event_id": "daytona-bike-week-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "daytona-bike-week"
       }
     },
     {
@@ -889,10 +920,11 @@
       "rails": [],
       "expected_edition": {
         "year": 2027,
-        "state": "confirmed_dated",
+        "state": "expected_undated",
         "event_id": "gasparilla-arts-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "gasparilla-festival-of-the-arts"
       }
     },
     {
@@ -921,8 +953,10 @@
         "state": "confirmed_dated",
         "event_id": "epcot-flower-garden-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "epcot-flower-garden"
+      },
+      "probe": false
     },
     {
       "anchor_id": "calle-ocho-music-festival",
@@ -952,7 +986,8 @@
         "state": "confirmed_dated",
         "event_id": "calle-ocho-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "calle-ocho"
       }
     },
     {
@@ -982,7 +1017,8 @@
         "state": "confirmed_dated",
         "event_id": "miami-open-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "miami-open"
       }
     },
     {
@@ -1015,7 +1051,8 @@
         "state": "confirmed_dated",
         "event_id": "ultra-miami-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "ultra-miami"
       }
     },
     {
@@ -1047,7 +1084,8 @@
         "state": "confirmed_dated",
         "event_id": "tortuga-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "tortuga"
       }
     },
     {
@@ -1077,7 +1115,8 @@
         "state": "confirmed_dated",
         "event_id": "sun-n-fun-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "sun-n-fun"
       }
     },
     {
@@ -1104,7 +1143,8 @@
         "state": "confirmed_dated",
         "event_id": "sarasota-film-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "sarasota-film-festival"
       }
     },
     {
@@ -1136,7 +1176,8 @@
         "state": "confirmed_dated",
         "event_id": "tampa-bay-blues-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "tampa-bay-blues"
       }
     },
     {
@@ -1165,7 +1206,8 @@
         "state": "confirmed_dated",
         "event_id": "conch-republic-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "conch-republic"
       }
     },
     {
@@ -1198,7 +1240,8 @@
         "state": "confirmed_dated",
         "event_id": "florida-folk-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "florida-folk"
       }
     },
     {
@@ -1232,7 +1275,8 @@
         "state": "confirmed_dated",
         "event_id": "rockville-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "rockville"
       }
     },
     {
@@ -1263,7 +1307,8 @@
         "state": "confirmed_dated",
         "event_id": "gulf-coast-jam-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "gulf-coast-jam"
       }
     },
     {
@@ -1452,7 +1497,8 @@
         "state": "confirmed_dated",
         "event_id": "30a-songwriters-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "30a-songwriters-festival"
       }
     },
     {
@@ -1480,32 +1526,6 @@
         "year": 2027,
         "state": "expected_undated",
         "event_id": null,
-        "last_checked": "2026-10-14",
-        "source_url": null
-      }
-    },
-    {
-      "anchor_id": "thunder-beach-motorcycle-rally",
-      "name": "Thunder Beach Motorcycle Rally",
-      "region": "NW",
-      "city": "Panama City Beach",
-      "venue": "Panama City Beach",
-      "official_domain": "thunderbeachrally.com",
-      "category": "motorsports",
-      "tags": [
-        "rally",
-        "motorcycles",
-        "beach"
-      ],
-      "typical_window": {
-        "start_month": 4,
-        "end_month": 5
-      },
-      "rails": [],
-      "expected_edition": {
-        "year": 2026,
-        "state": "confirmed_dated",
-        "event_id": "thunder-beach-autumn-rally-2026",
         "last_checked": "2026-10-14",
         "source_url": null
       }
@@ -1563,7 +1583,8 @@
         "state": "confirmed_dated",
         "event_id": "sandestin-wine-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "sandestin-wine-festival"
       }
     },
     {
@@ -1590,7 +1611,8 @@
         "state": "confirmed_dated",
         "event_id": "fl26-pensacola-interstate-fair-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "fl26-pensacola-interstate-fair"
       }
     },
     {
@@ -1852,7 +1874,8 @@
         "state": "confirmed_dated",
         "event_id": "winter-park-sidewalk-art-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "winter-park-sidewalk-art-festival"
       }
     },
     {
@@ -1878,7 +1901,8 @@
         "state": "confirmed_dated",
         "event_id": "mount-dora-arts-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "mount-dora-arts-festival"
       }
     },
     {
@@ -1984,8 +2008,10 @@
         "state": "confirmed_dated",
         "event_id": "mnsshp-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "mnsshp"
+      },
+      "probe": false
     },
     {
       "anchor_id": "mickeys-very-merry-christmas-party",
@@ -2012,8 +2038,10 @@
         "state": "confirmed_dated",
         "event_id": "mvmcp-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "mvmcp"
+      },
+      "probe": false
     },
     {
       "anchor_id": "arnold-palmer-invitational",
@@ -2273,7 +2301,8 @@
         "state": "confirmed_dated",
         "event_id": "clearwater-jazz-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "clearwater-jazz"
       }
     },
     {
@@ -2350,7 +2379,8 @@
         "state": "confirmed_dated",
         "event_id": "mainsail-art-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "mainsail-art-festival"
       }
     },
     {
@@ -2433,7 +2463,8 @@
         "state": "confirmed_dated",
         "event_id": "kumquat-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "kumquat-festival"
       }
     },
     {
@@ -2541,7 +2572,8 @@
         "state": "confirmed_dated",
         "event_id": "naples-winter-wine-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "naples-winter-wine-festival"
       }
     },
     {
@@ -2585,8 +2617,8 @@
         "family"
       ],
       "typical_window": {
-        "start_month": 12,
-        "end_month": 12
+        "start_month": 11,
+        "end_month": 1
       },
       "rails": [
         "bring-the-kids"
@@ -2596,7 +2628,8 @@
         "state": "confirmed_dated",
         "event_id": "edison-and-ford-holiday-nights-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "edison-and-ford-holiday-nights"
       }
     },
     {
@@ -2750,7 +2783,8 @@
         "state": "confirmed_dated",
         "event_id": "coconut-grove-arts-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "coconut-grove-arts-festival"
       }
     },
     {
@@ -2905,7 +2939,8 @@
         "state": "confirmed_dated",
         "event_id": "delray-affair-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "delray-affair"
       }
     },
     {
@@ -3000,7 +3035,7 @@
       ],
       "typical_window": {
         "start_month": 5,
-        "end_month": 12
+        "end_month": 5
       },
       "rails": [
         "live-music"
@@ -3010,8 +3045,10 @@
         "state": "confirmed_dated",
         "event_id": "rolling-loud-florida-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": null,
+        "event_series_id": "rolling-loud-florida"
+      },
+      "note": "Window from the 2027 row (May 7-9). Rolling Loud Miami has moved between months in past years, so the month is uncertain."
     },
     {
       "anchor_id": "iii-points",
@@ -3037,7 +3074,8 @@
         "state": "confirmed_dated",
         "event_id": "iii-points-2026",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "iii-points"
       }
     },
     {
@@ -3063,7 +3101,8 @@
         "state": "confirmed_dated",
         "event_id": "miami-beach-pride-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "miami-beach-pride-festival"
       }
     },
     {
@@ -3143,7 +3182,8 @@
         "state": "confirmed_dated",
         "event_id": "key-west-lobsterfest-2027",
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": null,
+        "event_series_id": "key-west-lobsterfest"
       }
     },
     {
@@ -3219,6 +3259,60 @@
         "year": 2027,
         "state": "expected_undated",
         "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "thunder-beach-spring-rally",
+      "name": "Thunder Beach Spring Rally",
+      "region": "NW",
+      "city": "Panama City Beach",
+      "venue": "Panama City Beach",
+      "official_domain": "thunderbeachrally.com",
+      "category": "motorsports",
+      "tags": [
+        "rally",
+        "motorcycles",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 5
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "thunder-beach-spring-rally-2027",
+        "event_series_id": "thunder-beach-spring-rally",
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "thunder-beach-autumn-rally",
+      "name": "Thunder Beach Autumn Rally",
+      "region": "NW",
+      "city": "Panama City Beach",
+      "venue": "Panama City Beach",
+      "official_domain": "thunderbeachrally.com",
+      "category": "motorsports",
+      "tags": [
+        "rally",
+        "motorcycles",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "thunder-beach-autumn-rally-2026",
+        "event_series_id": "thunder-beach-autumn-rally",
         "last_checked": "2026-10-14",
         "source_url": null
       }

@@ -10,6 +10,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const REGIONS = ["NW", "NE", "Central", "Tampa Bay", "SW", "SE", "Keys"];
 const STATES = ["confirmed_dated", "expected_undated", "cancelled", "skipped"];
+const NO_PROBE_HOST = "disneyworld.disney.go.com";
 const ISO = /^\d{4}-\d{2}-\d{2}$/;
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const HOST = /^[a-z0-9-]+(?:\.[a-z0-9-]+)+$/;
@@ -50,6 +51,9 @@ export function validate(doc, railIds, knownEventIds = null) {
     if (!REGIONS.includes(a.region)) e(`${at}: region ${JSON.stringify(a.region)} not in ${REGIONS.join("/")}`);
     if (!isStr(a.official_domain)) e(`${at}: official_domain missing`);
     else if (!HOST.test(a.official_domain)) e(`${at}: official_domain must be a bare host, got ${a.official_domain}`);
+    if (a.official_domain === NO_PROBE_HOST && a.probe !== false) e(`${at}: ${NO_PROBE_HOST} entries must set probe:false (automated requests are forbidden)`);
+    if (a.probe !== undefined && typeof a.probe !== "boolean") e(`${at}: probe must be a boolean`);
+    if (a.note !== undefined && !isStr(a.note)) e(`${at}: note must be a non-empty string when present`);
     if (!Array.isArray(a.tags) || a.tags.some((t) => !isStr(t))) e(`${at}: tags must be an array of strings`);
     const w = a.typical_window;
     const mo = (n) => Number.isInteger(n) && n >= 1 && n <= 12;
@@ -61,10 +65,11 @@ export function validate(doc, railIds, knownEventIds = null) {
     if (!Number.isInteger(x.year) || x.year < 2026 || x.year > 2035) e(`${at}: expected_edition.year out of range`);
     if (!STATES.includes(x.state)) e(`${at}: state ${JSON.stringify(x.state)} not in ${STATES.join("/")}`);
     if (!ISO.test(x.last_checked || "")) e(`${at}: last_checked must be YYYY-MM-DD`);
+    if (x.event_series_id !== undefined && !isStr(x.event_series_id)) e(`${at}: event_series_id must be a non-empty string when present`);
+    if (x.event_series_id !== undefined && !x.event_id) e(`${at}: event_series_id requires an event_id`);
     if (x.event_id !== null && !isStr(x.event_id)) e(`${at}: event_id must be a string or null`);
     if (x.source_url !== null && !(isStr(x.source_url) && /^https?:\/\//.test(x.source_url))) e(`${at}: source_url must be an http(s) URL or null`);
     if (x.state === "confirmed_dated" && !isStr(x.event_id)) e(`${at}: confirmed_dated requires an event_id`);
-    if (x.state === "expected_undated" && x.event_id) e(`${at}: expected_undated must not carry an event_id`);
     if (knownEventIds && x.event_id && !knownEventIds.has(x.event_id)) e(`${at}: event_id ${x.event_id} not found in known set`);
   });
   return errs;
@@ -94,8 +99,10 @@ if (isMain) {
   mut((c) => { c.anchors[0].region = "Atlantis"; }, "region");
   mut((c) => { c.anchors[0].official_domain = ""; }, "official_domain");
   mut((c) => { c.anchors[0].expected_edition.state = "confirmed_dated"; c.anchors[0].expected_edition.event_id = null; }, "requires an event_id");
+  mut((c) => { const d = c.anchors.find((a) => a.official_domain === NO_PROBE_HOST); delete d.probe; }, "probe:false");
+  mut((c) => { const d = c.anchors.find((a) => a.expected_edition.event_id); d.expected_edition.event_series_id = ""; }, "event_series_id");
   const counts = {};
   for (const a of doc.anchors) counts[a.region] = (counts[a.region] || 0) + 1;
   for (const r of REGIONS) console.log(`  ${r}: ${counts[r] || 0}`);
-  console.log(`${doc.anchors.length} anchors validated (5 negative controls caught)`);
+  console.log(`${doc.anchors.length} anchors validated (7 negative controls caught)`);
 }
