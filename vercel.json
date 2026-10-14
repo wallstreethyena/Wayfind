@@ -58,6 +58,10 @@
       "schedule": "45 * * * *"
     },
     {
+      "path": "/api/cron/spend-pacing",
+      "schedule": "42 12 * * *"
+    },
+    {
       "path": "/api/cron/atlas-build?limit=3",
       "schedule": "15 * * * *"
     },
