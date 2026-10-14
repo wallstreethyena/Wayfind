@@ -305,6 +305,7 @@ scripts/check-owner-curation-one-path.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	
 scripts/check-parity-formula-lock.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	2	1	160e7767ddd1383dd237e5b083af152a6c1657129418e82404bd8118ad1660c9
 scripts/check-partner-collections.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	8f7207b7591602db55280990677187b85e50bb8b3f28b8193fe30efd49d8ba42
 scripts/check-partner-hook-collisions.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	5cf5a00f80a3aff5a3e46fc3c0f021a46fd39aae7d244284ba627e2c392006c7
+scripts/check-partner-path-health.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	38	0	0	98b262b902029137f6ee4ce9227ad57a762fe0f0d98ab1ed63a03a99c6bac507
 scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	7524ac283322640958de1cb88f6b9e00c8a8b84e848ead2c6bb3f44d7cbf6969
 scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	24ed6d53c226e2ab040a9fe0ab92e8b73eb03f0d513a6cd6a036e7118e92aa23
 scripts/check-photo-credit-under-headline.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	1c37d6aa092454eacc832ab61f7c3442363cc6c30424ad0dd852adf7c99e8cc4
@@ -838,6 +839,7 @@ scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd9
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
 scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	0f7c4d415efec36680b9357ee540ab5d0f6333736087ee9107aa1963779fc10f
 scripts/test-spend-bypass-regression.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	59	0	0	fb0b9d3ab8902a3336ed26382e9e65ce8b9bf5a4c420d971c7b95fc032f555ab
+scripts/test-spend-pacing.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	54	0	0	a79bfc97b05e1af475e00693748ab9ea7973d9d93f72e0e08fa66f17ec1ff7f6
 scripts/test-spend-tests-prod-env.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	0	0	0	978bdd9019c8b3d5d067e43152f4cd77fc24007428375ad3dc304e472e66dee5
 scripts/test-sports-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	7907c59504cb6b0b57e031720dc0490f40cdd3e1a8fcc78c8cbff1de19ab6d08
 scripts/test-stale-tab.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	4e023919ebef1c7dd7c381ffd5a90f727cb1d140b689851b280ca4da768ad44f

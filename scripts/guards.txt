@@ -1219,6 +1219,7 @@ node scripts/check-event-ticket-deals.mjs
 node scripts/check-event-ticket-fallback.mjs
 node scripts/check-affiliate-coverage.mjs
 node scripts/check-no-product-review.mjs
+node scripts/check-partner-path-health.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
 node scripts/check-menu-partner-offers.mjs
@@ -2166,3 +2167,7 @@ node scripts/test-seasonal-search.mjs
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
 node scripts/check-synthetic-map-contracts.mjs
+
+# 2026-10-13 spend pacing: daily forecast over every wf_spend_ledger row (OK/WARN/CAPPED), pulse
+# -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
+node scripts/test-spend-pacing.mjs
