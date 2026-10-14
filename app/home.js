@@ -54,6 +54,7 @@ import { eventPriceFact } from "../lib/eventPriceFact.js";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 import { mapInventoryRow } from "../lib/inventoryRowClient";
+import { INV_LIST_SCHEMA } from "../lib/coordProvenance.js";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
 // v8: onIdle's last callers were the two decorative hero photo fetches, which
 // were removed rather than deferred (lib/idleTask.js and its contract tests
@@ -7387,7 +7388,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // near Parrish: 0 of the top 50 food rows are cafés, which is
             // exactly why Food > Cafés rendered "Nothing here right now" while
             // 111 admissible cafés sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}${offset ? `&offset=${offset}` : ""}`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&schema=${INV_LIST_SCHEMA}${offset ? `&offset=${offset}` : ""}`);
             // 2026-09-23 (fix round, item 5) — a FAILED read (the route now
             // answers 503 + no-store rather than a cacheable {places:[]}) must
             // count as a failure, not a quiet "nothing here". Before this, a
@@ -9400,7 +9401,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     invMoreLoadingRef.current = true;
     try {
-      const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${meta.m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&offset=${meta.offset}`);
+      const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${meta.m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&schema=${INV_LIST_SCHEMA}&offset=${meta.offset}`);
       // 2026-09-23 (fix round, item 5) — a FAILED continuation page (the route
       // now answers 503 + no-store) must not be read as "the next page is
       // empty" — leave hasMore/offset untouched so another tap retries it.
