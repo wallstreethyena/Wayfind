@@ -245,7 +245,7 @@ export async function GET(req) {
   // probe-no-spend/no-photo) is a free read with nothing Google-side to
   // count, and correctly records nothing here.
   if (!probe) {
-    const outcomeClass = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.reason === "not-page-request" ? "not-page-request" : result.upstream;
+    const outcomeClass = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.reason === "not-page-request" ? "not-page-request" : result.reason === "not-place-id" ? "not-place-id" : result.upstream;
     if (outcomeClass) {
       try { await recordPhotoOutcome(outcomeClass); } catch { /* recordPhotoOutcome never throws; defensive anyway */ }
     }
