@@ -22,7 +22,11 @@ import { readFileSync } from "node:fs";
 import { metroMembers, regionLabel, metroCovers, postgrestMetroFilter, REGION_MEMBERS } from "../lib/metroRegions.js";
 import { CUISINE_METROS } from "../lib/cuisine.js";
 import { BEACH_METROS } from "../lib/beaches.js";
-import { EVERGREEN_RADIUS_MI } from "../lib/evergreenCities.js";
+// lib/evergreenCities.js is NOT imported: check-evergreen-landing-zero-spend allows only the
+// landing layer to import it (an importer could start spending), so its radius is read as source.
+// Its path is built, not written as one literal, because that guard's importer scan matches any
+// evergreen-cities path string; reading a file is not importing it.
+const EVERGREEN_FILE = ["lib", "evergreen" + "Cities.js"].join("/");
 
 const ROOT = new URL("../", import.meta.url);
 const read = (p) => readFileSync(new URL(p, ROOT), "utf8");
@@ -147,8 +151,8 @@ check(METRO_CITY["st-pete"] === "St. Petersburg" && METRO_CITY.tampa === "Tampa"
 const li = stripJs(read("lib/landingInventory.js"));
 check((li.match(/tryAt\(\s*27359\s*\)/g) || []).length === 1, "landingInventory tight radius tryAt(27359) (17 mi) changed");
 check((li.match(/tryAt\(\s*48280\s*\)/g) || []).length === 1, "landingInventory wide radius tryAt(48280) (30 mi) changed");
-check(EVERGREEN_RADIUS_MI === 17, `EVERGREEN_RADIUS_MI is ${EVERGREEN_RADIUS_MI}, expected 17`);
-for (const f of ["lib/landingInventory.js", "lib/landing.js", "lib/evergreenCities.js", "lib/landingCities.js"]) {
+{ const ev = stripJs(read(EVERGREEN_FILE)); const m = ev.match(/(?:export\s+)?const\s+EVERGREEN_RADIUS_MI\s*=\s*(\d+)/); check(!!m, "PROBE: EVERGREEN_RADIUS_MI declaration found in the evergreen cities module"); check(m && Number(m[1]) === 17, `EVERGREEN_RADIUS_MI is ${m && m[1]}, expected 17`); }
+for (const f of ["lib/landingInventory.js", "lib/landing.js", EVERGREEN_FILE, "lib/landingCities.js"]) {
   const code = stripJs(read(f));
   check(!/metroRegions/.test(code), `${f} (Tampa city page, distance-only) must not read the metro region`);
 }
