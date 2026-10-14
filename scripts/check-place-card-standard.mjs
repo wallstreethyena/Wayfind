@@ -334,6 +334,8 @@ if (!browserConfig) {
     photo: "/guides/verified/hunsader-farms-goats.webp", eyebrow: "Pumpkin Patches & Fall Farms", facts: ["Brooksville", "32.5 mi"],
     cta: { label: partnerTicketLabel("Undercover Tourist", { product: "park-admission", card: true }), href: "https://www.sweetfieldsfarm.com/", external: true, sponsored: true },
     place: place("skin"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
+    // An upcoming event page card: every skin renders the five-control row with Remind me (2026-10-14).
+    visitFacts: { event_name: "Sweetfields Farm Corn Maze & Pumpkin Patch", start_date: "2099-09-01", end_date: "2099-11-01", venue: "Sweetfields Farm" },
   };
   const skinBase = renderToStaticMarkup(React.createElement(RailCard, skinCardProps));
   const skinSpooky = renderToStaticMarkup(React.createElement(RailCard, { ...skinCardProps, spooky: true }));
@@ -414,7 +416,7 @@ if (!browserConfig) {
             const cs = getComputedStyle(card), contentCss = content ? getComputedStyle(content) : null, nameCss = name ? getComputedStyle(name) : null, actionCss = actions ? getComputedStyle(actions) : null;
             const headingCss = heading ? getComputedStyle(heading) : null;
             const headingTextWidth = name ? name.getBoundingClientRect().width - parseFloat(nameCss.paddingLeft || "0") - parseFloat(nameCss.paddingRight || "0") : null;
-            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
+            return { box: box(card), scrollWidth: card.scrollWidth, hrefs: [...card.querySelectorAll("a[href]")].map((a) => a.getAttribute("href") || ""), root: [cs.height, cs.width, cs.borderRadius, cs.backgroundColor], content: contentCss ? [contentCss.paddingTop, contentCss.paddingRight, contentCss.paddingBottom, contentCss.paddingLeft] : null, name: nameCss ? [nameCss.fontSize, nameCss.lineHeight, nameCss.fontWeight] : null, headingTextWidth, extras: [...card.querySelectorAll(".wf-rail-card-cta,.wf-place-card-credit,.wf-event-card-cost")].map(box), nameBox: name ? box(name) : null, labelFits: [...card.querySelectorAll(".wf-place-card-save,.wf-place-card-share,.wf-place-card-book,.wf-place-card-remind")].map(el => ({name:el.className, fits:el.scrollWidth <= el.clientWidth + 1, text:el.textContent, hasIcon:!!el.querySelector("svg")})), hasBooking: !!card.querySelector('.wf-place-card-book'), hasRemind: !!card.querySelector('.wf-place-card-remind'), actionStyles: Object.fromEntries(['save','like','dislike','share'].map(key => { const el = card.querySelector('.wf-place-card-' + key); if (!el) return [key,null]; const style = getComputedStyle(el); return [key,[style.height,style.fontSize,style.fontWeight,style.paddingLeft,style.paddingRight,style.borderRadius]]; })), actions: actionCss ? [actionCss.display, actionCss.gridTemplateColumns, actionCss.height, actionCss.columnGap] : null, media: media ? box(media) : null, score: score ? box(score) : null, controls: [...card.querySelectorAll(".wf-place-card-actions>*")].map(box) };
           }),
         }));
         return { innerWidth, scrollWidth: document.documentElement.scrollWidth, adapters };
@@ -423,13 +425,14 @@ if (!browserConfig) {
       if (REQUIRE_BROWSER && !MUTATION && [320, 390, 1440].includes(width)) {
         await page.screenshot({ path: path.join(ARTIFACT_DIR, `place-card-standard-${width}.png`), fullPage: true });
       }
-      // The rich Fall card is the standard card: one CTA row, four action buttons inside the card box.
+      // The rich Fall card is the standard card: one CTA row, four action buttons inside the card box, plus the
+      // Remind me bell an upcoming event page card always carries (lib/eventReminderFacts.js), also inside the box.
       if (width === 320 && !MUTATION) {
         const rich = await page.evaluate(() => {
           const card = [...document.querySelectorAll('[data-adapter="rail-card"] .wf-rail-card')].find((el) => el.textContent.includes("Sweetfields"));
           if (!card) return null;
           const body = card.getBoundingClientRect();
-          return { ctas: card.querySelectorAll(".wf-rail-card-cta").length, buttons: card.querySelectorAll(".wf-place-card-actions>button").length, outside: [...card.querySelectorAll(".wf-place-card-actions>button")].filter((c) => c.getBoundingClientRect().bottom > body.bottom + 1).length };
+          return { ctas: card.querySelectorAll(".wf-rail-card-cta").length, buttons: card.querySelectorAll(".wf-place-card-actions>button").length, reminds: card.querySelectorAll(".wf-place-card-actions>.wf-place-card-remind").length, outside: [...card.querySelectorAll(".wf-place-card-actions>button")].filter((c) => { const r = c.getBoundingClientRect(); return r.bottom > body.bottom + 1 || r.right > body.right + 1; }).length };
         });
         // 2026-10-09 suspected cause of the 320px-only flake (reproduced by forcing an emoji fallback; CI's actual fallback font was never observed): the partner CTA "Tickets at Undercover Tourist ↗" is
         // ~143.2px of text; its U+2197 comes from a host-chosen FALLBACK font (143.2-145.4px in text fonts,
@@ -451,7 +454,7 @@ if (!browserConfig) {
         for (const id of ctaNodes) { const h = (await cdp.send("DOM.getOuterHTML", { nodeId: id })).outerHTML; if (/Undercover Tourist/.test(h)) { nodeId = id; break; } }
         const platform = nodeId ? (await cdp.send("CSS.getPlatformFontsForNode", { nodeId })).fonts.map((f) => f.familyName) : null;
         ok(platform && platform.length > 0 && !platform.some((name) => /emoji/i.test(name)), `PROBE 320px: partner CTA glyphs come from text fonts only, no color emoji font (got ${JSON.stringify(platform)})`);
-        ok(rich && rich.ctas === 1 && rich.buttons === 4 && rich.outside === 0, "PROBE 320px: rich Fall card has one CTA and all four action buttons inside the card");
+        ok(rich && rich.ctas === 1 && rich.buttons === 5 && rich.reminds === 1 && rich.outside === 0, "PROBE 320px: rich Fall card has one CTA and all five action buttons (Save, like, dislike, Remind me, Share) inside the card");
         // 2026-10-06: the long partner label ("Park tickets at Undercover Tourist ↗") wrapped to
         // two lines because the nowrap/ellipsis rule only covered `.wf-place-card-cta>a`, not the
         // bare `<a class="wf-rail-card-cta">`. Assert ONE LINE BOX on the rendered anchor.
@@ -544,7 +547,7 @@ if (!browserConfig) {
         if (!stacked && card.actions && reference.actions) {
           ok(card.actions[0] === reference.actions[0] && card.actions[3] === reference.actions[3], `${width}px ${card.adapter}: action display and spacing match IconicPlaceCard`);
           if (card.controls.length === reference.controls.length) ok(card.actions[1] === reference.actions[1], `${width}px ${card.adapter}: equal control counts use equal action tracks`);
-          else ok(card.controls.length === 5 && card.hasBooking, `${width}px ${card.adapter}: the only extra action is the existing booking control`);
+          else ok(card.controls.length === 5 && (card.hasBooking || card.hasRemind), `${width}px ${card.adapter}: the only extra actions are the existing booking control and the Remind me bell (event cards)`);
         }
       }
       for (const card of live.filter((candidate) => !STACKED.has(candidate.adapter))) for (const key of ['save','like','dislike','share']) {
@@ -654,7 +657,7 @@ if (!browserConfig) {
     if (browser && !MUTATION) {
       const SLACK_PX = 2;
       const skinNames = Object.keys(SKIN_VARIANTS);
-      for (const width of [320, 375, 390]) {
+      for (const width of [320, 360, 375, 390, 414, 430]) {
         const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
         const page = await context.newPage();
         await page.goto("file://" + fixturePath, { waitUntil: "load" });
@@ -680,7 +683,24 @@ if (!browserConfig) {
             const card = host.querySelector(".wf-place-card");
             const cta = card && card.querySelector(".wf-rail-card-cta");
             const share = card && card.querySelector(".wf-place-card-share");
-            out.skins[host.getAttribute("data-skin")] = { cardClass: card ? card.className : "", cta: cta ? (({ text, ...rest }) => ({ ...rest, text: text * ctaScale }))(fit(cta)) : null, ghost: !!(card && card.querySelector(".wf-spooky-ghost")), share: share ? fit(share) : null };
+            const remindEl = card && card.querySelector(".wf-place-card-remind");
+            const remind = remindEl ? (() => {
+              const label = remindEl.querySelector(".wf-remind-label"), svg = remindEl.querySelector("svg");
+              const rb = remindEl.getBoundingClientRect(), cb = card.getBoundingClientRect(), lb = label ? label.getBoundingClientRect() : null;
+              const labelShown = !!label && getComputedStyle(label).display !== "none";
+              const ctaEl = card.querySelector(".wf-rail-card-cta"), cta2 = ctaEl ? ctaEl.getBoundingClientRect() : null;
+              const siblings = [...remindEl.parentElement.children].filter((n) => n !== remindEl).map((n) => n.getBoundingClientRect());
+              const overlap = siblings.some((o) => Math.min(rb.right, o.right) - Math.max(rb.left, o.left) > 0.5 && Math.min(rb.bottom, o.bottom) - Math.max(rb.top, o.top) > 0.5);
+              return {
+                aria: remindEl.getAttribute("aria-label"), labelShown, svgShown: !!svg && getComputedStyle(svg).display !== "none", w: rb.width, h: rb.height,
+                insideCard: rb.left >= cb.left - 0.5 && rb.right <= cb.right + 0.5 && rb.top >= cb.top - 0.5 && rb.bottom <= cb.bottom + 0.5,
+                clipped: remindEl.scrollWidth > remindEl.clientWidth + 0.5,
+                labelGapLeft: labelShown ? lb.left - rb.left : null, labelGapRight: labelShown ? rb.right - lb.right : null,
+                overlapsControl: overlap, overlapsCta: !!cta2 && Math.min(rb.right, cta2.right) - Math.max(rb.left, cta2.left) > 0.5 && Math.min(rb.bottom, cta2.bottom) - Math.max(rb.top, cta2.top) > 0.5,
+                rowH: remindEl.parentElement.getBoundingClientRect().height, text: remindEl.textContent.trim(),
+              };
+            })() : null;
+            out.skins[host.getAttribute("data-skin")] = { remind, cardClass: card ? card.className : "", cta: cta ? (({ text, ...rest }) => ({ ...rest, text: text * ctaScale }))(fit(cta)) : null, ghost: !!(card && card.querySelector(".wf-spooky-ghost")), share: share ? fit(share) : null };
           }
           for (const share of document.querySelectorAll("[data-event-page] .wf-place-card-share")) out.eventShares.push(fit(share));
           return out;
@@ -697,6 +717,22 @@ if (!browserConfig) {
           if (skin === "spooky") ok(v.ghost, `PROBE ${width}px spooky: ghost glyph span rendered inside the CTA`);
           if (skin === "christmas" || skin === "spooky" || skin === "fall") ok(v.cta.bg !== baseBg || v.cta.border !== fits.skins.base.cta.border, `PROBE ${width}px ${skin}: skinned CTA computed style differs from the base CTA (skin CSS actually applied)`);
           ok(/Tickets at Undercover Tourist/.test(v.cta.label), `PROBE ${width}px ${skin}: CTA carries the full partner label (got ${JSON.stringify(v.cta.label)})`);
+          // REMIND ME (2026-10-14): the bell is in every skin's row at every phone width. <=410px it is icon-only
+          // (aria-label "Remind me", label hidden, 26px track); <=340px it is a full-width second line with its
+          // label; 411px and wider it keeps its label. In every case it is whole, inside the card, clear of its
+          // neighbours and the CTA, and a visible label keeps >=2px each side.
+          const r = v.remind;
+          ok(!!r, `PROBE ${width}px ${skin}: the Remind me button rendered in the action row`);
+          if (r) {
+            ok(r.aria === "Remind me" && r.svgShown, `${width}px ${skin}: Remind me has aria-label "Remind me" and a visible bell (got ${JSON.stringify(r.aria)}, bell ${r.svgShown})`);
+            ok(r.insideCard && !r.clipped && !r.overlapsControl && !r.overlapsCta, `${width}px ${skin}: Remind me is inside the card, unclipped, and clear of its neighbours and the CTA (${JSON.stringify({ inside: r.insideCard, clipped: r.clipped, overlap: r.overlapsControl, cta: r.overlapsCta, w: r.w })})`);
+            const wantLabel = width <= 340 || width > 410;
+            ok(r.labelShown === wantLabel, `${width}px ${skin}: Remind me label is ${wantLabel ? "shown" : "hidden (icon-only)"} at this width (labelShown=${r.labelShown})`);
+            if (r.labelShown) ok(r.labelGapLeft >= SLACK_PX && r.labelGapRight >= SLACK_PX, `${width}px ${skin}: Remind me label keeps >=${SLACK_PX}px each side (left ${r.labelGapLeft && r.labelGapLeft.toFixed(2)}, right ${r.labelGapRight && r.labelGapRight.toFixed(2)})`);
+            else ok(r.w >= 24 && r.h >= 28, `${width}px ${skin}: icon-only Remind me keeps a tappable box (${r.w.toFixed(1)}x${r.h.toFixed(1)})`);
+            if (width <= 340) ok(r.rowH >= 60 && r.w >= 140, `${width}px ${skin}: below 341px the bell is a full-width second line (row ${r.rowH.toFixed(1)}px tall, bell ${r.w.toFixed(1)}px wide)`);
+            else ok(r.rowH <= 40, `${width}px ${skin}: at 341px and wider the five controls share ONE line (row ${r.rowH.toFixed(1)}px tall)`);
+          }
           ok(v.cta.text <= v.cta.inner - SLACK_PX, `${width}px ${skin}: partner CTA text box fits content box with >=${SLACK_PX}px slack (text ${v.cta.text.toFixed(2)}px vs content ${v.cta.inner.toFixed(2)}px, font ${v.cta.font}, Inter-calibration x${fits.ctaScale.toFixed(3)})`);
           ok(v.share.text <= v.share.inner - SLACK_PX, `${width}px ${skin}: Share text box fits content box with >=${SLACK_PX}px slack (text ${v.share.text.toFixed(2)}px vs content ${v.share.inner.toFixed(2)}px, font ${v.share.font})`);
         }
