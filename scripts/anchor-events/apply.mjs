@@ -40,7 +40,9 @@ export const ALLOWED_FIELDS = Object.freeze(["lat", "lng", "place_id", "official
   "start_date", "end_date", "start_time", "end_time", "event_status", "category", "venue", "address",
   "hero_image", "hero_image_kind", "image_alt", "schedule_note", "last_verified_at"]);
 export const IMAGE_KIND_VOCAB = Object.freeze(["event", "venue"]);
-export const STATUS_VOCAB = Object.freeze(["scheduled", "postponed", "cancelled", "sold_out"]);
+// The live wf_events.event_status values (2026-10-14 SELECT): a correction must
+// be able to move a row from any of them, and its rollback must move it back.
+export const STATUS_VOCAB = Object.freeze(["scheduled", "postponed", "cancelled", "sold_out", "unannounced", "completed", "paused"]);
 export const FL_BBOX = Object.freeze({ minLat: 24.3, maxLat: 31.1, minLng: -87.7, maxLng: -79.8 });
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;

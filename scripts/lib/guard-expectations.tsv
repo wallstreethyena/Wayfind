@@ -442,7 +442,7 @@ scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	50fa
 scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	1efd5c41cb4aa28d746b7e86573fea35da903f8dc7b492048cd331cf814c4245
 scripts/test-analytics-write-suppression.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	3422149225bebecdaf6a3a662a1d565847cb3bcc7e84e5aa66f1db15942c8c4d
 scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb598679327a1f7d0f0f24bce0613f3dadd81144efca8af637121
-scripts/test-anchor-apply.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	5ee9f406f4cfc681707efe9111572ba6f531ac0d766b81b5eec8ee6d8394feca
+scripts/test-anchor-apply.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	ab7838b88dc8cb2321a1b2af91b259e4231456885655f5be8c635385b67cb1e9
 scripts/test-anchor-watch-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	4265bd532a8558a133cd32efc60c3072ffb383f7bbc8a90013f3e589b9fc0402
 scripts/test-anchor-watch.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	0	0	2ea6ad0f48da50f0ca47caa8379fffc65dcf6ea65548425221993e867c655e85
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
