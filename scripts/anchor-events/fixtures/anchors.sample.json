@@ -141,7 +141,6 @@
         "events"
       ],
       "anchor_id": "fx-series-anchor",
-      "event_series_id": "series-xyz",
       "name": "Winter Lights Series",
       "official_domain": "seriesfest.example",
       "typical_window": {
@@ -152,6 +151,7 @@
         "year": 2026,
         "state": "confirmed_dated",
         "event_id": null,
+        "event_series_id": "series-xyz",
         "last_checked": "2026-10-01",
         "source_url": null
       }

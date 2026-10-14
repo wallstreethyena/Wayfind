@@ -104,6 +104,12 @@ const pad = (n) => String(n).padStart(2, "0");
 
 /** Days from `today` (YYYY-MM-DD) until the anchor's typical window opens; 0 if
  *  the window is open right now. Handles windows that wrap a year end. */
+// The anchor file (#1751) stores the series id under expected_edition; a
+// top-level event_series_id is honored too.
+export function anchorSeriesId(a) {
+  return (a && (a.event_series_id || (a.expected_edition && a.expected_edition.event_series_id))) || null;
+}
+
 export function daysUntilWindow(today, startMonth, endMonth) {
   const t = ymdToUtc(today);
   const y0 = Number(today.slice(0, 4));
@@ -274,7 +280,7 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
 
   const active = anchors.filter((a) => a && a.expected_edition && a.expected_edition.state !== "cancelled" && a.expected_edition.state !== "skipped");
   const ids = new Set();
-  for (const a of active) { ids.add(a.anchor_id); if (a.event_series_id) ids.add(a.event_series_id); if (a.expected_edition.event_id) ids.add(a.expected_edition.event_id); }
+  for (const a of active) { ids.add(a.anchor_id); if (anchorSeriesId(a)) ids.add(anchorSeriesId(a)); if (a.expected_edition.event_id) ids.add(a.expected_edition.event_id); }
   const COLS = "event_id,event_series_id,event_name,year,slug,start_date,end_date,event_status,state,lat,lng,place_id,category,hero_image,link_ok,link_verdict,link_checked_at,official_event_url,event_page_url,last_verified_at";
   let rows = [];
   if (ids.size) {
@@ -282,7 +288,7 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
     rows = await dbGet(`wf_events?select=${COLS}&or=(event_id.in.${encodeURIComponent(list)},event_series_id.in.${encodeURIComponent(list)})&limit=1000`);
   }
   const rowsFor = (a) => rows.filter((r) =>
-    (a.expected_edition.event_id && r.event_id === a.expected_edition.event_id) || r.event_series_id === (a.event_series_id || a.anchor_id));
+    (a.expected_edition.event_id && r.event_id === a.expected_edition.event_id) || r.event_series_id === (anchorSeriesId(a) || a.anchor_id));
   const liveFor = (a) => rowsFor(a).filter((r) => rowIsLive(r, today));
 
   // places with a free permanent photo
