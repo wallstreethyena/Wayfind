@@ -23,7 +23,7 @@ import {
 } from "../lib/christmasResearch.js";
 import { composeChristmasIntentRails, christmasEventRail, CHRISTMAS_LOCAL_ONLY_RAILS, CHRISTMAS_STATEWIDE_RAILS, christmasDistanceGroup } from "../lib/christmasIntentRails.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
-import { christmasHonestyChips, christmasWhenBadge, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
+import { christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES } from "../lib/christmasBrowse.js";
 import { christmasAwareEventBySlug, christmasPageRow } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
@@ -68,7 +68,9 @@ const LIVE_ROWS = [
 ];
 for (const [event_id, event_name, city, start_date, end_date] of LIVE_ROWS) {
   const i = DB.findIndex((r) => r.event_id === event_id);
-  const row = { event_id, slug: event_id, event_name, city, state: "FL", start_date, end_date, lat: null, lng: null, place_id: null, venue: "staging", event_status: "scheduled", source_tier: 1, verification_confidence: "high", card_hook: "A verified row.", tags: [] };
+  // The live Christmas Town hook really carries an em dash (wf_events copy, not editable here).
+  const card_hook = event_id === "christmas-town-2026" ? "Millions of lights and coasters in the dark \u2014 included with admission." : "A verified row.";
+  const row = { event_id, slug: event_id, event_name, city, state: "FL", start_date, end_date, lat: null, lng: null, place_id: null, venue: "staging", event_status: "scheduled", source_tier: 1, verification_confidence: "high", card_hook, schedule_note: event_id === "christmas-town-2026" ? "Select nights 5pm\u201310pm" : null, tags: [] };
   if (i >= 0) DB[i] = row; else DB.push(row);
 }
 const merged = mergeChristmasResearch(DB);
@@ -258,6 +260,29 @@ function CITIES() {
   ok(t.start_time === "17:30:00" && t.end_time === "21:30:00" && t.timezone === "America/Chicago", "times parse, and a Central Time row keeps its zone");
   const jan = cards.find((c) => c.end_date && c.end_date >= "2027-01-01");
   ok(!!jan, "a listing that runs into January 2027 is published");
+}
+
+// ── 8c. No dashes in user facing copy (owner rule) ──────────────────────────
+{
+  ok(CHRISTMAS_DASH_RX.test("in the dark \u2014 included") && CHRISTMAS_DASH_RX.test("5pm\u201310pm") && CHRISTMAS_DASH_RX.test("Dec 5 - 6") && CHRISTMAS_DASH_RX.test("6-9 PM") && !CHRISTMAS_DASH_RX.test("Flora-Bama day-of drive-thru"), "the dash probe catches em, en, spaced and range hyphens, and spares a hyphen inside a word");
+  ok(christmasCopy("Millions of lights and coasters in the dark \u2014 included with admission.") === "Millions of lights and coasters in the dark, included with admission." && christmasCopy("Sat \u00b7 5pm\u20139:30pm") === "Sat \u00b7 5pm to 9:30pm" && christmasCopy("Nov 13 \u2013 Jan 4") === "Nov 13 to Jan 4", "christmasCopy turns punctuation dashes into words");
+  // The source: every user facing field of every shown research row (published and watchlist).
+  const FIELDS = ["event_name", "venue_name", "why", "schedule", "times", "price", "missing", "parking_access", "accessibility", "age", "organizer"];
+  const srcBad = RAW.filter((r) => r.state !== "excluded").flatMap((r) => FIELDS.filter((k) => typeof r[k] === "string" && CHRISTMAS_DASH_RX.test(r[k])).map((k) => r.id + "." + k));
+  ok(srcBad.length === 0, `the research data has no punctuation dash in a user facing field (${srcBad.slice(0, 5).join(", ")})`);
+  // The output: every string a card, a chip or an event page shows.
+  const shown = (c) => [c.title, c.hook, c.take, c.venue, c.schedule_note, c.price_label, c.audience_label, c.when?.label, c.when?.value, ...christmasCardChips(c, TODAY).flatMap((x) => [x.label, x.title])];
+  const cardBad = cards.flatMap((c) => shown(c).filter((t) => typeof t === "string" && CHRISTMAS_DASH_RX.test(t)).map((t) => c.id + ": " + t.slice(0, 50)));
+  ok(cardBad.length === 0, `no card, chip or badge shows a punctuation dash (${cardBad.slice(0, 4).join(" | ")})`);
+  const town = cards.find((c) => c.id === "christmas-town-2026");
+  ok(town && town.hook === "Millions of lights and coasters in the dark, included with admission.", "a wf_events hook with an em dash is shown without it (Christmas Town)");
+  const pages = CHRISTMAS_PUBLISHED_RESEARCH.slice(0, 400).map((r) => christmasPageRow(r)).concat(merged.filter((m) => m.christmas_research_id && !m.christmas_excluded).map((m) => christmasPageRow(m)));
+  const pageBad = pages.flatMap((p) => [p.when_label, p.schedule_note, p.card_hook, p.venue, p.christmas_price_line, p.audience_label].filter((t) => typeof t === "string" && CHRISTMAS_DASH_RX.test(t)).map((t) => p.event_id + ": " + t.slice(0, 50)));
+  ok(pageBad.length === 0, `no Christmas event page fact shows a punctuation dash (${pageBad.slice(0, 4).join(" | ")})`);
+  ok(/e\.christmas_research_id \? " to " : "\u2013"/.test(read("app/florida-events/[slug]/page.js")), "the event page time range reads \"to\" on Christmas listings (static)");
+  const ui = ["app/components/ChristmasBrowse.js", "app/christmas-in-florida/page.js", "lib/christmasBrowse.js", "lib/christmasCardCopy.js"].map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""));
+  const strings = ui.flatMap((src) => src.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[\u2013\u2014]| - /.test(t) && !/RX|regex|replace/.test(t));
+  ok(strings.length === 0, `the new browse copy has no punctuation dash (${strings.slice(0, 3).join(" | ")})`);
 }
 
 // ── 9. Server only ──────────────────────────────────────────────────────────
