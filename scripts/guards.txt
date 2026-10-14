@@ -2196,3 +2196,4 @@ node scripts/test-photo-recovered-evidence.mjs
 node scripts/test-photo-visitor-cap.mjs
 node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
+node scripts/test-area-twins.mjs
