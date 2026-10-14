@@ -26,6 +26,7 @@
 // server-side (PROVIDERS.viator), so attribution is identical and the handoff
 // is ours.
 import { useEffect, useState } from "react";
+import SafeImg from "./SafeImg";
 import { wayfindScore } from "../../lib/google";
 import { toDisplayScore } from "../../lib/score";
 import { isPerfectScore } from "../../lib/lawfulOrder";
@@ -117,7 +118,7 @@ export default function TourStrip({ lat, lng, title, subtitle, waterOnly, initia
           if (!href) return null; // no offer id, no link — never the raw partner URL
           return (
           <a key={t.code} href={href} target="_blank" rel="noopener sponsored nofollow" style={{ background: "#10141d", border: "1px solid #1F2937", borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
-            <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />
+            <SafeImg src={t.image} alt="" loading="lazy" icon="🎟️" style={{ width: "100%", height: 92, objectFit: "cover", display: "block" }} />
             <div style={{ padding: "9px 11px 11px" }}>
               <div style={{ fontSize: 12.5, fontWeight: 750, color: "#F1F5F9", lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{t.title}</div>
               <div style={{ display: "flex", alignItems: "baseline", gap: 7, marginTop: 4 }}>

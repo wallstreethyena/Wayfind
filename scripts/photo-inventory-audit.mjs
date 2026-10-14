@@ -19,7 +19,7 @@ import { guideRegions } from "../lib/guideIndex.js";
 import { DEDICATED_GUIDE_ROUTES } from "../lib/guideDedicatedRoutes.js";
 import { guideCardPhoto } from "../lib/guideCardPhoto.js";
 import { guideHero } from "../lib/guideHero.js";
-import { PHOTO_SURFACES } from "../lib/photoSurfaces.js";
+import { PHOTO_SURFACES, NON_PHOTO_IMAGE_FILES } from "../lib/photoSurfaces.js";
 import { blogTargets, loadBlogTargets } from "../lib/creditedPhotoTargets.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 import {
@@ -88,7 +88,7 @@ const report = { generatedAt: new Date().toISOString(), mode: staticOnly ? "stat
   };
   walk(path.join(REPO, "app"));
   walk(path.join(REPO, "lib"));
-  const registered = new Set(PHOTO_SURFACES.flatMap((s) => s.components || []));
+  const registered = new Set([...PHOTO_SURFACES.flatMap((s) => s.components || []), ...Object.keys(NON_PHOTO_IMAGE_FILES)]); // non-photo brand/static art is documented in lib/photoSurfaces.js, not a blind spot
   // The modules that DEFINE the helpers are not renderers.
   const DEFINERS = new Set(["lib/cardPhotoRequest.js", "lib/imageState.js"]);
   report.surfaces = surfaceAudit(files.filter((f) => !DEFINERS.has(f.rel)), registered);

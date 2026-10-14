@@ -10,6 +10,7 @@
 // this page gives it a separate class namespace so changing an intent sheet
 // cannot restyle /best-beaches.
 import EditorialLandingHero, { editorialHeroCss } from "./EditorialLandingHero";
+import SafeImg from "./SafeImg";
 import { WF_PLACE_CARD_CSS } from "./css";
 
 const C = { bg: "#040810", card: "#0B0E15", border: "rgba(255,255,255,.08)", text: "#F1F5F9", muted: "#8b93a1", accent: "#F97316", gold: "#E8C97A", green: "#3ee08a" };
@@ -42,7 +43,7 @@ export function RankedRow({ i, href, onClick, img, imgEl, title, score, why, edi
             in-app screens need their FallbackImg (icon on a missing or broken
             photo), and building that here would drag app state into this
             pure shell. Geometry stays shared via ROW_IMG_STYLE. */}
-        {imgEl || (img ? <img src={img} alt="" loading="lazy" style={ROW_IMG_STYLE} /> : null)}
+        {imgEl || (img ? <SafeImg src={img} alt="" loading="lazy" style={ROW_IMG_STYLE} /> : null)}
         <div style={{ minWidth: 0, flex: 1 }}>
           <div style={{ display: "flex", alignItems: "baseline", gap: 10, flexWrap: "wrap" }}>
             <span style={{ fontSize: 17, fontWeight: 750, color: C.text }}>{title}</span>
