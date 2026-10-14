@@ -26,6 +26,7 @@ import EventStays from "./EventStays.js";
 import EventMapPlaces from "./EventMapPlaces.js";
 import { WF_PLACE_CARD_CSS } from "./css.js";
 import { websiteHost } from "../../lib/placeWhere.js";
+import { APPROXIMATE_LOCATION_LINE } from "../../lib/eventLocation.js";
 import { Suspense } from "react";
 import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
 
@@ -91,7 +92,7 @@ export function eventNearbyPlaces(picks, hasPoint) {
  *   sponsoredWebsite?: boolean,    // rel=sponsored when the link earns
  * }} props
  */
-export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false }) {
+export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false }) {
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
@@ -109,6 +110,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 ? <a href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open " + address + " in Apple Maps"}>{address}</a>
                 : address}</p>
             ) : null}
+            {approximate ? <p className="wfw-addr" data-location-precision="approximate">{APPROXIMATE_LOCATION_LINE}</p> : null}
           </div>
           {hasPoint || directionsHref || website ? (
             <div className="wfw-acts">
