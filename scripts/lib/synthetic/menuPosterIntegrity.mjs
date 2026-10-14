@@ -278,3 +278,39 @@ export function exactRenderedIdSet(expectedIds, renderedIds) {
     && new Set(rendered).size === rendered.length
     && rendered.every((id) => expected.includes(id));
 }
+
+/**
+ * Guide cards ride INSIDE place rails by owner rule (2026-10-08,
+ * lib/railGuideSlot.js): the rail's third card, chosen because the guide covers
+ * a place in the rail's own leading window (lib/guideDiscovery.js). They carry
+ * `data-guide-id` (and `data-guide-matched-id`), never `data-place-id`.
+ *
+ * `cards` is every `.wf-place-card` in DOM order: `{ id, guideId, matchedId }`.
+ * A card with neither id is still an unidentified card and still fails.
+ * A guide is accepted only when it is the single guide, sits at the guide slot
+ * (index 2, or last in a rail shorter than 2), and its matched place is one of
+ * the rail's captured place ids (the product's own relevance evidence).
+ */
+export function partitionRailCards(cards, expectedPlaceIds) {
+  const list = Array.isArray(cards) ? cards : [];
+  const expected = new Set((Array.isArray(expectedPlaceIds) ? expectedPlaceIds : []).map(asId));
+  const guides = [];
+  const placeCards = [];
+  const unidentified = [];
+  list.forEach((card, index) => {
+    const guideId = asId(card?.guideId);
+    const id = asId(card?.id);
+    if (guideId && !id) guides.push({ guideId, matchedId: asId(card?.matchedId), index });
+    else if (id) placeCards.push({ id, name: card?.name });
+    else unidentified.push(asName(card?.name) || "(unnamed card)");
+  });
+  const slot = Math.min(2, Math.max(0, list.length - 1));
+  return {
+    placeCards,
+    guides,
+    unidentified,
+    guideCount: guides.length,
+    guideMisplaced: guides.filter((g) => g.index !== slot).map((g) => g.guideId),
+    guideUnmatched: guides.filter((g) => !g.matchedId || !expected.has(g.matchedId)).map((g) => g.guideId),
+  };
+}
