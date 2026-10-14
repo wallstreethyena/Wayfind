@@ -298,6 +298,7 @@ if (!browserConfig) {
   const PlaceCardSkeleton = (await loadComponent(path.join(ROOT, "app/components/PlaceCardSkeleton.js"), ROOT)).default;
   const SponsoredPlaceCard = (await loadComponent(path.join(ROOT, "app/components/SponsoredPlaceCard.js"), ROOT)).default;
   const GuidePlaceCard = (await loadComponent(path.join(ROOT, "app/components/GuidePlaceCard.js"), ROOT)).default;
+  const { EVENT_EXPERIENCE_CSS } = await loadComponent(path.join(ROOT, "app/components/EventExperienceStyles.js"), ROOT);
   const noop = () => {};
   const place = (id, name = "Sarasota Guided Mangrove Tunnel Kayak Tour") => ({
     id, name, rating: 4.8, reviews: 1141, priceLevel: "PRICE_LEVEL_MODERATE",
@@ -325,6 +326,25 @@ if (!browserConfig) {
     visitFacts: { start_date: "2099-09-01", end_date: "2099-11-01", visit_cost: { currency: "USD", entry: 13.28, parking: 0, fees_note: "+ tax" }, visit_restrictions: ["Ages 3+ need a ticket"] },
     cta: { label: partnerTicketLabel("Undercover Tourist", { product: "park-admission", card: true }), href: "https://www.sweetfieldsfarm.com/", external: true, sponsored: true },
   });
+  // 2026-10-14: the same partner-CTA card, re-rendered under every skin that restyles the CTA/Share
+  // (Christmas, spooky, fall, award). Class strings come from the real selectors in css.js (XMAS_SCOPES,
+  // .wf-spooky-card, .wf-fall-card, .is-award-winner); spooky is the real RailCard prop so the ghost span renders.
+  const skinCardProps = {
+    title: "Sweetfields Farm Corn Maze & Pumpkin Patch", rank: 1, href: "/florida-events/sweetfields-fall-2026",
+    photo: "/guides/verified/hunsader-farms-goats.webp", eyebrow: "Pumpkin Patches & Fall Farms", facts: ["Brooksville", "32.5 mi"],
+    cta: { label: partnerTicketLabel("Undercover Tourist", { product: "park-admission", card: true }), href: "https://www.sweetfieldsfarm.com/", external: true, sponsored: true },
+    place: place("skin"), onSave: noop, onLike: noop, onDislike: noop, onShare: noop,
+  };
+  const skinBase = renderToStaticMarkup(React.createElement(RailCard, skinCardProps));
+  const skinSpooky = renderToStaticMarkup(React.createElement(RailCard, { ...skinCardProps, spooky: true }));
+  const addRootClass = (markup, cls) => markup.replace(/(<article[^>]*class="wf-place-card )/, `$1${cls} `);
+  const SKIN_VARIANTS = Object.freeze({
+    base: skinBase,
+    christmas: addRootClass(skinBase, "wf-christmas-card"),
+    spooky: skinSpooky,
+    fall: addRootClass(skinBase, "wf-fall-card"),
+    award: addRootClass(skinBase, "is-award-winner"),
+  });
   const richFallMarkup = renderToStaticMarkup(richFall);
   ok(richFallMarkup.includes("Tickets at Undercover Tourist") && richFallMarkup.includes("wf-place-card-photo-attr") && !richFallMarkup.includes("Plan your visit") && !richFallMarkup.includes("Official details") && !richFallMarkup.includes("Venue photo") && !richFallMarkup.includes("wf-event-card-backdrop") && !richFallMarkup.includes("wf-rail-card-links") && richFallMarkup.includes(">©<") && !richFallMarkup.includes(">Robin Teng"), "PROBE: rich Fall fixture is the standard card: one CTA, (c) chip only, no caption, backdrop, link grid or Official details");
   ok((richFallMarkup.match(/wf-rail-card-cta/g) || []).length === 1, "LOCK: a rail card never renders two .wf-rail-card-cta links");
@@ -350,16 +370,18 @@ if (!browserConfig) {
   ok(typeof HomePlaceCard === "function", "PROBE: actual home PlaceCard compiled for its rendered adapter");
   const homeCard = HomePlaceCard ? React.createElement(HomePlaceCard, { p: place("home"), rank: 1, saved: false, liked: false, disliked: false, onDetail: noop, onSave: noop, onLike: noop, onDislike: noop, onShareCard: noop, line: null, onBadge: noop, city: "Sarasota" }) : null;
   const section = (adapter, body, cls = "wf-rail") => `<section data-adapter="${adapter}"><div class="${cls}">${renderToStaticMarkup(body)}</div></section>`;
-  const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{padding:0 13px;color:#fff;font:12px sans-serif}section[data-adapter]{display:block;margin:12px 0 24px}section[data-adapter]::before{content:attr(data-adapter);display:block;margin-bottom:6px;color:#86efac;font-weight:800}${WF_PLACE_CARD_CSS}</style></head><body style="margin:0;background:#040810">
+  const fixture = `<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{padding:0 13px;color:#fff;font:12px Inter,sans-serif}section[data-adapter]{display:block;margin:12px 0 24px}section[data-adapter]::before{content:attr(data-adapter);display:block;margin-bottom:6px;color:#86efac;font-weight:800}${WF_PLACE_CARD_CSS}</style></head><body style="margin:0;background:#040810">
   ${section("iconic", React.createElement(React.Fragment, null, iconic("iconic-a"), iconic("iconic-b")))}
   ${section("rail-card", React.createElement(React.Fragment, null, rail, richRail, richFall))}
   <section data-adapter="event-nearby-place-rail">${renderToStaticMarkup(event)}</section>
   <section data-adapter="event-stay-place-rail">${renderToStaticMarkup(stays)}</section>
+  <div data-event-page style="margin:0 -13px"><style>${EVENT_EXPERIENCE_CSS}</style><main class="wf-event-experience"><div class="wf-event-wrap"><div style="padding:0 1px"><section style="margin:18px 14px 0">${renderToStaticMarkup(event)}</section><section style="margin:18px 14px 0">${renderToStaticMarkup(stays)}</section></div></div></main></div>
   ${section("things-to-do", React.createElement(React.Fragment, null, thing, thing))}
   ${section("skeleton", React.createElement(PlaceCardSkeleton, { count: 2, as: "div" }))}
   ${section("home-live-route", React.createElement(React.Fragment, null, homeCard, homeCard), "wf-place-card-list")}
   ${section("sponsored", React.createElement(React.Fragment, null, sponsor, sponsor))}
   <section data-adapter="guide-list-slot"><ol class="wf-place-card-list"><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-a"), rank: 1, editorial: "A verified local favorite." }))}</ul></li><li class="wf-place-card-slot"><ul class="wf-place-card-slot-list">${renderToStaticMarkup(React.createElement(GuidePlaceCard, { place: place("guide-b"), rank: 2, editorial: "A verified local favorite." }))}</ul></li></ol></section>
+  ${Object.entries(SKIN_VARIANTS).map(([skin, markup]) => `<section data-skin="${skin}"><div class="wf-rail">${markup}</div></section>`).join("\n  ")}
   ${MUTATION ? '<style>.wf-event-place-rail .wf-place-card{--wf-card-h:340px}.wf-event-place-rail .wf-place-card-name{font-size:22px}</style>' : ""}
   </body></html>`;
   const temp = mkdtempSync(path.join(ROOT, ".wf-card-standard-"));
@@ -622,6 +644,64 @@ if (!browserConfig) {
       await page.close();
       for (const label of labels) {
         ok(label.fits, `RED-PROOF 320px: action label still fits under a forced mismatched font (${STRESS_FONT}; ${label.name}, text ${JSON.stringify(label.text)}) — the scenario (a different font rendering the label) that made the original guard flake in CI`);
+      }
+    }
+    // 2026-10-14: every ACTION LABEL in a place card must fit its content box with >= 2px slack, in every skin.
+    // Production 320px measurements found the Christmas and spooky partner CTAs ("Tickets at Undercover
+    // Tourist ↗") and the event-page "↗ Share" truncated while this guard only ever measured the unskinned CTA.
+    // Each variant carries a positive control (it rendered, the skin class really applied, and the skin's own
+    // computed style differs from the base CTA) so a fixture that silently drops a skin cannot pass.
+    if (browser && !MUTATION) {
+      const SLACK_PX = 2;
+      const skinNames = Object.keys(SKIN_VARIANTS);
+      for (const width of [320, 375, 390]) {
+        const context = await browser.newContext({ viewport: { width, height: 1000 }, deviceScaleFactor: 1 });
+        const page = await context.newPage();
+        await page.goto("file://" + fixturePath, { waitUntil: "load" });
+        await page.evaluate(async () => { await document.fonts.ready; await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))); });
+        const fits = await page.evaluate(() => {
+          const fit = (el) => {
+            const cs = getComputedStyle(el), range = document.createRange(); range.selectNodeContents(el);
+            return { label: el.textContent.trim(), inner: el.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight), text: range.getBoundingClientRect().width, font: cs.fontSize, bg: cs.backgroundImage, border: cs.borderTopColor };
+          };
+          // Production draws anchors in Inter (app/fonts.js) and buttons in the platform control face. A runner
+          // without Inter would measure the CTA narrower than production did (143.2px vs the real 148.48px), so
+          // the CTA text width is scaled by (Inter width / this runner's width) of one fixed reference string; the
+          // scale is exactly 1 where Inter is installed and never below 1.
+          const INTER_REF_100PX_800 = 1562.953125;
+          const probeSpan = document.createElement("span");
+          probeSpan.style.cssText = "position:absolute;visibility:hidden;white-space:nowrap;font-weight:800;font-size:100px;font-family:" + getComputedStyle(document.querySelector("[data-skin] .wf-rail-card-cta")).fontFamily;
+          probeSpan.textContent = "Tickets at Undercover Tourist \u2197";
+          document.body.appendChild(probeSpan);
+          const ctaScale = Math.max(1, INTER_REF_100PX_800 / probeSpan.getBoundingClientRect().width);
+          probeSpan.remove();
+          const out = { iw: innerWidth, ctaScale, skins: {}, eventShares: [] };
+          for (const host of document.querySelectorAll("[data-skin]")) {
+            const card = host.querySelector(".wf-place-card");
+            const cta = card && card.querySelector(".wf-rail-card-cta");
+            const share = card && card.querySelector(".wf-place-card-share");
+            out.skins[host.getAttribute("data-skin")] = { cardClass: card ? card.className : "", cta: cta ? (({ text, ...rest }) => ({ ...rest, text: text * ctaScale }))(fit(cta)) : null, ghost: !!(card && card.querySelector(".wf-spooky-ghost")), share: share ? fit(share) : null };
+          }
+          for (const share of document.querySelectorAll("[data-event-page] .wf-place-card-share")) out.eventShares.push(fit(share));
+          return out;
+        });
+        await context.close();
+        ok(fits.iw === width, `PROBE ${width}px skins: achieved viewport equals requested (got ${fits.iw})`);
+        const baseBg = fits.skins.base && fits.skins.base.cta ? fits.skins.base.cta.bg : null;
+        const skinClass = { christmas: "wf-christmas-card", spooky: "wf-spooky-card", fall: "wf-fall-card", award: "is-award-winner" };
+        for (const skin of skinNames) {
+          const v = fits.skins[skin];
+          ok(!!v && !!v.cta && !!v.share, `PROBE ${width}px ${skin}: partner CTA and Share both rendered`);
+          if (!v || !v.cta || !v.share) continue;
+          if (skinClass[skin]) ok(v.cardClass.split(/\s+/).includes(skinClass[skin]), `PROBE ${width}px ${skin}: card root carries ${skinClass[skin]} (got "${v.cardClass}")`);
+          if (skin === "spooky") ok(v.ghost, `PROBE ${width}px spooky: ghost glyph span rendered inside the CTA`);
+          if (skin === "christmas" || skin === "spooky" || skin === "fall") ok(v.cta.bg !== baseBg || v.cta.border !== fits.skins.base.cta.border, `PROBE ${width}px ${skin}: skinned CTA computed style differs from the base CTA (skin CSS actually applied)`);
+          ok(/Tickets at Undercover Tourist/.test(v.cta.label), `PROBE ${width}px ${skin}: CTA carries the full partner label (got ${JSON.stringify(v.cta.label)})`);
+          ok(v.cta.text <= v.cta.inner - SLACK_PX, `${width}px ${skin}: partner CTA text box fits content box with >=${SLACK_PX}px slack (text ${v.cta.text.toFixed(2)}px vs content ${v.cta.inner.toFixed(2)}px, font ${v.cta.font}, Inter-calibration x${fits.ctaScale.toFixed(3)})`);
+          ok(v.share.text <= v.share.inner - SLACK_PX, `${width}px ${skin}: Share text box fits content box with >=${SLACK_PX}px slack (text ${v.share.text.toFixed(2)}px vs content ${v.share.inner.toFixed(2)}px, font ${v.share.font})`);
+        }
+        ok(fits.eventShares.length === 4, `PROBE ${width}px: event-page nearby + stay rails rendered four Share buttons (got ${fits.eventShares.length})`);
+        fits.eventShares.forEach((v, i) => ok(v.text <= v.inner - SLACK_PX, `${width}px event-page Share #${i + 1}: text box fits content box with >=${SLACK_PX}px slack (text ${v.text.toFixed(2)}px vs content ${v.inner.toFixed(2)}px)`));
       }
     }
   } catch (error) {
