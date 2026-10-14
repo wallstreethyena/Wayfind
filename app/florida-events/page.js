@@ -181,10 +181,10 @@ export default async function FloridaEventsHub() {
 
       {majorByMonth.length > 0 ? (
         <section aria-labelledby="major-by-month">
-          <div id="major-by-month" style={S.railTitle}>Major Florida events by month</div>
+          <h2 id="major-by-month" style={S.railTitle}>Major Florida events by month</h2>
           {majorByMonth.map((month) => (
             <div key={month.monthKey}>
-              <h2 style={S.monthH}>{month.label}</h2>
+              <h3 style={S.monthH}>{month.label}</h3>
               <ul style={S.monthList}>
                 {month.events.map((e) => (
                   <li key={e.event_id} style={S.monthItem}>

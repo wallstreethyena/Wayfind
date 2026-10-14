@@ -54,6 +54,9 @@ ok(majorEventsByMonth([row("a-2026", "gone", "2026-09-01", "2026-09-02")], [anch
 ok(majorEventsByMonth([row("other", "s", "2026-11-11", "2026-11-11", { event_series_id: "c-series" })], [anchor(null, "c-series")], TODAY).length === 1, "series match failed");
 // null/empty anchors never match rows with undefined ids
 ok(majorEventsByMonth([row(undefined, "u", "2026-11-11", "2026-11-11")], [anchor(null, null)], TODAY).length === 0, "null-id anchor matched");
+// two anchors resolving to the same event -> listed once
+const two = majorEventsByMonth([row("same", "same", "2026-11-11", "2026-11-11", { event_series_id: "ss" })], [anchor("same"), anchor(null, "ss")], TODAY);
+ok(two.flatMap((m) => m.events).length === 1, "row shared by two anchors listed twice: " + JSON.stringify(two));
 // bad input is empty, never a throw
 ok(majorEventsByMonth(null, anchors, TODAY).length === 0 && majorEventsByMonth(rows, anchors, "nope").length === 0, "bad input not empty");
 // control: the fixture is not vacuous (a non-anchor list yields nothing, an anchor list yields something)
@@ -89,7 +92,8 @@ ok(!!callM, "call is not assigned to majorByMonth with model.eligible as first a
 ok(callM && /model\.skipped\s*\?\s*\[\]\s*:/.test(callM[1]) , "call is not gated by model.skipped");
 ok(callM && /siteTodayStr\s*\(\s*now\s*\)/.test(callM[1]), "today does not come from siteTodayStr(now)");
 ok(/\bmajorByMonth\.length\s*>\s*0\s*\?/.test(page), "section is not rendered conditionally on majorByMonth.length > 0");
-ok(/\bmajorByMonth\.map\s*\(/.test(page) && /<h2[\s>]/.test(page), "page does not map months to an <h2> heading");
+ok(/\bmajorByMonth\.map\s*\(/.test(page) && /<h3[\s>]/.test(page), "page does not map months to an <h3> heading");
+ok(/<h2\s+id=\{?\s*["']?\s*["']?/.test(page) && /aria-labelledby=/.test(page), "section title is not an h2 with aria-labelledby");
 ok(/<a\b/.test(page), "section renders no anchors");
 ok(!/toISOString/.test(page), "page uses toISOString for dates");
 // section sits after the rails map and before the footer paragraph
