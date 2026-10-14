@@ -665,6 +665,7 @@ scripts/test-home-rails-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	
 scripts/test-hotel-card-cta.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	f615f69b91b217cb4cebdd884b4391d7e400cc27be368594101a67d02969574d
 scripts/test-hotel-image-resolver.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	0f0c965c5ce408a6c85fe4401f6e10e6a447efc66d198319575fd1e7c33769f6
 scripts/test-house-card-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	2ad4a866acba6fa3520517283f64059f9366e58a6535cfc0c555b0f467a31083
+scripts/test-hub-major-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	fe3a82b5a4a4dab03c662a465fff9d55300b014675f92f7e01db0881d552814a
 scripts/test-idle-defer.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	8feabfde61417041b34e6c57e33297d5f8adbc84944ee2f28b80f00587bfc3fd
 scripts/test-image-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	1dc194826a9b316fc079409203adf83e793789f9f162b5c045632ace442365a9
 scripts/test-image-score.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0	54b58d2f15300f2d6902703a73cefc646485fe29d92e1ef86b89907e234066b3
