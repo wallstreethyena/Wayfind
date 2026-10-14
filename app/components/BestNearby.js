@@ -945,7 +945,7 @@ export default function BestNearby({
           ))}
         </div>
       ) : (
-        <div style={{ padding: "8px 2px 2px", fontSize: 12.5, color: C.muted }}>No creator videos linked near you yet — they appear here the moment one is.</div>
+        <div style={{ padding: "8px 2px 2px", fontSize: 12.5, color: C.muted }}>No creator posts linked near you yet — they appear here the moment one is.</div>
       )}
       {d.report ? (
         <div style={{ fontSize: 13.5, color: C.text, lineHeight: 1.55, padding: "8px 2px 4px", borderTop: "1px solid rgba(255,255,255,.06)" }}>{d.report}</div>
@@ -1094,7 +1094,7 @@ export default function BestNearby({
                 const chips = [
                   // byVisibleScore stamps creator_video when it applied the
                   // +0.2, so this label and the score can never disagree.
-                  p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator video" } : null,
+                  p.creator_video ? { key: "creatorvideo", icon: "🎬", label: "Creator post" } : null,
                   coupon ? { key: "deal", icon: "🏷️", label: couponChipLabel(coupon) } : null,
                 ].filter(Boolean).slice(0, 4);
                 return (
