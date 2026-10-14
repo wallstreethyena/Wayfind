@@ -13,7 +13,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { placeIdentityIssues, NON_CANONICAL_METRO_LABELS } from "../lib/placeIdentity.js";
-import { bucketMetro } from "../lib/promoteIndex.js";
+import { bucketMetro, PROMOTE_METROS } from "../lib/promoteIndex.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let n = 0; const fails = [];
@@ -36,6 +36,20 @@ ok(bad.nonCanonicalLabel.length === 1 && bad.nonCanonicalLabel[0].place_id === "
 ok(bad.localityIsSlug.length === 1 && bad.localityIsSlug[0].place_id === "d", "POSITIVE: a slug used as a city name is caught");
 ok(bad.countyHasSuffix.length === 1 && bad.countyHasSuffix[0].place_id === "e", "POSITIVE: 'Polk County' (suffix) is caught; counties are stored as 'Polk'");
 
+// Box overlap: Fort De Soto buckets to 'tampa' by nearest center, so only the
+// county catches it. North Pinellas (Palm Harbor) is outside the st-pete box
+// and keeps 'tampa' (Tampa Bay coverage) legitimately.
+const OPTS = { stPeteMaxLat: PROMOTE_METROS["st-pete"].maxLat };
+const deSoto = { place_id: "f", name: "Fort De Soto", metro: "tampa", lat: 27.6156, lng: -82.7359, locality: null, county: "Pinellas" };
+const palmHarbor = { place_id: "g", name: "Palm Harbor Museum", metro: "tampa", lat: 28.0491, lng: -82.7475, locality: "Palm Harbor", county: "Pinellas" };
+const westchase = { place_id: "h", name: "Westchase", metro: "tampa", lat: 28.0591, lng: -82.6426, locality: "Westchase", county: "Hillsborough" };
+ok(OPTS.stPeteMaxLat === 27.98, `PROBE: the st-pete box north edge read from PROMOTE_METROS is 27.98 (got ${OPTS.stPeteMaxLat})`);
+ok(bucketMetro(deSoto.lat, deSoto.lng) !== "st-pete", "PROBE: Fort De Soto does NOT bucket to st-pete (the overlap this rule exists for)");
+const sp = placeIdentityIssues([deSoto, palmHarbor, westchase], bucketMetro, OPTS);
+ok(sp.tampaLabelInSouthPinellas.length === 1 && sp.tampaLabelInSouthPinellas[0].place_id === "f", `POSITIVE: Fort De Soto labeled tampa (Pinellas, south of the box edge) is caught; Palm Harbor and Westchase are not (got ${sp.tampaLabelInSouthPinellas.map((r) => r.name).join(",")})`);
+ok(placeIdentityIssues([deSoto], bucketMetro).tampaLabelInSouthPinellas.length === 0, "NEGATIVE: without the box edge the county rule stays silent (no guessed boundary)");
+ok(placeIdentityIssues([{ ...deSoto, metro: "st-pete" }], bucketMetro, OPTS).tampaLabelInSouthPinellas.length === 0, "NEGATIVE: Fort De Soto labeled st-pete raises nothing");
+
 const good = placeIdentityIssues([daliFixed, tampaReal, { ...oddLabel, metro: "st-pete" }], bucketMetro);
 ok(Object.values(good).every((a) => a.length === 0), `NEGATIVE: correctly labeled rows raise nothing (got ${JSON.stringify(Object.fromEntries(Object.entries(good).map(([k, v]) => [k, v.length])))})`);
 ok(placeIdentityIssues([], bucketMetro).tampaLabelInStPeteBox.length === 0 && placeIdentityIssues(null, bucketMetro).nonCanonicalLabel.length === 0, "NEGATIVE: empty or missing input raises nothing and does not throw");
@@ -44,7 +58,8 @@ ok(NON_CANONICAL_METRO_LABELS["st-petersburg"] === "st-pete" && Object.isFrozen(
 // The canary must call this on production (wired, not just present).
 const canary = readFileSync(path.join(ROOT, "scripts/check-inventory-integrity.mjs"), "utf8");
 ok(/import\s*\{[^}]*\bplaceIdentityIssues\b[^}]*\}\s*from\s*"\.\.\/lib\/placeIdentity\.js"/.test(canary), "the production canary imports placeIdentityIssues");
-ok(/placeIdentityIssues\(\s*rows\s*,\s*bucketMetro\s*\)/.test(canary), "the production canary calls placeIdentityIssues(rows, bucketMetro) on the live rows");
+ok(/placeIdentityIssues\(\s*rows\s*,\s*bucketMetro\s*,\s*\{\s*stPeteMaxLat:\s*PROMOTE_METROS\["st-pete"\]\.maxLat\s*\}\s*\)/.test(canary), "the production canary calls placeIdentityIssues(rows, bucketMetro, { stPeteMaxLat }) on the live rows");
+ok(/id\.tampaLabelInSouthPinellas\.length\s*===\s*0/.test(canary), "the production canary asserts the south-Pinellas county rule");
 ok(/select=[^`]*\blocality\b[^`]*\bcounty\b/.test(canary), "the canary's inventory read selects locality and county");
 const wf = readFileSync(path.join(ROOT, ".github/workflows/canary.yml"), "utf8");
 ok(/node scripts\/check-inventory-integrity\.mjs/.test(wf), "the canary workflow runs check-inventory-integrity.mjs");

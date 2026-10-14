@@ -36,7 +36,7 @@ if (!URL_ || !KEY) {
 
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability } from "../lib/placePartnerPicks.js";
 import { placeIdentityIssues } from "../lib/placeIdentity.js";
-import { bucketMetro } from "../lib/promoteIndex.js";
+import { bucketMetro, PROMOTE_METROS } from "../lib/promoteIndex.js";
 
 // Documented allowances. These are CEILINGS on known, triaged debt — not targets.
 // Lowering them as the debt is paid is the point; raising one requires a human to
@@ -115,9 +115,11 @@ ok(miscat.length === 0,
 // 'st-petersburg' is read by no surface at all. lib/placeIdentity.js holds the
 // rules; scripts/check-place-identity-contract.mjs proves them on fixtures.
 {
-  const id = placeIdentityIssues(rows, bucketMetro);
+  const id = placeIdentityIssues(rows, bucketMetro, { stPeteMaxLat: PROMOTE_METROS["st-pete"].maxLat });
   ok(id.tampaLabelInStPeteBox.length === 0,
     `${id.tampaLabelInStPeteBox.length} OPERATIONAL rows are labeled metro='tampa' but sit in the St. Pete box (they belong to 'st-pete'; Tampa Bay surfaces still read both): ${id.tampaLabelInStPeteBox.slice(0, 5).map((r) => r.name).join(", ")}`);
+  ok(id.tampaLabelInSouthPinellas.length === 0,
+    `${id.tampaLabelInSouthPinellas.length} OPERATIONAL rows are in Pinellas County south of the St. Pete box's north edge but labeled metro='tampa' (box overlap; they belong to 'st-pete'): ${id.tampaLabelInSouthPinellas.slice(0, 5).map((r) => r.name).join(", ")}`);
   ok(id.nonCanonicalLabel.length === 0,
     `${id.nonCanonicalLabel.length} rows carry a non-canonical metro label no reader knows (e.g. 'st-petersburg' instead of 'st-pete'): ${id.nonCanonicalLabel.slice(0, 5).map((r) => `${r.name} [${r.metro}]`).join(", ")}`);
   ok(id.localityIsSlug.length === 0,
