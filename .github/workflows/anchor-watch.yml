@@ -54,8 +54,8 @@ jobs:
       group: anchor-watch
       cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -100,8 +100,8 @@ jobs:
     env:
       FIXES_FILE: ${{ inputs.fixes_file }}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with: { node-version: 22 }
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
@@ -129,7 +129,7 @@ jobs:
           node scripts/anchor-events/apply.mjs --apply --audit audit.jsonl --rollback rollback.json "$FIXES_FILE" | tee apply.txt
       - name: Upload audit log and rollback file
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: anchor-fixes-${{ github.run_id }}
           path: |
