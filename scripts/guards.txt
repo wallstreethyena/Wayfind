@@ -2176,3 +2176,6 @@ node scripts/test-detail-open-once.mjs
 
 # 2026-10-14 canonical Florida anchor-event list (data/florida-anchor-events.json): schema, unique ids, rails exist, region/domain/event_id rules + negative controls.
 node scripts/check-anchor-events.mjs
+
+# 2026-10-14 Florida events hub "Major Florida events by month": real majorEventsByMonth() on fixtures (grouping, dedupe, series, ended) + page import/call/gating/position, red-proved.
+node scripts/test-hub-major-events.mjs
