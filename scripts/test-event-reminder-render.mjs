@@ -37,6 +37,8 @@ const h = React.createElement;
 const text = (html) => html.replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;|&#39;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ");
 
 const { default: RemindMe } = await loadComponent(path.join(ROOT, "app/components/RemindMe.js"), ROOT);
+const { default: RemindMeSheet, ADD_BUTTON_LABEL, ADD_HELP, ADD_DEBOUNCE_MS } = await loadComponent(path.join(ROOT, "app/components/RemindMeSheet.js"), ROOT);
+const { reminderSpent } = await loadComponent(path.join(ROOT, "app/components/RemindMe.js"), ROOT);
 const { default: RailCard } = await loadComponent(path.join(ROOT, "app/components/RailCard.js"), ROOT);
 const { ChristmasBrowseCard } = await loadComponent(path.join(ROOT, "app/components/ChristmasBrowse.js"), ROOT);
 
@@ -51,7 +53,8 @@ const F = {
   range: reminderFacts({ ...row, start_date: "2026-11-13", end_date: "2027-01-04", select_nights: true }),
   allDay: reminderFacts({ ...row, start_time: null, end_time: null }),
 };
-const open = (facts, extra = {}) => renderToStaticMarkup(h(RemindMe, { facts, variant: "card", now: NOW, defaultOpen: true, portal: false, ...extra }));
+// The sheet is a lazy chunk (next/dynamic, ssr: false), so its markup is rendered from RemindMeSheet itself.
+const open = (facts, extra = {}) => renderToStaticMarkup(h(RemindMeSheet, { facts, ticketHref: null, nowMs: extra.now != null ? extra.now : NOW, onClose() {}, surface: "card" }));
 const closed = (facts, extra = {}) => renderToStaticMarkup(h(RemindMe, { facts, variant: "card", now: NOW, ...extra }));
 
 // ── the button: hidden or present ──────────────────────────────────────────
@@ -67,22 +70,26 @@ ok(closed(reminderFacts({ ...row, start_date: "2026-10-14", end_date: "2026-10-1
 const pageBtn = closed(F.single, { variant: "page" });
 ok(/<button[^>]*aria-label="Remind me"[^>]*style=/.test(pageBtn) && text(pageBtn).trim() === "Remind me" && !/wf-place-card-remind/.test(pageBtn), "the event page variant renders the same button in the page's own style");
 ok(!/role="dialog"/.test(closed(F.single)), "the sheet is closed until the button is tapped");
-
-// ── the sheet ──────────────────────────────────────────────────────────────
+ok(!/role="dialog"/.test(closed(F.single, { defaultOpen: true, portal: false })), "the sheet is a lazy chunk: server markup never contains it, even when forced open");
 {
-  const html = open(F.single), t = text(html);
-  ok(/role="dialog"[^>]*aria-modal="true"[^>]*aria-labelledby="[^"]+"/.test(html) || /aria-modal="true"[^>]*role="dialog"/.test(html), "the sheet is a modal dialog with a label");
-  ok(t.includes("When should we remind you?"), "the sheet asks 'When should we remind you?'");
-  ok(/aria-label="Close"/.test(html), "the sheet has a Close button");
-  ok(!t.includes("Which night?"), "a single night event does not ask which night");
-  for (const label of ["1 week before", "2 days before", "The day before at 6 PM", "The morning of at 9 AM", "2 hours before", "Pick a date and time"]) ok(t.includes(label), `the sheet offers '${label}'`);
-  ok(t.includes("Sat Oct 31 at 6:00 PM") && t.includes("Sun Nov 1 at 4:00 PM"), "each choice shows the day and time it will fire");
-  ok(/<button[^>]*disabled=""[^>]*data-remind-add[^>]*>Add to my calendar<\/button>/.test(html) || /<button[^>]*data-remind-add[^>]*disabled=""[^>]*>Add to my calendar<\/button>/.test(html), "'Add to my calendar' is disabled until a time is chosen");
-  ok(!/href="\/api\/events\/reminder/.test(html), "no download link before a choice");
-  const g = /<a href="(https:\/\/calendar\.google\.com\/calendar\/render\?[^"]+)"[^>]*>Use Google Calendar instead<\/a>/.exec(html);
-  ok(g && g[1].replace(/&amp;/g, "&").startsWith("https://calendar.google.com/calendar/render?action=TEMPLATE&") && /target="_blank"/.test(html) && /rel="noopener noreferrer"/.test(html), "the secondary link 'Use Google Calendar instead' opens calendar.google.com/calendar/render?action=TEMPLATE in a new tab");
-  ok(t.includes("Google uses its own default alert time."), "the sheet says Google uses its own default alert time");
-  ok(!/[–—−]|\s-\s/.test(t), "no dashes in the sheet copy");
+  const btnSrc = strip(read("app/components/RemindMe.js"));
+  ok(/dynamic\(\(\) => import\("\.\/RemindMeSheet\.js"\), \{ ssr: false \}\)/.test(btnSrc) && !/from "\.\/RemindMeSheet/.test(btnSrc) && !/googleCalendarUrl|resolveReminder|buildReminderIcs/.test(btnSrc), "RemindMe.js loads the sheet with next/dynamic (ssr: false) and imports none of the calendar maths the sheet needs");
+  // The bell drops after mount when no future time is left (single night); a multi-night event with nights left keeps it.
+  const late = Date.parse("2026-11-01T22:30:00Z"); // 5:30 PM Eastern on the night, 30 min before the 6 PM start
+  ok(reminderSpent(F.single, NOW) === false, "a single night with times ahead keeps the bell");
+  ok(reminderSpent(F.single, late) === true, "a single night with every preset gone by drops the bell (checked at siteTime 'now')");
+  ok(reminderSpent(F.list, late) === false, "a multi-night event with later nights keeps the bell");
+  ok(/mounted && !open && reminderSpent\(/.test(btnSrc), "the drop only happens after mount, so the server HTML and the first client render agree");
+}
+
+// ── the sheet ──
+{
+  const withCustom = (facts) => renderToStaticMarkup(h(RemindMeSheet, { facts, ticketHref: null, nowMs: NOW, onClose() {}, surface: "card", initialPick: "custom" }));
+  const zone = (html) => (/data-remind-zone[^>]*>([^<]*)</.exec(html) || [])[1];
+  ok(!/data-remind-zone/.test(open(F.single)), "the zone label shows only with the custom date input");
+  ok(zone(withCustom(F.single)) === "Eastern time" && /type="datetime-local"/.test(withCustom(F.single)), "a Tampa event's custom date and time input is labelled 'Eastern time'");
+  const pan = reminderFacts({ ...row, slug: "test-pensacola-2026", city: "Pensacola", county: "Escambia" });
+  ok(pan && pan.tz === "America/Chicago" && zone(withCustom(pan)) === "Central time", "a Panhandle (Escambia) event's custom input is labelled 'Central time'");
 }
 {
   const t = text(open(F.list));
@@ -182,7 +189,7 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
   ok(html.indexOf("wf-place-card-dislike") < i && i < html.indexOf("wf-place-card-share"), "on a Fall card Remind me sits between the reactions and Share");
   // Ticket link: the sheet's Google link carries the card's own on-site ticket route, never a raw partner URL.
   const tick = eventCard(shift(mangoni, 10), { ticket: { href: "/api/commerce/go?provider=undercover_tourist&offer=1&surface=fall_intent_rail&content=x" } });
-  const opened = renderToStaticMarkup(h(RemindMe, { facts: reminderFactsFor(tick, { href: tick.detailHref, today: realToday }), variant: "card", ticketHref: tick.ticket.href, now: Date.parse(realToday + "T12:00:00Z"), defaultOpen: true, portal: false }));
+  const opened = renderToStaticMarkup(h(RemindMeSheet, { facts: reminderFactsFor(tick, { href: tick.detailHref, today: realToday }), ticketHref: tick.ticket.href, nowMs: Date.parse(realToday + "T12:00:00Z"), onClose() {}, surface: "card" }));
   const g = /href="(https:\/\/calendar\.google\.com[^"]+)"/.exec(opened);
   const det = g ? new URL(g[1].replace(/&amp;/g, "&")).searchParams.get("details") : "";
   ok(/Tickets: https:\/\/www\.gowayfind\.com\/api\/commerce\/go\?/.test(det) && !/undercovertourist|sweetfieldsfarm/i.test(det), "the Google Calendar details carry the on-site /api/commerce/go ticket route, not a raw partner URL");
@@ -207,14 +214,15 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
   ok(/const remind = reminderFactsFor\(e, \{ occurrences: occurrenceDatesFor\(e\) \}\);/.test(page), "the event page builds facts from the same row it renders, with the nights from lib/eventOccurrences.js (occurrenceDatesFor)");
   const css = read("app/components/css.js");
   ok(/\.wf-sheet-card-actions:has\(\.wf-place-card-remind\)/.test(css), "the action row grid has room for the fifth control");
-  const comp = strip(read("app/components/RemindMe.js"));
+  const comp = strip(read("app/components/RemindMeSheet.js"));
+  const btn = strip(read("app/components/RemindMe.js"));
   ok(/width: 44, height: 44/.test(comp) && (comp.match(/minHeight: 48/g) || []).length >= 3 && /minHeight: 44/.test(comp), "tap targets are at least 44px (close 44, choices and button 48)");
   ok(/key === "Escape"/.test(comp) && /e\.key !== "Tab"/.test(comp) && /aria-modal="true"/.test(comp) && /STOP/.test(comp), "Escape closes, Tab is trapped, the dialog is modal, and taps do not reach the card");
   ok(/data-remind-backdrop \{\.\.\.STOP\} onClick=\{\(e\) => \{ e\.stopPropagation\(\); if \(e\.target === e\.currentTarget\) onClose\(\); \}\}/.test(comp), "the backdrop closes the sheet on an outside tap (its onClick comes after the propagation guard, which would otherwise replace it)");
-  ok(/track\("reminder_open"/.test(comp) && /track\("reminder_set", \{ slug: facts\.slug, preset: result\.preset, days_before: result\.daysBefore/.test(comp), "analytics: reminder_open and reminder_set (preset, days_before, slug) through the existing track helper");
+  ok(/track\("reminder_open"/.test(btn) && /track\("reminder_set", \{ slug: facts\.slug, preset: result\.preset, days_before: result\.daysBefore/.test(comp), "analytics: reminder_open and reminder_set (preset, days_before, slug) through the existing track helper");
   ok(!/<script|createElement\("script"|googletagmanager|connect\.facebook/.test(comp), "no new third party script");
   // Honest copy (owner, 2026-10-14): the phone asks before it saves, so the page never claims it did.
-  const mod = await loadComponent(path.join(ROOT, "app/components/RemindMe.js"), ROOT);
+  const mod = { ADD_BUTTON_LABEL, ADD_HELP, ADD_DEBOUNCE_MS };
   ok(mod.ADD_BUTTON_LABEL === "Add to my calendar" && mod.ADD_HELP === "Your calendar will ask you to add it. Tap Add to save the reminder.", "the sheet action is 'Add to my calendar' and the after-tap line is the agreed honest sentence");
   const words = [...comp.matchAll(/"([^"\n]{3,})"|>([^<>{}\n]{3,})</g)].map((m) => m[1] || m[2]).join(" | ");
   ok(!/\bsaved\b|reminder set|\bis set\b|added to your calendar/i.test(words + " " + mod.ADD_HELP), "no copy anywhere says 'saved', 'reminder set' or that it is already in the calendar");

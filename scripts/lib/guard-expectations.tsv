@@ -597,8 +597,8 @@ scripts/test-event-poster.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	a9d0ea03a5d
 scripts/test-event-rail-images.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	e70c6c061e165dd5e7fbaa054ba43bebeccf4c53e4b961ced5755ccccd4ce1c1
 scripts/test-event-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	7	0	0	74cc0aa2a6c75b5f164853b24c32891d1bc6ec13842ff74c1689a16257316ebb
 scripts/test-event-reminder-facts.mjs	0	CALL	blocks-ci-and-deploy	1	-	108	0	0	f1c635ec4fe8b076de7753ad342ae03d3e0e22015d332203bacab5c3acad5823
-scripts/test-event-reminder-ics.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	f962313e80a9fdf2537b94812f650d3dcd70bbf8bd98f09c8d8f2d11f94cb505
-scripts/test-event-reminder-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	114	0	0	7b00a119d28be717e3eadc162ef73b5877289e29e221b95af8900b28160053b7
+scripts/test-event-reminder-ics.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	8bfc8c08f92cd791573beef470316f6f8c1b0dfa8d9f3e9f7495ec5542ef79fb
+scripts/test-event-reminder-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	113	0	0	8de89a4e8c3d7ed31f97c9a5cf60dc28b955d60eaad045bd30d4cec58d0a5278
 scripts/test-event-reminder-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	f8568c3dab93c343636b98ba9150ce8587ec16f0ffcea80abe0c46bec944f8ae
 scripts/test-event-reminder.mjs	0	CALL	blocks-ci-and-deploy	1	-	129	0	0	fa5d3c05568dcf43680d0e7e8393cbcf33109ff46dd88fe953586a388a5efe7d
 scripts/test-event-section-nav.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	6b4c731db2fbb850bfcd970312809bb6bf13f64f1a81dba40a64222add7aeebb

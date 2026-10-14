@@ -42,12 +42,12 @@ const compact = (z) => z.replace(/[-:]/g, "");
 
 const python = (process.argv.find((a) => a.startsWith("--python=")) || "--python=python3").slice("--python=".length);
 const has = spawnSync(python, ["-c", "import icalendar,sys;print(icalendar.__version__)"], { encoding: "utf8" });
-if (has.status !== 0) {
-  const msg = "icalendar is not installed for " + python + " (pip install icalendar vobject, or pass --python=/path/to/python)";
-  if (REQUIRE) { console.log("test-event-reminder-ics: FAIL (" + msg + ", and --require-parser was given)"); process.exit(1); }
-  console.log("test-event-reminder-ics: REAL PARSER NOT RUN. " + msg + ". The files were not parsed by a third party library; scripts/test-event-reminder.mjs still checks them with our own parser.");
-  process.exit(0);
-}
+// Python icalendar is an optional second opinion. The required parser is ical.js (Mozilla's, an npm devDependency), which always runs.
+const pyOk = has.status === 0;
+if (!pyOk && REQUIRE) { console.log("test-event-reminder-ics: FAIL (icalendar is not installed for " + python + ", and --require-parser was given)"); process.exit(1); }
+let ICAL;
+try { ICAL = (await import("ical.js")).default; } catch (e) { ICAL = null; }
+if (!ICAL) { console.log("test-event-reminder-ics: FAIL (the ical.js parser is not installed: run npm ci. This guard never skips its parser.)"); process.exit(1); }
 
 const regs = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008"].map((f) => import("../lib/" + f + ".js")));
 const FALL = regs.flatMap((m) => Object.values(m).find(Array.isArray) || []);
@@ -100,12 +100,12 @@ for (const c of CASES) {
   meta.set(file, { c, tz, f, startMs, endMs, alarmMs: at(c.alarm[0], c.alarm[1]), body });
 }
 
-const run = spawnSync(python, [path.join(ROOT, "scripts/lib/validate-reminder-ics.py"), (() => { const p = path.join(dir, "manifest.json"); writeFileSync(p, JSON.stringify(manifest)); return p; })()], { encoding: "utf8", env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" } });
+const run = !pyOk ? { status: 0, stdout: "[]", stderr: "" } : spawnSync(python, [path.join(ROOT, "scripts/lib/validate-reminder-ics.py"), (() => { const p = path.join(dir, "manifest.json"); writeFileSync(p, JSON.stringify(manifest)); return p; })()], { encoding: "utf8", env: { ...process.env, PYTHONDONTWRITEBYTECODE: "1" } });
 ok(run.status === 0, `every file parses in icalendar (exit ${run.status}): ${(run.stderr || "").slice(-300)}`);
 let results = [];
 try { results = JSON.parse(run.stdout); } catch { ok(false, "the validator printed JSON: " + run.stdout.slice(0, 200)); }
 const parser = results[0] && results[0].parser;
-ok(results.length === manifest.length && results.every((r) => !r.error), `all ${manifest.length} files parsed (${results.filter((r) => r.error).map((r) => r.file + ": " + r.error).join("; ")})`);
+ok(!pyOk || (results.length === manifest.length && results.every((r) => !r.error), `all ${manifest.length} files parsed (${results.filter((r) => r.error).map((r) => r.file + ": " + r.error).join("; ")})`));
 
 const alarmsReport = [];
 for (const r of results) {
@@ -148,15 +148,46 @@ for (const r of results) {
   ok(c.allDay ? !q.get("ctz") : q.get("ctz") === tz, `${id}: the Google link names the venue zone for display (ctz=${q.get("ctz")})`);
   if (["fall-nov1-2h-dst", "panhandle-2h", "jan2027-overnight"].includes(id)) alarmsReport.push(`${id}: alarm ${r.alarm_utc}, event ${r.dtstart_utc || r.dtstart_date} ${tz}`);
 }
+// ── ical.js (always runs): every generated file, parsed by Mozilla's RFC 5545 parser ──
+{
+  const icalReport = [];
+  for (const [file, m] of meta) {
+    const { c, tz, f, startMs, endMs, alarmMs, body } = m;
+    const id = c.id;
+    let root;
+    try { root = new ICAL.Component(ICAL.parse(body)); } catch (e) { ok(false, `${id}: ical.js parses the file (${e.message})`); continue; }
+    for (const vtz of root.getAllSubcomponents("vtimezone")) ICAL.TimezoneService.register(vtz);
+    const events = root.getAllSubcomponents("vevent");
+    ok(events.length === 1 && root.getFirstPropertyValue("version") === "2.0", `${id}: ical.js sees one VEVENT and VERSION 2.0`);
+    const ev = new ICAL.Event(events[0]);
+    ok(ev.uid === createHash("sha256").update(c.row.slug + c.night).digest("hex") + "@gowayfind.com", `${id}: ical.js reads the stable UID`);
+    ok(ev.summary === f.name, `${id}: ical.js reads SUMMARY exactly (escaping and folding round trip)`);
+    if (c.allDay) {
+      ok(ev.startDate.isDate && ev.startDate.toString() === c.night && ev.endDate.toString() === R.addDays(c.night, 1), `${id}: ical.js reads an all day event on ${c.night}`);
+    } else {
+      const s0 = Math.round(ev.startDate.toUnixTime() * 1000), e0 = Math.round(ev.endDate.toUnixTime() * 1000);
+      ok(s0 === startMs && e0 === endMs, `${id}: ical.js resolves the event (TZID ${ev.startDate.zone && ev.startDate.zone.tzid}) to ${iso(startMs)} to ${iso(endMs)} (got ${iso(s0)} to ${iso(e0)})`);
+      ok(ev.startDate.zone && ev.startDate.zone.tzid === tz, `${id}: ical.js sees TZID ${tz}`);
+    }
+    const alarms = events[0].getAllSubcomponents("valarm");
+    ok(alarms.length === 1, `${id}: ical.js sees one VALARM`);
+    const trig = alarms[0].getFirstPropertyValue("trigger");
+    const trigMs = trig && trig.toUnixTime ? Math.round(trig.toUnixTime() * 1000) : NaN;
+    ok(trigMs === alarmMs, `${id}: ical.js reads the alarm instant ${iso(alarmMs)} (got ${Number.isFinite(trigMs) ? iso(trigMs) : "no absolute trigger"})`);
+    if (!c.allDay) ok(trigMs < Math.round(ev.startDate.toUnixTime() * 1000), `${id}: the alarm is before the event starts (ical.js)`);
+    if (["fall-nov1-2h-dst", "panhandle-2h", "jan2027-overnight"].includes(id)) icalReport.push(`${id}: alarm ${iso(trigMs)}`);
+  }
+  console.log("  parsed alarm times (ical.js): " + icalReport.join(" | "));
+}
 // The 410 and refusals never produce a file a parser would accept.
 {
   const res = await handleReminderRequest(new Request(`${SITE}/api/events/reminder?slug=x&night=2026-12-05&remind=eve`), { lookup: async () => ({ slug: "x", event_status: "cancelled" }), nowMs: NOW, siteUrl: SITE });
   const text = await res.text();
   ok(res.status === 410 && !/BEGIN:VCALENDAR/.test(text), "a canceled event produces no calendar file at all");
 }
-console.log("  parsed alarm times (icalendar " + String(parser || "").replace("icalendar ", "") + "): " + alarmsReport.join(" | "));
+if (pyOk) console.log("  parsed alarm times (icalendar " + String(parser || "").replace("icalendar ", "") + "): " + alarmsReport.join(" | "));
 rmSync(dir, { recursive: true, force: true });
 const src = readFileSync(path.join(ROOT, "scripts/lib/validate-reminder-ics.py"), "utf8");
 ok(/import icalendar/.test(src) && !/from_ical\(.*strict=False/.test(src), "the validator uses the real library and its strict parse");
 if (fail) { console.log(`test-event-reminder-ics: FAIL (${fail} failed, ${pass} passed)`); process.exit(1); }
-console.log(`test-event-reminder-ics: OK (${pass} assertions: ${manifest.length} route generated files parsed by ${parser}, VTIMEZONE and VALARM instants checked against lib/eventTime.js, Google dates equal the .ics instants)`);
+console.log(`test-event-reminder-ics: OK (${pass} assertions: ${manifest.length} route generated files parsed by ical.js${pyOk ? " and " + parser : " (python icalendar not installed, optional)"}, VTIMEZONE and VALARM instants checked against lib/eventTime.js, Google dates equal the .ics instants)`);
