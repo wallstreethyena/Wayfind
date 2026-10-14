@@ -36,7 +36,7 @@ const {
   CJ_PID, CJ_CLIPP_LINK_ID, CJ_CLIPP_ADVERTISER_ID,
   clippDeepLink, isClippDest, isDeadPixelForm, hasCjPid, affiliateForwards, destIsAlive,
 } = await import(path.resolve("lib/deals.js"));
-const { CLIPP_MARKETS, CLIPP_MERCHANT_OFFERS, CLIPP_INDEX_REVERIFIED, clippOfferById, clippTrackedUrl } = await import(path.resolve("lib/clippOffers.js"));
+const { CLIPP_MARKETS, CLIPP_MERCHANT_OFFERS, clippOfferById, clippTrackedUrl } = await import(path.resolve("lib/clippOffers.js"));
 const { COUPONS } = await import(path.resolve("lib/coupons.js"));
 
 const SARASOTA = "https://www.clipp.com/states/fl/cities/sarasota";
@@ -358,21 +358,19 @@ ok(CLIPP_MERCHANT_OFFERS.length > 0, "the merchant registry is non-empty (an emp
   }
 }
 
-// The September card-icon renewal is intentionally narrower than the merchant
-// catalogue: only exact place-identity rows with current Clipp evidence can
-// become a live card pill. The city landing links still expose the rotating
-// full catalogue without pretending every August certificate is current.
+// 2026-10-13: the per-id CLIPP_INDEX_REVERIFIED split is retired; every merchant
+// certificate shares CLIPP_MERCHANT_AUDIT_EXPIRY. What the split guarded still holds:
+// a live card pill needs exact place identity, and the renewal must stay material.
 {
-  const ids = new Set(CLIPP_MERCHANT_OFFERS.map((m) => m.offerId));
-  ok(/^\d{4}-\d{2}-\d{2}$/.test(CLIPP_INDEX_REVERIFIED.on), "indexed Clipp re-verification records its observation date");
-  ok(/^\d{4}-\d{2}-\d{2}$/.test(CLIPP_INDEX_REVERIFIED.expires), "indexed Clipp re-verification has a bounded expiry");
-  ok(CLIPP_INDEX_REVERIFIED.offerIds.length >= 10, "current identity-mapped renewal is material, not a one-card token pass");
-  ok(new Set(CLIPP_INDEX_REVERIFIED.offerIds).size === CLIPP_INDEX_REVERIFIED.offerIds.length, "current renewal ids are unique");
-  for (const id of CLIPP_INDEX_REVERIFIED.offerIds) {
-    const offer = CLIPP_MERCHANT_OFFERS.find((m) => m.offerId === id);
-    ok(ids.has(id), `${id}: renewed id exists in the guarded merchant registry`);
-    ok(offer && (offer.placeId || (Array.isArray(offer.match) && offer.match.length)), `${id}: renewed deal has exact place identity for a card icon`);
+  ok(CLIPP_MERCHANT_OFFERS.length >= 10, "the merchant renewal is material, not a one-card token pass");
+  const ids = CLIPP_MERCHANT_OFFERS.map((m) => m.offerId);
+  for (const m of CLIPP_MERCHANT_OFFERS) {
+    ok(/^\d{4}-\d{2}-\d{2}$/.test(String(m.verified && m.verified.on)), m.offerId + ": carries the date a browser last verified it");
   }
+  ok(new Set(ids).size === ids.length, "merchant offer ids are unique");
+  ok(new Set(CLIPP_MERCHANT_OFFERS.map((m) => m.dest)).size === ids.length, "merchant destinations are unique");
+  ok(CLIPP_MERCHANT_OFFERS.every((m) => /^\$?[\d.]+ for /i.test(m.title) || /reg\./i.test(m.title)), "every merchant title states its price or its regular price");
+  ok(CLIPP_MERCHANT_OFFERS.every((m) => m.merchant && m.area), "every merchant row names its merchant and area");
 }
 
 /* ── the provider registration, asserted by CALLING it ───────────────────── */

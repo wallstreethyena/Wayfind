@@ -90,7 +90,7 @@ export default function CreatorCardMark({ videos }) {
   // handle is nominative credit, not a claim of affiliation.
   const label =
     creatorLabel(leadPlatform.label) +
-    " — a video by @" + lead.handle +
+    " — a post by @" + lead.handle +
     (extra > 0 ? ` and ${extra} other creator${extra === 1 ? "" : "s"}` : shown[1] ? ` and @${shown[1].handle}` : "");
 
   const leadRgb = PLATFORM_RGB[lead.platform] || PLATFORM_RGB.tiktok;

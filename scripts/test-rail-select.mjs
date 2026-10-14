@@ -25,6 +25,7 @@ import { isFamilyPlace, isStrongFamilyPlace } from "../lib/familyPlace.js";
 import { isTicketedVenue, isStrongTicketedVenue } from "../lib/eventVenue.js";
 import { isBirthdayPlace, isStrongBirthdayPlace, BIRTHDAY_NEAR_MI } from "../lib/birthdayPlace.js";
 import { readFileSync } from "node:fs";
+import { hasCreatorVideoAt } from "../lib/creatorBoost.js";
 import { checkFallPaging } from "./lib/fall-paging-regression.mjs";
 
 let pass = 0, fail = 0;
@@ -434,14 +435,20 @@ ok(!isStrongBirthdayPlace({ name: "Publix Super Market", primaryType: "grocery_s
 // "it is not working"). Volume was a leaderboard of the famous. The rail now
 // blends the two live signals the rows genuinely carry: the TREND_THRESHOLD
 // spike flag, and a real creator video (two-argument hasCreatorVideoAt — the
-// call form scripts/check-rail-source-reachable.mjs pins). The fixture has no
-// creator registry match, so what it can prove is the spike half: only
-// flagged rows are admitted, and flagged rows lead.
+// call form scripts/check-rail-source-reachable.mjs pins). Isolate the spike
+// half with synthetic names: real-name research fixtures may acquire reviewed
+// sources as the registry grows. Then prove the creator-only branch separately.
 {
-  const picked = selectFor("trending", pools, { cityLabel: "Sarasota" });
+  const spikePools = Object.fromEntries(Object.entries(pools).map(([key, rows]) => [key, rows.map((row) => ({ ...row, name: `Spike control ${row.id}` }))]));
+  ok(Object.values(spikePools).flat().every((row) => !hasCreatorVideoAt(row, "Sarasota")), "the spike-only fixture actually has no creator registry match");
+  const picked = selectFor("trending", spikePools, { cityLabel: "Sarasota" });
   ok(picked.length >= MIN_CARDS, "the fixture's spike-flagged rows fill the rail");
   ok(picked.every((p) => !!p.trending),
     "with no creator registry match in the fixture, every pick must carry the real spike flag — anything else is the volume leaderboard sneaking back");
+  const creatorOnly = mk("ChIJpXGK53VC24gRWMneFVtK6hY", { name: "Ca' d'Zan", _s: 99, types: ["museum", "tourist_attraction"] });
+  ok(!creatorOnly.trending && hasCreatorVideoAt(creatorOnly, "Sarasota"), "the creator-only control carries a reviewed exact-ID source and no spike flag");
+  const blended = selectFor("trending", { ...spikePools, "things-to-do": [...spikePools["things-to-do"], creatorOnly] }, { cityLabel: "Sarasota" });
+  ok(blended.some((row) => row.id === creatorOnly.id), "a real exact-ID creator post can enter the blend independently of the spike flag");
   // v8.10 — order is the displayed score, same as every rail (the +0.6
   // TRENDING_BONUS lives IN that score, so a real spike rises on its own);
   // asserted for all rails in the global-rule sweep below.

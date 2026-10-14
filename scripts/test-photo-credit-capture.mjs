@@ -158,6 +158,20 @@ const live = (extra = {}) => ({ place: PLACE, ref: placeDiscoveryRef(PLACE), w: 
   ok(/fmt["']?\)\s*===\s*["']json["']/.test(route) && /credit:\s*\{\s*name:\s*c\.name/.test(route), "7: WEAKER (source): fmt=json returns the credit with the photo");
 }
 
+{
+  // The client keeps each photo with ITS credit end to end (pairing).
+  const { normalizePhotoAnswer, getPlacePhoto, resetPhotoAnswers } = await import("../lib/photoAnswers.js");
+  const mk = (id) => ({ src: "https://lh3.example/" + id, source: "google", credit: { name: "N-" + id, mapsUri: "https://maps.google.com/?cid=" + id, authors: [{ name: "N-" + id }] } });
+  const x = normalizePhotoAnswer("ChIJPairX0000000000001", mk("X")).photo, y = normalizePhotoAnswer("ChIJPairY0000000000001", mk("Y")).photo;
+  ok(x.src.endsWith("X") && x.credit.authors[0].name === "N-X" && x.credit.mapsUri.endsWith("X"), "client pairing: X keeps X's photo, author and link");
+  ok(y.src.endsWith("Y") && y.credit.authors[0].name === "N-Y" && y.credit.mapsUri.endsWith("Y"), "client pairing: Y keeps Y's photo, author and link");
+  resetPhotoAnswers();
+  let calls = 0; const f = async () => { calls++; return { ok: true, status: 200, headers: { get: () => null }, json: async () => mk("Z") }; };
+  const z1 = await getPlacePhoto("ChIJPairZ0000000000001", { surface: "card", fetchImpl: f }), z2 = await getPlacePhoto("ChIJPairZ0000000000001", { surface: "detail", fetchImpl: f });
+  ok(calls === 1 && z1 === z2, "client reuse: the detail page reuses the card's exact photo and credit with no second request");
+  resetPhotoAnswers();
+}
+
 if (fail.length) {
   console.error("test-photo-credit-capture: FAIL\n  - " + fail.join("\n  - "));
   process.exit(1);
