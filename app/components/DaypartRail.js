@@ -104,6 +104,7 @@ const POSTER_MODULES = {
   break: () => import("./LunchBreakRails"),
   today: () => import("./TodayDiscoveryRails"),
   augtober: () => import("./FallIntentRails"),
+  halloween: () => import("./FallIntentRails"),
   christmas: () => import("./ChristmasIntentRails"),
   season: () => import("./SummerIntentRails"),
   tonight: () => import("./NightOutRails"),
@@ -1270,7 +1271,7 @@ export default function DaypartRail({
   // Neither may fall through to the generic place pool: doing so made the
   // Events drop begin with real happenings and end with buildings where an
   // event might happen on some other date.
-  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "tonight" || selRail.id === "locals" || selRail.id === "christmas"));
+  const railOwnsItsOwnAnswer = !!(selRail && (selRail.id === "season" || selRail.id === "datenight" || selRail.id === "birthday" || selRail.id === "family" || selRail.id === "breakfast" || selRail.id === "break" || selRail.id === "eat" || selRail.id === "today" || selRail.id === "augtober" || selRail.id === "halloween" || selRail.id === "tonight" || selRail.id === "locals" || selRail.id === "christmas"));
   // A COMPOSER FED BY /api/rails HAS NO ANSWER UNTIL /api/rails DOES (v9.0).
   // Breakfast and Actually Worth Eating do not fetch anything of their own:
   // they split `shown.places` into identity rails. So while the rails request
@@ -1377,7 +1378,7 @@ export default function DaypartRail({
   const dropList = useMemo(() => {
     const base = selected === "chef" ? chefPlaces
       : selected === "christmas" ? []
-      : selected === "augtober" || selected === "season" ? []
+      : selected === "augtober" || selected === "halloween" || selected === "season" ? []
       : selPlaces;
     // v8.69 (owner, 2026-08-26: "create a place card for them in our rail lists
     // — place them on the night is calling and add a sponsored feature on it").
@@ -1684,7 +1685,7 @@ export default function DaypartRail({
             <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return r && !r.posterHidden && !r.artStale && !r.retiredInto;
+                return r && !r.posterHidden && !r.artStale && !r.retiredInto && (!r.seasonalThrough || siteTodayStr() <= r.seasonalThrough);
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
@@ -1816,7 +1817,7 @@ export default function DaypartRail({
       <section className="wf8-menusec" ref={menuRef} aria-label={selRail ? `${selRail.title} — picks` : "Picks"} aria-hidden={!selRail}>
         <div className="wf8-in">
           <div className="wf8-mbar">
-            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</p>
+            <p className="wf8-mhd">Showing <b>{selRail ? selRail.title : ""}</b>{selRail && !selRail.guides && selRail.id !== "chef" && selRail.id !== "augtober" && selRail.id !== "halloween" && selRail.id !== "christmas" ? near : ""}{selRail && !railOwnsItsOwnAnswer && selectedTotal ? ` · ${selectedTotal} options` : ""}</p>
             <button type="button" className="wf8-mclose" onClick={close}>✕ Close</button>
           </div>
 
@@ -2026,8 +2027,10 @@ export default function DaypartRail({
             />
           ) : null}
 
-          {selRail && selRail.id === "augtober" ? (
+          {selRail && (selRail.id === "augtober" || selRail.id === "halloween") ? (
             <FallIntentRails
+              key={selRail.id}
+              collection={selRail.id === "halloween" ? "halloween" : "fall"}
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
               city={shown.cityLabel || ""}

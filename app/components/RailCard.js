@@ -44,6 +44,7 @@ import useEventClock from "./useEventClock.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
+import CardPhoto from "./CardPhoto";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
 // renders an enabled, pressable button that silently does nothing when the
@@ -351,6 +352,11 @@ export default function RailCard({
   // title and the guide treatment. Omitted (every place/event/tour card) adds
   // nothing, so the markup is byte-identical to before. Place cards never pass it.
   variant = null,
+  // Guide-card only: the guide slug and the covered place that earned it a seat
+  // in this rail, rendered as data-guide-id / data-guide-matched-id so the
+  // synthetic monitor can tell an owned guide from an unidentified card.
+  guideId = null,
+  guideMatchedId = null,
   // Guide-card only: a node rendered under the teaser (the "Top pick" or the
   // guide's one booking link). Ignored unless variant === "guide".
   lead = null,
@@ -477,6 +483,8 @@ export default function RailCard({
     <article
       ref={domRef}
       data-place-id={place?.id || undefined}
+      data-guide-id={variant === "guide" && guideId ? guideId : undefined}
+      data-guide-matched-id={variant === "guide" && guideId && guideMatchedId ? guideMatchedId : undefined}
       className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
@@ -519,7 +527,7 @@ export default function RailCard({
               to the ORIGINAL `photo` prop, not the fallback src that just
               replaced it, so this still flips once the fallback also fails. */}
           {shownPhoto && imgFailed !== shownPhoto
-            ? <img
+            ? <CardPhoto
                 src={displayedPhoto}
                 data-fallback={usingFallback ? "" : resolvedPhotoFallback}
                 alt=""

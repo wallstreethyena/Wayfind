@@ -42,6 +42,9 @@ const sha = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 // art is known to contradict its copy and its tile is therefore not rendered.
 // Every rail with art must be in exactly one of those two states.
 const PAIRS = {
+  // Owner-supplied poster, viewed at 760px: "Halloween Starts Here".
+  // Resampled without cropping or redrawing the original frame.
+  halloween: { copy: "a5a0b3d947603eae", art: "088f64ffdadb7c26" },
   // Pin a rail here only after LOOKING at public/cards-v8/<id>-760.jpg and
   // confirming the words in the image match the words in lib/rails.js.
   //
@@ -74,7 +77,9 @@ const PAIRS = {
   // christmas (2026-10-08): the owner's poster, read at 760px before pinning. It says
   // "Florida Christmas / Beautifully Curated" over a red glass ornament, which matches the
   // title "Florida Christmas" and makes no other claim.
-  christmas: { copy: "41d49a57d5cf7352", art: "89e374eef72e7a0f" },
+  // Re-pinned 2026-10-09 (Christmas v3, lead decision): the copy now reads "Lights, parades,
+  // parties & pop up bars"; the art is unchanged and names no rail, so it still matches.
+  christmas: { copy: "6767f881b1a24730", art: "89e374eef72e7a0f" },
   beach: { copy: "bc2e671d898c25b0", art: "10af9b34c86feb0b" },
   // Owner portrait, September 9: no baked text; DaypartRail overlays the live title and CTA.
   cindy: { copy: "30d97235cfc066b7", art: "a5712afd8afe9338" },
@@ -206,7 +211,10 @@ const PAIRS = {
   // asserts no Score, and the person in it is not presented as the source of
   // any recommendation — the sourcing rule is enforced in lib/railsData.js,
   // not by the picture, and it is unchanged.
-  locals: { copy: "a798d7ec0bef995b", art: "a0b6fa45c0572421" },
+  // 2026-10-13: original 760px pixels re-read. The headline remains
+  // "Creators Pick" and contains no visit/filming claim; it supports the
+  // source-neutral "Featured by creators" copy. Owner artwork is byte-identical.
+  locals: { copy: "ea5d6b7de44cce05", art: "a0b6fa45c0572421" },
   // 2026-09-03 — RE-PINNED AFTER PIXEL REVIEW AT 760px. The owner-supplied
   // poster reads “wayfind / BEST SUMMER EVER” over the pool-and-watermelon
   // photograph. The rail names Summer Picks, repeats “Best summer ever,” and

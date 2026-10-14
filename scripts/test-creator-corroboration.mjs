@@ -262,9 +262,19 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
   ok(emptyUrls === 0,
     `CURATED holds NO staged entries (found ${emptyUrls} with url:"") — an entry that cannot render does not belong in a module every visitor downloads`);
 
-  const stagedSrc = readFileSync(path.resolve("lib/creatorVideosStaged.js"), "utf8");
-  ok(/export const STAGED = \[/.test(stagedSrc) && (stagedSrc.match(/\bkey: "/g) || []).length > 5,
-    "the staged file exists and still holds the backlog — the entries were MOVED, not deleted");
+  const { STAGED } = await import("../lib/creatorVideosStaged.js");
+  const sourceAudit = JSON.parse(readFileSync(path.resolve("docs/curation/staged-native-2026-10-13.json"), "utf8"));
+  ok(STAGED.length === 2 && STAGED.every((entry) => ["wingstop-bradenton", "la-violetta-sarasota"].includes(entry.key) && entry.videos.every((video) => !video.url && video.nativeUrl && video.holdReason)),
+    "the two held sources retain recovered native URLs and precise blockers outside the app");
+  ok(sourceAudit.slots.length === 38 && sourceAudit.summary.attachmentReady === 36 && sourceAudit.slots.every((slot) => slot.final),
+    "all 38 original research slots have a final source disposition; 36 are prepared and two remain held");
+  for (const source of sourceAudit.release.activated) {
+    ok(creatorVideosFor({ id: source.placeId }).some((video) => video.url === source.nativeUrl && video.creator === source.creator), `recovered source resolves on its exact reviewed ID: ${source.slotId}`);
+    ok(!creatorVideosFor({ id: "ChIJwrongBacklogIdentity123", name: source.name, city: source.city }).some((video) => video.url === source.nativeUrl), `recovered source cannot cross Google identities: ${source.slotId}`);
+  }
+  const ownBakery = creatorVideosFor({ id: "ChIJu3mmJlU9w4gRX3KqQYNgeuk" });
+  ok(ownBakery.length === 1 && ownBakery[0].creator === "tookiesandtreats" && creatorCountFor({ id: "ChIJu3mmJlU9w4gRX3KqQYNgeuk" }) === 0,
+    "the bakery's own post renders credit without independent corroboration");
 
   // Nothing in the shipped app may import it. Walk lib/ and app/ for real.
   const bad = [];
@@ -287,6 +297,31 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
   for (const d of ["lib", "app"]) walk(path.resolve(d));
   ok(bad.length === 0,
     `no runtime module imports the curation backlog — importing it puts the whole ~18KB straight back in the bundle. Offenders: ${bad.join(", ")}`);
+}
+
+// Recovered Siesta posts reach the actual whole-beach identity. Its review flag
+// is preserved; distinct and excluded listings cannot inherit credit.
+{
+  const canonical = "ChIJh8tXh-FBw4gR9kFzfZN_g60";
+  const expected = [
+    "https://www.tiktok.com/@thingstodotampabay/video/7279084084511411502",
+    "https://www.tiktok.com/@sarasotajenn/video/7513895727760756010",
+    "https://www.tiktok.com/@paolamorenou_/video/7482954036593921311",
+    "https://www.tiktok.com/@danaystojeiro/video/7510353154588937514",
+    "https://www.tiktok.com/@thingstodo.florida/video/7325114575869807915",
+  ];
+  const got = creatorVideosFor({ id: canonical });
+  ok(got.length === 5 && expected.every((url) => got.some((video) => video.url === url)), "all five inspected Siesta native posts resolve on the canonical beach ID");
+  for (const id of ["ChIJRepzNwBBw4gRxfUTuzPlfaE", "ChIJdifferentSiestaTwin123"]) {
+    const wrong = creatorVideosFor({ id, name: "Siesta Key Beach", city: "Sarasota" }, "Sarasota");
+    ok(!wrong.some((video) => expected.includes(video.url)), "Siesta's canonical credit does not cross to a different Google identity: " + id);
+  }
+  const staged = readFileSync(path.resolve("lib/creatorVideosStaged.js"), "utf8");
+  ok(!staged.includes('key: "siesta-beach-sarasota"'), "the verified beach entry moved out of staged data rather than remaining duplicated in two inventories");
+  const villageUrl = "https://www.tiktok.com/@thingstodotampabay/video/7258302768811773230";
+  ok(creatorVideosFor({ id: "ChIJK1nJH9xrw4gRIr9IhuzYVQI" }).some((video) => video.url === villageUrl), "the reviewed Village district gets its own shops-and-dining roundup");
+  ok(!creatorVideosFor({ id: canonical }).some((video) => video.url === villageUrl), "a Village district roundup is not attached to the separate beach");
+  ok(!creatorVideosFor({ id: "ChIJq2xCMQpqw4gRuG2G3EKqDBs", name: "Siesta Key Village", city: "Sarasota" }, "Sarasota").some((video) => video.url === villageUrl), "the excluded Village twin cannot inherit the canonical district's post");
 }
 
 // ── 10. THE CAPTIONS STAYED WITH THEIR VIDEOS ──────────────────────────────

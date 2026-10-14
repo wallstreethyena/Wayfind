@@ -154,7 +154,7 @@ const live = (extra = {}) => ({ place: PLACE, ref: placeDiscoveryRef(PLACE), w: 
 {
   const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
   ok(!/photoCredits|keepPhotoCredits|keepCredits/.test(route), "7: WEAKER (source): /api/photo no longer imports or passes any credit keeper");
-  ok(/googleSurface/.test(route) && /GOOGLE_SURFACES\s*=\s*new Set\(\["detail"\]\)/.test(route), "7: WEAKER (source): only the detail surface may ask Google");
+  ok(/googleSurface/.test(route) && /GOOGLE_SURFACES\s*=\s*new Set\(\["detail", "card"\]\)/.test(route) && route.includes('searchParams.get("s") !== "card" || wantJson'), "7: WEAKER (source): only detail and credited card JSON may ask Google");
   ok(/fmt["']?\)\s*===\s*["']json["']/.test(route) && /credit:\s*\{\s*name:\s*c\.name/.test(route), "7: WEAKER (source): fmt=json returns the credit with the photo");
 }
 

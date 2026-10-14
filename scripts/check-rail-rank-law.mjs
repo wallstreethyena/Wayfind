@@ -81,6 +81,7 @@ ok(discovered.length >= 8, `the glob discovers a plausible number of composer ex
 const COVERED = new Set([
   "lib/nightOutIntent.js:composeNightOutRails",
   "lib/fallIntentRails.js:composeFallIntentRails",
+  "lib/halloweenIntentRails.js:composeHalloweenRails",
   "lib/christmasIntentRails.js:composeChristmasIntentRails",
   "lib/dateNightIntent.js:composeDateNightRails",
   "lib/birthdayIntent.js:composeBirthdayRails",
@@ -162,14 +163,28 @@ function assertMonotonic(label, result) {
   assertMonotonic("fallIntentRails", composed);
 }
 {
-  // Christmas reuses Fall's chronologicalCards ordering; the same owner numbers
-  // land in the Beaches rail (120mi) and must be score-led, never distance-led.
+  const { composeHalloweenRails } = modules.get("lib/halloweenIntentRails.js");
+  const cards = FALL_FIXTURE.map((row) => ({ ...row, name: `${row.name} Pumpkin Patch`,
+    kind: "place" }));
+  const composed = composeHalloweenRails([{ id: "farms", cards }], "2026-10-13");
+  const rail = railsArrayOf(composed).find((r) => r.id === "farms");
+  ok(cardsOf(rail).length === 3, "Halloween admits all three score controls into farms");
+  assertLeads("halloweenIntentRails (farms)", cardsOf(rail).map((card) => card.id));
+  assertMonotonic("halloweenIntentRails", composed);
+}
+{
+  // Christmas v3 (lead packet, 2026-10-09) ranks inside distance GROUPS
+  // (Nearby <= 35 mi, Within reach, Day trip; lib/christmasIntentRails.js),
+  // and places inside a group by score. The owner numbers (14.9 to 18 mi) all
+  // sit in Nearby, so they land in the Pop Up Bars rail (the only place rail)
+  // and must be score-led, never distance-led. Cross group order is locked by
+  // scripts/check-christmas-rails.mjs section 4b.
   const { composeChristmasIntentRails } = modules.get("lib/christmasIntentRails.js");
-  const places = OWNER_FIXTURE.map((f) => ({ ...f, christmasRail: "beaches" }));
+  const places = OWNER_FIXTURE.map((f) => ({ ...f, christmasRail: "popup-bars" }));
   const composed = composeChristmasIntentRails([], places, { lat: 27.95, lng: -82.46, today: "2026-12-01", now: new Date("2026-12-01T12:00:00Z") });
-  const rail = railsArrayOf(composed).find((r) => r.id === "beaches");
-  ok(!!rail, "christmasIntentRails: the fixture lands in the Winter Beach Days rail");
-  if (rail) assertLeads("christmasIntentRails (beaches)", cardsOf(rail).map((c) => c.id));
+  const rail = railsArrayOf(composed).find((r) => r.id === "popup-bars");
+  ok(!!rail, "christmasIntentRails: the fixture lands in the Pop Up Bars rail");
+  if (rail) assertLeads("christmasIntentRails (popup-bars)", cardsOf(rail).map((c) => c.id));
   assertMonotonic("christmasIntentRails", composed);
 }
 {

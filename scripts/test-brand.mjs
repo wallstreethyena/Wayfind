@@ -19,10 +19,10 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
 const homeCss = readFileSync(new URL("../app/components/css.js", import.meta.url), "utf8");
 const homePage = home + "\n" + homeCss;
 // The homepage header wears the isolated official wordmark and never shrinks.
-const legacyImageHeader = home.includes('src="/brand/wayfind-wordmark-transparent-v2.png"') && /height: 64[^}]*width: "auto"[^}]*flexShrink: 0/.test(home);
+const legacyImageHeader = home.includes('src="/brand/wayfind-wordmark-original-v3.png"') && /height: 64[^}]*width: "auto"[^}]*flexShrink: 0/.test(home);
 const splitOfficialHeader = home.includes('className="wf-wordmark-text"') && home.includes('className="wf-wordmark-pin"') && /\.wf-wordmark\{[^}]*flex-shrink:0/.test(homeCss);
 ok(legacyImageHeader || splitOfficialHeader, "the header lost the transparent official logo or its shrink protection");
-ok((homePage.match(/brand\/wayfind-wordmark-transparent-v2/g) || []).length === 1, "the official wordmark may appear exactly ONCE on the homepage (app/home.js + app/components/css.js) — the header");
+ok((homePage.match(/brand\/wayfind-wordmark-original-v3/g) || []).length === 1, "the official wordmark may appear exactly ONCE on the homepage (app/home.js + app/components/css.js) — the header");
 
 // v6.47, same decomposition logic as wave 1 above: RankedExperiencePage no
 // longer owns its hero markup — the <header>, and with it the wordmark, moved to
@@ -49,7 +49,7 @@ for (const [files, label] of [[RANKED_SHELL, "ranked shell"], [BEACH_SHELL, "bea
   // now, reverting Nov 1) and still always be the official asset, never a
   // lookalike. Accept either form so a future template that legitimately
   // hardcodes the transparent PNG is not penalized.
-  ok(s.includes("/brand/wayfind-wordmark-transparent-v2.png") || s.includes("src={seasonalWordmark.png}"), label + " lost the transparent official wordmark (neither the raw path nor the seasonal resolver's `.png` field renders it)");
+  ok(s.includes("/brand/wayfind-wordmark-original-v3.png") || s.includes("src={seasonalWordmark.png}"), label + " lost the transparent official wordmark (neither the raw path nor the seasonal resolver's `.png` field renders it)");
 }
 
 // Raster logo only in OG routes (their dark #040810 band = the baked bg).

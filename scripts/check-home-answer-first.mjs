@@ -334,7 +334,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     ["The 30-Minute Break", "Half the break dies deciding. The best quick, counter-serve food near you — already ranked."],
     ["What Should We Do Today?", "Ends the 'I don't know, you pick' spiral: real plans, ranked for right now."],
     ["Places You'd Never Find", "Loved by the few who've found them, missed by the big lists — and near you."],
-    ["Creators Pick", "Not a listicle: creators who actually went, matched to places near you."],
+    ["Creators Pick", "Creator posts, matched to places near you."],
     ["Tonight's Move", "Plans that fit tonight's hours — not somebody's reheated weekend list."],
     ["Worth the Drive", "An hour in the car has to earn itself. These are the ones that do."],
     ["Events Near You", "Stop finding out the day after: concerts, shows and one-nighters near you."],
@@ -736,7 +736,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
       /const shownPhoto = photoSrcFilter\(photo\);\s*const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;\s*const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/,
       /const samePlacePhoto = place\?\.id \? photoSrcFilter\(ownedPlacePhotoSrc\(place\.id, 640\)\) : "";\s*const resolvedPhotoFallback = photoSrcFilter\(photoFallback\) \|\| \(samePlacePhoto && samePlacePhoto !== shownPhoto \? samePlacePhoto : ""\);/,
       /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*ev\.currentTarget\.src = fallback;\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/,
-      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<img\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*(?:placeholder \? <EventPlaceholderTile tile=\{placeholder\} \/>\s*:\s*)?<div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
+      /\{shownPhoto && imgFailed !== shownPhoto\s*\?\s*<CardPhoto\s+src=\{displayedPhoto\}\s+data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}[^>]*onError=\{handleImageError\}[^>]*\/>\s*:\s*(?:placeholder \? <EventPlaceholderTile tile=\{placeholder\} \/>\s*:\s*)?<div className="wf-place-card-monogram" aria-hidden="true">\{initialsOf\(title\)\}<\/div>\}/,
     ].every((probe) => probe.test(source));
     // The real source is the positive control; each red-prove changes a live
     // contract expression and must both apply and make the SAME probe reject.

@@ -10,6 +10,9 @@
 // they are trusted (see selfTestDash / selfTestDomains).
 import { readFileSync } from "node:fs";
 import assert from "node:assert/strict";
+import { floridaEventPhoto, floridaSearchPhoto } from "../lib/floridaEventPhotography.js";
+import { FLORIDA_EVENT_PHOTOS } from "../lib/floridaPhotography.js";
+import { isFallThemedEvent } from "../lib/fallTheme.js";
 import { RESERVED_GO_SLUGS, resolveGoSlug } from "../lib/goShortlinks.js";
 import { GUIDES } from "../lib/guides.js";
 import { commerceHref } from "../lib/commerce.js";
@@ -76,7 +79,7 @@ function domainViolations(rawSrc) {
   // stripComments() the real checks below use — not a hand-typed stand-in.
   const emDash = String.fromCharCode(0x2014);
   const bad1 = rawData.replace("Less searching. More Florida.", "Less searching " + emDash + " more Florida.");
-  const bad2 = rawData.replace("Find my Florida outing", "Find my - Florida outing");
+  const bad2 = rawData.replace("Find my next outing", "Find my - next outing");
   ok(bad1 !== rawData, "self-test setup: the em-dash mutation target string exists in lib/paidFloridaLanding.js");
   ok(bad2 !== rawData, "self-test setup: the \" - \" mutation target string exists in lib/paidFloridaLanding.js");
   ok(dashViolations(stripComments(bad1)), "self-test: an injected em dash in real copy is caught by the dash check (red-prove)");
@@ -241,6 +244,37 @@ for (const link of INTEREST_LINKS) {
 for (const offer of [...THEME_PARK_OFFERS, ...NATURE_OFFERS, ...SHOW_OFFERS]) {
   ok(typeof offerContext(offer) === "string" && offerContext(offer).length > 30, `${offer.offerId}: recommendation carries reader-facing context`);
 }
+
+// Photo identity is scoped to a reviewed event or local subject.
+const zooPhoto = floridaEventPhoto({event_id:"zoo-boo-zoo-miami-2026", city:"Miami"});
+const gatorPhoto = floridaEventPhoto({event_id:"gatorland-ghosts-goblins-2026", city:"Orlando"});
+ok(zooPhoto?.src.includes("8f99d73e7d4b4ae0afffa4dbf4c688c4"), "Zoo Miami resolves its own reviewed venue photograph");
+ok(gatorPhoto?.src.includes("740cc2ae6a03412bb1da2e85f8c9539a"), "Gatorland resolves its own reviewed venue photograph");
+ok(zooPhoto?.src !== gatorPhoto?.src, "different venues do not inherit a shared generic image");
+for (const photo of [zooPhoto,gatorPhoto]) ok(photo?.caption?.includes("Seasonal event not pictured.") && photo.credit, "venue context is disclosed and credited");
+ok(floridaEventPhoto({event_id:"zoo-boo-zoo-miami-2026",city:"Orlando"}) === null, "wrong city refuses a venue photograph");
+for (const event_id of ["unknown-event", "constructor", "__proto__", ""]) ok(floridaEventPhoto({event_id,city:"Miami"}) === null, "unreviewed event cannot inherit a photograph: "+event_id);
+ok(floridaEventPhoto(null) === null, "missing event has no photo");
+for (const [event_id,art] of Object.entries(FLORIDA_EVENT_PHOTOS)) {
+ ok(floridaEventPhoto({event_id})?.src === art.src, "exact event artwork remains scoped: "+event_id);
+ ok(floridaEventPhoto({event_id:"wfc:"+event_id})?.src === art.src, "prefixed event identity: "+event_id);
+}
+ok(floridaEventPhoto({event_id:"wfc:zoo-boo-zoo-miami-2026",city:"Miami"})?.src === zooPhoto.src,"prefixed Zoo identity");
+ok(rawPage.includes("const art = floridaEventPhoto(event);") && !rawPage.includes('guideHero("fall-events-orlando-2026")'), "real EventCard calls reviewed resolver and has no Disney fallback");
+ok(!rawPage.includes("reviewedArt.src ?") && !rawPage.includes("EXPERIENCE_PHOTOS"), "guide and search renderers cannot fall back to stock art");
+ok(isFallThemedEvent({event_name:"Zoo Boo at Zoo Miami"}), "fall theme accepts Zoo Boo");
+ok(!isFallThemedEvent({event_name:"Christmas at the Zoo",category:"holiday"}), "fall theme excludes Christmas");
+ok(rawPage.includes(".filter((e) => isFallThemedEvent(e)"), "actual landing loader filters seasonal theme");
+const searchPhotos = VIATOR_SEARCH_INTENTS.map(floridaSearchPhoto).filter(Boolean);
+ok(searchPhotos.length === 3, "three search cards have reviewed local subjects; two have no substitute photo");
+ok(new Set(searchPhotos.map(art=>art.src)).size === searchPhotos.length, "search card photography is not repeated");
+ok(floridaSearchPhoto({id:"clearwater-dolphin-cruise",city:"Clearwater"})?.src.includes("54683b639d45431c916213df78a5857e"), "Clearwater uses the actual local cruise vessel");
+ok(floridaSearchPhoto({id:"orlando-airboat",city:"Orlando"})?.src.includes("318ffa240f4c44658c240b6c70b4a270"), "Orlando uses the Boggy Creek airboat photograph");
+ok(floridaSearchPhoto({id:"clearwater-dolphin-cruise",city:"Miami"}) === null, "search photos reject wrong city");
+ok(floridaSearchPhoto({id:"bioluminescent-titusville",city:"Titusville"}) === null, "night kayaking does not inherit the daytime hero");
+ok(floridaSearchPhoto({id:"siesta-key-sunset-cruise",city:"Siesta Key"}) === null, "cruise does not inherit an empty beach");
+ok(floridaSearchPhoto({id:"constructor"}) === null && floridaSearchPhoto(null) === null, "missing and inherited search keys have no image");
+ok(!rawPage.includes("offers[0].image"), "boat rental city choices do not render broken generic stock");
 
 if (fail.length) {
   console.error(`check-go-florida-landing: FAIL — ${fail.length}/${pass + fail.length} assertions failed:\n`);

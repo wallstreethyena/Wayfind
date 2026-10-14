@@ -1,16 +1,18 @@
 // scripts/lib/synthetic/menuPosterIntegrity.mjs — pure contracts for the
 // homepage poster menu synthetic.  Keep this free of browser/network code so
 // the hermetic monitor guard can red-prove its decisions.
+import { siteTodayStr } from "../../../lib/siteTime.js";
 import { snapRailCoord } from "./fixtures.mjs";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../../lib/liveEventPosterTypes.js";
 import { PARTNER_COLLECTIONS } from "../../../lib/partnerCollections.js";
 
-// RAILS currently declares 19 records.  FOUR never reach the homepage menu:
+// Some RAILS records never reach the homepage menu:
 // `events` is retired into Night Out (`retiredInto`), `lunchcity` / `drive`
 // were deliberately un-promoted by #1196 (`posterHidden: true`), and `chef`
 // was hidden by the owner on 2026-09-10 (`posterHidden: true` — the record,
 // the id, and Ron Duprat's seven picks all stay; only the tile comes off the
-// track).  These are the 15 tiles a reader must be able to choose.  This explicit
+// track). These are the approved tiles, with Halloween required only during
+// its campaign. This explicit
 // product contract catches both a disappeared tile and a quietly-added tile
 // that has no monitored owner.
 //
@@ -24,13 +26,13 @@ import { PARTNER_COLLECTIONS } from "../../../lib/partnerCollections.js";
 // masking a real continuation failure sitting in the same scenario.
 //
 // The list stays EXPLICIT on purpose: derived from RAILS it would happily
-// expect 15 the day someone hides a tile by accident, which is the failure it
+// lose an expectation the day someone hides a tile by accident, the failure it
 // exists to catch.  What is new is that check-synthetic-monitor-hermetic.mjs
 // now asserts this list equals DaypartRail's own visibility predicate over
 // RAILS, so the product decision and the monitored contract cannot disagree
 // silently again — changing one without the other fails the build.
 export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
-  "season", "today", "trending", "eat", "beach", "family",
+  "season", "today", "halloween", "trending", "eat", "beach", "family",
   "locals", "cindy", "tonight", "datenight", "break",
   "breakfast", "birthday", "blog", "augtober", "christmas",
 ]);
@@ -79,16 +81,18 @@ export function railsRequestMatchesOrigin(urlString, origin) {
  * OPTIONAL but explicitly allowlisted from their product registries. Anything
  * else is still an unowned poster and fails exactly as before.
  */
-export function posterMenuDiff(visibleIds) {
+export function posterMenuDiff(visibleIds, today = siteTodayStr()) {
+  // Halloween is required through Oct 31 ET and forbidden after its campaign.
+  const expected = EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "halloween" || today <= "2026-10-31");
   const actual = Array.isArray(visibleIds) ? visibleIds.map(asId).filter(Boolean) : [];
   const actualSet = new Set(actual);
-  const approvedSet = new Set([...EXPECTED_VISIBLE_POSTER_IDS, ...OPTIONAL_VISIBLE_POSTER_IDS]);
+  const approvedSet = new Set([...expected, ...OPTIONAL_VISIBLE_POSTER_IDS]);
   return {
-    expected: [...EXPECTED_VISIBLE_POSTER_IDS],
+    expected: [...expected],
     optional: [...OPTIONAL_VISIBLE_POSTER_IDS],
     returned: actual,
     duplicateIds: actual.filter((id, index) => actual.indexOf(id) !== index),
-    missingIds: EXPECTED_VISIBLE_POSTER_IDS.filter((id) => !actualSet.has(id)),
+    missingIds: expected.filter((id) => !actualSet.has(id)),
     optionalPresentIds: OPTIONAL_VISIBLE_POSTER_IDS.filter((id) => actualSet.has(id)),
     extraIds: actual.filter((id) => !approvedSet.has(id)),
   };
@@ -273,4 +277,40 @@ export function exactRenderedIdSet(expectedIds, renderedIds) {
   return rendered.length === expected.length
     && new Set(rendered).size === rendered.length
     && rendered.every((id) => expected.includes(id));
+}
+
+/**
+ * Guide cards ride INSIDE place rails by owner rule (2026-10-08,
+ * lib/railGuideSlot.js): the rail's third card, chosen because the guide covers
+ * a place in the rail's own leading window (lib/guideDiscovery.js). They carry
+ * `data-guide-id` (and `data-guide-matched-id`), never `data-place-id`.
+ *
+ * `cards` is every `.wf-place-card` in DOM order: `{ id, guideId, matchedId }`.
+ * A card with neither id is still an unidentified card and still fails.
+ * A guide is accepted only when it is the single guide, sits at the guide slot
+ * (index 2, or last in a rail shorter than 2), and its matched place is one of
+ * the rail's captured place ids (the product's own relevance evidence).
+ */
+export function partitionRailCards(cards, expectedPlaceIds) {
+  const list = Array.isArray(cards) ? cards : [];
+  const expected = new Set((Array.isArray(expectedPlaceIds) ? expectedPlaceIds : []).map(asId));
+  const guides = [];
+  const placeCards = [];
+  const unidentified = [];
+  list.forEach((card, index) => {
+    const guideId = asId(card?.guideId);
+    const id = asId(card?.id);
+    if (guideId && !id) guides.push({ guideId, matchedId: asId(card?.matchedId), index });
+    else if (id) placeCards.push({ id, name: card?.name });
+    else unidentified.push(asName(card?.name) || "(unnamed card)");
+  });
+  const slot = Math.min(2, Math.max(0, list.length - 1));
+  return {
+    placeCards,
+    guides,
+    unidentified,
+    guideCount: guides.length,
+    guideMisplaced: guides.filter((g) => g.index !== slot).map((g) => g.guideId),
+    guideUnmatched: guides.filter((g) => !g.matchedId || !expected.has(g.matchedId)).map((g) => g.guideId),
+  };
 }

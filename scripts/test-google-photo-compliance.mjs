@@ -27,7 +27,7 @@
 //                builders are an enumerated allowlist; each entry is proven
 //                dead by EXECUTING its entry point with trap dependencies.
 //   h. EXECUTED  app/api/photo/route.js is sourced with doubles and driven with
-//                real Request objects: only s=detail yields googleSurface:true.
+//                real Request objects: detail and card JSON yield googleSurface:true.
 // Every group has a positive control (the trap/scanner demonstrably fires) and
 // a RED-PROOF: the same assertions are re-run against a deliberately broken
 // copy of the protected thing (resolver copies with one guard line removed;
@@ -396,7 +396,7 @@ function staticFindings(map) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// h. app/api/photo/route.js — only s=detail enables googleSurface (EXECUTED)
+// h. app/api/photo/route.js — detail and card JSON enable googleSurface (EXECUTED)
 // ─────────────────────────────────────────────────────────────────────────
 const ROUTE_SRC = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
 async function routeSurfaceFindings(routeSource) {
@@ -438,12 +438,12 @@ async function routeSurfaceFindings(routeSource) {
   const mod = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + routeSource.replace(/^import[^;]+;\n/gm, "")));
   const out = [];
   const table = [
-    ["detail", true], ["", false], [null, false], ["card", false], ["rail", false], ["hero", false],
+    ["detail", true], ["", false], [null, false], ["card", true], ["rail", false], ["hero", false],
     ["DETAIL", false], ["detail ", false], ["detail,card", false], ["details", false], ["thumb", false], ["map", false],
   ];
   for (const [s, want] of table) {
     seen.length = 0;
-    const url = "https://wayfind.test/api/photo?place=" + PID + "&w=640" + (s === null ? "" : "&s=" + encodeURIComponent(s));
+    const url = "https://wayfind.test/api/photo?place=" + PID + "&w=640&fmt=json" + (s === null ? "" : "&s=" + encodeURIComponent(s));
     try { await mod.GET(new Request(url, { headers: { "user-agent": "Mozilla/5.0 (iPhone)" } })); } catch (e) { out.push(`s=${JSON.stringify(s)}: route threw ${e.message}`); continue; }
     if (seen.length !== 1) { out.push(`s=${JSON.stringify(s)}: expected exactly one resolver call, saw ${seen.length}`); continue; }
     if (seen[0].googleSurface !== want) out.push(`s=${JSON.stringify(s)}: googleSurface was ${JSON.stringify(seen[0].googleSurface)}, expected ${want}`);
@@ -452,18 +452,21 @@ async function routeSurfaceFindings(routeSource) {
   seen.length = 0;
   await mod.GET(new Request("https://wayfind.test/api/photo?ref=" + encodeURIComponent(`places/${PID}/photos/STOREDNAME_abc`) + "&w=640", { headers: { "user-agent": "Mozilla/5.0 (iPhone)" } }));
   if (seen.length !== 1 || seen[0].googleSurface !== false) out.push("a ref-form request without s must not enable googleSurface");
+  seen.length = 0;
+  await mod.GET(new Request("https://wayfind.test/api/photo?place=" + PID + "&s=card"));
+  if (seen.length !== 1 || seen[0].googleSurface !== false) out.push("card without credit JSON must not enable googleSurface");
   return out;
 }
 {
   const f = await routeSurfaceFindings(ROUTE_SRC);
   ok(f.length === 0, "h: app/api/photo/route.js surface gate:\n   " + f.join("\n   "));
   const set = ROUTE_SRC.match(/const GOOGLE_SURFACES = new Set\(\[([^\]]*)\]\)/);
-  ok(!!set && set[1].replace(/\s/g, "") === '"detail"', "h: GOOGLE_SURFACES is declared as exactly {detail}");
+  ok(!!set && set[1].replace(/\s/g, "") === '"detail","card"', "h: GOOGLE_SURFACES is declared as exactly {detail,card}");
 
   const mutate = (needle, rep, label) => { ok(ROUTE_SRC.split(needle).length === 2, `h red-proof precondition (${label}): target occurs once`); const m = ROUTE_SRC.split(needle).join(rep); ok(m !== ROUTE_SRC, `h red-proof (${label}): mutation applied`); return m; };
-  const widened = mutate('new Set(["detail"])', 'new Set(["detail", "card"])', "surface set widened to card");
+  const widened = mutate('new Set(["detail", "card"])', 'new Set(["detail", "card", "rail"])', "surface set widened to uncredited rail");
   const wf = await routeSurfaceFindings(widened);
-  ok(wf.some((x) => /s="card"/.test(x)), "h red-proof: widening GOOGLE_SURFACES to include card goes RED (" + (wf[0] || "NONE") + ")");
+  ok(wf.some((x) => /s="rail"/.test(x)), "h red-proof: enabling an uncredited rail goes RED (" + (wf[0] || "NONE") + ")");
   const always = mutate('GOOGLE_SURFACES.has(searchParams.get("s") || "")', "true", "googleSurface forced on");
   const af = await routeSurfaceFindings(always);
   ok(af.length >= 5, "h red-proof: googleSurface forced true goes RED on every non-detail row (" + af.length + " rows)");
@@ -475,4 +478,4 @@ if (failures.length) {
   console.error(`google-photo-compliance: ${failures.length} failing assertion(s), ${pass} passing`);
   process.exit(1);
 }
-console.log(`test-google-photo-compliance: OK — ${pass} assertions. Executed through resolvePlacePhoto: non-detail = 0 grants/0 fetches (not-google-surface); 50 concurrent = 1 photos grant + 1 media call with credit and private/no-store; probe = 0/0 and breaker unread; authorizer false/throw = no Google call; 5xx->200 = 1 grant retried:true; 429 = breaker tripped + refund; Details fetched {cache:"no-store"} with fields=photos. Static: ${codeFiles.length} app/lib code files (comments stripped) scanned for photo|/photoneg| keys, wf_photo_credit and photo-fetch revalidate, ${files.size} app/lib/public/data text files scanned for real photo names; ${Object.keys(KEY_ALLOW).length} allowlisted files each proven dead by execution. Route: 13 requests sourced through app/api/photo/route.js, only s=detail is credited. 9 red-proofs (7 on mutated resolver copies, 2 on mutated route source) plus injected-violation red-proofs for the scanner. False-positive surface: a comment-stripper that does not model regex literals (any misfire would show as a finding, none do).`);
+console.log(`test-google-photo-compliance: OK — ${pass} assertions. Executed through resolvePlacePhoto: uncredited surface = 0 grants/0 fetches (not-google-surface); 50 concurrent = 1 photos grant + 1 media call with credit and private/no-store; probe = 0/0 and breaker unread; authorizer false/throw = no Google call; 5xx->200 = 1 grant retried:true; 429 = breaker tripped + refund; Details fetched {cache:"no-store"} with fields=photos. Static: ${codeFiles.length} app/lib code files (comments stripped) scanned for photo|/photoneg| keys, wf_photo_credit and photo-fetch revalidate, ${files.size} app/lib/public/data text files scanned for real photo names; ${Object.keys(KEY_ALLOW).length} allowlisted files each proven dead by execution. Route: 14 requests sourced through app/api/photo/route.js; detail and card JSON are credited, raw card requests are denied. 9 red-proofs (7 on mutated resolver copies, 2 on mutated route source) plus injected-violation red-proofs for the scanner. False-positive surface: a comment-stripper that does not model regex literals (any misfire would show as a finding, none do).`);
