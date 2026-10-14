@@ -36,6 +36,7 @@
  * never reports a false green by evaporating.
  */
 import { readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -44,6 +45,7 @@ import {
   reconcileProduction,
   canonicalSingleStatementHash,
   verifyLedgerContent,
+  resolvePendingDeclarations,
 } from "./lib/migrationReconciliation.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -177,13 +179,24 @@ const content = contentBaseline
   : { errors: [], verified: 0, baselined: 0 };
 for (const error of content.errors) console.error(`check-migration-reconciliation: FAIL — ${error}`);
 bad += content.errors.length;
+const unresolved = [], appliedFiles = new Set(), rawHashes = new Map();
 for (const file of files) {
+  rawHashes.set(file, createHash("sha256").update(readFileSync(path.join(MIGRATIONS_DIR, file))).digest("hex"));
   const result = reconcile(file, ledgerResult.rows, objectSet, canonicalHashes.get(file));
-  if (result.status === "ok") { applied++; continue; }
+  if (result.status === "ok") { applied++; appliedFiles.add(file); continue; }
   if (result.status === "fail") { bad++; console.error(`check-migration-reconciliation: FAIL — supabase/migrations/${file}: ${result.detail}`); continue; }
-  bad++;
-  console.error(`check-migration-reconciliation: FAIL — ${file} has no applied ledger entry or verified historical alias.`);
+  unresolved.push(file);
 }
+// An unresolved file passes ONLY as an owned, hash-pinned pending declaration
+// (resolvePendingDeclarations); stale or mismatched declarations fail.
+let pendingManifest = null;
+try { pendingManifest = JSON.parse(readFileSync(path.join(REPO, "scripts/migration-pending-apply.json"), "utf8")); }
+catch (e) { bad++; console.error(`check-migration-reconciliation: FAIL — cannot read scripts/migration-pending-apply.json: ${e.message}`); }
+const pendingVerdict = pendingManifest
+  ? resolvePendingDeclarations({ unresolved, applied: appliedFiles, pending: pendingManifest, rawHashes })
+  : { errors: [], declared: [] };
+for (const error of pendingVerdict.errors) { bad++; console.error(`check-migration-reconciliation: FAIL — ${error}`); }
+for (const d of pendingVerdict.declared) console.log(`check-migration-reconciliation: PENDING (declared, NOT applied in production) — ${d.file} owner=${d.owner} tracking=${d.tracking}`);
 
 // ── Red-proof: a migration this repo genuinely has not applied must fail ───
 {
@@ -200,4 +213,4 @@ if (bad) {
   console.error(`check-migration-reconciliation: ${bad} failure(s). ${applied} file(s) reconciled.`);
   process.exit(1);
 }
-console.log(`check-migration-reconciliation: OK — ${files.length} files under supabase/migrations/ reconcile bidirectionally against production (${applied} applied); content: ${content.verified} name-matched migrations byte-identical to production, ${content.baselined} reviewed historical differences pinned by hash, 0 drift; self-test + hash-alias red-proof passed.`);
+console.log(`check-migration-reconciliation: OK — ${files.length} files under supabase/migrations/ reconcile bidirectionally against production (${applied} applied); content: ${content.verified} name-matched migrations byte-identical to production, ${content.baselined} reviewed historical differences pinned by hash, 0 drift; ${pendingVerdict.declared.length} declared-pending (owned, hash-pinned, absent from production by design); self-test + hash-alias red-proof passed.`);

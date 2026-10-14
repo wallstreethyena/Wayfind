@@ -55,6 +55,8 @@ import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // 2026-08-20: "this button for the likes still not working under the exploding
 // trends near you" — DaypartRail renders <ExplodingNearby> with isSaved and
 // onSave and nothing else.
+import RemindMe from "./RemindMe";
+import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { useCardActions, toggleLike as fallbackLike, toggleDislike as fallbackDislike, toggleSave as fallbackSave, shareCard as fallbackShare } from "../../lib/cardActions";
 import { useContentCardActions } from "../../lib/contentCardActions";
 import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
@@ -374,6 +376,15 @@ export default function RailCard({
   // /places/{id} remains the durable SEO document. Normalizing at this shared
   // renderer boundary makes the rule apply to every present and future rail.
   const cardHref = place && place.id ? normalizePlaceCardHref(href, place.id) : href;
+  // "Remind me" (owner, 2026-10-14): EVERY event card, in every skin (Fall,
+  // Halloween, Christmas, award, default), gets the button through this one
+  // derivation. lib/eventReminderFacts.js says yes only for an event whose card
+  // opens its /florida-events page and that has a real upcoming date, is not
+  // canceled or postponed, and is not an undated season. Every other card
+  // (places, feed events, past, undated) keeps the byte-identical four-control row.
+  let remind = null;
+  try { remind = visitFacts ? reminderFactsFor({ name: title, ...visitFacts }, { href: cardHref || null }) : null; } catch (e) { remind = null; }
+  const remindTicketHref = visitFacts && visitFacts.ticket && typeof visitFacts.ticket.href === "string" ? visitFacts.ticket.href : null;
   // An EARNED Wayfind award (lib/wayfindAwards.js) is a fact about the PLACE,
   // so the shared renderer resolves it from the row itself and it wins the
   // one credential slot over whatever rank/creator band the caller passed.
@@ -669,6 +680,7 @@ export default function RailCard({
               title={isDislikedNow ? "Remove dislike" : "Not for me"}
               onClick={(e) => stayOnRailReaction(e, doDislike)}
             ><ThumbIcon down /></button>
+            {remind ? <RemindMe facts={remind} variant="card" ticketHref={remindTicketHref} surface="rail_card" /> : null}
             <button
               type="button"
               className="wf-place-card-share"
