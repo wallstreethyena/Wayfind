@@ -36,6 +36,12 @@ for (const e of entries) {
   n += 10;
 }
 for (const slug of Object.keys(CHRISTMAS_LICENSED_PHOTOS)) if (!entries.some((e) => e.slug === slug)) bad.push(slug + ": wired in lib but no provenance");
+// Live coverage excludes a photo that a wf_events row's own (credited) photo
+// shadows (2026-10-14: Nights of Lights, Central Florida Zoo lantern festival).
+for (const e of entries) if ("shadowed_by_db_photo" in e && typeof e.shadowed_by_db_photo !== "boolean") bad.push((e.slug || "?") + ": shadowed_by_db_photo must be true or false");
+const shadowed = entries.filter((e) => e.shadowed_by_db_photo === true);
+for (const slug of ["nights-of-lights-staug-2026", "cf-zoo-lantern-festival-2026"]) if (!shadowed.some((e) => e.slug === slug)) bad.push(slug + ": shown live with the wf_events Google photo, must be marked shadowed_by_db_photo");
+n += entries.length + 2;
 const files = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => !f.startsWith(".")) : [];
 const seen = new Map();
 for (const f of files) {
@@ -53,4 +59,4 @@ for (const f of files) {
 }
 for (const f of byFile.keys()) if (!files.includes(f)) bad.push(f + ": provenance entry without file");
 if (bad.length) { console.error("check-christmas-photo-provenance: FAIL\n" + bad.join("\n")); process.exit(1); }
-console.log("check-christmas-photo-provenance: OK, " + n + " assertions, " + entries.length + " photos, " + files.length + " files in public/events/christmas");
+console.log("check-christmas-photo-provenance: OK, " + n + " assertions, " + entries.length + " photos (" + (entries.length - shadowed.length) + " live, " + shadowed.length + " shadowed by a wf_events photo), " + files.length + " files in public/events/christmas");

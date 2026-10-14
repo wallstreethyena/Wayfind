@@ -39,7 +39,7 @@ import { SCENARIOS, REQUIRED_FLOWS } from "./lib/synthetic/scenarios.mjs";
 import { launchChromium } from "./lib/synthetic/chromium.mjs";
 import { redactUrl, describeRedirectDestination } from "./lib/synthetic/redact.mjs";
 import { runEvidenceDir, writeScenarioFailureEvidence } from "./lib/synthetic/evidence.mjs";
-import { PROVIDERS } from "../lib/commerceProviders.js";
+import { isAttributedRedirectHost } from "../lib/commerceProviders.js";
 import { isTicketmasterFamily } from "../lib/affiliates.js";
 import { SARASOTA } from "./lib/synthetic/fixtures.mjs";
 
@@ -94,10 +94,11 @@ const evidenceBase = args.evidenceDir || path.join(ROOT, "synthetic-evidence");
 const runDir = runEvidenceDir(evidenceBase);
 
 // ── the REAL production allowlist, not a second hand-kept copy ────────────
-const ATTRIBUTED_PARTNER_HOST_REGEXES = Object.values(PROVIDERS).flatMap((p) => p.hosts || []);
+// Derived from PROVIDERS (destination hosts + tracking networks + Travelpayouts
+// short-link hosts such as klook.tpx.lu) by lib/commerceProviders.js.
 function isAttributedPartnerHost(hostname, rawUrl) {
   if (isTicketmasterFamily(rawUrl)) return true;
-  return ATTRIBUTED_PARTNER_HOST_REGEXES.some((rx) => rx.test(hostname));
+  return isAttributedRedirectHost(hostname);
 }
 const OWN_HOSTS = new Set(["www.gowayfind.com", "gowayfind.com", "localhost"]);
 function isOwnFallbackHost(hostname) {
