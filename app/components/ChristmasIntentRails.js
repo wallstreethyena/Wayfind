@@ -24,7 +24,7 @@ import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
-import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel, christmasHonestyChips } from "../../lib/christmasCardCopy.js";
+import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel, christmasCardChips } from "../../lib/christmasCardCopy.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
 
@@ -34,12 +34,10 @@ const RAIL_COUNT = 8;
 const compact = (value) => Number(value) >= 1000 ? Math.round(Number(value) / 100) / 10 + "k" : String(Number(value) || 0);
 
 function eventChips(card, { onOpenVenue = null, today = "" } = {}) {
-  const chips = [];
-  // The schedule first: which days and what time, from the row's own clock.
-  if (card.schedule?.label) chips.push({ key: "schedule", icon: "🗓", label: card.schedule.label, title: card.schedule.title || card.schedule.label });
-  // Honesty labels (lib/christmasCardCopy.js): undated season, select nights,
-  // price ("Price not announced" when unknown, never Free) and who it is for.
-  for (const chip of christmasHonestyChips(card, today)) if (!chips.some((c) => c.label === chip.label)) chips.push(chip);
+  // The schedule first (which days, what time), then the honesty labels
+  // (lib/christmasCardCopy.js): undated season, select nights, price ("Price
+  // not announced" when unknown, never Free) and who it is for.
+  const chips = christmasCardChips(card, today);
   for (const rule of eventRestrictionChips(card)) if (!chips.some((c) => c.label === rule)) chips.push({ key: rule, icon: "✓", label: rule });
   if (onOpenVenue) chips.push({ key: "venue", icon: "📍", label: "Venue", title: card.venue || card.name, onClick: onOpenVenue });
   return chips.slice(0, 4);

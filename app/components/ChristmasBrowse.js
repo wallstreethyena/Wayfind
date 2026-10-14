@@ -8,7 +8,7 @@
 import { useEffect, useRef, useState } from "react";
 import RailCard from "./RailCard";
 import { WF_PLACE_CARD_CSS } from "./css.js";
-import { CHRISTMAS_CARD_LABELS, christmasHonestyChips } from "../../lib/christmasCardCopy.js";
+import { CHRISTMAS_CARD_LABELS, christmasCardChips } from "../../lib/christmasCardCopy.js";
 
 const C = { text: "#FFF7ED", muted: "#C9B8B0", line: "rgba(232,180,138,.45)", panel: "#2A0A12", accent: "#E8B48A" };
 const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng"];
@@ -21,9 +21,7 @@ function distanceFact(card) {
 }
 
 export function ChristmasBrowseCard({ card, rank, today }) {
-  const chips = [];
-  if (card.schedule?.label) chips.push({ key: "schedule", icon: "🗓", label: card.schedule.label, title: card.schedule.title || card.schedule.label });
-  for (const chip of christmasHonestyChips(card, today)) if (!chips.some((c) => c.label === chip.label)) chips.push(chip);
+  const chips = christmasCardChips(card, today);
   return <RailCard className="wf-exploding-primary"
     photo={card.image || null} placeholder={!card.image ? card.placeholder || null : null}
     visitFacts={card} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}

@@ -279,12 +279,13 @@ function CITIES() {
   const traced = { "app/api/events/christmas/route.js": 1, "app/api/christmas/browse/route.js": 1, "app/christmas-in-florida/page.js": 1, "app/florida-events/[slug]/page.js": 1, "app/sitemap.js": 1 };
   ok(importers.length >= 5 && importers.every((f) => traced[f]), `every app file that reaches the research data is a traced route (${importers.join(", ")})`);
   const chunks = path.join(ROOT, ".next/static/chunks");
-  if (existsSync(chunks)) {
+  // Only a production build (.next/BUILD_ID) has production chunks; `next dev` output is skipped.
+  if (existsSync(chunks) && existsSync(path.join(ROOT, ".next/BUILD_ID"))) {
     const files = walk(chunks).filter((f) => !/_app-pages-browser_|app-pages-internals|_ssr_/.test(f));
     const hit = files.filter((f) => /weirsdale-cottom-farm-christmas-village-2026|evidence_quote|US Census 2023 Gazetteer/.test(readFileSync(f, "utf8")));
     const control = files.some((f) => readFileSync(f, "utf8").includes("POP UP BARS"));
     ok(files.length > 50 && control && hit.length === 0, `no production client chunk carries the research data (${files.length} chunks swept, positive control found: ${control}; hits: ${hit.map((f) => path.basename(f)).join(", ")})`);
-  } else console.log("  note: no .next build here, the production chunk sweep runs after next build");
+  } else console.log("  note: no production .next build here, the production chunk sweep runs after next build");
 }
 
 console.log(`\ncheck-christmas-research: ${fail ? "FAIL" : "OK"}: ${pass} assertions (executed the merge, ${cards.length} cards, the browse, the event page loader and the composer for 17 cities on ${RAW.length} research rows)`);
