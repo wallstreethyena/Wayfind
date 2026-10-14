@@ -45,6 +45,7 @@ import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
 import CardPhoto from "./CardPhoto";
+import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // v8.29.2 — the same fallback hands IconicPlaceCard grew in v8.29. RailCard's
 // thumbs were WORSE than a navigation: `onClick={... if (onLike) onLike(e)}`
 // renders an enabled, pressable button that silently does nothing when the
@@ -328,9 +329,11 @@ export function RailDots({ railId, count }) {
  * @param {node}     p.ctaNode     tracked caller-owned CTA rendered in the same money-action slot
  * @param {func}     p.onOpen      card body activation (opens the sheet / the event)
  * @param {string}   p.href        when the card body is a link rather than a handler
+ * @param {string}   p.photoFallbackCategory the PhotoFallbackTile glyph key for a
+ *   pending or failed photo (e.g. "christmas"); art only, never the image.
  */
 export default function RailCard({
-  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, placeholder = null, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
+  photo, photoFallback, photoAttr, photoAttrHref, photoPosition = "50% 50%", visitFacts = null, spooky = false, placeholder = null, photoFallbackCategory, title, eyebrow, onEyebrow, rank, score, when, facts, award, chips, badge, cta, ctaNode, take,
   onOpen, href, external, ariaLabel, className, creatorVideos = null,
   // v8.70 — see the IconicPlaceCard note: inside .wf8-pcrail (the rail's
   // tap-expanded horizontal scroller) `loading="lazy"` never resolves, so a
@@ -449,6 +452,11 @@ export default function RailCard({
   // fallbacks still win. Internal slugs are refused by ownedPlacePhotoSrc.
   const samePlacePhoto = place?.id ? photoSrcFilter(ownedPlacePhotoSrc(place.id, 640)) : "";
   const resolvedPhotoFallback = photoSrcFilter(photoFallback) || (samePlacePhoto && samePlacePhoto !== shownPhoto ? samePlacePhoto : "");
+  // The credited lane (/api/photo, CardPhoto) shows its own credit only after
+  // its exact image painted; the card adds no "©" there (live 2026-10-14: the
+  // "©" sat on an empty panel while the photo never arrived). A direct
+  // licensed image keeps its required credit unless that image failed.
+  const creditedLane = !!cardPhotoRequest(displayedPhoto);
   const handleImageError = (ev) => {
     const fallback = ev.currentTarget.dataset.fallback;
     if (fallback) {
@@ -535,6 +543,7 @@ export default function RailCard({
                 decoding="async"
                 {...(mediaPriority ? { fetchpriority: mediaPriority } : null)}
                 onError={handleImageError}
+                fallbackCategory={photoFallbackCategory}
                 style={{ objectFit: "cover", objectPosition: photoPosition }}
               />
             : placeholder ? <EventPlaceholderTile tile={placeholder} />
@@ -547,7 +556,7 @@ export default function RailCard({
               rank owns top-left, score owns the card's top-right corner
               (outside this box entirely). Renders only when a caller actually
               passes photoAttr; every existing call site is unaffected. */}
-          {photoAttr && shownPhoto
+          {photoAttr && shownPhoto && !creditedLane && imgFailed !== shownPhoto
             ? (photoAttrHref
                 ? <a
                     className="wf-place-card-photo-attr"

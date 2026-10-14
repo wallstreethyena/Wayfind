@@ -15,8 +15,9 @@
 // that server components, the jsxLoad harness and the browser harness can all
 // load; scripts/test-image-health.mjs asserts CAT_GLYPH matches kit's CAT_ICONS.
 
-// Same glyphs as kit.js CAT_ICONS (+ events / coffee). Keys are the section ids.
-export const CAT_GLYPH = { food: "🍽️", nightlife: "🍸", attractions: "🎡", beach: "🏖️", hotels: "🏨", shopping: "🛍️", events: "🎟️", coffee: "☕" };
+// Same glyphs as kit.js CAT_ICONS (+ events / coffee / christmas). Keys are the section ids.
+// `christmas` (2026-10-14): Christmas cards pass it as fallbackCategory.
+export const CAT_GLYPH = { food: "🍽️", nightlife: "🍸", attractions: "🎡", beach: "🏖️", hotels: "🏨", shopping: "🛍️", events: "🎟️", coffee: "☕", christmas: "🎄" };
 
 const CATEGORY_RX = [
   ["beach", /beach|natural_feature|coast|shore/],
