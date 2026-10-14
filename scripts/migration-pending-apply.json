@@ -19,5 +19,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1636",
     "reason": "New group-planning tables/functions (84b74b70, safe-off: gated by NEXT_PUBLIC_GROUP_PLANS_ENABLED / WF_GROUP_PLANS_ENABLED). File header requires approval before production; none on record. Read-only check 2026-10-07: wf_group_plans tables absent. Apply together with the activation plan in docs/design/group-planning-activation.md."
+  },
+  {
+    "file": "supabase/migrations/20261013180000_event_link_repairs_2026_10_13.sql",
+    "sha256": "7da41a3ca2ebd85fd996ffb60921d7be52ccda9576c4e085d37f10f276a83c49",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1740",
+    "reason": "Data-only repair of 4 wf_events rows (Cortez compromised ticket domain removed, Florida Coffee Festival 404 event link replaced with organizer Eventbrite, Country Thunder dead links removed, Goblin Gathering manual link verification). Written by an agent with read-only DB access; owner reviews then applies. Not applied."
   }
 ]

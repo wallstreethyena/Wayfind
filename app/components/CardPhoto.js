@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import { cardPhotoRequest, fetchCardPhoto } from "../../lib/cardPhotoRequest.js";
+import { MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
 
 const control = { background: "#101820", color: "#fff", border: "1px solid #64748b", borderRadius: 6, cursor: "pointer", pointerEvents: "auto" };
 const safe = (href) => typeof href === "string" && /^https:\/\//.test(href) ? href : undefined;
@@ -36,7 +37,10 @@ function PhotoViewer({ photo, alt, close }) {
 
 // Drop-in image: ordinary owned/partner images stay ordinary. Only the photo
 // endpoint uses the credited JSON lane, after this image enters the viewport.
-export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, ...props }) {
+// `compact` = a thumbnail too small to hold the source label (rail rows). The photo
+// then opens the same-photo larger view, which carries the full author credit
+// and the Google Maps link (Google allows this for thumbnails).
+export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, ...props }) {
   const request = cardPhotoRequest(src);
   const anchor = useRef(null);
   const [answer, setAnswer] = useState(null);
@@ -46,23 +50,33 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   useEffect(() => {
     setViewer(null);
     if (!request || !anchor.current) return;
-    let disposed = false, started = false;
+    let disposed = false, started = false, retry = null;
+    // One request now; if the failure was temporary, ONE more after the shared
+    // delay. photoAnswers enforces the attempt limit, so this can never loop.
+    const run = (attempt) => {
+      fetchCardPhoto(request).then((result) => {
+        if (disposed) return;
+        setAnswer({ request, photo: result });
+        setFailed(result ? null : request);
+        if (!result && attempt + 1 < MAX_ATTEMPTS) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
+      });
+    };
     const load = () => {
       if (started) return;
       started = true;
-      fetchCardPhoto(request).then((result) => {
-        if (!disposed) { setAnswer({ request, photo: result }); setFailed(result ? null : request); }
-      });
+      run(0);
     };
     const observer = typeof IntersectionObserver !== "undefined" ? new IntersectionObserver((entries) => {
       if (entries.some((e) => e.isIntersecting && e.intersectionRatio > 0)) { observer.disconnect(); load(); }
     }) : null;
     if (observer) observer.observe(anchor.current); else load();
-    return () => { disposed = true; observer?.disconnect(); };
+    return () => { disposed = true; observer?.disconnect(); if (retry) clearTimeout(retry); };
   }, [request]);
   if (!request) return <img {...props} src={src} alt={alt} style={style} onError={onError} onLoad={onLoad} onClick={onClick} />;
   const visible = !!photo && failed !== request;
-  const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer(photo); };
+  // The viewer holds the exact {photo, credit} object of THIS request; a place
+  // change makes viewer.request stale, so an old photo/credit pair can't render.
+  const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer({ request, photo }); };
   const viewerProps = photo?.credit ? {
     role: "button", tabIndex: 0,
     "aria-label": alt ? "View larger photo of " + alt + " and photographer credit" : "View larger photo and photographer credit",
@@ -78,9 +92,9 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
             <small style={{ fontSize: 10, lineHeight: 1.3, padding: "0 4px" }}>Photo unavailable</small>
           </> : null}
         </span>}
-    {visible && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
+    {visible && !compact && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
       <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", color: "#fff", textShadow: "-1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000, 0 1px 2px #000", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, lineHeight: "16px", fontWeight: 400, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
     </div> : null}
-    {viewer && visible ? <PhotoViewer photo={viewer} alt={alt} close={() => setViewer(null)} /> : null}
+    {viewer && viewer.request === request && viewer.photo === photo && visible ? <PhotoViewer photo={viewer.photo} alt={alt} close={() => setViewer(null)} /> : null}
   </>;
 }

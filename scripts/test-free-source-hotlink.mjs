@@ -119,9 +119,19 @@ try {
   // audit/warm helper; server-side scorer (no browser cache); and the credited
   // live-photo fetch (JSON, never an <img> src, so no browser redirect cache).
   const EXEMPT = /^(lib\/photoSurfaces\.js|app\/api\/image-score\/route\.js):/;
-  const liveHits = hits.filter((l) => l.startsWith("lib/livePhoto.js:") && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l) && /\/api\/photo\?(ref|place)=/.test(l));
-  ok(liveHits.length === 1 && /&s=detail&fmt=json&/.test(liveHits[0]), "F3b: the only g-less /api/photo builder is lib/livePhoto.js, and it is the credited s=detail fmt=json fetch (" + liveHits.length + " found)");
-  const EXEMPT_ALL = (l) => EXEMPT.test(l) || (l.startsWith("lib/livePhoto.js:") && /&s=detail&fmt=json&/.test(l));
+  // The credited live-photo fetch now lives in lib/photoAnswers.js (shared by cards,
+  // viewer and detail). Assert on the CALL: the URL it really requests is the
+  // credited s=detail fmt=json JSON lane (never an <img> src), and lib/livePhoto.js
+  // no longer builds any /api/photo URL of its own.
+  const { fetchLivePhoto } = await import("../lib/livePhoto.js");
+  const { resetPhotoAnswers } = await import("../lib/photoAnswers.js");
+  resetPhotoAnswers();
+  const asked = [];
+  await fetchLivePhoto("ChIJHotlinkProbe0000001", async (u) => { asked.push(u); return { ok: false, status: 404, headers: { get: () => null }, json: async () => ({}) }; });
+  resetPhotoAnswers();
+  ok(asked.length === 1 && /^\/api\/photo\?/.test(asked[0]) && /[?&]s=detail(&|$)/.test(asked[0]) && /[?&]fmt=json(&|$)/.test(asked[0]), "F3b: the live-photo fetch really requests the credited s=detail fmt=json JSON lane (" + asked.join(",") + ")");
+  ok(!hits.some((l) => l.startsWith("lib/livePhoto.js:") && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l) && /\/api\/photo\?/.test(l)), "F3c: lib/livePhoto.js builds no /api/photo URL itself; it delegates to the shared answer");
+  const EXEMPT_ALL = (l) => EXEMPT.test(l);
   const offenders = hits.filter((l) => l && !EXEMPT_ALL(l) && !/^[^:]+:\d+:\s*(\/\/|\*)/.test(l)
     && /\/api\/photo\?(ref|place)=/.test(l) && /&w=/.test(l) && !/&g=2&w=/.test(l));
   ok(offenders.length === 0, `F3: every card photo URL builder carries g=2 (offenders: ${offenders.slice(0, 5).join(" | ")})`);

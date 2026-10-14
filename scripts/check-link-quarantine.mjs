@@ -53,6 +53,18 @@ const hardRock = `<html lang="en"><head><title>Seminole Hard Rock Hotel &amp; Ca
 const v3 = classifyOutboundPage({ requestedUrl: "https://www.seminolehardrocktampa.com/", status: 200, finalUrl: "https://www.seminolehardrocktampa.com/", html: hardRock, expectedNames: ["Seminole Hard Rock Hotel & Casino Tampa"] });
 ok(v3.verdict === "alive", `a real casino venue's own page stays alive — weak terms + name match (got ${v3.verdict} / ${v3.reason}, score ${v3.score})`);
 
+// 2026-10-13 false positive: a genuine county event page whose footer lists the
+// "Twelfth Judicial Circuit Court" scored 10 via the substring "judi" and was
+// labelled hijacked. "judi" now matches as a whole word only.
+const county = `<html lang="en"><head><title>Goblin Gathering</title></head><body><nav>Services and Amenities Our Highlighted Amenities Athletic Fields</nav>
+<footer>Clerk of the Circuit Court Property Appraiser Sheriff's Office Supervisor of Elections Tax Collector Twelfth Judicial Circuit Court School District</footer>
+<h1>Goblin Gathering</h1><p>Friday, October 16, 2026 4:00 to 7:00 PM GT Bray 51st ST Park. Free admission.</p><footer>Twelfth Judicial Circuit Court</footer></body></html>`;
+const vCounty = classifyOutboundPage({ requestedUrl: "https://www.mymanatee.org/e", status: 200, finalUrl: "https://www.mymanatee.org/e", html: county, expectedNames: ["Goblin Gathering", "G.T. Bray Park"] });
+ok(vCounty.verdict === "alive" && vCounty.score === 0, `a county page with "Judicial Circuit Court" in the footer stays alive (got ${vCounty.verdict} / ${vCounty.reason} / score ${vCounty.score})`);
+const judiSpam = `<html lang="en"><head><title>Agen Judi Online</title></head><body><p>Judi slot gacor. Daftar judi online terpercaya.</p></body></html>`;
+const vJudi = classifyOutboundPage({ requestedUrl: "https://x.example.com/", status: 200, finalUrl: "https://x.example.com/", html: judiSpam, expectedNames: ["Some Venue"] });
+ok(vJudi.verdict === "hijacked", `whole-word "judi" spam still classifies hijacked (got ${vJudi.verdict})`);
+
 const parked = `<html><head><title>innsontheisland.com</title></head><body><h1>This domain is for sale</h1><p>Buy this domain. Related searches. Sponsored listings.</p></body></html>`;
 const v4 = classifyOutboundPage({ requestedUrl: "https://www.innsontheisland.com/", status: 200, finalUrl: "https://www.innsontheisland.com/", html: parked, expectedNames: ["Island Breeze Inn"] });
 ok(v4.verdict === "parked", `a registrar parking page classifies parked (got ${v4.verdict})`);
