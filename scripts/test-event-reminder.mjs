@@ -241,6 +241,23 @@ const trigger = (ics) => ics.get("VCALENDAR/VEVENT/VALARM", "TRIGGER")[0];
   ok(R.resolveReminder(facts(), "2026-11-02", "eve", { nowMs: NOW }).ok === false, "a night outside the event's dates is refused");
 }
 
+// ── 7b. the sheet opens on the first night that still has a reminder time ──
+{
+  const nights = ["2026-10-20", "2026-10-21", "2026-10-22"];
+  const f = facts({ start_date: nights[0], end_date: nights[2], start_time: "18:30:00", end_time: "23:00:00", select_nights: true, occurrence_dates: nights });
+  const at5pm = Date.parse("2026-10-20T21:00:00Z"); // tonight 5:00 PM Eastern, show at 6:30 PM nightly
+  const n = R.reminderNights(f, "2026-10-20", at5pm);
+  ok(n.kind === "list" && n.nights[0] === "2026-10-20" && n.default === "2026-10-21", "tonight at 5 PM (every preset for tonight gone): tonight stays in the list but the sheet opens on tomorrow");
+  ok(R.reminderOptions(f, "2026-10-20", at5pm).every((o) => !o.available) && R.reminderOptions(f, "2026-10-21", at5pm).some((o) => o.available), "the premise: tonight has no future preset, tomorrow has");
+  ok(R.isReminderNight(f, "2026-10-20", "2026-10-20", at5pm) && R.customBounds(f, "2026-10-20", at5pm) !== null, "tonight is still selectable and still offers a custom time");
+  const at3pm = Date.parse("2026-10-20T19:00:00Z"); // 2 hours before is 4:30 PM, still ahead
+  const m3 = R.reminderNights(f, "2026-10-20", at3pm);
+  ok(m3.default === "2026-10-20" && R.reminderOptions(f, "2026-10-20", at3pm).filter((o) => o.available).map((o) => o.id).join() === "2h", "tonight at 3 PM: the 2 hours before preset is ahead, so tonight stays the default and shows only that preset");
+  const late = Date.parse("2026-10-22T21:30:00Z"); // last night, every preset gone: keep the current behaviour
+  ok(R.reminderNights(f, "2026-10-22", late).kind === "none" || R.reminderNights(f, "2026-10-22", late).default === "2026-10-22", "with no night left that has a future preset the default is unchanged");
+  ok(R.reminderNights(f, "2026-10-20").default === "2026-10-20", "with no clock given the default is the first upcoming night");
+}
+
 // ── 7. nights ───────────────────────────────────────────────────────────────
 {
   const days = ["2026-11-07", "2026-11-14", "2026-11-16", "2026-11-21", "2026-11-23", "2026-11-28", "2026-12-05", "2026-12-07", "2026-12-12", "2026-12-14", "2027-01-03"];
