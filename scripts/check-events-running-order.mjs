@@ -100,7 +100,7 @@ ok(ev.sortEventsForList([far, near], { today: TODAY, distMi: dist }).length === 
 // ── 5. the route's cache filter uses the same last-day rule ────────────────
 const route = readFileSync(new URL("../app/api/events/route.js", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/.*$/gm, "$1");
 ok(/const upcoming = \(evs\) => \(evs \|\| \[\]\)\.filter\(\(e\) => e && \(!e\.date \|\| lastEventDay\(e\) >= todayStr\)\)/.test(route), "the cached-feed filter keeps running events until their last day");
-ok(/evK = "ev2\|" \+ FALL_FEED_CACHE_VERSION \+ "\|" \+ EVENTS_FEED_RULES \+/.test(route) && /const EVENTS_FEED_RULES = "running-v1"/.test(route), "the feed cache key carries the rules version, so pre-fix payloads are never served");
+ok(/evK = "ev2\|" \+ FALL_FEED_CACHE_VERSION \+ "\|" \+ EVENTS_FEED_RULES \+/.test(route) && /const EVENTS_FEED_RULES = "running-v2"/.test(route), "the feed cache key carries the rules version, so pre-fix payloads are never served");
 const screen = readFileSync(new URL("../app/components/screens/Events.js", import.meta.url), "utf8");
 ok(/up to 60 mi away/.test(screen) && /CURATED_REACH_MI = 60;/.test(readFileSync(new URL("../lib/curatedEvents.js", import.meta.url), "utf8")), "the screen states the curated 60 mile reach, and it matches CURATED_REACH_MI");
 

@@ -23,7 +23,7 @@ import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
 import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
-import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
+import { eventMapPoint, isApproximateLocation, eventLocationNote } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import PhotoCreditLink from "../../components/PhotoCreditLink";
 import SaveEventButton from "./SaveEventButton.js";
@@ -406,6 +406,7 @@ export default async function CuratedEventPage({ params }) {
         lat={mapPoint ? mapPoint.lat : NaN}
         lng={mapPoint ? mapPoint.lng : NaN}
         approximate={isApproximateLocation(e)}
+        locationNote={eventLocationNote(e)}
         picks={pairings}
       />
       {pairingResult.unavailable ? (
