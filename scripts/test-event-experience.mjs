@@ -35,6 +35,8 @@ function page(file) {
   notFound:()=>{throw new Error('NOT_FOUND');},headers:()=>({get:()=>null}),
   resolveEventById:async()=>event,idFromSlug:()=> 'fixture',isEventWindow:()=>false,
   fetchCuratedEventBySlug:async()=>curated,fetchCuratedEvents:async()=>[],
+  // Christmas v4 layer (lib/christmasEventPage.js): a non Christmas row passes through unchanged.
+  christmasEventPageRow:(row)=>row,
   eventJsonLd:()=>null,dateRangeLabel:()=> 'September 18',eventWebsiteUrl:()=>null,
   eventPhotos:()=>photographs,eventVenueImageSrc,withTampaPassFacts,eventDatesLabel,addressLine:()=> '123 Test St, Sarasota, FL',
   directionsUrl:()=> 'https://www.google.com/maps/dir/?api=1&destination=test',
