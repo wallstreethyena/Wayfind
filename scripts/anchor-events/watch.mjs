@@ -56,6 +56,7 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { needsRecheck } from "../../lib/curatedEvents.js";
 import { isBadVerdict } from "../../lib/linkQuarantine.js";
 import { probeAndClassify } from "../../lib/linkProbe.js";
+import { isDeniedHost } from "../../lib/nightlifeRail.js";
 import { sbEnv } from "../../lib/serverCache.js";
 import { recordPulse } from "../../lib/jobPulse.js";
 
@@ -66,6 +67,24 @@ export const SITE = "https://gowayfind.com";
 const LOOKAHEAD_DAYS = 120;
 const PAGE_TIMEOUT_MS = 10000;
 const MAX_BODY = 600 * 1024;
+// AGENTS.md section 8 (standing product constraints): "No scraping, polling,
+// or automated requests against disneyworld.disney.go.com". Hosts named there
+// are never fetched, nor are their subdomains. isDeniedHost (the repo's
+// entity-level Disney rule) is applied on top, so any *disney* host is also
+// skipped. An anchor may also opt out with `probe: false`.
+export const NO_PROBE_HOSTS = Object.freeze(["disneyworld.disney.go.com"]);
+export function hostOf(u) { try { return new URL(/^[a-z]+:\/\//i.test(u) ? u : "https://" + u).hostname.toLowerCase(); } catch { return ""; } }
+export function isNoProbeHost(host) {
+  if (!host) return false;
+  return NO_PROBE_HOSTS.some((d) => host === d || host.endsWith("." + d)) || isDeniedHost(host);
+}
+/** Why this anchor's official page must not be fetched, or null. */
+export function noProbeReason(a) {
+  if (a.probe === false) return "anchor-opted-out";
+  const ed = a.expected_edition || {};
+  if ([a.official_domain, ed.source_url].some((x) => x && isNoProbeHost(hostOf(String(x))))) return "policy-no-probe";
+  return null;
+}
 const LIVE_STATUS = new Set(["scheduled", "sold_out"]);
 
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
@@ -159,6 +178,7 @@ export function detectCancellation(text, name, year) {
     if (!nearest || nearest.year !== String(year)) continue;
     const before = t.slice(Math.max(0, at - 70), at);
     if (/\b(if|in case|in the event|should|may be|might be|could be|weather|rain|storm|lightning)\b/.test(before)) continue;
+    if (/\b(refunds?|refundable|policy|policies|terms)\b/.test(t.slice(Math.max(0, at - 100), at + 100))) continue; // refund/policy boilerplate
     return t.slice(Math.max(0, at - 80), at + 80).trim();
   }
   return null;
@@ -177,6 +197,8 @@ export function datesNearName(text, name, year) {
   while ((m = re.exec(t))) {
     if (Number(m[3]) !== Number(year)) continue;
     if (!names.some((i) => Math.abs(i - m.index) <= 300)) continue;
+    // "tickets on sale March 1, 2027" / "deadline", "updated" etc. are not event dates
+    if (/\b(on sale|tickets?|presale|pre-sale|deadline|posted|updated)\b[^.]{0,60}$/.test(t.slice(Math.max(0, m.index - 60), m.index))) continue;
     const mi = MONTHS.indexOf(m[1].slice(0, 3));
     if (mi < 0) continue;
     found.add(`${m[3]}-${pad(mi + 1)}-${pad(Number(m[2]))}`);
@@ -252,7 +274,7 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
 
   const active = anchors.filter((a) => a && a.expected_edition && a.expected_edition.state !== "cancelled" && a.expected_edition.state !== "skipped");
   const ids = new Set();
-  for (const a of active) { ids.add(a.anchor_id); if (a.expected_edition.event_id) ids.add(a.expected_edition.event_id); }
+  for (const a of active) { ids.add(a.anchor_id); if (a.event_series_id) ids.add(a.event_series_id); if (a.expected_edition.event_id) ids.add(a.expected_edition.event_id); }
   const COLS = "event_id,event_series_id,event_name,year,slug,start_date,end_date,event_status,state,lat,lng,place_id,category,hero_image,link_ok,link_verdict,link_checked_at,official_event_url,event_page_url,last_verified_at";
   let rows = [];
   if (ids.size) {
@@ -260,7 +282,7 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
     rows = await dbGet(`wf_events?select=${COLS}&or=(event_id.in.${encodeURIComponent(list)},event_series_id.in.${encodeURIComponent(list)})&limit=1000`);
   }
   const rowsFor = (a) => rows.filter((r) =>
-    (a.expected_edition.event_id && r.event_id === a.expected_edition.event_id) || r.event_series_id === a.anchor_id);
+    (a.expected_edition.event_id && r.event_id === a.expected_edition.event_id) || r.event_series_id === (a.event_series_id || a.anchor_id));
   const liveFor = (a) => rowsFor(a).filter((r) => rowIsLive(r, today));
 
   // places with a free permanent photo
@@ -332,6 +354,8 @@ export async function runWatch({ anchors, today, fetchImpl, sb, paceMs = 1000, s
 
     // 3. official page probe
     const url = ed.source_url || (a.official_domain ? `https://${a.official_domain}` : null);
+    const blocked = noProbeReason(a);
+    if (blocked) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url: null, reason: blocked }); continue; }
     if (!url) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url: null, reason: "no-url" }); continue; }
     const p = await getPage(url);
     if (!p.ok) { unknown.push({ anchor_id: a.anchor_id, what: "official page", url, reason: p.reason }); continue; }
