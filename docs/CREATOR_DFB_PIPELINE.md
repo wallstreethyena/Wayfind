@@ -22,18 +22,31 @@ creatorVideos.js).
 Also assigned in `lib/creatorArchetypes.js` (`disneyfoodblog`, food_expert,
 provisional:true — one spot is not a corpus; revisit with Phase 2).
 
-## Queued — coverage confirmed, permalink NOT yet extracted
+## Verified follow-up, 2026-10-13
 
-Do not promote any of these without the exact post URL.
+Five queued subjects and a dated Olivia's alternate now have inspected native posts and exact reviewed database identities, prepared for publication:
+
+| Subject | Native post | Exact association |
+|---|---|---|
+| Gideon's Bakehouse, Disney Springs | https://www.instagram.com/p/DZATY0ZkaR5/ | Existing OPERATIONAL Disney Springs inventory ID `ChIJPd6UAfJ_3YgRP-V0GS5jS8I`; do not use the same-name East End branch. Original caption describes a historical food feature without a current hours/menu promise. |
+| EPCOT Food & Wine 2026 | https://www.instagram.com/p/DcZS_9jks2n/ | Exact existing event key `epcot-food-wine-2026`; public route `/florida-events/epcot-international-food-and-wine-festival-2026`. A festival news carousel, not a claim of event footage; absent from the place registry. |
+| Cake Bake Shop restaurant news and bakery feature | https://www.instagram.com/p/DeSRAJ1EhW2/ and https://www.instagram.com/p/DcYoVW-GwHR/ | Normal Google Maps inspection resolves both contexts to one shared listing, `ChIJUcSOQap_3YgRzKLq5rYIdYI`. One reviewed card retains separate original captions for bar/lounge news and the bakery cake feature. |
+| Casey's Corner, Magic Kingdom | https://www.instagram.com/p/DcbQ6EKkTda/ | Exact reviewed listing `ChIJbSWVVp-A54gR-1T7NyCXHgM`. A historical brownie feature, not a current-menu guarantee or Casey's On Central. |
+| Olivia's Cafe dated menu news, alternate source | https://www.instagram.com/p/DcWvff6AdDh/ | Exact reviewed listing `ChIJAcphlZd_3YgRVnw4XgEUJoY`. Dated news roundup; never described as the original brunch-dish footage. |
+
+The five original subjects above are no longer held for lack of a reviewed post/card identity. The original Olivia brunch-dish source remains unresolved as stated below. The owner lane inserted and re-read the three missing inventory cards before preparation; local code preparation is not proof of a deployed attachment.
+
+## Held subjects — source or exact card identity still needed
+
+Promote only with an inspected native source and the exact reviewed venue identity. Current holds are recorded below the table.
 
 | Place | Area | What DFB covered |
 |---|---|---|
-| The Cake Bake Shop by Gwendolyn Rogers (restaurant) | Disney's BoardWalk | Caramel Corn Chocolate Cake; repeated restaurant reviews |
-| The Cake Bake Shop Bakery | Disney's BoardWalk | Cookie-dough cake, Millionaire Cake, cheesecake bars, macarons |
 | Olivia's Cafe | Disney's Old Key West Resort | Brunch: SPAM-cheddar biscuits, omelets, banana bread pudding |
-| Casey's Corner | Magic Kingdom | Baseball Brownie + full restaurant review |
-| Gideon's Bakehouse | Disney Springs | Cookies, cakes, cold brew, Hot Cookie Hour, limited editions |
-| EPCOT Food & Wine 2026 coverage | EPCOT | "9 major changes" post, Aug 23 — EVENT coverage: belongs on the wf_events row (epcot-food-wine-2026), not in the place registry |
+
+Cake Bake and Casey's IDs were initially absent from the queried inventory. A later normal Google Maps inspection recovered exact identities; the owner lane created and re-read the missing cards. The observed Cake Bake listing serves both bakery and restaurant context, so one Google identity is the verified result. The two posts retain distinct context rather than creating duplicate cards.
+
+Olivia's original brunch-dish source remains unresolved. The prepared dated DFB menu-news alternate, `https://www.instagram.com/p/DcWvff6AdDh/`, mentions Olivia's Cafe, but it is a roundup without proof of a filmed visit. Its previously missing inventory card was created and independently re-read by the owner lane. No source's old brunch wording establishes today's service schedule, and the alternate does not falsely close the original footage request.
 
 ## Phase 2 — programmatic extraction
 

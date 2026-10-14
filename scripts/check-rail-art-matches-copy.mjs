@@ -209,7 +209,10 @@ const PAIRS = {
   // asserts no Score, and the person in it is not presented as the source of
   // any recommendation — the sourcing rule is enforced in lib/railsData.js,
   // not by the picture, and it is unchanged.
-  locals: { copy: "a798d7ec0bef995b", art: "a0b6fa45c0572421" },
+  // 2026-10-13: original 760px pixels re-read. The headline remains
+  // "Creators Pick" and contains no visit/filming claim; it supports the
+  // source-neutral "Featured by creators" copy. Owner artwork is byte-identical.
+  locals: { copy: "ea5d6b7de44cce05", art: "a0b6fa45c0572421" },
   // 2026-09-03 — RE-PINNED AFTER PIXEL REVIEW AT 760px. The owner-supplied
   // poster reads “wayfind / BEST SUMMER EVER” over the pool-and-watermelon
   // photograph. The rail names Summer Picks, repeats “Best summer ever,” and

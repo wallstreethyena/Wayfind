@@ -11948,7 +11948,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     engineKeys: _chipKeys,
     selectedKey: selectedBadge,
   }).map((c) => c.kind === "cuisine" ? { key: "cuisine", icon: "🍴", label: _chipCuisine }
-    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: "Creator video" }
+    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: "Creator post" }
     : c.key === "featured" ? { key: "featured", icon: "🏅", label: "Featured" }
     : { key: c.key, icon: EXPERIENCES[c.key].icon, label: EXPERIENCES[c.key].label });
   // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip

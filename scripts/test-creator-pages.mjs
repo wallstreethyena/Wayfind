@@ -85,6 +85,13 @@ const MAP_ROWS = [
 const rendered = await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: MAP_ROWS });
 const html = renderToStaticMarkup(rendered);
 const htmlNoMap = renderToStaticMarkup(await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: [] }));
+const roundupProfile = creatorProfile("yanetfins");
+const roundupHtml = renderToStaticMarkup(await CreatorPage({ handle: "yanetfins", mapPlaces: [] }));
+ok(roundupProfile.placeCount === 5 && roundupProfile.count === 1 && roundupProfile.spots.length === 5, "one native carousel across five parent venues is five places and one post, with every association retained");
+ok(creators.find((creator) => creator.handle === "yanetfins").postCount === 1, "the shared creator-library post count also counts distinct native URLs");
+ok(/>1<\/span> post</.test(roundupHtml) && />5<\/span> places featured</.test(roundupHtml), "the actual roundup page visibly discloses five places and one post");
+ok(roundupHtml.includes("original Instagram post") && !roundupHtml.includes("original Instagram video"), "a static carousel's rendered lede identifies the original as a post");
+ok(roundupProfile.spots.every((spot) => roundupHtml.includes(spot.placeId)), "all five exact parent-venue links survive the post-count deduplication");
 ok(htmlNoMap.length > 2000, `negative control: with no map rows the page still renders in full (${htmlNoMap.length} bytes)`);
 ok(!htmlNoMap.includes("wfcm-grid"), "…and renders NO map frame rather than an empty panel");
 ok(!/on the map/.test(htmlNoMap), "…and makes no claim about pins it does not have");
@@ -184,6 +191,7 @@ for (const g of featured.cities) {
 const index = renderToStaticMarkup(CreatorsIndexPage());
 for (const h of slugs) ok(index.includes(`/creators/${h}`), `the index links @${h}`);
 ok(!claimsAffiliation(index), "the index makes no affiliation claim either");
+ok(index.includes("places featured in local creators") && !/actually been somewhere|what each one has filmed/.test(index), "the creator index describes public posts without inventing filmed visits");
 
 // Metadata: a canonical, and a title that names the creator.
 const meta = creatorMetadata(FEATURED_CREATOR);
@@ -198,7 +206,7 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
 // Creator redesign: default collection, photo facades and category pins.
 {
   ok(html.includes("cindy-selects-portrait-760.jpg"), "Cindy hero uses the supplied portrait");
-  ok(html.includes('aria-label="Bradenton videos"'), "city videos render in a labeled horizontal rail");
+  ok(html.includes('aria-label="Bradenton posts"'), "city posts render in a labeled horizontal rail that supports both photos and videos");
   ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
   ok(/aria-pressed="true"[^>]*><img[^>]*><span>All places/.test(html), "All places is selected on initial render");
   const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
