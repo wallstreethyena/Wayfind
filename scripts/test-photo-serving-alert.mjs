@@ -2,7 +2,7 @@
 // 2026: ledger-denied 299–1,472/day, ZERO ok) must page the owner. Calls the
 // REAL rule (computeAlerts) and the REAL source (photoServing, fake fetch),
 // with the production numbers from that week as the fixture.
-import { computeAlerts, PHOTO_MIN_ATTEMPTS } from "../lib/commandCenter/alerts.js";
+import { computeAlerts, PHOTO_MIN_ATTEMPTS, PHOTO_LEDGER_OPERATIONAL_MIN } from "../lib/commandCenter/alerts.js";
 import { photoServing } from "../lib/commandCenter/sources/photos.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 
@@ -30,6 +30,22 @@ ok(!find(computeAlerts({ photoServing: null })), "no data is not an outage");
 ok(!find(computeAlerts({})), "absent bundle key is not an outage");
 // 5. Google quota answers count as refusals too.
 ok(find(computeAlerts({ photoServing: { today: { quota: 80 } } })), "Google quota refusals count");
+
+// 5b. Split ledger classes (2026-10-14): they still count as refusals for photos_not_serving,
+// and operational failures (timeout/http/unconfigured) page photos_ledger_operational on their own.
+{
+  ok(find(computeAlerts({ photoServing: { today: { "ledger-cap": 60 } } })), "ledger-cap counts as a refusal for the blackout alert");
+  ok(find(computeAlerts({ photoServing: { today: { "ledger-timeout": 30, "ledger-http": 30 } } })), "operational classes count as refusals too");
+  const op = (c) => computeAlerts({ photoServing: c }).find((x) => x.id === "photos_ledger_operational");
+  const a1 = op({ today: { ok: 400, "ledger-timeout": 12, "ledger-http": 6, "ledger-unconfigured": 2 } });
+  ok(a1 && a1.severity === "warn", "20 operational ledger failures with photos still serving -> warn");
+  ok(!op({ today: { ok: 400, "ledger-timeout": 19 } }), "19 operational failures stays under the constant");
+  ok(!op({ today: { ok: 10, "ledger-cap": 300 } }), "a true cap (budget) never fires the operational alert");
+  ok(!op({ today: { "ledger-timeout": 25, "ledger-cap": 100 } }), "cap refusals outnumbering failures: budget is the story, operational stays quiet");
+  ok(op({ yesterday: { "ledger-http": 41 } }), "yesterday counts");
+  ok(!op({ today: { "ledger-denied": 90 } }), "legacy ledger-denied carries no reason and does not fire it");
+  ok(PHOTO_LEDGER_OPERATIONAL_MIN === 20, "threshold constant is 20");
+}
 
 // 6. The source: reads ET today+yesterday and folds rows per day.
 {
