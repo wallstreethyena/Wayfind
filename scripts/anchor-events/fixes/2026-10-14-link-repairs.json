@@ -1,0 +1,24 @@
+[
+  {
+    "event_id": "country-thunder-fl-2027",
+    "expect": {
+      "official_event_url": "https://www.countrythunder.com/florida"
+    },
+    "set": {
+      "official_event_url": null
+    },
+    "source_url": "https://www.countrythunder.com/florida",
+    "note": "Dead link repair (first written in #1740's migration, never applied). The URL returned HTTP 404 on 2026-10-13 and again on 2026-10-14; the organizer site lists only AZ, SK and WI. The row stays unannounced with no official link until the organizer publishes a Florida page."
+  },
+  {
+    "event_id": "cortez-fishing-festival-2027",
+    "expect": {
+      "official_ticket_url": "https://cortez-fish.org"
+    },
+    "set": {
+      "official_ticket_url": null
+    },
+    "source_url": "https://fishcortez.org/commercial-fishing-festival/",
+    "note": "Compromised ticket link removal (evidence in PR #1740): https://cortez-fish.org no longer belongs to the organizer and 301s to unrelated sites (femininefitnessforce.com, re-confirmed by HEAD 2026-10-14). Never fetched past the redirect header. The organizer is fishcortez.org, kept as official_event_url."
+  }
+]

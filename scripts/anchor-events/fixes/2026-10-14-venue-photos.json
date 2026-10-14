@@ -1,0 +1,24 @@
+[
+  {
+    "event_id": "mainsail-art-festival-2027",
+    "expect": {
+      "place_id": null
+    },
+    "set": {
+      "place_id": "ChIJESS-JgvhwogRnfB1lK46okc"
+    },
+    "source_url": "https://www.mainsailart.org/",
+    "note": "Venue identity: the row's venue is 'Vinoy Park' and wf_inventory has exactly one row 'Vinoy Park' (ChIJESS-JgvhwogRnfB1lK46okc, 27.7791,-82.6257, about 60 m from the row's pin). Its licensed venue photo (wf_place_photo active: Vinoy_Park.jpg, CC BY 2.0, Calmuziclover, 3497x2023) then shows through the existing exact-place_id venue-photo ladder, labeled as the venue. No hero_image is written."
+  },
+  {
+    "event_id": "thunder-beach-spring-rally-2027",
+    "expect": {
+      "place_id": null
+    },
+    "set": {
+      "place_id": "ChIJHdRIEU2Mk4gRfAM5vKPoRxk"
+    },
+    "source_url": "https://www.thunderbeachproductions.com",
+    "note": "Venue identity: the row's venue is 'Frank Brown Park', the same venue and place_id the autumn rally row (thunder-beach-autumn-rally-2026) already carries; wf_inventory 'Frank Brown Park'. Its licensed venue photo (wf_place_photo active: Frank Brown Park (4218041932).jpg, CC BY 2.0, cambo5) shows through the exact-place_id ladder as the venue. No hero_image is written."
+  }
+]

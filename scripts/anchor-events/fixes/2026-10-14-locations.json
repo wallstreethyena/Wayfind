@@ -1,0 +1,16 @@
+[
+  {
+    "event_id": "hollyweird-halloween-2026",
+    "expect": { "lat": null, "lng": null },
+    "set": { "lat": 26.01022, "lng": -80.14902 },
+    "source_url": "https://www.hollyweirdfestival.com/",
+    "note": "Venue: street festival on the Hollywood Blvd block between 19th Ave and 20th Ave. Coordinates are the center of the Google Map embed on the organizer page labeled 'Hollyweird Halloween Festival' (embed URL carries ~26.01022,-80.14902)."
+  },
+  {
+    "event_id": "key-west-offshore-worlds-2026",
+    "expect": { "lat": null, "lng": null, "place_id": null },
+    "set": { "lat": 24.5521219, "lng": -81.8066833, "place_id": "ChIJNar9x0m30YgRj40m15erk04" },
+    "source_url": "https://raceworldoffshore.com/key-west-schedule/",
+    "note": "Venue (shore hub, not the race course): organizer map section is titled 'Truman Waterfront Park & Race Village'. Coords and place_id from the exact wf_inventory row 'Truman Waterfront Park'. The race course itself is a harbor area with no single point."
+  }
+]

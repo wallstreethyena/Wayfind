@@ -189,5 +189,24 @@ ok(rbk[0] && rbk[0].set.venue === "Old" && rbk[0].set.lat === null && rbk[0].exp
 const ex = JSON.parse(readFileSync(path.join(ROOT, "scripts/anchor-events/fixes/example.json"), "utf8"));
 ok(Array.isArray(ex) && ex.length === 0, "example fixes file is an empty list");
 
+// Every reviewed fixes file in the repo must validate entry by entry, and no
+// event_id may appear in two files (one record, one reviewed change set).
+{ const { readdirSync } = await import("node:fs");
+  const dir = path.join(ROOT, "scripts/anchor-events/fixes");
+  const files = readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "example.json");
+  ok(files.length >= 1, "POSITIVE: at least one reviewed fixes file is present");
+  const seenIds = new Map();
+  for (const f of files) {
+    const list = JSON.parse(readFileSync(path.join(dir, f), "utf8"));
+    ok(Array.isArray(list) && list.length > 0, `${f}: a non-empty list`);
+    for (const e of list) {
+      const why = validateEntry(e);
+      ok(why.length === 0, `${f}: ${e && e.event_id} validates (${why.join("; ")})`);
+      ok(!seenIds.has(e.event_id), `${f}: ${e.event_id} is not also in ${seenIds.get(e.event_id)}`);
+      seenIds.set(e.event_id, f);
+    }
+  }
+  ok(validateEntry({ event_id: "x", set: { lat: 27, lng: -82 }, source_url: "https://a.b/" }).length > 0, "NEGATIVE: a fixes entry without expect would be caught by this loop"); }
+
 if (fails.length) { console.error(`test-anchor-apply: ${pass} passed, ${fails.length} FAILED`); for (const f of fails) console.error("  x " + f); process.exit(1); }
 console.log(`test-anchor-apply: OK - ${pass} assertions (refusals and conflicts make no request; PATCH is conditional; audit + rollback written; second run writes nothing)`);
