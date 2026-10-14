@@ -141,6 +141,8 @@ async function sourceModule(source, prelude) {
 const preludeFor = (failBroad) => `
   export const routeCalls = [];
   const DAY = 86400000;
+  // The route's one lib/coordProvenance.js import (inv=1 list schema echo).
+  const INV_LIST_SCHEMA = "mapcoord1";
   const NextResponse = { json(value, init = {}) { return new Response(JSON.stringify(value), { status: init.status || 200, headers: init.headers }); } };
   const attractionDiscoveryPlaceIds = (cat, sub) => ["family", "attractions"].includes(String(cat)) && ["all", "kids"].includes(String(sub || "all")) ? ${JSON.stringify(ATTRACTION_DISCOVERY_IDS)} : [];
   // Mirrors the REAL serveFromInventory's failLoud contract exactly: with

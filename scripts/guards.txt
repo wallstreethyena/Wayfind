@@ -2135,6 +2135,9 @@ node scripts/test-viator-provider-state.mjs
 # Complete owned Apple viewport map and current-standard Family Day expansion.
 node scripts/test-apple-explorer-map.mjs
 node scripts/test-map-area-data.mjs
+# 2026-10-14 — source-aware map coordinates (Google 30d window vs independent sources),
+# no timestamp-bump extension of Google content, list/map parity accounting. Self red-proves.
+node scripts/test-coord-provenance.mjs --red-prove
 node scripts/test-family-day-presentation.mjs
 node scripts/test-map-family-layout.mjs
 
@@ -2215,3 +2218,4 @@ node scripts/test-photo-visitor-cap.mjs
 node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
+node scripts/test-area-twins.mjs
