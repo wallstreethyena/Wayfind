@@ -253,6 +253,7 @@ const render = async (c, s, city) => {
     resolvePlacePhoto: (input) => resolvePlacePhoto(input, deps),
     findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
+    recordPhotoPurchase: async () => false, bucketHash: () => null, idempotencyKey: () => "", uaClass: () => "other",
     photosCeiling: () => 0,
     keepPhotoCredits,
     isAutomatedPhotoReader,
