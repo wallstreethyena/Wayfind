@@ -277,7 +277,11 @@ function CITIES() {
   const town = cards.find((c) => c.id === "christmas-town-2026");
   ok(town && town.hook === "Millions of lights and coasters in the dark, included with admission.", "a wf_events hook with an em dash is shown without it (Christmas Town)");
   const pages = CHRISTMAS_PUBLISHED_RESEARCH.slice(0, 400).map((r) => christmasPageRow(r)).concat(merged.filter((m) => m.christmas_research_id && !m.christmas_excluded).map((m) => christmasPageRow(m)));
-  const pageBad = pages.flatMap((p) => [p.when_label, p.schedule_note, p.card_hook, p.venue, p.christmas_price_line, p.audience_label].filter((t) => typeof t === "string" && CHRISTMAS_DASH_RX.test(t)).map((t) => p.event_id + ": " + t.slice(0, 50)));
+  const pageFixture = christmasPageRow({ ...merged.find((m) => m.event_id === "christmas-town-2026"), skip_if: "You hate theme-park pricing \u2014 the event is included.", fun_fact: "Since 2001 \u2013 every year." });
+  ok(!CHRISTMAS_DASH_RX.test(pageFixture.skip_if) && !CHRISTMAS_DASH_RX.test(pageFixture.fun_fact) && /theme-park/.test(pageFixture.skip_if), "wf_events page copy (skip_if, fun_fact) loses its dashes and keeps hyphenated words");
+  const tpl = read("app/florida-events/[slug]/page.js").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(!/Official site \u2014|go with \u2014|\} \u2014 \$\{eventDatesLabel/.test(tpl), "the event page template text (official site line, share ask, share and OG titles) has no em dash (static)");
+  const pageBad = pages.flatMap((p) => [p.when_label, p.schedule_note, p.card_hook, p.venue, p.christmas_price_line, p.audience_label, p.skip_if, p.fun_fact].filter((t) => typeof t === "string" && CHRISTMAS_DASH_RX.test(t)).map((t) => p.event_id + ": " + t.slice(0, 50)));
   ok(pageBad.length === 0, `no Christmas event page fact shows a punctuation dash (${pageBad.slice(0, 4).join(" | ")})`);
   ok(/e\.christmas_research_id \? " to " : "\u2013"/.test(read("app/florida-events/[slug]/page.js")), "the event page time range reads \"to\" on Christmas listings (static)");
   const ui = ["app/components/ChristmasBrowse.js", "app/christmas-in-florida/page.js", "lib/christmasBrowse.js", "lib/christmasCardCopy.js"].map((f) => read(f).replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, ""));

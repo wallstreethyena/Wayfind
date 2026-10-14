@@ -72,7 +72,7 @@ export async function generateMetadata({ params }) {
   // typographic card, carrying this exact event's own name — never a photo
   // Wayfind has no consent to reuse. Built on SITE_URL because a scraper
   // does not resolve a relative path (scripts/check-og-absolute.mjs).
-  const ogTitle = `${e.event_name} — ${eventDatesLabel(e, dateRangeLabel(e))}`;
+  const ogTitle = `${e.event_name}, ${eventDatesLabel(e, dateRangeLabel(e))}`;
   const og = `${SITE_URL}/api/og/hero?kind=event&id=${encodeURIComponent(e.event_id)}`
     + `&t=${encodeURIComponent(ogTitle)}&cat=Event&loc=${encodeURIComponent(e.city || "")}`;
   return {
@@ -174,7 +174,7 @@ export default async function CuratedEventPage({ params }) {
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
-  const shareText = `${e.event_name} — ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
+  const shareText = `${e.event_name}, ${eventDatesLabel(e, dateRangeLabel(e))}${e.is_free ? ", free" : ""}. Found this on Wayfind.`;
   // v8.88 — WHERE IT IS, AND HOW TO GET THERE (owner, 2026-08-29, on this very
   // page): "how are people gonna be able to find it?"
   //
@@ -423,14 +423,14 @@ export default async function CuratedEventPage({ params }) {
       {site ? (
         <p style={S.p}>
           <a style={S.link} href={site} rel="nofollow noopener" target="_blank">
-            Official site — confirm dates and tickets before you travel
+            Official site: confirm dates and tickets before you travel
           </a>
         </p>
       ) : null}
 
       <section style={S.shareEnd}>
         <p style={S.shareAsk}>
-          Going? Send it to whoever you&rsquo;d go with — they&rsquo;ll get the dates, the hours and where to park.
+          Going? Send it to whoever you&rsquo;d go with. They&rsquo;ll get the dates, the hours and where to park.
         </p>
         <ShareButton
           url={shareUrl}
