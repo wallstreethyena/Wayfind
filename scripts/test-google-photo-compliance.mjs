@@ -472,6 +472,20 @@ async function routeSurfaceFindings(routeSource) {
   ok(af.length >= 5, "h red-proof: googleSurface forced true goes RED on every non-detail row (" + af.length + " rows)");
 }
 
+// i. CLIENT SIDE (2026-10-13): the browser reaches the credited JSON lane only
+//    through lib/photoAnswers.js, and a Google photo is never produced without an
+//    https Google Maps link and its own place id. Executed, not grepped.
+{
+  const answers = await import("../lib/photoAnswers.js");
+  const stripC = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
+  const builders = codeFiles.filter((f) => /["'`]fmt["'`]?\s*[:=]\s*["'`]json|fmt=json/.test(stripC(readFileSync(f, "utf8"))) && !/app[\\/]api[\\/]photo[\\/]route\.js$/.test(f) && !/test-|check-/.test(f));
+  ok(builders.every((f) => /lib[\\/]photoAnswers\.js$/.test(f)), "i: only lib/photoAnswers.js builds the client fmt=json request (found: " + builders.map((f) => relative(root, f)).join(", ") + ")");
+  const g = (c) => answers.normalizePhotoAnswer("ChIJGuardPlace000000001", { src: "https://lh3.example/p.jpg", source: "google", credit: c }).photo;
+  for (const c of [{}, null, { mapsUri: "http://insecure" }, { mapsUri: "javascript:x" }, { authors: "nope" }]) ok(/^https:\/\/www\.google\.com\/maps\//.test(g(c)?.credit?.mapsUri || ""), "i: Google photo with credit " + JSON.stringify(c) + " still carries this place's https Google Maps link");
+  ok(g({ mapsUri: "https://maps.google.com/?cid=7" }).credit.mapsUri === "https://maps.google.com/?cid=7", "i: the API's own Maps link wins when present");
+  ok(answers.normalizePhotoAnswer("ChIJGuardPlace000000001", { src: "https://lh3.example/p.jpg", source: "google", credit: {} }).photo.placeId === "ChIJGuardPlace000000001", "i: the answer carries the place id it belongs to");
+}
+
 // ─────────────────────────────────────────────────────────────────────────
 if (failures.length) {
   for (const f of failures) console.error("google-photo-compliance: FAIL — " + f);

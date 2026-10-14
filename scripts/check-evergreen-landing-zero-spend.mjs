@@ -416,6 +416,17 @@ const render = async (c, s, city) => {
   console.log(`  scanned ${files.length} files for evergreenCities importers`);
 }
 
+{
+  // Evergreen/guide ids are not Google place ids: the client photo lane must stay shut for them.
+  const { getPlacePhoto, resetPhotoAnswers } = await import("../lib/photoAnswers.js");
+  const { railPhotoSrc } = await import("../lib/cardPhotoRequest.js");
+  let leaks = 0;
+  const spy = async () => { leaks++; return { ok: false, status: 500, headers: { get: () => null }, json: async () => ({}) }; };
+  for (const id of ["tampa", "best-beaches-florida", "evt-1234567890", "", null, "a/b/c/d/e/f/g/h"]) { await getPlacePhoto(id, { surface: "card", fetchImpl: spy }); ok(railPhotoSrc({ id }) === null, "evergreen/non-place id " + JSON.stringify(id) + " gets no Google photo source"); }
+  ok(leaks === 0, "non-place ids make zero photo requests (" + leaks + ")");
+  resetPhotoAnswers();
+}
+
 globalThis.fetch = realFetch;
 if (failures) {
   console.error(`check-evergreen-landing-zero-spend: FAIL (${failures}/${asserts})`);
