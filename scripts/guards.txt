@@ -335,6 +335,7 @@ node scripts/check-editorial-publish.mjs
 node scripts/check-editorial-publish-symmetry.mjs
 node scripts/check-editorial-read-gate.mjs
 node scripts/test-editorial-endpoint-servable.mjs
+node scripts/test-guide-description-fills.mjs
 node scripts/test-atlas-editorial-row.mjs
 node scripts/test-atlas-extract.mjs
 node scripts/check-no-disney-sources.mjs
