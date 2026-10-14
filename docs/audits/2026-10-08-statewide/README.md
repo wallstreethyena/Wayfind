@@ -9,6 +9,8 @@ and organizer or venue pages. Google Places was not called by this work.
 
 ## How to reverse anything here
 
+- **Data written 2026-10-14:** `reverse-2026-10-14.sql` (newest first, md5-checked,
+  compare-and-set). Row-level before and after for every write: `identity-writes-2026-10-14.json`.
 - **Data:** `reverse.sql`. Every statement is compare-and-set: it only touches a row that
   still holds the value this audit wrote. A row someone edited later is left alone.
 - **The 2026-10-09 database function change:** `rollback-migration-20261009.sql`. It restores
@@ -47,7 +49,9 @@ and organizer or venue pages. Google Places was not called by this work.
 8. **Database functions, 2026-10-09** (`supabase/migrations/20261009120000_wf_tampa_bay_region_readers.sql`).
    - The Tampa Bay food and things-to-do readers now read Tampa and St. Pete together.
    - Two empty identity columns were added.
-   - No rows were written. This was applied ahead of explicit owner sign-off; see "Waiting on the owner".
+   - No rows were written. Applied ahead of explicit owner sign-off; the owner decided
+     **KEEP IT** on 2026-10-14. Recorded in the repo byte for byte by #1738 (md5 6eb6b768,
+     ledger 20261009094755, one receipt line); it was not replayed.
 
 ## Reconciled totals
 
@@ -113,13 +117,69 @@ Nothing reads these labels for page coverage; city pages are distance-based. See
 - CI's real fallback font was never observed, so this is a reproduced cause, not proof.
 - #1711 makes the test wait deterministically and assert the font.
 
-## Waiting on the owner
+## Final state, 2026-10-14 (owner: "finish this entire lane")
 
-- **#1708, open, green:** event structured data gets the event's own time zone offset (EDT, EST, CDT or CST).
-- **#1712, open, green:** the 6 creator pins and the Alessi fold above.
-- **Tampa Bay readers (`fix/tampa-bay-region-readers`), not yet a PR:** the code side of the database change in item 8.
-- **The data relabels that depend on it:**
-  - 227 + 6 Pinellas rows to `st-pete`.
-  - 322 inaccurate legacy labels to `florida`.
-  - Census `locality` and `county` backfilled for the 529.
-  - None of these are applied.
+### Code merged and deployed
+
+| PR | What it does | Squash on main |
+|---|---|---|
+| #1738 | Records the 2026-10-09 database change in the repo (no replay) | 5856316 |
+| #1708 | Event structured data carries the event's own offset (EDT/EST/CDT/CST) | 7489712 |
+| #1755 | 7 events with no reliable pin: no map pin, no geo, directions by address, honest note | 88083c7 |
+| #1757 | 320px place and event cards fit with Inter on every skin; guard measures real fonts | 49fc26a |
+| #1756 | Tampa Bay readers: surfaces keyed `tampa` read `tampa` + `st-pete` and say "Tampa Bay" | f8c82f0 |
+| #1765 | Production canary: a city label never stands in for coverage (box rule + south-Pinellas county rule) | 1c63dcc |
+| #1712 | Closed by the owner; its content was already on main via #1724 | n/a |
+
+### Data writes, all compare-and-set, Census only (free)
+
+| Batch | Rows | What |
+|---|---|---|
+| legacy-529 | 526 updated, 3 held | locality + county. 432 with a Census place, 94 county only. 3 Georgia rows held. Old labels left: nothing reads them for coverage, and locality now carries the true city. |
+| st-pete-identity-236 | 236 | locality + county for the 227 + Fort De Soto 5 + 4 Manatee rows |
+| st-pete-relabel-234 | 234 | 227 `tampa` + 5 Fort De Soto + 2 `st-petersburg` to `st-pete`, after #1756 was live |
+| west-of-bay-165 | 165, 10 relabeled | locality + county. 10 south-Pinellas rows (Fort De Soto, Shell Key, Skyway Beach, Tierra Verde, North Redington Beach, Latitude 28) to `st-pete`. North Pinellas and NW Hillsborough keep `tampa` (Tampa Bay coverage). |
+| tampa-bay-region-2430 | 2,430, 1 relabeled | county + locality for every remaining Tampa Bay row. 1 downtown St. Petersburg row to `st-pete`. |
+
+Held, by name, with the reason:
+- N Skyway Fishing Pier: Census says Manatee, the pier is the Pinellas side. Conflict, left as is.
+- Sunshine Skyway Bridge: spans the county line. Not one place.
+- Everglades National Park: a multi-county park; the centroid is not where visitors go.
+- 3 Georgia rows in the legacy 529: out of state.
+- 11 north-Manatee rows labeled `tampa` (Terra Ceia, Snead Island area): county written, label kept as Tampa Bay coverage.
+- 1 Pasco row labeled `tampa`: county written, label kept.
+
+Checks after every write: Tampa Bay food chips `places_all` 1,289 before and after
+(no coverage lost); region rows 2,832 before and after; 0 `tampa` rows in the St. Pete box;
+0 `tampa` rows in Pinellas south of the box edge; 0 `st-pete` rows outside Pinellas;
+0 `st-petersburg` labels; 0 slug localities; 0 suffixed counties; 0 region rows without a county.
+The canary rules were run against all 5,662 OPERATIONAL Tampa Bay and Manatee-Sarasota rows: all zero.
+
+### Events
+
+- 24 pin cases: 16 moved, 1 already right, 7 approximate (code-only, #1755). Live: Estuscary,
+  Amazing Grace, Aunt Louise's, Sweet Season and PSL Fall Fun Fest show no geo, the note
+  "Exact entrance not published. Check the organizer's directions." and address directions.
+  Bedner's is unannounced and Ocala Polo Club is completed, so neither has a public page.
+- Okeechobee 2027: pending. The organizer announced a hiatus (2026-09-24); no date, venue or
+  county is published. Nothing guessed.
+- Time zones live: Bay County 2026-10-15T18:00:00-05:00 (CDT), Escambia -05:00 (CDT),
+  St. Pete Nov 4 -05:00 (EST after DST), Hollywood -04:00 (EDT).
+- Relics & Lore booking link: verified live on FareHarbor (item 756803, dates Oct 15 to 31). Kept.
+
+### Creator videos, final buckets (126)
+
+attached 52 · duplicate 1 (Alessi folded) · held 7 · venue closed 1 · unclear branch 9 ·
+missing from inventory 36 · outside Florida or not a venue 20. 52+1+7+1+9+36+20 = 126.
+0 are purely business-owned; venue and aggregator handles never count toward trending.
+
+### Live checks on www.gowayfind.com
+
+Home, /best-beaches/tampa, /eat/tampa, /events/tampa and two event pages at 320, 375, 390,
+768 and 1440, plus reduced motion at 390: 0px horizontal overflow, 0 overflowing CTAs or
+Share buttons, 0 page errors. The card glow animates normally and is off under reduced motion.
+
+### Spend
+
+No Google Places or other paid calls were made by this lane. Every geography answer came from
+the free Census geocoder.
