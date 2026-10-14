@@ -128,7 +128,7 @@ const ALCOHOL_TYPES = new Set(["bar", "pub", "irish_pub", "brewery", "brewpub", 
 const AVOID_SET_FOR_TEST = new Set(AVOID);
 const EXPLORE_ALLOWED = new Set(["museum", "art_museum", "tourist_attraction"]);
 const RESTAURANT_LIKE = (t) => t === "restaurant" || /_restaurant$/.test(t) || t === "steak_house" || t === "diner" || t === "food_court";
-const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Filmed by local creators|A photo stop worth planning))?$/;
+const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Featured in creator posts|A photo stop worth planning))?$/;
 
 // 1. Evening concert.
 {
@@ -524,7 +524,9 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Filmed by local crea
 // 18. photoWorthy: "instagrammable" only when we can prove it.
 {
   const creator = photoWorthy({ id: "no-such-id", name: "Fortu" }, "St. Petersburg");
-  ok(creator && creator.level === "creator" && creator.copy === "Filmed by local creators", `a place real creators filmed reads "Filmed by local creators" (got ${JSON.stringify(creator)})`);
+  ok(creator && creator.level === "creator" && creator.copy === "Featured in creator posts", `a place real creators filmed reads "Featured in creator posts" (got ${JSON.stringify(creator)})`);
+  const staticSource = photoWorthy({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM", name: "Sarasota Fairgrounds", city: "Sarasota" }, "Sarasota");
+  ok(staticSource && staticSource.copy === "Featured in creator posts" && !/filmed|footage|visited/i.test(staticSource.copy), "a known event flyer gets source-neutral evidence copy without inventing an in-person visit");
   const curated = photoWorthy({ id: "x", name: "Perspective Rooftop Pool Bar" }, "Sarasota");
   ok(curated && curated.level === "curated", `a curated rooftop in its own city is a photo stop (got ${JSON.stringify(curated)})`);
   ok(photoWorthy({ id: "x", name: "Perspective Rooftop Pool Bar" }, "Tampa") === null, "a curated name in a different city is not proof");
@@ -535,9 +537,9 @@ const RANKING_NOTE_RX = / · \d+\.\d mi from the venue( · (Filmed by local crea
     { id: "a-plain", name: "Plain Grill", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.2 },
     { id: "b-filmed", name: "Filmed Grill", primaryType: "restaurant", types: ["restaurant"], governed_score: 88, distMi: 0.2 },
   ];
-  const stub = (p) => (p.id === "b-filmed" ? { level: "creator", copy: "Filmed by local creators" } : null);
+  const stub = (p) => (p.id === "b-filmed" ? { level: "creator", copy: "Featured in creator posts" } : null);
   const tiePick = fillOutingSlots(concert, tie, { max: 2, min: 1, photoWorthy: stub }).filter((p) => p.outing.slotKey === "dinner_before");
-  ok(tiePick[0] && tiePick[0].id === "b-filmed" && / · Filmed by local creators$/.test(tiePick[0].rankingNote), "a creator filmed place wins a tie and its card says why");
+  ok(tiePick[0] && tiePick[0].id === "b-filmed" && / · Featured in creator posts$/.test(tiePick[0].rankingNote), "a creator filmed place wins a tie and its card says why");
   const gap = [{ ...tie[0], governed_score: 98 }, tie[1]];
   const gapPick = fillOutingSlots(concert, gap, { max: 2, min: 1, photoWorthy: stub }).filter((p) => p.outing.slotKey === "dinner_before");
   ok(gapPick[0] && gapPick[0].id === "a-plain", "the photo boost never beats a clearly better place");

@@ -289,6 +289,27 @@ for (const junk of [null, undefined, NaN, "3", -4, Infinity, {}]) {
     `no runtime module imports the curation backlog — importing it puts the whole ~18KB straight back in the bundle. Offenders: ${bad.join(", ")}`);
 }
 
+// Recovered Siesta posts must reach only the verified beach identity. The two
+// review-held/excluded twins must not inherit credit through the name fallback.
+{
+  const canonical = "ChIJRepzNwBBw4gRxfUTuzPlfaE";
+  const expected = [
+    "https://www.tiktok.com/@thingstodotampabay/video/7279084084511411502",
+    "https://www.tiktok.com/@sarasotajenn/video/7513895727760756010",
+    "https://www.tiktok.com/@paolamorenou_/video/7482954036593921311",
+    "https://www.tiktok.com/@danaystojeiro/video/7510353154588937514",
+    "https://www.tiktok.com/@thingstodo.florida/video/7325114575869807915",
+  ];
+  const got = creatorVideosFor({ id: canonical });
+  ok(got.length === 5 && expected.every((url) => got.some((video) => video.url === url)), "all five inspected Siesta native posts resolve on the canonical beach ID");
+  for (const id of ["ChIJh8tXh-FBw4gR9kFzfZN_g60", "ChIJdifferentSiestaTwin123"]) {
+    const wrong = creatorVideosFor({ id, name: "Siesta Key Beach", city: "Sarasota" }, "Sarasota");
+    ok(!wrong.some((video) => expected.includes(video.url)), "Siesta's canonical credit does not cross to a different Google identity: " + id);
+  }
+  const staged = readFileSync(path.resolve("lib/creatorVideosStaged.js"), "utf8");
+  ok(!staged.includes('key: "siesta-beach-sarasota"'), "the verified beach entry moved out of staged data rather than remaining duplicated in two inventories");
+}
+
 // ── 10. THE CAPTIONS STAYED WITH THEIR VIDEOS ──────────────────────────────
 // v8.43. Captions moved to lib/creatorCaptions.js so ~30KB of prose stops
 // riding the eager route bundle for readers who never open a card. The whole

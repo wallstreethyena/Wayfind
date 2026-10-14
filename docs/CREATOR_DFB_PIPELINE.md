@@ -22,9 +22,20 @@ creatorVideos.js).
 Also assigned in `lib/creatorArchetypes.js` (`disneyfoodblog`, food_expert,
 provisional:true — one spot is not a corpus; revisit with Phase 2).
 
-## Queued — coverage confirmed, permalink NOT yet extracted
+## Verified follow-up, 2026-10-13
 
-Do not promote any of these without the exact post URL.
+Two previously queued subjects now have inspected native posts and exact existing database identities, prepared for publication:
+
+| Subject | Native post | Exact association |
+|---|---|---|
+| Gideon's Bakehouse, Disney Springs | https://www.instagram.com/p/DZATY0ZkaR5/ | Existing OPERATIONAL Disney Springs inventory ID `ChIJPd6UAfJ_3YgRP-V0GS5jS8I`; do not use the same-name East End branch. Original caption describes a historical food feature without a current hours/menu promise. |
+| EPCOT Food & Wine 2026 | https://www.instagram.com/p/DcZS_9jks2n/ | Exact existing event key `epcot-food-wine-2026`; public route `/florida-events/epcot-international-food-and-wine-festival-2026`. A festival news carousel, not a claim of event footage; absent from the place registry. |
+
+The two source subjects above are no longer in the unextracted queue. Local code preparation is not proof of a deployed attachment.
+
+## Held subjects — source or exact card identity still needed
+
+Promote only with an inspected native source and the exact reviewed venue identity. Current holds are recorded below the table.
 
 | Place | Area | What DFB covered |
 |---|---|---|
@@ -32,8 +43,10 @@ Do not promote any of these without the exact post URL.
 | The Cake Bake Shop Bakery | Disney's BoardWalk | Cookie-dough cake, Millionaire Cake, cheesecake bars, macarons |
 | Olivia's Cafe | Disney's Old Key West Resort | Brunch: SPAM-cheddar biscuits, omelets, banana bread pudding |
 | Casey's Corner | Magic Kingdom | Baseball Brownie + full restaurant review |
-| Gideon's Bakehouse | Disney Springs | Cookies, cakes, cold brew, Hot Cookie Hour, limited editions |
-| EPCOT Food & Wine 2026 coverage | EPCOT | "9 major changes" post, Aug 23 — EVENT coverage: belongs on the wf_events row (epcot-food-wine-2026), not in the place registry |
+
+The Cake Bake restaurant, Cake Bake bakery and Casey's Corner now have attributable native posts, but their exact existing inventory IDs were not found in the read-only database audit. Their reviewed sources are respectively `https://www.instagram.com/p/DeSRAJ1EhW2/`, `https://www.instagram.com/p/DcYoVW-GwHR/`, and `https://www.instagram.com/p/DcbQ6EKkTda/`. The bakery video supports bakery context; do not collapse it into the restaurant identity. These remain held until exact identity/card review, rather than being attached to a similarly named venue.
+
+Olivia's original brunch-dish source remains unresolved. A dated DFB menu-news alternate, `https://www.instagram.com/p/DcWvff6AdDh/`, mentions Olivia's Cafe, but it is a roundup without proof of a filmed visit. Stored place ID `ChIJAcphlZd_3YgRVnw4XgEUJoY` has no `wf_inventory` row in the checked sources; a usable card is not claimed. No source's old brunch wording establishes today's service schedule.
 
 ## Phase 2 — programmatic extraction
 

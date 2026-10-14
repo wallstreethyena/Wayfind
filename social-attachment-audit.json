@@ -5,19 +5,19 @@
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 63,
-    "retrievable_reported_source_total": 65,
-    "retrievable_reported_sources_mapped": 63,
-    "sources_with_place_association": 54,
-    "sources_with_event_association": 10,
-    "sources_with_any_association": 63,
-    "event_only_sources": 9,
-    "remaining_unmapped_sources": 2,
-    "place_association_count": 71,
-    "unique_place_association_count": 63,
+    "source_total": 66,
+    "retrievable_reported_source_total": 67,
+    "retrievable_reported_sources_mapped": 66,
+    "sources_with_place_association": 56,
+    "sources_with_event_association": 11,
+    "sources_with_any_association": 66,
+    "event_only_sources": 10,
+    "remaining_unmapped_sources": 1,
+    "place_association_count": 73,
+    "unique_place_association_count": 64,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 10,
+    "exact_event_association_count": 11,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -26,14 +26,6 @@
       "shortcode": "DdE9KVAlB5y",
       "native_url": "https://www.instagram.com/p/DdE9KVAlB5y/",
       "native_path_kind": "p",
-      "status": "unresolved_identity",
-      "evidence": "Absent from the repository and all reachable Git revisions; exact-shortcode public search returned no attributable identity metadata on 2026-09-11.",
-      "evidence_needed": "Creator handle plus the exact place or event name, or an owner-supplied screenshot/caption that proves the subject."
-    },
-    {
-      "shortcode": "Dc1zpeROuEE",
-      "native_url": "https://www.instagram.com/reel/Dc1zpeROuEE/",
-      "native_path_kind": "reel",
       "status": "unresolved_identity",
       "evidence": "Absent from the repository and all reachable Git revisions; exact-shortcode public search returned no attributable identity metadata on 2026-09-11.",
       "evidence_needed": "Creator handle plus the exact place or event name, or an owner-supplied screenshot/caption that proves the subject."
@@ -1914,6 +1906,77 @@
       "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
       "native_link_renderable": true,
       "media_kind": "historical_venue_announcement"
+    },
+    {
+      "shortcode": "Dc1zpeROuEE",
+      "creator_handle": "aquiestamama",
+      "native_url": "https://www.instagram.com/reel/Dc1zpeROuEE/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Coral Springs"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cherry-smash-coral-springs",
+          "place_id": "ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+          "name": "Cherry Smash",
+          "city": "Coral Springs",
+          "address": "8000 Wiles Rd, Coral Springs, FL 33067",
+          "native_wayfind_surface": "/p/ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DZATY0ZkaR5",
+      "creator_handle": "disneyfoodblog",
+      "native_url": "https://www.instagram.com/p/DZATY0ZkaR5/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "gideons-bakehouse-disney-springs",
+          "place_id": "ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
+          "name": "Gideon's Bakehouse",
+          "city": "Lake Buena Vista",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "native_post_with_video"
+    },
+    {
+      "shortcode": "DcZS_9jks2n",
+      "creator_handle": "disneyfoodblog",
+      "native_url": "https://www.instagram.com/p/DcZS_9jks2n/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "epcot-food-wine-2026",
+          "native_wayfind_surface": "/florida-events/epcot-international-food-and-wine-festival-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/epcot-international-food-and-wine-festival-2026",
+      "native_link_renderable": true,
+      "media_kind": "festival_news_carousel"
     }
   ]
 }

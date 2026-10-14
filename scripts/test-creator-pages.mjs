@@ -184,6 +184,7 @@ for (const g of featured.cities) {
 const index = renderToStaticMarkup(CreatorsIndexPage());
 for (const h of slugs) ok(index.includes(`/creators/${h}`), `the index links @${h}`);
 ok(!claimsAffiliation(index), "the index makes no affiliation claim either");
+ok(index.includes("places featured in local creators") && !/actually been somewhere|what each one has filmed/.test(index), "the creator index describes public posts without inventing filmed visits");
 
 // Metadata: a canonical, and a title that names the creator.
 const meta = creatorMetadata(FEATURED_CREATOR);
@@ -198,7 +199,7 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
 // Creator redesign: default collection, photo facades and category pins.
 {
   ok(html.includes("cindy-selects-portrait-760.jpg"), "Cindy hero uses the supplied portrait");
-  ok(html.includes('aria-label="Bradenton videos"'), "city videos render in a labeled horizontal rail");
+  ok(html.includes('aria-label="Bradenton posts"'), "city posts render in a labeled horizontal rail that supports both photos and videos");
   ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
   ok(/aria-pressed="true"[^>]*><img[^>]*><span>All places/.test(html), "All places is selected on initial render");
   const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");

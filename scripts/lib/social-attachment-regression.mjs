@@ -43,11 +43,11 @@ export function checkSocialAttachments(repo) {
     venueContextLinks.set(url, ids);
   }
   const unresolved = audit.retrievable_unresolved_sources || [];
-  // 47 prior mapped sources + 14 verified current sources + 2 historically
-  // unresolved sources whose identities were inspected on 2026-10-13.
-  ensure(audit.records.length === 63, `expected 63 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 63, "shortcodes must be unique");
-  ensure(unresolved.length === 2, `expected 2 retrievable unresolved sources, got ${unresolved.length}`);
+  // 47 prior mapped sources + 14 verified current sources + 3 historically
+  // unresolved identities + 2 exact DFB sources inspected on 2026-10-13.
+  ensure(audit.records.length === 66, `expected 66 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 66, "shortcodes must be unique");
+  ensure(unresolved.length === 1, `expected 1 retrievable unresolved source, got ${unresolved.length}`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
     ensure(row.status === "unresolved_identity", `${row.shortcode} must explain why it cannot be attached`);
@@ -98,7 +98,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 63, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 66, "mapped source coverage drifted");
   ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
@@ -168,6 +168,7 @@ export function checkSocialAttachments(repo) {
     ["DcFJ6i9sJBe", "cherry-smash-coral-springs", "ChIJXWVI-Nca2YgRJxmxjtOPI3U", "doseofsunshinefl"],
     ["Dc_wbrxy7dr", "cherry-smash-coral-springs", "ChIJXWVI-Nca2YgRJxmxjtOPI3U", "cherrysmashfl"],
     ["Dc50nKNB9pJ", "cordova-inn-st-petersburg", "ChIJxzf0Op3hwogRjW4p7ZQeClE", "tampabayisawesome"],
+    ["Dc1zpeROuEE", "cherry-smash-coral-springs", "ChIJXWVI-Nca2YgRJxmxjtOPI3U", "aquiestamama"],
   ];
   for (const [shortcode, key, placeId, creator] of octoberSources) {
     const entry = curatedByKey.get(key);
@@ -185,12 +186,18 @@ export function checkSocialAttachments(repo) {
   const flyerVideo = creatorVideosFor({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" }).find((video) => video.url === flyerUrl);
   ensure(/flyer/i.test(captionFor(flyerVideo)) && /announcement, not footage of a visit/i.test(captionFor(flyerVideo)), "FrightFest's place caption must describe a flyer rather than claim a filmed visit");
   ensure(!eventSocialPosts("hhn-orlando-2026").some((post) => post.url === flyerUrl), "the FrightFest flyer must not appear on a different Halloween event");
-  ensure(creatorCountFor({ id: "ChIJXWVI-Nca2YgRJxmxjtOPI3U" }) === 1, "Cherry Smash's own seasonal announcement must not become a second independent creator");
+  ensure(creatorCountFor({ id: "ChIJXWVI-Nca2YgRJxmxjtOPI3U" }) === 2, "Cherry Smash has two independent visits; its own announcement must not become a third creator");
   ensure(creatorCountFor({ id: "ChIJxzf0Op3hwogRjW4p7ZQeClE" }) === 0, "Cordova's aggregator source must not manufacture independent corroboration");
   for (const outsideFlorida of ["DcHASaNRyjm", "DdHEy0dObxh", "DdKmHElP4NM"]) {
     const url = `https://www.instagram.com/reel/${outsideFlorida}/`;
     ensure(!placeLinks.has(url) && !eventLinks.has(url), `${outsideFlorida} is positively identified outside this Florida intake`);
   }
+  const gideonsUrl = "https://www.instagram.com/p/DZATY0ZkaR5/";
+  ensure(creatorVideosFor({ id: "ChIJPd6UAfJ_3YgRP-V0GS5jS8I" }).some((video) => video.url === gideonsUrl && video.creator === "disneyfoodblog"), "DFB's Gideon's source reaches its verified Disney Springs branch");
+  ensure(!creatorVideosFor({ id: "ChIJC9pvtLN654gR6F0GZH-G-8I", name: "Gideon's Bakehouse", city: "Orlando" }, "Lake Buena Vista").some((video) => video.url === gideonsUrl), "the same-name East End Gideon's branch cannot steal Disney Springs credit");
+  const epcotUrl = "https://www.instagram.com/p/DcZS_9jks2n/";
+  ensure(eventSocialPosts("epcot-food-wine-2026").some((post) => post.url === epcotUrl && post.creator === "disneyfoodblog"), "DFB's verified Food & Wine post resolves on the exact 2026 festival ID");
+  ensure(!placeLinks.has(epcotUrl) && !eventSocialPosts("epcot-international-food-and-wine-festival-2026").some((post) => post.url === epcotUrl), "festival coverage attaches by event identity rather than a park place ID or public slug");
   for (const [url, ids] of roundupLinks) {
     ensure(![...ids].some((eventId) => eventSocialPosts(eventId).some((post) => post.url === url)), `${url} must remain mention evidence, never exact event media`);
   }
