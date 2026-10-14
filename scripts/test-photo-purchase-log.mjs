@@ -37,6 +37,9 @@ const bodyStr = calls[0]?.init?.body || "";
 const body = JSON.parse(bodyStr || "{}");
 ok(JSON.stringify(Object.keys(body).sort()) === JSON.stringify([...PURCHASE_ROW_KEYS].sort()), "body has exactly the allowed keys: " + Object.keys(body));
 ok(body.env === "production" && body.deployment_id === "dpl_abc" && body.ua_class === "ios-safari", "env/deployment/ua_class populated");
+// positive control: the probe finds tokens that ARE in the body, and finds the leaks in a body that has them
+ok(bodyStr.includes("ChIJabc") && bodyStr.includes("ios-safari"), "positive control: allowed values are present in the body");
+ok(JSON.stringify({ ...body, ip: IP, url: "https://x" }).includes(IP) && JSON.stringify({ ip: IP }).includes("203.0.113"), "positive control: the leak probe detects a body that does leak");
 for (const bad of [IP, "Mozilla", "https://", "places/", "photos/", KEY, "key=", "googleapis"]) ok(!bodyStr.includes(bad), "body must not contain " + bad);
 ok(calls[0].init.headers.Authorization === "Bearer " + KEY, "uses the service role (header only)");
 
