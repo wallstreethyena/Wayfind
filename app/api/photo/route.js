@@ -1,11 +1,11 @@
-import { gateShut, spendAllow, spendAllowPhotos, photosCeiling } from "../../../lib/spendGate";
+import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photosCeiling } from "../../../lib/spendGate";
 // Server-side Places photo resolution keeps API keys out of the browser.
 // Licensed images may use their normal cache policy. Live Google image URLs,
 // photo names and credits are never persisted; responses are private/no-store.
 import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
-import { recordPhotoOutcome, recordPhotoDeniedCeiling } from "../../../lib/photoOutcomes";
+import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 
@@ -201,7 +201,7 @@ export async function GET(req) {
     authorizeSpend: (sku = "photos") => getFreePhoto().then((free) => {
       if (shut) return false;
       if (sku === "photos" && free) return false;
-      return sku === "photos" ? spendAllowPhotos() : spendAllow(sku);
+      return sku === "photos" ? spendAllowPhotosDetailed() : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
   });
@@ -220,7 +220,7 @@ export async function GET(req) {
   // probe-no-spend/no-photo) is a free read with nothing Google-side to
   // count, and correctly records nothing here.
   if (!probe) {
-    const outcomeClass = result.reason === "spend-denied" ? "ledger-denied" : result.upstream;
+    const outcomeClass = result.reason === "spend-denied" ? ledgerOutcomeClass(result.ledgerReason) : result.upstream;
     if (outcomeClass) {
       try { await recordPhotoOutcome(outcomeClass); } catch { /* recordPhotoOutcome never throws; defensive anyway */ }
     }
@@ -230,7 +230,7 @@ export async function GET(req) {
     // (day, env, ceiling), so this is one extra write per lambda instance on
     // a blackout day, not one per request. Same fire-and-forget contract as
     // the line above: it can never change the response.
-    if (result.reason === "spend-denied") {
+    if (result.reason === "spend-denied" && ledgerOutcomeClass(result.ledgerReason) === "ledger-cap") {
       try { await recordPhotoDeniedCeiling(photosCeiling()); } catch { /* never throws; defensive */ }
     }
     if (Number.isFinite(result.refunded) && result.refunded > 0) {
