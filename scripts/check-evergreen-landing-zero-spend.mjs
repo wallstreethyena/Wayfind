@@ -230,7 +230,8 @@ const render = async (c, s, city) => {
 // ── D. PHOTO ROUTE: the real route + real resolver, fake upstream ────────────
 {
   const { resolvePlacePhoto, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } = await import("../lib/placePhotoServe.js");
-  const { gateShut, spendAllow, spendAllowPhotos } = await import("../lib/spendGate.js");
+  const { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } = await import("../lib/spendGate.js");
+  const { ledgerOutcomeClass } = await import("../lib/photoOutcomes.js");
   const { landingCardPhotoSrc } = await import("../lib/placePhoto.js");
   // #1587: the route keeps photo credits from the Details response it already
   // read. Bound to the REAL keeper: no Google call; its Supabase write lands in
@@ -246,7 +247,7 @@ const render = async (c, s, city) => {
     fetchOwnedUri: async () => { googlePhotoFetches++; return { uri: "https://lh3.googleusercontent.com/p/fake", status: 200, upstream: "ok" }; },
   };
   globalThis.__wfEvergreenGuard = {
-    FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos,
+    FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, ledgerOutcomeClass,
     resolvePlacePhoto: (input) => resolvePlacePhoto(input, deps),
     findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
