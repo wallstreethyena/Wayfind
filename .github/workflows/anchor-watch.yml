@@ -23,6 +23,11 @@ on:
   schedule:
     - cron: "17 11 * * *"
   workflow_dispatch:
+    inputs:
+      fixes_file:
+        description: "Reviewed fixes file to APPLY to wf_events, e.g. scripts/anchor-events/fixes/2026-10-15.json. Empty = watch only."
+        required: false
+        default: ""
 permissions:
   contents: read
   issues: write
@@ -70,3 +75,20 @@ jobs:
             exit 0
           fi
           gh issue create --title "$TITLE" --body-file report.md
+      # The scheduled run NEVER applies: fixes_file is only ever set by a person
+      # starting this workflow by hand, and only for a file that is committed in
+      # this repo (reviewed in a PR). apply.mjs enforces the field allowlist,
+      # an https source_url and the Florida bounding box before any request.
+      - name: Apply reviewed fixes (manual runs only)
+        if: github.event_name == 'workflow_dispatch' && inputs.fixes_file != ''
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          FIXES_FILE: ${{ inputs.fixes_file }}
+        run: |
+          case "$FIXES_FILE" in
+            scripts/anchor-events/fixes/*.json) ;;
+            *) echo "::error::fixes_file must be scripts/anchor-events/fixes/*.json"; exit 1 ;;
+          esac
+          case "$FIXES_FILE" in *..*) echo "::error::bad path"; exit 1 ;; esac
+          node scripts/anchor-events/apply.mjs --apply "$FIXES_FILE"
