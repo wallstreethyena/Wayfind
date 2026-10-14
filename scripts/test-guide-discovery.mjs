@@ -16,21 +16,21 @@ const candidate = local || guides.find(g => g.region === 'Bradenton' && g.placeI
 assert(candidate, 'real local guide with covered venues');
 const places = Array.from({length:12}, (_,i) => ({id: i===4 ? candidate.placeIds[0] : 'unrelated-'+i, _s:100-i}));
 const before=JSON.stringify(places);
-const selected=guideForPlaceRail(guides,places,'outdoors');
+const selected=guideForPlaceRail(guides,places,'drive');
 // OWNER RULE 2026-10-08 (lib/railGuideSlot.js): the guide is the rail's THIRD card.
 assert(selected && selected.before===2, 'the guide is the third card of its rail (index 2)');
 assert(selected.guide.placeIds.some(id=>places.some(p=>p.id===id)), 'exact venue relevance');
 assert.equal(JSON.stringify(places),before,'ranked list untouched');
-assert.deepEqual(guideForPlaceRail(guides,places,'outdoors'),selected,'no render jitter');
-assert.deepEqual(guideForPlaceRail(guides,[...places,{id:'new-page'}],'outdoors'),selected,'paging does not move initial insert');
-assert.equal(guideForPlaceRail(guides,places.map(p=>({...p,id:'miami-'+p.id})),'outdoors'),null,'unrelated city/venue IDs do not match');
-assert.equal(guideForPlaceRail(guides,places.slice(0,3),'outdoors'),null,'thin rails have no insert');
-assert.equal(guideForPlaceRail([{...candidate,image:null}],places,'outdoors'),null,'no unreviewed image insert');
-assert.equal(guideForPlaceRail([candidate],places.map(p=>({...p,_sponsored:true})),'outdoors'),null,'ads never authorize relevance');
-assert(guideForPlaceRail([candidate,candidate],places,'outdoors'),'duplicates yield just one selection');
+assert.deepEqual(guideForPlaceRail(guides,places,'drive'),selected,'no render jitter');
+assert.deepEqual(guideForPlaceRail(guides,[...places,{id:'new-page'}],'drive'),selected,'paging does not move initial insert');
+assert.equal(guideForPlaceRail(guides,places.map(p=>({...p,id:'miami-'+p.id})),'drive'),null,'unrelated city/venue IDs do not match');
+assert.equal(guideForPlaceRail(guides,places.slice(0,3),'drive'),null,'thin rails have no insert');
+assert.equal(guideForPlaceRail([{...candidate,image:null}],places,'drive'),null,'no unreviewed image insert');
+assert.equal(guideForPlaceRail([candidate],places.map(p=>({...p,_sponsored:true})),'drive'),null,'ads never authorize relevance');
+assert(guideForPlaceRail([candidate,candidate],places,'drive'),'duplicates yield just one selection');
 const withAd=[{id:'ad',_sponsored:true},...places];
-assert.equal(guideForPlaceRail(guides,withAd,'outdoors').before,2,'with an ad in front the guide is still the third card the reader sees');
-const positions = new Set(Array.from({length:30},(_,i)=>guideForPlaceRail([candidate],places,'rail-'+i).before));
+assert.equal(guideForPlaceRail(guides,withAd,'drive').before,2,'with an ad in front the guide is still the third card the reader sees');
+const positions = new Set(['drive','family','today','season'].map((rail)=>guideForPlaceRail([candidate],places,rail).before));
 assert(positions.size===1 && positions.has(2),'every rail puts the guide at the same third slot');
 const miami = guideHero('things-to-do-in-miami-florida');
 assert(miami.src.includes('vizcaya'), 'beyond the beach uses covered museum, not beach');
@@ -47,16 +47,16 @@ console.log(`test-guide-discovery: OK — ${guides.length} active guide images, 
 
 // A short first page is the boundary the old length-only test missed.
 const shortPlaces = Array.from({length:4}, (_,i)=>({id:i===1?candidate.placeIds[0]:'short-'+i}));
-const shortSelection = guideForPlaceRail([candidate], shortPlaces, 'short-rail');
+const shortSelection = guideForPlaceRail([candidate], shortPlaces, 'drive');
 assert(shortSelection && shortSelection.before===2);
 const laterGuide={...candidate,slug:'new-guide-on-next-page',placeIds:['late-match']};
 const eight=[...shortPlaces,{id:'late-match'},...Array.from({length:3},(_,i)=>({id:'page-'+i}))];
-const keptEight=guideForPlaceRail([laterGuide,candidate],eight,'short-rail',shortSelection);
+const keptEight=guideForPlaceRail([laterGuide,candidate],eight,'drive',shortSelection);
 assert.equal(keptEight.guide.slug,shortSelection.guide.slug,'4→8 retains selected guide despite newly eligible guide');
 assert.equal(keptEight.before,2,'4→8 keeps the third slot');
-const keptTwelve=guideForPlaceRail([laterGuide,candidate],[...eight,...places.slice(8)],'short-rail',keptEight);
+const keptTwelve=guideForPlaceRail([laterGuide,candidate],[...eight,...places.slice(8)],'drive',keptEight);
 assert.equal(keptTwelve.before,2,'8→12 keeps the third slot');
-assert.equal(guideForPlaceRail([laterGuide],eight,'short-rail',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
+assert.equal(guideForPlaceRail([laterGuide],eight,'drive',shortSelection).guide.slug,laterGuide.slug,'removed or archived selection releases slot');
 
 const {guideRailCandidates,settleGuideRailSelection}=await import('../lib/guideRailCollections.js');
 const rails=[{id:'unrelated',places:[{id:'other'}]},{id:'covered',places:[{id:candidate.placeIds[0],name:'Test Spot'}]},{id:'event',cards:[{id:candidate.placeIds[0],kind:'event'}]},{id:'tour',cards:[{id:candidate.placeIds[0],kind:'tour'}]}];
