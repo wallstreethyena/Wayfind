@@ -145,6 +145,18 @@ try {
    for(const [plan,label] of [[view(partial),/Not everyone replied\. Finalize anyway/],[view(tie),/It’s a tie\. I’m choosing/]]){const html=markup(UI.GroupOrganizer,{plan,onCommand(){},busy:false});matches(html,label);matches(html,/unconfirmed availability/);matches(html,/Try new times/);const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true);h.dispose();}
    matches(markup(UI.GroupOrganizer,{plan:view(partial),onCommand(){},busy:false}),/not confirmed for everyone/);matches(markup(UI.GroupOrganizer,{plan:view(tie),onCommand(){},busy:false}),/No time works for everyone/);matches(markup(UI.GroupOrganizer,{plan:view(tie),onCommand(){},busy:false}),/place vote is tied/);
  });
+ await test("stale inventory facts show one quiet date note, fresh places show none",()=>{
+   const staleView=(stale)=>{const v=view(open);return{...v,timeZone:"America/New_York",places:v.places.map((p,i)=>({...p,name:`Real name ${i}`,factsStale:stale&&i===0,factsCheckedAt:"2026-07-02T03:00:00.000Z"}))};};
+   const stale=markup(UI.GroupPlaceOptions,{plan:staleView(true),readOnly:true});
+   eq((stale.match(/Details last checked/g)||[]).length,1,"exactly one note for the one stale place");
+   matches(stale,/Details last checked Jul 1\./);absent(stale,/Place details need a refresh/);matches(stale,/Real name 0/);absent(stale,/Details last checked[^<]*[-–—]/);
+   absent(markup(UI.GroupPlaceOptions,{plan:staleView(false),readOnly:true}),/Details last checked/);
+   const voting=markup(UI.GroupPlaceOptions,{plan:staleView(true),selected:null,onSelect(){}});matches(voting,/Details last checked Jul 1\./);
+   const final=apply(tie,{id:"final-1",type:"finalize",placeId:"place-1",timeId:"time-1",expectedRevision:tie.revision,acknowledgeTie:true,acknowledgeUnavailable:true});const fv=view(final);
+   const stalePlaces=fv.places.map(p=>({...p,factsStale:true,factsCheckedAt:"2026-07-02T03:00:00.000Z"}));
+   matches(markup(UI.GroupFinal,{plan:{...fv,timeZone:"America/New_York",places:stalePlaces}}),/Details last checked Jul 1\./);
+   absent(markup(UI.GroupFinal,{plan:{...fv,places:fv.places}}),/Details last checked/);
+ });
  await test("final plan discloses uncertainty without roster or secrets",()=>{
    const final=apply(tie,{id:"final-1",type:"finalize",placeId:"place-1",timeId:"time-1",expectedRevision:tie.revision,acknowledgeTie:true,acknowledgeUnavailable:true});const html=markup(UI.GroupFinal,{plan:view(final)});matches(html,/not confirmed for everyone/);matches(html,/organizer resolved a tied place vote/);matches(html,/not a reservation/);absent(html,/Alice Private|Bob Private|fixture-invite-secret|fixture-session-token/);
  });

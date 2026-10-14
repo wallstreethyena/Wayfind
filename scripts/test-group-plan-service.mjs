@@ -197,6 +197,17 @@ await test('finalization replay survives source outage and newly unavailable pla
  await rejects(stale.service.command(other.id,{id:commandId(85),type:'finalize',placeId:'original',timeId:other.times[0].id},{user:stale.user}),'PLACE_UNAVAILABLE');
  eq(stale.records.get(other.id).status,'closed','rejected final place does not finalize');
 });
+await test('stale-fact OPERATIONAL place can finalize with hours acknowledgment; non-operational still cannot',async()=>{
+ const staleHydrate=(status)=>async(ids)=>ids.map(id=>({id,name:`Stale ${id}`,score:80,status,factsStale:true,factsCheckedAt:'2026-07-01T00:00:00.000Z',scoreVerified:false,openTimeIds:[],closedTimeIds:[]}));
+ const f=fixture(),plan=await f.start();await f.respond(plan,0,130);await f.respond(plan,1,131);f.placeData.hydrate=staleHydrate('OPERATIONAL');
+ const command={id:commandId(132),type:'finalize',placeId:'original',timeId:plan.times[0].id};
+ await rejects(f.service.command(plan.id,command,{user:f.user}),'VENUE_HOURS_CHECK_REQUIRED');
+ const final=await f.service.command(plan.id,{...command,acknowledgeVenueHours:true},{user:f.user});
+ eq(final.status,'finalized','stale facts alone do not block finalize');eq(final.finalPlan.venueHoursStatus,'organizer_checked','hours still unverified and acknowledged');
+ const g=fixture(),other=await g.start();await g.respond(other,0,133);await g.respond(other,1,134);g.placeData.hydrate=staleHydrate('CLOSED_PERMANENTLY');
+ await rejects(g.service.command(other.id,{id:commandId(135),type:'finalize',placeId:'original',timeId:other.times[0].id,acknowledgeVenueHours:true},{user:g.user}),'PLACE_UNAVAILABLE');
+ eq(g.records.get(other.id).status,'closed','non-operational stale place cannot finalize');
+});
 await test('deadline read, cancel and final link authority',async()=>{
  const f=fixture(),plan=await f.start();f.time=DEADLINE;
  const expired=await f.service.read(plan.id,{token:plan.invites[0].token});eq(expired.status,'closed','participant read settles');

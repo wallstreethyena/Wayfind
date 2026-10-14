@@ -1,7 +1,7 @@
 // Runtime qualification/freshness tests. Fake Supabase reads only, never providers.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { groupMiles, hasCurrentGroupScore, groupAlternativeReason, selectGroupAlternatives, groupEditorial } from '../lib/groupPlanCandidates.js';
+import { groupMiles, hasCurrentGroupScore, hasDisplayedGroupScore, groupAlternativeReason, selectGroupAlternatives, groupEditorial } from '../lib/groupPlanCandidates.js';
 import * as groupPlaceData from '../lib/groupPlanPlaceData.js';
 import { createGroupPlaceData, scheduledGroupOpenTimes } from '../lib/groupPlanPlaceData.js';
 const NOW = Date.parse('2026-10-04T12:00:00Z'), DAY = 86400000;
@@ -16,7 +16,7 @@ await test('truthful candidate eligibility', () => {
  eq(groupAlternativeReason(original,candidate,qualification),null,'healthy known evidence');
  eq(groupAlternativeReason(original,{...candidate,cuisines:['Italian']},qualification),'intent_unverified','a generic restaurant type cannot override a known cuisine mismatch');
  eq(groupAlternativeReason({...original,cuisines:[]},{...candidate,cuisines:[]},qualification),'intent_unverified','generic restaurant alone does not prove the same intent');
- for (const [patch,reason] of [[{id:'original'},'same_place'],[{status:'CLOSED_PERMANENTLY'},'not_operational'],[{excluded:true},'not_operational'],[{scoreVerified:false},'score_unverified'],[{score:70},'not_higher_scoring'],[{score:69},'not_higher_scoring'],[{category:'hotel'},'different_category'],[{primaryType:'cafe',cuisines:[]},'intent_unverified'],[{lat:29},'too_far'],[{lat:null},'too_far'],[{priceLevel:null},'budget_unverified'],[{priceLevel:4},'budget_unverified'],[{closedTimeIds:['time-1']},'known_closed'],[{closedTimeIds:['time-2']},'known_closed']]) eq(groupAlternativeReason(original,{...candidate,...patch},qualification),reason,reason);
+ for (const [patch,reason] of [[{id:'original'},'same_place'],[{status:'CLOSED_PERMANENTLY'},'not_operational'],[{excluded:true},'not_operational'],[{score:null},'score_unverified'],[{score:0},'score_unverified'],[{score:101},'score_unverified'],[{score:70},'not_higher_scoring'],[{score:69},'not_higher_scoring'],[{category:'hotel'},'different_category'],[{primaryType:'cafe',cuisines:[]},'intent_unverified'],[{lat:29},'too_far'],[{lat:null},'too_far'],[{priceLevel:null},'budget_unverified'],[{priceLevel:4},'budget_unverified'],[{closedTimeIds:['time-1']},'known_closed'],[{closedTimeIds:['time-2']},'known_closed']]) eq(groupAlternativeReason(original,{...candidate,...patch},qualification),reason,reason);
  eq(groupAlternativeReason(original,{...candidate,primaryType:'cafe'},qualification),null,'shared food cuisine can establish intent');
  eq(groupAlternativeReason({...original,category:'activity',primaryType:null},{...candidate,category:'activity',primaryType:null},qualification),'intent_unverified','nonfood cuisine does not establish intent');
  eq(groupAlternativeReason(original,candidate,{now:NOW,timeIds:[]}),null,'no proposed time cannot establish a known-closed conflict');
@@ -24,6 +24,22 @@ await test('truthful candidate eligibility', () => {
  eq(selectGroupAlternatives(original,[{...candidate,openTimeIds:undefined}],qualification).map(p=>p.id),['candidate'],'unknown-hours higher-score option remains offered');
  eq(selectGroupAlternatives(original,[{...candidate,closedTimeIds:['time-1']}],qualification),[],'known-closed proposed interval excludes candidate');
  eq(groupMiles(original,original),0,'same coordinates'); yes(groupMiles(original,candidate)>0,'nonzero nearby distance'); eq(groupMiles(original,{lat:null,lng:-82}),null,'unknown coordinate never becomes zero');
+});
+await test('stale-but-scored alternatives are eligible; every other rule still holds',()=>{
+ const stale={scoreVerified:false,scoreCheckedAt:null,factsExpireAt:null,factsStale:true};
+ const so={...original,...stale},sc={...candidate,...stale};
+ eq(groupAlternativeReason(so,sc,qualification),null,'stale original + stale higher candidate is eligible');
+ eq(selectGroupAlternatives(so,[sc],qualification).map(p=>p.id),['candidate'],'selected despite stale facts');
+ eq(selectGroupAlternatives(original,[{...candidate,...stale}],qualification).map(p=>p.id),['candidate'],'fresh original + stale candidate eligible');
+ for(const [patch,reason] of [[{score:70},'not_higher_scoring'],[{score:60},'not_higher_scoring'],[{score:null},'score_unverified'],[{primaryType:'cafe',cuisines:[]},'intent_unverified'],[{category:'hotel'},'different_category'],[{lat:29},'too_far'],[{priceLevel:null},'budget_unverified'],[{closedTimeIds:['time-1']},'known_closed'],[{status:'CLOSED_PERMANENTLY'},'not_operational'],[{excluded:true},'not_operational']]) {
+  eq(groupAlternativeReason(so,{...sc,...patch},qualification),reason,`stale candidate still rejected: ${reason}`);
+  eq(selectGroupAlternatives(so,[{...sc,...patch}],qualification),[],`stale candidate not selected: ${reason}`);
+ }
+ eq(groupAlternativeReason({...so,score:null},sc,qualification),'score_unverified','original without a displayed score rejects');
+ yes(hasDisplayedGroupScore({score:50}),'displayed score positive control');
+ for(const bad of [{score:0},{score:101},{score:NaN},{score:'90'},{score:null},{}])eq(hasDisplayedGroupScore(bad),false,'displayed-score negative control');
+ yes(hasCurrentGroupScore(original,NOW),'hasCurrentGroupScore still strict');eq(hasCurrentGroupScore(so,NOW),false,'stale row is not a current verified score');
+ eq(selectGroupAlternatives(so,[1,2,3].map(n=>({...sc,id:`c${n}`,score:80+n})),qualification).map(p=>p.id),['c3','c2'],'max 2, deterministic by score');
 });
 await test('malformed evidence fails closed', () => {
  eq(groupAlternativeReason({...original,priceLevel:100},{...candidate,priceLevel:100},qualification),'budget_unverified','out-of-range price levels');
@@ -119,12 +135,29 @@ await test('specific intent precedes evidence bounds and photo credits survive h
  const credited=await adapterFixture({photo}).adapter.hydrate(['original'],times,NOW);eq(credited[0].photo,photo.url,'identity-keyed safe resolver photo reaches card');eq(credited[0].photoAttr,photo.attributionText,'required photo credit survives');eq(credited[0].photoAttrHref,photo.attributionUrl,'required source link survives');
  const missing=await adapterFixture().adapter.hydrate(['original'],times,NOW);eq(missing[0].photo,null,'missing attributed source remains absent');
 });
-await test('all stale provider facts disappear', async () => {
- const f=adapterFixture({age:31}); const result=await f.adapter.hydrate(['original','candidate'],times,NOW);
- const body=JSON.stringify(result);
- yes(!body.includes('Current original provider name')&&!body.includes('Current alternative provider name'),'provider names cannot survive source expiry');
- yes(result.every(p=>p.unavailable===true),'stale source becomes explicitly unavailable');
- for(const p of result)yes(!('lat' in p)&&!('lng' in p)&&!('cuisines' in p),'stale third-party coordinates and cuisine absent');
+await test('stale inventory rows keep real identity and the same score as fresh rows', async () => {
+ const fresh=await adapterFixture({age:1}).adapter.hydrate(['original','candidate'],times,NOW);
+ for(const age of [31,90]) {
+  const result=await adapterFixture({age}).adapter.hydrate(['original','candidate'],times,NOW);
+  eq(result.map(p=>p.name),['Current original provider name','Current alternative provider name'],`${age}-day-old OPERATIONAL rows return their real names`);
+  for(const [i,p] of result.entries()) {
+   yes(p.unavailable!==true,'stale present row is not unavailable');
+   eq(p.factsStale,true,'stale flag set');
+   eq(p.factsCheckedAt,new Date(NOW-age*DAY).toISOString(),'factsCheckedAt is the inventory refresh time');
+   eq(p.scoreVerified,false,'stale score is not marked verified');eq(p.scoreCheckedAt,null,'no score check time for stale');eq(p.factsExpireAt,null,'no expiry for stale');
+   yes(Number.isFinite(p.score)&&p.score>0,'score still computed for stale row');
+   eq(p.score,fresh[i].score,'same score as a fresh row with identical signals');
+   eq(p.status,'OPERATIONAL','status returned');eq(p.lat,fresh[i].lat,'lat returned');eq(p.category,'food','category returned');eq(p.priceLevel,2,'price level kept');
+   yes(p.photoUrl.includes('/api/og/hero')&&p.placeUrl.startsWith('/places/'),'photo and place url returned');
+  }
+ }
+ for(const p of fresh){eq(p.factsStale,false,'fresh row is not stale');yes(p.scoreVerified===true&&typeof p.scoreCheckedAt==='string'&&typeof p.factsExpireAt==='string','fresh row keeps verified semantics');}
+ const stalePrepared=await adapterFixture({age:90}).adapter.prepare('original',times,NOW);
+ eq(stalePrepared.places.map(p=>p.id),['original','candidate'],'stale original can be organized and gets its stale higher alternative');
+ const missing=await adapterFixture({age:90,missing:true}).adapter.hydrate(['original'],times,NOW);
+ eq(missing[0].unavailable,true,'a missing id is still unavailable');yes(!('factsStale' in missing[0]),'missing row carries no stale claim');
+ const closedStale=await adapterFixture({age:90,closed:true}).adapter.hydrate(['original','candidate'],times,NOW);
+ eq(closedStale[1].unavailable,true,'stale non-operational place still hydrates as unavailable, so finalize rejects it');eq(closedStale[0].unavailable!==true,true,'operational stale sibling unaffected');
 });
 await test('source expiry and candidate scan truncation are truthful', async () => {
  for(const patch of [{cacheAge:31},{cacheExpires:NOW}]) {
