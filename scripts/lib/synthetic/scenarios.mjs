@@ -629,8 +629,8 @@ export const SCENARIOS = [
   {
     id: "surface-parity-parrish-cafes",
     flow: "surface-parity-cafes",
-    name: "Parrish Food > Cafés: API/DOM/map agree on Ryan's Coffee House",
-    description: "Granting the real Parrish DEFAULT_CENTER origin and clicking Food > Cafés, the captured inv=1 response, the rendered card list, and window.__wfMapPins (after opening the map) all carry Ryan's Coffee House — the live counterpart of the surface-parity audit's browser-level Parrish fixture.",
+    name: "Parrish Food > Cafés: API/DOM carry Ryan's Coffee House; the map pins it or states why not",
+    description: "Granting the real Parrish DEFAULT_CENTER origin and clicking Food > Cafés, the captured inv=1 response and the rendered card list carry Ryan's Coffee House; after opening the map, window.__wfMapPins carries its pin when its coordinate is permitted (lib/coordProvenance.js), otherwise window.__wfMapList accounts it as no-permitted-coordinate and the map shows the unpinned note. Every list card has exactly one map status.",
     async run(ctx) {
       const origin = PARRISH;
       const page = await ctx.openPage({ viewport: { width: 390, height: 844 }, origin });
@@ -687,7 +687,7 @@ export const SCENARIOS = [
       // Open the map (top .wf-dests "Destinations" row's "Map" link — the
       // bottom nav only renders while screen==="map", app/home.js v8.3) and
       // read the diagnostic hook.
-      let mapHookPresent = false, mapIds = [];
+      let mapHookPresent = false, mapIds = [], mapList = null, mapNote = { count: 0, text: "" };
       try {
         await page.getByRole("link", { name: "Map" }).first().click({ timeout: 10000 });
         // WAIT FOR THE HOOK, DON'T SLEEP FOR IT (2026-09-29). The hook is set by
@@ -705,14 +705,49 @@ export const SCENARIOS = [
           undefined,
           { timeout: 30000 },
         ).catch(() => null);
+        // The list accounting is computed once the area read settles; wait for
+        // it to leave "area-not-ready" (bounded by the same 30 s budget).
+        await page.waitForFunction(
+          () => window.__wfMapList && window.__wfMapList.counts && window.__wfMapList.counts["area-not-ready"] === 0,
+          undefined,
+          { timeout: 30000 },
+        ).catch(() => null);
         const mapState = await page.evaluate(() => ({
           present: typeof window.__wfMapPins !== "undefined" && window.__wfMapPins !== null,
           ids: (window.__wfMapPins && Array.isArray(window.__wfMapPins.ids)) ? window.__wfMapPins.ids : [],
+          list: window.__wfMapList || null,
+          noteCount: Number((document.querySelector("[data-wf-map-unpinned]") || {}).getAttribute ? document.querySelector("[data-wf-map-unpinned]").getAttribute("data-wf-map-unpinned") : 0) || 0,
+          noteText: ((document.querySelector("[data-wf-map-unpinned]") || {}).textContent || "").trim(),
         }));
         mapHookPresent = mapState.present;
         mapIds = mapState.ids;
+        mapList = mapState.list;
+        mapNote = { count: mapState.noteCount, text: mapState.noteText };
       } catch (e) { ctx.note(`surface-parity-parrish-cafes: map capture failed — ${e && e.message ? e.message.split("\n")[0] : e}`); }
-      ctx.ok("window.__wfMapPins is present and carries a pin for Ryan's Coffee House", mapHookPresent && mapIds.includes(RYANS_COFFEE_HOUSE.placeId), true, { mapHookPresent, hasRyans: mapIds.includes(RYANS_COFFEE_HOUSE.placeId) });
+      // SOURCE-AWARE PARITY (2026-10-14). The map may draw a coordinate only
+      // inside its source's permitted window (lib/coordProvenance.js: Google
+      // Places lat/lng 30 days, Maps Service Specific Terms §14.3). A list place
+      // without one is not a silent miss: it must be accounted in
+      // window.__wfMapList as "no-permitted-coordinate" AND counted in the
+      // on-screen note. So the assertion is "pinned, or explicitly unpinned for
+      // a stated coordinate reason", never "missing".
+      const ryansPinned = mapIds.includes(RYANS_COFFEE_HOUSE.placeId);
+      const ryansRow = mapList && Array.isArray(mapList.unmapped) ? mapList.unmapped.find((r) => r && r.id === RYANS_COFFEE_HOUSE.placeId) : null;
+      const ryansStatus = ryansPinned ? "pinned" : (ryansRow ? ryansRow.status : "unaccounted");
+      ctx.ok("window.__wfMapPins is present (the map drew its frame)", mapHookPresent, true, mapHookPresent);
+      ctx.ok("Ryan's Coffee House is pinned, or accounted as no-permitted-coordinate with the unpinned note on screen",
+        ryansPinned || (ryansStatus === "no-permitted-coordinate" && mapNote.count >= 1 && /pinned/.test(mapNote.text)),
+        "pinned | no-permitted-coordinate + visible note", { ryansStatus, noteCount: mapNote.count });
+      const listIds = mapList && Array.isArray(mapList.listIds) ? mapList.listIds : [];
+      const counts = mapList && mapList.counts ? mapList.counts : {};
+      const countSum = Object.values(counts).reduce((a, b) => a + (Number(b) || 0), 0);
+      const unaccounted = renderedIds.filter((id) => apiIds.has(id) && !listIds.includes(id));
+      ctx.ok("every rendered list card has exactly one map status (list/map parity accounting)",
+        !!mapList && countSum === listIds.length && unaccounted.length === 0,
+        "all rendered cards accounted", { listIds: listIds.length, countSum, unaccounted: unaccounted.slice(0, 5) });
+      ctx.ok("the on-screen unpinned count matches the accounting", (counts["no-permitted-coordinate"] || 0) === mapNote.count,
+        counts["no-permitted-coordinate"] || 0, mapNote.count);
+      ctx.note(`surface-parity-parrish-cafes: list ${listIds.length}, pins ${mapIds.length}, statuses ${JSON.stringify(counts)}; Ryan's: ${ryansStatus}`);
 
       // Fall-card class: only asserted when it actually applies. Ryan's is
       // NOT in FALL_CARD_IDS (lib/fallSkin.js), so this is always a no-op
