@@ -39,6 +39,8 @@ export function validate(doc, railIds, knownEventIds = null) {
   if (!isStr(doc.criteria)) e("criteria must be a non-empty string");
   if (!Array.isArray(doc.anchors) || !doc.anchors.length) return [...errs, "anchors must be a non-empty array"];
   const seen = new Set();
+  const seenEvent = new Set();
+  const seenSeries = new Set();
   doc.anchors.forEach((a, i) => {
     const id = a && a.anchor_id;
     const at = `anchors[${i}] (${id})`;
@@ -77,6 +79,8 @@ export function validate(doc, railIds, knownEventIds = null) {
       if (x.source_url === null) e(`${at}: lead_dates requires the organizer source_url it came from`);
     }
     if (x.state === "confirmed_dated" && !isStr(x.event_id)) e(`${at}: confirmed_dated requires an event_id`);
+    if (x.event_id) { if (seenEvent.has(x.event_id)) e(`${at}: duplicate event_id ${x.event_id}`); seenEvent.add(x.event_id); }
+    if (x.event_series_id) { if (seenSeries.has(x.event_series_id)) e(`${at}: duplicate event_series_id ${x.event_series_id}`); seenSeries.add(x.event_series_id); }
     if (knownEventIds && x.event_id && !knownEventIds.has(x.event_id)) e(`${at}: event_id ${x.event_id} not found in known set`);
   });
   return errs;
@@ -112,8 +116,10 @@ if (isMain) {
   mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "confirmed_dated"); d.expected_edition.lead_dates = { start: "2027-03-01", end: "2027-03-02" }; }, "only allowed on expected_undated");
   mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "expected_undated"); d.expected_edition.source_url = null; d.expected_edition.lead_dates = { start: "2027-03-01", end: "2027-03-02" }; }, "requires the organizer source_url");
   mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "expected_undated"); d.expected_edition.source_url = "https://example.org/x"; d.expected_edition.lead_dates = { start: "2027-13-01", end: "2027-13-02" }; }, "lead_dates must be");
+  mut((c) => { const l = c.anchors.filter((a) => a.expected_edition.event_id); l[1].expected_edition.event_id = l[0].expected_edition.event_id; }, "duplicate event_id");
+  mut((c) => { const l = c.anchors.filter((a) => a.expected_edition.event_series_id); l[1].expected_edition.event_series_id = l[0].expected_edition.event_series_id; }, "duplicate event_series_id");
   const counts = {};
   for (const a of doc.anchors) counts[a.region] = (counts[a.region] || 0) + 1;
   for (const r of REGIONS) console.log(`  ${r}: ${counts[r] || 0}`);
-  console.log(`${doc.anchors.length} anchors validated (11 negative controls caught)`);
+  console.log(`${doc.anchors.length} anchors validated (13 negative controls caught)`);
 }

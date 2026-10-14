@@ -1,7 +1,7 @@
 {
   "version": 1,
   "updated": "2026-10-14",
-  "criteria": "Statewide or multi-county draw, recurs yearly, organizer has its own website. One entry per recurring tradition, never per year. Regions: NW, NE, Central, Tampa Bay (includes Sarasota and Manatee), SW (Lee, Collier, Charlotte), SE, Keys. Tags florida-icon, major-music-festival, tentpole and only-in-florida are editorial labels copied from wf_events only; entries added from outside wf_events carry none of them. confirmed_dated means a wf_events row with future or in-progress dates is linked via event_id; expected_undated means the next edition has no verified dates; event_id is null unless a wf_events row exists whose event_status is not scheduled (then it stays linked). event_series_id is copied from the linked row. probe:false marks hosts that must never be fetched by automation. note records uncertainty. Dates come only from wf_events and are never invented. source_url stays null until an organizer page has been read for that entry.",
+  "criteria": "Statewide or multi-county draw, recurs yearly, organizer has its own website. One entry per recurring tradition, never per year. Regions: NW, NE, Central, Tampa Bay (includes Sarasota and Manatee), SW (Lee, Collier, Charlotte), SE, Keys. Tags florida-icon, major-music-festival, tentpole and only-in-florida are editorial labels copied from wf_events only; entries added from outside wf_events carry none of them. confirmed_dated means a wf_events row with future or in-progress dates is linked via event_id; expected_undated means the next edition has no verified dates; event_id is null unless a wf_events row exists whose event_status is not scheduled (then it stays linked). event_series_id is copied from the linked row. probe:false marks hosts that must never be fetched by automation. note records uncertainty. Dates come only from wf_events and are never invented. lead_dates (expected_undated only) are organizer-stated next-edition dates whose year is printed on the organizer page; they are never shown as verified until a wf_events row exists. source_url stays null until an organizer page has been read for that entry.",
   "anchors": [
     {
       "anchor_id": "epcot-food-and-wine-festival",
@@ -2214,13 +2214,9 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": "https://www.silverspursrodeo.com/",
-        "lead_dates": {
-          "start": "2027-02-18",
-          "end": "2027-02-21"
-        }
+        "source_url": "https://www.silverspursrodeo.com/"
       },
-      "note": "Organizer lists the 158th Silver Spurs Rodeo as Thu Feb 18 to Sun Feb 21 without a year; 2027 is inferred from the weekdays and from the page's Feb 13 2027 Monster Bulls date. A June 4-5 rodeo is listed separately."
+      "note": "Organizer lists the 158th Silver Spurs Rodeo as Thu Feb 18 to Sun Feb 21 without a year; 2027 is inferred from the weekdays and from the page's Feb 13 2027 Monster Bulls date. A June 4-5 rodeo is listed separately. No lead_dates are recorded because the organizer page prints no year."
     },
     {
       "anchor_id": "seaworld-seven-seas-food-festival",
@@ -2579,11 +2575,11 @@
         "last_checked": "2026-10-14",
         "source_url": "https://edisonfestival.org/",
         "lead_dates": {
-          "start": "2027-02-14",
+          "start": "2027-02-20",
           "end": "2027-02-20"
         }
       },
-      "note": "Lead dates span the two parades the organizer lists (Junior Parade Feb 14 2027, Grand Parade Feb 20 2027); the full festival run is not stated on the page."
+      "note": "Lead date is the single Grand Parade day the organizer states (February 20, 2027, 7:00PM to 11:00PM). The Junior Parade (February 14, 2027) and the full festival run are not part of the lead."
     },
     {
       "anchor_id": "naples-winter-wine-festival",
@@ -3864,7 +3860,8 @@
         "source_url": "https://www.cedarkey.org/2026/10/17/476073/seafood-festival",
         "event_series_id": "cedar-key-seafood-festival"
       },
-      "note": "Organizer is the Cedar Key Chamber of Commerce; its event page states Oct 17 2026, 10:00 AM."
+      "note": "Organizer NOT confirmed. The only organizer-side page read is the Cedar Key Chamber of Commerce calendar listing (cedarkey.org, Oct 17 2026, 10:00 AM, Chamber address); that proves the date but not who runs the festival, and no gathered evidence names the host (possibly the Lions Club). Host kept as probe:false until the organizer's own domain is confirmed.",
+      "probe": false
     },
     {
       "anchor_id": "palatka-blue-crab-festival",
@@ -4084,13 +4081,9 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": "https://arcadiarodeo.com/",
-        "lead_dates": {
-          "start": "2027-03-11",
-          "end": "2027-03-14"
-        }
+        "source_url": "https://arcadiarodeo.com/"
       },
-      "note": "Homepage says 'March 11-14, tickets on sale Nov. 01' with no year; 2027 is inferred (Mar 11 2027 is a Thursday, and the page's 13th Annual Fall Rodeo is Oct 16-18 2026). Treat the lead as unconfirmed on the year. Mosaic Arena, 2450 NE Roan St, Arcadia. See batch-071.json."
+      "note": "Homepage says 'March 11-14, tickets on sale Nov. 01' with no year; 2027 is inferred (Mar 11 2027 is a Thursday, and the page's 13th Annual Fall Rodeo is Oct 16-18 2026). Treat the lead as unconfirmed on the year. Mosaic Arena, 2450 NE Roan St, Arcadia. Not in batch-071 (year not stated by the organizer). No lead_dates are recorded because the organizer page prints no year."
     },
     {
       "anchor_id": "sarasota-seafood-and-music-festival",

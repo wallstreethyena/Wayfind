@@ -44,16 +44,6 @@
       "venue": "\"Doc\" DeMilly Rodeo Arena",
       "address": "1034 NE 8th St, Homestead, FL 33031",
       "verify_note": "2026-10-14: Homestead Rodeo Association page states '78th Annual Homestead Championship Rodeo January 29, 30 & 31, 2027'; arena address in footer."
-    },
-    {
-      "event_name": "Arcadia All-Florida Championship Rodeo",
-      "start_date": "2027-03-11",
-      "end_date": "2027-03-14",
-      "reason": "No exact wf_inventory venue row for coordinates, so no lat/lng and rowProblems would refuse it; held, not published. Also: the year is not stated by the organizer.",
-      "url": "https://arcadiarodeo.com/",
-      "venue": "Mosaic Arena",
-      "address": "2450 NE Roan St, Arcadia, FL 34266",
-      "verify_note": "2026-10-14: Homepage lists 'Arcadia All-Florida Championship Rodeo March 11-14, tickets on sale Nov. 01' with no year; 2027 is inferred, so this also fails the organizer-states-the-year rule."
     }
   ]
 }
