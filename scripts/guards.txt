@@ -1317,6 +1317,7 @@ node scripts/check-link-quarantine.mjs
 # release note read "month_cap 7500 reached" — the real line was the free-tier
 # 4,800. effectiveCap() is now what both the cron and the worker print.
 node scripts/check-spend-effective-cap.mjs
+node scripts/check-budget-limit-reporting.mjs
 # 2026-09-03 TWO DEAD PROVIDERS, found only once the health block said WHY.
 # SerpAPI's google_events engine 400s in every city (Google retired the source)
 # and SerpApi bills per search, so every uncached request bought a guaranteed
@@ -2041,6 +2042,7 @@ node scripts/test-photo-credits.mjs
 # received, tied to the exact fetched photo name (2026-10-01).
 node scripts/test-photo-credit-capture.mjs
 node scripts/test-card-photo-viewer.mjs
+node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
 # never opens the card (#1601).

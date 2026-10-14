@@ -174,7 +174,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
     if (keyword) p.set("q", keyword);
     const secret = process.env.SEATGEEK_CLIENT_SECRET;
     if (secret) p.set("client_secret", secret);
-    if (!(await eventProviderSpendAllow("seatgeek"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
+    if (!(await eventProviderSpendAllow("seatgeek"))) return { configured: true, ok: false, reason: "budget limit reached: events_seatgeek", events: [] };
     const r = await fetch(`https://api.seatgeek.com/2/events?${p.toString()}`);
     if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
@@ -226,7 +226,7 @@ async function fromPredictHQ(lat, lng, radius, keyword) {
       category: "concerts,festivals,performing-arts,sports,community,expos",
     });
     if (keyword) p.set("q", keyword);
-    if (!(await eventProviderSpendAllow("predicthq"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
+    if (!(await eventProviderSpendAllow("predicthq"))) return { configured: true, ok: false, reason: "budget limit reached: events_predicthq", events: [] };
     const r = await fetch(`https://api.predicthq.com/v1/events/?${p.toString()}`, {
       headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
     });
@@ -283,7 +283,7 @@ async function fromBandsintown(lat, lng, radius) {
       region: { latitude: Number(lat), longitude: Number(lng), radius: Math.min(Number(radius) || 50, 200) },
     };
     const url = `https://search.bandsintown.com/search?query=${encodeURIComponent(JSON.stringify(q))}`;
-    if (!(await eventProviderSpendAllow("bandsintown"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
+    if (!(await eventProviderSpendAllow("bandsintown"))) return { configured: true, ok: false, reason: "budget limit reached: events_bandsintown", events: [] };
     const r = await fetch(url, { headers: { "x-api-key": key, Accept: "application/json" } });
     if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
@@ -421,7 +421,7 @@ async function fromSerpEvents(lat, lng, keyword, city) {
   try {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ engine: "google_events", q, hl: "en", gl: "us", api_key: key });
-    if (!(await eventProviderSpendAllow("serpapi"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
+    if (!(await eventProviderSpendAllow("serpapi"))) return { configured: true, ok: false, reason: "budget limit reached: events_serpapi", events: [] };
     const r = await fetch(`https://serpapi.com/search.json?${p.toString()}`);
     if (!r.ok) return { configured: true, ok: false, status: r.status, reason: "http " + r.status, events: [] };
     const data = await r.json();
@@ -508,7 +508,7 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
   try {
     const q = (keyword ? keyword + " events" : "events") + " in " + city;
     const p = new URLSearchParams({ query: q, date: "month", is_virtual: "false" });
-    if (!(await eventProviderSpendAllow("openwebninja"))) return { configured: true, ok: false, reason: "spend denied", events: [] };
+    if (!(await eventProviderSpendAllow("openwebninja"))) return { configured: true, ok: false, reason: "budget limit reached: events_openwebninja", events: [] };
     const r = await fetch(`https://api.openwebninja.com/realtime-events-data/search-events?${p.toString()}`, { headers: { "x-api-key": key } });
     if (!r.ok) {
       await tripOnDeterministic(OWN_BREAKER, r.status, await r.text().catch(() => ""));
