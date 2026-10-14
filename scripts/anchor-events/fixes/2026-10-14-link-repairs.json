@@ -8,7 +8,7 @@
   {
     "event_id": "cortez-fishing-festival-2027",
     "set": { "official_ticket_url": null },
-    "source_url": "https://github.com/wallstreethyena/Wayfind/pull/1740",
-    "note": "Compromised ticket link removal (#1740 migration, not applied): https://cortez-fish.org no longer belongs to the organizer and 301s to unrelated sites (femininefitnessforce.com observed 2026-10-13). Never fetched past the redirect header. DB still held it on 2026-10-14. The organizer is fishcortez.org (kept as official_event_url); #1740 recorded gate admission only, no online ticketing."
+    "source_url": "https://fishcortez.org/commercial-fishing-festival/",
+    "note": "Compromised ticket link removal (evidence in PR #1740, whose migration was not applied): https://cortez-fish.org no longer belongs to the organizer and 301s to unrelated sites (femininefitnessforce.com observed 2026-10-13). Never fetched past the redirect header. DB still held it on 2026-10-14. The organizer is fishcortez.org (kept as official_event_url); #1740 recorded gate admission only, no online ticketing."
   }
 ]
