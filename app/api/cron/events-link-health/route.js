@@ -16,7 +16,7 @@
 // bad — a bot wall is our problem, never the venue's. Never throws a 500.
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { probeAndClassify } from "../../../../lib/linkProbe.js";
-import { hostOfUrl, isBadVerdict } from "../../../../lib/linkQuarantine.js";
+import { hostOfUrl, isBadVerdict, dedupeVerdictRows } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 
@@ -148,8 +148,14 @@ export async function GET(req) {
   }
 
   if (verdictRows.length) {
+    // One row per url. A single upsert batch that names the same url twice
+    // (196 of 1,020 live events publish the SAME url as ticket and event link)
+    // makes Postgres abort the whole statement ("ON CONFLICT DO UPDATE command
+    // cannot affect row a second time") and PostgREST answers 500 - so nothing
+    // was persisted from 2026-10-02 on.
+    const uniq = dedupeVerdictRows(verdictRows);
     const r = await fetch(`${s.url}/rest/v1/wf_link_verdicts?on_conflict=url`, {
-      method: "POST", headers: { ...h, Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(verdictRows), cache: "no-store",
+      method: "POST", headers: { ...h, Prefer: "resolution=merge-duplicates,return=minimal" }, body: JSON.stringify(uniq), cache: "no-store",
     });
     if (!r.ok) err = err || `verdicts-${r.status}`;
   }
