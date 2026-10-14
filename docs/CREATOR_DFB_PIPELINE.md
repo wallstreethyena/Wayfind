@@ -24,14 +24,17 @@ provisional:true — one spot is not a corpus; revisit with Phase 2).
 
 ## Verified follow-up, 2026-10-13
 
-Two previously queued subjects now have inspected native posts and exact existing database identities, prepared for publication:
+Five queued subjects and a dated Olivia's alternate now have inspected native posts and exact reviewed database identities, prepared for publication:
 
 | Subject | Native post | Exact association |
 |---|---|---|
 | Gideon's Bakehouse, Disney Springs | https://www.instagram.com/p/DZATY0ZkaR5/ | Existing OPERATIONAL Disney Springs inventory ID `ChIJPd6UAfJ_3YgRP-V0GS5jS8I`; do not use the same-name East End branch. Original caption describes a historical food feature without a current hours/menu promise. |
 | EPCOT Food & Wine 2026 | https://www.instagram.com/p/DcZS_9jks2n/ | Exact existing event key `epcot-food-wine-2026`; public route `/florida-events/epcot-international-food-and-wine-festival-2026`. A festival news carousel, not a claim of event footage; absent from the place registry. |
+| Cake Bake Shop restaurant news and bakery feature | https://www.instagram.com/p/DeSRAJ1EhW2/ and https://www.instagram.com/p/DcYoVW-GwHR/ | Normal Google Maps inspection resolves both contexts to one shared listing, `ChIJUcSOQap_3YgRzKLq5rYIdYI`. One reviewed card retains separate original captions for bar/lounge news and the bakery cake feature. |
+| Casey's Corner, Magic Kingdom | https://www.instagram.com/p/DcbQ6EKkTda/ | Exact reviewed listing `ChIJbSWVVp-A54gR-1T7NyCXHgM`. A historical brownie feature, not a current-menu guarantee or Casey's On Central. |
+| Olivia's Cafe dated menu news, alternate source | https://www.instagram.com/p/DcWvff6AdDh/ | Exact reviewed listing `ChIJAcphlZd_3YgRVnw4XgEUJoY`. Dated news roundup; never described as the original brunch-dish footage. |
 
-The two source subjects above are no longer in the unextracted queue. Local code preparation is not proof of a deployed attachment.
+The five original subjects above are no longer held for lack of a reviewed post/card identity. The original Olivia brunch-dish source remains unresolved as stated below. The owner lane inserted and re-read the three missing inventory cards before preparation; local code preparation is not proof of a deployed attachment.
 
 ## Held subjects — source or exact card identity still needed
 
@@ -39,14 +42,11 @@ Promote only with an inspected native source and the exact reviewed venue identi
 
 | Place | Area | What DFB covered |
 |---|---|---|
-| The Cake Bake Shop by Gwendolyn Rogers (restaurant) | Disney's BoardWalk | Caramel Corn Chocolate Cake; repeated restaurant reviews |
-| The Cake Bake Shop Bakery | Disney's BoardWalk | Cookie-dough cake, Millionaire Cake, cheesecake bars, macarons |
 | Olivia's Cafe | Disney's Old Key West Resort | Brunch: SPAM-cheddar biscuits, omelets, banana bread pudding |
-| Casey's Corner | Magic Kingdom | Baseball Brownie + full restaurant review |
 
-The Cake Bake restaurant, Cake Bake bakery and Casey's Corner now have attributable native posts, but their exact existing inventory IDs were not found in the read-only database audit. Their reviewed sources are respectively `https://www.instagram.com/p/DeSRAJ1EhW2/`, `https://www.instagram.com/p/DcYoVW-GwHR/`, and `https://www.instagram.com/p/DcbQ6EKkTda/`. The bakery video supports bakery context; do not collapse it into the restaurant identity. These remain held until exact identity/card review, rather than being attached to a similarly named venue.
+Cake Bake and Casey's IDs were initially absent from the queried inventory. A later normal Google Maps inspection recovered exact identities; the owner lane created and re-read the missing cards. The observed Cake Bake listing serves both bakery and restaurant context, so one Google identity is the verified result. The two posts retain distinct context rather than creating duplicate cards.
 
-Olivia's original brunch-dish source remains unresolved. A dated DFB menu-news alternate, `https://www.instagram.com/p/DcWvff6AdDh/`, mentions Olivia's Cafe, but it is a roundup without proof of a filmed visit. Stored place ID `ChIJAcphlZd_3YgRVnw4XgEUJoY` has no `wf_inventory` row in the checked sources; a usable card is not claimed. No source's old brunch wording establishes today's service schedule.
+Olivia's original brunch-dish source remains unresolved. The prepared dated DFB menu-news alternate, `https://www.instagram.com/p/DcWvff6AdDh/`, mentions Olivia's Cafe, but it is a roundup without proof of a filmed visit. Its previously missing inventory card was created and independently re-read by the owner lane. No source's old brunch wording establishes today's service schedule, and the alternate does not falsely close the original footage request.
 
 ## Phase 2 — programmatic extraction
 

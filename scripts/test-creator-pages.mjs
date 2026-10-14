@@ -85,6 +85,13 @@ const MAP_ROWS = [
 const rendered = await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: MAP_ROWS });
 const html = renderToStaticMarkup(rendered);
 const htmlNoMap = renderToStaticMarkup(await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: [] }));
+const roundupProfile = creatorProfile("yanetfins");
+const roundupHtml = renderToStaticMarkup(await CreatorPage({ handle: "yanetfins", mapPlaces: [] }));
+ok(roundupProfile.placeCount === 5 && roundupProfile.count === 1 && roundupProfile.spots.length === 5, "one native carousel across five parent venues is five places and one post, with every association retained");
+ok(creators.find((creator) => creator.handle === "yanetfins").postCount === 1, "the shared creator-library post count also counts distinct native URLs");
+ok(/>1<\/span> post</.test(roundupHtml) && />5<\/span> places featured</.test(roundupHtml), "the actual roundup page visibly discloses five places and one post");
+ok(roundupHtml.includes("original Instagram post") && !roundupHtml.includes("original Instagram video"), "a static carousel's rendered lede identifies the original as a post");
+ok(roundupProfile.spots.every((spot) => roundupHtml.includes(spot.placeId)), "all five exact parent-venue links survive the post-count deduplication");
 ok(htmlNoMap.length > 2000, `negative control: with no map rows the page still renders in full (${htmlNoMap.length} bytes)`);
 ok(!htmlNoMap.includes("wfcm-grid"), "…and renders NO map frame rather than an empty panel");
 ok(!/on the map/.test(htmlNoMap), "…and makes no claim about pins it does not have");

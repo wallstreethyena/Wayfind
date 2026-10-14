@@ -43,11 +43,11 @@ export function checkSocialAttachments(repo) {
     venueContextLinks.set(url, ids);
   }
   const unresolved = audit.retrievable_unresolved_sources || [];
-  // 47 prior mapped sources + 14 verified current sources + 3 historically
-  // unresolved identities + 2 exact DFB sources inspected on 2026-10-13.
-  ensure(audit.records.length === 66, `expected 66 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 66, "shortcodes must be unique");
-  ensure(unresolved.length === 1, `expected 1 retrievable unresolved source, got ${unresolved.length}`);
+  // 47 prior mapped sources + 14 verified current sources + 4 formerly
+  // unresolved identities + 6 exact DFB sources + 3 recovered Instagram backlog originals.
+  ensure(audit.records.length === 74, `expected 74 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 74, "shortcodes must be unique");
+  ensure(unresolved.length === 0, `the four historical identities are now resolved; got ${unresolved.length} still marked unresolved`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
     ensure(row.status === "unresolved_identity", `${row.shortcode} must explain why it cannot be attached`);
@@ -98,7 +98,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 66, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 74, "mapped source coverage drifted");
   ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
@@ -198,6 +198,17 @@ export function checkSocialAttachments(repo) {
   const epcotUrl = "https://www.instagram.com/p/DcZS_9jks2n/";
   ensure(eventSocialPosts("epcot-food-wine-2026").some((post) => post.url === epcotUrl && post.creator === "disneyfoodblog"), "DFB's verified Food & Wine post resolves on the exact 2026 festival ID");
   ensure(!placeLinks.has(epcotUrl) && !eventSocialPosts("epcot-international-food-and-wine-festival-2026").some((post) => post.url === epcotUrl), "festival coverage attaches by event identity rather than a park place ID or public slug");
+  const yanetRoundup = "https://www.instagram.com/p/DdE9KVAlB5y/";
+  const yanetParents = ["ChIJkWXRuBC02YgRripCIoUAN9g", "ChIJcxJRMYe42YgRDSlj6Z_CDxk", "ChIJhdEC7MUD2YgRWqeIwaYujc4", "ChIJgYp-DDIv2YgRH8hrgA3I3pI", "ChIJqwCnDja_2YgR0fQINSRA2MM"];
+  ensure(yanetParents.every((id) => creatorVideosFor({ id }).some((video) => video.url === yanetRoundup && video.creator === "yanetfins")), "the five-slide haunted-event roundup credits all five verified parent venues");
+  ensure(!eventLinks.has(yanetRoundup), "a static multi-event roundup must never be published as exact event footage");
+  for (const video of CURATED.flatMap((entry) => entry.videos || []).filter((video) => video.url === yanetRoundup)) {
+    ensure(/roundup/.test(captionFor(video)) && /venue context, not footage/.test(captionFor(video)), "each roundup association preserves the context boundary");
+  }
+  const cakePosts = creatorVideosFor({ id: "ChIJUcSOQap_3YgRzKLq5rYIdYI" });
+  ensure(cakePosts.some((video) => video.url.endsWith("/DeSRAJ1EhW2/")) && cakePosts.some((video) => video.url.endsWith("/DcYoVW-GwHR/")), "the shared Cake Bake listing retains distinct restaurant and bakery sources without duplicate place identities");
+  const olivia = creatorVideosFor({ id: "ChIJAcphlZd_3YgRVnw4XgEUJoY" }).find((video) => video.url.endsWith("/DcWvff6AdDh/"));
+  ensure(!!olivia && /dated.*news roundup/i.test(captionFor(olivia)) && /not a filmed brunch visit/i.test(captionFor(olivia)), "Olivia's verified alternate is dated menu news and does not falsely resolve original brunch footage");
   for (const [url, ids] of roundupLinks) {
     ensure(![...ids].some((eventId) => eventSocialPosts(eventId).some((post) => post.url === url)), `${url} must remain mention evidence, never exact event media`);
   }
@@ -220,6 +231,8 @@ export function checkSocialAttachments(repo) {
   ensure(/from "\.\.\/\.\.\/lib\/creatorPlatforms"/.test(facade) && !/from "\.\.\/\.\.\/lib\/creatorVideos"/.test(facade), "the facade must not pull the full creator registry into an event-page chunk");
   ensure(/if \(play\)/.test(facade) && /<iframe src=\{src\}/.test(facade), "the third-party iframe must remain behind an explicit play/view action");
   ensure(/const instagramPost = platform === "instagram"/.test(facade) && /instagramPost \? "View post" : "Play"/.test(facade), "every Instagram embed must use post-neutral wording because the provider may offer only a native handoff");
+  const detail = readFileSync(path.join(repo, "app/components/sheets/Detail.js"), "utf8");
+  ensure(detail.includes("Watch ${handle}'s video about ${detail.name}") && !detail.includes("Watch ${handle}'s visit to ${detail.name}"), "creator video headlines must describe the source without inventing a personal visit for a district guide or roundup");
 
   const fallRoute = readFileSync(path.join(repo, "app/api/events/fall/route.js"), "utf8");
   // v26 or later: each publication moves the key forward, never back.

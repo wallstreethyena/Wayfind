@@ -5,32 +5,23 @@
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 66,
-    "retrievable_reported_source_total": 67,
-    "retrievable_reported_sources_mapped": 66,
-    "sources_with_place_association": 56,
+    "source_total": 74,
+    "retrievable_reported_source_total": 74,
+    "retrievable_reported_sources_mapped": 74,
+    "sources_with_place_association": 64,
     "sources_with_event_association": 11,
-    "sources_with_any_association": 66,
+    "sources_with_any_association": 74,
     "event_only_sources": 10,
-    "remaining_unmapped_sources": 1,
-    "place_association_count": 73,
-    "unique_place_association_count": 64,
+    "remaining_unmapped_sources": 0,
+    "place_association_count": 85,
+    "unique_place_association_count": 75,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
     "exact_event_association_count": 11,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
-  "retrievable_unresolved_sources": [
-    {
-      "shortcode": "DdE9KVAlB5y",
-      "native_url": "https://www.instagram.com/p/DdE9KVAlB5y/",
-      "native_path_kind": "p",
-      "status": "unresolved_identity",
-      "evidence": "Absent from the repository and all reachable Git revisions; exact-shortcode public search returned no attributable identity metadata on 2026-09-11.",
-      "evidence_needed": "Creator handle plus the exact place or event name, or an owner-supplied screenshot/caption that proves the subject."
-    }
-  ],
+  "retrievable_unresolved_sources": [],
   "roundup_reviews": [
     {
       "shortcode": "Dc3xGQTBSp4",
@@ -162,6 +153,19 @@
           "disposition": "attached_venue; event_unresolved"
         }
       ]
+    },
+    {
+      "shortcode": "DdE9KVAlB5y",
+      "expected_featured_subjects": 5,
+      "covered_subjects": 5,
+      "subjects": [
+        "The Horrorland at Jungle Island",
+        "House of Horror at Tropical Park",
+        "Nightmare Village at Xtreme Action Park",
+        "Fright Nights at South Florida Fair",
+        "Sounds of Screams at Miami-Dade fairgrounds"
+      ],
+      "scope_note": "Static haunted-event roundup; verified parent-venue context only, not a filmed visit or exact event footage."
     }
   ],
   "records": [
@@ -1977,6 +1981,238 @@
       "public_navigation": "/florida-events/epcot-international-food-and-wine-festival-2026",
       "native_link_renderable": true,
       "media_kind": "festival_news_carousel"
+    },
+    {
+      "shortcode": "DeSRAJ1EhW2",
+      "creator_handle": "disneyfoodblog",
+      "native_url": "https://www.instagram.com/p/DeSRAJ1EhW2/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cake-bake-shop-boardwalk",
+          "place_id": "ChIJUcSOQap_3YgRzKLq5rYIdYI",
+          "name": "The Cake Bake Shop by Gwendolyn Rogers",
+          "city": "Lake Buena Vista",
+          "address": "2101 Epcot Resorts Blvd, Lake Buena Vista, FL 32830",
+          "native_wayfind_surface": "/p/ChIJUcSOQap_3YgRzKLq5rYIdYI",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "native_post"
+    },
+    {
+      "shortcode": "DcYoVW-GwHR",
+      "creator_handle": "disneyfoodblog",
+      "native_url": "https://www.instagram.com/p/DcYoVW-GwHR/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cake-bake-shop-boardwalk",
+          "place_id": "ChIJUcSOQap_3YgRzKLq5rYIdYI",
+          "name": "The Cake Bake Shop by Gwendolyn Rogers",
+          "city": "Lake Buena Vista",
+          "address": "2101 Epcot Resorts Blvd, Lake Buena Vista, FL 32830",
+          "native_wayfind_surface": "/p/ChIJUcSOQap_3YgRzKLq5rYIdYI",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "native_post"
+    },
+    {
+      "shortcode": "DcbQ6EKkTda",
+      "creator_handle": "disneyfoodblog",
+      "native_url": "https://www.instagram.com/p/DcbQ6EKkTda/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "caseys-corner-magic-kingdom",
+          "place_id": "ChIJbSWVVp-A54gR-1T7NyCXHgM",
+          "name": "Casey's Corner",
+          "city": "Lake Buena Vista",
+          "address": "1180 Seven Seas Drive, Lake Buena Vista, FL 32830",
+          "native_wayfind_surface": "/p/ChIJbSWVVp-A54gR-1T7NyCXHgM",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "native_post"
+    },
+    {
+      "shortcode": "DcWvff6AdDh",
+      "creator_handle": "disneyfoodblog",
+      "native_url": "https://www.instagram.com/p/DcWvff6AdDh/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Lake Buena Vista"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "olivias-cafe-old-key-west",
+          "place_id": "ChIJAcphlZd_3YgRVnw4XgEUJoY",
+          "name": "Olivia's Cafe",
+          "city": "Lake Buena Vista",
+          "address": "1510 N Cove Rd, Lake Buena Vista, FL 32830",
+          "native_wayfind_surface": "/p/ChIJAcphlZd_3YgRVnw4XgEUJoY",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "dated_menu_news_roundup"
+    },
+    {
+      "shortcode": "DdE9KVAlB5y",
+      "creator_handle": "yanetfins",
+      "native_url": "https://www.instagram.com/p/DdE9KVAlB5y/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Miami",
+        "Fort Lauderdale",
+        "West Palm Beach"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "jungle-island-miami",
+          "place_id": "ChIJkWXRuBC02YgRripCIoUAN9g",
+          "name": "Jungle Island",
+          "city": "Miami",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJkWXRuBC02YgRripCIoUAN9g",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "tropical-park-miami",
+          "place_id": "ChIJcxJRMYe42YgRDSlj6Z_CDxk",
+          "name": "Tropical Park",
+          "city": "Miami",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJcxJRMYe42YgRDSlj6Z_CDxk",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "xtreme-action-park-fort-lauderdale",
+          "place_id": "ChIJhdEC7MUD2YgRWqeIwaYujc4",
+          "name": "Xtreme Action Park",
+          "city": "Fort Lauderdale",
+          "address": null,
+          "native_wayfind_surface": "/p/ChIJhdEC7MUD2YgRWqeIwaYujc4",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "south-florida-fair-west-palm-beach",
+          "place_id": "ChIJgYp-DDIv2YgRH8hrgA3I3pI",
+          "name": "South Florida Fair",
+          "city": "West Palm Beach",
+          "address": "9067 Southern Blvd, West Palm Beach, FL 33411",
+          "native_wayfind_surface": "/p/ChIJgYp-DDIv2YgRH8hrgA3I3pI",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        },
+        {
+          "curated_key": "miami-dade-fair-exposition-miami",
+          "place_id": "ChIJqwCnDja_2YgR0fQINSRA2MM",
+          "name": "Miami-Dade County Fair & Exposition, Inc.",
+          "city": "Miami",
+          "address": "10901 SW 24th St, Miami, FL 33165",
+          "native_wayfind_surface": "/p/ChIJqwCnDja_2YgR0fQINSRA2MM",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "multi_event_roundup"
+    },
+    {
+      "shortcode": "C8QwO0Ktk_k",
+      "creator_handle": "inna_revega",
+      "native_url": "https://www.instagram.com/p/C8QwO0Ktk_k/",
+      "native_path_kind": "p",
+      "true_city": "Sarasota",
+      "place_associations": [
+        {
+          "curated_key": "ofkors-bakery-sarasota",
+          "place_id": "ChIJG-8UUxJAw4gRR5dxpu_5F7c",
+          "name": "ofKors BAKERY",
+          "city": "Sarasota",
+          "address": "1359 Main St, Sarasota, FL 34236",
+          "native_wayfind_surface": "/p/ChIJG-8UUxJAw4gRR5dxpu_5F7c",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "venue_feature"
+    },
+    {
+      "shortcode": "DCeTOGwRJOf",
+      "creator_handle": "sarahsoutdooradventuresfl",
+      "native_url": "https://www.instagram.com/p/DCeTOGwRJOf/",
+      "native_path_kind": "p",
+      "true_city": "Cortez",
+      "place_associations": [
+        {
+          "curated_key": "star-fish-company-cortez",
+          "place_id": "ChIJmcZ22HARw4gR5Th1Pxcl9II",
+          "name": "Star Fish Company",
+          "city": "Cortez",
+          "address": "12306 46th Ave W, Cortez, FL 34215",
+          "native_wayfind_surface": "/p/ChIJmcZ22HARw4gR5Th1Pxcl9II",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "multi_venue_roundup"
+    },
+    {
+      "shortcode": "Co94wQsDAEn",
+      "creator_handle": "everencephotography",
+      "native_url": "https://www.instagram.com/p/Co94wQsDAEn/",
+      "native_path_kind": "p",
+      "true_city": "Sarasota",
+      "place_associations": [
+        {
+          "curated_key": "ca-dzan-the-ringling-sarasota",
+          "place_id": "ChIJpXGK53VC24gRWMneFVtK6hY",
+          "name": "Ca' d'Zan",
+          "city": "Sarasota",
+          "address": "5401 Bay Shore Rd, Sarasota, FL 34243",
+          "native_wayfind_surface": "/p/ChIJpXGK53VC24gRWMneFVtK6hY",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "venue_feature"
     }
   ]
 }

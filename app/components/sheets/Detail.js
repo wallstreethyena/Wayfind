@@ -1039,7 +1039,7 @@ export default function DetailSheet({ ctx }) {
                       const instagramPost = v.platform === "instagram";
                       const headline = instagramPost
                         ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
-                        : (handle ? `Watch ${handle}'s visit to ${detail.name}` : `See ${detail.name} on ${p.label}`);
+                        : (handle ? `Watch ${handle}'s video about ${detail.name}` : `See ${detail.name} on ${p.label}`);
                       const actionLabel = instagramPost ? "View on Instagram ↗" : "Watch Video ↗";
                       // v6.91 (owner): "add a glowing light to the back of those
                       // that matched the color of the box, make it a global
