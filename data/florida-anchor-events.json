@@ -291,7 +291,7 @@
         "state": "confirmed_dated",
         "event_id": "florida-seafood-festival-2026",
         "last_checked": "2026-10-14",
-        "source_url": null,
+        "source_url": "https://www.floridaseafoodfestival.com/",
         "event_series_id": "florida-seafood-festival"
       }
     },
@@ -894,7 +894,7 @@
         "state": "confirmed_dated",
         "event_id": "daytona-bike-week-2027",
         "last_checked": "2026-10-14",
-        "source_url": null,
+        "source_url": "https://officialbikeweek.com/",
         "event_series_id": "daytona-bike-week"
       }
     },
@@ -1366,7 +1366,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "pensacolabeachairshow.com reads as a guide site (Blue Angels schedule, traffic guide) and says the 2027 show is Saturday July 17 with times tentative; not accepted as organizer dates, so no lead dates."
     },
     {
       "anchor_id": "blue-angels-homecoming-show",
@@ -1497,7 +1498,7 @@
         "state": "confirmed_dated",
         "event_id": "30a-songwriters-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null,
+        "source_url": "https://www.30asongwritersfestival.com/",
         "event_series_id": "30a-songwriters-festival"
       }
     },
@@ -1555,7 +1556,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://springtimetallahassee.com/",
+        "lead_dates": {
+          "start": "2027-04-02",
+          "end": "2027-04-03"
+        }
       }
     },
     {
@@ -1621,7 +1626,7 @@
       "region": "NW",
       "city": "Destin",
       "venue": "Destin Harbor",
-      "official_domain": "destinseafoodfestival.com",
+      "official_domain": "destinseafoodfest.com",
       "category": "food",
       "tags": [
         "food",
@@ -1641,7 +1646,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from destinseafoodfestival.com (redirects to destinseafoodfest.com). Page shows the Sep 25-27 2026 edition only."
     },
     {
       "anchor_id": "jacksonville-jazz-festival",
@@ -1649,7 +1655,7 @@
       "region": "NE",
       "city": "Jacksonville",
       "venue": "Downtown Jacksonville",
-      "official_domain": "jaxjazzfest.com",
+      "official_domain": "jacksonvillejazzfest.com",
       "category": "music",
       "tags": [
         "music",
@@ -1669,7 +1675,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from jaxjazzfest.com (redirects to jacksonvillejazzfest.com). Page still shows the May 21-24 2026 edition only."
     },
     {
       "anchor_id": "springing-the-blues",
@@ -1705,7 +1712,7 @@
       "region": "NE",
       "city": "Jacksonville",
       "venue": "Downtown Jacksonville",
-      "official_domain": "gateriverrun.com",
+      "official_domain": "gateriverrun15k.com",
       "category": "sports",
       "tags": [
         "running",
@@ -1721,7 +1728,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://gateriverrun15k.com/",
+        "lead_dates": {
+          "start": "2027-03-06",
+          "end": "2027-03-06"
+        }
       }
     },
     {
@@ -1730,7 +1741,7 @@
       "region": "NE",
       "city": "Amelia Island",
       "venue": "The Golf Club of Amelia Island",
-      "official_domain": "ameliaconcours.org",
+      "official_domain": "ameliaconcours.com",
       "category": "motorsports",
       "tags": [
         "cars",
@@ -1746,7 +1757,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://ameliaconcours.com/",
+        "lead_dates": {
+          "start": "2027-03-04",
+          "end": "2027-03-07"
+        }
       }
     },
     {
@@ -2049,7 +2064,7 @@
       "region": "Central",
       "city": "Orlando",
       "venue": "Bay Hill Club and Lodge",
-      "official_domain": "apinvitational.com",
+      "official_domain": "arnoldpalmerinvitational.com",
       "category": "sports",
       "tags": [
         "golf",
@@ -2065,7 +2080,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://www.arnoldpalmerinvitational.com/",
+        "lead_dates": {
+          "start": "2027-03-15",
+          "end": "2027-03-21"
+        }
       }
     },
     {
@@ -2074,7 +2093,7 @@
       "region": "Central",
       "city": "Orlando",
       "venue": "Camping World Stadium",
-      "official_domain": "cheezitcitrusbowl.com",
+      "official_domain": "citrusbowlorlando.com",
       "category": "sports",
       "tags": [
         "football",
@@ -2091,7 +2110,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from cheezitcitrusbowl.com (redirects to citrusbowlorlando.com); the site now calls the game the Citrus Bowl. No 2027 date on the page."
     },
     {
       "anchor_id": "zora-neale-hurston-festival",
@@ -2150,7 +2170,7 @@
       "region": "Central",
       "city": "Orlando",
       "venue": "Lake Eola Park",
-      "official_domain": "comeoutwithpride.com",
+      "official_domain": "comeoutwithpride.org",
       "category": "festival",
       "tags": [
         "pride",
@@ -2167,7 +2187,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain updated from comeoutwithpride.com, which redirects to comeoutwithpride.org; the target did not load from this environment, so it is unverified."
     },
     {
       "anchor_id": "silver-spurs-rodeo",
@@ -2193,8 +2214,13 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": "https://www.silverspursrodeo.com/",
+        "lead_dates": {
+          "start": "2027-02-18",
+          "end": "2027-02-21"
+        }
+      },
+      "note": "Organizer lists the 158th Silver Spurs Rodeo as Thu Feb 18 to Sun Feb 21 without a year; 2027 is inferred from the weekdays and from the page's Feb 13 2027 Monster Bulls date. A June 4-5 rodeo is listed separately."
     },
     {
       "anchor_id": "seaworld-seven-seas-food-festival",
@@ -2311,7 +2337,7 @@
       "region": "Tampa Bay",
       "city": "Tampa",
       "venue": "Julian B. Lane Riverfront Park",
-      "official_domain": "gasparillamusicfest.com",
+      "official_domain": "gasparillamusic.com",
       "category": "music",
       "tags": [
         "music",
@@ -2330,7 +2356,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain updated from gasparillamusicfest.com, which redirects to gasparillamusic.com; the target did not load from this environment, so it is unverified."
     },
     {
       "anchor_id": "gasparilla-film-festival",
@@ -2354,7 +2381,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://www.gasparillafilmfestival.com/",
+        "lead_dates": {
+          "start": "2027-04-01",
+          "end": "2027-04-04"
+        }
       }
     },
     {
@@ -2435,7 +2466,9 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "probe": false,
+      "note": "DOMAIN PARKED: guavaween.com is a Epik for-sale page. Local reporting asks 'what was Ybor City's Guavaween again', so the event may be defunct. Needs a human check before it counts as expected."
     },
     {
       "anchor_id": "dade-city-kumquat-festival",
@@ -2544,8 +2577,13 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": "https://edisonfestival.org/",
+        "lead_dates": {
+          "start": "2027-02-14",
+          "end": "2027-02-20"
+        }
+      },
+      "note": "Lead dates span the two parades the organizer lists (Junior Parade Feb 14 2027, Grand Parade Feb 20 2027); the full festival run is not stated on the page."
     },
     {
       "anchor_id": "naples-winter-wine-festival",
@@ -2553,7 +2591,7 @@
       "region": "SW",
       "city": "Naples",
       "venue": "Ritz-Carlton Golf Resort",
-      "official_domain": "napleswinefestival.org",
+      "official_domain": "napleswinefestival.com",
       "category": "food",
       "tags": [
         "food",
@@ -2572,7 +2610,7 @@
         "state": "confirmed_dated",
         "event_id": "naples-winter-wine-festival-2027",
         "last_checked": "2026-10-14",
-        "source_url": null,
+        "source_url": "https://napleswinefestival.com/",
         "event_series_id": "naples-winter-wine-festival"
       }
     },
@@ -2582,7 +2620,7 @@
       "region": "SW",
       "city": "Fort Myers",
       "venue": "Lee Civic Center",
-      "official_domain": "swflfair.com",
+      "official_domain": "swflcfair.com",
       "category": "community",
       "tags": [
         "fair",
@@ -2601,7 +2639,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from swflfair.com (redirects to swflcfair.com). Page shows no dated edition."
     },
     {
       "anchor_id": "edison-ford-holiday-nights",
@@ -2609,7 +2648,7 @@
       "region": "SW",
       "city": "Fort Myers",
       "venue": "Edison and Ford Winter Estates",
-      "official_domain": "edisonford.org",
+      "official_domain": "edisonfordwinterestates.org",
       "category": "holiday",
       "tags": [
         "christmas",
@@ -2759,7 +2798,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://f1miamigp.com/",
+        "lead_dates": {
+          "start": "2027-04-30",
+          "end": "2027-05-02"
+        }
       }
     },
     {
@@ -2818,7 +2861,7 @@
       "region": "SE",
       "city": "Miami Beach",
       "venue": "Ocean Drive",
-      "official_domain": "artdecoweekend.com",
+      "official_domain": "artdecoweekend.org",
       "category": "festival",
       "tags": [
         "art",
@@ -2835,7 +2878,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://artdecoweekend.org/",
+        "lead_dates": {
+          "start": "2027-01-15",
+          "end": "2027-01-17"
+        }
       }
     },
     {
@@ -2860,8 +2907,13 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
-      }
+        "source_url": "https://www.orangebowl.org/",
+        "lead_dates": {
+          "start": "2027-01-14",
+          "end": "2027-01-14"
+        }
+      },
+      "note": "Organizer says the Capital One Orange Bowl is a CFP Semifinal on January 14, 2027 at Hard Rock Stadium."
     },
     {
       "anchor_id": "homestead-championship-weekend",
@@ -2977,7 +3029,7 @@
       "region": "SE",
       "city": "Wellington",
       "venue": "Palm Beach International Equestrian Center",
-      "official_domain": "pbiec.com",
+      "official_domain": "wellingtoninternational.com",
       "category": "sports",
       "tags": [
         "equestrian",
@@ -2994,7 +3046,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from pbiec.com (redirects to wellingtoninternational.com). No dated WEF 2027 page found."
     },
     {
       "anchor_id": "us-open-polo-championship",
@@ -3019,7 +3072,9 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "probe": false,
+      "note": "WRONG DOMAIN: internationalpoloclub.com now redirects to 3dsom.com, an unrelated site. Replacement organizer domain not confirmed (uspolo.org returned 403 to automation), so the host is flagged probe:false."
     },
     {
       "anchor_id": "rolling-loud-miami",
@@ -3111,7 +3166,7 @@
       "region": "Keys",
       "city": "Key West",
       "venue": "Sloppy Joe's and Key West",
-      "official_domain": "fla-keys.com",
+      "official_domain": "hemingwaydays.net",
       "category": "festival",
       "tags": [
         "festival",
@@ -3128,7 +3183,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from fla-keys.com (the Keys tourist board, not the organizer). hemingwaydays.net redirects to keywestlookalikes.com (Sloppy Joe's, 45th Hemingway Look-Alike Contest, July 21-26 2026); no 2027 dates yet."
     },
     {
       "anchor_id": "key-west-songwriters-festival",
@@ -3192,7 +3248,7 @@
       "region": "Keys",
       "city": "Key West",
       "venue": "Citywide",
-      "official_domain": "keywestpride.org",
+      "official_domain": "gaykeywestfl.com",
       "category": "festival",
       "tags": [
         "pride",
@@ -3209,7 +3265,8 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "note": "Domain fixed from keywestpride.org (redirects to gaykeywestfl.com, Key West Business Guild). Page shows June 3-7 2026 only."
     },
     {
       "anchor_id": "key-west-literary-seminar",
@@ -3233,7 +3290,11 @@
         "state": "expected_undated",
         "event_id": null,
         "last_checked": "2026-10-14",
-        "source_url": null
+        "source_url": "https://www.kwls.org/",
+        "lead_dates": {
+          "start": "2027-01-07",
+          "end": "2027-01-10"
+        }
       }
     },
     {
@@ -3261,7 +3322,9 @@
         "event_id": null,
         "last_checked": "2026-10-14",
         "source_url": null
-      }
+      },
+      "probe": false,
+      "note": "WRONG DOMAIN: keyscoast.com is an unrelated consulting company. The real organizer (Lower Keys) was not confirmed, so the host is flagged probe:false until it is replaced."
     },
     {
       "anchor_id": "thunder-beach-spring-rally",
@@ -3315,6 +3378,1146 @@
         "event_series_id": "thunder-beach-autumn-rally",
         "last_checked": "2026-10-14",
         "source_url": null
+      }
+    },
+    {
+      "anchor_id": "artfest-fort-myers",
+      "name": "ArtFest Fort Myers",
+      "region": "SW",
+      "city": "Fort Myers",
+      "venue": "Fort Myers River District (Edwards Drive riverfront)",
+      "official_domain": "artfestfortmyers.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "artfest-fort-myers-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://artfestfortmyers.com/",
+        "event_series_id": "artfest-fort-myers"
+      }
+    },
+    {
+      "anchor_id": "cape-coral-art-festival",
+      "name": "Cape Coral Art Festival",
+      "region": "SW",
+      "city": "Cape Coral",
+      "venue": "Downtown Cape Coral (Cape Coral Parkway)",
+      "official_domain": "capecoralartfestival.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "cape-coral-art-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://capecoralartfestival.com/",
+        "event_series_id": "cape-coral-art-festival"
+      },
+      "note": "Presented by the Rotary Club of Cape Coral. Organizer page shows Jan 9 and 10 (42nd annual) next to a 2026 poster-artist link, so the year of those dates is read from the wf_events row (2027)."
+    },
+    {
+      "anchor_id": "fort-myers-seafood-and-music-festival",
+      "name": "Fort Myers Seafood & Music Festival",
+      "region": "SW",
+      "city": "Fort Myers",
+      "venue": "Centennial Park",
+      "official_domain": "paragonfestivals.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "fort-myers-seafood-and-music-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/fort-myers-seafood-music-festival-2027/",
+        "event_series_id": "fort-myers-seafood-and-music-festival"
+      }
+    },
+    {
+      "anchor_id": "punta-gorda-seafood-and-music-festival",
+      "name": "Punta Gorda Seafood & Music Festival",
+      "region": "SW",
+      "city": "Punta Gorda",
+      "venue": "Laishley Park",
+      "official_domain": "paragonfestivals.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "punta-gorda-seafood-and-music-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/punta-gorda-seafood-music-festival-2027/",
+        "event_series_id": "punta-gorda-seafood-and-music-festival"
+      },
+      "note": "Paragon also lists a second Punta Gorda edition on Apr 2-4 2027 (punta-gorda-spring-seafood-music-festival-2027); the anchor tracks the January edition."
+    },
+    {
+      "anchor_id": "bonita-springs-seafood-and-music-festival",
+      "name": "Bonita Springs Seafood & Music Festival",
+      "region": "SW",
+      "city": "Bonita Springs",
+      "venue": "28001 Old 41 Road",
+      "official_domain": "paragonfestivals.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/bonita-springs-seafood-music-festival-2027/",
+        "lead_dates": {
+          "start": "2027-03-19",
+          "end": "2027-03-21"
+        }
+      },
+      "note": "Organizer gives the street address only, no venue name. No wf_events row yet; see scripts/festivals/verified/batch-071.json (held, no exact wf_inventory venue row for coordinates)."
+    },
+    {
+      "anchor_id": "fort-myers-beach-shrimp-festival",
+      "name": "Fort Myers Beach Lions Club Shrimp Festival",
+      "region": "SW",
+      "city": "Fort Myers Beach",
+      "venue": "Bay Oaks Park",
+      "official_domain": "fortmyersbeachshrimpfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "fort-myers-beach-lions-club-shrimp-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://fortmyersbeachshrimpfestival.com/",
+        "event_series_id": "fort-myers-beach-lions-club-shrimp-festival"
+      }
+    },
+    {
+      "anchor_id": "everglades-seafood-festival",
+      "name": "Everglades Seafood Festival",
+      "region": "SW",
+      "city": "Everglades City",
+      "venue": "Downtown Everglades City",
+      "official_domain": "evergladesseafoodfestival.org",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "everglades-seafood-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://evergladesseafoodfestival.org/",
+        "event_series_id": "everglades-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "sanibel-shell-show-and-festival",
+      "name": "Sanibel Shell Show & Festival",
+      "region": "SW",
+      "city": "Sanibel",
+      "venue": "Sanibel Community House",
+      "official_domain": "sanibelcommunityhouse.net",
+      "category": "festival",
+      "tags": [
+        "shells",
+        "family",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://sanibelcommunityhouse.net/shell-festival/",
+        "lead_dates": {
+          "start": "2027-03-04",
+          "end": "2027-03-06"
+        }
+      },
+      "note": "Formerly the Sanibel Shell Fair. 90th show, hosted by the Sanibel-Captiva Shell Club and the Sanibel Community Association. No wf_events row yet; see batch-071.json."
+    },
+    {
+      "anchor_id": "clewiston-sugar-festival",
+      "name": "Clewiston Sugar Festival",
+      "region": "SW",
+      "city": "Clewiston",
+      "venue": "Civic Park",
+      "official_domain": "clewistonsugarfestival.com",
+      "category": "festival",
+      "tags": [
+        "community",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "clewiston-sugar-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.clewistonsugarfestival.com/",
+        "event_series_id": "clewiston-sugar-festival"
+      }
+    },
+    {
+      "anchor_id": "swamp-buggy-races",
+      "name": "Swamp Buggy Races",
+      "region": "SW",
+      "city": "Naples",
+      "venue": "Florida Sports Park",
+      "official_domain": "swampbuggy.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "swamp-buggy-winter-classic-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.swampbuggy.com/",
+        "event_series_id": "swamp-buggy-winter-classic"
+      },
+      "note": "Several race weekends a year; the linked row is the Winter Classic (organizer page: next race Sunday January 24, 2027)."
+    },
+    {
+      "anchor_id": "taste-of-punta-gorda",
+      "name": "Taste of Punta Gorda",
+      "region": "SW",
+      "city": "Punta Gorda",
+      "venue": "Laishley Park",
+      "official_domain": "tasteofpuntagorda.org",
+      "category": "food",
+      "tags": [
+        "food",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "taste-of-punta-gorda-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://tasteofpuntagorda.org/",
+        "event_series_id": "taste-of-punta-gorda"
+      }
+    },
+    {
+      "anchor_id": "sanibel-captiva-rotary-arts-and-crafts-festival",
+      "name": "Sanibel-Captiva Rotary Club Arts & Crafts Festival",
+      "region": "SW",
+      "city": "Sanibel",
+      "venue": "Sanibel Community House",
+      "official_domain": "sanibelartfair.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "crafts"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "sanibel-captiva-rotary-club-arts-and-crafts-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.sanibelartfair.com/",
+        "event_series_id": "sanibel-captiva-rotary-club-arts-and-crafts-festival"
+      }
+    },
+    {
+      "anchor_id": "naples-downtown-art-fair",
+      "name": "Naples Downtown Art Fair",
+      "region": "SW",
+      "city": "Naples",
+      "venue": "Cambier Park",
+      "official_domain": "naplesart.org",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "downtown-art-fair-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.naplesart.org/downtown-art-fair",
+        "event_series_id": "downtown-art-fair"
+      }
+    },
+    {
+      "anchor_id": "naples-night-lights-in-the-garden",
+      "name": "Johnsonville Night Lights in the Garden",
+      "region": "SW",
+      "city": "Naples",
+      "venue": "Naples Botanical Garden",
+      "official_domain": "naplesgarden.org",
+      "category": "holiday",
+      "tags": [
+        "christmas",
+        "holiday-lights",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 1
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "naples-night-lights-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.naplesgarden.org/series/johnsonville-night-lights-in-the-garden/",
+        "event_series_id": "naples-night-lights"
+      }
+    },
+    {
+      "anchor_id": "burrowing-owl-festival",
+      "name": "Burrowing Owl Festival",
+      "region": "SW",
+      "city": "Cape Coral",
+      "venue": "Rotary Park Environmental Center",
+      "official_domain": "ccfriendsofwildlife.org",
+      "category": "festival",
+      "tags": [
+        "wildlife",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://ccfriendsofwildlife.org/events/2027/25th-annual-burrowing-owl-festival/",
+        "lead_dates": {
+          "start": "2027-02-27",
+          "end": "2027-02-27"
+        }
+      },
+      "note": "25th annual, Cape Coral Friends of Wildlife, Rotary Park Environmental Center, 5505 Rose Garden Rd. No wf_events row yet; see batch-071.json."
+    },
+    {
+      "anchor_id": "punta-gorda-chili-festival",
+      "name": "Charlotte Harbor Chili Challenge and Beer Festival (Punta Gorda Chili Fest)",
+      "region": "SW",
+      "city": "Punta Gorda",
+      "venue": "Laishley Park",
+      "official_domain": "puntagordachilifest.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://puntagordachilifest.com/index.html"
+      },
+      "note": "Organizer page still shows only the Jan 31 2026 edition (15th annual). No 2027 date published, so no lead dates."
+    },
+    {
+      "anchor_id": "cedar-key-seafood-festival",
+      "name": "Cedar Key Seafood Festival",
+      "region": "NE",
+      "city": "Cedar Key",
+      "venue": "Downtown Cedar Key",
+      "official_domain": "cedarkey.org",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "cedar-key-seafood-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.cedarkey.org/2026/10/17/476073/seafood-festival",
+        "event_series_id": "cedar-key-seafood-festival"
+      },
+      "note": "Organizer is the Cedar Key Chamber of Commerce; its event page states Oct 17 2026, 10:00 AM."
+    },
+    {
+      "anchor_id": "palatka-blue-crab-festival",
+      "name": "Palatka Blue Crab Festival",
+      "region": "NE",
+      "city": "Palatka",
+      "venue": "Riverfront Park",
+      "official_domain": "palatkabluecrab.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "palatka-blue-crab-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.palatkabluecrab.com/",
+        "event_series_id": "palatka-blue-crab-festival"
+      }
+    },
+    {
+      "anchor_id": "daytona-turkey-run",
+      "name": "Daytona Turkey Run",
+      "region": "NE",
+      "city": "Daytona Beach",
+      "venue": "Daytona International Speedway",
+      "official_domain": "turkeyrun.com",
+      "category": "festival",
+      "tags": [
+        "car-show",
+        "swap-meet"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "daytona-turkey-run-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.turkeyrun.com/",
+        "event_series_id": "daytona-turkey-run"
+      }
+    },
+    {
+      "anchor_id": "the-fest-gainesville",
+      "name": "The Fest",
+      "region": "NE",
+      "city": "Gainesville",
+      "venue": "Bo Diddley Plaza and Downtown Gainesville venues",
+      "official_domain": "thefestfl.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "punk",
+        "nightlife"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "the-fest-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://thefestfl.com/",
+        "event_series_id": "the-fest"
+      }
+    },
+    {
+      "anchor_id": "fernandina-beach-songwriters-festival",
+      "name": "Fernandina Beach Songwriters Festival",
+      "region": "NE",
+      "city": "Fernandina Beach",
+      "venue": "The Pavilion",
+      "official_domain": "fernandinasongwritersfestival.org",
+      "category": "music",
+      "tags": [
+        "music",
+        "songwriters"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "fernandina-beach-songwriters-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://fernandinasongwritersfestival.org/",
+        "event_series_id": "fernandina-beach-songwriters-festival"
+      }
+    },
+    {
+      "anchor_id": "sopchoppy-worm-gruntin-festival",
+      "name": "Sopchoppy Worm Gruntin' Festival",
+      "region": "NW",
+      "city": "Sopchoppy",
+      "venue": "Downtown Sopchoppy",
+      "official_domain": "wormgruntinfestival.com",
+      "category": "festival",
+      "tags": [
+        "heritage",
+        "community"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "worm-gruntin-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.wormgruntinfestival.com/",
+        "event_series_id": "worm-gruntin-festival"
+      }
+    },
+    {
+      "anchor_id": "blast-on-the-bay",
+      "name": "Blast on the Bay Songwriters Festival",
+      "region": "NW",
+      "city": "Port St. Joe",
+      "venue": "George Core Park (VIP reception; multiple venues citywide)",
+      "official_domain": "blastonthebay.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "songwriters"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "blast-on-the-bay-songwriters-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://blastonthebay.com/",
+        "event_series_id": "blast-on-the-bay-songwriters-festival"
+      }
+    },
+    {
+      "anchor_id": "florida-manatee-festival",
+      "name": "Florida Manatee Festival",
+      "region": "Central",
+      "city": "Crystal River",
+      "venue": "Downtown Crystal River",
+      "official_domain": "gomanateefest.com",
+      "category": "festival",
+      "tags": [
+        "wildlife",
+        "family",
+        "art"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "florida-manatee-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.gomanateefest.com/",
+        "event_series_id": "florida-manatee-festival"
+      },
+      "note": "Run by the Citrus County Chamber of Commerce (site title); Crystal River is Citrus County, placed in Central."
+    },
+    {
+      "anchor_id": "arcadia-all-florida-championship-rodeo",
+      "name": "Arcadia All-Florida Championship Rodeo",
+      "region": "Central",
+      "city": "Arcadia",
+      "venue": "Mosaic Arena",
+      "official_domain": "arcadiarodeo.com",
+      "category": "sports",
+      "tags": [
+        "rodeo",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://arcadiarodeo.com/",
+        "lead_dates": {
+          "start": "2027-03-11",
+          "end": "2027-03-14"
+        }
+      },
+      "note": "Homepage says 'March 11-14, tickets on sale Nov. 01' with no year; 2027 is inferred (Mar 11 2027 is a Thursday, and the page's 13th Annual Fall Rodeo is Oct 16-18 2026). Treat the lead as unconfirmed on the year. Mosaic Arena, 2450 NE Roan St, Arcadia. See batch-071.json."
+    },
+    {
+      "anchor_id": "sarasota-seafood-and-music-festival",
+      "name": "Sarasota Seafood & Music Festival",
+      "region": "Tampa Bay",
+      "city": "Sarasota",
+      "venue": "Sarasota Fairgrounds",
+      "official_domain": "paragonfestivals.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "sarasota-seafood-music-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/sarasota-seafood-music-festival-2027/",
+        "event_series_id": "sarasota-seafood-music"
+      }
+    },
+    {
+      "anchor_id": "coquina-beach-seafood-and-music-festival",
+      "name": "Coquina Beach Seafood & Music Festival",
+      "region": "Tampa Bay",
+      "city": "Bradenton Beach",
+      "venue": "Coquina Beach",
+      "official_domain": "paragonfestivals.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music",
+        "beach",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "coquina-beach-seafood-and-music-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/coquina-beach-seafood-music-festival-2027/",
+        "event_series_id": "coquina-beach-seafood-and-music-festival"
+      }
+    },
+    {
+      "anchor_id": "manatee-county-seafood-and-music-festival",
+      "name": "Manatee County Seafood & Music Festival",
+      "region": "Tampa Bay",
+      "city": "Bradenton",
+      "venue": "G.T. Bray Park",
+      "official_domain": "paragonfestivals.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "music",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "manatee-county-seafood-and-music-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/manatee-county-seafood-music-festival-2027/",
+        "event_series_id": "manatee-county-seafood-and-music-festival"
+      }
+    },
+    {
+      "anchor_id": "st-armands-fall-festival-of-the-arts",
+      "name": "St. Armands Fall Festival of the Arts",
+      "region": "Tampa Bay",
+      "city": "Sarasota",
+      "venue": "St. Armands Circle",
+      "official_domain": "paragonfestivals.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "st-armands-fall-festival-of-the-arts-sarasota-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.paragonfestivals.com/festival/st-armands-fall-festival-of-the-arts-2026/",
+        "event_series_id": "st-armands-fall-festival-of-the-arts-sarasota"
+      }
+    },
+    {
+      "anchor_id": "suncoast-jazz-festival",
+      "name": "Suncoast Jazz Festival",
+      "region": "Tampa Bay",
+      "city": "Clearwater",
+      "venue": "Sheraton Sand Key Resort",
+      "official_domain": "suncoastjazzfestival.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "jazz"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "suncoast-jazz-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://suncoastjazzfestival.com/",
+        "event_series_id": "suncoast-jazz-festival"
+      }
+    },
+    {
+      "anchor_id": "sarasota-music-festival",
+      "name": "Sarasota Music Festival",
+      "region": "Tampa Bay",
+      "city": "Sarasota",
+      "venue": "Sarasota Orchestra",
+      "official_domain": "sarasotaorchestra.org",
+      "category": "music",
+      "tags": [
+        "music",
+        "classical"
+      ],
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://sarasotaorchestra.org/festival"
+      },
+      "note": "Organizer page contradicts itself for 2027 (June 6 to June 20 in one place, June 7 to 19 in another), so no lead dates. Venue not named on the page beyond the orchestra."
+    },
+    {
+      "anchor_id": "miami-book-fair",
+      "name": "Miami Book Fair",
+      "region": "SE",
+      "city": "Miami",
+      "venue": "Miami Dade College Wolfson Campus",
+      "official_domain": "miamibookfair.com",
+      "category": "arts",
+      "tags": [
+        "books",
+        "literary"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "miami-book-fair-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://miamibookfair.com/",
+        "event_series_id": "miami-book-fair"
+      }
+    },
+    {
+      "anchor_id": "south-beach-seafood-festival",
+      "name": "South Beach Seafood Festival",
+      "region": "SE",
+      "city": "Miami Beach",
+      "venue": "Lummus Park, Ocean Drive",
+      "official_domain": "sobeseafoodfest.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "south-beach-seafood-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": "https://sobeseafoodfest.com/events",
+        "event_series_id": "south-beach-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "riverwalk-stone-crab-and-seafood-festival",
+      "name": "Riverwalk Stone Crab & Seafood Festival",
+      "region": "SE",
+      "city": "Fort Lauderdale",
+      "venue": "Esplanade Park",
+      "official_domain": "goriverwalk.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "riverwalk-stone-crab-and-seafood-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.goriverwalk.com/riverwalk-stone-crab-seafood-festival",
+        "event_series_id": "riverwalk-stone-crab-and-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "jupiter-seafood-festival",
+      "name": "Jupiter Seafood Festival",
+      "region": "SE",
+      "city": "Jupiter",
+      "venue": "Carlin Park",
+      "official_domain": "jupiterseafoodfestival.net",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "jupiter-seafood-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.jupiterseafoodfestival.net/",
+        "event_series_id": "jupiter-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "port-st-lucie-seafood-festival",
+      "name": "Port St. Lucie Seafood Festival",
+      "region": "SE",
+      "city": "Port St. Lucie",
+      "venue": "MIDFLORIDA Event Center",
+      "official_domain": "portsaintlucieseafoodfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "port-st-lucie-seafood-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.portsaintlucieseafoodfestival.com/",
+        "event_series_id": "port-st-lucie-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "fellsmere-frog-leg-festival",
+      "name": "Fellsmere Frog Leg Festival",
+      "region": "SE",
+      "city": "Fellsmere",
+      "venue": "Fellsmere Frog Leg Festival Grounds",
+      "official_domain": "froglegfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "heritage",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "fellsmere-frog-leg-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.froglegfestival.com/",
+        "event_series_id": "fellsmere-frog-leg-festival"
+      }
+    },
+    {
+      "anchor_id": "homestead-championship-rodeo",
+      "name": "Homestead Championship Rodeo",
+      "region": "SE",
+      "city": "Homestead",
+      "venue": "\"Doc\" DeMilly Rodeo Arena",
+      "official_domain": "homesteadrodeo.com",
+      "category": "sports",
+      "tags": [
+        "rodeo",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.homesteadrodeo.com/",
+        "lead_dates": {
+          "start": "2027-01-29",
+          "end": "2027-01-31"
+        }
+      },
+      "note": "78th annual, Jan 29, 30 & 31 2027 per organizer. Arena address 1034 NE 8th St, Homestead. No wf_events row yet; see batch-071.json."
+    },
+    {
+      "anchor_id": "florida-keys-seafood-festival",
+      "name": "Florida Keys Seafood Festival",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Truman Waterfront Park",
+      "official_domain": "floridakeysseafoodfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "florida-keys-seafood-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://www.floridakeysseafoodfestival.com/",
+        "event_series_id": "florida-keys-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "original-marathon-seafood-festival",
+      "name": "Original Marathon Seafood Festival",
+      "region": "Keys",
+      "city": "Marathon",
+      "venue": "Marathon Community Park",
+      "official_domain": "marathonseafoodfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "original-marathon-seafood-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": "https://marathonseafoodfestival.com/",
+        "event_series_id": "original-marathon-seafood-festival"
       }
     }
   ]

@@ -1,0 +1,59 @@
+{
+  "batch": 71,
+  "verified_by": "claude-opus",
+  "verified_at": "2026-10-14T12:51:00Z",
+  "publish": [],
+  "hold": [
+    {
+      "event_name": "Sanibel Shell Show & Festival",
+      "start_date": "2027-03-04",
+      "end_date": "2027-03-06",
+      "reason": "No exact wf_inventory venue row for coordinates, so no lat/lng and rowProblems would refuse it; held, not published.",
+      "url": "https://sanibelcommunityhouse.net/shell-festival/",
+      "venue": "Sanibel Community House",
+      "address": "2173 Periwinkle Way, Sanibel, FL 33957",
+      "verify_note": "2026-10-14: Sanibel Community Association page states '90th Sanibel Shell Show & Festival March 4 - 6, 2027'.",
+      "lead_name": "Sanibel Shell Fair"
+    },
+    {
+      "event_name": "Burrowing Owl Festival",
+      "start_date": "2027-02-27",
+      "end_date": "2027-02-27",
+      "reason": "No exact wf_inventory venue row for coordinates, so no lat/lng and rowProblems would refuse it; held, not published.",
+      "url": "https://ccfriendsofwildlife.org/events/2027/25th-annual-burrowing-owl-festival/",
+      "venue": "Rotary Park Environmental Center",
+      "address": "5505 Rose Garden Rd, Cape Coral, FL 33914",
+      "verify_note": "2026-10-14: Cape Coral Friends of Wildlife page states 25th Annual Burrowing Owl Festival, Saturday February 27, 2027, 10:00AM to 4:00PM, $5 suggested donation ages 12 and up."
+    },
+    {
+      "event_name": "Bonita Springs Seafood & Music Festival",
+      "start_date": "2027-03-19",
+      "end_date": "2027-03-21",
+      "reason": "No exact wf_inventory venue row for coordinates, so no lat/lng and rowProblems would refuse it; held, not published.",
+      "url": "https://www.paragonfestivals.com/festival/bonita-springs-seafood-music-festival-2027/",
+      "venue": "28001 Old 41 Road (venue name not given)",
+      "address": "28001 Old 41 Road, Bonita Springs, FL",
+      "verify_note": "2026-10-14: Paragon Festivals page states 'Bonita Springs Seafood & Music Festival on March 19-21, 2027 at 28001 Old 41 Road'."
+    },
+    {
+      "event_name": "Homestead Championship Rodeo",
+      "start_date": "2027-01-29",
+      "end_date": "2027-01-31",
+      "reason": "No exact wf_inventory venue row for coordinates, so no lat/lng and rowProblems would refuse it; held, not published.",
+      "url": "https://www.homesteadrodeo.com/",
+      "venue": "\"Doc\" DeMilly Rodeo Arena",
+      "address": "1034 NE 8th St, Homestead, FL 33031",
+      "verify_note": "2026-10-14: Homestead Rodeo Association page states '78th Annual Homestead Championship Rodeo January 29, 30 & 31, 2027'; arena address in footer."
+    },
+    {
+      "event_name": "Arcadia All-Florida Championship Rodeo",
+      "start_date": "2027-03-11",
+      "end_date": "2027-03-14",
+      "reason": "No exact wf_inventory venue row for coordinates, so no lat/lng and rowProblems would refuse it; held, not published. Also: the year is not stated by the organizer.",
+      "url": "https://arcadiarodeo.com/",
+      "venue": "Mosaic Arena",
+      "address": "2450 NE Roan St, Arcadia, FL 34266",
+      "verify_note": "2026-10-14: Homepage lists 'Arcadia All-Florida Championship Rodeo March 11-14, tickets on sale Nov. 01' with no year; 2027 is inferred, so this also fails the organizer-states-the-year rule."
+    }
+  ]
+}

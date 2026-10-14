@@ -69,6 +69,13 @@ export function validate(doc, railIds, knownEventIds = null) {
     if (x.event_series_id !== undefined && !x.event_id) e(`${at}: event_series_id requires an event_id`);
     if (x.event_id !== null && !isStr(x.event_id)) e(`${at}: event_id must be a string or null`);
     if (x.source_url !== null && !(isStr(x.source_url) && /^https?:\/\//.test(x.source_url))) e(`${at}: source_url must be an http(s) URL or null`);
+    if (x.lead_dates !== undefined) {
+      const l = x.lead_dates;
+      if (!l || typeof l !== "object" || !ISO.test(l.start || "") || !ISO.test(l.end || "") || Number.isNaN(Date.parse(l.start + "T00:00:00Z")) || Number.isNaN(Date.parse(l.end + "T00:00:00Z"))) e(`${at}: lead_dates must be {start,end} ISO dates`);
+      else if (l.end < l.start) e(`${at}: lead_dates end is before start`);
+      if (x.state !== "expected_undated") e(`${at}: lead_dates is only allowed on expected_undated entries`);
+      if (x.source_url === null) e(`${at}: lead_dates requires the organizer source_url it came from`);
+    }
     if (x.state === "confirmed_dated" && !isStr(x.event_id)) e(`${at}: confirmed_dated requires an event_id`);
     if (knownEventIds && x.event_id && !knownEventIds.has(x.event_id)) e(`${at}: event_id ${x.event_id} not found in known set`);
   });
@@ -101,8 +108,12 @@ if (isMain) {
   mut((c) => { c.anchors[0].expected_edition.state = "confirmed_dated"; c.anchors[0].expected_edition.event_id = null; }, "requires an event_id");
   mut((c) => { const d = c.anchors.find((a) => a.official_domain === NO_PROBE_HOST); delete d.probe; }, "probe:false");
   mut((c) => { const d = c.anchors.find((a) => a.expected_edition.event_id); d.expected_edition.event_series_id = ""; }, "event_series_id");
+  mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "expected_undated"); d.expected_edition.source_url = "https://example.org/x"; d.expected_edition.lead_dates = { start: "2027-03-05", end: "2027-03-01" }; }, "lead_dates end is before start");
+  mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "confirmed_dated"); d.expected_edition.lead_dates = { start: "2027-03-01", end: "2027-03-02" }; }, "only allowed on expected_undated");
+  mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "expected_undated"); d.expected_edition.source_url = null; d.expected_edition.lead_dates = { start: "2027-03-01", end: "2027-03-02" }; }, "requires the organizer source_url");
+  mut((c) => { const d = c.anchors.find((a) => a.expected_edition.state === "expected_undated"); d.expected_edition.source_url = "https://example.org/x"; d.expected_edition.lead_dates = { start: "2027-13-01", end: "2027-13-02" }; }, "lead_dates must be");
   const counts = {};
   for (const a of doc.anchors) counts[a.region] = (counts[a.region] || 0) + 1;
   for (const r of REGIONS) console.log(`  ${r}: ${counts[r] || 0}`);
-  console.log(`${doc.anchors.length} anchors validated (7 negative controls caught)`);
+  console.log(`${doc.anchors.length} anchors validated (11 negative controls caught)`);
 }
