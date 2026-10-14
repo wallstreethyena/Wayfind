@@ -1,18 +1,6 @@
 {
  "photos": [
   {
-   "slug": "magic-of-lights-daytona-2026",
-   "file": "magic-of-lights-daytona-2026.webp",
-   "source_url": "https://commons.wikimedia.org/wiki/File:Daytona_International_Speedway_2011.jpg",
-   "creator": "Jeff (Flickr: Awesome track)",
-   "license": "CC BY-SA",
-   "license_url": "https://creativecommons.org/licenses/by-sa/2.0/",
-   "depicted_venue": "Daytona International Speedway, Daytona Beach",
-   "verified_at": "2026-10-14",
-   "evidence": "Commons description: \"The Daytona International Speedway in 2011.\" Frontstretch grandstands and DAYTONA infield lettering; the event is held at this venue. Original image viewed before acceptance; shows the venue, not the event itself.",
-   "original_title": "Daytona International Speedway 2011.jpg"
-  },
-  {
    "slug": "legoland-christmas-bricktacular-2026",
    "file": "legoland-christmas-bricktacular-2026.webp",
    "source_url": "https://commons.wikimedia.org/wiki/File:Legoland_Florida_sign.jpg",
@@ -41,11 +29,11 @@
    "file": "nights-of-lights-staug-2026.webp",
    "source_url": "https://commons.wikimedia.org/wiki/File:Flagler_College,_St._Augustine,_Florida,_USA4.jpg",
    "creator": "Diego Delso",
-   "license": "CC BY-SA",
-   "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+   "license": "CC BY-SA 3.0",
+   "license_url": "https://creativecommons.org/licenses/by-sa/3.0/",
    "depicted_venue": "Flagler College (former Ponce de Leon Hotel), St. Augustine",
    "verified_at": "2026-10-14",
-   "evidence": "Commons description: \"Flagler College, St. Augustine, Florida, USA\"; Flagler College is a named Nights of Lights stop in the research venue list. Portrait original cropped to the entrance and fountain. License text on the page says CC BY-SA without a version; the deed link is the current 4.0 deed. Original image viewed before acceptance; shows the venue, not the event itself.",
+   "evidence": "Commons description: \"Flagler College, St. Augustine, Florida, USA\"; Flagler College is a named Nights of Lights stop in the research venue list. Portrait original cropped to the entrance and fountain. Licensing section on the file page: Creative Commons Attribution-Share Alike 3.0 Unported; author asks for the credit \"Diego Delso, delso.photo, License CC BY-SA\" (checked 2026-10-14). Original image viewed before acceptance; shows the venue, not the event itself.",
    "original_title": "Flagler College, St. Augustine, Florida, USA4.jpg"
   },
   {
@@ -81,8 +69,8 @@
    "license_url": "https://creativecommons.org/licenses/by-sa/4.0/",
    "depicted_venue": "Fishermen's Village, Punta Gorda",
    "verified_at": "2026-10-14",
-   "evidence": "Commons description: \"Sunset at Fisherman\u2019s Village, a mall/resort in Punta Gorda, Florida\" (21 October 2022). Original image viewed before acceptance; shows the venue, not the event itself.",
-   "original_title": "Sunset at Fisherman\u2019s Village.jpg"
+   "evidence": "Commons description: \"Sunset at Fisherman’s Village, a mall/resort in Punta Gorda, Florida\" (21 October 2022). Original image viewed before acceptance; shows the venue, not the event itself.",
+   "original_title": "Sunset at Fisherman’s Village.jpg"
   },
   {
    "slug": "selby-lights-in-bloom-2026",

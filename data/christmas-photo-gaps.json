@@ -1,7 +1,14 @@
 {
  "generated": "2026-10-14",
- "count": 342,
+ "count": 343,
  "gaps": [
+  {
+   "id": "magic-of-lights-daytona-2026",
+   "name": "Magic of Lights",
+   "city": "Daytona Beach",
+   "headliner": true,
+   "reason": "Only licensed Commons photo is a daytime race day grandstand at Daytona International Speedway, which misrepresents a night drive through light show; rejected in lead review 2026-10-14."
+  },
   {
    "id": "live-oak-suwannee-lights-2026",
    "name": "Suwannee Lights",
