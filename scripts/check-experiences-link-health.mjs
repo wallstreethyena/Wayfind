@@ -16,6 +16,8 @@ import { fileURLToPath } from "node:url";
 import {
   classifyProductProbe,
   describeProductProbe,
+  parseRetryAfter,
+  runPoliteProbes,
   nextHealthState,
   dropDeadLinkRows,
   DEAD_AFTER_FAILS,
@@ -97,10 +99,14 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     VIATOR_API_KEY: process.env.VIATOR_API_KEY,
     SUPABASE_URL: process.env.SUPABASE_URL,
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    LINK_HEALTH_PACE_MS: process.env.LINK_HEALTH_PACE_MS,
+    LINK_HEALTH_BACKOFF_MS: process.env.LINK_HEALTH_BACKOFF_MS,
     fetch: globalThis.fetch,
     setTimeout: globalThis.setTimeout,
   };
   process.env.CRON_SECRET = "cron-fixture";
+  process.env.LINK_HEALTH_PACE_MS = "0"; // real route, zero waits
+  process.env.LINK_HEALTH_BACKOFF_MS = "0";
   process.env.SUPABASE_URL = "https://fixture.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "service-fixture";
   if (withViatorKey) process.env.VIATOR_API_KEY = "viator-fixture";
@@ -136,7 +142,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
         if (fixture.networkError) throw new Error("secret-bearing upstream error must never be logged");
         if (fixture.bodyNetworkError) return { status: 200, json: async () => { throw new TypeError("secret-bearing response body failure"); } };
         if (fixture.invalidJson) return new Response("not json, must never be logged", { status: 200 });
-        return new Response(JSON.stringify(fixture.body ?? null), { status: fixture.status ?? 200 });
+        return new Response(JSON.stringify(fixture.body ?? null), { status: fixture.status ?? 200, headers: fixture.headers || {} });
       }
       return productStatus === 200
         ? Response.json(productBody)
@@ -153,7 +159,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   } finally {
     globalThis.fetch = saved.fetch;
     globalThis.setTimeout = saved.setTimeout;
-    for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) {
+    for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LINK_HEALTH_PACE_MS", "LINK_HEALTH_BACKOFF_MS"]) {
       if (saved[key] === undefined) delete process.env[key];
       else process.env[key] = saved[key];
     }
@@ -250,7 +256,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   const r = await runSweep({ selected, products });
   const expected = { active: 1, inactive: 1, http_404: 2, http_410: 1, http_401: 1, http_403: 1, http_429: 1, http_5xx: 1, http_other: 1, missing_status: 1, invalid_json: 1, network_error: 1, timeout: 1 };
   ok(JSON.stringify(r.body.probe_outcomes) === JSON.stringify(expected), "mixed route returns every fixed probe reason and count");
-  ok(r.providerRequests.length === selected.length, "diagnostics make exactly the existing one request per product, with no retry");
+  ok(r.providerRequests.length === selected.length + 2, "one request per product, plus exactly the 2 bounded 429 retries (RATE)");
   ok(r.body.alive === 1 && r.body.newly_or_still_dead === 2 && r.body.unknown === 9, "mixed probe diagnostics preserve health decisions");
   const pulse = r.pulses[0];
   ok(r.pulses.length === 1 && pulse.attempted === 14 && pulse.succeeded === 5 && pulse.failed === 9, "mixed pulse keeps truthful definitive and inconclusive counters");
@@ -278,6 +284,50 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   ok(bodyNetwork.body.probe_outcomes.network_error === 1 && !bodyNetwork.body.probe_outcomes.invalid_json, "response-body transport failure is distinct from malformed JSON");
   const healthy = await runSweep({ selected: [{ product_code: "GOOD", link_ok: false }] });
   ok(healthy.pulses.length === 1 && JSON.parse(healthy.pulses[0].note).probes.active === 1 && healthy.pulses[0].failed === 0, "healthy control preserves alive confirmation in the structured pulse");
+}
+
+/* ── 9. 429 is NOT dead: rate_limited / blocked are retry-later outcomes ──── */
+{
+  ok(describeProductProbe(429, null).outcome === "rate_limited", "429 is the distinct rate_limited outcome");
+  ok(describeProductProbe(403, null).outcome === "blocked" && describeProductProbe(401, null).outcome === "blocked", "403/401 are the distinct blocked outcome");
+  for (const prev of [{ link_ok: true, fail_count: 0 }, { link_ok: null, fail_count: 0 }, { link_ok: true, fail_count: 1 }, { link_ok: false, fail_count: 3 }]) {
+    ok(nextHealthState(prev, describeProductProbe(429, null).verdict) === null && nextHealthState(prev, describeProductProbe(403, null).verdict) === null, `429/403 never produce a health state change (prev link_ok=${prev.link_ok})`);
+  }
+  ok(parseRetryAfter("3") === 3000 && parseRetryAfter("0") === 0 && parseRetryAfter("9999") === 10000 && parseRetryAfter("nope") === null && parseRetryAfter(null) === null, "Retry-After seconds are honoured, clamped, and garbage is ignored");
+  ok(parseRetryAfter(new Date(5000).toUTCString(), 2000) === 3000, "Retry-After HTTP-date is honoured");
+
+  // pacing + backoff, CALLED with a fake clock: concurrency cap, min gap, Retry-After wait, bounded retries.
+  let t = 0, inflight = 0, peak = 0; const starts = [], waits = [];
+  const sleep = async (ms) => { waits.push(ms); t += ms; };
+  const calls = {};
+  const res = await runPoliteProbes(["A", "B", "C", "D", "THROTTLED", "RECOVERS"], async (code) => {
+    inflight++; peak = Math.max(peak, inflight); starts.push(t); calls[code] = (calls[code] || 0) + 1;
+    await Promise.resolve(); inflight--;
+    if (code === "THROTTLED" || (code === "RECOVERS" && calls[code] === 1)) return { verdict: "unknown", reason: "http_429", outcome: "rate_limited", retryAfterMs: 4000 };
+    return { verdict: "alive", reason: "active", outcome: "alive" };
+  }, { concurrency: 2, minGapMs: 100, maxRetries: 2, sleep, now: () => t });
+  ok(peak <= 2, `per-host concurrency cap holds (peak ${peak})`);
+  ok(waits.filter((w) => w === 100).length >= 1, `workers pause for the minimum request gap (waits ${waits.join(",")})`);
+  ok(waits.includes(4000), "a 429 waits the server's Retry-After before retrying");
+  ok(calls.THROTTLED === 3 && calls.RECOVERS === 2, "retries are bounded (1 + 2) and stop on success");
+  ok(res[4].outcome === "rate_limited" && res[4].verdict === "unknown", "a 429 that survives its retries stays rate_limited/unknown, never dead");
+  ok(res[5].verdict === "alive", "a product that recovers after backoff is judged on the retry");
+  const dl = await runPoliteProbes(["X", "Y"], async () => ({ verdict: "alive", reason: "active", outcome: "alive" }), { concurrency: 1, minGapMs: 0, deadlineAt: -1, sleep, now: () => t });
+  ok(dl[0] === null && dl[1] === null, "past the deadline rows are NOT probed and come back null (left untouched)");
+}
+{
+  // Real route: a 429 storm must write NOTHING to the throttled rows.
+  const rowsIn = [
+    { product_code: "OKAY", link_ok: false, fail_count: 2 },
+    { product_code: "THROTTLE_ALIVE", link_ok: true, fail_count: 0 },
+    { product_code: "THROTTLE_DEAD", link_ok: false, fail_count: 3 },
+  ];
+  const r = await runSweep({ selected: rowsIn, products: { OKAY: { body: { status: "ACTIVE" } }, THROTTLE_ALIVE: { status: 429, headers: { "Retry-After": "0" } }, THROTTLE_DEAD: { status: 429 } } });
+  const touched = (c) => r.patches.filter((p) => p.url.includes(c));
+  ok(r.response.status === 200 && r.body.alive === 1 && r.body.rate_limited_deferred === 2, "route reports rate-limited rows as deferred, run still succeeds on definitive work");
+  ok(touched("THROTTLE_ALIVE").length === 0 && touched("THROTTLE_DEAD").length === 0, "route issues NO write for rate-limited rows (not even last_checked_at - they retry first next run)");
+  ok(r.patches.every((p) => p.body.link_ok !== false), "no PATCH anywhere flips link_ok to false because of a 429");
+  ok(r.body.newly_or_still_dead === 0, "a 429 is never counted dead");
 }
 
 /* ── verdict ─────────────────────────────────────────────────────────────── */

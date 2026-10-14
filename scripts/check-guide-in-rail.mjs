@@ -52,6 +52,8 @@ const order = [...html.matchAll(/data-card="(\d)"|data-guide-rail="beaches"/g)].
 ok(order === "0,1,G,2,3,4", `the rendered track reads card, card, GUIDE, card... (got ${order})`);
 ok((html.match(/wf-guide-card/g) || []).length === 1 && !/wf-place-card-rank"[^>]*>/.test(html.slice(html.indexOf("data-guide-rail"), html.indexOf('data-card="2"'))), "exactly one guide card, carrying no rank badge");
 ok(/wf-exploding-primary/.test(html.slice(html.indexOf("data-guide-rail"))), "the guide wears the sibling card class, so it sizes like the rail's cards");
+ok(/<article[^>]*data-guide-id="florida-winter-beaches-2026"/.test(html) && !/<article[^>]*data-guide-id[^>]*data-place-id|<article[^>]*data-place-id[^>]*data-guide-id/.test(html) && (html.match(/data-guide-id=/g) || []).length === 1,
+  "the RENDERED guide card carries data-guide-id (the synthetic monitor's ownership hook) and no data-place-id");
 const none = renderToStaticMarkup(React.createElement("div", null, React.createElement(RailGuideSlot, { railId: "beaches" }, cards(3))));
 ok(!/data-guide-rail/.test(none), "NEGATIVE: a rail with no matched guide renders only its own cards");
 
