@@ -2,6 +2,7 @@
 import { paintMapPin, mapPinSvg, pinCategory } from "../../lib/mapPinStandard.js";
 import MapCategoryPin from "./MapCategoryPin.js";
 import { eventMapFamily } from "../../lib/eventMapPlaces.js";
+import { eventMapPoint } from "../../lib/eventLocation.js";
 
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
@@ -208,7 +209,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     // just on the map instead of the shelf. The map now draws every place the
     // caller loaded; it is the caller's job to decide how many that is.
     const ranked = (places || []).filter((p) => p && p.lat != null && p.lng != null);
-    const eventList = (events || []).filter((e) => e && e.lat != null && e.lng != null);
+    const eventList = (events || []).filter((e) => e && eventMapPoint(e));
 
     const placeFeatures = [];
     placesByIdRef.current = new Map();
