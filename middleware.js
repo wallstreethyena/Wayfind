@@ -139,6 +139,11 @@ export const config = {
     // service role, so an unmetered script should not be able to spin it. It is a
     // NAVIGATION, so it is rateLimitOnly below, never same-origin blocked.
     "/api/commerce/go",
+    // Event reminder (.ics download): a free GET that reads one owned event row.
+    // No paid upstream, so this is the per-IP rate limit only (it is a
+    // navigation the browser follows to download the invite, so it joins
+    // NAV_302_ROUTES below, never the same-origin block).
+    "/api/events/reminder",
     // Social Media Find creator avatar proxy (v6.93): each cache-miss makes a
     // real outbound fetch to TikTok's profile page + CDN — not dollar-metered
     // like Google Places, but a script hammering random handles could get our
@@ -165,7 +170,7 @@ export const config = {
 // link resolves through this route, so the comment described the intent and the
 // code did the opposite. check-clipp-deals.mjs asserts membership in this Set, not
 // merely that the path appears somewhere in this file.
-const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go"]);
+const NAV_302_ROUTES = new Set(["/api/viator/go", "/api/commerce/go", "/api/events/reminder"]);
 // Image proxies loaded via <img> — including cross-origin OG/share-preview
 // crawlers (Facebook, Twitter, iMessage). A same-origin 403 would break every
 // shared-link image, so keep the per-IP rate limit (the real cost guard) but
