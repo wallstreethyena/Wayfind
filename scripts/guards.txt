@@ -2171,3 +2171,4 @@ node scripts/check-synthetic-map-contracts.mjs
 # 2026-10-13 spend pacing: daily forecast over every wf_spend_ledger row (OK/WARN/CAPPED), pulse
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
+node scripts/test-detail-open-once.mjs
