@@ -20,6 +20,7 @@ import { mapWfEditorial } from "../../../lib/editorialRule";
 import { cardToEditorial, resolveAtlasId, atlasCardForName } from "../../../lib/atlasCards";
 import { editorialNameCandidates } from "../../../lib/editorialLookup";
 import { approveCandidate } from "../../../lib/placeServable";
+import { guideDescriptionFor } from "../../../lib/guideDescriptionFills";
 
 export const dynamic = "force-dynamic";
 
@@ -115,7 +116,16 @@ export async function GET(req) {
     }
   }
 
-  if (!names.length) return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
+  // Last tier (2026-10-13): a reviewed guide-pick description for a place that
+  // holds nothing stronger. Looked up by the request's place_id only, never by
+  // name, and approved against the same live-status gate as every other tier.
+  // lib/guideDescriptionFills.js says what qualifies and why.
+  const guideFill = id ? guideDescriptionFor(id) : null;
+
+  if (!names.length) {
+    if (guideFill) return serve({ placeId: id, name: guideFill.name || rawName }, { editorial: guideFill, sources: guideFill.sources }, HEADERS);
+    return NextResponse.json({ none: true, count: EDITORIAL_COUNT }, { headers: HEADERS });
+  }
 
   // Tier 4: the 295 handwritten entries, keyed by name. The content is KEPT and
   // is what resolves the identity; it is simply withheld until that identity
@@ -125,5 +135,6 @@ export async function GET(req) {
     const e = editorialFor(n);
     if (e) return serve({ placeId: null, name: e.name || n }, { editorial: e }, HEADERS);
   }
+  if (guideFill) return serve({ placeId: id, name: guideFill.name || rawName }, { editorial: guideFill, sources: guideFill.sources }, HEADERS);
   return NextResponse.json({ none: true }, { headers: HEADERS });
 }

@@ -671,6 +671,10 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-sheet-card-actions:has(.wf-place-card-book){grid-template-columns:minmax(64px,.9fr) 42px 42px minmax(76px,1fr)}
 .wf-sheet-card-actions>.wf-place-card-book{grid-column:1/-1}
 .wf-sheet-card-actions:not(:has(.wf-place-card-like)){grid-template-columns:minmax(64px,1fr) minmax(76px,1fr)}
+.wf-place-card-remind{gap:4px;min-width:0!important}
+.wf-sheet-card-actions>.wf-place-card-remind{padding-inline:4px!important}
+.wf-place-card-remind>svg{width:13px;height:13px;flex:0 0 auto}
+.wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:minmax(0,.9fr) 38px 38px max-content minmax(0,1fr)}
 .wf-place-card.is-liked{border-color:rgba(76,224,179,.35)!important}
 .wf-place-card.is-disliked{border-color:rgba(248,113,113,.28)!important}
 @media(max-width:430px){
@@ -694,7 +698,52 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   .wf-sheet-card-actions>.wf-place-card-save{padding-inline:0!important}
   .wf-sheet-card-actions>a,.wf-sheet-card-actions>button,.wf-sheet-card-actions>span{min-width:0!important;padding-inline:4px!important;font-size:9.5px!important;overflow:hidden}
 }
-@media(min-width:${WF_DESKTOP_BP}px){
+` +
+// 2026-10-14 — ONE small-width law for every action label in a place card (production 320px measurements:
+// the Christmas and spooky partner CTAs "Tickets at Undercover Tourist ↗" and the event-page "↗ Share" were
+// truncated/clipped by 0.3-4.4px while only the unskinned CTA was ever measured, and that one with the wrong
+// font). The production face is Inter; at 320px the label text boxes are 148.48px (CTA, 9.5px), 147.28px
+// (spooky CTA incl. ghost, 9px) and 36.42px (Share) against content boxes of 147 / 147 / 32. Rules, all
+// <=340px, all fixed numbers (no JS, no hidden text, card box unchanged): (1) the CTA tightens its tracking
+// to 9px / -.3px for EVERY skin, and the spooky <=340 rule no longer sets its own font-size/letter-spacing, so
+// base, Christmas, fall, award and spooky share one set of numbers; (2) the Save/like/dislike/Share grid
+// gives the two thumb tracks back 1px each and the gaps 1px each, so Share's track grows from 36px to 41px, and
+// Share drops its 1px side padding and sets 9px type, so its content box grows from 32px to 39px and its label
+// shrinks to ~35px (CI's renderer drew it at 37.05px at 9.5px, under the 2px slack floor).
+// scripts/check-place-card-standard.mjs measures all of these variants at 320/375/390 with >=2px slack.
+`@media(max-width:340px){
+  .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-like){grid-template-columns:44px 25px 25px minmax(0,1fr);gap:3px!important}
+  .wf-place-card .wf-sheet-card-actions>.wf-place-card-share{padding-inline:0!important;font-size:9px!important}
+}
+`+
+// 2026-10-14 REMIND ME (owner: "add any dated event to your phone calendar"). Five controls cannot share one
+// line with a readable Share below ~335px: the action row is 153px wide at 320 (Save 44 + 3 thumb-sized tracks +
+// Share >=41), measured in Inter. So the law has two tiers, fixed numbers, no JS, and nothing the 4-control
+// standard card sees: (1) <=410px the bell is icon-only (aria-label "Remind me", the label hides) because the
+// labelled button leaves under 2px of slack at 375/390 (411px and wider keep the label), and <=520px the
+// five-control row uses the same compact type and tracks as the phone standard; (2) <=340px the row keeps the standard four tracks on
+// line one and the bell becomes a full-width second line with its label. Every other card is untouched.
+`@media(max-width:520px){
+  .wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:44px 26px 26px max-content minmax(0,1fr);gap:4px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>a,.wf-sheet-card-actions:has(.wf-place-card-remind)>button{padding-inline:4px!important;font-size:9.5px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-remind{padding-inline:5px!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-like,.wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-dislike{width:100%!important;min-width:0!important;padding-inline:0!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-save{padding-inline:0!important}
+  .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-share{padding-inline:1px!important}
+}
+@media(max-width:410px){
+  .wf-sheet-card-actions:has(.wf-place-card-remind),.wf-sheet-card-actions:has(.wf-place-card-book):has(.wf-place-card-remind){grid-template-columns:44px 26px 26px 26px minmax(0,1fr)}
+  .wf-sheet-card-actions>.wf-place-card-remind{padding-inline:0!important}
+  .wf-place-card-remind>.wf-remind-label{display:none}
+}
+@media(max-width:340px){
+  .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-remind){grid-template-columns:44px 25px 25px minmax(0,1fr);gap:3px!important}
+  .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-remind)>.wf-place-card-share{grid-column:4;grid-row:1;padding-inline:0!important;font-size:9px!important}
+  .wf-place-card .wf-sheet-card-actions>.wf-place-card-remind{grid-column:1/-1;grid-row:2;height:28px;min-height:28px;padding-inline:0!important;justify-content:center}
+  .wf-place-card .wf-sheet-card-actions>.wf-place-card-remind>.wf-remind-label{display:inline}
+}
+`+
+`@media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:${PLACE_CARD_MEDIA_DESKTOP_PX}px}
   .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:${PLACE_CARD_MEDIA_DESKTOP_PX}px!important}
   .wf-place-card-name{font-size:17px!important}
@@ -756,7 +805,7 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
   font-variant-emoji:text;
   transition:border-color .18s ease,background .18s ease;
 }
-@media(max-width:340px){.wf-rail-card-cta{padding-inline:2px}}
+@media(max-width:340px){.wf-rail-card-cta{padding-inline:2px;font-size:9px;letter-spacing:-.3px}}
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
 
 .wf-rail-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px;font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}
@@ -841,7 +890,7 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{position:relative;border:1.5px solid #B05CFF!important;border-radius:999px!important;background:linear-gradient(180deg,rgba(139,61,240,.32),rgba(74,22,144,.55))!important;color:#F3E8FF!important;box-shadow:inset 0 0 18px rgba(176,92,255,.35),0 0 10px rgba(176,92,255,.35)}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{gap:6px}
 .wf-place-card.wf-spooky-card .wf-spooky-ghost{font-size:13px;line-height:1;flex:none}
-@media (max-width:340px){.wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{gap:3px;padding-inline:2px}.wf-place-card.wf-spooky-card .wf-spooky-ghost{font-size:10px}.wf-place-card.wf-spooky-card .wf-rail-card-cta{font-size:9px;letter-spacing:-.2px}}
+@media (max-width:340px){.wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book,.wf-place-card.wf-spooky-card .wf-rail-card-cta{gap:3px;padding-inline:2px}.wf-place-card.wf-spooky-card .wf-spooky-ghost{font-size:10px}}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:before,.wf-place-card.wf-spooky-card .wf-rail-card-cta:before{content:"";position:absolute;left:14px;right:34px;top:-1px;height:12px;pointer-events:none;background:radial-gradient(5px 8px at 10% 0,#B05CFF 70%,transparent 72%),radial-gradient(4px 11px at 34% 0,#B05CFF 70%,transparent 72%),radial-gradient(5px 6px at 58% 0,#B05CFF 70%,transparent 72%),radial-gradient(4px 10px at 84% 0,#B05CFF 70%,transparent 72%)}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:after,.wf-place-card.wf-spooky-card .wf-rail-card-cta:after{content:"";position:absolute;right:0;top:0;width:28px;height:28px;opacity:.55;pointer-events:none;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 34' fill='none' stroke='%23E3C6FF' stroke-width='.8'%3E%3Cpath d='M34 0L4 30M34 0L14 34M34 0L0 18M34 0L26 34M34 0L0 6'/%3E%3Cpath d='M27 3Q30 7 31 10M20 6Q26 11 28 17M13 9Q21 16 24 26'/%3E%3C/svg%3E") no-repeat 0 0/100% 100%}
 .wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:hover,.wf-place-card.wf-spooky-card .wf-rail-card-cta:hover,.wf-place-card.wf-spooky-card .wf-place-card-actions>.wf-place-card-book:focus-visible,.wf-place-card.wf-spooky-card .wf-rail-card-cta:focus-visible{border-color:#D9B3FF!important;background:linear-gradient(180deg,rgba(139,61,240,.42),rgba(74,22,144,.65))!important}

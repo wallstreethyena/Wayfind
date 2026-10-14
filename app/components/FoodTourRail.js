@@ -23,6 +23,7 @@
 // a raw position, and no commission value is passed to this component at all — so
 // it cannot rank on one even by accident (lib/commerce.js rule 1, AGENTS.md §8).
 import { useEffect, useRef } from "react";
+import SafeImg from "./SafeImg";
 import { emitCommerce, commerceHref, rankBucket, mintClickId } from "../../lib/commerce";
 import { rankExperiences } from "../../lib/experiencesData";
 
@@ -130,7 +131,7 @@ export default function FoodTourRail({ offers, metro, surface = "cuisine_sheet" 
               style={{ display: "block", background: C.card, border: "1px solid " + C.border, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}
             >
               {t.image ? (
-                <img src={t.image} alt="" loading="lazy" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} />
+                <SafeImg src={t.image} alt="" loading="lazy" icon="🎟️" style={{ width: "100%", height: 96, objectFit: "cover", display: "block" }} />
               ) : null}
               <div style={{ padding: "9px 11px 11px" }}>
                 <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>

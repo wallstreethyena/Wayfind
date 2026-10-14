@@ -247,7 +247,7 @@ function leakSharedFallback() {
   // 2026-09-09: the photos SKU is authorized through spendAllowPhotos() (free
   // tier, or the owner's photo-only cap); it is still one atomic ledger grant
   // per outbound request and still refuses when the gate is shut.
-  ok(/spendAllowPhotos\(\s*\)/.test(code),
+  ok(/spendAllowPhotos(?:Detailed)?\(\s*\)/.test(code), // Detailed = the same photos gate, returning the refusal class (5fcb2d3)
     "/api/photo still spends only after spendAllowPhotos() — do not weaken the gate");
   ok(!/spendAllow\(\s*["']photos["']\s*\)/.test(code),
     "/api/photo must not fall back to the generic spendAllow(\"photos\") path (it would ignore the photo-only ceiling)");

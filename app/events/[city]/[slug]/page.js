@@ -28,6 +28,7 @@ import { WF_PLACE_CARD_CSS } from "../../../components/css.js";
 import ShareButton from "../../../components/ShareButton.js";
 import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
 import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
+import { eventJsonLdDates } from "../../../../lib/eventTime.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -144,7 +145,7 @@ async function EventListPage({ params }) {
       "@type": "ListItem", position: i + 1,
       item: {
         "@type": "Event", name: e.name,
-        startDate: e.time ? `${e.date}T${e.time.slice(0, 5)}` : e.date,
+        startDate: eventJsonLdDates(e).startDate,
         eventStatus: "https://schema.org/EventScheduled",
         url: e.destKind === "internal" ? `${CANON}${e.dest}` : e.dest,
         ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
@@ -262,7 +263,7 @@ export default async function EventPage({ params }) {
     "@context": "https://schema.org",
     "@type": "Event",
     name: e.name,
-    startDate: e.time ? `${e.date}T${e.time.slice(0, 5)}` : e.date,
+    startDate: eventJsonLdDates(e).startDate,
     eventStatus: cancelled ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
     ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
     ...(e.image ? { image: [e.image] } : {}),

@@ -35,6 +35,9 @@ if (!URL_ || !KEY) {
 }
 
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability } from "../lib/placePartnerPicks.js";
+import { placeIdentityIssues } from "../lib/placeIdentity.js";
+import { bucketMetro, PROMOTE_METROS } from "../lib/promoteIndex.js";
+import { findAreaTwins } from "../lib/areaTwins.js";
 
 // Documented allowances. These are CEILINGS on known, triaged debt — not targets.
 // Lowering them as the debt is paid is the point; raising one requires a human to
@@ -54,7 +57,7 @@ for (let from = 0; ; from += 1000) {
     // v8.99: `excluded=true` rows are skipped by the read path (lib/inventoryServe)
     // and by retirement (status=EXCLUDED), so this guard measures what can SERVE,
     // the same population the user sees — not rows already taken off the board.
-    `${URL_}/rest/v1/wf_inventory?select=place_id,name,metro,lat,lng,primary_type,category,photo_ref,status,signals&status=eq.OPERATIONAL&excluded=not.is.true`,
+    `${URL_}/rest/v1/wf_inventory?select=place_id,name,metro,lat,lng,locality,county,primary_type,category,photo_ref,status,signals&status=eq.OPERATIONAL&excluded=not.is.true`,
     { headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, Range: `${from}-${from + 999}` } }
   );
   if (!r.ok) { console.error(`check-inventory-integrity: FAIL — Supabase ${r.status}`); process.exit(1); }
@@ -96,6 +99,17 @@ for (const [k, g] of groups) {
 ok(split.length <= MAX_SPLIT_VENUE_GROUPS,
   `${split.length} venues are stored as multiple records under 800m apart — one place will render as several cards: ${split.slice(0, 5).join("; ")}`);
 
+// 2b. Generic district/area pins stored twice under differently-punctuated names
+// ("Downtown Winter Haven" vs "Downtown, Winter Haven, Fl", 87m, different Google
+// types). Check 2 groups on the exact name and python duplicates() needs the same
+// category, so neither sees it. REPORT-ONLY by design: a human reviews each pair and
+// ships a reversible soft-exclusion migration. Never fails the build, never merges.
+const areaTwins = findAreaTwins(rows);
+if (areaTwins.length) {
+  console.log(`check-inventory-integrity: NOTE - ${areaTwins.length} generic area pin(s) look stored twice (review, do not auto-merge): ` +
+    areaTwins.slice(0, 8).map((t) => `${t.stronger.name} [${t.stronger.place_id}] ~ ${t.weaker.name} [${t.weaker.place_id}] ${t.meters}m`).join("; "));
+}
+
 // 3. Things that are not destinations.
 const junk = rows.filter((r) => r.primary_type && NON_DESTINATION.test(r.primary_type));
 ok(junk.length <= MAX_NON_DESTINATION,
@@ -107,6 +121,24 @@ ok(junk.length <= MAX_NON_DESTINATION,
 const miscat = rows.filter((r) => r.category === "beach" && ["tourist_attraction", "point_of_interest", "establishment", "park"].includes(r.primary_type));
 ok(miscat.length === 0,
   `${miscat.length} rows are category='beach' but typed as a broad parent — the provider's superset is overriding our own classification: ${miscat.slice(0, 5).map((r) => r.name).join(", ")}`);
+
+// 4b. IDENTITY IS NOT COVERAGE (statewide audit 2026-10-14). A St. Petersburg
+// place labeled 'tampa' gets called Tampa; an unknown label like
+// 'st-petersburg' is read by no surface at all. lib/placeIdentity.js holds the
+// rules; scripts/check-place-identity-contract.mjs proves them on fixtures.
+{
+  const id = placeIdentityIssues(rows, bucketMetro, { stPeteMaxLat: PROMOTE_METROS["st-pete"].maxLat });
+  ok(id.tampaLabelInStPeteBox.length === 0,
+    `${id.tampaLabelInStPeteBox.length} OPERATIONAL rows are labeled metro='tampa' but sit in the St. Pete box (they belong to 'st-pete'; Tampa Bay surfaces still read both): ${id.tampaLabelInStPeteBox.slice(0, 5).map((r) => r.name).join(", ")}`);
+  ok(id.tampaLabelInSouthPinellas.length === 0,
+    `${id.tampaLabelInSouthPinellas.length} OPERATIONAL rows are in Pinellas County south of the St. Pete box's north edge but labeled metro='tampa' (box overlap; they belong to 'st-pete'): ${id.tampaLabelInSouthPinellas.slice(0, 5).map((r) => r.name).join(", ")}`);
+  ok(id.nonCanonicalLabel.length === 0,
+    `${id.nonCanonicalLabel.length} rows carry a non-canonical metro label no reader knows (e.g. 'st-petersburg' instead of 'st-pete'): ${id.nonCanonicalLabel.slice(0, 5).map((r) => `${r.name} [${r.metro}]`).join(", ")}`);
+  ok(id.localityIsSlug.length === 0,
+    `${id.localityIsSlug.length} rows store a slug as their city name (locality is the real place name, e.g. 'St. Petersburg'): ${id.localityIsSlug.slice(0, 5).map((r) => `${r.name} [${r.locality}]`).join(", ")}`);
+  ok(id.countyHasSuffix.length === 0,
+    `${id.countyHasSuffix.length} rows store a county with a 'County' suffix (stored as 'Pinellas', not 'Pinellas County'): ${id.countyHasSuffix.slice(0, 5).map((r) => `${r.name} [${r.county}]`).join(", ")}`);
+}
 
 // 5. A STATIC PIN WHOSE PRODUCT LEFT THE CATALOGUE. This is the credentialed
 // half of scripts/check-pinned-offer-serveable.mjs, and it is the reason that

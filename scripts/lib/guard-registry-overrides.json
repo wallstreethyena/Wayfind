@@ -544,6 +544,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-ledger-failure-classes.mjs": {
+    "protects": "A photo refused by the spend ledger is recorded under the reason it was refused (ledger-cap, ledger-timeout, ledger-http, ledger-unconfigured), takeFromLedgerDetailed names granted/cap/timeout/http/unconfigured/invalid from an executed stubbed fetch with exactly one call and no retry, and the resolver threads the reason to the outcome class.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression would again count ledger timeouts and RPC errors as budget refusals (41-92 a day against 3,303 of 10,000 used), hiding an operational failure behind a healthy-looking cap, or a retry would double-grant paid photo spend."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-photo-spend-efficiency.mjs": {
     "protects": "One paid Google photo call per photo: card requests at every width fold onto one canonical fetch and cache key, concurrent requests for the same ref singleflight onto one grant, a stale or HTTP-400 skip self-heal never spends a second grant on the follow URL for the same dead name, an owned-miss whose upstream can never change on retry is negative-cached for 24h, and spendAllowPhotos refuses to spend outside VERCEL_ENV=production unless explicitly overridden.",
     "blastRadius": {
@@ -704,6 +712,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-redirect-host-classification.mjs": {
+    "protects": "Every host /api/commerce/go can emit (provider destination hosts, tracking-network trackHosts, Travelpayouts tp.st / <brand>.tpx.lu shortLinkHosts) is classified attributed by lib/commerceProviders.js isAttributedRedirectHost, for all registry offers; the synthetic book-links monitor uses that same function with no second host list; our own host and look-alikes (tpx.lu.evil.com, bare tpx.lu) stay unclassified. Executed with positive and negative controls.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-14: the production synthetic book-links check went red on a correct attributed redirect (klook.tpx.lu with sub_id) because its allowlist held only destination hosts; it only passed while the first Book link was Viator. A monitor that cannot recognise the attributed path pages as a false revenue outage and, worse, trains people to ignore the real one."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-menu-partner-offers.mjs": {
     "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) \u2014 the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places \u2014 carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
     "blastRadius": {
@@ -837,6 +853,14 @@
     "blastRadius": {
       "category": "revenue",
       "detail": "October 2026 capped five metered rows in the first 8 days (details_enterprise, details_pro, provider_viator, anthropic_requests, events_ticketmaster) and nothing warned until user paths degraded; without this guard the early-warning cron can silently stop forecasting or stop paging."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-photo-same-origin-spend.mjs": {
+    "protects": "The paid Google photo lane (s=detail, or s=card&fmt=json) is reachable only from a page-originated request (Sec-Fetch-Site same-origin/same-site, or the x-wayfind-photo-surface header when Sec-Fetch-Site is absent); cross-site and scripted hits take zero ledger grants, still get free photos, and miss as not-page-request.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A bare URL could previously buy Google photos against the 10,000 monthly cap; without this guard a scripted caller can drain the photo budget and blank real cards."
     },
     "owner": "Revenue QA"
   }

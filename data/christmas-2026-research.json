@@ -136,7 +136,7 @@
   "evidence_quote": "Performances are held nightly, with multiple showtimes to give guests plenty of opportunities to experience this inspiring classic.",
   "notes": "Narrators and dining package details published in a separate Disney Parks Blog post not read here. Standby seating is first come.",
   "id": "epcot-candlelight-2026",
-  "place_id": null,
+  "place_id": "ChIJGxKPmqh_3YgRj80j5HlD-rA",
   "coord_approx": false
  },
  {
@@ -227,7 +227,7 @@
   "evidence_quote": "From November 13 through January 6, 2027, get ready to deck the halls as Walt Disney World comes to life with Christmas decor",
   "notes": "Merry Menagerie and Tree of Life Awakenings at Animal Kingdom are folded into this row; the page read did not give its own dates for them. Animal Kingdom specifics not individually verified.",
   "id": "wdw-holiday-season-2026",
-  "place_id": null,
+  "place_id": "ChIJgUulalN-3YgRGoTaWM2LawY",
   "coord_approx": false
  },
  {
@@ -960,7 +960,7 @@
   "evidence_quote": "Friday, December 04, 2026 | 05:30 PM - 09:30 PM",
   "notes": "",
   "id": "lake-eola-tree-lighting-2026",
-  "place_id": null,
+  "place_id": "ChIJu3hNU-N654gR0x0I9_3iNvc",
   "coord_approx": false
  },
  {
@@ -1052,7 +1052,7 @@
   "evidence_quote": "Opening November 27, 2026, and running through December 31",
   "notes": "",
   "id": "frontyard-holiday-festival-2026",
-  "place_id": null,
+  "place_id": "ChIJ-7QCIgJ754gRcfF7EG3N1Xs",
   "coord_approx": false
  },
  {
@@ -1141,7 +1141,7 @@
   "evidence_quote": "2:30PM, Saturday, November 28, 2026 Dr. Phillips Center \u2013 Steinmetz Hall",
   "notes": "",
   "id": "orlando-phil-fierce-holiday-2026",
-  "place_id": null,
+  "place_id": "ChIJ001Ra3p754gRq1bFeHUUxXY",
   "coord_approx": false
  },
  {
@@ -1229,7 +1229,7 @@
   "evidence_quote": "6:00PM, Sunday, December 6, 2026 Central Park in Winter Park",
   "notes": "",
   "id": "holiday-pops-winter-park-2026",
-  "place_id": null,
+  "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
   "coord_approx": false
  },
  {
@@ -1322,7 +1322,7 @@
   "evidence_quote": "December 4, 2026 | 5:00 PM - 9:00 PM | Central Park",
   "notes": "Free per third party listing; official page text did not state price in the snippet read.",
   "id": "winter-on-the-avenue-2026",
-  "place_id": null,
+  "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
   "coord_approx": false
  },
  {
@@ -1415,7 +1415,7 @@
   "evidence_quote": "Dec 3, 2026 at 6:15pm - 8:30pm (Thu)",
   "notes": "Date confirmed by Morse 2026 to 2027 season summary (third party relaying museum). Free is inferred from a long running public park event; verify.",
   "id": "morse-christmas-in-the-park-2026",
-  "place_id": null,
+  "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
   "coord_approx": false
  },
  {
@@ -1460,7 +1460,7 @@
   "evidence_quote": "Holiday magic returns to Park Avenue beginning November 27.",
   "notes": "Page says beginning November 27; confirm year. Start Nov 27 not entered because the page is undated.",
   "id": "holidays-on-park-2026",
-  "place_id": null,
+  "place_id": "ChIJ3TSFiBBw54gRM5repItsIWI",
   "coord_approx": false
  },
  {
@@ -3890,7 +3890,7 @@
   "evidence_quote": "Select Days, Nov. 20, 2026 - Jan. 16, 2027 | 6:30 p.m., 7:00 p.m., & 7:30 p.m.",
   "notes": "Page text has a year typo for the end date; the event headline says Jan. 16, 2027.",
   "id": "lighthouse-illuminations-2026",
-  "place_id": null,
+  "place_id": "ChIJS3j7AnEn5IgRj0GbuJwbvpg",
   "coord_approx": false
  },
  {
@@ -8102,7 +8102,7 @@
   "evidence_quote": "Saturday, Nov 21, 2026 3 - 8 p.m. | Downtown Ocala Lighting ceremony begins at 6 p.m.",
   "notes": "Shuttle info on city page. Square address 1 SE Broadway St. Existing master.json lead covered Ocala parade separately.",
   "id": "ocala-light-up-ocala-2026",
-  "place_id": null,
+  "place_id": "ChIJ4aH4U0bV54gR9HE5r_NLsTM",
   "coord_approx": false
  },
  {
@@ -19612,7 +19612,7 @@
   "evidence_quote": "Join us for the Lakewood Ranch Holiday of the Arts on December 5th-6th, 2026, on Main Street in downtown Lakewood Ranch, FL.",
   "notes": "Admission free per Paragon Festivals listing.",
   "id": "lwr-holiday-of-the-arts-2026",
-  "place_id": null,
+  "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
   "coord_approx": true
  },
  {
@@ -19658,7 +19658,7 @@
   "evidence_quote": "Saturday, December 19th @ 4:00PM - 8:00PM Sunday, December 20th @ 4:00PM - 8:00PM",
   "notes": "Page shows no year; weekdays match 2026 (Dec 19 is a Saturday). Note the page was first published 2024.",
   "id": "lwr-christmas-on-main-2026",
-  "place_id": null,
+  "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
   "coord_approx": true
  },
  {
@@ -20306,7 +20306,7 @@
   "evidence_quote": "The 48th Annual Holiday Night of Lights will magically transform St. Armands Circle ... 5:30pm",
   "notes": "Existing row re-verified; promote to confirmed_dated once Dec 4 is read on the official page or City of Sarasota listing (city listing shows 2025 edition Dec 5, 2025).",
   "id": "st-armands-holiday-night-of-lights-2026",
-  "place_id": null,
+  "place_id": "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8",
   "coord_approx": false
  },
  {
@@ -20402,7 +20402,7 @@
   "evidence_quote": "Holidays at UTC 2026 November 14 - January 03",
   "notes": "Existing row re-verified. Child rows: parade, rink, circus.",
   "id": "utc-holidays-2026",
-  "place_id": null,
+  "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
   "coord_approx": false
  },
  {
@@ -20493,7 +20493,7 @@
   "evidence_quote": "Lace up and glide into wintertime fun on a real outdoor ice rink presented by Tampa Bay Lightning.",
   "notes": "",
   "id": "utc-rink-2026",
-  "place_id": null,
+  "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
   "coord_approx": false
  },
  {
@@ -20538,7 +20538,7 @@
   "evidence_quote": "Experience an all-new holiday spectacular from Nik Wallenda, filled with daring acts, wonder and family fun.",
   "notes": "Setting field set to unannounced text; treat as mixed until published.",
   "id": "utc-wonderland-circus-2026",
-  "place_id": null,
+  "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
   "coord_approx": false
  },
  {
@@ -21416,7 +21416,7 @@
   "evidence_quote": "The Siesta Key Holiday Parade returns Saturday, November 28 ... Parade begins at 5:30 PM",
   "notes": "Crystal Classic sandcastle event is not Christmas.",
   "id": "siesta-key-holiday-parade-2026",
-  "place_id": null,
+  "place_id": "ChIJK1nJH9xrw4gRIr9IhuzYVQI",
   "coord_approx": false
  },
  {
@@ -22744,7 +22744,7 @@
   "evidence_quote": "Settle in for Santa's arrival during our magical Tropical Holiday Parade and Annual Tree Lighting. Saturday, December 5 10AM-8PM",
   "notes": "Car and truck show admission free per a third party guide; sub-times from third party. Hertz Arena and other Estero holiday offerings: none found.",
   "id": "coconut-point-tropical-holiday-celebration-2026",
-  "place_id": null,
+  "place_id": "ChIJ54VrbhEX24gRM9qiRvpFv_8",
   "coord_approx": false
  },
  {
@@ -25151,7 +25151,7 @@
   "evidence_quote": "2026 Tampa's Santa Fest Parade ... Saturday, December 5, 2026 ... Parade begins at 1:00pm; Santa Fest begins at 1:00pm in Curtis Hixon Waterfront Park",
   "notes": "Best viewing on Madison Street per 2025 city page; route Morgan/Madison to Ashley and Cass. Free per third party listings, official 2026 page not yet posted; city permit packet confirms date.",
   "id": "tampa-santa-fest-parade-tree-lighting-2026",
-  "place_id": null,
+  "place_id": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
   "coord_approx": false
  },
  {
@@ -25292,7 +25292,7 @@
   "evidence_quote": "one-night only festive experience that begins at 5 PM on Thursday, November 12th and ends at 9 PM",
   "notes": "Twinned with Winter Wonder Wharf at Sparkman Wharf same night.",
   "id": "water-street-season-spectacular-2026",
-  "place_id": null,
+  "place_id": "ChIJy66Xe53FwogRcpjZQHX4cCI",
   "coord_approx": false
  },
  {
@@ -25742,7 +25742,7 @@
   "evidence_quote": "Saturday, December 12th, 2026 8PM - 3AM",
   "notes": "Age limit not read; treat as adults.",
   "id": "hallucination-before-christmas-castle-ybor-2026",
-  "place_id": null,
+  "place_id": "ChIJw3ZLa1DEwogR3B-B1fQW7UM",
   "coord_approx": false
  },
  {
@@ -25928,7 +25928,7 @@
   "evidence_quote": "Sunday, December 13, 2026 ... Boards: 12:00 PM, Cruises: 12:30 PM - 2:30 PM",
   "notes": "",
   "id": "yacht-starship-tampa-santa-brunch-cruise-2026",
-  "place_id": null,
+  "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
   "coord_approx": false
  },
  {
@@ -25973,7 +25973,7 @@
   "evidence_quote": "Thursday, December 24, 2026 5:30 PM - 7:30 PM ... Boards: 5:00 PM",
   "notes": "",
   "id": "yacht-starship-tampa-christmas-eve-dinner-2026",
-  "place_id": null,
+  "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
   "coord_approx": false
  },
  {
@@ -26019,7 +26019,7 @@
   "evidence_quote": "Saturday, December 19, 2026 ... Boards: 4:30 PM, Cruises: 5:00 PM - 7:30 PM",
   "notes": "Cruise ends 7:30 PM while the parade page lists 6:15 to 8:30 PM; confirm timing.",
   "id": "yacht-starship-tampa-boat-parade-dinner-cruise-2026",
-  "place_id": null,
+  "place_id": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
   "coord_approx": false
  },
  {
@@ -26342,7 +26342,7 @@
   "evidence_quote": "Saturday, November 14, 2026 ... Santa's arrival, drone show, holiday market",
   "notes": "More than 300,000 lights per the market listing.",
   "id": "wiregrass-symphony-in-lights-2026",
-  "place_id": null,
+  "place_id": "ChIJHWXmMdewwogRk8JI-PK3rS0",
   "coord_approx": false
  },
  {
@@ -27648,10 +27648,10 @@
   "other_sources": [
    "https://www.visitstpeteclearwater.com/event/holiday-lights-gardens/43201"
   ],
-  "last_checked": "2026-10-13",
+  "last_checked": "2026-10-14",
   "start_date": "2026-11-27",
-  "end_date": "2027-01-03",
-  "schedule": "nightly Nov 27 2026 to Jan 3 2027 (one line on the page says Jan 2; tourism listing says Jan 2)",
+  "end_date": "2027-01-02",
+  "schedule": "nightly Nov 27 2026 to Jan 2 2027 (the page header says Jan 3, but its Nightly Illumination schedule says Jan 2 and its sponsor section counts 37 nights, Nov 27 to Jan 2)",
   "times": "5:30 PM to 9:30 PM ET",
   "overnight": false,
   "timed_entry": false,
@@ -27669,7 +27669,7 @@
   "setting": "outdoor",
   "why": "More than a million lights, laser projections and live music across a 100 acre botanical garden.",
   "missing": null,
-  "evidence_quote": "Dates Nov 27, 2026 - Jan 3, 2027 5:30-9:30 PM nightly ... Over a million twinkling lights",
+  "evidence_quote": "Nightly Illumination Dates Nov 27, 2026 \u2013 Jan 2, 2027 Daily Hours 5:30 PM \u2014 9:30 PM ... Reach 80,000+ visitors across 37 nights of the holiday season",
   "notes": "",
   "id": "florida-botanical-gardens-holiday-lights-2026",
   "place_id": null,
@@ -28485,7 +28485,7 @@
   "evidence_quote": "Saturday, December 5, 2026 (3:00 PM - 8:00 PM) (EST)",
   "notes": "",
   "id": "palm-harbor-christmas-parade-tree-lighting-2026",
-  "place_id": null,
+  "place_id": "ChIJPYY9yxPzwogRhFOrmxJ1BLY",
   "coord_approx": false
  },
  {
@@ -32787,7 +32787,7 @@
   "evidence_quote": "Christmas Brunch at The Pink Palace 2026",
   "notes": "Page title is '2026 Holiday Events'. Gingerbread or tree displays at the Don CeSar were not verified.",
   "id": "doncesar-christmas-brunch-2026",
-  "place_id": null,
+  "place_id": "ChIJWYpZXd0Dw4gRqkbKuCLcZAE",
   "coord_approx": false
  },
  {
@@ -34100,7 +34100,7 @@
   "evidence_quote": "Nov 20, 2026 \u2013 Jan 3, 2027, select nights.",
   "notes": "Seventh year per Orlando Real.",
   "id": "dazzlingnights-leu-2026",
-  "place_id": null,
+  "place_id": "ChIJCRCYGrx654gR3G9qoVbWlpY",
   "coord_approx": false
  },
  {

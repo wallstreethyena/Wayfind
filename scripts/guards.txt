@@ -335,6 +335,7 @@ node scripts/check-editorial-publish.mjs
 node scripts/check-editorial-publish-symmetry.mjs
 node scripts/check-editorial-read-gate.mjs
 node scripts/test-editorial-endpoint-servable.mjs
+node scripts/test-guide-description-fills.mjs
 node scripts/test-atlas-editorial-row.mjs
 node scripts/test-atlas-extract.mjs
 node scripts/check-no-disney-sources.mjs
@@ -484,6 +485,7 @@ node scripts/check-quota-reservation.mjs
 node scripts/check-commerce-events.mjs
 node scripts/test-provider-health.mjs
 node scripts/check-cuisine-sheet.mjs
+node scripts/check-tampa-bay-region.mjs
 node scripts/check-commerce-redirect.mjs
 node scripts/test-card-analytics.mjs
 node scripts/check-clipp-deals.mjs
@@ -769,6 +771,7 @@ node scripts/check-event-price-fact.mjs
 # Events without their own photo show a designed category tile, never stock;
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs
+node scripts/check-event-approximate-location.mjs
 # The Events list mounts a page at a time; every event stays reachable.
 node scripts/check-events-paged-list.mjs
 
@@ -1203,6 +1206,9 @@ node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
 node scripts/check-christmas-rails.mjs
 node scripts/check-christmas-research.mjs
+node scripts/check-christmas-browse-credit.mjs
+node scripts/check-christmas-card-photo-slot.mjs
+node scripts/check-christmas-venue-matches.mjs
 node scripts/check-guide-in-rail.mjs
 # 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
 # classification law the discovery pipeline and the registry re-verification
@@ -1219,6 +1225,7 @@ node scripts/check-event-ticket-deals.mjs
 node scripts/check-event-ticket-fallback.mjs
 node scripts/check-affiliate-coverage.mjs
 node scripts/check-no-product-review.mjs
+node scripts/check-redirect-host-classification.mjs
 node scripts/check-partner-path-health.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
@@ -1275,6 +1282,8 @@ node scripts/check-card-photo-error-fallback.mjs
 # injected deps — no network, no lib/spendGate.js import anywhere in this
 # lane, no occurrence of "places.googleapis.com".
 node scripts/test-photo-protection.mjs
+# 2026-10-15: wf_photo_purchase observe-only log: allowed-keys-only body, day-salted hash, fail-soft, !probe scoping in the route.
+node scripts/test-photo-purchase-log.mjs
 node scripts/test-photo-repair-deadline.mjs
 node scripts/test-today-discovery-rails.mjs
 # 2026-09-02 — Night Out pool starvation (owner screenshot, Parrish): an
@@ -1536,6 +1545,7 @@ node scripts/check-migration-apply-canonical-path.mjs
 # Every migration from 2026-09-29 on must carry an applied receipt or a declared
 # pending decision (2026-10-07: #1636 merged five unapplied migrations silently).
 node scripts/check-migration-receipts.mjs
+node scripts/check-held-migrations.mjs
 
 node scripts/test-known-city-geocode.mjs
 
@@ -2042,6 +2052,9 @@ node scripts/test-photo-credits.mjs
 # received, tied to the exact fetched photo name (2026-10-01).
 node scripts/test-photo-credit-capture.mjs
 node scripts/test-card-photo-viewer.mjs
+# Every image slot ends in a verified photo or the shared fallback tile: executes getPlacePhoto, railPhotoSrc,
+# CardPhoto, SafeImg and FallbackImg across the outcome matrix in Chromium (2026-10-14).
+node scripts/test-image-health.mjs
 node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
@@ -2062,6 +2075,7 @@ node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
+node scripts/test-ledger-failure-classes.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
 node scripts/test-photo-monitor-cold-rate.mjs
@@ -2112,6 +2126,8 @@ node scripts/test-event-recovery.mjs
 node scripts/test-lane-lock-ownership.mjs
 # Relevant visual guide discovery
 node scripts/test-guide-discovery.mjs
+# 2026-10-13 owner: a shared venue alone never qualifies a guide for an unrelated rail (Birthday Freebies on Breakfast, Parrish things-to-do on Eat). Explicit rail->topic table, lib/guideRailTopics.js.
+node scripts/check-guide-rail-relevance.mjs
 # Score receipts and independently gated source verdicts (PR #1145 current-main adaptation)
 node scripts/test-score-explanation.mjs
 # Current-main backend residual runtime controls (#1285/#1272).
@@ -2121,6 +2137,9 @@ node scripts/test-viator-provider-state.mjs
 # Complete owned Apple viewport map and current-standard Family Day expansion.
 node scripts/test-apple-explorer-map.mjs
 node scripts/test-map-area-data.mjs
+# 2026-10-14 — source-aware map coordinates (Google 30d window vs independent sources),
+# no timestamp-bump extension of Google content, list/map parity accounting. Self red-proves.
+node scripts/test-coord-provenance.mjs --red-prove
 node scripts/test-family-day-presentation.mjs
 node scripts/test-map-family-layout.mjs
 
@@ -2181,3 +2200,31 @@ node scripts/check-synthetic-map-contracts.mjs
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
+# 2026-10-09 event JSON-LD startDate/endDate carry the event's own UTC offset (Central Panhandle vs Eastern, DST-aware).
+node scripts/check-event-jsonld-offset.mjs
+node scripts/test-photo-inventory-audit.mjs
+node scripts/check-place-identity-contract.mjs
+
+# Remind me (2026-10-14, owner: "add a reminder to the person's phone about the event because i would forget
+# ... and ask the user when they would like to be reminded."): a dated event gets a Remind me button
+# (rail cards, browse, event page) that opens a sheet asking which night and when, then downloads a
+# calendar invite (GET /api/events/reminder) with one alert at that time. The builder test executes the ICS
+# (alarm instants across the Nov 1 2026 change, Jan 2027, folding, escaping, /api/<x>/go ticket link,
+# undated refused), the route test asserts on response bodies and headers (200, 400s, 404, 410 for a canceled
+# or postponed event, 503, the stable sha256 UID), the render test renders the button and sheet on Fall,
+# Halloween and Christmas cards, the facts test runs real Fall, Halloween, Christmas and Panhandle rows
+# (DST, called off, past, undated, already started) through lib/eventReminderFacts.js, and the ics test
+# parses every file the route serves with python icalendar and vobject (it says "REAL PARSER NOT RUN"
+# where that is not installed; pass --require-parser where it is). Hermetic. Red-proven by mutation.
+node scripts/test-event-reminder.mjs
+node scripts/test-event-reminder-facts.mjs
+node scripts/test-event-reminder-route.mjs
+node scripts/test-event-reminder-render.mjs
+node scripts/test-event-reminder-ics.mjs
+node scripts/test-photo-same-origin-spend.mjs
+node scripts/test-photo-recovered-evidence.mjs
+node scripts/test-photo-visitor-cap.mjs
+node scripts/test-image-publication-gate.mjs
+node scripts/check-new-content-images.mjs
+node scripts/check-christmas-photo-provenance.mjs
+node scripts/test-area-twins.mjs

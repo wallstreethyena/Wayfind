@@ -41,10 +41,14 @@
 // red for each, then the source was restored and this file confirmed green
 // again. See the PR/session notes for the full mutation list.
 import { readFileSync } from "node:fs";
+// Mirrors lib/placePhotoServe.js: an authorizer answers a boolean or { ok, reason }.
+const grantedOf = (g) => (g && typeof g === "object" ? !!g.ok : !!g);
 import { findFreePhoto, selectFreePhotoRow, preferPermittedRow } from "../lib/freePhoto.js";
-import { gateShut, spendAllow, spendAllowPhotos } from "../lib/spendGate.js";
+import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } from "../lib/spendGate.js";
+import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } from "../lib/placePhotoServe.js";
 import { isAutomatedPhotoReader } from "../lib/crawler.js";
+import { creditedRequest } from "../lib/apiGuard.js";
 
 let failures = 0;
 const ok = (condition, message) => {
@@ -227,7 +231,13 @@ async function sourceRoute(routeSource) {
     const gateShut = (...a) => globalThis.__wfFreePhotoTest.gateShut(...a);
     const spendAllow = (...a) => globalThis.__wfFreePhotoTest.spendAllow(...a);
     const spendAllowPhotos = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotos(...a);
+    const spendAllowPhotosDetailed = (...a) => globalThis.__wfFreePhotoTest.spendAllowPhotosDetailed(...a);
+    const ledgerOutcomeClass = (...a) => globalThis.__wfFreePhotoTest.ledgerOutcomeClass(...a);
     const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
+    const creditedRequest = (...a) => globalThis.__wfFreePhotoTest.creditedRequest(...a);
+    // visitor ceiling + purchase log: hermetic no-ops here (covered by test-photo-visitor-cap / test-photo-purchase-log)
+    const bucketHash = () => null;
+    const takeVisitorToken = async () => ({ ok: true, reason: "test-noop" });
   `;
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 }
@@ -238,11 +248,14 @@ async function sourceRoute(routeSource) {
 globalThis.__wfFreePhotoTest = {
   FALLBACK_PATH,
   isAutomatedPhotoReader, // real UA rule (lib/crawler.js): automated readers never buy
+  creditedRequest, // real page-origin rule (lib/apiGuard.js)
   PHOTO_REF_RX,
   placeIdFromRef,
   gateShut,
   spendAllow,
   spendAllowPhotos,
+  spendAllowPhotosDetailed,
+  ledgerOutcomeClass,
   resolvePlacePhoto: null, // set per-scenario
   findSamePlaceCachedPhoto: null, // set per-scenario
   findFreePhoto: null, // set per-scenario
@@ -316,7 +329,7 @@ function standardResolve() {
     if (input.gateShut) return miss("gate-shut", input);
     if (!input.serverKey) return miss("unconfigured", input);
     if (input.probe) return miss("probe-no-spend", input);
-    const allowed = await input.authorizeSpend("photos");
+    const allowed = grantedOf(await input.authorizeSpend("photos"));
     if (!allowed) return miss("spend-denied", input);
     return { type: "redirect", location: "https://lh3.googleusercontent.com/p/real-google-photo", cacheControl: "public, max-age=2592000, s-maxage=2592000, immutable", reason: "google" };
   };
@@ -328,7 +341,7 @@ function standardResolve() {
 // (a separate, already-locked question — see check-spend-guard.mjs).
 function detailsOnlyResolve() {
   return async (input) => {
-    const allowed = await input.authorizeSpend("details_ids_only");
+    const allowed = grantedOf(await input.authorizeSpend("details_ids_only"));
     return { type: "miss", location: null, cacheControl: "private, no-store", reason: allowed ? "unconfigured" : "spend-denied", ref: input.ref, __detailsAllowed: allowed };
   };
 }

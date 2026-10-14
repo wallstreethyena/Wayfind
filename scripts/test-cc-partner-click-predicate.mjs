@@ -5,7 +5,7 @@
  * (2026-10-02, analytics reconciliation).
  *
  * supabase/command-center.sql is the full definition; production receives it
- * through supabase/migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql
+ * through supabase/held-migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql
  * (owner-applied with scripts/apply-migration.mjs). If the two drift, production
  * silently runs something nobody reviewed, so:
  *
@@ -32,7 +32,7 @@
 import { readFileSync } from "node:fs";
 import { OUT_ACTIONS } from "../lib/commandCenter/eventMap.js";
 
-const MIG = "supabase/migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql";
+const MIG = "supabase/held-migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql";
 const read = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8");
 const strip = (s) => s.replace(/^\s*--[^\n]*$/gm, "");
 const full = read("supabase/command-center.sql");

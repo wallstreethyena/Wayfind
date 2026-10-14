@@ -297,20 +297,34 @@ export function partitionRailCards(cards, expectedPlaceIds) {
   const guides = [];
   const placeCards = [];
   const unidentified = [];
+  // The guide slot is "third card of THE RAIL THE GUIDE RIDES IN" (lib/
+  // railGuideSlot.js), not third of the poster. A composed poster (Eat,
+  // Breakfast) is several rails, so `cards` (every card under the poster, DOM
+  // order) is bucketed by each card's own `rail` (its nearest [data-rail]) and
+  // the index is taken inside that bucket. Synthetic run 2026-10-14: Eat's guide
+  // sat correctly third in its own later rail and was read as "index 8" because
+  // the old check indexed the flattened list. A card with no `rail` shares one
+  // anonymous bucket, which is the old single-rail behaviour.
+  const railOf = (card) => String(card?.rail ?? "");
+  const railLength = new Map();
+  const railPosition = new Map();
+  list.forEach((card) => railLength.set(railOf(card), (railLength.get(railOf(card)) || 0) + 1));
   list.forEach((card, index) => {
+    const rail = railOf(card);
+    const indexInRail = railPosition.get(rail) || 0;
+    railPosition.set(rail, indexInRail + 1);
     const guideId = asId(card?.guideId);
     const id = asId(card?.id);
-    if (guideId && !id) guides.push({ guideId, matchedId: asId(card?.matchedId), index });
+    if (guideId && !id) guides.push({ guideId, matchedId: asId(card?.matchedId), index, rail, indexInRail, railLength: railLength.get(rail) });
     else if (id) placeCards.push({ id, name: card?.name });
     else unidentified.push(asName(card?.name) || "(unnamed card)");
   });
-  const slot = Math.min(2, Math.max(0, list.length - 1));
   return {
     placeCards,
     guides,
     unidentified,
     guideCount: guides.length,
-    guideMisplaced: guides.filter((g) => g.index !== slot).map((g) => g.guideId),
+    guideMisplaced: guides.filter((g) => g.indexInRail !== Math.min(2, Math.max(0, g.railLength - 1))).map((g) => g.guideId),
     guideUnmatched: guides.filter((g) => !g.matchedId || !expected.has(g.matchedId)).map((g) => g.guideId),
   };
 }

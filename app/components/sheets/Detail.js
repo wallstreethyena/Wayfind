@@ -812,7 +812,7 @@ export default function DetailSheet({ ctx }) {
                 <div style={{ position: "relative" }}>
                   <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg key={src} src={src} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                      <FallbackImg key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                   </div>
                   {galleryPhotos.length > 1 && (
@@ -828,7 +828,7 @@ export default function DetailSheet({ ctx }) {
                   )}
                 </div>
               ) : (
-                <FallbackImg src={heroSrc} icon={detail._event ? "🎟️" : "🍽️"} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: heroSrc ? "zoom-in" : "default" }} />
+                <FallbackImg src={heroSrc} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: heroSrc ? "zoom-in" : "default" }} />
               )}
               <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "48px 18px 15px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)", pointerEvents: "none" }}>
                 {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}

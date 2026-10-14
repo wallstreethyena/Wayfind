@@ -60,6 +60,25 @@ import { siteTodayStr } from "../../../lib/siteTime.js";
  */
 export const HOMEPAGE_CARD_BUDGET_MS = 8000;
 
+/** Bounded wait for a visible card's media to settle (see place-card-controls). */
+export const CARD_MEDIA_WAIT_MS = 8000;
+export const CARD_MEDIA_TERMINAL = Object.freeze(new Set(["image", "monogram", "unavailable"]));
+
+/**
+ * Classify a card's media snapshot. "loading" (placeholder still up) and "none"
+ * (no media element at all) are the two non-terminal states; only "loading"
+ * after the bounded wait is a stuck loader, and both fail the scenario.
+ * @param {{imageLoaded?:boolean, monogram?:boolean, unavailable?:boolean, loading?:boolean}} snap
+ */
+export function classifyCardMedia(snap) {
+  const s = snap || {};
+  if (s.imageLoaded) return "image";
+  if (s.monogram) return "monogram";
+  if (s.unavailable) return "unavailable";
+  if (s.loading) return "loading";
+  return "none";
+}
+
 export const REQUIRED_FLOWS = Object.freeze([
   "homepage",
   "rails-render-cards",
@@ -347,6 +366,7 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
       id: card.getAttribute("data-place-id") || "",
       guideId: card.getAttribute("data-guide-id") || "",
       matchedId: card.getAttribute("data-guide-matched-id") || "",
+      rail: card.closest("[data-rail]")?.getAttribute("data-rail") || "",
       name: (card.querySelector(".wf-place-card-name")?.textContent || "").trim(),
     }));
     const text = root.innerText || "";
@@ -609,8 +629,8 @@ export const SCENARIOS = [
   {
     id: "surface-parity-parrish-cafes",
     flow: "surface-parity-cafes",
-    name: "Parrish Food > Cafés: API/DOM/map agree on Ryan's Coffee House",
-    description: "Granting the real Parrish DEFAULT_CENTER origin and clicking Food > Cafés, the captured inv=1 response, the rendered card list, and window.__wfMapPins (after opening the map) all carry Ryan's Coffee House — the live counterpart of the surface-parity audit's browser-level Parrish fixture.",
+    name: "Parrish Food > Cafés: API/DOM carry Ryan's Coffee House; the map pins it or states why not",
+    description: "Granting the real Parrish DEFAULT_CENTER origin and clicking Food > Cafés, the captured inv=1 response and the rendered card list carry Ryan's Coffee House; after opening the map, window.__wfMapPins carries its pin when its coordinate is permitted (lib/coordProvenance.js), otherwise window.__wfMapList accounts it as no-permitted-coordinate and the map shows the unpinned note. Every list card has exactly one map status.",
     async run(ctx) {
       const origin = PARRISH;
       const page = await ctx.openPage({ viewport: { width: 390, height: 844 }, origin });
@@ -656,6 +676,10 @@ export const SCENARIOS = [
       const apiIds = new Set((payload && Array.isArray(payload.places) ? payload.places : []).map((p) => p && (p.id || p.place_id)).filter(Boolean));
       ctx.ok("the API response carries Ryan's Coffee House", apiIds.has(RYANS_COFFEE_HOUSE.placeId), true, apiIds.has(RYANS_COFFEE_HOUSE.placeId));
       ctx.note(`surface-parity-parrish-cafes: API returned ${apiIds.size} places, hasMore=${payload ? payload.hasMore : "n/a"}`);
+      // The list rows carry the map verdict only from the versioned schema on
+      // (lib/coordProvenance.js INV_LIST_SCHEMA); a payload without it is an
+      // old cached response the client should never have requested.
+      ctx.ok("the inv=1 response is the versioned schema that carries map verdicts", !!payload && typeof payload.schema === "string" && payload.schema.length > 0, "a schema string", payload ? payload.schema : null);
 
       await page.waitForTimeout(2000); // give React time to commit the response into rendered cards
       const renderedIds = await page.evaluate(() => Array.from(document.querySelectorAll("[data-wf-position-key]"))
@@ -667,7 +691,7 @@ export const SCENARIOS = [
       // Open the map (top .wf-dests "Destinations" row's "Map" link — the
       // bottom nav only renders while screen==="map", app/home.js v8.3) and
       // read the diagnostic hook.
-      let mapHookPresent = false, mapIds = [];
+      let mapHookPresent = false, mapIds = [], mapList = null, mapNote = { count: 0, text: "" };
       try {
         await page.getByRole("link", { name: "Map" }).first().click({ timeout: 10000 });
         // WAIT FOR THE HOOK, DON'T SLEEP FOR IT (2026-09-29). The hook is set by
@@ -685,14 +709,49 @@ export const SCENARIOS = [
           undefined,
           { timeout: 30000 },
         ).catch(() => null);
+        // The list accounting is computed once the area read settles; wait for
+        // it to leave "area-not-ready" (bounded by the same 30 s budget).
+        await page.waitForFunction(
+          () => window.__wfMapList && window.__wfMapList.counts && window.__wfMapList.counts["area-not-ready"] === 0,
+          undefined,
+          { timeout: 30000 },
+        ).catch(() => null);
         const mapState = await page.evaluate(() => ({
           present: typeof window.__wfMapPins !== "undefined" && window.__wfMapPins !== null,
           ids: (window.__wfMapPins && Array.isArray(window.__wfMapPins.ids)) ? window.__wfMapPins.ids : [],
+          list: window.__wfMapList || null,
+          noteCount: Number((document.querySelector("[data-wf-map-unpinned]") || {}).getAttribute ? document.querySelector("[data-wf-map-unpinned]").getAttribute("data-wf-map-unpinned") : 0) || 0,
+          noteText: ((document.querySelector("[data-wf-map-unpinned]") || {}).textContent || "").trim(),
         }));
         mapHookPresent = mapState.present;
         mapIds = mapState.ids;
+        mapList = mapState.list;
+        mapNote = { count: mapState.noteCount, text: mapState.noteText };
       } catch (e) { ctx.note(`surface-parity-parrish-cafes: map capture failed — ${e && e.message ? e.message.split("\n")[0] : e}`); }
-      ctx.ok("window.__wfMapPins is present and carries a pin for Ryan's Coffee House", mapHookPresent && mapIds.includes(RYANS_COFFEE_HOUSE.placeId), true, { mapHookPresent, hasRyans: mapIds.includes(RYANS_COFFEE_HOUSE.placeId) });
+      // SOURCE-AWARE PARITY (2026-10-14). The map may draw a coordinate only
+      // inside its source's permitted window (lib/coordProvenance.js: Google
+      // Places lat/lng 30 days, Maps Service Specific Terms §14.3). A list place
+      // without one is not a silent miss: it must be accounted in
+      // window.__wfMapList as "no-permitted-coordinate" AND counted in the
+      // on-screen note. So the assertion is "pinned, or explicitly unpinned for
+      // a stated coordinate reason", never "missing".
+      const ryansPinned = mapIds.includes(RYANS_COFFEE_HOUSE.placeId);
+      const ryansRow = mapList && Array.isArray(mapList.unmapped) ? mapList.unmapped.find((r) => r && r.id === RYANS_COFFEE_HOUSE.placeId) : null;
+      const ryansStatus = ryansPinned ? "pinned" : (ryansRow ? ryansRow.status : "unaccounted");
+      ctx.ok("window.__wfMapPins is present (the map drew its frame)", mapHookPresent, true, mapHookPresent);
+      ctx.ok("Ryan's Coffee House is pinned, or accounted as no-permitted-coordinate with the unpinned note on screen",
+        ryansPinned || (ryansStatus === "no-permitted-coordinate" && mapNote.count >= 1 && /pinned/.test(mapNote.text)),
+        "pinned | no-permitted-coordinate + visible note", { ryansStatus, noteCount: mapNote.count });
+      const listIds = mapList && Array.isArray(mapList.listIds) ? mapList.listIds : [];
+      const counts = mapList && mapList.counts ? mapList.counts : {};
+      const countSum = Object.values(counts).reduce((a, b) => a + (Number(b) || 0), 0);
+      const unaccounted = renderedIds.filter((id) => apiIds.has(id) && !listIds.includes(id));
+      ctx.ok("every rendered list card has exactly one map status (list/map parity accounting)",
+        !!mapList && countSum === listIds.length && unaccounted.length === 0,
+        "all rendered cards accounted", { listIds: listIds.length, countSum, unaccounted: unaccounted.slice(0, 5) });
+      ctx.ok("the on-screen unpinned count matches the accounting", (counts["no-permitted-coordinate"] || 0) === mapNote.count,
+        counts["no-permitted-coordinate"] || 0, mapNote.count);
+      ctx.note(`surface-parity-parrish-cafes: list ${listIds.length}, pins ${mapIds.length}, statuses ${JSON.stringify(counts)}; Ryan's: ${ryansStatus}`);
 
       // Fall-card class: only asserted when it actually applies. Ryan's is
       // NOT in FALL_CARD_IDS (lib/fallSkin.js), so this is always a no-op
@@ -727,12 +786,42 @@ export const SCENARIOS = [
       const first = page.locator(".wf-place-card").first();
       await first.waitFor({ state: "visible", timeout: 20000 });
 
+      // ── THE MEDIA CHECK WAITS FOR A TERMINAL STATE (2026-10-14) ──────────
+      // app/components/CardPhoto.js loads a credited photo only when the image
+      // ENTERS THE VIEWPORT (IntersectionObserver, by design: no off-screen
+      // photo spend). The first .wf-place-card on the homepage is the first card
+      // of the first rail, which sits BELOW the fold (top 953px of a 900px
+      // desktop viewport, 844px of 844px on a 390x844 phone), so it correctly
+      // shows the "Loading photo" placeholder until it scrolls into view. MEASURED
+      // on production: scrolled into view, the photo request starts at once and
+      // the <img> is in the DOM ~0.1-0.5s later (cold browser context). That is
+      // not a UX bug; the old check just read the DOM before any reader could have
+      // seen the card. So: scroll the card in (what a reader does), then wait a
+      // bounded 8s for image / monogram / explicit "Photo unavailable". A card
+      // that is STILL "Loading photo" after that is a stuck loader and still fails.
+      await first.scrollIntoViewIfNeeded().catch(() => {});
+      let mediaState = "none";
+      const mediaDeadline = Date.now() + CARD_MEDIA_WAIT_MS;
+      for (;;) {
+        mediaState = classifyCardMedia(await first.evaluate((el) => {
+          const media = el.querySelector(".wf-place-card-media");
+          return {
+            imageLoaded: [...(media ? media.querySelectorAll("img") : [])].some((img) => img.complete && img.naturalWidth > 0),
+            monogram: !!el.querySelector(".wf-place-card-monogram"),
+            unavailable: !!(media && media.querySelector('[aria-label^="Photo unavailable"]')),
+            loading: !!(media && media.querySelector('[aria-label="Loading photo"], [data-card-photo-request]')),
+          };
+        }));
+        if (mediaState !== "loading" && mediaState !== "none") break;
+        if (Date.now() >= mediaDeadline) break;
+        await page.waitForTimeout(150);
+      }
+
       const shape = await first.evaluate((el) => ({
-        hasMedia: !!el.querySelector(".wf-place-card-media img, .wf-place-card-monogram"),
         titleText: (el.querySelector(".wf-place-card-name") || {}).textContent || "",
         controls: ["save", "like", "dislike", "share"].filter((k) => el.querySelector(".wf-place-card-" + k)).length,
       }));
-      ctx.ok("the card shows an image or a monogram fallback", shape.hasMedia, true, shape.hasMedia);
+      ctx.ok(`the card reaches a terminal media state (image, monogram, or "Photo unavailable") within ${CARD_MEDIA_WAIT_MS / 1000}s of scrolling into view, not stuck on "Loading photo"`, CARD_MEDIA_TERMINAL.has(mediaState), [...CARD_MEDIA_TERMINAL].join("|"), mediaState);
       ctx.ok("the card has a non-empty title", shape.titleText.trim().length > 0, "> 0 chars", shape.titleText.trim().length);
       ctx.ok("the card renders exactly the 4 controls (save/like/dislike/share)", shape.controls === 4, 4, shape.controls);
 

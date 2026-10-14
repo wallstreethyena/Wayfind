@@ -55,6 +55,7 @@ import { eventPriceFact } from "../lib/eventPriceFact.js";
 import { startSessionRecording, markShareOpen, checkShareReturn } from "../lib/shareMetrics";
 import { priceWord } from "../lib/price";
 import { mapInventoryRow } from "../lib/inventoryRowClient";
+import { INV_LIST_SCHEMA } from "../lib/coordProvenance.js";
 // v6.51 PERF: defers decorative hero-photo fetches off the critical path.
 // v8: onIdle's last callers were the two decorative hero photo fetches, which
 // were removed rather than deferred (lib/idleTask.js and its contract tests
@@ -1903,7 +1904,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -1975,8 +1976,8 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick })
       }
     };
   }, [activeSrc, state]);
-  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
-  if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
+  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
+  if (state === "fallback") return <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
@@ -7390,7 +7391,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // near Parrish: 0 of the top 50 food rows are cafés, which is
             // exactly why Food > Cafés rendered "Nothing here right now" while
             // 111 admissible cafés sat in inventory 17 miles away.
-            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}${offset ? `&offset=${offset}` : ""}`);
+            const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&schema=${INV_LIST_SCHEMA}${offset ? `&offset=${offset}` : ""}`);
             // 2026-09-23 (fix round, item 5) — a FAILED read (the route now
             // answers 503 + no-store rather than a cacheable {places:[]}) must
             // count as a failure, not a quiet "nothing here". Before this, a
@@ -9405,7 +9406,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     invMoreLoadingRef.current = true;
     try {
-      const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${meta.m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&offset=${meta.offset}`);
+      const r = await fetch(`/api/places/search?q=inventory&lat=${center.lat.toFixed(4)}&lng=${center.lng.toFixed(4)}&radius=${meta.m}&n=400&cat=${encodeURIComponent(cat)}&inv=1${sub && sub !== "all" ? `&sub=${encodeURIComponent(sub)}` : ""}&schema=${INV_LIST_SCHEMA}&offset=${meta.offset}`);
       // 2026-09-23 (fix round, item 5) — a FAILED continuation page (the route
       // now answers 503 + no-store) must not be read as "the next page is
       // empty" — leave hasMore/offset untouched so another tap retries it.

@@ -38,7 +38,7 @@ import { breakerOpen } from "../../../../lib/providerHealth";
 // classes; anything else recorded (redirect/badjson/unowned/stale/client/
 // stale-heal-*) rolls up into `other` so this shape never needs to change
 // again when a new stale-heal-* subclass string appears.
-const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "quota-open", "refunded"]);
+const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request", "visitor-cap"]);
 
 function sbEnvHere() {
   const raw = String(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -164,7 +164,15 @@ export async function GET(req) {
           server: todayByClass.server || 0,
           network: todayByClass.network || 0,
           keyDenied: todayByClass["key-denied"] || 0,
-          ledgerDenied: todayByClass["ledger-denied"] || 0,
+          // ledgerDenied = every ledger refusal (legacy name + the four classes),
+          // so existing readers keep their meaning; the split is below.
+          ledgerDenied: (todayByClass["ledger-denied"] || 0) + (todayByClass["ledger-cap"] || 0) + (todayByClass["ledger-timeout"] || 0) + (todayByClass["ledger-http"] || 0) + (todayByClass["ledger-unconfigured"] || 0),
+          ledgerCap: todayByClass["ledger-cap"] || 0,
+          ledgerTimeout: todayByClass["ledger-timeout"] || 0,
+          ledgerHttp: todayByClass["ledger-http"] || 0,
+          ledgerUnconfigured: todayByClass["ledger-unconfigured"] || 0,
+          freePhotoPreferred: todayByClass["free-photo-preferred"] || 0,
+          gateShut: todayByClass["gate-shut"] || 0,
           quotaOpen: todayByClass["quota-open"] || 0,
           refunded: todayByClass.refunded || 0,
           // 2026-09-30: non-production writes are namespaced (`preview:`,

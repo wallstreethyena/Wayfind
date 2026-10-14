@@ -1,16 +1,16 @@
 [
   {
-    "file": "supabase/migrations/20260910145500_wf_managed_monitor_cron_contract.sql",
-    "sha256": "aa033e45471d7482b097c7dc6178af4e34bb0feca39846475cebd57694b6e97e",
+    "file": "supabase/migrations/20261015120000_wf_photo_purchase.sql",
+    "sha256": "1aeed474de1e9b21fbe60617dc2b8e38c8d6d3fbabb862ab2fd2f1618ec38f2c",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1636",
-    "reason": "Assertion-only cron contract (fea3dbd3, 2026-09-10). No owner apply approval on record. Read-only check 2026-10-07: production cron already matches it exactly (wf-heartbeat-watch '*/15 * * * *' active; wf-affiliate-link-integrity inactive), so applying would write no data and only add the ledger row. Needs an explicit owner go before apply."
+    "tracking": "PR1 photo purchase log, PR number not yet assigned (#1769 placeholder, replace on open)",
+    "reason": "New observe-only table wf_photo_purchase (RLS on, no policies, service_role only) plus wf_photo_purchase_prune(). Writer lib/photoPurchaseLog.js is fail-soft: until applied, inserts 404 and resolve false with no effect on responses. Not applied; owner applies via scripts/apply-migration.mjs."
   },
   {
-    "file": "supabase/migrations/20261002010000_wf_cc_partner_clicks_exclude_devices.sql",
-    "sha256": "d3c05b3e1b0e8be7425aa653de1c498330461a74442f48dd1dcc7d9cccd7e279",
+    "file": "supabase/migrations/20261014120000_winter_haven_downtown_twin.sql",
+    "sha256": "edeb78fbf93819678dc500e52b6587f3d3915d5d3c59e4634ac7545b248c36db",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1627",
-    "reason": "Command Center read-time analytics change (#1627, carried by #1636). Its PR declares an 'owner step: merge and apply together'; that apply has not been approved. Read-only check 2026-10-07: wf_cc_is_out absent, so not applied. Changes reported partner-click KPIs when applied."
+    "tracking": "#1776",
+    "reason": "Soft-excludes the duplicate 'Downtown, Winter Haven, Fl' pin (ChIJr9OaGuES3YgRCkHnqB00tbo) as duplicate_of the 'Downtown Winter Haven' keeper (ChIJ_wzoOQAT3YgR5o8e69WR3UU); same Downtown Historic District, 87 m apart. Nothing deleted. Reverse: supabase/data-fixes/20261014_winter_haven_downtown_twin_REVERSE.sql. Written with read-only DB access; owner approved conditionally; orchestrator applies after review. Not applied."
   }
 ]

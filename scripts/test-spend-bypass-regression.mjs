@@ -160,9 +160,9 @@ async function sourceModule(path, prelude) {
   // executes the free-photo refusal.
   const authorizer = route.match(/authorizeSpend:\s*\(sku\s*=\s*"photos"\)\s*=>\s*getFreePhoto\(\)\.then\(\(free\)\s*=>\s*\{([\s\S]*?)\}\),/);
   ok(!!authorizer, "photo route injects lazy per-SKU ledger authorization (free-photo lookup awaited first) into the resolver");
-  ok(!!authorizer && /if \(shut\) return false;/.test(authorizer[1]), "photo route's authorizer refuses on a shut gate");
-  ok(!!authorizer && /if \(sku === "photos" && free\) return false;/.test(authorizer[1]), "photo route's authorizer refuses a `photos` grant outright when a free permanent photo exists for this place, and ONLY for `photos`");
-  ok(!!authorizer && /return sku === "photos" \? spendAllowPhotos\(\) : spendAllow\(sku\);/.test(authorizer[1]), "photo route's authorizer routes photos through spendAllowPhotos and every other SKU through spendAllow");
+  ok(!!authorizer && /if \(shut\) return \{ ok: false, reason: "shut" \};/.test(authorizer[1]), "photo route's authorizer refuses on a shut gate");
+  ok(!!authorizer && /if \(sku === "photos" && free\) return \{ ok: false, reason: "free-photo" \};/.test(authorizer[1]), "photo route's authorizer refuses a `photos` grant outright when a free permanent photo exists for this place, and ONLY for `photos`");
+  ok(!!authorizer && /return sku === "photos" \? spendAllowPhotos(?:Detailed)?\(\) : spendAllow\(sku\);/.test(authorizer[1]), "photo route's authorizer routes photos through spendAllowPhotos and every other SKU through spendAllow");
   ok(!/getRecovery|findSamePlaceCachedPhoto/.test(route.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/[^\n]*/g, "$1")), "photo route no longer performs same-place cache recovery");
   ok(!/const\s+spendAllowed\s*=\s*!shut\s*&&\s*\(await\s+spendAllow\("photos"\)\)/.test(route), "photo route cannot consume a grant before the free lane is checked");
 }

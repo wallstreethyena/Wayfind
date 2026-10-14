@@ -230,7 +230,8 @@ const render = async (c, s, city) => {
 // ── D. PHOTO ROUTE: the real route + real resolver, fake upstream ────────────
 {
   const { resolvePlacePhoto, FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef } = await import("../lib/placePhotoServe.js");
-  const { gateShut, spendAllow, spendAllowPhotos } = await import("../lib/spendGate.js");
+  const { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed } = await import("../lib/spendGate.js");
+  const { ledgerOutcomeClass } = await import("../lib/photoOutcomes.js");
   const { landingCardPhotoSrc } = await import("../lib/placePhoto.js");
   // #1587: the route keeps photo credits from the Details response it already
   // read. Bound to the REAL keeper: no Google call; its Supabase write lands in
@@ -238,6 +239,8 @@ const render = async (c, s, city) => {
   const { keepPhotoCredits } = await import("../lib/photoCredits.js");
   // 2026-10-08: the route asks the REAL UA rule whether the reader is automated.
   const { isAutomatedPhotoReader } = await import("../lib/crawler.js");
+  // 2026-10-14: the paid lane needs a page-originated request; REAL rule from lib/apiGuard.js.
+  const { creditedRequest } = await import("../lib/apiGuard.js");
   let googlePhotoFetches = 0;
   const deps = {
     cacheGet: async () => null, cacheSet: async () => {}, cacheDel: async () => {},
@@ -246,13 +249,15 @@ const render = async (c, s, city) => {
     fetchOwnedUri: async () => { googlePhotoFetches++; return { uri: "https://lh3.googleusercontent.com/p/fake", status: 200, upstream: "ok" }; },
   };
   globalThis.__wfEvergreenGuard = {
-    FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos,
+    FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, ledgerOutcomeClass,
     resolvePlacePhoto: (input) => resolvePlacePhoto(input, deps),
     findSamePlaceCachedPhoto: async () => null, findFreePhoto: async () => null,
     recordReaderPhotoMiss: async () => false, recordPhotoOutcome: async () => {}, recordPhotoDeniedCeiling: async () => {},
+    recordPhotoPurchase: async () => false, takeVisitorToken: async () => ({ ok: true, reason: "test-noop" }), bucketHash: () => null, idempotencyKey: () => "", uaClass: () => "other",
     photosCeiling: () => 0,
     keepPhotoCredits,
     isAutomatedPhotoReader,
+    creditedRequest,
   };
   const routeSrc = readFileSync(path.join(ROOT, "app/api/photo/route.js"), "utf8");
   // Same sourcing technique as scripts/test-free-photo-serving.mjs: strip the
@@ -284,7 +289,7 @@ const render = async (c, s, city) => {
   ok(landingCardPhotoSrc(withoutRef) === "", "CONTROL: the non-evergreen ladder is unchanged (no ref, no url → \"\")");
   const hit = async (rel, headers = {}) => {
     calls = []; googlePhotoFetches = 0;
-    const res = await route.GET(new Request("https://www.gowayfind.com" + rel, { headers }));
+    const res = await route.GET(new Request("https://www.gowayfind.com" + rel, { headers: { "sec-fetch-site": "same-origin", ...headers } })); // page-originated by default (2026-10-14): the zero-spend verdicts below must come from nospend/UA, not from the origin gate
     return { res, ledger: calls.filter((c) => c.kind === "ledger").length, google: googlePhotoFetches + calls.filter((c) => c.kind === "google").length };
   };
   for (const u of [evRefUrl, evPlaceUrl]) {
