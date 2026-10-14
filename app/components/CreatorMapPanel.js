@@ -82,7 +82,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
         @{handle}&apos;s map
       </h2>
       <p style={{ margin: "0 0 14px", fontSize: 13.5, lineHeight: 1.55, color: "#94A3B8", maxWidth: 640 }}>
-        Every pin is a place @{handle} filmed herself — not a list of what happens to be nearby.
+        Every pin is a place featured in @{handle}&apos;s posts.
         {intro ? " " + intro : ""}
       </p>
 
@@ -110,10 +110,10 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
       </div>
 
       {/* A tapped pin has to GO somewhere. Without this the map is a picture:
-          the reader finds the cafe she liked, taps it, and the pin turns orange
+          the reader finds a featured place, taps it, and the pin turns orange
           and nothing else happens. The two links are the two things they can
           want next — the place in Wayfind (hours, directions, what to pair it
-          with) and the creator's own video. */}
+          with) and the creator's original post. */}
       {selected ? (
         <div style={{ marginTop: 12, padding: "12px 14px", background: "#0F1520", border: "1px solid rgba(249,115,22,.35)", borderRadius: 14 }}>
           <div style={{ fontSize: 15.5, fontWeight: 800, color: "#F8FAFC" }}>{selected.name}</div>
@@ -127,7 +127,7 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
             </a>
             {selected.videoUrl ? (
               <a href={selected.videoUrl} target="_blank" rel="noopener" style={{ fontSize: 13.5, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" }}>
-                Watch @{handle}&apos;s video ↗
+                View @{handle}&apos;s post ↗
               </a>
             ) : null}
           </div>

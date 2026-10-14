@@ -72,6 +72,14 @@ ok(/aria-label="[^"]*cindy\.selects/.test(html), "the mark names the creator in 
 ok(/aria-label="Found on TikTok/.test(html), "…in lib/creatorRights.js's own sanctioned wording");
 ok(!claimsAffiliation(html), "the RENDERED markup makes no affiliation claim — Lanham Act s.43(a)");
 
+// A verified static flyer is a real creator association, but it must not be
+// announced as video footage by assistive technology.
+const flyer = creatorVideosFor({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" });
+ok(flyer.some((video) => video.url === "https://www.instagram.com/p/DeZO5ntRRM9/"), "the static flyer fixture really resolves on Sarasota Fairgrounds");
+const flyerHtml = render(React.createElement(CreatorCardMark, { videos: flyer }));
+ok(/aria-label="Found on Instagram[^\"]*a post by @sarasota_lifebynay/.test(flyerHtml), "a known static post gets truthful rendered post attribution");
+ok(!/a video by|footage|filmed/i.test(flyerHtml), "the static flyer's rendered credit does not claim video footage or a filmed visit");
+
 // 4. inert.
 ok(!/<a\b|<button\b|href=|onclick=/i.test(html),
    "the mark ships no tap target — the card owns the tap (see the component header)");

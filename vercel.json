@@ -58,6 +58,10 @@
       "schedule": "45 * * * *"
     },
     {
+      "path": "/api/cron/spend-pacing",
+      "schedule": "42 12 * * *"
+    },
+    {
       "path": "/api/cron/atlas-build?limit=3",
       "schedule": "15 * * * *"
     },
@@ -124,6 +128,10 @@
     {
       "path": "/api/cron/affiliate-coverage",
       "schedule": "20 9 * * *"
+    },
+    {
+      "path": "/api/cron/partner-path",
+      "schedule": "40 9 * * *"
     },
     {
       "path": "/api/cron/travelpayouts-attribution",

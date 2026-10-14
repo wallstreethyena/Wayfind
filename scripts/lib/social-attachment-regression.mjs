@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { __CURATED_FOR_CODEGEN__ as CURATED, allCreators, creatorVideosFor, hasCreatorPage } from "../../lib/creatorVideos.js";
+import { __CURATED_FOR_CODEGEN__ as CURATED, allCreators, creatorVideosFor, creatorCountFor, hasCreatorPage } from "../../lib/creatorVideos.js";
 import { captionFor } from "../../lib/creatorCaptions.js";
 import {
   __EVENT_SOCIAL_FOR_GUARDS__ as EVENT_SOCIAL,
@@ -43,9 +43,11 @@ export function checkSocialAttachments(repo) {
     venueContextLinks.set(url, ids);
   }
   const unresolved = audit.retrievable_unresolved_sources || [];
-  ensure(audit.records.length === 47, `expected 47 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 47, "shortcodes must be unique");
-  ensure(unresolved.length === 4, `expected 4 retrievable unresolved sources, got ${unresolved.length}`);
+  // 47 prior mapped sources + 14 verified current sources + 4 formerly
+  // unresolved identities + 6 exact DFB sources + 3 recovered Instagram backlog originals.
+  ensure(audit.records.length === 74, `expected 74 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 74, "shortcodes must be unique");
+  ensure(unresolved.length === 0, `the four historical identities are now resolved; got ${unresolved.length} still marked unresolved`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
     ensure(row.status === "unresolved_identity", `${row.shortcode} must explain why it cannot be attached`);
@@ -96,7 +98,8 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 47, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 74, "mapped source coverage drifted");
+  ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
   ensure(audit.summary.remaining_unmapped_sources === unresolved.length, "retrievable unresolved-source total drifted");
@@ -154,6 +157,58 @@ export function checkSocialAttachments(repo) {
   ensure(!eventSocialPosts("screamageddon-2026").some((post) => post.url === tampaRoundup), "Scream-A-Geddon must not mix a roundup mention into its dedicated event posts");
   ensure(eventSocialPosts("pintos-fall-at-the-farm-2026").length === 0, "Pinto's event must not promote either a farm roundup or a venue-only post as event footage");
   ensure(eventSocialPosts("florida-coffee-festival-2026").some((post) => post.url.endsWith("/Dc_KiM5xqhv/") && post.association === "exact_event"), "Florida Coffee Festival's dedicated organiser post remains available as the positive control");
+
+  // The owner's flyer and four new Florida reels must reach their exact venue
+  // cards. Test mismatched IDs too: a familiar venue name cannot steal credit.
+  const octoberSources = [
+    ["DeZO5ntRRM9", "sarasota-fairgrounds-sarasota", "ChIJPWsUhY9Aw4gRoltOtGa3nPM", "sarasota_lifebynay"],
+    ["DdKRIpttTiK", "dead-coconut-club-citywalk-orlando", "ChIJwZ_GK-d-54gRm5Ahg7PZYeY", "magicalmaddieb"],
+    ["DdHjBG-CfcV", "permanent-vacation-maitland", "ChIJsTUqwm5x54gRrbDWFjwv8TM", "sunshinestateselling"],
+    ["DdJ2qn3Riw7", "showcase-of-citrus-clermont", "ChIJW5C20gaI54gRZuH_-8hPQy8", "oliviashannonwolk"],
+    ["DcFJ6i9sJBe", "cherry-smash-coral-springs", "ChIJXWVI-Nca2YgRJxmxjtOPI3U", "doseofsunshinefl"],
+    ["Dc_wbrxy7dr", "cherry-smash-coral-springs", "ChIJXWVI-Nca2YgRJxmxjtOPI3U", "cherrysmashfl"],
+    ["Dc50nKNB9pJ", "cordova-inn-st-petersburg", "ChIJxzf0Op3hwogRjW4p7ZQeClE", "tampabayisawesome"],
+    ["Dc1zpeROuEE", "cherry-smash-coral-springs", "ChIJXWVI-Nca2YgRJxmxjtOPI3U", "aquiestamama"],
+  ];
+  for (const [shortcode, key, placeId, creator] of octoberSources) {
+    const entry = curatedByKey.get(key);
+    const source = audit.records.find((row) => row.shortcode === shortcode);
+    ensure(entry?.placeId === placeId && source?.creator_handle === creator, `${shortcode} must retain verified venue and creator identity`);
+    ensure(creatorVideosFor({ id: placeId }).some((video) => video.url === source.native_url && video.creator === creator), `${shortcode} must resolve through the exact existing inventory ID`);
+    const impostor = { id: "ChIJdifferentVerifiedVenue123", name: entry.match.name, city: entry.match.city };
+    ensure(!creatorVideosFor(impostor, entry.match.city).some((video) => video.url === source.native_url), `${shortcode} must not attach to a different Google ID with the same name`);
+  }
+  const flyerUrl = "https://www.instagram.com/p/DeZO5ntRRM9/";
+  const frightFest = eventSocialPosts("sarasota-frightfest-2026");
+  ensure(frightFest.length === 1 && frightFest[0].url === flyerUrl && frightFest[0].creator === "sarasota_lifebynay", "FrightFest must show its dedicated static flyer with the observed creator credit");
+  ensure(eventSocialPosts("wfc:sarasota-frightfest-2026")[0]?.url === flyerUrl, "FrightFest's wfc event ID must retain the same native static post");
+  ensure(embedSrc("instagram", flyerUrl) === "https://www.instagram.com/p/DeZO5ntRRM9/embed/", "a static flyer must not be rewritten as a Reel");
+  const flyerVideo = creatorVideosFor({ id: "ChIJPWsUhY9Aw4gRoltOtGa3nPM" }).find((video) => video.url === flyerUrl);
+  ensure(/flyer/i.test(captionFor(flyerVideo)) && /announcement, not footage of a visit/i.test(captionFor(flyerVideo)), "FrightFest's place caption must describe a flyer rather than claim a filmed visit");
+  ensure(!eventSocialPosts("hhn-orlando-2026").some((post) => post.url === flyerUrl), "the FrightFest flyer must not appear on a different Halloween event");
+  ensure(creatorCountFor({ id: "ChIJXWVI-Nca2YgRJxmxjtOPI3U" }) === 2, "Cherry Smash has two independent visits; its own announcement must not become a third creator");
+  ensure(creatorCountFor({ id: "ChIJxzf0Op3hwogRjW4p7ZQeClE" }) === 0, "Cordova's aggregator source must not manufacture independent corroboration");
+  for (const outsideFlorida of ["DcHASaNRyjm", "DdHEy0dObxh", "DdKmHElP4NM"]) {
+    const url = `https://www.instagram.com/reel/${outsideFlorida}/`;
+    ensure(!placeLinks.has(url) && !eventLinks.has(url), `${outsideFlorida} is positively identified outside this Florida intake`);
+  }
+  const gideonsUrl = "https://www.instagram.com/p/DZATY0ZkaR5/";
+  ensure(creatorVideosFor({ id: "ChIJPd6UAfJ_3YgRP-V0GS5jS8I" }).some((video) => video.url === gideonsUrl && video.creator === "disneyfoodblog"), "DFB's Gideon's source reaches its verified Disney Springs branch");
+  ensure(!creatorVideosFor({ id: "ChIJC9pvtLN654gR6F0GZH-G-8I", name: "Gideon's Bakehouse", city: "Orlando" }, "Lake Buena Vista").some((video) => video.url === gideonsUrl), "the same-name East End Gideon's branch cannot steal Disney Springs credit");
+  const epcotUrl = "https://www.instagram.com/p/DcZS_9jks2n/";
+  ensure(eventSocialPosts("epcot-food-wine-2026").some((post) => post.url === epcotUrl && post.creator === "disneyfoodblog"), "DFB's verified Food & Wine post resolves on the exact 2026 festival ID");
+  ensure(!placeLinks.has(epcotUrl) && !eventSocialPosts("epcot-international-food-and-wine-festival-2026").some((post) => post.url === epcotUrl), "festival coverage attaches by event identity rather than a park place ID or public slug");
+  const yanetRoundup = "https://www.instagram.com/p/DdE9KVAlB5y/";
+  const yanetParents = ["ChIJkWXRuBC02YgRripCIoUAN9g", "ChIJcxJRMYe42YgRDSlj6Z_CDxk", "ChIJhdEC7MUD2YgRWqeIwaYujc4", "ChIJgYp-DDIv2YgRH8hrgA3I3pI", "ChIJqwCnDja_2YgR0fQINSRA2MM"];
+  ensure(yanetParents.every((id) => creatorVideosFor({ id }).some((video) => video.url === yanetRoundup && video.creator === "yanetfins")), "the five-slide haunted-event roundup credits all five verified parent venues");
+  ensure(!eventLinks.has(yanetRoundup), "a static multi-event roundup must never be published as exact event footage");
+  for (const video of CURATED.flatMap((entry) => entry.videos || []).filter((video) => video.url === yanetRoundup)) {
+    ensure(/roundup/.test(captionFor(video)) && /venue context, not footage/.test(captionFor(video)), "each roundup association preserves the context boundary");
+  }
+  const cakePosts = creatorVideosFor({ id: "ChIJUcSOQap_3YgRzKLq5rYIdYI" });
+  ensure(cakePosts.some((video) => video.url.endsWith("/DeSRAJ1EhW2/")) && cakePosts.some((video) => video.url.endsWith("/DcYoVW-GwHR/")), "the shared Cake Bake listing retains distinct restaurant and bakery sources without duplicate place identities");
+  const olivia = creatorVideosFor({ id: "ChIJAcphlZd_3YgRVnw4XgEUJoY" }).find((video) => video.url.endsWith("/DcWvff6AdDh/"));
+  ensure(!!olivia && /dated.*news roundup/i.test(captionFor(olivia)) && /not a filmed brunch visit/i.test(captionFor(olivia)), "Olivia's verified alternate is dated menu news and does not falsely resolve original brunch footage");
   for (const [url, ids] of roundupLinks) {
     ensure(![...ids].some((eventId) => eventSocialPosts(eventId).some((post) => post.url === url)), `${url} must remain mention evidence, never exact event media`);
   }
@@ -176,6 +231,8 @@ export function checkSocialAttachments(repo) {
   ensure(/from "\.\.\/\.\.\/lib\/creatorPlatforms"/.test(facade) && !/from "\.\.\/\.\.\/lib\/creatorVideos"/.test(facade), "the facade must not pull the full creator registry into an event-page chunk");
   ensure(/if \(play\)/.test(facade) && /<iframe src=\{src\}/.test(facade), "the third-party iframe must remain behind an explicit play/view action");
   ensure(/const instagramPost = platform === "instagram"/.test(facade) && /instagramPost \? "View post" : "Play"/.test(facade), "every Instagram embed must use post-neutral wording because the provider may offer only a native handoff");
+  const detail = readFileSync(path.join(repo, "app/components/sheets/Detail.js"), "utf8");
+  ensure(detail.includes("Watch ${handle}'s video about ${detail.name}") && !detail.includes("Watch ${handle}'s visit to ${detail.name}"), "creator video headlines must describe the source without inventing a personal visit for a district guide or roundup");
 
   const fallRoute = readFileSync(path.join(repo, "app/api/events/fall/route.js"), "utf8");
   // v26 or later: each publication moves the key forward, never back.

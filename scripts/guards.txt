@@ -1202,6 +1202,7 @@ node scripts/test-chip-contracts.mjs
 node scripts/check-css-comment-bytes.mjs
 node scripts/check-augtober-rail.mjs
 node scripts/check-christmas-rails.mjs
+node scripts/check-christmas-research.mjs
 node scripts/check-guide-in-rail.mjs
 # 2026-09-23 (WS4 fall-discovery) — lib/fallEvidence.js is the pure evidence-
 # classification law the discovery pipeline and the registry re-verification
@@ -1217,6 +1218,8 @@ node scripts/check-fall-offering-freshness.mjs
 node scripts/check-event-ticket-deals.mjs
 node scripts/check-event-ticket-fallback.mjs
 node scripts/check-affiliate-coverage.mjs
+node scripts/check-no-product-review.mjs
+node scripts/check-partner-path-health.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
 node scripts/check-menu-partner-offers.mjs
@@ -1913,6 +1916,7 @@ node scripts/check-provider-empty-answers.mjs
 # entry, and red-proves that removing theme-parks from the registry itself
 # fails (reproducing the exact hole this exists to close).
 node scripts/check-photo-surface-registry.mjs
+node scripts/check-photo-credit-under-headline.mjs
 
 # The self-healing photo-warm cron (app/api/cron/photo-warm): empty visible
 # places get exactly one real /api/photo request each, an already-served place
@@ -2169,3 +2173,9 @@ node scripts/test-seasonal-search.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
+node scripts/check-synthetic-map-contracts.mjs
+
+# 2026-10-13 spend pacing: daily forecast over every wf_spend_ledger row (OK/WARN/CAPPED), pulse
+# -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
+node scripts/test-spend-pacing.mjs
+node scripts/test-detail-open-once.mjs

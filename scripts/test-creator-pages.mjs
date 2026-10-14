@@ -85,6 +85,13 @@ const MAP_ROWS = [
 const rendered = await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: MAP_ROWS });
 const html = renderToStaticMarkup(rendered);
 const htmlNoMap = renderToStaticMarkup(await CreatorPage({ handle: FEATURED_CREATOR, mapPlaces: [] }));
+const roundupProfile = creatorProfile("yanetfins");
+const roundupHtml = renderToStaticMarkup(await CreatorPage({ handle: "yanetfins", mapPlaces: [] }));
+ok(roundupProfile.placeCount === 5 && roundupProfile.count === 1 && roundupProfile.spots.length === 5, "one native carousel across five parent venues is five places and one post, with every association retained");
+ok(creators.find((creator) => creator.handle === "yanetfins").postCount === 1, "the shared creator-library post count also counts distinct native URLs");
+ok(/>1<\/span> post</.test(roundupHtml) && />5<\/span> places featured</.test(roundupHtml), "the actual roundup page visibly discloses five places and one post");
+ok(roundupHtml.includes("original Instagram post") && !roundupHtml.includes("original Instagram video"), "a static carousel's rendered lede identifies the original as a post");
+ok(roundupProfile.spots.every((spot) => roundupHtml.includes(spot.placeId)), "all five exact parent-venue links survive the post-count deduplication");
 ok(htmlNoMap.length > 2000, `negative control: with no map rows the page still renders in full (${htmlNoMap.length} bytes)`);
 ok(!htmlNoMap.includes("wfcm-grid"), "…and renders NO map frame rather than an empty panel");
 ok(!/on the map/.test(htmlNoMap), "…and makes no claim about pins it does not have");
@@ -110,14 +117,14 @@ ok(html.includes("/creators\"") || html.includes("href=\"/creators\""), "links b
 // THE MAP PANEL IS ASSERTED THROUGH ITS SIDEBAR, NOT ITS <MapView>. MapView is
 // a next/dynamic({ssr:false}) child: it renders NOTHING on the server, in this
 // guard and in production alike. What must exist in the server HTML is the
-// frame around it — the heading, the honest "she filmed it herself" claim and
+// frame around it — the heading, the creator's source-post attribution and
 // the category rail — because that is the part a crawler and a JS-less reader
 // actually receive.
 ok(/s map<\/h2>/.test(html), "the creator map panel's heading does not render — the owner's interactive map is missing from the page");
 ok(html.includes("wfcm-grid") && html.includes("wfcm-side") && html.includes("wfcm-map"),
   "…the map panel's layout is not in the server HTML");
-ok(/filmed herself/.test(html),
-  "the map does not say whose places these are — 'every pin is a place she filmed herself' is the claim that separates this from a nearby-search");
+ok(html.includes(`Every pin is a place featured in @${FEATURED_CREATOR}&#x27;s posts.`) && !/filmed herself/.test(html),
+  "the map identifies the creator's own source posts without claiming that announcements and roundups prove a filmed visit");
 ok(/All places<\/span><b>\d+<\/b>/.test(html),
   "the category rail has no counted 'All places' row — the counts are the control");
 ok(/Share this page/.test(html),
@@ -184,6 +191,7 @@ for (const g of featured.cities) {
 const index = renderToStaticMarkup(CreatorsIndexPage());
 for (const h of slugs) ok(index.includes(`/creators/${h}`), `the index links @${h}`);
 ok(!claimsAffiliation(index), "the index makes no affiliation claim either");
+ok(index.includes("places featured in local creators") && !/actually been somewhere|what each one has filmed/.test(index), "the creator index describes public posts without inventing filmed visits");
 
 // Metadata: a canonical, and a title that names the creator.
 const meta = creatorMetadata(FEATURED_CREATOR);
@@ -198,7 +206,7 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
 // Creator redesign: default collection, photo facades and category pins.
 {
   ok(html.includes("cindy-selects-portrait-760.jpg"), "Cindy hero uses the supplied portrait");
-  ok(html.includes('aria-label="Bradenton videos"'), "city videos render in a labeled horizontal rail");
+  ok(html.includes('aria-label="Bradenton posts"'), "city posts render in a labeled horizontal rail that supports both photos and videos");
   ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
   ok(/aria-pressed="true"[^>]*><img[^>]*><span>All places/.test(html), "All places is selected on initial render");
   const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
