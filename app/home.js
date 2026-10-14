@@ -1973,7 +1973,7 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, onClick })
       }
     };
   }, [activeSrc, state]);
-  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
+  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
