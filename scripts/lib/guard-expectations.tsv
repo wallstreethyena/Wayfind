@@ -186,6 +186,7 @@ scripts/check-guide-place-identities.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	
 scripts/check-guide-product-isr-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	f78ddab81cf4c2f18358e774b7551f0919a4937c0500faee707d3be3fbed50b4
 scripts/check-guide-product-resolution.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	5637ef055126548627e35d2fa8b0a7d92ef08ece35bbd9260c2b4aacec2cd513
 scripts/check-guide-published.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c53c3d7129710e624abf7a6dffb6191b9479cf00dc3c1efe34acce06d2175f69
+scripts/check-guide-rail-relevance.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	85a4dba72bfde7454b54183ddebea9b417da0d7145da8cd8dc898ae3a1b2cc2b
 scripts/check-guide-seo-audit.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	94ab857cbdee1cb92f01fa1eea03acef39bae5e86cb23736c288176788ef6a78
 scripts/check-guide-share.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	46	0	0	12c03e408f67052d699341b8a9aacf18ddb666730d4d14db2b844d881a721913
 scripts/check-guide-ssg-not-phase-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	543bd321aa95b79eae3be219d6bf557a6013e2e27e2239b095ea5d3d2f001c07
