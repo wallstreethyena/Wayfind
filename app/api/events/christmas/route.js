@@ -10,24 +10,20 @@ export const dynamic = "force-dynamic";
 // (cardImageSrc / fallEventCardImageSrc); nothing here calls Google.
 // Eight fixed rails (lib/christmasIntentRails.js), so paging only ever applies
 // to ONE rail's cards via ?rail=&page=&size= (lib/railPage.js).
-import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
+import { fetchCuratedEvents, isTrusted } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
-import { fallWhenLabel, fallScheduleChip } from "../../../../lib/fallPool.js";
 import { supabase } from "../../../../lib/supabase.js";
 import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeChristmasIntentRails, christmasEventRail } from "../../../../lib/christmasIntentRails.js";
-import { mergeChristmasDiscoveryRows, CHRISTMAS_POPUP_SEASON_CHIP } from "../../../../lib/christmasDiscoveries2026.js";
-import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_PLACE_TITLES, CHRISTMAS_TICKET_DEAL_IDS, CHRISTMAS_VENUE_PLACE_IDS, enrichChristmasEvent, christmasEventTicket } from "../../../../lib/christmasPool.js";
-import { nextFallOccurrence } from "../../../../lib/fallIntentRails.js";
+import { mergeChristmasResearch } from "../../../../lib/christmasResearch.js";
+import { christmasEventCard } from "../../../../lib/christmasCards.js";
+import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_PLACE_TITLES, CHRISTMAS_TICKET_DEAL_IDS, CHRISTMAS_VENUE_PLACE_IDS, enrichChristmasEvent } from "../../../../lib/christmasPool.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
-import { fallEventCardImageSrc, eventImageIsVenue } from "../../../../lib/fallEventImage.js";
-import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
 import { isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { withChristmasGuides } from "../../../../lib/christmasGuides.js";
-import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
 const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status";
@@ -54,7 +50,9 @@ export async function GET(request) {
     //   for events with no photo, deeper place pool.
     // v5 (2026-10-09): eight rails, the verified 2026 registry merged at read
     //   time, the five location corrections, the distance group ordering law.
-    const key = `christmas-intents:v5:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v6 (2026-10-13): the research data is the source (752 rows, watchlist
+    //   never shown), one card per experience, honesty labels.
+    const key = `christmas-intents:v6:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
@@ -72,9 +70,10 @@ export async function GET(request) {
       if (placeResult.error) console.error("[api/events/christmas] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
-      // The verified registry and the read time corrections (lib/christmasDiscoveries2026.js):
-      // one row per event_id, each carrying its rail. No DB write.
-      const mergedRows = mergeChristmasDiscoveryRows(rows || []);
+      // The research data (lib/christmasResearch.js, data/christmas-2026-research.json)
+      // merged at read time: one row per experience, each carrying its rail and
+      // the five location corrections. Watchlist rows never enter. No DB write.
+      const mergedRows = mergeChristmasResearch(rows || []);
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       // Fill the venue identity and coordinates the row lacks (never guessed: lib/christmasPool.js).
       const eligibleRows = mergedRows.filter((e) => isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
@@ -92,49 +91,8 @@ export async function GET(request) {
         for (const row of extra.data || []) inventoryById.set(row.place_id, row);
       }
 
-      const events = eligibleRows.map((e) => {
-        const inventory = inventoryById.get(e.place_id) || null;
-        const image = fallEventCardImageSrc(e, 640, inventory);
-        const detailHref = e.slug && pageSlugs.has(e.slug) ? "/florida-events/" + e.slug : null;
-        const ticket = christmasEventTicket(e.event_id, byDealId);
-        // The card marker promises a video one tap away: only when our event page exists, canonical reels only.
-        const creatorReels = detailHref ? eventSocialPosts(e.event_id)
-          .filter((post) => post.platform === "instagram" && /instagram\.com\/reels?\/[\w-]+\/?(?:[?#].*)?$/.test(post.url))
-          .map((post) => ({ platform: post.platform, creator: post.creator })) : [];
-        const next = e.occurrence_dates?.length ? nextFallOccurrence(e, today) : null;
-        return {
-          ...e,
-          kind: "event",
-          id: e.event_id,
-          title: e.short_title || e.event_name,
-          name: e.event_name,
-          city: e.city, state: e.state || "FL",
-          venue: e.venue || null,
-          lat: e.lat, lng: e.lng, place_id: e.place_id || null,
-          start_date: e.start_date, end_date: e.end_date || null,
-          when: next ? fallWhenLabel({ ...e, start_date: next, end_date: next }, today) : fallWhenLabel(e, today),
-          select_nights: e.select_nights,
-          schedule: fallScheduleChip(e),
-          schedule_note: e.schedule_note || null,
-          start_time: e.start_time || null, end_time: e.end_time || null,
-          slug: e.slug || null,
-          detailHref,
-          hook: e.card_hook,
-          take: e.editorial_summary || null,
-          image: image || null,
-          // No verified photo of the event or its venue: the owner approved
-          // designed tile (lib/eventPlaceholder.js), never stock, never dropped.
-          placeholder: image ? null : eventPlaceholder("community", { name: e.event_name, title: e.short_title, tags: e.tags, christmasRail: christmasEventRail(e) }),
-          imageIsVenue: eventImageIsVenue(e, image),
-          photoAttr: e.photoAttr || null,
-          photoAttrHref: e.photoAttrHref || null,
-          url: eventOutboundUrl(e) || null,
-          is_free: e.is_free, price_band: e.price_band || null,
-          tags: e.tags || [],
-          creatorReels,
-          ticket,
-        };
-      }).filter((event) => (event.image || event.placeholder) && (event.url || event.place_id || event.detailHref));
+      const events = eligibleRows.map((e) => christmasEventCard(e, { today, inventory: inventoryById.get(e.place_id) || null, pageSlugs, byDealId })
+      ).filter((event) => (event.image || event.placeholder) && (event.url || event.place_id || event.detailHref));
 
       const places = (placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => hasStoredPlacePhoto(p))
@@ -152,8 +110,6 @@ export async function GET(request) {
             take: CHRISTMAS_PLACE_TAKES[p.place_id] || null,
             image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, photo_url: p.photo_url, signals: p.signals }, 640),
             christmasRail: CHRISTMAS_PLACE_RAIL[p.place_id],
-            // A pop up bar has a confirmed season and no date: it says exactly that.
-            seasonChip: CHRISTMAS_PLACE_RAIL[p.place_id] === "popup-bars" ? CHRISTMAS_POPUP_SEASON_CHIP : null,
           };
         })
         .filter((place) => place.image);

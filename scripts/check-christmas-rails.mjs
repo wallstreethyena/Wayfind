@@ -18,11 +18,9 @@ import {
   christmasDistanceLabel, christmasDistanceGroup, CHRISTMAS_STATEWIDE_RAILS,
 } from "../lib/christmasIntentRails.js";
 import { NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
-import { CHRISTMAS_KNOWN_DUPLICATE_IDS, CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, christmasCityCentre, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_PLACE_TITLES, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
-import {
-  CHRISTMAS_DISCOVERIES_2026, CHRISTMAS_EVENT_CORRECTIONS_2026, CHRISTMAS_EVENT_RAIL, CHRISTMAS_POPUP_BARS_2026,
-  CHRISTMAS_EXCEPTIONAL_IDS, CHRISTMAS_POPUP_SEASON_LINE, CHRISTMAS_POPUP_SEASON_CHIP, CHRISTMAS_POPUP_DATE_LINE, CHRISTMAS_POPUP_SEASON_THROUGH, CHRISTMAS_CITY_POINTS, mergeChristmasDiscoveryRows,
-} from "../lib/christmasDiscoveries2026.js";
+import { CHRISTMAS_KNOWN_DUPLICATE_IDS, CHRISTMAS_EVENT_VENUE_PLACE_IDS, enrichChristmasEvent, christmasCityCentre, CHRISTMAS_PLACE_RAIL, christmasEventTicket, CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
+import { CHRISTMAS_EVENT_RAIL, CHRISTMAS_CITY_POINTS } from "../lib/christmasDiscoveries2026.js";
+import { CHRISTMAS_HEADLINER_RESEARCH_IDS, CHRISTMAS_RESEARCH_CANONICAL, CHRISTMAS_PUBLISHED_RESEARCH, mergeChristmasResearch } from "../lib/christmasResearch.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 import { eventPlaceholder } from "../lib/eventPlaceholder.js";
 import { christmasRailGuide, withChristmasGuides } from "../lib/christmasGuides.js";
@@ -96,9 +94,12 @@ const events = [
   ev("expired-oneday-2026", "Yesterday Santa Visit", "2026-11-30", null),
   ev("x-expired-registry-2026", "Early Tree Lighting", "2026-11-12", "2026-11-12", { christmas_rail: "lights" }),
 ];
-const BAR_IDS = Object.keys(CHRISTMAS_POPUP_BARS_2026);
+// The composer still accepts PLACE cards that carry a rail (christmasRail); the
+// production pool is empty since v4 (the bars are research listings), so the
+// fixture supplies three generic places to keep the place path executed.
+const BAR_IDS = ["fixture-bar-a", "fixture-bar-b", "fixture-bar-c"];
 const placeFixture = () => BAR_IDS.map((id, i) => ({
-  id, name: `Bar ${i}`, title: CHRISTMAS_PLACE_TITLES[id], kind: "place", ...SARASOTA, wfScore: 90 - i, take: CHRISTMAS_PLACE_TAKES[id], christmasRail: CHRISTMAS_PLACE_RAIL[id],
+  id, name: `Bar ${i}`, title: `Fixture Bar ${i}`, kind: "place", ...SARASOTA, wfScore: 90 - i, take: "A fixture take.", christmasRail: "popup-bars",
 }));
 
 // ── 3. Event classifier ─────────────────────────────────────────────────────
@@ -132,7 +133,7 @@ SPEC_RAILS.forEach(([id, title], i) => {
 const railOf = (id) => composed.rails.find((r) => r.id === id);
 const idsIn = (rail) => (railOf(rail)?.cards || []).map((c) => c.id);
 for (const id of THEME_PARK_IDS) ok(idsIn("theme-parks").includes(id), `theme park event ${id} lands in theme-parks`);
-ok(BAR_IDS.every((id) => idsIn("popup-bars").includes(id)), "every confirmed pop up bar lands in popup-bars as a place card");
+ok(BAR_IDS.every((id) => idsIn("popup-bars").includes(id)), "a place card that carries a rail lands in that rail");
 ok(idsIn("shows-outings").includes("x-show-2026") && idsIn("parties").includes("x-party-2026"), "explicit rail events land in their rail");
 const all = composed.rails.flatMap((r) => r.cards);
 const allIds = all.map((c) => c.id);
@@ -197,12 +198,14 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   const { railRenderState, RAIL_RENDER_STATE } = await import("../lib/railVisibility.js");
   ok(railRenderState(thin.cards) === RAIL_RENDER_STATE.HIDDEN, "an empty rail renders HIDDEN (lib/railVisibility.js)");
   ok(/railRenderState\(items, \{ loading, error \}\)/.test(read("app/components/ChristmasIntentRails.js")) && /RAIL_RENDER_STATE\.HIDDEN\) return null/.test(read("app/components/ChristmasIntentRails.js")), "the Christmas rail section returns nothing when its rail is empty (static)");
-  // Exceptional list.
-  for (const id of ["mvmcp-2026", "jollywood-nights-2026", "nights-of-lights-2026", "christmas-at-gaylord-palms-2026", "winterfest-boat-parade-2026", "selby-lights-in-bloom-2026", "pensacola-winterfest-2026", "north-pole-express-parrish-2026", "christmas-holiday-home-tour-at-stetson-mansion-deland-2026", "key-west-harbor-walk-of-lights-2026", "stephen-foster-festival-of-lights-2026"]) {
-    ok(CHRISTMAS_EXCEPTIONAL_IDS.includes(id) && isExceptional({ event_id: id }), `${id} is an exceptional headliner`);
+  // Headliners: the research merge flags them; the composer only reads the flag.
+  const canonicalIds = new Set(CHRISTMAS_RESEARCH_CANONICAL.map((r) => r.id));
+  ok(CHRISTMAS_HEADLINER_RESEARCH_IDS.length >= 30 && CHRISTMAS_HEADLINER_RESEARCH_IDS.every((id) => canonicalIds.has(id)), `every headliner id is a canonical research row (${CHRISTMAS_HEADLINER_RESEARCH_IDS.length})`);
+  for (const id of ["nights-of-lights-staug-2026", "gaylord-palms-ice-2026", "winterfest-boat-parade-2026", "selby-lights-in-bloom-2026", "pensacola-winterfest-2026", "frrm-north-pole-express-2026", "key-west-harbor-walk-of-lights-2026", "magic-of-lights-daytona-2026"]) {
+    ok(CHRISTMAS_PUBLISHED_RESEARCH.some((r) => r.event_id === id && r.exceptional === true), `${id} is a flagged headliner`);
   }
-  ok(CHRISTMAS_EXCEPTIONAL_IDS.every((id) => CHRISTMAS_EVENT_RAIL[id] || CHRISTMAS_DISCOVERIES_2026.some((r) => r.event_id === id)), "every exceptional id is a real mapped or registry event");
-  ok(mergeChristmasDiscoveryRows([{ event_id: "selby-lights-in-bloom-2026" }], []).find((r) => r.event_id === "selby-lights-in-bloom-2026").exceptional === true && !isExceptional({ event_id: "tree-lighting-2026" }), "the merge marks headliners exceptional and nothing else");
+  const selby = mergeChristmasResearch([{ event_id: "selby-lights-in-bloom-2026", event_name: "Lights in Bloom", city: "Sarasota" }]).find((r) => r.event_id === "selby-lights-in-bloom-2026");
+  ok(selby.exceptional === true && isExceptional(selby) && !isExceptional({ event_id: "tree-lighting-2026" }) && !isExceptional({ event_id: "selby-lights-in-bloom-2026" }), "the merge flags headliners; an id alone is never read as a headliner");
   // Theme parks: statewide, still grouped.
   ok(CHRISTMAS_STATEWIDE_RAILS.length === 1 && CHRISTMAS_STATEWIDE_RAILS[0] === "theme-parks", "only theme parks are statewide");
   const parks = [...[1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ev("park-near-" + n, "Park Night " + n, "2026-12-0" + n, "2026-12-0" + n, { christmas_rail: "theme-parks", ...at(5 + n) })), ev("park-far", "Far Park Night", "2026-12-01", "2026-12-30", { christmas_rail: "theme-parks", ...at(200) })];
@@ -226,76 +229,16 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   }
 }
 
-// ── 4c. The verified 2026 registry (EXECUTED) ───────────────────────────────
+// ── 4c. The research data (EXECUTED; deep checks in check-christmas-research) ─
 {
-  const rows = CHRISTMAS_DISCOVERIES_2026;
-  ok(Array.isArray(rows) && Object.isFrozen(rows) && rows.length >= 60, `the registry holds the confirmed 2026 rows (${rows.length})`);
-  const ids = rows.map((r) => r.event_id);
-  ok(new Set(ids).size === ids.length, "registry event ids are unique");
-  ok(ids.every((id) => !CHRISTMAS_EVENT_RAIL[id]), "no registry row re-adds an existing wf_events Christmas row (those are mapped, not duplicated)");
-  const nameCity = rows.map((r) => (r.event_name + "|" + r.city).toLowerCase());
-  ok(new Set(nameCity).size === nameCity.length, "no two registry rows share a name and city");
-  for (const r of rows) {
-    const where = r.event_id;
-    ok(SPEC_IDS.includes(r.christmas_rail) && christmasEventRail(r) === r.christmas_rail, `${where}: carries one of the eight rails explicitly`);
-    ok(/^2026-1[12]-\d\d$/.test(r.start_date) && (!r.end_date || (r.end_date >= r.start_date && r.end_date <= "2027-01-31")), `${where}: a confirmed 2026 date (${r.start_date} to ${r.end_date})`);
-    ok(Number.isFinite(r.lat) && Number.isFinite(r.lng) && r.lat > 24.3 && r.lat < 31.1 && r.lng > -87.7 && r.lng < -79.8, `${where}: Florida coordinates`);
-    ok(typeof r.coord_source === "string" && r.coord_source.length > 10, `${where}: says where its coordinates came from`);
-    ok(!r.approxLocation || /Census/.test(r.coord_source), `${where}: an approximate location is a Census city point and says so`);
-    ok(r.is_free === true || r.is_free === false || r.is_free === null, `${where}: admission is true, false or unknown (null)`);
-    ok(r.price_band === null || (r.price_band === "free" && r.is_free === true), `${where}: never labelled free unless the organizer says free`);
-    ok(noDash(r.card_hook) && !/-/.test(r.card_hook) && noDash(r.event_name) && noDash(r.schedule_note), `${where}: no dash in the hook, name or schedule`);
-    ok(/^https:\/\//.test(r.official_event_url || ""), `${where}: links to the organizer's page`);
-    ok(!["hero_image", "photo_ref", "photo_url", "photoAttr", "photoAttrHref", "photo_name", "image"].some((k) => k in r) && !/googleusercontent|maps\.googleapis|places\/[^"]+\/photos/.test(JSON.stringify(r)), `${where}: stores no photo name, URL or credit (PR #1697)`);
-    ok(isTrusted(r), `${where}: passes the trusted row gate`);
-  }
-  const PER = Object.fromEntries(SPEC_IDS.map((id) => [id, rows.filter((r) => r.christmas_rail === id).length]));
-  ok(PER["popup-bars"] === 0, "no pop up bar is published as a dated event");
-  // Five owner authorized location corrections, exactly.
-  const FIX = {
-    "cocoa-beach-holiday-boat-parade-2026": [28.3237323, -80.6168073, "2026-12-12", /Cove Park/],
-    "fort-myers-beach-christmas-boat-parade-2026": [26.4584387, -81.9534145, "2026-12-05", /Matanzas Pass Fishing Pier/],
-    "palm-beach-holiday-boat-parade-2026": [26.8742123, -80.065773, "2026-12-05", /Bert Winters Park/],
-    "winter-park-christmas-parade-2026": [28.5978454, -81.3514572, "2026-12-05", /Central Park/],
-    "holiday-lights-florida-botanical-2026": [27.8831, -82.80861, "2026-11-27", /Florida Botanical Gardens/],
-  };
-  for (const [id, [lat, lng, start, venue]] of Object.entries(FIX)) {
-    const db = { event_id: id, event_name: "Row " + id, start_date: start, lat: null, lng: null, venue: "staging", place_id: null, event_status: "scheduled" };
-    const [out] = mergeChristmasDiscoveryRows([db], []);
-    ok(out.lat === lat && out.lng === lng && venue.test(out.venue) && out.start_date === start, `${id}: the owner authorized public viewing location is applied at read time (${out.lat}, ${out.lng}, ${out.venue})`);
-    ok(db.lat === null && db.venue === "staging", `${id}: the correction never mutates the DB row`);
-    ok(!!out.christmas_rail, `${id}: carries its rail after the merge`);
-  }
-  ok(CHRISTMAS_EVENT_CORRECTIONS_2026["fort-myers-beach-christmas-boat-parade-2026"].end_time === "20:00:00" && CHRISTMAS_EVENT_CORRECTIONS_2026["winter-park-christmas-parade-2026"].start_time === "09:00:00", "the corrected rows keep their verified times");
-  // Merge: one row per id, the registry laid over the DB row.
-  const dbTwin = { event_id: rows[0].event_id, event_name: "Old", city: "X", status_note: "db only", event_status: "scheduled" };
-  const merged = mergeChristmasDiscoveryRows([dbTwin, { event_id: "other-db-row", event_name: "Other" }]);
-  ok(merged.filter((r) => r.event_id === rows[0].event_id).length === 1 && merged.find((r) => r.event_id === rows[0].event_id).event_name === rows[0].event_name && merged.find((r) => r.event_id === rows[0].event_id).status_note === "db only", "a registry row with a DB twin merges into ONE row (registry copy over DB columns)");
-  ok(merged.length === rows.length + 1, "every registry row plus every other DB row, nothing lost or doubled");
-  ok(mergeChristmasDiscoveryRows(null).length === rows.length, "a missing DB read still yields the registry");
-  // Composed from Sarasota, the registry stays one card per destination.
-  const out = composeChristmasIntentRails(mergeChristmasDiscoveryRows([]), placeFixture(), { ...SARASOTA, today: "2026-11-20" });
-  const cards = out.rails.flatMap((r) => r.cards);
-  ok(new Set(cards.map((c) => c.id)).size === cards.length, "registry cards never repeat across rails");
-  const galuppi = cards.filter((c) => c.place_id === "ChIJxT5RpqEC2YgRAZR8LkMhskI");
-  ok(galuppi.length <= 1, "two brunches at the same venue are one card (one destination, one card)");
-  ok(cards.filter((c) => c.kind === "event").every((c) => (c.end_date || c.start_date) >= "2026-11-20"), "no expired registry row renders");
-  // City points: the Census table, approximate only.
-  ok(Object.keys(CHRISTMAS_CITY_POINTS).length > 50 && Object.values(CHRISTMAS_CITY_POINTS).every(([la, ln]) => la > 24.3 && la < 31.1 && ln > -87.7 && ln < -79.8), "the Census city points are all in Florida");
+  ok(CHRISTMAS_PUBLISHED_RESEARCH.length >= 450 && CHRISTMAS_PUBLISHED_RESEARCH.every((r) => SPEC_IDS.includes(christmasEventRail(r))), `every published research listing carries one of the eight rails (${CHRISTMAS_PUBLISHED_RESEARCH.length})`);
+  ok(Object.keys(CHRISTMAS_CITY_POINTS).length > 200 && Object.values(CHRISTMAS_CITY_POINTS).every(([la, ln]) => la > 24.3 && la < 31.1 && ln > -87.7 && ln < -79.8), "the Census city points are all in Florida");
+  ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "the fallback rail map only names the eight rails");
 }
 
-// ── 5. Copy and the pop up bars (EXECUTED) ──────────────────────────────────
+// ── 5. Copy (EXECUTED) ──────────────────────────────────────────────────────
 {
-  ok(Object.values(CHRISTMAS_PLACE_RAIL).every((rail) => rail === "popup-bars") && Object.keys(CHRISTMAS_PLACE_RAIL).length === BAR_IDS.length, "the place pool is the confirmed pop up bars only (no beach, manatee or venue anchor places)");
-  for (const id of BAR_IDS) {
-    const take = CHRISTMAS_PLACE_TAKES[id];
-    ok(take === CHRISTMAS_POPUP_DATE_LINE && (CHRISTMAS_POPUP_SEASON_CHIP + ", " + take.toLowerCase()) === CHRISTMAS_POPUP_SEASON_LINE && noDash(take) && !/\$|\b(?:mon|tue|wed|thu|fri|sat|sun)\w*\b|\bnov\b|\bdec\b|\d{1,2}\s?(?:am|pm)/i.test(take.replace("2026", "")), `${id}: chip plus take say "${CHRISTMAS_POPUP_SEASON_LINE}" and claim no date or price`);
-    ok(/^(?:Miracle|Sippin' Santa) at /.test(CHRISTMAS_PLACE_TITLES[id]) && /^https:\/\/www\.(?:miraclepopup|sippinsantapopup)\.com\/locations-2026$/.test(CHRISTMAS_POPUP_BARS_2026[id].source), `${id}: named for its pop up, sourced to the brand's 2026 list`);
-  }
-  ok(CHRISTMAS_POPUP_SEASON_LINE === "2026 season confirmed, opening date not announced yet.", "the season line is the honest sentence, word for word");
-  const bars = (today) => composeChristmasIntentRails([], placeFixture(), { ...SARASOTA, today }).rails.find((r) => r.id === "popup-bars").cards;
-  ok(bars("2026-12-31").length === BAR_IDS.length && bars("2027-01-01").length === 0 && CHRISTMAS_POPUP_SEASON_THROUGH === "2026-12-31", "pop up bars show through the season, not filtered by a missing date, and leave after Dec 31");
-  ok(bars("2026-12-01").every((c) => c.kind === "place" && !c.when && !c.start_date), "a pop up bar card carries no fake when");
+  ok(Object.keys(CHRISTMAS_PLACE_RAIL).length === 0, "the production place pool is empty: pop up bars are research listings, one card each");
   const copy = composed.rails.flatMap((r) => [r.title, r.deck, ...r.cards.flatMap((c) => [c.title, c.take, c.hook])]);
   ok(copy.every(noDash), "no dash in any rendered title, deck or take");
   const posterRow = railById("christmas");
@@ -308,7 +251,7 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   ok(posterRow && posterRow.art === "christmas" && !posterRow.href && !posterRow.posterHidden, "the poster wears christmas art, carries no href and is not hidden (a tap opens the drop)");
   ok(RAILS.filter((r) => r.id === "christmas").length === 1, "exactly one christmas rail record");
   const pending = existsSync(path.join(ROOT, "docs/christmas-2026-pending.md")) ? read("docs/christmas-2026-pending.md") : "";
-  ok(/Lake Nona/.test(pending) && /Only last year's dates found/.test(pending) && (pending.match(/^\| /gm) || []).length >= 40, "docs/christmas-2026-pending.md lists every held row with its reason");
+  ok(/watchlist/i.test(pending) && /Excluded/.test(pending) && (pending.match(/^\| /gm) || []).length >= 150, "docs/christmas-2026-pending.md lists every watchlist and excluded row with its reason");
 }
 
 // ── 6. Poster position ──────────────────────────────────────────────────────
@@ -472,7 +415,7 @@ ok(eventPlaceholder("community", { name: "Downtown Christmas Event", christmasRa
 ok(eventPlaceholder("community", { name: "Ugly Sweater Crawl", christmasRail: "parties" }).label === "Christmas party", "a party gets the Christmas party tile by its rail");
 ok(eventPlaceholder("community", { name: "Miracle", christmasRail: "popup-bars" }).label === "Pop up bar", "a pop up bar gets the Pop up bar tile by its rail");
 ok(eventPlaceholder("community", { name: "Halloween Party", christmasRail: "parties" }).label === "Halloween", "a Halloween name still wins over any Christmas rail tile");
-ok(/placeholder: image \? null : eventPlaceholder\("community", \{[^}]*christmasRail: christmasEventRail\(e\)/.test(read("app/api/events/christmas/route.js")) && /\(event\.image \|\| event\.placeholder\)/.test(read("app/api/events/christmas/route.js")), "the route picks the tile by the event's rail and keeps a no photo event (static)");
+ok(/placeholder: image \? null : eventPlaceholder\("community", \{[^}]*christmasRail: rail \}\)/.test(read("lib/christmasCards.js")) && /const rail = christmasEventRail\(e\)/.test(read("lib/christmasCards.js")) && /\(event\.image \|\| event\.placeholder\)/.test(read("app/api/events/christmas/route.js")), "the shared card picks the tile by the event's rail and the route keeps a no photo event (static)");
 ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/components/ChristmasIntentRails.js")), "the card renders the designed tile (static)");
 {
   const tl = enrichChristmasEvent({ event_id: "x", city: "Tallahassee", state: "FL", lat: null, lng: null }, new Map());
@@ -498,7 +441,7 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
   for (const [label, at] of [["Sarasota", SARASOTA], ["Naples", { lat: 26.142, lng: -81.7948 }], ["Jacksonville", { lat: 30.33, lng: -81.66 }]]) {
     const out = composeChristmasIntentRails(extraFixture, placeFixture(), { ...at, today: TODAY });
     for (const r of out.rails) {
-      ok(r.cards.every((c) => c.kind === "event" ? christmasEventRail(c) === r.id : CHRISTMAS_PLACE_RAIL[c.id] === r.id), `${label} ${r.id}: every card (top up included) belongs to this rail by the same classifier`);
+      ok(r.cards.every((c) => c.kind === "event" ? christmasEventRail(c) === r.id : c.christmasRail === r.id), `${label} ${r.id}: every card (top up included) belongs to this rail by the same classifier`);
       const venues = r.cards.map((c) => c.kind === "event" ? c.place_id : c.id).filter(Boolean);
       ok(new Set(venues).size === venues.length, `${label} ${r.id}: no venue appears twice`);
       const series = r.cards.map((c) => c.event_series_id).filter(Boolean);
@@ -540,7 +483,7 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
   const withPhoto = renderToStaticMarkup(React.createElement(RailCard, { title: "x", photo: "/api/photo?place=ChIJx&w=640", placeholder: eventPlaceholder("community", { name: "Christmas on Las Olas" }) }));
   ok(/<img/.test(withPhoto) && !/wf-event-placeholder/.test(withPhoto), "a real venue photo always wins over the tile");
   const routeSrc = read("app/api/events/christmas/route.js");
-  ok(/placeholder: image \? null : eventPlaceholder\(/.test(routeSrc) && /\.filter\(\(event\) => \(event\.image \|\| event\.placeholder\) && \(event\.url \|\| event\.place_id \|\| event\.detailHref\)\)/.test(routeSrc), "the route keeps every photoless event that has a destination (static)");
+  ok(/placeholder: image \? null : eventPlaceholder\(/.test(read("lib/christmasCards.js")) && /\.filter\(\(event\) => \(event\.image \|\| event\.placeholder\) && \(event\.url \|\| event\.place_id \|\| event\.detailHref\)\)/.test(routeSrc), "the route keeps every photoless event that has a destination (static)");
   const css = (await lc(path.join(ROOT, "app/components/css.js"), ROOT)).WF_PLACE_CARD_CSS;
   ok(/\.wf-event-placeholder:after\{display:none\}/.test(css), "the tile drops the monogram ring, so it reads as flat artwork");
 }
@@ -555,17 +498,16 @@ const comp = read("app/components/ChristmasIntentRails.js");
 ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 8/.test(comp), "the component requires exactly eight rails");
 ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide/.test(comp) && !/GuideRailCollection|<aside/.test(comp), "each rail puts its own guide third inside its own track, nothing between rails (static; owner rule 2026-10-08)");
 ok(/onTrack=\{onTrack\}/.test(comp) && /"guide_open", props/.test(read("app/components/RailGuideSlot.js")) && /rail: railId/.test(read("app/components/RailGuideSlot.js")), "a guide click is tracked as guide_open with the rail and slug (static)");
-ok(/christmas-intents:v5:/.test(route) && /mergeChristmasDiscoveryRows\(rows \|\| \[\]\)/.test(route) && /mergedRows\.filter\(/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key, merges the registry at read time, enriches and attaches guides server side (static)");
-ok(/seasonChip: CHRISTMAS_PLACE_RAIL\[p\.place_id\] === "popup-bars" \? CHRISTMAS_POPUP_SEASON_CHIP : null/.test(route) && /card\.seasonChip \? \[\{ key: "season"/.test(comp), "a pop up bar card renders the season chip (static)");
-ok(/title: CHRISTMAS_PLACE_TITLES\[p\.place_id\] \|\| p\.name/.test(route) && /take: CHRISTMAS_PLACE_TAKES\[p\.place_id\]/.test(route), "a pop up bar card wears its pop up name and the season line (static)");
+ok(/christmas-intents:v6:/.test(route) && /mergeChristmasResearch\(rows \|\| \[\]\)/.test(route) && /mergedRows\.filter\(/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key, merges the research data at read time, enriches and attaches guides server side (static)");
+ok(/christmasEventCard\(e, \{ today, inventory: inventoryById\.get\(e\.place_id\) \|\| null, pageSlugs, byDealId \}\)/.test(route), "every event card is built by the shared christmasEventCard (static; executed in check-christmas-research)");
 ok(/from "\.\.\/\.\.\/lib\/christmasCardCopy\.js"/.test(comp) && !/lib\/christmasIntentRails|lib\/christmasDiscoveries2026|lib\/christmasPool/.test(comp) && !/^\s*import/m.test(read("lib/christmasCardCopy.js")), "the client component imports only the client safe card copy, so the registry never ships to the browser (static; production chunks are swept after the build)");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");
-ok(/christmasEventTicket\(e\.event_id, byDealId\)/.test(route) && /ticket,\s*\n/.test(route), "the route attaches ticket to every event card (static)");
+ok(/christmasEventTicket\(e\.event_id, byDealId\)/.test(read("lib/christmasCards.js")) && /ticket,\s*\n/.test(read("lib/christmasCards.js")) && /byDealId \}\)/.test(route), "the shared card attaches the ticket and the route passes the live deals (static)");
 ok(/kind: TICKET_SURFACE/.test(comp) && /surface: TICKET_SURFACE/.test(comp) && /TICKET_SURFACE = "christmas_intent_rail"/.test(comp) && /cta=\{isEvent \? eventCta\(card, onTrack\)/.test(comp), "the component renders the CTA with tickets_out and commerce tracking (static)");
 const rail = read("app/components/DaypartRail.js");
 ok(/ChristmasIntentRails = dynamic\(/.test(rail) && /christmas: \(\) => import\("\.\/ChristmasIntentRails"\)/.test(rail), "DaypartRail lazy loads and prewarms the Christmas component");
 ok(/selRail && selRail\.id === "christmas" \? \(\s*<ChristmasIntentRails/.test(rail), "the pop down mounts the Christmas component for the christmas poster");
 ok(/selRail\.id === "christmas"/.test((rail.match(/const railOwnsItsOwnAnswer =[^;]+;/) || [""])[0]), "christmas owns its own answer, like fall");
 
-console.log(`\ncheck-christmas-rails: ${fail ? "FAIL" : "OK"}: ${pass} assertions (executed composeChristmasIntentRails on ${events.length} fixture events, ${placeFixture().length} pop up bars and the ${CHRISTMAS_DISCOVERIES_2026.length} row registry; wiring checks are static)`);
+console.log(`\ncheck-christmas-rails: ${fail ? "FAIL" : "OK"}: ${pass} assertions (executed composeChristmasIntentRails on ${events.length} fixture events, ${placeFixture().length} fixture places and the ${CHRISTMAS_PUBLISHED_RESEARCH.length} published research listings; wiring checks are static)`);
 process.exit(fail ? 1 : 0);
