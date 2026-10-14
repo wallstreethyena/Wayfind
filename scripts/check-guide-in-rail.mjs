@@ -84,10 +84,10 @@ ok(!/data-guide-rail/.test(none), "NEGATIVE: a rail with no matched guide render
   ok(page1.filter((x) => x !== "G").join() === Array.from({ length: 20 }, (_, i) => i + 1).join() && page1[3] === "3", "(c) the third place card is rank 3 although it is the fourth tile; ranks run 1..20 with no gap");
   ok(items.length === 20, "(c) counters and dots read the place list (20), which never contains the guide");
   // (d) one guide, one rail per collection.
-  const matchG = { slug: "match", title: "Match", image: { src: "/x.webp" }, placeIds: ["shared"], teaser: "t" };
+  const matchG = { slug: "match", title: "Match", image: { src: "/x.webp" }, placeIds: ["shared"], teaser: "t", kinds: ["destination"] }; // topic fit is required (lib/guideRailCollections.js): destination rides the Today collection
   const three = [0, 1, 2].map((k) => ({ id: "rail-" + k, places: [{ id: "shared", name: "Shared" }, { id: "own-" + k, name: "Own " + k }] }));
   const collectionHtml = renderToStaticMarkup(React.createElement(H.GuideDiscoveryContext.Provider, { value: [matchG] },
-    React.createElement(H.Collection, { rails: three, collectionId: "c" }, three.map((rail) => React.createElement("div", { key: rail.id, className: "wf-rail" },
+    React.createElement(H.Collection, { rails: three, collectionId: "today" }, three.map((rail) => React.createElement("div", { key: rail.id, className: "wf-rail" },
       React.createElement(H.RailGuideSlot, { railId: rail.id }, rankCards(rail.places)))))));
   ok((collectionHtml.match(/data-guide-rail=/g) || []).length === 1, `(d) a guide that matches three rails of one collection shows in exactly one (got ${(collectionHtml.match(/data-guide-rail=/g) || []).length})`);
   const own = ["a", "b", "c", "d", "e"].map((k) => renderToStaticMarkup(React.createElement(H.RailGuideSlot, { railId: k, guide: { ...matchG, slug: "own-" + k } }, rankCards(rowsOf(4)))));

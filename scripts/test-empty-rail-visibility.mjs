@@ -188,7 +188,7 @@ const contextPath = fileURLToPath(new URL("../app/components/GuideDiscoveryConte
 assert(summerGraph.has(contextPath), "the real guide context is reachable from the rail component");
 const { GuideDiscoveryContext } = await import(summerGraph.get(contextPath));
 const guide = {
-  slug: "fixture-local-guide", title: "Covered local guide", region: "Test City", placeIds: ["covered-place"],
+  slug: "fixture-local-guide", kinds: ["rainy"], /* topic fit: Summer Picks is the `season` rail */ title: "Covered local guide", region: "Test City", placeIds: ["covered-place"],
   image: { src: "/fixture-guide.jpg", credit: "Fixture photographer", creditHref: "https://example.test/credit" },
 };
 const renderWithGuide = (rails) => renderToStaticMarkup(React.createElement(GuideDiscoveryContext.Provider, { value: [guide] },
