@@ -688,6 +688,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-no-product-review.mjs": {
+    "protects": "NO_EXACT_AFFILIATE_PRODUCT (lib/eventTicketDeals.js) never holds a past-due decision: every row's reviewBy is within 14 days of its reviewedAt and not earlier than the clock passed in (default: the newest reviewedAt in the registry, or --today=YYYY-MM-DD), unless the event has already ended. The staleNoProductDecisions predicate is executed with a positive and a negative control.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-13: all reviewed no-exact-product decisions had lapsed (09-30 to 10-05) with nine sellable events unmapped and no build signal; the only alarm was the nightly coverage job paging. A stale 'no partner product' row silently suppresses re-checking an affiliate catalog that changes weekly (ZooTampa Creatures of the Night became bookable on Tiqets while its row sat expired)."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-menu-partner-offers.mjs": {
     "protects": "MENU_PARTNER_OFFERS (lib/menuPartnerOffers.js) \u2014 the metro-gated, category:sub-keyed source feeding UnifiedBrowseCommerceRail independent of loaded places \u2014 carries only rows whose provider is a live commerce.PROVIDERS entry and whose offer id actually resolves in the registry that provider reads from, never claims an empty-by-law chip (Food/Hotels/Shopping/Spa/Speakeasy/Karaoke), is never imported by a client component or app/home.js (the client must never receive a destination), and closes the affiliate-inventory audit's dead-registry-key list without any key left unaccounted for.",
     "blastRadius": {

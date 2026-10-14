@@ -1218,6 +1218,7 @@ node scripts/check-fall-offering-freshness.mjs
 node scripts/check-event-ticket-deals.mjs
 node scripts/check-event-ticket-fallback.mjs
 node scripts/check-affiliate-coverage.mjs
+node scripts/check-no-product-review.mjs
 # 2026-09-16 (Lane B) — MENU_PARTNER_OFFERS: the metro-gated, category:sub-keyed
 # partner rail feeding UnifiedBrowseCommerceRail independent of loaded places.
 node scripts/check-menu-partner-offers.mjs
@@ -1914,6 +1915,7 @@ node scripts/check-provider-empty-answers.mjs
 # entry, and red-proves that removing theme-parks from the registry itself
 # fails (reproducing the exact hole this exists to close).
 node scripts/check-photo-surface-registry.mjs
+node scripts/check-photo-credit-under-headline.mjs
 
 # The self-healing photo-warm cron (app/api/cron/photo-warm): empty visible
 # places get exactly one real /api/photo request each, an already-served place
