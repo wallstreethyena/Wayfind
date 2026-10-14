@@ -155,6 +155,7 @@ try {
     assert.equal(await page.locator("dialog a[translate=no]").getAttribute("href"), "https://maps.google.com/photo/ChIJCardPhotoGood0002");
     // Place-id change while the viewer is OPEN: the old photo/credit pair must disappear at once.
     await render("ChIJCardPhotoGood0005", "Third photo");
+    await page.locator("dialog").waitFor({ state: "detached", timeout: 5000 });
     assert.equal(await page.locator("dialog[open]").count(), 0, "changing the place closes the viewer; a stale photo/credit pair never renders under the new place");
     await page.locator('#root > img[alt="Third photo"]').waitFor();
     assert.equal(await page.locator("#root > img").getAttribute("src"), "https://photo.test/ChIJCardPhotoGood0005.jpg");
