@@ -189,6 +189,62 @@ export function pickBookLinkCandidates(hrefs, note) {
   return safe.length ? safe : all;
 }
 
+/**
+ * The first cards a visitor sees are NOT final: the page first paints for its
+ * default centre (Parrish: the "theme-parks-flagship" rail) and re-renders the
+ * same slots ~0.2-1.5s later once geolocation lands (Sarasota: the Viator
+ * tours rail). A tap inside that window saves the card that is about to be
+ * replaced, so the visible Save never flips (live 2026-10-14, save-share-actions:
+ * "got {ariaPressed:false, text:'Save'}") - and, because that save went through
+ * the place-card path, the one-time signup offer (app/home.js
+ * offerAccountAfterSave) then opened over the next click. Neither is a product
+ * regression; the monitor tapped before the page settled.
+ *
+ * Pure: `samples` is [{t, key}] (key = the first cards' identities). True when
+ * the key has not changed for at least `quietMs` up to the last sample.
+ * @param {Array<{t:number,key:string}>} samples
+ * @param {number} quietMs
+ */
+export function cardWindowIsStable(samples, quietMs) {
+  if (!Array.isArray(samples) || samples.length < 2) return false;
+  const last = samples[samples.length - 1];
+  if (!last || !last.key) return false;
+  let since = last.t;
+  for (let i = samples.length - 2; i >= 0 && samples[i].key === last.key; i--) since = samples[i].t;
+  return last.t - since >= quietMs;
+}
+
+export const CARD_WINDOW_QUIET_MS = 1200;
+export const CARD_WINDOW_MAX_WAIT_MS = 8000;
+// app/home.js offerAccountAfterSave opens the sign-in sheet 1200ms after the
+// FIRST anonymous place-card save on a device. 1600ms = that timer + margin.
+export const SIGNUP_OFFER_SETTLE_MS = 1600;
+
+/** Wait (bounded) until the first three cards stop changing identity. */
+async function waitForStableCardWindow(page) {
+  const t0 = Date.now();
+  const samples = [];
+  while (Date.now() - t0 < CARD_WINDOW_MAX_WAIT_MS) {
+    const key = await page.evaluate(() =>
+      [...document.querySelectorAll(".wf-place-card")].slice(0, 3)
+        .map((c) => (c.querySelector(".wf-place-card-save") || c).getAttribute("aria-label") || "").join("|")
+    ).catch(() => "");
+    samples.push({ t: Date.now(), key });
+    if (cardWindowIsStable(samples, CARD_WINDOW_QUIET_MS)) return true;
+    await page.waitForTimeout(100);
+  }
+  return false;
+}
+
+/** Close the one-time signup offer if it is open. Returns whether it was. */
+async function closeSignupOffer(page) {
+  const email = page.locator("#wf-auth-email");
+  if (!(await email.count()) || !(await email.first().isVisible().catch(() => false))) return false;
+  await page.getByRole("dialog").getByRole("button", { name: "Close" }).first().click({ timeout: 3000 }).catch(() => page.keyboard.press("Escape"));
+  await page.waitForTimeout(400);
+  return true;
+}
+
 async function toggledAfterClick(locator) {
   const read = () => locator.evaluate((el) => ({
     ariaPressed: el.getAttribute("aria-pressed"),
@@ -977,6 +1033,8 @@ export const SCENARIOS = [
       ctx.setUrl(url);
       const cards = page.locator(".wf-place-card");
       await cards.first().waitFor({ state: "visible", timeout: 20000 });
+      const settled = await waitForStableCardWindow(page);
+      ctx.ok("the first cards stopped changing before the first tap (first-paint centre -> geolocated rail swap done)", settled, `same first 3 cards for ${CARD_WINDOW_QUIET_MS}ms`, settled ? "stable" : "still changing after " + CARD_WINDOW_MAX_WAIT_MS + "ms");
       const count = await cards.count();
       ctx.ok("at least 3 cards are available to exercise controls on", count >= 3, ">= 3", count);
       if (count < 1) return;
@@ -987,6 +1045,14 @@ export const SCENARIOS = [
       if (await saveBtn.count()) {
         const r = await toggledAfterClick(saveBtn);
         ctx.ok("Save toggles its visible state on tap", r.changed, "state changed", JSON.stringify(r.after));
+        // Owner contract: a signed-out Save is never blocked - it saves on this
+        // device, and the FIRST one may then offer a free account (a sheet that
+        // opens ~1.2s later). Let that offer land, prove the save survived it,
+        // and dismiss it so the Like/Dislike taps below hit the cards.
+        await page.waitForTimeout(SIGNUP_OFFER_SETTLE_MS);
+        const offered = await closeSignupOffer(page);
+        const afterOffer = await saveBtn.evaluate((el) => el.getAttribute("aria-pressed")).catch(() => null);
+        ctx.ok("the save survived the signup offer (offered=" + offered + ")", afterOffer === "true", "aria-pressed true", String(afterOffer));
       } else {
         ctx.ok("Save control is present on card 1", false, "present", "absent");
       }
