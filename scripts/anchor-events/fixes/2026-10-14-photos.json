@@ -1,0 +1,35 @@
+[
+  {
+    "event_id": "mainsail-art-festival-2027",
+    "expect": { "hero_image": null, "image_alt": null, "hero_image_kind": null },
+    "set": {
+      "hero_image": "https://upload.wikimedia.org/wikipedia/commons/2/28/Vinoy_Park.jpg",
+      "image_alt": "Vinoy Park on the St. Petersburg waterfront, the festival's venue; venue photo, not the festival. Photo: Calmuziclover, CC BY 2.0, via Wikimedia Commons",
+      "hero_image_kind": "venue"
+    },
+    "source_url": "https://commons.wikimedia.org/wiki/File:Vinoy_Park.jpg",
+    "note": "Existing verified asset: wf_place_photo row for place_id ChIJESS-JgvhwogRnfB1lK46okc (status active, Vinoy Park). CC BY 2.0, author Calmuziclover, 3497x2023. Depicts the festival's fixed venue (event row venue = Vinoy Park), labeled venue. Commons file page itself could not be fetched from this environment; license/author/size come from the DB row. REQUIRES hero_image_kind in apply.mjs ALLOWED_FIELDS."
+  },
+  {
+    "event_id": "thunder-beach-spring-rally-2027",
+    "expect": { "hero_image": null, "image_alt": null, "hero_image_kind": null },
+    "set": {
+      "hero_image": "https://upload.wikimedia.org/wikipedia/commons/2/2c/Frank_Brown_Park_%284218041932%29.jpg",
+      "image_alt": "Frank Brown Park in Panama City Beach, one of the rally's venues; venue photo, not the rally. Photo: cambo5, CC BY 2.0, via Wikimedia Commons",
+      "hero_image_kind": "venue"
+    },
+    "source_url": "https://commons.wikimedia.org/wiki/File:Frank_Brown_Park_(4218041932).jpg",
+    "note": "Existing verified asset: wf_place_photo row for place_id ChIJHdRIEU2Mk4gRfAM5vKPoRxk (status active, Frank Brown Park). CC BY 2.0, author cambo5, 2048x1536. Event row venue = Frank Brown Park (organizer names it as one of several rally venues, so alt says 'one of the rally's venues'). Commons file page could not be fetched; license/author/size from the DB row. REQUIRES hero_image_kind in ALLOWED_FIELDS."
+  },
+  {
+    "event_id": "winter-park-sidewalk-art-festival-2027",
+    "expect": { "hero_image": null, "image_alt": null, "hero_image_kind": null },
+    "set": {
+      "hero_image": "https://upload.wikimedia.org/wikipedia/commons/1/16/Winter_Park_FL_Downtown_HD01.jpg",
+      "image_alt": "Downtown Winter Park, the area around Park Avenue and Central Park where the festival is held; venue-area photo, not the festival. Photo: Ebyabe, CC BY-SA 3.0, via Wikimedia Commons",
+      "hero_image_kind": "venue"
+    },
+    "source_url": "https://commons.wikimedia.org/wiki/File:Winter_Park_FL_Downtown_HD01.jpg",
+    "note": "Existing verified asset: wf_place_photo row for place_id ChIJf08FfxBw54gR5ZaArMYFULs (status active, Downtown Winter Park). CC BY-SA 3.0, author Ebyabe, 3264x2448. Shows downtown Winter Park (festival is at Central Park and Park Avenue); NOT confirmed to show Central Park itself, so alt says venue area. Commons page not fetchable; license/author/size from the DB row. REQUIRES hero_image_kind in ALLOWED_FIELDS."
+  }
+]
