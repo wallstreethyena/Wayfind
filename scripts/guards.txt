@@ -2173,3 +2173,6 @@ node scripts/check-synthetic-map-contracts.mjs
 # -> job-watch (early cap = incident, WARN = non-paging). Read-only: changes no cap. Mutation-proofed.
 node scripts/test-spend-pacing.mjs
 node scripts/test-detail-open-once.mjs
+
+# 2026-10-14 canonical Florida anchor-event list (data/florida-anchor-events.json): schema, unique ids, rails exist, region/domain/event_id rules + negative controls.
+node scripts/check-anchor-events.mjs
