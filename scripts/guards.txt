@@ -2187,3 +2187,5 @@ node scripts/test-detail-open-once.mjs
 node scripts/check-event-jsonld-offset.mjs
 node scripts/test-photo-inventory-audit.mjs
 node scripts/check-place-identity-contract.mjs
+# 2026-10-14 anchor watch: daily Florida anchor-event watcher; each finding kind has a positive and a negative control (403 = unknown, never cancelled).
+node scripts/test-anchor-watch.mjs

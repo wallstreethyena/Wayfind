@@ -442,6 +442,7 @@ scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	50fa
 scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	1efd5c41cb4aa28d746b7e86573fea35da903f8dc7b492048cd331cf814c4245
 scripts/test-analytics-write-suppression.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	3422149225bebecdaf6a3a662a1d565847cb3bcc7e84e5aa66f1db15942c8c4d
 scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb598679327a1f7d0f0f24bce0613f3dadd81144efca8af637121
+scripts/test-anchor-watch.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	6804e831eda3b30f3e0eacf1405b758bd3ac5363c9bc3418b724107915ab37b0
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
 scripts/test-app-rating.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	5b4dc84cbd73a12c5c66af3e8f9048c363058a2ab5b4305956bd33ec217931eb
 scripts/test-apple-explorer-map.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	d0fe6060b3f701b91332fa524c72f75043c9864c0912a8406dc4cd9860e64e79
