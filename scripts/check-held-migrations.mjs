@@ -1,6 +1,10 @@
 #!/usr/bin/env node
 // scripts/check-held-migrations.mjs — A HELD MIGRATION IS A DECISION, NOT A DRAFT.
 //
+// STRUCTURAL-ONLY: the subject is a set of SQL/README files, not executable app
+// code; there is nothing to import or render. The 5 in-process controls call the
+// real evaluate() with passing and failing inputs.
+//
 // supabase/held-migrations/ is outside supabase/migrations/, so neither the
 // receipt guard nor the production canary looks at it (that is the point: held
 // SQL is deliberately not expected in production). That also means nothing
