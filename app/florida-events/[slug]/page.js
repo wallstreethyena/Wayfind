@@ -23,6 +23,7 @@ import { eventPhotos } from "../../../lib/eventPhotos";
 import { eventVenueImageSrc, withTampaPassFacts } from "../../../lib/eventPageImage.js";
 import { eventDatesLabel } from "../../../lib/eventOccurrences.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
+import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import ShareButton from "../../components/ShareButton";
 import PhotoCreditLink from "../../components/PhotoCreditLink";
 import SaveEventButton from "./SaveEventButton.js";
@@ -57,8 +58,11 @@ export async function generateMetadata({ params }) {
   // used to cache as a successful empty page.
   const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
   if (!e) return {};
-  const title = `${e.event_name} ${e.year}: Dates, Tickets & What to Know`;
-  const desc = `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`.trim();
+  const title = `${eventTitleWithYear(e.event_name, e.year)}: Dates, Tickets & What to Know`;
+  // A watchlist twin (2026 not confirmed) never "runs" on any date.
+  const desc = (e.christmas_watchlist
+    ? `${e.event_name} in ${e.city}: ${e.when_label}. ${e.card_hook || ""} Wayfind checks the official page and updates this listing.`
+    : `${e.event_name} runs ${eventDatesLabel(e, dateRangeLabel(e))} in ${e.city}. ${e.card_hook || ""} Wayfind's verdict, timing, parking and what to pair it with.`).trim();
   // THE SHARE CARD (v9, owner 2026-09-23: "everything on wayfind that is
   // sharable looks premium"). An event that has owned, consent-cleared
   // photography (lib/eventPhotos.js) now previews through the HERO ROUTE
@@ -265,10 +269,10 @@ export default async function CuratedEventPage({ params }) {
       </div>
       <EventSectionNav />
       <EventDetailShell
-        title={`${e.event_name} ${e.year}`}
+        title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
           { label: "When", value: `${eventDatesLabel(e, dateRangeLabel(e))}${e.when_label ? "" : `, ${e.year}`}${clockLabel(e.start_time) ? ` · ${clockLabel(e.start_time)}${clockLabel(e.end_time) ? (e.christmas_research_id ? " to " : "–") + clockLabel(e.end_time) : ""}` : ""}` },
-          { label: "Where", value: <>{e.venue ? <div>{e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
+          { label: "Where", value: <>{e.viewing_label || e.venue ? <div>{e.viewing_label || e.venue}</div> : null}{where && (e.venue ? where !== `${e.city}, ${e.state}` : true) ? <div style={S.addr}>{where}</div> : (!e.venue ? <div style={S.addr}>{e.city}, {e.state}</div> : null)}</> },
           { label: "Cost", value: e.christmas_price_line || eventCostSummary(e) },
           { label: "Who it is for", value: e.audience_label || null },
           { label: "Entry rules", value: eventRestrictions(e).join(" · ") || null },
@@ -315,7 +319,7 @@ export default async function CuratedEventPage({ params }) {
           />
           <ShareButton
             url={shareUrl}
-            title={`${e.event_name} ${e.year}`}
+            title={eventTitleWithYear(e.event_name, e.year)}
             text={shareText}
             label="Share"
             tone="dark"
@@ -434,7 +438,7 @@ export default async function CuratedEventPage({ params }) {
         </p>
         <ShareButton
           url={shareUrl}
-          title={`${e.event_name} ${e.year}`}
+          title={eventTitleWithYear(e.event_name, e.year)}
           text={shareText}
           label="Share this event"
           tone="solid"
