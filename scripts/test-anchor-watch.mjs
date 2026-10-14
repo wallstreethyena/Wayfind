@@ -12,7 +12,7 @@ import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runWatch, daysUntilWindow, detectCancellation, datesNearName, renderReport, UA } from "./anchor-events/watch.mjs";
+import { runWatch, noProbeReason, NO_PROBE_HOSTS, daysUntilWindow, detectCancellation, datesNearName, renderReport, UA } from "./anchor-events/watch.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FIXTURE = path.join(ROOT, "scripts/anchor-events/fixtures/anchors.sample.json");
@@ -88,7 +88,7 @@ ok(!pos.res.findings.some((f) => f.anchor_id === "fx-cancelled"), "state=cancell
 ok(!pos.res.findings.some((f) => f.anchor_id === "fx-gasparilla" && f.kind !== "missing_edition"), "403 on an official page produces no finding (unknown, not dead/cancelled)");
 ok(pos.res.unknown.some((u) => u.anchor_id === "fx-gasparilla" && u.reason === "http-403"), "403 is listed under 'could not check'");
 ok(pos.calls.every((c) => c.method === "GET"), "read-only: every request in the run was a GET");
-ok(pos.calls.filter((c) => !c.url.startsWith(SB.url)).every((c) => /^https:\/\/(gowayfind\.com|[a-z]+\.example)\//.test(c.url)), "outside requests go only to the site and anchor pages");
+ok(pos.calls.filter((c) => !c.url.startsWith(SB.url)).every((c) => /^https:\/\/(gowayfind\.com|[a-z]+\.example)(\/|$)/.test(c.url)), "outside requests go only to the site and anchor pages");
 ok(pos.sleeps.length >= 2 && pos.sleeps.every((ms) => ms > 0 && ms <= 1000), `pacing: runWatch sleeps between outside requests (${pos.sleeps.length} sleeps)`);
 ok(/Siesta Key|fx-sandcastle/.test(renderReport(pos.res)) && renderReport(pos.res).includes("| Anchor |"), "report renders a table");
 
@@ -99,10 +99,12 @@ const neg = await run({
   rows: [
     goodRow({ event_id: "fx-crystal-2026", event_name: "Siesta Key Crystal Classic", slug: "crystal-2026", start_date: "2026-11-13", end_date: "2026-11-15" }),
     goodRow({ event_id: "fx-gasparilla-2027", event_name: "Gasparilla Pirate Festival", slug: "gasparilla-2027", start_date: "2027-01-23", end_date: "2027-01-23" }),
+    goodRow({ event_id: "other-id", event_series_id: "series-xyz", event_name: "Winter Lights Series", slug: "series-ev", start_date: "2026-12-05", end_date: "2026-12-20" }),
   ],
   pages: {
     "https://gowayfind.com/florida-events/crystal-2026": { status: 200, body: "<h1>Siesta Key Crystal Classic</h1>" },
     "https://gowayfind.com/florida-events/gasparilla-2027": { status: 200, body: "<h1>Gasparilla Pirate Festival</h1>" },
+    "https://gowayfind.com/florida-events/series-ev": { status: 200, body: "<h1>Winter Lights Series</h1>" },
     "https://crystalclassic.example/": { status: 200, body: "<p>If it rains the Siesta Key Crystal Classic 2026 will be rescheduled. Siesta Key Crystal Classic November 13, 2026. See our cancellation policy.</p>" },
     "https://gasparillapiratefest.example/": { status: 200, body: "<title>Just a moment...</title>Enable JavaScript and cookies to continue" },
     "https://cortezfest.example/": "THROW",
@@ -115,16 +117,47 @@ ok(neg.res.unknown.some((u) => u.reason === "timeout"), "a timeout is 'could not
 // each single negative: 404 official page and cancelled wording on the wrong year
 const neg2 = await run({
   rows: [goodRow({ event_id: "fx-crystal-2026", event_name: "Siesta Key Crystal Classic", slug: "crystal-2026", start_date: "2026-11-13", end_date: "2026-11-15" }),
-         goodRow({ event_id: "fx-gasparilla-2027", event_name: "Gasparilla Pirate Festival", slug: "gasparilla-2027", start_date: "2027-01-23", end_date: "2027-01-23" })],
+         goodRow({ event_id: "fx-gasparilla-2027", event_name: "Gasparilla Pirate Festival", slug: "gasparilla-2027", start_date: "2027-01-23", end_date: "2027-01-23" }),
+         goodRow({ event_id: "other-id", event_series_id: "series-xyz", event_name: "Winter Lights Series", slug: "series-ev", start_date: "2026-12-05", end_date: "2026-12-20" }),],
   pages: {
     "https://gowayfind.com/florida-events/crystal-2026": { status: 200, body: "Siesta Key Crystal Classic" },
     "https://gowayfind.com/florida-events/gasparilla-2027": { status: 200, body: "Gasparilla Pirate Festival" },
+    "https://gowayfind.com/florida-events/series-ev": { status: 200, body: "Winter Lights Series" },
     "https://crystalclassic.example/": { status: 404, body: "gone" },
     "https://gasparillapiratefest.example/": { status: 200, body: "Gasparilla Pirate Festival 2019 was cancelled. Gasparilla Pirate Festival January 23, 2027." },
     "https://cortezfest.example/": { status: 200, body: "Cortez Commercial Fishing Festival 2027 dates soon" },
   },
 });
 ok(neg2.res.findings.length === 0, `NEGATIVE control 2: 404 official page + old-year cancellation + matching date => zero findings, got ${JSON.stringify(neg2.res.findings)}`);
+
+// ---- policy: Disney hosts are never fetched (AGENTS.md section 8)
+ok(NO_PROBE_HOSTS.includes("disneyworld.disney.go.com"), "NO_PROBE_HOSTS names the AGENTS.md host");
+const disneyCalls = pos.calls.filter((c) => !c.url.startsWith(SB.url) && /disney/i.test(c.url));
+ok(disneyCalls.length === 0, `disney anchor makes 0 requests, got ${disneyCalls.length}`);
+ok(pos.res.unknown.some((u) => u.anchor_id === "fx-disney" && u.reason === "policy-no-probe"), "disney anchor lands in 'could not check' as policy-no-probe");
+ok(!pos.res.findings.some((f) => f.anchor_id === "fx-disney"), "disney anchor yields no findings");
+ok(noProbeReason({ official_domain: "x.example", expected_edition: { source_url: "https://sub.disneyworld.disney.go.com/a" } }) === "policy-no-probe", "a disney SUBDOMAIN in source_url is blocked");
+ok(noProbeReason({ official_domain: "disneyworld.disney.go.com", expected_edition: {} }) === "policy-no-probe", "disney official_domain alone is blocked");
+ok(noProbeReason({ official_domain: "gasparillapiratefest.example", expected_edition: { source_url: "https://gasparillapiratefest.example/" } }) === null, "negative: an ordinary host is not blocked");
+{
+  const calls = [];
+  const optOut = [{ ...anchors[0], anchor_id: "fx-optout", probe: false }];
+  const r = await runWatch({ anchors: optOut, today: TODAY, now: NOW, sb: SB, paceMs: 0, probeLink: async () => ({ verdict: "unknown", reason: "stub" }),
+    fetchImpl: world({ rows: [], pages: {}, calls }) });
+  ok(!calls.some((c) => c.url.includes("gasparillapiratefest")) && r.unknown.some((u) => u.reason === "anchor-opted-out"), "probe:false anchor makes no official-page request");
+}
+
+// ---- series matching: anchor_id differs from event_series_id
+ok(!has(neg.res, "fx-series-anchor", "missing_edition"), "series row (event_series_id=series-xyz, other event_id) satisfies the anchor");
+ok(has(pos.res, "fx-series-anchor", "missing_edition"), "POSITIVE: with no row for the series the anchor is missing an edition");
+
+// ---- noise cuts
+ok(datesNearName("Siesta Key Crystal Classic tickets on sale November 20, 2026", "Siesta Key Crystal Classic", 2026).length === 0, "negative: 'on sale' date is ignored");
+ok(datesNearName("Siesta Key Crystal Classic vendor deadline November 20, 2026", "Siesta Key Crystal Classic", 2026).length === 0, "negative: 'deadline' date is ignored");
+ok(datesNearName("Siesta Key Crystal Classic updated November 20, 2026", "Siesta Key Crystal Classic", 2026).length === 0, "negative: 'updated' date is ignored");
+ok(datesNearName("Siesta Key Crystal Classic is November 20, 2026", "Siesta Key Crystal Classic", 2026).join() === "2026-11-20", "control: a plain event date still counts");
+ok(detectCancellation("Siesta Key Crystal Classic 2026 refund policy: cancelled tickets are non-refundable.", "Siesta Key Crystal Classic", 2026) === null, "negative: refund/policy boilerplate is not a cancel signal");
+ok(detectCancellation("Siesta Key Crystal Classic 2026 terms: in the event of cancellation tickets are non-refundable", "Siesta Key Crystal Classic", 2026) === null, "negative: 'in the event' boilerplate is not a cancel signal");
 
 // a DB failure must throw (script failure), not report "all clear"
 let threw = false;
