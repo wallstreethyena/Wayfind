@@ -347,6 +347,7 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
       id: card.getAttribute("data-place-id") || "",
       guideId: card.getAttribute("data-guide-id") || "",
       matchedId: card.getAttribute("data-guide-matched-id") || "",
+      track: card.closest("[data-rail]")?.getAttribute("data-rail") || "",
       name: (card.querySelector(".wf-place-card-name")?.textContent || "").trim(),
     }));
     const text = root.innerText || "";
@@ -364,7 +365,7 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
   // by data-guide-id. Split them off first; anything with NEITHER id still
   // reaches the data-place-id checks below and fails.
   const partition = partitionRailCards(surface.cards, expectedRows.map((row) => String(row?.id || "")).filter(Boolean));
-  ctx.ok(`${posterId}: at most one guide card, at the rail's guide slot, matched to a place in this rail`, partition.guideCount <= 1 && partition.guideMisplaced.length === 0 && partition.guideUnmatched.length === 0, "0-1 data-guide-id card at index 2 whose matched place is in the captured rail", { guides: partition.guides });
+  ctx.ok(`${posterId}: at most one guide card, at the rail's guide slot, matched to a place in this rail`, partition.guideCount <= 1 && partition.guideMisplaced.length === 0 && partition.guideUnmatched.length === 0, "0-1 data-guide-id card at index 2 of its own track whose matched place is in the captured rail", { guides: partition.guides });
   const reconciliation = reconcileRenderedCards(expectedRows, surface.cards.filter((card) => !(card.guideId && !card.id)));
   ctx.ok(`${posterId}: every rendered card exposes an exact data-place-id`, reconciliation.missingDomIds.length === 0, "0 cards without data-place-id", reconciliation.missingDomIds);
   ctx.ok(`${posterId}: every rendered card maps to a captured place id`, reconciliation.unknownNames.length === 0, "0 unknown fallback card names", reconciliation.unknownNames);
@@ -726,6 +727,15 @@ export const SCENARIOS = [
       ctx.setUrl(url);
       const first = page.locator(".wf-place-card").first();
       await first.waitFor({ state: "visible", timeout: 20000 });
+      // CardPhoto (#1715) renders a "Loading photo" placeholder span and only
+      // swaps in the <img>/monogram once an IntersectionObserver sees the card.
+      // At 1280x900 the first card sits just below the fold (measured on
+      // production: top=954 of 900), so reading media immediately races the
+      // observer. A reader scrolls to a card before judging its picture: do the
+      // same, then wait for the media to attach. A placeholder that never
+      // resolves still fails the unchanged assertion below.
+      await first.scrollIntoViewIfNeeded();
+      await first.locator(".wf-place-card-media img, .wf-place-card-monogram").first().waitFor({ state: "attached", timeout: 15000 }).catch(() => {});
 
       const shape = await first.evaluate((el) => ({
         hasMedia: !!el.querySelector(".wf-place-card-media img, .wf-place-card-monogram"),

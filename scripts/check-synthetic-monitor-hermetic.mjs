@@ -347,6 +347,31 @@ for (const s of SCENARIOS) {
       "menu-poster negative control: a guide whose matched place is not in the rail (or has none) fails");
     ok(partitionRailCards([P("a"), P("b"), G("g", "c"), G("h", "c"), P("c")], exp).guideCount === 2,
       "menu-poster negative control: two guides in one rail are counted so the scenario can fail them");
+    // Composed rails (Eat) are several tracks: the guide is the third card of
+    // ITS track, which is flattened index 8 when it sits in the second track.
+    const T = (track, c) => ({ ...c, track });
+    const eat = [T("t1", P("a")), T("t1", P("b")), T("t1", P("c")), T("t1", P("d")), T("t1", P("e")), T("t1", P("f")),
+      T("t2", P("g")), T("t2", P("h")), T("t2", G("g1", "g")), T("t2", P("i"))];
+    const eatPart = partitionRailCards(eat, ["a", "b", "c", "d", "e", "f", "g", "h", "i"]);
+    ok(eatPart.guideCount === 1 && eatPart.guideMisplaced.length === 0 && eatPart.guides[0].index === 2,
+      "menu-poster positive control: a guide that is the third card of its own sub-rail track is accepted even at flattened index 8");
+    const eatBad = partitionRailCards([...eat.slice(0, 6), T("t2", P("g")), T("t2", P("h")), T("t2", P("i")), T("t2", G("g1", "g"))], ["a", "b", "c", "d", "e", "f", "g", "h", "i"]);
+    ok(eatBad.guideMisplaced.includes("g1"),
+      "menu-poster MUTATION RED: a guide that is not the third card of its own track still fails in a multi-track rail");
+    // place-card-controls: the first card is below the fold at 1280x900 and its
+    // photo mounts only when CardPhoto's observer sees it, so the scenario must
+    // bring it into view and wait for media BEFORE reading hasMedia (the
+    // assertion itself stays unchanged and strict).
+    {
+      const sc = readFileSync(path.resolve("./scripts/lib/synthetic/scenarios.mjs"), "utf8");
+      const body = sc.slice(sc.indexOf('id: "place-card-controls"'), sc.indexOf('id: "today"'));
+      const scroll = body.indexOf("scrollIntoViewIfNeeded");
+      const wait = body.indexOf('.wf-place-card-monogram").first().waitFor');
+      const read = body.indexOf("hasMedia: !!el.querySelector");
+      const assertion = body.includes('ctx.ok("the card shows an image or a monogram fallback", shape.hasMedia, true, shape.hasMedia)');
+      ok(scroll > 0 && wait > scroll && read > wait && assertion,
+        "place-card-controls: scrolls the first card into view and waits for its photo/monogram before reading media; the media assertion is unchanged");
+    }
     const rc = readFileSync(path.resolve("./app/components/RailCard.js"), "utf8");
     const gc = readFileSync(path.resolve("./app/components/GuideDiscoveryCard.js"), "utf8");
     ok(/data-guide-id=\{variant === "guide" && guideId \? guideId : undefined\}/.test(rc) && /guideId=\{guide\?\.slug \|\| undefined\}/.test(gc),

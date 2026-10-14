@@ -297,20 +297,29 @@ export function partitionRailCards(cards, expectedPlaceIds) {
   const guides = [];
   const placeCards = [];
   const unidentified = [];
-  list.forEach((card, index) => {
+  // A composed menu rail (Eat, Breakfast...) is SEVERAL tracks (one
+  // [data-rail] per sub-rail). The slot is the third card of the guide's OWN
+  // track (lib/railGuideSlot.js), so the index is measured inside that track,
+  // never across the flattened list. Cards without a `track` share one track.
+  const trackLen = new Map();
+  list.forEach((card) => { const t = String(card?.track ?? ""); trackLen.set(t, (trackLen.get(t) || 0) + 1); });
+  const seenInTrack = new Map();
+  list.forEach((card) => {
+    const t = String(card?.track ?? "");
+    const index = seenInTrack.get(t) || 0;
+    seenInTrack.set(t, index + 1);
     const guideId = asId(card?.guideId);
     const id = asId(card?.id);
-    if (guideId && !id) guides.push({ guideId, matchedId: asId(card?.matchedId), index });
+    if (guideId && !id) guides.push({ guideId, matchedId: asId(card?.matchedId), index, track: t, slot: Math.min(2, Math.max(0, trackLen.get(t) - 1)) });
     else if (id) placeCards.push({ id, name: card?.name });
     else unidentified.push(asName(card?.name) || "(unnamed card)");
   });
-  const slot = Math.min(2, Math.max(0, list.length - 1));
   return {
     placeCards,
     guides,
     unidentified,
     guideCount: guides.length,
-    guideMisplaced: guides.filter((g) => g.index !== slot).map((g) => g.guideId),
+    guideMisplaced: guides.filter((g) => g.index !== g.slot).map((g) => g.guideId),
     guideUnmatched: guides.filter((g) => !g.matchedId || !expected.has(g.matchedId)).map((g) => g.guideId),
   };
 }
