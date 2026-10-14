@@ -60,6 +60,25 @@ import { siteTodayStr } from "../../../lib/siteTime.js";
  */
 export const HOMEPAGE_CARD_BUDGET_MS = 8000;
 
+/** Bounded wait for a visible card's media to settle (see place-card-controls). */
+export const CARD_MEDIA_WAIT_MS = 8000;
+export const CARD_MEDIA_TERMINAL = Object.freeze(new Set(["image", "monogram", "unavailable"]));
+
+/**
+ * Classify a card's media snapshot. "loading" (placeholder still up) and "none"
+ * (no media element at all) are the two non-terminal states; only "loading"
+ * after the bounded wait is a stuck loader, and both fail the scenario.
+ * @param {{imageLoaded?:boolean, monogram?:boolean, unavailable?:boolean, loading?:boolean}} snap
+ */
+export function classifyCardMedia(snap) {
+  const s = snap || {};
+  if (s.imageLoaded) return "image";
+  if (s.monogram) return "monogram";
+  if (s.unavailable) return "unavailable";
+  if (s.loading) return "loading";
+  return "none";
+}
+
 export const REQUIRED_FLOWS = Object.freeze([
   "homepage",
   "rails-render-cards",
@@ -347,6 +366,7 @@ async function verifyComposedPoster({ ctx, page, payload, posterId, dataRailId, 
       id: card.getAttribute("data-place-id") || "",
       guideId: card.getAttribute("data-guide-id") || "",
       matchedId: card.getAttribute("data-guide-matched-id") || "",
+      rail: card.closest("[data-rail]")?.getAttribute("data-rail") || "",
       name: (card.querySelector(".wf-place-card-name")?.textContent || "").trim(),
     }));
     const text = root.innerText || "";
@@ -727,12 +747,42 @@ export const SCENARIOS = [
       const first = page.locator(".wf-place-card").first();
       await first.waitFor({ state: "visible", timeout: 20000 });
 
+      // ── THE MEDIA CHECK WAITS FOR A TERMINAL STATE (2026-10-14) ──────────
+      // app/components/CardPhoto.js loads a credited photo only when the image
+      // ENTERS THE VIEWPORT (IntersectionObserver, by design: no off-screen
+      // photo spend). The first .wf-place-card on the homepage is the first card
+      // of the first rail, which sits BELOW the fold (top 953px of a 900px
+      // desktop viewport, 844px of 844px on a 390x844 phone), so it correctly
+      // shows the "Loading photo" placeholder until it scrolls into view. MEASURED
+      // on production: scrolled into view, the photo request starts at once and
+      // the <img> is in the DOM ~0.1-0.5s later (cold browser context). That is
+      // not a UX bug; the old check just read the DOM before any reader could have
+      // seen the card. So: scroll the card in (what a reader does), then wait a
+      // bounded 8s for image / monogram / explicit "Photo unavailable". A card
+      // that is STILL "Loading photo" after that is a stuck loader and still fails.
+      await first.scrollIntoViewIfNeeded().catch(() => {});
+      let mediaState = "none";
+      const mediaDeadline = Date.now() + CARD_MEDIA_WAIT_MS;
+      for (;;) {
+        mediaState = classifyCardMedia(await first.evaluate((el) => {
+          const media = el.querySelector(".wf-place-card-media");
+          return {
+            imageLoaded: [...(media ? media.querySelectorAll("img") : [])].some((img) => img.complete && img.naturalWidth > 0),
+            monogram: !!el.querySelector(".wf-place-card-monogram"),
+            unavailable: !!(media && media.querySelector('[aria-label^="Photo unavailable"]')),
+            loading: !!(media && media.querySelector('[aria-label="Loading photo"], [data-card-photo-request]')),
+          };
+        }));
+        if (mediaState !== "loading" && mediaState !== "none") break;
+        if (Date.now() >= mediaDeadline) break;
+        await page.waitForTimeout(150);
+      }
+
       const shape = await first.evaluate((el) => ({
-        hasMedia: !!el.querySelector(".wf-place-card-media img, .wf-place-card-monogram"),
         titleText: (el.querySelector(".wf-place-card-name") || {}).textContent || "",
         controls: ["save", "like", "dislike", "share"].filter((k) => el.querySelector(".wf-place-card-" + k)).length,
       }));
-      ctx.ok("the card shows an image or a monogram fallback", shape.hasMedia, true, shape.hasMedia);
+      ctx.ok(`the card reaches a terminal media state (image, monogram, or "Photo unavailable") within ${CARD_MEDIA_WAIT_MS / 1000}s of scrolling into view, not stuck on "Loading photo"`, CARD_MEDIA_TERMINAL.has(mediaState), [...CARD_MEDIA_TERMINAL].join("|"), mediaState);
       ctx.ok("the card has a non-empty title", shape.titleText.trim().length > 0, "> 0 chars", shape.titleText.trim().length);
       ctx.ok("the card renders exactly the 4 controls (save/like/dislike/share)", shape.controls === 4, 4, shape.controls);
 
