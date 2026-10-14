@@ -58,7 +58,9 @@ for (const [label, entry, re] of [
 }
 ok(validateEntry(good).length === 0, "POSITIVE: a valid entry passes validation");
 ok(validateEntry({ ...good, set: { event_status: "cancelled" }, expect: { event_status: "scheduled" } }).length === 0, "POSITIVE: existing status vocabulary accepted");
-ok(ALLOWED_FIELDS.length === 17 && !ALLOWED_FIELDS.includes("slug") && !ALLOWED_FIELDS.includes("event_id"), "allowlist is the agreed 17 fields");
+ok(validateEntry({ ...good, set: { hero_image_kind: "venue" }, expect: { hero_image_kind: null } }).length === 0, "POSITIVE: hero_image_kind venue accepted");
+ok(validateEntry({ ...good, set: { hero_image_kind: "stock" }, expect: { hero_image_kind: null } }).some((w) => /hero_image_kind/.test(w)), "NEGATIVE: hero_image_kind outside event/venue refused");
+ok(ALLOWED_FIELDS.length === 18 && ALLOWED_FIELDS.includes("hero_image_kind") && !ALLOWED_FIELDS.includes("slug") && !ALLOWED_FIELDS.includes("event_id"), "allowlist is the agreed 18 fields (hero_image_kind added for licensed venue photos)");
 
 // ---- dry run: reads, plans, never writes
 const dry = await run([good]);
