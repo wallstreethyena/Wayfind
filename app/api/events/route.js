@@ -718,8 +718,10 @@ async function fromCuratedEvents(lat, lng) {
     // from this feed (2026-10-08). See upcomingFilter in lib/curatedEvents.js.
     const rows = await fetchCuratedEvents({ fresh: true, upcomingFrom: today() });
     if (!rows.length) return { configured: true, events: [] };
+    // A row with no coordinates is not "far": it is unplaced. It passes through
+    // here and lib/eventsPipeline.js keeps it only on a city-name match.
     const near = curatedFeedEventsWithFall(rows).filter((e) =>
-      e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
+      e.lat == null || e.lng == null || haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
     // A row without its own image is never dropped: the card shows the
     // designed placeholder. The image is an upgrade, never a gate.
@@ -754,7 +756,7 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // cached payload built under the old rule is never served. running-v1
 // (2026-10-08): running events kept until their last day; curated twins of
 // aggregator rows absorbed.
-const EVENTS_FEED_RULES = "running-v1";
+const EVENTS_FEED_RULES = "running-v2"; // v2 2026-10-14: no-coordinate curated rows kept by city name
 async function aggregateEvents({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();

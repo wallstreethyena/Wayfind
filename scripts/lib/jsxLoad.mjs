@@ -41,6 +41,10 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
     // either. So a guard that asserts on this markup is asserting on the same
     // HTML the crawler gets — which is the thing these tests exist to check.
     // A lazy child's own behaviour belongs to that child's own guard.
+    // next/cache - 2026-10-14. unstable_cache(fn) is a pure pass-through here:
+    // the Data Cache is a deploy-time concern, and a component that wraps a
+    // loader in it (app/components/EventStays.js) must still be loadable.
+    "next/cache": "export const unstable_cache = (fn) => fn;\nexport const revalidateTag = () => {};\nexport const revalidatePath = () => {};\n",
     "next/dynamic": 'export default function dynamic() { return function DynamicStub() { return null; }; }\n',
     // next/font/google — 2026-10-01. A font loader call is compiled away by
     // Next (it becomes a CSS import + a { className, variable, style } object),

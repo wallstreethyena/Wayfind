@@ -772,6 +772,7 @@ node scripts/check-event-price-fact.mjs
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs
 node scripts/check-event-approximate-location.mjs
+node scripts/check-event-null-coords.mjs
 # The Events list mounts a page at a time; every event stays reachable.
 node scripts/check-events-paged-list.mjs
 

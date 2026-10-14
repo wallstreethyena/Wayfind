@@ -92,7 +92,7 @@ export function eventNearbyPlaces(picks, hasPoint) {
  *   sponsoredWebsite?: boolean,    // rel=sponsored when the link earns
  * }} props
  */
-export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false }) {
+export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false, locationNote = null }) {
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
@@ -111,6 +111,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 : address}</p>
             ) : null}
             {approximate ? <p className="wfw-addr" data-location-precision="approximate">{APPROXIMATE_LOCATION_LINE}</p> : null}
+            {!approximate && locationNote && !hasPoint ? <p className="wfw-addr" data-location-precision="unconfirmed">{locationNote}</p> : null}
           </div>
           {hasPoint || directionsHref || website ? (
             <div className="wfw-acts">
