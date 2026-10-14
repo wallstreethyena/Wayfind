@@ -1,43 +1,27 @@
 {
   "schema_version": 1,
-  "observed_at": "2026-09-12",
-  "scope": "Prepared owner-submitted Instagram associations in this release candidate; contains no source captions. This inventory covers links retrievable from the repository, reachable Git history, and four recalled links from the current conversation. It does not claim access to or completeness against all prior chat history. Production attachment is verified only after deployment.",
+  "observed_at": "2026-10-13",
+  "scope": "Prepared owner-submitted Instagram associations, including the verified 2026-10-10 Florida intake and 2026-10-13 follow-up; contains no source captions. Historical records cover links retrievable from the repository, reachable Git history, and four recalled links. This does not claim completeness against all prior chat history or all research backlogs. Production attachment is verified only after deployment.",
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 47,
-    "retrievable_reported_source_total": 51,
-    "retrievable_reported_sources_mapped": 47,
-    "sources_with_place_association": 38,
-    "sources_with_event_association": 9,
-    "sources_with_any_association": 47,
+    "source_total": 63,
+    "retrievable_reported_source_total": 65,
+    "retrievable_reported_sources_mapped": 63,
+    "sources_with_place_association": 54,
+    "sources_with_event_association": 10,
+    "sources_with_any_association": 63,
     "event_only_sources": 9,
-    "remaining_unmapped_sources": 4,
-    "place_association_count": 55,
-    "unique_place_association_count": 52,
+    "remaining_unmapped_sources": 2,
+    "place_association_count": 71,
+    "unique_place_association_count": 63,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 9,
+    "exact_event_association_count": 10,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
   "retrievable_unresolved_sources": [
-    {
-      "shortcode": "Dc50nKNB9pJ",
-      "native_url": "https://www.instagram.com/reel/Dc50nKNB9pJ/",
-      "native_path_kind": "reel",
-      "status": "unresolved_identity",
-      "evidence": "Absent from the repository and all reachable Git revisions; exact-shortcode public search returned no attributable identity metadata on 2026-09-11.",
-      "evidence_needed": "Creator handle plus the exact place or event name, or an owner-supplied screenshot/caption that proves the subject."
-    },
-    {
-      "shortcode": "Dc_wbrxy7dr",
-      "native_url": "https://www.instagram.com/p/Dc_wbrxy7dr/",
-      "native_path_kind": "p",
-      "status": "unresolved_identity",
-      "evidence": "Absent from the repository and all reachable Git revisions; exact-shortcode public search returned no attributable identity metadata on 2026-09-11.",
-      "evidence_needed": "Creator handle plus the exact place or event name, or an owner-supplied screenshot/caption that proves the subject."
-    },
     {
       "shortcode": "DdE9KVAlB5y",
       "native_url": "https://www.instagram.com/p/DdE9KVAlB5y/",
@@ -1183,12 +1167,12 @@
       "place_associations": [
         {
           "curated_key": "dead-coconut-club-citywalk-orlando",
-          "place_id": null,
-          "name": "Dead Coconut Club",
+          "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+          "name": "Red Coconut Club",
           "city": "Orlando",
           "address": "6000 Universal Boulevard, Orlando, FL 32819",
-          "native_wayfind_surface": "creator_find_preview:dead-coconut-club-citywalk-orlando",
-          "renderability": "registry_backed_creator_card"
+          "native_wayfind_surface": "/p/ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+          "renderability": "hydrated_place_detail_and_creator_card"
         }
       ],
       "event_associations": [],
@@ -1537,6 +1521,399 @@
       "association_status": "prepared",
       "public_navigation": "/florida-events/scream-a-geddon-dade-city-2026",
       "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dd9R9lItGd4",
+      "creator_handle": "magicalmaddieb",
+      "native_url": "https://www.instagram.com/reel/Dd9R9lItGd4/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Winter Garden"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "rosallie-le-french-cafe-winter-garden",
+          "place_id": "ChIJ15lqd26D54gR0zik2zNTX4o",
+          "name": "Rosallie Le French Cafe",
+          "city": "Winter Garden",
+          "address": "141 W Plant St, Winter Garden, FL 34787",
+          "native_wayfind_surface": "/p/ChIJ15lqd26D54gR0zik2zNTX4o",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Db1FgU9KKfj",
+      "creator_handle": "simply.rachelleigh",
+      "native_url": "https://www.instagram.com/reel/Db1FgU9KKfj/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tampa"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "spookeasy-lounge-tampa",
+          "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+          "name": "SpookEasy Lounge",
+          "city": "Tampa",
+          "address": "1909 N 15th St, Tampa, FL 33605",
+          "native_wayfind_surface": "/p/ChIJ7QVjUK_FwogRaTLY8uxOico",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc_ZWJNx-RL",
+      "creator_handle": "cheatdayorlando",
+      "native_url": "https://www.instagram.com/reel/Dc_ZWJNx-RL/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Apopka"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "calypso-coffee-bar-apopka",
+          "place_id": "ChIJ02QeVQF154gRkZlyxSZYgdk",
+          "name": "Calypso Coffee Bar",
+          "city": "Apopka",
+          "address": "1466 Rock Springs Rd, Apopka, FL",
+          "native_wayfind_surface": "/p/ChIJ02QeVQF154gRkZlyxSZYgdk",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdPRE7LAkUc",
+      "creator_handle": "peckish.traveler",
+      "native_url": "https://www.instagram.com/p/DdPRE7LAkUc/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Apopka"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "calypso-coffee-bar-apopka",
+          "place_id": "ChIJ02QeVQF154gRkZlyxSZYgdk",
+          "name": "Calypso Coffee Bar",
+          "city": "Apopka",
+          "address": "1466 Rock Springs Rd, Apopka, FL",
+          "native_wayfind_surface": "/p/ChIJ02QeVQF154gRkZlyxSZYgdk",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdfaBH4xSbL",
+      "creator_handle": "helloangelinasworld",
+      "native_url": "https://www.instagram.com/reel/DdfaBH4xSbL/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Tavares"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "btw-crafted-concoctions-tavares",
+          "place_id": "ChIJK8XimDu954gRDL72avt1fZE",
+          "name": "BTW's Crafted Concoctions",
+          "city": "Tavares",
+          "address": "115 E Main St, Tavares, FL 32778",
+          "native_wayfind_surface": "/p/ChIJK8XimDu954gRDL72avt1fZE",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dd9ZVsRSApI",
+      "creator_handle": "staugcoffeehouse",
+      "native_url": "https://www.instagram.com/reel/Dd9ZVsRSApI/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "St. Augustine"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "st-augustine-coffee-house",
+          "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+          "name": "St Augustine Coffee House",
+          "city": "St. Augustine",
+          "address": "6 Saint George St, Suite 107, St. Augustine, FL",
+          "native_wayfind_surface": "/p/ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DeQHe46Nutb",
+      "creator_handle": "haileycoffey",
+      "native_url": "https://www.instagram.com/reel/DeQHe46Nutb/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "St. Augustine"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "st-augustine-coffee-house",
+          "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+          "name": "St Augustine Coffee House",
+          "city": "St. Augustine",
+          "address": "6 Saint George St, Suite 107, St. Augustine, FL",
+          "native_wayfind_surface": "/p/ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdWaPlYRsTd",
+      "creator_handle": "sunnycoastblog",
+      "native_url": "https://www.instagram.com/reel/DdWaPlYRsTd/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Fort Myers"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "taza-cafe-fort-myers",
+          "place_id": "ChIJ67hmTotB24gRqyZaJDviGIE",
+          "name": "Taza Cafe Fort Myers",
+          "city": "Fort Myers",
+          "address": "4458 Cleveland Avenue, Fort Myers, FL 33901",
+          "native_wayfind_surface": "/p/ChIJ67hmTotB24gRqyZaJDviGIE",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DeRhsnyPp4A",
+      "creator_handle": "thefoxmercantile",
+      "native_url": "https://www.instagram.com/reel/DeRhsnyPp4A/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Bradenton"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "the-fox-mercantile-bradenton",
+          "place_id": "ChIJfzpM43oRw4gR6ifHWRbjp9E",
+          "name": "The Fox Mercantile",
+          "city": "Bradenton",
+          "address": "12304 Cortez Rd W, Bradenton, FL 34210",
+          "native_wayfind_surface": "/p/ChIJfzpM43oRw4gR6ifHWRbjp9E",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DeZO5ntRRM9",
+      "creator_handle": "sarasota_lifebynay",
+      "native_url": "https://www.instagram.com/p/DeZO5ntRRM9/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Sarasota"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "sarasota-fairgrounds-sarasota",
+          "place_id": "ChIJPWsUhY9Aw4gRoltOtGa3nPM",
+          "name": "Sarasota Fairgrounds",
+          "city": "Sarasota",
+          "address": "3000 Ringling Blvd, Sarasota, FL 34237",
+          "native_wayfind_surface": "/p/ChIJPWsUhY9Aw4gRoltOtGa3nPM",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "sarasota-frightfest-2026",
+          "native_wayfind_surface": "/florida-events/sarasota-frightfest-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/sarasota-frightfest-2026 and /p/ChIJPWsUhY9Aw4gRoltOtGa3nPM",
+      "native_link_renderable": true,
+      "media_kind": "static_event_flyer"
+    },
+    {
+      "shortcode": "DdKRIpttTiK",
+      "creator_handle": "magicalmaddieb",
+      "native_url": "https://www.instagram.com/reel/DdKRIpttTiK/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "dead-coconut-club-citywalk-orlando",
+          "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+          "name": "Red Coconut Club",
+          "city": "Orlando",
+          "address": "6000 Universal Boulevard, Orlando, FL 32819",
+          "native_wayfind_surface": "/p/ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdHjBG-CfcV",
+      "creator_handle": "sunshinestateselling",
+      "native_url": "https://www.instagram.com/reel/DdHjBG-CfcV/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Maitland"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "permanent-vacation-maitland",
+          "place_id": "ChIJsTUqwm5x54gRrbDWFjwv8TM",
+          "name": "Permanent Vacation",
+          "city": "Maitland",
+          "address": "106 Lake Ave, Maitland, FL 32751",
+          "native_wayfind_surface": "/p/ChIJsTUqwm5x54gRrbDWFjwv8TM",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DdJ2qn3Riw7",
+      "creator_handle": "oliviashannonwolk",
+      "native_url": "https://www.instagram.com/reel/DdJ2qn3Riw7/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Clermont"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "showcase-of-citrus-clermont",
+          "place_id": "ChIJW5C20gaI54gRZuH_-8hPQy8",
+          "name": "Showcase of Citrus",
+          "city": "Clermont",
+          "address": "15051 Frank Jarrell Rd, Clermont, FL 34714",
+          "native_wayfind_surface": "/p/ChIJW5C20gaI54gRZuH_-8hPQy8",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "DcFJ6i9sJBe",
+      "creator_handle": "doseofsunshinefl",
+      "native_url": "https://www.instagram.com/reel/DcFJ6i9sJBe/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Coral Springs"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cherry-smash-coral-springs",
+          "place_id": "ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+          "name": "Cherry Smash",
+          "city": "Coral Springs",
+          "address": "8000 Wiles Rd, Coral Springs, FL 33067",
+          "native_wayfind_surface": "/p/ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc50nKNB9pJ",
+      "creator_handle": "tampabayisawesome",
+      "native_url": "https://www.instagram.com/reel/Dc50nKNB9pJ/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "St. Petersburg"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cordova-inn-st-petersburg",
+          "place_id": "ChIJxzf0Op3hwogRjW4p7ZQeClE",
+          "name": "The Cordova Inn",
+          "city": "St. Petersburg",
+          "address": "253 2nd Ave N, St. Petersburg, FL 33701",
+          "native_wayfind_surface": "/p/ChIJxzf0Op3hwogRjW4p7ZQeClE",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true
+    },
+    {
+      "shortcode": "Dc_wbrxy7dr",
+      "creator_handle": "cherrysmashfl",
+      "native_url": "https://www.instagram.com/p/Dc_wbrxy7dr/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Coral Springs"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "cherry-smash-coral-springs",
+          "place_id": "ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+          "name": "Cherry Smash",
+          "city": "Coral Springs",
+          "address": "8000 Wiles Rd, Coral Springs, FL 33067",
+          "native_wayfind_surface": "/p/ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [],
+      "association_status": "prepared",
+      "public_navigation": "Home → Creators Pick → Browse all creator finds → creator → venue card",
+      "native_link_renderable": true,
+      "media_kind": "historical_venue_announcement"
     }
   ]
 }
