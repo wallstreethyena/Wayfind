@@ -112,4 +112,19 @@ eq(/spendAllowPhotosDetailed\(\)/.test(route), true, "route authorizes photos wi
 eq(/ledgerOutcomeClass\(result\.ledgerReason\)/.test(route), true, "route maps result.ledgerReason to the recorded class");
 eq(/ledgerOutcomeClass\(result\.ledgerReason\) === "ledger-cap"[\s\S]{0,80}recordPhotoDeniedCeiling/.test(route), true, "denied-ceiling is recorded only for a true cap");
 
+// Deliberate skips are NOT ledger failures (2026-10-14): the route refuses the paid take when a
+// free photo exists or the gate is shut, and says so by name instead of a bare `false`.
+const freeSkip = await resolveWith(async () => ({ ok: false, reason: "free-photo" }));
+eq(ledgerOutcomeClass(freeSkip.ledgerReason), "free-photo-preferred", "free photo exists -> free-photo-preferred, not a ledger failure");
+const shutSkip = await resolveWith(async () => ({ ok: false, reason: "shut" }));
+eq(ledgerOutcomeClass(shutSkip.ledgerReason), "gate-shut", "gate shut -> gate-shut");
+eq(/\{ ok: false, reason: "shut" \}/.test(route) && /\{ ok: false, reason: "free-photo" \}/.test(route), true, "route's authorizer returns the named refusals");
+eq(/if \(shut\) return false;|\&\& free\) return false;/.test(route), false, "route no longer returns a bare false for a deliberate skip");
+const { classifyOutcome } = await import("./lib/photoInventoryAudit.mjs");
+eq(classifyOutcome("free-photo-preferred"), "ok", "free photo served counts as served");
+eq(classifyOutcome("gate-shut"), "operational", "gate-shut stays visible");
+eq(classifyOutcome("ledger-cap"), "operational", "cap stays operational");
+const alerts = readFileSync(new URL("../lib/commandCenter/alerts.js", import.meta.url), "utf8");
+eq(/free-photo-preferred|gate-shut/.test(alerts.replace(/\/\/[^\n]*/g, "")), false, "alerts never count deliberate skips as refusals");
+
 console.log(`test-ledger-failure-classes: OK - ${pass} assertions (cap/granted/timeout/http 503+429/throw/non-boolean/unconfigured/invalid executed with stubbed fetch, one call each; resolver->class end to end)`);
