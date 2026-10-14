@@ -41,6 +41,7 @@ import { tmpdir } from "node:os";
 import { join, relative, sep } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import * as realResolver from "../lib/placePhotoServe.js";
+import { creditedRequest } from "../lib/apiGuard.js";
 import { GOOGLE_PHOTOS_QUOTA_PROVIDER, placeDiscoveryRef } from "../lib/placePhotoServe.js";
 import { warmCreditedPhotos } from "../lib/creditedPhotoWarm.js";
 import { runPhotoWarm } from "../lib/photoWarm.js";
@@ -415,6 +416,7 @@ async function routeSurfaceFindings(routeSource) {
     spendAllowPhotos: async () => false,
     photosCeiling: () => 0,
     isAutomatedPhotoReader: () => false,
+    creditedRequest,
   };
   const prelude = `
     const NextResponse = {
@@ -434,6 +436,7 @@ async function routeSurfaceFindings(routeSource) {
     const spendAllowPhotos = (...a) => T.spendAllowPhotos(...a);
     const photosCeiling = (...a) => T.photosCeiling(...a);
     const isAutomatedPhotoReader = (...a) => T.isAutomatedPhotoReader(...a);
+    const creditedRequest = (...a) => T.creditedRequest(...a);
   `;
   const mod = await import("data:text/javascript," + encodeURIComponent(prelude + "\n" + routeSource.replace(/^import[^;]+;\n/gm, "")));
   const out = [];
@@ -444,16 +447,16 @@ async function routeSurfaceFindings(routeSource) {
   for (const [s, want] of table) {
     seen.length = 0;
     const url = "https://wayfind.test/api/photo?place=" + PID + "&w=640&fmt=json" + (s === null ? "" : "&s=" + encodeURIComponent(s));
-    try { await mod.GET(new Request(url, { headers: { "user-agent": "Mozilla/5.0 (iPhone)" } })); } catch (e) { out.push(`s=${JSON.stringify(s)}: route threw ${e.message}`); continue; }
+    try { await mod.GET(new Request(url, { headers: { "user-agent": "Mozilla/5.0 (iPhone)", "sec-fetch-site": "same-origin" } })); } catch (e) { out.push(`s=${JSON.stringify(s)}: route threw ${e.message}`); continue; }
     if (seen.length !== 1) { out.push(`s=${JSON.stringify(s)}: expected exactly one resolver call, saw ${seen.length}`); continue; }
     if (seen[0].googleSurface !== want) out.push(`s=${JSON.stringify(s)}: googleSurface was ${JSON.stringify(seen[0].googleSurface)}, expected ${want}`);
   }
   // A ref-form request with no s must not be credited either.
   seen.length = 0;
-  await mod.GET(new Request("https://wayfind.test/api/photo?ref=" + encodeURIComponent(`places/${PID}/photos/STOREDNAME_abc`) + "&w=640", { headers: { "user-agent": "Mozilla/5.0 (iPhone)" } }));
+  await mod.GET(new Request("https://wayfind.test/api/photo?ref=" + encodeURIComponent(`places/${PID}/photos/STOREDNAME_abc`) + "&w=640", { headers: { "user-agent": "Mozilla/5.0 (iPhone)", "sec-fetch-site": "same-origin" } }));
   if (seen.length !== 1 || seen[0].googleSurface !== false) out.push("a ref-form request without s must not enable googleSurface");
   seen.length = 0;
-  await mod.GET(new Request("https://wayfind.test/api/photo?place=" + PID + "&s=card"));
+  await mod.GET(new Request("https://wayfind.test/api/photo?place=" + PID + "&s=card", { headers: { "sec-fetch-site": "same-origin" } }));
   if (seen.length !== 1 || seen[0].googleSurface !== false) out.push("card without credit JSON must not enable googleSurface");
   return out;
 }
