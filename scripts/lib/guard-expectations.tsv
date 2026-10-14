@@ -306,6 +306,7 @@ scripts/check-partner-collections.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	8f7
 scripts/check-partner-hook-collisions.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	5cf5a00f80a3aff5a3e46fc3c0f021a46fd39aae7d244284ba627e2c392006c7
 scripts/check-photo-cache-liveness.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	7524ac283322640958de1cb88f6b9e00c8a8b84e848ead2c6bb3f44d7cbf6969
 scripts/check-photo-cap-parses.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	24ed6d53c226e2ab040a9fe0ab92e8b73eb03f0d513a6cd6a036e7118e92aa23
+scripts/check-photo-credit-under-headline.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	1c37d6aa092454eacc832ab61f7c3442363cc6c30424ad0dd852adf7c99e8cc4
 scripts/check-photo-outcome-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	94e684a594407efa3310a4775d949b69abca7bd5397e6cb19b28a9db202e9d7f
 scripts/check-photo-surface-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	52a172d4792e0d22065f18445c60087005e685ced91594f8b5761ff2abe428c2
 scripts/check-photos.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	10	1	0	476e5916c77f5e91e5390102e6b97371b8863beb624cc40588d672c5f3bb475e

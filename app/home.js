@@ -11456,7 +11456,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 // the photo actually on screen.
                 // Google/permitted/licensed credit comes ONLY from the live JSON for the image on screen.
                 const liveCredit = liveCreditFor(detail, lightbox);
-                if (liveCredit) return <div style={{ marginBottom: 3 }}><PhotoCredit credit={liveCredit} style={{ position: "static" }} /></div>;
+                if (liveCredit) return <div style={{ marginBottom: 3 }}><PhotoCredit credit={liveCredit} style={{ color: "rgba(255,255,255,.85)" }} /></div>;
                 const oi = detail && Array.isArray(detail.photos) ? detail.photos.indexOf(lightbox) : -1;
                 const by = oi >= 0 && Array.isArray(detail.photoAttrs) ? (detail.photoAttrs[oi] || "") : "";
                 const singleSourceAttr = detail && Array.isArray(detail.photoAttrs) && detail.photoAttrs.length === 0 ? (detail.photoAttr || "") : "";
