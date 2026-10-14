@@ -149,7 +149,7 @@ ok(!/\bviews\b|view count|viral/i.test(bn), "no view-count or virality claims");
 // call on every homepage render for a value nothing read (see app/home.js);
 // BestNearby.js's own component-level contract (assertion above) still pins
 // the video-block behavior for every surface that actually mounts it.
-ok(/No creator videos linked near you yet/.test(bn), "honest empty state for the video block");
+ok(/No creator posts linked near you yet/.test(bn), "honest source-neutral empty state for the creator post block");
 // ── v8 (2026-08-15): THE HERO SWIPE DECK IS GONE ────────────────────────────
 // Six assertions used to live here pinning that deck's implementation — its
 // scroll-snap swiper, its beach slide, its date-night and family slides, and
