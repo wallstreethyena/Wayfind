@@ -124,6 +124,15 @@ const nextConfig = {
   // and pulse a healthy-looking "ident: tried=0" forever.
   outputFileTracingIncludes: {
     "/api/cron/photo-warm": ["./lib/ownedHotels.json"],
+    // Christmas v4 (2026-10-13): lib/christmasResearch.js reads
+    // data/christmas-2026-research.json with fs at runtime, which the tracer
+    // cannot see; every route that reaches that module lists it here
+    // (scripts/check-christmas-research.mjs locks the list).
+    "/api/events/christmas": ["./data/christmas-2026-research.json"],
+    "/api/christmas/browse": ["./data/christmas-2026-research.json"],
+    "/christmas-in-florida": ["./data/christmas-2026-research.json"],
+    "/florida-events/[slug]": ["./data/christmas-2026-research.json"],
+    "/sitemap.xml": ["./data/christmas-2026-research.json"],
     // 2026-09-23 (v9) — app/api/og/card.jsx loads its Archivo fonts via
     // fs.readFileSync(path.join(process.cwd(), …)) when running on Node.js
     // (app/api/og/hero/route.js is the one Node caller; every other OG route
