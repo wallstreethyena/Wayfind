@@ -38,7 +38,7 @@ import { breakerOpen } from "../../../../lib/providerHealth";
 // classes; anything else recorded (redirect/badjson/unowned/stale/client/
 // stale-heal-*) rolls up into `other` so this shape never needs to change
 // again when a new stale-heal-* subclass string appears.
-const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request"]);
+const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request", "visitor-cap"]);
 
 function sbEnvHere() {
   const raw = String(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");

@@ -55,7 +55,7 @@ export function histogram(rows, keyFn) {
 // nonprod            preview:/dev: namespaced classes: not production traffic
 // other              a class this audit does not know yet (kept visible, never hidden)
 // not-page-request: a scripted hit with no page-origin evidence was declined by design (nothing to fix).
-const GENUINE = new Set(["fresh-nophoto", "stale-heal-nophoto", "unowned", "legacy-miss", "not-page-request"]);
+const GENUINE = new Set(["fresh-nophoto", "stale-heal-nophoto", "unowned", "legacy-miss", "not-page-request", "visitor-cap"]);
 // A free photo of the place already exists, so the paid take was skipped on purpose. Served, not failed.
 const FREE_SERVED = new Set(["free-photo-preferred"]);
 const OPERATIONAL_RX = /^(ledger[a-z0-9_-]*|denied|denied-ceiling:.+|quota[a-z0-9_-]*|key-denied|fresh-failed:.+|stale-heal-.+|stale|gate-shut|owned-miss|network|server|client|badjson|redirect|refunded|place-lookup-.+)$/;

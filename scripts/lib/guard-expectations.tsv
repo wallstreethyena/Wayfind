@@ -777,6 +777,7 @@ scripts/test-photo-upstream-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	83	0	0	0d1
 scripts/test-photo-vault-rendition.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	b85be19a076b8f414e32de91a235f64f0f5883c381c54060d8bc04fc073692a4
 scripts/test-photo-vault-wiring.mjs	0	CALL	blocks-ci-and-deploy	1	-	223	0	0	7685cae96ae18881bbd16d02bbdd15486c431b1b80ee62799030bb7bcfc4eb51
 scripts/test-photo-vault.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	a72e6211f8b00d721b4c9f6074c7d517be8354873d186d58e3d3bbafe7ffa117
+scripts/test-photo-visitor-cap.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	1c4db2c6ef416cf8dc597b39a6027fb9e0d861e9803945b8e3ce8ace155506be
 scripts/test-photo-warm.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	bb1286d92bd65920ded5a28c7893f8e2ed4d540025ef2e9769caf39b433da739
 scripts/test-photos-paid-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	96	0	0	df19c37750f2b80365a0c9911dcb1222f57b8bec6ef965dc9d57c307bc253601
 scripts/test-place-card-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	67	0	0	d99a31a90fb1363f96a2e479c38c3e19c1902f8e4524a99f8b0097532e555178
