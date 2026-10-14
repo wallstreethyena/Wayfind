@@ -19,5 +19,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1636",
     "reason": "New group-planning tables/functions (84b74b70, safe-off: gated by NEXT_PUBLIC_GROUP_PLANS_ENABLED / WF_GROUP_PLANS_ENABLED). File header requires approval before production; none on record. Read-only check 2026-10-07: wf_group_plans tables absent. Apply together with the activation plan in docs/design/group-planning-activation.md."
+  },
+  {
+    "file": "supabase/migrations/20261014120000_wf_heartbeat_anchor_watch.sql",
+    "sha256": "d4be30686a0ac1236bba8f16010a7541e5c29802ee813a4d03c2d71a62d66c87",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1752",
+    "reason": "One wf_heartbeat_expected row (anchor-watch, 48h) so heartbeat-watch pages if the daily anchor watcher goes silent. Insert-only, no schema change. Apply only after #1752 merges and the workflow is approved; applying earlier would page on a job that cannot run yet."
   }
 ]
