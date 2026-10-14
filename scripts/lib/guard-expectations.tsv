@@ -556,6 +556,7 @@ scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	64de47
 scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	7aa6bf67e41dc3d536e43e6d871d729593c6e964daec5d1969086b82fd135bb1
 scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	3acd9f2dcbed74502a3ce4273064a7e3be8e53cc374c218787fb1679e434c110
 scripts/test-detail-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	e21f04368be475b7c99c4532e2f8bd12dc6980f564a1c45375ed988920637d66
+scripts/test-detail-open-once.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c3dbbe48126179cfdfa036db7d3066d8de302810c2e1ddaf291d4c0d8ff146df
 scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	4a2abf06e95005ba87262ee9d9e7d4fa3ba19fd3d78f5b949c4a5c351845ca19
 scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	3878d5702d144f1a4cc8dd882b2dbc7de557218336567b762f6dc622a7ea750e
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
