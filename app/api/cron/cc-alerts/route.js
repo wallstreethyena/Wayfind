@@ -19,6 +19,7 @@ import { gatherAlerts } from "../../../../lib/commandCenter/alertsRun.js";
 import { sbAdmin } from "../../../../lib/commandCenter/supabaseAdmin.js";
 import { SITE_URL } from "../../../../lib/site.js";
 import { resolveOverride } from "../../../../lib/envAudit.js";
+import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 
 const COOLDOWN_MS = { critical: 2 * 3600000, warn: 6 * 3600000 };
@@ -87,11 +88,86 @@ function emailHtml(alerts, now) {
     </div></body></html>`;
 }
 
+// The ONE delivery function: real alerts and the drill both go through here
+// (no parallel sender). Returns { ok, r } where r is the Resend Response|null.
+async function deliverAlerts({ resendKey, from, to, due, now }) {
+  const r = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    cache: "no-store",
+    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      from, to: [to],
+      subject: `⚠ Wayfind: ${due[0].title}${due.length > 1 ? ` (+${due.length - 1} more)` : ""}`,
+      html: emailHtml(due, now),
+    }),
+  }).catch((e) => {
+    try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "resend_fetch_exception", error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {}
+    return null;
+  });
+
+  const ok = !!(r && r.ok);
+  if (!ok) {
+    // v6.71: a non-network Resend failure (bad key, suspended domain, 4xx
+    // payload issue) previously fell through silently -- `ok` just came back
+    // false with no body captured anywhere. Log the actual response so a
+    // revoked/expired RESEND_API_KEY shows up instead of alerts quietly never
+    // arriving.
+    let body = "";
+    if (r) { try { body = (await r.text()).slice(0, 500); } catch (e) {} }
+    try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "resend_send", status: r ? r.status : "network_error", body, dueCount: due.length })); } catch (e) {}
+  } else {
+    try { console.log(JSON.stringify({ tag: "cc_alerts_cron", ok: true, sent: due.length, ids: due.map((a) => a.id) })); } catch (e) {}
+  }
+  return { ok, r };
+}
+
+// Alert-delivery drill (zero spend, reversible): one synthetic alert through the
+// real sender. Allow-listed ids only; see scripts/test-cc-alert-drill.mjs.
+const DRILL_KEY = "cc_alerts_drill_sent";   // separate from real cooldowns ("cc_alerts_sent")
+const DRILL_COOLDOWN_MS = 10 * 60000;
+const DRILLS = {
+  photos_not_serving(now) {
+    const day = siteTodayStr(now);
+    return {
+      id: "drill:photos_not_serving", severity: "warn",
+      title: "[DRILL] Most place-photo requests are being refused",
+      detail: `SYNTHETIC DRILL, nothing is actually wrong. Subsystem: photos. Failure class: ledger-denied (simulated). Count: 0 served vs 999 refused. Site day (ET): ${day}. Generated at ${now.toISOString()}. Real-alert recovery guidance: cards fall back to initials until this clears; usual cause is the photo budget (GOOGLE_PHOTOS_MONTH_CAP / WAYFIND_PHOTOS_PAID in Vercel) exhausted, invalid, or lower than this month's usage in wf_spend_ledger (sku=photos). Open ${SITE_URL}/command-center#health`,
+      anchor: "health", current: "0 served / 999 refused (drill)", baseline: "photos served daily",
+    };
+  },
+};
+
+async function runDrill(drillId, { resendKey, to, now }) {
+  const alert = DRILLS[drillId](now);
+  const s = sbAdmin();
+  const last = s ? Date.parse(((await settingsGet(s, DRILL_KEY)) || {})[drillId] || 0) || 0 : 0;
+  if (now.getTime() - last < DRILL_COOLDOWN_MS) {
+    return Response.json({ drill: true, delivered: false, reason: "drill_cooldown_10min", provider_status: null, alert: { id: alert.id, title: alert.title }, at: now.toISOString() });
+  }
+  const from = resolveOverride("WF_ALERT_FROM").value;
+  const { ok, r } = await deliverAlerts({ resendKey, from, to, due: [alert], now });
+  if (ok && s) await settingsPut(s, DRILL_KEY, { [drillId]: now.toISOString() });
+  try {
+    await recordPulse(JOB, { attempted: 1, succeeded: ok ? 1 : 0, note: ok ? "drill: delivered" : `drill: email send failed (status ${r ? r.status : "network_error"})`.slice(0, 200) });
+  } catch (e) {}
+  return Response.json({ drill: true, delivered: ok, provider_status: r ? r.status : "network_error", alert: { id: alert.id, title: alert.title }, at: now.toISOString() });
+}
+
 export async function GET(req) {
   // Fail-closed cron auth (same as /api/cron/cwv).
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return new Response("unauthorized", { status: 401 });
+
+  // Drill mode: only when ?drill= is present; no param => untouched hourly path.
+  let drillId = null;
+  try {
+    const sp = new URL(req.url).searchParams;
+    if (sp.has("drill")) {
+      drillId = sp.get("drill");
+      if (!Object.prototype.hasOwnProperty.call(DRILLS, drillId)) return Response.json({ error: "unknown drill id", allowed: Object.keys(DRILLS) }, { status: 400 });
+    }
+  } catch (e) {}
 
   const resendKey = String(process.env.RESEND_API_KEY || "").trim();
   const to = resolveOverride("DIGEST_EMAIL").value;
@@ -101,6 +177,7 @@ export async function GET(req) {
   }
 
   const now = new Date();
+  if (drillId) return runDrill(drillId, { resendKey, to, now });
   // v6.71: gatherAlerts() ran unguarded -- any exception inside the rule
   // engine or one of its upstream panel fetches bubbled up as a bare 500 with
   // no context, indistinguishable in Vercel's logs from every other route
@@ -134,33 +211,7 @@ export async function GET(req) {
   }
 
   const from = resolveOverride("WF_ALERT_FROM").value;
-  const r = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    cache: "no-store",
-    headers: { Authorization: `Bearer ${resendKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      from, to: [to],
-      subject: `⚠ Wayfind: ${due[0].title}${due.length > 1 ? ` (+${due.length - 1} more)` : ""}`,
-      html: emailHtml(due, now),
-    }),
-  }).catch((e) => {
-    try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "resend_fetch_exception", error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {}
-    return null;
-  });
-
-  const ok = !!(r && r.ok);
-  if (!ok) {
-    // v6.71: a non-network Resend failure (bad key, suspended domain, 4xx
-    // payload issue) previously fell through silently -- `ok` just came back
-    // false with no body captured anywhere. Log the actual response so a
-    // revoked/expired RESEND_API_KEY shows up instead of alerts quietly never
-    // arriving.
-    let body = "";
-    if (r) { try { body = (await r.text()).slice(0, 500); } catch (e) {} }
-    try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "resend_send", status: r ? r.status : "network_error", body, dueCount: due.length })); } catch (e) {}
-  } else {
-    try { console.log(JSON.stringify({ tag: "cc_alerts_cron", ok: true, sent: due.length, ids: due.map((a) => a.id) })); } catch (e) {}
-  }
+  const { ok, r } = await deliverAlerts({ resendKey, from, to, due, now });
   if (ok && s) {
     for (const a of due) sent[a.id] = now.toISOString();
     // prune entries older than 7 days so the blob stays tiny
