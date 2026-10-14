@@ -343,7 +343,7 @@ export default async function CuratedEventPage({ params }) {
         </>}
         credit={shots && shots.credit ? <p style={S.credit}>
           Photos: {shots.creditUrl ? <PhotoCreditLink style={S.link} href={shots.creditUrl} rel="nofollow noopener">{shots.credit}</PhotoCreditLink> : shots.credit}, shared with Wayfind for this listing.
-        </p> : eventImageIsVenue(e, heroSrc) ? <p style={S.credit}>Venue photo · {e.event_name} is not pictured.{heroSrc?.startsWith("/api/photo?") ? <> Photo: <PhotoCreditLink style={S.link} href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.venue || e.event_name)}${e.place_id ? `&query_place_id=${encodeURIComponent(e.place_id)}` : ""}`}>Google Maps</PhotoCreditLink>.</> : e.photoAttr ? <> Photo: {e.photoAttrHref ? <PhotoCreditLink style={S.link} href={e.photoAttrHref}>{e.photoAttr}</PhotoCreditLink> : e.photoAttr}.</> : null}</p> : null}
+        </p> : eventImageIsVenue(e, heroSrc) ? <p style={S.credit}>Venue photo · {e.event_name} is not pictured.{heroSrc?.startsWith("/api/photo?") ? <> Photo: Google Maps.</> : e.photoAttr ? <> Photo: {e.photoAttrHref ? <PhotoCreditLink style={S.link} href={e.photoAttrHref}>{e.photoAttr}</PhotoCreditLink> : e.photoAttr}.</> : null}</p> : null}
       />
 
       {/* A Fall card that names a creator must pay that promise off before the
