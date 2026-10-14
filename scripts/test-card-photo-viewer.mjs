@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 import ts from "typescript";
 import { chromium } from "@playwright/test";
 import { cardPhotoRequest, fetchCardPhoto } from "../lib/cardPhotoRequest.js";
+import { resetPhotoAnswers } from "../lib/photoAnswers.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const { WF_PLACE_CARD_CSS } = await loadComponent(new URL("../app/components/css.js", import.meta.url).pathname, new URL("../", import.meta.url).pathname);
@@ -28,8 +29,11 @@ assert.equal(one, two);
 release(); await one;
 assert.equal(calls, 1);
 await fetchCardPhoto(request, fake);
-assert.equal(calls, 2, "completed results are not retained in a cache");
-assert.equal(await fetchCardPhoto(request, async () => ({ ok: true, json: async () => ({ src: "https://photo.test/a.jpg", source: "google", credit: {} }) })), null);
+assert.equal(calls, 1, "a completed answer is reused for the page session: no second purchase on remount");
+resetPhotoAnswers();
+const noMapsUri = await fetchCardPhoto(request, async () => ({ ok: true, json: async () => ({ src: "https://photo.test/a.jpg", source: "google", credit: {} }) }));
+assert.match(noMapsUri.credit.mapsUri, /^https:\/\/www\.google\.com\/maps\/.*ChIJCardPhotoTest0001/, "missing source link falls back to this place's Google Maps link; the photo is not hidden");
+resetPhotoAnswers();
 assert.equal((await fetchCardPhoto(request, async () => ({ ok: true, json: async () => ({ src: "/images/owned.jpg", source: "wayfind", credit: null }) }))).src, "/images/owned.jpg", "local owned images remain available");
 
 let browser;
@@ -40,13 +44,13 @@ catch (e) {
   process.exit(0);
 }
 const compile = (file) => ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
-const helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js"), creditLink = compile("../app/components/PhotoCreditLink.js");
+const hostPolicy = compile("../lib/imageHostPolicy.js"), placePhoto = compile("../lib/placePhoto.js"), answers = compile("../lib/photoAnswers.js"), helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js"), creditLink = compile("../app/components/PhotoCreditLink.js");
 try {
   for (const width of [390, 768, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    let photoCalls = 0, responseMode = "success";
+    let photoCalls = 0, responseMode = "success"; const deniedSeen = new Set();
     const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
@@ -54,7 +58,11 @@ try {
         photoCalls++;
         assert.equal(u.searchParams.get("s"), "card");
         assert.equal(u.searchParams.get("fmt"), "json");
-        return route.fulfill({ json: responseMode === "miss" ? { src: null, source: "none", credit: null } : responseMode === "broken" ? { ...photo, src: "https://photo.test/broken.jpg" } : photo });
+        if (responseMode === "miss") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "no-photo" } });
+        if (responseMode === "denied-once" && !deniedSeen.has(u.searchParams.get("place"))) { deniedSeen.add(u.searchParams.get("place")); return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "spend-denied" } }); }
+        if (responseMode === "always-denied") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "quota-open" } });
+        const own = { ...photo, src: "https://photo.test/" + u.searchParams.get("place") + ".jpg", credit: { ...photo.credit, mapsUri: "https://maps.google.com/photo/" + u.searchParams.get("place"), authors: [{ name: "Author of " + u.searchParams.get("place"), uri: "https://maps.google.com/contrib/x" }] } };
+        return route.fulfill({ json: responseMode === "broken" ? { ...photo, src: "https://photo.test/broken.jpg" } : u.searchParams.get("place") === "ChIJCardPhotoTest0001" ? photo : own });
       }
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
       if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
@@ -64,7 +72,7 @@ try {
     assert.equal(await page.evaluate(() => window.innerWidth), width, "achieved viewport matches the tested size");
     await page.addScriptTag({ path: new URL("../node_modules/react/umd/react.development.js", import.meta.url).pathname });
     await page.addScriptTag({ path: new URL("../node_modules/react-dom/umd/react-dom.development.js", import.meta.url).pathname });
-    await page.addScriptTag({ content: `window.photoHelpers={};(function(exports){${helper}})(photoHelpers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
+    await page.addScriptTag({ content: `window.hostPolicy={};(function(exports){${hostPolicy}})(hostPolicy);window.placePhotoMod={};(function(exports,require){${placePhoto}})(placePhotoMod,id=>hostPolicy);window.photoAnswers={};(function(exports,require){${answers}})(photoAnswers,id=>placePhotoMod);window.photoHelpers={};(function(exports,require){${helper}})(photoHelpers,id=>id.includes('placePhoto')?placePhotoMod:photoAnswers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:id==='../../lib/photoAnswers.js'?photoAnswers:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
     await page.waitForTimeout(100);
     assert.equal(photoCalls, 0, "offscreen card makes no request");
     await page.locator("#root").scrollIntoViewIfNeeded();
@@ -139,18 +147,52 @@ try {
     responseMode = "success";
     await render("ChIJCardPhotoGood0002", "Other photo");
     await page.locator('#root > img[alt="Other photo"]').waitFor();
-    await render("ChIJCardPhotoFail0001", "Recovered photo");
-    await page.locator('#root > img[alt="Recovered photo"]').waitFor();
-    assert.equal(await page.getByText("Photo unavailable", { exact: true }).count(), 0, "a previous failure cannot hide a later successful response");
+    // Pairing: the viewer for place Good0002 shows Good0002's photo AND its own author, never the previous place's.
+    await page.locator('#root > img[alt="Other photo"]').click();
+    await page.locator("dialog[open]").waitFor();
+    assert.equal(await page.locator("dialog > img").getAttribute("src"), "https://photo.test/ChIJCardPhotoGood0002.jpg");
+    assert.ok(await page.getByRole("link", { name: "Author of ChIJCardPhotoGood0002 (opens in a new tab)", exact: true }).isVisible());
+    assert.equal(await page.locator("dialog a[translate=no]").getAttribute("href"), "https://maps.google.com/photo/ChIJCardPhotoGood0002");
+    // Place-id change while the viewer is OPEN: the old photo/credit pair must disappear at once.
+    await render("ChIJCardPhotoGood0005", "Third photo");
+    await page.locator("dialog").waitFor({ state: "detached", timeout: 5000 });
+    assert.equal(await page.locator("dialog[open]").count(), 0, "changing the place closes the viewer; a stale photo/credit pair never renders under the new place");
+    await page.locator('#root > img[alt="Third photo"]').waitFor();
+    assert.equal(await page.locator("#root > img").getAttribute("src"), "https://photo.test/ChIJCardPhotoGood0005.jpg");
+    const callsBeforeReturn = photoCalls;
+    await render("ChIJCardPhotoGood0002", "Other photo again");
+    await page.locator('#root > img[alt="Other photo again"]').waitFor();
+    assert.equal(photoCalls, callsBeforeReturn, "returning to an already shown place reuses its photo: no second purchase");
+    await render("ChIJCardPhotoFail0001", "Missing again");
+    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    assert.equal(photoCalls, callsBeforeReturn, "a genuine no-photo place is not asked again");
     responseMode = "broken";
     await render("ChIJCardPhotoBroken03", "Broken photo");
     await page.getByText("Photo unavailable", { exact: true }).waitFor();
     assert.equal(await page.locator("#root > img").count(), 0);
     assert.equal(await page.locator("[data-card-photo-credit]").count(), 0);
     await page.waitForTimeout(100);
-    assert.equal(photoCalls, 5, "misses and image failures never retry the paid photo request");
+    assert.equal(photoCalls, callsBeforeReturn + 1, "image failures never retry the paid photo request");
+    // Temporary refusal (budget/quota): one delayed retry recovers; a persistent refusal stops after exactly 2 requests.
+    await page.clock.install();
+    responseMode = "denied-once";
+    const base = photoCalls;
+    await render("ChIJCardPhotoTemp0004", "Temp photo");
+    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    assert.equal(photoCalls, base + 1);
+    await page.clock.fastForward(25000);
+    await page.locator('#root > img[alt="Temp photo"]').waitFor();
+    assert.equal(photoCalls, base + 2, "temporary failure recovered with exactly one delayed retry");
+    responseMode = "always-denied";
+    await render("ChIJCardPhotoDown0006", "Down photo");
+    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    await page.clock.fastForward(25000);
+    await page.clock.fastForward(25000);
+    await page.clock.fastForward(25000);
+    await page.waitForTimeout(100);
+    assert.equal(photoCalls, base + 4, "exhausted retries: 2 requests for a persistently refused place, then none, no loop");
     assert.deepEqual(errors, []);
     await page.close();
   }
-  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: home overlay hit testing, ordinary card click, photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, visible failures, no paid retries");
+  console.log("test-card-photo-viewer: Chromium 390/768/1440 passed: home overlay hit testing, ordinary card click, photo click/Enter/Space, visible focus and restoration, compact credit, same image, all authors, source link, shared photo reuse, credit stays with its own photo across place changes, temporary-failure recovery, bounded retries");
 } finally { await browser.close(); }
