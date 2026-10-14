@@ -3,7 +3,7 @@
 // unsafe fixes BEFORE any request and that a dry run never PATCHes.
 // CALL-LEVEL with a stubbed fetch. Cannot prove the live PATCH; that happens
 // only under --apply against production.
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { spawnSync } from "node:child_process";
@@ -69,6 +69,14 @@ ok(none.failed === 1, "apply: unknown event_id fails");
   ok(none.status === 0 && none.stdout === "null", "sbEnv() is null without credentials");
   const some = probe({ SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "k" });
   ok(some.status === 0 && some.stdout === JSON.stringify("https://x.supabase.co"), "sbEnv() reads the service credentials"); }
+
+// every committed fixes file must validate, entry by entry
+{ const dir = path.join(ROOT, "scripts/anchor-events/fixes");
+  for (const f of readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+    const arr = JSON.parse(readFileSync(path.join(dir, f), "utf8"));
+    ok(Array.isArray(arr), `fixes/${f} is a list`);
+    for (const e of arr) ok(validateEntry(e).length === 0, `fixes/${f} entry ${e && e.event_id} validates: ${validateEntry(e).join("; ")}`);
+  } }
 
 const ex = JSON.parse(readFileSync(path.join(ROOT, "scripts/anchor-events/fixes/example.json"), "utf8"));
 ok(Array.isArray(ex) && ex.length === 0, "example fixes file is an empty list");
