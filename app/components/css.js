@@ -704,11 +704,12 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 // to 9px / -.3px for EVERY skin, and the spooky <=340 rule no longer sets its own font-size/letter-spacing, so
 // base, Christmas, fall, award and spooky share one set of numbers; (2) the Save/like/dislike/Share grid
 // gives the two thumb tracks back 1px each and the gaps 1px each, so Share's track grows from 36px to 41px, and
-// Share drops its 1px side padding, so its content box grows from 32px to 39px.
+// Share drops its 1px side padding and sets 9px type, so its content box grows from 32px to 39px and its label
+// shrinks to ~35px (CI's renderer drew it at 37.05px at 9.5px, under the 2px slack floor).
 // scripts/check-place-card-standard.mjs measures all of these variants at 320/375/390 with >=2px slack.
 `@media(max-width:340px){
   .wf-place-card .wf-sheet-card-actions:has(.wf-place-card-like){grid-template-columns:44px 25px 25px minmax(0,1fr);gap:3px!important}
-  .wf-place-card .wf-sheet-card-actions>.wf-place-card-share{padding-inline:0!important}
+  .wf-place-card .wf-sheet-card-actions>.wf-place-card-share{padding-inline:0!important;font-size:9px!important}
 }
 @media(min-width:${WF_DESKTOP_BP}px){
   .wf-place-card,.wf-rail .wf-place-card,.wf8-pcrail .wf-place-card{--wf-place-card-media:${PLACE_CARD_MEDIA_DESKTOP_PX}px}
