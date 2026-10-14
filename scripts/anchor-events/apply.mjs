@@ -38,7 +38,8 @@ import { sbEnv } from "../../lib/serverCache.js";
 
 export const ALLOWED_FIELDS = Object.freeze(["lat", "lng", "place_id", "official_event_url", "official_ticket_url",
   "start_date", "end_date", "start_time", "end_time", "event_status", "category", "venue", "address",
-  "hero_image", "image_alt", "schedule_note", "last_verified_at"]);
+  "hero_image", "hero_image_kind", "image_alt", "schedule_note", "last_verified_at"]);
+export const IMAGE_KIND_VOCAB = Object.freeze(["event", "venue"]);
 export const STATUS_VOCAB = Object.freeze(["scheduled", "postponed", "cancelled", "sold_out"]);
 export const FL_BBOX = Object.freeze({ minLat: 24.3, maxLat: 31.1, minLng: -87.7, maxLng: -79.8 });
 
@@ -71,6 +72,7 @@ export function validateEntry(e) {
     for (const k of Object.keys(set)) if (k in e.expect && sameVal(e.expect[k], set[k], k)) why.push(`expect equals set for ${k} (nothing to change)`);
   }
   if ("event_status" in set && !STATUS_VOCAB.includes(set.event_status)) why.push(`event_status must be one of ${STATUS_VOCAB.join("/")}`);
+  if ("hero_image_kind" in set && set.hero_image_kind !== null && !IMAGE_KIND_VOCAB.includes(set.hero_image_kind)) why.push(`hero_image_kind must be one of ${IMAGE_KIND_VOCAB.join("/")} or null`);
   if ("lat" in set !== "lng" in set) why.push("lat and lng must be set together");
   if ("lat" in set && "lng" in set) {
     const clear = set.lat === null && set.lng === null;
