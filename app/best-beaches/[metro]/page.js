@@ -6,6 +6,7 @@
 // Live water conditions render client-side for the #1 beach only (compact).
 import { notFound } from "next/navigation";
 import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
+import { metroCovers } from "../../../lib/metroRegions";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
 import IconicPlaceCard from "../../components/IconicPlaceCard";
@@ -68,7 +69,7 @@ async function beachesFor(metro) {
     });
 
     return rankBeaches((Array.isArray(rows) ? rows : [])
-      .filter((b) => b.metro === metro)
+      .filter((b) => metroCovers(metro, b.metro))
       .map((b) => ({
         id: b.place_id, name: b.name, photo_ref: b.photo_ref, editorial: b.editorial,
         lat: b.lat, lng: b.lng,
