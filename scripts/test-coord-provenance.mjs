@@ -86,12 +86,69 @@ async function checkFreshness(prov, mapData) {
   assert.equal(mapData.mapInventoryPlace({ ...base, ...staleRow }, NOW, origin), null, "A: the same row past 30 days is not a pin");
   const viaOsm = mapData.mapInventoryPlace({ ...base, ...staleRow, independent_coords: [{ source: "osm", lat: 27.5404, lng: -82.4806 }] }, NOW, origin);
   assert.ok(viaOsm && viaOsm.coordSource === "osm" && viaOsm.lat === 27.5404 && /OpenStreetMap/.test(viaOsm.coordAttribution), "A: an independent coordinate makes a truthful, attributed pin");
-  // The area reader's prefilter reads only rows inside the Google window.
+  // The area reader's prefilter reads rows inside the Google window OR carrying
+  // an independent_coords candidate, and selects the column.
   let seenUrl = null;
   await mapData.readMapAreaPage({ bounds: { north: 28, south: 27, east: -82, west: -83 }, origin, now: NOW,
     config: { url: "https://owned.example", key: "k" },
     fetcher: async (url) => { seenUrl = url; return { ok: true, json: async () => [] }; } });
-  assert.equal(new URL(seenUrl).searchParams.get("refreshed_at"), "gte." + new Date(NOW - 30 * DAY).toISOString(), "A: the map area read never fetches expired Google rows");
+  const sp = new URL(seenUrl).searchParams;
+  assert.equal(sp.get("or"), `(refreshed_at.gte.${new Date(NOW - 30 * DAY).toISOString()},independent_coords.not.is.null)`, "A: the area read fetches fresh-Google rows or rows with an independent candidate");
+  assert.equal(sp.get("refreshed_at"), null, "A: no blanket refreshed_at cut remains");
+  assert.ok(sp.get("select").split(",").includes("independent_coords"), "A: the area read selects independent_coords");
+}
+
+// ── D ── recorded Google sightings (wf_place_ids) + list/map parity ─────────
+async function checkSightings(prov, mapData) {
+  const { resolveMapCoordinate, mapCoordVerdict, mapCoordAllowedNow, creditsForPins, NO_PERMITTED_COORDINATE, SIGHTING_METHOD } = prov;
+  const iso = (ageDays) => new Date(NOW - ageDays * DAY).toISOString();
+  const stale = { place_id: RYANS, lat: 27.5403614, lng: -82.4805321, refreshed_at: "2026-08-14T03:20:13Z" };
+  const sighting = (ageDays, extra = {}) => ({ source: "google_places", lat: 27.54039, lng: -82.48049, observed_at: iso(ageDays), method: SIGHTING_METHOD, ...extra });
+  // expired Google + fresh sighting -> drawable, dated by seen_at, expires 30d after it.
+  const seen = 3;
+  const row = { ...stale, independent_coords: [sighting(seen)] };
+  const r = resolveMapCoordinate(row, NOW);
+  assert.ok(r.ok && r.source === "google_places", "D: expired Google + fresh place_ids sighting is drawable as google_places");
+  assert.equal(r.lat, 27.54039, "D: the pin uses the sighting coordinate, not the expired inventory one");
+  assert.equal(r.observedAt, iso(seen), "D: observed_at is the sighting's seen_at");
+  const v = mapCoordVerdict(row, NOW);
+  assert.equal(v.ok, true);
+  assert.equal(v.until, new Date(NOW - seen * DAY + 30 * DAY).toISOString(), "D: it expires 30 days after seen_at");
+  assert.equal(mapCoordAllowedNow({ mapCoord: v }, NOW + 28 * DAY), false, "D: the browser stops drawing it at expiry");
+  assert.equal(mapCoordAllowedNow({ mapCoord: v }, NOW + 26 * DAY), true);
+  // expired sighting / nothing -> accounted, not drawn.
+  assert.equal(resolveMapCoordinate({ ...stale, independent_coords: [sighting(31)] }, NOW).ok, false, "D: an expired sighting is not drawable");
+  const none = resolveMapCoordinate({ ...stale, independent_coords: null }, NOW);
+  assert.equal(none.ok, false); assert.equal(none.reason, NO_PERMITTED_COORDINATE, "D: expired Google + nothing is accounted as no-permitted-coordinate");
+  // a Google entry with another method (or none) cannot pose as independent.
+  assert.equal(resolveMapCoordinate({ ...stale, independent_coords: [sighting(1, { method: "hand-typed" })] }, NOW).ok, false, "D: google_places is honoured only via the sighting method");
+  assert.equal(resolveMapCoordinate({ ...stale, independent_coords: [sighting(1, { observed_at: null })] }, NOW).ok, false, "D: an undated sighting is not drawable");
+  // fresh own Google coordinate wins over a sighting; OSM only when Google cannot be drawn.
+  const freshOwn = { ...stale, refreshed_at: iso(2), independent_coords: [sighting(1, { lat: 1.5 }), { source: "osm", lat: 27.5404, lng: -82.4806 }] };
+  assert.equal(resolveMapCoordinate(freshOwn, NOW).lat, stale.lat, "D: a fresh own Google coordinate is tried first");
+  // OSM with attribution -> drawn with credit; unknown -> not drawn.
+  const osm = resolveMapCoordinate({ ...stale, independent_coords: [{ source: "osm", lat: 27.5404, lng: -82.4806, observed_at: iso(200) }] }, NOW);
+  assert.ok(osm.ok && osm.source === "osm" && /OpenStreetMap contributors/.test(osm.attribution), "D: an old OSM coordinate is drawn with its credit");
+  assert.equal(resolveMapCoordinate({ ...stale, independent_coords: [{ source: "mystery", lat: 27.5, lng: -82.4, observed_at: iso(1) }] }, NOW).ok, false, "D: an unknown source is never drawn");
+  // PARITY: the pin (map) and the list verdict come from the same function.
+  const base = { name: "Ryan's Coffee House", metro: "manatee-sarasota", category: "food", primary_type: "coffee_shop", google_types: ["coffee_shop"], signals: { rating: 4.9, reviews: 205 }, status: "OPERATIONAL" };
+  const origin = { lat: 27.5689, lng: -82.4393 };
+  const cases = [row, { ...stale }, freshOwn, { ...stale, independent_coords: [{ source: "osm", lat: 27.5404, lng: -82.4806 }] },
+    { ...stale, independent_coords: [sighting(31)] }, { ...stale, independent_coords: [{ source: "mystery", lat: 27.5, lng: -82.4 }] }];
+  for (const c of cases) {
+    const pin = mapData.mapInventoryPlace({ ...base, ...c }, NOW, origin);
+    const verdict = mapCoordVerdict(c, NOW);
+    assert.equal(!!pin, verdict.ok, "D: parity — the map pins exactly the rows whose list verdict is ok");
+    if (pin) {
+      assert.equal(pin.coordSource, verdict.source, "D: parity — pin and verdict name the same source");
+      assert.ok(pin.coordObservedAt === null || typeof pin.coordObservedAt === "string");
+      assert.equal(!!pin.coordAttribution, !!verdict.attribution, "D: parity — attribution matches");
+    }
+  }
+  const sp = mapData.mapInventoryPlace({ ...base, ...row }, NOW, origin);
+  assert.equal(sp.coordSource, "google_places"); assert.equal(sp.coordObservedAt, iso(seen)); assert.ok(!sp.coordAttribution);
+  assert.deepEqual(creditsForPins([mapData.mapInventoryPlace({ ...base, ...cases[3] }, NOW, origin), sp]), ["© OpenStreetMap contributors (ODbL)"], "D: an OSM pin on screen shows the OpenStreetMap credit; Google sightings add none");
+  assert.deepEqual(creditsForPins([sp]), [], "D: no independent pin, no credit line");
 }
 
 // ── B ────────────────────────────────────────────────────────────────────────
@@ -260,6 +317,7 @@ async function main() {
   await checkFreshness(m.prov, m.mapData);
   await checkNoBump({ patchMod: m.patchMod });
   checkParity(m.acc, m.prov);
+  await checkSightings(m.prov, m.mapData);
 
   if (process.argv.includes("--red-prove")) {
     const reds = [];
@@ -325,8 +383,16 @@ async function main() {
         .replace(/^import[^;]+;\n/m, `import { mapCoordAllowedNow, NO_PERMITTED_COORDINATE } from "${fileUrl("lib/coordProvenance.js")}";\n`);
       checkParity(await import("data:text/javascript," + encodeURIComponent(src)), m.prov);
     });
-    console.log(`test-coord-provenance: red-prove OK — ${reds.length}/11 mutations went RED`);
-    assert.equal(reds.length, 11);
+    await expectRed("sighting method check removed (Google re-enters as independent)", async () => {
+      const src = provSrc("if (c.source === INVENTORY_COORD_SOURCE) { if (c.method === SIGHTING_METHOD) sightings.push(c); }", "if (c.source === INVENTORY_COORD_SOURCE) { sightings.push(c); }");
+      await checkSightings(await import("data:text/javascript," + encodeURIComponent(src)), m.mapData);
+    });
+    await expectRed("sightings ignored (main behaviour)", async () => {
+      const src = provSrc("if (c.source === INVENTORY_COORD_SOURCE) { if (c.method === SIGHTING_METHOD) sightings.push(c); }", "if (c.source === INVENTORY_COORD_SOURCE) { /* dropped */ }");
+      await checkSightings(await import("data:text/javascript," + encodeURIComponent(src)), m.mapData);
+    });
+    console.log(`test-coord-provenance: red-prove OK — ${reds.length}/13 mutations went RED`);
+    assert.equal(reds.length, 13);
   }
   console.log("test-coord-provenance: OK — A source-aware freshness (Google 30d window, independent sources by licence, unknown/undated/future refused, map pins + area prefilter), B no timestamp-bump (dated by when Google returned it: live = now, cached = recorded write time, legacy = undated; not-newer never re-dates; stalest-window rotation so a stuck row cannot wedge the queue; excluded/locked rows skipped; cron route executed with stubbed DB), C list/map parity accounting (every list place exactly one status, Ryan's = no-permitted-coordinate).");
 }
