@@ -809,7 +809,7 @@ scripts/test-photos-paid-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	96	0	0
 scripts/test-place-card-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	67	0	0	d99a31a90fb1363f96a2e479c38c3e19c1902f8e4524a99f8b0097532e555178
 scripts/test-place-card-layout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0	3f64119a86ae6c6424ac4f8c6f08d32651e3231a8271c761ac7b6dd7f926aabb
 scripts/test-place-page-book-click-id.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	42	0	0	33f86756cc5c143473bcf3ea844f117e21581b383a0fb1187c69a260dc897c04
-scripts/test-place-photo-replay.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	67ae0f38a66becf08dd9649746f2f26a431f0b2e17186a715fc73a14e8499df8
+scripts/test-place-photo-replay.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	cf698ed6c177ba9d6b4bd2a1a45797c4aba919957abb51e051c9500b4152ba30
 scripts/test-place-products.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	a0c96375ec9be4febbae0c59c6d2c77123985e51469c53f4879a4ad4dc261dea
 scripts/test-place-recommendation-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	70	0	0	98f841e630b5d08cb435becd91c784bcc81252a1eb1c2965363bbe498e736a1d
 scripts/test-place-share-metadata.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	ba24501c243f7ded0efce2210ddf79f57c9e9c2f998438b181e80d7f686f0be6
