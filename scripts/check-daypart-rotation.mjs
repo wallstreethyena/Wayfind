@@ -129,7 +129,9 @@ for (const b of DAYPART_IDS) {
   // for tonight, so it is the one card that should never compete for a slot.
   // christmas (2026-10-08): the Christmas in Florida tile sits directly behind Fall in every band, which moves trending from 2 to 3.
   // christmas left this list 2026-10-08: owner rule puts it 3rd in the afternoon, 2nd elsewhere.
-  const ALLOWED_PINS = { augtober: 0, trending: 3, blog: ids.length - 1 };  // 0-indexed
+  // halloween (owner, 2026-10-14): the Halloween poster sits immediately right of Fall in every band (slot 2), which moves trending from 3 to 4
+  // while it is in the static order. The track filter hides it outside Oct 10-31 (lib/posterSeasons.js), so trending reads 3rd again then.
+  const ALLOWED_PINS = { augtober: 0, halloween: 1, trending: 4, blog: ids.length - 1 };  // 0-indexed
   const pinned = [];
   for (const id of ids) {
     const pos = DAYPART_IDS.map((b) => order[b].indexOf(id));
