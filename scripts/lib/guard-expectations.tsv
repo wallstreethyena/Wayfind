@@ -542,7 +542,7 @@ scripts/test-commons-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	145	0	0	642075b6
 scripts/test-community-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	a668c8aa2e845d120b11a445106160739f0451fcd6336343d3952ec57e080532
 scripts/test-composition-render.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	41	0	0	8f246bcf131f8ed8032dacb9816c4f68503012dc4747945e8af11b1fe07d428f
 scripts/test-containment.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	bc739fcab0a3ca6dc0d12b73110640258a4f1a13cd32d92d2bfccfa13650593f
-scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	993c056b46496f1a8d8deee7c5f45f921b5faccea58ca93d097878be4eb31597
+scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	116	0	0	9dd9556d4b6aa6f8424a8621cf98f936203dfe08b28ba66f0696abd5bfafc48b
 scripts/test-coupon-audit-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	38b5cf90b8cd22c51d4fe2d03edd844f5310a7db90da29f627b86046fd462b3a
 scripts/test-coupon-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	3a4bd79945467751dc2436ce722759ad9f9f4b6ab5cb601d592418f2cf7bb690
 scripts/test-coupon-selection.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	ab38a3b0ca7cc5fb862a74fa54dbe3b09f4f390742b8904cdd4b45207f87c0ff
