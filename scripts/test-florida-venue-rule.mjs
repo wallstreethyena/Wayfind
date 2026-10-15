@@ -43,6 +43,11 @@ for (const k of expectDropped) {
   const v = floridaVenueVerdict(F[k]);
   ok(v.ok === false && v.reason === OUT_OF_STATE, `rule drops ${k} with reason out_of_state (got ${JSON.stringify(v)})`);
 }
+// Precedence: explicit state > coordinates > text state > city name.
+ok(isFloridaVenue({ ...base, id: "p1", name: "Taproom night", venue: "Brew Hub, Co", city: "", lat: 27.95, lng: -82.46 }), 'a stray two-letter token ("Brew Hub, Co") does not outrank Tampa coordinates');
+ok(!isFloridaVenue({ ...base, id: "p2", name: "Show", venue: "Arena", city: "Valdosta", state: "GA", lat: 30.83, lng: -83.28 }), "Valdosta GA with an explicit state is dropped although inside the Florida box");
+ok(!isFloridaVenue({ ...base, id: "p3", name: "Show", venue: "Wharf", city: "Orange Beach", state: "AL", lat: 30.29, lng: -87.57 }), "Orange Beach AL with an explicit state is dropped although inside the Florida box");
+ok(!isFloridaVenue({ ...base, id: "p4", name: "Show", venue: "Hall, OH", city: "", lat: null, lng: null }), "no coordinates: text state OH is dropped");
 // Team names never decide: the same Crew row with a Florida venue is kept, a Florida team row at an Ohio venue is dropped.
 ok(isFloridaVenue({ ...F.columbus, state: "FL", city: "Tampa", lat: 27.95, lng: -82.45 }), "Crew playing in Tampa is kept (visiting team)");
 ok(!isFloridaVenue({ ...F.orlandoHome, state: "OH", city: "Columbus", lat: 40.0, lng: -83.0 }), "Orlando City at an Ohio venue is dropped (Florida team away)");
@@ -86,12 +91,21 @@ ok(!cands.includes("tm_crew") && !cands.includes("tm_ocsc_atl"), `live poster ca
 const picks = rankLivePicks(all, sportsCtx).all.map((e) => e.id);
 ok(!picks.includes("tm_crew") && !picks.includes("tm_ocsc_atl"), `live picks drop out-of-state (got ${picks})`);
 
+// 3b. The incident's root: an IP-geo point outside Florida must not become the centre.
+const { GET: geoGet } = await import("../app/api/geo/route.js");
+const geoFor = async (lat, lng, city) => (await geoGet(new Request("https://www.gowayfind.com/api/geo", { headers: { "x-vercel-ip-latitude": String(lat), "x-vercel-ip-longitude": String(lng), "x-vercel-ip-city": city, "x-vercel-ip-country-region": "XX" } }))).json();
+const ohioIp = await geoFor(39.9612, -82.9988, "Columbus");
+ok(ohioIp.ok === false && ohioIp.outsideFlorida === true, `/api/geo refuses an Ohio IP point (got ${JSON.stringify(ohioIp)})`);
+const tampaIp = await geoFor(27.95, -82.46, "Tampa");
+ok(tampaIp.ok === true && Math.abs(tampaIp.lat - 27.95) < 1e-6 && /Tampa/.test(tampaIp.name), `/api/geo still answers a Tampa IP point (got ${JSON.stringify(tampaIp)})`);
+
 // 4. Wiring that a call cannot see (cache key, route fields): code only, comments stripped.
 const code = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
 const route = code("app/api/events/route.js");
 ok(/const EVENTS_FEED_RULES = "florida-v1"/.test(route), "EVENTS_FEED_RULES was bumped to florida-v1");
 ok(!/"running-v1"/.test(route), "the old feed rules version is gone from the cache key");
 ok(/state:\s*venue && venue\.state/.test(route), "Ticketmaster venue state is captured");
+ok(/address\.region/.test(route) && /v && v\.region/.test(route), "Eventbrite and Bandsintown pass venue state");
 ok(/florida-v1/.test(route) && !/"running-v1"/.test(route), "stale cache entries are unreachable under the new key");
 for (const f of ["lib/posterEvents.js", "lib/livePosterSelection.js", "lib/sportsRail.js", "lib/livePicks.js", "app/api/events/fall/route.js", "app/api/events/christmas/route.js"]) {
   ok(/\bisFloridaVenue\(/.test(code(f)), `${f} calls isFloridaVenue`);
