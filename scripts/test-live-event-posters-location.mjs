@@ -292,14 +292,14 @@ try {
     fetches++;
     assert.equal(url, "/api/live-poster");
     assert.deepEqual(JSON.parse(opts.body).event, teamEvent, "the worker must send this exact team's artwork and metadata");
-    return { ok: true, status: 200, json: async () => ({ ok: true, dataUrl: "data:image/webp;base64,rays", event: teamEvent, strategy: "contained-art" }) };
+    return { ok: true, status: 200, json: async () => ({ ok: true, dataUrl: "data:image/webp;base64,rays", event: teamEvent, strategy: "portrait-art" }) };
   };
   const teamTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [teamEvent]);
   assert.equal(teamTile?.href, teamEvent.dest);
   assert.equal(teamTile?.title, teamEvent.name);
   assert.equal(teamTile?.livePosterEventId, teamEvent.id);
   assert.equal(teamTile?.livePosterSrc, "data:image/webp;base64,rays");
-  assert.equal(teamTile?.livePosterStrategy, "contained-art");
+  assert.equal(teamTile?.livePosterStrategy, "portrait-art");
   assert.equal(fetches, 1, "baseball must request its own provider artwork instead of returning the fixed poster");
 
   const invalidDest = { ...teamEvent, id: "missing-dest", dest: "" };

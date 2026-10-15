@@ -1966,9 +1966,9 @@ node scripts/check-go-florida-landing.mjs
 node scripts/check-event-providers-not-google-gated.mjs
 node scripts/test-poster-accepts-healthy-art.mjs
 
-# Team-first sports art (owner, 2026-10-15): preserve each event's own team
-# image in the 9:16 poster; no fixed generated baseball poster override.
-# Event identity, rank, and destination stay unchanged; logos stay uncropped.
+# Team-first sports art (owner, 2026-10-15): fill the 9:16 frame with each
+# event's own team art, large intact logos and no landscape band or padding.
+# No fixed generated baseball poster; event identity and rank stay unchanged.
 node scripts/test-live-poster-art.mjs
 
 # Florida festivals import (2026-09-18, docs/FLORIDA_FESTIVALS_IMPORT.md): the

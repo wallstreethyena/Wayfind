@@ -1,12 +1,13 @@
 // Owner direction 2026-10-15: sports postcards show their own team's/provider's
-// artwork with the complete logo, superseding the fixed "Catch a Game" image.
+// artwork with a prominent complete logo in a filled 9:16 composition,
+// superseding the fixed "Catch a Game" image and a letterboxed landscape band.
 // Fixtures are generated locally; no provider requests are made.
 import assert from "node:assert/strict";
 import { readFileSync, existsSync } from "node:fs";
 import sharp from "sharp";
 import { preservesSportsArtwork, eventMayHaveUsableProviderArt, livePosterSourceCanPossiblyFit } from "../lib/livePosterCandidate.js";
 import { buildEventPoster } from "../lib/eventPoster.js";
-import { fitPosterImage, POSTER_RATIO } from "../lib/posterImageFit.js";
+import { attemptAttentionCrop, fitPosterImage, POSTER_RATIO } from "../lib/posterImageFit.js";
 import { LIVE_POSTER_TYPE_CONFIG } from "../lib/liveEventPosterTypes.js";
 
 let n = 0;
@@ -32,6 +33,49 @@ async function logoFixture(width = 1024, height = 576, background = "#234b73", l
     <rect x="${width * 0.4}" y="${height * 0.9}" width="${width * 0.2}" height="${height * 0.1}" fill="#d020e0"/>
     <path d="M ${width * 0.24} ${height * 0.25} H ${width * 0.76} V ${height * 0.4} H ${width * 0.57} V ${height * 0.78} H ${width * 0.43} V ${height * 0.4} H ${width * 0.24} Z" fill="${logoColor}"/>
   </svg>`)).png().toBuffer();
+}
+// The real provider image has a centered white mark occupying about 30% of
+// a broad navy field. Its low-contrast diagonals belong across the portrait;
+// containing the whole source makes the actual logo tiny inside a wide band.
+const TEAM_FIELD = [[9, 34, 70], [11, 44, 86]];
+async function centeredTeamFixture({ detachedDetail = false } = {}) {
+  return sharp(Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="576">
+    <defs><pattern id="diagonal" width="256" height="256" patternUnits="userSpaceOnUse">
+      <rect width="256" height="256" fill="rgb(${TEAM_FIELD[0]})"/>
+      <path d="M -128 0 H 0 L 256 256 H 128 Z M 128 0 H 256 L 512 256 H 384 Z" fill="rgb(${TEAM_FIELD[1]})"/>
+    </pattern></defs>
+    <rect width="100%" height="100%" fill="url(#diagonal)"/>
+    <path d="M 358 138 H 666 V 216 H 552 V 438 H 472 V 216 H 358 Z" fill="#ffffff"/>
+    ${detachedDetail ? '<rect x="420" y="500" width="184" height="44" fill="rgb(40,65,100)"/>' : ""}
+  </svg>`)).png().toBuffer();
+}
+
+async function assertProminentPortraitArtwork(buffer) {
+  const { data, info } = await sharp(buffer).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  assert.equal(info.width, 900, "sports art must use the full portrait output width");
+  assert.equal(info.height, 1600, "sports art must be exactly 9:16");
+  assert.equal(info.width / info.height, POSTER_RATIO);
+  let minX = info.width, maxX = -1, minY = info.height, maxY = -1;
+  const fieldCounts = { upper: [0, 0], lower: [0, 0] };
+  for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
+    const offset = (y * info.width + x) * info.channels;
+    const rgb = [data[offset], data[offset + 1], data[offset + 2]];
+    if (rgb.every((value) => value > 235)) {
+      minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+      minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+    }
+    const region = y < info.height / 3 ? fieldCounts.upper : y >= info.height * 2 / 3 ? fieldCounts.lower : null;
+    if (region) for (let color = 0; color < TEAM_FIELD.length; color++) {
+      if (rgb.every((value, channel) => Math.abs(value - TEAM_FIELD[color][channel]) <= 3)) region[color]++;
+    }
+  }
+  const markWidth = maxX - minX + 1, markHeight = maxY - minY + 1;
+  assert.ok(markWidth >= info.width * 0.75 && markWidth <= info.width * 0.90, `team mark must occupy 75–90% of the portrait width, got ${markWidth}/${info.width}`);
+  assert.ok(markHeight >= info.height * 0.35 && markHeight <= info.height * 0.65, `team mark must have substantial portrait height, got ${markHeight}/${info.height}`);
+  assert.ok(minX > 0 && maxX < info.width - 1 && minY > 0 && maxY < info.height - 1, "the complete mark must remain inside the frame");
+  for (const [region, counts] of Object.entries(fieldCounts)) for (const [color, count] of counts.entries()) {
+    assert.ok(count > 4000, `${region} portrait field must retain source pattern color ${color}; found ${count} pixels`);
+  }
 }
 async function colorCensus(buffer) {
   const { data, info } = await sharp(buffer).removeAlpha().raw().toBuffer({ resolveWithObject: true });
@@ -66,25 +110,89 @@ await check("1024px team art is eligible without weakening generic crop sharpnes
   assert.equal(eventMayHaveUsableProviderArt({ ...RAYS, imageVariants: [{ ...source, width: 639 }] }), false, "dimensionless duplicates must not bypass known undersized art");
 });
 
-await check("the sports poster preserves all four edges of the team's image", async () => {
-  const source = await logoFixture();
+await check("the team's logo fills a true 9:16 composition over its own patterned field", async () => {
+  const source = await centeredTeamFixture();
   const requested = [];
   const result = await buildEventPoster(RAYS, { fetchImage: async (url) => { requested.push(url); return source; } });
   assert.equal(result.ok, true);
-  assert.equal(result.strategy, "contained-art");
+  assert.equal(result.strategy, "portrait-art");
   assert.equal(result.sourceUrl, RAYS.image);
   assert.deepEqual(requested, [RAYS.image], "the logo must come from this exact event's image");
-  const output = await colorCensus(result.buffer);
-  assert.equal(output.info.width, 760);
-  assert.equal(output.info.height, Math.round(760 / POSTER_RATIO));
-  for (const [edge, pixels] of Object.entries(output.counts)) assert.ok(pixels > 2000, `${edge}: source feature disappeared (${pixels} pixels)`);
-  assert.ok(output.minLeftX < 5, "left source edge must remain visible");
-  assert.ok(output.maxRightX >= output.info.width - 5, "right source edge must remain visible");
-  const corner = Array.from(output.data.subarray(0, 3));
-  const end = ((output.info.height - 1) * output.info.width + output.info.width - 1) * output.info.channels;
-  assert.deepEqual(Array.from(output.data.subarray(end, end + 3)), corner, "portrait space uses a solid background");
-  assert.ok(Math.abs(corner[0] - 35) < 20 && Math.abs(corner[1] - 75) < 20 && Math.abs(corner[2] - 115) < 20, "background must use the source's dominant team color");
+  await assertProminentPortraitArtwork(result.buffer);
   for (const key of ["id", "name", "date", "time", "venue", "city", "source", "dest", "destKind", "url", "segment", "genre"]) assert.equal(result.event[key], RAYS[key], `${key} must pass through unchanged`);
+});
+
+await check("the composition check rejects the old landscape band even in a 9:16 file", async () => {
+  const source = await centeredTeamFixture();
+  const oldContained = await sharp(source).resize({ width: 900, height: 1600, fit: "contain", background: { r: 9, g: 34, b: 70 } }).png().toBuffer();
+  await assert.rejects(() => assertProminentPortraitArtwork(oldContained), /team mark must occupy 75–90%/, "9:16 file dimensions alone must not make a small letterboxed logo pass");
+});
+
+await check("a broad team mark retains all four colored pieces inside the portrait", async () => {
+  const source = await logoFixture();
+  const result = await buildEventPoster(RAYS, { fetchImage: async () => source });
+  assert.equal(result.ok, true);
+  assert.equal(result.strategy, "portrait-art");
+  const output = await colorCensus(result.buffer);
+  assert.equal(output.info.width, 900);
+  assert.equal(output.info.height, 1600);
+  for (const [edge, pixels] of Object.entries(output.counts)) assert.ok(pixels > 2000, `${edge}: source feature disappeared (${pixels} pixels)`);
+  assert.ok(output.minLeftX > 0 && output.maxRightX < output.info.width - 1, "both ends of the mark must fit inside the portrait");
+});
+
+await check("detached colored logo details must not disappear during mark extraction", async () => {
+  const complete = await buildEventPoster(RAYS, { fetchImage: async () => centeredTeamFixture({ detachedDetail: true }) });
+  const missingDetail = await buildEventPoster(RAYS, { fetchImage: async () => centeredTeamFixture() });
+  assert.equal(complete.ok, true);
+  assert.equal(missingDetail.ok, true);
+  assert.equal(complete.buffer.equals(missingDetail.buffer), false, "a visible team detail outside the white mark must not be silently removed");
+});
+
+await check("faint complete team marks remain usable and prominent on light or dark fields", async () => {
+  for (const [background, markColor] of [["#ffffff", "#e6e6e6"], ["#ffffff", "#dddddd"], ["#092246", "#19325a"]]) {
+    const source = await sharp(Buffer.from(`<svg width="1024" height="576">
+      <rect width="1024" height="576" fill="${background}"/>
+      <path d="M 250 100 H 774 V 220 H 574 V 500 H 450 V 220 H 250 Z" fill="${markColor}"/>
+    </svg>`)).png().toBuffer();
+    const result = await buildEventPoster(RAYS, { fetchImage: async () => source });
+    assert.equal(result.ok, true, `${markColor} on ${background}: readable artwork must not fall into the undersized photo crop`);
+    assert.equal(result.strategy, "portrait-art");
+    const { data, info } = await sharp(result.buffer).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+    assert.equal(info.width, 900);
+    assert.equal(info.height, 1600);
+    const rgb = [1, 3, 5].map((offset) => parseInt(markColor.slice(offset, offset + 2), 16));
+    let left = info.width, right = -1, top = info.height, bottom = -1;
+    for (let y = 0; y < info.height; y++) for (let x = 0; x < info.width; x++) {
+      const offset = (y * info.width + x) * info.channels;
+      if (rgb.every((value, channel) => Math.abs(data[offset + channel] - value) <= 2)) {
+        left = Math.min(left, x); right = Math.max(right, x);
+        top = Math.min(top, y); bottom = Math.max(bottom, y);
+      }
+    }
+    const width = right - left + 1, height = bottom - top + 1;
+    assert.ok(width >= 700 && height >= 530, "the full faint mark must be enlarged, rather than disappearing or remaining a small inset");
+    assert.ok(Math.abs(width / height - 524 / 400) < 0.025, "the complete T mark must retain its source proportions");
+    assert.ok(left > 0 && right < info.width - 1 && top > 0 && bottom < info.height - 1, "no part of the faint mark may be clipped");
+  }
+});
+
+await check("a photographic panel on a flat team field keeps the existing photo crop", async () => {
+  const photograph = await sharp("public/events/community-kids.jpg").resize(580, 700, { fit: "cover" })
+    .modulate({ brightness: 0.45 }).png().toBuffer();
+  const source = await sharp({ create: { width: 2048, height: 1152, channels: 3, background: { r: 9, g: 34, b: 70 } } })
+    .composite([{ input: photograph, left: 734, top: 226 }]).png().toBuffer();
+  assert.ok((await sharp(source).stats()).entropy < 4.5, "the whole frame must exercise the misleading low-entropy case");
+  assert.ok((await sharp(photograph).stats()).entropy > 4.5, "the panel must contain real photographic texture");
+  const crop = await attemptAttentionCrop(source);
+  assert.equal(crop.ok, true, "the same source must have a healthy ordinary crop");
+  const expected = await sharp(crop.buffer).resize(900, 1600, { fit: "cover" }).removeAlpha().raw().toBuffer();
+  const result = await buildEventPoster(RAYS, { fetchImage: async () => source });
+  assert.equal(result.ok, true);
+  assert.equal(result.strategy, "portrait-art");
+  const { data, info } = await sharp(result.buffer).removeAlpha().raw().toBuffer({ resolveWithObject: true });
+  assert.equal(info.width, 900);
+  assert.equal(info.height, 1600);
+  assert.equal(data.equals(expected), true, "a photograph must not be masked or enlarged as a team logo");
 });
 
 await check("the marker check detects a cropped logo as a negative control", async () => {
@@ -134,7 +242,7 @@ await check("featureless artwork fails closed while a logo on white remains usab
   const whiteLogo = await logoFixture(1024, 576, "#ffffff", "#121212");
   const result = await buildEventPoster(RAYS, { fetchImage: async () => whiteLogo });
   assert.equal(result.ok, true, "a valid logo must not be rejected merely for its white background");
-  assert.equal(result.strategy, "contained-art");
+  assert.equal(result.strategy, "portrait-art");
   const output = await colorCensus(result.buffer);
   for (const edge of ["left", "right", "top", "bottom"]) assert.ok(output.counts[edge] > 2000, `${edge}: the white-background logo must remain complete`);
 });
@@ -154,7 +262,7 @@ await check("transparent monochrome logos retain visible contrast; invisible noi
     const source = await image.png().toBuffer();
     const result = await buildEventPoster(RAYS, { fetchImage: async () => source });
     assert.equal(result.ok, true, `${color}/${grayscale}: alpha-only logo must be usable`);
-    assert.equal(result.strategy, "contained-art");
+    assert.equal(result.strategy, "portrait-art");
     assert.equal((await sharp(result.buffer).stats()).isOpaque, true, "the complete mark must have a visible solid field");
     const { data, info } = await sharp(result.buffer).removeAlpha().raw().toBuffer({ resolveWithObject: true });
     const center = ((Math.floor(info.height / 2) * info.width) + Math.floor(info.width / 2)) * info.channels;
