@@ -154,8 +154,8 @@ ok(/"\/api\/outbound\/verdict",/.test(mw), "middleware rate-limits /api/outbound
 const crons = JSON.parse(read("vercel.json")).crons.map((c) => c.path);
 ok(crons.includes("/api/cron/events-link-health"), "vercel.json schedules the nightly events-link-health content sweep");
 const cronSrc = strip(read("app/api/cron/events-link-health/route.js"));
-ok(/probeAndClassify\(/.test(cronSrc) && /link_ok: false/.test(cronSrc) && /wf_link_verdicts/.test(cronSrc) && /wf_broken_links/.test(cronSrc) && /link_manual_verifications/.test(cronSrc) && /manual-browser-verification/.test(cronSrc),
-  "the sweep probes by content, darkens rows, records verdicts + broken links, and honors only expiring exact-URL browser verification fuses");
+ok(/probeAndClassify\(/.test(cronSrc) && /link_ok: false/.test(cronSrc) && /wf_link_verdicts/.test(cronSrc) && /link_manual_verifications/.test(cronSrc) && /manual-browser-verification/.test(cronSrc),
+  "the sweep probes by content, darkens rows, records verdicts, and honors only expiring exact-URL browser verification fuses");
 const probe = strip(read("lib/linkProbe.js"));
 ok(/isDeniedHost\(host\)/.test(probe) && /"unknown", reason: "denied-host-no-fetch"/.test(probe), "the probe never fetches a denied (Disney) host — AGENTS.md §7");
 
@@ -170,6 +170,46 @@ ok(/isDeniedHost\(host\)/.test(probe) && /"unknown", reason: "denied-host-no-fet
   ok(dup.length === 2 && new Set(dup.map((r) => r.url)).size === 2, "dedupeVerdictRows leaves exactly one row per url");
   ok(dup.find((r) => r.url === "https://a.test/x").verdict === "dead", "the worst verdict wins for a shared url");
   ok(/dedupeVerdictRows\(verdictRows\)/.test(cronSrc) && !/JSON\.stringify\(verdictRows\)/.test(cronSrc), "the sweep upserts the DEDUPED rows, never the raw batch");
+}
+
+// wf_broken_links is a read-only VIEW over active wf_deals rows (link_ok is
+// false) - not a table the events sweep may write. 2026-10-14 pulse "persistence
+// error: broken-400": the sweep POSTed a darkened event into it, i.e. an INSERT
+// into wf_deals, which answered 23502 (affiliate_url NOT NULL). EXECUTE the real
+// route against a fake PostgREST that enforces the schema contract.
+{
+  const READ_ONLY_VIEWS = new Set(["wf_broken_links"]); // production relkind 'v'
+  const WRITABLE = new Set(["wf_events", "wf_link_verdicts", "wf_job_pulse"]);
+  const savedFetch = globalThis.fetch;
+  // Assigned, never read from the shell (guard hermeticity): the fake backend is fully explicit.
+  process.env.SUPABASE_URL = "https://fake.supabase.test"; process.env.SUPABASE_SERVICE_ROLE_KEY = "svc"; process.env.CRON_SECRET = "s3";
+  const writes = [];
+  globalThis.fetch = async (url, init = {}) => {
+    const u = new URL(String(url));
+    const m = u.pathname.match(/^\/rest\/v1\/([a-z_]+)/);
+    const method = (init.method || "GET").toUpperCase();
+    if (!m) return new Response("{}", { status: 200 });
+    if (method === "GET") {
+      return Response.json([{ event_id: "e1", event_name: "Grove Fest", venue: "Grove", official_ticket_url: "https://fruitvillegrove.com/tix", official_event_url: null, event_page_url: null, link_ok: null, link_verdict: null, link_manual_verifications: null }]);
+    }
+    writes.push({ table: m[1], method, body: init.body ? JSON.parse(init.body) : null });
+    if (READ_ONLY_VIEWS.has(m[1])) return Response.json({ code: "23502", message: "null value in column \"affiliate_url\" of relation \"wf_deals\" violates not-null constraint" }, { status: 400 });
+    return new Response(null, { status: 204 });
+  };
+  let res, body;
+  try {
+    const { GET } = await import("../app/api/cron/events-link-health/route.js");
+    res = await GET(new Request("https://x.test/api/cron/events-link-health", { headers: { authorization: "Bearer s3" } }));
+    body = await res.json();
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+  ok(body && body.ok === true && !body.error, "a flagged event link completes with no persistence error (was broken-400)");
+  ok(writes.every((w) => !READ_ONLY_VIEWS.has(w.table) && WRITABLE.has(w.table)), "the sweep writes only base tables, never the wf_broken_links view: " + [...new Set(writes.map((w) => w.table))].join(","));
+  const darkened = writes.find((w) => w.table === "wf_events" && w.method === "PATCH" && w.body && w.body.link_ok === false && w.body.link_verdict === "hijacked");
+  ok(!!darkened, "a genuinely bad link is still persisted: wf_events.link_ok=false, link_verdict=hijacked");
+  const vr = writes.find((w) => w.table === "wf_link_verdicts");
+  ok(!!vr && Array.isArray(vr.body) && vr.body.some((r) => r.url === "https://fruitvillegrove.com/tix" && r.verdict === "hijacked"), "a genuinely bad link is still recorded in wf_link_verdicts");
 }
 
 if (fail.length) {
