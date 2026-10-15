@@ -50,7 +50,7 @@
 // queue rows — never a crash. A red canary here always means the instrument
 // failed, never that the world looked bad (spec §4, risk 13).
 import { recordPulse } from "../lib/jobPulse.js";
-import { allowanceFromLedger, classifyProbe, computeBreach, isSampleDegraded, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict, readerPlaceholderRate } from "../lib/photoCoverage.js";
+import { allowanceFromLedger, classifyProbe, computeBreach, isSampleDegraded, measurementVerdict, mergeQueueUpsert, openGrowthRatio, parseOpenTotal, pulseVerdict, readerPlaceholderRate } from "../lib/photoCoverage.js";
 
 const DEFAULT_BASE_URL = "https://www.gowayfind.com";
 // RL_LIMIT in lib/apiGuard.js is 120 requests / 60s per IP, best-effort, per
@@ -63,6 +63,14 @@ const TIMEOUT_MS = 10000;
 const USER_AGENT = "WayfindPhotoMonitor/1.0 (+https://www.gowayfind.com)";
 const PROBE_HEADER = { "x-wayfind-photo-probe": "1", "user-agent": USER_AGENT };
 const RETRY_AFTER_DEFAULT_MS = 3000;
+// WHICH SURFACE THE PROBE NAMES (2026-10-15). Since #1697 the route answers 404
+// not-google-surface to any request that names no credited surface, BEFORE it looks at
+// the place, so a bare ?place=/?ref= probe measured nothing (all 499 probes errored from
+// 2026-10-09). s=detail is the surface a real reader buys on. The route exempts a probe
+// from the page-origin test (#1770) AND the resolver returns probe-no-spend before it
+// ever calls authorizeSpend, so naming the surface still takes zero ledger grants:
+// x-wayfind-photo-probe stays on every request (scripts/test-photo-monitor-surface.mjs).
+const PROBE_SURFACE = "detail";
 // amendment A4 — rotate cells by epoch when the full sweep would exceed this.
 // Lowered 600 -> 500 alongside RATE_PER_MINUTE=90: 509 probes at 90/min is
 // ~5.7 minutes even with zero 429 retries, which keeps the canary workflow's
@@ -203,6 +211,7 @@ export async function probeUrl(baseUrl, row, w) {
     const u = new URL("/api/photo", baseUrl);
     u.searchParams.set("ref", row.photo_ref);
     u.searchParams.set("w", String(width));
+    u.searchParams.set("s", PROBE_SURFACE);
     const res = await fetchOne(u.href);
     surfaces.push({ kind: "ref", ...res, verdict: classifyProbe(res) });
   }
@@ -210,6 +219,7 @@ export async function probeUrl(baseUrl, row, w) {
     const u = new URL("/api/photo", baseUrl);
     u.searchParams.set("place", placeId);
     u.searchParams.set("w", String(width));
+    u.searchParams.set("s", PROBE_SURFACE);
     const res = await fetchOne(u.href);
     surfaces.push({ kind: "place", ...res, verdict: classifyProbe(res) });
   }
@@ -227,7 +237,7 @@ function resultBucket(verdict) {
 }
 
 export function summarize(probeResults) {
-  const byResult = { real: 0, compass: 0, miss: 0, rateLimited: 0, error: 0 };
+  const byResult = { real: 0, compass: 0, miss: 0, rateLimited: 0, policy: 0, error: 0 };
   const byReason = {};
   const byMetro = {};
   const byCategory = {};
@@ -236,7 +246,7 @@ export function summarize(probeResults) {
   let sampled = 0;
 
   const bump = (bucket, dict, key) => {
-    if (!dict[key]) dict[key] = { real: 0, compass: 0, miss: 0, rateLimited: 0, error: 0 };
+    if (!dict[key]) dict[key] = { real: 0, compass: 0, miss: 0, rateLimited: 0, policy: 0, error: 0 };
     dict[key][bucket] = (dict[key][bucket] || 0) + 1;
   };
 
@@ -812,7 +822,7 @@ async function main() {
   if (args.json) console.log(JSON.stringify(out, null, 2));
   else {
     console.log(`photo-monitor: sampled ${out.sampled} probes across ${out.sampledFrom.cells}/${out.sampledFrom.cellsTotal} cells`);
-    console.log(`  real=${summary.byResult.real} compass=${summary.byResult.compass} miss=${summary.byResult.miss} rateLimited=${summary.byResult.rateLimited} error=${summary.byResult.error}`);
+    console.log(`  real=${summary.byResult.real} compass=${summary.byResult.compass} miss=${summary.byResult.miss} rateLimited=${summary.byResult.rateLimited} policy=${summary.byResult.policy} error=${summary.byResult.error}`);
     console.log(`  placeholderRate=${(reader.rate * 100).toFixed(1)}% rawProbeRate=${(reader.rawRate * 100).toFixed(1)}% queueWrites=${queueWrites} cold=${cold} ledgerPhase=${allowance.phase} configOutages=${configOutages} sampleDegraded=${sampleDegraded} breach=${breach}`);
     if (queueUnavailable) console.log(`  queue: unavailable (${queueErrorMessage})`);
   }
@@ -821,8 +831,9 @@ async function main() {
   // placeholder rate is a finding (already filed as a pulse + queue rows
   // above), never a crash. A missing repair-queue table is likewise never a
   // crash — it is logged and counted above, and this run still exits 0.
-  if (summary.sampled === 0 || errors === summary.sampled) {
-    console.error("photo-monitor: FAIL — every probe errored; this run could not measure anything.");
+  const mv = measurementVerdict(summary);
+  if (!mv.ok) {
+    console.error(`photo-monitor: FAIL — this run could not measure anything (${mv.reason}).`);
     process.exit(1);
   }
 }
