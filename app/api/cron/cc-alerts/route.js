@@ -154,6 +154,51 @@ async function runDrill(drillId, { resendKey, to, now }) {
   };
 }
 
+// Secretless drill trigger: the hourly run honours a wf_cc_settings request row
+// (k='cc_alerts_drill_request', {id, requested_at}). Additive and fail-soft: runs
+// AFTER the real alerts, same runDrill/deliverAlerts path and 10-min drill
+// cooldown. Row is deleted only after a delivery attempt succeeded (or when it is
+// stale/unknown/malformed); a failed send keeps it and says so in the pulse note.
+const DRILL_REQUEST_KEY = "cc_alerts_drill_request";
+const DRILL_REQUEST_MAX_AGE_MS = 3 * 3600000;
+
+async function settingsDelete(s, key) {
+  try {
+    const r = await fetch(`${s.url}/rest/v1/wf_cc_settings?k=eq.${encodeURIComponent(key)}`, {
+      method: "DELETE", cache: "no-store",
+      headers: { apikey: s.key, Authorization: `Bearer ${s.key}`, Prefer: "return=minimal" },
+    });
+    if (!r.ok) { try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "drill_request_delete", status: r.status })); } catch (e) {} }
+    return !!r.ok;
+  } catch (e) {
+    try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "drill_request_delete_exception", error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {}
+    return false;
+  }
+}
+
+async function processDrillRequest({ resendKey, to, now }) {
+  try {
+    const s = sbAdmin();
+    if (!s) return;
+    const req = await settingsGet(s, DRILL_REQUEST_KEY);
+    if (!req) return;
+    const id = req && typeof req === "object" ? req.id : null;
+    const at = req && typeof req === "object" ? Date.parse(req.requested_at) : NaN;
+    const known = typeof id === "string" && Object.prototype.hasOwnProperty.call(DRILLS, id);
+    const fresh = Number.isFinite(at) && now.getTime() - at <= DRILL_REQUEST_MAX_AGE_MS && at <= now.getTime() + 5 * 60000;
+    if (!known || !fresh) {
+      await settingsDelete(s, DRILL_REQUEST_KEY);
+      try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: `healthy idle: drill request discarded (${known ? "stale" : "unknown or malformed"})` }); } catch (e) {}
+      return;
+    }
+    const d = await runDrill(id, { resendKey, to, now });
+    if (d.body.delivered || d.body.reason) await settingsDelete(s, DRILL_REQUEST_KEY);   // attempt made, or satisfied by a drill <10 min ago
+    try { await recordPulse(JOB, d.pulse); } catch (e) {}
+  } catch (e) {
+    try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "drill_request", error: String(e && e.message || e).slice(0, 200) })); } catch (e2) {}
+  }
+}
+
 export async function GET(req) {
   // Fail-closed cron auth (same as /api/cron/cwv).
   const secret = process.env.CRON_SECRET;
@@ -197,11 +242,13 @@ export async function GET(req) {
   } catch (e) {
     try { console.error(JSON.stringify({ tag: "cc_alerts_cron", ok: false, stage: "gather_alerts", error: String(e && e.message || e).slice(0, 300) })); } catch (e2) {}
     try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: `unavailable: gather_alerts failed: ${String(e && e.message || e)}`.slice(0, 200) }); } catch (e3) {}
+    // (no drill hook here: a drill pulse must not mask a real gather failure)
     return Response.json({ ok: false, stage: "gather_alerts", error: String(e && e.message || e).slice(0, 200) }, { status: 500 });
   }
   const actionable = alerts.filter((a) => a.severity === "critical" || a.severity === "warn");
   if (!actionable.length) {
     try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no critical/warn alerts to send" }); } catch (e) {}
+    await processDrillRequest({ resendKey, to, now });
     return Response.json({ ok: true, alerts: 0, sent: false });
   }
 
@@ -215,6 +262,7 @@ export async function GET(req) {
   });
   if (!due.length) {
     try { await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: `healthy idle: ${actionable.length} alert(s) already sent, in cooldown` }); } catch (e) {}
+    await processDrillRequest({ resendKey, to, now });
     return Response.json({ ok: true, alerts: actionable.length, sent: false, reason: "all in cooldown" });
   }
 
@@ -233,5 +281,6 @@ export async function GET(req) {
       note: ok ? null : `email send failed (status ${r ? r.status : "network_error"})`.slice(0, 200),
     });
   } catch (e) {}
+  await processDrillRequest({ resendKey, to, now });
   return Response.json({ ok, alerts: actionable.length, sent: ok ? due.length : 0, emailStatus: r ? r.status : "network_error" });
 }
