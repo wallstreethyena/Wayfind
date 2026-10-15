@@ -39,3 +39,19 @@ Nothing here is assumed safe. The ~31 third-party hotlinks and the 59 Eventbrite
 ## Blog
 
 The blog lives in a separate repository that this session cannot reach, so the blog audit (hero, thumbnails, article images, cropping, attribution, broken or repeated images) is NOT done. The shared gate accepts blog records (`content|data|app/blog/**`); the blog repo must run `scripts/check-new-content-images.mjs` to be covered. Open item.
+
+## Outcome, applied 2026-10-14 (evening)
+
+Each of the 241 unclassified rows was judged on its own evidence with the classifier from PR #1788 (`scripts/lib/eventHeroProvenance.mjs`), run against a production snapshot, then applied with a compare-and-swap update (row changed only if `hero_image` still matched and `hero_image_kind` was still null). Per-row record: `docs/data-changes/event-hero-provenance-2026-10-14.csv`. Undo: `docs/data-changes/event-hero-provenance-2026-10-14.reverse.sql`.
+
+| class | rows | decision | evidence |
+|---|---|---|---|
+| venue photo route, venue proven | 120 | labelled `venue` | 101: the photo's Google place id equals the event's own `place_id`; 19: the inventory name for that place id matches the event venue (token overlap ≥ 0.6, all reviewed by hand). Not bulk-labelled. |
+| venue photo route, venue not proven | 24 | cleared to the neutral tile | place id not in our inventory (cannot verify), venue "Citywide"/empty (backfill matched on the event name), or a different place name. |
+| Eventbrite (`img.evbuc.com`) | 59 | cleared | no recorded permission for Wayfind reuse. |
+| third-party hotlinks | 30 | cleared | no licence or credit on record. |
+| Wayfind fall collection poster on a specific event | 5 | cleared | the image gate treats the collection poster as a misleading fallback for a named event. |
+| Unsplash area photos on Red Bull events | 2 | cleared | licensed, but they show a different building / the waterfront, not the event or its venue. |
+| Möbius Night Market owned photo | 1 | labelled `event` | registered in `lib/eventPhotos.js` with consent. |
+
+After: 0 unclassified event images, 129 `venue`, 65 `event`. Events with no image: 1,068 (808 upcoming), up from 948 / 723 because 120 questionable images became the honest neutral tile. No image was invented and no photo of another venue was added.
