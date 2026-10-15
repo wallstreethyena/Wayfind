@@ -20,14 +20,20 @@ const ROOT = process.cwd();
 let fails = 0;
 const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
 
-// Owner-banned art. Add the filename here when the owner bans an image;
+// Owner-banned art, relative to public/. Add the path when an image is banned;
 // never remove entries — a ban is permanent unless the owner reverses it in
 // writing (date the reversal here if that ever happens).
-const BANNED = ["night-out.jpg"];
+// 2026-10-15: every sporting event uses its own team/event art. The retired
+// generated baseball posters must never return through another call site.
+const BANNED = [
+  "cards/night-out.jpg",
+  "posters/live/baseball-760.webp",
+  "posters/live/baseball-owner-20260920.webp",
+];
 
 // 1. the bytes are gone
 for (const f of BANNED) {
-  ok(!existsSync(path.join(ROOT, "public/cards", f)), `public/cards/${f} still exists — the owner ordered it deleted`);
+  ok(!existsSync(path.join(ROOT, "public", f)), `public/${f} still exists — the owner ordered it deleted`);
 }
 
 // 2. nothing references it (comments stripped)
@@ -60,7 +66,7 @@ let controlHits = 0;
 for (const f of files) {
   const code = stripComments(readFileSync(f, "utf8"));
   for (const b of BANNED) {
-    ok(!code.includes(b), `${path.relative(ROOT, f)} still references banned art "${b}" outside a comment`);
+    ok(!code.includes(path.basename(b)), `${path.relative(ROOT, f)} still references banned art "${b}" outside a comment`);
   }
   if (code.includes("tonight-alfonso-scarpa-unsplash.jpg")) controlHits++;
 }
