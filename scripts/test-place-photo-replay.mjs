@@ -22,7 +22,7 @@
 // No real network, no real Supabase, no secrets.
 
 import { readFileSync } from "node:fs";
-import { runBackfill, isReplayEligible, selectReplaySlice, describeReplay, replayPhotoPassesPrecision, REPLAY_SOURCE_REF, REPLAY_SOURCE_REFS, REPLAY_RETRY_CUTOFF_MS } from "../lib/placePhotoBackfill.js";
+import { runBackfill, isReplayEligible, selectReplaySlice, describeReplay, replayPhotoPassesPrecision, replaySourceRefInList, REPLAY_SOURCE_REF, REPLAY_SOURCE_REFS, REPLAY_RETRY_CUTOFF_MS } from "../lib/placePhotoBackfill.js";
 import { isUnavailableReason } from "../lib/commonsPhotos.js";
 import { isDeterministicFailureNote } from "../lib/jobPulse.js";
 
@@ -655,6 +655,13 @@ function inv(place_id, name) {
   const f = db.upsertCalls.find((r) => r.place_id === ID);
   ok(f && f.status === "rejected" && /^rejected:replay_precision_/.test(f.source_ref), `T6: filed as rejected:replay_precision_* (got ${f && f.source_ref})`);
   ok(!isReplayEligible(db.table.get(ID)), "T6: and that terminal reason is not replayable");
+}
+
+{
+  const list = decodeURIComponent(replaySourceRefInList()).split(",");
+  eq(list.length, REPLAY_SOURCE_REFS.length, "Q1: the in-list carries every allow-listed ref");
+  ok(list.every((v) => /^"[^"]+"$/.test(v)), `Q1: every in-list value is double-quoted for PostgREST (got ${JSON.stringify(list)})`);
+  ok(REPLAY_SOURCE_REFS.every((r) => list.includes('"' + r + '"')), "Q1: the quoted values are exactly the allow-list");
 }
 
 {
