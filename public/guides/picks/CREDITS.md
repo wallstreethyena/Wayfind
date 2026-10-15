@@ -334,7 +334,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## things-to-do-in-venice-florida
 
 - `/guides/picks/things-to-do-in-venice-florida/caspersen-beach-sunset-rocks.webp` — things-to-do-in-venice-florida: Caspersen Beach Park. [Grendelkhan](https://commons.wikimedia.org/wiki/File:Sunset_at_Caspersen_Beach.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/things-to-do-in-venice-florida/venice-beach.webp` — things-to-do-in-venice-florida: Venice Beach. [Forest and Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
+- `/guides/picks/things-to-do-in-venice-florida/venice-beach.webp` — things-to-do-in-venice-florida: Venice Beach. [Forest and Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg); [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/deed.en).
 - `/guides/picks/things-to-do-in-venice-florida/triangle-inn-venice-museum.webp` — things-to-do-in-venice-florida: Venice Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Venice_FL_Triangle_Inn03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-key-west-summer-2026

@@ -203,6 +203,9 @@ function licenseProblem(license, licenseUrl) {
     const kind = ccMatch[1].toLowerCase(); // by | by-sa
     const version = ccMatch[2];
     const expected = `https://creativecommons.org/licenses/${kind}/${version}/`;
+    // The reviewed Venice Beach source grants the US edition of BY 3.0.
+    // Preserve that precise deed rather than relabel it as the unported edition.
+    if (license === "CC BY 3.0" && licenseUrl === "https://creativecommons.org/licenses/by/3.0/us/deed.en") return null;
     return licenseUrl === expected ? null : `${license} licenseUrl must be exactly ${expected}, got ${JSON.stringify(licenseUrl)}`;
   }
   if (PERMISSION_RX.test(String(license))) {
@@ -221,6 +224,10 @@ function licenseProblem(license, licenseUrl) {
   }
   ok(licenseProblem("Used with permission of Ringling Museum (owner-confirmed 2026-09-22); credit required", "https://www.ringling.org/") === null, "positive control: a well-formed permission license is legal");
   ok(licenseProblem("Unsplash License", "https://unsplash.com/license") === null, "positive control: free Unsplash license accepted at its canonical URL");
+  ok(licenseProblem("CC BY 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") === null, "positive control: the source-verified BY 3.0 US deed is preserved");
+  ok(licenseProblem("CC BY-SA 3.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") !== null, "red-proof: US deed cannot change BY-SA into BY");
+  ok(licenseProblem("CC BY 4.0", "https://creativecommons.org/licenses/by/3.0/us/deed.en") !== null, "red-proof: US deed cannot change the license version");
+  ok(licenseProblem("CC BY 3.0", "https://example.com/licenses/by/3.0/us/deed.en") !== null, "red-proof: a lookalike host cannot claim the verified US deed");
   ok(licenseProblem("Unsplash License", "https://unsplash.com/plus") !== null, "red-proof: Unsplash Plus is not licensed by the free license");
   ok(entryTypeProblems({ src: "/x.webp", width: 1400, height: 900, sameAsCardPhoto: false, sourceKind: "unsplash", sourceUrl: "https://example.com/stolen", license: "Unsplash License", placeId: null, reviewedAt: "2026-09-24", verification: "checked" }).some(p => p.includes("Unsplash")), "red-proof: an unrelated source cannot claim the free Unsplash license");
   // red-proofs — every rejected shape must actually be rejected.

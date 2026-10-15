@@ -188,7 +188,7 @@ scripts/check-guide-dedicated-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	5
 scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	10bafd234698135469a5705a203c1dc342466f7a7d60e6dd113cd59b4bb69f5a
 scripts/check-guide-in-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	91696b60122c8301e8a7a19a89c054d41be5cda46702f40a6a7b3851c64f7fbd
 scripts/check-guide-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	819a21371b9ba799c53f53e2db53d1814eaaedb5e04ffd3a5737c2690e7278c9
-scripts/check-guide-pick-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	102	0	0	339b141f860d76254610e23223fec4f3a11210c926ecb2c582246d5170974ce6
+scripts/check-guide-pick-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	106	0	0	ad9a5a2c81e8cadec976d28952d1cd164c88afa3212da7e1e7ed42aaa0c16bbe
 scripts/check-guide-place-identities.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	d4ab0f04a88ab58dd7edc7d68767b70b89db82f2cd09a453b889835a3a0dd4d9
 scripts/check-guide-product-isr-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	f78ddab81cf4c2f18358e774b7551f0919a4937c0500faee707d3be3fbed50b4
 scripts/check-guide-product-resolution.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	5637ef055126548627e35d2fa8b0a7d92ef08ece35bbd9260c2b4aacec2cd513
