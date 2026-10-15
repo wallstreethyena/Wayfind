@@ -83,9 +83,6 @@ const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:'
 const OP = String.raw`(?:<=|>=|<(?!<)|>(?!>))`;
 const KEY = String.raw`(?:next|nextCursor|last|lastId|row\.\w+|row\[\w+\]|r\.\w+|\w+\.place_id|place_id|\w+\.media_id|media_id)`;
 const PROBE = new RegExp(String.raw`\b${KEY}\s*${OP}\s*cursor\b(?!\s*\.)|\bcursor\s*${OP}\s*${KEY}\b(?!\s*\.length)`);
-// Owned by PR #1816 (still bytewise on main until it merges); the sweep fails if
-// they are still bytewise AFTER #1816's own fix is gone, i.e. it only excuses them while unfixed.
-const PENDING_1816 = new Set(["lib/mapAreaData.js", "lib/mapAreaRead.js"]);
 const walk = (d, out = []) => {
   for (const f of readdirSync(d)) {
     if (["node_modules", ".next", ".git", ".claude"].includes(f)) continue;
@@ -94,7 +91,7 @@ const walk = (d, out = []) => {
   }
   return out;
 };
-const flagged = (rel, src) => PROBE.test(stripComments(src)) && !PENDING_1816.has(rel);
+const flagged = (rel, src) => PROBE.test(stripComments(src));
 function sweep() {
   const hits = [];
   let scanned = 0;
@@ -118,7 +115,7 @@ const total = await checkPaging(queue, acq);
 await checkStalls(queue, acq);
 const { hits, scanned } = sweep();
 assert.deepEqual(hits, [], `C: JS ordering operators on a paging cursor in: ${hits.join(", ")}`);
-console.log(`test-db-cursor-collation: OK — ${total} mixed-case row reads in en_US order (${inversions} code-unit inversions, ${crossing.length} case-crossing page offsets), stall refusals hold, ${scanned} files swept with 0 JS-ordered cursors (${PENDING_1816.size} owned by #1816)`);
+console.log(`test-db-cursor-collation: OK — ${total} mixed-case row reads in en_US order (${inversions} code-unit inversions, ${crossing.length} case-crossing page offsets), stall refusals hold, ${scanned} files swept with 0 JS-ordered cursors`);
 
 if (process.argv.includes("--red-prove")) {
   const fileUrl = (rel) => pathToFileURL(path.join(ROOT, rel)).href;
