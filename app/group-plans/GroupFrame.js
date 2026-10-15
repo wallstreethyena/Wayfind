@@ -1,0 +1,30 @@
+"use client";
+import { WF_PLACE_CARD_CSS } from "../components/css.js";
+import { C } from "../components/kit.js";
+import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand.js";
+
+// Tokens come from kit.js `C` (dark, the app default). Light is an override of
+// the same variables; place cards keep their own dark look in both.
+export const GROUP_PLAN_CSS=`
+.gp-shell{--gp-bg:${C.bg};--gp-panel:${C.panel};--gp-card:${C.card};--gp-border:${C.border};--gp-text:${C.text};--gp-muted:${C.muted};--gp-light:${C.light};--gp-accent:${C.accent};--gp-accent-ink:${C.bg};--gp-gold:${C.gold};--gp-red:#FCA5A5;--gp-green:#86EFAC;--gp-field:${C.bg};--gp-track:${C.border};color-scheme:dark;box-sizing:border-box;min-height:100vh;min-height:100dvh;background:var(--gp-bg);color:var(--gp-text);padding:16px 16px 80px;font-family:var(--wf-sans),system-ui,sans-serif;overflow-x:clip;-webkit-text-size-adjust:100%}
+
+.gp-shell *,.gp-shell *::before,.gp-shell *::after{box-sizing:border-box}
+.gp-main{max-width:1040px;margin:0 auto;min-width:0}
+.gp-nav{display:flex;gap:16px;justify-content:space-between;align-items:center;margin-bottom:24px;min-width:0}.gp-nav a{color:var(--gp-text);text-decoration:none;font-weight:800}.gp-nav .gp-mark{display:block;flex:none;width:118px;height:47px}.gp-nav .gp-mark img{display:block;width:100%;height:100%;object-fit:contain}.gp-nav .gp-mark+a{color:var(--gp-light);font-size:14px;font-weight:700;padding:12px 0;min-height:44px;display:inline-flex;align-items:center}
+.gp-shell h1{font-size:clamp(28px,7vw,44px);line-height:1.1;letter-spacing:-.8px;font-weight:800;margin:0 0 14px;overflow-wrap:anywhere}.gp-shell h2{font-size:21px;line-height:1.25;font-weight:800;margin:0 0 12px}.gp-shell h3{font-size:17px;font-weight:800;margin:0 0 8px}.gp-muted{color:var(--gp-muted);line-height:1.6}.gp-lede{font-size:16px;line-height:1.6;max-width:680px;color:var(--gp-light)}
+.gp-panel{padding:20px 16px;border:1px solid var(--gp-border);border-radius:16px;background:var(--gp-panel);margin:16px 0;min-width:0}.gp-panel p{line-height:1.55}
+.gp-step{color:var(--gp-accent);text-transform:uppercase;font-size:11px;letter-spacing:1.4px;font-weight:800;margin-bottom:9px}.gp-field{display:grid;gap:7px;margin:14px 0;font-size:14px;font-weight:700}.gp-field input,.gp-field select{font:inherit;font-size:16px;width:100%;min-width:0;border:1px solid var(--gp-border);border-radius:12px;background:var(--gp-field);color:var(--gp-text);padding:12px}.gp-field input:focus,.gp-field select:focus,.gp-button:focus-visible,.gp-shell a:focus-visible{outline:2px solid var(--gp-accent);outline-offset:2px}
+.gp-button{display:inline-flex;gap:8px;align-items:center;justify-content:center;min-height:46px;padding:12px 18px;border:1px solid var(--gp-border);border-radius:12px;background:var(--gp-card);color:var(--gp-text);font:inherit;font-weight:800;text-decoration:none;cursor:pointer;transition:background .18s ease,border-color .18s ease,transform .18s ease}.gp-button:hover{border-color:var(--gp-accent)}.gp-button:active{transform:scale(.98)}.gp-button.primary{background:var(--gp-accent);color:var(--gp-accent-ink);border-color:var(--gp-accent)}.gp-button:disabled{opacity:.5;cursor:default}
+.gp-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.gp-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:16px}.gp-row{display:flex;gap:12px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--gp-border);padding:14px 0}.gp-row:last-child{border-bottom:0}.gp-time{display:grid;grid-template-columns:1fr 1fr;gap:12px}.gp-choice{display:flex;align-items:flex-start;gap:10px;line-height:1.5;margin:14px 0}.gp-choice input{width:20px;height:20px;flex-shrink:0;accent-color:var(--gp-accent);margin-top:2px}
+.gp-status{border-left:3px solid var(--gp-accent);padding:10px 14px;background:var(--gp-card);border-radius:0 10px 10px 0;line-height:1.6}.gp-error{color:var(--gp-red);border-color:var(--gp-red)}.gp-success{color:var(--gp-green)}.gp-tag{display:inline-block;padding:5px 10px;border:1px solid var(--gp-border);border-radius:99px;color:var(--gp-light);font-size:12px;font-weight:700}
+.gp-option{min-width:0}.gp-card-list{list-style:none;margin:0;padding:0}.gp-option .gp-research{padding:8px 2px;font-size:14px;line-height:1.55}.gp-option .gp-research a{color:var(--gp-accent)}.gp-shell fieldset{border:0;padding:0;margin:0;min-width:0}.gp-shell legend{font-size:18px;font-weight:800;margin:0 0 10px}.gp-progress{height:7px;background:var(--gp-track);border-radius:10px;overflow:hidden;margin:16px 0}.gp-progress span{display:block;height:100%;background:var(--gp-accent);transition:width .4s ease}
+.gp-note{font-size:13px;line-height:1.55;color:var(--gp-muted)}.gp-shell details{margin:16px 0}.gp-shell summary{cursor:pointer;font-weight:700}.gp-shell code{overflow-wrap:anywhere}.gp-empty{padding:28px 16px;border:1px dashed var(--gp-border);border-radius:16px}.gp-source-list{display:flex;gap:12px;flex-wrap:wrap}.gp-checkbox-list{display:grid;gap:6px}
+@media(min-width:561px){.gp-shell{padding:24px 24px 80px}.gp-panel{padding:24px}.gp-nav{margin-bottom:32px}}
+@media(max-width:560px){.gp-time{grid-template-columns:1fr}.gp-row{align-items:flex-start;gap:8px;flex-wrap:wrap}.gp-row .gp-button{width:100%}.gp-actions .gp-button{flex:1}}
+@media (prefers-reduced-motion:reduce){.gp-shell *,.gp-shell *::before,.gp-shell *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+`;
+
+export function GroupFrame({children}) {
+  const mark=activeSeasonalMark()||NORMAL_MARK;
+  return <div className="gp-shell"><style dangerouslySetInnerHTML={{__html:WF_PLACE_CARD_CSS+GROUP_PLAN_CSS}}/><div className="gp-main"><nav className="gp-nav" aria-label="Group planning"><a className="gp-mark" href="/" aria-label="Wayfind home"><picture>{mark.avif?<source srcSet={mark.avif} type="image/avif"/>:null}{mark.webp?<source srcSet={mark.webp} type="image/webp"/>:null}<img src={mark.png} alt="Wayfind" width="118" height="47"/></picture></a><a href="/group-plans">My group votes</a></nav>{children}</div></div>;
+}

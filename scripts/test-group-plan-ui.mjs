@@ -98,10 +98,10 @@ try {
      writeFileSync(entry,code.replace(guard,"false"));
    }
    if(HOURS_MUTATION){
-     const entry=graph.get(path.join(ROOT,"app/group-plans/GroupPlanClient.js"));const code=readFileSync(entry,"utf8");
-     const guard=/busy \|\| !timeId \|\| venueClosed \|\| \(!venueHoursVerified && !hoursAck\)/;
+     const entry=graph.get(path.join(ROOT,"app/group-plans/GroupOrganizer.js"));const code=readFileSync(entry,"utf8");
+     const guard=/\(needHours && !hoursAck\)/;
      assert.ok(guard.test(code),"mutation must find the real venue-hours finalization gate");
-     writeFileSync(entry,code.replace(guard,"busy || !timeId"));
+     writeFileSync(entry,code.replace(guard,"false"));
    }
  }});
  setGlobal("window",{location:{hash:"",assign(){}},addEventListener(){},removeEventListener(){}});
@@ -116,12 +116,12 @@ try {
  await test("canonical cards and honest alternative scarcity",()=>{
    const html=markup(UI.GroupPlaceOptions,{plan:view(open),readOnly:true});matches(html,/wf-place-card/);absent(html,/fixture-invite-secret|Alice Private|Bob Private/);
    const tree=UI.GroupPlaceOptions({plan:view(open),readOnly:true});const cards=nodes(tree).filter(n=>typeof n.type!=="string"&&n.props?.surface==="group_plan");eq(cards.length,2);yes(cards.every(c=>c.props.cardActionsReadOnly));yes(cards.every(c=>c.props.place.photoNoSpend));
-   const one={...view(draft),places:[view(draft).places[0]]};matches(markup(UI.GroupOrganizer,{plan:one,onCommand(){},busy:false}),/couldn’t verify a similar, higher-scoring alternative/);
-   matches(markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false}),/haven’t added a third option just to fill a space/);
+   const one={...view(draft),places:[view(draft).places[0]]};matches(markup(UI.GroupOrganizer,{plan:one,onCommand(){},busy:false}),/didn’t find a similar nearby place that scores higher/);
+   matches(markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false}),/We only show places that truly compare/);
  });
  await test("CSS uses shared card geometry and responsive mobile layout",()=>{
    const css=UI.GROUP_PLAN_CSS;matches(css,/@media\(max-width:560px\)/);matches(css,/\.gp-time\{grid-template-columns:1fr\}/);matches(css,/min-height:46px/);matches(css,/minmax\(min\(100%,280px\),1fr\)/);absent(css,/\.wf-place-card[^}]*\{[^}]*\b(?:height|width|max-width|font-size)\s*:/);
-   const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group plans/);
+   const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group votes/);matches(frame,/alt="Wayfind"/);absent(frame,/>wayfind</);
  });
  await test("create form value, caps, explicit zone and unavailable email",()=>{
    const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent yet/);matches(html,/voting deadline, not the outing date/);matches(html,/Repeated clock times/);matches(html,/type="checkbox" disabled=""/);matches(html,/Email updates are not available/);
@@ -142,17 +142,30 @@ try {
    const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true]);h.dispose();
  });
  await test("partial/tie/no-overlap needs acknowledgements and permits remake",()=>{
-   for(const plan of [view(partial),view(tie)]){const html=markup(UI.GroupOrganizer,{plan,onCommand(){},busy:false});matches(html,/my decision/);matches(html,/unconfirmed availability/);matches(html,/Try new times/);const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true);h.dispose();}
+   for(const [plan,label] of [[view(partial),/Not everyone replied\. Finalize anyway/],[view(tie),/It’s a tie\. I’m choosing/]]){const html=markup(UI.GroupOrganizer,{plan,onCommand(){},busy:false});matches(html,label);matches(html,/unconfirmed availability/);matches(html,/Try new times/);const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true);h.dispose();}
    matches(markup(UI.GroupOrganizer,{plan:view(partial),onCommand(){},busy:false}),/not confirmed for everyone/);matches(markup(UI.GroupOrganizer,{plan:view(tie),onCommand(){},busy:false}),/No time works for everyone/);matches(markup(UI.GroupOrganizer,{plan:view(tie),onCommand(){},busy:false}),/place vote is tied/);
+ });
+ await test("stale inventory facts show one quiet date note, fresh places show none",()=>{
+   const staleView=(stale)=>{const v=view(open);return{...v,timeZone:"America/New_York",places:v.places.map((p,i)=>({...p,name:`Real name ${i}`,factsStale:stale&&i===0,factsCheckedAt:"2026-07-02T03:00:00.000Z"}))};};
+   const stale=markup(UI.GroupPlaceOptions,{plan:staleView(true),readOnly:true});
+   eq((stale.match(/Details last checked/g)||[]).length,1,"exactly one note for the one stale place");
+   matches(stale,/Details last checked Jul 1\./);absent(stale,/Place details need a refresh/);matches(stale,/Real name 0/);absent(stale,/Details last checked[^<]*[-–—]/);
+   absent(markup(UI.GroupPlaceOptions,{plan:staleView(false),readOnly:true}),/Details last checked/);
+   const voting=markup(UI.GroupPlaceOptions,{plan:staleView(true),selected:null,onSelect(){}});matches(voting,/Details last checked Jul 1\./);
+   const final=apply(tie,{id:"final-1",type:"finalize",placeId:"place-1",timeId:"time-1",expectedRevision:tie.revision,acknowledgeTie:true,acknowledgeUnavailable:true});const fv=view(final);
+   const stalePlaces=fv.places.map(p=>({...p,factsStale:true,factsCheckedAt:"2026-07-02T03:00:00.000Z"}));
+   matches(markup(UI.GroupFinal,{plan:{...fv,timeZone:"America/New_York",places:stalePlaces}}),/Details last checked Jul 1\./);
+   absent(markup(UI.GroupFinal,{plan:{...fv,places:fv.places}}),/Details last checked/);
  });
  await test("final plan discloses uncertainty without roster or secrets",()=>{
    const final=apply(tie,{id:"final-1",type:"finalize",placeId:"place-1",timeId:"time-1",expectedRevision:tie.revision,acknowledgeTie:true,acknowledgeUnavailable:true});const html=markup(UI.GroupFinal,{plan:view(final)});matches(html,/not confirmed for everyone/);matches(html,/organizer resolved a tied place vote/);matches(html,/not a reservation/);absent(html,/Alice Private|Bob Private|fixture-invite-secret|fixture-session-token/);
  });
  await test("participant cannot see another invitee or organizer capabilities",()=>{
-   const html=markup(UI.GroupBallot,{plan:participantPlanView(first,"guest-1",{now:NOW}),onCommand(){},busy:false});matches(html,/Alice Private/);absent(html,/Bob Private|fixture-invite-secret|Confirm the plan|Cancel plan|Share invite/);matches(html,/No text message is sent/);matches(html,/Leave them all unchecked if none work/);
+   const html=markup(UI.GroupBallot,{plan:participantPlanView(first,"guest-1",{now:NOW}),onCommand(){},busy:false});matches(html,/Alice Private/);absent(html,/Bob Private|fixture-invite-secret|Confirm the plan|Cancel plan|Share invite/);matches(html,/No text message is sent/);matches(html,/Tap every day that works/);matches(html,/I can’t make it/);matches(html,/Update my vote/);absent(html,/I can’t join|Leave them all unchecked|Send my reply|Update my reply/);
+   {const calls=[];const h=hooks(UI.GroupBallot,{plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand:c=>calls.push(c),busy:false});h.render();matches(markup(UI.GroupBallot,{plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false}),/Send my vote/);button(h.tree,"Send my vote").props.onClick();const blocked=h.render();eq(calls.length,0,"no day selected must not issue a command");eq(text(nodes(blocked).find(n=>n.props?.role==="alert")),"Tap at least one day in step 2 first");checkbox(blocked,"").props.onChange({target:{checked:true}});const cleared=h.render();eq(nodes(cleared).filter(n=>n.props?.role==="alert").length,0,"changing a day clears the validation error");button(cleared,"Send my vote").props.onClick();eq(calls.length,1);eq(calls[0].declined,false);yes(calls[0].availableTimeIds.length>0);button(cleared,"I can’t make it").props.onClick();eq(calls[1].declined,true);h.dispose();}
  });
- await test("signed-out resume keeps return path and sign-in tab",()=>{
-   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[null,null,null,"",false,{},{}]});const tree=h.render();const sign=nodes(tree).find(n=>n.type==="a"&&text(n)==="Sign in to Wayfind");yes(sign);eq(sign.props.target,"_blank");matches(text(tree),/then return here/);h.dispose();
+ await test("signed-out resume keeps return path and signs in in the same tab",()=>{
+   const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[null,null,null,"",false,{},{}]});const tree=h.render();const sign=nodes(tree).find(n=>n.type==="a"&&text(n)==="Sign in to Wayfind");yes(sign);eq(sign.props.target,undefined);eq(sign.props.href,"/favorites?return="+encodeURIComponent("/group-plans/new?place=place-1"));matches(text(tree),/right back to this page/);h.dispose();
  });
  await test("mutation command is synchronously gated and bounded",async()=>{
    const pending=deferred(),calls=[],timers=[];AbortSignal.timeout=(ms)=>{const controller=new AbortController();timers.push({ms,controller});return controller.signal;};
@@ -206,17 +219,17 @@ try {
 
  await test("unknown venue hours stay eligible but need their own acknowledgement",()=>{
    const commands=[];const plan=unknownHours(view(unanimous));const h=hooks(UI.GroupOrganizer,{plan,onCommand:c=>commands.push(c),busy:false});h.render();eq(plan.places.length,2,"unknown hours do not remove genuinely qualified choices");eq(button(h.tree,"Confirm the plan").props.disabled,true);matches(text(h.tree),/availability does not tell us the venue’s hours/);yes(checkbox(h.tree,"I’ve checked with the venue"));
-   checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,false);button(h.tree,"Confirm the plan").props.onClick();eq(commands[0].acknowledgeVenueHours,true);eq(commands[0].acknowledgeUnavailable,false,"universal attendee availability does not require a false attendee exception");eq(commands[0].timeId,"time-2");h.dispose();
+   checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,false);button(h.tree,"Confirm the plan").props.onClick();eq(commands[0].acknowledgeVenueHours,true);eq(commands[0].acknowledgeUnavailable,undefined,"universal attendee availability does not require (or send) an attendee exception flag");eq(commands[0].timeId,"time-2");h.dispose();
  });
  await test("known closed venue blocks even a previously checked checkbox",()=>{
    const plan=unknownHours(view(unanimous));plan.places=plan.places.map(p=>({...p,closedTimeIds:["time-2"],hoursStatus:"verified"}));
    const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false},{seeds:["","place-2","time-2",true,true]});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true,"checked attendance/venue boxes cannot override a known closure");matches(text(h.tree),/known hours conflict with this time/);eq(checkbox(h.tree,"I’ve checked with the venue"),undefined,"known closure is blocked, not an acknowledge-anyway flow");h.dispose();
  });
  await test("attendee uncertainty and venue uncertainty are independent",()=>{
-   const plan=unknownHours(view(partial));const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();nodes(h.tree).filter(n=>n.type==="select")[1].props.onChange({target:{value:"time-2"}});h.render();yes(checkbox(h.tree,"I’ve checked with the venue"));yes(checkbox(h.tree,"my decision"));checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true,"checking hours cannot stand in for missing attendee replies");checkbox(h.tree,"my decision").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,false);h.dispose();
+   const plan=unknownHours(view(partial));const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();nodes(h.tree).filter(n=>n.type==="select")[1].props.onChange({target:{value:"time-2"}});h.render();yes(checkbox(h.tree,"I’ve checked with the venue"));yes(checkbox(h.tree,"Not everyone replied"));yes(checkbox(h.tree,"Not everyone can make this time"));checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true,"checking hours cannot stand in for missing attendee replies");checkbox(h.tree,"Not everyone replied").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,true,"partial alone does not cover the unconfirmed time");checkbox(h.tree,"Not everyone can make this time").props.onChange({target:{checked:true}});h.render();eq(button(h.tree,"Confirm the plan").props.disabled,false);h.dispose();
  });
  await test("changing time or place clears previous venue acknowledgements",()=>{
-   const plan=unknownHours(view(unanimous));const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});h.render();nodes(h.tree).filter(n=>n.type==="select")[1].props.onChange({target:{value:"time-1"}});h.render();eq(checkbox(h.tree,"I’ve checked with the venue").props.checked,false);eq(checkbox(h.tree,"my decision").props.checked,false);eq(button(h.tree,"Confirm the plan").props.disabled,true);checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});checkbox(h.tree,"my decision").props.onChange({target:{checked:true}});h.render();nodes(h.tree).filter(n=>n.type==="select")[0].props.onChange({target:{value:"place-1"}});h.render();eq(checkbox(h.tree,"I’ve checked with the venue").props.checked,false);eq(checkbox(h.tree,"my decision").props.checked,false);h.dispose();
+   const plan=unknownHours(view(unanimous));const h=hooks(UI.GroupOrganizer,{plan,onCommand(){},busy:false});h.render();checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});h.render();nodes(h.tree).filter(n=>n.type==="select")[1].props.onChange({target:{value:"time-1"}});h.render();eq(checkbox(h.tree,"I’ve checked with the venue").props.checked,false);eq(checkbox(h.tree,"Not everyone can make this time").props.checked,false);eq(button(h.tree,"Confirm the plan").props.disabled,true);checkbox(h.tree,"I’ve checked with the venue").props.onChange({target:{checked:true}});checkbox(h.tree,"Not everyone can make this time").props.onChange({target:{checked:true}});h.render();nodes(h.tree).filter(n=>n.type==="select")[0].props.onChange({target:{value:"place-1"}});h.render();eq(checkbox(h.tree,"I’ve checked with the venue").props.checked,false);eq(checkbox(h.tree,"Not everyone can make this time").props.checked,false);h.dispose();
  });
  await test("group card media requires the exact attributed photo",()=>{
    const plan=view(open);plan.places[0]={...plan.places[0],photo:"https://images.example.test/owned-place.jpg",photoAttr:"Fixture photographer",photoAttrHref:"https://example.test/source"};
