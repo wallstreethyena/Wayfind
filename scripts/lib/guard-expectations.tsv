@@ -12,6 +12,7 @@ path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_un
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
 scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	7682d21647b41334852da7957f3960493dfd6da53d226b4fb19ecb6a9db70ce8
 scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	5e4e758b63777c1c64b4651e06c06741f0169f1352d3af3ba919801a778b194e
+scripts/check-anchor-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	74550830f3d6a6c95ab886c34a35c2deb66b4afde9839a700f9f2628d625f412
 scripts/check-anchors.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	7b4479aa9372d490ae375886aba87e7470b01260d5ed426d9598ccab52b7039f
 scripts/check-apns-sender.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	c3c3be3674b7ee04ced80ec82731ba3434cfaeeed45e98b3277e4396024f8389
 scripts/check-app-viewport.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	2f43557ee9799451e45a912518ced2a4df5d30b05fe3797cf1515e08bf4ec0b5
