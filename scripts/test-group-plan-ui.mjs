@@ -115,7 +115,7 @@ try {
  });
  await test("canonical cards and honest alternative scarcity",()=>{
    const html=markup(UI.GroupPlaceOptions,{plan:view(open),readOnly:true});matches(html,/wf-place-card/);absent(html,/fixture-invite-secret|Alice Private|Bob Private/);
-   const tree=UI.GroupPlaceOptions({plan:view(open),readOnly:true});const cards=nodes(tree).filter(n=>typeof n.type!=="string"&&n.props?.surface==="group_plan");eq(cards.length,2);yes(cards.every(c=>c.props.cardActionsReadOnly));yes(cards.every(c=>c.props.place.photoNoSpend));
+   const tree=UI.GroupPlaceOptions({plan:view(open),readOnly:true});const cards=nodes(tree).filter(n=>typeof n.type!=="string"&&n.props?.surface==="group_plan");eq(cards.length,2);yes(cards.every(c=>c.props.cardActionsReadOnly));yes(cards.every(c=>!c.props.place.photoNoSpend),"Group Vote cards use the shared photo answer, not the no-spend form");
    const one={...view(draft),places:[view(draft).places[0]]};matches(markup(UI.GroupOrganizer,{plan:one,onCommand(){},busy:false}),/didn’t find a similar nearby place that scores higher/);
    matches(markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false}),/We only show places that truly compare/);
  });
@@ -136,7 +136,9 @@ try {
    const calls=[];const h=hooks(UI.GroupOrganizer,{plan:view(draft),onCommand:c=>calls.push(c),busy:false});h.render();button(h.tree,"Start invitations").props.onClick();eq(calls,[{type:"start"}]);const html=markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false});matches(html,/does not send messages/);matches(html,/don’t mark a link delivered/);absent(html,/Link delivered|Sent successfully|Delivered successfully/);absent(html,/fixture-invite-secret/);h.dispose();
  });
  await test("latest closed revision refreshes organizer winner and time",()=>{
-   const h=hooks(UI.GroupOrganizer,{plan:view(open),onCommand(){},busy:false});h.render();const tree=h.render({plan:view(unanimous),onCommand(){},busy:false});const selects=nodes(tree).filter(n=>n.type==="select");eq(selects.map(n=>n.props.value),["place-2","time-2"],"new closed state must use current winner/common-time defaults");eq(button(tree,"Confirm the plan").props.disabled,false);h.dispose();
+   const h=hooks(UI.GroupOrganizer,{plan:view(open),onCommand(){},busy:false});h.render();const tree=h.render({plan:view(unanimous),onCommand(){},busy:false});const selects=nodes(tree).filter(n=>n.type==="select");eq(selects.map(n=>n.props.value),["place-2","time-2"],"new closed state must use current winner/common-time defaults");eq(button(tree,"Confirm the plan").props.disabled,false);
+   const chtml=markup(UI.GroupOrganizer,{plan:view(partial),onCommand(){},busy:false});matches(chtml,/· \d+ of 2 friends can make it/,"time option reads n of m friends can make it");absent(chtml,/invitee/i,"no invitee wording in organizer copy");matches(chtml,/No reply yet/);
+   matches(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/Skip the group text chaos/);absent(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/back-and-forth/);h.dispose();
  });
  await test("latest saved ballot refreshes response state",()=>{
    const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true]);h.dispose();
@@ -233,7 +235,15 @@ try {
  });
  await test("group card media requires the exact attributed photo",()=>{
    const plan=view(open);plan.places[0]={...plan.places[0],photo:"https://images.example.test/owned-place.jpg",photoAttr:"Fixture photographer",photoAttrHref:"https://example.test/source"};
-   const tree=UI.GroupPlaceOptions({plan,readOnly:true});const filters=nodes(tree).filter(n=>typeof n.props?.value==="function");yes(filters.length>=2);eq(filters[0].props.value(plan.places[0].photo),plan.places[0].photo);eq(filters[0].props.value("https://images.example.test/wrong-place.jpg"),"");eq(filters[1].props.value("/api/photo?place=place-2"),"");
+   const tree=UI.GroupPlaceOptions({plan,readOnly:true});const filters=nodes(tree).filter(n=>typeof n.props?.value==="function");yes(filters.length>=2);eq(filters[0].props.value(plan.places[0].photo),plan.places[0].photo);eq(filters[0].props.value("https://images.example.test/wrong-place.jpg"),"");eq(filters[1].props.value("/api/photo?place=place-2"),"","non-Google fixture id never builds a card request");
+   // Shared photo answer: the same-id card URL passes, another business's URL and arbitrary external URLs are blanked.
+   const GID="ChIJfixtureAAAAAAAA1",OTHER="ChIJfixtureBBBBBBBB2",flt=UI.groupPhotoFilter?.({id:GID,photo:null});yes(typeof flt==="function","groupPhotoFilter exported");
+   eq(flt("/api/photo?place="+GID+"&g=2&w=640"),"/api/photo?place="+GID+"&g=2&w=640","same-id card URL passes");
+   eq(flt("/api/photo?place="+OTHER+"&g=2&w=640"),"","other-id card URL is blanked (negative control)");
+   eq(flt("https://images.example.test/x.jpg"),"","arbitrary external URL is blanked");
+   eq(flt("/api/photo?ref=places/"+OTHER+"/photos/abc&w=640"),"","other-id ref URL is blanked");
+   eq(flt("/api/photo?place="+GID+"&nospend=1"),"/api/photo?place="+GID+"&nospend=1","filter does not rewrite sources");
+   const gp={...plan.places[0],id:GID,photo:null,photoAttr:null,photoAttrHref:null};const ghtml=markup(UI.GroupPlaceOptions,{plan:{...plan,places:[gp,plan.places[1]]},readOnly:true});absent(ghtml,/nospend=1/,"no nospend=1 in Group Vote card markup");
    const card=nodes(tree).find(n=>n.props?.surface==="group_plan");eq(card.props.photoAttr,"Fixture photographer");eq(card.props.photoAttrHref,"https://example.test/source");
    const html=markup(UI.GroupPlaceOptions,{plan,readOnly:true});matches(html,/Fixture photographer/);matches(html,/https:\/\/example.test\/source/);
  });
