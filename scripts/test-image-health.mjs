@@ -361,4 +361,15 @@ try {
     await page.close();
   }
 } finally { await browser.close(); }
+// Part D — the operator report: /api/health/photos carries an imageHealth block (lib/imageHealth),
+// executed in full by scripts/test-image-health-report.mjs; here, by CALL, a total outage degrades to
+// nulls (never throws) and a no-Google, GET-only read is enforced.
+{
+  const { computeImageHealth } = await import("../lib/imageHealth.js");
+  const seen = [];
+  const h = await computeImageHealth({ url: "https://sb.test", key: "k" }, { fetchImpl: async (u, i) => { seen.push([String(u), (i && i.method) || "GET"]); throw new Error("down"); } });
+  ok(seen.length > 10 && seen.every(([u, m]) => u.startsWith("https://sb.test/rest/v1/") && !/googleapis/.test(u) && m === "GET"), "imageHealth reads only Supabase, GET-only, no Google");
+  ok(h.places.published === null && h.events.total === null && h.outcomesToday === null, "imageHealth degrades to nulls on outage, never throws");
+}
+
 console.log(`test-image-health: OK — ${n} assertions; ${totalCases} browser cases (Chromium 390/1440: outcome classes ${CLASSES.length} x surfaces card/rail58/hero250, ${NON_GOOGLE.length} non-Google ids x 3 surfaces with zero fetches, plain <img> via SafeImg + FallbackImg, no-IntersectionObserver, offscreen->visible); 9 data-lane outcome classes executed through real getPlacePhoto; detail sheet not mounted (same FallbackImg->CardPhoto pair)`);
