@@ -2078,6 +2078,7 @@ node scripts/test-guide-city-coverage.mjs
 node scripts/test-detail-nearby.mjs
 node scripts/test-card-photo-fallback.mjs
 node scripts/test-photo-serving-alert.mjs
+node scripts/test-photo-quota-alert.mjs
 node scripts/test-ledger-failure-classes.mjs
 node scripts/test-intl-cache.mjs
 node scripts/test-browse-back.mjs
@@ -2234,3 +2235,5 @@ node scripts/test-hero-impression-rendered.mjs
 # 2026-10-14 canonical Florida anchor-event list (data/florida-anchor-events.json): schema, unique ids, rails exist, region/domain/event_id rules + negative controls.
 node scripts/check-anchor-events.mjs
 node scripts/test-guide-stays.mjs
+# 2026-10-15 guide deal cards are measurable: one commerce_impression per affiliate card (surface guide_deals), one commerce_cta_clicked per activation (142ms double-click), UT ends_at read as ET date, dead partner coupons purged. Red-proven by mutation.
+node scripts/test-guide-commerce-measurement.mjs

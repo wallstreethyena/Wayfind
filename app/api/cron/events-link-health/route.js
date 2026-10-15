@@ -8,8 +8,14 @@
 // link_final_url. lib/curatedEvents.eventOutboundUrl publishes nothing for a
 // link_ok=false row, so a destination that turns bad goes dark within one
 // sweep instead of shipping to a phone. Bad verdicts also land in
-// wf_link_verdicts (so /api/outbound/verdict knows) and wf_broken_links (so
-// the existing job-watch surface pages the owner).
+// wf_link_verdicts (so /api/outbound/verdict knows). It must NOT write
+// wf_broken_links: that is a read-only VIEW over active wf_deals rows
+// (link_ok is false), so a POST of an event row is an insert into wf_deals and
+// fails 23502 (affiliate_url NOT NULL) -> HTTP 400 "persistence error:
+// broken-400" on every night with a darkened event (2026-10-14). Had the
+// columns lined up it would have minted a bogus deal. The durable record of a
+// darkened event is wf_events.link_ok=false + link_verdict (read by
+// lib/curatedEvents) and the wf_link_verdicts row.
 //
 // Fail-CLOSED auth (same contract as cron/experiences-link-health).
 // Fail-SOFT everything else: "unknown" (5xx/429/403/timeout) marks nothing
@@ -119,7 +125,6 @@ export async function GET(req) {
     return r.ok ? null : `patch-${r.status}`;
   };
   const verdictRows = [];
-  const brokenRows = [];
   let err = null;
   const flagged = [];
 
@@ -140,7 +145,6 @@ export async function GET(req) {
       counts.bad++;
       flagged.push({ event: row.event_id, url: worst.url, verdict: worst.verdict, reason: worst.reason });
       err = err || await patch(row.event_id, { link_ok: false, link_verdict: worst.verdict, link_checked_at: nowIso, link_final_url: worst.finalUrl || null });
-      brokenRows.push({ provider: "wf_events", title: row.event_name, category: "event-link", subcategory: worst.verdict, dest_url: worst.url, affiliate_url: null, http_status: worst.status || 0, fail_count: BAD_AFTER_STRIKES, last_checked_at: nowIso });
     } else {
       counts.strike++;
       err = err || await patch(row.event_id, { link_verdict: `strike:${worst.verdict}`, link_checked_at: nowIso, link_final_url: worst.finalUrl || null });
@@ -159,19 +163,12 @@ export async function GET(req) {
     });
     if (!r.ok) err = err || `verdicts-${r.status}`;
   }
-  if (brokenRows.length) {
-    const r = await fetch(`${s.url}/rest/v1/wf_broken_links`, {
-      method: "POST", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(brokenRows), cache: "no-store",
-    });
-    if (!r.ok) err = err || `broken-${r.status}`;
-  }
-
   try {
     await recordPulse(JOB, {
       attempted: rows.length,
       succeeded: counts.alive + counts.bad + counts.strike,
       failed: counts.unknown,
-      note: err ? `persistence error: ${err}`.slice(0, 200) : (counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null),
+      note: err ? `persistence error: ${err}`.slice(0, 200) : ([counts.bad ? `${counts.bad} event link(s) darkened` : null, counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null].filter(Boolean).join('; ') || null),
     });
   } catch (e) {}
   return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, flagged }, { headers: { "Cache-Control": "no-store" } });
