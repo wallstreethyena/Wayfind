@@ -201,18 +201,19 @@ check(() => {
   assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedImage]), "same-id image repair must trigger a new fitted poster request");
   assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedDest]), "same-id destination repair must replace the old poster link");
   assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedDimensions]), "same-id dimension repair must re-run the browser prefilter");
-  assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedSport]), "same-id classification repair must re-evaluate owner art");
+  assert.notEqual(livePosterCandidateKey([original]), livePosterCandidateKey([repairedSport]), "same-id classification repair must re-evaluate full-art preservation");
 });
 
 // --- 13. Six definitively unusable leaders do not hide a valid rank 7.
 // The browser only skips facts the server would reject without judgement:
 // venue/stock URLs, provider placeholder art, or variants whose declared
-// dimensions cannot retain the server's 640px minimum after a 9:16 crop.
+// dimensions cannot retain the server's 640px source-width minimum for
+// sports artwork. Complete team artwork no longer needs a portrait crop.
 check(() => {
   const venue = (id) => makeEvent({ id, segment: "Sports", genre: "Football", image: `/api/photo?place=${id}&w=800` });
   const placeholder = (id) => makeEvent({ id, segment: "Sports", genre: "Football", image: `https://s1.ticketm.net/dam/c/${id}/generic.jpg` });
   const tooSmall = (id) => makeEvent({ id, segment: "Sports", genre: "Football", image: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, imageVariants: [
-    { url: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, width: 1024, height: 576, ratio: "16_9" },
+    { url: `https://s1.ticketm.net/dam/a/${id}/small.jpg`, width: 400, height: 225, ratio: "16_9" },
   ] });
   const valid7 = makeEvent({ id: "valid7", name: "Rank Seven Sport", segment: "Sports", genre: "Soccer", image: "https://s1.ticketm.net/dam/a/valid7/large.jpg", imageVariants: [
     { url: "https://s1.ticketm.net/dam/a/valid7/large.jpg", width: 2048, height: 1152, ratio: "16_9" },
@@ -232,25 +233,28 @@ check(() => {
   assert.deepEqual(livePosterCandidates("sports", unavailable), [], "all unavailable artwork must still fail closed across the entire bounded raw scan");
 });
 
-// --- 15. Owner-supplied baseball and concert art remain first-class even
-// without provider images, while the two buckets stay isolated.
+// --- 15. Baseball must have its own provider artwork. An empty image
+// cannot revive the previous fixed poster, and removed buckets stay absent.
 check(() => {
   const baseball = makeEvent({ id: "baseball", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null, thumb: null, imageVariants: [] });
   const concert = makeEvent({ id: "concert", name: "Orlando Live", segment: "Music", genre: "Rock", image: null, thumb: null, imageVariants: [] });
-  assert.equal(mayHaveUsableLivePosterArt("sports", baseball), true, "owner baseball art must bypass provider-image prefiltering");
-  assert.deepEqual(livePosterCandidates("sports", [baseball]).map((e) => e.id), ["baseball"], "owner baseball event must remain selected in ranked order");
+  assert.equal(mayHaveUsableLivePosterArt("sports", baseball), false, "baseball without its own artwork must fail closed");
+  assert.deepEqual(livePosterCandidates("sports", [baseball]), [], "no fixed poster may create an image for a baseball event");
   assert.equal(mayHaveUsableLivePosterArt("concerts", baseball), false, "no art for a removed concert type");
-  assert.equal(mayHaveUsableLivePosterArt("sports", concert), false, "music events must never get owner art on Sporting Events");
+  assert.equal(mayHaveUsableLivePosterArt("sports", concert), false, "a music event without artwork must stay unavailable");
 });
 
 // --- 16. The cheap browser prefilter and authoritative server import the same
-// URL gates and crop geometry, so a future rule change cannot strand one side.
+// URL gates and fit geometry, so a future rule change cannot strand one side.
 check(() => {
   assert.equal(serverIsNotEventArtwork, sharedIsNotEventArtwork, "client and server must share one non-event-artwork predicate");
   assert.equal(serverIsPlaceholderTmUrl, sharedIsPlaceholderTmUrl, "client and server must share one Ticketmaster-placeholder predicate");
   assert.equal(LIVE_POSTER_MIN_CROP_WIDTH, 640);
   assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/large.jpg", width: 2048, height: 1152 }), true);
   assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/small.jpg", width: 1024, height: 576 }), false);
+  assert.equal(livePosterSourceCanPossiblyFit({ url: "https://img.example/team.jpg", width: 1024, height: 576 }, { preserveArtwork: true }), true, "full team art retains 1024px instead of throwing most away in a crop");
+  assert.equal(eventMayHaveUsableProviderArt({ segment: "Sports", image: "https://img.example/team.jpg", imageVariants: [{ url: "https://img.example/team.jpg", width: 1024, height: 576 }] }), true, "the browser must let the server preserve this sports image");
+  assert.equal(eventMayHaveUsableProviderArt({ segment: "Sports", image: "https://img.example/tiny-team.jpg", imageVariants: [{ url: "https://img.example/tiny-team.jpg", width: 639, height: 360 }] }), false, "full-art preservation keeps a real source sharpness floor");
   assert.equal(eventMayHaveUsableProviderArt({ image: "https://s1.ticketm.net/dam/c/generic.jpg" }), false);
   assert.equal(eventMayHaveUsableProviderArt({ image: "https://img.example/provider-no-metadata.jpg" }), true, "provider art with unknown dimensions must reach authoritative byte inspection");
   assert.equal(eventMayHaveUsableProviderArt({}), false, "an event with no image path must remain definitively unavailable");
@@ -277,25 +281,33 @@ check(() => {
   assert.equal(currentLivePosterTile({ candidateKey: newKey, tile: oldTile }, newKey, false), oldTile, "the replacement becomes visible only after state carries the new candidate key");
 });
 
-// --- 18. The lazy worker preserves owner art, ordered fallback and stale-work
+// --- 18. The lazy worker preserves provider art, ordered fallback and stale-work
 // cancellation at its executable network boundary.
 n++;
 const realFetch = globalThis.fetch;
 try {
-  const ownerEvent = makeEvent({ id: "owner-worker", name: "Orlando Baseball", segment: "Sports", genre: "Baseball", image: null });
+  const teamEvent = makeEvent({ id: "team-worker", name: "Tampa Bay Rays vs. Boston Red Sox", segment: "Sports", genre: "Baseball", image: "https://img.example/rays.jpg", venue: "Tropicana Field" });
   let fetches = 0;
-  globalThis.fetch = async () => { fetches++; throw new Error("owner art must not fetch"); };
-  const ownerTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [ownerEvent]);
-  assert.equal(ownerTile?.href, ownerEvent.dest);
-  assert.equal(ownerTile?.title, ownerEvent.name);
-  assert.equal(ownerTile?.livePosterEventId, ownerEvent.id);
-  assert.equal(ownerTile?.livePosterStrategy, "owner-art");
-  assert.equal(fetches, 0, "baseball owner art must resolve without fitted-art requests");
+  globalThis.fetch = async (url, opts) => {
+    fetches++;
+    assert.equal(url, "/api/live-poster");
+    assert.deepEqual(JSON.parse(opts.body).event, teamEvent, "the worker must send this exact team's artwork and metadata");
+    return { ok: true, status: 200, json: async () => ({ ok: true, dataUrl: "data:image/webp;base64,rays", event: teamEvent, strategy: "portrait-art" }) };
+  };
+  const teamTile = await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [teamEvent]);
+  assert.equal(teamTile?.href, teamEvent.dest);
+  assert.equal(teamTile?.title, teamEvent.name);
+  assert.equal(teamTile?.livePosterEventId, teamEvent.id);
+  assert.equal(teamTile?.livePosterSrc, "data:image/webp;base64,rays");
+  assert.equal(teamTile?.livePosterStrategy, "portrait-art");
+  assert.equal(fetches, 1, "baseball must request its own provider artwork instead of returning the fixed poster");
 
-  const invalidDest = { ...ownerEvent, id: "missing-dest", dest: "" };
-  const invalidName = { ...ownerEvent, id: "missing-name", name: "" };
-  assert.equal(await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [invalidDest, invalidName]), null, "owner art must not create a tile without event identity and destination");
-  assert.equal(fetches, 0, "invalid owner-art events must fail before any fitted-art request");
+  const invalidDest = { ...teamEvent, id: "missing-dest", dest: "" };
+  const invalidName = { ...teamEvent, id: "missing-name", name: "" };
+  const missingArt = { ...teamEvent, id: "missing-art", image: null, thumb: null, imageVariants: [] };
+  fetches = 0;
+  assert.equal(await resolveLivePosterTile("sports", LIVE_POSTER_TYPE_CONFIG.sports, [invalidDest, invalidName, missingArt]), null, "no tile without real event identity, destination and artwork");
+  assert.equal(fetches, 0, "invalid events must fail before any fitted-art request");
 
   const first = makeEvent({ id: "fit-first", segment: "Sports", genre: "Football", image: "https://img.example/first.jpg" });
   const second = makeEvent({ id: "fit-second", name: "Second Honest Sport", segment: "Sports", genre: "Soccer", image: "https://img.example/second.jpg" });

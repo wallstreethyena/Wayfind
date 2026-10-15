@@ -739,9 +739,9 @@ scripts/test-lightbox-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	ede6a1c5
 scripts/test-like-rerank.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	f8fd10262c35357d95ef3b2872fc43e2268f6ae2390bae22c1072323b0044d0f
 scripts/test-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	d65d1b686971bb88b19c9c5abbe8d4e917c4d12018abf8187d439a7446239964
 scripts/test-list-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	15f0edb013448410a21aa2bd3728441caa67cc310194dc9bbe4511082047486d
-scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	556a94ef27c453deb175f6a458e1ad962dea22a735133c91f8a4c2bfafe00351
+scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	0f191afd45dd23ec4ab756c9ee94d739037b027c6f3f9ee7761f58a54af91e39
 scripts/test-live-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	340f34680f78e5459596756b98d49f3704e302b1fd754d3c196dd2adcab0fe15
-scripts/test-live-poster-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	1adf7e0d6c5b6f486971295c04a7f40988a2e94bf1db1c49e6e474c833fae1cc
+scripts/test-live-poster-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	c89fb0543a5074412568e712d86e1319a0af10ff465fa1b16fc2083aeea0fc57
 scripts/test-local-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	1	1	47b7a9b8444c4d9b10c47e658e1f14e27cd352bb33908faec637cc82f381215f
 scripts/test-location-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	afa128e0bbe3f00a87879bdc9116b0606438bab04414c2a64afe1f04eb93645d
 scripts/test-location-pairing-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	c8d7ef8d543b3344230ea0f214112d142c0d4283c88ae0de9bb06f0c299237b4
