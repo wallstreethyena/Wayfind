@@ -26,7 +26,7 @@ const strip = (src) => src
   .replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
 
 // ── 1. constants, executed ──────────────────────────────────────────────────
-const { MAP_SAFE_PADDING: PAD, MAP_ATTRIBUTION_BAND: BAND, MAP_NOTE_OFFSET: NOTE } = await import("../lib/mapSafeArea.js");
+const { MAP_SAFE_PADDING: PAD, MAP_ATTRIBUTION_BAND: BAND, MAP_NOTE_OFFSET: NOTE, MAPLIBRE_ATTRIBUTION_LIFT } = await import("../lib/mapSafeArea.js");
 ok(BAND >= 40, `attribution band is at least 40px (logo + legal row + air), got ${BAND}`);
 ok(NOTE.bottom >= PAD.bottom + BAND, `note bottom offset ${NOTE.bottom} clears padding.bottom ${PAD.bottom} + band ${BAND}`);
 ok(NOTE.left >= PAD.left && NOTE.right >= PAD.right, "note stays inside the MapKit safe rectangle left/right");
@@ -74,9 +74,11 @@ ok(/bottom: MAP_NOTE_OFFSET\.bottom/.test(style), "note bottom comes from MAP_NO
 ok(/left: MAP_NOTE_OFFSET\.left/.test(style) && /right: MAP_NOTE_OFFSET\.right/.test(style), "note left/right come from MAP_NOTE_OFFSET");
 ok(!/\bbottom:\s*\d/.test(style), "no numeric bottom: literal on the note");
 ok(/className="wf-map-note"/.test(screenSrc.match(/<div role="note"[^>]*>/)?.[0] || ""), "note carries the wf-map-note class the media rule targets");
-ok(/import \{ MAP_NOTE_OFFSET, MAP_SAFE_PADDING \} from "\.\.\/\.\.\/\.\.\/lib\/mapSafeArea\.js"/.test(screenSrc), "Map.js imports MAP_NOTE_OFFSET");
+ok(/import \{ MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT \} from "\.\.\/\.\.\/\.\.\/lib\/mapSafeArea\.js"/.test(screenSrc), "Map.js imports MAP_NOTE_OFFSET");
 
-ok(/\.wf-map-explorer \.maplibregl-ctrl-bottom-left, \.wf-map-explorer \.maplibregl-ctrl-bottom-right \{ margin-bottom: \$\{MAP_SAFE_PADDING\.bottom\}px; \}/.test(rawScreen), "3D MapLibre path: OSM/MapLibre attribution controls are lifted above the sheet + tab bar by the same safe-area bottom (not left under them)");
+ok(/\.wf-map-explorer \.maplibregl-ctrl-bottom-left, \.wf-map-explorer \.maplibregl-ctrl-bottom-right \{ margin-bottom: \$\{MAPLIBRE_ATTRIBUTION_LIFT\}px; \}/.test(rawScreen), "3D MapLibre path: OSM/MapLibre attribution controls are lifted by MAPLIBRE_ATTRIBUTION_LIFT (not left under the sheet + tab bar)");
+ok(MAPLIBRE_ATTRIBUTION_LIFT + 10 >= SHEET.bottom + SHEET.collapsedH, `3D attribution lift ${MAPLIBRE_ATTRIBUTION_LIFT} (+10 control margin) clears the collapsed sheet top (${SHEET.bottom + SHEET.collapsedH})`);
+ok(MAPLIBRE_ATTRIBUTION_LIFT + 10 + 44 <= NOTE.bottom, "3D attribution (worst case 44px tall) stays below the note's bottom edge, so they never overlap");
 const lib = strip(readFileSync("lib/appleExplorerMap.js", "utf8"));
 ok(!/Padding\(\s*150/.test(lib), "appleExplorerMap has no numeric Padding(150, ...) safe-area literal left");
 ok(/Padding\(\s*150/.test("map.padding = new mapkit.Padding(150, 68, 150, 12);"), "control: the Padding(150 probe finds the pre-fix literal, so its absence above is meaningful");

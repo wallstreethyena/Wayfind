@@ -10,7 +10,7 @@ import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
 import { accountListOnMap } from "../../../lib/mapListAccounting.js";
 import { NO_PERMITTED_COORDINATE } from "../../../lib/coordProvenance.js";
-import { MAP_NOTE_OFFSET, MAP_SAFE_PADDING } from "../../../lib/mapSafeArea.js";
+import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT } from "../../../lib/mapSafeArea.js";
 import AppleExplorerMap from "../AppleExplorerMap";
 import IconicPlaceCard from "../IconicPlaceCard";
 import useMissingPlacePhotos from "../useMissingPlacePhotos";
@@ -213,7 +213,7 @@ export default function MapScreen({ ctx }) {
               const tchip = (on) => ({ flexShrink: 0, minWidth: 44, padding: "5px 9px", borderRadius: 10, border: "none", cursor: "pointer", textAlign: "center", background: on ? C.light : "transparent", color: on ? "#fff" : C.light, fontWeight: 700 });
               return (
                 <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
-                  <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAP_SAFE_PADDING.bottom}px; }` }} />
+                  <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }` }} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
                     <div style={{ borderRadius: 19, border: "1px solid rgba(255,255,255,.09)", boxShadow: "0 14px 36px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)", background: "linear-gradient(180deg, rgba(23,29,39,.96), rgba(13,17,24,.96))",  }}>
                       {/* v5.08 (user direction): the map menu never fully
