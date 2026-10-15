@@ -8,7 +8,7 @@ import { GroupOrganizer, GroupFinal } from "./GroupOrganizer.js";
 import { GroupBallot } from "./GroupBallot.js";
 
 export { GROUP_PLAN_CSS, GroupFrame } from "./GroupFrame.js";
-export { GroupPlaceOptions } from "./GroupPlaceOptions.js";
+export { GroupPlaceOptions, groupPhotoFilter } from "./GroupPlaceOptions.js";
 export { GroupOrganizer, GroupFinal } from "./GroupOrganizer.js";
 export { GroupBallot } from "./GroupBallot.js";
 
@@ -62,7 +62,7 @@ export function GroupCreateForm({placeId,session,onCreated,emailAvailable=false,
       {invitees.map((value,i)=><div className="gp-row" key={i}><label className="gp-field" style={{flex:1,margin:0}}>Friend {i+1}<input required maxLength={40} autoComplete="off" value={value} onChange={(e)=>setInvitees(invitees.map((v,n)=>n===i?e.target.value:v))}/></label>{invitees.length>1&&<button className="gp-button" type="button" onClick={()=>setInvitees(invitees.filter((_v,n)=>n!==i))} aria-label={`Remove friend ${i+1}`}>Remove</button>}</div>)}
       {invitees.length<10&&<button className="gp-button" type="button" style={{marginTop:14}} onClick={()=>setInvitees([...invitees,""])}>Add a friend</button>}<p className="gp-note">{invitees.length} of 10 invitees · You are included separately. No phone numbers or address book needed. Only you see the guest list.</p>
     </section>
-    <section className="gp-panel"><div className="gp-step">2 · Possible times</div><h2>Skip the scheduling back-and-forth</h2><p className="gp-muted">Pick up to 3 times you can make. Your friends mark every time that works for them.</p>
+    <section className="gp-panel"><div className="gp-step">2 · Possible times</div><h2>Skip the group text chaos</h2><p className="gp-muted">Pick up to 3 times you can make. Your friends mark every time that works for them.</p>
       <label className="gp-field">Timezone<select value={zone} onChange={(e)=>setZone(e.target.value)}>{[...new Set([zone,"America/New_York","America/Chicago","America/Denver","America/Los_Angeles","Etc/UTC"])].map((z)=><option key={z} value={z}>{z.replaceAll("_"," ")}</option>)}</select></label>
       {times.map((time,i)=><div key={i}><h3>Option {i+1}</h3><div className="gp-time"><label className="gp-field">Starts<input type="datetime-local" required value={time.start} onChange={(e)=>setTimes(times.map((t,n)=>n===i?{...t,start:e.target.value}:t))}/></label><label className="gp-field">Ends<input type="datetime-local" required value={time.end} onChange={(e)=>setTimes(times.map((t,n)=>n===i?{...t,end:e.target.value}:t))}/></label></div>{times.length>1&&<button className="gp-button" type="button" onClick={()=>setTimes(times.filter((_t,n)=>n!==i))}>Remove time</button>}</div>)}
       {times.length<3&&<button type="button" className="gp-button" onClick={()=>setTimes([...times,{start:"",end:""}])}>Add another time</button>}

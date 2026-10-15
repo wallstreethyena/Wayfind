@@ -128,7 +128,7 @@ await test("no Directions, booking or reservation actions; canonical card props 
   const root = Options({plan:view(open3),selected:"place-1",onSelect(){}});
   const els = nodes(root).filter(n => typeof n.type === "function" && n.props?.place?.id).flatMap(n => nodes(n.type(n.props)));
   const iconic = els.filter(n => n.props?.surface === "group_plan");
-  eq(iconic.length,3); yes(iconic.every(c => c.props.cardActionsReadOnly && c.props.place.photoNoSpend));
+  eq(iconic.length,3); yes(iconic.every(c => c.props.cardActionsReadOnly && !c.props.place.photoNoSpend));
 });
 
 await test("days are real checkboxes inside labels; validation blocks a send with no day",() => {

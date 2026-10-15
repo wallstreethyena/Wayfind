@@ -1,11 +1,17 @@
 "use client";
 import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
+import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
+
+// Group Vote cards ask for the same shared photo answer as every other card.
+// Identity binding: only this place's own free attributed photo, or a card photo
+// request for this exact place id, may render; anything else is blanked.
+export function groupPhotoFilter(place){return (src)=>{if(place.photo&&place.photoAttr&&place.photoAttrHref&&src===place.photo)return src;const req=cardPhotoRequest(src);return req&&new URL(req,"https://www.gowayfind.com").searchParams.get("place")===place.id?src:"";};}
 
 // Plain functions (called, not mounted) so tests and the readOnly organizer view
 // see the canonical card element directly in the returned tree.
 function PlaceCard({place}) {
-  return place.unavailable?<div className="gp-empty"><h3>{place.name}</h3><p>Details are unavailable. Check the venue before finalizing.</p></div>:<PhotoSrcFilterContext.Provider value={(src)=>place.photo&&place.photoAttr&&place.photoAttrHref&&src===place.photo?src:""}><ul className="gp-card-list"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photoNoSpend:true,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>;
+  return place.unavailable?<div className="gp-empty"><h3>{place.name}</h3><p>Details are unavailable. Check the venue before finalizing.</p></div>:<PhotoSrcFilterContext.Provider value={groupPhotoFilter(place)}><ul className="gp-card-list"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>;
 }
 
 // Inventory facts older than 30 days still show the real card; say so once, quietly.
