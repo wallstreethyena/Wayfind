@@ -12,6 +12,7 @@ path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_un
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
 scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	7682d21647b41334852da7957f3960493dfd6da53d226b4fb19ecb6a9db70ce8
 scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	5e4e758b63777c1c64b4651e06c06741f0169f1352d3af3ba919801a778b194e
+scripts/check-anchor-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	74550830f3d6a6c95ab886c34a35c2deb66b4afde9839a700f9f2628d625f412
 scripts/check-anchors.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	7b4479aa9372d490ae375886aba87e7470b01260d5ed426d9598ccab52b7039f
 scripts/check-apns-sender.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	c3c3be3674b7ee04ced80ec82731ba3434cfaeeed45e98b3277e4396024f8389
 scripts/check-app-viewport.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	2f43557ee9799451e45a912518ced2a4df5d30b05fe3797cf1515e08bf4ec0b5
@@ -340,6 +341,7 @@ scripts/check-place-sitemap-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	9b
 scripts/check-popularity-attempt-ledger.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	8de50e593a9fd7c479dfc2fb117d3e0a8fe8c18b33233dc6428e0d15c28ee36b
 scripts/check-position-memory.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	0781034983ab7c8c342f46983192edc61c5a516348ed762681f8ba52c0209a68
 scripts/check-poster-open-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	1367c0b859f57615fcaae1920689ba1ec5c9d92cd8a86888c3e8d84bd0e62ca6
+scripts/check-poster-seasons.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	34adee2186e4a38c89e3a26fdb020297b0533fd4194d32da7bd84b72282e1ec1
 scripts/check-premium-event-card-system.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	30	1	0	8b13e2d427322f2c158c993f127554277b839e2b1336537a42b4fb1703da9c14
 scripts/check-price-badge.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	15	1	0	2efcfdf2060564691567c6810388e2a57fd0e7731061c244dbf5acadfa5ca2c1
 scripts/check-promo-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	a4431a2c2b2b7f1ccac3913479a9dcdfdf4f8be16266b5129f4acc03b8c026a1
@@ -407,7 +409,7 @@ scripts/check-subfilter-experience-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	
 scripts/check-supabase-key-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	f559e6389e54dc2e46c6884de9bd7e2e9d278486f41661be6824ac660e42657e
 scripts/check-surface-parity-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	3a242756fd52716e044082e66bd927793d5078331d54457fd67d27560ece612b
 scripts/check-synthetic-map-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	ad596b716b664f5acb7d0e8b45b4eba3701ca3b6e3c5e4bc19d2ceed5c5f5018
-scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	170	0	0	a9b8d447d13f59e0ba7320bea12ababf405055aa47e1393b7a83e2203e3458d3
+scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	171	0	0	ecf1b4a0e38371886f6cee14cf8c2a3c5f11b3b7f84a093a3324c7e46d7bca9c
 scripts/check-tampa-bay-region.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	ffae4749646c06fb87046402ffae8326645a1462dddb583d5237847fdfdde1ed
 scripts/check-temp-closed-recheck.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0	4f2736dad1893f43603ea91461aa8878993082c2aa941899a077d2c4e1973489
 scripts/check-theme-park-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	a69c3f13cf347bec80068f4a71ddd8d6acbeeb1bc88aba0a154c9a09af7536d7
@@ -675,11 +677,13 @@ scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	
 scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	9707818cbfca8a511e52dbb93f8859a31bdb079653cbb4369192a56376f8b9b8
 scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	21ae009673cf910f1df0a42dc22e59f4aacf4d76cbf5d3bd50e2cc6eeb03486f
 scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	75a7c656b0b56bc49804ebbe653154accdbcc56ee273511e975b1868baf9fdd9
+scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c71ddcdd9e9c00d77ab5575d17842f71b14bba71973917741ecc1789
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	4a993057cb8030fc58fd3f3960f68d235834926c3633bcb7770f47ae35add119
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
 scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	93323a189af5ccd3b41f436983795d77a21effb05ceb05d2c1a1e55417c7a464
 scripts/test-hero-image.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	1	e1422e62a97667fb64887e7c1b6df8b1d9fc8865f74ccb0ad89d6e6ba9041b9f
+scripts/test-hero-impression-rendered.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	61c4df06be19b4931ce8deb9cc6ba5c1dc52558d3a64164b6626f9bc120d18c5
 scripts/test-hero-people-free.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	d6e815af9682ea0248e2f02d05a9803fb9a75532ecd24a5260ea265b8f5fa369
 scripts/test-home-bookable.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	29	0	0	a8acc6b69327d7c3540eb92a07bdb5c1095144c3933fe1b2b1958ecbbcb5a846
 scripts/test-home-first-paint.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	ac729079e425d0f65bf2f08eb554df083015873d2d42a167c2f69b30d79f429a

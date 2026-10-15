@@ -20,7 +20,7 @@ export default function EventStayCards({ places, title = "Stay near this event",
       <ul className="wf-event-stay-card">
       <IconicPlaceCard eagerMedia place={place} rank={index + 1} href={place.detailHref}
         editorial={place.blurb || null} editorialTier="known" surface={surface}
-        cta={<BookingCTA variant="primary" detail={place} kind="hotels" label="Check rates" />} />
+        cta={<BookingCTA variant="primary" detail={place} kind="hotels" label="Check rates" commerceSurface={surface === "guide_stays" ? "guide_stays" : undefined} />} />
       </ul>
       {place.mapsOnly ? <a href={place.detailHref} style={{ display: "inline-block", color: "#aab4c2", marginTop: 10 }}>View in Apple Maps</a> : null}
     </li>)}

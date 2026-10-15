@@ -1,0 +1,3321 @@
+{
+  "version": 1,
+  "updated": "2026-10-14",
+  "criteria": "Statewide or multi-county draw, recurs yearly, organizer has its own website. One entry per recurring tradition, never per year. Regions: NW, NE, Central, Tampa Bay (includes Sarasota and Manatee), SW (Lee, Collier, Charlotte), SE, Keys. Tags florida-icon, major-music-festival, tentpole and only-in-florida are editorial labels copied from wf_events only; entries added from outside wf_events carry none of them. confirmed_dated means a wf_events row with future or in-progress dates is linked via event_id; expected_undated means the next edition has no verified dates; event_id is null unless a wf_events row exists whose event_status is not scheduled (then it stays linked). event_series_id is copied from the linked row. probe:false marks hosts that must never be fetched by automation. note records uncertainty. Dates come only from wf_events and are never invented. source_url stays null until an organizer page has been read for that entry.",
+  "anchors": [
+    {
+      "anchor_id": "epcot-food-and-wine-festival",
+      "name": "EPCOT International Food & Wine Festival",
+      "region": "Central",
+      "city": "Lake Buena Vista",
+      "venue": "EPCOT, Walt Disney World",
+      "official_domain": "disneyworld.disney.go.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "theme-park",
+        "tentpole",
+        "fall",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 8,
+        "end_month": 11
+      },
+      "rails": [
+        "florida-icons",
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "epcot-food-wine-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "epcot-food-wine"
+      },
+      "probe": false
+    },
+    {
+      "anchor_id": "halloween-horror-nights-orlando",
+      "name": "Halloween Horror Nights Orlando",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Universal Studios Florida",
+      "official_domain": "universalorlando.com",
+      "category": "halloween",
+      "tags": [
+        "tentpole",
+        "halloween",
+        "nightlife",
+        "theme-park",
+        "scary"
+      ],
+      "typical_window": {
+        "start_month": 8,
+        "end_month": 11
+      },
+      "rails": [
+        "spooky-season"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "hhn-orlando-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "hhn-orlando"
+      }
+    },
+    {
+      "anchor_id": "scream-a-geddon-horror-park",
+      "name": "Scream-A-Geddon Horror Park",
+      "region": "Tampa Bay",
+      "city": "Dade City",
+      "venue": "Scream-A-Geddon Horror Park",
+      "official_domain": "screamageddon.com",
+      "category": "halloween",
+      "tags": [
+        "halloween",
+        "scary",
+        "fall",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 9,
+        "end_month": 11
+      },
+      "rails": [
+        "only-in-florida",
+        "spooky-season"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "screamageddon-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "screamageddon"
+      }
+    },
+    {
+      "anchor_id": "gators-ghosts-goblins-gatorland",
+      "name": "Gators, Ghosts & Goblins at Gatorland",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Gatorland",
+      "official_domain": "gatorland.com",
+      "category": "seasonal",
+      "tags": [
+        "fall",
+        "halloween",
+        "family",
+        "trick-or-treat",
+        "local",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "only-in-florida",
+        "spooky-season",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "gatorland-ghosts-goblins-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "gatorland-ghosts-goblins"
+      }
+    },
+    {
+      "anchor_id": "fantasy-fest",
+      "name": "Fantasy Fest",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Citywide",
+      "official_domain": "fantasyfest.com",
+      "category": "festival",
+      "tags": [
+        "tentpole",
+        "halloween",
+        "costume",
+        "nightlife",
+        "only-in-florida",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "florida-icons",
+        "only-in-florida",
+        "spooky-season"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "fantasy-fest-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "fantasy-fest"
+      }
+    },
+    {
+      "anchor_id": "hulaween",
+      "name": "Hulaween",
+      "region": "NE",
+      "city": "Live Oak",
+      "venue": "Spirit of the Suwannee Music Park",
+      "official_domain": "hulaween.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "camping",
+        "halloween",
+        "art",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "only-in-florida",
+        "spooky-season",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "hulaween-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "hulaween"
+      }
+    },
+    {
+      "anchor_id": "naples-stone-crab-festival",
+      "name": "Naples Stone Crab Festival",
+      "region": "SW",
+      "city": "Naples",
+      "venue": "Tin City Waterfront Shops",
+      "official_domain": "stonecrabfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront",
+        "only-in-florida",
+        "fall",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "only-in-florida",
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "stone-crab-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "stone-crab-festival"
+      }
+    },
+    {
+      "anchor_id": "fort-lauderdale-international-boat-show",
+      "name": "Fort Lauderdale International Boat Show",
+      "region": "SE",
+      "city": "Fort Lauderdale",
+      "venue": "Bahia Mar Yachting Center and six other sites",
+      "official_domain": "flibs.com",
+      "category": "boating",
+      "tags": [
+        "tentpole",
+        "boating",
+        "premium",
+        "waterfront",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 11
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "flibs-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "flibs"
+      }
+    },
+    {
+      "anchor_id": "florida-seafood-festival",
+      "name": "Florida Seafood Festival",
+      "region": "NW",
+      "city": "Apalachicola",
+      "venue": "Battery Park",
+      "official_domain": "floridaseafoodfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "heritage",
+        "only-in-florida",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "only-in-florida",
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "florida-seafood-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "florida-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "edc-orlando",
+      "name": "EDC Orlando",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Tinker Field",
+      "official_domain": "edc.com",
+      "category": "music",
+      "tags": [
+        "tentpole",
+        "music",
+        "edm",
+        "nightlife"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "edc-orlando-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "edc-orlando"
+      }
+    },
+    {
+      "anchor_id": "tarpon-springs-seafood-festival",
+      "name": "Tarpon Springs Seafood Festival",
+      "region": "Tampa Bay",
+      "city": "Tarpon Springs",
+      "venue": "Sponge Docks",
+      "official_domain": "sikpromotions.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront",
+        "only-in-florida",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "only-in-florida",
+        "food-festivals",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "tarpon-springs-seafood-festival-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "tarpon-springs-seafood-festival"
+      }
+    },
+    {
+      "anchor_id": "sarasota-medieval-fair",
+      "name": "Sarasota Medieval Fair",
+      "region": "Tampa Bay",
+      "city": "Myakka City",
+      "venue": "Woods of Mallaranny",
+      "official_domain": "sarasotamedievalfair.com",
+      "category": "festival",
+      "tags": [
+        "fall",
+        "family",
+        "only-in-florida",
+        "local",
+        "costume",
+        "fall-festival"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 12
+      },
+      "rails": [
+        "only-in-florida",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "sarasota-medieval-fair-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "sarasota-medieval-fair"
+      }
+    },
+    {
+      "anchor_id": "siesta-key-crystal-classic",
+      "name": "Siesta Key Crystal Classic",
+      "region": "Tampa Bay",
+      "city": "Sarasota",
+      "venue": "Siesta Beach",
+      "official_domain": "siestakeycrystalclassic.com",
+      "category": "arts",
+      "tags": [
+        "fall",
+        "art",
+        "tentpole",
+        "beach",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "crystal-classic-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "crystal-classic"
+      }
+    },
+    {
+      "anchor_id": "christmas-at-gaylord-palms",
+      "name": "ICE! at Christmas at Gaylord Palms",
+      "region": "Central",
+      "city": "Kissimmee",
+      "venue": "Gaylord Palms Resort & Convention Center",
+      "official_domain": "christmasatgaylordpalms.com",
+      "category": "holiday",
+      "tags": [
+        "holiday",
+        "christmas",
+        "indoor",
+        "family",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 1
+      },
+      "rails": [
+        "only-in-florida",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "christmas-at-gaylord-palms-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "christmas-at-gaylord-palms"
+      }
+    },
+    {
+      "anchor_id": "american-sand-sculpting-championship",
+      "name": "American Sand Sculpting Championship",
+      "region": "SW",
+      "city": "Fort Myers Beach",
+      "venue": "DiamondHead Beach Resort",
+      "official_domain": "fmbsandsculpting.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "beach",
+        "family",
+        "only-in-florida",
+        "thanksgiving"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "only-in-florida",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "american-sand-sculpting-championship-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "american-sand-sculpting-championship"
+      }
+    },
+    {
+      "anchor_id": "st-augustine-nights-of-lights",
+      "name": "St. Augustine Nights of Lights",
+      "region": "NE",
+      "city": "St. Augustine",
+      "venue": "Historic District / Plaza de la Constitucion",
+      "official_domain": "visitstaugustine.com",
+      "category": "holiday",
+      "tags": [
+        "free",
+        "tentpole",
+        "walkable",
+        "christmas",
+        "holiday",
+        "holiday-lights",
+        "historic"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "nights-of-lights-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "nights-of-lights"
+      }
+    },
+    {
+      "anchor_id": "epcot-festival-of-the-holidays",
+      "name": "EPCOT International Festival of the Holidays",
+      "region": "Central",
+      "city": "Lake Buena Vista",
+      "venue": "EPCOT, Walt Disney World",
+      "official_domain": "disneyworld.disney.go.com",
+      "category": "holiday",
+      "tags": [
+        "christmas",
+        "holiday",
+        "food",
+        "music",
+        "theme-park",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 12
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "epcot-festival-holidays-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "epcot-festival-holidays"
+      },
+      "probe": false
+    },
+    {
+      "anchor_id": "art-basel-miami-beach",
+      "name": "Art Basel Miami Beach",
+      "region": "SE",
+      "city": "Miami Beach",
+      "venue": "Miami Beach Convention Center",
+      "official_domain": "artbasel.com",
+      "category": "arts",
+      "tags": [
+        "tentpole",
+        "arts",
+        "premium",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 12,
+        "end_month": 12
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "art-basel-miami-beach-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "art-basel-miami-beach"
+      }
+    },
+    {
+      "anchor_id": "fort-myers-beach-christmas-boat-parade",
+      "name": "Fort Myers Beach Christmas Boat Parade",
+      "region": "SW",
+      "city": "Fort Myers Beach",
+      "venue": "North Matanzas Pass",
+      "official_domain": "fortmyersbeach.org",
+      "category": "holiday",
+      "tags": [
+        "holiday",
+        "christmas",
+        "holiday-lights",
+        "free",
+        "waterfront",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 12,
+        "end_month": 12
+      },
+      "rails": [
+        "only-in-florida"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "fort-myers-beach-christmas-boat-parade-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "fort-myers-beach-christmas-boat-parade"
+      }
+    },
+    {
+      "anchor_id": "seminole-hard-rock-winterfest-boat-parade",
+      "name": "Seminole Hard Rock Winterfest Boat Parade",
+      "region": "SE",
+      "city": "Fort Lauderdale",
+      "venue": "Intracoastal Waterway",
+      "official_domain": "winterfestparade.com",
+      "category": "holiday",
+      "tags": [
+        "holiday",
+        "christmas",
+        "holiday-lights",
+        "free",
+        "waterfront",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 12,
+        "end_month": 12
+      },
+      "rails": [
+        "only-in-florida"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "winterfest-boat-parade-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "winterfest-boat-parade"
+      }
+    },
+    {
+      "anchor_id": "epcot-festival-of-the-arts",
+      "name": "EPCOT International Festival of the Arts",
+      "region": "Central",
+      "city": "Lake Buena Vista",
+      "venue": "EPCOT, Walt Disney World",
+      "official_domain": "disneyworld.disney.go.com",
+      "category": "arts",
+      "tags": [
+        "arts",
+        "theme-park",
+        "florida-icon",
+        "winter"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 3
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "epcot-festival-arts-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "epcot-arts"
+      },
+      "probe": false
+    },
+    {
+      "anchor_id": "gasparilla-pirate-fest",
+      "name": "Gasparilla Pirate Fest",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Bayshore Boulevard and downtown",
+      "official_domain": "gasparillapiratefest.com",
+      "category": "festival",
+      "tags": [
+        "free",
+        "parade",
+        "tentpole",
+        "nightlife",
+        "only-in-florida",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "florida-icons",
+        "only-in-florida"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "gasparilla-pirate-fest-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "gasparilla-pirate-fest"
+      }
+    },
+    {
+      "anchor_id": "florida-state-fair",
+      "name": "Florida State Fair",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Florida State Fairgrounds",
+      "official_domain": "floridastatefairgrounds.com",
+      "category": "community",
+      "tags": [
+        "tentpole",
+        "fair",
+        "family",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "only-in-florida",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "florida-state-fair-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "florida-state-fair"
+      }
+    },
+    {
+      "anchor_id": "miami-international-boat-show",
+      "name": "Discover Boating Miami International Boat Show",
+      "region": "SE",
+      "city": "Miami Beach",
+      "venue": "Miami Beach Convention Center",
+      "official_domain": "miamiboatshow.com",
+      "category": "boating",
+      "tags": [
+        "tentpole",
+        "boating",
+        "premium",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "miami-boat-show-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "miami-international-boat-show"
+      }
+    },
+    {
+      "anchor_id": "daytona-500",
+      "name": "Daytona 500",
+      "region": "NE",
+      "city": "Daytona Beach",
+      "venue": "Daytona International Speedway",
+      "official_domain": "daytonainternationalspeedway.com",
+      "category": "motorsports",
+      "tags": [
+        "tentpole",
+        "motorsports",
+        "nascar",
+        "only-in-florida",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "florida-icons",
+        "only-in-florida"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "daytona-500-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "daytona-500"
+      }
+    },
+    {
+      "anchor_id": "south-beach-wine-and-food-festival",
+      "name": "Food Network South Beach Wine & Food Festival",
+      "region": "SE",
+      "city": "Miami Beach",
+      "venue": "South Beach and citywide",
+      "official_domain": "sobewff.org",
+      "category": "food",
+      "tags": [
+        "tentpole",
+        "food",
+        "premium",
+        "celebrity-chef",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "sobewff-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "sobewff"
+      }
+    },
+    {
+      "anchor_id": "florida-strawberry-festival",
+      "name": "Florida Strawberry Festival",
+      "region": "Tampa Bay",
+      "city": "Plant City",
+      "venue": "Florida Strawberry Festival grounds",
+      "official_domain": "flstrawberryfestival.com",
+      "category": "food",
+      "tags": [
+        "fair",
+        "local",
+        "tentpole",
+        "spring",
+        "food",
+        "family",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "florida-icons",
+        "food-festivals",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "florida-strawberry-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "florida-strawberry-festival"
+      }
+    },
+    {
+      "anchor_id": "daytona-bike-week",
+      "name": "Daytona Bike Week",
+      "region": "NE",
+      "city": "Daytona Beach",
+      "venue": "Main Street and countywide",
+      "official_domain": "officialbikeweek.com",
+      "category": "motorsports",
+      "tags": [
+        "tentpole",
+        "rally",
+        "motorcycles",
+        "free",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "daytona-bike-week-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "daytona-bike-week"
+      }
+    },
+    {
+      "anchor_id": "gasparilla-festival-of-the-arts",
+      "name": "Raymond James Gasparilla Festival of the Arts",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Julian B. Lane Riverfront Park",
+      "official_domain": "gasparillaarts.com",
+      "category": "arts",
+      "tags": [
+        "tentpole",
+        "art",
+        "free",
+        "downtown",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": "gasparilla-arts-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "gasparilla-festival-of-the-arts"
+      }
+    },
+    {
+      "anchor_id": "epcot-flower-and-garden-festival",
+      "name": "EPCOT International Flower & Garden Festival",
+      "region": "Central",
+      "city": "Lake Buena Vista",
+      "venue": "EPCOT, Walt Disney World",
+      "official_domain": "disneyworld.disney.go.com",
+      "category": "seasonal",
+      "tags": [
+        "seasonal",
+        "theme-park",
+        "florida-icon",
+        "spring"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 5
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "epcot-flower-garden-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "epcot-flower-garden"
+      },
+      "probe": false
+    },
+    {
+      "anchor_id": "calle-ocho-music-festival",
+      "name": "Calle Ocho Music Festival",
+      "region": "SE",
+      "city": "Miami",
+      "venue": "SW 8th Street, Little Havana",
+      "official_domain": "carnavalmiami.com",
+      "category": "music",
+      "tags": [
+        "tentpole",
+        "festival",
+        "latin",
+        "free",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "florida-icons",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "calle-ocho-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "calle-ocho"
+      }
+    },
+    {
+      "anchor_id": "miami-open",
+      "name": "Miami Open",
+      "region": "SE",
+      "city": "Miami Gardens",
+      "venue": "Hard Rock Stadium",
+      "official_domain": "miamiopen.com",
+      "category": "sports",
+      "tags": [
+        "tentpole",
+        "sports",
+        "tennis",
+        "premium",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "florida-icons"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "miami-open-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "miami-open"
+      }
+    },
+    {
+      "anchor_id": "ultra-music-festival",
+      "name": "Ultra Music Festival",
+      "region": "SE",
+      "city": "Miami",
+      "venue": "Bayfront Park",
+      "official_domain": "ultramusicfestival.com",
+      "category": "music",
+      "tags": [
+        "tentpole",
+        "music",
+        "edm",
+        "nightlife",
+        "major-music-festival",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "florida-icons",
+        "major-music-festivals",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "ultra-miami-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "ultra-miami"
+      }
+    },
+    {
+      "anchor_id": "tortuga-music-festival",
+      "name": "Tortuga Music Festival",
+      "region": "SE",
+      "city": "Fort Lauderdale",
+      "venue": "Fort Lauderdale Beach",
+      "official_domain": "tortugamusicfestival.com",
+      "category": "music",
+      "tags": [
+        "tentpole",
+        "music",
+        "outdoor",
+        "country",
+        "beach",
+        "major-music-festival"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "major-music-festivals",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "tortuga-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "tortuga"
+      }
+    },
+    {
+      "anchor_id": "sun-n-fun-aerospace-expo",
+      "name": "SUN 'n FUN Aerospace Expo",
+      "region": "Central",
+      "city": "Lakeland",
+      "venue": "Lakeland Linder International Airport",
+      "official_domain": "flysnf.org",
+      "category": "aviation",
+      "tags": [
+        "tentpole",
+        "aviation",
+        "family",
+        "only-in-florida"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "only-in-florida",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "sun-n-fun-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "sun-n-fun"
+      }
+    },
+    {
+      "anchor_id": "sarasota-film-festival",
+      "name": "Sarasota Film Festival",
+      "region": "Tampa Bay",
+      "city": "Sarasota",
+      "venue": "New College of Florida, Mildred Sainer Pavilion",
+      "official_domain": "sarasotafilmfestival.com",
+      "category": "film",
+      "tags": [
+        "tentpole",
+        "film",
+        "arts",
+        "local"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "sarasota-film-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "sarasota-film-festival"
+      }
+    },
+    {
+      "anchor_id": "tampa-bay-blues-festival",
+      "name": "Tampa Bay Blues Festival",
+      "region": "Tampa Bay",
+      "city": "St. Petersburg",
+      "venue": "Vinoy Waterfront Park",
+      "official_domain": "tampabaybluesfest.com",
+      "category": "music",
+      "tags": [
+        "tentpole",
+        "waterfront",
+        "music",
+        "outdoor",
+        "blues",
+        "major-music-festival"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "major-music-festivals",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "tampa-bay-blues-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "tampa-bay-blues"
+      }
+    },
+    {
+      "anchor_id": "conch-republic-independence-celebration",
+      "name": "Conch Republic Independence Celebration",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Citywide",
+      "official_domain": "conchrepublic.com",
+      "category": "festival",
+      "tags": [
+        "festival",
+        "quirky",
+        "only-in-florida",
+        "nightlife"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "only-in-florida"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "conch-republic-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "conch-republic"
+      }
+    },
+    {
+      "anchor_id": "florida-folk-festival",
+      "name": "Florida Folk Festival",
+      "region": "NE",
+      "city": "White Springs",
+      "venue": "Stephen Foster Folk Culture Center State Park",
+      "official_domain": "floridastateparks.org",
+      "category": "music",
+      "tags": [
+        "folk",
+        "tentpole",
+        "music",
+        "heritage",
+        "americana",
+        "state-park",
+        "major-music-festival"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "major-music-festivals",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "florida-folk-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "florida-folk"
+      }
+    },
+    {
+      "anchor_id": "welcome-to-rockville",
+      "name": "Welcome to Rockville",
+      "region": "NE",
+      "city": "Daytona Beach",
+      "venue": "Daytona International Speedway",
+      "official_domain": "welcometorockville.com",
+      "category": "music",
+      "tags": [
+        "tentpole",
+        "music",
+        "rock",
+        "camping",
+        "metal",
+        "major-music-festival",
+        "florida-icon"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "florida-icons",
+        "major-music-festivals",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "rockville-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "rockville"
+      }
+    },
+    {
+      "anchor_id": "pepsi-gulf-coast-jam",
+      "name": "Pepsi Gulf Coast Jam",
+      "region": "NW",
+      "city": "Panama City Beach",
+      "venue": "Frank Brown Park",
+      "official_domain": "gulfcoastjam.com",
+      "category": "music",
+      "tags": [
+        "beach",
+        "camping",
+        "country",
+        "major-music-festival",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "rails": [
+        "major-music-festivals",
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "gulf-coast-jam-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "gulf-coast-jam"
+      }
+    },
+    {
+      "anchor_id": "pensacola-seafood-festival",
+      "name": "Pensacola Seafood Festival",
+      "region": "NW",
+      "city": "Pensacola",
+      "venue": "Seafood festival grounds, downtown Pensacola",
+      "official_domain": "pensacolaseafoodfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 9,
+        "end_month": 9
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "pensacola-beach-air-show",
+      "name": "Pensacola Beach Air Show",
+      "region": "NW",
+      "city": "Pensacola Beach",
+      "venue": "Pensacola Beach",
+      "official_domain": "pensacolabeachairshow.com",
+      "category": "sports",
+      "tags": [
+        "airshow",
+        "free",
+        "beach",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 7,
+        "end_month": 7
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "blue-angels-homecoming-show",
+      "name": "Blue Angels Homecoming Air Show",
+      "region": "NW",
+      "city": "Pensacola",
+      "venue": "NAS Pensacola",
+      "official_domain": "blueangels.navy.mil",
+      "category": "community",
+      "tags": [
+        "airshow",
+        "free",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "pensacola-mardi-gras",
+      "name": "Pensacola Mardi Gras",
+      "region": "NW",
+      "city": "Pensacola",
+      "venue": "Downtown Pensacola",
+      "official_domain": "mardigraspensacola.com",
+      "category": "festival",
+      "tags": [
+        "parade",
+        "mardi-gras",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "fiesta-of-five-flags",
+      "name": "Fiesta of Five Flags",
+      "region": "NW",
+      "city": "Pensacola",
+      "venue": "Downtown Pensacola",
+      "official_domain": "fiestaoffiveflags.org",
+      "category": "festival",
+      "tags": [
+        "heritage",
+        "parade"
+      ],
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "destin-fishing-rodeo",
+      "name": "Destin Fishing Rodeo",
+      "region": "NW",
+      "city": "Destin",
+      "venue": "Destin Harbor",
+      "official_domain": "destinfishingrodeo.com",
+      "category": "sports",
+      "tags": [
+        "fishing",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "30a-songwriters-festival",
+      "name": "30A Songwriters Festival",
+      "region": "NW",
+      "city": "Santa Rosa Beach",
+      "venue": "South Walton venues",
+      "official_domain": "30asongwriters.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "songwriters",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "30a-songwriters-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "30a-songwriters-festival"
+      }
+    },
+    {
+      "anchor_id": "boggy-bayou-mullet-festival",
+      "name": "Boggy Bayou Mullet Festival",
+      "region": "NW",
+      "city": "Niceville",
+      "venue": "Niceville Festival Grounds",
+      "official_domain": "mulletfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "food-festivals",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "springtime-tallahassee",
+      "name": "Springtime Tallahassee Grand Parade",
+      "region": "NW",
+      "city": "Tallahassee",
+      "venue": "Downtown Tallahassee",
+      "official_domain": "springtimetallahassee.com",
+      "category": "festival",
+      "tags": [
+        "parade",
+        "free",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 4
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "sandestin-wine-festival",
+      "name": "Sandestin Wine Festival",
+      "region": "NW",
+      "city": "Miramar Beach",
+      "venue": "Baytowne Wharf",
+      "official_domain": "sandestinwinefestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "wine",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "sandestin-wine-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "sandestin-wine-festival"
+      }
+    },
+    {
+      "anchor_id": "pensacola-interstate-fair",
+      "name": "Pensacola Interstate Fair",
+      "region": "NW",
+      "city": "Pensacola",
+      "venue": "Pensacola Fairgrounds",
+      "official_domain": "pensacolafair.com",
+      "category": "community",
+      "tags": [
+        "fair",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 11
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "fl26-pensacola-interstate-fair-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "fl26-pensacola-interstate-fair"
+      }
+    },
+    {
+      "anchor_id": "gulf-coast-seafood-festival-destin",
+      "name": "Destin Seafood Festival",
+      "region": "NW",
+      "city": "Destin",
+      "venue": "Destin Harbor",
+      "official_domain": "destinseafoodfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "jacksonville-jazz-festival",
+      "name": "Jacksonville Jazz Festival",
+      "region": "NE",
+      "city": "Jacksonville",
+      "venue": "Downtown Jacksonville",
+      "official_domain": "jaxjazzfest.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "jazz",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "springing-the-blues",
+      "name": "Springing the Blues",
+      "region": "NE",
+      "city": "Jacksonville Beach",
+      "venue": "Seawalk Pavilion",
+      "official_domain": "springingtheblues.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "blues",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "gate-river-run",
+      "name": "Gate River Run",
+      "region": "NE",
+      "city": "Jacksonville",
+      "venue": "Downtown Jacksonville",
+      "official_domain": "gateriverrun.com",
+      "category": "sports",
+      "tags": [
+        "running",
+        "community"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "amelia-island-concours",
+      "name": "Amelia Island Concours d'Elegance",
+      "region": "NE",
+      "city": "Amelia Island",
+      "venue": "The Golf Club of Amelia Island",
+      "official_domain": "ameliaconcours.org",
+      "category": "motorsports",
+      "tags": [
+        "cars",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "isle-of-eight-flags-shrimp-festival",
+      "name": "Isle of Eight Flags Shrimp Festival",
+      "region": "NE",
+      "city": "Fernandina Beach",
+      "venue": "Historic Downtown Fernandina",
+      "official_domain": "shrimpfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "rolex-24-at-daytona",
+      "name": "Rolex 24 At Daytona",
+      "region": "NE",
+      "city": "Daytona Beach",
+      "venue": "Daytona International Speedway",
+      "official_domain": "imsa.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "endurance"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "coke-zero-sugar-400",
+      "name": "Coke Zero Sugar 400",
+      "region": "NE",
+      "city": "Daytona Beach",
+      "venue": "Daytona International Speedway",
+      "official_domain": "daytonainternationalspeedway.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "nascar"
+      ],
+      "typical_window": {
+        "start_month": 8,
+        "end_month": 8
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "the-players-championship",
+      "name": "THE PLAYERS Championship",
+      "region": "NE",
+      "city": "Ponte Vedra Beach",
+      "venue": "TPC Sawgrass",
+      "official_domain": "pgatour.com",
+      "category": "sports",
+      "tags": [
+        "golf",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "winter-park-sidewalk-art-festival",
+      "name": "Winter Park Sidewalk Art Festival",
+      "region": "Central",
+      "city": "Winter Park",
+      "venue": "Park Avenue and Central Park",
+      "official_domain": "wpsaf.org",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "winter-park-sidewalk-art-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "winter-park-sidewalk-art-festival"
+      }
+    },
+    {
+      "anchor_id": "mount-dora-arts-festival",
+      "name": "Mount Dora Arts Festival",
+      "region": "Central",
+      "city": "Mount Dora",
+      "venue": "Downtown Mount Dora",
+      "official_domain": "mountdoracraftfair.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free",
+        "lakefront"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "mount-dora-arts-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "mount-dora-arts-festival"
+      }
+    },
+    {
+      "anchor_id": "florida-film-festival",
+      "name": "Florida Film Festival",
+      "region": "Central",
+      "city": "Maitland",
+      "venue": "Enzian Theater",
+      "official_domain": "floridafilmfestival.com",
+      "category": "film",
+      "tags": [
+        "film",
+        "arts"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "orlando-fringe",
+      "name": "Orlando International Fringe Theatre Festival",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Loch Haven Park",
+      "official_domain": "orlandofringe.org",
+      "category": "arts",
+      "tags": [
+        "theater",
+        "arts"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "universal-mardi-gras",
+      "name": "Universal Orlando Mardi Gras",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Universal Studios Florida",
+      "official_domain": "universalorlando.com",
+      "category": "festival",
+      "tags": [
+        "theme-park",
+        "music",
+        "parade"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "mickeys-not-so-scary-halloween-party",
+      "name": "Mickey's Not-So-Scary Halloween Party",
+      "region": "Central",
+      "city": "Lake Buena Vista",
+      "venue": "Magic Kingdom",
+      "official_domain": "disneyworld.disney.go.com",
+      "category": "halloween",
+      "tags": [
+        "theme-park",
+        "halloween",
+        "family",
+        "bring-the-kids"
+      ],
+      "typical_window": {
+        "start_month": 8,
+        "end_month": 10
+      },
+      "rails": [
+        "spooky-season",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "mnsshp-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "mnsshp"
+      },
+      "probe": false
+    },
+    {
+      "anchor_id": "mickeys-very-merry-christmas-party",
+      "name": "Mickey's Very Merry Christmas Party",
+      "region": "Central",
+      "city": "Lake Buena Vista",
+      "venue": "Magic Kingdom",
+      "official_domain": "disneyworld.disney.go.com",
+      "category": "holiday",
+      "tags": [
+        "theme-park",
+        "christmas",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 12
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "mvmcp-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "mvmcp"
+      },
+      "probe": false
+    },
+    {
+      "anchor_id": "arnold-palmer-invitational",
+      "name": "Arnold Palmer Invitational",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Bay Hill Club and Lodge",
+      "official_domain": "apinvitational.com",
+      "category": "sports",
+      "tags": [
+        "golf",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "cheez-it-citrus-bowl",
+      "name": "Cheez-It Citrus Bowl",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Camping World Stadium",
+      "official_domain": "cheezitcitrusbowl.com",
+      "category": "sports",
+      "tags": [
+        "football",
+        "bowl-game"
+      ],
+      "typical_window": {
+        "start_month": 12,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "zora-neale-hurston-festival",
+      "name": "ZORA! Festival",
+      "region": "Central",
+      "city": "Eatonville",
+      "venue": "Eatonville",
+      "official_domain": "zorafestival.org",
+      "category": "arts",
+      "tags": [
+        "arts",
+        "heritage",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "mobil-1-twelve-hours-of-sebring",
+      "name": "Mobil 1 Twelve Hours of Sebring",
+      "region": "Central",
+      "city": "Sebring",
+      "venue": "Sebring International Raceway",
+      "official_domain": "sebringraceway.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "endurance"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "come-out-with-pride-orlando",
+      "name": "Come Out With Pride Orlando",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "Lake Eola Park",
+      "official_domain": "comeoutwithpride.com",
+      "category": "festival",
+      "tags": [
+        "pride",
+        "parade"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "silver-spurs-rodeo",
+      "name": "Silver Spurs Rodeo",
+      "region": "Central",
+      "city": "Kissimmee",
+      "venue": "Silver Spurs Arena",
+      "official_domain": "silverspursrodeo.com",
+      "category": "sports",
+      "tags": [
+        "rodeo",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 3
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "seaworld-seven-seas-food-festival",
+      "name": "SeaWorld Seven Seas Food Festival",
+      "region": "Central",
+      "city": "Orlando",
+      "venue": "SeaWorld Orlando",
+      "official_domain": "seaworld.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "theme-park",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 5
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "okeechobee-music-festival",
+      "name": "Okeechobee Music & Arts Festival",
+      "region": "Central",
+      "city": "Okeechobee",
+      "venue": "Sunshine Grove",
+      "official_domain": "okeechobeefest.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "camping"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "st-pete-pride",
+      "name": "St. Pete Pride",
+      "region": "Tampa Bay",
+      "city": "St. Petersburg",
+      "venue": "Grand Central District",
+      "official_domain": "stpetepride.com",
+      "category": "festival",
+      "tags": [
+        "pride",
+        "parade",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "clearwater-jazz-holiday",
+      "name": "Clearwater Jazz Holiday",
+      "region": "Tampa Bay",
+      "city": "Clearwater",
+      "venue": "Coachman Park",
+      "official_domain": "clearwaterjazz.org",
+      "category": "music",
+      "tags": [
+        "music",
+        "jazz"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "clearwater-jazz-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "clearwater-jazz"
+      }
+    },
+    {
+      "anchor_id": "gasparilla-music-festival",
+      "name": "Gasparilla Music Festival",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Julian B. Lane Riverfront Park",
+      "official_domain": "gasparillamusicfest.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "downtown"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "gasparilla-film-festival",
+      "name": "Gasparilla International Film Festival",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Downtown Tampa and Ybor",
+      "official_domain": "gasparillafilmfestival.com",
+      "category": "film",
+      "tags": [
+        "film",
+        "arts"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "mainsail-arts-festival",
+      "name": "Mainsail Arts Festival",
+      "region": "Tampa Bay",
+      "city": "St. Petersburg",
+      "venue": "Vinoy Park",
+      "official_domain": "mainsailartsfestival.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "mainsail-art-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "mainsail-art-festival"
+      }
+    },
+    {
+      "anchor_id": "firestone-grand-prix-st-pete",
+      "name": "Firestone Grand Prix of St. Petersburg",
+      "region": "Tampa Bay",
+      "city": "St. Petersburg",
+      "venue": "Downtown St. Petersburg street course",
+      "official_domain": "gpstpete.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "indycar",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "guavaween",
+      "name": "Guavaween",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Ybor City",
+      "official_domain": "guavaween.com",
+      "category": "halloween",
+      "tags": [
+        "halloween",
+        "parade",
+        "nightlife"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "spooky-season"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "dade-city-kumquat-festival",
+      "name": "Kumquat Festival",
+      "region": "Tampa Bay",
+      "city": "Dade City",
+      "venue": "Downtown Dade City",
+      "official_domain": "kumquatfestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "local",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "food-festivals",
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "kumquat-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "kumquat-festival"
+      }
+    },
+    {
+      "anchor_id": "sarasota-chalk-festival",
+      "name": "Sarasota Chalk Festival",
+      "region": "Tampa Bay",
+      "city": "Venice",
+      "venue": "Venice",
+      "official_domain": "chalkfestival.org",
+      "category": "arts",
+      "tags": [
+        "art",
+        "chalk",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "busch-gardens-food-and-wine-festival",
+      "name": "Busch Gardens Food & Wine Festival",
+      "region": "Tampa Bay",
+      "city": "Tampa",
+      "venue": "Busch Gardens Tampa Bay",
+      "official_domain": "buschgardens.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "theme-park",
+        "music"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 5
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "edison-festival-of-light",
+      "name": "Edison Festival of Light",
+      "region": "SW",
+      "city": "Fort Myers",
+      "venue": "Downtown Fort Myers",
+      "official_domain": "edisonfestival.org",
+      "category": "festival",
+      "tags": [
+        "parade",
+        "heritage",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "naples-winter-wine-festival",
+      "name": "Naples Winter Wine Festival",
+      "region": "SW",
+      "city": "Naples",
+      "venue": "Ritz-Carlton Golf Resort",
+      "official_domain": "napleswinefestival.org",
+      "category": "food",
+      "tags": [
+        "food",
+        "wine",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 2
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "naples-winter-wine-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "naples-winter-wine-festival"
+      }
+    },
+    {
+      "anchor_id": "southwest-florida-fair",
+      "name": "Southwest Florida Fair",
+      "region": "SW",
+      "city": "Fort Myers",
+      "venue": "Lee Civic Center",
+      "official_domain": "swflfair.com",
+      "category": "community",
+      "tags": [
+        "fair",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 2
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "edison-ford-holiday-nights",
+      "name": "Edison Ford Holiday Nights",
+      "region": "SW",
+      "city": "Fort Myers",
+      "venue": "Edison and Ford Winter Estates",
+      "official_domain": "edisonford.org",
+      "category": "holiday",
+      "tags": [
+        "christmas",
+        "holiday-lights",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 1
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "edison-and-ford-holiday-nights-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "edison-and-ford-holiday-nights"
+      }
+    },
+    {
+      "anchor_id": "swamp-cabbage-festival",
+      "name": "Swamp Cabbage Festival",
+      "region": "SW",
+      "city": "LaBelle",
+      "venue": "Barron Park",
+      "official_domain": "swampcabbagefestival.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "heritage"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "naples-national-art-festival",
+      "name": "Naples National Art Festival",
+      "region": "SW",
+      "city": "Naples",
+      "venue": "Cambier Park",
+      "official_domain": "naplesartfestival.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "sunfest",
+      "name": "SunFest",
+      "region": "SE",
+      "city": "West Palm Beach",
+      "venue": "Flagler Drive Waterfront",
+      "official_domain": "sunfest.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "fort-lauderdale-air-show",
+      "name": "Fort Lauderdale Air Show",
+      "region": "SE",
+      "city": "Fort Lauderdale",
+      "venue": "Fort Lauderdale Beach",
+      "official_domain": "ftlauderdaleairshow.com",
+      "category": "community",
+      "tags": [
+        "airshow",
+        "beach",
+        "free"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "miami-grand-prix",
+      "name": "Formula 1 Miami Grand Prix",
+      "region": "SE",
+      "city": "Miami Gardens",
+      "venue": "Miami International Autodrome",
+      "official_domain": "f1miamigp.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "f1"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "coconut-grove-arts-festival",
+      "name": "Coconut Grove Arts Festival",
+      "region": "SE",
+      "city": "Miami",
+      "venue": "Coconut Grove",
+      "official_domain": "coconutgroveartsfest.com",
+      "category": "arts",
+      "tags": [
+        "art"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "coconut-grove-arts-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "coconut-grove-arts-festival"
+      }
+    },
+    {
+      "anchor_id": "miami-film-festival",
+      "name": "Miami Film Festival",
+      "region": "SE",
+      "city": "Miami",
+      "venue": "Gusman Center and Miami Dade College",
+      "official_domain": "miamifilmfestival.com",
+      "category": "film",
+      "tags": [
+        "film",
+        "arts"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "art-deco-weekend",
+      "name": "Miami Beach Art Deco Weekend",
+      "region": "SE",
+      "city": "Miami Beach",
+      "venue": "Ocean Drive",
+      "official_domain": "artdecoweekend.com",
+      "category": "festival",
+      "tags": [
+        "art",
+        "free",
+        "historic"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "orange-bowl",
+      "name": "Capital One Orange Bowl",
+      "region": "SE",
+      "city": "Miami Gardens",
+      "venue": "Hard Rock Stadium",
+      "official_domain": "orangebowl.org",
+      "category": "sports",
+      "tags": [
+        "football",
+        "bowl-game"
+      ],
+      "typical_window": {
+        "start_month": 12,
+        "end_month": 12
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "homestead-championship-weekend",
+      "name": "Homestead-Miami Speedway Championship Weekend",
+      "region": "SE",
+      "city": "Homestead",
+      "venue": "Homestead-Miami Speedway",
+      "official_domain": "homesteadmiamispeedway.com",
+      "category": "motorsports",
+      "tags": [
+        "motorsports",
+        "nascar"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "palm-beach-international-boat-show",
+      "name": "Palm Beach International Boat Show",
+      "region": "SE",
+      "city": "West Palm Beach",
+      "venue": "Downtown West Palm Beach waterfront",
+      "official_domain": "pbboatshow.com",
+      "category": "boating",
+      "tags": [
+        "boating",
+        "premium",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "delray-affair",
+      "name": "Delray Affair",
+      "region": "SE",
+      "city": "Delray Beach",
+      "venue": "Atlantic Avenue",
+      "official_domain": "delrayaffair.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "delray-affair-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "delray-affair"
+      }
+    },
+    {
+      "anchor_id": "lake-worth-street-painting-festival",
+      "name": "Lake Worth Street Painting Festival",
+      "region": "SE",
+      "city": "Lake Worth Beach",
+      "venue": "Downtown Lake Worth Beach",
+      "official_domain": "streetpaintingfestival.com",
+      "category": "arts",
+      "tags": [
+        "art",
+        "free",
+        "family"
+      ],
+      "typical_window": {
+        "start_month": 2,
+        "end_month": 2
+      },
+      "rails": [
+        "bring-the-kids"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "winter-equestrian-festival",
+      "name": "Winter Equestrian Festival",
+      "region": "SE",
+      "city": "Wellington",
+      "venue": "Palm Beach International Equestrian Center",
+      "official_domain": "pbiec.com",
+      "category": "sports",
+      "tags": [
+        "equestrian",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "us-open-polo-championship",
+      "name": "U.S. Open Polo Championship",
+      "region": "SE",
+      "city": "Wellington",
+      "venue": "International Polo Club Palm Beach",
+      "official_domain": "internationalpoloclub.com",
+      "category": "sports",
+      "tags": [
+        "polo",
+        "premium"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "rolling-loud-miami",
+      "name": "Rolling Loud Miami",
+      "region": "SE",
+      "city": "Miami Gardens",
+      "venue": "Hard Rock Stadium",
+      "official_domain": "rollingloud.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "hip-hop"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "rolling-loud-florida-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "rolling-loud-florida"
+      },
+      "note": "Window from the 2027 row (May 7-9). Rolling Loud Miami has moved between months in past years, so the month is uncertain."
+    },
+    {
+      "anchor_id": "iii-points",
+      "name": "III Points",
+      "region": "SE",
+      "city": "Miami",
+      "venue": "Mana Wynwood",
+      "official_domain": "iiipoints.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "electronic"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "iii-points-2026",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "iii-points"
+      }
+    },
+    {
+      "anchor_id": "miami-beach-pride",
+      "name": "Miami Beach Pride",
+      "region": "SE",
+      "city": "Miami Beach",
+      "venue": "Lummus Park",
+      "official_domain": "miamibeachpride.com",
+      "category": "festival",
+      "tags": [
+        "pride",
+        "parade",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 4
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "miami-beach-pride-festival-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "miami-beach-pride-festival"
+      }
+    },
+    {
+      "anchor_id": "hemingway-days",
+      "name": "Hemingway Days",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Sloppy Joe's and Key West",
+      "official_domain": "fla-keys.com",
+      "category": "festival",
+      "tags": [
+        "festival",
+        "literary"
+      ],
+      "typical_window": {
+        "start_month": 7,
+        "end_month": 7
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "key-west-songwriters-festival",
+      "name": "Key West Songwriters Festival",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Key West venues",
+      "official_domain": "keywestsongwritersfestival.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "songwriters"
+      ],
+      "typical_window": {
+        "start_month": 5,
+        "end_month": 5
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "key-west-lobsterfest",
+      "name": "Key West Lobsterfest",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Historic Seaport",
+      "official_domain": "keywestlobsterfest.com",
+      "category": "food",
+      "tags": [
+        "food",
+        "seafood",
+        "waterfront"
+      ],
+      "typical_window": {
+        "start_month": 8,
+        "end_month": 8
+      },
+      "rails": [
+        "food-festivals"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "key-west-lobsterfest-2027",
+        "last_checked": "2026-10-14",
+        "source_url": null,
+        "event_series_id": "key-west-lobsterfest"
+      }
+    },
+    {
+      "anchor_id": "key-west-pride",
+      "name": "Key West Pride",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "Citywide",
+      "official_domain": "keywestpride.org",
+      "category": "festival",
+      "tags": [
+        "pride",
+        "parade"
+      ],
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "key-west-literary-seminar",
+      "name": "Key West Literary Seminar",
+      "region": "Keys",
+      "city": "Key West",
+      "venue": "San Carlos Institute",
+      "official_domain": "kwls.org",
+      "category": "arts",
+      "tags": [
+        "literary",
+        "arts"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "underwater-music-festival",
+      "name": "Lower Keys Underwater Music Festival",
+      "region": "Keys",
+      "city": "Big Pine Key",
+      "venue": "Looe Key Reef",
+      "official_domain": "keyscoast.com",
+      "category": "music",
+      "tags": [
+        "music",
+        "diving"
+      ],
+      "typical_window": {
+        "start_month": 7,
+        "end_month": 7
+      },
+      "rails": [
+        "live-music"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "thunder-beach-spring-rally",
+      "name": "Thunder Beach Spring Rally",
+      "region": "NW",
+      "city": "Panama City Beach",
+      "venue": "Panama City Beach",
+      "official_domain": "thunderbeachrally.com",
+      "category": "motorsports",
+      "tags": [
+        "rally",
+        "motorcycles",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 4,
+        "end_month": 5
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "thunder-beach-spring-rally-2027",
+        "event_series_id": "thunder-beach-spring-rally",
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    },
+    {
+      "anchor_id": "thunder-beach-autumn-rally",
+      "name": "Thunder Beach Autumn Rally",
+      "region": "NW",
+      "city": "Panama City Beach",
+      "venue": "Panama City Beach",
+      "official_domain": "thunderbeachrally.com",
+      "category": "motorsports",
+      "tags": [
+        "rally",
+        "motorcycles",
+        "beach"
+      ],
+      "typical_window": {
+        "start_month": 10,
+        "end_month": 10
+      },
+      "rails": [],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "thunder-beach-autumn-rally-2026",
+        "event_series_id": "thunder-beach-autumn-rally",
+        "last_checked": "2026-10-14",
+        "source_url": null
+      }
+    }
+  ]
+}

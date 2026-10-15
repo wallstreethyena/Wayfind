@@ -58,8 +58,10 @@ for(const p of DAYPART_IDS){
   // test-seasonal-picks owns the cross-band agreement; this file owns the
   // per-band bound, because orderFor() is what it executes.
   // Christmas in Florida (2026-10-08) sits directly behind Fall, so seasonal's ceiling moves from index 4 to 5.
-  ok(o.indexOf('season')>=1&&o.indexOf('season')<=5,`${p}: Summer Picks stays in the first six behind Fall and Christmas (found ${o.indexOf('season')+1})`);
-  ok(o.indexOf('trending')<4,`${p}: Trending stays in the first four behind Fall (is #${o.indexOf('trending')+1})`);
+  // Halloween (owner, 2026-10-14) sits right of Fall in every band, so it moves to 6 (and trending's bound from 4 to 5)
+  // in the static order; outside Oct 10-31 the track filter hides it and the old seats return (check-poster-seasons).
+  ok(o.indexOf('season')>=1&&o.indexOf('season')<=6,`${p}: Summer Picks stays in the first seven behind Fall, Halloween and Christmas (found ${o.indexOf('season')+1})`);
+  ok(o.indexOf('trending')<5,`${p}: Trending stays in the first five behind Fall and Halloween (is #${o.indexOf('trending')+1})`);
 }
 // the specific calls Gabe made
 // The owner's standing calls, re-expressed as RELATIONS rather than as five-item
@@ -70,9 +72,9 @@ ok(orderFor('lunch',ALL).indexOf('eat')<orderFor('lunch',ALL).indexOf('breakfast
 ok(orderFor('night',ALL).indexOf('events')<orderFor('night',ALL).indexOf('eat'),
    'night: Events ahead of Eat — a show still open beats a table');
 // Christmas in Florida takes slot two directly behind Fall; the axis follows it.
-ok(orderFor('morning',ALL)[1]==='christmas' && orderFor('lunch',ALL)[1]==='christmas' && orderFor('morning',ALL)[2]==='breakfast' && orderFor('lunch',ALL)[2]==='break',
+ok(orderFor('morning',ALL)[1]==='halloween' && orderFor('lunch',ALL)[1]==='halloween' && orderFor('morning',ALL)[2]==='christmas' && orderFor('lunch',ALL)[2]==='christmas' && orderFor('morning',ALL)[3]==='breakfast' && orderFor('lunch',ALL)[3]==='break',
    'the daypart axis remains directly behind the seasonal Fall and Christmas lead');
-ok(orderFor('afternoon',ALL)[1]==='tonight' && orderFor('afternoon',ALL)[2]==='christmas' && orderFor('night',ALL)[1]==='christmas' && orderFor('night',ALL)[2]==='tonight',
+ok(orderFor('afternoon',ALL)[1]==='halloween' && orderFor('afternoon',ALL)[2]==='tonight' && orderFor('afternoon',ALL)[3]==='christmas' && orderFor('night',ALL)[1]==='halloween' && orderFor('night',ALL)[2]==='christmas' && orderFor('night',ALL)[3]==='tonight',
    'from 1pm Tonight stays right behind Fall (Christmas 3rd in the afternoon, 2nd at night, owner 2026-10-08)');
 ok(orderFor('night',ALL).indexOf('break')>10,'night: Break parked at the back');
 ok(orderFor('morning',ALL).indexOf('events')>10,'morning: Events parked at the back');

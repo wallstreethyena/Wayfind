@@ -22,6 +22,7 @@ import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
+import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
 // Verified, credited pick photos (data/guide-pick-photos/<slug>.json via
 // scripts/build-guide-pick-photos.mjs's generated lib/guidePickPhotoManifest.js).
@@ -1120,6 +1121,7 @@ export default async function GuidePage({ params }) {
           {g.faq.map((f, i) => (<div key={i}><p style={S.faqQ}>{f.q}</p><p style={S.faqA}>{f.a}</p></div>))}
         </section>
       ) : null}
+      <GuideStays slug={params.slug} />
       {contextLinks.length ? (
         <aside className="wf-guide-related" aria-labelledby="guide-related-title">
           <h2 id="guide-related-title">Compare another plan</h2>
