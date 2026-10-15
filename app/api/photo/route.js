@@ -17,6 +17,18 @@ import { creditedRequest } from "../../../lib/apiGuard.js";
 // viewer (owner decision, 2026-10-09). Card requests must return JSON so the
 // renderer receives the image and its credit together.
 const GOOGLE_SURFACES = new Set(["detail", "card"]);
+// The blog (blog.gowayfind.com, same site, separate app) shows each pick's photo
+// by asking this credited JSON lane from the reader's browser, exactly like a card
+// (owner 2026-10-07: paid credited photos approved for the blog; 2026-10-15: "most
+// of the blogs still have no pictures"). Since 2026-10-08 no Google photo is ever
+// cached, so the blog's old free-cache lane can no longer find one. The browser
+// sends Sec-Fetch-Site: same-site (creditedRequest accepts it); this header only
+// lets that ONE origin READ the JSON answer. Exact-match allowlist, never "*", and
+// only on the JSON lane: it grants no spend that the request did not already have.
+const PHOTO_JSON_CORS_ORIGINS = new Set(["https://blog.gowayfind.com"]);
+function photoJsonCorsHeaders(origin) {
+  return PHOTO_JSON_CORS_ORIGINS.has(origin) ? { "Access-Control-Allow-Origin": origin, "Vary": "Origin" } : {};
+}
 
 export const dynamic = "force-dynamic";
 
@@ -289,7 +301,7 @@ export async function GET(req) {
   // Never cached anywhere when the image is Google's.
   const jsonAnswer = (body, cacheControl, reason) => NextResponse.json(body, {
     status: 200,
-    headers: { "Cache-Control": cacheControl, "x-wayfind-photo-result": reason, "x-wayfind-photo-probe": probe ? "1" : "0" },
+    headers: { "Cache-Control": cacheControl, "x-wayfind-photo-result": reason, "x-wayfind-photo-probe": probe ? "1" : "0", ...photoJsonCorsHeaders(req.headers.get("origin") || "") },
   });
 
   if (result.type === "redirect" && result.location) {
