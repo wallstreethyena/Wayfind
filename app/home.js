@@ -10972,7 +10972,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                 // classic line "I want to take a chance." stays as variant zero
                 // and the fallback (PROTECTED copy, check-ux).
                 const _bkChance = pickHook("chance", null);
-                if (_bkChance) heroImpression("chance", _bkChance.variant, _bkChance.text);
+                // hero_impression is NOT emitted here: diceHook and mkHook below are never rendered (nothing references them), so an impression would be a phantom (scripts/test-hero-impression-rendered.mjs). Emit it from the render path that actually shows a hero card.
                 const diceHook = { id: "dice-roll", accent: C.purple, emoji: "🎲", label: "Take a chance", hook: _bkChance ? _bkChance.text : "I want to take a chance.", _hookVar: _bkChance ? _bkChance.variant : null, highlightWord: _bkChance ? "" : "chance", subtitle: "Roll it — Wayfind lands you somewhere great nearby", cta: "🎲 Roll the dice →" };
                 // One experience hero anchors the feed. The curated list it opens is the shareable anchor.
                 const THEME_ORDER = ["gem", "family", "bestof", "entertainment", "stays", "shows", "budget"];
@@ -11036,7 +11036,6 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       top49: expPool.some((p) => p && p.rating >= 4.9 && (p.reviews || 0) >= 15),
                       mins: _nearTop && _nearTop.distMi <= 15 ? Math.max(4, Math.round(_nearTop.distMi * 2)) : null,
                     });
-                    if (bk) heroImpression(a.key, bk.variant, bk.text);
                     return { id: "exp-" + a.key, accent: THEME_COLOR[a.key] || m.accent || C.accent, emoji: a.e.icon, label: cityFix(a.e.label), theme: a.key, fetchKey: a.key, highlightWord: bk ? "" : m.hl, hook: bk ? bk.text : m.hook, _hookVar: bk ? bk.variant : null, subtitle: m.sub, cta: m.cta, metaLine: null, themeTitle: cityFix(a.e.title), themeBody: a.e.lead, places: null };
                   }
                   const t = themedHook(a.key, a.place);

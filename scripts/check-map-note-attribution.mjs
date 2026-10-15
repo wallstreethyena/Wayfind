@@ -48,11 +48,24 @@ const rects = (W, H) => {
   const attr = { l: PAD.left, r: PAD.left + 170, t: H - PAD.bottom - BAND, b: H - PAD.bottom };
   const sheet = { l: SHEET.left, r: wide ? SHEET.left + 390 : W - 12, t: H - SHEET.bottom - SHEET.collapsedH, b: H - SHEET.bottom };
   const controls = { l: W - RIGHT_COLUMN.right - RIGHT_COLUMN.width, r: W - RIGHT_COLUMN.right, t: 164, b: 322 };
-  return { note, attr, sheet, controls };
+  // The licence credit (ODbL) stacks directly above the note in the same column
+  // (or alone at the note baseline). Worst case: two wrapped lines (36px) over a
+  // 96px note with the 6px column gap.
+  const credit = { l: nl, r: nr, t: note.t - 6 - 36, b: note.t - 6 };
+  const creditAlone = { l: nl, r: nr, t: note.b - 36, b: note.b };
+  const leftStack = { l: 12, r: 130, t: 164, b: 290 };           // All places pill + Events/FIFA stack
+  return { note, attr, sheet, controls, credit, creditAlone, leftStack };
 };
 const hit = (a, b) => a.l < b.r && a.r > b.l && a.t < b.b && a.b > b.t;
 for (const [W, H] of [[320, 640], [390, 844], [768, 1024], [1280, 900]]) {
-  const { note, attr, sheet, controls } = rects(W, H);
+  const { note, attr, sheet, controls, credit, creditAlone, leftStack } = rects(W, H);
+  for (const [name, c] of [["credit above note", credit], ["credit alone", creditAlone]]) {
+    ok(!hit(c, attr), `${W}x${H}: ${name} [${c.l},${c.t},${c.r},${c.b}] does not touch MapKit attribution band`);
+    ok(!hit(c, sheet), `${W}x${H}: ${name} clears the results sheet (credit is NOT under it)`);
+    ok(!hit(c, controls) && !hit(c, leftStack), `${W}x${H}: ${name} clears the right control column and the left All-places/Events stack`);
+    ok(c.t >= 150 && c.b <= sheet.t, `${W}x${H}: ${name} is on screen, below the header band and above the sheet`);
+  }
+  ok(!hit(credit, note), `${W}x${H}: credit does not overlap the note`);
   ok(!hit(note, attr), `${W}x${H}: note [${note.l},${note.t},${note.r},${note.b}] does not touch MapKit attribution band [${attr.l},${attr.t},${attr.r},${attr.b}]`);
   ok(!hit(note, sheet), `${W}x${H}: note clears the results sheet`);
   ok(!hit(note, controls), `${W}x${H}: note clears the right-hand control column`);
@@ -66,14 +79,26 @@ for (const [W, H] of [[320, 640], [390, 844], [768, 1024], [1280, 900]]) {
   ok(hit(old, attr), "control: the pre-fix rect (top 636 / bottom 702) DOES intersect the attribution band — the simulation can fail");
 }
 
+{
+  // Control: the #1806 credit placement (left 12, bottom 120, 1 line) sits UNDER the collapsed sheet.
+  const W = 390, H = 844;
+  const old = { l: 12, r: 12 + 230, t: H - 120 - 18, b: H - 120 };
+  ok(hit(old, rects(W, H).sheet), "control: the pre-fix credit rect (bottom:120) DOES intersect the results sheet — the simulation can fail");
+}
+
 // ── 3. wiring, comments stripped ────────────────────────────────────────────
-const noteEls = [...screenSrc.matchAll(/<div role="note"[^>]*data-wf-map-unpinned=[^>]*style=\{\{([\s\S]*?)\}\}>/g)];
-ok(noteEls.length === 1, `exactly one absolutely positioned unpinned note element (found ${noteEls.length})`);
-const style = noteEls[0] ? noteEls[0][1] : "";
-ok(/bottom: MAP_NOTE_OFFSET\.bottom/.test(style), "note bottom comes from MAP_NOTE_OFFSET.bottom");
-ok(/left: MAP_NOTE_OFFSET\.left/.test(style) && /right: MAP_NOTE_OFFSET\.right/.test(style), "note left/right come from MAP_NOTE_OFFSET");
-ok(!/\bbottom:\s*\d/.test(style), "no numeric bottom: literal on the note");
-ok(/className="wf-map-note"/.test(screenSrc.match(/<div role="note"[^>]*>/)?.[0] || ""), "note carries the wf-map-note class the media rule targets");
+const colEls = [...screenSrc.matchAll(/<div className="wf-map-note" data-wf-map-notes style=\{\{([\s\S]*?)\}\}>/g)];
+ok(colEls.length === 1, `exactly one positioned note/credit column (found ${colEls.length})`);
+const style = colEls[0] ? colEls[0][1] : "";
+ok(/bottom: MAP_NOTE_OFFSET\.bottom/.test(style), "column bottom comes from MAP_NOTE_OFFSET.bottom");
+ok(/left: MAP_NOTE_OFFSET\.left/.test(style) && /right: MAP_NOTE_OFFSET\.right/.test(style), "column left/right come from MAP_NOTE_OFFSET");
+ok(/zIndex: 17/.test(style) && /flexDirection: "column"/.test(style), "column is zIndex 17 (above map, below the sheet's 18) and stacks credit over note");
+ok(!/\bbottom:\s*\d/.test(style), "no numeric bottom: literal on the column");
+const noteTag = screenSrc.match(/<div role="note"[^>]*>/)?.[0] || "";
+ok(noteTag.length > 0 && !/position:\s*"absolute"/.test(screenSrc.match(/<div role="note"[^\n]*?\}\}>/)?.[0] || ""), "the note itself is no longer absolutely positioned on its own numeric offsets");
+const creditTag = screenSrc.match(/<div data-wf-map-credit=[^\n]*?\}\}>/)?.[0] || "";
+ok(creditTag.length > 0 && !/position:\s*"absolute"|\bbottom:/.test(creditTag), "the licence credit has no absolute/bottom of its own (lives in the column, inside the safe area)");
+ok(screenSrc.indexOf("data-wf-map-credit") > screenSrc.indexOf("data-wf-map-notes"), "credit renders inside the column");
 ok(/import \{ MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT \} from "\.\.\/\.\.\/\.\.\/lib\/mapSafeArea\.js"/.test(screenSrc), "Map.js imports MAP_NOTE_OFFSET");
 
 ok(/\.wf-map-explorer \.maplibregl-ctrl-bottom-left, \.wf-map-explorer \.maplibregl-ctrl-bottom-right \{ margin-bottom: \$\{MAPLIBRE_ATTRIBUTION_LIFT\}px; \}/.test(rawScreen), "3D MapLibre path: OSM/MapLibre attribution controls are lifted by MAPLIBRE_ATTRIBUTION_LIFT (not left under the sheet + tab bar)");

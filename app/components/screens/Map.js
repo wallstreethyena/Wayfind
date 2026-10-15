@@ -9,7 +9,7 @@ import { byGovernedScore } from "../../../lib/lawfulOrder.js";
 import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
 import { accountListOnMap } from "../../../lib/mapListAccounting.js";
-import { NO_PERMITTED_COORDINATE } from "../../../lib/coordProvenance.js";
+import { NO_PERMITTED_COORDINATE, creditsForPins } from "../../../lib/coordProvenance.js";
 import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT } from "../../../lib/mapSafeArea.js";
 import AppleExplorerMap from "../AppleExplorerMap";
 import IconicPlaceCard from "../IconicPlaceCard";
@@ -112,6 +112,9 @@ export default function MapScreen({ ctx }) {
   const unpinnedNote = unpinnedForCoord > 0
     ? `${unpinnedForCoord} of the ${listAccounting.total} places on your list ${unpinnedForCoord === 1 ? "isn't" : "aren't"} pinned. We only pin a location confirmed in the last 30 days, and ${unpinnedForCoord === 1 ? "this one is" : "these are"} due for a re-check.`
     : null;
+  // Licence credit for any independently sourced pin on screen (OpenStreetMap's
+  // ODbL requires the credit wherever its coordinates are shown).
+  const mapCredits = useMemo(() => (mapMode === "places" ? creditsForPins(view) : []), [mapMode, view]);
   // Diagnostic only (the synthetic monitor reads it next to __wfMapPins).
   useEffect(() => {
     try {
@@ -278,7 +281,14 @@ export default function MapScreen({ ctx }) {
                     {areaStatus === "error" && <button type="button" onClick={() => setAreaRetry((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>Retry area</button>}
                     {unpinnedNote && <div data-wf-map-unpinned={unpinnedForCoord} style={{ marginTop: 6, color: C.muted, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   </div>}
-                  {mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" className="wf-map-note" data-wf-map-unpinned={unpinnedForCoord} style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom, zIndex: 17, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
+                  {/* ONE column above Apple's logo/Legal band, positioned from lib/mapSafeArea.js:
+                      the licence credit (ODbL) stacks directly above the unpinned note, and
+                      sits alone at the same baseline when there is no note. Both clear the
+                      collapsed results sheet (zIndex 18) and MapKit's attribution. */}
+                  {(mapCredits.length > 0 || (mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea))) && <div className="wf-map-note" data-wf-map-notes style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom, zIndex: 17, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, pointerEvents: "none" }}>
+                    {mapCredits.length > 0 && <div data-wf-map-credit={mapCredits.join(" | ")} style={{ fontSize: 10, lineHeight: 1.3, color: "rgba(255,255,255,.92)", background: "rgba(15,23,35,.78)", borderRadius: 6, padding: "2px 6px", maxWidth: "100%" }}>{mapCredits.join(" · ")}</div>}
+                    {mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ alignSelf: "stretch", background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
+                  </div>}
                   {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
                       Cup out of season this container rendered as an EMPTY dark box
                       floating on the map — a control with nothing in it. Only mount it

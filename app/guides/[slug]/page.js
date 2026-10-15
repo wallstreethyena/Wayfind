@@ -22,6 +22,7 @@ import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
 import GuideConversion from "./GuideConversion";
+import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
 // Verified, credited pick photos (data/guide-pick-photos/<slug>.json via
 // scripts/build-guide-pick-photos.mjs's generated lib/guidePickPhotoManifest.js).
@@ -42,7 +43,7 @@ import GuideDealCards from "./GuideDealCards";
 // finally connects 39 guides to a 69-row deal registry they were never wired
 // to. See lib/guideDeals.js for why that gap existed.
 import ShareButton from "../../components/ShareButton";
-import { guideDealIds } from "../../../lib/guideDeals";
+import { guideDealIds, guideDealCommerce } from "../../../lib/guideDeals";
 import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
 import GuidePickDecision from "./GuidePickDecision";
@@ -669,10 +670,13 @@ export default async function GuidePage({ params }) {
       cta: c.cta || null,
       image: c.image || null,
       category: INTENT_CATEGORY[(c.intents || [])[0]] || "dining",
-      // Registry-declared href, passed through untouched. A row carrying
-      // `commerce` already points at /api/commerce/go, which is the tracked
-      // redirect — this never rewrites one and never adds params of its own.
-      url: c.url,
+      // Registry-declared href. A row carrying `commerce` already points at
+      // /api/commerce/go, the tracked redirect; the only change made is its
+      // surface label. guideDealCommerce re-surfaces ONLY our own /api/commerce/go redirect
+      // (surface=guide_deals, not the Coupons tab's "coupons") and returns null
+      // for every other url, which then passes through untouched.
+      url: (guideDealCommerce(c.url) || {}).href || c.url,
+      commerce: (guideDealCommerce(c.url) || {}).ctx || null,
       external: !String(c.url || "").startsWith("/"),
       ends: couponEndsLabel(c) || null,
     }));
@@ -1120,6 +1124,7 @@ export default async function GuidePage({ params }) {
           {g.faq.map((f, i) => (<div key={i}><p style={S.faqQ}>{f.q}</p><p style={S.faqA}>{f.a}</p></div>))}
         </section>
       ) : null}
+      <GuideStays slug={params.slug} />
       {contextLinks.length ? (
         <aside className="wf-guide-related" aria-labelledby="guide-related-title">
           <h2 id="guide-related-title">Compare another plan</h2>
