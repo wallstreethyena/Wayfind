@@ -13,7 +13,7 @@ import { sbEnv } from "../../../../lib/serverCache.js";
 import { describeProductProbe, nextHealthState, parseRetryAfter, runPoliteProbes } from "../../../../lib/experienceLinkHealth.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
-import { recordPulse } from "../../../../lib/jobPulse.js";
+import { recordPulse as recordPulseOnce } from "../../../../lib/jobPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,6 +22,10 @@ export const maxDuration = 60;
 const KEY = () => credential(process.env["VIATOR_API_KEY"]);
 const VH = () => ({ "exp-api-key": KEY(), "Accept": "application/json;version=2.0", "Accept-Language": "en-US" });
 const JOB = "experiences-link-health";
+// Time budget inside maxDuration (60s): probes stop at 30s (a probe in flight
+// adds <=6s), then the PATCHes (8s cap each), and the watchdog answers at 48s.
+const PROBE_BUDGET_MS = 30000;
+const WATCHDOG_MS = 48000;
 
 async function probe(code) {
   const ctrl = new AbortController();
@@ -62,6 +66,40 @@ export async function GET(req) {
   if (!s) return jobCannotRun(JOB, "SUPABASE_SERVICE_ROLE_KEY or SUPABASE_URL is missing");
   const h = { apikey: s.key, Authorization: `Bearer ${s.key}`, "Content-Type": "application/json" };
 
+  // 2026-10-14 06:35Z: the first run after the polite-pacing change (#1727) was
+  // killed by "Vercel Runtime Timeout Error: Task timed out after 60 seconds"
+  // and wrote NO pulse - a killed function cannot report, so the owner saw
+  // silence, not failure. Two defences: (1) the sweep keeps its own time
+  // budget well inside maxDuration (probes stop at PROBE_BUDGET_MS, every
+  // Supabase PATCH is aborted after 8s), and (2) a WATCHDOG answers first: if
+  // the sweep is still running at WATCHDOG_MS it records a failed pulse and
+  // returns 500 while the platform can still run code. Exactly one pulse is
+  // ever written per run (the `pulse` gate), whichever side finishes first.
+  let pulsed = false;
+  // Shadows the import on purpose: GET's exits all go through ONE gate so a run
+  // writes exactly one pulse. jobFailed (the sweep's own failure exits) counts
+  // as the pulse for that run.
+  const recordPulse = async (job, row) => { if (pulsed) return false; pulsed = true; return recordPulseOnce(job, row); };
+  const failed = (reason) => { pulsed = true; return jobFailed(JOB, reason); };
+  const watchdogMs = num("LINK_HEALTH_WATCHDOG_MS", WATCHDOG_MS);
+  let timer;
+  const watchdog = new Promise((resolve) => {
+    timer = setTimeout(async () => {
+      await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: `watchdog: sweep still running after ${Math.round(watchdogMs / 1000)}s; aborted so the run is visible (see runtime logs)`.slice(0, 200) });
+      resolve(Response.json({ ok: false, job: JOB, error: "watchdog: sweep exceeded its time budget" }, { status: 500, headers: { "cache-control": "no-store" } }));
+    }, watchdogMs);
+  });
+  let res = null, crashed = null;
+  try { res = await Promise.race([sweep(sp, s, h, (row) => recordPulse(JOB, row), failed), watchdog]); } catch (e) { crashed = e; }
+  clearTimeout(timer);
+  // Safety net: a no-op when the sweep or the watchdog already pulsed; records
+  // a failed pulse if the sweep crashed or returned without writing one.
+  await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: (crashed ? "unhandled: " + String((crashed && crashed.message) || crashed) : "sweep ended without recording a pulse").slice(0, 200) });
+  return crashed ? Response.json({ ok: false, job: JOB, error: "unhandled sweep error" }, { status: 500, headers: { "cache-control": "no-store" } }) : res;
+}
+
+async function sweep(sp, s, h, pulse, failed) {
+
   const limit = Math.min(Math.max(parseInt(sp.get("limit") || "150", 10) || 150, 1), 400);
   // Oldest-checked first, never-checked before everything: a full 3,400-row
   // catalogue completes a sweep in ~2 weeks at 250/night, and every row a
@@ -70,12 +108,12 @@ export async function GET(req) {
   let rows;
   try {
     const r = await fetch(sel, { headers: h, cache: "no-store" });
-    if (!r.ok) return jobFailed(JOB, `unavailable: wf_experiences read failed (HTTP ${r.status})`);
+    if (!r.ok) return failed(`unavailable: wf_experiences read failed (HTTP ${r.status})`);
     rows = await r.json();
-  } catch { return jobFailed(JOB, "unavailable: wf_experiences read did not complete"); }
-  if (!Array.isArray(rows)) return jobFailed(JOB, "unavailable: wf_experiences returned a malformed worklist");
+  } catch { return failed("unavailable: wf_experiences read did not complete"); }
+  if (!Array.isArray(rows)) return failed("unavailable: wf_experiences returned a malformed worklist");
   if (!rows.length) {
-    await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no experiences due for checking" });
+    await pulse({ attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no experiences due for checking" });
     return Response.json({ ok: true, checked: 0 }, { headers: { "Cache-Control": "no-store" } });
   }
 
@@ -84,7 +122,7 @@ export async function GET(req) {
     concurrency: num("LINK_HEALTH_CONCURRENCY", 2) || 1,
     minGapMs: num("LINK_HEALTH_PACE_MS", 250),
     backoffBaseMs: num("LINK_HEALTH_BACKOFF_MS", 1000),
-    deadlineAt: started + 45000,
+    deadlineAt: started + num("LINK_HEALTH_PROBE_BUDGET_MS", PROBE_BUDGET_MS),
   });
   // Rows never reached before the deadline stay untouched (still oldest-checked,
   // so tomorrow's sweep starts with them).
@@ -93,7 +131,7 @@ export async function GET(req) {
   const probes = raw.filter((p) => p !== null);
   rows = rows.filter((_, i) => raw[i] !== null);
   if (!rows.length) {
-    await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: "deadline hit before any probe ran" });
+    await pulse({ attempted: 0, succeeded: 0, failed: 1, note: "deadline hit before any probe ran" });
     return Response.json({ ok: false, job: JOB, error: "deadline hit before any probe ran" }, { status: 500, headers: { "cache-control": "no-store" } });
   }
   const verdicts = probes.map((p) => p.verdict);
@@ -133,7 +171,7 @@ export async function GET(req) {
   const patch = async (filter, body) => {
     try {
       const r = await fetch(`${s.url}/rest/v1/wf_experiences?${filter}`, {
-        method: "PATCH", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(body), cache: "no-store",
+        method: "PATCH", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(body), cache: "no-store", signal: AbortSignal.timeout(8000),
       });
       return r.ok ? null : `patch-${r.status}`;
     } catch {
@@ -163,13 +201,13 @@ export async function GET(req) {
     // jobFailed truncates its prose reason to 180 chars. Keep the structured
     // diagnosis intact and the existing failure status/counters unchanged.
     const error = err ? `health-state persistence failed: ${err}` : "all provider probes were inconclusive";
-    await recordPulse(JOB, { attempted: rows.length, succeeded: 0, failed: 1,
+    await pulse({ attempted: rows.length, succeeded: 0, failed: 1,
       note: JSON.stringify({ ...(err ? { write: err } : {}), probes: pulseOutcomes }) });
     return Response.json({ ok: false, job: JOB, error, ranWork: true, attempted: rows.length, succeeded: 0, ...stats },
       { status: 500, headers: { "cache-control": "no-store" } });
   }
 
-  await recordPulse(JOB, {
+  await pulse({
     attempted: rows.length,
     succeeded: definitive,
     failed: buckets.unknown.length + buckets.deferred.length,
