@@ -8,6 +8,8 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { curatedFeedEventsWithFall, FALL_FEED_CACHE_VERSION } from "../lib/curatedFallFeed.js";
 import { processEvents } from "../lib/eventsPipeline.js";
+import { curatedToFeedEvent } from "../lib/curatedEvents.js";
+import { FALL_EVENT_IMAGE_HOLDS } from "../lib/fallEventImage.js";
 
 let n = 0;
 const check = (label, fn) => { n++; fn(); console.log(`  OK  ${label}`); };
@@ -76,6 +78,54 @@ check("/api/events shared cache key is versioned by the fall registry, so pre-me
   assert.match(FALL_FEED_CACHE_VERSION, /^[0-9a-z]{3,}$/);
   const lib = readFileSync("lib/curatedFallFeed.js", "utf8");
   assert.match(lib, /FALL_FEED_CACHE_VERSION = fnv1a\(JSON\.stringify\(\[FALL_DISCOVERIES_2026, FALL_FEATURED_FESTIVALS_2026, FALL_GAP_FILL_2026_10_07, FALL_FOOD_GAP_2026_10_08, (?:FALL_TAMPA_PICKS_2026_10_08, )?FALL_DB_SEED_VERSION\]\)\)/);
+});
+
+// 2026-10-14: the unified feed (/api/events, home Events rail, /events/[city]/[slug])
+// shipped image "" for every verified event with a place_id and no hero_image,
+// while the fall route and /florida-events derived the venue photo. These call
+// the real curatedToFeedEvent.
+const GOOGLE_ID = "ChIJ336If1rEwogRx-8ntTOjVvk";
+const baseRow = { event_id: "venue-photo-probe-2026", slug: "venue-photo-probe-2026", event_name: "Venue Photo Probe",
+  start_date: "2026-11-07", city: "Tampa", state: "FL", venue: "The Ritz Ybor" };
+
+check("feed: place_id and no hero resolves to the venue's own photo, flagged as a venue photo", () => {
+  const f = curatedToFeedEvent({ ...baseRow, place_id: GOOGLE_ID, hero_image: null });
+  assert.equal(f.image, `/api/photo?place=${GOOGLE_ID}&g=2&w=640`);
+  assert.equal(f.imageIsVenue, true);
+  assert.equal(f.visitFacts.image_is_venue, true);
+  assert.equal(f.visitFacts.place_id, GOOGLE_ID);
+});
+
+check("feed: an existing hero_image is never replaced and is not relabelled a venue photo", () => {
+  const f = curatedToFeedEvent({ ...baseRow, place_id: GOOGLE_ID, hero_image: "/events/owned/probe.webp" });
+  assert.equal(f.image, "/events/owned/probe.webp");
+  assert.equal(f.imageIsVenue, false);
+  assert.equal(f.visitFacts.image_is_venue, false);
+  const declared = curatedToFeedEvent({ ...baseRow, place_id: GOOGLE_ID, hero_image: "/events/owned/probe.webp", hero_image_kind: "venue" });
+  assert.equal(declared.image, "/events/owned/probe.webp");
+  assert.equal(declared.imageIsVenue, true, "a declared venue hero stays a venue photo");
+});
+
+check("feed: a slug or event id in place_id never becomes an /api/photo url (#1790)", () => {
+  for (const bad of ["venue-photo-probe-2026", "wfc:venue-photo-probe-2026", "ritz-ybor", "", null, undefined]) {
+    const f = curatedToFeedEvent({ ...baseRow, place_id: bad, hero_image: null });
+    assert.equal(f.image, "", `place_id ${JSON.stringify(bad)} produced ${f.image}`);
+    assert.equal(f.imageIsVenue, false);
+  }
+});
+
+check("feed: every FALL_EVENT_IMAGE_HOLDS event stays image-less even with a verified place_id", () => {
+  assert.ok(FALL_EVENT_IMAGE_HOLDS.size >= 4);
+  for (const id of FALL_EVENT_IMAGE_HOLDS) {
+    const f = curatedToFeedEvent({ ...baseRow, event_id: id, slug: id, place_id: GOOGLE_ID, hero_image: null });
+    assert.equal(f.image, "", `${id} is held but got ${f.image}`);
+    assert.equal(f.imageIsVenue, false);
+  }
+});
+
+check("feed: the venue photo is never written into the schema.org hero column", () => {
+  const f = curatedToFeedEvent({ ...baseRow, place_id: GOOGLE_ID, hero_image: null });
+  assert.equal(f.visitFacts.hero_image, null);
 });
 
 console.log(`test-events-fall-feed-image: ${n} checks passed`);
