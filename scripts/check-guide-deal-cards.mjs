@@ -124,7 +124,7 @@ ok(/io\.unobserve\(|io\.disconnect\(/.test(cardCode), "the observer is never det
 // The page must live-gate before rendering, and must not invent a href.
 ok(/couponIsLive\(/.test(pageCode), "page.js does not live-gate deal cards — an expired offer could render");
 ok(!/https?:\/\//.test(cardCode.replace(/rel=|noopener|nofollow|sponsored/g, "")), "GuideDealCards contains a literal URL — hrefs must come from the registry only");
-ok(/url:\s*c\.url/.test(pageCode), "page.js does not pass the registry url through untouched");
+ok(/url:\s*\(guideDealCommerce\(c\.url\)\s*\|\|\s*\{\}\)\.href\s*\|\|\s*c\.url/.test(pageCode), "page.js must pass the registry url through, relabelling only the surface of our own redirect via guideDealCommerce (behaviour proven in test-guide-commerce-measurement)");
 
 // Rain check on the social-proof fix: inventory is tried before the live API.
 ok(/inventorySocial\(/.test(pageCode), "social proof no longer consults our own inventory");
