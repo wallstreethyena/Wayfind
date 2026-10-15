@@ -2233,3 +2233,10 @@ node scripts/test-hero-impression-rendered.mjs
 
 # 2026-10-14 canonical Florida anchor-event list (data/florida-anchor-events.json): schema, unique ids, rails exist, region/domain/event_id rules + negative controls.
 node scripts/check-anchor-events.mjs
+# 2026-10-14 anchor watch: daily Florida anchor-event watcher; each finding kind has a positive and a negative control (403 = unknown, never cancelled).
+node scripts/test-anchor-watch.mjs
+node scripts/test-anchor-workflow-gate.mjs
+# 2026-10-14 anchor fix path: reviewed edits only (allowlist, https source, FL bbox); refusals make no request; dry run never PATCHes.
+node scripts/test-anchor-apply.mjs
+# 2026-10-14 anchor-watch alarm: runs the REAL SQL staleness evaluator (throwaway Postgres, parsed tolerance) and the real job-watch classifier on a real watch.mjs failure pulse. --sql-optional: Vercel's build container has no Postgres server; CI does.
+node scripts/test-anchor-watch-heartbeat.mjs --sql-optional

@@ -12,5 +12,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1776",
     "reason": "Soft-excludes the duplicate 'Downtown, Winter Haven, Fl' pin (ChIJr9OaGuES3YgRCkHnqB00tbo) as duplicate_of the 'Downtown Winter Haven' keeper (ChIJ_wzoOQAT3YgR5o8e69WR3UU); same Downtown Historic District, 87 m apart. Nothing deleted. Reverse: supabase/data-fixes/20261014_winter_haven_downtown_twin_REVERSE.sql. Written with read-only DB access; owner approved conditionally; orchestrator applies after review. Not applied."
+  },
+  {
+    "file": "supabase/migrations/20261014120000_wf_heartbeat_anchor_watch.sql",
+    "sha256": "d4be30686a0ac1236bba8f16010a7541e5c29802ee813a4d03c2d71a62d66c87",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1752",
+    "reason": "One wf_heartbeat_expected row (anchor-watch, 48h) so heartbeat-watch pages if the daily anchor watcher goes silent. Insert-only, no schema change. Apply only after #1752 merges and the workflow is approved; applying earlier would page on a job that cannot run yet."
   }
 ]
