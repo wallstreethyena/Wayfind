@@ -43,7 +43,7 @@ export { hasBookingCTA };
 // these by truthiness, so a frozen empty shape is the whole contract.
 const NO_TARGETS = Object.freeze({ verifiedUrl: null, goFallback: false, tk: null, tu: null, fallbackSuppressed: null });
 
-export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp }) {
+export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp, commerceSurface }) {
   // Hooks for the list-variant impression observer. Must be declared before any
   // conditional return so React's hook order stays stable across renders.
   const listRootRef = useRef(null);
@@ -120,7 +120,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         seen.add(id);
         try {
           emitCommerce("commerce_impression", hotelImpression ? {
-            surface: "detail_primary",
+            surface: commerceSurface || "detail_primary",
             provider: "stay22",
             offer_id: id,
             city_id: listCity || null,
@@ -142,7 +142,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     if (hotelImpression) io.observe(root);
     else for (const el of root.querySelectorAll("[data-offer]")) io.observe(el);
     return () => { try { io.disconnect(); } catch (er) {} };
-  }, [variant, hasTours, listCity, detailId, kind, hotelImpression, hotelOfferId]);
+  }, [variant, hasTours, listCity, detailId, kind, hotelImpression, hotelOfferId, commerceSurface]);
 
   if (!detail) return null;
 
@@ -221,7 +221,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
             : primaryPlaceId;
           try {
             emitCommerce("commerce_cta_clicked", {
-              surface: "detail_primary",
+              surface: (tu.startsWith("/api/hotels/go?") && commerceSurface) || "detail_primary",
               provider: tu.startsWith("/api/hotels/go?") ? "stay22" : "viator",
               offer_id: offerId,
               city_id: primaryCity || null,
