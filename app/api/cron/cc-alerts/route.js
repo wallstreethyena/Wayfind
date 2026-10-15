@@ -257,7 +257,8 @@ export async function GET(req) {
   let sent = {};
   if (s) sent = (await settingsGet(s, "cc_alerts_sent")) || {};
   const due = actionable.filter((a) => {
-    const last = Date.parse(sent[a.id] || 0) || 0;
+    // dedupeKey (optional) lets an alert cool down per variant, e.g. per quota band; default stays the id.
+    const last = Date.parse(sent[a.dedupeKey || a.id] || 0) || 0;
     return now.getTime() - last > (COOLDOWN_MS[a.severity] || COOLDOWN_MS.warn);
   });
   if (!due.length) {
@@ -269,7 +270,7 @@ export async function GET(req) {
   const from = resolveOverride("WF_ALERT_FROM").value;
   const { ok, r } = await deliverAlerts({ resendKey, from, to, due, now });
   if (ok && s) {
-    for (const a of due) sent[a.id] = now.toISOString();
+    for (const a of due) sent[a.dedupeKey || a.id] = now.toISOString();
     // prune entries older than 7 days so the blob stays tiny
     for (const [id, ts] of Object.entries(sent)) { if (now.getTime() - Date.parse(ts) > 7 * 86400000) delete sent[id]; }
     await settingsPut(s, "cc_alerts_sent", sent);
