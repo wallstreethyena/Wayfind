@@ -22,7 +22,7 @@
 // No real network, no real Supabase, no secrets.
 
 import { readFileSync } from "node:fs";
-import { runBackfill, isReplayEligible, selectReplaySlice, describeReplay, REPLAY_SOURCE_REF } from "../lib/placePhotoBackfill.js";
+import { runBackfill, isReplayEligible, selectReplaySlice, describeReplay, replayPhotoPassesPrecision, REPLAY_SOURCE_REF, REPLAY_SOURCE_REFS, REPLAY_RETRY_CUTOFF_MS } from "../lib/placePhotoBackfill.js";
 import { isUnavailableReason } from "../lib/commonsPhotos.js";
 import { isDeterministicFailureNote } from "../lib/jobPulse.js";
 
@@ -33,7 +33,7 @@ const eq = (a, b, m) => { if (a !== b) fail(m + ` (got ${JSON.stringify(a)}, exp
 
 const SB = { url: "https://replay-test.invalid", key: "test-key" };
 
-function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStatus = null } = {}) {
+function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStatus = null, repairQueue = [] } = {}) {
   const table = new Map(existingRows.map((r) => [r.place_id, { ...r }]));
   const upsertCalls = [];
   const gets = [];
@@ -41,6 +41,9 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStat
   globalThis.fetch = async (url, init) => {
     const u = String(url);
     const method = (init && init.method) || "GET";
+    if (u.startsWith(SB.url + "/rest/v1/wf_photo_repair_queue")) {
+      return { ok: true, json: async () => repairQueue };
+    }
     if (u.startsWith(SB.url + "/rest/v1/wf_photo_at_risk")) {
       return { ok: true, json: async () => atRisk };
     }
@@ -58,11 +61,11 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStat
     }
     if (u.startsWith(SB.url + "/rest/v1/wf_place_photo") && method === "GET") {
       gets.push(u);
-      if (u.includes("source_ref=eq.") && replayFailStatus != null) {
+      if (u.includes("source_ref=in.(") && replayFailStatus != null) {
         return { ok: false, status: replayFailStatus, json: async () => ({}) };
       }
       const rows = [...table.values()];
-      if (u.includes("source_ref=eq.")) {
+      if (u.includes("source_ref=in.(")) {
         return { ok: true, json: async () => rows.filter(isReplayEligible) };
       }
       return { ok: true, json: async () => rows };
@@ -85,14 +88,14 @@ function makeDb({ atRisk = [], inventory = [], existingRows = [], replayFailStat
   };
 }
 
-const PHOTO = (id) => ({
+const PHOTO = (id, name) => ({
   image_url: `https://upload.wikimedia.org/wikipedia/commons/${id}.jpg`,
   width: 800,
   height: 600,
   license: "cc-by-sa-4.0",
   attribution_text: "Jane Doe — CC BY-SA 4.0, via Wikimedia Commons",
   attribution_url: `https://commons.wikimedia.org/wiki/File:${id}.jpg`,
-  source_ref: `File:${id}.jpg`,
+  source_ref: `File:${name ? name.replace(/ /g, "_") + "_" : ""}${id}.jpg`,
   match_confidence: 0.9,
 });
 
@@ -176,7 +179,7 @@ function inv(place_id, name) {
     resolvePhoto: async (place) => {
       resolveCalls++;
       eq(place.place_id, ID, "R1: the replayed place_id is the legacy row");
-      return PHOTO(ID);
+      return PHOTO(ID, "Legacy Place");
     },
     storePhoto: async () => ({ stored: true, storagePath: ID + "/hash.jpg" }),
     dryRun: false,
@@ -187,7 +190,7 @@ function inv(place_id, name) {
   eq(result.active, 1, "R1: success converts the same row to active");
   const written = db.upsertCalls.find((r) => r.place_id === ID && r.status === "active");
   ok(!!written, "R1: the existing place_id was upserted as status=active — same row, not a second pipeline");
-  eq(written && written.source_ref, PHOTO(ID).source_ref, "R1: source_ref is the Commons file, not rejected:*");
+  eq(written && written.source_ref, PHOTO(ID, "Legacy Place").source_ref, "R1: source_ref is the Commons file, not rejected:*");
 }
 
 {
@@ -361,7 +364,7 @@ function inv(place_id, name) {
     limit: 5,
     source: "all",
     sbEnv: SB,
-    resolvePhoto: async () => PHOTO(ID),
+    resolvePhoto: async () => PHOTO(ID, "Vault Me Replay"),
     storePhoto: async (input, deps) => {
       storeCalls.push({ input, deps, row: db.table.get(input.placeId) });
       return { stored: true, storagePath: ID + "/hash.jpg" };
@@ -374,7 +377,7 @@ function inv(place_id, name) {
   eq(storeCalls.length, 1, "R7: storePhoto (the EXISTING vault) was called exactly once");
   ok(storeCalls[0] && storeCalls[0].row && storeCalls[0].row.status === "active", "R7: the vault ran AFTER the same wf_place_photo row was already active");
   eq(storeCalls[0] && storeCalls[0].input.source, "wikimedia", "R7: vault source is wikimedia — no parallel SEO tree, no Google bytes");
-  eq(storeCalls[0] && storeCalls[0].input.sourceUrl, PHOTO(ID).image_url, "R7: vault sourceUrl is the Commons origin url");
+  eq(storeCalls[0] && storeCalls[0].input.sourceUrl, PHOTO(ID, "Vault Me Replay").image_url, "R7: vault sourceUrl is the Commons origin url");
   const detail = (result.details || []).find((d) => d.placeId === ID);
   ok(detail && detail.replay === true && detail.vaulted === true, "R7: details mark the recovery as replay+vaulted");
 }
@@ -533,8 +536,148 @@ function inv(place_id, name) {
   }
 }
 
+// ── 2026-10-15 cohort widening: allow-list, retry-once cutoff, demand order, precision ──
+{
+  const before = "2026-10-01T00:00:00.000Z";
+  const after = "2026-10-15T03:00:00.000Z";
+  const R = (source_ref, verified_at, status = "rejected") => ({ status, source_ref, verified_at });
+  eq(REPLAY_SOURCE_REFS.length, 3, "C0: the allow-list is exactly 3 refs (legacy + 2)");
+  for (const ref of ["rejected:commons_identity_no_geo_or_city", "rejected:no_lead_image"]) {
+    ok(isReplayEligible(R(ref, before)), `C1: ${ref} is eligible once before the cutoff`);
+    ok(!isReplayEligible(R(ref, after)), `C2: ${ref} is NOT eligible after the cutoff (a re-miss rewrites verified_at and drops out)`);
+    ok(!isReplayEligible(R(ref, "")), `C2: ${ref} with no verified_at fails closed`);
+    ok(!isReplayEligible(R(ref, before, "active")), `C2: an active ${ref} row is never eligible`);
+  }
+  ok(isReplayEligible(R(REPLAY_SOURCE_REF, after)), "C3: the legacy ref keeps its original no-cutoff semantics");
+  for (const ref of [
+    "rejected:commons_identity_title_mismatch", "rejected:commons_identity_branch_mismatch", "rejected:commons_identity_name_mismatch",
+    "rejected:identity_chain_brand", "rejected:commons_identity_geo_mismatch", "rejected:no_direct_commons_candidate",
+    "rejected:license_non_free_license", "rejected:replay_precision_off_subject", "rejected:no_lead_image_x",
+    "File:Some_Photo.jpg", "File:rejected:no_lead_image", "",
+  ]) {
+    ok(!isReplayEligible(R(ref, before)), `C4: ${JSON.stringify(ref)} is never eligible, even before the cutoff`);
+  }
+  ok(Date.parse("2026-10-15T00:00:00Z") === REPLAY_RETRY_CUTOFF_MS, "C5: the cutoff constant is the checked-in 2026-10-15T00:00:00Z");
+}
+
+{
+  const rows = ["a", "b", "c", "d", "e", "f"].map((c) => ({ place_id: c, verified_at: "2026-09-01T00:00:00.000Z" }));
+  const rank = new Map([["e", 0], ["c", 1]]);
+  const got = selectReplaySlice(rows, { limit: 4, now: 0, demandRank: rank }).map((r) => r.place_id);
+  eq(JSON.stringify(got.slice(0, 2)), JSON.stringify(["e", "c"]), "D1: repair-queue rows come first, in detections-desc rank order");
+  eq(got.length, 4, "D1: the window is still `limit` rows");
+  ok(got.slice(2).every((id) => !rank.has(id)), "D1: the remainder is non-queue rows");
+  const plain = selectReplaySlice(rows, { limit: 4, now: 0 }).map((r) => r.place_id);
+  eq(JSON.stringify(plain), JSON.stringify(["a", "b", "c", "d"]), "D2: with no demandRank the order is byte-identical to the old one");
+}
+
+{
+  const HOT = "hotqueued00000000001";
+  const COLD = "coldlead000000000002";
+  const OLD = "2026-10-01T00:00:00.000Z";
+  const db = makeDb({
+    inventory: [inv(COLD, "Cold Lead Park"), inv(HOT, "Hot Queued Park")],
+    existingRows: [
+      { ...replayRow(COLD, { verified_at: "2026-09-01T00:00:00.000Z" }), source_ref: "rejected:no_lead_image" },
+      { ...replayRow(HOT, { verified_at: OLD }), source_ref: "rejected:commons_identity_no_geo_or_city" },
+    ],
+    repairQueue: [{ place_id: HOT, detections: 9 }],
+  });
+  const order = [];
+  const result = await runBackfill({
+    limit: 1,
+    source: "all",
+    sbEnv: SB,
+    resolvePhoto: async (place, deps) => {
+      order.push(place.place_id);
+      deps.onReject("no_lead_image");
+      return null;
+    },
+    dryRun: false,
+  });
+  db.restore();
+  eq(order[0], HOT, "D3: through runBackfill, the repair-queue row is attempted before an older non-queue row");
+  const filed = db.upsertCalls.find((r) => r.place_id === HOT);
+  ok(filed && filed.source_ref === "rejected:no_lead_image", "D3: a re-miss rewrites the row");
+  ok(filed && Date.parse(filed.verified_at) >= REPLAY_RETRY_CUTOFF_MS, "D3 (RETRY-ONCE): the re-miss rewrote verified_at past the cutoff");
+  ok(!isReplayEligible(db.table.get(HOT)), "D3: the rewritten row is no longer replay-eligible — it drops out naturally");
+  eq(result.rejected, 1, "D3: counted as a definitive rejection");
+}
+
+{
+  const ID = "extradefer000000001";
+  const db = makeDb({
+    inventory: [inv(ID, "Deferred Park")],
+    existingRows: [{ ...replayRow(ID), source_ref: "rejected:no_lead_image" }],
+  });
+  await runBackfill({
+    limit: 3,
+    source: "all",
+    sbEnv: SB,
+    resolvePhoto: async (_p, deps) => {
+      deps.onReject("unavailable_lead_image");
+      return null;
+    },
+    dryRun: false,
+  });
+  db.restore();
+  eq(db.upsertCalls.length, 0, "D4: a transport defer on an extra-cohort row writes NOTHING (no verified_at bump would burn its single retry; no ref clobbering to no_wiki_candidate)");
+}
+
+{
+  const ID = "tightenaccept00001";
+  const mk = (name, ref, conf = 0.95) => ({ ...PHOTO("x"), source_ref: ref, match_confidence: conf, _n: name });
+  const okCase = replayPhotoPassesPrecision({ name: "Discovery Cove" }, mk("", "File:Discovery_Cove_entrance.jpg"));
+  ok(okCase.ok, "T1: a title carrying every name token is accepted");
+  const bird = replayPhotoPassesPrecision({ name: "Discovery Cove" }, mk("", "File:Discovery_Cove_scarlet_ibis_bird.jpg"));
+  ok(!bird.ok && /off_subject/.test(bird.reason), "T2: an off-topic (bird) file is refused");
+  const partial = replayPhotoPassesPrecision({ name: "Discovery Cove" }, mk("", "File:Discovery_Channel_logo.jpg"));
+  ok(!partial.ok && /name_token_missing/.test(partial.reason), "T3: a file missing a (generic) name token is refused");
+  ok(!replayPhotoPassesPrecision({ name: "Discovery Cove" }, mk("", "File:Discovery_Cove.jpg", 0.7)).ok, "T4: weak confidence is refused");
+  ok(!replayPhotoPassesPrecision({ name: "Discovery Cove" }, mk("", "https://x/y.jpg")).ok, "T4: a non-File ref is refused");
+  ok(replayPhotoPassesPrecision({ name: "Bird Key Park" }, mk("", "File:Bird_Key_Park_sign.jpg")).ok, "T5: a name that itself contains the word is not vetoed");
+
+  const db = makeDb({
+    inventory: [inv(ID, "Discovery Cove")],
+    existingRows: [{ ...replayRow(ID), source_ref: "rejected:commons_identity_no_geo_or_city" }],
+  });
+  const result = await runBackfill({
+    limit: 3,
+    source: "all",
+    sbEnv: SB,
+    resolvePhoto: async () => ({ ...PHOTO(ID), source_ref: "File:Scarlet_ibis_bird_Discovery_Cove.jpg" }),
+    storePhoto: async () => ({ stored: true }),
+    dryRun: false,
+  });
+  db.restore();
+  eq(result.active, 0, "T6: through runBackfill, the off-topic replay match is NOT activated");
+  eq(result.rejected, 1, "T6: it is filed as a terminal rejection");
+  const f = db.upsertCalls.find((r) => r.place_id === ID);
+  ok(f && f.status === "rejected" && /^rejected:replay_precision_/.test(f.source_ref), `T6: filed as rejected:replay_precision_* (got ${f && f.source_ref})`);
+  ok(!isReplayEligible(db.table.get(ID)), "T6: and that terminal reason is not replayable");
+}
+
+{
+  const ID = "repairleftover0000001";
+  const db = makeDb({
+    inventory: [inv(ID, "Leftover Park")],
+    existingRows: [{ ...replayRow(ID), source_ref: "rejected:no_lead_image" }],
+  });
+  let calls = 0;
+  await runBackfill({
+    limit: 5,
+    source: "repair",
+    sbEnv: SB,
+    resolvePhoto: async (_p, deps) => { calls++; deps.onReject("no_lead_image"); return null; },
+    dryRun: false,
+  }).catch(() => {});
+  db.restore();
+  eq(calls, 1, "L1: source=repair spends leftover budget on the replay cohort (hourly cron now drains it)");
+}
+
+
 if (failures) {
   console.error(`test-place-photo-replay: ${failures} FAILED`);
   process.exit(1);
 }
-console.log("test-place-photo-replay: OK — exact-ref replay, identity/license rejects untouched, one-shot terminal miss, fresh defer writes nothing, starvation-proof later batch (including canRequest=false), replay-read failure visible, successful replay vaults through the existing worker");
+console.log("test-place-photo-replay: OK — exact-ref replay, identity/license rejects untouched, one-shot terminal miss, fresh defer writes nothing, starvation-proof later batch (including canRequest=false), replay-read failure visible, successful replay vaults through the existing worker, widened allow-list + retry-once cutoff + demand-first order + replay precision gate + repair-source leftover drain");
