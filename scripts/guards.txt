@@ -2219,6 +2219,7 @@ node scripts/test-event-reminder-route.mjs
 node scripts/test-event-reminder-render.mjs
 node scripts/test-event-reminder-ics.mjs
 node scripts/test-photo-same-origin-spend.mjs
+node scripts/test-photo-monitor-surface.mjs
 node scripts/test-photo-recovered-evidence.mjs
 node scripts/test-photo-visitor-cap.mjs
 node scripts/test-photo-not-place-id.mjs
