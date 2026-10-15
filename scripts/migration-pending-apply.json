@@ -1,12 +1,5 @@
 [
   {
-    "file": "supabase/migrations/20261015120000_wf_photo_purchase.sql",
-    "sha256": "1aeed474de1e9b21fbe60617dc2b8e38c8d6d3fbabb862ab2fd2f1618ec38f2c",
-    "decision_owner": "wallstreethyena",
-    "tracking": "PR1 photo purchase log, PR number not yet assigned (#1769 placeholder, replace on open)",
-    "reason": "New observe-only table wf_photo_purchase (RLS on, no policies, service_role only) plus wf_photo_purchase_prune(). Writer lib/photoPurchaseLog.js is fail-soft: until applied, inserts 404 and resolve false with no effect on responses. Not applied; owner applies via scripts/apply-migration.mjs."
-  },
-  {
     "file": "supabase/migrations/20261014120000_winter_haven_downtown_twin.sql",
     "sha256": "edeb78fbf93819678dc500e52b6587f3d3915d5d3c59e4634ac7545b248c36db",
     "decision_owner": "wallstreethyena",
