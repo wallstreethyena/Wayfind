@@ -107,7 +107,7 @@ ok(/<PhotoPolicyProvider requireGoogleCredit>\{children\}<\/PhotoPolicyProvider>
 const strip = (p) => read(p).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
 ok(/if \(!pick\.image \|\| !photoSrcFilter\(pick\.image\)\) return false;/.test(strip("app/components/IntentPartnerPick.js")), "IntentPartnerPick drops a pick whose only image is a Google photo (structural: client fetch)");
 ok(/\{p\.photoRef && photoSrcFilter\("\/api\/photo\?ref="/.test(strip("app/components/ExploreBridge.js")), "ExploreBridge filters its thumbnail (structural: client island)");
-ok(/\{photoSrcFilter\(thumb\(selected\)\) \? <img src=\{photoSrcFilter\(thumb\(selected\)\)\}/.test(strip("app/components/EventVenueMap.js")), "EventVenueMap filters its pin-card thumbnail (structural: needs a map click)");
+ok(/\{photoSrcFilter\(thumb\(selected\)\) \? (?:<img|<span[^>]*><CardPhoto) src=\{photoSrcFilter\(thumb\(selected\)\)\}/.test(strip("app/components/EventVenueMap.js")), "EventVenueMap filters its pin-card thumbnail (structural: needs a map click)");
 
 // 5. Map-explorer spots: licensed photo with credit, else none; never Google.
 const calls = [];

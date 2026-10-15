@@ -181,8 +181,12 @@ for (const rel of PAGES) {
 {
   const rel = PAGES[0];
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/\}Google Maps<|>Google Maps\.|Google Maps<\/>|Google Maps\.<\/>/.test(src) || /Photo: <>[^]*Google Maps/.test(src),
-    "positive control: the visible Google Maps photo credit text is still rendered (as text, not a link)");
+  // 2026-10-14: the credit is decided in the browser from the photo that actually rendered (EventHeroCredit), so a Google photo
+  // carries the SAME author + "Google Maps" credit links the card viewer shows; it exists only while a photo is visible, and the
+  // synthetic event-apple-maps scenario excludes anchors inside [data-event-hero-credit] (the navigation link stays Apple Maps).
+  const credit = stripComments(readFileSync(join(ROOT, "app/components/EventHeroPhotoContext.js"), "utf8"));
+  ok(/<PhotoCreditLink[^>]*href=\{safe\(c\.mapsUri\)\}[^>]*>Google Maps<\/PhotoCreditLink>/.test(credit) && /data-event-hero-credit/.test(credit),
+    "positive control: the visible Google Maps photo credit is still rendered (EventHeroCredit, inside [data-event-hero-credit])");
   for (const [label, from, to] of [
     ["a map search assigned to directions", "const dirs = appleDirectionsUrl(e);", 'const dirs = "https://www.google.com/maps/search/?api=1&query=Sarasota";'],
   ]) {

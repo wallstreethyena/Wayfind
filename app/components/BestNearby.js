@@ -23,6 +23,7 @@ import { fetchTodaysBest, fetchThingsToDo, tbPhotoUrl, byVisibleScore, daypartCo
 import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav, RailDots } from "./RailCard";
+import CardPhoto from "./CardPhoto.js";
 // v7.05 — the four intent rails (hidden gems / tonight / worth the drive /
 // big fun small budget) render the SAME card from the SAME engine their
 // destination pages use. See IntentRail.js for why this is the real list and
@@ -107,7 +108,7 @@ function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOn
     <>
       <Medal i={i} />
       <div style={{ width: 46, height: 46, borderRadius: 9, overflow: "hidden", flexShrink: 0, background: C.card }}>
-        {thumb && <img src={thumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+        {thumb && <CardPhoto src={thumb} alt="" compact style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>

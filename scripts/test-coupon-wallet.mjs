@@ -32,7 +32,8 @@ ok(/overflowX: "clip"/.test(src) && /maxWidth: "100%"/.test(src), "the screen ex
 //   inferred, so a mismatched photo requires a wrong registry row, which is
 //   what the registry evidence rules govern.
 {
-  const imgs = src.match(/<img\b/g) || [];
+  // The thumb is a CardPhoto (the credited lane: a bare /api/photo <img> 404s for a Google-only photo, 2026-10-14); it is still ONE slot.
+  const imgs = src.match(/<img\b|<CardPhoto\b/g) || [];
   ok(imgs.length === 1, `exactly ONE image slot — the venue thumb (got ${imgs.length}); a second is the poster-rail creep the old ban existed for`);
   ok(!/next\/image|<Image\b|dealArtwork\(/.test(src), "no next/image pipeline and no dealArtwork call — the poster-band system stays out of the wallet");
   ok(/\/api\/photo\?ref=.*encodeURIComponent\(c\.venuePhotoRef\)/.test(src),

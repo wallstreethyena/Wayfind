@@ -22,6 +22,7 @@
 // brand accent (#F97316) instead of a near-duplicate orange, and more
 // consistent vertical rhythm so the eye has fewer places to stop.
 import { useEffect, useRef, useState } from "react";
+import CardPhoto from "../CardPhoto.js";
 import { parseCouponValue } from "../../../lib/couponValue";
 import { COUPONS, couponIsLive } from "../../../lib/coupons";
 import { siteTodayStr } from "../../../lib/siteTime";
@@ -169,10 +170,10 @@ function CouponCard({ c, position, ctx }) {
               market-level rows only), else the explicit category emoji on the
               place-card monogram surface. */}
           {(effectiveThumb || thumbIcon) ? (
-            <div aria-hidden="true" style={{ minWidth: 0, height: "100%", overflow: "hidden", display: "grid", placeItems: "center", background: "radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%)", boxShadow: "inset -1px 0 rgba(159,177,203,.1)" }}>
+            <div style={{ position: "relative", minWidth: 0, height: "100%", overflow: "hidden", display: "grid", placeItems: "center", background: "radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%)", boxShadow: "inset -1px 0 rgba(159,177,203,.1)" }}>
               {effectiveThumb
-                ? <img src={effectiveThumb} alt="" loading="lazy" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
-                : <span style={{ fontSize: 30, lineHeight: 1 }}>{thumbIcon}</span>}
+                ? <CardPhoto src={effectiveThumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                : <span aria-hidden="true" style={{ fontSize: 30, lineHeight: 1 }}>{thumbIcon}</span>}
             </div>
           ) : null}
           <div style={{ minWidth: 0, display: "flex", flexDirection: "column", padding: "13px 14px 12px" }}>

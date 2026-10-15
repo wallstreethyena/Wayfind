@@ -163,7 +163,7 @@ const ORIGIN = { lat: 25.7272, lng: -80.2578, city: "Miami", place_id: "p2" };
 
 // 6. SOURCE — the visual event cards keep the events-never-scored rule.
 const hub = readFileSync(path.join(ROOT, "app/florida-events/page.js"), "utf8");
-ok(/e\.hero_image/.test(hub) && /<img/.test(hub), "the hub renders the event's hero image (visual place card)");
+ok(/e\.hero_image/.test(hub) && /<img|<CardPhoto/.test(hub), "the hub renders the event's hero image (visual place card)");
 ok(/dateRangeLabel\(e\)/.test(hub), "the hub card badge is the DATE (dateRangeLabel)");
 ok(!/PlaceScoreChip|wayfindScore\s*\(/.test(hub), "the hub never renders a Wayfind Score on an event card — an event is dated, not quality-ranked");
 

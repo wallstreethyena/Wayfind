@@ -141,7 +141,7 @@ ok(D.dealArtwork({ image: "https://merchant.example/x.jpg" }) === null, "a remot
 // location-verified photoRef via our /api/photo proxy, or the row's explicit
 // icon). The deep assertions live in test-coupon-wallet.mjs + check-clipp-deals;
 // here the structural claim is: one slot, no artwork-band pipeline.
-ok((code.match(/<img\b/g) || []).length === 1 && !/CouponThumb|<Image\b|dealArtwork\(/.test(code),
+ok((code.match(/<img\b|<CardPhoto\b/g) || []).length === 1 && !/CouponThumb|<Image\b|dealArtwork\(/.test(code),
   "the coupon wallet renders exactly ONE data-driven venue thumb and no poster/artwork pipeline");
 {
   const { DEAL_SHEET_INTERNALS } = D;

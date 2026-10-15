@@ -207,7 +207,9 @@ ok(creatorMetadata("someone-with-no-page").robots.index === false, "a handle wit
 {
   ok(html.includes("cindy-selects-portrait-760.jpg"), "Cindy hero uses the supplied portrait");
   ok(html.includes('aria-label="Bradenton posts"'), "city posts render in a labeled horizontal rail that supports both photos and videos");
-  ok(html.includes('/api/photo?place='), "video covers request the actual place photo");
+  // 2026-10-14: a Google place photo is only served to a credited surface, and a cover has nowhere to print the credit,
+  // so the cover never carries a bare /api/photo <img> (it 404'd for every Google-only place); the branded cover shows.
+  ok(!/<img[^>]+src="\/api\/photo/.test(html) && !html.includes('poster="/api/photo'), "video covers never emit a bare /api/photo <img> (credited lane only)");
   ok(/aria-pressed="true"[^>]*><img[^>]*><span>All places/.test(html), "All places is selected on initial render");
   const { createCreatorAppleMap, creatorMapGlyph } = await import("../lib/creatorAppleMap.js");
   ok(html.includes("Cindy Selects · Video guide"), "creator portrait fallback identifies itself as a video guide, never a venue photo");

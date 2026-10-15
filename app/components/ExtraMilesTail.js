@@ -15,6 +15,7 @@
 // /places/<id> page the API already proved exists.
 import { useEffect, useState } from "react";
 import { captureOrQueue } from "../../lib/browserAnalytics";
+import CardPhoto from "./CardPhoto.js";
 
 const CSS = `
 .wf8-xm{margin:18px 0 4px;padding:14px 0 0;border-top:1px dashed var(--wf8-line,rgba(148,163,184,.35))}
@@ -73,8 +74,10 @@ export default function ExtraMilesTail({ lat, lng }) {
               {/* The API already proved this photo serves from cache; if the
                   world changes between that check and this paint, hide the
                   broken glyph rather than show a wrong picture. */}
-              <img src={c.image} alt={c.title} loading="lazy" decoding="async"
-                onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (_) {} }} />
+              <div style={{ position: "relative", aspectRatio: "16/10", background: "#1e293b" }}>
+                <CardPhoto src={c.image} alt={c.title} decoding="async" style={{ width: "100%", height: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block" }}
+                  onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (_) {} }} />
+              </div>
               <div className="wf8-xm-b">
                 <span className="wf8-xm-k">{c.drive} · {c.distMi} mi</span>
                 <span className="wf8-xm-n">{c.title}</span>

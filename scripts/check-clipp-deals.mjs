@@ -246,7 +246,7 @@ for (const c of clipps) {
   // /api/photo proxy, with the row's explicit icon as fallback. Paid and free
   // cards run the identical code path — divergence now requires a registry row,
   // not a renderer branch. test-coupon-wallet.mjs holds the deeper assertions.
-  ok((code.match(/<img\b/g) || []).length === 1 && !/next\/image|<Image\b|dealArtwork\(/.test(code),
+  ok((code.match(/<img\b|<CardPhoto\b/g) || []).length === 1 && !/next\/image|<Image\b|dealArtwork\(/.test(code),
     "the coupon screen has exactly ONE image slot (the venue thumb) and no artwork-band pipeline — paid and free cards share the identical path");
   ok(/encodeURIComponent\(c\.venuePhotoRef\)/.test(code) && !/googleusercontent|maps\.googleapis/.test(code),
     "the thumb resolves through OUR /api/photo proxy from the row's own ref — never a remote image host");

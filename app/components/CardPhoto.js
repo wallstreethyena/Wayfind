@@ -38,6 +38,7 @@ function PhotoViewer({ photo, alt, close }) {
 
 // Drop-in image: ordinary owned/partner images stay ordinary. Only the photo
 // endpoint uses the credited JSON lane, after this image enters the viewport.
+// `missSrc` = an owned image to show instead of the tile once the lane has missed.
 // `compact` = a thumbnail too small to hold the source label (rail rows). The photo
 // then opens the same-photo larger view, which carries the full author credit
 // and the Google Maps link (Google allows this for thumbnails).
@@ -46,7 +47,7 @@ function PhotoViewer({ photo, alt, close }) {
 // never a broken glyph): pending = quiet tile, no photo / refused / network / decode
 // error = "Photo not available" tile. `fallbackIcon` / `fallbackCategory` only choose
 // the tile's art; they never reach the <img>.
-export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, ...props }) {
+export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, missSrc, ...props }) {
   const request = cardPhotoRequest(src);
   const anchor = useRef(null);
   const [answer, setAnswer] = useState(null);
@@ -88,6 +89,9 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     return <img {...props} src={src} alt={alt} style={style} onError={onError || (() => setRawFailed(src))} onLoad={onLoad} onClick={onClick} />;
   }
   const visible = !!photo && failed !== request;
+  // `missSrc`: an owned stand-in image for a slot that has always shown one (e.g. paid landing
+  // cards). Used only after the credited lane has answered "no photo"; never while pending.
+  if (!visible && failed === request && missSrc) return <img {...props} src={missSrc} alt={alt} style={style} />;
   // The viewer holds the exact {photo, credit} object of THIS request; a place
   // change makes viewer.request stale, so an old photo/credit pair can't render.
   const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer({ request, photo }); };

@@ -3,6 +3,7 @@
 // into one clear choice, two alternatives, and a lightweight local shortlist.
 // Attribution and the existing analytics event names intentionally stay intact.
 import { useEffect, useMemo, useState } from "react";
+import CardPhoto from "./CardPhoto.js";
 import { wayfindScore, governedWayfindScore } from "../../lib/wayfindScore.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { placeDecision, openStateBonus } from "../../lib/placePolicy.js";
@@ -259,7 +260,7 @@ function Photo({ place, width = 900, eager = false }) {
       : PHOTO_FALLBACKS[[...photoKey].reduce((sum, char) => sum + char.charCodeAt(0), 0) % PHOTO_FALLBACKS.length];
   if (curatedPhoto) return <img src={curatedPhoto} alt="" loading={eager ? "eager" : "lazy"} />;
   return place?.photoRef ? (
-    <img src={`/api/photo?ref=${encodeURIComponent(place.photoRef)}&g=2&w=${width}`} alt="" loading={eager ? "eager" : "lazy"} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }} />
+    <CardPhoto src={`/api/photo?ref=${encodeURIComponent(place.photoRef)}&g=2&w=${width}`} alt="" loading={eager ? "eager" : "lazy"} missSrc={fallback} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }} />
   ) : <img src={fallback} alt="" loading={eager ? "eager" : "lazy"} />;
 }
 
