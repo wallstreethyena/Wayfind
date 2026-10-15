@@ -141,7 +141,9 @@ ok(!/<ExplodingNearby[\s/>]/.test(BEST),
 // the pair).
 ok(!/\{ id: "trending", artStale/.test(RAILS_META),
   "the trending rail is flagged artStale again — either the art went stale (then unpin it in check-rail-art-matches-copy) or this flag is a mistake");
-ok(/!r\.artStale/.test(RAIL) && /artStale/.test(RAIL),
+// 2026-10-14: the track predicate moved to lib/posterSeasons.js railOnPosterTrack; follow it there, DaypartRail must call it.
+const POSTER_SEASONS_SRC = strip(read("lib/posterSeasons.js"));
+ok(/railOnPosterTrack\(r, siteTodayStr\(\)\)/.test(RAIL) && /r\.artStale/.test(POSTER_SEASONS_SRC),
   "DaypartRail no longer honors the artStale flag — the mechanism for pulling a stale tile must survive the trending tile's restoration");
 ok(!/<ExplodingNearby[\s/>]/.test(HOME),
   "the homepage does not remount the Exploding Trends accordion");
