@@ -2055,6 +2055,9 @@ node scripts/test-card-photo-viewer.mjs
 # Every image slot ends in a verified photo or the shared fallback tile: executes getPlacePhoto, railPhotoSrc,
 # CardPhoto, SafeImg and FallbackImg across the outcome matrix in Chromium (2026-10-14).
 node scripts/test-image-health.mjs
+# The operator image-health report (/api/health/photos imageHealth, lib/imageHealth): every field by CALL
+# against a fake PostgREST, per-field fail-soft, GET-only, limit=1 counts, zero googleapis requests (2026-10-14).
+node scripts/test-image-health-report.mjs
 node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
