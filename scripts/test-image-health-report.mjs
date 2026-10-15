@@ -133,6 +133,10 @@ eq(siteMidnightIso(new Date("2026-10-15T02:00:00Z")), "2026-10-14T04:00:00.000Z"
 {
   process.env.CRON_SECRET = "s3cret";
   process.env.SUPABASE_URL = "https://sb.test";
+  // The route prefers NEXT_PUBLIC_SUPABASE_URL over SUPABASE_URL. Vercel's build env defines it, which sent
+  // the route to the real host, tripped the non-Supabase guard below and returned 503 (production build
+  // failed 2026-10-14). Pin it so the test is the same in CI, locally and on Vercel.
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://sb.test";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "k";
   const { f, log } = makeFetch();
   const realFetch = globalThis.fetch;
