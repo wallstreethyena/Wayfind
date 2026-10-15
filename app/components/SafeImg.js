@@ -11,11 +11,15 @@
 //   error before hydration (server-rendered <img> that already failed) -> caught
 //                        on mount via img.complete && naturalWidth === 0
 //
+//   /api/photo place src -> CardPhoto inLink (JSON lane, nospend, no viewer: SafeImg slots sit in
+//                        tour / offer / hero links), never a bare <img>
 // The tile reuses the img's own `style`/`className`, so geometry (absolute fill,
 // 58px thumb, 96px strip) is unchanged. alt="" means decorative: the tile is
 // aria-hidden; a real alt becomes the tile's accessible name.
 import { useEffect, useRef, useState } from "react";
+import CardPhoto from "./CardPhoto.js";
 import PhotoFallbackTile from "./PhotoFallbackTile.js";
+import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 
 export default function SafeImg({ src, alt = "", style, className, icon, category, compact, fallbackStyle, onError, ...rest }) {
   const [failed, setFailed] = useState(null);
@@ -24,6 +28,12 @@ export default function SafeImg({ src, alt = "", style, className, icon, categor
     const el = ref.current;
     if (el && src && el.complete && el.naturalWidth === 0) setFailed(src);
   }, [src]);
+  // A Google place photo is served only through the credited lane (CardPhoto ->
+  // lib/photoAnswers). A bare <img src="/api/photo?..."> answers 404 for a place
+  // whose photo is Google-only, i.e. a broken-image icon (2026-10-14 event hero).
+  if (src && cardPhotoRequest(src)) {
+    return <CardPhoto inLink src={src} alt={alt} style={style} className={className} compact={compact ?? !(fallbackStyle || style?.position === "absolute")} fallbackIcon={icon} fallbackCategory={category} {...rest} />;
+  }
   if (!src || failed === src) {
     return <PhotoFallbackTile decorative={!alt} name={alt} icon={icon} category={category} compact={compact ?? true} caption={null} className={className} style={{ ...style, ...fallbackStyle }} />;
   }

@@ -12,6 +12,7 @@ import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 //
 // The answer box comes FIRST. Nobody wants 500 words before the date.
 import EventPlacePhoto from "../../components/EventPlacePhoto.js";
+import { EventHeroPhotoProvider, EventHeroCredit } from "../../components/EventHeroPhotoContext.js";
 import EventDetailShell from "../../components/EventDetailShell.js";
 import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
@@ -28,7 +29,6 @@ import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
-import PhotoCreditLink from "../../components/PhotoCreditLink";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
@@ -223,7 +223,8 @@ export default async function CuratedEventPage({ params }) {
   // The card's creator mark promises that the post is one tap away. Reuse the
   // event's already-cleared hero as the click-to-load cover so that promise is
   // visible before Instagram's third-party iframe is requested.
-  const socialPoster = heroSrc;
+  // A Google venue photo (/api/photo) cannot be a bare <img> cover (credited lane only), so it is not the creator-post cover.
+  const socialPoster = heroSrc && !heroSrc.startsWith("/api/photo") ? heroSrc : null;
   const socialPosterFallback = shots && shots.hero ? (e.hero_image || null) : null;
   const socialDetails = (post) => <>
     <div style={{ padding: "18px 16px 14px" }}>
@@ -276,6 +277,7 @@ export default async function CuratedEventPage({ params }) {
 
       </div>
       <EventSectionNav />
+      <EventHeroPhotoProvider src={heroSrc}>
       <EventDetailShell
         title={eventTitleWithYear(e.event_name, e.year)}
         facts={[
@@ -342,11 +344,11 @@ export default async function CuratedEventPage({ params }) {
         note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
         media={<>
       {shots && shots.hero ? (
-        <div className="wf-event-photo"><EventPlacePhoto priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
+        <div className="wf-event-photo"><EventPlacePhoto hero priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
-        <div className="wf-event-photo"><EventPlacePhoto priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
+        <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
       ) : venueImage ? (
-        <div className="wf-event-photo"><EventPlacePhoto priority src={venueImage} name={`${e.venue || e.event_name}, venue photo`} /></div>
+        <div className="wf-event-photo"><EventPlacePhoto hero priority src={venueImage} name={`${e.venue || e.event_name}, venue photo`} /></div>
       ) : e.christmas_rail ? (
         // A Christmas listing with no verified photo: the same labelled
         // illustration tile its card shows (lib/eventPlaceholder.js), never stock.
@@ -366,10 +368,18 @@ export default async function CuratedEventPage({ params }) {
         </div>
       ))}
         </>}
-        credit={shots && shots.credit ? <p style={S.credit}>
-          Photos: {shots.creditUrl ? <PhotoCreditLink style={S.link} href={shots.creditUrl} rel="nofollow noopener">{shots.credit}</PhotoCreditLink> : shots.credit}, shared with Wayfind for this listing.
-        </p> : eventImageIsVenue(e, heroSrc) ? <p style={S.credit}>Venue photo · {e.event_name} is not pictured.{heroSrc?.startsWith("/api/photo?") ? <> Photo: Google Maps.</> : e.photoAttr ? <> Photo: {e.photoAttrHref ? <PhotoCreditLink style={S.link} href={e.photoAttrHref}>{e.photoAttr}</PhotoCreditLink> : e.photoAttr}.</> : null}</p> : null}
+        credit={<EventHeroCredit
+          eventName={e.event_name}
+          isVenue={eventImageIsVenue(e, heroSrc)}
+          registryCredit={shots && shots.credit ? shots.credit : null}
+          registryCreditHref={shots && shots.credit && shots.creditUrl ? shots.creditUrl : null}
+          attr={e.photoAttr || null}
+          attrHref={e.photoAttrHref || null}
+          style={S.credit}
+          linkStyle={S.link}
+        />}
       />
+      </EventHeroPhotoProvider>
 
       {/* A Fall card that names a creator must pay that promise off before the
           map and nearby recommendations. The map can be more than a viewport

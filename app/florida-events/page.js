@@ -2,6 +2,7 @@ import { cachedCuratedEventList } from "../../lib/curatedEventsCache";
 import { eventCostSummary } from "../../lib/eventVisitFacts.js";
 import ReturnToWayfind from "../components/ReturnToWayfind";
 import ShareButton from "../components/ShareButton";
+import CardPhoto from "../components/CardPhoto.js";
 // v7.45 — The Florida Events hub. Server-rendered so crawlers read every card
 // and every date without executing JavaScript.
 //
@@ -151,7 +152,7 @@ export default async function FloridaEventsHub() {
             <a key={e.event_id} href={"/florida-events/" + e.slug} style={S.card}>
               <div style={S.imgWrap}>
                 {cardImage(e)
-                  ? <img src={cardImage(e)} alt="" loading="lazy" style={S.img} />
+                  ? <CardPhoto inLink src={cardImage(e)} alt="" style={S.img} fallbackCategory="events" />
                   : <div style={S.imgFallback} aria-hidden="true">{(e.short_title || e.event_name || "?").trim().charAt(0)}</div>}
                 <span style={S.badge}>{dateRangeLabel(e)}</span>
               </div>

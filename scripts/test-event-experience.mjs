@@ -69,6 +69,7 @@ function page(file) {
   if(spec.includes('SaveEventButton'))return {default:page('app/florida-events/[slug]/SaveEventButton.js')};
   if(spec.includes('ShareButton'))return {default:page('app/components/ShareButton.js')};
   if(spec.includes('EventPlacePhoto'))return {default:page('app/components/EventPlacePhoto.js')};
+  if(spec.includes('EventHeroPhotoContext'))return {EventHeroPhotoProvider:p=>p.children,EventHeroCredit:()=>null,useEventHeroPhoto:()=>null};
   if(spec.includes('EventVenueMapLoader'))return {default:p=>{mapPicks=p.picks;return React.createElement('div',{style:{height:420,display:'grid',placeItems:'center',background:'#17202b'}},'Map area · layout fixture');}};
   if(spec.includes('EventNearbyCards'))return {default:p=>{nearbyPicks=p.places;return null;}};
   if(spec.includes('EventMapPlaces'))return {default:page('app/components/EventMapPlaces.js')};

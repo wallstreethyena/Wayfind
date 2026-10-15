@@ -1078,8 +1078,9 @@ export const SCENARIOS = [
       ctx.ok("the reader is not looking at the 'map preview is unavailable' fallback", fallbackVisible === 0, 0, fallbackVisible);
       const appleLink = await page.locator('a[href^="https://maps.apple.com/?daddr="]').count().catch(() => 0);
       ctx.ok("the page's outbound navigation link opens Apple Maps directions", appleLink > 0, "> 0", appleLink);
-      const googleLink = await page.locator('a[href*="google.com/maps"]').count().catch(() => 0);
-      ctx.ok("no Google Maps link remains on the event page", googleLink === 0, 0, googleLink);
+      // The Google photo credit (author + "Google Maps", required beside a Google photo) lives in [data-event-hero-credit]; it is not navigation.
+      const googleLink = await page.evaluate(() => [...document.querySelectorAll('a[href*="google.com/maps"]')].filter((a) => !a.closest("[data-event-hero-credit]")).length).catch(() => 0);
+      ctx.ok("no Google Maps navigation link remains on the event page (the Google photo credit is the only allowed one)", googleLink === 0, 0, googleLink);
     },
   },
 

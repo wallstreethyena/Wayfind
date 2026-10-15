@@ -4,7 +4,7 @@ import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, dis
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
 import CardPhoto from "./components/CardPhoto";
-import { cardPhotoRequest } from "../lib/cardPhotoRequest.js";
+import { cardPhotoRequest, isApiPhotoSrc, photoPlaceIdFromSrc } from "../lib/cardPhotoRequest.js";
 import { rememberAuthReturn, consumeAuthReturn } from "../lib/authReturn.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
@@ -2686,7 +2686,11 @@ function eventCategory(e) {
   if (has(/\b(run|race|5k|10k|marathon|sport|tournament|yoga|fitness|cycling|golf)\b/)) return { icon: "🏃", iconName: "activity", short: "Active", color: "#38BDF8" };
   return seg;
 }
-function EventHeroBg({ image, acc, venue, near }) {
+function EventHeroBg({ image: imageProp, acc, venue, near }) {
+  // A Google venue photo (/api/photo) is never a bare <img> (404 without a credit surface): it goes
+  // straight to the credited lane below, by the place id the URL already names.
+  const proxyId = photoPlaceIdFromSrc(imageProp);
+  const image = isApiPhotoSrc(imageProp) ? null : imageProp;
   // v2.4: an event with no usable image borrows its venue's own Google photo
   // (one findPlace call per unique venue, cached 7 days on-device). The clean
   // gradient is the last resort, not the default.
@@ -2695,12 +2699,13 @@ function EventHeroBg({ image, acc, venue, near }) {
   const [altBy, setAltBy] = useState(null); // credit object for the live venue photo
   useEffect(() => {
     if (image && !bad) return;
-    if (!venue || alt !== null) return;
+    if ((!venue && !proxyId) || alt !== null) return;
     let off = false;
     // No on-device photo cache any more: the credited photo comes from the live
     // JSON endpoint (memoized per page session in lib/livePhoto), never stored.
     // Budget guardrail: at most 12 venue-photo lookups per device per day. Past
     // the cap we cache "none" and fall back to the gradient instead of spending.
+    // The per-device 12/day lookup budget applies to every venue-photo buy, proxy id or not.
     try {
       const bk = "wf_evimg_budget_" + new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
       const n = parseInt(localStorage.getItem(bk) || "0", 10) || 0;
@@ -2710,16 +2715,16 @@ function EventHeroBg({ image, acc, venue, near }) {
     (async () => {
       let url = "", credit = null;
       try {
-        const pl = await findPlace(venue, near);
+        const pl = proxyId ? { id: proxyId } : await findPlace(venue, near);
         const live = pl && pl.id ? await fetchLivePhoto(pl.id) : null;
         if (live) { url = live.src; credit = liveCreditFor({ _live: live }, live.src); }
       } catch (e) {}
-      try { logEventAnon("venue_photo_lookup", null, { venue: String(venue).slice(0, 60), hit: !!url }); } catch (e) {}
+      try { logEventAnon("venue_photo_lookup", null, { venue: String(venue || "").slice(0, 60), hit: !!url }); } catch (e) {}
       if (!off) { setAlt(url); setAltBy(credit); }
     })();
     return () => { off = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [image, bad, venue]);
+  }, [image, bad, venue, proxyId]);
   const usingAlt = !(image && !bad) && !!alt;
   const src = image && !bad ? image : (alt || "");
   if (src) {
@@ -3316,7 +3321,7 @@ function HooksBanner({ hooks, likedIds, totalLiked, onOpen, onLike, allPlaces, i
             >
               {/* Background: place photo or rich gradient fallback */}
               {photo
-                ? <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+                ? <CardPhoto src={photo} alt="" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
                 : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />
               }
               {/* Cinematic dark overlay — lighter at top, very dark at bottom */}
@@ -3787,9 +3792,9 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
       {h.brand
         ? <div style={{ position: "absolute", inset: 0, background: `linear-gradient(140deg, ${acc} 0%, ${acc}A6 34%, #0D1117 100%)` }}><svg width="190" height="190" viewBox="0 0 24 24" fill="#fff" style={{ position: "absolute", right: -26, bottom: -32, opacity: 0.12 }}><path fillRule="evenodd" clipRule="evenodd" d="M12 2C7.58 2 4 5.58 4 10c0 5.25 6.94 11.4 7.24 11.66a1.15 1.15 0 0 0 1.52 0C13.06 21.4 20 15.25 20 10c0-4.42-3.58-8-8-8Zm0 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5Z" /></svg></div>
         : tiles.length >= 2
-        ? <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 1.5 }}>{tiles.map((src, i) => <img key={i} src={src} alt="" loading="lazy" decoding="async" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />)}</div>
+        ? <div style={{ position: "absolute", inset: 0, display: "grid", gridTemplateColumns: "1fr 1fr", gridTemplateRows: "1fr 1fr", gap: 1.5 }}>{tiles.map((src, i) => <div key={i} style={{ position: "relative", minWidth: 0, minHeight: 0, overflow: "hidden" }}><CardPhoto src={src} alt="" compact decoding="async" draggable={false} style={{ width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} /></div>)}</div>
         : photo
-        ? <img src={photo} alt="" loading="lazy" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
+        ? <CardPhoto src={photo} alt="" decoding="async" draggable={false} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", pointerEvents: "none" }} />
         : <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}50 0%, #0D1117 100%)` }} />}
       <div style={{ position: "absolute", inset: 0, background: `linear-gradient(180deg, transparent 12%, ${acc}26 100%), linear-gradient(180deg, rgba(13,17,23,.32) 0%, rgba(13,17,23,.7) 38%, rgba(13,17,23,.93) 66%, #0D1117 100%)` }} />
       <div style={{ position: "absolute", ..._glow.p, width: 140, height: 140, background: `radial-gradient(circle at ${_glow.at}, ${acc}26 0%, transparent 65%)`, pointerEvents: "none" }} />
@@ -11837,8 +11842,10 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
           <div style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4 }}>
             {rail.items.map((d) => (
               <a key={d.id} href={d.href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { onLog("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
-                <div style={{ width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : d.photoRef ? `center/cover no-repeat url(/api/photo?ref=${encodeURIComponent(d.photoRef)}&g=2&w=600)` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
-                  {d.badge ? <span style={{ fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
+                <div style={{ position: "relative", overflow: "hidden", width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
+                  {/* A Google venue photo is a credited <img> (CardPhoto -> credited lane), never a CSS background-image of /api/photo. */}
+                  {!d.image && d.photoRef ? <CardPhoto inLink src={`/api/photo?ref=${encodeURIComponent(d.photoRef)}&g=2&w=600`} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                  {d.badge ? <span style={{ position: "relative", zIndex: 9, fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
                 </div>
                 <div style={{ padding: "8px 10px" }}>
                   <div style={{ fontSize: 12.5, fontWeight: 750, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{d.title}</div>

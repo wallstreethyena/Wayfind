@@ -47,6 +47,7 @@ import { track } from "../../lib/track";
 import { captureAttribution, decorateHref } from "../../lib/attribution";
 import { recordExposure } from "../../lib/experiment";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
+import CardPhoto from "./CardPhoto.js";
 
 // useLayoutEffect warns during SSR; useEffect never runs before paint. Pick per
 // environment — the choice is stable for the lifetime of the process, so this
@@ -153,7 +154,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
               style={S.card}
             >
               {p.photoRef && photoSrcFilter("/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240") ? (
-                <img src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240"} alt="" loading="lazy" width="82" height="82" style={{ width: 82, minHeight: 82, objectFit: "cover", display: "block", flex: "0 0 82px", background: "#161B22" }} />
+                <div style={{ position: "relative", width: 82, minHeight: 82, flex: "0 0 82px", background: "#161B22" }}><CardPhoto inLink src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240"} alt="" compact width="82" height="82" style={{ width: 82, height: "100%", minHeight: 82, objectFit: "cover", display: "block" }} /></div>
               ) : (
                 <div aria-hidden="true" style={{ width: 82, flex: "0 0 82px", background: "linear-gradient(135deg,#1b2735,#2c3e50)" }} />
               )}

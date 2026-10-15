@@ -12,6 +12,7 @@ import { C, PlaceScoreChip } from "./kit";
 import { discountDepthBonus, timeOfDayBonus } from "../../lib/experienceNowRank";
 import { siteHourFloat } from "../../lib/nowContext";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
+import CardPhoto from "./CardPhoto.js";
 
 const disclosureVersion = "partner-rail-v2";
 
@@ -262,7 +263,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
               style={{ flex: "0 0 200px", scrollSnapAlign: "start", borderRadius: 12, overflow: "hidden", border: `1px solid ${C.border}`, background: C.card, color: "inherit", textDecoration: "none" }}
             >
               <div data-bookable-card-media aria-hidden="true" style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-                <img src={pick.image} alt="" loading="lazy" decoding="async" onError={(event) => { const card = event.currentTarget.closest("a"); if (card) card.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover" }} />
+                <CardPhoto inLink src={pick.image} alt="" loading="lazy" decoding="async" onError={(event) => { const card = event.currentTarget.closest("a"); if (card) card.style.display = "none"; }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block", objectFit: "cover" }} />
                 <span data-partner-badge style={{ position: "absolute", top: 7, right: 7, zIndex: 1, padding: "3px 6px", borderRadius: 999, border: "1px solid rgba(255,255,255,.24)", background: "rgba(7,12,20,.82)", backdropFilter: "blur(8px)", color: "#fff", fontSize: 8.5, fontWeight: 800, lineHeight: 1.1, whiteSpace: "nowrap" }}>via {pick.merchant}</span>
               </div>
               <div style={{ padding: "8px 10px" }}>

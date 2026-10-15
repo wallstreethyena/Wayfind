@@ -38,6 +38,7 @@ function PhotoViewer({ photo, alt, close }) {
 
 // Drop-in image: ordinary owned/partner images stay ordinary. Only the photo
 // endpoint uses the credited JSON lane, after this image enters the viewport.
+// `missSrc` = an owned image to show instead of the tile once the lane has missed.
 // `compact` = a thumbnail too small to hold the source label (rail rows). The photo
 // then opens the same-photo larger view, which carries the full author credit
 // and the Google Maps link (Google allows this for thumbnails).
@@ -46,14 +47,21 @@ function PhotoViewer({ photo, alt, close }) {
 // never a broken glyph): pending = quiet tile, no photo / refused / network / decode
 // error = "Photo not available" tile. `fallbackIcon` / `fallbackCategory` only choose
 // the tile's art; they never reach the <img>.
-export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, ...props }) {
-  const request = cardPhotoRequest(src);
+export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, missSrc, inLink = false, ...props }) {
+  // `inLink`: the photo sits inside a tap target that navigates or redirects (a deal / commerce
+  // <a>, a row <button>). The parent's click must win and no <a> may nest inside it, so: no viewer,
+  // no preventDefault/stopPropagation, no credit anchor, and the lane is asked with nospend=1 so only
+  // Wayfind-owned / licensed free photos show there (a Google answer, which needs a visible credit, is
+  // treated as a miss). Google photos on commerce cards are a follow-up.
+  const baseRequest = cardPhotoRequest(src);
+  const request = baseRequest && inLink && !/[?&]nospend=1(?:&|$)/.test(baseRequest) ? baseRequest + "&nospend=1" : baseRequest;
   const anchor = useRef(null);
   const [answer, setAnswer] = useState(null);
   const [failed, setFailed] = useState(null);
   const [viewer, setViewer] = useState(null);
   const [rawFailed, setRawFailed] = useState(null);
-  const photo = answer?.request === request ? answer.photo : null;
+  const answered = answer?.request === request ? answer.photo : null;
+  const photo = inLink && answered?.source === "google" ? null : answered;
   useEffect(() => {
     setViewer(null);
     if (!request || !anchor.current) return;
@@ -63,8 +71,9 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     const run = (attempt) => {
       fetchCardPhoto(request).then((result) => {
         if (disposed) return;
-        setAnswer({ request, photo: result });
-        setFailed(result ? null : request);
+        const usable = inLink && result?.source === "google" ? null : result;
+        setAnswer({ request, photo: usable });
+        setFailed(usable ? null : request);
         if (!result && attempt + 1 < MAX_ATTEMPTS) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
       });
     };
@@ -88,10 +97,13 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     return <img {...props} src={src} alt={alt} style={style} onError={onError || (() => setRawFailed(src))} onLoad={onLoad} onClick={onClick} />;
   }
   const visible = !!photo && failed !== request;
+  // `missSrc`: an owned stand-in image for a slot that has always shown one (e.g. paid landing
+  // cards). Used only after the credited lane has answered "no photo"; never while pending.
+  if (!visible && failed === request && missSrc) return <img {...props} src={missSrc} alt={alt} style={style} />;
   // The viewer holds the exact {photo, credit} object of THIS request; a place
   // change makes viewer.request stale, so an old photo/credit pair can't render.
   const open = (e) => { e.preventDefault(); e.stopPropagation(); setViewer({ request, photo }); };
-  const viewerProps = photo?.credit ? {
+  const viewerProps = photo?.credit && !inLink ? {
     role: "button", tabIndex: 0,
     "aria-label": alt ? "View larger photo of " + alt + " and photographer credit" : "View larger photo and photographer credit",
     "aria-haspopup": "dialog",
@@ -99,11 +111,11 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); },
   } : { onClick };
   return <>
-    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
+    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit && !inLink ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
       : <span ref={anchor} data-card-photo-request={request} style={{ display: "block", width: "100%", height: "100%", minHeight: compact ? 40 : 60, overflow: "hidden", ...style, borderRadius: style?.borderRadius ?? "inherit" }}>
           <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />
         </span>}
-    {visible && !compact && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
+    {visible && !compact && !inLink && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
       <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", color: "#fff", textShadow: "-1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000, 0 1px 2px #000", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, lineHeight: "16px", fontWeight: 400, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
     </div> : null}
     {viewer && viewer.request === request && viewer.photo === photo && visible ? <PhotoViewer photo={viewer.photo} alt={alt} close={() => setViewer(null)} /> : null}

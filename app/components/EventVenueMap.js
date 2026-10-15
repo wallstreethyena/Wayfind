@@ -1,6 +1,7 @@
 "use client";
 import MapCategoryPin from "./MapCategoryPin.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
+import CardPhoto from "./CardPhoto.js";
 
 // Event-only Apple Maps surface. The route overlay is added by the same
 // MapKit session as the venue and nearby annotations; EventDrivingRoute owns
@@ -107,7 +108,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
         <div ref={hostRef} className="wfev-canvas" />
         {ready && shown.length > 0 && !selected ? <div className="wfev-legend" aria-hidden="true"><span><MapCategoryPin family="event" height={24} />Event</span><span>{shown.length} {active ? (EVENT_MAP_FAMILY[active]?.label || "places") : "places"}</span></div> : null}
         {selected ? <div className="wfev-card" role="region" aria-label={selected.name}>
-          {photoSrcFilter(thumb(selected)) ? <img src={photoSrcFilter(thumb(selected))} alt="" loading="lazy" /> : null}<span style={{ minWidth: 0, flex: 1 }}><b>{selected.name}</b><small>{Number.isFinite(selected.wfScore) ? <u>{(selected.wfScore / 10).toFixed(1)}</u> : null}{selected.cat || "Nearby"}{selected.distMi != null ? ` · ${selected.distMi.toFixed(1)} mi from the venue` : ""}</small></span>
+          {photoSrcFilter(thumb(selected)) ? <span className="wfev-thumb" style={{ position: "relative", display: "block", width: 58, height: 58, flex: "0 0 58px", borderRadius: 12, overflow: "hidden" }}><CardPhoto src={photoSrcFilter(thumb(selected))} alt="" compact style={{ width: 58, height: 58, objectFit: "cover", display: "block" }} /></span> : null}<span style={{ minWidth: 0, flex: 1 }}><b>{selected.name}</b><small>{Number.isFinite(selected.wfScore) ? <u>{(selected.wfScore / 10).toFixed(1)}</u> : null}{selected.cat || "Nearby"}{selected.distMi != null ? ` · ${selected.distMi.toFixed(1)} mi from the venue` : ""}</small></span>
           <a className="wfev-go" href={selected.href}>Open</a><button type="button" className="wfev-x" aria-label="Close" onClick={() => setSel(null)}>×</button>
         </div> : null}
         {failed || unavailable ? <div className="wfev-fb"><div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(148,163,184,.14)", border: "1px solid rgba(148,163,184,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div><div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{venue.name}</div><div style={{ maxWidth: 280, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map preview is unavailable right now. The address and external navigation link are still available.</div>{!unavailable ? <button type="button" onClick={retry} style={{ marginTop: 4, padding: "9px 18px", borderRadius: 999, border: "1px solid rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FB923C", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}</div> : null}

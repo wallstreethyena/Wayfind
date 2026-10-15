@@ -4,6 +4,7 @@
 // their exact conditions.
 import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
+import PhotoBackdrop from "../PhotoBackdrop.js";
 import { supabase } from "../../../lib/supabase";
 import { fetchSavedItems, removeSavedItem } from "../../../lib/savedItems";
 // v6.56: the SAME read model the taste sheet renders its chips from, so the
@@ -372,7 +373,7 @@ export default function SavedScreen({ ctx }) {
                   return (
                     <div className="wf-saved-list-card" key={l.id}>
                       <button className="wf-saved-list-open" onClick={() => setActiveList(l.id)}>
-                        <div className="wf-saved-list-preview" style={cover ? { backgroundImage: `linear-gradient(90deg,transparent 42%,rgba(14,21,31,.9)),url("${cover.photo}")` } : undefined}><span>{l.emoji}</span></div>
+                        <PhotoBackdrop className="wf-saved-list-preview" src={cover ? cover.photo : null}><span>{l.emoji}</span></PhotoBackdrop>
                         <div className="wf-saved-list-body">
                           <span className="wf-saved-list-label">Personal list</span>
                           <span className="wf-saved-list-name">{l.name}</span>
@@ -417,7 +418,7 @@ export default function SavedScreen({ ctx }) {
                   {savedItems.map((it) => (
                     <div className="wf-saved-item" key={it.id}>
                       <a href={it.item_url || "#"} {...(it.item_type === "guide" ? {} : { target: "_blank", rel: "noopener sponsored" })}>
-                        <div className="wf-saved-item-image" style={it.item_image ? { backgroundImage: `url("${it.item_image}")` } : undefined} />
+                        <PhotoBackdrop className="wf-saved-item-image" src={it.item_image} />
                         <div style={{ minWidth: 0, flex: 1 }}>
                           <div className="wf-saved-item-title">{it.item_title}</div>
                           <div className="wf-saved-item-meta">{it.item_type === "deal" ? "Deal" : it.item_type === "event" ? "Event" : it.item_type === "guide" ? "Guide" : "Experience"}{it.provider ? " · via " + (it.provider === "undercover_tourist" ? "Undercover Tourist" : it.provider === "viator" ? "Viator" : it.provider) : ""}</div>

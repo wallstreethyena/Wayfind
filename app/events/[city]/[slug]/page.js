@@ -6,6 +6,9 @@
 // notFound() — never a silent redirect to the homepage. This implements
 // the /events/[city]/[event-slug] leg of the audit prompt's URL scheme.
 import EventPlacePhoto from "../../../components/EventPlacePhoto.js";
+import { EventHeroPhotoProvider, EventHeroCredit } from "../../../components/EventHeroPhotoContext.js";
+import { eventImageIsVenue } from "../../../../lib/eventImageProvenance.js";
+import { isApiPhotoSrc } from "../../../../lib/cardPhotoRequest.js";
 import EventDetailShell from "../../../components/EventDetailShell.js";
 import EventSectionNav from "../../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../../components/EventExperienceStyles.js";
@@ -149,7 +152,7 @@ async function EventListPage({ params }) {
         eventStatus: "https://schema.org/EventScheduled",
         url: e.destKind === "internal" ? `${CANON}${e.dest}` : e.dest,
         ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
-        ...(e.image ? { image: [e.image] } : {}),
+        ...(e.image && !isApiPhotoSrc(e.image) ? { image: [e.image] } : {}),
       },
     })),
   };
@@ -266,7 +269,7 @@ export default async function EventPage({ params }) {
     startDate: eventJsonLdDates(e).startDate,
     eventStatus: cancelled ? "https://schema.org/EventCancelled" : "https://schema.org/EventScheduled",
     ...(e.venue ? { location: { "@type": "Place", name: e.venue, ...(e.city ? { address: e.city } : {}) } } : {}),
-    ...(e.image ? { image: [e.image] } : {}),
+    ...(e.image && !isApiPhotoSrc(e.image) ? { image: [e.image] } : {}),
     ...(e.url ? { url: e.url } : {}),
   };
   const A = "#F97316";
@@ -279,6 +282,7 @@ export default async function EventPage({ params }) {
           <a href="/events" style={{ color: "#FDBA74", fontWeight: 850, textDecoration: "none", fontSize: 13.5 }}>‹ All events</a>
         </nav>
         <EventSectionNav />
+      <EventHeroPhotoProvider src={e.image || ""}>
       <EventDetailShell
           title={e.name}
           status={cancelled ? (
@@ -304,8 +308,10 @@ export default async function EventPage({ params }) {
             <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
           </>}
           note={e.ticketed ? "Confirm availability and booking terms with the ticket provider before paying." : "Confirm dates and availability on the official listing."}
-          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
+          credit={e.image ? <EventHeroCredit eventName={e.name} isVenue={eventImageIsVenue(e, e.image)} style={{ fontSize: 12.5, color: "#8B949E", margin: "0 0 22px" }} linkStyle={{ color: "#FF8A3D", textDecoration: "none", fontWeight: 700 }} /> : null}
+          media={e.image ? <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.image} name={e.name} /></div> : <div className="wf-event-photo wf-event-photo-fallback" role="img" aria-label={`${e.name}: no photo available yet`}><span>{String(e.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map(word => word[0]).join("").toUpperCase()}</span><small>Photo unavailable</small></div>}
         />
+      </EventHeroPhotoProvider>
         {/* v8.99 — the shared WHERE block (address, official site, map with
             your route, nearby picks). Same component as /florida-events. */}
         {(where || (Number.isFinite(lat) && Number.isFinite(lng))) && (

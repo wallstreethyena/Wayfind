@@ -176,9 +176,10 @@ const page = (rel) => strip(readFileSync(path.join(ROOT, rel), "utf8"));
   ok(!/<a[\s>]/.test(fn), "WEAKER: /go/florida PhotoCredit has no raw <a>");
   ok(/import PhotoCreditLink from "\.\.\/\.\.\/components\/PhotoCreditLink"/.test(g), "WEAKER: /go/florida imports PhotoCreditLink");
   const e = page("app/florida-events/[slug]/page.js");
-  ok(/<PhotoCreditLink style=\{S\.link\} href=\{shots\.creditUrl\} rel="nofollow noopener">\{shots\.credit\}<\/PhotoCreditLink>/.test(e), "WEAKER: /florida-events credit goes through <PhotoCreditLink> with href={shots.creditUrl} and rel nofollow kept");
+  const hc = page("app/components/EventHeroPhotoContext.js");
+  ok(/registryCreditHref=\{shots && shots\.credit && shots\.creditUrl \? shots\.creditUrl : null\}/.test(e) && /<PhotoCreditLink style=\{linkStyle\} href=\{registryCreditHref\} rel="nofollow noopener">\{registryCredit\}<\/PhotoCreditLink>/.test(hc), "WEAKER: /florida-events credit (EventHeroCredit) goes through <PhotoCreditLink> with href={shots.creditUrl} and rel nofollow kept");
   ok(!/<a[^>]*shots\.creditUrl/.test(e), "WEAKER: /florida-events has no raw <a> on shots.creditUrl");
-  ok(/import PhotoCreditLink from "\.\.\/\.\.\/components\/PhotoCreditLink\.?j?s?"/.test(e), "WEAKER: /florida-events imports PhotoCreditLink");
+  ok(/import PhotoCreditLink from "\.\/PhotoCreditLink\.js"/.test(hc), "WEAKER: the /florida-events credit component imports PhotoCreditLink");
 }
 
 // ── 7. census: any raw external credit anchor in app/ fails until reviewed ──

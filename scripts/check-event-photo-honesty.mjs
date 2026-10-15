@@ -49,7 +49,8 @@ ok(eventImageIsVenue({}, "/api/photo?place=ChIJx&w=640") === true, "a Google pla
 const g = eventPhotoCredit({ venue: "Krush Brau Park", place_id: "ChIJx" }, "/api/photo?place=ChIJx&w=640");
 ok(g && g.label === "Google Maps", "a Google venue photo keeps its Google Maps credit");
 const page = readFileSync(new URL("../app/florida-events/[slug]/page.js", import.meta.url), "utf8");
-ok(/eventImageIsVenue\(e, heroSrc\) \? <p style=\{S\.credit\}>Venue photo · \{e\.event_name\} is not pictured\./.test(page), "the event page says a venue photo is the venue and the event is not pictured");
+const heroCredit = readFileSync(new URL("../app/components/EventHeroPhotoContext.js", import.meta.url), "utf8");
+ok(/isVenue=\{eventImageIsVenue\(e, heroSrc\)\}/.test(page) && /if \(!isVenue\) return null;[\s\S]*Venue photo · \{eventName\} is not pictured\./.test(heroCredit), "the event page says a venue photo is the venue and the event is not pictured (EventHeroCredit, only once a photo is visible)");
 
 // Fix the event clock: these photo assertions must not expire with the fixture.
 mock.timers.enable({ apis: ["Date"], now: new Date("2026-10-11T16:00:00Z") });
