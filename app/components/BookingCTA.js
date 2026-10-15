@@ -43,7 +43,7 @@ export { hasBookingCTA };
 // these by truthiness, so a frozen empty shape is the whole contract.
 const NO_TARGETS = Object.freeze({ verifiedUrl: null, goFallback: false, tk: null, tu: null, fallbackSuppressed: null });
 
-export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp }) {
+export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, addReservation, openExternal, locName, suppressFallback, label: labelOverride, placeId: placeIdProp, city: cityProp, commerceSurface }) {
   // Hooks for the list-variant impression observer. Must be declared before any
   // conditional return so React's hook order stays stable across renders.
   const listRootRef = useRef(null);
@@ -99,20 +99,34 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
   // The tour-list impression observer. Lived inside `if (variant === "list")`,
   // which is a hook behind a branch. Same work, one level up, gated inside.
   const listCity = cityProp || (locName ? locName.split(",")[0] : "");
+  // The hotel "Check rates" primary CTA shares this observer (one viewability
+  // rule, one once-per-offer set). It counts ONLY when the primary variant
+  // actually renders the verified /api/hotels/go link: no pin (the pin branch
+  // paints its own href) and a hotelGoUrl target. A null/hidden CTA has no
+  // anchor to observe, so no impression can fire for it.
+  const hotelImpression = variant === "primary" && !pin && typeof targets.tu === "string" && targets.tu.startsWith("/api/hotels/go?");
+  const hotelOfferId = placeIdProp || detail?.id || "unknown";
   useEffect(() => {
-    if (variant !== "list") return undefined;
+    if (variant !== "list" && !hotelImpression) return undefined;
     const root = listRootRef.current;
     if (!root || typeof IntersectionObserver === "undefined") return undefined;
     const seen = listSeenRef.current;
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
         if (!e.isIntersecting) continue;
-        const id = e.target.getAttribute("data-offer");
+        const id = hotelImpression ? hotelOfferId : e.target.getAttribute("data-offer");
         const rank = e.target.getAttribute("data-rank");
         if (!id || seen.has(id)) continue;
         seen.add(id);
         try {
-          emitCommerce("commerce_impression", {
+          emitCommerce("commerce_impression", hotelImpression ? {
+            surface: commerceSurface || "detail_primary",
+            provider: "stay22",
+            offer_id: id,
+            city_id: listCity || null,
+            canonical_place_id: detailId,
+            category: kind || null,
+          } : {
             surface: "detail_tour_list",
             provider: "viator",
             offer_id: id,
@@ -125,9 +139,10 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
         io.unobserve(e.target);
       }
     }, { threshold: [0.5] });
-    for (const el of root.querySelectorAll("[data-offer]")) io.observe(el);
+    if (hotelImpression) io.observe(root);
+    else for (const el of root.querySelectorAll("[data-offer]")) io.observe(el);
     return () => { try { io.disconnect(); } catch (er) {} };
-  }, [variant, hasTours, listCity, detailId, kind]);
+  }, [variant, hasTours, listCity, detailId, kind, hotelImpression, hotelOfferId, commerceSurface]);
 
   if (!detail) return null;
 
@@ -192,6 +207,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
     const primaryHref = hydrated ? withClickId(primaryBase, primaryClickId.current) : primaryBase;
     return (
       <a
+        ref={hotelImpression ? listRootRef : undefined}
         href={primaryHref}
         rel="noreferrer sponsored"
         data-commerce-owner="BookingCTA"
@@ -205,7 +221,7 @@ export default function BookingCTA({ variant, detail, kind, viaTours, logEvent, 
             : primaryPlaceId;
           try {
             emitCommerce("commerce_cta_clicked", {
-              surface: "detail_primary",
+              surface: (tu.startsWith("/api/hotels/go?") && commerceSurface) || "detail_primary",
               provider: tu.startsWith("/api/hotels/go?") ? "stay22" : "viator",
               offer_id: offerId,
               city_id: primaryCity || null,

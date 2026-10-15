@@ -44,10 +44,11 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 
-import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS } from "./lib/synthetic/scenarios.mjs";
+import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS, cardWindowIsStable, CARD_WINDOW_QUIET_MS, SIGNUP_OFFER_SETTLE_MS } from "./lib/synthetic/scenarios.mjs";
 // The product decision itself. Imported so the approved poster list can be
 // checked against it rather than against a copy that drifts (see §0).
 import { RAILS } from "../lib/rails.js";
+import { posterSeasonWindow } from "../lib/posterSeasons.js";
 import {
   EXPECTED_VISIBLE_POSTER_IDS,
   OPTIONAL_VISIBLE_POSTER_IDS,
@@ -113,7 +114,10 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
   // rule while claiming parity with the new one.
   const railSrc = readFileSync(path.resolve("./app/components/DaypartRail.js"), "utf8");
   const PREDICATE_RX = /!r\.posterHidden\s*&&\s*!r\.artStale\s*&&\s*!r\.retiredInto/;
-  ok(PREDICATE_RX.test(railSrc),
+  // 2026-10-14: the predicate moved to lib/posterSeasons.js railOnPosterTrack (adds the seasonal windows,
+  // which are date-driven and do not change this set over RAILS); DaypartRail must call it.
+  const posterSeasonsSrc = readFileSync(path.resolve("./lib/posterSeasons.js"), "utf8");
+  ok((PREDICATE_RX.test(railSrc) || (/railOnPosterTrack\(r, siteTodayStr\(\)\)/.test(railSrc) && /r\.posterHidden\s*\|\|\s*r\.artStale\s*\|\|\s*r\.retiredInto/.test(posterSeasonsSrc))),
     "DaypartRail still filters the poster menu on !posterHidden && !artStale && !retiredInto — if this changed, the parity check below is comparing against a rule the app no longer uses");
 
   const visibleFromRails = RAILS
@@ -267,8 +271,15 @@ for (const s of SCENARIOS) {
     "Halloween expires after Oct 31 without a false missing-poster alarm");
   ok(posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2026-11-01").extraIds.includes("halloween"),
     "an expired Halloween poster is detected as an unexpected tile");
-  ok(RAILS.find((rail) => rail.id === "halloween")?.seasonalThrough === "2026-10-31",
+  // 2026-10-14: the deadline is no longer a hard-coded rails.js literal; it is the yearly window in lib/posterSeasons.js.
+  ok(posterSeasonWindow("halloween", 2026)?.end === "2026-10-31" && RAILS.find((rail) => rail.id === "halloween")?.seasonalThrough === undefined,
     "the product Halloween campaign deadline matches the monitored contract");
+  ok(posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "christmas"), "2026-10-14").missingIds.includes("christmas")
+    && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "christmas"), "2026-10-12").missingIds.length === 0
+    && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "augtober"), "2026-08-14").missingIds.length === 0
+    && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "augtober"), "2026-08-15").missingIds.includes("augtober")
+    && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2027-01-02").extraIds.includes("christmas"),
+    "the monitor requires Christmas from Oct 13 and Fall from Aug 15, and flags both once expired (Jan 2 / after Thanksgiving)");
 
   const completePayload = {
     covered: true,
@@ -615,6 +626,37 @@ if (workflowSrc) {
   ok(/run-synthetic-monitor\.mjs/.test(workflowSrc), "the workflow actually invokes scripts/run-synthetic-monitor.mjs");
   ok(/--all/.test(workflowSrc), "the workflow's scheduled path runs --all, not a single scenario");
   ok(/upload-artifact/.test(workflowSrc), "the workflow uploads failure evidence as a build artifact so a scheduled failure leaves reviewable evidence");
+}
+
+// ── save-share-actions: never tap a card window that is still swapping ──────
+// Live 2026-10-14: the home page paints the default-centre rail, then swaps the
+// same card slots when geolocation lands. A tap in between saved the OLD card
+// (visible Save never flipped) and the one-time signup offer then covered the
+// next click. Contract: the scenario waits for a stable window before the first
+// tap, and dismisses the signup offer before the next one.
+{
+  const swapping = [{ t: 0, key: "Universal" }, { t: 300, key: "Viator" }, { t: 900, key: "Viator" }];
+  const quiet = [{ t: 0, key: "Viator" }, { t: 700, key: "Viator" }, { t: 1500, key: "Viator" }];
+  ok(cardWindowIsStable(swapping, CARD_WINDOW_QUIET_MS) === false, "cardWindowIsStable: a window that swapped 900ms ago is NOT stable (negative control)");
+  ok(cardWindowIsStable(quiet, CARD_WINDOW_QUIET_MS) === true, "cardWindowIsStable: a window unchanged for 1.5s IS stable (positive control)");
+  const noCards = String();
+  ok(cardWindowIsStable([{ t: 0, key: noCards }, { t: 5000, key: noCards }], CARD_WINDOW_QUIET_MS) === false, "cardWindowIsStable: an empty card window is never stable");
+  ok(SIGNUP_OFFER_SETTLE_MS > 1200, "SIGNUP_OFFER_SETTLE_MS outlasts app/home.js offerAccountAfterSave's 1200ms timer");
+  // Whole-line "//" comments dropped (no comment-regex literals here: a literal
+  // containing the two-char closer pairs with an opener elsewhere and breaks
+  // check-guards-can-fail's line numbering).
+  const codeLines = (f) => readFileSync(path.resolve(f), "utf8").split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  const homeSrc = codeLines("./app/home.js");
+  ok(/function offerAccountAfterSave[\s\S]{0,700}setTimeout\([\s\S]{0,400}\},\s*1200\)/.test(homeSrc), "app/home.js still opens the signup offer 1200ms after an anonymous save (the constant above is derived from it)");
+  const scnSrc = codeLines("./scripts/lib/synthetic/scenarios.mjs");
+  const start = scnSrc.indexOf('id: "save-share-actions"');
+  const body = scnSrc.slice(start, scnSrc.indexOf('id: "itinerary-actions"', start));
+  const iWait = body.indexOf("waitForStableCardWindow(page)");
+  const iSave = body.indexOf("toggledAfterClick(saveBtn)");
+  const iClose = body.indexOf("closeSignupOffer(page)");
+  const iLike = body.indexOf("toggledAfterClick(likeBtn)");
+  ok(iWait > 0 && iSave > iWait, "save-share-actions waits for a stable card window BEFORE the first Save tap");
+  ok(iClose > iSave && iLike > iClose, "save-share-actions dismisses the signup offer after Save and BEFORE the Like tap");
 }
 
 // The runner itself must not be swept into the (network-touching-forbidden)

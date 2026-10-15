@@ -33,12 +33,13 @@ import { describePhotoRunway, photosPaidConfigured } from "../../../../lib/photo
 import { siteTodayStr } from "../../../../lib/siteTime";
 import { GOOGLE_PHOTOS_QUOTA_PROVIDER, quotaBreakerCooldownMs } from "../../../../lib/placePhotoServe";
 import { breakerOpen } from "../../../../lib/providerHealth";
+import { computeImageHealth } from "../../../../lib/imageHealth";
 
 // QUOTA TRUTH (2026-09-16) — named buckets for today's wf_photo_outcome_daily
 // classes; anything else recorded (redirect/badjson/unowned/stale/client/
 // stale-heal-*) rolls up into `other` so this shape never needs to change
 // again when a new stale-heal-* subclass string appears.
-const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request", "visitor-cap"]);
+const NAMED_OUTCOME_CLASSES = new Set(["ok", "quota", "server", "network", "key-denied", "ledger-denied", "ledger-cap", "ledger-timeout", "ledger-http", "ledger-unconfigured", "free-photo-preferred", "gate-shut", "quota-open", "refunded", "not-page-request", "visitor-cap", "not-place-id"]);
 
 function sbEnvHere() {
   const raw = String(process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -194,6 +195,10 @@ export async function GET(req) {
   const ok = openRows === 0 || openRows < threshold;
   const reason = ok ? null : `openRows (${openRows}) at or above threshold (${Math.round(threshold)}, = max(50, 5% of ${activeWithRef} active refs))`;
 
+  // IMAGE HEALTH (2026-10-14): read-only, fail-soft per field; never fails this response.
+  let imageHealth = null;
+  try { imageHealth = await computeImageHealth(s); } catch { imageHealth = null; }
+
   return Response.json(
     {
       surface: "place-photos",
@@ -212,6 +217,7 @@ export async function GET(req) {
       runwayDays: runwayTruth.runwayDays,
       runway: runwayTruth.text,
       photoAllowance,
+      imageHealth,
       checkedAt: new Date().toISOString(),
     },
     { status: 200, headers: { "cache-control": "no-store" } }

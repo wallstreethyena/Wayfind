@@ -117,6 +117,7 @@ function preparePoster(id) {
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { railOnPosterTrack } from "../../lib/posterSeasons.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // Chef and Augtober open the same pop-down shell as every other rail. Their
 // answers stay lazy: Chef's testimony is static; FallIntentRails fetches the
@@ -1685,7 +1686,7 @@ export default function DaypartRail({
             <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return r && !r.posterHidden && !r.artStale && !r.retiredInto && (!r.seasonalThrough || siteTodayStr() <= r.seasonalThrough);
+                return railOnPosterTrack(r, siteTodayStr());
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
