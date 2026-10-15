@@ -6,7 +6,8 @@
 //   node scripts/backfill-coords-from-place-sightings.mjs dry            # counts only (SELECT)
 //   node scripts/backfill-coords-from-place-sightings.mjs apply [afterPlaceId] [limit=2000]
 //
-// WHY THIS IS LAWFUL. wf_place_ids.seen_at is written only by
+// WHY THIS IS LAWFUL. Outside the seed files and the Atlas allowlist (both
+// excluded below), the only runtime writer of wf_place_ids.seen_at is
 // lib/serverCache.upsertPlaceIds, called in app/api/places/search/route.js right
 // after a LIVE Google searchText response (never from a cache read), so seen_at
 // is the time Google returned that lat/lng. Google Places coordinates may be
@@ -18,6 +19,10 @@
 //   * seed rows: ids hand-inserted into wf_place_ids by repo seed files, whose
 //     seen_at is the seed's run time, not a Google observation. The id list is
 //     parsed from those files at run time (SEED_FILES below);
+//   * Atlas allowlist ids (lib/atlasPlaceAllowlist.listPublishReadyAtlasIds):
+//     scripts/ingest-atlas-place-allowlist.mjs mirrors inventory into
+//     wf_place_ids and earlier runs stamped seen_at = run time with inventory
+//     coordinates. That is not a Google observation, so those ids never count;
 //   * a sighting outside the Florida bbox, 0/0, or missing;
 //   * a row with no stored inventory coordinate, or whose sighting is more than
 //     50 m from it. The stored inventory coordinate is a CONSISTENCY CHECK only;
@@ -33,7 +38,8 @@ const SEED_FILES = [
   "scripts/ingest-verified-2026-08-26.mjs", "scripts/ingest-verified-2026-08-27.mjs", "scripts/ingest-verified-2026-08-28.mjs",
   "scripts/ingest-verified-2026-08-29.mjs", "scripts/ingest-verified-2026-08-29e.mjs",
 ];
-const ids = new Set();
+import { listPublishReadyAtlasIds } from "../lib/atlasPlaceAllowlist.js";
+const ids = new Set(listPublishReadyAtlasIds());
 for (const f of SEED_FILES) for (const m of readFileSync(path.join(ROOT, f), "utf8").matchAll(/ChIJ[A-Za-z0-9_-]{20,}/g)) ids.add(m[0]);
 const seedList = [...ids].sort().map((i) => `'${i}'`).join(",");
 
