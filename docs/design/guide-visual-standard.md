@@ -93,13 +93,26 @@ on an 8px base.
    the caption line.
 3. A licensed photo (Wikimedia CC, Unsplash, Pexels) that genuinely depicts that
    place.
-4. No photo. The pick renders as a typographic block and records why
-   (`imageReason`). A generic stock photo under a named place is banned: the
-   place card rule "no card ships without a picture" never licenses a picture
-   that is not of the place.
+4. A reviewed, licensed contextual photograph relevant to the pick's subject.
+   The caption begins "Illustrative" and names its topic (for example,
+   "Illustrative beach photo."). Its alt text describes what is visible and
+   makes clear that the named recommendation is not pictured. Keep the real
+   photographer, source and licence together below the image. Never assign
+   this photograph the venue's place id or use it as evidence of that venue.
 
-Illustrative stock is allowed only for an article hero, with the disclosure the
-image policy already requires.
+Owner update, 2026-10-15: "everythign needs to have pictures go to unsplash.com
+for free phots or istock or adopbe stock photos". This replaces the previous
+typography-only fourth rung for editorial guide and blog recommendations.
+Exact-place photographs remain first. Context media must fit the topic; it is
+never an arbitrary filler image and never authorizes a paid purchase. Seasonal
+editorial pages use the same credited photographs at their content sections,
+rather than adding a decorative image to every paragraph.
+
+When an exact-place source fails to load or decode, replace its image, alt,
+caption, photographer and licence together with the local contextual record.
+Do not leave the original venue credit under a different photograph. A failed
+fallback does not retry indefinitely. The coverage guard decodes every local
+context asset and checks every guide pick's available final rung.
 
 ## GVS-6. Nothing renders blank
 

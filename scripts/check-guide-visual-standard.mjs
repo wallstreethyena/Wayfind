@@ -299,10 +299,12 @@ for (const rel of ENTRY_POINTS) {
   ok(!GATE_RX.test('{true ? (\n  <GuideFigure role="pick" image={pickImage} />\n) : null}'), "red-proof: the gate detector does NOT fire once gated on an unconditional true — it actually reads the condition, not just the presence of <GuideFigure");
 }
 
-// ── every guide PICK either yields real, well-formed image data or nothing
+// ── every guide PICK yields reviewed exact-place or labelled context media
 // (executed against the real registry, not read) ──────────────────────────
 {
   const { GUIDES } = await import(path.join(REPO, "lib/guides.js"));
+  const { guidePickPhoto, guidePhotoForPlace } = await import(path.join(REPO, "lib/guidePickPhotos.js"));
+  const { guideContextPhoto } = await import(path.join(REPO, "lib/guideContextPhotos.js"));
   const editorialCode = ts.transpileModule(read("app/guides/[slug]/GuideEditorial.js"), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX, target: ts.ScriptTarget.ES2020 },
   }).outputText;
@@ -315,14 +317,15 @@ for (const rel of ENTRY_POINTS) {
   for (const [slug, guide] of Object.entries(GUIDES)) {
     for (const pick of guide.picks || []) {
       picksChecked++;
-      const media = guidePickFigureImage(slug, pick);
-      if (media === null) continue; // honest degrade — the typographic block, GVS-5
+      const media = guidePickFigureImage(slug, pick) || guidePickPhoto(slug, pick.name)
+        || guidePhotoForPlace(pick.placeId) || guideContextPhoto(slug, pick, guide);
       picksWithPhoto++;
       ok(typeof media.src === "string" && media.src.length > 0, `${slug}: pick "${pick.name}" carries image data with no usable src`);
     }
   }
   ok(picksChecked > 100, `expected well over 100 picks across the registry, checked ${picksChecked} — this rule has lost its subject`);
-  console.log(`  (${picksChecked} picks checked; ${picksWithPhoto} currently carry a photo — photo sourcing is a separate, later change)`);
+  ok(picksWithPhoto === picksChecked, "every guide pick has a photograph after the licensed context rung (owner update 2026-10-15)");
+  console.log(`  (${picksChecked} picks checked; ${picksWithPhoto} have exact-place or labelled contextual photo data)`);
 }
 
 // ── baseline — a SHRINKING allowlist, never grown without the owner's

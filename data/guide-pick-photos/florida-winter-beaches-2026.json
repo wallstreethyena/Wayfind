@@ -1,16 +1,31 @@
 {
   "slug": "florida-winter-beaches-2026",
-  "picks": {},
+  "picks": {
+    "Bahia Honda State Park": {
+      "src": "/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Sunset beside the old Bahia Honda rail bridge and rocky shoreline in the Florida Keys",
+      "caption": "The old Bahia Honda bridge at sunset. Photo published in 2020.",
+      "credit": "Matthew Wu",
+      "creditHref": "https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "sourceUrl": "https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8",
+      "author": "Matthew Wu",
+      "position": "50% 58%",
+      "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph.",
+      "sourceKind": "unsplash",
+      "placeId": "ChIJxVcTIQ7i0IgRgYa6c5TNrgk",
+      "verification": "Unsplash credits Matthew Wu, identifies Monroe County, Florida, and states the free Unsplash License (published December 3, 2020). Visually reviewed the original 1920x1440 download: the distinctive old Bahia Honda steel-truss bridge has a removed span beside the park shoreline, with the modern road bridge in the distance. The landmark is consistent with the Florida State Parks Bahia Honda bridge history. This is a 2020 photograph, not a claim about current water or access conditions.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-15"
+    }
+  },
   "gaps": {
     "Siesta Beach": {
       "reason": "google-only",
       "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
-      "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
-    },
-    "Bahia Honda State Park": {
-      "reason": "google-only",
-      "placeId": "ChIJxVcTIQ7i0IgRgYa6c5TNrgk",
       "needsPermissionFrom": null,
       "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
     },

@@ -5,7 +5,9 @@ import ShareButton from "../../components/ShareButton";
 import { pageShareUrl } from "../../../lib/pageShareUrl";
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
-import GuideFigure, { googleCreditMissing } from "../../components/GuideFigure";
+import GuideFigure from "../../components/GuideFigureWithFallback.js";
+import { googleCreditMissing } from "../../components/GuideFigure";
+import { guideContextPhoto } from "../../../lib/guideContextPhotos.js";
 import { fallEventCardImageSrc, withFallVenueIdentity } from "../../../lib/fallEventImage";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
@@ -625,7 +627,8 @@ function eventImage(event) {
 function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
   if (!event) return null;
   const href = fallGuideEventHref(event);
-  const image = visual ? eventImage(event) : null;
+  const fallbackImage = visual ? guideContextPhoto("florida-fall-festivals-2026", { name: event.event_name, detail: event.detail }, { region: event.city || "Florida" }) : null;
+  const image = visual ? eventImage(event) || fallbackImage : null;
   return (
     <article className={compact ? styles.miniCardCompact : styles.miniCard}>
       {image ? (
@@ -634,7 +637,8 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
           <GuideFigure
             role="card"
             image={image}
-            showCaption={false}
+            fallbackImage={fallbackImage}
+            showCaption={true}
             className={styles.miniFigure}
             fallbackText={event.event_name}
           />

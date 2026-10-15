@@ -1,22 +1,51 @@
 {
   "slug": "florida-holiday-nights-out-2026",
-  "picks": {},
-  "gaps": {
-    "Lights in Bloom at Selby Gardens": {
-      "reason": "google-only",
-      "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
-      "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+  "picks": {
+    "Holiday Lights in Largo Central Park": {
+      "src": "/guides/picks/florida-holiday-nights-out-2026/largo-central-park.webp",
+      "width": 800,
+      "height": 600,
+      "alt": "Tree-shaded paths and lawns in Largo Central Park on a sunny day",
+      "caption": "Largo Central Park in March 2024. Holiday Lights is not pictured.",
+      "credit": "Theo Worrall",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg",
+      "license": "CC0 1.0 Universal",
+      "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg",
+      "author": "Theo Worrall",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph.",
+      "sourceKind": "commons",
+      "placeId": "ChIJE7CJBHv6wogRgU_CnoymVIY",
+      "verification": "The Commons file identifies Largo Central Park, Largo, Florida, and the source API credits Theo Worrall under CC0. Visually inspected the Commons preview: shaded paved paths, lawn, mature trees and park facilities. It is exact venue context in daylight; the holiday light displays are not shown.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-15"
     },
+    "Lights in Bloom at Selby Gardens": {
+      "src": "/guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp",
+      "width": 800,
+      "height": 930,
+      "alt": "An aerial view of colorful holiday lights across Selby Gardens on the Sarasota bayfront",
+      "caption": "Holiday lights at Selby Gardens in a photo published in December 2025.",
+      "credit": "Joseph Corl",
+      "creditHref": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
+      "license": "Unsplash License",
+      "licenseUrl": "https://unsplash.com/license",
+      "sourceUrl": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
+      "author": "Joseph Corl",
+      "position": "50% 48%",
+      "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph.",
+      "sourceKind": "unsplash",
+      "placeId": "ChIJPTvxtmpAw4gReToYD5mTNwE",
+      "verification": "The exact Unsplash source identifies Joseph Corl and Sarasota’s Marie Selby Botanical Gardens Christmas lights, states the free Unsplash License, and was published December 9, 2025. Visually inspected the downloaded aerial photograph: illuminated garden paths and palms on the Sarasota bayfront, the Selby campus, downtown skyline and holiday light displays. This is a previously published holiday display, not evidence of the 2026 layout.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-15"
+    }
+  },
+  "gaps": {
     "Johnsonville Night Lights in the Garden": {
       "reason": "google-only",
       "placeId": "ChIJlcQil-Pj2ogRZXbB55ldZcQ",
-      "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
-    },
-    "Holiday Lights in Largo Central Park": {
-      "reason": "google-only",
-      "placeId": "ChIJE7CJBHv6wogRgU_CnoymVIY",
       "needsPermissionFrom": null,
       "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
     },

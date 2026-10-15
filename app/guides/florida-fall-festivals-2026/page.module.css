@@ -1055,7 +1055,7 @@
   margin: 0 !important;
 }
 .miniFigure figcaption {
-  display: none;
+  padding: 10px 12px 0;
 }
 .rankBadge,
 .rankBadgeStatic {
