@@ -676,11 +676,11 @@ scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a
 scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	187	0	0	09ab1df2e24183941921fa73571acd62c587e361236f60651c7b331231c7846c
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	29	0	0	fd17a788091d503dd99c2f5f45ac56d53805e1c0c90e3e02326445819d67e6bc
+scripts/test-guide-context-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	2771c9de02f730af0fdf6cb7dda7ced3aaa5a62a944e5d49c565016ad525e434
 scripts/test-guide-description-fills.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71	0	0	ac791101b3112c20dfb0aff3c2565a69256c389871dbf0dfa9316818ae4ec52b
 scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9f5afb7dd50696a33d2cee909f3d6c652de22a63afc5ec9b27bcf5082c4
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
 scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	b35a50435ad52c87994646888dd7d490b94c9a0a1c60eb319c136fc43d104e0c
-scripts/test-guide-context-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	2771c9de02f730af0fdf6cb7dda7ced3aaa5a62a944e5d49c565016ad525e434
 scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4c24b43bf5556b3c6f06a5d6e653db81ac13e68196b85783d89f0d8e32a5b5d9
 scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	24	0	0	8111527adc831e1d5059cf5dd4fd735f314522bae672d8d6392142c3dacceea7
 scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	0	0	1b0c16587c6bbc8eac01f417c4a312ae71bd109f1a6f4733640b4ff6d7cb88d2
