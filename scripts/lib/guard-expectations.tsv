@@ -515,6 +515,7 @@ scripts/test-card-tap-tracking.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	30e9
 scripts/test-cash-register-batch-2026-08-20.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	fbf7e39547b90b6cd621ad3614acc2a9ba9d888ad97c282ad2d25aef63fa6b89
 scripts/test-cash-register-batch-2026-08-20b.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	90	0	0	85d53205087919bc45551d7550a81bfde21a8683d7392950ccb4f80515e442f9
 scripts/test-cash-register-factory.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	4f43941e285dca227cbb4b55960f33e3eeb1cad71f20d891ba551d9d6640c2c4
+scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8c2d1b841e46af97c2e73e7575214413265084b15d2d9dd854331d4b
 scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
