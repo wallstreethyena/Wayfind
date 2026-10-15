@@ -112,15 +112,20 @@ if (!gate.write) {
   process.exit(0);
 }
 
-const seen = new Date().toISOString();
-const body = plan.payloads.map((p) => ({ ...p, seen_at: seen }));
+// IDENTITY ONLY. wf_place_ids.lat/lng/seen_at are a Google SIGHTING (a live
+// searchText result, dated by seen_at). An inventory mirror is not a sighting:
+// writing lat/lng with seen_at=now() would let
+// scripts/backfill-coords-from-place-sightings.mjs re-date an old Google
+// coordinate as fresh. So none of the three are written, and existing rows
+// are left untouched (ignore-duplicates, never merge).
+const body = plan.payloads.map(({ lat, lng, seen_at, ...identity }) => identity);
 const wr = await fetch(url + "/rest/v1/wf_place_ids", {
   method: "POST",
   headers: {
     apikey: svc,
     Authorization: "Bearer " + svc,
     "Content-Type": "application/json",
-    Prefer: "resolution=merge-duplicates,return=minimal",
+    Prefer: "resolution=ignore-duplicates,return=minimal",
   },
   body: JSON.stringify(body),
 });

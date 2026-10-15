@@ -17,6 +17,7 @@ import { wayfindScore } from "../../../../lib/wayfindScore.js";
 import { cardImageSrc, hasStoredPlacePhoto } from "../../../../lib/placePhoto.js";
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeChristmasIntentRails, christmasEventRail } from "../../../../lib/christmasIntentRails.js";
+import { isFloridaVenue } from "../../../../lib/floridaVenue.js";
 import { mergeChristmasResearch } from "../../../../lib/christmasResearch.js";
 import { christmasEventCard } from "../../../../lib/christmasCards.js";
 import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRISTMAS_PLACE_TITLES, CHRISTMAS_TICKET_DEAL_IDS, CHRISTMAS_VENUE_PLACE_IDS, enrichChristmasEvent } from "../../../../lib/christmasPool.js";
@@ -76,7 +77,7 @@ export async function GET(request) {
       const mergedRows = mergeChristmasResearch(rows || []);
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       // Fill the venue identity and coordinates the row lacks (never guessed: lib/christmasPool.js).
-      const eligibleRows = mergedRows.filter((e) => isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
+      const eligibleRows = mergedRows.filter((e) => isFloridaVenue(e) && isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
 
       // Venue photos for the events: one more owned read for the venues the
       // pool above did not already cover. An event with no resolvable venue

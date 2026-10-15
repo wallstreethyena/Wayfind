@@ -26,6 +26,7 @@ import { composeHalloweenRails } from "../../../../lib/halloweenIntentRails.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
+import { isFloridaVenue } from "../../../../lib/floridaVenue.js";
 import { FALL_GAP_FILL_2026_10_07 } from "../../../../lib/fallGapFill20261007.js";
 import { FALL_FOOD_GAP_2026_10_08 } from "../../../../lib/fallFoodGap20261008.js";
 import { FALL_TAMPA_PICKS_2026_10_08 } from "../../../../lib/fallTampaPicks20261008.js";
@@ -158,6 +159,7 @@ export async function GET(request) {
       // applied — so a creator-discovered row could have DATED a card on the
       // rail the owner looks at most. The fall date law (fallEventLive, with
       // its open-run rule) stays here because it is genuinely this rail's own.
+      .filter((e) => isFloridaVenue(e)) // Florida venue rule (lib/floridaVenue.js)
       .filter((e) => isTrusted(e) && isFallEvent(e) && fallEventLive(e, today) && hasUpcomingFallOccurrence(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
