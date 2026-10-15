@@ -115,7 +115,7 @@ scripts/check-district-not-a-meal.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	2c3
 scripts/check-doc-ownership.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	4	1	0	9ef6ffabeab0b543543f8fe68fd3e0f7f0a5eb8a9bc1f8023848ef511c8d107f
 scripts/check-drop-photo-window.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	33	1	0	1e47d104f6b3c5dea5a76510585f581a32a8f7a65b0ab1c6cc14291bc858ff28
 scripts/check-dupes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	d31ca083d0beff58efc7929c7c9e4b987c27e9225aeedb5a222d8414f5d563f9
-scripts/check-earning-integrations.mjs	1	CALL	blocks-ci-and-deploy	1	-	20	0	0	72ae9e2496a11ccc2b92651d01a8820e9eed63abd2e2ff0beca8907b8adcf716
+scripts/check-earning-integrations.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	20	0	0	0397c724c066ba274fc3bd7a89922d1167ab021b99e0dd0744eb8b55d8fb5239
 scripts/check-editorial-coverage-pipeline.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	22150db8c08d542fd25f11db5cb84f020c1aa4427efe60785328bb3fc3707441
 scripts/check-editorial-everywhere.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	51	1	5	3a4038355408049a02c1c0c014f03dcd27a06164b68395b28c34ce4b0445536a
 scripts/check-editorial-publish-symmetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	d653008b40a9fef149e60546446189f95831c82cd747ad67402e0e0a42b10d60
