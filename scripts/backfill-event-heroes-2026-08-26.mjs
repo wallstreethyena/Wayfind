@@ -12,6 +12,7 @@
  * DRY by default; --commit writes. Run from the repo root (reads ./.env.local).
  */
 import { readFileSync } from "node:fs";
+import { gateImageForWrite } from "../lib/imageWriteGate.js";
 for (const line of readFileSync(".env.local", "utf8").split("\n")) {
   const m = line.match(/^([A-Z0-9_]+)=(.*)$/);
   if (m && !process.env[m[1]]) process.env[m[1]] = m[2].replace(/^["']|["']$/g, "");
@@ -49,6 +50,8 @@ for (const e of events) {
     });
     if (!cand) { skipped++; console.log(`  ◻ ${e.event_id}: no confident venue match for "${target}" — nothing written`); continue; }
     const hero = "/api/photo?ref=" + encodeURIComponent(cand.photos[0].name) + "&w=800";
+    // PUBLICATION GATE: a refused image writes nothing (the event keeps the neutral tile).
+    if (gateImageForWrite({ event_id: e.event_id, venue: e.venue, hero_image: hero }, { type: "event" }).refused) { skipped++; continue; }
     if (COMMIT) {
       const w = await fetch(`${URL_}/rest/v1/wf_events?event_id=eq.${encodeURIComponent(e.event_id)}`, {
         method: "PATCH", headers: { ...H, "Content-Type": "application/json", Prefer: "return=minimal" },

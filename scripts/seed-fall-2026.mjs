@@ -36,6 +36,7 @@
  *   node scripts/seed-fall-2026.mjs           # upsert
  */
 import { readFileSync } from "node:fs";
+import { gateImageForWrite } from "../lib/imageWriteGate.js";
 
 const DRY = process.argv.includes("--dry");
 
@@ -260,7 +261,7 @@ for (const row of ROWS) {
   } else {
     r.place_id = null; r.lat = null; r.lng = null;
   }
-  out.push(r);
+  out.push(gateImageForWrite(r, { type: "event" }).record); // PUBLICATION GATE: bad image dropped, row kept
   console.log(`${hit ? "resolved " : "UNRESOLVED"} ${r.event_name}${hit ? `  ${hit.lat.toFixed(4)},${hit.lng.toFixed(4)}` : ""}`);
 }
 
