@@ -2254,3 +2254,5 @@ node scripts/test-guide-stays.mjs
 node scripts/test-guide-commerce-measurement.mjs
 # 2026-10-15 Google daily photo-quota pacing: photos_quota_pacing warns at 70/85 percent and goes critical at 95 percent of the 1000/day quota (Pacific day, per-band dedupe), photos_purchase_spike at 150/h, googleQuota in /api/health/photos; fail-soft, breaker-open suppression, no request ever leaves Supabase. Red-proven by mutation.
 node scripts/test-photo-quota-pacing.mjs
+# 2026-10-15 DB paging cursors are Postgres en_US order, never JS order: readSocialPages / readAcquisitionInventory prove progress by a never-seen key (lib/dbCursor.js), not row <= cursor (7449 of 20989 adjacent place_ids invert bytewise). en_US fake DB + static sweep of lib/app/scripts. Red-proven by mutation.
+node scripts/test-db-cursor-collation.mjs --red-prove
