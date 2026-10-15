@@ -14,7 +14,7 @@
 //   B. DRAWABILITY (lib/coordProvenance.js): a row whose own Google coordinate
 //      expired draws from its wikidata / official_venue entry, with no expiry
 //      and no credit line (CC0 / public domain).
-//   C. THE COMMITTED SQL (supabase/migrations/20261015180000_*, 20261015180100_*
+//   C. THE COMMITTED SQL (supabase/migrations/20261015180000_*, 20261015180100_*, 20261015180200_*
 //      and their supabase/data-fixes/*_REVERSE.sql): byte-identical to what the
 //      lib generates for its own rows; executed against a seeded table it
 //      appends exactly one entry per row, keeps existing sightings and lat/lng,
@@ -51,8 +51,9 @@ function mutated(rel, find, replace) {
 const asModule = (src) => import("data:text/javascript," + encodeURIComponent(src));
 
 const PASSES = [
-  { fwd: "supabase/migrations/20261015180000_wf_inventory_wikidata_coords.sql", rev: "supabase/data-fixes/20261015180000_wf_inventory_wikidata_coords_REVERSE.sql", source: "wikidata", minRows: 150 },
-  { fwd: "supabase/migrations/20261015180100_wf_inventory_official_address_coords.sql", rev: "supabase/data-fixes/20261015180100_wf_inventory_official_address_coords_REVERSE.sql", source: "official_venue", minRows: 120 },
+  { fwd: "supabase/migrations/20261015180000_wf_inventory_wikidata_coords.sql", rev: "supabase/data-fixes/20261015180000_wf_inventory_wikidata_coords_REVERSE.sql", source: "wikidata", minRows: 150, corroborated: true },
+  { fwd: "supabase/migrations/20261015180100_wf_inventory_official_address_coords_corroborated.sql", rev: "supabase/data-fixes/20261015180100_wf_inventory_official_address_coords_corroborated_REVERSE.sql", source: "official_venue", minRows: 40, corroborated: true },
+  { fwd: "supabase/migrations/20261015180200_wf_inventory_official_address_coords_uncorroborated.sql", rev: "supabase/data-fixes/20261015180200_wf_inventory_official_address_coords_uncorroborated_REVERSE.sql", source: "official_venue", minRows: 80, corroborated: false },
 ];
 
 // ── A ────────────────────────────────────────────────────────────────────────
@@ -109,6 +110,8 @@ async function checkSql(L, prov) {
     const writes = parseWrites(fwd);
     ok(writes.length >= p.minRows, `C: ${p.fwd} carries ${writes.length} rows (>= ${p.minRows}; parser found its subject)`);
     ok(writes.every((w) => w.entry.source === p.source && prov.judgeCoordinate(w.entry, NOW).ok), `C: every ${p.source} entry is a drawable non-Google coordinate`);
+    ok(writes.every((w) => p.corroborated ? /^google_places-(row|sighting)$/.test(w.entry.evidence.corroboration) && w.entry.evidence.distance_m <= w.entry.evidence.limit_m : w.entry.evidence.corroboration === "none-available"),
+      `C: ${p.fwd} holds only ${p.corroborated ? "corroborated" : "uncorroborated"} rows (the owner can apply each set alone)`);
     ok(/"source":"(wikidata|official_venue)"/.test(fwd) && !/"source":"google_places"/.test(fwd), `C: ${p.fwd} writes no google_places entry (probe finds its own source first)`);
     const title = path.basename(p.fwd);
     const header = fwd.slice(fwd.indexOf("\n") + 1, fwd.indexOf("-- No explicit BEGIN"));
