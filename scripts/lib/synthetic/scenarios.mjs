@@ -44,6 +44,7 @@ import { splitBreakfastRails } from "../../../lib/breakfastRails.js";
 import { composeWorthEatingRails } from "../../../lib/worthEatingRails.js";
 import { FALL_CARD_IDS, fallSkinLive } from "../../../lib/fallSkin.js";
 import { siteTodayStr } from "../../../lib/siteTime.js";
+import { floridaVenueVerdict } from "../../../lib/floridaVenue.js";
 
 /**
  * HOW LONG THE HOMEPAGE MAY TAKE TO SHOW ITS FIRST REAL PLACE CARD.
@@ -95,6 +96,7 @@ export const REQUIRED_FLOWS = Object.freeze([
   "mobile-390",
   "menu-poster-integrity",
   "surface-parity-cafes",
+  "florida-only-events",
 ]);
 
 /**
@@ -964,6 +966,29 @@ export const SCENARIOS = [
       const railCardCount = await page.locator(".wf-rail-card, .wf-place-card").count().catch(() => 0);
       ctx.ok("the listing rendered at least one real event/place card", railCardCount > 0, "> 0", railCardCount);
       ctx.ok("the listing has substantial body content", bodyText.length > 300, "> 300 chars", bodyText.length);
+    },
+  },
+
+  // ── 7a. only Florida venues leave the events feed ────────────────────
+  {
+    id: "florida-only-events",
+    flow: "florida-only-events",
+    name: "Every /api/events result for a Florida centre is a Florida venue",
+    description: "2026-10-14: the live poster rail showed Columbus Crew at ScottsMiracle-Gro Field in Columbus, OHIO (the visitor's IP-geo centre was an Ohio datacenter). lib/floridaVenue.js now decides by venue. This calls /api/events for Sarasota, Orlando and Parrish and asserts every returned event passes the rule, and calls it with an Ohio centre and asserts zero out-of-state events come back. Asserted on the response BODY, not the status.",
+    async run(ctx) {
+      for (const c of [SARASOTA, ORLANDO, PARRISH]) {
+        const res = await ctx.fetchJson(`/api/events?lat=${c.lat}&lng=${c.lng}&radius=25&city=${encodeURIComponent(c.city)}`);
+        ctx.ok(`${c.city} events responded 200`, res.status === 200, 200, res.status);
+        const events = res.json && Array.isArray(res.json.events) ? res.json.events : null;
+        ctx.ok(`${c.city} events body carries an events array`, !!events, "an array", events ? events.length : null);
+        if (!events) continue;
+        const out = events.filter((e) => !floridaVenueVerdict(e).ok);
+        ctx.ok(`every ${c.city} event is a Florida venue`, out.length === 0, "0 out-of-state", out.length ? out.slice(0, 3).map((e) => `${e.name} @ ${e.venue || e.city}`).join("; ") : 0);
+      }
+      const ohio = await ctx.fetchJson(`/api/events?lat=39.9612&lng=-82.9988&radius=25&city=${encodeURIComponent("Columbus, OH")}`);
+      const oev = ohio.json && Array.isArray(ohio.json.events) ? ohio.json.events : [];
+      const bad = oev.filter((e) => !floridaVenueVerdict(e).ok);
+      ctx.ok("an Ohio centre returns no out-of-state events", ohio.status === 200 && bad.length === 0, "200 and 0 out-of-state", `${ohio.status} / ${bad.length}`);
     },
   },
 

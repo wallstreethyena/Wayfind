@@ -649,6 +649,7 @@ scripts/test-feedback-notification.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	3e
 scripts/test-feedback-storage.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	67c47f49d57145f343d88c497bd1567cb06b3c14da729510c43a21fe297cd5cf
 scripts/test-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	502018e993e95e537f88dcd67851a875f7b9adf9bb4e4951113779e0e1bc0018
 scripts/test-florida-catalog-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	6bb29c934f7ce5d96324eb0bd9e0f3af318105bd35be674a4f95ddbcc0571cb8
+scripts/test-florida-venue-rule.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	e77eda00659f11a36eee39cc31d24a7d3d979148ca3e422d06345550f219ea44
 scripts/test-font-fallback-metrics.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	ab3c6388b7011c4aae7aa80845880774146f6c4d79514404892a19483520d612
 scripts/test-food-collections.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	1	1	86f674794a4b46339eb78febe81c394edff63e9309cf2f73d6e1df7f3c836378
 scripts/test-foursquare.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0	a75abeb9d27794756c16c5c5e896132b7f2b8d05d8bff80436ae1d5848ba9df5
