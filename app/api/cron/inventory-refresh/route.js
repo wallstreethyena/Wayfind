@@ -26,7 +26,7 @@ export const dynamic = "force-dynamic";
 import { createClient } from "@supabase/supabase-js";
 import { getPlaceDetailsDated } from "../../../../lib/placeDetails";
 import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "../../../../lib/inventoryRefreshPatch.js";
-import { recordPulse } from "../../../../lib/jobPulse";
+import { recordPulse, budgetGateNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
 // Refresh anything older than this. Below the 30-day matcher ceiling on
@@ -37,10 +37,22 @@ const PARALLEL = 5;
 
 export async function GET(req) {
   // COST GUARD (2026-08-25): WAYFIND_GATE=shut stops ALL metered Google spend.
-  if (gateShut() || gateFree()) return Response.json({ skipped: "gate " + (gateShut() ? "shut" : "free: scheduled re-buys stay off inside the free tier") });
   const secret = process.env.CRON_SECRET;
   const auth = req.headers.get("authorization") || "";
   if (!secret || auth !== "Bearer " + secret) return Response.json({ error: "unauthorized" }, { status: 401 });
+  // 2026-10-14 — THE GATE SKIP IS NOW VISIBLE. This refresher renews the Google
+  // coordinates the map may draw (30-day window, lib/coordProvenance.js). While
+  // the gate is not open it does nothing, which is the owner's spend decision —
+  // but it used to return BEFORE recordPulse, so wf_job_pulse showed no
+  // inventory-refresh row at all after 2026-08-25 and a ~50-day stall read as
+  // "no data". It now pulses an idle 0/0/0 run labelled "budget limit reached:
+  // paid generation disabled" (never a paging incident; lib/jobPulse.js
+  // budgetGateNote), AFTER the auth check so an anonymous GET cannot write rows.
+  if (gateShut() || gateFree()) {
+    const mode = gateShut() ? "shut" : "free";
+    await recordPulse("inventory-refresh", { attempted: 0, succeeded: 0, failed: 0, note: budgetGateNote(mode, "map coordinates are not being renewed; Google-sourced pins age out of the 30-day window") });
+    return Response.json({ skipped: "gate " + (mode === "shut" ? "shut" : "free: scheduled re-buys stay off inside the free tier"), gate: mode });
+  }
 
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
   const svc = (process.env.SUPABASE_SERVICE_ROLE_KEY || "").trim();

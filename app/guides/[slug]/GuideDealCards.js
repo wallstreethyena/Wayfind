@@ -20,13 +20,57 @@
 //
 // NO CARD BYPASSES TRACKING. Every card fires deal_card_clicked before
 // navigation, and a row carrying `commerce` keeps the /api/commerce/go redirect
-// that the registry already declares — this file never rewrites a href.
+// that the registry already declares — this file never rewrites a href (lib/guideDeals.js guideDealCommerce
+// only relabels the surface of our own redirect, server-side in page.js).
 import { useEffect, useRef } from "react";
 import { track } from "../../../lib/track";
 // Image resolution lives in lib so a guard can import it and check every branch
 // against the real filesystem — see lib/dealCardImage.js.
 import LicensedPhoto from "../../components/LicensedPhoto";
 import { cardImage, dealIllustration } from "../../../lib/dealCardImage";
+import { useCommerceImpression } from "../../components/useCommerceImpression";
+
+// One affiliate card. A component of its own because useCommerceImpression is a
+// hook (one observer + one once-flag PER OFFER) and cannot be called in a .map.
+//
+// commerce_impression is the denominator for the commerce_cta_clicked the click
+// beacon (app/guides/layout.js) records for this same anchor: both read the same
+// surface/provider/offer/content (lib/guideDeals.js guideDealCommerce), so the
+// pair joins. d.commerce is null for a non-affiliate card, which makes the hook
+// attach nothing — a free card emits no commerce event at all.
+function DealCard({ d, onCardClick }) {
+  const impRef = useCommerceImpression(d.commerce || null);
+  return (
+    <li>
+      <a
+        ref={impRef}
+        className="wf-gd-card"
+        href={d.url}
+        data-deal-card={d.id}
+        data-merchant={d.business}
+        rel={d.external ? "nofollow sponsored noopener" : undefined}
+        target={d.external ? "_blank" : undefined}
+        onClick={() => onCardClick(d)}
+      >
+        <LicensedPhoto className="wf-gd-img" src={cardImage(d)} alt={dealIllustration(d)?.alt || "Offer illustration"} width={96} height={96} sizes="96px" />
+        <div className="wf-gd-body">
+          <div className="wf-gd-top">
+            <span className="wf-gd-title">{d.title}</span>
+            {d.badge ? <span className="wf-gd-badge">{d.badge}</span> : null}
+          </div>
+          <div className="wf-gd-merchant">{d.business}</div>
+          {dealIllustration(d) ? <small style={{ color: "#A9B7C6", display: "block", fontSize: 10 }}>Illustrative photo · {dealIllustration(d).credit}</small> : null}
+          <p className="wf-gd-details">{d.details}</p>
+          <div className="wf-gd-foot">
+            <span className="wf-gd-loc">{d.area}</span>
+            <span className="wf-gd-cta">{d.cta || "See the deal"}</span>
+          </div>
+          {d.ends ? <div className="wf-gd-ends">{d.ends}</div> : null}
+        </div>
+      </a>
+    </li>
+  );
+}
 
 export default function GuideDealCards({ slug, region, deals }) {
   const blockRef = useRef(null);
@@ -71,45 +115,25 @@ export default function GuideDealCards({ slug, region, deals }) {
 
   if (!deals || !deals.length) return null;
 
+  // Click handler shared by every card. deal_card_clicked is once per card per
+  // pageview (a double-tap must not read as two intents); the commerce click
+  // itself is recorded once per activation by CommerceClickBeacon.
+  const onCardClick = (d) => {
+    if (clicked.current[d.id]) return;
+    clicked.current[d.id] = true;
+    try {
+      track("deal_card_clicked", { slug, region, deal_id: d.id, merchant: d.business, category: d.category || null, external: !!d.external });
+      track("deal_card_outbound", { slug, deal_id: d.id, href: d.url });
+    } catch (err) {}
+  };
+
+
   return (
     <section className="wf-gd-wrap" ref={blockRef} aria-label={`Live deals in ${region}`}>
       <h2 className="wf-gd-h">Live right now in {region}</h2>
       <ul className="wf-gd-list">
         {deals.map((d) => (
-          <li key={d.id}>
-            <a
-              className="wf-gd-card"
-              href={d.url}
-              data-deal-card={d.id}
-              data-merchant={d.business}
-              rel={d.external ? "nofollow sponsored noopener" : undefined}
-              target={d.external ? "_blank" : undefined}
-              onClick={() => {
-                if (clicked.current[d.id]) return;
-                clicked.current[d.id] = true;
-                try {
-                  track("deal_card_clicked", { slug, region, deal_id: d.id, merchant: d.business, category: d.category || null, external: !!d.external });
-                  track("deal_card_outbound", { slug, deal_id: d.id, href: d.url });
-                } catch (err) {}
-              }}
-            >
-              <LicensedPhoto className="wf-gd-img" src={cardImage(d)} alt={dealIllustration(d)?.alt || "Offer illustration"} width={96} height={96} sizes="96px" />
-              <div className="wf-gd-body">
-                <div className="wf-gd-top">
-                  <span className="wf-gd-title">{d.title}</span>
-                  {d.badge ? <span className="wf-gd-badge">{d.badge}</span> : null}
-                </div>
-                <div className="wf-gd-merchant">{d.business}</div>
-                {dealIllustration(d) ? <small style={{ color: "#A9B7C6", display: "block", fontSize: 10 }}>Illustrative photo · {dealIllustration(d).credit}</small> : null}
-                <p className="wf-gd-details">{d.details}</p>
-                <div className="wf-gd-foot">
-                  <span className="wf-gd-loc">{d.area}</span>
-                  <span className="wf-gd-cta">{d.cta || "See the deal"}</span>
-                </div>
-                {d.ends ? <div className="wf-gd-ends">{d.ends}</div> : null}
-              </div>
-            </a>
-          </li>
+          <DealCard key={d.id} d={d} onCardClick={onCardClick} />
         ))}
       </ul>
       <p className="wf-gd-disc">
