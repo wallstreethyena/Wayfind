@@ -211,6 +211,7 @@ const EXPECTED_CALL_SITE_FILES = [
   "app/components/sheets/Intro.js",
   "app/command-center/ui.js",
   "app/components/css.js",
+  "app/group-plans/GroupFrame.js",
   "app/home.js",
 ].sort();
 const discoveredSorted = [...discovered].sort();
@@ -226,7 +227,7 @@ eq(extra.length, 0, `discovery scan found UNEXPECTED wordmark call-site file(s) 
 const IMG_RESOLVER_IMPORT_RX = /import\s*\{[^}]*\bactiveSeasonalMark\b[^}]*\}\s*from\s*["'][^"']*seasonalBrand(?:\.js)?["']/;
 const CSS_HALLOWEEN_IMPORT_RX = /import\s*\{[^}]*\bHALLOWEEN_MARK\b[^}]*\}\s*from\s*["'][^"']*seasonalBrand(?:\.js)?["']/;
 
-for (const rel of ["app/go/florida/page.js", "app/components/GuideArticleHero.js", "app/components/PremiumIntentHero.js", "app/components/EditorialLandingHero.js", "app/components/CollectionHero.js", "app/components/sheets/Intro.js", "app/command-center/ui.js", "app/home.js"]) {
+for (const rel of ["app/go/florida/page.js", "app/components/GuideArticleHero.js", "app/components/PremiumIntentHero.js", "app/components/EditorialLandingHero.js", "app/components/CollectionHero.js", "app/components/sheets/Intro.js", "app/command-center/ui.js", "app/group-plans/GroupFrame.js", "app/home.js"]) {
   const src = stripComments(read(rel));
   const hasImport = IMG_RESOLVER_IMPORT_RX.test(src);
   const hasCall = RESOLVER_CALL_RX.test(src);

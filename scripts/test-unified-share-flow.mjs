@@ -66,27 +66,28 @@ try {
   for (const disabled of ["0", "true", "2"]) {
     process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED = disabled;
     openShareFlow(payload);
-    check(() => assert.equal(find("Organize a group"), undefined, "only the exact configured value 1 enables group planning"));
+    check(() => assert.equal(find("Group Vote"), undefined, "only the exact configured value 1 enables group planning"));
     doc.key("Escape");
   }
   delete process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED;
   check(() => assert.equal(openShareFlow(payload), "menu"));
-  check(() => assert.equal(find("Organize a group"), undefined));
+  check(() => assert.equal(find("Group Vote"), undefined));
   doc.key("Escape");
   process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED = "1";
   openShareFlow({ ...payload, url: "/guides/uleles-guide" });
-  check(() => assert.equal(find("Organize a group"), undefined, "a title/content ID alone is not concrete place identity"));
+  check(() => assert.equal(find("Group Vote"), undefined, "a title/content ID alone is not concrete place identity"));
   doc.key("Escape");
   openShareFlow(payload);
   const menu = document.getElementById("wf-share-intent");
   const buttons = walk(menu).filter((n) => n.tagName === "BUTTON");
-  check(() => assert.deepEqual(buttons.slice(0, 3).map((b) => b.textContent.split(" ").slice(0, 3).join(" ")), ["Just share it", "I’m asking someone", "Organize a group"]));
-  check(() => assert.match(find("Organize a group").textContent, /Pick a place\. Find a time\./));
+  check(() => assert.deepEqual(buttons.slice(0, 3).map((b) => b.textContent.split(" ").slice(0, 3).join(" ")), ["Just share it", "I’m asking someone", "Group Vote Friends"]));
+  check(() => assert.match(find("Group Vote").textContent, /Friends vote on the spot and day/));
+  check(() => assert.equal(find("Organize a group"), undefined, "old label is gone"));
   const image = walk(menu).find((n) => n.tagName === "IMG");
   check(() => assert.equal(image.src, placeSharePreview("ChIJfixture", "Ulele", "Tampa")));
   image.dispatchEvent({ type: "error" });
   check(() => assert.equal(walk(menu).some((n) => n.tagName === "IMG"), false, "photo failure cannot leave a broken preview"));
-  find("Organize a group").click();
+  find("Group Vote").click();
   check(() => assert.match(nav[0], /^\/group-plans\/new\?place=ChIJfixture&name=Ulele$/));
   check(() => assert.equal(copied + nativeCalls, 0, "group navigation does not send or copy anything"));
 
