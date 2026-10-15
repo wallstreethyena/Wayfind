@@ -2227,3 +2227,4 @@ node scripts/check-christmas-photo-provenance.mjs
 node scripts/test-area-twins.mjs
 node scripts/test-event-hero-provenance.mjs
 node scripts/test-hotel-cta-impression.mjs
+node scripts/check-poster-seasons.mjs
