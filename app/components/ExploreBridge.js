@@ -154,7 +154,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
               style={S.card}
             >
               {p.photoRef && photoSrcFilter("/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240") ? (
-                <div style={{ position: "relative", width: 82, minHeight: 82, flex: "0 0 82px", background: "#161B22" }}><CardPhoto src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240"} alt="" compact width="82" height="82" style={{ width: 82, height: "100%", minHeight: 82, objectFit: "cover", display: "block" }} /></div>
+                <div style={{ position: "relative", width: 82, minHeight: 82, flex: "0 0 82px", background: "#161B22" }}><CardPhoto inLink src={"/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=240"} alt="" compact width="82" height="82" style={{ width: 82, height: "100%", minHeight: 82, objectFit: "cover", display: "block" }} /></div>
               ) : (
                 <div aria-hidden="true" style={{ width: 82, flex: "0 0 82px", background: "linear-gradient(135deg,#1b2735,#2c3e50)" }} />
               )}

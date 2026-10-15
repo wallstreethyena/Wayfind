@@ -172,7 +172,7 @@ function CouponCard({ c, position, ctx }) {
           {(effectiveThumb || thumbIcon) ? (
             <div style={{ position: "relative", minWidth: 0, height: "100%", overflow: "hidden", display: "grid", placeItems: "center", background: "radial-gradient(circle at 35% 24%,rgba(255,121,24,.18),transparent 35%),linear-gradient(155deg,#192230,#0D131E 72%)", boxShadow: "inset -1px 0 rgba(159,177,203,.1)" }}>
               {effectiveThumb
-                ? <CardPhoto src={effectiveThumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                ? <CardPhoto inLink src={effectiveThumb} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 : <span aria-hidden="true" style={{ fontSize: 30, lineHeight: 1 }}>{thumbIcon}</span>}
             </div>
           ) : null}

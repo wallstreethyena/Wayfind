@@ -260,7 +260,7 @@ function Photo({ place, width = 900, eager = false }) {
       : PHOTO_FALLBACKS[[...photoKey].reduce((sum, char) => sum + char.charCodeAt(0), 0) % PHOTO_FALLBACKS.length];
   if (curatedPhoto) return <img src={curatedPhoto} alt="" loading={eager ? "eager" : "lazy"} />;
   return place?.photoRef ? (
-    <CardPhoto src={`/api/photo?ref=${encodeURIComponent(place.photoRef)}&g=2&w=${width}`} alt="" loading={eager ? "eager" : "lazy"} missSrc={fallback} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }} />
+    <CardPhoto inLink src={`/api/photo?ref=${encodeURIComponent(place.photoRef)}&g=2&w=${width}`} alt="" loading={eager ? "eager" : "lazy"} missSrc={fallback} onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = fallback; }} />
   ) : <img src={fallback} alt="" loading={eager ? "eager" : "lazy"} />;
 }
 

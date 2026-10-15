@@ -2705,7 +2705,8 @@ function EventHeroBg({ image: imageProp, acc, venue, near }) {
     // JSON endpoint (memoized per page session in lib/livePhoto), never stored.
     // Budget guardrail: at most 12 venue-photo lookups per device per day. Past
     // the cap we cache "none" and fall back to the gradient instead of spending.
-    if (!proxyId) try {
+    // The per-device 12/day lookup budget applies to every venue-photo buy, proxy id or not.
+    try {
       const bk = "wf_evimg_budget_" + new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date());
       const n = parseInt(localStorage.getItem(bk) || "0", 10) || 0;
       if (n >= 12) { setAlt(""); return; }
@@ -11843,7 +11844,7 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
               <a key={d.id} href={d.href} target="_blank" rel="sponsored nofollow noopener" onClick={(e) => { e.preventDefault(); const _live = (e.currentTarget && e.currentTarget.href) || d.href; try { onLog("tickets_out", null, { kind: "ut_deal_rail", category, provider: d.provider, id: d.id }); } catch (er) {} openExternal(_live); }} style={{ flex: "0 0 210px", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", position: "relative" }}>
                 <div style={{ position: "relative", overflow: "hidden", width: "100%", height: 96, background: d.image ? `center/cover no-repeat url(${d.image})` : (d.gradient || "linear-gradient(135deg,#1b2735,#2c3e50)"), display: "flex", alignItems: "flex-start", justifyContent: "flex-end", padding: 7 }}>
                   {/* A Google venue photo is a credited <img> (CardPhoto -> credited lane), never a CSS background-image of /api/photo. */}
-                  {!d.image && d.photoRef ? <CardPhoto src={`/api/photo?ref=${encodeURIComponent(d.photoRef)}&g=2&w=600`} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
+                  {!d.image && d.photoRef ? <CardPhoto inLink src={`/api/photo?ref=${encodeURIComponent(d.photoRef)}&g=2&w=600`} alt="" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} /> : null}
                   {d.badge ? <span style={{ position: "relative", zIndex: 9, fontSize: 9.5, fontWeight: 800, color: "#0D1117", background: "rgba(255,255,255,.92)", borderRadius: 999, padding: "2px 8px" }}>{d.badge}</span> : null}
                 </div>
                 <div style={{ padding: "8px 10px" }}>

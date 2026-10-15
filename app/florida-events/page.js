@@ -152,7 +152,7 @@ export default async function FloridaEventsHub() {
             <a key={e.event_id} href={"/florida-events/" + e.slug} style={S.card}>
               <div style={S.imgWrap}>
                 {cardImage(e)
-                  ? <CardPhoto src={cardImage(e)} alt="" style={S.img} fallbackCategory="events" />
+                  ? <CardPhoto inLink src={cardImage(e)} alt="" style={S.img} fallbackCategory="events" />
                   : <div style={S.imgFallback} aria-hidden="true">{(e.short_title || e.event_name || "?").trim().charAt(0)}</div>}
                 <span style={S.badge}>{dateRangeLabel(e)}</span>
               </div>

@@ -374,7 +374,7 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
               openExternal(live);
             }} style={{ flex: "0 0 200px", scrollSnapAlign: "start", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, overflow: "hidden", textDecoration: "none", color: "inherit" }}>
               <div style={{ position: "relative", height: 86, overflow: "hidden", borderBottom: `1px solid ${C.border}` }}>
-                <CardPhoto src={card.image} alt="" loading="lazy" onError={() => setFailedImages((old) => new Set([...old, card.image]))} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                <CardPhoto inLink src={card.image} alt="" loading="lazy" onError={() => setFailedImages((old) => new Set([...old, card.image]))} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
                 <span style={{ position: "absolute", top: 7, right: 7, padding: "3px 7px", borderRadius: 999, background: "rgba(7,12,20,.82)", border: "1px solid rgba(255,255,255,.24)", color: "#fff", fontSize: 8.5, fontWeight: 800 }}>via {card.merchant}</span>
               </div>
               <div style={{ padding: "8px 10px" }}>

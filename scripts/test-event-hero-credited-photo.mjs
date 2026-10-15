@@ -152,6 +152,56 @@ export function scanSource(source, file = "x.js") {
   // The two shared primitives other slots rely on must keep routing a proxy src to the lane.
   const safe = readFileSync(path.join(REPO, "app/components/SafeImg.js"), "utf8");
   ok(/cardPhotoRequest\(src\)/.test(safe) && /<CardPhoto\b/.test(safe), "SafeImg sends an /api/photo place src to CardPhoto");
+  // A CardPhoto rendered inside a tap target (an <a>, a <button>, or anything carrying rel=, e.g. rel="sponsored")
+  // must pass `inLink`: otherwise its viewer swallows the click (preventDefault + stopPropagation, so the deal /
+  // place never opens) and its Google credit renders an <a> nested inside the parent <a>. SafeImg and
+  // PhotoBackdrop always route through CardPhoto with inLink (asserted below), so they are safe anywhere.
+  const tapTargetViolations = (source, file = "x.js") => {
+    const sf = ts.createSourceFile(file, source, ts.ScriptTarget.ES2020, true, ts.ScriptKind.JSX);
+    const out = [];
+    const tagOf = (el) => (ts.isJsxElement(el) ? el.openingElement : el);
+    const isTap = (opening) => {
+      const tag = opening.tagName.getText(sf);
+      if (tag === "a" || tag === "button") return tag;
+      for (const a of opening.attributes.properties) if (ts.isJsxAttribute(a) && a.name.getText(sf) === "rel") return tag + "[rel]";
+      return null;
+    };
+    (function visit(nd, tap) {
+      if (ts.isJsxElement(nd) || ts.isJsxSelfClosingElement(nd)) {
+        const opening = tagOf(nd);
+        const tag = opening.tagName.getText(sf);
+        if (tag === "CardPhoto" && tap) {
+          const has = opening.attributes.properties.some((a) => ts.isJsxAttribute(a) && a.name.getText(sf) === "inLink" && (!a.initializer || /\{\s*true\s*\}/.test(a.initializer.getText(sf))));
+          if (!has) out.push(`line ${sf.getLineAndCharacterOfPosition(nd.getStart(sf)).line + 1}: <CardPhoto> inside <${tap}> without inLink`);
+        }
+        const here = isTap(opening) || tap;
+        ts.forEachChild(nd, (c) => visit(c, here));
+        return;
+      }
+      // a new function body resets lexical JSX ancestry (a helper component is not "inside" the caller's markup)
+      if (ts.isFunctionLike(nd)) { ts.forEachChild(nd, (c) => visit(c, null)); return; }
+      ts.forEachChild(nd, (c) => visit(c, tap));
+    })(sf, null);
+    return out;
+  };
+  ok(tapTargetViolations('const A = () => <a href="/api/commerce/go?x=1"><div><CardPhoto src={s} /></div></a>;').length === 1, "control(+): CardPhoto inside <a> without inLink is flagged");
+  ok(tapTargetViolations('const A = () => <div rel="sponsored"><CardPhoto src={s} /></div>;').length === 1, "control(+): CardPhoto inside a rel=sponsored element without inLink is flagged");
+  ok(tapTargetViolations('const A = () => <button><CardPhoto src={s} /></button>;').length === 1, "control(+): CardPhoto inside <button> without inLink is flagged");
+  ok(tapTargetViolations('const A = () => <a href="/x"><CardPhoto inLink src={s} /></a>;').length === 0, "control(-): CardPhoto inLink inside <a> passes");
+  ok(tapTargetViolations('const A = () => <div onClick={go}><CardPhoto src={s} /></div>;').length === 0, "control(-): a standalone / place-card CardPhoto (viewer pattern) is not flagged");
+  {
+    const tapOffenders = [];
+    for (const rel of files) tapOffenders.push(...tapTargetViolations(readFileSync(path.join(REPO, rel), "utf8"), rel).map((v) => `${rel}: ${v}`));
+    eq(tapOffenders, [], "every CardPhoto inside an <a> / <button> / rel= element passes inLink:\n  " + tapOffenders.join("\n  "));
+    const strip = (f) => readFileSync(path.join(REPO, f), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+    ok(/<CardPhoto inLink\b/.test(strip("app/components/SafeImg.js")) && (strip("app/components/SafeImg.js").match(/<CardPhoto\b/g) || []).length === 1, "SafeImg's only CardPhoto passes inLink (safe inside any link)");
+    ok(/<CardPhoto inLink\b/.test(strip("app/components/PhotoBackdrop.js")) && (strip("app/components/PhotoBackdrop.js").match(/<CardPhoto\b/g) || []).length === 1, "PhotoBackdrop's only CardPhoto passes inLink (Saved rows are tap targets)");
+    // Placements whose tap target is in ANOTHER component (lexical scan cannot see it): pinned by name.
+    for (const f of ["app/components/BestNearby.js", "app/components/TodaysBest.js", "app/components/PaidLanding.js", "app/components/screens/Coupons.js"]) {
+      const c = strip(f);
+      ok((c.match(/<CardPhoto\b/g) || []).length >= 1 && (c.match(/<CardPhoto\b/g) || []).length === (c.match(/<CardPhoto inLink\b/g) || []).length, `${f}: every CardPhoto is inLink (row / commerce card tap target outside this markup)`);
+    }
+  }
   // Saved.js stores item/list photos in state (a variable, not an /api/photo literal), so the AST scan above cannot see them: pin the primitive.
   const saved = readFileSync(path.join(REPO, "app/components/screens/Saved.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   ok((saved.match(/<PhotoBackdrop\b/g) || []).length === 2 && !/backgroundImage/.test(saved), "Saved.js paints saved-item and list photos through PhotoBackdrop (two uses), never a CSS backgroundImage");
@@ -170,7 +220,7 @@ const compile = (file) => ts.transpileModule(readFileSync(path.join(REPO, file),
 const MODULES = {
   imageHostPolicy: "lib/imageHostPolicy.js", placePhoto: "lib/placePhoto.js", photoAnswers: "lib/photoAnswers.js", cardPhotoRequest: "lib/cardPhotoRequest.js", livePhoto: "lib/livePhoto.js",
   PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js",
-  EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js",
+  EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js",
 };
 const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.stringify(k) + ":function(exports,module,require){" + compile(f) + "\n}").join(",") + "};"
   + "window.__cache={};window.__req=function(id){if(id==='react')return React;if(id==='react-dom')return ReactDOM;var b=id.split('/').pop().replace(/\\.js$/,'');if(!__src[b])throw new Error('harness: unresolved '+id);if(__cache[b])return __cache[b].exports;var m={exports:{}};__cache[b]=m;__src[b](m.exports,m,__req);return m.exports;};"
@@ -179,6 +229,9 @@ const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.s
         h('div',{className:'rail'},h('div',{className:'wf-event-photo',style:{position:'relative',width:300,height:200,overflow:'hidden'}},h(P,Object.assign({hero:true,priority:true,src:src,name:name},extra||{})))),
         h(C.EventHeroCredit,{eventName:'The Haunting',isVenue:true,attr:'Stored Attr',attrHref:'https://example.com/attr',style:{fontSize:12,margin:0},linkStyle:{}})));};`
   + `window.__mount=function(src,name){var c=document.createElement('div');c.id='c'+(++window.__seq);document.getElementById('root').appendChild(c);ReactDOM.createRoot(c).render(__tree(src,name));return c.id;};window.__seq=0;`
+  + `window.__linkClicks=[];window.__mountInLink=function(src,inLink){var c=document.createElement('div');c.id='c'+(++window.__seq);var root=document.getElementById('root');root.insertBefore(c,root.firstChild);window.scrollTo(0,0);var h=React.createElement,CP=__req('CardPhoto').default;
+      ReactDOM.createRoot(c).render(h('a',{href:'/api/commerce/go?x=1',rel:'sponsored nofollow noopener','data-deal':c.id,onClick:function(e){e.preventDefault();window.__linkClicks.push(c.id);},style:{display:'block',position:'relative',width:300,height:200,overflow:'hidden'}},
+        h(CP,{src:src,alt:'Deal venue',inLink:inLink,style:{position:'absolute',inset:0,width:'100%',height:'100%',objectFit:'cover'}})));return c.id;};`
   + `window.__hydrate=function(id){var c=document.getElementById(id);ReactDOM.hydrateRoot(c,__tree(c.dataset.src,'Hydrated'));};`;
 const SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>';
 const reactServer = path.join(REPO, "node_modules/react-dom/umd/react-dom-server-legacy.browser.development.js");
@@ -190,20 +243,24 @@ try {
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
   const pageErrors = []; page.on("pageerror", (e) => pageErrors.push(e.message));
   const bare = []; const asked = {}; let gate = null; let release;
-  const modeOf = (id) => ({ ChIJEvtHeroGoogle01: "google", ChIJEvtHeroNoPhoto01: "none", ChIJEvtHeroPending01: "pending", ChIJEvtHeroTransient1: "503" })[id];
+  const modeOf = (id) => ({ ChIJEvtHeroGoogle01: "google", ChIJEvtHeroNoPhoto01: "none", ChIJEvtHeroPending01: "pending", ChIJEvtHeroTransient1: "503", ChIJEvtHeroOwnedLink1: "owned", ChIJEvtHeroGoogleLnk1: "google", ChIJEvtHeroGoogleLnk2: "google" })[id];
+  const linkAsks = [];
   await page.route("**/*", async (route) => {
     const u = new URL(route.request().url());
     if (u.pathname === "/api/photo") {
       const id = u.searchParams.get("place");
       if (u.searchParams.get("fmt") !== "json" || !["detail", "card"].includes(u.searchParams.get("s"))) { bare.push(u.pathname + u.search); return route.fulfill({ status: 404, body: "not-google-surface" }); }
       asked[id] = (asked[id] || 0) + 1;
+      if (/Link1|Lnk1/.test(id)) linkAsks.push({ id, nospend: u.searchParams.get("nospend") });
       const m = modeOf(id);
       if (m === "google") return route.fulfill({ json: { src: "https://photo.test/" + id + ".jpg", source: "google", credit: { mapsUri: "https://maps.google.com/?cid=" + id, authors: [{ name: "Jordan Lee", uri: "https://maps.google.com/contrib/123" }, { name: "Sam Ortiz", uri: null }] } } });
+      if (m === "owned") return route.fulfill({ json: { src: "/owned/" + id + ".jpg", source: "wayfind", credit: null } });
       if (m === "none") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "no-photo" } });
       if (m === "pending") { await gate; return route.fulfill({ json: { src: "https://photo.test/" + id + ".jpg", source: "google", credit: { mapsUri: "https://maps.google.com/?cid=" + id, authors: [{ name: "Late Author", uri: "https://maps.google.com/contrib/9" }] } } }); }
       if (m === "503") return route.fulfill({ status: 503, body: "busy" });
       return route.fulfill({ status: 404, body: "unknown" });
     }
+    if (u.pathname.startsWith("/owned/")) return route.fulfill({ contentType: "image/svg+xml", body: SVG });
     if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: SVG });
     if (u.pathname.startsWith("/broken")) return route.fulfill({ status: 404, body: "gone" });
     return route.fulfill({ contentType: "text/html", body: '<style>body{margin:0}</style><div id="root"></div>' });
@@ -286,6 +343,34 @@ try {
     const s = await until(id, (x) => x.tile === "unavailable");
     ok(s.img === null && s.tile === "unavailable", `hydration notices the already-failed <img> and shows the tile (${JSON.stringify(s)})`);
     ok(s.credit === false, "and the caption goes with it (no credit under a broken photo)");
+  }
+  // 6. inLink inside a commerce <a>: the parent's click wins, no viewer, no nested <a>, nospend lane only
+  {
+    const linkState = (id) => page.evaluate((i) => { const c = document.getElementById(i); const img = c.querySelector("img"); return { img: img ? img.getAttribute("src") : null, loaded: img ? img.complete && img.naturalWidth > 0 : null, tile: c.querySelector("[data-photo-fallback]")?.getAttribute("data-photo-fallback") || null, nested: c.querySelectorAll("a a").length, anchors: c.querySelectorAll("a").length, dialog: document.querySelectorAll("dialog[open]").length, clicks: window.__linkClicks.filter((x) => x === i).length }; }, id);
+    const settleLink = async (id, pred) => { let l; for (let i = 0; i < 200; i++) { l = await linkState(id); if (pred(l)) return l; await page.clock.runFor(40); await page.waitForTimeout(40); } return l; };
+    // owned answer -> the owned photo shows; tapping it opens the deal
+    const owned = await page.evaluate((src) => window.__mountInLink(src, true), "/api/photo?place=ChIJEvtHeroOwnedLink1&g=2&w=600");
+    let s = await settleLink(owned, (x) => x.loaded === true);
+    ok(s.img === "/owned/ChIJEvtHeroOwnedLink1.jpg" && s.loaded, `inLink + owned answer: the owned photo renders (${JSON.stringify(s)})`);
+    await page.locator("#" + owned + " img").click();
+    s = await linkState(owned);
+    ok(s.clicks === 1 && s.dialog === 0, `inLink: tapping the photo fires the deal link's click and opens NO viewer (${JSON.stringify(s)})`);
+    ok(s.nested === 0 && s.anchors === 1, "inLink: no <a> nested inside the deal <a>");
+    // google answer -> treated as a miss inside a link: tile, no credit anchor, tap still opens the deal
+    const goog = await page.evaluate((src) => window.__mountInLink(src, true), "/api/photo?place=ChIJEvtHeroGoogleLnk1&g=2&w=600");
+    s = await settleLink(goog, (x) => x.tile === "unavailable");
+    ok(s.img === null && s.tile === "unavailable" && s.nested === 0 && s.anchors === 1, `inLink + Google answer: no uncredited Google photo and no credit <a> inside the link (${JSON.stringify(s)})`);
+    await page.locator("#" + goog + " [data-photo-fallback]").click();
+    s = await linkState(goog);
+    ok(s.clicks === 1 && s.dialog === 0, "inLink: tapping the tile still opens the deal");
+    ok(linkAsks.length >= 2 && linkAsks.every((q) => q.nospend === "1"), `every inLink lane request carried nospend=1 (${JSON.stringify(linkAsks)})`);
+    // CONTROL: the same Google answer WITHOUT inLink swallows the click and nests an <a>. Proves the probes can see the bug.
+    const ctl = await page.evaluate((src) => window.__mountInLink(src, false), "/api/photo?place=ChIJEvtHeroGoogleLnk2&g=2&w=600");
+    s = await settleLink(ctl, (x) => x.loaded === true);
+    await page.locator("#" + ctl + " img").click();
+    s = await linkState(ctl);
+    ok(s.clicks === 0 && s.dialog === 1 && s.nested >= 1, `control: without inLink the viewer swallows the deal click and a credit <a> nests in the link (${JSON.stringify(s)})`);
+    await page.keyboard.press("Escape");
   }
   ok(pageErrors.length === 0, `no uncaught page errors (${pageErrors.join(" | ")})`);
   await page.close();

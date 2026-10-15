@@ -108,7 +108,7 @@ function Row({ i, thumb, title, why, meta, badge, trailing, onClick, href, whyOn
     <>
       <Medal i={i} />
       <div style={{ width: 46, height: 46, borderRadius: 9, overflow: "hidden", flexShrink: 0, background: C.card }}>
-        {thumb && <CardPhoto src={thumb} alt="" compact style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+        {thumb && <CardPhoto inLink src={thumb} alt="" compact style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 7, minWidth: 0 }}>

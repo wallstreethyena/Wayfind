@@ -20,7 +20,7 @@ function PickRow({ p, onGo }) {
   return (
     <button onClick={() => onGo(p)} className="wf-tb-focus" style={{ display: "flex", alignItems: "center", gap: 12, width: "100%", textAlign: "left", padding: "8px 2px", minHeight: TARGET, background: "transparent", border: "none", borderTop: "1px solid rgba(255,255,255,.06)", cursor: "pointer" }}>
       <div style={{ width: 46, height: 46, borderRadius: 9, overflow: "hidden", flexShrink: 0, background: C.card }}>
-        {img && <CardPhoto src={img} alt="" compact style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
+        {img && <CardPhoto inLink src={img} alt="" compact style={{ width: "100%", height: "100%", objectFit: "cover" }} />}
       </div>
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>

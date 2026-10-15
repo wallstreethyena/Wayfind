@@ -75,7 +75,7 @@ export default function ExtraMilesTail({ lat, lng }) {
                   world changes between that check and this paint, hide the
                   broken glyph rather than show a wrong picture. */}
               <div style={{ position: "relative", aspectRatio: "16/10", background: "#1e293b" }}>
-                <CardPhoto src={c.image} alt={c.title} decoding="async" style={{ width: "100%", height: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block" }}
+                <CardPhoto inLink src={c.image} alt={c.title} decoding="async" style={{ width: "100%", height: "100%", aspectRatio: "16/10", objectFit: "cover", display: "block" }}
                   onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (_) {} }} />
               </div>
               <div className="wf8-xm-b">
