@@ -1,6 +1,27 @@
 {
   "slug": "florida-christmas-boat-parades-2026",
-  "picks": {},
+  "picks": {
+    "Jacksonville Light Boat Parade": {
+      "src": "/guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp",
+      "width": 960,
+      "height": 540,
+      "alt": "Jacksonville Southbank Riverwalk beside the St. Johns River with downtown towers and bridges",
+      "caption": "Jacksonville’s Southbank Riverwalk in 2018, one of the parade viewing areas. The parade is not pictured.",
+      "credit": "Agassiz830",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg",
+      "author": "Agassiz830",
+      "position": "50% 50%",
+      "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph. The photograph remains available under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJCRW-9SK35YgRwOMNBWLdzRI",
+      "verification": "The Commons file identifies Southbank Riverwalk, credits Agassiz830 under CC BY-SA 4.0, and supplies coordinates 30.317867,-81.651511 in Downtown Jacksonville. Visually inspected the Commons preview: the pedestrian riverwalk beside the St. Johns River with downtown buildings and bridges. The guide names the North and Southbank Riverwalks as viewing areas. This is route context; no boat parade is pictured.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-15"
+    }
+  },
   "gaps": {
     "Seminole Hard Rock Winterfest Boat Parade": {
       "reason": "google-only",
@@ -11,12 +32,6 @@
     "Tampa Riverwalk Holiday Lighted Boat Parade": {
       "reason": "google-only",
       "placeId": "ChIJD0N73GTFwogRuJTf5jAk5B8",
-      "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
-    },
-    "Jacksonville Light Boat Parade": {
-      "reason": "google-only",
-      "placeId": "ChIJCRW-9SK35YgRwOMNBWLdzRI",
       "needsPermissionFrom": null,
       "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
     },

@@ -3,20 +3,20 @@
   "verifiedAt": "2026-10-07",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 312,
-    "usages": 326,
-    "verified": 312,
+    "files": 316,
+    "usages": 330,
+    "verified": 316,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 75,
+      "CC BY-SA 4.0": 76,
       "CC BY-SA 3.0": 72,
       "CC BY 4.0": 19,
       "CC BY 3.0": 15,
       "CC BY 2.0": 79,
-      "CC0 1.0 Universal": 23,
+      "CC0 1.0 Universal": 24,
       "CC BY-SA 2.0": 26,
-      "Unsplash License": 3
+      "Unsplash License": 5
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -1334,6 +1334,111 @@
       "verifiedAt": "2026-10-07"
     },
     {
+      "src": "/guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp",
+      "usedBy": [
+        {
+          "slug": "florida-christmas-boat-parades-2026",
+          "role": "pick",
+          "pick": "Jacksonville Light Boat Parade"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg",
+        "title": "Southbank Riverwalk.jpg",
+        "author": "Agassiz830",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "date": "2018-10-27",
+        "evidence": "Exact Commons imageinfo API and primary file page checked; unchanged downloaded preview visually inspected on 2026-10-15.",
+        "verification": "The Commons file identifies Southbank Riverwalk, credits Agassiz830 under CC BY-SA 4.0, and supplies coordinates 30.317867,-81.651511 in Downtown Jacksonville. Visually inspected the Commons preview: the pedestrian riverwalk beside the St. Johns River with downtown buildings and bridges. The guide names the North and Southbank Riverwalks as viewing areas. This is route context; no boat parade is pictured.",
+        "downloadSha256": "873a4d11411907b9f19f7fe2120cd036e24b07ae48b2db6247b7ee1ff196560c",
+        "outputSha256": "69bdd8062565311108492bea0274de97b0c37c300df011bed718bcbeeb773445"
+      },
+      "wayfind": {
+        "credit": "Agassiz830",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph. The photograph remains available under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-10-15",
+      "verificationMethod": "source-api-and-image-review"
+    },
+    {
+      "src": "/guides/picks/florida-holiday-nights-out-2026/largo-central-park.webp",
+      "usedBy": [
+        {
+          "slug": "florida-holiday-nights-out-2026",
+          "role": "pick",
+          "pick": "Holiday Lights in Largo Central Park"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg",
+        "title": "Largo Central Park, Largo, Florida, 10 March 2024.jpg",
+        "author": "Theo Worrall",
+        "licence": "CC0 1.0 Universal",
+        "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "date": "2024-03-10",
+        "evidence": "Exact Commons imageinfo API and primary file page checked; unchanged downloaded preview visually inspected on 2026-10-15.",
+        "verification": "The Commons file identifies Largo Central Park, Largo, Florida, and the source API credits Theo Worrall under CC0. Visually inspected the Commons preview: shaded paved paths, lawn, mature trees and park facilities. It is exact venue context in daylight; the holiday light displays are not shown.",
+        "downloadSha256": "4145018b2f43c27a751ac6ae438d63ab813d7a90dd62596d610a4ae6ba5a8ab3",
+        "outputSha256": "825d5df1fb4c752a920671d93f6a5cd7d031fc86e1dd7ed1cca45361b601af25"
+      },
+      "wayfind": {
+        "credit": "Theo Worrall",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg",
+        "license": "CC0 1.0 Universal",
+        "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
+        "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-10-15",
+      "verificationMethod": "source-api-and-image-review"
+    },
+    {
+      "src": "/guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp",
+      "usedBy": [
+        {
+          "slug": "florida-holiday-nights-out-2026",
+          "role": "pick",
+          "pick": "Lights in Bloom at Selby Gardens"
+        }
+      ],
+      "source": {
+        "kind": "unsplash",
+        "url": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
+        "title": "Island park illuminated with colorful lights at night",
+        "author": "Joseph Corl",
+        "licence": "Unsplash License",
+        "licenceUrl": "https://unsplash.com/license",
+        "publishedDate": "2025-12-09",
+        "evidence": "Primary Unsplash source, free-license statement and downloaded photo visually reviewed on 2026-10-15; this is the same exact natural photo already verified for the Wayfind Google Ads asset.",
+        "verification": "The exact Unsplash source identifies Joseph Corl and Sarasota’s Marie Selby Botanical Gardens Christmas lights, states the free Unsplash License, and was published December 9, 2025. Visually inspected the downloaded aerial photograph: illuminated garden paths and palms on the Sarasota bayfront, the Selby campus, downtown skyline and holiday light displays. This is a previously published holiday display, not evidence of the 2026 layout.",
+        "downloadSha256": "e9aec0765d45306d15d4e4084cd21741bc45838ff7b9d0376365f7e051cef405",
+        "outputSha256": "6ea447f7118ec75f3deedb103e0829b41d6f87faec058676616891ee76539cb3"
+      },
+      "wayfind": {
+        "credit": "Joseph Corl",
+        "creditHref": "https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI",
+        "license": "Unsplash License",
+        "licenseUrl": "https://unsplash.com/license",
+        "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-10-15",
+      "verificationMethod": "manual-source-and-image-review"
+    },
+    {
       "src": "/guides/picks/florida-lovebug-season/can-wayfind-tell-me-where-lovebugs-are-worst-right-now.webp",
       "usedBy": [
         {
@@ -1755,6 +1860,42 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-10-07"
+    },
+    {
+      "src": "/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp",
+      "usedBy": [
+        {
+          "slug": "florida-winter-beaches-2026",
+          "role": "pick",
+          "pick": "Bahia Honda State Park"
+        }
+      ],
+      "source": {
+        "kind": "unsplash",
+        "url": "https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8",
+        "title": "Sea waves beside the old Bahia Honda rail bridge at sunset",
+        "author": "Matthew Wu",
+        "licence": "Unsplash License",
+        "licenceUrl": "https://unsplash.com/license",
+        "date": "2020-12-03",
+        "evidence": "Read the exact primary Unsplash photo page and free-license statement, downloaded its Medium version, and visually inspected the downloaded file on 2026-10-15.",
+        "verification": "Unsplash credits Matthew Wu, identifies Monroe County, Florida, and states the free Unsplash License (published December 3, 2020). Visually reviewed the original 1920x1440 download: the distinctive old Bahia Honda steel-truss bridge has a removed span beside the park shoreline, with the modern road bridge in the distance. The landmark is consistent with the Florida State Parks Bahia Honda bridge history. This is a 2020 photograph, not a claim about current water or access conditions.",
+        "identityReference": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park/history",
+        "downloadSha256": "d06d1f56f68e88ad327912f92b9a1d2b02594a2a563ec064a98a609063780ef5",
+        "outputSha256": "d73a5f836a813dd8c753b9fb07b237293a9415eaae60cb01084e3909afcdd5b6"
+      },
+      "wayfind": {
+        "credit": "Matthew Wu",
+        "creditHref": "https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8",
+        "license": "Unsplash License",
+        "licenseUrl": "https://unsplash.com/license",
+        "modificationNotice": "Resized and converted to WebP for page loading; display may crop the photograph."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-10-15",
+      "verificationMethod": "manual-source-and-image-review"
     },
     {
       "src": "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
