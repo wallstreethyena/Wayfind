@@ -4,7 +4,7 @@
 // photo as "backlog" never pages, which is the exact silence it exists to end.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseGuidePicks, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
+import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
 
 let n = 0;
 const ok = (c, m) => { assert.ok(c, m); n++; };
@@ -20,6 +20,8 @@ ok(g.length === 5 && g[0].name === "Siesta Beach" && g[0].imgs[0] === "/guides/p
 ok(g[1].imgs.length === 0 && !g[1].live, "text-only pick parsed");
 ok(g[2].live, "live rung marker parsed");
 ok(g[3].imgs.length === 1 && !g[3].credited, "uncredited image parsed");
+const ded = parseDedicatedGuide('<section class="lead"><img src="/wayfind-wordmark.svg"><img src="/guides/pintos/a.webp"><figcaption>Photo: X</figcaption></section>');
+ok(ded && ded.imgs.length === 1 && ded.credited && parseDedicatedGuide(guideHtml) === null, "dedicated guide route checked as one row; pick-section pages are not");
 ok(g[4].illustrative && !g[0].illustrative, "labelled context photo parsed apart from an exact-place photo");
 
 const blogHtml = `<section class="list-item"><h2 id="a"><span class="num">1.</span>Bo's Ice Cream</h2><figure class="item-photo"><img src="https://lh3/x"><figcaption><span class="credit">Photo: A</span></figcaption></figure></section>

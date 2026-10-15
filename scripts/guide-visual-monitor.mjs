@@ -31,7 +31,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { GUIDES } from "../lib/guides.js";
 import { recordPulse } from "../lib/jobPulse.js";
-import { parseGuidePicks, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
+import { parseGuidePicks, parseDedicatedGuide, parseBlogItems, classify } from "../lib/guideVisualMonitor.js";
 export { parseGuidePicks, parseBlogItems, classify };
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -105,6 +105,8 @@ async function main() {
   const guideRows = [];
   for (const { g, html } of pages) {
     if (!html) continue;
+    const dedicated = parseDedicatedGuide(html);
+    if (dedicated) { guideRows.push({ surface: "guide", page: g.slug, placeId: null, ...dedicated, expectPhoto: true, documented: false }); continue; }
     const parsed = parseGuidePicks(html);
     const gaps = gapsFor(g.slug);
     (g.picks || []).forEach((pick, i) => {
