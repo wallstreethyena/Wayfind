@@ -79,22 +79,22 @@ export async function GET(req) {
   // Shadows the import on purpose: GET's exits all go through ONE gate so a run
   // writes exactly one pulse. jobFailed (the sweep's own failure exits) counts
   // as the pulse for that run.
-  const recordPulse = async (row) => { if (pulsed) return false; pulsed = true; return recordPulseOnce(JOB, row); };
+  const recordPulse = async (job, row) => { if (pulsed) return false; pulsed = true; return recordPulseOnce(job, row); };
   const failed = (reason) => { pulsed = true; return jobFailed(JOB, reason); };
   const watchdogMs = num("LINK_HEALTH_WATCHDOG_MS", WATCHDOG_MS);
   let timer;
   const watchdog = new Promise((resolve) => {
     timer = setTimeout(async () => {
-      await recordPulse({ attempted: 0, succeeded: 0, failed: 1, note: `watchdog: sweep still running after ${Math.round(watchdogMs / 1000)}s; aborted so the run is visible (see runtime logs)`.slice(0, 200) });
+      await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: `watchdog: sweep still running after ${Math.round(watchdogMs / 1000)}s; aborted so the run is visible (see runtime logs)`.slice(0, 200) });
       resolve(Response.json({ ok: false, job: JOB, error: "watchdog: sweep exceeded its time budget" }, { status: 500, headers: { "cache-control": "no-store" } }));
     }, watchdogMs);
   });
   let res = null, crashed = null;
-  try { res = await Promise.race([sweep(sp, s, h, recordPulse, failed), watchdog]); } catch (e) { crashed = e; }
+  try { res = await Promise.race([sweep(sp, s, h, (row) => recordPulse(JOB, row), failed), watchdog]); } catch (e) { crashed = e; }
   clearTimeout(timer);
   // Safety net: a no-op when the sweep or the watchdog already pulsed; records
   // a failed pulse if the sweep crashed or returned without writing one.
-  await recordPulse({ attempted: 0, succeeded: 0, failed: 1, note: (crashed ? "unhandled: " + String((crashed && crashed.message) || crashed) : "sweep ended without recording a pulse").slice(0, 200) });
+  await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: (crashed ? "unhandled: " + String((crashed && crashed.message) || crashed) : "sweep ended without recording a pulse").slice(0, 200) });
   return crashed ? Response.json({ ok: false, job: JOB, error: "unhandled sweep error" }, { status: 500, headers: { "cache-control": "no-store" } }) : res;
 }
 
