@@ -2229,6 +2229,7 @@ node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs
 node scripts/test-event-hero-provenance.mjs
 node scripts/test-hotel-cta-impression.mjs
+node scripts/check-poster-seasons.mjs
 node scripts/test-hero-impression-rendered.mjs
 
 # 2026-10-14 canonical Florida anchor-event list (data/florida-anchor-events.json): schema, unique ids, rails exist, region/domain/event_id rules + negative controls.

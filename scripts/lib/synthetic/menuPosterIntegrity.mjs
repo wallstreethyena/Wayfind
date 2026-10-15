@@ -2,6 +2,7 @@
 // homepage poster menu synthetic.  Keep this free of browser/network code so
 // the hermetic monitor guard can red-prove its decisions.
 import { siteTodayStr } from "../../../lib/siteTime.js";
+import { posterSeasonLive } from "../../../lib/posterSeasons.js";
 import { snapRailCoord } from "./fixtures.mjs";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../../lib/liveEventPosterTypes.js";
 import { PARTNER_COLLECTIONS } from "../../../lib/partnerCollections.js";
@@ -82,8 +83,11 @@ export function railsRequestMatchesOrigin(urlString, origin) {
  * else is still an unowned poster and fails exactly as before.
  */
 export function posterMenuDiff(visibleIds, today = siteTodayStr()) {
-  // Halloween is required through Oct 31 ET and forbidden after its campaign.
-  const expected = EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "halloween" || today <= "2026-10-31");
+  // Seasonal posters (Fall, Halloween, Christmas) are required inside their yearly
+  // window and forbidden outside it. The windows are lib/posterSeasons.js, the same
+  // table the homepage track filter reads (owner, 2026-10-14), so the monitor and the
+  // product cannot disagree and no year-specific date lives here.
+  const expected = EXPECTED_VISIBLE_POSTER_IDS.filter((id) => posterSeasonLive(id, today));
   const actual = Array.isArray(visibleIds) ? visibleIds.map(asId).filter(Boolean) : [];
   const actualSet = new Set(actual);
   const approvedSet = new Set([...expected, ...OPTIONAL_VISIBLE_POSTER_IDS]);
