@@ -386,6 +386,7 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigure";
+import GuideLivePickPhoto from "../../components/GuideLivePickPhoto.js";
 import { guideHero } from "../../../lib/guideHero";
 import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -620,6 +621,21 @@ export default async function GuidePage({ params }) {
   }));
   // Map-explorer cards cannot show Google's required photo credit, so each
   // spot gets its licensed photo (with its credit) or none (2026-09-30).
+  // Picks still without a photo get their OWN place's photo in the browser
+  // (GuideLivePickPhoto). The resolved place wins; a declared placeId is used
+  // only when no other pick already shows that place (same rule as DEDUPE above).
+  const livePickPlaceIds = (() => {
+    const shown = new Set(pickPlaces.filter(Boolean).map((p) => p.id));
+    return g.picks.map((pk, idx) => {
+      if (curatedPickImages[idx]) return null;
+      const resolvedId = pickPlaces[idx] && pickPlaces[idx].id;
+      if (resolvedId) return editorialImages.get(resolvedId) ? null : resolvedId;
+      const declared = typeof pk.placeId === "string" ? pk.placeId : "";
+      if (!declared || shown.has(declared)) return null;
+      shown.add(declared);
+      return declared;
+    });
+  })();
   const mapExplorerSpots = g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3
     ? await withAttributableSpotPhotos(g.mapExplorer.spots, { findFreePhoto })
     : null;
@@ -1077,6 +1093,10 @@ export default async function GuidePage({ params }) {
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} className="wf-guide-pick-figure" />
+              ) : livePickPlaceIds[i] ? (
+                // No curated or licensed photo: the pick's OWN place photo through
+                // the credited lane (lib/livePlaceMedia.js, owner 2026-10-07/15).
+                <GuideLivePickPhoto placeId={livePickPlaceIds[i]} alt={pick.name} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}

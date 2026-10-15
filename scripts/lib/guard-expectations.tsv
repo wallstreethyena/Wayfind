@@ -135,7 +135,7 @@ scripts/check-event-hero-and-directions.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0
 scripts/check-event-jsonld-offset.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	d9e9a9a68aadd18d94c2a6539a21d7a1a6649942e67ffbfe48efd28190e5e16c
 scripts/check-event-outing.mjs	0	CALL	blocks-ci-and-deploy	1	-	220	0	0	b95ee8457a9eb4afa0a03a9cc13dde0e85ddc83ee2408716814aeb17a17e9dbc
 scripts/check-event-pairings.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	b6480bac0c254063e19415a95326009f680a30807d31d78dd8ebb1a63a951ba0
-scripts/check-event-photo-honesty.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	d4b22cdc881a106bdbd88e0f0a03678073c6f2d44ec4025f1537f6647a830d30
+scripts/check-event-photo-honesty.mjs	0	RENDER	blocks-ci-and-deploy	1	-	19	0	0	d5795c49da3e3b93c44432637dac9d4290b962254e2eb53391f1591399bafbc9
 scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	515267a064da683b917877be5d57a47908079c7017f72d1ba99259737a138443
 scripts/check-event-price-fact.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	a07df857eada06cf050c0d2ce8fd85f563e4e637caef7b0a195dad6ff877c384
 scripts/check-event-price-language.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	037c93a05348a8f360185bb2582a766b8f13fb0e1bef02b7f95af0881a0fa558
@@ -285,7 +285,7 @@ scripts/check-native-no-ad-tracking.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	5
 scripts/check-nearby-pool.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	97b600b0fea385a7014eacc75d88521da0cf2f410af5d580da2a9c4ed05253e1
 scripts/check-new-content-images.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	fbdd1ba172447b5a2a9b056dfe73c37f8846a519fe38a23de69e43ecb1492719
 scripts/check-no-card-cap.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	35070336fb6b0f17e207aa2acb016070d36d7bbd7d53d74a6a1605ab2d3c1b99
-scripts/check-no-dead-end-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	72970a5f42a167726aa0e7b0c62ca4681eaf19674adf2b7dec75c81afbb350a8
+scripts/check-no-dead-end-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0a778e578576a26b7ec6ab090476b27d475067279073f3a67b0382ab15f3ce29
 scripts/check-no-disney-sources.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	ca515bd812fa1474c84f8e2ba15a012c968ffb05760260eea015bce75574353a
 scripts/check-no-imageless-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	caa4cbedf450e52ecb5ce359df02cc805d122be36504274e3a5ab6a9988a35b8
 scripts/check-no-llm-in-render-path.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	c3a009e234c00ff9e1c15ad76ae5d544a7a617963ef9a49a2883d751f2cf245f
@@ -732,6 +732,7 @@ scripts/test-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	d65d1b686971bb88b1
 scripts/test-list-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	15f0edb013448410a21aa2bd3728441caa67cc310194dc9bbe4511082047486d
 scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	74	0	0	556a94ef27c453deb175f6a458e1ad962dea22a735133c91f8a4c2bfafe00351
 scripts/test-live-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	340f34680f78e5459596756b98d49f3704e302b1fd754d3c196dd2adcab0fe15
+scripts/test-live-place-media.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	1d982281d5574255288b6a0eebc2120533df32ccd1c93a497a6d690aa57515f0
 scripts/test-live-poster-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	1adf7e0d6c5b6f486971295c04a7f40988a2e94bf1db1c49e6e474c833fae1cc
 scripts/test-local-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	1	1	47b7a9b8444c4d9b10c47e658e1f14e27cd352bb33908faec637cc82f381215f
 scripts/test-location-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	afa128e0bbe3f00a87879bdc9116b0606438bab04414c2a64afe1f04eb93645d

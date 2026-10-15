@@ -181,8 +181,14 @@ for (const rel of PAGES) {
 {
   const rel = PAGES[0];
   const src = stripComments(readFileSync(join(ROOT, rel), "utf8"));
-  ok(/\}Google Maps<|>Google Maps\.|Google Maps<\/>|Google Maps\.<\/>/.test(src) || /Photo: <>[^]*Google Maps/.test(src),
+  // Since 2026-10-15 the live venue-photo credit renders in EventPlacePhotoCredit
+  // (app/components/EventPlacePhoto.js), which the curated page mounts. Follow it.
+  const photoComp = stripComments(readFileSync(join(ROOT, "app/components/EventPlacePhoto.js"), "utf8"));
+  ok((/\}Google Maps<|>Google Maps\.|Google Maps<\/>|Google Maps\.<\/>/.test(src) || /Photo: <>[^]*Google Maps/.test(src))
+    || (/<EventPlacePhotoCredit[\s/>]/.test(src) && /<span translate="no">Google Maps<\/span>/.test(photoComp)),
     "positive control: the visible Google Maps photo credit text is still rendered (as text, not a link)");
+  ok(!/maps\/search|google\.com\/maps|mapsUri\}|href=\{credit\.mapsUri/.test(photoComp) && !/href=\{a\.uri\}/.test(photoComp),
+    "app/components/EventPlacePhoto.js (mounted on event pages) links no Google Maps URL or Google author profile; the credit is plain text");
   for (const [label, from, to] of [
     ["a map search assigned to directions", "const dirs = appleDirectionsUrl(e);", 'const dirs = "https://www.google.com/maps/search/?api=1&query=Sarasota";'],
   ]) {

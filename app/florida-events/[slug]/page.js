@@ -11,7 +11,7 @@ import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // namespace.
 //
 // The answer box comes FIRST. Nobody wants 500 words before the date.
-import EventPlacePhoto from "../../components/EventPlacePhoto.js";
+import EventPlacePhoto, { EventPlacePhotoCredit } from "../../components/EventPlacePhoto.js";
 import EventDetailShell from "../../components/EventDetailShell.js";
 import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
@@ -368,7 +368,11 @@ export default async function CuratedEventPage({ params }) {
         </>}
         credit={shots && shots.credit ? <p style={S.credit}>
           Photos: {shots.creditUrl ? <PhotoCreditLink style={S.link} href={shots.creditUrl} rel="nofollow noopener">{shots.credit}</PhotoCreditLink> : shots.credit}, shared with Wayfind for this listing.
-        </p> : eventImageIsVenue(e, heroSrc) ? <p style={S.credit}>Venue photo · {e.event_name} is not pictured.{heroSrc?.startsWith("/api/photo?") ? <> Photo: Google Maps.</> : e.photoAttr ? <> Photo: {e.photoAttrHref ? <PhotoCreditLink style={S.link} href={e.photoAttrHref}>{e.photoAttr}</PhotoCreditLink> : e.photoAttr}.</> : null}</p> : null}
+        </p> : eventImageIsVenue(e, heroSrc) ? (heroSrc?.startsWith("/api/photo?")
+          // The venue photo resolves in the browser (EventPlacePhoto); its credit
+          // line shows only once that exact photo is on screen, with its authors.
+          ? <EventPlacePhotoCredit src={heroSrc} lead={`Venue photo · ${e.event_name} is not pictured.`} style={S.credit} linkStyle={S.link} />
+          : <p style={S.credit}>Venue photo · {e.event_name} is not pictured.{e.photoAttr ? <> Photo: {e.photoAttrHref ? <PhotoCreditLink style={S.link} href={e.photoAttrHref}>{e.photoAttr}</PhotoCreditLink> : e.photoAttr}.</> : null}</p>) : null}
       />
 
       {/* A Fall card that names a creator must pay that promise off before the

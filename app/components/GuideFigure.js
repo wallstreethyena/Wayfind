@@ -103,7 +103,9 @@ export function GuideFigureCredit({ image, as: As = "div", className }) {
           {media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
           {media.credit && license ? <span aria-hidden="true"> · </span> : null}
           {license ? (licenseHref ? <PhotoCreditLink href={licenseHref}>{license}</PhotoCreditLink> : <>{license}</>) : null}
-          {media.providerHref ? <><span aria-hidden="true"> · </span><PhotoCreditLink href={media.providerHref}>Google Maps</PhotoCreditLink></> : null}
+          {/* A Google photo with no named author is credited by the Google Maps
+              link itself (lib/livePlaceMedia.js); never print that link twice. */}
+          {media.providerHref && !(media.credit === "Google Maps" && media.creditHref === media.providerHref) ? <><span aria-hidden="true"> · </span><PhotoCreditLink href={media.providerHref}>Google Maps</PhotoCreditLink></> : null}
         </span>
       ) : null}
       {caption.notice ? (

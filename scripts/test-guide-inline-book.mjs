@@ -113,7 +113,12 @@ checkClick(mod.onInlineOfferClick);
 
 // 6. mounting
 const page = readFileSync(path.join(REPO, "app/guides/[slug]/page.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-const loop = page.slice(page.indexOf("g.picks.map((pick, i)"), page.indexOf("g.picks.map((pick, i)") + 4000);
+// The picks loop body = from the map call to the end of that pick's <section>
+// (a fixed character window broke when the pick photo branch grew, 2026-10-15).
+const loopStart = page.indexOf("g.picks.map((pick, i)");
+const loopEnd = page.indexOf("</section>", loopStart);
+if (loopStart < 0 || loopEnd < 0) { console.error("test-guide-inline-book: picks loop or its </section> not found"); process.exit(1); }
+const loop = page.slice(loopStart, loopEnd);
 ok(/inlineBookConfig\(params\.slug, i\)\s*\?\s*<GuidePickDecision[\s/>]/.test(loop), "mount: page.js renders <GuidePickDecision inside the picks loop, gated by inlineBookConfig");
 ok((page.match(/<GuidePickDecision[\s/>]/g) || []).length === 1, "mount: rendered in exactly one place");
 
