@@ -191,6 +191,44 @@ export function pickBookLinkCandidates(hrefs, note) {
   return safe.length ? safe : all;
 }
 
+// book-links used to sample the home page's /api/*/go links once, 1.5s after
+// domcontentloaded. Live probe 2026-10-15 (6 loads of www.gowayfind.com): zero
+// CTAs and zero .wf-place-card until the rails mount, first CTA at 2.6-4.8s
+// (one load also saw a mid-hydration navigation error). A slow load therefore
+// sampled an empty surface, then the 1s-wait events fallback was equally early,
+// and the scenario reported "no Book CTA found" (seen 2026-10-14 and 10-15 in
+// --all runs, never alone). Wait, bounded, for the CTAs to mount. A page with
+// truly zero CTAs still returns [] after the full bound, so the scenario still
+// fails there.
+export const BOOK_CTA_WAIT_MS = 12000;
+export const BOOK_CTA_FALLBACK_WAIT_MS = 8000;
+export const BOOK_CTA_POLL_MS = 250;
+
+/**
+ * Poll `page` until at least one go-route link is in the DOM or maxMs elapses.
+ * `now` / `sleep` are injectable so the guard can run it on a virtual clock.
+ * @param {{evaluate: Function, waitForTimeout?: Function}} page
+ * @param {string} patternSource RegExp source for the go-route href
+ * @param {{maxMs?:number, pollMs?:number, now?:()=>number, sleep?:(ms:number)=>Promise<any>}} [opts]
+ * @returns {Promise<string[]>} hrefs ([] when none mounted within maxMs)
+ */
+export async function waitForBookCtaHrefs(page, patternSource, opts = {}) {
+  const maxMs = opts.maxMs ?? BOOK_CTA_WAIT_MS;
+  const pollMs = opts.pollMs ?? BOOK_CTA_POLL_MS;
+  const now = opts.now || Date.now;
+  const sleep = opts.sleep || ((ms) => page.waitForTimeout(ms));
+  const t0 = now();
+  let hrefs = [];
+  for (;;) {
+    hrefs = await page.evaluate((src) => {
+      const rx = new RegExp(src);
+      return [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")).filter((h) => h && rx.test(h));
+    }, patternSource).catch(() => []);
+    if (hrefs.length || now() - t0 >= maxMs) return hrefs;
+    await sleep(pollMs);
+  }
+}
+
 /**
  * The first cards a visitor sees are NOT final: the page first paints for its
  * default centre (Parrish: the "theme-parks-flagship" rail) and re-renders the
@@ -1197,25 +1235,19 @@ export const SCENARIOS = [
       const homeUrl = ctx.baseUrl + "/";
       await page.goto(homeUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
       ctx.setUrl(homeUrl);
-      await page.waitForTimeout(1500);
 
       const GO_PATTERN = /^\/api\/(viator|commerce|ticketmaster)\/go\?/;
 
-      let hrefs = await page.evaluate((src) => {
-        const rx = new RegExp(src);
-        return [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")).filter((h) => h && rx.test(h));
-      }, GO_PATTERN.source);
+      // CTAs mount after the rails (first seen 2.6-4.8s in): wait for them,
+      // bounded, instead of sampling once at a fixed 1.5s.
+      let hrefs = await waitForBookCtaHrefs(page, GO_PATTERN.source, { maxMs: BOOK_CTA_WAIT_MS });
       hrefs = pickBookLinkCandidates(hrefs, ctx.note);
 
       if (!hrefs.length) {
         // Fall back to a page that always carries ticketed CTAs.
         const evUrl = ctx.baseUrl + "/events/sarasota/this-weekend";
         await page.goto(evUrl, { waitUntil: "domcontentloaded", timeout: 30000 }).catch(() => {});
-        await page.waitForTimeout(1000);
-        hrefs = await page.evaluate((src) => {
-          const rx = new RegExp(src);
-          return [...document.querySelectorAll("a[href]")].map((a) => a.getAttribute("href")).filter((h) => h && rx.test(h));
-        }, GO_PATTERN.source);
+        hrefs = await waitForBookCtaHrefs(page, GO_PATTERN.source, { maxMs: BOOK_CTA_FALLBACK_WAIT_MS });
         hrefs = pickBookLinkCandidates(hrefs, ctx.note);
       }
 
