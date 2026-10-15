@@ -13,7 +13,7 @@ import { sbEnv } from "../../../../lib/serverCache.js";
 import { describeProductProbe, nextHealthState, parseRetryAfter, runPoliteProbes } from "../../../../lib/experienceLinkHealth.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
-import { recordPulse } from "../../../../lib/jobPulse.js";
+import { recordPulse as recordPulseOnce } from "../../../../lib/jobPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -76,24 +76,29 @@ export async function GET(req) {
   // returns 500 while the platform can still run code. Exactly one pulse is
   // ever written per run (the `pulse` gate), whichever side finishes first.
   let pulsed = false;
-  const pulse = async (row) => { if (pulsed) return false; pulsed = true; return recordPulse(JOB, row); };
+  // Shadows the import on purpose: GET's exits all go through ONE gate so a run
+  // writes exactly one pulse. jobFailed (the sweep's own failure exits) counts
+  // as the pulse for that run.
+  const recordPulse = async (row) => { if (pulsed) return false; pulsed = true; return recordPulseOnce(JOB, row); };
+  const failed = (reason) => { pulsed = true; return jobFailed(JOB, reason); };
   const watchdogMs = num("LINK_HEALTH_WATCHDOG_MS", WATCHDOG_MS);
   let timer;
   const watchdog = new Promise((resolve) => {
     timer = setTimeout(async () => {
-      await pulse({ attempted: 0, succeeded: 0, failed: 1, note: `watchdog: sweep still running after ${Math.round(watchdogMs / 1000)}s; aborted so the run is visible (see runtime logs)`.slice(0, 200) });
+      await recordPulse({ attempted: 0, succeeded: 0, failed: 1, note: `watchdog: sweep still running after ${Math.round(watchdogMs / 1000)}s; aborted so the run is visible (see runtime logs)`.slice(0, 200) });
       resolve(Response.json({ ok: false, job: JOB, error: "watchdog: sweep exceeded its time budget" }, { status: 500, headers: { "cache-control": "no-store" } }));
     }, watchdogMs);
   });
-  try {
-    return await Promise.race([sweep(sp, s, h, pulse), watchdog]);
-  } catch (e) {
-    await pulse({ attempted: 0, succeeded: 0, failed: 1, note: ("unhandled: " + String((e && e.message) || e)).slice(0, 200) });
-    return Response.json({ ok: false, job: JOB, error: "unhandled sweep error" }, { status: 500, headers: { "cache-control": "no-store" } });
-  } finally { clearTimeout(timer); }
+  let res = null, crashed = null;
+  try { res = await Promise.race([sweep(sp, s, h, recordPulse, failed), watchdog]); } catch (e) { crashed = e; }
+  clearTimeout(timer);
+  // Safety net: a no-op when the sweep or the watchdog already pulsed; records
+  // a failed pulse if the sweep crashed or returned without writing one.
+  await recordPulse({ attempted: 0, succeeded: 0, failed: 1, note: (crashed ? "unhandled: " + String((crashed && crashed.message) || crashed) : "sweep ended without recording a pulse").slice(0, 200) });
+  return crashed ? Response.json({ ok: false, job: JOB, error: "unhandled sweep error" }, { status: 500, headers: { "cache-control": "no-store" } }) : res;
 }
 
-async function sweep(sp, s, h, pulse) {
+async function sweep(sp, s, h, pulse, failed) {
 
   const limit = Math.min(Math.max(parseInt(sp.get("limit") || "150", 10) || 150, 1), 400);
   // Oldest-checked first, never-checked before everything: a full 3,400-row
@@ -103,10 +108,10 @@ async function sweep(sp, s, h, pulse) {
   let rows;
   try {
     const r = await fetch(sel, { headers: h, cache: "no-store" });
-    if (!r.ok) return jobFailed(JOB, `unavailable: wf_experiences read failed (HTTP ${r.status})`);
+    if (!r.ok) return failed(`unavailable: wf_experiences read failed (HTTP ${r.status})`);
     rows = await r.json();
-  } catch { return jobFailed(JOB, "unavailable: wf_experiences read did not complete"); }
-  if (!Array.isArray(rows)) return jobFailed(JOB, "unavailable: wf_experiences returned a malformed worklist");
+  } catch { return failed("unavailable: wf_experiences read did not complete"); }
+  if (!Array.isArray(rows)) return failed("unavailable: wf_experiences returned a malformed worklist");
   if (!rows.length) {
     await pulse({ attempted: 0, succeeded: 0, failed: 0, note: "healthy idle: no experiences due for checking" });
     return Response.json({ ok: true, checked: 0 }, { headers: { "Cache-Control": "no-store" } });
