@@ -32,7 +32,7 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // there resolves against the wrong directory and crashes that guard. This
 // file is never transpiled that way, so it carries the fallback instead — see
 // the pick loop below for the one call site.
-import { guidePickPhoto } from "../../../lib/guidePickPhotos";
+import { guidePickPhoto, guidePhotoForPlace } from "../../../lib/guidePickPhotos";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
 import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
@@ -618,6 +618,19 @@ export default async function GuidePage({ params }) {
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
     editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
   }));
+  // Reuse an already licensed photo of this exact place before asking the
+  // browser for another answer. The hero and other picks keep their own images.
+  {
+    const usedSrc = new Set(curatedPickImages.filter(Boolean).map((im) => typeof im === "object" ? im.src : im));
+    for (const im of editorialImages.values()) if (im?.src) usedSrc.add(im.src);
+    const heroSrc = guideHero(params.slug)?.src;
+    if (heroSrc) usedSrc.add(heroSrc);
+    g.picks.forEach((pick, i) => {
+      if (curatedPickImages[i] || editorialImages.get(pickPlaces[i]?.id)) return;
+      const reused = guidePhotoForPlace(pick.placeId || pickPlaces[i]?.id, { avoidSrc: usedSrc });
+      if (reused) { curatedPickImages[i] = reused; usedSrc.add(reused.src); }
+    });
+  }
   // Map-explorer cards cannot show Google's required photo credit, so each
   // spot gets its licensed photo (with its credit) or none (2026-09-30).
   const mapExplorerSpots = g.mapExplorer && Array.isArray(g.mapExplorer.spots) && g.mapExplorer.spots.length >= 3

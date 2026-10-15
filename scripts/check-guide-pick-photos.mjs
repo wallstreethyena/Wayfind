@@ -48,7 +48,7 @@ import sharp from "sharp";
 
 import { GUIDES } from "../lib/guides.js";
 import { GUIDE_PICK_PHOTOS } from "../lib/guidePickPhotoManifest.js";
-import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit } from "../lib/guidePickPhotos.js";
+import { selectGuidePickPhoto, guidePickPhoto, attachFreePhotoCredit, buildPlacePhotoIndex, guidePhotoForPlace } from "../lib/guidePickPhotos.js";
 import { loadGuidePickPhotoFiles, buildGuidePickPhotos, buildGuideCardPhotoIndex, DATA_DIR } from "./build-guide-pick-photos.mjs";
 import { guideImageProblems } from "../lib/guideImagePolicy.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -506,5 +506,17 @@ if (failures.length) {
   console.error(`check-guide-pick-photos: ${pass} passed, ${failures.length} FAILED`);
   for (const f of failures) console.error("  ✗ " + f);
   process.exit(1);
+}
+{
+  const a = { placeId: "ChIJAAAA11112222333344", src: "/a.webp", caption: "Guide-specific event", credit: "Photographer", license: "CC BY-SA 4.0", modificationNotice: "Resized" };
+  const index = buildPlacePhotoIndex({ first: { picks: { A: a, NoId: { src: "/no-id.webp" } } }, second: { picks: { Duplicate: { ...a, src: "/other.webp" } } } });
+  const reused = index.get(a.placeId);
+  ok(index.size === 1 && reused.src === a.src, "cross-guide reuse requires an exact place ID and keeps the first reviewed photo");
+  ok(reused.caption === null && a.caption === "Guide-specific event", "reuse drops the other guide's caption without mutating the original");
+  ok(reused.credit === a.credit && reused.license === a.license && reused.modificationNotice === a.modificationNotice, "reuse preserves attribution, license and modification notice");
+  ok(guidePhotoForPlace("not-a-real-place") === null && guidePhotoForPlace(null) === null, "unknown places never receive a substitute photo");
+  const coquina = guidePhotoForPlace("ChIJ5eLMVXE9w4gR15l0tMZGkMY");
+  ok(!!coquina?.src && !!coquina?.credit, "Coquina Beach can use its already reviewed exact-place photo");
+  ok(guidePhotoForPlace("ChIJ5eLMVXE9w4gR15l0tMZGkMY", { avoidSrc: new Set([coquina?.src]) }) === null, "the same photograph cannot be reused twice on the page");
 }
 console.log(`check-guide-pick-photos: OK — ${pass} assertions; ${allEntries.length} photo entr${allEntries.length === 1 ? "y" : "ies"} across ${Object.keys(GUIDE_PICK_PHOTOS).length} guide(s) checked`);
