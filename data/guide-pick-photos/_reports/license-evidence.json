@@ -3,16 +3,16 @@
   "verifiedAt": "2026-10-07",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 316,
-    "usages": 330,
-    "verified": 316,
+    "files": 317,
+    "usages": 331,
+    "verified": 317,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
       "CC BY-SA 4.0": 76,
       "CC BY-SA 3.0": 72,
       "CC BY 4.0": 19,
-      "CC BY 3.0": 15,
+      "CC BY 3.0": 16,
       "CC BY 2.0": 79,
       "CC0 1.0 Universal": 24,
       "CC BY-SA 2.0": 26,
@@ -6415,6 +6415,36 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-10-07"
+    },
+    {
+      "src": "/guides/picks/things-to-do-in-venice-florida/venice-beach.webp",
+      "usedBy": [
+        {
+          "slug": "things-to-do-in-venice-florida",
+          "role": "pick",
+          "pick": "Venice Beach"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg",
+        "title": "Starr-031108-0294-Uniola paniculata, Venice Beach, Florida (24674788775)",
+        "author": "Forest and Kim Starr",
+        "dateTaken": "2003-11-08 11:54",
+        "licence": "CC BY 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/3.0/us/deed.en"
+      },
+      "wayfind": {
+        "credit": "Forest and Kim Starr",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg",
+        "license": "CC BY 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-10-15"
     },
     {
       "src": "/guides/picks/things-to-do-key-west-summer-2026/august-s-festival-stack-lobsterfest-and-rum-fest.webp",

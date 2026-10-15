@@ -40,14 +40,27 @@
       "verification": "Commons file 'Venice FL Triangle Inn03' by Ebyabe, CC BY-SA 3.0, taken 2010-10-21; description links the Triangle Inn in Venice, Florida (companion file Inn01 geotagged 27.095,-82.447778). Visually: the Mediterranean Revival Triangle Inn with its round tower, and a banner at the entrance reading 'Venice Archives At The Historic Triangle Inn, 351 Nassau St.' - the building that houses the Venice Museum & Archives (the institution has since used the Venice Museum name; caption notes the 2010 banner). No people. Live Commons licence checked: CC BY-SA 3.0.",
       "sameAsCardPhoto": false,
       "reviewedAt": "2026-09-29"
+    },
+    "Venice Beach": {
+      "src": "/guides/picks/things-to-do-in-venice-florida/venice-beach.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "Sea oats on the white sand dunes at Venice Beach, Florida, with the Gulf, a lifeguard stand and beachfront condos behind",
+      "caption": "Sea oats on the dunes at Venice Beach, photographed in 2003.",
+      "credit": "Forest and Kim Starr",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg",
+      "author": "Forest and Kim Starr",
+      "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Viewed the image: dune grass on white sand with the Gulf, beachgoers, a lifeguard stand and mid-rise beachfront buildings behind. Commons title and description name Venice Beach, Florida (Forest and Kim Starr survey photo, 2003). Rejected the other candidates: Caspersen Beach (a different Venice beach), bird close-ups, a dog-beach sign at Brohard Park, and Flickr photos with no verifiable location. Live Commons licence checked: CC BY 3.0.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-10-14"
     }
   },
-  "gaps": {
-    "Venice Beach": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "Searched Commons ('Venice Beach Florida', Category:Venice, Florida, South Jetty) and Openverse ('Venice Beach Venice Florida', 'Venice Beach FL', 'Venice FL beach', 'Venice Beach pavilion Florida', 'Venice Florida sunset beach'). Rejected: Robert Meszaros 2013 panoramio set and Franz Stellbrink panoramio files (geotags 27.072-27.077, the Brohard/fishing-pier stretch, not the Venice Beach pavilion; the latter only 768px); Yinzer1 'Venice Beach from the South Jetty' (960px, mostly jetty boulders); Dawn Huczek 'Venice Beach in Florida' (identifiable people as foreground subject); p_x_g 2009 shoreline and Powderruns 2006 sunset (geotagged near the beach but generic surf/oversaturated silhouette, nothing visible that identifies the pavilion beach). No licensed photo visibly showing the Venice Beach pavilion/boardwalk area (2026-09-30)."
-    }
-  }
+  "gaps": {}
 }

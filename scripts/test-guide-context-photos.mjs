@@ -54,6 +54,17 @@ assert.equal(guideContextTopic("things-to-do-orlando-not-theme-parks", { name: "
 assert.equal(guideContextTopic("city-guide", { name: "Neighborhood Market", blurb: "Local makers serve food in this food hall" }), "dining", "food-market identity is a category, not a named exception");
 assert.equal(guideContextTopic("best-hotels-near-magic-kingdom", { name: "Disney's Grand Floridian" }), "hotel");
 assert.equal(guideContextTopic("orlando-in-the-rain", { name: "Orange County Regional History Center", blurb: "Close to theme parks" }), "culture");
+assert.equal(guideContextTopic("city-guide", { name: "Mote Science Education Aquarium" }), "wildlife", "aquarium identity outranks incidental science vocabulary");
+assert.equal(guideContextTopic("orlando-in-the-rain", { name: "Crayola Experience" }), "craft");
+assert.equal(guideContextTopic("florida-holiday-nights-out-2026", { name: "Downtown evening", blurb: "Indoor entertainment" }), "holiday-lights");
+assert.equal(guideContextTopic("florida-new-year-2026", { name: "Midnight celebration", blurb: "Indoor entertainment" }), "fireworks");
+assert.equal(guideContextTopic("florida-theme-park-christmas-2026", { name: "EPCOT International Festival of the Holidays" }), "holiday-lights");
+assert.equal(guideContextTopic("orlando-in-the-rain", { name: "Unspecified indoor activity", blurb: "Indoor family entertainment" }), "florida");
+assert.ok(EDITORIAL_CONTEXT_PHOTOS.find((asset) => asset.src === guideContextPhoto("orlando-in-the-rain", { name: "Unspecified indoor activity" }).src)?.topics.includes("city-orlando"), "unrecognized Orlando activities use reviewed regional context");
+for (const pick of [{ name: "Pirates Voyage Dinner and Show" }, { name: "Ellenton Ice & Sports Complex" }, { name: "EPCOT International Festival of the Holidays" }]) {
+  const photo = guideContextPhoto("florida-family-guide", pick);
+  assert.notEqual(photo.src, "/guides/context/craft.webp", "craft photography is reserved for explicit creative activities: " + pick.name);
+}
 assert.throws(() => guideContextPhoto("test", { name: "Beach" }, {}, { assets: [] }), /Missing reviewed editorial context photo/, "red proof: an empty photo pool fails loudly");
 for (const file of ["d43e73b66c2aefcb993dc6db.svg", "bc1a154b52a063a33a4dfed6.jpg", "1289c38f2c9c4ad717c674aa.jpg"]) {
   const url = "https://example.com/storage/" + file;
