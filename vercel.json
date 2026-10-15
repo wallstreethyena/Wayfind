@@ -171,11 +171,7 @@
     },
     {
       "path": "/api/cron/seasonal-revalidate",
-      "schedule": "1 4 * * *"
-    },
-    {
-      "path": "/api/cron/seasonal-revalidate",
-      "schedule": "1 5 * * *"
+      "schedule": "1 4,5 * * *"
     }
   ]
 }

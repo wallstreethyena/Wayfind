@@ -212,13 +212,21 @@ const clock = await import("../lib/siteDayClock.js");
   ok(siteTodayStr(new RealDate("2027-08-15T04:00:00Z")) === "2027-08-15" && siteTodayStr(new RealDate("2027-08-15T03:59:59Z")) === "2027-08-14", "PROBE: the fixture instants straddle Eastern midnight as intended");
 }
 
+// ── the server never keeps a seed (module state is shared across requests) ──
+{
+  const c2 = await import("../lib/siteDayClock.js?seedtest");
+  c2.seedSiteDay("2020-01-01"); // node has no window = server: must be ignored
+  ok(c2.serverDay() === siteTodayStr(), "server (no window): seedSiteDay is ignored, serverDay is today's Eastern date");
+  globalThis.window = {};
+  try { c2.seedSiteDay("2020-01-01"); ok(c2.serverDay() === "2020-01-01", "browser (window): the seed is used for hydration (negative control)"); } finally { delete globalThis.window; }
+}
 // ── static wiring (components cannot be rendered in plain node) ──
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:\\])\/\/.*$/gm, "$1");
 const read = (f) => strip(readFileSync(path.join(ROOT, f), "utf8"));
 const count = (s, rx) => (s.match(rx) || []).length;
 const vj = JSON.parse(readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
 const sched = vj.crons.filter((c) => c.path === "/api/cron/seasonal-revalidate").map((c) => c.schedule).sort();
-eq(sched, ["1 4 * * *", "1 5 * * *"], "vercel.json schedules the revalidate cron at 04:01 and 05:01 UTC");
+eq(sched, ["1 4,5 * * *"], "vercel.json schedules the revalidate cron once, at 04:01 and 05:01 UTC");
 const dr = read("app/components/DaypartRail.js");
 ok(count(dr, /const siteDay = useSiteToday\(\)/g) === 1 && count(dr, /railOnPosterTrack\(r, siteDay\)/g) === 1 && count(dr, /orderFor\(daypart, rails\.map\(\(r\) => r\.id\), siteDay\)/g) === 1 && /\[daypart, rails, sponsor, livePosters, siteDay\]/.test(dr), "DaypartRail: filter, order and the order memo deps all use siteDay");
 ok(!/railOnPosterTrack\(r, siteTodayStr/.test(dr), "DaypartRail no longer reads the date un-reactively for the track");
