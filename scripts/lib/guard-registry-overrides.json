@@ -863,5 +863,13 @@
       "detail": "A bare URL could previously buy Google photos against the 10,000 monthly cap; without this guard a scripted caller can drain the photo budget and blank real cards."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-guide-commerce-measurement.mjs": {
+    "protects": "Guide deal cards are measurable: every visible affiliate card emits exactly one commerce_impression on the truthful guide_deals surface (free cards emit none), one activation emits exactly one commerce_cta_clicked (a 142 ms double-click counts once, a genuine later click still counts), Undercover Tourist ends_at is read as its America/New_York date, and the lapsed partner coupons stay purged.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-15 PostHog: guide coupon clicks had no impression denominator and were labelled as the Coupons tab, and one click was recorded twice, so guide affiliate CTR was unreadable and click counts inflated; a UTC-sliced ends_at hid lapsing Undercover Tourist offers from the renewal window for a day."
+    },
+    "owner": "Revenue QA"
   }
 }
