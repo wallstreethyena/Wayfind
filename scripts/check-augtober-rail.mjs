@@ -199,14 +199,14 @@ ok(/selRail\.id !== "augtober"/.test(rail), "the drop header does not double-cla
 // years before anything trusts it.
 ok(thanksgivingDayOfMonth(2026) === 26 && thanksgivingDayOfMonth(2027) === 25 && thanksgivingDayOfMonth(2028) === 23 && thanksgivingDayOfMonth(2029) === 22,
   "the 4th-Thursday math matches the real Thanksgiving for 2026-2029");
-ok(fallSkinLive("2026-08-25") === false && fallSkinLive("2026-08-26") === true, "the season OPENS on Aug 26 — not a day early");
+ok(fallSkinLive("2026-08-14") === false && fallSkinLive("2026-08-15") === true, "the season OPENS on Aug 15 (owner, 2026-10-15: same day as the Fall poster) — not a day early");
 ok(fallSkinLive("2026-10-31") === true && fallSkinLive("2026-11-02") === true, "Halloween no longer ends it — the skin runs through the fall");
 ok(fallSkinLive("2026-11-26") === true && fallSkinLive("2026-11-27") === false, "live THROUGH Thanksgiving 2026 (Nov 26), gone the morning after");
-ok(fallSkinLive("2027-08-26") === true && fallSkinLive("2027-11-25") === true && fallSkinLive("2027-11-26") === false,
+ok(fallSkinLive("2027-08-15") === true && fallSkinLive("2027-08-14") === false && fallSkinLive("2027-11-25") === true && fallSkinLive("2027-11-26") === false,
   "…and it COMES BACK in 2027 on the same date, leaving after THAT year's Thanksgiving — the rule survives every year with no one remembering");
 ok(fallSkinLive("2027-07-04") === false && fallSkinLive("2027-12-25") === false, "never worn out of season");
 ok(fallSkinLive(null) === false, "no site date, no skin — never a guess");
-ok(/fallSkinLive\(siteTodayStr\(\)\)/.test(fallComponent) && /fallSkin \? " wf-fall" : ""/.test(fallComponent),
+ok(/fallSkinLive\((?:siteDay|siteTodayStr\(\))\)/.test(fallComponent) && /fallSkin \? " wf-fall" : ""/.test(fallComponent),
   "the skin class is gated by fallSkinLive, in syntactic position");
 const css = readFileSync(path.join(ROOT, "app/components/css.js"), "utf8");
 // v8.73 — the art is SPLIT. The combined file carried a cream panel across its
@@ -245,9 +245,9 @@ ok(fallCardClass("ChIJ7QVjUK_FwogRaTLY8uxOico", "2026-11-27") === "" && fallCard
 ok(fallCardClass("ChIJdd8VlMN-54gRoaU0d_zYhfk", "2026-10-01") === "", "a non-member place NEVER wears it — fall-known only");
 ok(fallCardClass(null, "2026-10-01") === "", "no id, no class");
 const RENDERERS = [
-  ["app/components/IconicPlaceCard.js", /className=\{`wf-place-card\$\{fallCardClass\(place\.id, siteTodayStr\(\)\)\}/],
-  ["app/components/RailCard.js", /className=\{`wf-place-card wf-rail-card\$\{fallCardClass\(place && place\.id, siteTodayStr\(\)\)\}/],
-  ["app/home.js", /className=\{`wf-place-card\$\{fallCardClass\(p && p\.id, siteTodayStr\(\)\)\}/],
+  ["app/components/IconicPlaceCard.js", /className=\{`wf-place-card\$\{fallCardClass\(place\.id, siteDay\)\}/],
+  ["app/components/RailCard.js", /className=\{`wf-place-card wf-rail-card\$\{fallCardClass\(place && place\.id, siteDay\)\}/],
+  ["app/home.js", /className=\{`wf-place-card\$\{fallCardClass\(p && p\.id, siteDay\)\}/],
   ["app/components/ThingsToDoList.js", /"wf-place-card wf-ttd-focus" \+ fallCardClass\(r\.place_id \|\| r\.id, siteTodayStr\(\)\)/],
 ];
 for (const [f, rx] of RENDERERS) {

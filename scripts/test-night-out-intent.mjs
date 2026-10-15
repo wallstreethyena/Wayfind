@@ -181,7 +181,7 @@ const pagedRail = readFileSync(new URL("../app/components/usePagedRail.js", impo
 ok(/id: "events"[\s\S]{0,420}retiredInto: "tonight"/.test(rails), "the standalone Events poster is retired into Night Out without deleting its metadata");
 // 2026-10-14: the track predicate moved to lib/posterSeasons.js railOnPosterTrack; DaypartRail calls it and it carries the retiredInto test.
 const posterSeasonsSrc = readFileSync(new URL("../lib/posterSeasons.js", import.meta.url), "utf8");
-ok((/!r\.retiredInto/.test(daypart) || (/railOnPosterTrack\(r, siteTodayStr\(\)\)/.test(daypart) && /r\.retiredInto/.test(posterSeasonsSrc))), "retired posters are hidden from the tile track");
+ok((/!r\.retiredInto/.test(daypart) || (/railOnPosterTrack\(r, (?:siteDay|siteTodayStr\(\))\)/.test(daypart) && /r\.retiredInto/.test(posterSeasonsSrc))), "retired posters are hidden from the tile track");
 ok(/requested\.retiredInto \|\| id/.test(daypart), "legacy Events deep links resolve to Night Out");
 ok(/NightOutRails = dynamic/.test(daypart) && /<NightOutRails/.test(daypart), "the nine-rail Night Out component is lazy and mounted behind its tile");
 ok(/eventsSlot=\{eventsSlot\}/.test(daypart) && /eventsSlot\("night-out", selectPosterEvents\)/.test(component), "Night Out consumes the existing dated event inventory");

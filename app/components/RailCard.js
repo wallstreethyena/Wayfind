@@ -63,6 +63,7 @@ import { railDotWindow, railDotIsEdge } from "../../lib/railDots.js";
 import { KB_CLICK, WayfindScoreBadge } from "./kit";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { useSiteToday } from "../../lib/siteDayClock.js";
 import { stayOnRailReaction } from "../../lib/railReaction.js";
 import { safeUrl } from "../../lib/links.js";
 // v8.33 — the creator's face on the media column, resolved from the optional
@@ -372,6 +373,7 @@ export default function RailCard({
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
 }) {
+  const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // Interactive place cards always open the full /p/{id} detail experience.
   // /places/{id} remains the durable SEO document. Normalizing at this shared
   // renderer boundary makes the rule apply to every present and future rail.
@@ -504,7 +506,7 @@ export default function RailCard({
       data-place-id={place?.id || undefined}
       data-guide-id={variant === "guide" && guideId ? guideId : undefined}
       data-guide-matched-id={variant === "guide" && guideId && guideMatchedId ? guideMatchedId : undefined}
-      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteTodayStr())}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
+      className={`wf-place-card wf-rail-card${fallCardClass(place && place.id, siteDay)}${spooky ? " wf-spooky-card" : ""}${trendPulseClass(place)}${awardWinnerClass(shownAward)}${variant === "guide" ? " wf-guide-card" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${className ? " " + className : ""}`}
       role="button"
       tabIndex={0}
       onPointerDown={tapIntent.onPointerDown}

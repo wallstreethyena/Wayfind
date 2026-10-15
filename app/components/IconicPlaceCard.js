@@ -16,6 +16,7 @@ import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { spookyOverFall } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { useSiteToday } from "../../lib/siteDayClock.js";
 import { cuisineOf } from "../../lib/dining";
 import { arrangeChips, mealKeyFromTags, CARD_CHIP_CAP } from "../../lib/cardChips";
 import { overrideFor } from "../../lib/placeOverrides";
@@ -314,6 +315,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // caller passing it. A caller that never sets it gets byte-identical output
   // to before this prop existed.
   cta = null }) {
+  const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
   // owns its own state) subscribes to nothing and re-renders for nothing.
@@ -541,7 +543,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteTodayStr())}${spookyOverFall(place, siteTodayStr())}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}

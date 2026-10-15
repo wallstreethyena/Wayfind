@@ -121,7 +121,7 @@ const railMeta = stripComments(readFileSync(join(ROOT, "lib/rails.js"), "utf8"))
     "…and NightOutRails CALLS it in night-out mode — accepting a prop is not showing its dated inventory");
   // 2026-10-14: the track predicate moved to lib/posterSeasons.js railOnPosterTrack; DaypartRail calls it.
   const posterSeasonsSrc = readFileSync(join(ROOT, "lib/posterSeasons.js"), "utf8");
-  ok(/retiredInto: "tonight"/.test(railMeta) && (/!r\.retiredInto/.test(rail) || (/railOnPosterTrack\(r, siteTodayStr\(\)\)/.test(rail) && /r\.retiredInto/.test(posterSeasonsSrc))),
+  ok(/retiredInto: "tonight"/.test(railMeta) && (/!r\.retiredInto/.test(rail) || (/railOnPosterTrack\(r, (?:siteDay|siteTodayStr\(\))\)/.test(rail) && /r\.retiredInto/.test(posterSeasonsSrc))),
     "the standalone Events poster is retired into Night Out and hidden without deleting its inventory metadata");
   ok(!/if \(id === "events"/.test(rail) && !/selRail\.id === "events" && eventsSlot/.test(rail),
     "the obsolete Events tile branch and standalone drop are both gone");

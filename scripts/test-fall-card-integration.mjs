@@ -22,6 +22,7 @@ Module._extensions['.js'] = (module, filename) => {
 };
 Module._load=function(request,parent,isMain){
   let resolved='';try{resolved=Module._resolveFilename(request,parent,isMain);}catch{}
+  if(request==='react' && /lib[\\/]siteDayClock\.js$/.test(parent?.filename||'')) return {...React,useSyncExternalStore:(subscribe,getSnapshot)=>getSnapshot()}; // the midnight-aware date hook, read once (these cards are called as plain functions)
   if(request==='react' && parent?.filename===cardFile) return {...React,useState:(init)=>{const index=cursor++;if(!(index in state))state[index]=typeof init==='function'?init():init;return [state[index],(value)=>{state[index]=typeof value==='function'?value(state[index]):value;}];}};
   if(request==='react' && parent?.filename===fallFile) return {...React,useState:(init)=>[fallStateCalls++===0?(payload ? {requestKey:"27.95|-82.46|2026-10-04|fall",...payload} : null):typeof init==='function'?init():init,()=>{}],useRef:()=>({current:''}),useEffect:(fn,deps)=>{effects.push({fn,deps});},useMemo:(fn)=>fn()};
   if(resolved===path.join(root,'app/components/useEventClock.js'))return {__esModule:true,default:()=>now};

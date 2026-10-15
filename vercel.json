@@ -168,6 +168,14 @@
     {
       "path": "/api/cron/group-plans",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/seasonal-revalidate",
+      "schedule": "1 4 * * *"
+    },
+    {
+      "path": "/api/cron/seasonal-revalidate",
+      "schedule": "1 5 * * *"
     }
   ]
 }

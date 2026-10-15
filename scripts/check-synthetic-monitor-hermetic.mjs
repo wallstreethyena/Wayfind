@@ -117,7 +117,7 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
   // 2026-10-14: the predicate moved to lib/posterSeasons.js railOnPosterTrack (adds the seasonal windows,
   // which are date-driven and do not change this set over RAILS); DaypartRail must call it.
   const posterSeasonsSrc = readFileSync(path.resolve("./lib/posterSeasons.js"), "utf8");
-  ok((PREDICATE_RX.test(railSrc) || (/railOnPosterTrack\(r, siteTodayStr\(\)\)/.test(railSrc) && /r\.posterHidden\s*\|\|\s*r\.artStale\s*\|\|\s*r\.retiredInto/.test(posterSeasonsSrc))),
+  ok((PREDICATE_RX.test(railSrc) || (/railOnPosterTrack\(r, (?:siteDay|siteTodayStr\(\))\)/.test(railSrc) && /r\.posterHidden\s*\|\|\s*r\.artStale\s*\|\|\s*r\.retiredInto/.test(posterSeasonsSrc))),
     "DaypartRail still filters the poster menu on !posterHidden && !artStale && !retiredInto — if this changed, the parity check below is comparing against a rule the app no longer uses");
 
   const visibleFromRails = RAILS
