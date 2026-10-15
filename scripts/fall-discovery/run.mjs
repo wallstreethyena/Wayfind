@@ -21,7 +21,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { FALL_PLACE_IDS, FALL_REJECTED_IDS } from "../../lib/fallPool.js";
-import { fallSeasonEnd, FALL_SEASON_START_MD } from "../../lib/fallSkin.js";
+import { fallSeasonEnd, FALL_EVIDENCE_START_MD } from "../../lib/fallSkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import {
   SOURCE_TIERS, classifyEvidence, currentYearProof, decideAction, nameOnlyCandidate, offeringActive,
@@ -258,7 +258,7 @@ async function main() {
   const report = {
     run_at: new Date().toISOString(),
     today,
-    season_window: { start_md: FALL_SEASON_START_MD, end: fallSeasonEnd(Number(today.slice(0, 4))) },
+    season_window: { start_md: FALL_EVIDENCE_START_MD, end: fallSeasonEnd(Number(today.slice(0, 4))) },
     ok: true,
     coverage,
     by_action: byAction,

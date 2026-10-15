@@ -34,6 +34,7 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     "../../../../lib/fallPlaceEvidence.js": { fallPlaceEvidenceCurrent: () => true },
     "../../../../lib/curatedOwnedPlacePhotos.js": { CURATED_OWNED_PLACE_PHOTOS: {} },
     "../../../../lib/fallFeaturedFestivals2026.js": { FALL_FEATURED_FESTIVALS_2026: [], FALL_FEATURED_FESTIVAL_IDS: new Set() },
+    "../../../../lib/floridaVenue.js": { isFloridaVenue: () => true }, // the rule has its own guard (test-florida-venue-rule); this test is about cache completeness
     "../../../../lib/fallGapFill20261007.js": { FALL_GAP_FILL_2026_10_07: [] },
     "../../../../lib/fallFoodGap20261008.js": { FALL_FOOD_GAP_2026_10_08: [] },
     "../../../../lib/fallTampaPicks20261008.js": { FALL_TAMPA_PICKS_2026_10_08: [] },

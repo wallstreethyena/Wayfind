@@ -15,6 +15,7 @@ import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks"
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
 import { spookyOverFall } from "../lib/spookySkin.js";
 import { siteTodayStr } from "../lib/siteTime";
+import { useSiteToday } from "../lib/siteDayClock.js";
 import { activeSeasonalMark } from "../lib/seasonalBrand";
 import { lunchRevealCookieValue, lunchRevealCount, lunchRevealLimit } from "../lib/lunchReveal";
 import { intentRadiusMi, intentScopeLabel } from "../lib/momentIntents";
@@ -11877,6 +11878,7 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
 function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
+  const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
   // every render, even for a card that ultimately renders nothing).
@@ -12044,7 +12046,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     ? { rank: cardRank, label: "Wayfind curator's pick", curator: true }
     : topPickAward({ category: pcat, rank: cardRank }));
   return (
-    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteTodayStr())}${spookyOverFall(p, siteTodayStr())}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
+    <div data-wf-position-key={"place-" + p.id} className={`wf-place-card${fallCardClass(p && p.id, siteDay)}${spookyOverFall(p, siteDay)}${awardWinnerClass(cardAward)}${liked ? " is-liked" : ""}${disliked ? " is-disliked" : ""}${isCuratorPick ? " is-curator-pick" : ""}${!(curatedHook || knownForHook || aiSummary) ? " is-no-take" : ""}`} style={{ position: "relative" }}>
       <button type="button" className="wf-place-card-open" onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove} onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel} onClick={(event) => { if (tapIntent.shouldOpen()) onDetail?.(event); }} aria-label={`Open ${p.name}`} style={{ position: "absolute", inset: 0, zIndex: 0, width: "100%", height: "100%", opacity: 0, border: 0, padding: 0, cursor: "pointer", background: "transparent" }} />
       {/* v8.62 (owner, 2026-08-26, live): "top right hand corner of the card,
           not in front of the image." The score badge is a direct child of the
@@ -12202,9 +12204,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                   fee. The label now names WHAT the verified product books,
                   derived from the product's own title — never invented; falls
                   back to the generic label when the title names no activity. */}
-              {spookyOverFall(p, siteTodayStr()) ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{(() => {
+              {spookyOverFall(p, siteDay) ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{(() => {
                 // Spooky cards: the ghost REPLACES the leading activity emoji (never two icons).
-                const spookyBook = !!spookyOverFall(p, siteTodayStr());
+                const spookyBook = !!spookyOverFall(p, siteDay);
                 const lab = (l) => (spookyBook ? l.replace(/^\S+\s/, "") : l);
                 const t = String((cardProduct && cardProduct.title) || "");
                 if (/jet ?ski|waverunner/i.test(t)) return lab("🌊 Book a jet ski tour ↗");

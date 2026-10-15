@@ -1240,6 +1240,7 @@ node scripts/check-social-qualification.mjs
 # 2026-09-03 — a failing event provider names its status and reason; `ok:false`
 # alone cannot tell a bad key from a quota from a quiet night.
 node scripts/check-provider-health-says-why.mjs
+node scripts/test-florida-venue-rule.mjs
 node scripts/test-fall-intent-rails.mjs
 node scripts/test-night-out-intent.mjs
 node scripts/test-rail-paging.mjs
@@ -2243,6 +2244,7 @@ node scripts/test-cc-alert-drill.mjs
 node scripts/test-event-hero-provenance.mjs
 node scripts/test-hotel-cta-impression.mjs
 node scripts/check-poster-seasons.mjs
+node scripts/check-seasonal-surfaces.mjs
 node scripts/test-hero-impression-rendered.mjs
 
 # 2026-10-14 canonical Florida anchor-event list (data/florida-anchor-events.json): schema, unique ids, rails exist, region/domain/event_id rules + negative controls.

@@ -328,7 +328,7 @@ for (const id of withArt) {
 
 // 2026-10-14: the track filter moved to lib/posterSeasons.js railOnPosterTrack (DaypartRail calls it); follow the code there.
 const posterSeasonsSrc = readFileSync("lib/posterSeasons.js", "utf8");
-const filterHides = /railOnPosterTrack\(r, siteTodayStr\(\)\)/.test(dayRail) && /r\.artStale/.test(posterSeasonsSrc);
+const filterHides = /railOnPosterTrack\(r, (?:siteDay|siteTodayStr\(\))\)/.test(dayRail) && /r\.artStale/.test(posterSeasonsSrc);
 if (!/if \(r\.artStale\) return null/.test(dayRail) && !/!r\.artStale/.test(dayRail) && !filterHides) {
   fail.push("DaypartRail must hide artStale tiles — Exploding Trends baked type must not render");
 }

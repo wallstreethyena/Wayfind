@@ -135,6 +135,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         id: "tm_" + e.id, name: e.name || "", date: dates.localDate || "", time: dates.localTime || "",
         subGenre,
         venue: venue ? venue.name || "" : "", city: venue && venue.city ? venue.city.name || "" : "",
+        state: venue && venue.state && venue.state.stateCode ? venue.state.stateCode : "",
         lat: vloc && vloc.latitude != null ? Number(vloc.latitude) : null,
         lng: vloc && vloc.longitude != null ? Number(vloc.longitude) : null,
         segment: seg, genre, image: img, thumb: thumb || img, imageVariants, price, url: e.url || "", ticketed: true, source: "Ticketmaster",
@@ -194,7 +195,7 @@ async function fromSeatGeek(lat, lng, radius, keyword) {
       const sm = seatgeekSegment(e.type);
       return {
         id: "sg_" + e.id, name: e.short_title || e.title || "", date: dl[0] || "", time: dl[1] || "",
-        venue: v.name || "", city: v.city || "",
+        venue: v.name || "", city: v.city || "", state: v.state || "",
         lat: loc.lat != null ? loc.lat : null, lng: loc.lon != null ? loc.lon : null,
         segment: sm.segment, genre: sm.genre, image: img, price, url: e.url || "", ticketed: true, source: "SeatGeek",
         status: (e.status || "") === "normal" ? "" : (e.status || ""),
@@ -303,6 +304,7 @@ async function fromBandsintown(lat, lng, radius) {
         time: (ds[1] || "").slice(0, 8),
         venue: v ? v.name || "" : "",
         city: v ? v.location || "" : "",
+        state: v && v.region ? v.region : "",
         lat: v && v.latitude != null ? Number(v.latitude) : null,
         lng: v && v.longitude != null ? Number(v.longitude) : null,
         segment: "Music", genre: "",
@@ -351,6 +353,7 @@ async function fromEventbriteOrgs(lat, lng, radius) {
         date: date || "", time: (time || "").slice(0, 8),
         venue: v && v.name ? v.name : "",
         city: v && v.address && v.address.city ? v.address.city : "",
+        state: v && v.address && v.address.region ? v.address.region : "",
         lat: evLat, lng: evLng,
         segment: "Community", genre: "",
         image: e.logo && e.logo.url ? e.logo.url : null,
@@ -534,7 +537,7 @@ async function fromOpenWebNinja(lat, lng, keyword, city) {
       return {
         id: "own_" + (e.event_id || i) + "_" + (date || "x"),
         name: e.name || "", date, time,
-        venue: ven.name || "", city: ven.city || "",
+        venue: ven.name || "", city: ven.city || "", state: ven.state_code || ven.state || "",
         lat: ven.latitude != null ? Number(ven.latitude) : null,
         lng: ven.longitude != null ? Number(ven.longitude) : null,
         segment: "Event", genre: "", image: e.thumbnail || null,
@@ -601,6 +604,10 @@ async function fromLibCal(lat, lng) {
         time: ds.time,
         venue: e.location || "",
         city: "",
+        // Every branch in this feed is a Manatee County, FL library (region-fenced above), so the
+        // venue state is known even though iCal carries no city. Without it the Florida venue rule
+        // would drop 10 legitimate library events per Parrish request (measured 2026-10-15).
+        state: "FL",
         segment: "Community",
         genre: e.categories || "",
         image: null,
@@ -754,7 +761,10 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // cached payload built under the old rule is never served. running-v1
 // (2026-10-08): running events kept until their last day; curated twins of
 // aggregator rows absorbed.
-const EVENTS_FEED_RULES = "running-v1";
+// florida-v1 (2026-10-15): lib/floridaVenue.js — only Florida venues leave this
+// feed (the Columbus, OH poster). Cached payloads built before the rule may hold
+// out-of-state rows, so the key moves.
+const EVENTS_FEED_RULES = "florida-v1";
 async function aggregateEvents({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();

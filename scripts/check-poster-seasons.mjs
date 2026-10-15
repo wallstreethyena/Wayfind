@@ -77,7 +77,7 @@ ok((() => { const o = orderFor("morning", ["a", "halloween", "b", "augtober", "c
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:\\])\/\/.*$/gm, "$1");
 const dr = strip(readFileSync(path.join(ROOT, "app/components/DaypartRail.js"), "utf8"));
 ok(/import\s*\{\s*railOnPosterTrack\s*\}\s*from\s*"\.\.\/\.\.\/lib\/posterSeasons\.js"/.test(dr), "DaypartRail imports railOnPosterTrack");
-ok((dr.match(/railOnPosterTrack\(r, siteTodayStr\(\)\)/g) || []).length === 1, "the track filter calls railOnPosterTrack(r, siteTodayStr()) exactly once");
+ok((dr.match(/railOnPosterTrack\(r, siteDay\)/g) || []).length === 1, "the track filter calls railOnPosterTrack(r, siteDay) exactly once (siteDay = useSiteToday(), the midnight-aware Eastern date)");
 ok(!/\.seasonalThrough/.test(dr), "DaypartRail no longer carries its own halloween-era seasonalThrough check");
 const rl = strip(readFileSync(path.join(ROOT, "lib/rails.js"), "utf8"));
 ok(!/seasonalThrough\s*:\s*"20\d\d-/.test(rl), "lib/rails.js carries no dated seasonalThrough literal");

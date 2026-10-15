@@ -4,6 +4,8 @@
 // nothing, so the whole app (feed anchor, area insight, weather) still works.
 export const runtime = "edge";
 
+import { inFloridaBounds } from "../../../lib/floridaVenue.js";
+
 export async function GET(req) {
   try {
     const h = req.headers;
@@ -13,6 +15,12 @@ export async function GET(req) {
     const region = h.get("x-vercel-ip-country-region") || "";
     if (!isFinite(lat) || !isFinite(lng)) {
       return new Response(JSON.stringify({ ok: false }), { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
+    }
+    // Wayfind is Florida discovery. An IP point outside Florida (a datacenter in Columbus,
+    // OH, 2026-10-14) must never become the centre: ok:false keeps the Florida seed and its
+    // city name in app/home.js ipFallback. Real GPS never calls this route.
+    if (!inFloridaBounds(lat, lng)) {
+      return new Response(JSON.stringify({ ok: false, outsideFlorida: true }), { status: 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
     }
     const name = city ? (region ? `${city}, ${region}` : city) : "";
     return new Response(JSON.stringify({ ok: true, lat, lng, name }), {

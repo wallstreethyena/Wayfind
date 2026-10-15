@@ -12,6 +12,8 @@ import { RAILS } from "../../lib/rails";
 import { LANDING_CITIES } from "../../lib/landing";
 import { railMenuData } from "../../lib/railsData";
 import DaypartRail from "../components/DaypartRail";
+import SiteDaySeed from "../components/SiteDaySeed";
+import { siteTodayStr } from "../../lib/siteTime";
 import { WF_RAIL_MENU_CSS } from "../components/railMenuCss";
 import { WF_PLACE_CARD_CSS } from "../components/css";
 
@@ -43,6 +45,7 @@ export default async function Page({ searchParams }) {
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
         Wayfind — find the best things to do near {city.name}, {city.state}, right now
       </h1>
+      <SiteDaySeed day={siteTodayStr()} />
       <DaypartRail
         rails={RAILS}
         places={railMenu.places}
