@@ -199,6 +199,7 @@ scripts/check-guide-share.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	46
 scripts/check-guide-ssg-not-phase-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	543bd321aa95b79eae3be219d6bf557a6013e2e27e2239b095ea5d3d2f001c07
 scripts/check-guide-standard.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	fb684a87b10b1b6192116f91fd1a96649ccc7ccbe715f33155e28c9e8fce82d5
 scripts/check-guide-teasers.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	f9f77f59cf0b6fb1fcfe59e84de858a07c084077298537395f6bf334fc25f9ad
+scripts/check-guide-visual-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	1a79d2c0552e19ce41219ffb0b610e8f25059e2b59ff39200e5ffc232f53d4db
 scripts/check-guide-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	0565028d5863057abc3381f3f96cace06bb981ba380749e22927f7d67cbb5b9e
 scripts/check-guides.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	d64e883cb79afdcc20fa8b05f4f1e6174d151d21534dca983eb2ad410433b4f4
 scripts/check-headers.mjs	0	CALL	manual-npm-script-only	0	-	4	1	0	a9a97281883b4346333568626b328103082402a6a85c11333b93baf2c0cdf213
@@ -688,6 +689,7 @@ scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	97
 scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	21ae009673cf910f1df0a42dc22e59f4aacf4d76cbf5d3bd50e2cc6eeb03486f
 scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	75a7c656b0b56bc49804ebbe653154accdbcc56ee273511e975b1868baf9fdd9
 scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c71ddcdd9e9c00d77ab5575d17842f71b14bba71973917741ecc1789
+scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	62fe0991cae9b0a917e56239c751f1f92183e5d65c7b5aa16165f7f6ea2b4190
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	4a993057cb8030fc58fd3f3960f68d235834926c3633bcb7770f47ae35add119
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53

@@ -107,13 +107,13 @@
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Gamble Creek Farms",
-      "note": "No Commons photo found for this farm; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Gamble Creek Farms Parrish\" — zero results; no CC-licensed photo of this farm exists."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Bunker Hill Community Park": {
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Manatee County Parks and Natural Resources",
-      "note": "No Commons photo found for this park; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Bunker Hill Community Park Parrish\" — zero results; no CC-licensed photo of this park exists."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Parrish Community Park": {
       "reason": "google-only",

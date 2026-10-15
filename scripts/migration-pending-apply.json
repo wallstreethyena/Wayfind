@@ -1,5 +1,12 @@
 [
   {
+    "file": "supabase/migrations/20261015210000_wf_heartbeat_guide_visual_monitor.sql",
+    "sha256": "d9fd25c18574de65a01138f2758f76be72b127e8ea643d343b64c4292ce6b46b",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1798 guide visual coverage",
+    "reason": "Data only: one wf_heartbeat_expected row ('guide-visual-monitor', 720 min) so the new 6-hourly GitHub monitor pages if it silently stops. No schema/grant/RLS change; idempotent; rollback is a one-row delete. Until applied, failed runs still page via their own pulse; only a stopped workflow would go unnoticed. Owner applies (or approves) via scripts/apply-migration.mjs."
+  },
+  {
     "file": "supabase/migrations/20261014120000_winter_haven_downtown_twin.sql",
     "sha256": "edeb78fbf93819678dc500e52b6587f3d3915d5d3c59e4634ac7545b248c36db",
     "decision_owner": "wallstreethyena",
