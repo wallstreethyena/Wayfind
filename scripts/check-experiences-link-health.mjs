@@ -93,7 +93,7 @@ try { crons = JSON.parse(readFileSync(REPO + "vercel.json", "utf8")).crons || []
 ok(crons.some((c) => String(c.path || "").startsWith("/api/cron/experiences-link-health")), "vercel.json must schedule the sweep — a pipeline that ran once is indistinguishable from no pipeline");
 
 /* ── 7. the real route reports work truthfully ──────────────────────────── */
-async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
+async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, patchHangs = false, watchdogMs = null, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
   const saved = {
     CRON_SECRET: process.env.CRON_SECRET,
     VIATOR_API_KEY: process.env.VIATOR_API_KEY,
@@ -101,12 +101,14 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
     LINK_HEALTH_PACE_MS: process.env.LINK_HEALTH_PACE_MS,
     LINK_HEALTH_BACKOFF_MS: process.env.LINK_HEALTH_BACKOFF_MS,
+    LINK_HEALTH_WATCHDOG_MS: process.env.LINK_HEALTH_WATCHDOG_MS,
     fetch: globalThis.fetch,
     setTimeout: globalThis.setTimeout,
   };
   process.env.CRON_SECRET = "cron-fixture";
   process.env.LINK_HEALTH_PACE_MS = "0"; // real route, zero waits
   process.env.LINK_HEALTH_BACKOFF_MS = "0";
+  if (watchdogMs != null) process.env.LINK_HEALTH_WATCHDOG_MS = String(watchdogMs); else delete process.env.LINK_HEALTH_WATCHDOG_MS;
   process.env.SUPABASE_URL = "https://fixture.supabase.co";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "service-fixture";
   if (withViatorKey) process.env.VIATOR_API_KEY = "viator-fixture";
@@ -126,6 +128,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
       if (method === "PATCH") {
         patches.push({ url: u, body: JSON.parse(init.body) });
         if (patchThrows) throw new Error("fixture PATCH network failure");
+        if (patchHangs) return new Promise(() => {}); // ignores the abort signal: only the watchdog can end this run
         return new Response(null, { status: patchStatus });
       }
       return selectStatus === 200
@@ -159,7 +162,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   } finally {
     globalThis.fetch = saved.fetch;
     globalThis.setTimeout = saved.setTimeout;
-    for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LINK_HEALTH_PACE_MS", "LINK_HEALTH_BACKOFF_MS"]) {
+    for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LINK_HEALTH_PACE_MS", "LINK_HEALTH_BACKOFF_MS", "LINK_HEALTH_WATCHDOG_MS"]) {
       if (saved[key] === undefined) delete process.env[key];
       else process.env[key] = saved[key];
     }
@@ -328,6 +331,24 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   ok(touched("THROTTLE_ALIVE").length === 0 && touched("THROTTLE_DEAD").length === 0, "route issues NO write for rate-limited rows (not even last_checked_at - they retry first next run)");
   ok(r.patches.every((p) => p.body.link_ok !== false), "no PATCH anywhere flips link_ok to false because of a 429");
   ok(r.body.newly_or_still_dead === 0, "a 429 is never counted dead");
+}
+
+{
+  // 2026-10-14 06:35Z: "Task timed out after 60 seconds" with NO pulse. A sweep
+  // that cannot finish (here: Supabase PATCH never answers) must still answer
+  // with a failed pulse before the platform kills it.
+  const hung = await Promise.race([
+    runSweep({ selected: [{ product_code: "HANG", link_ok: true, fail_count: 0 }], patchHangs: true, watchdogMs: 300 }),
+    new Promise((resolve) => globalThis.setTimeout(() => resolve("never-answered"), 5000)),
+  ]);
+  ok(hung !== "never-answered", "a hung sweep is ended by the watchdog instead of running until the platform kills it");
+  if (hung !== "never-answered") {
+    ok(hung.response.status === 500 && hung.body.ok === false && /watchdog/.test(hung.body.error || ""), "the watchdog answers HTTP 500, not 200");
+    ok(hung.pulses.length === 1 && hung.pulses[0].job === "experiences-link-health" && hung.pulses[0].failed === 1 && /watchdog/.test(hung.pulses[0].note || ""), "the watchdog records exactly one failed pulse naming itself");
+  }
+  const okRun = await runSweep({ selected: [{ product_code: "OKAY", link_ok: true, fail_count: 0 }], watchdogMs: 5000 });
+  ok(okRun.response.status === 200 && okRun.pulses.length === 1 && okRun.pulses[0].failed === 0, "a healthy run under the watchdog is untouched: one success pulse");
+  ok(/PROBE_BUDGET_MS = 30000/.test(routeSrc) && /WATCHDOG_MS = 48000/.test(routeSrc) && /maxDuration = 60/.test(routeSrc), "probe budget (30s) and watchdog (48s) sit inside maxDuration (60s)");
 }
 
 /* ── verdict ─────────────────────────────────────────────────────────────── */

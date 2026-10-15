@@ -246,7 +246,6 @@ const KNOWN_UNPULSED = {
   "app/api/cron/booking-audit/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/hero-images/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/instagram-scout/route.js": "Pre-existing: reports via a local `json(body,status)` helper this scanner does not resolve to Response.json; several of its early service/health guard returns predate full pulse adoption.",
-  "app/api/cron/inventory-refresh/route.js": "Pre-existing: one early feature-gate return (`{skipped:\"gate ...\"}`) predates pulse adoption; the job's real work paths already pulse.",
   "app/api/cron/lunch-images/route.js": "Pre-existing: never adopted lib/jobPulse.js. Legacy, unrelated to the verify-offers incident.",
   "app/api/cron/promote-index/route.js": "Pre-existing: two early feature-gate/validation returns predate pulse adoption; the job's real work paths already pulse.",
   "app/api/cron/schema-watch/route.js": "Pre-existing: the send-skipped and send-attempted final branches of its email step predate full pulse adoption; the scan step above already pulses.",
