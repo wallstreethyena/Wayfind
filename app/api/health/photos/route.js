@@ -34,6 +34,8 @@ import { siteTodayStr } from "../../../../lib/siteTime";
 import { GOOGLE_PHOTOS_QUOTA_PROVIDER, quotaBreakerCooldownMs } from "../../../../lib/placePhotoServe";
 import { breakerOpen } from "../../../../lib/providerHealth";
 import { computeImageHealth } from "../../../../lib/imageHealth";
+import { photoGoogleQuota } from "../../../../lib/commandCenter/sources/photoQuota.js";
+import { buildGoogleQuota } from "../../../../lib/googlePhotoQuota.js";
 
 // QUOTA TRUTH (2026-09-16) — named buckets for today's wf_photo_outcome_daily
 // classes; anything else recorded (redirect/badjson/unowned/stale/client/
@@ -199,6 +201,10 @@ export async function GET(req) {
   let imageHealth = null;
   try { imageHealth = await computeImageHealth(s); } catch { imageHealth = null; }
 
+  // GOOGLE DAILY QUOTA (2026-10-15): same numbers the pacing alerts use. Fail-soft: null when unreadable.
+  let googleQuota = null;
+  try { googleQuota = buildGoogleQuota((await photoGoogleQuota({ sb: s })).data); } catch { googleQuota = null; }
+
   return Response.json(
     {
       surface: "place-photos",
@@ -218,6 +224,7 @@ export async function GET(req) {
       runway: runwayTruth.text,
       photoAllowance,
       imageHealth,
+      googleQuota,
       checkedAt: new Date().toISOString(),
     },
     { status: 200, headers: { "cache-control": "no-store" } }

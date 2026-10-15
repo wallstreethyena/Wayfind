@@ -2145,6 +2145,9 @@ node scripts/test-map-area-data.mjs
 # 2026-10-14 — source-aware map coordinates (Google 30d window vs independent sources),
 # no timestamp-bump extension of Google content, list/map parity accounting. Self red-proves.
 node scripts/test-coord-provenance.mjs --red-prove
+# 2026-10-15 — data pass B: licensed non-Google coordinates (Wikidata CC0, Census geocodes of official
+# venue addresses), lawful-match rules, committed SQL executed in PGlite. Self red-proves.
+node scripts/test-independent-coords-pass.mjs --red-prove
 node scripts/test-family-day-presentation.mjs
 node scripts/test-map-family-layout.mjs
 
@@ -2235,6 +2238,7 @@ node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
 node scripts/test-area-twins.mjs
+node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs
 node scripts/test-event-hero-provenance.mjs
 node scripts/test-hotel-cta-impression.mjs
@@ -2246,3 +2250,5 @@ node scripts/check-anchor-events.mjs
 node scripts/test-guide-stays.mjs
 # 2026-10-15 guide deal cards are measurable: one commerce_impression per affiliate card (surface guide_deals), one commerce_cta_clicked per activation (142ms double-click), UT ends_at read as ET date, dead partner coupons purged. Red-proven by mutation.
 node scripts/test-guide-commerce-measurement.mjs
+# 2026-10-15 Google daily photo-quota pacing: photos_quota_pacing warns at 70/85 percent and goes critical at 95 percent of the 1000/day quota (Pacific day, per-band dedupe), photos_purchase_spike at 150/h, googleQuota in /api/health/photos; fail-soft, breaker-open suppression, no request ever leaves Supabase. Red-proven by mutation.
+node scripts/test-photo-quota-pacing.mjs
