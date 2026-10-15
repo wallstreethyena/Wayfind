@@ -44,7 +44,7 @@ import path from "node:path";
 import os from "node:os";
 import assert from "node:assert/strict";
 
-import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS, cardWindowIsStable, CARD_WINDOW_QUIET_MS, SIGNUP_OFFER_SETTLE_MS } from "./lib/synthetic/scenarios.mjs";
+import { SCENARIOS, REQUIRED_FLOWS, HOMEPAGE_CARD_BUDGET_MS, classifyCardMedia, CARD_MEDIA_TERMINAL, CARD_MEDIA_WAIT_MS, cardWindowIsStable, CARD_WINDOW_QUIET_MS, SIGNUP_OFFER_SETTLE_MS, waitForBookCtaHrefs, BOOK_CTA_WAIT_MS, BOOK_CTA_FALLBACK_WAIT_MS, BOOK_CTA_POLL_MS } from "./lib/synthetic/scenarios.mjs";
 // The product decision itself. Imported so the approved poster list can be
 // checked against it rather than against a copy that drifts (see §0).
 import { RAILS } from "../lib/rails.js";
@@ -657,6 +657,54 @@ if (workflowSrc) {
   const iLike = body.indexOf("toggledAfterClick(likeBtn)");
   ok(iWait > 0 && iSave > iWait, "save-share-actions waits for a stable card window BEFORE the first Save tap");
   ok(iClose > iSave && iLike > iClose, "save-share-actions dismisses the signup offer after Save and BEFORE the Like tap");
+}
+
+// ── book-links: wait for the CTAs to MOUNT, never sample once ───────────────
+// Live 2026-10-14/15 (~2 of 8 --all runs, never alone): the home page has zero
+// /api/*/go links until the rails mount (2.6-4.8s measured); the scenario read
+// the DOM once at 1.5s, then once more 1s after loading the events fallback,
+// and reported "no Book CTA found". Contract: poll up to a bound, return as
+// soon as a CTA exists, and STILL return [] (so the scenario fails) when the
+// page truly has none.
+{
+  const GO = "^\\/api\\/(viator|commerce|ticketmaster)\\/go\\?";
+  // Virtual clock + fake page: `mountAtMs` is when the CTAs appear (null = never).
+  const mk = (mountAtMs) => {
+    let t = 0;
+    let evaluations = 0;
+    return {
+      page: {
+        evaluate: async () => { evaluations++; return mountAtMs !== null && t >= mountAtMs ? ["/api/viator/go?product=1&intent=search"] : []; },
+      },
+      opts: { now: () => t, sleep: async (ms) => { t += ms; } },
+      elapsed: () => t,
+      evaluations: () => evaluations,
+    };
+  };
+  const late = mk(4800);
+  const lateHrefs = await waitForBookCtaHrefs(late.page, GO, { ...late.opts, maxMs: BOOK_CTA_WAIT_MS });
+  ok(lateHrefs.length === 1, "waitForBookCtaHrefs: CTAs that mount at 4.8s (past the old fixed 1.5s sample) ARE found (positive control)");
+  ok(late.elapsed() < BOOK_CTA_WAIT_MS, "waitForBookCtaHrefs: returns as soon as a CTA exists, not after the full bound");
+  const old = mk(4800);
+  const oldHrefs = await waitForBookCtaHrefs(old.page, GO, { ...old.opts, maxMs: 1500 });
+  ok(oldHrefs.length === 0, "waitForBookCtaHrefs: the OLD 1.5s bound misses CTAs mounting at 4.8s (red-proof: this is the original bug)");
+  const never = mk(null);
+  const neverHrefs = await waitForBookCtaHrefs(never.page, GO, { ...never.opts, maxMs: BOOK_CTA_WAIT_MS });
+  ok(neverHrefs.length === 0, "waitForBookCtaHrefs: a page with truly zero CTAs returns [] so the scenario still FAILS (negative control)");
+  ok(never.elapsed() >= BOOK_CTA_WAIT_MS && never.elapsed() < BOOK_CTA_WAIT_MS + 2 * BOOK_CTA_POLL_MS, "waitForBookCtaHrefs: the wait is bounded (stops at maxMs, does not spin forever)");
+  const throwing = { evaluate: async () => { throw new Error("Execution context was destroyed, most likely because of a navigation"); } };
+  let t2 = 0;
+  const thrownHrefs = await waitForBookCtaHrefs(throwing, GO, { maxMs: 1000, now: () => t2, sleep: async (ms) => { t2 += ms; } });
+  ok(thrownHrefs.length === 0 && t2 >= 1000, "waitForBookCtaHrefs: a mid-hydration navigation error is retried until the bound, not thrown");
+  ok(BOOK_CTA_WAIT_MS >= 8000 && BOOK_CTA_FALLBACK_WAIT_MS >= 5000, "book-links bounds cover the measured 2.6-4.8s CTA mount with headroom");
+
+  const bookStrip = (f) => readFileSync(path.resolve(f), "utf8").split("\n").filter((l) => !l.trim().startsWith("//")).join("\n");
+  const scn = bookStrip("./scripts/lib/synthetic/scenarios.mjs");
+  const bStart = scn.indexOf('id: "book-links"');
+  const bBody = scn.slice(bStart, scn.indexOf("// ── 11.", bStart) > bStart ? scn.indexOf("// ── 11.", bStart) : scn.indexOf('id: "location-behavior"', bStart));
+  ok(bStart > 0 && bBody.length > 200, "book-links scenario body located");
+  ok((bBody.match(/waitForBookCtaHrefs\(page,/g) || []).length === 2, "book-links waits for CTAs on BOTH the home page and the events fallback (exactly 2 waitForBookCtaHrefs calls)");
+  ok(!/waitForTimeout\(\s*\d+\s*\)/.test(bBody), "book-links has no fixed waitForTimeout sample before reading CTAs");
 }
 
 // The runner itself must not be swept into the (network-touching-forbidden)
