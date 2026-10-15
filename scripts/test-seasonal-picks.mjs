@@ -280,8 +280,9 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // right. "Exactly index 2" was one expression of that, not the rule.
     // Christmas in Florida (2026-10-08) sits directly behind Fall, so the
     // ceiling moves from index 4 to 5; the rule (never leads, never adrift) is unchanged.
-    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 5,
-      `${band}: Summer Picks stays in the first six behind Fall and Christmas (found ${o.indexOf("season") + 1})`);
+    // Halloween (owner, 2026-10-14) sits right of Fall in every band, so it moves from 5 to 6 in the static order.
+    ok(o.indexOf("season") >= 1 && o.indexOf("season") <= 6,
+      `${band}: Summer Picks stays in the first seven behind Fall, Halloween and Christmas (found ${o.indexOf("season") + 1})`);
   }
   // PREDICTABLE, proven across the bands rather than asserted per band: the two
   // tonight-led bands must agree with each other, or "where seasonal lives"
@@ -298,12 +299,12 @@ ok(/floor:\s*\{\s*rating:\s*4(\.0)?\s*,/.test(intentPagesSrc),
     // Owner, 2026-10-08: the Christmas poster is 3rd in the afternoon and 2nd
     // at night, so the two bands differ only in where christmas sits.
     const HEAD = {
-      afternoon: ["augtober", "tonight", "christmas", "trending", "datenight"],
-      night: ["augtober", "christmas", "tonight", "trending", "datenight"],
+      afternoon: ["augtober", "halloween", "tonight", "christmas", "trending", "datenight"],
+      night: ["augtober", "halloween", "christmas", "tonight", "trending", "datenight"],
     };
     for (const b of ["afternoon", "night"]) {
-      ok(DAYPARTS[b].order.slice(0, 5).join(",") === HEAD[b].join(","),
-        `${b} opens ${HEAD[b].join(" → ")} (got ${DAYPARTS[b].order.slice(0, 5).join(" → ")})`);
+      ok(DAYPARTS[b].order.slice(0, 6).join(",") === HEAD[b].join(","),
+        `${b} opens ${HEAD[b].join(" → ")} (got ${DAYPARTS[b].order.slice(0, 6).join(" → ")})`);
     }
     const noXmas = (b) => DAYPARTS[b].order.filter((id) => id !== "christmas").join(",");
     ok(noXmas("afternoon") === noXmas("night"),

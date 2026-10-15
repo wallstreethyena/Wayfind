@@ -41,6 +41,10 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
     // either. So a guard that asserts on this markup is asserting on the same
     // HTML the crawler gets — which is the thing these tests exist to check.
     // A lazy child's own behaviour belongs to that child's own guard.
+    // next/image - 2026-10-15. LicensedPhoto (rendered by GuideDealCards) imports
+    // it; bare node cannot resolve the extensionless specifier. Never invoked
+    // by the guards that call components directly (children stay unexpanded).
+    "next/image": 'export default function Image() { return null; }\n',
     "next/dynamic": 'export default function dynamic() { return function DynamicStub() { return null; }; }\n',
     // next/font/google — 2026-10-01. A font loader call is compiled away by
     // Next (it becomes a CSS import + a { className, variable, style } object),
