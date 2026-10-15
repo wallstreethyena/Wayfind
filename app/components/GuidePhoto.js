@@ -15,13 +15,18 @@ function PhotoForSource({
   fallbackClassName,
   fallbackText = "Explore the guide",
   style,
+  onFailure,
 }) {
   const [failed, setFailed] = useState(false);
+  const fail = useCallback(() => {
+    setFailed(true);
+    onFailure?.();
+  }, [onFailure]);
   // A server-rendered image can fail before hydration installs onError.
   // Inspect the achieved image state when React attaches, too.
   const imageRef = useCallback((image) => {
-    if (image?.complete && image.naturalWidth === 0) setFailed(true);
-  }, []);
+    if (image?.complete && image.naturalWidth === 0) fail();
+  }, [fail]);
 
   if (!src || failed) {
     return (
@@ -37,7 +42,7 @@ function PhotoForSource({
     image.decode().catch(() => {
       // A decode may settle after navigation. Only update the still-mounted,
       // still-current image so an old request cannot blank the next guide.
-      if (image.isConnected && image.getAttribute("src") === src) setFailed(true);
+      if (image.isConnected && image.getAttribute("src") === src) fail();
     });
   }
 
@@ -55,7 +60,7 @@ function PhotoForSource({
       decoding={decoding}
       style={style}
       onLoad={handleLoad}
-      onError={() => setFailed(true)}
+      onError={fail}
     />
   );
 }

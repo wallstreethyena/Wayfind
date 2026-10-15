@@ -33,6 +33,7 @@ import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUID
 // file is never transpiled that way, so it carries the fallback instead — see
 // the pick loop below for the one call site.
 import { guidePickPhoto, guidePhotoForPlace } from "../../../lib/guidePickPhotos";
+import { guideContextPhoto } from "../../../lib/guideContextPhotos.js";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { findSamePlaceCachedPhoto } from "../../../lib/photoCacheRecovery.js";
 import { guideAppHandoffHref, guidePlacePath } from "../../../lib/guideHandoff";
@@ -385,7 +386,7 @@ import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
-import GuideFigure from "../../components/GuideFigure";
+import GuideFigure from "../../components/GuideFigureWithFallback.js";
 import { guideHero } from "../../../lib/guideHero";
 import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -613,6 +614,7 @@ export default async function GuidePage({ params }) {
   // Curated media needs no lookup. Resolve the remaining venues once using
   // only existing free media; no request here can buy a Google photograph.
   const curatedPickImages = g.picks.map((pick) => guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name));
+  const fallbackPickImages = [];
   const editorialImages = new Map();
   const missingPickPhotos = pickPlaces.filter((place, i) => place && !curatedPickImages[i]);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
@@ -630,6 +632,18 @@ export default async function GuidePage({ params }) {
       const reused = guidePhotoForPlace(pick.placeId || pickPlaces[i]?.id, { avoidSrc: usedSrc });
       if (reused) { curatedPickImages[i] = reused; usedSrc.add(reused.src); }
     });
+    // Owner, 2026-10-15: photographs for every guide recommendation. Only
+    // after the exact place's licensed media is exhausted do we illustrate
+    // its topic, visibly labelled and credited under the shared figure.
+    g.picks.forEach((pick, i) => {
+      fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc });
+      if (!curatedPickImages[i] && !editorialImages.get(pickPlaces[i]?.id)) {
+        curatedPickImages[i] = fallbackPickImages[i];
+      }
+    });
+    for (const place of placeRail.places) {
+      if (!editorialImages.get(place.id)) editorialImages.set(place.id, guideContextPhoto(params.slug, place, g, { usedSrc }));
+    }
   }
   // Map-explorer cards cannot show Google's required photo credit, so each
   // spot gets its licensed photo (with its credit) or none (2026-09-30).
@@ -1089,7 +1103,7 @@ export default async function GuidePage({ params }) {
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
               {pickImage ? (
-                <GuideFigure role="pick" image={pickImage} className="wf-guide-pick-figure" />
+                <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}

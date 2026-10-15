@@ -1,9 +1,11 @@
 import GuideArticleHero from "./GuideArticleHero";
+import GuideFigure from "./GuideFigure";
 import SeasonalSearchNav from "./SeasonalSearchNav";
 import ShareButton from "../components/ShareButton";
 import { seasonalSearchHub, seasonalSearchSections } from "../../lib/seasonalSearch";
 import { siteTodayStr } from "../../lib/siteTime";
 import { SITE_URL } from "../../lib/site";
+import { guideContextPhoto } from "../../lib/guideContextPhotos.js";
 import styles from "../guides/guides.module.css";
 
 export function seasonalSearchMetadata(slug) {
@@ -25,6 +27,20 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
   if (!hub) throw new Error("Unknown seasonal search hub: " + slug);
   const sections = seasonalSearchSections(hub, today);
   const feature = hub.feature && hub.feature.endsOn >= today ? hub.feature : null;
+  const usedSrc = new Set();
+  const hubTopic = slug === "new-years-in-florida" ? "fireworks"
+    : slug === "christmas-in-florida" ? "holiday-lights" : "farm";
+  const hero = guideContextPhoto(slug, { name: hub.title }, hub, { topic: hubTopic, usedSrc });
+  const sectionTopics = {
+    lights: "holiday-lights", "boat-parades": "boat-parade", parks: "theme-park", "new-year": "fireworks",
+    families: "family", "night-out": "cocktails", fireworks: "fireworks", "new-years-day": "brunch",
+    pumpkins: "farm", festivals: "farm", "after-dark": "cocktails", haunts: "farm", food: "dining",
+  };
+  // These statewide overviews can illustrate a format with a named Florida
+  // setting; the photo alt still identifies that setting, never a 2026 edition.
+  const sectionContext = { ...hub, contextLocations: ["Orlando", "Sarasota", "Fort Lauderdale"] };
+  const sectionImages = sections.map((section) => guideContextPhoto(slug, { name: section.title }, sectionContext, { topic: sectionTopics[section.id], usedSrc }));
+  const featureImage = feature ? guideContextPhoto(slug, { name: feature.heading }, hub, { topic: "fireworks", usedSrc }) : null;
   const shareUrl = SITE_URL + "/" + slug;
   const links = [...new Map(sections.flatMap((section) => section.links).map((link) => [link.href, link])).values()];
   const schema = {
@@ -40,7 +56,7 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
   return <div className={styles.page} data-seasonal-search={slug}>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
     <GuideArticleHero title={hub.title} description={hub.intro} category={hub.label} region="Florida"
-      image={null} jumpHref="#plan" jumpLabel="Choose your plan"
+      image={hero} jumpHref="#plan" jumpLabel="Choose your plan"
       actions={<ShareButton url={shareUrl} title={hub.title} text={hub.description} tone="dark" event="page_share" meta={{ surface: "seasonal_search", slug }} />} />
     <SeasonalSearchNav />
     {/* Christmas v4: the statewide browse renders here when a hub page passes one. */}
@@ -51,12 +67,14 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
       </nav>
       {feature ? <section className={styles.section} aria-labelledby="announcement">
         <div className={styles.sectionHead}><h2 id="announcement">{feature.heading}</h2></div>
+        <GuideFigure role="pick" image={featureImage} />
         <p>{feature.text}</p>
         <a href={feature.href} style={{ color: hub.accent }}>{feature.label}</a>
         <p className={styles.description}>Announcement checked {feature.checkedAt}. Confirm the latest details with the organizer.</p>
       </section> : null}
-      {sections.map((section) => <section className={styles.section} id={section.id} key={section.id}>
+      {sections.map((section, index) => <section className={styles.section} id={section.id} key={section.id}>
         <div className={styles.sectionHead}><h2>{section.title}</h2></div>
+        <GuideFigure role="pick" image={sectionImages[index]} />
         <p style={{ fontSize: 17, lineHeight: 1.75 }}>{section.text}</p>
         {section.links.length ? <ul>{section.links.map((link) => <li key={link.href}><a href={link.href} style={{ color: hub.accent, display: "inline-flex", alignItems: "center", minHeight: 44 }}>{link.label}</a></li>)}</ul>
           : <p>Check <a href="/florida-events" style={{ color: hub.accent }}>upcoming Florida events</a> for current announcements. Previous editions are in <a href="/guides/past" style={{ color: hub.accent }}>past guides</a>.</p>}

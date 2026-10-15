@@ -137,6 +137,7 @@ export default function GuideFigure({
   fallbackClassName,
   captionClassName,
   fallbackText = "Explore the guide",
+  onPhotoError,
   ...rest
 }) {
   const media = guideFigureMedia(image);
@@ -163,6 +164,7 @@ export default function GuideFigure({
           className={[styles.img, imgClassName].filter(Boolean).join(" ")}
           fallbackClassName={[styles.fallback, fallbackClassName].filter(Boolean).join(" ")}
           fallbackText={fallbackText}
+          onFailure={onPhotoError}
           style={media.position ? { objectPosition: media.position } : undefined}
         />
       </div>
