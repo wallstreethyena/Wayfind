@@ -117,6 +117,7 @@ function preparePoster(id) {
 import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { useSiteToday } from "../../lib/siteDayClock.js";
 import { railOnPosterTrack } from "../../lib/posterSeasons.js";
 import { railArt, railArtSrcSet, railArtFallback, railTint, RAIL_ART_SIZES, railArtSize } from "../../lib/rails.js";
 // Chef and Augtober open the same pop-down shell as every other rail. Their
@@ -471,6 +472,7 @@ export default function DaypartRail({
   // from their own location the moment geolocation resolves.
   initialRail = null,
 }) {
+  const siteDay = useSiteToday(); // re-renders at midnight Eastern: poster track filter + order (lib/siteDayClock.js)
   const [daypart, setDaypart] = useState(initialDaypart);
   // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
   // — a real answer at first paint, and the WRONG one the moment we know the
@@ -663,7 +665,7 @@ export default function DaypartRail({
     return [...(livePosters || []), ...withSponsor];
   }, [livePosters, sponsor, rails]);
   const order = useMemo(() => {
-    const base = orderFor(daypart, rails.map((r) => r.id), siteTodayStr());
+    const base = orderFor(daypart, rails.map((r) => r.id), siteDay);
     const withSponsor = sponsor ? [sponsor.id, ...base] : base;
     // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
     // NOT first:
@@ -684,7 +686,7 @@ export default function DaypartRail({
     if (!live.length) return withSponsor;
     const AT = 3;
     return [...withSponsor.slice(0, AT), ...live, ...withSponsor.slice(AT)];
-  }, [daypart, rails, sponsor, livePosters]);
+  }, [daypart, rails, sponsor, livePosters, siteDay]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
   // Re-rank when the reader is meaningfully somewhere else. The threshold is
@@ -1686,7 +1688,7 @@ export default function DaypartRail({
             <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return railOnPosterTrack(r, siteTodayStr());
+                return railOnPosterTrack(r, siteDay);
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;

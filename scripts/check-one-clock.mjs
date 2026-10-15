@@ -39,6 +39,7 @@ const ALLOWED = new Set([
   "lib/nowContext.js",   // THE source
   "lib/siteTime.js",     // the venue-local CALENDAR DAY source; nowContext imports it
   "lib/businessStatus.js", // venue-offset opening-hours math, driven by Date.now() + a per-place utcOffset
+  "lib/siteDayClock.js", // ET wall-clock offset math to find the next Eastern MIDNIGHT (a DST-exact timer duration); never derives a daypart
 ]);
 // Guards and tests may exercise the clock directly — that is their job.
 const SKIP_DIRS = new Set(["node_modules", ".next", ".vercel", ".git", "public", "docs", "supabase", "design-after-final"]);

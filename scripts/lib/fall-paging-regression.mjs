@@ -122,6 +122,7 @@ export async function checkFallPaging({ componentSource = readFileSync(component
     if (spec.endsWith("partnerCopy.js")) return { partnerTicketLabel };
     if (spec.endsWith("placePhoto.js")) return { ownedPlacePhotoSrc };
     if (spec.endsWith("siteTime.js")) return { siteTodayStr };
+    if (spec.endsWith("siteDayClock.js")) return { useSiteToday: () => siteTodayStr() }; // the midnight-aware date hook; the fixture clock is fixed
     if (spec.endsWith("fallSkin.js")) return { fallSkinLive: () => true };
     if (spec.endsWith("posterJson.js")) return { fetchClassifiedPosterJson: async (url) => {
       bulkRequests.push(url);

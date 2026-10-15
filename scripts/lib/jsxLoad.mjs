@@ -45,6 +45,13 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
     // it; bare node cannot resolve the extensionless specifier. Never invoked
     // by the guards that call components directly (children stay unexpanded).
     "next/image": 'export default function Image() { return null; }\n',
+    // next/cache - 2026-10-15. A route that calls revalidatePath cannot run it outside a
+    // Next request. The stub RECORDS each call on globalThis.__wfRevalidated so a guard
+    // can assert on exactly which paths a route revalidated (check-seasonal-surfaces).
+    "next/cache": [
+      "export function revalidatePath(path, type) { (globalThis.__wfRevalidated || (globalThis.__wfRevalidated = [])).push(type ? [path, type] : path); }",
+      "export function revalidateTag() {}",
+    ].join("\n"),
     "next/dynamic": 'export default function dynamic() { return function DynamicStub() { return null; }; }\n',
     // next/font/google — 2026-10-01. A font loader call is compiled away by
     // Next (it becomes a CSS import + a { className, variable, style } object),

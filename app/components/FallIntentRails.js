@@ -18,6 +18,7 @@ import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import { fallSkinLive } from "../../lib/fallSkin.js";
 import { isSpookyCard, sayHalloween, spookyEyebrow, withSpookyChip } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { useSiteToday } from "../../lib/siteDayClock.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
@@ -188,7 +189,8 @@ export default function FallIntentRails({
   const expectedRailCount = collection === "halloween" ? 7 : 10;
   const GuideCollection = collection === "halloween" ? NoGuideSlot : GuideRailCollection;
   const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${today}|${collection}` : "", [active, lat, lng, today, collection]);
-  const fallSkin = fallSkinLive(siteTodayStr());
+  const siteDay = useSiteToday(); // midnight Eastern re-render (lib/siteDayClock.js)
+  const fallSkin = fallSkinLive(siteDay);
 
   useEffect(() => {
     const requestKey = key + "|" + retry;

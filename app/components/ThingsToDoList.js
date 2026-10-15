@@ -18,6 +18,7 @@ import { topPickAward } from "../../lib/topPickAward";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { spookyOverFall } from "../../lib/spookySkin.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { useSiteToday } from "../../lib/siteDayClock.js";
 import { toDisplayScore } from "../../lib/score";
 // v7.06 — the ONE editorial-line compressor, shared by every place surface.
 import { toHookLine } from "../../lib/editorialHook";
@@ -258,6 +259,7 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
 }
 
 export default function ThingsToDoList({ center, city, weather, onOpenPlace, onLog, blurbs, loadBlurbs, onSave, onShare, liked, disliked, onLike, onDislike }) {
+  useSiteToday(); // re-render at midnight Eastern so the card skins below flip without a reload
   const [fetchedRows, setFetchedRows] = useState(null); // null = loading
   const curatorPicks = useCuratorPicks();
   const nowCtx = useMemo(() => (center ? nowContext({ lat: center.lat, lng: center.lng, weather }) : null), [fetchedRows]); // eslint-disable-line react-hooks/exhaustive-deps
