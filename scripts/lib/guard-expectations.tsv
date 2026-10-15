@@ -887,6 +887,7 @@ scripts/test-shell-key-clear-kayak-pin.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue
 scripts/test-shell-key-guide-deeplinks.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	1	2	1b25247d9bd63ea7c16b6c03bcf4b9b9e54bf9bef848cbb4485c608937ee5f95
 scripts/test-shopping.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	1	1	4c59a686a088111c4dd87ae3603ff3e737abeba106789844a400ff16ffa07eed
 scripts/test-showtime-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	dac28a0eaf89cb4592bc35ea57bc74dd7926b572ac3a9f175fafac8de2e78aab
+scripts/test-sighting-renewal.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	790a8ed56840b72c7d01c9fe7c6925c82a6dbe8b087c8bf552f9a0c5b0fd8957
 scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	21	0	0	4ff86e8bdbf5c3d95bf91459f41c9d1c538df20a529d5e061d8bd41ce099510f
 scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd967704d6bbda5a029df3e5b952533e319b0c8cc6090da62bdec
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
