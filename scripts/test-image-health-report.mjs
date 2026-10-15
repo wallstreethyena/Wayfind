@@ -131,8 +131,11 @@ eq(siteMidnightIso(new Date("2026-10-15T02:00:00Z")), "2026-10-14T04:00:00.000Z"
 
 // ── the REAL route returns the block, keeps its old contract
 {
+  // Pin EVERY env name the route reads (it prefers NEXT_PUBLIC_SUPABASE_URL): the
+  // Vercel build has the real one set, which sent the route past this fake (503).
   process.env.CRON_SECRET = "s3cret";
   process.env.SUPABASE_URL = "https://sb.test";
+  process.env.NEXT_PUBLIC_SUPABASE_URL = "https://sb.test";
   process.env.SUPABASE_SERVICE_ROLE_KEY = "k";
   const { f, log } = makeFetch();
   const realFetch = globalThis.fetch;
@@ -155,7 +158,9 @@ eq(siteMidnightIso(new Date("2026-10-15T02:00:00Z")), "2026-10-14T04:00:00.000Z"
     ok(body.surface === "place-photos" && "activeWithRef" in body && "photoAllowance" in body && "runway" in body, "existing contract fields still present");
     ok(body.imageHealth && body.imageHealth.places.published === 1000 && body.imageHealth.events.total === 200, "route embeds imageHealth");
     ok(log.every((r) => !/googleapis/i.test(r.url)), "route imageHealth made no Google request");
-  } finally { globalThis.fetch = realFetch; }
+  } finally {
+    globalThis.fetch = realFetch;
+  }
 }
 
 console.log(`test-image-health-report: OK — ${n} assertions; computeImageHealth executed against a fake PostgREST (all fields, per-field fail-soft, total outage, GET-only, limit=1 counts, zero googleapis requests) and the real route returns the block with its prior contract intact`);
