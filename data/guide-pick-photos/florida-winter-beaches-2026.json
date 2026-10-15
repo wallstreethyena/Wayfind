@@ -27,37 +27,37 @@
       "reason": "google-only",
       "placeId": "ChIJh8tXh-FBw4gR9kFzfZN_g60",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
     },
     "Bill Baggs Cape Florida State Park": {
       "reason": "google-only",
       "placeId": "ChIJT6PHOUbK2YgRamANgVMeFqk",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Honeymoon Island State Park": {
       "reason": "google-only",
       "placeId": "ChIJ_4R4dXj0wogRhGK2MtUmBjI",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Lovers Key State Park": {
       "reason": "google-only",
       "placeId": "ChIJu0jFtWc924gRf_9YuPnSc2w",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Delnor-Wiggins Pass State Park": {
       "reason": "google-only",
       "placeId": "ChIJlb2_qywf24gRFYBsNGXcHW0",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Coquina Beach": {
       "reason": "google-only",
       "placeId": "ChIJ5eLMVXE9w4gR15l0tMZGkMY",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
     }
   }
 }

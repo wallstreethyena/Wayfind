@@ -1,0 +1,62 @@
+# .github/workflows/guide-visual-monitor.yml — CAN READERS SEE WHAT WE RECOMMEND?
+#
+# WHY THIS FILE EXISTS. On 2026-10-08 (#1697) cached Google photos were removed
+# from guide and blog pages for compliance. 142 guide picks and 394 blog picks
+# went text only, and it took a week and the owner scrolling a page (Coquina
+# Beach in "Winter Beach Days in Florida") to find it: nothing was broken, no
+# guard failed, no broken-image icon showed. Same failure shape as
+# photo-monitor.yml's header: the world changed under a healthy build.
+#
+# scripts/guide-visual-monitor.mjs reads every live guide and blog post and
+# sorts each recommendation into A (photo renders), B (photo exists but Wayfind
+# fails to show it: engineering failure) and C (no verified photo exists:
+# sourcing backlog). B zeroes the wf_job_pulse row's `succeeded`, so two runs
+# in a row with an engineering failure become a job-watch incident email.
+# C never pages. It never calls /api/photo, so it cannot spend.
+#
+# Every 6 hours at :35 UTC, clear of the :00/:30 canaries and photo-monitor's :50.
+name: guide-visual-monitor
+on:
+  schedule:
+    - cron: "35 */6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: guide-visual-monitor
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    name: guide and blog visual coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+      # Missing credentials must FAIL: a monitor that quietly skips itself
+      # reports green while measuring nothing.
+      - name: Require monitor credentials
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::guide-visual-monitor requires SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY. Check not performed."
+            exit 1
+          fi
+      - name: Read live guides and blog posts
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/guide-visual-monitor.mjs --base-url https://www.gowayfind.com --blog-url https://blog.gowayfind.com --json guide-visual-report.json
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: guide-visual-report
+          path: guide-visual-report.json
+          if-no-files-found: ignore
+          retention-days: 14

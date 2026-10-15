@@ -59,7 +59,7 @@
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Crab & Fin",
-      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Crab Fin St Armands Sarasota\" — zero results; no photo of this restaurant exists on Openverse."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Kilwins": {
       "reason": "google-only",
@@ -71,7 +71,7 @@
       "reason": "google-only",
       "placeId": null,
       "needsPermissionFrom": "Blue Dolphin Café",
-      "note": "No Commons photo found for this restaurant; the app resolves its photo via a live Google Places name search. Pass 2 (2026-09-23): Openverse searched \"Blue Dolphin Cafe St Armands\" — zero results; no photo of this restaurant exists on Openverse."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     }
   }
 }

@@ -1844,6 +1844,13 @@ node scripts/check-guide-visual-standard.mjs
 # licence + licence URL, Commons provenance), the manifest in sync with its
 # source JSON, and the loader's sameAsCardPhoto dedupe executed.
 node scripts/check-guide-pick-photos.mjs
+# VISUAL COVERAGE, not image safety (2026-10-15): every guide pick resolves to
+# an exact-place photo or a labelled, credited context photo, never text only;
+# no gap note may promise a fallback that no longer exists (the #1697 Coquina
+# Beach failure); every guide has a hero.
+node scripts/check-guide-visual-completeness.mjs
+# The scheduled live monitor's A/B/C sorting (.github/workflows/guide-visual-monitor.yml).
+node scripts/test-guide-visual-monitor.mjs
 
 # The Family Day culture rail reads only the verified wf_events schedule. This
 # locks family/age/haunt trust, exact 10/25/50-mile circles, fail-closed filters,

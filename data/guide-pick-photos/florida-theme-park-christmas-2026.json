@@ -6,43 +6,43 @@
       "reason": "google-only",
       "placeId": "ChIJgUulalN-3YgRGoTaWM2LawY",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "EPCOT International Festival of the Holidays": {
       "reason": "google-only",
       "placeId": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Disney Jollywood Nights": {
       "reason": "google-only",
       "placeId": "ChIJRx6CYyd83YgRD_HjNqPO_7s",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Christmas Town at Busch Gardens Tampa Bay": {
       "reason": "google-only",
       "placeId": "ChIJhRo4DU_GwogRUgjhMAj-pag",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
     },
     "SeaWorld Orlando Christmas Celebration": {
       "reason": "google-only",
       "placeId": "ChIJfyPWjCh-54gR1SvWozmef5k",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "Christmas Bricktacular at LEGOLAND Florida": {
       "reason": "google-only",
       "placeId": "ChIJ38rlfogN3YgRGic46M9dbLw",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     },
     "ICE! at Christmas at Gaylord Palms": {
       "reason": "google-only",
       "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
       "needsPermissionFrom": null,
-      "note": "No verified CC-licensed photo of this exact place was sourced. The pick resolves to the venue's own cached Wayfind photo by exact placeId, with no paid lookup."
+      "note": "No licensed photo of this exact place has been sourced yet (Wikimedia Commons and Openverse checked). Guide pages never store or show cached Google photos (Google Maps Platform Terms, #1697), so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
     }
   }
 }

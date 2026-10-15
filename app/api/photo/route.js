@@ -62,7 +62,7 @@ function logGoogleGrant(req, reason) {
   }
 }
 
-export async function GET(req) {
+async function handlePhotoGet(req) {
   // COST GUARD (2026-08-25 / 2026-08-26): photo media is metered. #956
   // deleted the category+metro Pexels pool (one manatee on three Family
   // cards) and then 302'd EVERY gated miss to /wf-photo-fallback.svg — so
@@ -436,4 +436,23 @@ export async function GET(req) {
       headers: missHeaders,
     }
   );
+}
+
+// BLOG READS THE SAME CREDITED ANSWER (owner approval 2026-10-14: live,
+// credited Google photos for guide AND blog picks within the existing
+// GOOGLE_PHOTOS_MONTH_CAP). blog.gowayfind.com is a separate Vercel project,
+// same site, so creditedRequest() already accepts its Sec-Fetch-Site:
+// same-site requests and every spend gate above (bots, probes, visitor
+// buckets, breaker, fail-closed ledger, cap) applies unchanged. The only thing
+// missing was permission for that ONE origin to read the fmt=json body. No
+// credentials, no other origin, no preflight-only headers are allowed.
+const BLOG_PHOTO_ORIGINS = new Set(["https://blog.gowayfind.com"]);
+export async function GET(req) {
+  const res = await handlePhotoGet(req);
+  const origin = req.headers.get("origin") || "";
+  if (res && res.headers && BLOG_PHOTO_ORIGINS.has(origin) && new URL(req.url).searchParams.get("fmt") === "json") {
+    res.headers.set("Access-Control-Allow-Origin", origin);
+    res.headers.append("Vary", "Origin");
+  }
+  return res;
 }
