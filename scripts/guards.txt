@@ -2226,3 +2226,4 @@ node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
 node scripts/test-area-twins.mjs
 node scripts/test-event-hero-provenance.mjs
+node scripts/test-hotel-cta-impression.mjs
