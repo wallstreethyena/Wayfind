@@ -569,6 +569,7 @@ scripts/test-daily-trend-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0
 scripts/test-date-night-intent.mjs	0	RENDER	blocks-ci-and-deploy	1	-	125	0	0	951bf8b336ff0864ecff30516391c589fb6dd732936460adea30a7af82d0f70b
 scripts/test-datenight-tag.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	e0ffa6a3a36c71b43d2f5bcec5e1f09b8c91aa7659825c635abb56345b55e1a6
 scripts/test-dayparts.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0	2e079d041b6d0fc43c1aee017467e3e0a11d5d5aa8123fbb07e34bc7080d161f
+scripts/test-db-cursor-collation.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	3ece55e6a3e96cc5643e5d8d720dae642216ce0174851afd35bca7eb612681da
 scripts/test-deal-rails.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	29	0	0	4183577747c24d8d1c3880f1b60978101b37e57d98190ba5fb756894456fde96
 scripts/test-deals-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	fc13dfcd99db05c3f088d899400d9fd0edbd35462e4ac275dfa6a4f89b197196
 scripts/test-deals.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	e2b6b8650ae5690ce454a6e40067abd09a6bed4dc35e22e5440f201122902fa6
