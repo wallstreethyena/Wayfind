@@ -95,7 +95,7 @@ const STANDARD = {
 // app). Folding them into ShareButton is worthwhile cleanup, but they are not
 // missing, so they are pinned here rather than rewritten under a bug fix.
 const EQUIVALENT = {
-  "app/group-plans/[id]/page.js": { via: "app/group-plans/[id]/page.js", file: "app/group-plans/GroupPlanClient.js", label: /Share final plan/ },
+  "app/group-plans/[id]/page.js": { via: "app/group-plans/GroupPlanClient.js", file: "app/group-plans/GroupOrganizer.js", label: /Share final plan/ },
   "app/family/page.js": { via: "app/family/client.js", file: "app/components/FamilyDayPage.js", label: /Share this list/ },
   "app/date-night/page.js": { via: "app/date-night/client.js", file: "app/components/DateNightIntentPage.js", label: /Share this list/ },
   "app/tonight/page.js": { via: "app/tonight/client.js", file: "app/components/NightOutIntentPage.js", label: /Share this list/ },
