@@ -76,6 +76,33 @@ ok(!INTENT_PARTNER_PICKS.tampa?.["hidden-gems"]?.image && !(INTENT_PARTNER_RAILS
 const emptyHtml = render({ city: "Tampa", intent: "hidden-gems", inventory: noImages, lat: 28.5, lng: -81.4 });
 ok(!emptyHtml.includes("data-offer-id="), "negative control: inventory with no images renders NO cards (this is the exact state the guide pages were in)");
 
+// Joined Awin programmes must be visible through the existing real rail even
+// before any live API enrichment; images are the merchant's own product art.
+for (const [city, intent, offerId, provider, lat, lng] of [
+  ["Orlando", "family", "orlando-ifly-adrenaline", "awin_adrenaline", 28.43, -81.47],
+  ["Miami", "hidden-gems", "miami-art-tour-gowithguide", "awin_gowithguide", 25.76, -80.19],
+  ["Tampa", "date-night", "tampa-events-gigsberg", "awin_gigsberg", 27.95, -82.46],
+  ["Orlando", "date-night", "orlando-theater-ticketsmarter", "ticketsmarter", 28.54, -81.38],
+]) {
+  const html = render({ city, intent, inventory: [], lat, lng });
+  ok(html.includes(`data-offer-id="${offerId}"`), `${city}/${intent}: the verified new Awin card actually renders without API inventory`);
+  ok(html.includes(`provider=${provider}`) && html.includes(`offer=${offerId}`), `${offerId}: rendered card uses its internal tracked earning route`);
+  const otherCity = city === "Miami" ? "Orlando" : "Miami";
+  const elsewhere = render({ city: otherCity, intent, inventory: [], lat: 25.76, lng: -80.19 });
+  ok(!elsewhere.includes(`data-offer-id="${offerId}"`), `${offerId}: another city cannot display the offer`);
+  ok(!html.includes('provider=awin_extranomical'), `${city}: California-only Extranomical is not placed in Florida`);
+}
+
+for (const [city, intent, offerId] of [
+  ["Miami, Oklahoma", "hidden-gems", "miami-art-tour-gowithguide"],
+  ["Orlando, West Virginia", "family", "orlando-ifly-adrenaline"],
+  ["Tampa, Kansas", "date-night", "tampa-events-gigsberg"],
+  ["Orlando, CA", "date-night", "orlando-theater-ticketsmarter"],
+]) {
+  const html = render({ city, intent, inventory: [], lat: 0, lng: 0 });
+  ok(!html.includes(`data-offer-id="${offerId}"`), `${city}: same-name city in another state cannot display the Florida partner`);
+}
+
 // Restaurant pages have their own food-only intent. The same unfiltered cache
 // payload may carry kayaks for valid activity surfaces; those rows must not be
 // relabelled as a date and shown above a restaurant ranking.

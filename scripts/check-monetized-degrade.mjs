@@ -49,11 +49,6 @@ process.stdout.write(JSON.stringify(r === undefined ? null : r));`;
 // `attributed` is the substring that PROVES the wrapper/id is present.
 const BUILDERS = [
   {
-    fn: "vrboUrl", args: ["Orlando, FL"], env: "NEXT_PUBLIC_VRBO_TEMPLATE",
-    set: "https://track.example/x?u={url}", attributed: "track.example",
-    mustFailClosed: true,
-  },
-  {
     fn: "experienceSearchUrl", args: ["kayak tour", "Sarasota"],
     env: "NEXT_PUBLIC_VIATOR_PID", set: "P00000000", attributed: "P00000000",
     // Also listed as unmonetized in the spec; it is monetized and ALREADY
@@ -119,12 +114,28 @@ for (const real of ["P00000000", "P_TEST_000000", "P00308545"]) {
     `withViatorTracking must still stamp the REAL pid ${JSON.stringify(real)} — got ${JSON.stringify(w)}. The placeholder list is exact-match for exactly this reason.`);
 }
 
+// Vrbo no longer accepts a client-side template. Its verified CJ creative
+// lives behind the server resolver; unset or poisoned legacy config cannot
+// turn the client href into an external/untracked link.
+for (const city of ["Orlando", "Tampa", "Sarasota", "Siesta Key", "Miami"]) {
+  for (const template of ["", "https://evil.example/?u={url}"]) {
+    const href = call("vrboUrl", [city + ", FL"], { NEXT_PUBLIC_VRBO_TEMPLATE: template });
+    ok(typeof href === "string" && href.startsWith("/api/commerce/go?provider=vrbo&"), `${city}: internal Vrbo handoff regardless of legacy template`);
+    const u = new URL(href, "https://www.gowayfind.com");
+    ok(u.searchParams.get("offer") === "vrbo-" + city.toLowerCase().replaceAll(" ", "-"), `${city}: exact registered market id`);
+  }
+}
+for (const city of ["", "Paris", "Orlando, CA", "__proto__", "constructor"]) {
+  ok(call("vrboUrl", [city], {}) === null, `${city || "empty"}: no unknown or wrong-region vacation-rental handoff`);
+}
+
 // ── COMPLETENESS: every URL-shaped export is classified ─────────────────────
 // A new builder must be triaged, not silently unguarded.
 const src = readFileSync(AFF, "utf8");
 const exports_ = [...src.matchAll(/^export function (\w+)/gm)].map((m) => m[1]);
 ok(exports_.length >= 8, `only ${exports_.length} exports parsed from lib/affiliates.js — the matcher is broken and completeness would be vacuous`);
 const KNOWN_UNMONETIZED = new Set([
+  "vrboUrl", // Internal commerce handoff. CJ tracking is asserted by check-earning-integrations.
   "isTicketyPlace",       // boolean predicate, returns no URL
   // v8.56.6 — boolean predicate, same class as isTicketyPlace: it returns no
   // URL and touches no env. It is the v6.53 beach rule lifted out on its own so

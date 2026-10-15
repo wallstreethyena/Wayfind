@@ -363,6 +363,18 @@ function PrimaryActionButton({ primaryCta, detail, kind, viaTours, locName, logE
   );
 }
 
+// Same first-party earning handoff and measurement used by other detail CTAs.
+function VacationRentalLink({ href, contentId, city }) {
+  const offerId = new URLSearchParams(href.split("?")[1]).get("offer");
+  const context = { surface: "detail_vacation_rentals", provider: "vrbo", merchant: "Vrbo", offer_id: offerId, content_id: contentId, city_id: city || null };
+  const impressionRef = useCommerceImpression(context);
+  return <a ref={impressionRef} href={href} rel="noreferrer sponsored" data-commerce-owner="VacationRentalLink" title="Partner link. Wayfind may earn a commission." onClick={(e) => {
+    const clickId = mintClickId();
+    e.currentTarget.href = withClickId(href, clickId);
+    try { emitCommerce("commerce_cta_clicked", { ...context, click_id: clickId }); } catch (err) {}
+  }} style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on Vrbo ↗</a>;
+}
+
 // v6.72 — "Go now / wait" verdict pill rendered above the primary CTA.
 function VerdictPill({ verdict }) {
   const isGo = verdict.tone === "go";
@@ -1000,12 +1012,12 @@ export default function DetailSheet({ ctx }) {
                   }} aria-label={lunchChallengeView ? "Challenge someone for Lunch in My City" : "Share"} style={{ flex: "1 1 46%", minWidth: 88, height: 44, padding: "0 10px", background: lunchChallengeView ? "linear-gradient(135deg,#F97316,#FBBF24)" : "rgba(255,255,255,.035)", border: `1px solid ${lunchChallengeView ? "#F8D447" : C.border}`, borderRadius: 12, color: lunchChallengeView ? "#10151B" : C.text, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center", gap: 6, fontSize: 12.5, fontWeight: lunchChallengeView ? 900 : 750, whiteSpace: "nowrap" }}><span aria-hidden="true">{lunchChallengeView ? "⚡" : "↗"}</span><span>{lunchChallengeView ? "Challenge" : "Share"}</span></button>
                 </div>
               </div>
-              {(() => { /* v6.37 — VRBO whole-home alternative for lodging. CoS HIGH (2026-08-19): no VRBO go route exists and we must not invent a PID. Fail-closed — render only if the href is already an existing go route. Keep-dark otherwise. */
+              {(() => { /* Verified Florida vacation-rental browsing, through the tracked commerce route only. */
                 const _ty = ((detail.types || []).join(" ")).toLowerCase();
                 if (!/lodging|hotel|resort|motel|bed_and_breakfast|guest_house/.test(_ty)) return null;
                 const _vu = Aff.vrboUrl(locName);
                 if (!_vu || !isEarningGoHref(_vu)) return null;
-                return <a href={_vu} rel="noreferrer sponsored" style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on VRBO ↗</a>;
+                return <VacationRentalLink href={_vu} contentId={detail.id} city={locName} />;
               })()}
 
               {/* 2026-09-23 (owner): ONE disclosure line per detail sheet. When the

@@ -36,7 +36,7 @@ const src = stripComments(raw);
 // parentheses (`indexOf("{url}") < 0`), and a naive `[^)]*` regex silently fails
 // to match it — which reads as "no branch found" instead of "leak found".
 const BUILDERS = [
-  { fn: "vrboUrl", env: "NEXT_PUBLIC_VRBO_TEMPLATE", mustFailClosed: true },
+  { fn: "vrboUrl", env: "server-side CJ creative", mustFailClosed: true },
   // KNOWN, OWNER-DECIDED EXCEPTION. uberEatsUrl has the identical leak — it
   // returns a bare, untracked ubereats URL when the template is unset, and that
   // var is MISSING in Vercel production. It is exempt only because the
