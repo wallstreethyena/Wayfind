@@ -702,6 +702,7 @@ scripts/test-image-health-report.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	b1
 scripts/test-image-health.mjs	0	RENDER	blocks-ci-and-deploy	1	-	69	0	0	a4a72733186a309948d7aa571a1af1cfeb6f746e13fec1ca976b2134d1f681ed
 scripts/test-image-publication-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	a1680699928dd44efae0416a06d44ecf785573f9ce574c16e3d771f896bd9d56
 scripts/test-image-score.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	24	1	0	54b58d2f15300f2d6902703a73cefc646485fe29d92e1ef86b89907e234066b3
+scripts/test-independent-coords-pass.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	32dc01def067331ef2771f063686087e125b63531853bf5e012a969f67c1ec86
 scripts/test-intent-composition.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	d7625b1da6451ca20ece21e7b512b8f6c334a078836fe7f935545f3249bae999
 scripts/test-intent-header-clarity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	733eb9df463b7e7dc682fdd685426d17bb2179e2f059507dea43d1d83a52bcfc
 scripts/test-intent-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	a72e2345722073e2988fdbbcaaf34991fc11c13b7cdb321f21bb3439fbfe7259
