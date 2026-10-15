@@ -6,7 +6,7 @@ import { SITE_URL } from "../../lib/site.js";
 import { C } from "../components/kit.js";
 import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
-import { GroupPlaceOptions, staleFactsNote } from "./GroupPlaceOptions.js";
+import { GroupPlaceOptions, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
 
 // Group Vote organizer dashboard. Motion budget: everything <= 0.6s, confetti <= 1s,
 // and every animation is switched off under prefers-reduced-motion.
@@ -101,7 +101,7 @@ function Results({plan}) {
 function FinalPlaceCard({place,plan}) {
   if(!place)return null;
   if(place.unavailable)return <div className="gp-empty"><h3>{place.name}</h3><p>Details are unavailable. Check the venue before going.</p></div>;
-  return <><PhotoSrcFilterContext.Provider value={(src)=>place.photo&&place.photoAttr&&place.photoAttrHref&&src===place.photo?src:""}><ul className="gp-card-list gpo-final-card"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photoNoSpend:true,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>{staleFactsNote(place,plan.timeZone)}</>;
+  return <><PhotoSrcFilterContext.Provider value={groupPhotoFilter(place)}><ul className="gp-card-list gpo-final-card"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>{staleFactsNote(place,plan.timeZone)}</>;
 }
 const CONFETTI=Array.from({length:12},(_,i)=><i key={i}/>);
 export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
@@ -151,10 +151,10 @@ export function GroupOrganizer({plan,onCommand,busy,nowMs:nowOverride}) {
     {["open","closed","finalized"].includes(plan.status)&&<Results plan={plan}/>}
     {plan.status==="closed"&&<section className="gp-panel"><div className="gp-step">Your result</div><h2>{summary.commonTimeIds.length?"A time works for everyone":summary.pendingCount?"A result, with replies missing":"No time works for everyone"}</h2>
       <p>{summary.tie?"The place vote is tied. You get to choose.":summary.winnerPlaceId?`${plan.places.find((p)=>p.id===summary.winnerPlaceId)?.name} has the most votes.`:"There are no place votes yet."}</p>
-      {summary.pendingCount>0&&<p>{summary.pendingCount} invitee{summary.pendingCount===1?" hasn’t":"s haven’t"} responded. A time that works for respondents is not confirmed for everyone.</p>}
+      {summary.pendingCount>0&&<p>{summary.pendingCount} {summary.pendingCount===1?"friend hasn’t":"friends haven’t"} replied yet. A time that works for respondents is not confirmed for everyone.</p>}
       {summary.declinedCount>0&&<p>{summary.declinedCount} friend{summary.declinedCount===1?" can’t":"s can’t"} make it. Declines are not votes and don’t block you.</p>}
       <label className="gp-field">Choose the place<select value={placeId} onChange={(e)=>{setPlaceId(e.target.value);clearAcks();}}>{plan.places.map((p)=><option key={p.id} value={p.id}>{p.name} · {(()=>{const v=summary.placeResults.find((r)=>r.placeId===p.id)?.votes||0;return `${v} ${v===1?"vote":"votes"}`;})()}</option>)}</select></label>
-      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);clearAcks();}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTimeShort(t,plan.timeZone)} · {summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0}/{summary.expectedCount} invitees available</option>)}</select></label>
+      <label className="gp-field">Choose a time<select required value={timeId} onChange={(e)=>{setTimeId(e.target.value);clearAcks();}}><option value="">Pick a time</option>{plan.times.map((t)=><option key={t.id} value={t.id}>{formatGroupTimeShort(t,plan.timeZone)} · {summary.availabilityCounts.find((r)=>r.timeId===t.id)?.count||0} of {summary.expectedCount} {summary.expectedCount===1?"friend":"friends"} can make it</option>)}</select></label>
       {timeId&&venueClosed?<p className="gp-status gp-error">The venue’s known hours conflict with this time. Choose another time or place.</p>:needHours?<><p className="gp-status">Your friends’ availability does not tell us the venue’s hours. Check the venue before confirming.</p>{selectedPlace?.placeUrl&&<a className="gp-button" href={selectedPlace.placeUrl} target="_blank" rel="noopener noreferrer">Check venue details</a>}</>:null}
       {(needPartial||needTie||needUnavailable||needHours)&&<div className="gpo-acks">
         {needPartial&&ackBox(ackPartial,setAckPartial,"Not everyone replied. Finalize anyway.")}
@@ -181,9 +181,9 @@ export function GroupFinal({plan,headline=true,withStyle=true}) {
     {headline&&<><p className="gpo-locked">Plan locked</p><h2>{place?.name||"The final plan"}</h2>{time&&<p>{formatGroupTimeShort(time,plan.timeZone)}</p>}</>}
     {plan.organizerName&&<p className="gp-note">Organized by {plan.organizerName}</p>}
     <FinalPlaceCard place={place} plan={plan}/>
-    <p className="gp-status">{final.isCommonTime?"This time was marked available by every invited person and the organizer.":`${final.confirmedInviteeCount} of ${final.expectedInviteeCount} invitees marked this time available. It is not confirmed for everyone.`}</p>
+    <p className="gp-status">{final.isCommonTime?"This time was marked available by every invited person and the organizer.":`${final.confirmedInviteeCount} of ${final.expectedInviteeCount} friends marked this time available. It is not confirmed for everyone.`}</p>
     {final.isTie&&<p className="gp-note">The organizer resolved a tied place vote.</p>}
-    {final.isPartial&&<p className="gp-note">Some invitees had not responded when the plan was chosen.</p>}
+    {final.isPartial&&<p className="gp-note">Some friends had not replied when the plan was chosen.</p>}
     <p className="gp-note">This is a plan, not a reservation. Check opening hours and book directly if needed.</p>
     {place?.placeUrl&&<a className="gp-button" href={place.placeUrl}>See the place</a>}
   </div>;
