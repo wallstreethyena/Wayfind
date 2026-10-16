@@ -1,4 +1,4 @@
-# Google Places content posture (reviewed 2026-10-08)
+# Google Places content posture (updated 2026-10-15)
 
 This replaces the July posture note, which said "No server-side database of Google
 content exists". That is no longer true, and this page says what is actually stored,
@@ -22,34 +22,45 @@ or given a longer retention.
 days "the Google ToS maximum for cached place content" (`app/api/photo/route.js`,
 `app/api/places/search/route.js`, `lib/placeDetails.js`); that reading is wrong for anything but coordinates.
 
-## What Wayfind does now (owner decision 2026-10-08, implemented)
+## Current photo behavior (owner direction, 2026-10-15)
 
-The owner chose the compliant direction: licensed and permitted photos first, Google
-photos only live, credited and within the existing budget.
+The owner explicitly changed the earlier live-only decision: retain each acquired
+Google photo until the owner removes it, and reuse it across visitors. This is a
+product retention instruction, not evidence of a Google license exception. The
+standard terms above do not establish permission for indefinite photo storage.
 
-**Photo order** (`lib/placePhotoServe.js`, `app/api/photo/route.js`):
-1. Wayfind's own photo (inventory, never a Google-hosted URL).
-2. A photo the business or a creator gave permission to use (`wf_place_photo`,
-   non-licensed sources rank first, `lib/freePhoto.js preferPermittedRow`).
-3. A properly licensed photo of the same place (`wf_place_photo`, e.g. Wikimedia).
-4. A live Google photo, ONLY on the place detail hero and its photo viewer
-   (`/api/photo?place=<id>&s=detail&fmt=json`), shown with the author's linked name and
-   a "Google Maps" link (`app/components/PhotoCredit.js`).
-5. Otherwise a clean placeholder. Never another venue's photo, never a photo taken
-   from a website or Instagram without permission.
+The shared photo route now uses `wf_google_photo_store` and the private
+`google-place-photos` bucket. They are separate from the independently licensed
+`wf_place_photo` library. A saved Google photo stays labelled `source: google`,
+with the author information from the exact photo acquired. Image bytes are saved,
+not an expiring Google redirect. Stored copies have no refresh or expiry clock.
 
-**Google request per detail view:** Place Details `fields=photos` (Essentials IDs Only,
-free, metered by our `details_ids_only` ledger) with `cache: "no-store"`, then one
-Place Photos media request (`photos` ledger, cap 3,000/month), answered
-`private, no-store`. Bots, monitors and `nospend=1` never buy; the quota breaker,
-singleflight, fail-closed ledger and refund rules are unchanged
-(`scripts/test-google-photo-compliance.mjs`).
+On a miss, a real visitor on a credited surface may acquire a photo after a
+cross-server database lease and the existing monthly budget grant. The Google
+request sequence is bounded to 30 seconds inside the 90-second lease. Bots,
+monitors, read-only guide rendering and `nospend=1` can reuse saved images but do
+not buy new ones. The separate 80-photo per-visitor daily cutoff was removed.
+The global photo budget and Google quota protections remain in place.
 
-**Nothing Google-photo-derived is stored:** no `photo|`/`photoneg|` cache rows, no
-`wf_photo_credit` rows, no real photo names anywhere. Stored refs are the place-only
-pseudo-ref `places/<placeId>/photos/wfplacediscovery` (only the place ID, which the
-terms allow indefinitely). `photo-warm` and `credited-photos` are permanently off.
-The stored data was removed by a scoped migration (see the PR).
+Saved images and metadata are served through revocable, no-store responses.
+Card, event and guide consumers retain the same-photo credit; linked cards have
+a separate accessible credit viewer. The private object URL and credentials are
+never sent to the browser. Existing owned, licensed and partner imagery remains
+available through its existing source paths.
+
+To remove an image, use `node scripts/remove-google-photo.mjs PLACE_ID` to inspect
+and add `--apply` to remove it using the configured server credentials. Removal
+first writes a permanent tombstone, preventing automatic reacquisition and
+in-flight resurrection, then deletes its bytes. Failed deletion can be retried.
+A previously downloaded image already visible in a browser cannot be recalled;
+new server reads stop serving it.
+
+Verification: `test-google-photo-store.mjs` executes the actual SQL lease and
+removal functions locally; `test-shared-google-photo-serving.mjs` executes the
+resolver and route contracts; existing photo credit and browser viewer tests
+cover presentation. The older `test-google-photo-compliance.mjs` still protects
+live upstream attribution, spend controls and retired expiring-name caches. It
+is not proof that this new retention policy is permitted by Google's terms.
 
 ## Known remaining gaps (not photos)
 

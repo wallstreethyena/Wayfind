@@ -887,5 +887,21 @@
       "detail": "Removing the visitor-specific daily cutoff must preserve the global 10000 monthly photo ledger, fail-closed behavior, automated and no-spend reader restrictions, and matching photographer attribution."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-google-photo-store.mjs": {
+    "protects": "Private Google-origin image bytes and same-photo credit persist without TTL; distributed leases prevent duplicate acquisition and owner tombstones revoke serving/refill.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Photo outages and duplicate paid acquisitions affect every visitor. Stored Google content must retain source attribution and remain revocable by the owner."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-shared-google-photo-serving.mjs": {
+    "protects": "Shared photo service reuses retained images across visitors, widths and dates without Google calls, while preserving credited surfaces, monthly spend gates and bounded acquisition.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Photo outages and duplicate paid acquisitions affect every visitor. Stored Google content must retain source attribution and remain revocable by the owner."
+    },
+    "owner": "Revenue QA"
   }
 }

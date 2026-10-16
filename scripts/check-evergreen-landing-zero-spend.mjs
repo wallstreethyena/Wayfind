@@ -246,6 +246,15 @@ const render = async (c, s, city) => {
     cacheGet: async () => null, cacheSet: async () => {}, cacheDel: async () => {},
     inventoryGet: async () => null, probeUri: async () => null,
     breakerOpen: async () => null, tripBreaker: async () => {},
+    // Model a new, storable place for each independent UA/surface probe. The
+    // real storage lease/credit/reuse behavior is covered by its own guards;
+    // this rig must reach the paid lane to prove its zero-spend controls.
+    photoStore: {
+      read: async () => null,
+      claim: async () => ({ state: "claimed", token: "evergreen-test-lease" }),
+      save: async ({ placeId, credit }) => ({ src: `/api/photo/stored/${placeId}?v=${"a".repeat(64)}`, credit }),
+      fail: async () => true,
+    },
     fetchOwnedUri: async () => { googlePhotoFetches++; return { uri: "https://lh3.googleusercontent.com/p/fake", status: 200, upstream: "ok" }; },
   };
   globalThis.__wfEvergreenGuard = {

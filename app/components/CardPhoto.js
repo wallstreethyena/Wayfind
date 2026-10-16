@@ -36,6 +36,40 @@ function PhotoViewer({ photo, alt, close }) {
   );
 }
 
+// Lives outside the linked card DOM: no attribution control nests inside
+// its navigation anchor/button. The image still follows the card.
+function LinkedPhotoCredit({ anchor, photo, alt, open, compact }) {
+  const [bounds, setBounds] = useState(null);
+  useEffect(() => {
+    const image = anchor.current;
+    if (!image) return;
+    const update = () => {
+      const r = image.getBoundingClientRect();
+      let left = Math.max(0, r.left), right = Math.min(window.innerWidth, r.right);
+      let top = Math.max(0, r.top), bottom = Math.min(window.innerHeight, r.bottom);
+      for (let parent = image.parentElement; parent; parent = parent.parentElement) {
+        const css = getComputedStyle(parent), box = parent.getBoundingClientRect();
+        if (/(hidden|clip|auto|scroll)/.test(css.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
+        if (/(hidden|clip|auto|scroll)/.test(css.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
+      }
+      setBounds(right - left >= 44 && bottom - top >= 32 ? { left, right, bottom } : null);
+    };
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    const observer = typeof ResizeObserver !== "undefined" ? new ResizeObserver(update) : null;
+    observer?.observe(image);
+    return () => { window.removeEventListener("scroll", update, true); window.removeEventListener("resize", update); observer?.disconnect(); };
+  }, [anchor, photo]);
+  if (!bounds) return null;
+  return createPortal(<button type="button" data-linked-photo-credit aria-haspopup="dialog"
+    aria-label={alt ? "View photo and photographer credit for " + alt : "View photo and photographer credit"}
+    onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); }}
+    onClick={open} style={{ ...control, position: "fixed", zIndex: 30, left: bounds.left + 4, top: bounds.bottom - 32, maxWidth: bounds.right - bounds.left - 8, minHeight: 28, padding: 0, fontSize: 12, fontFamily: "Roboto, sans-serif", background: "transparent", border: 0, borderRadius: 0, textShadow: "0 1px 2px #000, 1px 0 1px #000, -1px 0 1px #000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+    {compact ? "Photo credit" : "Google Maps · Photo credit"}
+  </button>, document.body);
+}
+
 // Drop-in image: ordinary owned/partner images stay ordinary. Only the photo
 // endpoint uses the credited JSON lane, after this image enters the viewport.
 // `missSrc` = an owned image to show instead of the tile once the lane has missed.
@@ -48,11 +82,8 @@ function PhotoViewer({ photo, alt, close }) {
 // error = "Photo not available" tile. `fallbackIcon` / `fallbackCategory` only choose
 // the tile's art; they never reach the <img>.
 export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, style, compact = false, fallbackIcon, fallbackCategory, missSrc, inLink = false, ...props }) {
-  // `inLink`: the photo sits inside a tap target that navigates or redirects (a deal / commerce
-  // <a>, a row <button>). The parent's click must win and no <a> may nest inside it, so: no viewer,
-  // no preventDefault/stopPropagation, no credit anchor, and the lane is asked with nospend=1 so only
-  // Wayfind-owned / licensed free photos show there (a Google answer, which needs a visible credit, is
-  // treated as a miss). Google photos on commerce cards are a follow-up.
+  // Linked cards remain read-only. Retained Google answers keep their exact
+  // credit through a separate control without changing card geometry.
   const baseRequest = cardPhotoRequest(src);
   const request = baseRequest && inLink && !/[?&]nospend=1(?:&|$)/.test(baseRequest) ? baseRequest + "&nospend=1" : baseRequest;
   const anchor = useRef(null);
@@ -61,7 +92,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   const [viewer, setViewer] = useState(null);
   const [rawFailed, setRawFailed] = useState(null);
   const answered = answer?.request === request ? answer.photo : null;
-  const photo = inLink && answered?.source === "google" ? null : answered;
+  const photo = inLink && answered?.source === "google" && !answered.src?.startsWith("/api/photo/stored/") ? null : answered;
   useEffect(() => {
     setViewer(null);
     if (!request || !anchor.current) return;
@@ -71,7 +102,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     const run = (attempt) => {
       fetchCardPhoto(request).then((result) => {
         if (disposed) return;
-        const usable = inLink && result?.source === "google" ? null : result;
+        const usable = inLink && result?.source === "google" && !result.src?.startsWith("/api/photo/stored/") ? null : result;
         setAnswer({ request, photo: usable });
         setFailed(usable ? null : request);
         if (!result && attempt + 1 < MAX_ATTEMPTS) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);
@@ -118,6 +149,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     {visible && !compact && !inLink && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
       <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", color: "#fff", textShadow: "-1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000, 0 1px 2px #000", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, lineHeight: "16px", fontWeight: 400, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
     </div> : null}
+    {visible && inLink && photo.source === "google" && photo.credit ? <LinkedPhotoCredit anchor={anchor} photo={photo} alt={alt} open={open} compact={compact} /> : null}
     {viewer && viewer.request === request && viewer.photo === photo && visible ? <PhotoViewer photo={viewer.photo} alt={alt} close={() => setViewer(null)} /> : null}
   </>;
 }

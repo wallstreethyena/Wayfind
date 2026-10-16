@@ -450,7 +450,10 @@ export default function RailCard({
   // 2026-09-30 — inside a PhotoPolicyProvider (guides) a Google photo cannot
   // render here: this card has no room for Google's required visible credit.
   // Outside it the filter returns every src unchanged.
-  const photoSrcFilter = usePhotoSrcFilter();
+  const routePhotoFilter = usePhotoSrcFilter();
+  // Saved Google bytes go through CardPhoto's read-only JSON/credit viewer.
+  // Keep filtering other Google URLs on guide surfaces.
+  const photoSrcFilter = (src) => typeof src === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(src) ? src : routePhotoFilter(src);
   const shownPhoto = photoSrcFilter(photo);
   const usingFallback = !!fallbackPhoto && fallbackPhoto.primary === shownPhoto;
   const displayedPhoto = usingFallback ? fallbackPhoto.src : shownPhoto;

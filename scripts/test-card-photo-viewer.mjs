@@ -21,6 +21,10 @@ assert.match(request, /s=card&fmt=json/);
 assert.match(cardPhotoRequest(source + "&nospend=1"), /nospend=1/);
 assert.equal(cardPhotoRequest("https://other.example" + source), null);
 assert.equal(cardPhotoRequest("/api/photo?place=bad"), null);
+const savedSource = "/api/photo/stored/ChIJCardPhotoTest0001?v=hash";
+assert.match(cardPhotoRequest(savedSource), /place=ChIJCardPhotoTest0001/);
+assert.match(cardPhotoRequest(savedSource), /nospend=1/, "saved photo metadata lookup cannot acquire a photo");
+
 let calls = 0, release;
 const wait = new Promise((r) => { release = r; });
 const fake = async () => { calls++; await wait; return { ok: true, json: async () => ({ src: "https://photo.test/a.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/a" } }) }; };
@@ -50,22 +54,22 @@ try {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    let photoCalls = 0, responseMode = "success"; const deniedSeen = new Set();
+    let photoCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set();
     const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
       if (u.pathname === "/api/photo") {
-        photoCalls++;
+        photoCalls++; lastPhotoRequest = u.href;
         assert.equal(u.searchParams.get("s"), "card");
         assert.equal(u.searchParams.get("fmt"), "json");
         if (responseMode === "miss") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "no-photo" } });
         if (responseMode === "denied-once" && !deniedSeen.has(u.searchParams.get("place"))) { deniedSeen.add(u.searchParams.get("place")); return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "spend-denied" } }); }
         if (responseMode === "always-denied") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "quota-open" } });
         const own = { ...photo, src: "https://photo.test/" + u.searchParams.get("place") + ".jpg", credit: { ...photo.credit, mapsUri: "https://maps.google.com/photo/" + u.searchParams.get("place"), authors: [{ name: "Author of " + u.searchParams.get("place"), uri: "https://maps.google.com/contrib/x" }] } };
-        return route.fulfill({ json: responseMode === "broken" ? { ...photo, src: "https://photo.test/broken.jpg" } : u.searchParams.get("place") === "ChIJCardPhotoTest0001" ? photo : own });
+        return route.fulfill({ json: responseMode === "retained" ? { ...photo, src: "/api/photo/stored/ChIJCardPhotoTest0001?v=hash" } : responseMode === "broken" ? { ...photo, src: "https://photo.test/broken.jpg" } : u.searchParams.get("place") === "ChIJCardPhotoTest0001" ? photo : own });
       }
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
-      if (u.hostname === "photo.test") return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
+      if (u.hostname === "photo.test" || u.pathname.startsWith("/api/photo/stored/")) return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
       return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card" style="position:relative"><button type="button" class="wf-place-card-open" aria-label="Open test venue" style="position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer;background:transparent"></button><div class="wf-place-card-layout" style="position:relative;z-index:1;pointer-events:none"><div class="wf-place-card-media"><div id="root" style="position:relative;overflow:hidden"></div></div><div id="card-content">Test venue</div></div></article>` });
     });
     await page.goto("https://wayfind.test/");
@@ -139,6 +143,31 @@ try {
     const render = (id, alt) => page.evaluate(({ id, alt }) => {
       root.render(React.createElement(photoModule.default, { src: "/api/photo?place=" + id, alt, style: { width: "100%", height: "100%", objectFit: "cover" } }));
     }, { id, alt });
+    // A retained Google photo on a linked commerce card keeps navigation on
+    // the image and exposes its same-photo credit OUTSIDE the link's DOM.
+    responseMode = "retained";
+    await page.evaluate(() => {
+      window.linkedNavigations = 0;
+      root.render(React.createElement("a", { href: "#commerce", style: { pointerEvents: "auto" }, onClick: (e) => { e.preventDefault(); window.linkedNavigations++; } },
+        React.createElement(photoModule.default, { src: "/api/photo/stored/ChIJCardPhotoTest0001?v=hash", inLink: true, alt: "Linked venue", style: { width: "100%", height: "100%", objectFit: "cover" } })));
+    });
+    const linkedCredit = page.getByRole("button", { name: "View photo and photographer credit for Linked venue", exact: true });
+    await linkedCredit.waitFor();
+    assert.match(lastPhotoRequest, /nospend=1/);
+    assert.equal(await linkedCredit.evaluate((el) => el.closest("a, [role=link]") === null && el.parentElement === document.body), true, "credit control never nests inside a navigation target");
+    assert.equal(await page.locator("#root a a, #root a button").count(), 0, "no nested interactive links/buttons");
+    await page.locator("#root > a > img").click({ position: { x: 20, y: 20 } });
+    assert.equal(await page.evaluate(() => linkedNavigations), 1, "image still follows the linked card");
+    const callsBeforeLinkedViewer = photoCalls;
+    await linkedCredit.focus(); await page.keyboard.press("Enter");
+    await page.locator("dialog[open]").waitFor();
+    assert.equal(await page.locator("dialog > img").getAttribute("src"), savedSource);
+    assert.ok(await page.getByRole("link", { name: "First Author (opens in a new tab)", exact: true }).isVisible());
+    assert.ok(await page.getByRole("link", { name: "Second Author (opens in a new tab)", exact: true }).isVisible());
+    assert.equal(photoCalls, callsBeforeLinkedViewer, "linked viewer never acquires another photo");
+    assert.equal(await page.evaluate(() => linkedNavigations), 1);
+    await page.keyboard.press("Escape");
+    assert.ok(await linkedCredit.evaluate((el) => document.activeElement === el), "linked credit restores keyboard focus");
     responseMode = "miss";
     await render("ChIJCardPhotoFail0001", "Missing photo");
     await page.getByText("Photo unavailable", { exact: true }).waitFor();

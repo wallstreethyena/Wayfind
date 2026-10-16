@@ -2273,3 +2273,7 @@ node scripts/test-db-cursor-collation.mjs --red-prove
 # 2026-10-15: every guide recommendation has an honestly labelled, licensed
 # local context photograph after exact-place media, including source failures.
 node scripts/test-guide-context-photos.mjs
+
+# Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
+node scripts/test-google-photo-store.mjs
+node scripts/test-shared-google-photo-serving.mjs

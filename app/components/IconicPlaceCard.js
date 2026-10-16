@@ -259,6 +259,7 @@ const compactCount = (n) => Number(n) >= 1000
 // photoNoSpend (evergreen landing towns): the row's own no-spend `photo` only,
 // and the id retry below keeps nospend=1 — see lib/evergreenCities.js.
 const photoUrl = (p) => {
+  if (typeof p?.photo === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(p.photo)) return p.photo;
   if (p && p.photoNoSpend) return p.photo || ownedPlacePhotoSrc(p.place_id || p.id, 640, true) || null;
   const ref = p && (p.photoRef || p.photo_ref);
   if (hasPlacePhotoRef(ref)) return "/api/photo?ref=" + encodeURIComponent(ref) + "&g=2&w=640";
@@ -339,7 +340,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // 2026-09-30 — under a PhotoPolicyProvider (guides) no Google photo renders
   // here: this card cannot show Google's required visible credit. A hook, so
   // it sits above every early return with the others.
-  const photoSrcFilter = usePhotoSrcFilter();
+  const routePhotoFilter = usePhotoSrcFilter();
+  // Saved Google bytes go through CardPhoto's read-only JSON/credit viewer.
+  // Keep filtering other Google URLs on guide surfaces.
+  const photoSrcFilter = (src) => typeof src === "string" && /^\/api\/photo\/stored\/[A-Za-z0-9_-]+(?:[?#]|$)/.test(src) ? src : routePhotoFilter(src);
   // Interactive place cards always open the full app detail route. The
   // crawlable /places/{id} document remains for SEO, but a stale caller cannot
   // strand a reader there because the shared renderer owns this normalization.

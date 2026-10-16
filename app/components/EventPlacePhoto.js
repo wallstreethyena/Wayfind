@@ -5,7 +5,7 @@ import PhotoFallbackTile from "./PhotoFallbackTile.js";
 import { useEventHeroPhoto } from "./EventHeroPhotoContext.js";
 import { isApiPhotoSrc, photoPlaceIdFromSrc } from "../../lib/cardPhotoRequest.js";
 import { fetchLivePhoto } from "../../lib/livePhoto.js";
-import { MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
+import { getPlacePhoto, MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
 
 // Keep the photo's geometry when a provider fails. Never substitute another venue.
 //
@@ -37,7 +37,9 @@ export default function EventPlacePhoto({ src, name = "Place", priority = false,
     // One ask now; if it was a temporary miss, ONE more after the shared delay.
     // photoAnswers enforces the attempt limit and the delay, so this cannot loop.
     const run = (attempt) => {
-      fetchLivePhoto(placeId).then((photo) => {
+      const lookup = src.startsWith("/api/photo/stored/")
+        ? getPlacePhoto(placeId, { surface: "detail", nospend: true }) : fetchLivePhoto(placeId);
+      lookup.then((photo) => {
         if (disposed) return;
         setAnswer({ key: src, photo });
         if (!photo && attempt + 1 < MAX_ATTEMPTS) retry = setTimeout(() => run(attempt + 1), RETRY_DELAY_MS + 50);

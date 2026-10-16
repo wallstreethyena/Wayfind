@@ -14,6 +14,7 @@ const free = { url: "https://photos.example.org/venue.webp", attributionText: "V
 // if guidePlaceFigureImage ever calls one again (cached photo| rows, wf_photo_credit credits), the guard throws.
 const googleTrap = (n) => async () => { throw new Error("RED-PROOF TRIPPED: guidePlaceFigureImage used the retired Google lane dep " + n); };
 const legacyGoogleDeps = {
+  readStoredGooglePhoto: async () => null,
   findCredit: googleTrap("findCredit"),
   findAlternative: googleTrap("findAlternative"),
   findSamePlaceCachedPhoto: googleTrap("findSamePlaceCachedPhoto"),
@@ -47,6 +48,18 @@ assert.equal(await guidePlaceFigureImage({ ...place, photo: "https://lh3.googleu
 const credited = await guidePlaceFigureImage({ ...place, photo: free.url, photoAttr: "Owner", photoAttrHref: free.attributionUrl }, deps);
 assert.equal(credited.credit, "Owner");
 assert.equal(freeCalls, 1, "credited explicit asset requires no lookup");
+const retainedCredit = { name: "Saved Author", uri: "https://maps.google.com/contrib/saved", mapsUri: "https://maps.google.com/photo/saved", authors: [{ name: "Saved Author", uri: "https://maps.google.com/contrib/saved" }, { name: "Second Saved Author", uri: "https://maps.google.com/contrib/second" }] };
+let retainedReads = 0;
+const savedMedia = await guidePlaceFigureImage(place, { ...legacyGoogleDeps, findFreePhoto: async () => null, readStoredGooglePhoto: async (id) => {
+  assert.equal(id, place.id); retainedReads++;
+  return { src: `/api/photo/stored/${id}?v=exacthash`, source: "google", credit: retainedCredit };
+} });
+assert.equal(retainedReads, 1);
+assert.equal(savedMedia.source, "google", "stored Google is never relabeled licensed");
+assert.deepEqual(savedMedia.authors, retainedCredit.authors);
+assert.equal(savedMedia.providerHref, retainedCredit.mapsUri);
+assert.equal(savedMedia.license, undefined);
+assert.equal(await guidePlaceFigureImage(place, { ...legacyGoogleDeps, readStoredGooglePhoto: async () => ({ src: "/api/photo?place=" + place.id, source: "google", credit: retainedCredit }) }), null, "guides never fall back to acquisition URLs");
 const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
 function photoOnlyArticle(source) { return !/<GuidePlaceCard\b/.test(source) && /<GuideFigure\s+role="pick"/.test(source); }
 assert.ok(photoOnlyArticle(page), "article recommendations render figures, not discovery cards");
@@ -55,7 +68,7 @@ assert.ok(!photoOnlyArticle(page.replaceAll('<GuideFigure role="pick"', '<Remove
 assert.ok(page.indexOf('<GuideFigure role="pick" image={pickImage}') < page.indexOf('<p style={S.p}>{pick.blurb}</p>'), "recommendation photo precedes prose");
 
 
-console.log("test-guide-editorial-photos: OK — same-place free/owned media only (no Google lane), honest misses, and photo-first article contract");
+console.log("test-guide-editorial-photos: OK — same-place free/owned media, retained Google fallback, honest misses, and photo-first article contract");
 
 // Execute the real figure and photo components, including their actual credit
 // markup. Source checks above cover placement; these verify what readers get.
@@ -96,3 +109,13 @@ console.log("test-guide-editorial-photos: real render OK — one venue photo, li
 const freeHtml = renderToStaticMarkup(React.createElement(figureComponent.default, { image: media }));
 assert.ok(freeHtml.includes("CC BY-SA 4.0") && freeHtml.includes(free.licenseUrl), "free-photo license and rights link survive into visible attribution");
 console.log("test-guide-editorial-photos: free-license rendering OK");
+
+assert.equal(await guidePlaceFigureImage(place, { ...legacyGoogleDeps, readStoredGooglePhoto: async () => ({ src: "/api/photo/stored/ChIJwrongPlace123456?v=x", source: "google", credit: retainedCredit }) }), null, "another place's saved image is never substituted");
+const savedHtml = renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: savedMedia }));
+assert.ok(savedHtml.includes(`/api/photo/stored/${place.id}?v=exacthash`));
+for (const author of retainedCredit.authors) { assert.ok(savedHtml.includes(author.name)); assert.ok(savedHtml.includes(author.uri)); }
+assert.ok(savedHtml.includes(retainedCredit.mapsUri));
+assert.ok(!savedHtml.includes("CC BY"), "retained Google has no invented license");
+assert.equal(renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: savedMedia, showCaption: false })), "", "saved Google cannot hide its credit");
+assert.equal(renderToStaticMarkup(React.createElement(figureComponent.default, { role: "pick", image: { ...savedMedia, providerHref: null } })), "", "same-photo source link is required");
+console.log("test-guide-editorial-photos: retained Google read-only lookup and same-photo author/provider render OK");

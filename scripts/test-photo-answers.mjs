@@ -106,4 +106,22 @@ eq(railPhotoSrc({ id: "evt-123" }), null, "non-place ids get no Google lane");
 eq(railPhotoSrc(null), null);
 eq(cardPhotoRequest(railPhotoSrc({ id: A })), "/api/photo?place=" + A + "&s=card&fmt=json&w=1200", "rail source becomes the credited card request for the same place");
 
-console.log("test-photo-answers: OK — " + n + " assertions; pairing, reuse across card/viewer/detail (1 request), missing attribution, temporary-failure recovery, bounded retries (" + MAX_ATTEMPTS + " max, 5 failure kinds x 40 asks), definitive misses, nospend isolation, invalid ids");
+// Temporary source/config/storage misses must not become permanent blank cards.
+for (const reason of ["owned-miss", "unconfigured"]) {
+  resetPhotoAnswers();
+  const recover = scripted((u, i) => i === 1 ? jsonRes({ src: null, source: "none" }, { "x-wayfind-photo-result": reason }) : jsonRes(google(A)));
+  eq(await getPlacePhoto(A, { fetchImpl: recover, now }), null, reason + " starts as a miss");
+  t += RETRY_DELAY_MS + 1;
+  ok((await getPlacePhoto(A, { fetchImpl: recover, now }))?.source === "google", reason + " can recover");
+  eq(recover.calls.length, 2, reason + " gets one bounded retry");
+}
+resetPhotoAnswers();
+const pending = scripted((u, i) => i === 1 ? jsonRes({ src: null, source: "none" }, { "x-wayfind-photo-result": "storage-pending" }) : jsonRes(google(A)));
+ok((await getPlacePhoto(A, { fetchImpl: pending, now }))?.source === "google", "mounted card receives another visitor's completed save automatically");
+eq(pending.calls.length, 2, "pending save gets exactly one immediate bounded follow-up");
+resetPhotoAnswers();
+const removed = scripted(() => jsonRes({ src: null, source: "none" }, { "x-wayfind-photo-result": "photo-removed" }));
+await getPlacePhoto(A, { fetchImpl: removed, now }); t += RETRY_DELAY_MS + 1;
+await getPlacePhoto(A, { fetchImpl: removed, now });
+eq(removed.calls.length, 1, "owner removal is definitive for the client");
+console.log("test-photo-answers: OK — " + n + " assertions; pairing, reuse, source/storage recovery, bounded retries and removal");

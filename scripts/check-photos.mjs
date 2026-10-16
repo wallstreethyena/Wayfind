@@ -33,7 +33,7 @@ const recoveryCode = stripComments(recovery);
   if (/getRecovery|findSamePlaceCachedPhoto|\bcacheGet\b|\bcacheSet\b|photoCacheKey|photoNegativeKey/.test(routeCode)) fail("app/api/photo/route.js reads or writes a Google photo cache — no Google photo name/URL may be stored or read (COMPLIANT PHOTOS)");
   if (!/const GOOGLE_SURFACES = new Set\(\["detail", "card"\]\);/.test(routeCode) || !/googleSurface,/.test(routeCode) || !routeCode.includes('searchParams.get("s") !== "card" || wantJson')) fail("only detail and credited card JSON may enable the live Google path");
   // Every redirect/JSON that carries a live Google photo must be private, no-store.
-  if (!/"private, no-store", "google"\)/.test(routeCode) || !/result\.cacheControl \|\|/.test(routeCode)) fail("the live Google JSON answer must be `private, no-store` and the redirect must use the resolver's cacheControl");
+  if (!/"private, no-store", result\.reason\)/.test(routeCode) || !/result\.cacheControl \|\|/.test(routeCode)) fail("both acquired and retained Google JSON answers must be `private, no-store` and the redirect must use the resolver's cacheControl");
 }
 
 // The recovery module keeps its exports (callers import them) but may no longer
@@ -71,4 +71,4 @@ for (const [f, s] of [["lib/google.js", google], ["lib/hotels.js", hotels], ["li
   const cp = readFileSync(new URL("../app/components/CardPhoto.js", import.meta.url), "utf8");
   if (!/viewer\.request === request\s*&&\s*viewer\.photo === photo/.test(cp)) fail("CardPhoto must render the viewer only for the request+photo pair it was opened with");
 }
-console.log("check-photos: OK — proxy only; route reads/writes no Google photo cache, free lookup gates the ledger, only detail and credited card JSON buy Google live, Google answers are private/no-store, same-place recovery is a constant null");
+console.log("check-photos: OK — proxy only; retired redirect caches stay off, free lookup gates the ledger, only credited visitor surfaces acquire Google photos, Google answers stay private/no-store, same-place recovery is a constant null");
