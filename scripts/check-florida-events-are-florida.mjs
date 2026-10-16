@@ -133,6 +133,7 @@ ok("a Chicago row that is otherwise trusted and eligible never reaches the hub's
 function mockSlugDb(slugRow) {
   const chain = {
     select() { return chain; }, eq() { return chain; }, abortSignal() { return chain; },
+    retry(enabled) { assert.equal(enabled, false); return chain; },
     maybeSingle() { return Promise.resolve({ data: slugRow, error: null }); },
   };
   return { from() { return chain; } };

@@ -91,7 +91,7 @@ scripts/check-cuisine-never-queried.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	9
 scripts/check-cuisine-sheet.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	1	1	9496b61189982bec9ec157c0abb9361d858b1f61167d85c0bce090bf7fdff66c
 scripts/check-cuisine-shortlist.mjs	0	RENDER	blocks-ci-and-deploy	1	-	36	0	0	8d00114ea211c97ae232e157a3dc25a1dbe421872b5901d55c6b815d8770b915
 scripts/check-cuisine-sql-in-sync.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	6bb978e558175a259c153d3de029cac1433831fef24051c728d486be43f7fe50
-scripts/check-curated-events-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	69	0	0	e14e66d2f871371db16852c4d565453efb8ae5250cb3de3fb58296f3071938a6
+scripts/check-curated-events-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	120	0	0	721a49f912f2023a3a59adbcb82a68b7cb5a14c36d26f26addd70f9549269f6a
 scripts/check-curated-events-surface.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	013721e9e52fa6fa0d0ce6026c78100622a17e8eb6eb5a13dee27ddb3def8369
 scripts/check-curated-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	fda727be4c51b4069bf8d72edbc76951d05e91a3cd48d04581b19d2a441af6f7
 scripts/check-curated-library-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9853a598fe599efafd8308324dc89d2e8085e38e5d139b13ac655c1b4a46595d
@@ -162,7 +162,7 @@ scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	15031df1dd6a7d99
 scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	859f42c43e3b795df3a2be315fb01d8fff1708f5d080d3b2d6f9661f1bd95b2c
 scripts/check-fetch-deadlines.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	3c24d15bc67f13045f7c91be58ccbc728a4cbbf9fea4fe91218c2bbbafe0fe94
 scripts/check-floor-derivation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	c2196e1c2ff71dbf6b3b9bd4c060f8709694696b2444e4330c2f188444d7fb38
-scripts/check-florida-events-are-florida.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	6cc607af03e0e8cc4662aee2796d302cb18aee27ac5d3ca2fa5f66fcef2c526b
+scripts/check-florida-events-are-florida.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a33c8aa9c75b7bfd3e212c81988d5f748be3fb61311929ee140c29719e58f70f
 scripts/check-florida-festivals-import.mjs	0	CALL	blocks-ci-and-deploy	1	-	84	0	0	745ba9c4d94a8836ceb8744680a437ca468dd0b6b1b8525c6acd792fb94d6cdd
 scripts/check-florida-icons.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	8bf78774b1c168ca73954e124a55485a09ab507a73d020f908832fea4f5c75ca
 scripts/check-food-list-continuation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	36	0	0	166c49458986fc5915e4d578f0423589b9b873e0f94efe302b396a5eb7bb9b09
