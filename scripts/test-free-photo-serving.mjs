@@ -235,9 +235,8 @@ async function sourceRoute(routeSource) {
     const ledgerOutcomeClass = (...a) => globalThis.__wfFreePhotoTest.ledgerOutcomeClass(...a);
     const isAutomatedPhotoReader = (...a) => globalThis.__wfFreePhotoTest.isAutomatedPhotoReader(...a);
     const creditedRequest = (...a) => globalThis.__wfFreePhotoTest.creditedRequest(...a);
-    // visitor ceiling + purchase log: hermetic no-ops here (covered by test-photo-visitor-cap / test-photo-purchase-log)
+    // Purchase log bucket is a hermetic no-op here (covered by test-photo-purchase-log).
     const bucketHash = () => null;
-    const takeVisitorToken = async () => ({ ok: true, reason: "test-noop" });
   `;
   return import("data:text/javascript," + encodeURIComponent(prelude + "\n" + stripped));
 }

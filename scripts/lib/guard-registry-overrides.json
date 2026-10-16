@@ -879,5 +879,13 @@
       "detail": "TicketSmarter, Epic Pass and Vrbo redirects must preserve the verified advertiser creative, exact registered destination and surface. Lost tracking can send customers to a working merchant page without earning commissions."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-photo-visitor-cap.mjs": {
+    "protects": "Same visitor may load more than 80 or 1500 photos without a daily cutoff, while every paid photo still requires the real global monthly grant and credited surface.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "Removing the visitor-specific daily cutoff must preserve the global 10000 monthly photo ledger, fail-closed behavior, automated and no-spend reader restrictions, and matching photographer attribution."
+    },
+    "owner": "Revenue QA"
   }
 }
