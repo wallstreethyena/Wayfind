@@ -82,6 +82,14 @@ ok(!CARD_REQUEST_RX.test(iconicStrict) && !GOOGLE_IMG_RX.test(iconicStrict) && !
 const iconicLicensed = renderToStaticMarkup(h(fx.Iconic, { strict: true, place: { ...PLACE, photo: LICENSED }, photoAttr: "Jane Doe (CC BY 2.0)", photoAttrHref: "https://commons.wikimedia.org/wiki/File:y.jpg" }));
 ok(iconicLicensed.includes('src="' + LICENSED + '"') && iconicLicensed.includes("Jane Doe (CC BY 2.0)"), "under the policy IconicPlaceCard shows a licensed photo with its credit");
 
+// Saved URLs are admitted only by the shared credited card components; they
+// still mount metadata requests with nospend rather than raw uncredited images.
+const SAVED = `/api/photo/stored/${PLACE.id}?v=exactversion`;
+const railSaved = renderToStaticMarkup(h(fx.Rail, { strict: true, photo: SAVED, place: PLACE }));
+ok(CARD_REQUEST_RX.test(railSaved) && /nospend=1/.test(railSaved) && !ANY_IMG_RX.test(railSaved), "saved Google rail card remains credited/read-only inside guide policy");
+const iconicSaved = renderToStaticMarkup(h(fx.Iconic, { strict: true, place: { ...GPLACE, photo: SAVED } }));
+ok(CARD_REQUEST_RX.test(iconicSaved) && /nospend=1/.test(iconicSaved) && !ANY_IMG_RX.test(iconicSaved), "saved Google iconic card remains credited/read-only inside guide policy");
+
 // 3. GuideFigure — the one guide surface that prints Google's credit.
 const GuideFigure = (await loadComponent(path.join(ROOT, "app/components/GuideFigure.js"), ROOT)).default;
 const lh3 = "https://lh3.googleusercontent.com/place-photos/AG9Nfixture=s4800-w640";
@@ -117,14 +125,24 @@ const spots = await withAttributableSpotPhotos([
   { id: "ChIJgoogleonlyAAAAAAAAAAAA", image: "/api/photo?place=ChIJgoogleonlyAAAAAAAAAAAA&g=2&w=800" },
   { id: "event-slug", photoPlaceId: "ChIJlicensedAAAAAAAAAAAAAA", image: "/api/photo?place=ChIJlicensedAAAAAAAAAAAAAA&g=2&w=800" },
   { id: "ChIJlocalAAAAAAAAAAAAAAAAA", image: "/fall/local.webp" },
-], { findFreePhoto: fakeFree });
+], { findFreePhoto: fakeFree, readStoredGooglePhoto: async () => null });
 ok(spots[0].image === LICENSED && spots[0].photoAttr === "Jane Doe (CC BY-SA 4.0)" && spots[0].photoAttrHref.startsWith("https://commons."), "a spot with a licensed photo gets it, with its credit");
 ok(spots[1].image === null && !spots[1].photo && !spots[1].photoAttr, "a spot with only a Google photo gets no photo");
 ok(spots[2].image === LICENSED, "an event spot uses its mapped venue id for the licensed lookup");
 ok(spots[3].image === "/fall/local.webp" && !calls.includes("ChIJlocalAAAAAAAAAAAAAAAAA"), "a spot that already has a non-Google image is untouched (and not looked up)");
 ok(spots.every((s) => !isGooglePhotoSrc(s.image) && !isGooglePhotoSrc(s.photo)), "no spot leaves the resolver with a Google image");
-const thrown = await withAttributableSpotPhotos([{ id: "ChIJlicensedAAAAAAAAAAAAAA", image: GOOGLE }], { findFreePhoto: async () => { throw new Error("down"); } });
+const thrown = await withAttributableSpotPhotos([{ id: "ChIJlicensedAAAAAAAAAAAAAA", image: GOOGLE }], { findFreePhoto: async () => { throw new Error("down"); }, readStoredGooglePhoto: async () => null });
 ok(thrown[0].image === null, "a failed lookup means no photo, never a Google photo and never a thrown page");
+let savedReads = 0;
+const retainedSpots = await withAttributableSpotPhotos([{ id: PLACE.id, image: GOOGLE }], {
+  findFreePhoto: async () => null,
+  readStoredGooglePhoto: async (id) => { savedReads++; assert.equal(id, PLACE.id, "saved spot lookup stays exact-place"); return { src: SAVED, source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact" } }; },
+});
+ok(savedReads === 1 && retainedSpots[0].image === SAVED && retainedSpots[0].photoSource === "google", "guide map reuses a saved Google image without acquiring or relabeling it");
+ok(!retainedSpots[0].photoAttr, "CardPhoto owns saved Google attribution rather than a fabricated licensed badge");
+const wrongPlace = await withAttributableSpotPhotos([{ id: PLACE.id, image: GOOGLE }], { findFreePhoto: async () => null, readStoredGooglePhoto: async () => ({ src: "/api/photo/stored/ChIJwrongPlace123456?v=x", source: "google", credit: { mapsUri: "https://maps.google.com/photo/wrong" } }) });
+ok(wrongPlace[0].image === null, "retained spot image from a different place is refused");
+
 
 // 6. The editorial branch never accepts a Google-hosted URL as "Wayfind art".
 const editorial = await guidePlaceFigureImage({ id: "ChIJ3SpvbYPhwogRS17En4FSzVI", name: "x", photo: lh3, photoAttr: "Some credit" }, { findFreePhoto: async () => null, findSamePlaceCachedPhoto: async () => null, findAlternative: async () => null });

@@ -1,7 +1,7 @@
 import { gateShut, spendAllow, spendAllowPhotos, spendAllowPhotosDetailed, photosCeiling } from "../../../lib/spendGate";
 // Server-side Places photo resolution keeps API keys out of the browser.
-// Licensed images may use their normal cache policy. Live Google image URLs,
-// photo names and credits are never persisted; responses are private/no-store.
+// Licensed images keep their normal cache policy. Google image bytes and same-
+// photo credits use the shared private store; metadata remains revocable.
 import { NextResponse } from "next/server";
 import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "../../../lib/placePhotoServe";
 import { findFreePhoto } from "../../../lib/freePhoto";
@@ -180,6 +180,8 @@ async function handlePhotoGet(req) {
     ref,
     place,
     w,
+    retainGoogle: true,
+    storedSurface: surfaceWanted && wantJson,
     // Google is asked ONLY for a credited surface; everywhere else the
     // resolver stops before any grant (reason not-google-surface).
     googleSurface,
@@ -290,8 +292,8 @@ async function handlePhotoGet(req) {
     if (wantJson) {
       if (result.reason === "google" && !probe) logGoogleGrant(req, result.reason);
       const c = result.credit || {};
-      return result.reason === "google"
-        ? jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null, authors: c.authors || [] } }, "private, no-store", "google")
+      return result.reason === "google" || result.reason === "google-stored"
+        ? jsonAnswer({ src: result.location, source: "google", credit: { name: c.name || "", uri: c.uri || null, mapsUri: c.mapsUri || null, authors: c.authors || [] } }, "private, no-store", result.reason)
         : jsonAnswer({ src: result.location, source: "wayfind", credit: null }, "private, max-age=300", result.reason || "inventory");
     }
     // "google" is the ONLY redirect reason that means a real ledger grant was

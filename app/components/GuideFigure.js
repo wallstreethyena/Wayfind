@@ -37,7 +37,7 @@ export function guideFigureMedia(image) {
  * unaffected (licence rules for those are GVS-3's job).
  */
 export function googleCreditMissing(media, showCaption = true) {
-  if (!media || !isGooglePhotoSrc(media.src)) return false;
+  if (!media || (media.source !== "google" && !isGooglePhotoSrc(media.src))) return false;
   // The no-spend cached rung (lib/guidePlaceFigureImage.js) is the venue's own
   // already-cached photo, read-only. It shows with the photographer when one
   // is known, otherwise with the generic visible "Photo: Google Maps" credit
@@ -88,7 +88,7 @@ export function GuideFigureCredit({ image, as: As = "div", className }) {
   const genericGoogle = isNoSpendCachedMedia(media) && !media.credit;
   const hasCaption = Boolean(caption.caption || caption.notice || media.credit || license || media.providerHref || genericGoogle);
   if (!hasCaption) return null;
-  const creditHref = media.creditHref || media.source || null;
+  const creditHref = media.creditHref || (media.source !== "google" ? media.source : null) || null;
   const licenseHref = media.licenseUrl || media.licenseURL || media.license?.url || media.source || null;
   return (
     <As className={className}>
@@ -100,7 +100,7 @@ export function GuideFigureCredit({ image, as: As = "div", className }) {
       {media.credit || license || media.providerHref || genericGoogle ? (
         <span className={styles.creditText}>
           {genericGoogle ? <>Photo: Google Maps</> : null}
-          {media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
+          {media.source === "google" && media.authors?.some((a) => a.name) ? <>{media.authors.filter((a) => a.name).map((a, i) => <span key={i}>{i ? ", " : "Photo: "}{/^https:\/\//.test(a.uri || "") ? <PhotoCreditLink href={a.uri}>{a.name}</PhotoCreditLink> : a.name}</span>)}</> : media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
           {media.credit && license ? <span aria-hidden="true"> · </span> : null}
           {license ? (licenseHref ? <PhotoCreditLink href={licenseHref}>{license}</PhotoCreditLink> : <>{license}</>) : null}
           {media.providerHref ? <><span aria-hidden="true"> · </span><PhotoCreditLink href={media.providerHref}>Google Maps</PhotoCreditLink></> : null}
