@@ -1,6 +1,7 @@
 "use client";
 import RailGuideSlot from "./RailGuideSlot";
 import GuideRailCollection from "./GuideRailCollection";
+import IntentPartnerPick from "./IntentPartnerPick";
 
 import { selectPosterEvents } from "../../lib/posterEvents.js";
 
@@ -64,7 +65,10 @@ import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import PosterEventCard from "./PosterEventCard.js";
 import { usePosterEvents } from "./usePosterEvents.js";
-import { DATE_NIGHT_RAIL_DEFS } from "../../lib/dateNightIntent.js";
+import { DATE_NIGHT_RAIL_DEFS, DATE_NIGHT_WIDEN_MI } from "../../lib/dateNightIntent.js";
+import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
+import { METROS, nearestMetro } from "../../lib/orderInFeatured.js";
+import { milesBetween } from "../../lib/locationHonesty.js";
 
 const C = { text: "#F1F5F9", muted: "#8b93a1" };
 
@@ -181,6 +185,7 @@ export default function DateNightRails({
   active = true,
   center = null,
   city = "",
+  partnerCity = city,
   hour = null,
   onOpenPlace = null,
   onTrack = null,
@@ -259,6 +264,16 @@ export default function DateNightRails({
   if (!active) return null;
   if (!key) return <p>Choose a location to build your date night.</p>;
 
+  // The label alone cannot authorize a Florida offer: URL coordinates remain
+  // authoritative, and the raw label retains an explicit state from the page.
+  const market = normalizePartnerCity(partnerCity);
+  const localPartner = !!market && nearestMetro(lat, lng) === market
+    && milesBetween({ lat, lng }, METROS[market]) <= DATE_NIGHT_WIDEN_MI;
+  const partnerRail = localPartner ? <IntentPartnerPick city={partnerCity} intent="date-night" lat={lat} lng={lng} curatedOnly photoNoSpend /> : null;
+  // Curated future-event browsing is independent of the owned venue read.
+  // Keep the existing loading, empty and failure explanations alongside it.
+  const withPartners = (content) => <>{partnerRail}{content}</>;
+
   let rails = (payload && payload.rails) || [];
   const liveMusicEvents = Array.isArray(eventSurface?.byRail?.livemusic) ? eventSurface.byRail.livemusic : [];
   // The place composer correctly omits healthy-empty rails. Dated concerts are
@@ -274,19 +289,19 @@ export default function DateNightRails({
 
   const hasLiveMusicAnswer = liveMusicEvents.length > 0;
   if (payload == null && !failed && !hasLiveMusicAnswer) {
-    return (
+    return withPartners(
       <div style={{ marginTop: 4 }}><RailLoading label="Building tonight's date" /></div>
     );
   }
   if (failed && !hasLiveMusicAnswer) {
-    return (
+    return withPartners(
       <div><p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
         We could not build tonight&apos;s date from owned inventory. That is a miss on our side, not an empty town.
       </p><button type="button" onClick={() => setRetry((value) => value + 1)}>Try again</button></div>
     );
   }
   if (!rails.length) {
-    return (
+    return withPartners(
       <p style={{ marginTop: 4, fontSize: 13, color: C.muted }}>
         Nothing near you clears the bar for a date-night journey right now — that honesty is the product.
       </p>
@@ -300,6 +315,7 @@ export default function DateNightRails({
   // first paint is unchanged.
   return (
     <>
+      {partnerRail}
       {payload == null && !failed ? (
         <p role="status" style={{ margin: "4px 0 12px", fontSize: 13, color: C.muted }}>
           Concerts are ready. Still building the rest of tonight&apos;s date…

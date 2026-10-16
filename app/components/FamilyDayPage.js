@@ -10,6 +10,7 @@ import RailHeading from "./RailHeading";
 import RailCard, { RailNav, RailDots } from "./RailCard";
 import IconicPlaceCard from "./IconicPlaceCard";
 import ThemeParkRail from "./ThemeParkRail";
+import IntentPartnerPick from "./IntentPartnerPick";
 import { usePagedRail } from "./usePagedRail";
 import { BackControl } from "../best-beaches/[metro]/parts";
 import { FAMILY_DAY_RAILS, matchesFamilyFilters } from "../../lib/familyDayTaxonomy";
@@ -19,9 +20,14 @@ import { nowContext } from "../../lib/nowContext";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
+import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
 
 const COLORS = { text: "#F1F5F9", muted: "#9AA6B6", border: "rgba(255,255,255,.11)", panel: "#0B111B", accent: "#22C55E" };
 const DISTANCES = [10, 25, 50];
+// Official iFLY Orlando structured geo, 8969 International Drive:
+// https://www.iflyworld.com/orlando (verified 2026-10-15).
+const IFLY_ORLANDO = Object.freeze({ lat: 28.4342664, lng: -81.4716144 });
+const INDOOR_FAMILY_OFFERS = Object.freeze(["orlando-ifly-adrenaline"]);
 
 const FILTERS = [
   { key: "ages", label: "Published ages", options: [
@@ -363,6 +369,17 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
   };
 
   const hasPoint = Number.isFinite(loc.lat) && Number.isFinite(loc.lng);
+  const partnerCity = hasProvidedPoint ? city : urlCity || loc.city;
+  const requestedPoint = hasProvidedPoint ? { lat: providedLat, lng: providedLng }
+    : Number.isFinite(urlLat) && Number.isFinite(urlLng) ? { lat: urlLat, lng: urlLng } : null;
+  const currentPartnerLocation = !requestedPoint || (requestedPoint.lat === loc.lat && requestedPoint.lng === loc.lng);
+  // No suitability claim is made for an unreviewed filter. Only this exact
+  // indoor product has a verified point, so it alone can honor the radius and
+  // remain truthful when weather restricts the page to indoor experiences.
+  const showCuratedPartner = hasPoint && currentPartnerLocation && weatherSettled
+    && moment?.lat === loc.lat && moment?.lng === loc.lng && !weatherPaused
+    && !Object.keys(filters).length && normalizePartnerCity(partnerCity) === "orlando"
+    && milesBetween(loc, IFLY_ORLANDO) <= radiusMi;
   const content = (
     <>
       <style dangerouslySetInnerHTML={{ __html: `
@@ -386,6 +403,7 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       {!embedded ? <FamilyFilters filters={filters} onChange={changeFilter} radiusMi={radiusMi} onRadius={setRadiusMi} /> : null}
       {outdoorGateClosed ? <p className="wf-family-weather">Outdoor picks are paused because {moment.gateWhy || "current weather is not a safe fit"}. {weatherPaused ? "Your weather choice is preserved; choose Indoors or clear it to continue." : "The rails are using verified indoor evidence."}</p> : null}
       <ThemeParkRail mode="family" familyContext={{ lat: loc.lat, lng: loc.lng, radiusMi, filters, indoorOnly, ready: weatherSettled && !!moment, paused: weatherPaused }} onOpenPlace={onOpenPlace} {...cardActions} />
+      {showCuratedPartner ? <IntentPartnerPick city={partnerCity} intent="family" lat={loc.lat} lng={loc.lng} curatedOnly curatedOfferIds={INDOOR_FAMILY_OFFERS} photoNoSpend /> : null}
       {!hasPoint ? <div className="wf-family-message"><p>This page needs a location before it can rank nearby family picks. Open the Family Day poster after choosing a location.</p></div> : (
         <>
           {FAMILY_DAY_RAILS.map((rail) => <FamilyRail key={rail.id} rail={rail} loc={loc} radiusMi={embedded && ["water", "animals"].includes(rail.id) ? 50 : radiusMi} filters={filters} indoorOnly={indoorOnly} weatherSettled={weatherSettled && !!moment} weatherPaused={weatherPaused} retryAll={retryAll} onOpenPlace={onOpenPlace} cardActions={cardActions} />)}
