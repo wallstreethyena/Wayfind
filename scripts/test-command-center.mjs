@@ -285,10 +285,22 @@ const fetchOwner = (id, status = 200) => async () => ({ ok: status === 200, stat
   const v1 = await memTTL("t1", 50, async () => { n++; return { v: n }; });
   const [a, b] = await Promise.all([memTTL("t2", 50, async () => { n++; return n; }), memTTL("t2", 50, async () => { n++; return n; })]);
   ok(v1.v >= 1 && a === b, "cache: concurrent callers share one in-flight load");
-  await memTTL("t3", 1, async () => ({ good: true }));
-  await new Promise((r) => setTimeout(r, 5));
-  const stale = await memTTL("t3", 1, async () => { throw new Error("provider down"); });
-  ok(stale && stale.good === true && stale._stale === true, "cache: provider failure serves last-known value flagged _stale");
+  // A 5ms sleep can exceed the old 10ms stale window on a busy build runner.
+  // Advance a scoped clock so both sides of the real expiry boundary are tested.
+  const realNow = Date.now;
+  let now = realNow();
+  try {
+    Date.now = () => now;
+    await memTTL("t3", 1000, async () => ({ good: true }));
+    now += 1001;
+    const stale = await memTTL("t3", 1000, async () => { throw new Error("provider down"); });
+    ok(stale && stale.good === true && stale._stale === true, "cache: provider failure serves last-known value flagged _stale");
+    now += 9000;
+    let expired = false;
+    try { await memTTL("t3", 1000, async () => { throw new Error("provider down"); }); }
+    catch (error) { expired = error.message === "provider down"; }
+    ok(expired, "cache: provider failure beyond the stale window remains an error");
+  } finally { Date.now = realNow; }
 }
 
 // ── 3b. ALERT RULES ────────────────────────────────────────────────────────
