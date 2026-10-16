@@ -40,7 +40,7 @@ import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
-import { hasRealPlacePhoto, realPlacePhotoSrc } from "../../../lib/detailHero";
+import { hasRealPlacePhoto, realPlacePhotoSrc, detailHeroLayout } from "../../../lib/detailHero";
 import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js";
 import { fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
 import PhotoCredit from "../PhotoCredit";
@@ -809,6 +809,9 @@ export default function DetailSheet({ ctx }) {
   }, [detail && detail.id]);
   const galleryPhotos = detailGalleryPhotos(detail);
   const showHero = galleryPhotos.length > 0 && (hasRealPlacePhoto(detail) || !!(detail && detail._live));
+  const heroLayoutRef = useRef(null);
+  heroLayoutRef.current = detailHeroLayout(heroLayoutRef.current, detail.id, showHero);
+  const expandedHero = heroLayoutRef.current.expanded;
   const heroSrc = galleryPhotos[0] || null;
   const heroCredit = showHero ? liveCreditFor(detail, galleryPhotos[Math.min(galleryIdx, galleryPhotos.length - 1)]) : null;
 
@@ -816,9 +819,9 @@ export default function DetailSheet({ ctx }) {
         <div style={isSharedPlaceArrival ? { ...sheetBg, background: "#050608" } : sheetBg} onClick={() => window.history.back()}>
           <div style={{ ...sheet, overscrollBehaviorY: "contain", transition: SHEET_EASE }} onClick={(e) => e.stopPropagation()} onTouchStart={(e) => sheetDragStart(e, () => window.history.back())} onTouchMove={sheetDragMove} onTouchEnd={sheetDragEnd}>
             <Grabber />
-            <div style={{ position: "relative" }}>
+            <div data-detail-hero style={{ position: "relative" }}>
               <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(8px, env(safe-area-inset-top))", left: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: showHero ? "1px solid rgba(255,255,255,.28)" : `1px solid ${C.border}`, background: showHero ? "rgba(13,17,23,.55)" : C.card, backdropFilter: showHero ? "blur(6px)" : "none", color: showHero ? "#fff" : C.text, cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
-              {showHero ? (
+              {expandedHero && showHero ? (
                 <>
               {galleryPhotos.length > 0 ? (
                 <div style={{ position: "relative" }}>
@@ -848,15 +851,27 @@ export default function DetailSheet({ ctx }) {
               </div>
                 </>
               ) : (
-                <div style={{ padding: "52px 18px 0 18px" }}>
+                <div style={{ position: "relative", padding: "52px 18px 0 18px", isolation: "isolate" }}>
+                  {/* Fill the compact header without moving its title or body.
+                      The full-size photo remains available in the viewer. */}
+                  {showHero && <>
+                    <div style={{ position: "absolute", inset: 0, zIndex: -2 }}>
+                      <FallbackImg src={heroSrc} category={primaryCategory(detail)} onClick={() => setLightbox(heroSrc)} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} />
+                    </div>
+                    <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.88))", pointerEvents: "none", zIndex: -1 }} />
+                  </>}
+                  <div style={showHero ? { pointerEvents: "none" } : undefined}>
                   {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5 }}>{pc}</div> : null; })()}
                   <div style={{ fontSize: 27, fontWeight: 800, color: C.text, lineHeight: 1.13, letterSpacing: "-0.5px" }}>{detail.name}</div>
+                  </div>
                 </div>
               )}
             </div>
-            <div style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
+            <div data-detail-body style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
               {/* Photo credit: plain text directly under the headline, never on the photo (owner rule 2026-10-13). */}
-              {heroCredit ? <PhotoCredit credit={heroCredit} style={{ color: C.muted, marginTop: -6, marginBottom: 10 }} /> : null}
+              {(isLivePlaceId(liveId) || heroCredit) ? <div data-detail-photo-credit style={{ height: 17, marginTop: -6, marginBottom: 10 }}>
+                {heroCredit ? <PhotoCredit credit={heroCredit} style={{ color: C.muted }} /> : null}
+              </div> : null}
               {/* 1. Basics */}
 
               {detail.address && (

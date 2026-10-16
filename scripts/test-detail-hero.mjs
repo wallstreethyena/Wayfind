@@ -4,11 +4,22 @@
 // of a missing src painted the branded pin. A photo-led hero exists ONLY
 // when hasRealPlacePhoto(detail) is true.
 import { readFileSync } from "fs";
-import { hasRealPlacePhoto, mergeHealedPlacePhotos } from "../lib/detailHero.js";
+import { hasRealPlacePhoto, mergeHealedPlacePhotos, detailHeroLayout } from "../lib/detailHero.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-detail-hero: FAIL — " + m); failures++; };
 const ok = (c, m) => { if (!c) fail(m); };
+
+// Runtime state transition protection, wired through this existing build guard.
+// Photo success, miss and retry cannot change the geometry of an open place.
+const compact = detailHeroLayout(null, "place-a", false);
+ok(compact.expanded === false, "a photoless arrival starts compact");
+ok(detailHeroLayout(compact, "place-a", true) === compact, "late photo keeps compact geometry");
+ok(detailHeroLayout(compact, "place-a", false) === compact, "failed photo keeps compact geometry");
+const gallery = detailHeroLayout(compact, "place-b", true);
+ok(gallery.expanded === true, "a different place with a photo starts with its full gallery");
+ok(detailHeroLayout(gallery, "place-b", false) === gallery, "same place retains its gallery layout decision");
+ok(detailHeroLayout(gallery, "place-c", false).expanded === false, "a different photoless place resets to compact");
 
 const REAL_REF = "places/ChIJ1234567890abcdef/photos/AX1234567890abcdef";
 const REAL_PROXY = "/api/photo?ref=" + encodeURIComponent(REAL_REF) + "&w=640";
