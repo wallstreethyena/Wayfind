@@ -8,6 +8,7 @@ import { isAwinLive } from "../lib/awin.js";
 import { DESTS } from "../lib/experiencesData.js";
 import { allIntentPartnerPicks, canReadOwnedExperienceCache, fetchPartnerInventory, INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryEligibleForIntent, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
+import { CJ_PARTNER_OFFERS } from "../lib/cjPartners.js";
 import { PLACE_PARTNER_PICKS, RETIRED_VIATOR_PINS, pinServeability, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { PARTNER_DEAL_COUPONS } from "../lib/partnerDeals.js";
 import { UT_PLACE_DEAL_IDS } from "../lib/deals.js";
@@ -452,6 +453,13 @@ for (const p of picks) {
       }),
     });
     ok(!resolved.error && /^https:\/\/www\.viator\.com\//.test(resolved.dest || ""), `${p.offerId} resolves through the table-backed Viator path (got ${resolved.error || resolved.dest})`);
+  } else if (p.provider === "ticketsmarter") {
+    const row = CJ_PARTNER_OFFERS[p.offerId];
+    ok(row?.provider === p.provider, `${p.offerId}: verified CJ advertiser offer`);
+    const resolved = await resolveOffer(p.provider, p.offerId, { subId: "intent_partner" });
+    ok(!resolved.error && /^https:\/\/www\.kqzyfj\.com\/click-101643573-15735296\?/.test(resolved.dest || ""), `${p.offerId}: verified TicketSmarter earning creative`);
+    const url = new URL(resolved.dest);
+    ok(url.searchParams.get("url") === row.destination && url.searchParams.get("sid") === "intent_partner", `${p.offerId}: exact destination and surface`);
   } else if (p.provider === "citypass") {
     ok(!PARTNER_OFFER_REGISTRY[p.offerId], `${p.offerId} resolves from the dedicated CityPASS destination registry, not a shadow row`);
     const resolved = await resolveOffer("citypass", p.offerId);

@@ -6,6 +6,16 @@
 // in-memory Supabase REST). No network.
 import { GET } from "../app/api/cron/cc-alerts/route.js";   // env/fetch are read at call time, set below before any call
 
+// Replay the same hour in every scenario. The first-party readers cache by the
+// exact window end: wall-clock millisecond collisions otherwise change whether
+// their POST read RPCs appear in `writes`, despite identical alert behaviour.
+const RealDate = Date;
+const FIXTURE_NOW = RealDate.parse("2026-10-15T12:00:00.000Z");
+globalThis.Date = class extends RealDate {
+  constructor(...args) { super(...(args.length ? args : [FIXTURE_NOW])); }
+  static now() { return FIXTURE_NOW; }
+};
+
 let pass = 0;
 const fail = (m) => { console.error("test-cc-alert-drill: FAIL — " + m); process.exit(1); };
 const ok = (c, m) => { if (!c) fail(m); pass++; };
@@ -24,7 +34,7 @@ let failRequestRead = false;   // scenario switch: Supabase read error on the re
 const writes = [];            // every non-GET REST call, "METHOD url body"
 globalThis.fetch = async (url, init = {}) => {
   const u = String(url), method = (init.method || "GET").toUpperCase();
-  const json = (b, status = 200) => new Response(JSON.stringify(b), { status, headers: { "Content-Type": "application/json" } });
+  const json = (b, status = 200) => new Response(status === 204 ? null : JSON.stringify(b), { status, headers: { "Content-Type": "application/json" } });
   if (u.startsWith("https://api.resend.com/emails")) { emails.push(JSON.parse(init.body)); return json({ id: "fake" }); }
   if (method !== "GET") writes.push(method + " " + u + " " + String(init.body || "").slice(0, 300));
   if (u.includes("/rest/v1/wf_cc_settings")) {

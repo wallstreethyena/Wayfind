@@ -102,6 +102,7 @@ export default function DateNightIntentPage() {
         active
         center={{ lat: loc.lat, lng: loc.lng }}
         city={loc.city}
+        partnerCity={Number.isFinite(urlLat) && Number.isFinite(urlLng) && (urlLat !== loc.lat || urlLng !== loc.lng) ? "" : urlCity || loc.city}
         hour={Number.isFinite(parseFloat(sp.get("hour"))) ? parseFloat(sp.get("hour")) : null}
         onTrack={(name, props) => { try { track(name, props); } catch (e) {} }}
       />

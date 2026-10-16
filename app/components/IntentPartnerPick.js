@@ -54,7 +54,7 @@ const evidenceScore = (pick, hour) => {
   return base + discountDepthBonus(pick?.discount || pick?.badge || pick?.eyebrow || "") + timeOfDayBonus(text, hour);
 };
 
-export default function IntentPartnerPick({ city, intent, inventory, initialInventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog, photoNoSpend }) {
+export default function IntentPartnerPick({ city, intent, inventory, initialInventory, accent = "#F97316", lat, lng, couponIntent, onOpenCoupons, onLog, photoNoSpend, curatedOnly = false, curatedOfferIds }) {
   const [networkDeals, setNetworkDeals] = useState([]);
   // HYDRATION-SAFE TIME-OF-DAY (2026-09-29). The order below folds in
   // siteHourFloat() — the hour it is RIGHT NOW. Once this rail is server-rendered
@@ -94,16 +94,18 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
   const [selfInventory, setSelfInventory] = useState(seededInventory);
   const suppliedInventory = Array.isArray(inventory) && inventory.length ? inventory : null;
   useEffect(() => {
-    if (suppliedInventory || !city || !intent) return;
+    if (curatedOnly || suppliedInventory || !city || !intent) return;
     let dead = false;
     fetchPartnerInventory(city, intent).then((rows) => { if (!dead && !(seededInventory && !(Array.isArray(rows) && rows.length))) setSelfInventory(rows); });
     return () => { dead = true; };
-  }, [city, intent, suppliedInventory]); // seededInventory is a mount-time prop; deliberately not a dependency
-  const activeInventory = suppliedInventory || selfInventory || [];
+  }, [city, intent, suppliedInventory, curatedOnly]); // seededInventory is a mount-time prop; deliberately not a dependency
+  // Curated placements use only reviewed products with their own artwork.
+  // Switching modes must also exclude already-loaded enrichment immediately.
+  const activeInventory = curatedOnly ? [] : suppliedInventory || selfInventory || [];
 
   useEffect(() => {
     const categories = DEAL_CATEGORIES[intent] || [];
-    if (!categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setNetworkDeals([]); return; }
+    if (curatedOnly || !categories.length || !Number.isFinite(lat) || !Number.isFinite(lng)) { setNetworkDeals([]); return; }
     let dead = false;
     const geo = `&lat=${Number(lat).toFixed(3)}&lng=${Number(lng).toFixed(3)}`;
     Promise.all(categories.map((category) => fetch(`/api/deals?category=${encodeURIComponent(category)}${geo}`).then((response) => response.ok ? response.json() : null, () => null)))
@@ -133,10 +135,10 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
         setNetworkDeals(rows);
       });
     return () => { dead = true; };
-  }, [intent, lat, lng]);
+  }, [intent, lat, lng, curatedOnly]);
 
   const localCoupons = useMemo(() => {
-    if (!couponIntent) return [];
+    if (curatedOnly || !couponIntent) return [];
     const known = Number.isFinite(lat) && Number.isFinite(lng);
     const metro = known ? nearestMetro(lat, lng) : null;
     return couponsForIntent(couponIntent).filter((coupon) => {
@@ -148,7 +150,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
       eyebrow: coupon.badge || "Verified deal", title: coupon.title, image: coupon.image || "",
       discount: coupon.badge || "", coupon, kind: "coupon",
     })).filter((pick) => pick.image);
-  }, [couponIntent, lat, lng]);
+  }, [couponIntent, lat, lng, curatedOnly]);
 
   const picks = useMemo(
     // One rail carries both the editor-curated products and the remaining
@@ -160,7 +162,8 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
     () => {
       const bookable = rankExperiences(resolvedIntentPartnerPicks(city, intent, qualifyPartnerInventory(activeInventory), PARTNER_INVENTORY_CANDIDATE_COUNT));
       const seen = new Set();
-      return [...bookable, ...networkDeals, ...localCoupons].filter((pick) => {
+      return [...bookable, ...(curatedOnly ? [] : networkDeals), ...localCoupons].filter((pick) => {
+        if (curatedOnly && Array.isArray(curatedOfferIds) && !curatedOfferIds.includes(pick.offerId)) return false;
         const key = `${pick.provider}:${pick.offerId}`;
         const titleKey = String(pick.title || "").trim().toLowerCase();
         if (!pick.image || !photoSrcFilter(pick.image)) return false;
@@ -171,7 +174,7 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
         return true;
       }).sort((a, b) => evidenceScore(b, hour) - evidenceScore(a, hour)).slice(0, PARTNER_RAIL_RENDER_LIMIT);
     },
-    [city, intent, activeInventory, networkDeals, localCoupons, hour, photoSrcFilter]
+    [city, intent, activeInventory, networkDeals, localCoupons, hour, photoSrcFilter, curatedOnly, curatedOfferIds]
   );
   const rootRef = useRef(null);
   const railRef = useRef(null);

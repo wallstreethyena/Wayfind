@@ -12,6 +12,7 @@
 // Everything below therefore runs the real builder against real inputs rather
 // than grepping the source.
 import { readFileSync } from "node:fs";
+process.env.WF_SUPPRESS_ANALYTICS = "1";
 
 let pass = 0;
 const fail = (m) => { console.error("check-awin-links: FAIL — " + m); process.exit(1); };
@@ -91,11 +92,14 @@ for (const h of ["tiqets.com", "viator.com", "gocity.com", "klook.com", "ticketn
 // ── 3b. THE APPROVED SET IS EXPLICIT — nobody "also" lights a conflict ───
 {
   const approved = keys.filter((k) => AWIN_PROGRAMMES[k].status === "approved").sort();
-  ok(approved.join(",") === "caesarsshows,rentcars,samboat,usghostadventures",
+  ok(approved.join(",") === "adrenaline,caesarsshows,extranomical,gigsberg,gowithguide,rentcars,samboat,usghostadventures",
      `approved programmes must be exactly the founder-approved set (got ${approved.join(",")})`);
   ok(AWIN_PROGRAMMES.samboat.approvedOn === "2026-08-12", "SamBoat keeps its 2026-08-12 approval date");
   for (const k of ["usghostadventures", "rentcars", "caesarsshows"]) {
     ok(AWIN_PROGRAMMES[k].approvedOn === "2026-08-18", `${k} records the 2026-08-18 founder approval date`);
+  }
+  for (const k of ["adrenaline", "extranomical", "gigsberg", "gowithguide"]) {
+    ok(AWIN_PROGRAMMES[k].approvedOn === "2026-10-15", `${k} records authenticated Joined verification on 2026-10-15`);
   }
   ok(AWIN_PROGRAMMES.getyourguide_awin.status === "pending", "GetYourGuide-on-Awin stays dark — we already earn that brand on a direct path");
   ok(!isAwinLive("getyourguide_awin"), "GetYourGuide-on-Awin cannot emit");
@@ -152,6 +156,34 @@ for (const [, id, key] of rows) {
   ok(crossed.error === "offer-not-found", "a Ghost offer cannot resolve through the SamBoat provider");
   const crossedHost = await resolveOffer("awin_rentcars", "tampa-boat-samboat");
   ok(crossedHost.error === "offer-not-found", "a SamBoat offer cannot resolve through the Rentcars provider");
+}
+
+// The customer-visible handoff is the real route, not merely a link builder.
+// Intercept every network request; never manufacture an Awin click or sale.
+{
+  const { GET } = await import("../app/api/commerce/go/route.js");
+  const { partnerOfferById } = await import("../lib/partnerOfferRegistry.js");
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = () => { throw new Error("Awin route guard must not reach the network"); };
+  try {
+    for (const [, id, key] of rows) {
+      const response = await GET(new Request(`https://wayfind.test/api/commerce/go?provider=awin_${key}&offer=${id}&surface=awin_verified_review`, { headers: { "user-agent": "Mozilla/5.0" } }));
+      const destination = new URL(response.headers.get("location"));
+      ok(response.status === 302 && destination.hostname === "www.awin1.com", `${id}: real route hands off to Awin`);
+      ok(destination.searchParams.get("awinaffid") === "2983163" && destination.searchParams.get("awinmid") === AWIN_PROGRAMMES[key].mid, `${id}: real route uses the verified publisher and correct advertiser`);
+      ok(destination.searchParams.get("ued") === partnerOfferById(id).destination, `${id}: exact verified destination survives the real route`);
+      ok(destination.searchParams.get("clickref") === "awin_verified_review" && response.headers.get("cache-control").includes("no-store"), `${id}: surface attribution survives and click redirect cannot be cached`);
+    }
+    for (const [key, id] of [["adrenaline", "orlando-ifly-adrenaline"], ["gowithguide", "miami-art-tour-gowithguide"], ["gigsberg", "tampa-events-gigsberg"]]) {
+      const original = AWIN_PROGRAMMES[key].status;
+      try {
+        AWIN_PROGRAMMES[key].status = "pending";
+        const refused = await resolveOffer("awin_" + key, id);
+        ok(refused.error === "tracking-failed" && !refused.dest, `${key}: withdrawing approval refuses the actual earning path rather than sending untracked traffic`);
+      } finally { AWIN_PROGRAMMES[key].status = original; }
+    }
+    ok((await resolveOffer("awin_extranomical", "orlando-ifly-adrenaline")).error === "offer-not-found", "California-only Extranomical has no invented Florida offer");
+  } finally { globalThis.fetch = realFetch; }
 }
 
 console.log(`check-awin-links: OK — ${pass} assertions; ${keys.length} programmes (${live.length} live, ${keys.length - live.length} dark), host gate and ships-dark contract both proven BY CALL`);

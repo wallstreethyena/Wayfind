@@ -871,5 +871,13 @@
       "detail": "2026-10-15 PostHog: guide coupon clicks had no impression denominator and were labelled as the Coupons tab, and one click was recorded twice, so guide affiliate CTR was unreadable and click counts inflated; a UTC-sliced ends_at hid lapsing Undercover Tourist offers from the renewal window for a day."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-earning-integrations.mjs": {
+    "protects": "Verified CJ affiliate offers use the correct website PID and creative through the real server handoff, with no untracked fallback or wrong-market link.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "TicketSmarter, Epic Pass and Vrbo redirects must preserve the verified advertiser creative, exact registered destination and surface. Lost tracking can send customers to a working merchant page without earning commissions."
+    },
+    "owner": "Revenue QA"
   }
 }
