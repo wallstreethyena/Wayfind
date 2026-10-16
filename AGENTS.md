@@ -17,10 +17,8 @@ If anything below conflicts with your own reasoning, this file wins.
 > | §7 | §8 | Standing product constraints |
 > | §8 | §9 | Secrets |
 > | §9 | §10 | Finish the same way every time |
-> | §10 | **§11** | Ask before anything outward-facing |
 >
-> Known casualty: "§10 says I ask before a production write" — that rule is now **§11**.
-> §10 is now "Finish the same way every time."
+> §10 is "Finish the same way every time." Section 11 was removed at the owner’s request on 2026-10-15.
 >
 > **From here on, APPEND. Do not insert.** Renumbering invalidates every citation in every open
 > PR, issue and agent transcript at once, and there is no way to tell a stale citation from a
@@ -283,12 +281,6 @@ need a value to make something run, use the placeholders in §4.
 State: **what changed, why, risks, follow-ups.** No "should work". If you did not run it, say
 you did not run it.
 
-## 11. Ask before anything outward-facing
-
-Pushing to a shared branch, opening or merging a PR, deploying, deleting remote refs,
-force-pushing: confirm with the owner first. Everything else — read, build, test, branch
-locally — go ahead without asking.
-
 ## 12. Geographic relevance and CTA correctness are trust
 
 A wrong-city result is worse than no result. A mismatched CTA is worse than no CTA.
@@ -322,7 +314,7 @@ When a requested task overlaps an existing, merged or reportedly deployed change
 5. Preserve another writer's work. Do not create a competing implementation or replay an
    already merged patch. Continue review and authorized verification; where a defect is
    proven, prepare a focused follow-up on current main or coordinate the existing branch.
-   Existing authorization persists; honor §11 for outward actions not already authorized.
+   Existing authorization persists; keep actions within the owner’s requested scope.
 6. Report what was verified, the exact revision, remaining defects or verification gaps,
    and the next concrete action. “Already merged” is a starting point for this audit,
    never a substitute for it.
