@@ -15,6 +15,7 @@
 // an outage throws, a healthy empty remains a valid empty, and the hub model
 // cannot launder a failed read into the empty copy.
 import assert from "node:assert/strict";
+import { createClient } from "@supabase/supabase-js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -71,6 +72,7 @@ function mockEventsDb({
     order() { return chain; },
     abortSignal() { return chain; },
     eq() { return chain; },
+    retry(enabled) { assert.equal(enabled, false); return chain; },
     limit() {
       if (limitError) return result({ data: null, error: { message: limitError } });
       return result({ data: pages[0], error: null });
@@ -207,6 +209,176 @@ await okAsync("a paused slug is null, not a throw", async () => {
 await okAsync("a displayable slug returns the row", async () => {
   const row = await fetchCuratedEventBySlug(howl.slug, { db: mockEventsDb({ slugRow: howl }) });
   assert.equal(row.event_id, howl.event_id);
+});
+
+// One independently constructed query/signal per attempt; mocks never sleep or
+// touch the network. Timeout allocation is observed at the platform boundary.
+function sequenceSlugDb(results) {
+  const calls = [];
+  return {
+    calls,
+    from(table) {
+      const call = { table };
+      calls.push(call);
+      const chain = {
+        select(columns) { call.columns = columns; return chain; },
+        eq(key, value) { call.key = key; call.value = value; return chain; },
+        abortSignal(signal) { call.signal = signal; return chain; },
+        retry(enabled) { call.retry = enabled; return chain; },
+        async maybeSingle() {
+          const result = results[calls.length - 1];
+          assert.ok(result, "unexpected extra query");
+          if (result.thrown) throw result.thrown;
+          return result;
+        },
+      };
+      return chain;
+    },
+  };
+}
+await okAsync("transient transport recovers once using a new query and signal", async () => {
+  const db = sequenceSlugDb([
+    { error: { message: "TypeError: fetch failed", code: "" }, status: 0 },
+    { data: howl, error: null, status: 200 },
+  ]);
+  const timeouts = [];
+  const realTimeout = AbortSignal.timeout;
+  AbortSignal.timeout = (ms) => { timeouts.push(ms); return realTimeout(ms); };
+  try {
+    assert.equal((await fetchCuratedEventBySlug(howl.slug, { db })).event_id, howl.event_id);
+  } finally { AbortSignal.timeout = realTimeout; }
+  assert.equal(db.calls.length, 2);
+  assert.notEqual(db.calls[0].signal, db.calls[1].signal);
+  assert.deepEqual(timeouts, [8000, 2000]);
+  assert.deepEqual(db.calls.map(c => [c.table, c.key, c.value]), Array(2).fill(["wf_events", "slug", howl.slug]));
+  assert.equal(db.calls[0].columns, db.calls[1].columns);
+  assert.deepEqual(db.calls.map(c => c.retry), [false, false]);
+});
+await okAsync("locked Supabase SDK makes exactly two fetches on repeated 503, with no hidden SDK retries", async () => {
+  let fetches = 0;
+  const signals = [];
+  const db = createClient("https://event-read-test.supabase.co", "placeholder-key-not-real", {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
+    global: { fetch: async (_url, init) => {
+      fetches++;
+      signals.push(init.signal);
+      return new Response(JSON.stringify({ message: "fixture unavailable", code: "PGRST002" }), { status: 503, headers: { "content-type": "application/json" } });
+    } },
+  });
+  await assert.rejects(() => fetchCuratedEventBySlug(howl.slug, { db }), err => {
+    assert.ok(isUnavailable(err, "query-error"));
+    assert.equal(err.diagnostics.status, 503);
+    assert.equal(err.diagnostics.code, "PGRST002");
+    assert.equal(err.diagnostics.attempts, 2);
+    return true;
+  });
+  assert.equal(fetches, 2);
+  assert.notEqual(signals[0], signals[1]);
+});
+await okAsync("recovery timeout respects the remaining ten-second budget", async () => {
+  const realNow = Date.now;
+  const realTimeout = AbortSignal.timeout;
+  let now = 1000;
+  const budgets = [];
+  const db = sequenceSlugDb([{ thrown: new TypeError("fetch failed") }, { data: howl, error: null }]);
+  Date.now = () => { const value = now; now += 4500; return value; };
+  AbortSignal.timeout = ms => { budgets.push(ms); return realTimeout(ms); };
+  try { await fetchCuratedEventBySlug(howl.slug, { db }); }
+  finally { Date.now = realNow; AbortSignal.timeout = realTimeout; }
+  assert.deepEqual(budgets, [8000, 1000]);
+});
+await okAsync("a thrown native TimeoutError recovers despite its numeric DOMException code", async () => {
+  const db = sequenceSlugDb([{ thrown: new DOMException("deadline", "TimeoutError") }, { data: howl, error: null }]);
+  assert.equal((await fetchCuratedEventBySlug(howl.slug, { db })).event_id, howl.event_id);
+  assert.equal(db.calls.length, 2);
+});
+for (const status of [502, 503, 504, 520]) {
+  await okAsync(`HTTP ${status} gets one recovery attempt`, async () => {
+    const db = sequenceSlugDb([{ error: { message: "upstream" }, status }, { data: howl, error: null }]);
+    assert.equal((await fetchCuratedEventBySlug(howl.slug, { db })).event_id, howl.event_id);
+    assert.equal(db.calls.length, 2);
+  });
+}
+await okAsync("schema-cache initialization HTTP 503 recovers without treating a permanent schema error as transient", async () => {
+  const db = sequenceSlugDb([
+    { error: { message: "schema cache initializing", code: "PGRST002" }, status: 503 },
+    { data: howl, error: null, status: 200 },
+  ]);
+  assert.equal((await fetchCuratedEventBySlug(howl.slug, { db })).event_id, howl.event_id);
+  assert.equal(db.calls.length, 2);
+});
+await okAsync("exhausted transport preserves final cause and query-threw contract, with safe diagnostics", async () => {
+  const final = Object.assign(new TypeError("fetch failed"), { cause: { code: "ECONNRESET", secret: "never-publish" } });
+  const db = sequenceSlugDb([{ thrown: new TypeError("fetch failed") }, { thrown: final }]);
+  await assert.rejects(() => fetchCuratedEventBySlug(howl.slug, { db }), err => {
+    assert.ok(isUnavailable(err, "query-threw"));
+    assert.equal(err.cause, final);
+    assert.deepEqual(err.diagnostics, { code: "ECONNRESET", status: null, attempts: 2, timeout: false });
+    assert.match(err.message, /"attempts":2/);
+    assert.doesNotMatch(err.message, /never-publish|fetch failed/);
+    return true;
+  });
+  assert.equal(db.calls.length, 2);
+});
+await okAsync("a local timeout retries once and remains distinguishable on exhaustion", async () => {
+  const cause = { message: "AbortError: The operation was aborted." };
+  const db = sequenceSlugDb([{ error: cause, status: 0 }, { error: cause, status: 0 }]);
+  const realTimeout = AbortSignal.timeout;
+  AbortSignal.timeout = () => AbortSignal.abort(new DOMException("timeout", "TimeoutError"));
+  try {
+    await assert.rejects(() => fetchCuratedEventBySlug(howl.slug, { db }), err => {
+      assert.ok(isUnavailable(err, "query-error"));
+      assert.equal(err.cause, cause);
+      assert.equal(err.diagnostics.timeout, true);
+      assert.equal(err.diagnostics.attempts, 2);
+      return true;
+    });
+  } finally { AbortSignal.timeout = realTimeout; }
+  assert.equal(db.calls.length, 2);
+});
+for (const result of [
+  { error: { message: "fetch failed", code: "PGRST301" }, status: 401 },
+  { error: { message: "column missing", code: "42703" }, status: 400 },
+  { error: { message: "fetch failed", code: "PGRST301" }, status: 0 },
+  { error: { message: "fetch failed", code: "PGRST002" }, status: 0 },
+  { error: { message: "fetch failed", code: "42703" }, status: 503 },
+  { error: { message: "fetch failed" }, status: 429 },
+  { error: { message: "unknown secret", code: "credential-not-a-code" }, status: 500 },
+]) {
+  await okAsync("permanent/auth/schema/rate-limit errors do not retry or expose raw fields", async () => {
+    const db = sequenceSlugDb([result]);
+    await assert.rejects(() => fetchCuratedEventBySlug(howl.slug, { db }), err => {
+      assert.ok(isUnavailable(err, "query-error"));
+      assert.equal(err.cause, result.error);
+      assert.equal(err.diagnostics.attempts, 1);
+      assert.doesNotMatch(err.message, /unknown secret|credential-not-a-code|fetch failed|column missing/);
+      return true;
+    });
+    assert.equal(db.calls.length, 1);
+  });
+}
+await okAsync("an unrelated TypeError is not retried", async () => {
+  const cause = new TypeError("Cannot read properties of undefined");
+  const db = sequenceSlugDb([{ thrown: cause }]);
+  await assert.rejects(() => fetchCuratedEventBySlug(howl.slug, { db }), err => {
+    assert.ok(isUnavailable(err, "query-threw"));
+    assert.equal(err.cause, cause);
+    assert.equal(err.diagnostics.attempts, 1);
+    return true;
+  });
+  assert.equal(db.calls.length, 1);
+});
+for (const data of [null, { ...howl, event_status: "paused" }, { ...howl, state: "GA" }]) {
+  await okAsync("genuine misses, hidden status and non-Florida rows never retry", async () => {
+    const db = sequenceSlugDb([{ data, error: null }]);
+    assert.equal(await fetchCuratedEventBySlug(howl.slug, { db }), null);
+    assert.equal(db.calls.length, 1);
+  });
+}
+await okAsync("malformed success is loud without retry", async () => {
+  const db = sequenceSlugDb([{ data: {}, error: null }]);
+  await assert.rejects(() => fetchCuratedEventBySlug(howl.slug, { db }), err => isUnavailable(err, "malformed-response"));
+  assert.equal(db.calls.length, 1);
 });
 
 /* 3 — hub model: failed read cannot become empty-success; healthy empty can */
