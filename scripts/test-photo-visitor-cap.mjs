@@ -1,46 +1,81 @@
 #!/usr/bin/env node
-// Per-visitor daily ceiling on paid photo grants (2026-10-14). Hermetic: injected
-// ledger double, no network, no env verdicts.
-import { readFileSync } from "node:fs";
-import { takeVisitorToken, visitorSku, VISITOR_DAILY_CAP } from "../lib/photoVisitorCap.js";
-import { bucketHash } from "../lib/photoPurchaseLog.js";
+// Regression for the removed visitor cutoff. Execute the real route authorizer
+// and real global spend gate with a fake ledger and resolver. No Google calls.
+import assert from "node:assert/strict";
+import { existsSync, readFileSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { gateShut, spendAllow, spendAllowPhotosDetailed, photosCeiling } from "../lib/spendGate.js";
+import { PHOTO_REF_RX, FALLBACK_PATH, placeIdFromRef } from "../lib/placePhotoServe.js";
+import { creditedRequest } from "../lib/apiGuard.js";
+import { isAutomatedPhotoReader } from "../lib/crawler.js";
 import { ledgerOutcomeClass } from "../lib/photoOutcomes.js";
-
-let n = 0;
-const ok = (c, m) => { n++; if (!c) { console.error("FAIL: " + m); process.exit(1); } };
-
-const ENV = { SUPABASE_SERVICE_ROLE_KEY: "svc-test-key" };
-const A = bucketHash({ ip: "198.51.100.7", ua: "UA-A", now: Date.UTC(2026, 9, 14, 15), env: ENV });
-const B = bucketHash({ ip: "198.51.100.8", ua: "UA-B", now: Date.UTC(2026, 9, 14, 15), env: ENV });
-ok(A && B && A !== B, "two visitors get two buckets");
-ok(/^[a-z0-9_:-]{1,64}$/.test(visitorSku(A)), "sku fits the ledger's sku grammar: " + visitorSku(A));
-ok(visitorSku(null) === "" && visitorSku("../x") === "" && visitorSku("ZZ") === "", "unsafe or missing bucket yields no sku");
-
-// an in-memory atomic counter standing in for wf_spend_take
-const ledger = new Map();
-const take = async (sku, cap) => { const u = (ledger.get(sku) || 0); if (u >= cap) return { ok: false, reason: "cap" }; ledger.set(sku, u + 1); return { ok: true, reason: "granted" }; };
-
-let granted = 0, denied = 0;
-for (let i = 0; i < VISITOR_DAILY_CAP + 25; i++) { const r = await takeVisitorToken({ bucket: A, take }); r.ok ? granted++ : denied++; }
-ok(granted === VISITOR_DAILY_CAP && denied === 25, `visitor A: exactly ${VISITOR_DAILY_CAP} granted then every further take refused (got ${granted}/${denied})`);
-ok((await takeVisitorToken({ bucket: B, take })).ok === true, "visitor B is unaffected by visitor A's ceiling (negative control)");
-ok(visitorSku(A) !== visitorSku(bucketHash({ ip: "198.51.100.7", ua: "UA-A", now: Date.UTC(2026, 9, 15, 15), env: ENV })), "the sku rotates the next day");
-
-// fail-open: an unreadable visitor ledger never blacks out a real visitor
-for (const reason of ["http", "timeout", "unconfigured", "invalid"]) ok((await takeVisitorToken({ bucket: A, take: async () => ({ ok: false, reason }) })).ok === true, "fail-open on " + reason);
-ok((await takeVisitorToken({ bucket: A, take: async () => { throw new Error("boom"); } })).ok === true, "fail-open on a thrown ledger call");
-ok((await takeVisitorToken({ bucket: null, take })).ok === true, "no bucket (no IP) is not capped");
-
-ok(ledgerOutcomeClass("visitor-cap") === "visitor-cap" && ledgerOutcomeClass("cap") === "ledger-cap", "visitor-cap has its own class; the real cap class is untouched");
-
-// wiring: the route takes the visitor token BEFORE the global grant (comments stripped)
-const route = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
-const iV = route.indexOf("takeVisitorToken({ bucket: visitorBucket })");
-const iG = route.indexOf("spendAllowPhotosDetailed()");
-ok(iV > 0 && iG > iV, "route: visitor ceiling is checked before the global grant");
-ok(/reason:\s*"visitor-cap"/.test(route), "route: a visitor-cap refusal is named");
-// the alert's failure list must not count it
-const alerts = readFileSync(new URL("../lib/commandCenter/alerts.js", import.meta.url), "utf8");
-ok(alerts.includes("ledger-timeout"), "positive control: the alert source lists real failure classes");
-ok(!alerts.includes("visitor-cap"), "alerts: visitor-cap is an expected outcome, never a failure count");
-console.log(`photo-visitor-cap: ${n} assertions ok`);
+import { bucketHash, idempotencyKey, uaClass } from "../lib/photoPurchaseLog.js";
+// Run fixtures in an explicit child environment; ambient shell configuration
+// cannot decide the verdict and the parent environment never needs restoring.
+if (!process.argv.includes("--fixture")) {
+  execFileSync(process.execPath, [fileURLToPath(import.meta.url), "--fixture"], {
+    env: { ...process.env, WAYFIND_GATE: "free", WAYFIND_PHOTOS_PAID: "1", GOOGLE_PHOTOS_MONTH_CAP: "10000", VERCEL_ENV: "production", SUPABASE_URL: "https://visitor-removal-fixture.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "fixture-not-a-real-key", GOOGLE_MAPS_SERVER_KEY: "fixture-not-a-real-key" },
+    stdio: "inherit", timeout: 20000,
+  });
+  process.exit(0);
+}
+let assertions = 0;
+const check = (value, message) => { assert.ok(value, message); assertions++; };
+const source = readFileSync(new URL("../app/api/photo/route.js", import.meta.url), "utf8");
+check(/authorizeSpend:/.test(source), "positive control: runtime authorizer exists in inspected route");
+check(!/takeVisitorToken|visitorBucket|visitor-cap|photoVisitorCap/.test(source), "route has no visitor cutoff or replacement visitor ledger");
+check(!existsSync(new URL("../lib/photoVisitorCap.js", import.meta.url)), "obsolete visitor cutoff module removed");
+const prelude = `const {gateShut,spendAllow,spendAllowPhotosDetailed,photosCeiling,PHOTO_REF_RX,FALLBACK_PATH,placeIdFromRef,creditedRequest,isAutomatedPhotoReader,ledgerOutcomeClass,bucketHash,idempotencyKey,uaClass,resolvePlacePhoto} = globalThis.__visitorRemovalTest;
+const findFreePhoto=async()=>null, recordPhotoOutcome=async()=>{}, recordPhotoDeniedCeiling=async()=>{}, recordPhotoPurchase=async()=>{}, recordReaderPhotoMiss=async()=>{};
+const NextResponse={json:(body,init={})=>new Response(JSON.stringify(body),init),redirect:(url,init={})=>new Response(null,{...init,headers:{...init.headers,location:String(url)}})};`;
+const savedFetch = globalThis.fetch;
+let ledgerCalls = 0, purchases = 0, used = 0, transportFail = false;
+let allowGoogleResult = false;
+const globalCap = 10000;
+try {
+  check(photosCeiling() === globalCap, "real spend configuration retains the existing monthly limit");
+  globalThis.fetch = async (url, options) => {
+    check(String(url) === "https://visitor-removal-fixture.supabase.co/rest/v1/rpc/wf_spend_take", "only global ledger transport is used");
+    const body = JSON.parse(options.body);
+    check(body.p_sku === "photos" && body.p_cap === globalCap, "real global photo budget remains 10,000; no per-visitor SKU");
+    ledgerCalls++;
+    if (transportFail) throw new Error("fixture offline");
+    const granted = used < body.p_cap;
+    if (granted) used++;
+    return new Response(JSON.stringify(granted), { headers: { "content-type": "application/json" } });
+  };
+  globalThis.__visitorRemovalTest = { gateShut, spendAllow, spendAllowPhotosDetailed, photosCeiling, PHOTO_REF_RX, FALLBACK_PATH, placeIdFromRef, creditedRequest, isAutomatedPhotoReader, ledgerOutcomeClass, bucketHash, idempotencyKey, uaClass,
+    resolvePlacePhoto: async input => {
+      if (input.gateShut) return { type: "miss", reason: "gate-shut" };
+      if (input.probe) return { type: "miss", reason: "probe-no-spend" };
+      if (!input.googleSurface) return { type: "miss", reason: "not-google-surface" };
+      const grant = await input.authorizeSpend("photos");
+      if (!grant.ok) return { type: "miss", reason: "spend-denied", ledgerReason: grant.reason };
+      purchases++;
+      return allowGoogleResult ? { type: "redirect", reason: "google", location: "https://lh3.googleusercontent.com/fixture", credit: { name: "Photographer", uri: "https://example.org/author", authors: [{ displayName: "Photographer" }] } } : { type: "miss", reason: "unconfigured" };
+    } };
+  const { GET } = await import("data:text/javascript," + encodeURIComponent(prelude + source.replace(/^import[^;]+;\n/gm, "")));
+  const request = ({ extra = "", ua = "Mozilla/5.0 RealVisitor", site = "same-origin", surface = "detail" } = {}) => new Request(`https://www.gowayfind.com/api/photo?place=ChIJexactVisitorPlace123&s=${surface}&fmt=json${extra}`, { headers: { "user-agent": ua, "x-forwarded-for": "198.51.100.10", "sec-fetch-site": site } });
+  for (let i = 0; i < 1501; i++) await GET(request());
+  check(purchases === 1501 && ledgerCalls === 1501 && used === 1501, "same visitor can buy beyond 80 and 1,500 only while the global budget grants each request");
+  const before = ledgerCalls;
+  for (const options of [{ extra: "&nospend=1" }, { ua: "HeadlessChrome/130.0" }, { site: "cross-site" }, { surface: "uncredited" }]) await GET(request(options));
+  check(ledgerCalls === before && purchases === 1501, "no-spend, automated, cross-site and uncredited requests take no global grant");
+  used = globalCap;
+  const blocked = await GET(request());
+  check(blocked.headers.get("x-wayfind-photo-result") === "spend-denied" && purchases === 1501 && used === globalCap, "exhausted global monthly budget still blocks this same visitor");
+  transportFail = true;
+  const offline = await GET(request());
+  check(offline.headers.get("x-wayfind-photo-result") === "spend-denied" && purchases === 1501, "global ledger failure remains fail-closed");
+  transportFail = false; used = globalCap - 1; allowGoogleResult = true;
+  const credited = await GET(request());
+  const body = await credited.json();
+  check(credited.status === 200 && body.source === "google" && body.credit.name === "Photographer" && body.credit.authors[0].displayName === "Photographer", "allowed live photo retains same-image photographer credit");
+  check(credited.headers.get("Cache-Control") === "private, no-store" && used === globalCap, "live response remains private and final global token is accounted for");
+  check(ledgerCalls === 1504 && purchases === 1502, "monthly denial and transport failure took no extra successful grant");
+} finally {
+  globalThis.fetch = savedFetch;
+  delete globalThis.__visitorRemovalTest;
+}
+console.log(`test-photo-visitor-cap: OK (${assertions} assertions; no per-visitor cutoff, real global gate)`);

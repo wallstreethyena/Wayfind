@@ -7,7 +7,6 @@ import { FALLBACK_PATH, PHOTO_REF_RX, placeIdFromRef, resolvePlacePhoto } from "
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { recordPhotoOutcome, recordPhotoDeniedCeiling, ledgerOutcomeClass } from "../../../lib/photoOutcomes";
 import { recordPhotoPurchase, bucketHash, idempotencyKey, uaClass } from "../../../lib/photoPurchaseLog";
-import { takeVisitorToken } from "../../../lib/photoVisitorCap";
 import { recordReaderPhotoMiss } from "../../../lib/photoReaderMissQueue";
 import { isAutomatedPhotoReader } from "../../../lib/crawler.js";
 import { creditedRequest } from "../../../lib/apiGuard.js";
@@ -146,8 +145,6 @@ async function handlePhotoGet(req) {
   const ua = req.headers.get("user-agent") || "";
   const automated = isAutomatedPhotoReader(ua);
   const probe = req.headers.get("x-wayfind-photo-probe") === "1" || searchParams.get("nospend") === "1" || automated;
-  const visitorIp = (req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
-  const visitorBucket = visitorIp ? bucketHash({ ip: visitorIp, ua }) : null;
   const recoveryPlaceId = placeIdFromRef(ref) || (PLACE_RX.test(place) ? place : "");
   const wantJson = searchParams.get("fmt") === "json";
   const surfaceWanted = GOOGLE_SURFACES.has(searchParams.get("s") || "") && (searchParams.get("s") !== "card" || wantJson);
@@ -217,10 +214,7 @@ async function handlePhotoGet(req) {
       // a free photo of this place exists (no purchase needed) or the owner shut the gate.
       if (shut) return { ok: false, reason: "shut" };
       if (sku === "photos" && free) return { ok: false, reason: "free-photo" };
-      // Per-visitor daily ceiling BEFORE the global grant (fail-open; the global ledger still runs).
-      if (sku === "photos" && visitorBucket) {
-        return takeVisitorToken({ bucket: visitorBucket }).then((v) => (v.ok ? spendAllowPhotosDetailed() : { ok: false, reason: "visitor-cap" }));
-      }
+      // No per-visitor cutoff. Each paid photo still requires the global grant.
       return sku === "photos" ? spendAllowPhotosDetailed() : spendAllow(sku);
     }),
     serverKey: process.env.GOOGLE_MAPS_SERVER_KEY || "",
@@ -442,8 +436,8 @@ async function handlePhotoGet(req) {
 // credited Google photos for guide AND blog picks within the existing
 // GOOGLE_PHOTOS_MONTH_CAP). blog.gowayfind.com is a separate Vercel project,
 // same site, so creditedRequest() already accepts its Sec-Fetch-Site:
-// same-site requests and every spend gate above (bots, probes, visitor
-// buckets, breaker, fail-closed ledger, cap) applies unchanged. The only thing
+// same-site requests and every spend gate above (bots, probes, breaker,
+// fail-closed ledger, cap) applies unchanged. The only thing
 // missing was permission for that ONE origin to read the fmt=json body. No
 // credentials, no other origin, no preflight-only headers are allowed.
 const BLOG_PHOTO_ORIGINS = new Set(["https://blog.gowayfind.com"]);
