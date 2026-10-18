@@ -10,7 +10,7 @@
 # registry-meta-sha256: a3df4dac554232de3e0786b6c81554c3eb1a072a25592a97d6f92e6d70a841c2
 path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
-scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	7682d21647b41334852da7957f3960493dfd6da53d226b4fb19ecb6a9db70ce8
+scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	76	0	0	3fcac29c4dde5b30f400481e996cf01c06b1303258a0ddf705b4e1b918c82f33
 scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	5e4e758b63777c1c64b4651e06c06741f0169f1352d3af3ba919801a778b194e
 scripts/check-anchor-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	74550830f3d6a6c95ab886c34a35c2deb66b4afde9839a700f9f2628d625f412
 scripts/check-anchors.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	7b4479aa9372d490ae375886aba87e7470b01260d5ed426d9598ccab52b7039f
@@ -150,7 +150,7 @@ scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1
 scripts/check-events-running-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	a413bf9d41e16736096b19aab304d334b80f22badcbff61777df199da35efad7
 scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	ebf7862dbf5898058d0c60b162294d8935be4d7ecf4d17e99029c379ce377286
 scripts/check-evergreen-landing-zero-spend.mjs	1	RENDER	blocks-ci-and-deploy	1	claude.exe (Wayfind lane)	61	0	0	3a70e992e93fdfd28e6d4d96d534633f3f69d13450a3237214f538cf9b586de8
-scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	88	0	0	a6c78cc766105ece48d3e6f89f947d25eae5a7496076b29eb766a07ec4ba52e5
+scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	103	0	0	0a77fa0fe2b69d71d3d37dc18fb0f79d6109a40c8d11a931609668642981f464
 scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1	3f2a8f206a514832c5b1fd1ce498e29d21a27b75cf1b5848d03b2502c26de7b2
 scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	61bbeeefa29ad5941a3367db694c301803b5df17fbcebfaf76adba85b50d7d74
 scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	16ab10b0900dd3df4d8820402773fd40aacd8d01c8ad1abd92f11b8bfbb7e684
@@ -399,7 +399,7 @@ scripts/check-sitemap.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2cb6f24bc265a74
 scripts/check-sitetime.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	5121e303b7ba5452271a90b036c3d926d74a5125e79e0742ba906708d28c3cf0
 scripts/check-skeleton-has-a-voice.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	2	1	cb4dc43f4697390e0f7a87683262562af1e20c456278be3ae01650b2bb9a2ad2
 scripts/check-social-extract-cannot-invent.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	ceef4f2f67f0173357c859c82fd5fe4eb18a5b9c107119a1cbd6c14cb0f25776
-scripts/check-social-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a061519a926a28c12891fb8abcf74b4b746d5ee0647a7bf911a7d4429e82c2b2
+scripts/check-social-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	7bfffc0e5f351ec00104f971f4ada35b756c03c908b9a3717e33da14a2a96864
 scripts/check-social-provider-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	0834c27ae3626330964a39e56ca29fb655c5a9957287ae951e92a4bbced1bd1c
 scripts/check-social-qualification.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	934766bf5b6476c28a535634d851b6a2bd4d91e2b1176f2c6b956327cc947113
 scripts/check-soft-404.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	4ff2f18137ee39e902f6829384ca91eb8000b8af655f952d72e1a0d665a13536
