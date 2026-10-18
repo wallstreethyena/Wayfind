@@ -512,6 +512,8 @@ node scripts/check-guide-cta-single-capture.mjs
 node scripts/test-guide-inline-book.mjs
 node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
+node scripts/test-guide-pick-offers.mjs
+node scripts/test-guide-pick-offers.mjs --red-prove
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
