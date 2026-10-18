@@ -15,6 +15,7 @@ import { RAILS_COLLAPSED_KEY, RAILS_COLLAPSED_ATTR, DEFAULT_COLLAPSED_RAILS, DEF
 // v8.46.1 — the pairing law, interpolated into the pre-hydration events primer
 // below (it runs before React, so it cannot import the module at runtime).
 import { cityOriginsWire, PAIRING_MAX_MI } from "../lib/locationHonesty";
+import { EVENT_IMAGE_PRIME_SOURCE } from "../lib/eventPrimeImage";
 import { CULTURE } from "../lib/cultureCorpus";
 import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
@@ -194,8 +195,16 @@ export default function RootLayout({ children }) {
             Carolina, then cached the blend for that cell. The pins are
             INTERPOLATED via cityOriginsWire(), never retyped — the same rule as
             the rail-collapse script above, so the inline copy cannot drift from
-            the law. An incoherent record is ignored whole; the seed answers. */}
-        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var O=" + JSON.stringify(cityOriginsWire()) + ";var M=" + PAIRING_MAX_MI + ";function agrees(o){try{var h=String(o.loc||'').split(',')[0].trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');if(!h)return true;var p=O[h];if(!p)return true;var a=(p[0]-o.lat)*69,b=(p[1]-o.lng)*69*Math.cos(o.lat*Math.PI/180);return Math.sqrt(a*a+b*b)<=M}catch(e){return true}}var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng)&&agrees(o))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(im){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
+            the law. An incoherent record is ignored whole; the seed answers.
+            The fetch itself is home-only. It runs in the document of every
+            route, and on /things-to-do/orlando a cold load (no wf_center) was
+            downloading the Parrish events feed (~1MB JSON) and then assigning
+            the first image — an uncredited place-photo URL the photo route refuses —
+            to a high-priority Image, ahead of that page's own hero. Home still
+            primes; the image warm still skips any URL the inlined predicate
+            rejects (EVENT_IMAGE_PRIME_SOURCE, the same function the lock
+            test calls). */}
+        <script dangerouslySetInnerHTML={{ __html: "(function(){try{var primeable=" + EVENT_IMAGE_PRIME_SOURCE + ";var O=" + JSON.stringify(cityOriginsWire()) + ";var M=" + PAIRING_MAX_MI + ";function agrees(o){try{var h=String(o.loc||'').split(',')[0].trim().toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');if(!h)return true;var p=O[h];if(!p)return true;var a=(p[0]-o.lat)*69,b=(p[1]-o.lng)*69*Math.cos(o.lat*Math.PI/180);return Math.sqrt(a*a+b*b)<=M}catch(e){return true}}var c=null;try{var r=localStorage.getItem('wf_center');if(r){var o=JSON.parse(r);if(o&&isFinite(o.lat)&&isFinite(o.lng)&&agrees(o))c={lat:o.lat,lng:o.lng,loc:o.loc||''}}}catch(e){}if(!c)c={lat:27.5689,lng:-82.4393,loc:'Parrish, FL'};if(location.pathname==='/')window.__wfEvPrime={lat:c.lat,lng:c.lng,p:fetch('/api/events?lat='+c.lat.toFixed(2)+'&lng='+c.lng.toFixed(2)+'&radius=25&city='+encodeURIComponent(c.loc||'')).then(function(r){return r.ok?r.json():null}).then(function(d){try{if(d&&d.events){for(var i=0;i<d.events.length;i++){var im=d.events[i]&&d.events[i].image;if(primeable(im)){var pi=new Image();pi.fetchPriority='high';pi.src=im;break}}}}catch(e){}return d}).catch(function(){return null})}}catch(e){}})();" }} />
         {/* THE PRE-HYDRATION TAP BRIDGE (2026-08-21). A prerendered guide page
             paints its place-card Like / Not-for-me / Save controls ~6s before
             React can hear them on a 1.5 Mbps phone (measured, production).
