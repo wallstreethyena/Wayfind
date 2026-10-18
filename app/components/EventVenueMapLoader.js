@@ -27,6 +27,6 @@ export default function EventVenueMapLoader(props) {
   }, []);
   return <div ref={host}>
     {visible ? <EventVenueMap {...props} picks={mapPicks} onMapReady={setMapController} /> : <div className="wfev wfev-h" style={{ minHeight: 340 }} aria-label="Venue map loads as you scroll" />}
-    <EventDrivingRoute venue={props.venue} directionsHref={props.directionsHref} mapController={mapController} />
+    {props.showDrivingRoute !== false ? <EventDrivingRoute venue={props.venue} directionsHref={props.directionsHref} mapController={mapController} /> : null}
   </div>;
 }

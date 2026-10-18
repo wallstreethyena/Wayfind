@@ -2277,3 +2277,6 @@ node scripts/test-guide-context-photos.mjs
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
+
+node scripts/test-apple-parking.mjs
+node scripts/test-venue-parking-ui.mjs

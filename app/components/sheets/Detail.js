@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
 import AwardsRail from "../AwardsRail";
+import PlaceParkingMap from "../PlaceParkingMap.js";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
 // v8.82 — the season travels with the share (see lib/fallSkin.fallShareLine).
@@ -1038,6 +1039,7 @@ export default function DetailSheet({ ctx }) {
               {/* 2026-09-23 (owner): ONE disclosure line per detail sheet. When the
                   line already rendered under the primary action, this one stays off. */}
               {!ftcNearPrimary && <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />}
+              <PlaceParkingMap place={detail} />
               {Array.isArray(detail._children) && detail._children.length ? (
                 <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: ".6px", textTransform: "uppercase" }}>Inside {detail.name}</div>

@@ -93,7 +93,7 @@ export function eventNearbyPlaces(picks, hasPoint) {
  * }} props
  */
 export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false }) {
-  const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
+  const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
   const pins = eventNearbyPlaces(picks, hasPoint);
@@ -132,7 +132,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
         </div>
         {hasPoint ? (
           <div className="wfw-map">
-            <EventVenueMapLoader venue={{ name: venue || address, lat, lng }} picks={pins} directionsHref={directionsHref} />
+            <EventVenueMapLoader key={`${venue || address}:${lat}:${lng}`} venue={{ name: venue || address, lat, lng }} picks={pins} directionsHref={directionsHref} parkingEnabled={!approximate} />
           </div>
         ) : null}
         {hasPoint ? <div className="wfw-foot" aria-label="Map key"><span><b className="wfw-key-venue" aria-hidden="true">★</b> Event</span>{pins.length > 0 ? <span><b className="wfw-key-nearby" aria-hidden="true">●</b> Places</span> : null}</div> : null}

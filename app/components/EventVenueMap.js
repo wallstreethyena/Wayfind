@@ -2,21 +2,24 @@
 import MapCategoryPin from "./MapCategoryPin.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import CardPhoto from "./CardPhoto.js";
+import VenueParkingResults from "./VenueParkingResults.js";
 
-// Event-only Apple Maps surface. The route overlay is added by the same
+// Shared venue Apple Maps surface. The route overlay is added by the same
 // MapKit session as the venue and nearby annotations; EventDrivingRoute owns
 // only the controls and summary shown below this map.
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createAppleMapController, loadAppleMapKit } from "../../lib/appleMapsRuntime.js";
 import { appleMapsTokenUsable } from "../../lib/appleMapsToken.js";
 import { EVENT_MAP_FAMILY, eventMapFamily } from "../../lib/eventMapPlaces.js";
+import { hasParkingCoordinate } from "../../lib/appleParking.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
 const CSS = `
 .wfev-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:8px;align-items:stretch}
 .wfev-cats{display:flex;gap:6px;min-width:0;overflow-x:auto;overscroll-behavior-x:contain;padding:7px;border-radius:16px;background:#0F1520;border:1px solid rgba(148,163,184,.2);-webkit-overflow-scrolling:touch;scrollbar-width:none}.wfev-cats::-webkit-scrollbar{display:none}
-.wfev-cat{display:flex;align-items:center;gap:8px;width:auto;min-width:0;flex:0 0 auto;margin:0;padding:9px 10px;border-radius:11px;border:1px solid transparent;background:transparent;color:#94A3B8;font:inherit;font-size:13px;font-weight:750;text-align:left;white-space:nowrap;cursor:pointer}
+.wfev-cat{display:flex;align-items:center;gap:8px;width:auto;min-width:0;min-height:44px;flex:0 0 auto;margin:0;padding:9px 10px;border-radius:11px;border:1px solid transparent;background:transparent;color:#94A3B8;font:inherit;font-size:13px;font-weight:750;text-align:left;white-space:nowrap;cursor:pointer}
+.wfev-cat:focus-visible{outline:2px solid #FDBA74;outline-offset:-2px}
 .wfev-cat:hover{background:rgba(148,163,184,.08);color:#CBD5E1}.wfev-cat[aria-pressed="true"]{border-color:rgba(249,115,22,.45);background:rgba(249,115,22,.12);color:#FDBA74}
 .wfev-cat i{display:grid;place-items:center;width:19px;flex:0 0 19px;font-size:15px;font-style:normal}.wfev-cat span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wfev-cat b{margin-left:auto;color:#F8FAFC;font-variant-numeric:tabular-nums}
 .wfev{position:relative;border-radius:20px;overflow:hidden;border:1px solid rgba(148,163,184,.2);background:#0F1520;box-shadow:0 24px 60px rgba(0,0,0,.45),0 0 0 1px rgba(249,115,22,.08);isolation:isolate}
@@ -31,7 +34,7 @@ const CSS = `
 
 const thumb = (p) => p.photo || (p.photoRef ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=640" : "/api/photo?place=" + encodeURIComponent(p.id) + "&g=2&w=640");
 
-export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady }) {
+export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady, venueKind = "event", parkingEnabled = true }) {
   const hostRef = useRef(null);
   const controllerRef = useRef(null);
   // Under a PhotoPolicyProvider (guides) the pin card shows no Google photo:
@@ -42,6 +45,15 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
   const [gen, setGen] = useState(0);
   const [sel, setSel] = useState(null);
   const [active, setActive] = useState(null);
+  const [parking, setParking] = useState({ status: "idle", places: [] });
+  const [parkingAttempt, setParkingAttempt] = useState(0);
+  const parkingCache = useRef(new Map());
+  const parkingRequest = useRef(0);
+  const venueKey = JSON.stringify([venue?.id, venue?.name, venue?.lat, venue?.lng]);
+  const currentView = useRef({ active, venueKey });
+  currentView.current = { active, venueKey };
+  const canPark = parkingEnabled && hasParkingCoordinate(venue);
+  const parkingMode = active === "parking" && canPark;
   const pins = useMemo(() => picks.filter((p) => p && Number.isFinite(p.lat) && Number.isFinite(p.lng)), [picks]);
   const groups = useMemo(() => {
     const counts = new Map();
@@ -52,8 +64,15 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
     return Array.from(counts, ([family, count]) => ({ family, count, ...(EVENT_MAP_FAMILY[family] || EVENT_MAP_FAMILY.other) }))
       .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
   }, [pins]);
-  const shown = useMemo(() => active ? pins.filter((place) => eventMapFamily(place) === active) : pins, [active, pins]);
+  const shown = useMemo(() => active && active !== "parking" ? pins.filter((place) => eventMapFamily(place) === active) : pins, [active, pins]);
   const token = process.env.NEXT_PUBLIC_APPLE_MAPS_TOKEN;
+
+  useEffect(() => {
+    setActive(null); setSel(null);
+    setParking(parkingCache.current.get(venueKey) || { status: "idle", places: [] });
+  }, [venueKey]);
+
+  useEffect(() => { if (!canPark && active === "parking") setActive(null); }, [canPark, active]);
 
   useEffect(() => {
     if (!hostRef.current || !venue || !Number.isFinite(venue.lat) || !Number.isFinite(venue.lng)) return undefined;
@@ -64,7 +83,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
     loadAppleMapKit(token).then((mapkit) => {
       if (dead || !hostRef.current) return;
       controller = createAppleMapController({
-        mapkit, container: hostRef.current, venue, picks: shown,
+        mapkit, container: hostRef.current, venue, picks: shown, venueKind,
         onSelect: (id) => { if (!dead) setSel(id); },
       });
       if (dead) { controller.destroy(); return; }
@@ -78,41 +97,79 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady 
       onMapReady?.(null);
     };
     // `pins` is intentionally represented by venue coordinates + generation;
-    // callers remount this event-only map when the venue changes.
+    // the venue key also resets controllers for venues sharing coordinates.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gen, venue && venue.lat, venue && venue.lng]);
+  }, [gen, venueKey, venueKind]);
 
   const pinIdentity = JSON.stringify(shown.map(p => [p.id, p.lat, p.lng, p.name, p.cat, p.primaryType, p.mapKind, p.mapRank]));
   useEffect(() => { controllerRef.current?.setPicks(shown); }, [pinIdentity, ready]);
   useEffect(() => {
-    if (active && !groups.some((group) => group.family === active)) setActive(null);
+    if (active && active !== "parking" && !groups.some((group) => group.family === active)) setActive(null);
   }, [active, groups]);
   useEffect(() => {
-    if (sel && !shown.some((place) => String(place.id) === String(sel))) setSel(null);
-  }, [sel, shown]);
+    const visible = parkingMode ? parking.places : shown;
+    if (sel && !visible.some((place) => String(place.id) === String(sel))) setSel(null);
+  }, [sel, shown, parkingMode, parking.places]);
 
-  useEffect(() => { if (onSelect) onSelect(sel); }, [sel, onSelect]);
+  useEffect(() => {
+    const controller = controllerRef.current;
+    if (!parkingMode || !ready || !controller) return undefined;
+    const request = ++parkingRequest.current;
+    const cached = parkingCache.current.get(venueKey);
+    controller.setParkingMode(true, cached?.places || []);
+    const isCurrent = () => request === parkingRequest.current && currentView.current.active === "parking" && currentView.current.venueKey === venueKey && controllerRef.current === controller;
+    if (cached) setParking(cached);
+    else {
+      setParking({ status: "loading", places: [] });
+      Promise.resolve().then(() => isCurrent() ? controller.searchParking() : null).then((result) => {
+        if (!isCurrent() || !result) return;
+        const next = { ...result, status: "success" };
+        parkingCache.current.set(venueKey, next);
+        setParking(next);
+        controller.setParkingMode(true, next.places);
+      }).catch(() => {
+        if (isCurrent()) setParking({ status: "error", places: [] });
+      });
+    }
+    return () => {
+      parkingRequest.current += 1;
+      controller.cancelParkingSearch();
+      controller.setParkingMode(false);
+      setParking((previous) => previous.status === "loading" ? { status: "idle", places: [] } : previous);
+    };
+  }, [parkingMode, ready, venueKey, parkingAttempt]);
+
+  useEffect(() => { if (onSelect) onSelect(parkingMode ? null : sel); }, [sel, parkingMode, onSelect]);
+  const chooseCategory = (next) => {
+    // Invalidate synchronously so a completed request cannot win the click race.
+    currentView.current = { active: next, venueKey };
+    parkingRequest.current += 1;
+    if (active === "parking" && next !== "parking") controllerRef.current?.cancelParkingSearch();
+    setActive(next); setSel(null);
+  };
   const retry = () => { setFailed(false); setReady(false); setSel(null); setGen((g) => g + 1); };
-  const selected = sel ? shown.find((p) => String(p.id) === String(sel)) : null;
+  const selected = !parkingMode && sel ? shown.find((p) => String(p.id) === String(sel)) : null;
   // Missing, placeholder, or already-expired: render the fallback at once and
   // never start MapKit (lib/appleMapsToken.js reads the expiry from the JWT).
   const unavailable = !appleMapsTokenUsable(token);
   return (
     <div className="wfev-grid">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
-      {pins.length ? <div className="wfev-cats" aria-label="Map categories">
-        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => { setActive(null); setSel(null); }}><MapCategoryPin /><span>All places</span><b>{pins.length}</b></button>
-        {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => { setActive(active === group.family ? null : group.family); setSel(null); }}><MapCategoryPin family={group.family} /><span>{group.label}</span><b>{group.count}</b></button>)}
-      </div> : null}
+      <div className="wfev-cats" aria-label="Map categories">
+        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => chooseCategory(null)}><MapCategoryPin /><span>All places</span><b>{pins.length}</b></button>
+        {canPark ? <button type="button" className="wfev-cat" aria-pressed={parkingMode} onClick={() => { if (!parkingMode) chooseCategory("parking"); }}><MapCategoryPin family="parking" /><span>Parking</span></button> : null}
+        {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => chooseCategory(active === group.family ? null : group.family)}><MapCategoryPin family={group.family} /><span>{group.label}</span><b>{group.count}</b></button>)}
+      </div>
       <div className="wfev wfev-h" aria-label={`Apple map of ${venue.name}`}>
         <div ref={hostRef} className="wfev-canvas" />
-        {ready && shown.length > 0 && !selected ? <div className="wfev-legend" aria-hidden="true"><span><MapCategoryPin family="event" height={24} />Event</span><span>{shown.length} {active ? (EVENT_MAP_FAMILY[active]?.label || "places") : "places"}</span></div> : null}
+        {ready && !parkingMode && shown.length > 0 && !selected ? <div className="wfev-legend" aria-hidden="true"><span><MapCategoryPin family={venueKind === "place" ? eventMapFamily(venue) : "event"} height={24} />{venueKind === "place" ? "Place" : "Event"}</span><span>{shown.length} {active ? (EVENT_MAP_FAMILY[active]?.label || "places") : "places"}</span></div> : null}
         {selected ? <div className="wfev-card" role="region" aria-label={selected.name}>
           {photoSrcFilter(thumb(selected)) ? <span className="wfev-thumb" style={{ position: "relative", display: "block", width: 58, height: 58, flex: "0 0 58px", borderRadius: 12, overflow: "hidden" }}><CardPhoto src={photoSrcFilter(thumb(selected))} alt="" compact style={{ width: 58, height: 58, objectFit: "cover", display: "block" }} /></span> : null}<span style={{ minWidth: 0, flex: 1 }}><b>{selected.name}</b><small>{Number.isFinite(selected.wfScore) ? <u>{(selected.wfScore / 10).toFixed(1)}</u> : null}{selected.cat || "Nearby"}{selected.distMi != null ? ` · ${selected.distMi.toFixed(1)} mi from the venue` : ""}</small></span>
           <a className="wfev-go" href={selected.href}>Open</a><button type="button" className="wfev-x" aria-label="Close" onClick={() => setSel(null)}>×</button>
         </div> : null}
         {failed || unavailable ? <div className="wfev-fb"><div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(148,163,184,.14)", border: "1px solid rgba(148,163,184,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div><div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{venue.name}</div><div style={{ maxWidth: 280, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map preview is unavailable right now. The address and external navigation link are still available.</div>{!unavailable ? <button type="button" onClick={retry} style={{ marginTop: 4, padding: "9px 18px", borderRadius: 999, border: "1px solid rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FB923C", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}</div> : null}
       </div>
+      {parkingMode ? <VenueParkingResults venue={venue} places={parking.places} status={failed || unavailable ? "error" : parking.status} message={failed || unavailable ? "The Apple map is unavailable, so parking cannot be loaded right now." : undefined} radiusMeters={parking.radiusMeters} selectedId={sel} onSelect={(id) => { setSel(id); controllerRef.current?.selectParking(id); }} onRetry={() => { if (failed && !unavailable) retry(); else setParkingAttempt((attempt) => attempt + 1); }} /> : null}
     </div>
   );
 }
