@@ -18,7 +18,7 @@ import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
-import { withViatorTracking } from "../../../../lib/affiliates.js";
+import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isSyntheticMonitor } from "../../../../lib/crawler.js";
 import {
@@ -181,6 +181,16 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
   }
 }
 
+// The product code at the end of a viator.com product path
+// (".../d663-5467OHEP" -> "5467OHEP"); null when the shape is unfamiliar.
+function viatorProductCode(raw) {
+  try {
+    const last = new URL(raw).pathname.split("/").filter(Boolean).pop() || "";
+    const m = last.match(/^d\d+-([A-Za-z0-9]+)$/);
+    return m ? m[1] : null;
+  } catch { return null; }
+}
+
 export async function GET(req) {
   const { searchParams } = new URL(req.url);
   const q = (searchParams.get("q") || "").trim().slice(0, 120);
@@ -268,7 +278,16 @@ export async function GET(req) {
   if (rawProduct) {
     if (isValidViatorProduct(rawProduct)) {
       const chosen = chooseViatorGoLocation({
-        rawProduct: withViatorTracking(rawProduct) || rawProduct,
+        // Campaign from QUERY params only (surface + page + product code),
+        // never the Referer: this 302 is CDN-cached per URL, so anything not
+        // in the URL would leak one page's tag onto another's clicks.
+        rawProduct: withViatorTracking(rawProduct, undefined, {
+          campaign: viatorCampaign({
+            page: viatorPageHint({ page: searchParams.get("page"), surface }),
+            surface,
+            offerId: viatorProductCode(rawProduct),
+          }),
+        }) || rawProduct,
         siteFallback: FALLBACK,
       });
       if (chosen.ok) {

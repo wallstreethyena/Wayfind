@@ -529,10 +529,26 @@
     "owner": "Revenue QA"
   },
   "scripts/test-viator-smoke-shape.mjs": {
-    "protects": "The pure shape assertions behind the live production smoke test: a Viator destination must be a viator.com host carrying a non-placeholder pid plus mcid=42383 and medium=link, and malformed input must be rejected rather than throw.",
+    "protects": "The pure shape assertions behind the live production smoke test: a Viator destination must be a viator.com host carrying a non-placeholder pid plus mcid=42383, the documented per-link-type medium (api for an API product URL, link otherwise) and a well-formed campaign when present, and malformed input must be rejected rather than throw.",
     "blastRadius": {
       "category": "revenue",
       "detail": "This is the deterministic half of the post-deploy smoke test. If it rots, the live smoke test can pass on an unattributed or placeholder-stamped redirect \u2014 traffic reaches Viator, converts, and pays us nothing, which is exactly the ?pid=%5BSENSITIVE%5D incident."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-viator-campaign.mjs": {
+    "protects": "Viator attribution as documented by Viator: pid + mcid always, medium preserved per link type (API product URLs keep medium=api), and a compact wf-<page>-<placement>-<offer> campaign that is only ever added, never changed, with no click token, utm, gclid or PII in the partner URL; acquisition rides on the PostHog click event instead.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "If it rots, catalogue bookings are misreported (medium rewritten), or a malformed/overwritten campaign breaks Viator attribution, or acquisition data leaks into partner URLs."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-no-paid-placement-policy.mjs": {
+    "protects": "/partners matches the no-paid-placement commitment (no placement for sale, sponsorships disclosed with what they never buy), and the affiliate opportunity worklist can never carry a commission-led partner instruction.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "If it rots, a public page can again offer paid featured placement against the published editorial policy, or the revenue worklist can steer partner choice by commission."
     },
     "owner": "Revenue QA"
   },

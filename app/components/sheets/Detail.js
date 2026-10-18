@@ -556,7 +556,14 @@ export default function DetailSheet({ ctx }) {
     // to tell a partner CTA (an exact pin, a deal, a tracked delivery) from a
     // plan/directions/menu tap; both arrive here as primary_cta_clicked.
     try { logEvent("primary_cta_clicked", detail, { cta_type: primaryCta.type, provider: primaryCta.provider, monetized: !!primaryCta.monetized, exact: !!primaryCta.exact }); } catch (e) {}
-    if (primaryCta.monetized && commerceCtx) {
+    // One intentional click, one commerce_cta_clicked. The exact-pin button and
+    // the earning-go button already emit that event with a click_id, then call
+    // this handler. Emitting again here recorded a second event in the same
+    // millisecond with no click_id (place-page primary, measured 2026-10-18).
+    // Buttons that do not own the click (a monetized href that is not our go
+    // route) still emit once, here.
+    const buttonOwnsClick = !!((primaryCta.exact && primaryCta.href) || (primaryCta.monetized && isEarningGoHref(primaryCta.href) && primaryCta.type !== DETAIL_CTA_TYPES.tickets && primaryCta.type !== DETAIL_CTA_TYPES.rates));
+    if (primaryCta.monetized && commerceCtx && !buttonOwnsClick) {
       try { emitCommerce("commerce_cta_clicked", commerceCtx); } catch (e) {}
     }
     if (primaryCta.type === DETAIL_CTA_TYPES.plan) {

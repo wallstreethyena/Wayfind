@@ -41,6 +41,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler } from "../../../../lib/crawler.js";
+import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 
 const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
@@ -52,6 +53,20 @@ export async function GET(req) {
   const surface = String(sp.get("surface") || "").trim();
   const contentId = String(sp.get("content") || "").trim();
   const rank = sp.get("rank");
+  // Page the click came from, for the Viator campaign tag only. Explicit
+  // `page` param first (guide links send no Referer: rel="noreferrer"), then a
+  // SAME-HOST Referer pathname, then a surface fallback for noreferrer place
+  // clicks. viatorPageKey() reduces it to [a-z0-9-]; it never reaches anything
+  // but that tag.
+  const refererPath = (() => {
+    try {
+      const ref = new URL(req.headers.get("referer") || "");
+      const self = new URL(req.url);
+      const ours = (h) => h === self.hostname || h === "gowayfind.com" || h === "www.gowayfind.com";
+      return ours(ref.hostname) ? ref.pathname : "";
+    } catch { return ""; }
+  })();
+  const pageHint = viatorPageHint({ page: sp.get("page"), refererPath, surface });
   // Same sanitizer as /api/viator/go. UUID_LIKE dropped the documented
   // mintClickId fallback (`wf-…`) and reminted, so a human same-tab Book
   // hop could not join provider_redirect_started.
@@ -106,7 +121,7 @@ export async function GET(req) {
   // credentials. Keep the destination fixed to our own tracked resolver.
   if (process.env.WAYFIND_PREVIEW_PUBLIC_EVENTS === "1" && !process.env.VERCEL) {
     const previewDestination = new URL("https://www.gowayfind.com/api/commerce/go");
-    for (const [key, value] of Object.entries({ provider, offer: offerId, surface, content: contentId, click_id: clickId })) {
+    for (const [key, value] of Object.entries({ provider, offer: offerId, surface, content: contentId, click_id: clickId, page: sp.get("page") || "" })) {
       if (value) previewDestination.searchParams.set(key, value);
     }
     return new Response(null, { status: 302, headers: {
@@ -123,7 +138,11 @@ export async function GET(req) {
   // emit — never the destination, never the host allowlist — and
   // cityPassTrackedUrl re-sanitises it to [\w.:-]{0,40} before it reaches a
   // URL, so a crafted surface cannot shape the outbound link.
-  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface });
+  // Viator: wf-<page>-<placement>-<offer> in the documented `campaign` param,
+  // so a partner-reported booking can be tied to the page, placement and offer
+  // that produced it (see lib/affiliates.js). No click token, no utm/gclid.
+  const campaign = provider === "viator" ? viatorCampaign({ page: pageHint, surface, offerId }) : null;
+  const { dest, sourceUrl, error } = await resolveOffer(provider, offerId, { subId: surface, campaign });
   if (error || !dest) return fail(error || "unresolved");
 
   let finalDest = dest;

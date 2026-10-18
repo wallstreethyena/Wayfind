@@ -41,6 +41,15 @@ for (const placeholder of ["changeme", "[SENSITIVE]", "TODO", "<your-pid-here>",
 }
 ok(assertViatorRedirectShape(good("www.viator.com", GOOD_PID, "99999")).mcidOk === false, "a wrong mcid is caught");
 ok(assertViatorRedirectShape(good("www.viator.com", GOOD_PID, "42383", "email")).mediumOk === false, "a wrong medium is caught");
+// Documented per-link-type medium (2026-10-18): an API product URL (it carries
+// api_version) must keep medium=api; a link-built URL must say medium=link.
+const api = (medium) => `https://www.viator.com/tours/Crystal-River/x/d22-7336P2?mcid=42383&pid=${GOOD_PID}&medium=${medium}&api_version=2.0`;
+ok(assertViatorRedirectShape(api("api")).ok === true, "an API product URL that keeps medium=api passes");
+ok(assertViatorRedirectShape(api("link")).mediumOk === false, "an API product URL rewritten to medium=link is caught (the pre-2026-10-18 defect)");
+ok(assertViatorRedirectShape(good("www.viator.com", GOOD_PID, "42383", "api")).mediumOk === false, "a link-built URL claiming medium=api is caught");
+ok(assertViatorRedirectShape(api("api") + "&campaign=wf-g-swim-with-manatees-crystal-river-cta-7336p2").ok === true, "a documented campaign tag passes");
+ok(assertViatorRedirectShape(api("api") + "&campaign=wf_bad.tag").campaignOk === false, "a campaign outside [A-Za-z0-9-] is caught");
+ok(assertViatorRedirectShape(good()).campaignOk === true && assertViatorRedirectShape(good()).campaignPresent === false, "campaign is optional");
 ok(assertViatorRedirectShape("not a url at all").ok === false, "a completely malformed Location never throws — it fails cleanly");
 ok(assertViatorRedirectShape("not a url at all").reasons.length > 0, "…and says why");
 ok(assertViatorRedirectShape(null).ok === false, "null Location does not throw");

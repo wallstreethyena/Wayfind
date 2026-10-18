@@ -74,6 +74,7 @@ const plan = body("addToPlan");
 ok(primary.length > 0 && plan.length > 0, "found handlePrimaryCtaClick and addToPlan bodies (probe positive control)");
 ok(/logEvent\("primary_cta_clicked",\s*detail,\s*\{[^}]*\bmonetized:\s*!!primaryCta\.monetized\b[^}]*\}/.test(primary), "handlePrimaryCtaClick logs monetized: !!primaryCta.monetized");
 ok(/logEvent\("primary_cta_clicked",\s*detail,\s*\{[^}]*\bexact:\s*!!primaryCta\.exact\b[^}]*\}/.test(primary), "handlePrimaryCtaClick logs exact: !!primaryCta.exact");
+ok(/const buttonOwnsClick = /.test(primary) && /if \(primaryCta\.monetized && commerceCtx && !buttonOwnsClick\)/.test(primary), "place-page primary does not emit a second commerce_cta_clicked when the button already owns the click");
 ok(/logEvent\("primary_cta_clicked",\s*detail,\s*\{[^}]*cta_type:\s*"add_to_plan"[^}]*\bmonetized:\s*false\b[^}]*\}/.test(plan), "addToPlan logs monetized: false");
 const calls = (src.match(/logEvent\("primary_cta_clicked"/g) || []).length;
 ok(calls === 2, `exactly 2 primary_cta_clicked emitters in Detail.js, found ${calls}`);

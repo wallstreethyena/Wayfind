@@ -21,6 +21,7 @@ import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 // earning link once rendered with no FTC disclosure.
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
+import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
 import GuideStays from "../../components/GuideStays";
 import { GuideFacts, GuideReadingNav, guidePickImage, guidePickFigureImage, GUIDE_EDITORIAL_CSS } from "./GuideEditorial";
@@ -549,6 +550,9 @@ export default async function GuidePage({ params }) {
     }
   }
   primaryCta = paintGuideCta(primaryCta);
+  // The earning link opens with rel="noreferrer", so the redirect cannot read
+  // the page from a Referer: name it in the href for the Viator campaign tag.
+  if (primaryCta && primaryCta.href) primaryCta = { ...primaryCta, href: withPageParam(primaryCta.href, "g-" + params.slug) };
 
   // LIVE DEAL CARDS. A guide opts in by listing REGISTRY IDS — it cannot supply
   // an offer, a price or a URL of its own, so an unregistered deal has no route
