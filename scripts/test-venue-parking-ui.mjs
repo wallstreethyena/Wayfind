@@ -29,11 +29,12 @@ if(!existsSync(executablePath)){
 const allowed=new Set(mapGraph.values());
 const entry=mapGraph.get(path.join(root,'app/components/EventVenueMap.js'));
 const reactExports=Object.keys(React).filter(k=>/^[a-zA-Z_$][\w$]*$/.test(k)).map(k=>`export const ${k}=window.React.${k};`).join('\n');
-const html=`<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;padding:16px;background:#0d141e;color:#fff;font:14px system-ui}#root{max-width:720px;margin:auto}*{box-sizing:border-box}.fixture-map{padding:20px;color:#94a3b8}</style><script type="importmap">{"imports":{"react":"/react-module"}}</script></head><body><div id="root"></div><script src="/react-umd"></script><script src="/react-dom-umd"></script><script>window.process={env:{NEXT_PUBLIC_APPLE_MAPS_TOKEN:'local-test-fixture-only'}};</script><script type="module">import EventVenueMap from '${entry}'; window.renderVenue=(venue)=>window.reactRoot.render(React.createElement(EventVenueMap,{venue,picks:[],onMapReady:c=>window.controller=c})); window.reactRoot=ReactDOM.createRoot(document.getElementById('root')); window.renderVenue(${JSON.stringify(venue)});</script></body></html>`;
+const html=`<!doctype html><html><head><meta name="viewport" content="width=device-width, initial-scale=1"><style>body{margin:0;padding:16px;background:#0d141e;color:#fff;font:14px system-ui}#root{max-width:720px;margin:auto}*{box-sizing:border-box}.fixture-map{padding:20px;color:#94a3b8}</style><script type="importmap">{"imports":{"react":"/react-module","react-dom":"/react-dom-module"}}</script></head><body><div id="root"></div><script src="/react-umd"></script><script src="/react-dom-umd"></script><script>window.process={env:{NEXT_PUBLIC_APPLE_MAPS_TOKEN:'local-test-fixture-only'}};</script><script type="module">import EventVenueMap from '${entry}'; window.renderVenue=(venue)=>window.reactRoot.render(React.createElement(EventVenueMap,{venue,picks:[],onMapReady:c=>window.controller=c})); window.reactRoot=ReactDOM.createRoot(document.getElementById('root')); window.renderVenue(${JSON.stringify(venue)});</script></body></html>`;
 const server=createServer((req,res)=>{
   let body;let type='text/javascript';
   if(req.url==='/'){body=html;type='text/html';}
   else if(req.url==='/react-module')body='export default window.React;\n'+reactExports;
+  else if(req.url==='/react-dom-module')body='export const createPortal=window.ReactDOM.createPortal;';
   else if(req.url==='/react-umd')body=readFileSync(path.join(root,'node_modules/react/umd/react.development.js'));
   else if(req.url==='/react-dom-umd')body=readFileSync(path.join(root,'node_modules/react-dom/umd/react-dom.development.js'));
   else if(allowed.has(req.url))body=readFileSync(req.url);
