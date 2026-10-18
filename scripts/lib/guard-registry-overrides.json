@@ -545,7 +545,7 @@
     "owner": "Revenue QA"
   },
   "scripts/test-no-paid-placement-policy.mjs": {
-    "protects": "/partners matches the no-paid-placement commitment (no placement for sale, sponsorships disclosed with what they never buy), and the affiliate opportunity worklist can never carry a commission-led partner instruction.",
+    "protects": "/partners names the live Rio sponsorship and does not offer placement for sale; the Rio partner page drops the unsourced county-ranking claim and dates its Google snapshot; the affiliate opportunity worklist can never carry a commission-led partner instruction.",
     "blastRadius": {
       "category": "trust",
       "detail": "If it rots, a public page can again offer paid featured placement against the published editorial policy, or the revenue worklist can steer partner choice by commission."

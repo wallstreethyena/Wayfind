@@ -777,7 +777,7 @@ scripts/test-night-out-inventory-merge.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
 scripts/test-night-tour-products.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	c50d8e3220db21d29c3b56bd727859b232120a87fba1b281813a2359b20f5036
 scripts/test-nightlife-census.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	d7eac0043a33612bb67d95c5e39ac2d03c5aedea4781f8eb2a55708d03530d13
 scripts/test-nightlife-ranking.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	6095b2bd11a6c1dcd2c85fdae33393b6428c45b37c7926e4392f87684ca67400
-scripts/test-no-paid-placement-policy.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	15	0	0	1f52ed8916106d480142ac8bdb82762c269133fb2961caf8445a3b06a11e3ce5
+scripts/test-no-paid-placement-policy.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	20	0	0	5145b45c3babb0176d56f263f2188a87f4af7aa7d91e3e0f4dca1f2b8a5bd40b
 scripts/test-noresult-telemetry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	6011abc1b50831e9ef18e72b8609078239187aa3216e41944e4ca35dfd69a461
 scripts/test-now-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	112	0	0	7420951e91d1935bff339778edbe28440162a3164688d078f961868488a40458
 scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2114f3fa9f73d293aaf33c9cd9424f9a62979830d9198314afc20a472f7b24e8

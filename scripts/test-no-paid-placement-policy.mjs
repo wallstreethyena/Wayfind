@@ -30,7 +30,13 @@ ok(/does not sell placement in its lists, guides or rankings/i.test(idx), "/part
 ok(/not buy a place on any Wayfind list, guide or ranking/i.test(idx), "/partners states what a sponsorship never buys");
 ok(/not buy a Wayfind Score/i.test(idx), "…including the score");
 ok(/Sponsored/.test(idx) && /paid for a sponsored card/i.test(idx), "existing sponsorships are still disclosed plainly (no weakening)");
+ok(/Rio Body Wax in Gastonia/.test(idx), "/partners names the live Rio Body Wax Gastonia sponsorship");
 ok(idx.includes('href="/editorial-policy"') && idx.includes('href="/how-wayfind-ranks"'), "/partners links the editorial policy and ranking method");
+const rio = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body-wax-gastonia" })).replace(/\s+/g, " ");
+ok(!/highest-rated/i.test(rio), "the Rio partner page does not claim to be the highest-rated waxing room");
+ok(!/Gaston County by review volume/i.test(rio), "the Rio partner page does not make an unsourced county ranking");
+ok(/as of August 23, 2026/.test(rio), "the Google review count is dated to the snapshot we actually have");
+ok(/pays to be featured/i.test(rio), "the Rio page still says the business pays to be featured");
 const editorial = readFileSync(join(ROOT, "app/editorial-policy/page.js"), "utf8");
 const ranks = readFileSync(join(ROOT, "app/how-wayfind-ranks/page.js"), "utf8");
 ok(/no ads and no paid placement/.test(editorial) && /never changes it/.test(editorial), "/editorial-policy still says rankings carry no paid placement and commission never changes the score");
