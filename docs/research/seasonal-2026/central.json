@@ -1,0 +1,2097 @@
+[
+  {
+    "name": "The Courtesy",
+    "city": "Winter Park",
+    "area": "orlando",
+    "address": "1288 N Orange Ave, Winter Park, FL 32789",
+    "season": [
+      "fall",
+      "halloween",
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Nightmare on Orange Halloween transformation",
+    "menu_items": [],
+    "start_date": "2026-09-22",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.thecourtesybar.com/nightmareonorange",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Nightmare on Orange Halloween transformation.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view6; 2026 corroboration turn10view0. Christmas Miracle on Orange also confirmed on official 2026 locations list: https://www.miraclepopup.com/locations-2026 (turn29view0). Christmas dates unannounced. One physical venue counted once."
+  },
+  {
+    "name": "Mangoni Italian Market Pizza",
+    "city": "Winter Garden",
+    "area": "orlando",
+    "address": "251 Tremaine St, Winter Garden, FL 34787",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Haunted Mangoni decorated dining",
+    "menu_items": [],
+    "start_date": "2026-09-05",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitorlando.com/blog/post/boos-brews-best-halloween-bar-takeovers/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Haunted Mangoni decorated dining.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view0 / turn12view5; 2026 dates explicit. "
+  },
+  {
+    "name": "Zymarium Meadery",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Mills 50, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Dark Ritual taproom transformation",
+    "menu_items": [],
+    "start_date": "2026-10-01",
+    "end_date": "2026-11-07",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitorlando.com/blog/post/boos-brews-best-halloween-bar-takeovers/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Dark Ritual taproom transformation.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view0 / turn12view5; 2026 dates explicit. "
+  },
+  {
+    "name": "Red Coconut Club",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal CityWalk, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Dead Coconut Club: Club Harvest",
+    "menu_items": [],
+    "start_date": "2026-08-28",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitorlando.com/blog/post/boos-brews-best-halloween-bar-takeovers/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Dead Coconut Club: Club Harvest.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view0 / turn12view5; 2026 dates explicit. HHN dates from 4pm; theme is alien invasion of harvest festival. Christmas overlay only historically documented, not asserted for 2026."
+  },
+  {
+    "name": "ICEBAR Orlando / Fire Lounge",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "8967 International Dr, Orlando, FL 32819",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween cocktail menu",
+    "menu_items": [
+      "Pumpkin Spice Martini"
+    ],
+    "start_date": "2026-10-01",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.internationaldriveorlando.com/events/icebar-halloween-cocktail-menu.html",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Halloween cocktail menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn3search14. Room-temperature Fire Lounge offering. Also ODNG turn10view1 confirms October2026."
+  },
+  {
+    "name": "Forward/Slash",
+    "city": "Winter Park",
+    "area": "orlando",
+    "address": "650 S Capen Ave, Winter Park, FL 32789",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Forward/Slasher decorated Halloween takeover",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.orlandodatenightguide.com/halloween-cocktails-bars-in-orlando-25039/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Forward/Slasher decorated Halloween takeover.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view1 / turn12view6 / turn19view7; updated 2026-10-12. October2026; closed Tuesdays. Exact run endpoints not published in read evidence."
+  },
+  {
+    "name": "Colorado Fondue Company",
+    "city": "Casselberry",
+    "area": "orlando",
+    "address": "1016 Semoran Blvd, Casselberry, FL 32707",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Restaurant decorated for Halloween",
+    "menu_items": [],
+    "start_date": "2026-08-28",
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.orlandodatenightguide.com/halloween-cocktails-bars-in-orlando-25039/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Restaurant decorated for Halloween.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view1 / turn12view6 / turn19view7; updated 2026-10-12. Christmas decor documented historically in turn29view2 (2025); 2026 Christmas dates pending."
+  },
+  {
+    "name": "Crafted Concoctions at BTW Tap House",
+    "city": "Tavares",
+    "area": "orlando",
+    "address": "115 E Main Street, Tavares, FL 32778",
+    "season": [
+      "fall",
+      "halloween",
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "The Apothecary Spookeasy on Main",
+    "menu_items": [],
+    "start_date": "2026-09-05",
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.brutaphouse.com/spookeasy/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: The Apothecary Spookeasy on Main.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view4. Official final service ambiguous October31 or November1; end_date deliberately null. Walk-ins only. Spirit-free and alcoholic cocktails21+. Miracle on Main confirmed by official2026 locations list (turn29view0); Christmas dates unannounced. One physical venue counted once."
+  },
+  {
+    "name": "Epilogue at Four Seasons Resort Orlando",
+    "city": "Golden Oak",
+    "area": "orlando",
+    "address": "10100 Dream Tree Blvd, Golden Oak, FL 32836",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "The Hidden Chapter haunted library",
+    "menu_items": [],
+    "start_date": "2026-09-17",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://press.fourseasons.com/orlando/hotel-news/2026/epilogue-halloween-popup-speakeasy/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: The Hidden Chapter haunted library.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified official release turn68view0 lines73-74: Thursday-Saturday, advance tickets, through October31,2026. Postal address uses Orlando; resort in Golden Oak. No Disney-domain requests."
+  },
+  {
+    "name": "Aku Aku Tiki Bar / The Dust",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "431 E Central Blvd Ste B, Orlando, FL 32801",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Halloween tiki drinks and decor",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.orlandodatenightguide.com/halloween-cocktails-bars-in-orlando-25039/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Halloween tiki drinks and decor.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view1 / turn12view6 / turn19view7; updated 2026-10-12. Sister bars at one address conservatively combined as one venue; no separate extra count."
+  },
+  {
+    "name": "Judson’s Live",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Dr. Phillips Center, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall and Halloween cocktails",
+    "menu_items": [
+      "Pumpkin Pie Old Fashioned"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.orlandodatenightguide.com/halloween-cocktails-bars-in-orlando-25039/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall and Halloween cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view1 / turn12view6 / turn19view7; updated 2026-10-12. "
+  },
+  {
+    "name": "Eden Bar at Enzian",
+    "city": "Maitland",
+    "area": "orlando",
+    "address": "1300 S Orlando Ave, Maitland, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "13 Films & Cocktails of Halloween",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.visitorlando.com/blog/post/boos-brews-best-halloween-bar-takeovers/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: 13 Films & Cocktails of Halloween.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view0 / turn12view5; 2026 dates explicit. Specific2026 screening/drink calendar pending; tourism page itself says stay tuned for details. ODNG turn10view1 gives Oct1 beginning."
+  },
+  {
+    "name": "Helena Modern Riviera",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "8441 International Dr, Orlando, FL 32819",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Phantom of Helena themed dining",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.orlandodatenightguide.com/halloween-cocktails-bars-in-orlando-25039/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Phantom of Helena themed dining.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view1 / turn12view6 / turn19view7; updated 2026-10-12. September-October2026, exact endpoints not stated."
+  },
+  {
+    "name": "Permanent Vacation",
+    "city": "Maitland",
+    "area": "orlando",
+    "address": "106 Lake Ave, Maitland, FL 32751",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Skulls and shrunken-head island decor",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.orlandodatenightguide.com/halloween-cocktails-bars-in-orlando-25039/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Skulls and shrunken-head island decor.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn10view1 / turn12view6 / turn19view7; updated 2026-10-12. Year-round physical theming; source also describes October spooky drinks without specific 2026 endpoints."
+  },
+  {
+    "name": "Vault 5421 at Gods & Monsters",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "5421 International Dr, Orlando, FL 32819",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Post-apocalyptic themed speakeasy",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://godmonsters.com/vault5421",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Post-apocalyptic themed speakeasy.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view0; tourism corroboration turn33view0. "
+  },
+  {
+    "name": "Gideon’s Bakehouse – Disney Springs",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Victorian gothic bakery interior",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.visitorlando.com/blog/post/spooky-places-orlando/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Victorian gothic bakery interior.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn33view0; updated 2026-08-07. Disney Springs flagship specifically chosen for immersive setting; East End walk-up not counted separately."
+  },
+  {
+    "name": "Prometheus Esoterica",
+    "city": "Winter Park",
+    "area": "orlando",
+    "address": "Winter Park, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Oddities shop with horror coffee counter",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.visitorlando.com/blog/post/spooky-places-orlando/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Oddities shop with horror coffee counter.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn33view0; updated 2026-08-07. Small coffee counter within shop; street address not verified."
+  },
+  {
+    "name": "The Burning Blade Tavern",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Dark Universe, Universal Epic Universe, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Monster-hunter themed tavern",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.universalorlando.com/web/en/us/things-to-do/dining/the-burning-blade-tavern",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Monster-hunter themed tavern.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view3. Epic Universe admission required."
+  },
+  {
+    "name": "Das Stakehaus",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Dark Universe, Universal Epic Universe, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Vampire artwork and artifacts",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.universalorlando.com/web/en/us/things-to-do/dining/das-stakehaus",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Vampire artwork and artifacts.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47search0. Epic Universe admission required."
+  },
+  {
+    "name": "Jake’s American Bar",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Loews Royal Pacific Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Universal Monsters Laguna Lounge",
+    "menu_items": [
+      "Black Sand Margarita"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Universal Monsters Laguna Lounge.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Nova Bar",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Stella Nova Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Contamination-themed bar overlay",
+    "menu_items": [
+      "Containment Breach"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Contamination-themed bar overlay.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Luna Bar",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Terra Luna Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Alien conflict bar overlay",
+    "menu_items": [
+      "Blood Moon"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Alien conflict bar overlay.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Velvet Bar / Veranda Bar",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Hard Rock Hotel, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Night of the Living Shred",
+    "menu_items": [
+      "Poison Apple"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Night of the Living Shred.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. Velvet/Veranda treated as one contiguous establishment."
+  },
+  {
+    "name": "barVentura",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Aventura Hotel, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Alien bar takeover",
+    "menu_items": [
+      "Wormhole Margarita"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Alien bar takeover.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Bar 17 Bistro",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Aventura Hotel, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween cocktail menu",
+    "menu_items": [
+      "The Caffeinated Coven"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween cocktail menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Swizzle Lounge",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Cabana Bay Beach Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Pumpkin Lord themed bar",
+    "menu_items": [
+      "Harvest After Dark"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Pumpkin Lord themed bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Galaxy Bowl",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Cabana Bay Beach Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal cocktails",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "The Thirsty Fish",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Loews Portofino Bay Hotel, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Frozen ghost fishing-ship bar",
+    "menu_items": [
+      "Haunted Harvest"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Frozen ghost fishing-ship bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Lobby satellite bar at Sapphire Falls",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Loews Sapphire Falls Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Gothic manor seasonal bar",
+    "menu_items": [
+      "Pumpkin Plunder"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Gothic manor seasonal bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Strong Water Tavern",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Loews Sapphire Falls Resort, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween cocktail menu",
+    "menu_items": [
+      "Witch Doctor Old Fashioned"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween cocktail menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Sunset Lounge",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Universal Endless Summer Resort – Dockside Inn and Suites, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Driftwood ghost bar overlay",
+    "menu_items": [
+      "Pier of Lost Souls"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Driftwood ghost bar overlay.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn7view2 / turn10view2 / turn12view7; published 2026-10-15. 2026 hotel program; Nov1 season endpoint corroborated by tourism source turn10view0. Street address not independently verified. "
+  },
+  {
+    "name": "Jock Lindsey’s Hangar Bar",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Candelabra Eggs"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-09",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Amorette’s Patisserie",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Candle Petit Cake"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-09",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Chef Art Smith’s Homecomin’",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Pumpkin Bread Pudding"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-30",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Chicken Guy!",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Harvest Apple Chicken Sandwich"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "City Works Eatery & Pour House",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Pumpkin Spice Lemonade"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-30",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Dockside Margaritas",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Citrus Curse"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-09",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "eet by Maneet Chauhan",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Mad Scientist’s Flatbread"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Erin McKenna’s Bakery NYC",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Coffin Cakes"
+    ],
+    "start_date": "2026-10-01",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Everglazed Donuts & Cold Brew",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Nutella Boston Scream"
+    ],
+    "start_date": "2026-10-01",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "The Ganachery",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Pumpkin Spice S’more"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Jaleo by José Andrés",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Vieiras con Calabaza y Naranjas"
+    ],
+    "start_date": "2026-09-22",
+    "end_date": "2026-12-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Joffrey’s Coffee & Tea Co. – Disney Springs",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Caramel apple chai"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. Joffrey’s physical Disney Springs store only; not every resort kiosk."
+  },
+  {
+    "name": "Paddlefish",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Toasted Caramel Old Fashioned"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Raglan Road Irish Pub and Restaurant",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Raglan’s Ghostly Guinness Pie"
+    ],
+    "start_date": "2026-09-01",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Splitsville Luxury Lanes",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "All Hallow’s Eve Sushi Roll"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Summer House on the Lake",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Mummy Sugar Cookie"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Swirls on the Water",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Vampire Mickey Cone"
+    ],
+    "start_date": "2026-09-04",
+    "end_date": "2026-11-09",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Terralina Crafted Italian",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Pumpkin Tiramisu"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "The Boathouse",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Baked Manhattan"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-30",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "The Polite Pig",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Piggy’s Potion"
+    ],
+    "start_date": "2026-08-01",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Vivoli il Gelato",
+    "city": "Lake Buena Vista",
+    "area": "orlando",
+    "address": "Disney Springs, Lake Buena Vista, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal menu",
+    "menu_items": [
+      "Pumpkin Spice Affogato"
+    ],
+    "start_date": "2026-08-11",
+    "end_date": "2026-11-03",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://disneyparksblog.com/wdw/disney-eats-foodie-guide-to-halloween-at-disney-springs/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Seasonal menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5view1 / turn38view1-5 / turn19view3-6. Exact storefront street address not independently verified. "
+  },
+  {
+    "name": "Lounge at Rosen Inn closest to Universal",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "6327 International Dr, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween happy-hour cocktails",
+    "menu_items": [
+      "Poison Apple"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.rosenhotels.com/rosen-hotels-resorts-unveils-a-happy-hour-full-of-spooky-sips/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween happy-hour cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified Rosen official release turn29view3; lounge outlet identified by hotel and address. Exact branded lounge name not asserted. Precise service dates unannounced."
+  },
+  {
+    "name": "Zebra’s Sports Bar & Grille",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "9000 International Dr, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween happy-hour cocktails",
+    "menu_items": [
+      "Candy Corn Martini"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.rosenhotels.com/rosen-hotels-resorts-unveils-a-happy-hour-full-of-spooky-sips/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween happy-hour cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view3; release dated 2026-09-25. Limited Halloween season; source requests contacting hotel for exact service dates. Rosen closest-to-Universal source describes lounge, exact International Pub identity requires venue verification."
+  },
+  {
+    "name": "Comfort Zone Bar & Grill",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Rosen Inn Lake Buena Vista, Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween happy-hour cocktails",
+    "menu_items": [
+      "Pig in the Patch"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.rosenhotels.com/rosen-hotels-resorts-unveils-a-happy-hour-full-of-spooky-sips/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween happy-hour cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view3; release dated 2026-09-25. Limited Halloween season; source requests contacting hotel for exact service dates. Rosen closest-to-Universal source describes lounge, exact International Pub identity requires venue verification."
+  },
+  {
+    "name": "First Watch – Winter Park",
+    "city": "Winter Park",
+    "area": "orlando",
+    "address": "140 N Orlando Ave, Winter Park, FL 32789",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall brunch menu",
+    "menu_items": [
+      "Pumpkin Pancake Breakfast",
+      "Pumpkin Spice Donuts"
+    ],
+    "start_date": "2026-08-18",
+    "end_date": "2026-10-26",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://firstwatch.com/locations/winter-park",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Fall brunch menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn38view7; dated national release turn38view6. Local store page shows pumpkin items directly. Release: https://firstwatch.com/first-watch-debuts-new-fall-menu"
+  },
+  {
+    "name": "Jeff’s Bagel Run – O-Town West",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "11012 Daryl Carter Pkwy, Orlando, FL 32836",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Season bagels and drinks",
+    "menu_items": [
+      "Pumpkin Bagel",
+      "Maple Spice Latte"
+    ],
+    "start_date": "2026-08-24",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.bakemag.com/articles/21930-jeffs-bagel-run-to-kick-off-pumpkin-season",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Pumpkin Season bagels and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn33search0; source credits Jeff’s Bagel Run. Chain-level2026 evidence; participation at this branch still requires direct verification. Official branch address verified: https://www.jeffsbagelrun.com/locations/fl/orlando-o-town-west (turn91search0). Branch pumpkin participation remains pending."
+  },
+  {
+    "name": "JoJo’s ShakeBAR Orlando",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "9101 International Dr #1208, Orlando, FL 32819",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Patch seasonal restaurant",
+    "menu_items": [
+      "Pumpkin Patch Shake"
+    ],
+    "start_date": "2026-10-01",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.gottagoorlando.com/post/where-to-find-the-best-pumpkin-spice-eats-and-treats-in-orlando-this-fall",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Pumpkin Patch seasonal restaurant.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view4; article labels Fall 2026. Historical2025 Winter Wonderland also documented turn29view2;2026 Christmas unconfirmed."
+  },
+  {
+    "name": "New York Beer Project Orlando",
+    "city": "Winter Garden",
+    "area": "orlando",
+    "address": "9230 Miley Dr, Winter Garden, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal pumpkin beer",
+    "menu_items": [
+      "Drunken Punkin"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.gottagoorlando.com/post/where-to-find-the-best-pumpkin-spice-eats-and-treats-in-orlando-this-fall",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Seasonal pumpkin beer.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view4; article labels Fall 2026. "
+  },
+  {
+    "name": "The Glass Knife – Orlando Avenue",
+    "city": "Winter Park",
+    "area": "orlando",
+    "address": "Orlando Avenue, Winter Park, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall pastry and coffee menu",
+    "menu_items": [
+      "Pumpkin Spice Cake"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.gottagoorlando.com/post/where-to-find-the-best-pumpkin-spice-eats-and-treats-in-orlando-this-fall",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall pastry and coffee menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view4; article labels Fall 2026. Only one physical branch selected; Park Avenue branch not extra count."
+  },
+  {
+    "name": "The Salty Donut – Audubon Park",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Audubon Park, Orlando, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall donut special",
+    "menu_items": [
+      "Pumpkin Butter Cheesecake"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.gottagoorlando.com/post/where-to-find-the-best-pumpkin-spice-eats-and-treats-in-orlando-this-fall",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall donut special.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view4; article labels Fall 2026. Only one physical branch selected; Vineland Pointe not extra count."
+  },
+  {
+    "name": "Foxtail Coffee Co. – Winter Park",
+    "city": "Winter Park",
+    "area": "orlando",
+    "address": "Winter Park, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall coffee menu",
+    "menu_items": [
+      "Caramel Apple Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.gottagoorlando.com/post/where-to-find-the-best-pumpkin-spice-eats-and-treats-in-orlando-this-fall",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall coffee menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn47view4; article labels Fall 2026. Chain-level2026 menu; precise chosen storefront and participation need verification."
+  },
+  {
+    "name": "Meg O’Malley’s",
+    "city": "Melbourne",
+    "area": "central-east-coast",
+    "address": "812 E New Haven Ave, Melbourne, FL 32901",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloweekend and Haunted Emerald Room",
+    "menu_items": [
+      "Blood Bag Cocktail",
+      "Spirits of Ireland Jell-O Shot Flight"
+    ],
+    "start_date": "2026-10-30",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [
+      "2026-10-30",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.megomalleys.com/event/megs-halloweekend-fri-oct-30-sat-oct-31/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloweekend and Haunted Emerald Room.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn75view1. Two nights9pm-1am, room9pm-midnight; dates reflect overnight final service."
+  },
+  {
+    "name": "Apocalypse Coffee Roasters",
+    "city": "Melbourne",
+    "area": "central-east-coast",
+    "address": "454 N Harbor City Blvd, Melbourne, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Live fall and October drink menu",
+    "menu_items": [
+      "Pumpkin King Breve",
+      "Great Pumpkin Cold Brew"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://order.toasttab.com/online/apocalypsecoffee/item-pumpkin-king-breve_2851c034-96a7-4029-a9f4-2b2e9cca53db",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Live fall and October drink menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn76search1; address turn76search13. Current direct ordering menu checked Oct18; no explicit2026 heading and no run dates. The name itself is not qualification; actual fall menu is."
+  },
+  {
+    "name": "Longboards Tiki Beach Grille",
+    "city": "Cocoa Beach",
+    "area": "central-east-coast",
+    "address": "1550 N Atlantic Ave, Cocoa Beach, FL 32931",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Luau of the Lost haunted tiki party",
+    "menu_items": [],
+    "start_date": "2026-10-31",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/luau-of-the-lost-a-haunted-tiki-halloween-party-tickets-2000666466257",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Luau of the Lost haunted tiki party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn76search3; official site search turn74search2; address turn75view0. Organizer-published Eventbrite event;7-11pm, welcome shot and skull mugs documented in secondary turn76search0. Embedded calendar absent from open text; dated official search listing supports event."
+  },
+  {
+    "name": "Zero Gravity Wine Bar",
+    "city": "Cocoa Beach",
+    "area": "central-east-coast",
+    "address": "5360 N Atlantic Ave Unit HIG, Cocoa Beach, FL 32931",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween wine selection and charcuterie class",
+    "menu_items": [
+      "Broomstick Brew"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-29"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.zerogravitywinebar.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween wine selection and charcuterie class.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn77view1. Oct29,2026 charcuterie class6-8pm; wine collection current but exact overall menu dates unannounced."
+  },
+  {
+    "name": "The Shores Resort & Spa",
+    "city": "Daytona Beach Shores",
+    "area": "central-east-coast",
+    "address": "2637 S Atlantic Ave, Daytona Beach Shores, FL 32118",
+    "season": [
+      "fall",
+      "halloween",
+      "christmas"
+    ],
+    "experience": "party",
+    "offering": "Halloween party and 12 Days of Christmas cocktails",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31",
+      "2026-12-05"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.shoresresort.com/holidays-at-the-shores/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Halloween party and 12 Days of Christmas cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view3 / turn76view4. One resort counted once: Halloween rooftop partyOct31,8pm-midnight; Christmas cocktailsDec13-24,2026; Azure Santa breakfastDec5. Program dates differ so no misleading single start/end range. Azure is not an extra count."
+  },
+  {
+    "name": "Hard Rock Hotel Daytona Beach – Avalon I Ballroom",
+    "city": "Daytona Beach",
+    "area": "central-east-coast",
+    "address": "918 N Atlantic Ave, Daytona Beach, FL 32118",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Hog-O-Ween specialty cocktails and costume party",
+    "menu_items": [],
+    "start_date": "2026-10-31",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.daytonabeach.com/event/hog-o-ween-at-the-hard-rock-hotel-daytona-beach/55806/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Paraphrase: Hog-O-Ween specialty cocktails and costume party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn76view2. 7-11:30pm. Separate hotel from Orlando Hard Rock; no cross-city duplication."
+  },
+  {
+    "name": "RAD Kava Bar",
+    "city": "Daytona Beach",
+    "area": "central-east-coast",
+    "address": "Downtown Daytona Beach, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "BULAWEEN costume event",
+    "menu_items": [],
+    "start_date": "2026-10-24",
+    "end_date": "2026-10-24",
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.eventbrite.com/e/bulaween-2026-tickets-2003316130474",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: BULAWEEN costume event.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn68search5. Organizer search listing dates event; full page returned429, exact street address and thematic drink offering unverified. Excluded from verified count."
+  },
+  {
+    "name": "Katya Vineyards",
+    "city": "Ocala",
+    "area": "ocala",
+    "address": "Downtown Ocala square, Ocala, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall2026 cocktail menu",
+    "menu_items": [
+      "The Chai Standard",
+      "The Apple of My Wine"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://katyavineyards.com/cocktails/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Fall2026 cocktail menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view5. Official contact page turn76search2 conflicts internally101Evs11ESilverSpringsBlvd; address needs resolution before ingestion. Halloween party advertised separately but no party date invented."
+  },
+  {
+    "name": "Betty Cakes",
+    "city": "Ocala",
+    "area": "ocala",
+    "address": "1915 E Silver Springs Blvd, Ocala, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall food or drink special",
+    "menu_items": [
+      "Pumpkin Bundt cake"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://352today.com/news/257752-pumpkin-spice-and-everything-nice-local-places-to-find-fall-flavors-in-the-352/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall food or drink special.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view8; published2026-09-07. "
+  },
+  {
+    "name": "Chelsea Coffee Company",
+    "city": "Ocala",
+    "area": "ocala",
+    "address": "3217 E Silver Springs Blvd, Ocala, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall food or drink special",
+    "menu_items": [
+      "Pumpkin spice latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://352today.com/news/257752-pumpkin-spice-and-everything-nice-local-places-to-find-fall-flavors-in-the-352/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall food or drink special.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view8; published2026-09-07. "
+  },
+  {
+    "name": "The Gathering Cafe",
+    "city": "Ocala",
+    "area": "ocala",
+    "address": "306 SW Broadway St, Ocala, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall food or drink special",
+    "menu_items": [
+      "Pumpkin spice latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://352today.com/news/257752-pumpkin-spice-and-everything-nice-local-places-to-find-fall-flavors-in-the-352/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall food or drink special.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view8; published2026-09-07. "
+  },
+  {
+    "name": "Soleil Bakery",
+    "city": "Ocala",
+    "area": "ocala",
+    "address": "2435 SW 27th Ave, Ocala, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall food or drink special",
+    "menu_items": [
+      "Vegan pumpkin roll"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://352today.com/news/257752-pumpkin-spice-and-everything-nice-local-places-to-find-fall-flavors-in-the-352/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall food or drink special.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view8; published2026-09-07. Soleil: only vegan pumpkin rolls confirmed2026; other historically listed desserts deliberately omitted."
+  },
+  {
+    "name": "Symmetry Coffee Company",
+    "city": "Ocala",
+    "area": "ocala",
+    "address": "108 N Magnolia Ave Ste102, Ocala, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall food or drink special",
+    "menu_items": [
+      "Pumpkin spice crepe"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://352today.com/news/257752-pumpkin-spice-and-everything-nice-local-places-to-find-fall-flavors-in-the-352/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall food or drink special.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn72view8; published2026-09-07. "
+  },
+  {
+    "name": "The Club at Eaglebrooke",
+    "city": "Lakeland",
+    "area": "lakeland",
+    "address": "1300 Eaglebrooke Blvd, Lakeland, FL 33813",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spooktacular Halloween Buffet",
+    "menu_items": [
+      "Pumpkin Patch Salad",
+      "Mummy Pigs in a Blanket"
+    ],
+    "start_date": "2026-10-30",
+    "end_date": "2026-10-30",
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eaglebrooke.com/event/spooktacular-halloween-buffet/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: Spooktacular Halloween Buffet.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn74view0;2026month calendar turn68search29. 5-8:30pm; event page omits year but2026official calendar corroborates it."
+  },
+  {
+    "name": "Black & Brew – Downtown",
+    "city": "Lakeland",
+    "area": "lakeland",
+    "address": "205 E Main St, Lakeland, FL 33801",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall drinks",
+    "menu_items": [
+      "Pumpkin pie latte",
+      "Apple pie chai"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://6amcity.com/web/fl/lakeland/food-and-drink/lakeland-pumpkin-spice-roundup",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn75search11;2026date turn74search0; official venue https://blackandbrew.com/. 2026article search text available; full article parser returned one line. One branch selected, not all locations."
+  },
+  {
+    "name": "Concord Coffee at Lakeland Highlands Hospital",
+    "city": "Lakeland",
+    "area": "lakeland",
+    "address": "4000 Lakeland Highlands Rd, Lakeland, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall pumpkin coffee",
+    "menu_items": [
+      "Pumpkin spice latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.lkldnow.com/code-brew-concord-coffee-brings-craft-drinks-to-new-hospital/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Fall pumpkin coffee.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn77view3;updated2026-09-30. Physical cafe inside hospital; public visitors permitted with hospital check-in. All stores serving pumpkin spice per owner; hospital branch selected because address explicit."
+  },
+  {
+    "name": "Shark Bar Orlando",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "9101 International Dr #2200, Orlando, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Historical: Sippin’ Santa tropical Christmas overlay",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.orlandodatenightguide.com/holiday-bars-christmas-cocktails-25330/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Historical: Sippin’ Santa tropical Christmas overlay.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view1 / turn29view2 / turn77view0;article dated2025-12-25. 2025program only. No2026dates or menu items carried forward. NOT counted as verified2026venue."
+  },
+  {
+    "name": "Eagles Edge at Omni Orlando Resort",
+    "city": "ChampionsGate",
+    "area": "orlando",
+    "address": "Omni Orlando Resort at ChampionsGate, ChampionsGate, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Historical: Blitzen’s holiday cocktail popup",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.orlandodatenightguide.com/holiday-bars-christmas-cocktails-25330/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Historical: Blitzen’s holiday cocktail popup.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view1 / turn29view2 / turn77view0;article dated2025-12-25. 2025program only. No2026dates or menu items carried forward. NOT counted as verified2026venue."
+  },
+  {
+    "name": "The Wellborn",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "211 N Lucerne Cir W, Orlando, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Historical: Christmas decorations and festive cocktails",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.orlandodatenightguide.com/holiday-bars-christmas-cocktails-25330/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Historical: Christmas decorations and festive cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view1 / turn29view2 / turn77view0;article dated2025-12-25. 2025program only. No2026dates or menu items carried forward. NOT counted as verified2026venue."
+  },
+  {
+    "name": "Mathers Social Gathering",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "30 S Magnolia Ave, Orlando, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Historical: Christmas decor and holiday cocktails",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.orlandodatenightguide.com/holiday-bars-christmas-cocktails-25330/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Historical: Christmas decor and holiday cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view1 / turn29view2 / turn77view0;article dated2025-12-25. 2025program only. No2026dates or menu items carried forward. NOT counted as verified2026venue."
+  },
+  {
+    "name": "Otto’s High Dive",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "2304 E Robinson St, Orlando, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Historical: Holiday decor and festive drinks",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.orlandodatenightguide.com/holiday-bars-christmas-cocktails-25330/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Historical: Holiday decor and festive drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view1 / turn29view2 / turn77view0;article dated2025-12-25. 2025program only. No2026dates or menu items carried forward. NOT counted as verified2026venue."
+  },
+  {
+    "name": "The Shade House at Propagate Social House",
+    "city": "Apopka",
+    "area": "orlando",
+    "address": "40 E 5th St, Apopka, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Historical: Christmas tree lot and outdoor bar",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.orlandodatenightguide.com/holiday-bars-christmas-cocktails-25330/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Historical: Christmas tree lot and outdoor bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn29view1 / turn29view2 / turn77view0;article dated2025-12-25. 2025program only. No2026dates or menu items carried forward. NOT counted as verified2026venue."
+  },
+  {
+    "name": "Cocktails & Screams",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "Downtown Orlando, FL",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Former horror bar",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://anthemorlando.com/orlando-halloween-2026-downtown-nightlife-guide/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Paraphrase: Former horror bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified via turn5search13. 2026guide reports permanent closure March2026. Do not present as open; not in qualified count."
+  },
+  {
+    "name": "Starbucks – Thornton Park",
+    "city": "Orlando",
+    "area": "orlando",
+    "address": "20 N Summerlin Ave, Orlando, FL 32801",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "National fall menu; local participation pending",
+    "menu_items": [
+      "Pumpkin Spice Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://about.starbucks.com/stories/2026/fall-starts-with-starbucks/",
+    "source_type": "official",
+    "evidence_excerpt": "Paraphrase: official2026 national fall menu includes PSL.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Verified national menu turn91search1; Thornton Park address corroborated secondary turn33search12 / turn91search14. No direct local menu availability evidence, so pending2026. Does not count toward verified50."
+  }
+]

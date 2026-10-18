@@ -30,7 +30,7 @@ const get = await harness();
 const response = await get("&collection=halloween");
 const bulk = await response.json();
 ok(response.status === 200 && response.headers.get("x-wayfind-fast-cache") === "hit", "actual route uses warm cache");
-ok(bulk.rails.length === 7 && bulk.collection === "halloween", "selector produces seven rails");
+ok(bulk.rails.length === 9 && bulk.collection === "halloween", "selector produces nine rails");
 const ghost = bulk.rails.find((r) => r.id === "ghost-tours");
 ok(ghost.cards.length === 12 && ghost.total === 25, "union regrouped before first window");
 ok(!("stayDestinations" in bulk), "Fall stays absent from Halloween");
@@ -46,5 +46,5 @@ ok(JSON.stringify(cached) === before, "Halloween never mutates shared cached ans
 const broken = source.replace('searchParams.get("collection") === "halloween"', 'false');
 ok(broken !== source, "negative control applies selector mutation");
 const brokenBulk = await (await (await harness(broken))("&collection=halloween")).json();
-assert.throws(() => assert.equal(brokenBulk.rails.length, 7)); checks++;
+assert.throws(() => assert.equal(brokenBulk.rails.length, 9)); checks++;
 console.log(`test-halloween-route: ${checks} runtime assertions passed`);

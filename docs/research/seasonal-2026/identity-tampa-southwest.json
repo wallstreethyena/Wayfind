@@ -1,0 +1,1712 @@
+[
+  {
+    "research_name": "SpookEasy Lounge / The Catacombs",
+    "city": "Tampa",
+    "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+    "inventory_name": "SpookEasy Lounge",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status permanent_verified. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Sonder Social Club",
+    "city": "Dunedin",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Strandhill Public",
+    "city": "Tampa",
+    "place_id": "ChIJUVX3MWXEwogRMmHunvjE6xY",
+    "inventory_name": "Strandhill Public (Tampa Heights)",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Nueva Cantina",
+    "city": "St. Petersburg",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Inventory contains Tampa and Palm Harbor branches, not the researched St. Petersburg branch. No branch substitution.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Dracula's Legacy Wine Bar & Bistro",
+    "city": "Tampa",
+    "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+    "inventory_name": "Dracula's Legacy Wine Bar & Bistro Tampa",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status permanent_verified. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Castle",
+    "city": "Tampa",
+    "place_id": "ChIJw3ZLa1DEwogR3B-B1fQW7UM",
+    "inventory_name": "The Castle",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Fenway Hotel — Room 27",
+    "city": "Dunedin",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact hotel or Room 27 identity found in supplied inventory or targeted name query; do not substitute another hotel.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Gasparilla Distillery & Cocktail Bar",
+    "city": "Tampa",
+    "place_id": "ChIJVQB8l1PEwogRfNZtGI6suIc",
+    "inventory_name": "Gasparilla Distillery & Cocktail Bar",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Urban Stillhouse",
+    "city": "St. Petersburg",
+    "place_id": "ChIJq6q6ujDiwogRxFvyGOkUW9A",
+    "inventory_name": "The Urban Stillhouse",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Gaspar's Grotto",
+    "city": "Tampa",
+    "place_id": "ChIJ1yQNClHEwogRaCW7u5bgT0Y",
+    "inventory_name": "Gaspar's Grotto",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status permanent_verified. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Beach House Coffee",
+    "city": "Tampa",
+    "place_id": "ChIJEat-JNjDwogRiy9DMSpzID0",
+    "inventory_name": "Beach House Coffee Company",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Blooming Floral Cafe",
+    "city": "Tampa",
+    "place_id": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+    "inventory_name": "Blooming Floral Cafe",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Cafe Quiquiriqui",
+    "city": "Tampa",
+    "place_id": "ChIJFehQGezFwogRvFxav1EySW4",
+    "inventory_name": "Café Quiquiriqui",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Cafe Rialto",
+    "city": "Tampa",
+    "place_id": "ChIJ69YTzXPFwogRRTUQ-HGDL7g",
+    "inventory_name": "Café Rialto",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "DI Coffee",
+    "city": "Tampa",
+    "place_id": "ChIJhXj7ib_EwogRkmwphxSwgMk",
+    "inventory_name": "DI Coffee Bar",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Flatbread and Butter",
+    "city": "Tampa",
+    "place_id": "ChIJkwOFIADFwogRGtlyK-EjA0s",
+    "inventory_name": "Flatbread & Butter",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Ivry",
+    "city": "Tampa",
+    "place_id": "ChIJ50kzAmrDwogRI27dbCvP9s4",
+    "inventory_name": "ivry. Espresso & Flatbread",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Kubana Kafe",
+    "city": "Tampa",
+    "place_id": "ChIJt3V-wiTdwogRS7HQsBrOzEw",
+    "inventory_name": "Kubana Kafe",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Lady and the Mug",
+    "city": "Tampa",
+    "place_id": "ChIJiQg4SH7FwogRREQj9LKv9JA",
+    "inventory_name": "Lady and the Mug Specialty Coffee Shop",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Lead’s Coffee House",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Little Tina",
+    "city": "Tampa",
+    "place_id": "ChIJzcPpJTbFwogRlBvxs-QX3EM",
+    "inventory_name": "Little Tina",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Lunar Coffee",
+    "city": "Tampa",
+    "place_id": "ChIJjZzFfATHwogR_1C01JVzlUo",
+    "inventory_name": "Lunar Coffee",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true. Inventory locality is Temple Terrace; the researched street address uses Tampa postal naming."
+  },
+  {
+    "research_name": "The Perfect Press",
+    "city": "Tampa",
+    "place_id": "ChIJc9TZhGDAwogRRHZ5EzKtJIc",
+    "inventory_name": "The Perfect Press Coffee Co.,LLC",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true. Inventory locality is Carrollwood; Tampa is postal/metro naming in the source."
+  },
+  {
+    "research_name": "Shortwave Coffee",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Willa’s Provisions",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Only Willa's restaurant identity found; Provisions cafe is a separate storefront. Exact cafe identity required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Buddy Brew Coffee — Hyde Park",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Only Sarasota Buddy Brew found. Do not substitute another city or assume Hyde Park identity.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Elevenses Co.",
+    "city": "Tampa",
+    "place_id": "ChIJi_GCkqrFwogRqMdM3V8sXcQ",
+    "inventory_name": "Elevenses Co",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Good Fruit Coffee Collective",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Atomic Cat Cafe",
+    "city": "St. Petersburg",
+    "place_id": "ChIJSbDatOjnwogRLPoi6_FtJrM",
+    "inventory_name": "Atomic Cat Cafe",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Charlie Coffee",
+    "city": "Palm Harbor",
+    "place_id": "ChIJ-ZFB15jtwogRpEcx2izoHr8",
+    "inventory_name": "Charlie Coffee",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Sōl St Pete Bistro",
+    "city": "St. Petersburg",
+    "place_id": "ChIJ9ZpMS-7jwogRWChZqTQG66g",
+    "inventory_name": "Sōl St Pete Bistro",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=false."
+  },
+  {
+    "research_name": "Joy Bar",
+    "city": "Tampa",
+    "place_id": "ChIJ9dh8n7fBwogRipsriopCrRc",
+    "inventory_name": "Joy Bar",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status permanent_verified. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Anchor & Brine",
+    "city": "Tampa",
+    "place_id": "ChIJe0fPH2PFwogRoPiK7j3Jbzw",
+    "inventory_name": "Anchor and Brine",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Beacon Rooftop Lounge",
+    "city": "Tampa",
+    "place_id": "ChIJxzSOu43FwogRx0mao8EoFmQ",
+    "inventory_name": "Beacon Tampa Rooftop Lounge",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Meat Market Tampa",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Lona Tampa",
+    "city": "Tampa",
+    "place_id": "ChIJAT6Y1yPFwogRifHs4oRDl8w",
+    "inventory_name": "Lona by Chef Richard Sandoval",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Taco Bus",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Pura Vida Miami — Water Street",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Keel Farms",
+    "city": "Plant City",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Only Keel Farms Agrarian sub-entity found. Whole-farm identity not established; avoid replacing farm experience with a nearby component.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Dunedin Brewery",
+    "city": "Dunedin",
+    "place_id": "ChIJORnVJn3xwogR9Gp1XEOAtic",
+    "inventory_name": "Dunedin Brewery",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true. Inventory metro label is spring-hill-fl; locality/coordinates independently match researched city, so metro label requires correction before geo-filtering."
+  },
+  {
+    "research_name": "Aspirations Winery",
+    "city": "Clearwater",
+    "place_id": "ChIJnz0NVinuwogRQZNX2zih4OE",
+    "inventory_name": "Aspirations Winery",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Pee-Pa’s Garage Craft Brewery",
+    "city": "Pinellas Park",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Wyndham Grand Clearwater Beach",
+    "city": "Clearwater",
+    "place_id": "ChIJC5DS79b2wogRNnjlsvD9l9c",
+    "inventory_name": "Wyndham Grand Clearwater Beach",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "WOB Bar & Kitchen — Brandon",
+    "city": "Brandon",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Small Giant Bar",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Barterhouse Ybor",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "JW Marriott Clearwater Beach",
+    "city": "Clearwater Beach",
+    "place_id": "ChIJHzHWcBP3wogRZcoMcM8TTng",
+    "inventory_name": "JW Marriott Clearwater Beach Resort & Spa",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Coco’s Crush Bar and Grill",
+    "city": "Clearwater Beach",
+    "place_id": "ChIJ3X37JNb2wogRui0kn39UTk4",
+    "inventory_name": "Coco's Crush Bar Original",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Woodwright Brewing Company",
+    "city": "Dunedin",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "The Honu",
+    "city": "Dunedin",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Intermezzo Coffee & Cocktails",
+    "city": "St. Petersburg",
+    "place_id": "ChIJhReoOiriwogR5IF5I61iCzc",
+    "inventory_name": "Intermezzo Coffee & Cocktails",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status excluded. Inventory has_photo=true."
+  },
+  {
+    "research_name": "St. Petersburg Distillery",
+    "city": "St. Petersburg",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "XMAS Bar at Glamper",
+    "city": "St. Petersburg",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Exact Glamper/217 Central Avenue identity absent; do not reuse historical 260 1st Avenue address or Bar Mezzo.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Canopy Road Cafe",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "On Swann",
+    "city": "Tampa",
+    "place_id": "ChIJ5crCip3EwogRQnhkbw_Ir6U",
+    "inventory_name": "On Swann",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Chic Image Bistro",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Mike’s Pies",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "First Watch — Tampa Bay market",
+    "city": "Tampa",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status excluded."
+  },
+  {
+    "research_name": "Bar Mezzo",
+    "city": "St. Petersburg",
+    "place_id": "ChIJQwikKNrjwogR734UinU6wVs",
+    "inventory_name": "Bar Mezzo",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true. Exact Bar Mezzo entity, distinct from Intermezzo at1111Central; official researched address1049Central."
+  },
+  {
+    "research_name": "The Sail Plaza / Big Ray’s Fish Camp Riverwalk",
+    "city": "Tampa",
+    "place_id": "ChIJM605C43EwogRiqZSZufgi_8",
+    "inventory_name": "The Sail Plaza",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Tampa Bay Drinkery",
+    "city": "St. Petersburg",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Buddy Brew Coffee Sarasota",
+    "city": "Sarasota",
+    "place_id": "ChIJY5LPSxJAw4gRMhj-bOy9MKU",
+    "inventory_name": "Buddy Brew Coffee",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "CROP Juice",
+    "city": "Sarasota",
+    "place_id": "ChIJsRAN-H5Bw4gRl0sAl0587IY",
+    "inventory_name": "Crop Juice",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Sarasota Bakehouse",
+    "city": "Sarasota",
+    "place_id": "ChIJu3xYVa1Bw4gRVyOM-seQnAs",
+    "inventory_name": "Sarasota Bakehouse",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Joy Coffee",
+    "city": "Bradenton",
+    "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+    "inventory_name": "Joy Coffee",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Hashtag Café",
+    "city": "Sarasota",
+    "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+    "inventory_name": "Hashtag Café",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Tamiami Tap",
+    "city": "Sarasota",
+    "place_id": "ChIJi2PkeXZBw4gRLZVjT4APW88",
+    "inventory_name": "Tamiami Tap",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Wink Wink at The Sarasota Modern",
+    "city": "Sarasota",
+    "place_id": "ChIJEacq0htBw4gRy5hxN32jnmQ",
+    "inventory_name": "Wink Wink Food and Drink",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Perspective Rooftop Pool Bar",
+    "city": "Sarasota",
+    "place_id": "ChIJ62qtuiVBw4gRFdwvl9Z4X_Y",
+    "inventory_name": "Perspective Rooftop Pool Bar",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Tarpon Bay Grill & Tiki",
+    "city": "Sarasota",
+    "place_id": "ChIJx-p5xHs9w4gRYKLC39rITSk",
+    "inventory_name": "Tarpon Bay Grill & Tiki Bar",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Sage Restaurant",
+    "city": "Sarasota",
+    "place_id": "ChIJtcnZQU9Bw4gROmYnVLnl0hE",
+    "inventory_name": "Sage Restaurant",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Casa Blanca Modern Mexican Tequila Bar",
+    "city": "Bradenton",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Mellow Mushroom Sarasota",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Gator Club",
+    "city": "Sarasota",
+    "place_id": "ChIJxxfE0BJAw4gRfwZZylL_Q-A",
+    "inventory_name": "The Gator Club",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Joyland",
+    "city": "Sarasota",
+    "place_id": "ChIJv8qJUuIVw4gR3V0HYAQ2Ll4",
+    "inventory_name": "Joyland",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Big Top Brewing",
+    "city": "Sarasota",
+    "place_id": "ChIJe5U4HgBHw4gRG07hOJNfvlg",
+    "inventory_name": "Big Top Brewery & Restaurant (Fruitville Commons)",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "99 Bottles Taproom & Bottle Shop",
+    "city": "Sarasota",
+    "place_id": "ChIJS8rHSs9Bw4gRLWaPAoNpTzo",
+    "inventory_name": "99 Bottles | Craft Beer & Wine Bar",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Clancy’s Irish Sports Pub",
+    "city": "Bradenton",
+    "place_id": "ChIJaWJirJcWw4gRboJr7F108HM",
+    "inventory_name": "Clancy's Irish Sports Pub & Grill",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Blue Marlin Seafood",
+    "city": "Bradenton Beach",
+    "place_id": "ChIJexE_P5sRw4gRupYzNVPyCEU",
+    "inventory_name": "Blue Marlin Seafood Restaurant",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Flamingo Bay Brewing Co.",
+    "city": "Bradenton",
+    "place_id": "ChIJ550owHsXw4gR4L8ZcLVqA-M",
+    "inventory_name": "Flamingo Bay Brewing",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "88 Live Piano Bar",
+    "city": "Bradenton",
+    "place_id": "ChIJN5yXOycXw4gRWQnrJHNeLZo",
+    "inventory_name": "88 Live Piano Bar and more!",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Jiggs Landing Outpost",
+    "city": "Bradenton",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Inventory only has Jiggs Landing preserve and boat-tour operator, not exact hospitality Outpost entity.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Raffurty’s Bar and Grill",
+    "city": "Sarasota",
+    "place_id": "ChIJzcd5L6hBw4gRAON6hbly9cE",
+    "inventory_name": "Raffurty's Bar and Grill",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Office",
+    "city": "Sarasota",
+    "place_id": "ChIJs2i6r29Aw4gRwopf2UaiX3E",
+    "inventory_name": "Office Bar SRQ",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Evie’s Tavern",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Molly’s Pub",
+    "city": "Sarasota",
+    "place_id": "ChIJE5w2pzpBw4gRaPvSc_obWx0",
+    "inventory_name": "Molly's Pub",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Joe’s on Main",
+    "city": "Sarasota",
+    "place_id": "ChIJB_VL5xJAw4gRY58y23x1wBw",
+    "inventory_name": "Joe's On Main",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Fat Rabbit",
+    "city": "Sarasota",
+    "place_id": "ChIJ_UA5QQBBw4gRng2r3E5nB-M",
+    "inventory_name": "The Fat Rabbit Pub",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Breakfast Company",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required. Candidate identities: The Breakfast Company [ChIJU-JqYJo5w4gRTKYuKEM5uH0], The Breakfast Company [ChIJs8W2IIlBw4gRG6sbw3bA5OM], The Breakfast Company [ChIJiVumzT5Bw4gR7mGqEL-DFQ0].",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "The Cheesecake Factory",
+    "city": "Sarasota",
+    "place_id": "ChIJZ0W_vt04w4gRlbOczIeB2k0",
+    "inventory_name": "The Cheesecake Factory",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Five-O Donut Co.",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Foxtail Coffee Co.",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Jersey Girl Bagels",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Oak & Stone",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required. Candidate identities: Oak & Stone [ChIJASGZttk4w4gRJaBZXzV3-Fw], Oak & Stone [ChIJ-x3prZJBw4gRgCGujTubOAg].",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Pura Vida Miami",
+    "city": "Sarasota",
+    "place_id": "ChIJ2WtxUBY5w4gRlk-nBNNCjF0",
+    "inventory_name": "Pura Vida Miami",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Raining Berries",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Seasons 52",
+    "city": "Sarasota",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research lacks a branch-specific street address; multiple same-brand locations may exist in this city/market. Exact researched branch required. Candidate identities: Seasons 52 [ChIJMUIBZec4w4gRDF221EwsnpA].",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Yard House",
+    "city": "Sarasota",
+    "place_id": "ChIJ6UfZV4A5w4gRXcJtOJX_4RQ",
+    "inventory_name": "Yard House",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Clever Cup Coffee Shop",
+    "city": "Sarasota",
+    "place_id": "ChIJj7B4MH9Bw4gRqduEpeQoj5M",
+    "inventory_name": "The Clever Cup Coffee Shop",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Yoder’s Restaurant & Amish Village",
+    "city": "Sarasota",
+    "place_id": "ChIJIwZqEutAw4gR-1cOUgiln24",
+    "inventory_name": "Yoder's Restaurant",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Ritz-Carlton, Sarasota",
+    "city": "Sarasota",
+    "place_id": "ChIJRxeQRxBAw4gRi93tRdpVyX0",
+    "inventory_name": "The Ritz-Carlton, Sarasota",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Antoine’s Restaurant",
+    "city": "Sarasota",
+    "place_id": "ChIJAYeKmFFHw4gR2FXTnIYnzX4",
+    "inventory_name": "Antoine's Restaurant",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Mademoiselle Paris",
+    "city": "Sarasota",
+    "place_id": "ChIJO22mxDRBw4gRS5LpHQdZ3jQ",
+    "inventory_name": "Mademoiselle Paris - French Restaurant & Bakery",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "SweetBerries Eatery & Frozen Custard",
+    "city": "Bradenton",
+    "place_id": "ChIJY9mVaAAXw4gRTW44x_SqF5Q",
+    "inventory_name": "Sweetberries Frozen Custard & Eatery",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Libby’s Neighborhood Brasserie",
+    "city": "Sarasota",
+    "place_id": "ChIJQ1lz70VAw4gRvG48lnKXACQ",
+    "inventory_name": "Libby's American Restaurant",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "PaddyWagon Irish Pub — Old Main Street",
+    "city": "Bradenton",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Motorworks Brewing",
+    "city": "Bradenton",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status excluded."
+  },
+  {
+    "research_name": "3 Keys Brewing",
+    "city": "Bradenton",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status excluded."
+  },
+  {
+    "research_name": "The Oasis — Christmas Club",
+    "city": "Naples",
+    "place_id": "ChIJm6Hgb-Uf24gRnUlaEGL_Rzo",
+    "inventory_name": "The Oasis",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Naples Coastal Kitchen",
+    "city": "Bonita Springs",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Green Cup Café",
+    "city": "Fort Myers",
+    "place_id": "ChIJZ8KadeNB24gRum3dpNMxw_o",
+    "inventory_name": "Green Cup Café",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Bay Street Yard",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Margaritaville Beach Resort Fort Myers Beach",
+    "city": "Fort Myers Beach",
+    "place_id": "ChIJNZU1rIo724gRtz28vI1Q09k",
+    "inventory_name": "Margaritaville Beach Resort Fort Myers Beach",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Millennial Brewing Company",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Seed to Table",
+    "city": "Naples",
+    "place_id": "ChIJIShSd5Yd24gRRu3n15Wfmmo",
+    "inventory_name": "Seed to Table",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Shoeless Joe’s Sports Café",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Tap42 Craft Kitchen & Bar — Bell Tower",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Fort Myers Brewing Company",
+    "city": "Fort Myers",
+    "place_id": "ChIJZwtPRNls24gR6rc8-WECs2Y",
+    "inventory_name": "Fort Myers Brewing Company",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Perry Hotel Naples",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Waxin’s Restaurant & Bar",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Bone Hook Brewing Company",
+    "city": "Naples",
+    "place_id": "ChIJNRDOyTGm24gRfE72lNoL01M",
+    "inventory_name": "Bone Hook Restaurant and Brewery",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Ankrolab Brewing Company",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Back Porch Brewing Co.",
+    "city": "North Venice",
+    "place_id": "ChIJk7dl4Itbw4gRNje246FiR_Y",
+    "inventory_name": "Back Porch Brewing Company",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Café Venice Restaurant & Bar",
+    "city": "Venice",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Daiquiri Deck Venice",
+    "city": "Venice",
+    "place_id": "ChIJ0fD4qqRbw4gRrZVamktLfVk",
+    "inventory_name": "Daiquiri Deck Island of Venice",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Seed and Bean Market Venice",
+    "city": "Venice",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "BellaVino Wine Bar",
+    "city": "Venice",
+    "place_id": "ChIJEUQsTCJbw4gRM4EcpUxjw0E",
+    "inventory_name": "BellaVino Wine Bar",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Olde Naples Hotel",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Coast Restaurant at Edgewater Beach Hotel",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Silver King Coastal Kitchen",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Ritz-Carlton, Naples",
+    "city": "Naples",
+    "place_id": "ChIJi30UkuEe24gRhkuVM5pLihk",
+    "inventory_name": "The Ritz-Carlton, Naples",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Ritz-Carlton Naples, Tiburón",
+    "city": "Naples",
+    "place_id": "ChIJ1dWvvDwc24gR9yIR-YKLBFM",
+    "inventory_name": "The Ritz-Carlton Naples, Tiburón",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Pink Shell Beach Resort & Marina",
+    "city": "Fort Myers Beach",
+    "place_id": "ChIJ4zTrIO4724gRXLL9jRwQBcs",
+    "inventory_name": "Pink Shell Beach Resort & Marina",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Seminole Gulf Railway Murder Mystery Dinner Train",
+    "city": "Fort Myers",
+    "place_id": "ChIJEyrKF49q24gRi1npcziO2eE",
+    "inventory_name": "Seminole Gulf Railway",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Nice Guys Pints & Pies",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Ceremony Brewing",
+    "city": "Bonita Springs",
+    "place_id": "ChIJqREmRmUZ24gRzaskL_0KXiA",
+    "inventory_name": "Ceremony Brewing",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Sidney’s Rooftop at Sidney & Berne Davis Art Center",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Art center identity exists, but exact rooftop hospitality entity not independently established. Candidate identities: Sidney & Berne Davis Art Center [ChIJ41tW2eJB24gRWaI9QVzxdWU].",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "B’s Grillhouse",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "PopStroke Fort Myers",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Yahweh Café",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Aroma Joe’s North Fort Myers",
+    "city": "North Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Chocolattes Coffee & Roasting",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Gourmet Latté",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Vicky Bakery Fort Myers",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Mila & Mocha Café",
+    "city": "Venice",
+    "place_id": "ChIJ89jrJohZw4gRuGiy_3nVj58",
+    "inventory_name": "Mila&Mocha Café",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Black Letter Coffee + Café",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Bad Ass Coffee — Third Street",
+    "city": "Naples",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "The Haunted Tavern",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Traveling experience without fixed venue identity; no permanent tavern substitution.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status excluded."
+  },
+  {
+    "research_name": "VooDoo Hut",
+    "city": "Kemah",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research venue is in Kemah, Texas, outside Florida scope.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status excluded."
+  },
+  {
+    "research_name": "Napoli Coffee",
+    "city": "Albuquerque",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research venue is in Albuquerque, outside Florida scope.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status excluded."
+  },
+  {
+    "research_name": "Lido Beach Resort",
+    "city": "Sarasota",
+    "place_id": "ChIJg-jF3Ihqw4gRNJ0QhK4Ywsg",
+    "inventory_name": "Lido Beach Resort",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Feast",
+    "city": "Holmes Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Tuscan Hills Coffee Company",
+    "city": "Parrish",
+    "place_id": "ChIJPSkey7Elw4gR5gvfcin8NQc",
+    "inventory_name": "Tuscan Hills Coffee Company",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Ryan’s Coffee House",
+    "city": "Parrish",
+    "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+    "inventory_name": "Ryan's Coffee House",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Paradise Grill",
+    "city": "Nokomis",
+    "place_id": "ChIJnwu0JUJbw4gRIZf2iK-v3Hs",
+    "inventory_name": "Paradise Grill",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The French Press",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "BackStreets Sports Bar",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Nevermind Awesome Bar & Eatery",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Cruiser’s Lounge",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Dive",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Dixie Roadhouse",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Hooked Island Grill",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Monkey Bar",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Rack’em Spirits & Times",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Paradise Pizza",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Ralph’s Place",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Rusty’s Raw Bar & Grill",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Tiki Hut Bar & Grill",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Dek Bar",
+    "city": "Cape Coral",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Firestone Grill Room, Martini Bar & Skybar",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Kava Culture Kava Bar",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Downtown Social House",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Cowboy Up Saloon",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Corral",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Escondido Lounge",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Hideaway Sports Bar",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Space39 Art Bar & Martini Lounge",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Swamp Cat Brewing Company",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "The Lucky Screw",
+    "city": "Fort Myers",
+    "place_id": "ChIJV_e0BuNB24gRgfLj57bW9_k",
+    "inventory_name": "The Lucky Screw",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Backyard Social Fort Myers",
+    "city": "Fort Myers",
+    "place_id": "ChIJX5-_OEIV24gRPBaC9RcHr6Y",
+    "inventory_name": "Backyard Social",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Sidelines Sports Bar & Grill",
+    "city": "Fort Myers",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact researched venue name/alias with city-compatible coordinates found in supplied inventory and targeted read-only name lookups. No substitute selected.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status confirmed_2026."
+  },
+  {
+    "research_name": "Zota Beach Resort",
+    "city": "Longboat Key",
+    "place_id": "ChIJpYzyJX4Tw4gR7Eisirbe6xI",
+    "inventory_name": "Zota Beach Resort",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Cooper’s Hawk Winery & Restaurant Sarasota",
+    "city": "Sarasota",
+    "place_id": "ChIJg3dcWgZHw4gRXN7pMNzP_pA",
+    "inventory_name": "Cooper’s Hawk Winery & Restaurant",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Fine Wine & Tastings on Main",
+    "city": "Lakewood Ranch",
+    "place_id": "ChIJ08tBBAE5w4gR_ZibBPIq34M",
+    "inventory_name": "Fine Wine & Tastings on Main",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Brewster’s Tavern",
+    "city": "Sarasota",
+    "place_id": "ChIJEyLEju5Bw4gRB5va3X9CkzY",
+    "inventory_name": "Brewster’s",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status confirmed_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Peculiar Pub",
+    "city": "Lakewood Ranch",
+    "place_id": "ChIJo752QRE5w4gRJSrKfQ9q3Vc",
+    "inventory_name": "Peculiar Pub",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "Agave Bandido / Maya Speak-Tiki",
+    "city": "Lakewood Ranch",
+    "place_id": "ChIJ7QsLgxQ5w4gRSLtMON-sOaI",
+    "inventory_name": "Agave Bandido",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true. Uses primary Agave Bandido physical venue identity; no separate Maya identity invented."
+  },
+  {
+    "research_name": "The Lounge by Good Liquid",
+    "city": "Lakewood Ranch",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Inventory has brewery/distillery entities; exact Lounge concept identity not established.",
+    "confidence": "held",
+    "notes": "Identity unresolved; do not promote a card. Research status pending_2026."
+  },
+  {
+    "research_name": "Fuego Comida & Tequila",
+    "city": "Lakewood Ranch",
+    "place_id": "ChIJIWL6BbI5w4gRK8c4-cHeiFg",
+    "inventory_name": "Fuego Comida & Tequila Lounge",
+    "match_reason": "Exact normalized venue name / documented venue alias and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  },
+  {
+    "research_name": "The Resort at Longboat Key Club",
+    "city": "Longboat Key",
+    "place_id": "ChIJqZAQtMVqw4gRQSMDzhntYY4",
+    "inventory_name": "The Resort at Longboat Key Club",
+    "match_reason": "Exact normalized venue name and researched city-compatible inventory locality/coordinates; OPERATIONAL and nonexcluded.",
+    "confidence": "verified",
+    "notes": "Identity only; seasonal approval remains governed by research status pending_2026. Inventory has_photo=true."
+  }
+]

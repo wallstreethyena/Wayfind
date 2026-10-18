@@ -1,0 +1,25 @@
+{
+  "checked_at": "2026-10-18",
+  "catalog_offerings": 206,
+  "catalog_venues": 191,
+  "eligible_owned_venues": 188,
+  "counts_by_season": {
+    "fall": 82,
+    "halloween": 130,
+    "christmas": 21
+  },
+  "by_research_area": {
+    "broward": 16,
+    "central-east-coast": 3,
+    "keys": 7,
+    "manatee-sarasota": 27,
+    "miami-dade": 21,
+    "north-northeast": 16,
+    "ocala": 4,
+    "orlando": 33,
+    "palm-beach": 9,
+    "panhandle": 11,
+    "southwest": 13,
+    "tampa": 29
+  }
+}

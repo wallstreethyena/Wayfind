@@ -3,5 +3,6 @@
 // and run the proven South Florida event-to-venue identity regression on the
 // same already-wired blocking guard path. The implementation modules avoid
 // check-/test- filenames so the generated guard registry is not a merge hot spot.
+await import("./seasonal-hospitality-regression.mjs");
 await import("./fall-intent-rails-regression-core.mjs");
 await import("./fall-venue-identity-regression.mjs");

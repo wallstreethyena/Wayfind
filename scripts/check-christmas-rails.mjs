@@ -4,7 +4,7 @@
 // are imported and invoked on fixture data; the assertions read what they
 // return, not what their source says.
 //
-// Christmas v3 (lead packet, 2026-10-09): eight rails in a fixed order, each
+// Christmas hospitality update (2026-10-18): nine rails in a fixed order, each
 // event in exactly one rail or none, the distance group ordering law, the
 // verified 2026 registry merged at read time with the five owner authorized
 // location corrections, pop up bars as honest season cards. The wiring checks
@@ -42,7 +42,8 @@ const SPEC_RAILS = [
   ["boat-parades", "Boat Parades & Coastal Traditions", "BOAT PARADES"],
   ["parades", "Christmas Parades", "PARADES"],
   ["shows-outings", "Shows, Historic Homes & Holiday Outings", "SHOWS"],
-  ["popup-bars", "Christmas Pop Up Bars (21+)", "POP UP BARS"],
+  ["popup-bars", "Christmas Bars & Themed Dining", "BARS & DINING"],
+  ["seasonal-food", "Christmas Treats & Seasonal Drinks", "FESTIVE BITES"],
   ["parties", "Christmas Parties", "PARTIES"],
 ];
 const SPEC_IDS = SPEC_RAILS.map(([id]) => id);
@@ -52,7 +53,7 @@ const noDash = (s) => !/[—–]| - /.test(String(s || ""));
 
 // ── 1. The definitions ──────────────────────────────────────────────────────
 ok(Array.isArray(CHRISTMAS_INTENT_RAIL_DEFS) && Object.isFrozen(CHRISTMAS_INTENT_RAIL_DEFS), "rail definitions are a frozen array");
-ok(CHRISTMAS_INTENT_RAIL_DEFS.length === 8, "exactly eight rail definitions");
+ok(CHRISTMAS_INTENT_RAIL_DEFS.length === 9, "exactly nine rail definitions");
 SPEC_RAILS.forEach(([id, title], i) => {
   const def = CHRISTMAS_INTENT_RAIL_DEFS[i];
   ok(def && def.id === id && def.title === title, `definition ${i + 1} is ${id} / "${title}" (got ${JSON.stringify(def)})`);
@@ -106,10 +107,10 @@ const placeFixture = () => BAR_IDS.map((id, i) => ({
 const classify = (id) => christmasEventRail(events.find((e) => e.event_id === id));
 for (const id of THEME_PARK_IDS) ok(classify(id) === "theme-parks", `theme park event ${id} classifies as theme-parks through the explicit map (got ${classify(id)})`);
 ok(classify("x-show-2026") === "shows-outings" && classify("x-party-2026") === "parties" && classify("x-train-2026") === "theme-parks", "an explicit christmas_rail wins over the name");
-ok(christmasEventRail(ev("x-bad-rail", "Christmas Lights", "2026-12-01", "2026-12-02", { christmas_rail: "beaches" })) === null, "an explicit rail that is not one of the eight is refused, never guessed");
+ok(christmasEventRail(ev("x-bad-rail", "Christmas Lights", "2026-12-01", "2026-12-02", { christmas_rail: "beaches" })) === null, "an explicit rail that is not one of the nine is refused, never guessed");
 ok(christmasEventRail(ev("x-spooky", "Halloween Trail", "2026-12-01", "2026-12-02", { christmas_rail: "lights" })) === null, "a Halloween name is refused even with an explicit rail");
 ok(CHRISTMAS_EVENT_RAIL["mvmcp-2026"] === "theme-parks" && CHRISTMAS_EVENT_RAIL["jollywood-nights-2026"] === "theme-parks" && !Object.values(CHRISTMAS_EVENT_RAIL).filter((r) => r === "parties").length && CHRISTMAS_EVENT_RAIL["cocoa-beach-holiday-boat-parade-2026"] === "boat-parades" && CHRISTMAS_EVENT_RAIL["winter-park-christmas-parade-2026"] === "parades", "existing wf_events rows carry an explicit rail");
-ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "every mapped rail is one of the eight");
+ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "every mapped rail is one of the nine");
 ok(classify("sarasota-boat-parade-2026") === "boat-parades" && classify("lighted-regatta-2026") === "boat-parades", "an unmapped boat parade or regatta falls back to boat-parades");
 ok(classify("both-words-2026") === "boat-parades", "an event matching boat parade AND lights is claimed once, by boat-parades");
 ok(classify("town-parade-2026") === "parades", "an unmapped Christmas parade falls back to parades");
@@ -124,7 +125,7 @@ ok(christmasEventRail(null) === null, "null event classifies as null");
 
 // ── 4. Composition ──────────────────────────────────────────────────────────
 const composed = composeChristmasIntentRails(events, placeFixture(), { ...SARASOTA, today: TODAY });
-ok(Array.isArray(composed.rails) && composed.rails.length === 8, "eight rails come back");
+ok(Array.isArray(composed.rails) && composed.rails.length === 9, "nine rails come back");
 SPEC_RAILS.forEach(([id, title], i) => {
   const rail = composed.rails[i];
   ok(rail && rail.id === id && rail.title === title, `rail ${i + 1} is ${id} with the exact title`);
@@ -148,8 +149,24 @@ ok(new Set(allIds).size === allIds.length, `no card appears in two rails (${allI
 for (const r of composed.rails) ok(new Set(r.cards.map((c) => c.id)).size === r.cards.length, `${r.id}: no repeated card inside the rail`);
 ok(composed.rails.every((r) => r.cards.every((c) => c.kind === "place" || c.kind === "event")), "every card is a place or an event");
 const noEvents = composeChristmasIntentRails([], [], { ...SARASOTA, today: TODAY });
-ok(noEvents.rails.length === 8 && noEvents.rails.every((r) => r.cards.length === 0 && r.fallbackUsed === false), "no inventory still returns eight empty rails, never fewer");
-ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.length === 8, "no location still returns eight rails");
+ok(noEvents.rails.length === 9 && noEvents.rails.every((r) => r.cards.length === 0 && r.fallbackUsed === false), "no inventory still returns nine empty rails, never fewer");
+ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.length === 9, "no location still returns nine rails");
+
+// Hospitality gets its own local shelf without becoming a market, a party,
+// or a destination exception. The existing Christmas grouping law still wins.
+{
+  const menu = ev("x-festive-menu", "Christmas Cookie Menu", "2026-12-01", "2026-12-31", { subcategory: "seasonal-menu", distMi: 10 });
+  ok(christmasEventRail(menu) === "seasonal-food", "a Christmas seasonal menu has a concrete food intent");
+  ok(christmasEventRail({ ...menu, event_name: "Ordinary Winter Menu", tags: [] }) === null, "winter alone does not assert a Christmas food offering");
+  ok(christmasEventRail({ ...menu, start_date: "2026-07-01", end_date: "2026-07-31" }) === null, "menu fallback still obeys the Christmas window");
+  ok(christmasEventRail({ ...menu, christmas_state: "recurring_unconfirmed" }) === null, "unconfirmed seasonal menus stay excluded");
+  const local = composeChristmasIntentRails([menu, { ...menu, event_id: "x-far-menu", event_name: "Christmas Distant Menu", distMi: 91, exceptional: true }], [
+    { id: "festive-cafe", name: "Verified Festive Cafe", christmasRail: "seasonal-food", distMi: 35, wfScore: 90 },
+    { id: "far-festive-cafe", name: "Distant Festive Cafe", christmasRail: "seasonal-food", distMi: 91, wfScore: 99 },
+  ], { ...SARASOTA, today: TODAY }).rails.find((rail) => rail.id === "seasonal-food");
+  ok(local.cards.map((card) => card.id).join() === "x-festive-menu,festive-cafe", "seasonal food obeys local reach and event then place ordering");
+  ok(local.cards.every((card) => card.distMi <= 90), "neither an exceptional event nor a high score widens Christmas menu geography");
+}
 
 // ── 4b. THE ORDERING LAW (EXECUTED) ─────────────────────────────────────────
 // Nearby (<= 35 mi), Within reach (35 to 90), Day trip (> 90). Groups in that
@@ -190,7 +207,7 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
   ok(lots.cards.length === 6 && lots.cards.map((c) => c.id).join() === "ex-1,ex-2,ex-3,ex-4,ex-5,ex-6", `eight eligible day trips are capped at the nearest 6 (${lots.cards.map((c) => c.id).join(", ")})`);
   const thin = composeChristmasIntentRails([L("only-far-1", "2026-12-02", 199), L("only-far-2", "2026-12-03", 260, { exceptional: true })], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === "lights");
   ok(thin.cards.length === 0, "a rail with only an ordinary 199 mi item and a 260 mi headliner is empty for this viewer (the page hides it), never padded");
-  ok(JSON.stringify(CHRISTMAS_LOCAL_ONLY_RAILS) === JSON.stringify(["parties", "popup-bars", "parades"]), "parties, pop up bars and parades are local only");
+  ok(JSON.stringify(CHRISTMAS_LOCAL_ONLY_RAILS) === JSON.stringify(["parties", "popup-bars", "parades", "seasonal-food"]), "parties, themed bars, parades and seasonal food are local only");
   for (const id of CHRISTMAS_LOCAL_ONLY_RAILS) {
     const local = composeChristmasIntentRails([ev("lo-near-" + id, "Local " + id, "2026-12-05", "2026-12-05", { christmas_rail: id, ...at(80) }), ev("lo-far-" + id, "Far " + id, "2026-12-05", "2026-12-05", { christmas_rail: id, exceptional: true, ...at(95) })], [], { ...SARASOTA, today: TODAY }).rails.find((r) => r.id === id);
     ok(local.cards.map((c) => c.id).join() === "lo-near-" + id, `${id}: shows items within 90 mi only, even an exceptional one at 95 mi stays out`);
@@ -231,9 +248,9 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
 
 // ── 4c. The research data (EXECUTED; deep checks in check-christmas-research) ─
 {
-  ok(CHRISTMAS_PUBLISHED_RESEARCH.length >= 450 && CHRISTMAS_PUBLISHED_RESEARCH.every((r) => SPEC_IDS.includes(christmasEventRail(r))), `every published research listing carries one of the eight rails (${CHRISTMAS_PUBLISHED_RESEARCH.length})`);
+  ok(CHRISTMAS_PUBLISHED_RESEARCH.length >= 450 && CHRISTMAS_PUBLISHED_RESEARCH.every((r) => SPEC_IDS.includes(christmasEventRail(r))), `every published research listing carries one of the nine rails (${CHRISTMAS_PUBLISHED_RESEARCH.length})`);
   ok(Object.keys(CHRISTMAS_CITY_POINTS).length > 200 && Object.values(CHRISTMAS_CITY_POINTS).every(([la, ln]) => la > 24.3 && la < 31.1 && ln > -87.7 && ln < -79.8), "the Census city points are all in Florida");
-  ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "the fallback rail map only names the eight rails");
+  ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "the fallback rail map only names the nine rails");
 }
 
 // ── 5. Copy (EXECUTED) ──────────────────────────────────────────────────────
@@ -308,7 +325,7 @@ ok(Object.isFrozen(CHRISTMAS_RAIL_GUIDE_SLUGS), "the rail to guide map is frozen
 const EXPECT_SLUG = { lights: "florida-holiday-nights-out-2026", "theme-parks": "florida-theme-park-christmas-2026", "boat-parades": "florida-christmas-boat-parades-2026" };
 ok(JSON.stringify(CHRISTMAS_RAIL_GUIDE_SLUGS) === JSON.stringify(EXPECT_SLUG), "lights, theme parks and boat parades link their guide; the other rails have none");
 const withGuides = withChristmasGuides(composed.rails, "2026-12-01");
-ok(withGuides.length === 8 && withGuides.every((r, i) => r.id === composed.rails[i].id && r.cards === composed.rails[i].cards), "attaching guides keeps the eight rails, order and cards");
+ok(withGuides.length === 9 && withGuides.every((r, i) => r.id === composed.rails[i].id && r.cards === composed.rails[i].cards), "attaching guides keeps the nine rails, order and cards");
 for (const r of withGuides) {
   if (!EXPECT_SLUG[r.id]) { ok(!r.guide, `${r.id}: no guide`); continue; }
   ok(!!r.guide && r.guide.slug === EXPECT_SLUG[r.id], `${r.id}: gets its own guide ${EXPECT_SLUG[r.id]} (got ${r.guide && r.guide.slug})`);
@@ -400,7 +417,7 @@ ok(christmasEventRail(live("Fall Harvest Lights Night", "2026-11-21", "2026-11-2
 
 // ── 6f. Short card labels: the red pill never truncates ────────────────────
 {
-  ok(Object.isFrozen(CHRISTMAS_CARD_LABELS) && Object.keys(CHRISTMAS_CARD_LABELS).length === 8, "eight frozen card labels");
+  ok(Object.isFrozen(CHRISTMAS_CARD_LABELS) && Object.keys(CHRISTMAS_CARD_LABELS).length === 9, "nine frozen card labels");
   for (const [id, , want] of SPEC_RAILS) {
     const label = CHRISTMAS_CARD_LABELS[id];
     ok(label === want && label.length <= 14, `${id}: card label is the short "${want}" (<= 14 chars; got "${label}")`);
@@ -496,12 +513,12 @@ const route = read("app/api/events/christmas/route.js");
 ok(/christmas-intents:v\d+:/.test(route), "the route has its own christmas cache key");
 ok(!/googleapis|maps\.google|places\.googleapis|fetch\(/.test(route), "the route makes no network fetch and no Google call (owned Supabase reads only)");
 ok(/\.from\("wf_inventory"\)/.test(route) && /fetchCuratedEvents\(/.test(route), "the route reads wf_inventory and wf_events");
-ok(/rails\?\.length === 8/.test(route), "the route's cache gate requires exactly eight rails");
+ok(/rails\?\.length === 9/.test(route), "the route's cache gate requires exactly nine rails");
 const comp = read("app/components/ChristmasIntentRails.js");
-ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 8/.test(comp), "the component requires exactly eight rails");
+ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 9/.test(comp), "the component requires exactly nine rails");
 ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide/.test(comp) && !/GuideRailCollection|<aside/.test(comp), "each rail puts its own guide third inside its own track, nothing between rails (static; owner rule 2026-10-08)");
 ok(/onTrack=\{onTrack\}/.test(comp) && /"guide_open", props/.test(read("app/components/RailGuideSlot.js")) && /rail: railId/.test(read("app/components/RailGuideSlot.js")), "a guide click is tracked as guide_open with the rail and slug (static)");
-ok(/christmas-intents:v6:/.test(route) && /mergeChristmasResearch\(rows \|\| \[\]\)/.test(route) && /mergedRows\.filter\(/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key, merges the research data at read time, enriches and attaches guides server side (static)");
+ok(/christmas-intents:v7:/.test(route) && /mergeChristmasResearch\(rows \|\| \[\]\)/.test(route) && /mergedRows\.filter\(/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key, merges the research data at read time, enriches and attaches guides server side (static)");
 ok(/christmasEventCard\(e, \{ today, inventory: inventoryById\.get\(e\.place_id\) \|\| null, pageSlugs, byDealId \}\)/.test(route), "every event card is built by the shared christmasEventCard (static; executed in check-christmas-research)");
 ok(/from "\.\.\/\.\.\/lib\/christmasCardCopy\.js"/.test(comp) && !/lib\/christmasIntentRails|lib\/christmasDiscoveries2026|lib\/christmasPool/.test(comp) && !/^\s*import/m.test(read("lib/christmasCardCopy.js")), "the client component imports only the client safe card copy, so the registry never ships to the browser (static; production chunks are swept after the build)");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");

@@ -1,4 +1,5 @@
 "use client";
+import { hospitalityDateChipLabel } from "../../lib/seasonalHospitalityCopy.js";
 // The statewide Christmas browse (/christmas-in-florida, lead packet v4,
 // 2026-10-13). The server renders the first page (app/christmas-in-florida/page.js);
 // every filter change asks /api/christmas/browse, which reads the same merged
@@ -9,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import RailCard from "./RailCard";
 import { WF_PLACE_CARD_CSS } from "./css.js";
 import { CHRISTMAS_CARD_LABELS, christmasCardChips } from "../../lib/christmasCardCopy.js";
+import { toDisplayScore } from "../../lib/score.js";
 
 const C = { text: "#FFF7ED", muted: "#C9B8B0", line: "rgba(232,180,138,.45)", panel: "#2A0A12", accent: "#E8B48A" };
 const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng"];
@@ -21,16 +23,22 @@ function distanceFact(card) {
 }
 
 export function ChristmasBrowseCard({ card, rank, today }) {
-  const chips = christmasCardChips(card, today);
+  const isPlace = card.kind === "place";
+  const place = isPlace ? { ...card, photo: card.image || null, hook: card.take || card.hook || null } : null;
+  const chips = isPlace ? [
+    card.seasonalWhen ? { key: "season", icon: "🗓", label: hospitalityDateChipLabel(card.seasonalWhen), title: card.seasonalWhen } : null,
+    card.sourceUrl ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
+  ].filter(Boolean) : christmasCardChips(card, today);
   return <RailCard className="wf-exploding-primary"
     photo={card.image || null} placeholder={!card.image ? card.placeholder || null : null} photoFallbackCategory="christmas"
     photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null}
-    visitFacts={card} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}
-    when={card.when || null} facts={[card.city || null, distanceFact(card) || card.region || null].filter(Boolean)}
+    place={place} visitFacts={isPlace ? null : card} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}
+    score={isPlace ? toDisplayScore(card.wfScore) : null}
+    when={isPlace ? null : card.when || null} facts={[card.city || null, distanceFact(card) || card.region || null].filter(Boolean)}
     chips={chips.slice(0, 4)} take={card.hook || null}
     href={card.detailHref || card.url || null} external={!card.detailHref}
     ariaLabel={`Open ${card.title || card.name}`}
-    actionItem={{ id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: card.detailHref || card.url || "" }} />;
+    actionItem={isPlace ? null : { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: card.detailHref || card.url || "" }} />;
 }
 
 const selectStyle = { minHeight: 44, borderRadius: 12, border: "1px solid " + C.line, background: C.panel, color: C.text, padding: "0 10px", fontSize: 14, maxWidth: "100%" };
@@ -75,7 +83,7 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
 
   return <section id="browse" aria-labelledby="browse-title" style={{ margin: "8px 0 28px" }} data-christmas-browse="">
     <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
-    <h2 id="browse-title" style={{ fontSize: 24, margin: "0 0 6px", color: C.text }}>Every verified Christmas event in Florida</h2>
+    <h2 id="browse-title" style={{ fontSize: 24, margin: "0 0 6px", color: C.text }}>Verified Christmas outings in Florida</h2>
     <p style={{ margin: "0 0 14px", color: C.muted, fontSize: 15 }}>Filter by region, kind of outing, date, price and who it is for. Each listing links to its page with the map, schedule and official source.</p>
     <form role="search" onSubmit={(e) => e.preventDefault()} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
       <input type="search" aria-label="Search by name or city" placeholder="Search by name or city" defaultValue={query.q || ""}
