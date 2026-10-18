@@ -130,8 +130,9 @@ export async function GET(req) {
   // Safety net: a no-op when the sweep or the watchdog already pulsed; records
   // a failed pulse if the sweep crashed or returned without writing one.
   await recordPulse(JOB, { attempted: 0, succeeded: 0, failed: 1, note: (crashed ? "unhandled: " + String((crashed && crashed.message) || crashed) : "sweep ended without recording a pulse").slice(0, 200) });
-  if (watchdogExpired) return Response.json({ ok: false, job: JOB, error: "watchdog: sweep exceeded its time budget" }, { status: 500, headers: { "cache-control": "no-store" } });
-  return crashed ? Response.json({ ok: false, job: JOB, error: "unhandled sweep error" }, { status: 500, headers: { "cache-control": "no-store" } }) : res;
+  if (watchdogExpired) res = Response.json({ ok: false, job: JOB, error: "watchdog: sweep exceeded its time budget" }, { status: 500, headers: { "cache-control": "no-store" } });
+  else if (crashed) res = Response.json({ ok: false, job: JOB, error: "unhandled sweep error" }, { status: 500, headers: { "cache-control": "no-store" } });
+  return res;
 }
 
 async function sweep(sp, s, h, pulse, failed, context) {
