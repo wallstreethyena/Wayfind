@@ -17,6 +17,7 @@ import useMissingPlacePhotos from "../useMissingPlacePhotos";
 import { tbPhotoUrl } from "../../../lib/todaysBest";
 import { hasPlacePhotoRef } from "../../../lib/placePhoto";
 import { useCuratorPicks, applyCuratorPicks } from "../../../lib/curatorPicks";
+import useAppleMapRecovery from "../useAppleMapRecovery.js";
 
 // v6.71 (Wave 2): same flame + water-quality read as every other beach
 // surface, sourced from the SAME `beachSignals` batch home.js already
@@ -62,6 +63,8 @@ export default function MapScreen({ ctx }) {
   const [viewport, setViewport] = useState(null);
   const [areaPlaces, setAreaPlaces] = useState([]);
   const [areaStatus, setAreaStatus] = useState("loading");
+  const [settledArea, setSettledArea] = useState(null);
+  const areaReadKey = JSON.stringify([viewport, center?.lat, center?.lng]);
   const [areaRetry, setAreaRetry] = useState(0);
   // Keep renderer failure separate from area inventory. An attempt identity
   // changes on retry AND on every 2D/3D switch (including a switch back), so
@@ -71,6 +74,7 @@ export default function MapScreen({ ctx }) {
   currentRendererAttempt.current = rendererAttempt;
   const [failedRendererAttempt, setFailedRendererAttempt] = useState(null);
   const appleMapFailed = !map3D && failedRendererAttempt === rendererAttempt;
+  const [appleSDK, setAppleSDK] = useState(null);
   // The settled renderer viewport is authoritative. A center-derived initial
   // box also provides a discoverable results list when MapKit cannot load.
   useEffect(() => {
@@ -87,13 +91,26 @@ export default function MapScreen({ ctx }) {
     const timer = setTimeout(() => {
       readCompleteMapArea({ bounds: viewport, origin: center, signal: controller.signal,
         onPage: (rows) => { if (!dead) setAreaPlaces(rows); } })
-        .then(() => { if (!dead) setAreaStatus("ready"); })
+        .then(() => { if (!dead) { setAreaStatus("ready"); setSettledArea(areaReadKey); } })
         .catch(() => { if (!dead) setAreaStatus("error"); });
     }, 250);
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
   }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, explicitList]);
   const contextPool = useMemo(() => [...(contextualView || []), ...(mapPool || []), ...(suggested || []), ...(places || [])], [contextualView, mapPool, suggested, places]);
-  const liveAreaPlaces = useMemo(() => mergeMapAreaContext(areaPlaces, contextPool), [areaPlaces, contextPool]);
+  const inventoryAreaPlaces = useMemo(() => mergeMapAreaContext(areaPlaces, contextPool), [areaPlaces, contextPool]);
+  const recoveryCandidates = useMemo(() => applyCuratorPicks(contextualView || [], curatorSnap), [contextualView, curatorSnap]);
+  const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: inventoryAreaPlaces,
+    bounds: viewport, origin: center, category: mapCategory, sub: allCategories ? "all" : sub,
+    mapkit: appleSDK?.mapkit,
+    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && !explicitList && mapMode === "places", ready: areaStatus === "ready" && settledArea === areaReadKey });
+  const liveAreaPlaces = useMemo(() => {
+    const owned = new Set(inventoryAreaPlaces.map((p) => p.id));
+    return [...inventoryAreaPlaces, ...appleRecovery.places.filter((p) => !owned.has(p.id))];
+  }, [inventoryAreaPlaces, appleRecovery.places]);
+  // Apple lookups are display-only. Saves, sharing, detail fetches and analytics
+  // receive the existing Wayfind identity, never the temporary Apple point.
+  const actionPlace = (p) => p?.coordSource === "apple_live" ? (contextPool.find((source) => source.id === p.id) || { id: p.id, name: p.name }) : p;
+  const cardPlace = (p) => p?.coordSource === "apple_live" ? { ...p, lat: null, lng: null, coordSource: undefined, mapCoord: undefined } : p;
   // Owner picks are applied before qualification and sorting. The shared
   // category/subcategory promises still apply; an All button is map-local.
   const view = useMemo(() => {
@@ -110,7 +127,7 @@ export default function MapScreen({ ctx }) {
     : null), [mapMode, explicitList, contextualView, view, liveAreaPlaces, areaStatus]);
   const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
   const unpinnedNote = unpinnedForCoord > 0
-    ? `${unpinnedForCoord} of the ${listAccounting.total} places on your list ${unpinnedForCoord === 1 ? "isn't" : "aren't"} pinned. We only pin a location confirmed in the last 30 days, and ${unpinnedForCoord === 1 ? "this one is" : "these are"} due for a re-check.`
+    ? `${unpinnedForCoord} of ${listAccounting.total} list places still need a confirmed map location.${appleRecovery.status === "loading" ? " Checking top picks with Apple Maps…" : ""}`
     : null;
   // Licence credit for any independently sourced pin on screen (OpenStreetMap's
   // ODbL requires the credit wherever its coordinates are shown).
@@ -122,8 +139,9 @@ export default function MapScreen({ ctx }) {
       window.__wfMapList = listAccounting
         ? { listIds: listAccounting.rows.map((r) => r.id), pinned: listAccounting.rows.filter((r) => r.status === "pinned").map((r) => r.id), unmapped: listAccounting.unmapped, counts: listAccounting.counts, note: unpinnedNote, at: Date.now() }
         : null;
+      window.__wfAppleRecovery = { status: appleRecovery.status, ...appleRecovery.stats, recoveredIds: appleRecovery.places.map((p) => p.id) };
     } catch (e) {}
-  }, [listAccounting, unpinnedNote]);
+  }, [listAccounting, unpinnedNote, appleRecovery]);
   useEffect(() => {
     if (explicitList) { if (mapPreview && !view.some((p) => p.id === mapPreview.id)) setMapPreview(null); return; }
     if (mapPreview && !keepMapPreview(mapPreview, view, mapCategory, areaStatus)) setMapPreview(null);
@@ -152,10 +170,10 @@ export default function MapScreen({ ctx }) {
   // no photo_ref; skipping this slot is a black 176px card.
   if (mapPreview) photoWants.push(mapPreview);
   if (mapDrawer && Array.isArray(view)) for (const p of view.slice(0, 12)) photoWants.push(p);
-  const healCenter = (mapPreview && Number.isFinite(Number(mapPreview.lat)) && Number.isFinite(Number(mapPreview.lng)))
+  const healCenter = (mapPreview && mapPreview.coordSource !== "apple_live" && Number.isFinite(Number(mapPreview.lat)) && Number.isFinite(Number(mapPreview.lng)))
     ? { lat: Number(mapPreview.lat), lng: Number(mapPreview.lng) }
     : center;
-  const photoRefFor = useMissingPlacePhotos(photoWants, healCenter, mapMode === "places");
+  const photoRefFor = useMissingPlacePhotos(photoWants.filter((p) => p.coordSource !== "apple_live"), healCenter, mapMode === "places");
   // TWO CONSUMERS, TWO FIELDS — and that difference is exactly the kind of
   // thing that makes a fix look applied while doing nothing. IconicPlaceCard
   // (the pin-tap card) reads `photoRef` and builds the URL itself;
@@ -167,6 +185,7 @@ export default function MapScreen({ ctx }) {
   // re-render the row for nothing.
   const withPhoto = (p) => {
     if (!p) return p;
+    p = cardPlace(p);
     // A truthy-but-invalid photoRef (or a junk photo string) is how the
     // focused card renders a black 176px slot instead of healing or falling
     // through to the monogram. Only a real Places photo ref skips the heal.
@@ -274,10 +293,10 @@ export default function MapScreen({ ctx }) {
                       <circle cx="12" cy="9.8" r="2.6" fill={deviceLoc ? "#FFFFFF" : "#F97316"} />
                     </svg>
                   </button>
-                  {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings styleMode="3d" fit={explicitList} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + view.findIndex((x) => x.id === p.id) }); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
-                    : <AppleExplorerMap fit={explicitList} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", p, { rank: 1 + view.findIndex((x) => x.id === p.id) }); logEvent("map_pin_selected", p, {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
+                  {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings styleMode="3d" fit={explicitList} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", actionPlace(p), { rank: 1 + view.findIndex((x) => x.id === p.id) }); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
+                    : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", actionPlace(p), { rank: 1 + view.findIndex((x) => x.id === p.id) }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
                   {mapMode === "places" && !explicitList && !appleMapFailed && (areaStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
-                    {areaStatus === "loading" ? "Finding every 9.2+ place in this area…" : areaStatus === "error" ? "This area could not finish loading." : "No 9.2+ places match these filters here. Move the map or choose All places."}
+                    {areaStatus === "loading" ? "Finding every 9.2+ place in this area…" : appleRecovery.status === "loading" ? "Checking nearby top picks with Apple Maps…" : areaStatus === "error" ? "This area could not finish loading." : "No 9.2+ places match these filters here. Move the map or choose All places."}
                     {areaStatus === "error" && <button type="button" onClick={() => setAreaRetry((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>Retry area</button>}
                     {unpinnedNote && <div data-wf-map-unpinned={unpinnedForCoord} style={{ marginTop: 6, color: C.muted, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   </div>}
@@ -340,7 +359,7 @@ export default function MapScreen({ ctx }) {
                       {eventsUnavailable && <div style={{ fontSize: 11.5, color: "#fff", textAlign: "center", marginTop: 6, textShadow: "0 1px 4px rgba(0,0,0,.8)" }}>Add a Ticketmaster key in Vercel to switch events on.</div>}
                     </div>
                   )}
-                  {mapMode !== "events" && mapPreview && (() => {
+                  {mapMode !== "events" && mapPreview && (!map3D || mapPreview.coordSource !== "apple_live") && (() => {
                     // TICKET 3 — ONE PLACE CARD, NOT THE DRAWER.
                     //
                     // Capped at 175px so the map, the distance rings and the user
@@ -363,8 +382,8 @@ export default function MapScreen({ ctx }) {
                       if (!next) return;
                       setMapPreview(next);
                       // The camera moves HERE and only here.
-                      setMapFocus({ lat: next.lat, lng: next.lng, ts: Date.now() });
-                      try { logEvent("map_card_page", next, { direction: dir > 0 ? "next" : "prev", rank: 1 + ranked.indexOf(next) }); } catch (e) {}
+                      setMapFocus({ lat: next.lat, lng: next.lng, coordSource: next.coordSource, ts: Date.now() });
+                      try { logEvent("map_card_page", actionPlace(next), { direction: dir > 0 ? "next" : "prev", rank: 1 + ranked.indexOf(next) }); } catch (e) {}
                     };
                     // v7.16 (owner, 2026-08-11: "i want the results to be our
                     // iconic place card for the location on the map") — the
@@ -396,11 +415,11 @@ export default function MapScreen({ ctx }) {
                             saved={!!(isSaved && isSaved(mp.id))}
                             liked={!!(liked && liked[mp.id])}
                             disliked={!!(disliked && disliked[mp.id])}
-                            onOpen={() => { try { logEvent("map_card_cta", mp, { rank: pos }); } catch (e) {} openDetail(mp); }}
-                            onSave={(e) => { try { quickSaveFavorite(e, mp); } catch (er) {} }}
-                            onLike={(e) => { try { toggleLike(e, mp); } catch (er) {} }}
-                            onDislike={(e) => { try { toggleDislike(e, mp); } catch (er) {} }}
-                            onShare={() => { try { addShared(mp); } catch (er) {} }}
+                            onOpen={() => { try { logEvent("map_card_cta", actionPlace(mp), { rank: pos }); } catch (e) {} openDetail(actionPlace(mp)); }}
+                            onSave={(e) => { try { quickSaveFavorite(e, actionPlace(mp)); } catch (er) {} }}
+                            onLike={(e) => { try { toggleLike(e, actionPlace(mp)); } catch (er) {} }}
+                            onDislike={(e) => { try { toggleDislike(e, actionPlace(mp)); } catch (er) {} }}
+                            onShare={() => { try { addShared(actionPlace(mp)); } catch (er) {} }}
                           />
                         </ul>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 12px 9px" }}>
@@ -476,7 +495,7 @@ export default function MapScreen({ ctx }) {
                               PlaceCard, so the numbers on a card here now match the
                               numbers on that same place everywhere else in this session. */}
                           {view.map((p, i) => (
-                            <PlaceCard key={p.id} p={withPhoto(p)} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNow} />
+                            <PlaceCard key={p.id} p={withPhoto(p)} rank={i + 1} saved={isSaved(p.id)} liked={!!(liked && liked[p.id])} disliked={!!(disliked && disliked[p.id])} onDetail={() => { setMapPreview(p); setMapFocus({ lat: p.lat, lng: p.lng, coordSource: p.coordSource, ts: Date.now() }); setMapDrawer(false); }} onSave={() => quickSaveFavorite(actionPlace(p))} onLike={(e) => toggleLike(e, actionPlace(p))} onDislike={(e) => toggleDislike(e, actionPlace(p))} onShareCard={(pl) => { try { addShared(actionPlace(p)); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals && beachSignals[p.id]} city={cityNow} />
                           ))}
                         </div>
                       )}
