@@ -326,9 +326,11 @@ ok(!PAGE_HANDOFF.test("import ShareRedirect from \"../ShareRedirect\";\nreturn <
 // ── 4c. The city landing pages: built apart, rendered by LandingPage ────────
 {
   const landing = strip(read("lib/landingPage.js")); // LandingPage moved here from lib/landing.js (2026-10-01)
-  const body = fnBody(landing, "LandingPage") || "";
+  const hero = fnBody(landing, "LandingHero") || "";
+  const page = fnBody(landing, "LandingPage") || "";
   ok(/export async function LandingPage\(\{[^}]*\bshareAction\b/.test(landing), "LandingPage no longer takes shareAction — the four city pages lose their Share");
-  ok(/<PremiumIntentHero\b[\s\S]*?\bactions=\{shareAction\}/.test(body), "LandingPage does not hand shareAction to the hero's actions slot, so it never renders");
+  ok(/<PremiumIntentHero\b[\s\S]*?\bactions=\{shareAction\}/.test(hero), "LandingHero does not hand shareAction to the hero's actions slot, so it never renders");
+  ok(/<LandingHero\b[^>]*\bshareAction=\{shareAction\}/.test(page), "LandingPage does not pass shareAction into LandingHero");
   for (const c of ["things-to-do", "restaurants", "beaches", "nightlife"]) {
     const src = strip(read(`app/${c}/[city]/page.js`));
     ok(new RegExp(`shareAction: landingShareAction\\("${c}", params\\.city\\)`).test(src), `app/${c}/[city]/page.js does not pass its own landingShareAction("${c}", ...) — a wrong category shares the wrong page`);

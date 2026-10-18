@@ -51,7 +51,7 @@ const tampa = GUIDES[TAMPA];
 ok(brief && tampa, "both guides exist in the registry");
 ok(isEditorialGuide(brief) === true, "Tonight's Move opts into editorialMode");
 ok(isEditorialGuide(tampa) === false, "the Tampa evergreen guide is not editorial");
-ok(brief.title === "Tonight's Move", "H1 title stays Tonight's Move");
+ok(brief.title === "Tonight's Move: Tampa, September 12, 2026", "H1 title names the city and the date");
 ok(brief.editorialMode === true, "the flag is a guide property, not a CSS class");
 
 const briefChrome = guideCommerceChrome(brief);

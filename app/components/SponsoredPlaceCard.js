@@ -151,7 +151,7 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
             className="wf-place-card-attachment-link">{item.label}</a>)}
         </div> : null}
         <div className="wf-place-card-attachment-disclosure">
-          Sponsored · Paid placement near this location. The Wayfind Score and Google review count were not part of the deal.{distance ? " " + distance + " away." : ""}
+          Sponsored · Paid placement near this location. The Wayfind Score and Google review count were not part of the deal.{pick.scoreWithheld ? " The public score is withheld until a current review snapshot exists." : ""}{distance ? " " + distance + " away." : ""}
         </div>
       </div>
     </section>

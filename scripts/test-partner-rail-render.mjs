@@ -52,7 +52,8 @@ for (const [city, intent] of [["Orlando", "best-of"], ["Sarasota", "date-night"]
   ok(html.includes("data-intent-partner-rail"), `${city}/${intent}: the rail element renders`);
   ok(/data-offer-id="/.test(html), `${city}/${intent}: at least one offer card renders`);
   ok(html.includes("/api/commerce/go?"), `${city}/${intent}: cards link through our redirect, never a partner URL`);
-  ok(!/commission/i.test(html), `${city}/${intent}: the rail renders no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)`);
+  ok(html.includes("Some links on this page are affiliate links. We may earn a commission if you book through them."), `${city}/${intent}: the affiliate disclosure is visible text, not a hover title`);
+  ok(!/at no extra cost/i.test(html), `${city}/${intent}: the rail makes no unverified price claim`);
 }
 
 // ── 2. THE BUG: images missing means nothing renders ──────────────────────

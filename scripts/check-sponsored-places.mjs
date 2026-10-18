@@ -46,8 +46,10 @@ import {
   sponsoredPlaceById, sponsoredIsLive, sponsoredHref, hydrateSponsoredPlace, milesBetween,
   sponsorHasPage, sponsorSlugs, sponsorBySlug, sponsorPagePath,
   sponsoredRailNear, sponsoredRailCardForReader, hydrateSponsoredRailPlace, railWhenChip,
+  sponsoredPublicScore, sponsoredSnapshotFresh, SPONSORED_SNAPSHOT_MAX_DAYS,
   RAILS_NOT_FOR_SALE,
 } from "../lib/sponsoredPlaces.js";
+import { siteTodayStr } from "../lib/siteTime.js";
 import { RAILS } from "../lib/rails.js";
 import { mayHostEventPhotos } from "../lib/eventPhotos.js";
 import { topPickAward } from "../lib/topPickAward.js";
@@ -145,9 +147,23 @@ ok(sponsoredIsLive({ ...rio, endsOn: null }, "2099-01-01") === true, "endsOn:nul
    Money buys the slot. It has never bought the number, and this is where that
    stays true. */
 if (rio) {
-  const h = hydrateSponsoredPlace(rio, { lat: 35.2621, lng: -81.1873 });
-  ok(h.wfScore === wayfindScore(rio.rating, rio.reviews), "the hydrated score IS wayfindScore(rating, reviews)");
-  ok(h.wfScore !== null && h.wfScore > 0, "…and it is a real number");
+  const FRESH = "2026-08-23";
+  const DAY30 = "2026-09-22";
+  const DAY31 = "2026-09-23";
+  const hFresh = hydrateSponsoredPlace(rio, { lat: 35.2621, lng: -81.1873 }, FRESH);
+  ok(sponsoredSnapshotFresh(rio, FRESH) && sponsoredSnapshotFresh(rio, DAY30), "day 0 and day 30 of the snapshot are still publishable");
+  ok(!sponsoredSnapshotFresh(rio, DAY31), "day 31 withholds the snapshot");
+  ok(SPONSORED_SNAPSHOT_MAX_DAYS === 30, "the public window is 30 days");
+  ok(hFresh.wfScore === wayfindScore(rio.rating, rio.reviews), "a fresh hydrate IS wayfindScore(rating, reviews)");
+  ok(hFresh.wfScore === 92, "4.9 / 384 on a fresh day is 92 (9.2), the organic formula");
+  ok(hFresh.scoreWithheld === false && hFresh.rating === 4.9 && hFresh.reviews === 384, "a fresh hydrate keeps the snapshot stars");
+  const baked = hydrateSponsoredPlace({ ...rio, wfScore: 100 }, { lat: 35.2621, lng: -81.1873 }, FRESH);
+  ok(baked.wfScore === 92, "a baked wfScore on the entry cannot override the formula");
+  const hStale = hydrateSponsoredPlace(rio, { lat: 35.2621, lng: -81.1873 }, DAY31);
+  ok(hStale.wfScore === null && hStale.rating === null && hStale.reviews === null && hStale.scoreWithheld === true,
+    "a stale hydrate publishes no score and no Google star or review count");
+  ok(sponsoredPublicScore(rio, siteTodayStr()) === null, "the live Eastern date withholds Rio's 2026-08-23 snapshot");
+  const h = hStale;
   ok(Number.isFinite(h.distMi) && h.distMi < 15, "hydrate computes a real distance from the reader");
   // 2026-08-25: a committed self-hosted asset (/partners/*.jpg) is BETTER than
   // the proxy — no metered fetch, no spend gate, survives cache purges. The
@@ -179,8 +195,10 @@ const mod = await loadComponent(join(ROOT, "app/components/SponsoredPlaceCard.js
 const Card = mod.default || mod;
 ok(renderToStaticMarkup(React.createElement(Card, { pick: null })) === "", "no pick renders literally nothing");
 
-const pick = hydrateSponsoredPlace(rio, { lat: 35.2621, lng: -81.1873 });
+const pick = hydrateSponsoredPlace(rio, { lat: 35.2621, lng: -81.1873 }, "2026-10-18");
 const html = renderToStaticMarkup(React.createElement(Card, { pick }));
+const freshPick = hydrateSponsoredPlace(rio, { lat: 35.2621, lng: -81.1873 }, "2026-08-23");
+const freshHtml = renderToStaticMarkup(React.createElement(Card, { pick: freshPick }));
 ok(html.includes(rio.label), `the disclosure label renders — expected ${JSON.stringify(rio.label)}`);
 ok(/paid placement/i.test(html), "the paid-placement footnote renders");
 ok(/not part of the deal/i.test(html), "…and it says the score was not part of the deal");
@@ -193,10 +211,14 @@ const esc = (s) => String(s)
 ok(html.includes(esc(rio.headline)), "the advertiser's headline renders");
 ok(html.includes(esc(rio.body)), "the advertiser's body copy renders");
 ok(html.includes(rio.claim), "the advertiser's own claim renders");
-ok(html.includes("384") && /Google reviews/.test(html), "the real review count renders, attributed to Google");
-ok(/4\.9★/.test(html), "the real star rating renders");
-ok(/Wayfind Score 9\.2 out of 10/.test(html), "the LIVE Wayfind Score renders (9.2 for 4.9 / 384 — Bayesian 9.5 minus the <500-review −0.3)");
-ok(/Score pending/.test(html) === false, "a paid card never ships the pending state");
+ok(!html.includes("384") && !/4\.9★/.test(html) && !/Wayfind Score 9\.2 out of 10/.test(html),
+  "a stale snapshot does not render 9.2, 4.9, or 384 on the paid card");
+ok(!/wayfind-score-badge/.test(html), "a stale snapshot does not render a score badge");
+ok(/withheld until a current review snapshot/.test(html), "the card says the public score is withheld");
+ok(freshHtml.includes("384") && /Google reviews/.test(freshHtml), "a fresh snapshot renders the review count, attributed to Google");
+ok(/4\.9★/.test(freshHtml), "a fresh snapshot renders the star rating");
+ok(/Wayfind Score 9\.2 out of 10/.test(freshHtml), "a fresh snapshot renders the organic 9.2");
+ok(/Score pending/.test(freshHtml) === false, "a fresh snapshot does not ship the pending state");
 ok(html.includes(rio.person.name), "the esthetician the reader will actually sit with is credited");
 
 // The anchor: paid link hygiene, in the markup.
@@ -263,7 +285,8 @@ ok(/PartnersIndexPage/.test(INDEX_ROUTE), "/partners renders the index");
 
 // The rendered page.
 const pageMod = await loadComponent(join(ROOT, "lib/sponsorPage.js"), ROOT);
-const pageHtml = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body-wax-gastonia" }));
+const pageHtml = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body-wax-gastonia", today: "2026-10-18" }));
+const freshPageHtml = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body-wax-gastonia", today: "2026-08-23" }));
 ok(pageHtml.includes(rio.label), "the page renders the sponsored label");
 // The literal transaction, in a sentence a reader cannot misread — and NOT the
 // "<brand> partner" construction lib/creatorRights.js bans.
@@ -271,7 +294,10 @@ ok(/pays to be featured/i.test(pageHtml.replace(/\s+/g, " ")),
   "the page says in plain words that the business pays to be featured");
 ok(/no advertiser can move it/i.test(pageHtml), "…and that the score cannot be bought");
 ok(pageHtml.includes("Wayfind Score"), "the Wayfind Score is named on the page");
-ok(/9\.2/.test(pageHtml), "the page shows the LIVE score (9.2 for 4.9 / 384)");
+ok(/Wayfind Score withheld/.test(pageHtml) && !/9\.2/.test(pageHtml) && !/4\.9/.test(pageHtml),
+  "on 2026-10-18 the page withholds the score and does not print 9.2 or 4.9");
+ok(/9\.2/.test(freshPageHtml) && /4\.9/.test(freshPageHtml) && /384/.test(freshPageHtml),
+  "on the snapshot day the page shows the organic 9.2 from 4.9 / 384");
 ok(pageHtml.includes(esc(rio.page.lede)), "the lede renders");
 ok(rio.page.waxes.every((w) => pageHtml.includes(w.name)), "every wax formula renders");
 ok(pageHtml.includes(esc(rio.page.services[0])), "the service list renders");

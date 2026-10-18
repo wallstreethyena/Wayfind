@@ -3,8 +3,7 @@
 // like a modal: destination photography on the left, a warm editorial panel on
 // the right, an immediate product promise, and a single route into Wayfind.
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand";
-import SafeImg from "./SafeImg";
-export default function PremiumIntentHero({ eyebrow, location, title, description, image, primaryHref = null, primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
+export default function PremiumIntentHero({ eyebrow, location, title, description, image, imageWebp = "", primaryHref = null, primaryLabel = "Build my shortlist", secondaryHref = "#shortlist", secondaryLabel = "See the expert picks",
   // A page that cannot be left is a dead end; default out to the app root.
   backHref = null, backLabel = "Wayfind",
   // v8.23 — an optional THIRD action beside the two links (the guides pass a
@@ -23,7 +22,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-intent-hero{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);min-height:560px;overflow:hidden;border:1px solid rgba(255,255,255,.2);border-radius:30px;background:#f6efe5;box-shadow:0 28px 90px rgba(0,0,0,.42)}
         .wf-intent-photo{position:relative;min-height:560px;overflow:hidden;background:#132235}
-        .wf-intent-photo>img:first-child{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        .wf-intent-photo>img:first-child,.wf-intent-photo>picture,.wf-intent-photo>picture>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
         .wf-intent-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(3,8,15,.12),rgba(3,8,15,.28) 48%,rgba(3,8,15,.86))}
         /* v6.73 — same structural rule as EditorialLandingHero: the wordmark NEVER sits
            inside the hero photo. It was absolutely positioned over the image and
@@ -38,7 +37,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
         .wf-intent-panel{padding:50px 54px 44px;color:#0d1724;display:flex;flex-direction:column;justify-content:center}
         .wf-intent-top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:30px}
         .wf-intent-eyebrow,.wf-intent-location{font-size:11px;font-weight:900;letter-spacing:1.8px;text-transform:uppercase}
-        .wf-intent-eyebrow{color:#59677b}.wf-intent-location{color:#cf5c16}
+        .wf-intent-eyebrow{color:#59677b}.wf-intent-location{color:#9a3d0c}
         .wf-intent-title{font:500 clamp(42px,4.5vw,67px)/.96 Georgia,serif;letter-spacing:-2.3px;margin:0 0 22px;max-width:690px}
         .wf-intent-copy{font-size:18px;line-height:1.55;color:#56647a;max-width:620px;margin:0 0 26px}
         .wf-intent-proof{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #d7cec2;border-bottom:1px solid #d7cec2;margin:4px 0 30px}
@@ -48,7 +47,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
         .wf-intent-primary,.wf-intent-secondary{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:11px 24px;border-radius:999px;font-size:14px;font-weight:900;text-decoration:none}
         .wf-intent-primary{background:#f67822;color:#101720;box-shadow:0 12px 30px rgba(246,120,34,.24)}
         .wf-intent-secondary{border:1px solid #b8b0a6;color:#46546a}
-        .wf-intent-trust{font-size:11.5px;color:#748095;margin:24px 0 0}
+        .wf-intent-trust{font-size:11.5px;color:#4a5568;margin:24px 0 0}
         @media(max-width:760px){
           .wf-intent-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:24px}
           .wf-intent-photo{min-height:270px}.wf-intent-chrome{padding:0 2px 10px}.wf-intent-brand{width:104px}.wf-intent-back{padding:8px 12px;font-size:12.5px}
@@ -72,12 +71,19 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
           </a>
         ) : <span />}
         <a href="/" aria-label="Wayfind home">
-          <img className="wf-intent-brand" src={seasonalWordmark.png} alt="Wayfind" />
+          <picture>
+            {seasonalWordmark.avif ? <source srcSet={seasonalWordmark.avif} type="image/avif" /> : null}
+            {seasonalWordmark.webp ? <source srcSet={seasonalWordmark.webp} type="image/webp" /> : null}
+            <img className="wf-intent-brand" src={seasonalWordmark.png} alt="Wayfind" width="126" height="35" />
+          </picture>
         </a>
       </div>
       <header className="wf-intent-hero">
         <div className="wf-intent-photo">
-          <SafeImg src={image} alt="" fallbackStyle={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />
+          <picture>
+            {imageWebp ? <source srcSet={imageWebp} type="image/webp" /> : null}
+            <img src={image} alt="" fetchPriority="high" decoding="async" width="800" height="1200" />
+          </picture>
           <div className="wf-intent-caption">{caption || <>A better decision<br />is closer than you think.</>}</div>
         </div>
         <div className="wf-intent-panel">

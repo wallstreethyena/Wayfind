@@ -2281,3 +2281,7 @@ node scripts/test-guide-context-photos.mjs
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
+
+# 2026-10-18 audit: stale sponsored snapshots publish no score, affiliate
+# disclosure is visible text, and a definitive photo miss is not refetched.
+node scripts/test-audit-trust-20261018.mjs

@@ -189,7 +189,7 @@ const CSS = strip(readFileSync(join(ROOT, "app/components/railMenuCss.js"), "utf
     /photoUrl\(place\)\s*\n?\s*\?/.test(card)
       || /\{photoUrl\(place\)/.test(card)
       || (/const primaryPhoto = (?:photoSrcFilter\()?photoUrl\(place\)/.test(card)
-        && /\{primaryPhoto && imgFailed !== primaryPhoto/.test(card)),
+        && /\(retrySrc \|\| primaryPhoto\) && imgFailed !== primaryPhoto/.test(card)),
     "…chosen by whether the row actually carries a photo, which is exactly what the twin removes");
 }
 

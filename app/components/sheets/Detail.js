@@ -8,6 +8,7 @@
 // module-scope EXPERIENCES table) stays in home.js and flows through ctx,
 // same as every other extraction phase.
 import { pilotForPlace } from "../../../lib/beachPlanning";
+import { AFFILIATE_DISCLOSURE_TEXT } from "../../../lib/affiliateDisclosure.js";
 import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
@@ -234,8 +235,8 @@ function WayfindTakeRail({ editorial, alreadyShown = null }) {
 // any monetized action (tickets, rates, deals, tracked delivery).
 function FTCDisclosure() {
   return (
-    <div style={{ fontSize: 10.5, color: C.muted, margin: "7px 2px 0", textAlign: "center" }}>
-      We may earn a commission when you book through partner links. It never changes our rankings.
+    <div style={{ fontSize: 13, color: "#E6EDF3", margin: "7px 2px 0", textAlign: "center", lineHeight: 1.45 }}>
+      {AFFILIATE_DISCLOSURE_TEXT} It never changes our rankings.
     </div>
   );
 }
@@ -368,11 +369,14 @@ function VacationRentalLink({ href, contentId, city }) {
   const offerId = new URLSearchParams(href.split("?")[1]).get("offer");
   const context = { surface: "detail_vacation_rentals", provider: "vrbo", merchant: "Vrbo", offer_id: offerId, content_id: contentId, city_id: city || null };
   const impressionRef = useCommerceImpression(context);
-  return <a ref={impressionRef} href={href} rel="noreferrer sponsored" data-commerce-owner="VacationRentalLink" title="Partner link. Wayfind may earn a commission." onClick={(e) => {
-    const clickId = mintClickId();
-    e.currentTarget.href = withClickId(href, clickId);
-    try { emitCommerce("commerce_cta_clicked", { ...context, click_id: clickId }); } catch (err) {}
-  }} style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on Vrbo ↗</a>;
+  return <div>
+    <a ref={impressionRef} href={href} rel="noreferrer sponsored" data-commerce-owner="VacationRentalLink" title="Partner link. Wayfind may earn a commission." onClick={(e) => {
+      const clickId = mintClickId();
+      e.currentTarget.href = withClickId(href, clickId);
+      try { emitCommerce("commerce_cta_clicked", { ...context, click_id: clickId }); } catch (err) {}
+    }} style={{ display: "block", textAlign: "center", fontSize: 12, fontWeight: 800, color: C.light, textDecoration: "none", margin: "8px 2px 0" }}>Prefer a whole place? Vacation rentals on Vrbo ↗</a>
+    <p style={{ margin: "6px 2px 0", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3", textAlign: "center" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
+  </div>;
 }
 
 // v6.72 — "Go now / wait" verdict pill rendered above the primary CTA.

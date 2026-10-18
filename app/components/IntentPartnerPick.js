@@ -13,6 +13,7 @@ import { discountDepthBonus, timeOfDayBonus } from "../../lib/experienceNowRank"
 import { siteHourFloat } from "../../lib/nowContext";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import CardPhoto from "./CardPhoto.js";
+import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
 
 const disclosureVersion = "partner-rail-v2";
 
@@ -221,8 +222,9 @@ export default function IntentPartnerPick({ city, intent, inventory, initialInve
     <aside ref={rootRef} data-intent-partner-pick data-intent-partner-rail style={{ margin: "4px 0 14px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 12, marginBottom: 8 }}>
         <span style={{ color: C.muted, fontSize: 12, fontWeight: 800, letterSpacing: ".4px", textTransform: "uppercase" }}>Bookable highlights near {city}</span>
-        <span style={{ color: C.muted, fontSize: 9.5, whiteSpace: "nowrap" }}>Verified partners</span>
+        <span style={{ color: C.muted, fontSize: 9.5, whiteSpace: "nowrap" }}>Affiliate links</span>
       </div>
+      <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
       <div ref={railRef} aria-label={`Bookable highlights near ${city}`} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", overscrollBehaviorInline: "contain", scrollSnapType: "x proximity", paddingBottom: 4 }}>
         {picks.map((pick, index) => {
           const href = pick.kind === "coupon"

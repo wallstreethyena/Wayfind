@@ -446,12 +446,13 @@ export async function generateMetadata({ params }) {
   const heroV = art && art.kind !== "unavailable" && art.reviewedAt
     ? "&v=" + encodeURIComponent(art.reviewedAt + "." + HERO_CARD_DESIGN_V) : "";
   const heroUrl = `${SITE_URL}/api/og/hero?kind=guide&id=${encodeURIComponent(params.slug)}&t=${encodeURIComponent(g.title)}&cat=Guide&loc=${encodeURIComponent(g.region || "")}${heroV}`;
+  const indexable = !isGuidePast(g);
   return {
     title: `${g.title} | Wayfind`,
     description: g.description,
     keywords: g.relatedKeywords || (g.keyword ? [g.keyword] : undefined),
     alternates: { canonical: url },
-    robots: { index: true, follow: true, googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
+    robots: { index: indexable, follow: true, googleBot: { index: indexable, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 } },
     openGraph: { title: g.title, description: g.description, url, siteName: "Wayfind", type: "article", images: [{ url: heroUrl, width: 1200, height: 630, type: "image/jpeg", alt: `${g.title} on Wayfind` }] },
     twitter: { card: "summary_large_image", title: g.title, description: g.description, images: [heroUrl] },
   };

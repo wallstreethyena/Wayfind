@@ -16,11 +16,12 @@ import { placePartnerPick } from "../../lib/placePartnerPicks";
 import { crossSellKindFor, daypartCrossSellBonus } from "../../lib/daypartCrossSell";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { interleaveReserved } from "../../lib/menuReserveSlots";
+import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
 const NOLOG = () => {};
 // Bumped when the disclosure WORDING below (near the end of the rail) changes,
 // so consent evidence ties to the exact text shown, not to "some disclosure
 // existed" — same convention as FoodTourRail.DISCLOSURE_VERSION.
-const RAIL_DISCLOSURE_VERSION = "browse-rail-v1";
+const RAIL_DISCLOSURE_VERSION = "browse-rail-v2";
 export const BOOKABLE_NEAR_LIMIT = 50;
 const RESERVE_LIMIT = 100;
 // Lane F, 2026-09-16 — see lib/menuReserveSlots.js for the full rationale.
@@ -344,8 +345,9 @@ export function UnifiedBrowseCommerceRail({ cat: browseCat = "attractions", sub,
     <aside data-unified-browse-commerce-rail style={{ margin: "2px 0 14px" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 8 }}>
         <span style={{ fontSize: 12, fontWeight: 800, color: C.muted, textTransform: "uppercase", letterSpacing: ".4px" }}>{chipLabel ? `${chipLabel} — bookable near ${city || "you"}` : `Bookable near ${city || "you"}`}</span>
-        <span style={{ fontSize: 9.5, color: C.muted }}>{cards.length} options · Verified partners</span>
+        <span style={{ fontSize: 9.5, color: C.muted }}>{cards.length} options · Affiliate links</span>
       </div>
+      <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
       <div ref={laneRef} style={{ display: "flex", gap: 10, overflowX: "auto", overscrollBehaviorX: "contain", paddingBottom: 4, scrollSnapType: "x proximity" }}>
         {cards.map((card, index) => {
           const href = card.kind === "experience" ? commerceHref({ provider: "viator", offerId: card.offerId, surface: "browse_partner_rail", contentId: `${browseCat}:${sub || "all"}` }) : card.href;

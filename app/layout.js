@@ -37,7 +37,7 @@ export const metadata = {
   // GOOGLE_SITE_VERIFICATION env var on Vercel — no code change needed.
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
   title: "Wayfind — Find the Best Things to Do Near You, Right Now",
-  description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
+  description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -55,7 +55,7 @@ export const metadata = {
   },
   openGraph: {
     title: "Wayfind — Find the Best Things to Do Near You, Right Now",
-    description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
+    description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
     url: SITE_URL,
     siteName: "Wayfind",
     type: "website",
@@ -71,7 +71,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Wayfind — Find the Best Things to Do Near You, Right Now",
-    description: "Wayfind decides what's actually worth your time — based on who you're with, when you're going, your budget, and how far you'll drive. Real reviews, no ads, no paid placement.",
+    description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
     images: ["/api/og"],
   },
 };
@@ -344,49 +344,49 @@ export default function RootLayout({ children }) {
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Local guides</div>
                 {Object.entries(currentGuides(GUIDES)).slice(0, 8).map(([k, guide]) => (
-                  <a key={k} href={"/guides/" + k} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>{guide.title}</a>
+                  <a key={k} href={"/guides/" + k} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>{guide.title}</a>
                 ))}
-                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#CBD5E1", textDecoration: "none", padding: "3px 0", fontWeight: 700 }}>All guides</a>
+                <a href="/guides" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#CBD5E1", textDecoration: "none", padding: "0", fontWeight: 700 }}>All guides</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Cities</div>
                 {Object.keys(CULTURE).map((m) => (
-                  <a key={m} href={"/culture/" + m} style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
+                  <a key={m} href={"/culture/" + m} style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0", textTransform: "capitalize" }}>{(CULTURE[m].title || m).replace(/ in \d+ seconds/i, "")}</a>
                 ))}
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Quick plans</div>
-                <a href="/?go=events" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Find something to do tonight</a>
-                <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Plan a family day out</a>
-                <a href="/?go=map" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>See the best places on a map</a>
-                <a href="/guides" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Skip the tourist traps</a>
+                <a href="/?go=events" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Find something to do tonight</a>
+                <a href="/guides/things-to-do-orlando-not-theme-parks" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Plan a family day out</a>
+                <a href="/?go=map" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>See the best places on a map</a>
+                <a href="/guides" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Skip the tourist traps</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Explore</div>
-                <a href="/events" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Events near you</a>
-                <a href="/map" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Map view</a>
+                <a href="/events" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Events near you</a>
+                <a href="/map" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Map view</a>
                 {/* v8.33 — the indexable creator layer needs a site-wide entry
                     point or every /creators/* page is an orphan no crawler
                     reaches from the homepage. This is that link. */}
-                <a href="/creators" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Local creators</a>
-                <a href="/trending" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Trending places</a>
+                <a href="/creators" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Local creators</a>
+                <a href="/trending" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Trending places</a>
                 {/* v8.43.1 — same reason as the creator link above: without a
                     site-wide entry point every /partners/* page is an orphan no
                     crawler reaches. It doubles as the honest, permanently linked
                     answer to "does Wayfind take money from businesses?" */}
-                <a href="/partners" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Partners</a>
-                <a href="/terms" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Terms</a>
-                <a href="/privacy" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Privacy</a>
-                <a href="/about" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>About</a>
-                <a href="/editorial-policy" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Editorial policy</a>
-                <a href="/how-wayfind-ranks" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>How we rank</a>
+                <a href="/partners" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Partners</a>
+                <a href="/terms" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Terms</a>
+                <a href="/privacy" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Privacy</a>
+                <a href="/about" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>About</a>
+                <a href="/editorial-policy" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Editorial policy</a>
+                <a href="/how-wayfind-ranks" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>How we rank</a>
               </div>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 800, color: "#94A3B8", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: 8 }}>Follow</div>
-                <a href="https://www.instagram.com/gowayfind.app/" target="_blank" rel="noopener" style={{ display: "block", fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "3px 0" }}>Instagram</a>
+                <a href="https://www.instagram.com/gowayfind.app/" target="_blank" rel="noopener" style={{ display: "flex", alignItems: "center", minHeight: 44, fontSize: 12.5, color: "#94A3B8", textDecoration: "none", padding: "0" }}>Instagram</a>
               </div>
             </nav>
-            <p style={{ fontSize: 11, color: "#8B98A9", lineHeight: 1.55, margin: "20px 0 0" }}>Some links are affiliate links. We may earn a commission at no extra cost to you. It never changes our rankings. Operated by WAYFIND LLC.</p>
+            <p style={{ fontSize: 13, color: "#C5D0DC", lineHeight: 1.45, margin: "20px 0 0" }}>Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings. Operated by WAYFIND LLC.</p>
           </div>
         </footer>
         </FooterVeil>

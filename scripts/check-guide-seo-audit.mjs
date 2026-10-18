@@ -57,7 +57,7 @@ const mutatedSocialSource = routeSource.replace("images: [{ url: heroUrl", "imag
 assert.notEqual(mutatedSocialSource, routeSource, "mutation must actually apply — the source no longer contains the literal it targets");
 const withoutSocial = auditSourceContracts({ routeSource: mutatedSocialSource, sitemapSource });
 assert.equal(withoutSocial.social_metadata.status, "fail"); checks++;
-const withoutSitemap = auditSourceContracts({ routeSource, sitemapSource: sitemapSource.replace("Object.keys(GUIDES).map((slug)", "[].map((slug)") });
+const withoutSitemap = auditSourceContracts({ routeSource, sitemapSource: sitemapSource.replace("Object.keys(currentGuides(GUIDES)).map((slug)", "[].map((slug)") });
 assert.equal(withoutSitemap.source_sitemap.status, "fail"); checks++;
 
 console.log(`check-guide-seo-audit: OK — ${checks} assertions across ${audit.pages.length} guides`);

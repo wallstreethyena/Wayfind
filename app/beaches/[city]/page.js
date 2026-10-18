@@ -2,7 +2,7 @@
 // lib/landing.js (one module, all four categories); this route only binds
 // the "beaches" slug. ISR: rendered on demand with server keys, cached a day.
 import { landingMetadata, landingCityParams } from "../../../lib/landing";
-import { LandingPage } from "../../../lib/landingPage";
+import { LandingRoute } from "../../../lib/landingPage";
 import { landingShareAction } from "../../../lib/landingShare";
 
 export const revalidate = 86400;
@@ -11,4 +11,4 @@ export const dynamicParams = false;
 // A withheld pair is absent here, so dynamicParams=false 404s it.
 export function generateStaticParams() { return landingCityParams("beaches"); }
 export function generateMetadata({ params }) { return landingMetadata("beaches", params.city); }
-export default function Page({ params }) { return LandingPage({ catSlug: "beaches", citySlug: params.city, shareAction: landingShareAction("beaches", params.city) }); }
+export default function Page({ params }) { return LandingRoute({ catSlug: "beaches", citySlug: params.city, shareAction: landingShareAction("beaches", params.city) }); }

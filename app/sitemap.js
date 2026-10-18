@@ -2,6 +2,7 @@
 // lastmod is factual (guide `updated`) or omitted. Request-time `new Date()`
 // made 678 URLs share one churning lastmod and taught crawlers nothing.
 import { GUIDES } from "../lib/guides";
+import { currentGuides } from "../lib/guideLifecycle";
 import { BEACH_METROS } from "../lib/beaches";
 import { EVENT_WINDOWS } from "../lib/eventsList";
 import { TOWN_HUBS } from "../lib/cultureHubs";
@@ -27,7 +28,7 @@ export default async function sitemap() {
   // query variants, or infinite share-state. Durable events live at
   // /events/{city}/{window}. Durable places live at /places/{id}.
   const core = ["", "/guides", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p }));
-  const guides = Object.keys(GUIDES).map((slug) => {
+  const guides = Object.keys(currentGuides(GUIDES)).map((slug) => {
     const updated = GUIDES[slug] && GUIDES[slug].updated;
     const row = { url: `${SITE_URL}/guides/${slug}` };
     if (updated) row.lastModified = new Date(updated);

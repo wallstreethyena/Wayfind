@@ -354,7 +354,7 @@ export default function ThingsToDoList({ center, city, weather, onOpenPlace, onL
       ) : shown.length ? (
         <>
           {shown.map((r, i) => <Card key={r.id} r={r} first={i === 0} rank={i + 1} city={city} blurb={blurbs && r.kind !== "experience" ? blurbs[r.id] : null} beachSignal={beachSignals[r.id]} onOpenPlace={onOpenPlace} onLog={onLog} onSave={onSave} onShare={onShare} liked={!!(liked && liked[r.id])} disliked={!!(disliked && disliked[r.id])} onLike={onLike} onDislike={onDislike} />)}
-          {hasTours ? <div style={{ fontSize: 11, color: C.muted, lineHeight: 1.4 }}>Some links are affiliate links; it never changes our rankings.</div> : null}
+          {hasTours ? <div style={{ fontSize: 13, color: "#E6EDF3", lineHeight: 1.45 }}>Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings.</div> : null}
         </>
       ) : (
         <div style={{ padding: "14px 2px", fontSize: 13, color: C.muted }}>Nothing strong in this view right now.</div>

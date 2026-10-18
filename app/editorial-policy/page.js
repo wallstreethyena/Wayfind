@@ -27,7 +27,7 @@ export default function Page() {
       <h2 style={S.h2}>Rankings</h2>
       <p style={S.p}>List order and the Wayfind Score are our editorial opinion, produced by the same method everywhere in the app, and carrying no ads and no paid placement. The Score is pure merit; anything we earn a commission on is a separate, clearly-labeled layer that never changes it. Read <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
       <h2 style={S.h2}>Affiliate links</h2>
-      <p style={S.p}>Some links go to booking partners (for example Viator or hotel sites) and may earn Wayfind a commission at no cost to you. Affiliate potential never changes what we recommend or where it ranks, and pages with partner links say so. If something isn&apos;t worth your money, we say that too.</p>
+      <p style={S.p}>Some links go to booking partners (for example Viator or hotel sites) and may earn Wayfind a commission. Affiliate potential never changes what we recommend or where it ranks, and pages with partner links say so. If something isn&apos;t worth your money, we say that too.</p>
       <h2 style={S.h2}>Corrections</h2>
       <p style={S.p}>Errors get fixed, not defended. Email <a style={S.a} href="mailto:hello@gowayfind.com">hello@gowayfind.com</a> with anything wrong — hours, closures, a pick that disappointed — and we&apos;ll verify and correct it promptly.</p>
       <h2 style={S.h2}>Who is responsible</h2>
