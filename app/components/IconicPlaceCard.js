@@ -1,4 +1,6 @@
 "use client";
+import { usePlaceDistance } from "./PlaceDistance.js";
+import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 
 // Portable renderer for the canonical home PlaceCard visual contract. The
 // classes and geometry come from WF_PLACE_CARD_CSS; keeping those names here
@@ -316,6 +318,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // caller passing it. A caller that never sets it gets byte-identical output
   // to before this prop existed.
   cta = null }) {
+  const userDistance = usePlaceDistance(place);
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v8.29 — the shared like/dislike/save store, read ONLY when this card has an
   // action its caller did not wire. A fully wired card (the home shell's, which
@@ -448,9 +451,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     utcOffset: place.utcOffset != null ? place.utcOffset : place.utcOffsetMinutes,
   });
   const state = status.open === true ? "Open" : status.open === false ? "Closed" : null;
-  const distance = Number.isFinite(Number(place.distMi))
-    ? (Number(place.distMi) < 10 ? Number(place.distMi).toFixed(1) : Math.round(Number(place.distMi))) + " mi"
-    : null;
+  const distance = userDistance == null ? null : formatDistanceMiles(userDistance) + " mi";
   const isCuratorPick = !!(place._members && place._members.ownerPick);
   const facts = [
     place.reviews ? compactCount(place.reviews) + " reviews" : null,

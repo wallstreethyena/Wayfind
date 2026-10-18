@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // Extracted from app/home.js (G3, July 2026 decomposition). Render-only.
 // The place-detail bottom sheet — Wayfind's core, most-used UI surface.
 // Five helpers used exclusively here move in too (galleryBtn, InfoChip,
@@ -115,7 +116,7 @@ function WorthTheDriveWidget({ place, myVote, votes, onVote }) {
         <span style={{ fontSize: 22 }}>🚗</span>
         <div>
           <div style={{ fontSize: 15, fontWeight: 800, color: "#E2E8F0" }}>Worth the drive?</div>
-          {place.distMi != null && <div style={{ fontSize: 12, color: "#64748B" }}>{place.distMi.toFixed(1)} miles from you — weigh in</div>}
+          <PlaceDistance place={place} suffix=" miles from you — weigh in" style={{ display: "block", fontSize: 12, color: "#64748B" }} />
         </div>
       </div>
       {!hasVoted ? (
@@ -411,7 +412,7 @@ function WhereToGoNextRow({ p, partner, reason, pairDistMi, openDetail, liveOpen
           <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
             <PlaceScoreChip p={p} size={12} />
             {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-            {pairDistMi != null && <span style={{ fontSize: 11.5, color: C.muted }}>· {pairDistMi} mi from here</span>}
+            <PlaceDistance place={p} prefix="· " style={{ fontSize: 11.5, color: C.muted }} />
           </div>
         </div>
       </div>
@@ -446,6 +447,7 @@ export function detailFeedbackPath(detail) {
 
 export default function DetailSheet({ ctx }) {
   const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival, BUILD_ID } = ctx;
+  const userDistance = usePlaceDistance(detail);
   const [lunchChallengeView, setLunchChallengeView] = useState(false);
   useEffect(() => {
     try {
@@ -907,7 +909,7 @@ export default function DetailSheet({ ctx }) {
                     <span onClick={() => setHoursOpen((o) => !o)} style={{ cursor: "pointer", fontWeight: 800, color: openState ? C.green : C.red }}>{openState ? "Open now" : "Closed"}<span style={{ fontSize: 8.5, marginLeft: 3, display: "inline-block", transform: hoursOpen ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▼</span></span>
                   )}
                 </>)}
-                {detail.distMi != null && (<><span style={{ color: C.border }}>·</span><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.light, fontWeight: 700, textDecoration: "none" }}>{detail.distMi.toFixed(1)} mi ▸</a></>)}
+                {userDistance != null && (<><span style={{ color: C.border }}>·</span><a href={directionsUrl(detail) || detail.mapsUrl} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("directions", detail, { src: "meta" }); } catch (e) {} }} style={{ color: C.light, fontWeight: 700, textDecoration: "none" }}>{userDistance.toFixed(1)} mi ▸</a></>)}
                 {(() => { const cz = Dining.cuisineLabel(detail) || primaryCategory(detail); return cz ? (<><span style={{ color: C.border }}>·</span><button onClick={() => { try { logEvent("cuisine_link", detail, { cz }); } catch (e) {} openCuisine(cz, detail); }} style={{ background: "transparent", border: "none", padding: 0, color: C.light, fontWeight: 700, fontSize: "inherit", cursor: "pointer" }}>{cz} ›</button></>) : null; })()}
                 {(() => { if (detail._event) return null; const isD = ["Food", "Nightlife"].includes(Ranking.coarseCat(detail) || ""); const cost = isD ? Dining.costForTwo(detail) : null; /* PriceBadge reads the NUMBER, not the glyph string: detail.price was pre-rendered "$$" with no word, and a glyph without its label is exactly the half-signal that let "$$$$" and "Moderate" disagree. costForTwo stays ahead of it — a real dollar range for two is more specific than a band. */ const lvl = priceLevelOf(detail.priceNum != null ? detail.priceNum : (detail.price_level != null ? detail.price_level : detail.priceLevel)); if (cost && cost.listed) return (<><span style={{ color: C.border }}>·</span><span style={{ color: C.green, fontWeight: 800 }}>{cost.text}</span></>); if (lvl) return (<><span style={{ color: C.border }}>·</span><PriceBadge level={lvl} /></>); return null; })()}
               </div>
@@ -1172,7 +1174,7 @@ export default function DetailSheet({ ctx }) {
                   <div style={{ marginBottom: 16 }} data-where-to-go-next>
                     <div style={{ fontSize: 10, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", color: C.accent, marginBottom: 4 }}>Keep the day going</div>
                     <div style={{ fontSize: 17, fontWeight: 850, color: C.text, marginBottom: 3 }}>Where to go next</div>
-                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Matched to this stop and measured from here—not a generic city list.</div>
+                    <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.45, marginBottom: 10 }}>Matched to this stop. Distances are from your current location.</div>
                     {picks.map(({ p, partner, reason, pairDistMi }) => (
                       <WhereToGoNextRow key={"next-" + p.id} p={p} partner={partner} reason={reason} pairDistMi={pairDistMi} openDetail={openDetail} liveOpen={liveOpen} FallbackImg={FallbackImg} ctaCity={ctaCity} />
                     ))}
@@ -1384,10 +1386,9 @@ export default function DetailSheet({ ctx }) {
                 const human = ef.wd ? (ef.wd + ", " + ef.mo + " " + ef.day + (ef.time ? " · " + ef.time : "")) : (ef.time || [detail._event.date, detail._event.time].filter(Boolean).join(" · "));
                 const url = detail._event.url || "";
                 const hasTickets = /ticket|seatgeek|stubhub|axs|livenation|eventbrite/i.test(url);
-                const place = locName ? locName.split(",")[0] : "you";
                 const why = [];
                 const _sl = scoreLabel(detail.wfScore); why.push(_sl ? _sl.s + "/10 venue" : "at " + detail.name);
-                if (detail.distMi != null) why.push(detail.distMi.toFixed(1) + " mi from " + place);
+                if (userDistance != null) why.push(userDistance.toFixed(1) + " mi from you");
                 return (
                   <div style={{ border: `1.5px solid ${C.border}`, borderRadius: 16, overflow: "hidden", marginBottom: 14, background: `linear-gradient(160deg, ${C.adim} 0%, ${C.card} 70%)` }}>
                     <div style={{ padding: "14px 15px" }}>
@@ -1396,7 +1397,7 @@ export default function DetailSheet({ ctx }) {
                       <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.7px", marginBottom: 6 }}>🎟️ Upcoming event</div>
                       <div style={{ fontSize: 19, fontWeight: 800, color: C.text, lineHeight: 1.25 }}>{detail._event.name}</div>
                       {human && <div style={{ fontSize: 14, fontWeight: 800, color: C.light, marginTop: 7 }}>{human}</div>}
-                      <div style={{ fontSize: 13, color: C.light, marginTop: 5 }}>📍 {detail.name}{detail.distMi != null ? " · " + detail.distMi.toFixed(1) + " mi" : ""}</div>
+                      <div style={{ fontSize: 13, color: C.light, marginTop: 5 }}>📍 {detail.name}{userDistance != null ? " · " + userDistance.toFixed(1) + " mi" : ""}</div>
                       {why.length > 0 && <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.45, marginTop: 7 }}>{why.join(", ") + "."}</div>}
                       {url && <a href={url} target="_blank" rel="noreferrer" style={{ display: "block", textAlign: "center", marginTop: 12, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{hasTickets ? "Get tickets ↗" : "View event ↗"}</a>}
                     </div>
@@ -1686,7 +1687,7 @@ export default function DetailSheet({ ctx }) {
                             {(() => { const cz = Dining.cuisineLabel(p); return cz ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.light }}>{cz}</span> : null; })()}
                             <PlaceScoreChip p={p} size={12} />
                             {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-                            <span style={{ fontSize: 11.5, color: C.muted }}>· {detailDistanceMi(detail, p).toFixed(1)} mi from this place</span>
+                            <PlaceDistance place={p} prefix="· " style={{ fontSize: 11.5, color: C.muted }} />
                           </div>
                         </div>
                         <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>
@@ -1707,9 +1708,9 @@ export default function DetailSheet({ ctx }) {
                       <div style={{ display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", marginTop: 2 }}>
                         <PlaceScoreChip p={p} size={12} />
                         {(() => { const lo = typeof liveOpen === "function" ? liveOpen(p) : p.openNow; return lo === true ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.green }}>· Open</span> : lo === false ? <span style={{ fontSize: 11.5, fontWeight: 700, color: C.red }}>· Closed</span> : null; })()}
-                        <span style={{ fontSize: 11.5, color: C.muted }}>· {detailDistanceMi(detail, p).toFixed(1)} mi from this place</span>
+                        <PlaceDistance place={p} prefix="· " style={{ fontSize: 11.5, color: C.muted }} />
                       </div>
-                      {reasons && reasons.length > 0 && <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 3 }}>{reasons.map((reason) => reason.replace(/^closer, /, "closer to you, ")).join(" · ")}</div>}
+                      {reasons && reasons.length > 0 && <div style={{ fontSize: 12, color: C.light, fontWeight: 600, lineHeight: 1.4, marginTop: 3 }}>{reasons.map((reason) => reason.replace(/^closer, .*$/, "closer to the search area")).join(" · ")}</div>}
                       {knownFor ? <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.4, marginTop: 2 }}>{knownFor.charAt(0).toUpperCase() + knownFor.slice(1)}</div> : null}
                     </div>
                     <span style={{ fontSize: 18, color: C.muted, flexShrink: 0 }}>›</span>

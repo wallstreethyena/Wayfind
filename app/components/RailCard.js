@@ -41,6 +41,8 @@
 // the same never-fabricate rule the rest of this codebase runs on.
 import { eventPhotoCredit } from "../../lib/eventImageProvenance.js";
 import useEventClock from "./useEventClock.js";
+import { usePlaceDistance } from "./PlaceDistance.js";
+import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 import { eventVisitStatus } from "../../lib/eventVisitFacts.js";
 import { compactWhen } from "../../lib/whenCompact.js";
 import { useEffect, useState } from "react";
@@ -373,6 +375,7 @@ export default function RailCard({
   // common case (every card that is NOT the sentinel passes nothing).
   domRef = null,
 }) {
+  const distanceLabel = formatDistanceMiles(usePlaceDistance(place));
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // Interactive place cards always open the full /p/{id} detail experience.
   // /places/{id} remains the durable SEO document. Normalizing at this shared
@@ -492,7 +495,10 @@ export default function RailCard({
   const isSavedNow = onSave ? !!saved : useFb ? !!fb.saved[place.id] : contentSubject ? content.saved : !!saved;
   const isLikedNow = onLike ? !!liked : useFb ? !!fb.liked[place.id] : contentSubject ? content.liked : !!liked;
   const isDislikedNow = onDislike ? !!disliked : useFb ? !!fb.disliked[place.id] : contentSubject ? content.disliked : !!disliked;
-  const list = Array.isArray(facts) ? facts.filter(Boolean) : [];
+  // Caller facts contain review/price/editorial facts only; distance has one
+  // device-only source shared by every place rail. Unknown location stays blank.
+  const list = [...(Array.isArray(facts) ? facts.filter(Boolean) : []),
+    ...(place && distanceLabel !== null ? [distanceLabel + " mi"] : [])];
   const pills = Array.isArray(chips) ? chips.filter(Boolean).map((chip) => ({ ...chip })) : [];
   // Deal ownership belongs to the shared card, not to whichever rail happened
   // to remember the lookup. Exact place-id matching wins; the coupon resolver

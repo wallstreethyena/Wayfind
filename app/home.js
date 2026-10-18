@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
@@ -1371,7 +1372,7 @@ function placeShareUrl(p, loc, hook) {
   add("loc", loc ? String(loc).split(",")[0] : "");
   if (p.rating != null) add("r", p.rating);
   if (p.reviews != null) add("rev", p.reviews);
-  if (p.distMi != null) add("mi", p.distMi.toFixed(1));
+  // A shared preview cannot know its reader's device location.
   if (hook) add("hk", hook);
   add("cat", primaryCategory(p) || "");
   const sl = scoreLabel(p.wfScore);
@@ -2859,7 +2860,7 @@ function generateHooks(places, locName) {
     .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   if (farBest[0]) hooks.push({
     id: "drive", accent: "#38BDF8", emoji: "🚗", label: "Worth the drive?", highlightWord: "drive",
-    hook: `Would you drive ${Math.round(farBest[0].distMi)} miles for this?`,
+    hook: "Worth the trip?",
     detail: `${farBest[0].name} · ★${farBest[0].rating}`,
     cta: "Decide →", action: { type: "detail", place: farBest[0] },
   });
@@ -3428,7 +3429,7 @@ function betterAlternatives(current, pool, n) {
     let edge = 0;
     if (p.openNow === true && curOpen === false) { reasons.push("open now"); edge += 4; }
     if (p.rating != null && p.rating >= curR + 0.2 && (p.reviews || 0) >= 25) { reasons.push("rated higher at " + p.rating + "★"); edge += 3; }
-    if (curD != null && p.distMi != null && p.distMi <= curD - 2) { reasons.push("closer, " + p.distMi.toFixed(1) + " mi vs " + curD.toFixed(1)); edge += 3; }
+    if (curD != null && p.distMi != null && p.distMi <= curD - 2) { reasons.push("closer to the search area"); edge += 3; }
     if (curP != null && p.priceNum != null && p.priceNum < curP && (p.rating || 0) >= curR - 0.2) { reasons.push("more affordable"); edge += 1; }
     if ((p.reviews || 0) >= curRev * 2 && (p.reviews || 0) >= 300 && (p.rating || 0) >= curR - 0.1) { reasons.push("more reviewed, " + p.reviews.toLocaleString()); edge += 1; }
     if (reasons.length) {
@@ -3719,7 +3720,6 @@ function pickReason(p, ctx) {
   else if (r != null && r >= 4.5) sig.push(vary([r + "★ rated", "locals rate it " + r + "★", r + "★ and consistent"]));
   else if (r != null) sig.push(r + "★");
   if (p.openNow === true) sig.push("open now");
-  if (p.distMi != null && p.distMi <= 6) sig.push(p.distMi.toFixed(1) + " mi away");
   if (kind === "entertainment" || (p.labels || []).includes("Good for groups")) sig.push("group-friendly");
   const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "close by and worth a look";
   const _cap = good.charAt(0).toUpperCase() + good.slice(1);
@@ -3781,6 +3781,7 @@ function themedHook(key, p) {
 }
 
 function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike, hideShare, extra }) {
+  const userDistance = usePlaceDistance(place);
   if (!h) return null;
   const acc = h.accent || C.accent;
   const photo = place && ((place.photos && place.photos[0]) || place.photo);
@@ -3804,9 +3805,9 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
             <span style={{ fontSize: 11 }}>{h.emoji}</span>
             <span style={{ fontSize: 9, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "0.8px" }}>{h.label}</span>
           </div>
-          {place && place.distMi != null && (
+          {userDistance != null && (
             <div style={{ display: "inline-flex", alignItems: "center", background: "rgba(0,0,0,.55)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "4px 9px", backdropFilter: "blur(4px)" }}>
-              <span style={{ fontSize: 9.5, fontWeight: 800, color: "rgba(255,255,255,.85)" }}>{place.distMi.toFixed(1)} mi</span>
+              <span style={{ fontSize: 9.5, fontWeight: 800, color: "rgba(255,255,255,.85)" }}>{userDistance.toFixed(1)} mi</span>
             </div>
           )}
         </div>
@@ -9572,7 +9573,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   {exHero.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.reviews.toLocaleString()} reviews</span>}
                   {open === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
                   {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>· {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
-                  {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.distMi.toFixed(1)} mi</span>}
+                  <PlaceDistance place={exHero} prefix="· " style={{ fontSize: 12, color: C.muted }} />
                 </div>
                 {blurbLine(blurbs[exHero.id]) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbLine(blurbs[exHero.id])}</div>}
               </div>
@@ -11394,7 +11395,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       <PlaceScoreChip p={p} size={12} />
                       {(() => { const c = Dining.costForTwo(p); return c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
                       {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ color: C.green, fontWeight: 700 }}>Open</span> : lo === false ? <span style={{ color: C.red, fontWeight: 700 }}>Closed</span> : null; })()}
-                      {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
+                      <PlaceDistance place={p} style={{ color: C.muted }} />
                     </div>
                   </div>
                   <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
@@ -12107,7 +12108,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             ); })()}
             {p.priceNum != null ? <PriceMeter level={p.priceNum} word /> : (p.price && <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>{p.price}</span>)}
             {(() => { const lo = liveOpen(p); /* v4.67: hours-computed, never stale cache */ return lo != null ? <span style={{ fontSize: 11, fontWeight: 600, color: lo ? C.green : C.red }}>{lo ? "Open" : "Closed"}</span> : null; })()}
-            {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+            <PlaceDistance place={p} prefix="· " style={{ fontSize: 12, color: C.muted }} />
           </div>
           {/* v6.57: beach signals — a "Trending" flame from the popularity cron
               (wf_place_popularity_scored) and a water-quality read

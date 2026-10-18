@@ -123,7 +123,6 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
           const facts = [
             p.reviews ? compact(p.reviews) + " reviews" : null,
             priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
-            Number.isFinite(p.distMi) ? p.distMi + " mi" : null,
           ].filter(Boolean);
           const chips = [type ? { key: "type", icon: "📍", label: type, title: type } : null].filter(Boolean);
           const href = directionsUrl(p);

@@ -2279,3 +2279,7 @@ node scripts/test-guide-context-photos.mjs
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
+
+# Display distance uses one fresh device watch, never an API/search-center distance.
+node scripts/test-device-distance.mjs
+node scripts/test-rail-device-distance.mjs
