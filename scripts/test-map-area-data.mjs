@@ -196,7 +196,7 @@ assert.match(screen, /<AppleExplorerMap/);
 assert.match(screen, /<MapView[\s\S]{0,400}onViewportChange=\{setViewport\}/);
 assert.match(screen, /<CategoryMenu compact activeCat=\{cat\}/, 'shared category and current default remain');
 assert.match(screen, /shouldApplyMapDefault/);
-assert.match(screen, /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curatorSnap\)/);
+assert.match(screen, /selectMapPlaces\(applyCuratorPicks\(pinPool, curatorSnap\)/);
 assert.match(screen, /view\.map\(\(p, i\)/);
 assert.match(screen, /readCompleteMapArea/);
 assert.match(screen, /controller\.abort\(\)/);

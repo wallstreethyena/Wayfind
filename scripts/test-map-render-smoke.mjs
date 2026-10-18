@@ -46,6 +46,14 @@ const mod = await loadComponent(entry, REPO, { onGraph(graph) {
     source = source.replace(pattern, replacement);
   }
   writeFileSync(compiled, source);
+  const recoveryEntry = fileURLToPath(new URL("../app/components/useAppleMapRecovery.js", import.meta.url));
+  const recoveryCompiled = graph.get(recoveryEntry);
+  if (!recoveryCompiled) throw new Error("Apple recovery hook was not emitted");
+  const recoverySource = readFileSync(recoveryCompiled, "utf8");
+  const recoveryDeclaration = "export default function useAppleMapRecovery(";
+  if (recoverySource.split(recoveryDeclaration).length !== 2) throw new Error("Expected one recovery hook export");
+  writeFileSync(recoveryCompiled, recoverySource.replace(recoveryDeclaration, "function useAppleMapRecovery(")
+    + '\nexport default function useRecoveryProbe(props) { globalThis.__wfRecoveryProbe?.(props); return useAppleMapRecovery(props); }\n');
   // Observe the props at the real Apple component boundary while preserving
   // its SSR markup/hooks. MapKit starts in an effect, so it is not invoked by
   // this real-render guard. The explicit list's fit flag used to be dropped.
@@ -94,6 +102,16 @@ function ctxFor(over = {}) {
     ...over,
   };
 }
+
+// The user's selected city is not evidence of an unlocated venue's city.
+let recoveryProps = null;
+globalThis.__wfRecoveryProbe = (props) => { recoveryProps = props; };
+renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({ cityNow: "Tampa", view: [P({ id: "no-locality", mapCoord: { ok: false } }), P({ id: "real-locality", locality: "Citrus Park", mapCoord: { ok: false } })] }) }));
+ok(!recoveryProps.places.find((p) => p.id === "no-locality").city && !recoveryProps.places.find((p) => p.id === "no-locality").locality,
+  "real screen never promotes the selected city into missing venue identity evidence");
+ok(recoveryProps.places.find((p) => p.id === "real-locality").locality === "Citrus Park",
+  "real screen preserves the venue locality even when the user selected Tampa");
+delete globalThis.__wfRecoveryProbe;
 
 // Every state a user can put the screen in. The crash lived in state 1.
 const STATES = [
@@ -295,6 +313,29 @@ for (const map3D of [false, true]) {
 // documents WHICH bug this smoke was born from.)
 const one = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({ mapPreview: P() }) }));
 ok(one.includes("9.2") && one.includes("wayfind-score-badge") && !one.includes("[object Object]"), "the score renders through the real WayfindScoreBadge, never the {s, word} object");
+
+// Apple-only lookup coordinates may never flow through the alternate renderer's
+// camera, even while the shared preview still holds the previously selected pin.
+let threeDProps;
+const applePin = P({ coordSource: "apple_live", lat: 27.51, lng: -82.51 });
+const appleSwitch = renderToStaticMarkup(createElement(MapScreen, { ctx: ctxFor({
+  map3D: true, mapPreview: applePin, mapFocus: { lat: applePin.lat, lng: applePin.lng, coordSource: "apple_live", ts: 1 },
+  MapView: (props) => { threeDProps = props; return null; },
+}) }));
+ok(threeDProps?.focus === null, "3D never receives the last Apple-only camera focus");
+ok(!appleSwitch.includes("data-iconic-place-card"), "Apple-only preview disappears synchronously on a 3D switch");
+const actions = [];
+const actionHooks = hookHost();
+const originalPlace = P({ lat: 27.5, lng: -82.5 });
+const actionTree = actionHooks.render(MapScreen, { ctx: ctxFor({ mapPreview: applePin, view: [originalPlace],
+  quickSaveFavorite: (_event, p) => actions.push(p), openDetail: (p) => actions.push(p), addShared: (p) => actions.push(p),
+}) });
+const actionCard = visitElement(actionTree, (el) => el.props.place?.id === applePin.id && typeof el.props.onSave === "function");
+ok(!!actionCard, "recovered pin renders the shared card action seam");
+actionCard?.props.onSave({}); actionCard?.props.onOpen(); actionCard?.props.onShare();
+ok(actions.length === 3 && actions.every((p) => p === originalPlace), "save, detail and share receive the original identity, never the Apple clone");
+ok(actionCard?.props.place.lat === null && actionCard?.props.place.lng === null, "card fallback hooks cannot serialize Apple coordinates");
+actionHooks.unmount();
 
 if (fail.length) { console.error(`test-map-render-smoke: ${fail.length} FAILURE(S)`); for (const f of fail) console.error("  ✗ " + f); process.exit(1); }
 console.log(`test-map-render-smoke: OK — ${pass} assertions; MapScreen SSR-rendered in ${STATES.length} states plus Apple/MapLibre framing parity; emitted-component hook/effect harness verified SDK rejection, retry, switching and unmount safety`);

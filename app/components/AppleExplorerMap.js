@@ -14,13 +14,13 @@ export default function AppleExplorerMap({
   places, center, category, deviceLoc, onSelect, events, onSelectEvent, focus,
   fit, rings, compact = false, styleMode = "bright", onRetry, onLoadError,
   selectedId = null, onAreaChange = null, onViewportChange = null,
-  showOrigin = true,
+  showOrigin = true, onReady = null,
 }) {
   const hostRef = useRef(null);
   const controllerRef = useRef(null);
-  const callbacksRef = useRef({ onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError });
+  const callbacksRef = useRef({ onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError, onReady });
   const dataRef = useRef({ places, center, category, deviceLoc, events, selectedId, fit, rings, showOrigin, focus });
-  callbacksRef.current = { onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError };
+  callbacksRef.current = { onSelect, onSelectEvent, onAreaChange, onViewportChange, onLoadError, onReady };
   // MapKit loads asynchronously. Keep the newest result set here so a category
   // response that arrives during SDK startup cannot be dropped and leave a
   // fully loaded Apple map with zero markers until some unrelated rerender.
@@ -46,6 +46,7 @@ export default function AppleExplorerMap({
         onViewportChange: (bounds) => callbacksRef.current.onViewportChange?.(bounds),
       });
       controllerRef.current = controller;
+      callbacksRef.current.onReady?.(mapkit);
       const latest = dataRef.current;
       if (latest.focus && latest.focus.lat != null && latest.focus.lng != null) controller.focusOn(latest.focus, latest.selectedId);
     }).catch(() => {
