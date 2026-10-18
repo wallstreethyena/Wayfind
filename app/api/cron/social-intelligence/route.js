@@ -28,14 +28,14 @@ export async function GET(req) {
     if (!leads.length) {
       await recordPulse("social-intelligence", { attempted: 0, succeeded: 0, failed: 0, note: "healthy empty: no stored social leads" });
       return Response.json({ ok: true, publication_enabled: false, mode: "private_review", acquisition_status: "no_stored_leads",
-        inspected: 0, candidates: [], rejected: {}, duplicates: 0, published: 0, paid_calls: 0,
+        inspected: 0, attempted: 0, candidates: [], rejected: {}, skipped: {}, duplicates: 0, published: 0, paid_calls: 0,
         inventory_read: 0, creators_read: creators.length }, { headers });
     }
     const inventory = await readSocialIdentityInventory(db, leads, creators, { signal });
     const report = buildSocialReviewQueue(leads, inventory, { now: Date.now(), creators });
-    await recordPulse("social-intelligence", { attempted: report.inspected, succeeded: report.candidates.length,
+    await recordPulse("social-intelligence", { attempted: report.attempted, succeeded: report.candidates.length,
       failed: Object.values(report.rejected).reduce((sum, count) => sum + Number(count || 0), 0),
-      note: `private-preflight; stored:${leads.length}; candidates:${report.candidates.length}; published:0` });
+      note: `private-preflight; stored:${leads.length}; pending:${report.attempted}; skipped:${Object.values(report.skipped).reduce((sum, count) => sum + count, 0)}; candidates:${report.candidates.length}; published:0` });
     return Response.json({ ok: true, publication_enabled: false, ...report,
       acquisition_status: leads.length ? "stored_leads_available" : "no_stored_leads",
       inventory_read: inventory.length, creators_read: creators.length }, { headers });
