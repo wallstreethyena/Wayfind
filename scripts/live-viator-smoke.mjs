@@ -99,7 +99,8 @@ async function main() {
     ok(verdict.pidShapeOk, "pid clears the shape bar (/^P\\d{6,}$/ or length>3)", null);
     ok(verdict.pidNotPlaceholder, "pid is NOT a recognized placeholder (lib/envPlaceholder.js)", null);
     ok(verdict.mcidOk, "mcid === 42383", null);
-    ok(verdict.mediumOk, "medium === link", null);
+    ok(verdict.mediumOk, "medium matches link type (api for API product URLs, link otherwise)", null);
+    ok(verdict.campaignOk, "campaign (if present) is [A-Za-z0-9-]{1,100}", null);
   }
 
   console.log(`\nlive-viator-smoke: ${pass} passed, ${fails.length} failed`);

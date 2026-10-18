@@ -146,6 +146,13 @@ const KNOWN_UNMONETIZED = new Set([
   // INTERNAL path builder; returns /api/viator/go?product=... and hard-rejects
   // any non-viator.com host. Attribution is applied server-side by that route.
   "viatorProductGoUrl",
+  // Campaign TAG helpers (wf-<page>-<placement>-<offer>): return short
+  // [a-z0-9-] strings, never a URL, never read env. Pinned by
+  // scripts/test-viator-campaign.mjs.
+  "viatorCampaign",
+  "viatorPageKey",
+  "viatorPageHint",
+  "viatorPlacementCode",
   "withViatorTracking",   // the wrapper ITSELF; tested via its callers above AND directly in the placeholder section
   // WRAPPER, NOT A DECISION POINT — and the reason matters. The attached spec
   // listed this as unmonetized; line 105 (`return VIATOR ? withViatorTracking(url) : url`)

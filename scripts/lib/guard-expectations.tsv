@@ -452,7 +452,7 @@ scripts/test-adaptive-widen.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	93eaec882
 scripts/test-address-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	34d4a50846885fd63d1c38abf23c63ca5ddac046e6eaf0553f65db1e0f63b282
 scripts/test-affiliate-chip.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	51b2e8430c66e6a504d795aed9e59e0ed3443bf36cdde234285e8b34ea068c2a
 scripts/test-affiliates.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	50facb4684811511654df66a057b13563dcb91afed2961a4f266b5093d9d4343
-scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	1efd5c41cb4aa28d746b7e86573fea35da903f8dc7b492048cd331cf814c4245
+scripts/test-analytics-attribution-meta.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	346c0a79c94fdb93509d27d97948b971c4fb400bb3fb05ccd9f2f8febdaa39d1
 scripts/test-analytics-write-suppression.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	3422149225bebecdaf6a3a662a1d565847cb3bcc7e84e5aa66f1db15942c8c4d
 scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb598679327a1f7d0f0f24bce0613f3dadd81144efca8af637121
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
@@ -777,6 +777,7 @@ scripts/test-night-out-inventory-merge.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0
 scripts/test-night-tour-products.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	c50d8e3220db21d29c3b56bd727859b232120a87fba1b281813a2359b20f5036
 scripts/test-nightlife-census.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	d7eac0043a33612bb67d95c5e39ac2d03c5aedea4781f8eb2a55708d03530d13
 scripts/test-nightlife-ranking.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	6095b2bd11a6c1dcd2c85fdae33393b6428c45b37c7926e4392f87684ca67400
+scripts/test-no-paid-placement-policy.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	20	0	0	5145b45c3babb0176d56f263f2188a87f4af7aa7d91e3e0f4dca1f2b8a5bd40b
 scripts/test-noresult-telemetry.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	6011abc1b50831e9ef18e72b8609078239187aa3216e41944e4ca35dfd69a461
 scripts/test-now-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	112	0	0	7420951e91d1935bff339778edbe28440162a3164688d078f961868488a40458
 scripts/test-og-bodies.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	2114f3fa9f73d293aaf33c9cd9424f9a62979830d9198314afc20a472f7b24e8
@@ -933,10 +934,11 @@ scripts/test-trending-page.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	699dd
 scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794ca88e16f8e42aa820145034722fc51a0785fbaeeb190a14974a778d
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
 scripts/test-unified-share-flow.mjs	0	RENDER	blocks-ci-and-deploy	1	-	80	0	0	62302e3a776f8d0a4cbf70991ab10ee7525699bdb4f43269378c92d718f794cb
+scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	77a8cd2adcfe7a64b361c83e01bcb32af49561c846d7433fcd7f00b410ec10bb
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
 scripts/test-viator-provider-state.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	cc1d5644b9caf302bef30ccd99ac861eeaf81feec272273bdf29fda6bdd3aa16
-scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	36	0	0	9571e62fdcc76105558585c44faf8c6d75145ff1b721729bc393f11f9ba77c36
+scripts/test-viator-smoke-shape.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	d77554d6d755f9189e9914dcd1e4a8559c23763bfd3e0d41a0b99249f6dad54a
 scripts/test-vitals-attribution.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	603cf9d499ba7108915aa9ac0ba51205a607d7ecbb09561ce3cd5c7a7984cf6a
 scripts/test-wayfind-awards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	51	0	0	10888a8d385152aec40c0cce4936abca57eb43fe2a6cf8129c547172219d0e7f
 scripts/test-wikipedia-outcomes.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	8d24a1dc4b3fda197fa5ed57cb414d34c4aca5732c3ec840f56304b9b4b99ed0
