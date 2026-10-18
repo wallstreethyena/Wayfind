@@ -90,9 +90,10 @@ export function eventNearbyPlaces(picks, hasPoint) {
  *   lat?: number, lng?: number,
  *   picks?: object[],              // lib/eventPairings rows + href
  *   sponsoredWebsite?: boolean,    // rel=sponsored when the link earns
+ *   ticketLink?: boolean,          // mark the official-site hop for Crown outbound tracking
  * }} props
  */
-export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false }) {
+export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false, ticketLink = false }) {
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
@@ -123,7 +124,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
                 <a className="wfw-btn wfw-site" href={directionsHref} target="_blank" rel="noopener nofollow" aria-label={"Open directions to " + (venue || address) + " in Apple Maps"}>Open in Apple Maps ↗</a>
               ) : null}
               {website ? (
-                <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)}>
+                <a className="wfw-btn wfw-site wfw-official" href={website} target="_blank" rel={(sponsoredWebsite ? "sponsored " : "") + "nofollow noopener"} aria-label={"Official site for " + (venue || address)} {...(ticketLink ? { "data-wf-ticket": "1" } : {})}>
                   <span>Official site ↗</span>{host ? <small>{host}</small> : null}
                 </a>
               ) : null}
