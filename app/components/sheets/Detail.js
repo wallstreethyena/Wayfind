@@ -824,43 +824,41 @@ export default function DetailSheet({ ctx }) {
               {expandedHero && showHero ? (
                 <>
               {galleryPhotos.length > 0 ? (
-                <div style={{ position: "relative" }}>
+                <div style={{ position: "relative", paddingTop: "calc(52px + env(safe-area-inset-top))" }}>
                   <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, objectFit: "cover", scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                      <FallbackImg fit="contain" alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                   </div>
                   {galleryPhotos.length > 1 && (
                     <>
                       {galleryIdx > 0 && (
-                        <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={galleryBtn("left")}>‹</button>
+                        <button onClick={() => scrollGallery(-1)} aria-label="Previous photo" style={{ ...galleryBtn("left"), top: 26, left: 68 }}>‹</button>
                       )}
                       {galleryIdx < galleryPhotos.length - 1 && (
-                        <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={galleryBtn("right")}>›</button>
+                        <button onClick={() => scrollGallery(1)} aria-label="Next photo" style={{ ...galleryBtn("right"), top: 26, right: "auto", left: 110 }}>›</button>
                       )}
                       <div aria-hidden="true" style={{ position: "absolute", top: "max(12px, calc(env(safe-area-inset-top) + 4px))", right: 12, zIndex: 6, padding: "3px 9px", borderRadius: 999, background: "rgba(13,17,23,.62)", backdropFilter: "blur(6px)", WebkitBackdropFilter: "blur(6px)", border: "1px solid rgba(255,255,255,.16)", color: "#fff", fontSize: 11, fontWeight: 700, letterSpacing: ".02em", lineHeight: 1.5, pointerEvents: "none" }}>{galleryIdx + 1} / {galleryPhotos.length}</div>
                     </>
                   )}
                 </div>
               ) : (
-                <FallbackImg src={heroSrc} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, objectFit: "cover", cursor: heroSrc ? "zoom-in" : "default" }} />
+                <FallbackImg fit="contain" alt={detail.name} src={heroSrc} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, background: C.bg, cursor: heroSrc ? "zoom-in" : "default" }} />
               )}
-              <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "48px 18px 15px", background: "linear-gradient(180deg, transparent 0%, rgba(0,0,0,.45) 45%, rgba(0,0,0,.88) 100%)", pointerEvents: "none" }}>
+              <div style={{ padding: "14px 18px 0" }}>
                 {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}
                 <div style={{ fontSize: 27, fontWeight: 800, color: "#fff", lineHeight: 1.13, letterSpacing: "-0.5px", textShadow: "0 2px 12px rgba(0,0,0,.8)" }}>{detail.name}</div>
               </div>
                 </>
               ) : (
-                <div style={{ position: "relative", padding: "52px 18px 0 18px", isolation: "isolate" }}>
-                  {/* Fill the compact header without moving its title or body.
-                      The full-size photo remains available in the viewer. */}
-                  {showHero && <>
-                    <div style={{ position: "absolute", inset: 0, zIndex: -2 }}>
-                      <FallbackImg src={heroSrc} category={primaryCategory(detail)} onClick={() => setLightbox(heroSrc)} style={{ width: "100%", height: "100%", objectFit: "cover", cursor: "zoom-in" }} />
-                    </div>
-                    <div aria-hidden="true" style={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(0,0,0,.25), rgba(0,0,0,.88))", pointerEvents: "none", zIndex: -1 }} />
-                  </>}
-                  <div style={showHero ? { pointerEvents: "none" } : undefined}>
+                <div style={{ padding: "calc(52px + env(safe-area-inset-top)) 18px 0", display: "flex", alignItems: "center", gap: 12 }}>
+                  {/* Reserve a separate frame before a live photo arrives. It must
+                      never become a cropped background behind the title. */}
+                  <div data-detail-photo-preview style={{ width: 112, height: 112, flexShrink: 0, background: C.bg, borderRadius: 10, overflow: "hidden", display: "grid", placeItems: "center" }}>
+                    {showHero ? <FallbackImg fit="contain" alt={detail.name} src={heroSrc} category={primaryCategory(detail)} onClick={() => setLightbox(heroSrc)} style={{ width: "100%", height: "100%", cursor: "zoom-in" }} />
+                      : <span style={{ padding: 10, color: C.muted, fontSize: 12, textAlign: "center" }}>{detail._liveDone || !isLivePlaceId(liveId) ? "Photo unavailable" : "Loading photo…"}</span>}
+                  </div>
+                  <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
                   {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5 }}>{pc}</div> : null; })()}
                   <div style={{ fontSize: 27, fontWeight: 800, color: C.text, lineHeight: 1.13, letterSpacing: "-0.5px" }}>{detail.name}</div>
                   </div>

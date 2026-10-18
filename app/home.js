@@ -1905,7 +1905,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover" }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -1977,12 +1977,12 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
       }
     };
   }, [activeSrc, state]);
-  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
+  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /></div>;
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
     </div>
   );
 }
