@@ -19,7 +19,7 @@ const { toAppShape } = await import(path.join(ROOT, "scripts/lib/parity/clientGa
 const center = { lat: 27.55, lng: -82.43 };
 
 const dbRow = {
-  place_id: "ChIJrich", name: "Siam Garden", lat: 27.56, lng: -82.44, category: "food",
+  place_id: "ChIJrich", name: "Siam Garden", locality: "St. Petersburg", metro: "tampa", lat: 27.56, lng: -82.44, category: "food",
   primary_type: "thai_restaurant", google_types: ["thai_restaurant", "restaurant"],
   cuisines: ["thai"], tags: ["lunch", "dinner"], status: "OPERATIONAL",
   editorial: "Family-run Thai kitchen known for its crispy duck and a shaded courtyard.",
@@ -27,8 +27,10 @@ const dbRow = {
 };
 const served = serve.invRowToPlace(dbRow);
 ok(Array.isArray(served.tags) && served.tags.includes("lunch"), "invRowToPlace must send tags (the meal chip's evidence)");
+ok(served.locality === "St. Petersburg", "the server preserves actual locality independently of the coverage metro");
 const card = mapInventoryRow(served, center);
 ok(card && card.name === "Siam Garden", "the mapper still names the place");
+ok(card.locality === "St. Petersburg", "the client preserves actual venue locality for independent map identity matching");
 ok(card.priceNum === 2, `priceLevel MODERATE must land as priceNum 2 (got ${card.priceNum}) — the card's PriceMeter reads it`);
 ok(Array.isArray(card.cuisines) && card.cuisines[0] === "thai", "cuisines must survive the mapper");
 ok(Array.isArray(card.tags) && card.tags.join() === "lunch,dinner", "tags must survive the mapper");
@@ -42,6 +44,11 @@ ok(free.priceNum === 1, `FREE normalises to 1 through lib/price (got ${free.pric
 // A row with nothing: honest nulls, never invented.
 const bare = mapInventoryRow(serve.invRowToPlace({ place_id: "ChIJbare", name: "Bare Cafe", lat: 27.5, lng: -82.4, signals: { rating: 4.4, reviews: 30 } }), center);
 ok(bare.priceNum === null && bare._invEditorial === null && bare.cuisines.length === 0 && bare.tags.length === 0, "a row with no price/cuisine/tags/editorial maps to nulls and empties, not guesses");
+ok(bare.locality === null, "missing locality stays null in the client");
+const noLocality = serve.invRowToPlace({ ...dbRow, locality: null, metro: "tampa" });
+ok(noLocality.locality === null && mapInventoryRow(noLocality, center).locality === null, "a coverage metro never substitutes for absent actual locality");
+const invalidLocality = serve.invRowToPlace({ ...dbRow, locality: "   " });
+ok(invalidLocality.locality === null && mapInventoryRow({ ...served, locality: 123 }, center).locality === null, "empty or invalid locality remains unknown");
 
 // Owned photo passthrough beats ref-building.
 const ph = mapInventoryRow(serve.invRowToPlace({ ...dbRow, place_id: "p1", photo_url: "https://cdn.example.com/a.jpg" }), center);
@@ -55,6 +62,7 @@ ok(mapInventoryRow(shaped, center) === shaped, "an app-shaped row passes through
 
 // The select list the server reads must request tags, or invRowToPlace has nothing to send.
 ok(serve.EXHAUSTIVE_INVENTORY_FIELDS.split(",").includes("tags"), "EXHAUSTIVE_INVENTORY_FIELDS must request the tags column");
+ok(serve.EXHAUSTIVE_INVENTORY_FIELDS.split(",").includes("locality"), "the existing exhaustive inventory read must request actual locality without another request");
 
 // Parity: the guard harness's app shape carries the same card fields.
 const par = toAppShape(served, center.lat, center.lng);
@@ -69,4 +77,4 @@ ok(/const _viewTopIds = view\.slice\(0, 40\)/.test(home), "known-for is also req
 ok(/const CACHE_EPOCH = (?:[5-9]|\d{2,});/.test(home), "CACHE_EPOCH was bumped (cached lines changed shape/precedence)");
 
 if (bad.length) { console.error("test-inventory-row-card-fields: FAIL\n  - " + bad.join("\n  - ")); process.exit(1); }
-console.log(`test-inventory-row-card-fields: OK — ${n} assertions (the real mapper was called on a server-shaped row: price, cuisine, tags, editorial, photo survive; nulls stay null)`);
+console.log(`test-inventory-row-card-fields: OK — ${n} assertions (the real mapper was called on a server-shaped row: locality, price, cuisine, tags, editorial, photo survive; nulls stay null)`);

@@ -33,14 +33,14 @@ ok(/maxHeight: 356/.test(map) && /overflowY: "auto"/.test(map), "the card shell 
 ok(/Wayfind Score 9\.2\+/.test(map), "the ranked-position footer is gone — it is the payoff of a ranked map");
 ok(/aria-label="Next place"/.test(map) && /aria-label="Previous place"/.test(map), "the paging arrows are gone");
 ok(/onTouchEnd=/.test(map) && /dy > 60/.test(map), "swipe-down no longer dismisses the card");
-ok(/onOpen=\{\(\) => \{[\s\S]{0,160}?openDetail\(mp\)/.test(map), "opening the card no longer opens the in-app detail sheet");
+ok(/onOpen=\{\(\) => \{[\s\S]{0,160}?openDetail\(actionPlace\(mp\)\)/.test(map), "opening the card no longer opens the in-app detail sheet");
 // Opening must NOT move the camera; only the arrows may.
 ok(!/onSelect=\{\(p\) => \{[^}]*setMapFocus/.test(map), "tapping a pin recenters the map — only the arrows may move the camera");
 ok(/const step = \(dir\) => \{[\s\S]{0,400}?setMapFocus/.test(map), "the arrows do not move the camera, so paging would leave the pin off-screen");
 for (const ev of ["map_pin_tap", "map_card_cta", "map_card_page"]) {
   ok(new RegExp('logEvent\\("' + ev + '"').test(map), `event "${ev}" is not emitted`);
 }
-ok(/logEvent\("map_card_cta"[^)]*rank/.test(map), "map_card_cta carries no rank — which position converts is the whole question");
+ok(/logEvent\("map_card_cta", actionPlace\(mp\), \{ rank: pos \}/.test(map), "map_card_cta carries no rank — which position converts is the whole question");
 // The shared card must support the in-app open without navigating away.
 ok(/if \(onOpen\) \{ onOpen\(place\); return; \}/.test(iconic), "IconicPlaceCard lost its onOpen path — the map card would navigate away and lose the map");
 
