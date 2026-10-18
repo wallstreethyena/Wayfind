@@ -41,7 +41,11 @@ function hookHost() {
       cursor = 0;
       const previous = internals.ReactCurrentDispatcher.current;
       internals.ReactCurrentDispatcher.current = dispatcher;
-      try { return hook(props); } finally { internals.ReactCurrentDispatcher.current = previous; }
+      try {
+        const value = hook(props);
+        assert.ok(Array.isArray(value.places), 'the real hook must return a place array in every lifecycle state');
+        return value;
+      } finally { internals.ReactCurrentDispatcher.current = previous; }
     },
     flush() { for (const [i, effect, deps] of effects.splice(0)) { slots[i]?.cleanup?.(); slots[i] = { deps, cleanup: effect() }; } },
     unmount() { for (const slot of slots) slot?.cleanup?.(); },
