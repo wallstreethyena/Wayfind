@@ -171,8 +171,9 @@ ok(fullIds.every((id) => fullHtml.includes("offer=" + encodeURIComponent(id))),
   "every rendered card carries its opaque offer id on the Wayfind redirect");
 ok(!/https?:\/\/(?:www\.)?(?:viator\.com|tiqets\.com)/.test(fullHtml),
   "rendered markup exposes no raw affiliate destination URL");
-ok(!/earn a commission/i.test(fullHtml),
-  "no inline commission disclosure renders on the rail (one footer disclosure plus one on true detail pages is the law now)");
+ok(/Some links on this page are affiliate links\. We may earn a commission if you book through them\./.test(fullHtml),
+  "the rail shows the affiliate disclosure as visible text");
+ok(!/at no extra cost/i.test(fullHtml), "the rail makes no unverified price claim");
 
 const byId = new Map(valid40.map((row) => [row.code, row]));
 const renderedScores = fullIds

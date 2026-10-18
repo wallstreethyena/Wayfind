@@ -32,7 +32,7 @@ export const revalidate = 3600;
 const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v2"]);
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
-const DESC = "Verified dates for Florida's best festivals and events — Halloween Horror Nights, Fantasy Fest, Hulaween, EDC Orlando, Gasparilla and more. Checked against official sources, never rolled forward from last year.";
+const DESC = "Verified Florida festival dates, checked against official sources: Halloween Horror Nights, Fantasy Fest, Hulaween, EDC, Gasparilla.";
 const _og = SITE_URL + "/og/florida-events-2026-worth-leaving-home-v2.jpg";
 
 export const metadata = {

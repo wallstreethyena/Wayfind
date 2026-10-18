@@ -399,6 +399,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // stale failure, and a source swap (e.g. a re-rank bringing a fresh photo)
   // gets its own fair shot at loading before falling back.
   const [imgFailed, setImgFailed] = useState("");
+  const [creditedRetry, setCreditedRetry] = useState({ id: "", src: "" });
   const tapIntent = useCardTapIntent();
   useEffect(() => {
     const el = laneRef.current;
@@ -429,6 +430,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   }, actionsLive);
   if (!place) return null;
   const primaryPhoto = photoSrcFilter(photoUrl(place));
+  const retrySrc = creditedRetry.id === place.id ? creditedRetry.src : "";
   const stablePlacePhoto = photoSrcFilter(ownedPlacePhotoSrc(place.place_id || place.id, 640, !!place.photoNoSpend));
   const samePlacePhotoFallback = stablePlacePhoto && stablePlacePhoto !== primaryPhoto ? stablePlacePhoto : "";
   const expTags = experienceTags(place, CARD_CHIP_CAP);
@@ -573,10 +575,10 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
             left behind — same bug, different component.
             Default stays lazy: this card also renders far below the
             fold on landing pages, where lazy works and matters. */}
-          {primaryPhoto && imgFailed !== primaryPhoto
+          {(retrySrc || primaryPhoto) && imgFailed !== primaryPhoto
             ? (
               <CardPhoto
-                src={primaryPhoto}
+                src={retrySrc || primaryPhoto}
                 data-fallback={samePlacePhotoFallback}
                 alt=""
                 loading={eagerMedia ? "eager" : "lazy"}
@@ -586,8 +588,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 // by the SAME place id. If that also fails, use the monogram.
                 onError={(ev) => {
                   const fb = ev.currentTarget.dataset.fallback;
-                  if (fb) { ev.currentTarget.dataset.fallback = ""; ev.currentTarget.src = fb; }
-                  else { setImgFailed(primaryPhoto); }
+                  if (fb) {
+                    ev.currentTarget.dataset.fallback = "";
+                    // Do not assign the uncredited place URL to img.src.
+                    setCreditedRetry({ id: place.id, src: fb });
+                  } else { setImgFailed(primaryPhoto); }
                 }}
                 style={{ objectFit: "cover" }}
               />

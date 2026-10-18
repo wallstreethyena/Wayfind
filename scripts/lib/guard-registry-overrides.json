@@ -912,6 +912,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-audit-trust-20261018.mjs": {
+    "protects": "A paid partner snapshot older than 30 days publishes no Wayfind Score and no Google stars, a fresh snapshot uses the organic formula and ignores a baked number, the affiliate disclosure is the visible sentence with no price claim, and a definitive photo miss is not fetched again after navigation.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "2026-10-18 audit: Rio Body Wax Gastonia showed 9.2 from an August Google snapshot on a paid card, affiliate commission text was hover-only on phones, and an uncredited photo URL 404ed on every navigation."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-shared-google-photo-serving.mjs": {
     "protects": "Shared photo service reuses retained images across visitors, widths and dates without Google calls, while preserving credited surfaces, monthly spend gates and bounded acquisition.",
     "blastRadius": {

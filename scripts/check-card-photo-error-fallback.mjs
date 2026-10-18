@@ -131,7 +131,8 @@ function railRecoveryContract(src) {
   return /const samePlacePhoto = place\?\.id \? photoSrcFilter\(ownedPlacePhotoSrc\(place\.id, 640\)\) : "";/.test(src)
     && /const resolvedPhotoFallback = photoSrcFilter\(photoFallback\) \|\| \(samePlacePhoto && samePlacePhoto !== shownPhoto \? samePlacePhoto : ""\);/.test(src)
     && /data-fallback=\{usingFallback \? "" : resolvedPhotoFallback\}/.test(src)
-    && /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*ev\.currentTarget\.src = fallback;\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/.test(src)
+    && /const handleImageError = \(ev\) => \{\s*const fallback = ev\.currentTarget\.dataset\.fallback;\s*if \(fallback\) \{\s*ev\.currentTarget\.dataset\.fallback = "";\s*setFallbackPhoto\(\{ primary: shownPhoto, src: fallback \}\);\s*\} else setImgFailed\(shownPhoto\);\s*\};/.test(src)
+    && !/ev\.currentTarget\.src\s*=/.test(src)
     && /const usingFallback = !!fallbackPhoto && fallbackPhoto\.primary === shownPhoto;/.test(src)
     && /const displayedPhoto = usingFallback \? fallbackPhoto\.src : shownPhoto;/.test(src)
     && /onError=\{handleImageError\}/.test(src);
@@ -142,7 +143,7 @@ function railRecoveryContract(src) {
   ok(/const \[imgFailed, setImgFailed\] = useState\(""\);/.test(ICONIC),
     "IconicPlaceCard tracks image failure keyed to the src string");
   ok(/const primaryPhoto = (?:photoSrcFilter\()?photoUrl\(place\)/.test(ICONIC)
-    && /primaryPhoto && imgFailed !== primaryPhoto/.test(ICONIC),
+    && /\(retrySrc \|\| primaryPhoto\) && imgFailed !== primaryPhoto/.test(ICONIC),
     "IconicPlaceCard resolves one primary source and its img-vs-monogram gate reads keyed error state");
   // 2026-09-30: the optional third arg is the evergreen no-spend flag
   // (lib/evergreenCities.js) — still THIS place's own id, only never spending.
@@ -161,9 +162,10 @@ function railRecoveryContract(src) {
   // doesn't silently drift back to a too-narrow window later.
   const mediaBlock = ICONIC.slice(mi, mi + 2200);
   ok(/data-fallback=\{samePlacePhotoFallback\}/.test(mediaBlock)
-    && /ev\.currentTarget\.src = fb/.test(mediaBlock)
+    && /setCreditedRetry\(\{ id: place\.id, src: fb \}\)/.test(mediaBlock)
+    && !/ev\.currentTarget\.src\s*=/.test(mediaBlock)
     && /setImgFailed\(primaryPhoto\)/.test(mediaBlock),
-    "…and the media block retries that same-place source once, then falls to the monogram if recovery fails");
+    "…and the media block retries that same-place source once through state, never by assigning an uncredited URL to img.src, then falls to the monogram if recovery fails");
 }
 
 /* ── 3. ThingsToDoList.js's Viator tour-row branch ──────────────────────── */
@@ -219,6 +221,7 @@ for (const [label, from, to] of [
   ["an unfiltered same-place fallback", "photoSrcFilter(ownedPlacePhotoSrc(place.id, 640))", "ownedPlacePhotoSrc(place.id, 640)"],
   ["a neighbouring place retry", "ownedPlacePhotoSrc(place.id, 640)", "ownedPlacePhotoSrc(place.neighbourId, 640)"],
   ["rearming an exhausted fallback", 'data-fallback={usingFallback ? "" : resolvedPhotoFallback}', "data-fallback={resolvedPhotoFallback}"],
+  ["a retry that assigns an uncredited URL to the image", "setFallbackPhoto({ primary: shownPhoto, src: fallback });", "ev.currentTarget.src = fallback; setFallbackPhoto({ primary: shownPhoto, src: fallback });"],
   ["a retry without consuming its dataset", 'ev.currentTarget.dataset.fallback = "";', 'ev.currentTarget.dataset.fallback = fallback;'],
   ["reverting to the primary on rerender", "src: fallback", "src: shownPhoto"],
   ["hiding the failed image instead of its monogram", "else setImgFailed(shownPhoto);", 'else ev.currentTarget.style.visibility = "hidden";'],

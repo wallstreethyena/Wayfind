@@ -107,7 +107,7 @@ const organic = read("app/things-to-do/[city]/page.js");
 
 /* ── the organic page is untouched ─────────────────────────────────────── */
 {
-  ok(organic.indexOf("LandingPage") >= 0, "the organic route still renders the full LandingPage");
+  ok(organic.indexOf("LandingRoute") >= 0, "the organic route still renders the full landing page");
   ok(organic.indexOf("noindex") < 0 && !/index:\s*false/.test(organic), "the organic page is still indexable");
   // The SEO cache key must not have moved — a shared key would let the paid
   // page's richer payload overwrite the organic rows (or strip them back).

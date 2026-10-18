@@ -272,11 +272,11 @@ ok(!/https?:\/\/(?:www\.)?(?:usghostadventures\.com|samboat\.com|rentcars\.com|c
   "client pick catalogue contains no raw Awin advertiser or redirect-network destination URL (asset CDNs are not destinations)");
 ok(/commerceHref\(/.test(clientSrc), "the client links through Wayfind's commerce redirect");
 ok(/rel="sponsored noopener nofollow"/.test(clientSrc), "every rendered link is explicitly sponsored and nofollow");
-ok(!/earn a commission/i.test(clientSrc), "the rail carries no inline commission disclosure (one footer disclosure plus one on true detail pages is the law now)");
+ok(!/earn a commission/i.test(clientSrc) && /\{AFFILIATE_DISCLOSURE_TEXT\}/.test(partnerComponentSrc), "the rail renders the shared visible disclosure; the sentence stays in one module");
 ok(/Bookable highlights near \{city\}/.test(partnerComponentSrc), "curated and inventory products share the Bookable highlights heading");
 ok(/flex: "0 0 200px"/.test(partnerComponentSrc) && /height: 86/.test(partnerComponentSrc), "the unified rail uses the established compact bookable-card dimensions");
 ok(/data-bookable-card-media/.test(partnerComponentSrc) && /if \(!pick\.image/.test(partnerComponentSrc) && !/Wayfind bookable/.test(partnerComponentSrc), "every compact card requires real artwork and never substitutes a placeholder panel");
-ok(/>Verified partners<\//.test(partnerComponentSrc) && /data-partner-badge/.test(partnerComponentSrc) && /via \{pick\.merchant\}/.test(partnerComponentSrc), "the rail uses one neutral heading and identifies each mixed provider discreetly on its card");
+ok(/>Affiliate links<\//.test(partnerComponentSrc) && /\{AFFILIATE_DISCLOSURE_TEXT\}/.test(partnerComponentSrc) && /data-partner-badge/.test(partnerComponentSrc) && /via \{pick\.merchant\}/.test(partnerComponentSrc), "the rail labels affiliate links in visible text and identifies each provider on its card");
 ok(/evidenceScore\(b(?:, hour)?\) - evidenceScore\(a(?:, hour)?\)/.test(partnerComponentSrc), "the unified rail ranks the complete mixed-provider list by evidence");
 ok(/railRef\.current/.test(partnerComponentSrc) && /rail\.scrollLeft = 0/.test(partnerComponentSrc) && /\[city, intent\]/.test(partnerComponentSrc), "changing city or intent resets the horizontal rail to its strongest-ranked first card");
 ok(!/minHeight: 290|Bookable around \{city\}/.test(partnerComponentSrc), "the oversized standalone partner-card treatment is gone");

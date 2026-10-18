@@ -14,7 +14,7 @@ import ReturnToWayfind from "../components/ReturnToWayfind";
 // not the third paragraph. No new facts were invented — every sentence here
 // still has to be true the way the original comment above demands.
 const _t = "About Wayfind · Who we are and how we work";
-const _d = "Wayfind is a local discovery engine built in Florida by Gabriel Pereira and WAYFIND LLC. Every rank is decided by real reviews and what's actually true right now — no ads, no paid placement, ever.";
+const _d = "Wayfind ranks places on merit. Payment cannot change a Score or an organic ranking. Paid placements and affiliate links are labeled.";
 const _og = "https://www.gowayfind.com/api/og?t=" + encodeURIComponent("Who is behind Wayfind");
 export const metadata = {
   title: _t,
@@ -43,7 +43,7 @@ const S = {
 };
 
 const DIFFERENTIATORS = [
-  { icon: "🚫", title: "No ads, no paid placement — ever", body: "A business cannot buy its way up a Wayfind list. There is no product for that, and there never will be." },
+  { icon: "🚫", title: "Scores stay independent", body: "A business cannot buy, raise, or change a Wayfind Score, or move up an organic list. A paid placement is labeled and sits outside that order." },
   { icon: "⏱️", title: "Ranked for right now, not just nearby", body: "Distance, open-now status, weather, and the time of day all shape the order — a great spot that's closed tonight shouldn't win tonight." },
   { icon: "📖", title: "One public method, no black box", body: "Every ranked list traces back to the same documented Wayfind Score. You can go read exactly how it's calculated." },
 ];

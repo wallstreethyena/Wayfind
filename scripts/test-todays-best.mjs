@@ -225,7 +225,7 @@ const ttd = readFileSync(new URL("../app/components/ThingsToDoList.js", import.m
 // award band, never an overlay on the photograph.
 ok(!/aria-label="Wayfind Pick"/.test(ttd), "the ✦ PICK photo overlay is back on the rank-1 row — owner removed it 2026-08-19");
 ok(/r\.selling_out \?/.test(ttd), "tour badge rides only the engine flag");
-ok(ttd.includes("affiliate links; it never changes our rankings"), "one disclosure line, list bottom");
+ok(ttd.includes("Some links on this page are affiliate links. We may earn a commission if you book through them."), "one visible disclosure line, list bottom");
 ok(!/TABS\.map/.test(ttd), "the list has NO internal tab row — the menu sub-tabs are the one filter row");
 ok(/browseCat === "attractions" && \(sub === "all" \|\| !sub\) && <ThingsToDoList/.test(home), "attractions 'All' view IS the ranked list; sub-picks return the classic feed");
 ok(!/browseCat === "attractions" \|\| browseCat === "family"\) && <ViatorRail/.test(home), "the stacked Viator rail is gone from attractions");

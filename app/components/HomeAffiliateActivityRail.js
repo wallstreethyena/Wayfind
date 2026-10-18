@@ -5,6 +5,7 @@ import RailHeading from "./RailHeading";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 import { experienceWayfindScore } from "../../lib/experiencesData";
 import { toDisplayScore } from "../../lib/score";
+import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
 
 const RAIL_ID = "home-affiliate-activities";
 
@@ -16,6 +17,7 @@ export default function HomeAffiliateActivityRail({ items, contentId, onLog }) {
       <RailHeading id="home-affiliate-activities-title" title="Best bookable activities" description="Wayfind's highest-ranked tours and experiences within 120 miles.">
         <RailNav railId={RAIL_ID} count={rows.length} unit="ranked options" total={rows.length} />
       </RailHeading>
+      <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: "#E6EDF3" }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
       <div className="wf-rail" data-rail={RAIL_ID} aria-label="Best bookable activities">
         {rows.map((item, index) => {
           const rank = index + 1;

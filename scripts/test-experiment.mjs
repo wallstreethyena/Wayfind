@@ -142,11 +142,15 @@ const E = await import("../lib/experiment.js");
   // The experiment must not make either surface unindexable. Guide SEO now
   // carries an explicit index/follow directive so large image previews can be
   // enabled without leaving crawlability implicit; culture remains unchanged.
-  const guideMetadata = guide.slice(guide.indexOf("export function generateMetadata"), guide.indexOf("export default async function"));
+  const metaAt = guide.indexOf("export async function generateMetadata");
+  const guideMetadata = guide.slice(metaAt, guide.indexOf("export default async function"));
+  ok(metaAt >= 0 && guideMetadata.length > 0, "the guide metadata slice actually covers generateMetadata");
   ok(!/index:\s*false|follow:\s*false/.test(guideMetadata) && !/robots:/.test(culture),
     "the experiment adds no noindex/nofollow directive to either content page");
-  ok(/robots:\s*\{\s*index:\s*true,\s*follow:\s*true/.test(guide) && /"max-image-preview":\s*"large"/.test(guide),
-    "guide metadata keeps explicit index/follow and permits large image previews");
+  // A past guide is noindex through isGuidePast. A current guide stays
+  // indexable. A hardcoded index:false still fails the assertion above.
+  ok(/const indexable = !isGuidePast\(g\)/.test(guideMetadata) && /robots:\s*\{\s*index:\s*indexable,\s*follow:\s*true/.test(guideMetadata) && /"max-image-preview":\s*"large"/.test(guide),
+    "guide metadata indexes current guides, noindexes a past guide, and permits large image previews");
 }
 
 

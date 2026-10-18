@@ -477,7 +477,6 @@ export default function RailCard({
     const fallback = ev.currentTarget.dataset.fallback;
     if (fallback) {
       ev.currentTarget.dataset.fallback = "";
-      ev.currentTarget.src = fallback;
       setFallbackPhoto({ primary: shownPhoto, src: fallback });
     } else setImgFailed(shownPhoto);
   };

@@ -106,7 +106,7 @@ ok((strip(read("lib/railsData.js")).match(/guideDiscoveryIndex\(currentGuides\(G
 ok(/!isGuidePast\(GUIDES\[g\.slug\]\)/.test(strip(read("lib/paidFloridaLanding.js"))), "paid landing guide cards skip past guides");
 // Archive never deletes: the sitemap still lists every guide URL.
 const sitemap = strip(read("app/sitemap.js"));
-ok(/Object\.keys\(GUIDES\)/.test(sitemap) && !/currentGuides|isGuidePast/.test(sitemap), "sitemap keeps every guide URL, past ones included");
+ok(/Object\.keys\(currentGuides\(GUIDES\)\)/.test(sitemap), "sitemap lists current guides only; a past guide stays at its URL and leaves the index");
 
 const today = siteTodayStr();
 console.log(`check-guide-lifecycle: OK — ${checks} assertions over ${ALL.length} guides and ${probeDays.size} boundary days; today (${today}) ${Object.keys(currentGuides(GUIDES)).length} current, ${pastGuides(GUIDES).length} past`);
