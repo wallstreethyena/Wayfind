@@ -97,16 +97,16 @@ export default function MapScreen({ ctx }) {
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
   }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, explicitList]);
   const contextPool = useMemo(() => [...(contextualView || []), ...(mapPool || []), ...(suggested || []), ...(places || [])], [contextualView, mapPool, suggested, places]);
-  const liveAreaPlaces = useMemo(() => mergeMapAreaContext(areaPlaces, contextPool), [areaPlaces, contextPool]);
+  const inventoryAreaPlaces = useMemo(() => mergeMapAreaContext(areaPlaces, contextPool), [areaPlaces, contextPool]);
   const recoveryCandidates = useMemo(() => applyCuratorPicks(contextualView || [], curatorSnap), [contextualView, curatorSnap]);
-  const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: liveAreaPlaces,
+  const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: inventoryAreaPlaces,
     bounds: viewport, origin: center, category: mapCategory, sub: allCategories ? "all" : sub,
     mapkit: appleSDK?.mapkit,
     enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && !explicitList && mapMode === "places", ready: areaStatus === "ready" && settledArea === areaReadKey });
-  const pinPool = useMemo(() => {
-    const owned = new Set(liveAreaPlaces.map((p) => p.id));
-    return [...liveAreaPlaces, ...appleRecovery.places.filter((p) => !owned.has(p.id))];
-  }, [liveAreaPlaces, appleRecovery.places]);
+  const liveAreaPlaces = useMemo(() => {
+    const owned = new Set(inventoryAreaPlaces.map((p) => p.id));
+    return [...inventoryAreaPlaces, ...appleRecovery.places.filter((p) => !owned.has(p.id))];
+  }, [inventoryAreaPlaces, appleRecovery.places]);
   // Apple lookups are display-only. Saves, sharing, detail fetches and analytics
   // receive the existing Wayfind identity, never the temporary Apple point.
   const actionPlace = (p) => p?.coordSource === "apple_live" ? (contextPool.find((source) => source.id === p.id) || { id: p.id, name: p.name }) : p;
@@ -115,16 +115,16 @@ export default function MapScreen({ ctx }) {
   // category/subcategory promises still apply; an All button is map-local.
   const view = useMemo(() => {
     if (explicitList) return applyCuratorPicks(mapListOverride, curatorSnap).filter((p) => p && p.id && Number.isFinite(p.lat) && Number.isFinite(p.lng)).slice().sort(byGovernedScore);
-    const selected = selectMapPlaces(applyCuratorPicks(pinPool, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
+    const selected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
     return mapMode === "fifa" ? selected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selected;
-  }, [pinPool, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, mapListOverride]);
+  }, [liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, mapListOverride]);
   // LIST/MAP ACCOUNTING (2026-10-14, lib/mapListAccounting.js): every card on
   // the list gets exactly one map status. A place the map may not pin (no
   // coordinate inside its source's permitted window, lib/coordProvenance.js)
   // is counted and said on screen, never silently missing.
   const listAccounting = useMemo(() => (mapMode === "places" && !explicitList
-    ? accountListOnMap({ listPlaces: contextualView || [], pins: view, areaPlaces: pinPool, areaStatus })
-    : null), [mapMode, explicitList, contextualView, view, pinPool, areaStatus]);
+    ? accountListOnMap({ listPlaces: contextualView || [], pins: view, areaPlaces: liveAreaPlaces, areaStatus })
+    : null), [mapMode, explicitList, contextualView, view, liveAreaPlaces, areaStatus]);
   const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
   const unpinnedNote = unpinnedForCoord > 0
     ? `${unpinnedForCoord} of ${listAccounting.total} list places still need a confirmed map location.${appleRecovery.status === "loading" ? " Checking top picks with Apple Maps…" : ""}`
