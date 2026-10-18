@@ -129,7 +129,15 @@ assert.deepEqual(htmlIds(nearbyHtml), ids(orderedNearby), "real shared event/gui
 assert.deepEqual(htmlBadgeScores(nearbyHtml), [9.2, 9, 8.4, 8.2, 8], "the real rendered nearby badges descend, not merely a separately computed sort key");
 assert.deepEqual(ids(nearbyPins), htmlIds(nearbyHtml), "nearby map pins and cards share the exact ordered identity list");
 assert.ok(!nearbyHtml.includes(invalid.name), "invalid map/card rows remain excluded");
-for (const place of nearby) assert.ok(nearbyHtml.includes(place.rankingNote), "sorting retains each place's own outing slot note");
+// Venue-origin mileage was removed from visible place cards. The slot note
+// remains attached to its own place after ordering; absent device fixes omit miles.
+for (const place of nearby) {
+  const cardStart = nearbyHtml.indexOf(`data-place-id="${place.id}"`);
+  const nextCard = nearbyHtml.indexOf('data-place-id="', cardStart + 1);
+  const card = nearbyHtml.slice(cardStart, nextCard < 0 ? undefined : nextCard);
+  assert.ok(cardStart >= 0 && card.includes(place.outing.slotLabel), "sorting retains each place's own outing slot note");
+}
+assert.ok(!/\d+(?:\.\d+)? mi\b/.test(nearbyHtml), "no current device fix means nearby place cards show no numeric mileage");
 const directNearbyHtml = renderToStaticMarkup(React.createElement(EventNearbyCards, { places: nearby }));
 assert.deepEqual(htmlIds(directNearbyHtml), ids(orderedNearby), "a direct nearby renderer also repairs an old unordered cache list");
 
