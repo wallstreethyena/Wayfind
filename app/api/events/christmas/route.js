@@ -24,10 +24,11 @@ import { CHRISTMAS_PLACE_IDS, CHRISTMAS_PLACE_RAIL, CHRISTMAS_PLACE_TAKES, CHRIS
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { isServableDeal } from "../../../../lib/eventTicketDeals.js";
+import { seasonalHospitalityIds, seasonalHospitalityPlaces, mergeSeasonalHospitalityPlaces, reconcileSeasonalHospitalityEvents } from "../../../../lib/seasonalHospitality.js";
 import { withChristmasGuides } from "../../../../lib/christmasGuides.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
-const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status";
+const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded";
 
 function json(body, status = 200, cache = "public, s-maxage=900, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -53,13 +54,13 @@ export async function GET(request) {
     //   time, the five location corrections, the distance group ordering law.
     // v6 (2026-10-13): the research data is the source (752 rows, watchlist
     //   never shown), one card per experience, honesty labels.
-    const key = `christmas-intents:v6:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `christmas-intents:v7:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
       const [rows, placeResult, dealResult] = await Promise.all([
         fetchCuratedEvents({ signal, fresh: true }),
-        supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", [...new Set([...CHRISTMAS_PLACE_IDS, ...CHRISTMAS_VENUE_PLACE_IDS])]).abortSignal(signal),
+        supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", [...new Set([...CHRISTMAS_PLACE_IDS, ...CHRISTMAS_VENUE_PLACE_IDS, ...seasonalHospitalityIds("christmas", today)])]).abortSignal(signal),
         // wf_deals health for Undercover Tourist entries; owned read, no paid call.
         CHRISTMAS_TICKET_DEAL_IDS.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", CHRISTMAS_TICKET_DEAL_IDS).abortSignal(signal)
@@ -92,10 +93,10 @@ export async function GET(request) {
         for (const row of extra.data || []) inventoryById.set(row.place_id, row);
       }
 
-      const events = eligibleRows.map((e) => christmasEventCard(e, { today, inventory: inventoryById.get(e.place_id) || null, pageSlugs, byDealId })
+      let events = eligibleRows.map((e) => christmasEventCard(e, { today, inventory: inventoryById.get(e.place_id) || null, pageSlugs, byDealId })
       ).filter((event) => (event.image || event.placeholder) && (event.url || event.place_id || event.detailHref));
 
-      const places = (placeResult.error ? [] : (placeResult.data || []))
+      let places = (placeResult.error ? [] : (placeResult.data || []))
         .filter((p) => hasStoredPlacePhoto(p))
         .filter((p) => (!p.status || p.status === "OPERATIONAL") && CHRISTMAS_PLACE_RAIL[p.place_id])
         .map((p) => {
@@ -114,14 +115,16 @@ export async function GET(request) {
           };
         })
         .filter((place) => place.image);
+      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "christmas", today));
       places.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
+      ({ events, places } = reconcileSeasonalHospitalityEvents(events, places));
       const composed = composeChristmasIntentRails(events, places, { lat, lng, today });
       return { today, rails: withChristmasGuides(composed.rails, today), sourceCount: events.length + places.length, sourceFailures };
     }, {
       name: "christmas-intent-rails",
       usable: (value) => value?.sourceFailures === 0
-        && value?.rails?.length === 8 && Number(value?.sourceCount || 0) > 0,
+        && value?.rails?.length === 9 && Number(value?.sourceCount || 0) > 0,
     });
     const complete = cached.value?.sourceFailures === 0;
     const headers = {

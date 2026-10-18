@@ -166,7 +166,7 @@ ok(!/query\.set\("full", "1"\)/.test(fallComponent) && !/railScrollNeedsMore/.te
   "the old scroll-triggered full=1 whole-blob loader is gone from fall, not merely unreachable");
 ok(/fetchJsonWithDeadline\(`\$\{endpoint\}\?\$\{q\.toString\(\)\}`(?:,\s*[^)]*)?\)/.test(pagedRailHook),
   "…and each page usePagedRail fetches carries the same deadline helper, so expanding a rail can never surrender the browser deadline");
-ok(/const expectedRailCount = collection === "halloween" \? 7 : 10/.test(fallComponent) && /result\.rails\.length !== expectedRailCount/.test(fallComponent), "positive control: the complete ten-rail contract is required");
+ok(/const expectedRailCount = collection === "halloween" \? 9 : 10/.test(fallComponent) && /result\.rails\.length !== expectedRailCount/.test(fallComponent), "positive control: the complete ten-rail contract is required");
 ok(/when=\{isEvent \? card\.when : null\}/.test(fallComponent), "event cards wear the WHEN badge — an event never gets a fabricated score");
 ok(/className="wf-exploding-primary"/.test(fallComponent), "fall cards use the house card's responsive media contract");
 ok(/external: true/.test(fallComponent) && /rel: cta\.sponsored \? "sponsored nofollow noopener" : "noreferrer"/.test(sharedCard), "official event links open externally with noreferrer");

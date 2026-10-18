@@ -1,0 +1,1730 @@
+[
+  {
+    "research_name": "The Courtesy",
+    "city": "Winter Park",
+    "place_id": "ChIJDahUeGJ654gRTbXyn3JDd0U",
+    "inventory_name": "The Courtesy",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.587212,lng=-81.3627143;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Mangoni Italian Market Pizza",
+    "city": "Winter Garden",
+    "place_id": "ChIJRStTdYSD54gRhH5dTvKQLJI",
+    "inventory_name": "MANGONI Italian Market Pizza",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.56483,lng=-81.5883934;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Zymarium Meadery",
+    "city": "Orlando",
+    "place_id": "ChIJOZ6tqU5754gRmHz-pzzl33s",
+    "inventory_name": "Zymarium Meadery",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5611373,lng=-81.3642795;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Red Coconut Club",
+    "city": "Orlando",
+    "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+    "inventory_name": "Red Coconut Club",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4731837,lng=-81.4650605;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "ICEBAR Orlando / Fire Lounge",
+    "city": "Orlando",
+    "place_id": "ChIJu-7DVUt-54gRqozH-4lHjDc",
+    "inventory_name": "ICEBAR Orlando",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.434688,lng=-81.4717743;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Fire Lounge is the same ICEBAR establishment, not a separate nearby venue."
+  },
+  {
+    "research_name": "Forward/Slash",
+    "city": "Winter Park",
+    "place_id": "ChIJeYMYltVx54gRB4G-KKYiD8I",
+    "inventory_name": "Forward Slash Distillery & Blending House",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5924285,lng=-81.3585927;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Colorado Fondue Company",
+    "city": "Casselberry",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Crafted Concoctions at BTW Tap House",
+    "city": "Tavares",
+    "place_id": "ChIJK8XimDu954gRDL72avt1fZE",
+    "inventory_name": "BTW's Crafted Concoctions",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.8023588,lng=-81.7275214;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Exact Tavares host of Apothecary/Miracle seasonal overlays; coordinates match Main Street Tavares."
+  },
+  {
+    "research_name": "Epilogue at Four Seasons Resort Orlando",
+    "city": "Golden Oak",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned FourSeasons host hotel exists but no exact Epilogue lounge identity found; hold named bar rather than substitute generic hotel.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Aku Aku Tiki Bar / The Dust",
+    "city": "Orlando",
+    "place_id": "ChIJXbsCPuN654gR4UT3qPPErPI",
+    "inventory_name": "Aku Aku Tiki Bar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5423883,lng=-81.3717015;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Combined research concept resolves to Aku Aku owned identity at431E Central; do not count The Dust as second owned place."
+  },
+  {
+    "research_name": "Judson’s Live",
+    "city": "Orlando",
+    "place_id": "ChIJfzpAT_p754gR8l1hCPLVd9g",
+    "inventory_name": "Judson's Live",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5380656,lng=-81.3764308;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Eden Bar at Enzian",
+    "city": "Maitland",
+    "place_id": "ChIJhxJqVUZw54gRx9WzmfTbxI0",
+    "inventory_name": "Eden Bar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.616451,lng=-81.3643524;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True.  Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "Helena Modern Riviera",
+    "city": "Orlando",
+    "place_id": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+    "inventory_name": "Helena Modern Riviera",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4428765,lng=-81.4692785;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Permanent Vacation",
+    "city": "Maitland",
+    "place_id": "ChIJsTUqwm5x54gRrbDWFjwv8TM",
+    "inventory_name": "Permanent Vacation",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.6180555,lng=-81.3659072;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Vault 5421 at Gods & Monsters",
+    "city": "Orlando",
+    "place_id": "ChIJ58Vnne1-54gRcSe6pl_DmGg",
+    "inventory_name": "Vault 5421",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.463019,lng=-81.4527635;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Gideon’s Bakehouse – Disney Springs",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJPd6UAfJ_3YgRP-V0GS5jS8I",
+    "inventory_name": "Gideon's Bakehouse",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3711354,lng=-81.5181104;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Disney Springs coordinates; East End Market same-name branch rejected."
+  },
+  {
+    "research_name": "Prometheus Esoterica",
+    "city": "Winter Park",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=permanent_verified. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Burning Blade Tavern",
+    "city": "Orlando",
+    "place_id": "ChIJX2-OWAB_54gRTx4LY4sC77s",
+    "inventory_name": "Burning Blade Tavern",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4397348,lng=-81.4505675;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Das Stakehaus",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=permanent_verified. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Jake’s American Bar",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Nova Bar",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Luna Bar",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Luna Bar is downtown Orlando28.541844,-81.377243; researched venue is TerraLuna resort. Wrong location; rejected.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Velvet Bar / Veranda Bar",
+    "city": "Orlando",
+    "place_id": "ChIJKetStt1-54gRxeCzhJprPLQ",
+    "inventory_name": "Velvet Bar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4770982,lng=-81.4646744;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Hard Rock Orlando coordinates; combined overlay pinned to exact owned Velvet Bar."
+  },
+  {
+    "research_name": "barVentura",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Bar 17 Bistro",
+    "city": "Orlando",
+    "place_id": "ChIJ5UZPSJ9_54gRW08lO4hAvA8",
+    "inventory_name": "Bar 17 Bistro",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4649531,lng=-81.4711768;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Swizzle Lounge",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Galaxy Bowl",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Thirsty Fish",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Lobby satellite bar at Sapphire Falls",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Strong Water Tavern",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Sunset Lounge",
+    "city": "Orlando",
+    "place_id": "ChIJa8efB81_54gRaGzmPMW9_co",
+    "inventory_name": "Sunset Lounge",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.460097,lng=-81.4625493;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Dockside Inn/Suites coordinates; same-name Pinellas lounge rejected."
+  },
+  {
+    "research_name": "Jock Lindsey’s Hangar Bar",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJ546xrYd_3YgRTgPTwlF4RPA",
+    "inventory_name": "Jock Lindsey's Hangar Bar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3714816,lng=-81.5182906;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Amorette’s Patisserie",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJuSNIOyiA3YgRN0jViX7rTdY",
+    "inventory_name": "Amorette's Patisserie",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3708816,lng=-81.5155821;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Chef Art Smith’s Homecomin’",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJk5xl2oZ_3YgRg7yR_vn87h4",
+    "inventory_name": "Chef Art Smith's Homecomin'",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3704659,lng=-81.5181848;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Chicken Guy!",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "City Works Eatery & Pour House",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJH0eijtt_3YgRzt5sUFxPul8",
+    "inventory_name": "City Works (Disney Springs - Orlando)",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3705718,lng=-81.522271;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Dockside Margaritas",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJ6WtlJSiA3YgR_jWOuoALJyA",
+    "inventory_name": "Dockside Margaritas",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3721349,lng=-81.5149039;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "eet by Maneet Chauhan",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Erin McKenna’s Bakery NYC",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Everglazed Donuts & Cold Brew",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Ganachery",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJxZSpKCiA3YgRphGSuScPJI8",
+    "inventory_name": "The Ganachery",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3709851,lng=-81.5182371;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Jaleo by José Andrés",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJ0_My9aR_3YgRQnilGsmaCps",
+    "inventory_name": "Jaleo",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3705587,lng=-81.5211344;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Joffrey’s Coffee & Tea Co. – Disney Springs",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Joffrey record28.359556,-81.544478 is outside DisneySprings; do not substitute same-brand resort kiosk.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Paddlefish",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJS-btWIZ_3YgRSyLaJFddtc0",
+    "inventory_name": "Paddlefish",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3718637,lng=-81.5168437;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Raglan Road Irish Pub and Restaurant",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+    "inventory_name": "Raglan Road Irish Pub",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3710834,lng=-81.5177549;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Splitsville Luxury Lanes",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Summer House on the Lake",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJb6B8uZx_3YgRjEUVK2NK1wE",
+    "inventory_name": "Summer House on the Lake",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.370444,lng=-81.520676;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Swirls on the Water",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Terralina Crafted Italian",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJ-0qgNoF_3YgRkQlY4JKmntY",
+    "inventory_name": "Terralina Crafted Italian",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3717228,lng=-81.5173535;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "The Boathouse",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJyWaYUYd_3YgR7gx9sx98KI0",
+    "inventory_name": "The Boathouse",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3717924,lng=-81.5180052;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "The Polite Pig",
+    "city": "Lake Buena Vista",
+    "place_id": "ChIJe906ToF_3YgRbKjexLmEIaU",
+    "inventory_name": "The Polite Pig",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3705926,lng=-81.5159766;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Vivoli il Gelato",
+    "city": "Lake Buena Vista",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Lounge at Rosen Inn closest to Universal",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Zebra’s Sports Bar & Grille",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Comfort Zone Bar & Grill",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "First Watch – Winter Park",
+    "city": "Winter Park",
+    "place_id": "ChIJ7d892ixx54gR1zYS5OeFcHw",
+    "inventory_name": "First Watch",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5982917,lng=-81.3648223;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Winter Park Orlando Ave coordinates match140NOrlandoAve; other Orlando branches rejected."
+  },
+  {
+    "research_name": "Jeff’s Bagel Run – O-Town West",
+    "city": "Orlando",
+    "place_id": "ChIJNSt_mNSB3YgRciHEvJOJ5Z0",
+    "inventory_name": "Jeff's Bagel Run",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4045123,lng=-81.5015318;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. O-TownWest coordinates match11012DarylCarterPkwy; other Jeff branches rejected. Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "JoJo’s ShakeBAR Orlando",
+    "city": "Orlando",
+    "place_id": "ChIJE8ib-7x_54gR3rj5fZw1BKM",
+    "inventory_name": "JoJo's Shake Bar - Orlando",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4323121,lng=-81.4707749;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "New York Beer Project Orlando",
+    "city": "Winter Garden",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Glass Knife – Orlando Avenue",
+    "city": "Winter Park",
+    "place_id": "ChIJYyycf3Jw54gRMxveA_ZNrEA",
+    "inventory_name": "The Glass Knife",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5959744,lng=-81.3649283;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Orlando Avenue branch coordinates; Park Avenue branch rejected."
+  },
+  {
+    "research_name": "The Salty Donut – Audubon Park",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Foxtail Coffee Co. – Winter Park",
+    "city": "Winter Park",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No owned exact WinterPark storefront match found; MaitlandSocial/LakeEola/WinterSprings branches are not substitutes.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Meg O’Malley’s",
+    "city": "Melbourne",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Apocalypse Coffee Roasters",
+    "city": "Melbourne",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Longboards Tiki Beach Grille",
+    "city": "Cocoa Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Longboards Oceanfront Grille28.127886,-80.577651 is Melbourne area; researched1550NAtlanticCocoaBeach is different venue. PanamaCity Longboards also rejected.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Zero Gravity Wine Bar",
+    "city": "Cocoa Beach",
+    "place_id": "ChIJGe1hcGmz4IgRT3TZ75307Cw",
+    "inventory_name": "Zero Gravity Wine Bar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.3665127,lng=-80.6058265;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "The Shores Resort & Spa",
+    "city": "Daytona Beach Shores",
+    "place_id": "ChIJ9ZH_S2DX5ogRuHT6TGyD3mE",
+    "inventory_name": "The Shores Resort & Spa",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.1811062,lng=-80.9847842;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Hard Rock Hotel Daytona Beach – Avalon I Ballroom",
+    "city": "Daytona Beach",
+    "place_id": "ChIJM9EbYkPa5ogRVbXxSnO5Sz8",
+    "inventory_name": "Hard Rock Hotel Daytona Beach",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.2412037,lng=-81.0146652;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Research explicitly identifies the named hotel as party host; owned hotel identity is exact host campus at918NAtlantic, not a nearby bar. Ballroom is not a separately invented place ID."
+  },
+  {
+    "research_name": "RAD Kava Bar",
+    "city": "Daytona Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Katya Vineyards",
+    "city": "Ocala",
+    "place_id": "ChIJ_bRHpKqI6IgRwFRMA8lcMiM",
+    "inventory_name": "Katya Vineyards",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.1872875,lng=-82.1364344;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Betty Cakes",
+    "city": "Ocala",
+    "place_id": "ChIJMedwarMs5ogRJKgvAGLEfB0",
+    "inventory_name": "Betty Cakes Cafe",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.1878139,lng=-82.1122749;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Chelsea Coffee Company",
+    "city": "Ocala",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Gathering Cafe",
+    "city": "Ocala",
+    "place_id": "ChIJazh__EDV54gRXUG1IkZcBWE",
+    "inventory_name": "The Gathering Cafe Downtown Ocala",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.1861377,lng=-82.1397212;metro=ocala-fl;status=OPERATIONAL;excluded=false;has_photo=True. Downtown Ocala coordinates align306SWBroadway; North branch rejected."
+  },
+  {
+    "research_name": "Soleil Bakery",
+    "city": "Ocala",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Symmetry Coffee Company",
+    "city": "Ocala",
+    "place_id": "ChIJ1_TAxlIr5ogRWvHadJJjeFw",
+    "inventory_name": "Symmetry Coffee Company",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.1872329,lng=-82.1357165;metro=ocala-fl;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "The Club at Eaglebrooke",
+    "city": "Lakeland",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Black & Brew – Downtown",
+    "city": "Lakeland",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Black&Brew27.989286,-81.957257 is south Lakeland, not205EMain downtown (~28.044); branch mismatch rejected.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Concord Coffee at Lakeland Highlands Hospital",
+    "city": "Lakeland",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Concord Coffee28.018924,-81.730966 is WinterHaven, not4000LakelandHighlandsRoad; rejected.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Shark Bar Orlando",
+    "city": "Orlando",
+    "place_id": "ChIJPeALYQ9_54gRAAz0Rp4RT_A",
+    "inventory_name": "Shark Bar Orlando",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.4324324,lng=-81.4702067;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True.  Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "Eagles Edge at Omni Orlando Resort",
+    "city": "ChampionsGate",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Wellborn",
+    "city": "Orlando",
+    "place_id": "ChIJJ-V-iQF754gRRbHQQ2O5xxQ",
+    "inventory_name": "The Wellborn Restaurant & Bar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5356202,lng=-81.3753955;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True.  Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "Mathers Social Gathering",
+    "city": "Orlando",
+    "place_id": "ChIJj7u1zf1654gRlOTNe7y12Jo",
+    "inventory_name": "Mathers Social Gathering",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5415227,lng=-81.3775904;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True.  Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "Otto’s High Dive",
+    "city": "Orlando",
+    "place_id": "ChIJOwkr93R754gRwukRdzlSJgM",
+    "inventory_name": "Otto’s High Dive",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.5458202,lng=-81.3526658;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True.  Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "The Shade House at Propagate Social House",
+    "city": "Apopka",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned PropagateSocialHouse exists but exact ShadeHouse service area identity unresolved; seasonal research also pending2026.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Cocktails & Screams",
+    "city": "Orlando",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research explicitly excluded/closedMarch2026; do not publish historic identity.",
+    "confidence": "held",
+    "notes": "Source: central.json; research status=excluded. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Starbucks – Thornton Park",
+    "city": "Orlando",
+    "place_id": "ChIJp5YJ7ON654gR3sOytrlJ4DA",
+    "inventory_name": "Starbucks",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=28.543003,lng=-81.368588;metro=orlando;status=OPERATIONAL;excluded=false;has_photo=True. Coordinates match ThorntonPark20NSummerlin; other Orlando Starbucks rejected. Research seasonal status is pending_2026; identity verification does not authorize publishing unconfirmed seasonal facts."
+  },
+  {
+    "research_name": "1985 Coffee",
+    "city": "Atlantic Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Bitty & Beau’s",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "ChokoLatte Cafe & Bakery",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Foxtail Coffee Co.",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Multiple Jacksonville-area owned branches found; source research lacks exact storefront. Hold rather than pick arbitrary branch.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "INK Factory Brewing",
+    "city": "Jacksonville Beach",
+    "place_id": "ChIJ18xj06JJ5IgRCo4OxtjRfF8",
+    "inventory_name": "Ink Factory Brewing",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.2872828,lng=-81.3953574;metro=st-augustine-fl;status=OPERATIONAL;excluded=false;has_photo=True. Jacksonville Beach physical brewery. Owned same-site Coffee Shop row not counted separately."
+  },
+  {
+    "research_name": "Le Petit Paris Cafe",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Mechanism Coffee Roasters",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Two owned Jacksonville branches found, original andEtown. Research combines concept with no address and does not specify branch participation; hold branch selection.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Pura Bean Coffee Company",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Royal Moose Coffee Company",
+    "city": "Middleburg",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Sippers Coffeehouse",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Southern Grounds",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Multiple owned Jacksonville branches found; research no branch address or all-store participation proof. Hold ambiguous branch.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Spring Park Coffee",
+    "city": "Green Cove Springs",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Urban Bean Coffeehouse",
+    "city": "Orange Park",
+    "place_id": "ChIJ00hIFvvF5YgRcxyLdB_2UzE",
+    "inventory_name": "The Urban Bean Coffeehouse Cafe",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.1653202,lng=-81.7007798;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Southern Swells Brewing Co.",
+    "city": "Jacksonville Beach",
+    "place_id": "ChIJsd3craFJ5IgR37wCVlqidyc",
+    "inventory_name": "Southern Swells Brewing Co",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.286881,lng=-81.4030121;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Karma Cream",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Opus Coffee",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Coterie Market",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "108 Vine",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Bagels & Co.",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Daydreamer Cafe",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Honeybee Café",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Patticakes",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Jeff’s Bagel Run",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No Gainesville owned branch at3254SW35thBlvd found; Orlando/Bradenton records rejected.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Playa Bowls",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No Gainesville owned branch found; Daytona/Jacksonville andSouthFlorida identities rejected.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Forgotten Tonic",
+    "city": "St. Augustine",
+    "place_id": "ChIJu5KCkJYn5IgRVVjGR-aX2N4",
+    "inventory_name": "Forgotten Tonic",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.8917268,lng=-81.3117032;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Cry Baby’s & Baby J’s",
+    "city": "Gainesville",
+    "place_id": "ChIJC2p8EbKj6IgRKUUx8t8-8L0",
+    "inventory_name": "Cry Baby’s",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.6518155,lng=-82.3251876;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Gainesville combined research campus pinned to owned Cry Baby’s; no separate fabricated BabyJ’s ID."
+  },
+  {
+    "research_name": "Element Bistro — The Nightmare Bar",
+    "city": "Jacksonville",
+    "place_id": "ChIJYWfOURm35YgRZ6p-Om4KBNM",
+    "inventory_name": "Element Bistro Bar and Lounge",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3253772,lng=-81.6533019;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Sidecar San Marco",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Grey Matter Distillery",
+    "city": "Atlantic Beach",
+    "place_id": "ChIJgULEnkW05YgR7sr10NgLv_s",
+    "inventory_name": "Grey Matter Distillery",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3334506,lng=-81.4152616;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "The Sandollar Restaurant",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "cafecito",
+    "city": "Jacksonville",
+    "place_id": "ChIJU9IQV0q55YgR6ZGLbdcOU9c",
+    "inventory_name": "cafecito",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3134889,lng=-81.6951798;metro=jacksonville-fl;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Jacksonville Coffee Company",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned record30.219888,-81.550815 is southside; researched6EBaySt is downtown. Same-brand different branch rejected.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Cinotti’s Bakery",
+    "city": "Jacksonville Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Grape & Grain Exchange",
+    "city": "Jacksonville",
+    "place_id": "ChIJRUaTbKm35YgRSw_uuAL1P1A",
+    "inventory_name": "The Grape & Grain Exchange",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3038022,lng=-81.6540412;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Town Hall",
+    "city": "Jacksonville",
+    "place_id": "ChIJaz8wbKm35YgRVPIjl9FCpzc",
+    "inventory_name": "Town Hall Restaurant Jacksonville",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.303754,lng=-81.6538414;metro=jacksonville-fl;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Prohibition Kitchen",
+    "city": "St. Augustine",
+    "place_id": "ChIJC2do4JUn5IgRuCCaO-aklds",
+    "inventory_name": "Prohibition Kitchen",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.8941436,lng=-81.3128085;metro=st-augustine-fl;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Meehan’s Irish Pub & Seafood House",
+    "city": "St. Augustine",
+    "place_id": "ChIJK8NZGZYn5IgRA91RrGETwrQ",
+    "inventory_name": "Meehan's Irish Pub & Seafood House",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.8950574,lng=-81.3112863;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Wicked Barley Brewing Company",
+    "city": "Jacksonville",
+    "place_id": "ChIJd9YyXYPJ5YgRwvgO0nvbeVU",
+    "inventory_name": "Wicked Barley Brewing Company",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.2183694,lng=-81.6112862;metro=st-augustine-fl;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Top Dawg Tavern",
+    "city": "Jacksonville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Swamp Head Brewery",
+    "city": "Gainesville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Ritz-Carlton, Amelia Island",
+    "city": "Amelia Island",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Omni Amelia Island Resort & Spa",
+    "city": "Amelia Island",
+    "place_id": "ChIJIU_PARFU5IgR1BUK642d7Xc",
+    "inventory_name": "Omni Amelia Island Resort & Spa",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.5548859,lng=-81.4449396;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Research explicitly hotel shopping-village holiday program; exact named host resort campus, not arbitrary restaurant substitution."
+  },
+  {
+    "research_name": "The Daytrader Tiki Bar & Restaurant",
+    "city": "Seaside",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Perfect Plain / Garden & Grain / The Well",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Coastal County Brewing",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "O’Riley’s Irish Pub",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Flora-Bama Lounge, Package and Oyster Bar",
+    "city": "Perdido Key",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Vine Wine Bar",
+    "city": "Navarre",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Samuel’s Roadhouse",
+    "city": "Crestview",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "La Famiglia",
+    "city": "Shalimar",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Gulfarium — Living Sea Aquarium Room",
+    "city": "Fort Walton Beach",
+    "place_id": "ChIJa2rMV0w_kYgRFLsynfeWKig",
+    "inventory_name": "Gulfarium Marine Adventure Park",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.394468,lng=-86.593546;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Exact named park host for dining event; aquarium dining room is not a separately invented Google identity."
+  },
+  {
+    "research_name": "Shalimar Pointe",
+    "city": "Shalimar",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Ara Rooftop Pool & Lounge — Hotel Effie",
+    "city": "Miramar Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Ovide — Hotel Effie",
+    "city": "Miramar Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Paradise Bar & Grill",
+    "city": "Pensacola Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Bamboo Willie’s",
+    "city": "Pensacola Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Big Chill",
+    "city": "Watersound Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Hammerhead Fred’s",
+    "city": "Panama City Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Dave & Buster’s",
+    "city": "Panama City Beach",
+    "place_id": "ChIJN6Kh1EWMk4gRdTtvZ1VWW60",
+    "inventory_name": "Dave & Buster's Panama City Beach",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.2177944,lng=-85.8734737;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "The Edge Seafood Restaurant & SkyBar",
+    "city": "Destin",
+    "place_id": "ChIJLTuXIcJBkYgRkjatW4ZAgr4",
+    "inventory_name": "The Edge Seafood Restaurant & SkyBar",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3926746,lng=-86.5051127;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Shades Bar & Grill",
+    "city": "Inlet Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "LJ Schooners Dockside Restaurant & Oyster Bar",
+    "city": "Niceville",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Saltwater Grill",
+    "city": "Panama City Beach",
+    "place_id": "ChIJCyNpltSOk4gR23PpnsZZKWs",
+    "inventory_name": "Saltwater Grill",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.1862035,lng=-85.8118339;metro=panama-city-florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Vice Society",
+    "city": "Tallahassee",
+    "place_id": "ChIJ4x9KiFz17IgR2suMvPpO9ZI",
+    "inventory_name": "Vice Society",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.4364523,lng=-84.297178;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Seville Quarter / Rosie O’Grady’s",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=permanent_verified. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Pensacola Bay Brewery",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Juan’s Flying Burrito",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Lucy’s in the Square",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Barkley House",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Station Nutrition",
+    "city": "Dunnellon",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Black Sheep On Broadway",
+    "city": "Ocala",
+    "place_id": "ChIJb4AO-2LV54gRUV6hZoLstXc",
+    "inventory_name": "Black Sheep On Broadway",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=29.186032,lng=-82.1385729;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "World Equestrian Center — The Equestrian Manor",
+    "city": "Ocala",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned EquestrianHotel record is not sufficient to assert separate EquestrianManor identity; exact named venue absent.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "86 Forks Bar + Table",
+    "city": "Pensacola",
+    "place_id": "ChIJ863vQUvBkIgRwiS502Vj-Xg",
+    "inventory_name": "86 Forks Bar + Table",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.4123698,lng=-87.2155101;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Play Pensacola",
+    "city": "Pensacola",
+    "place_id": "ChIJi1hZmq7AkIgRSht1qckM7pU",
+    "inventory_name": "Play Pensacola",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.4122826,lng=-87.2149816;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Bar, Justa",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Bavaria",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Cigar Factory",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "NYN’s Badlands — a roadside bar",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Abide Coffee Co.",
+    "city": "Freeport",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Soul Space Café",
+    "city": "Panama City",
+    "place_id": "ChIJ3WuGwJuDk4gRdQx3ICpSsZQ",
+    "inventory_name": "The Soul Space Wellness Cafe + Shoppe",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.193222,lng=-85.6830444;metro=panama-city-florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Mrs. Jones Cold Brew",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=permanent_verified. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Drowsy Poet Coffee Company",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Melting Pot",
+    "city": "Destin",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Lucky Goat Coffee",
+    "city": "Tallahassee",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Pensacola andJacksonville records do not match researched1400VillageSquareBlvdTallahassee. Hold wrong-city branches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Juana’s Pagodas & Sailors’ Grill",
+    "city": "Navarre Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "McGuire’s Irish Pub",
+    "city": "Destin",
+    "place_id": "ChIJOwmPb05BkYgRMGNVjchcNcQ",
+    "inventory_name": "McGuire's Irish Pub of Destin",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3959827,lng=-86.512016;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Destin coordinates and exact branch; PanamaCityBeach owned same-brand identity rejected."
+  },
+  {
+    "research_name": "Coastal Cat Cafe",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Tallahassee Museum — Zoobilee",
+    "city": "Tallahassee",
+    "place_id": "ChIJT8lyCbL07IgR7bBS2PG4XQI",
+    "inventory_name": "Tallahassee Museum",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.4104779,lng=-84.3440395;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Exact named museum campus hosting Zoobilee; no separately invented event place ID."
+  },
+  {
+    "research_name": "AC Hotel by Marriott Tallahassee — Plaza Lawn",
+    "city": "Tallahassee",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Bodacious Café",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned BodaciousShops parent complex found, not independently resolved407-FSPalafox cafe identity; research also pending2026.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Sir Richard’s Public House",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Jackson’s Steakhouse",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Old Hickory Whiskey Bar",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=pending_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "O.C. White’s Seafood & Spirits",
+    "city": "St. Augustine",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=permanent_verified. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "O’Zone Pizza Pub",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=permanent_verified. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Burrow",
+    "city": "Pensacola",
+    "place_id": "ChIJEf3_EwDBkIgRV91qfrMx3kg",
+    "inventory_name": "The Burrow",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.42649,lng=-87.2028489;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "AJ’s Seafood & Oyster Bar",
+    "city": "Destin",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "SOLARIS — SunQuest Cruises",
+    "city": "Miramar Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Potbelly’s",
+    "city": "Tallahassee",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Owned Potbelly’s Tallahassee coordinates30.440498,-84.288259 found, but researched1872MillSt address not independently reconciled. Hold exact-address mismatch.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Moon",
+    "city": "Tallahassee",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "The Village Door",
+    "city": "Miramar Beach",
+    "place_id": "ChIJuQEAAPxbkYgRNLn_UrtcbJo",
+    "inventory_name": "The Village Door Restaurant & Entertainment",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.3896902,lng=-86.3260497;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Splash Bar Florida",
+    "city": "Panama City Beach",
+    "place_id": "ChIJt6La8Z2Ik4gRPVBYvKiqPrY",
+    "inventory_name": "Splash Bar Florida",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.1535061,lng=-85.7674918;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. "
+  },
+  {
+    "research_name": "Growler Country Tavern & Grill",
+    "city": "Tallahassee",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Gary’s Brewery & Biergarten",
+    "city": "Pensacola",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational nonexcluded owned identity found in supplied inventories or bounded name-specific read-only Supabase searches.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=confirmed_2026. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  },
+  {
+    "research_name": "Ology Brewing — Midtown",
+    "city": "Tallahassee",
+    "place_id": "ChIJVz8KOpv17IgRIh3dx26iJyQ",
+    "inventory_name": "Ology Brewing Co [Midtown]",
+    "match_reason": "Exact named venue or documented same-establishment alias, with city/campus validated by coordinates.",
+    "confidence": "verified",
+    "notes": "Inventory: lat=30.4565364,lng=-84.2812513;metro=florida;status=OPERATIONAL;excluded=false;has_photo=True. Midtown coordinates match118E6thAve; Northside and PowerMill branches rejected."
+  },
+  {
+    "research_name": "Pensacola Beach Boardwalk — Beach-O-Ween",
+    "city": "Pensacola Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "Research explicitly excluded cancelled event; do not publish as available.",
+    "confidence": "held",
+    "notes": "Source: north.json; research status=excluded. No approximate, nearby, same-name wrong-city, or parent-brand substitution assigned."
+  }
+]

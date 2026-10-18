@@ -44,7 +44,10 @@ const sha = (b) => createHash("sha256").update(b).digest("hex").slice(0, 16);
 const PAIRS = {
   // Owner-supplied poster, viewed at 760px: "Halloween Starts Here".
   // Resampled without cropping or redrawing the original frame.
-  halloween: { copy: "a5a0b3d947603eae", art: "088f64ffdadb7c26" },
+  // 2026-10-18: re-read the unchanged 760px pixels. They say only
+  // "Halloween Starts Here", with no rail count. The new bars/treats subtitle
+  // accurately describes the expanded collection; the headline still matches.
+  halloween: { copy: "3c55f1625b28499c", art: "088f64ffdadb7c26" },
   // Pin a rail here only after LOOKING at public/cards-v8/<id>-760.jpg and
   // confirming the words in the image match the words in lib/rails.js.
   //

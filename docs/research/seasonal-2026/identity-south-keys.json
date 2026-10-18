@@ -1,0 +1,1253 @@
+[
+  {
+    "research_name": "Elevate Skye Bar & Lounge",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": "Elevate Skye Bar & Lounge",
+    "match_reason": "Exact name inventory candidate is Delray Beach at 26.4619131,-80.0590339, not Key West. No hotel/Opal Key substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Greeen House",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Bourbon Street Pub / New Orleans House",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Havana Cabana at Key West",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Sunset Pier",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Green Parrot Bar",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Tiki House Key West",
+    "city": "Key West",
+    "place_id": "ChIJg50tm-u20YgRIO2o5UlQ0cA",
+    "inventory_name": "Tiki House",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "A&B Lobster House",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Southernmost Pint",
+    "city": "Key West",
+    "place_id": "ChIJMU6sagC30YgRimllJs6Ue70",
+    "inventory_name": "Southernmost Pint Brewpub - Blast Beer Company Brewery",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "First Flight Island Restaurant & Brewery",
+    "city": "Key West",
+    "place_id": "ChIJZ1r97-u20YgRDk5-Rim5LUs",
+    "inventory_name": "First Flight Island Restaurant & Brewery",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Sloppy Joe’s Bar",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Dante’s Restaurant & Pool Bar",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Winslow’s Bungalows",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "La Concha Hotel",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Casa Marina Key West",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Mary Ellen’s",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "General Horseplay",
+    "city": "Key West",
+    "place_id": "ChIJWXNM3jG30YgR-DYvFdvwwY8",
+    "inventory_name": "General Horseplay",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Southernmost Beach Café / Resort",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Rick’s Complex",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Captain Tony’s Saloon",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Viva Argentinian Steakhouse",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Kaya Island Eats / Key West Empourium",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": "Kaya Island Eats",
+    "match_reason": "Research combines current Empourium at 618 Duval with Kaya identity. Inventory coordinates 24.5541538,-81.8016236 may describe 628 rear Duval; hold until current venue/campus relationship is explicit.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Irish Kevin’s",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Schooner Wharf Bar",
+    "city": "Key West",
+    "place_id": "ChIJKz1uv-q20YgRHfCT5Jq9aqg",
+    "inventory_name": "Schooner Wharf Bar",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Blue Flamingo Resort",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Margaritaville Key West",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Four Marlins at The Reach",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Marker Key West Harbor Resort",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Hank’s Hair of the Dog Saloon",
+    "city": "Key West",
+    "place_id": "ChIJ7R5B8Fi30YgR_mk-6rs41SU",
+    "inventory_name": "Hank's Hair of the Dog Saloon",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Southernmost House",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Hog’s Breath Saloon",
+    "city": "Key West",
+    "place_id": "ChIJ79iHfuy20YgRPRrMNtoPag4",
+    "inventory_name": "Hog's Breath Saloon",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Latitudes at Sunset Key Cottages",
+    "city": "Key West",
+    "place_id": "ChIJS64vE-y20YgRpw4XpsfCkQs",
+    "inventory_name": "Latitudes - Sunset Key Cottages",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Key West Old Town / waterfront (24.55–24.57 N, 81.79–81.82 W). Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence. Source seasonal status is pending_2026: do not publish as a confirmed 2026 seasonal experience."
+  },
+  {
+    "research_name": "Wicked Bread Co.",
+    "city": "Plantation",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "No Man’s Land",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJyTDAxZoB2YgRsi0KjlW9to4",
+    "inventory_name": "No Man's Land Cocktail Parlor & Eatery",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Rosalia’s Kitchen",
+    "city": "Miramar",
+    "place_id": "ChIJ_YHso8el2YgRTbHiN4s5_uA",
+    "inventory_name": "Rosalia's Kitchen",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates 25.97732,-80.30781 at the Miramar Parkway venue; inventory metro is incorrectly miami-dade, so city evidence uses coordinates and current Visit Lauderdale source. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Whiskey Neat",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJf3Wg6d4B2YgROfhoq997Gfs",
+    "inventory_name": "Whiskey Neat",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "RM. 901 at Hyatt Centric Las Olas",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Hidden Speakeasy at Eatapas",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJj8va2pED2YgRcAzmT8bErzs",
+    "inventory_name": "Hidden Speakeasy",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "MAASS",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJF6pqghMB2YgRl7OIepJ4H0s",
+    "inventory_name": "MAASS Restaurant at The Four Seasons",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Living Room at W Fort Lauderdale",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": "Living Room",
+    "match_reason": "Inventory Living Room coordinates 25.7977417,-80.1274805 are Miami Beach, not W Fort Lauderdale. Living Room Cafe in Broward is a different venue. No W hotel substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Nubé Rooftop",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJd1obl3gB2YgRBCA14NQZcR4",
+    "inventory_name": "Nubé Rooftop",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Rooftop @1WLO",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJ77JeiPgA2YgRMPCSJZ-SikM",
+    "inventory_name": "Rooftop @1WLO",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "The Wilder",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJP2-36VMA2YgRNiDmYhNrQtk",
+    "inventory_name": "The Wilder",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Rhythm & Vine",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJKUAno1QA2YgRXjBVFXDDlrA",
+    "inventory_name": "Rhythm & Vine",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "The Wharf Fort Lauderdale",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Jay’s",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Bokamper’s Sports Bar & Grill",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Cove Waterfront Restaurant & Tiki Bar",
+    "city": "Deerfield Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Shooters Waterfront",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJI_ydBmsA2YgR9OkziNe7adM",
+    "inventory_name": "Shooters Waterfront",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Voodoo Bayou Las Olas",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJFwgu6SUB2YgR0DCYTC7nHYc",
+    "inventory_name": "Voodoo Bayou",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "The Shorely at Marina Village",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJ1zIbt3sB2YgR_8jyaGTRxJg",
+    "inventory_name": "The Shorely At Marina Village",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Blitzen’s at Omni Fort Lauderdale",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": "Omni Fort Lauderdale Hotel",
+    "match_reason": "Only parent hotel is available. Blitzen’s bar identity has no exact inventory match; no hotel substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Roxy’s Pub",
+    "city": "West Palm Beach",
+    "place_id": "ChIJLd_uxonW2IgRCHBSV77RI9E",
+    "inventory_name": "Roxy's Pub",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in West Palm Beach; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Treehouse Rooftop Bar & Restaurant",
+    "city": "West Palm Beach",
+    "place_id": "ChIJV8mRgbbX2IgRloAsUHzNI6s",
+    "inventory_name": "Treehouse",
+    "match_reason": "Treehouse is the exact independently listed rooftop venue, not its Canopy hotel. Coordinates 26.70693,-80.05320 agree with 380 Trinity Place in West Palm Beach. Operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Respectable Street",
+    "city": "West Palm Beach",
+    "place_id": "ChIJ50iNNGLW2IgRf6D0kAjm-Ns",
+    "inventory_name": "Respectable Street",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in West Palm Beach; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Camelot",
+    "city": "West Palm Beach",
+    "place_id": "ChIJB_x-d4nW2IgRA8KT7MrGCis",
+    "inventory_name": "Camelot",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in West Palm Beach; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Forget Me Not",
+    "city": "West Palm Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Locals Only",
+    "city": "West Palm Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Belgrove Resort & Spa",
+    "city": "West Palm Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Butcher’s Club at PGA National",
+    "city": "Palm Beach Gardens",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Novecento Delray",
+    "city": "Delray Beach",
+    "place_id": null,
+    "inventory_name": "Novecento",
+    "match_reason": "Inventory Novecento records are in Miami-Dade, not Delray Beach. Wrong branch IDs rejected.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Second Rodeo",
+    "city": "Boynton Beach",
+    "place_id": "ChIJ3yybHX3f2IgR63BD308M-Ko",
+    "inventory_name": "Second Rodeo",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates 26.52655,-80.05658 in Boynton Beach. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Florie’s / Seaway at Four Seasons Resort Palm Beach",
+    "city": "Palm Beach",
+    "place_id": null,
+    "inventory_name": "Four Seasons Resort Palm Beach",
+    "match_reason": "Research combines Florie’s and Seaway restaurants. Parent hotel exists but is not an exact restaurant identity; no hotel substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Palm House",
+    "city": "Palm Beach",
+    "place_id": "ChIJC8XktpTW2IgRF-y9Jsu_N04",
+    "inventory_name": "Palm House",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates on Palm Beach island; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence. Source seasonal status is pending_2026: do not publish as a confirmed 2026 seasonal experience."
+  },
+  {
+    "research_name": "Pura Vida Miami — Jupiter",
+    "city": "Jupiter",
+    "place_id": null,
+    "inventory_name": "Pura Vida Miami",
+    "match_reason": "Research is Jupiter at 147 Soundings Avenue; available Pura Vida records are WPB/Delray/Boca/Wellington and Miami/Broward. No Jupiter record found.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Plum Market",
+    "city": "Palm Beach Gardens",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Melting Pot — Palm Beach Gardens",
+    "city": "Palm Beach Gardens",
+    "place_id": null,
+    "inventory_name": "Melting Pot",
+    "match_reason": "Available Melting Pot coordinates 26.27213,-80.26435 are Broward, not Palm Beach Gardens. Wrong branch rejected.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Crema Gourmet — West Palm Beach",
+    "city": "West Palm Beach",
+    "place_id": null,
+    "inventory_name": "Crema Gourmet Coconut Creek / Coconut Grove",
+    "match_reason": "Available branches are not West Palm Beach; no branch substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Another Broken Egg Cafe — Delray Beach",
+    "city": "Delray Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Cup of Joy Coffee Bar",
+    "city": "Belle Glade",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Meat Market Palm Beach",
+    "city": "Palm Beach",
+    "place_id": null,
+    "inventory_name": "Meat Market Boca Raton Steakhouse",
+    "match_reason": "Available Meat Market record is Boca Raton, not the Palm Beach island venue. Wrong branch rejected.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Celona Restaurant & Gin Lounge",
+    "city": "West Palm Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Pierre’s at Morada Bay",
+    "city": "Islamorada",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Lorelei Restaurant & Cabana Bar",
+    "city": "Islamorada",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Bungalows Key Largo",
+    "city": "Key Largo",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Hog Heaven Sports Bar & Grill",
+    "city": "Islamorada",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Caribbean Club",
+    "city": "Key Largo",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Sylvester",
+    "city": "Miami",
+    "place_id": "ChIJo83NFCqx2YgRXsS12ziKrO8",
+    "inventory_name": "The Sylvester",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Bar Kaiju",
+    "city": "Miami",
+    "place_id": "ChIJR3jsxUix2YgRkgtBI68Y0B4",
+    "inventory_name": "Bar Kaiju",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Regatta Grove",
+    "city": "Miami",
+    "place_id": "ChIJ5zIAFK-32YgR2Qilsz6Sqv8",
+    "inventory_name": "Regatta Grove",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Rosa Sky",
+    "city": "Miami",
+    "place_id": "ChIJpwznMWi32YgRs_iFE7Vok3Y",
+    "inventory_name": "Rosa Sky",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Watr at 1 Rooftop",
+    "city": "Miami Beach",
+    "place_id": "ChIJaXDYCGKz2YgRZcbuI00YQuY",
+    "inventory_name": "Watr at the 1 Rooftop",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates on Miami Beach barrier island; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Faena Miami Beach",
+    "city": "Miami Beach",
+    "place_id": "ChIJBVShAmez2YgRvNWv6nIzzzY",
+    "inventory_name": "Faena Miami Beach",
+    "match_reason": "Research intentionally covers Faena Miami Beach property-wide Halloween program. Exact Faena Miami Beach property ID, not a substitute for one named restaurant. Miami Beach coordinates agree; operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Sexy Fish Miami",
+    "city": "Miami",
+    "place_id": "ChIJdfkR4PC32YgRgxEP4swq1oY",
+    "inventory_name": "Sexy Fish Miami",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Bagatelle Miami River",
+    "city": "Miami",
+    "place_id": "ChIJYRdVySi32YgR8ki5MlgrIBA",
+    "inventory_name": "Bagatelle Miami River",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Seia",
+    "city": "Miami",
+    "place_id": "ChIJwVcggR232YgRsfCXx2oDQaU",
+    "inventory_name": "Seia Miami",
+    "match_reason": "Seia Miami is the exact Seia restaurant, distinct from Selva. Coordinates 25.76565,-80.19233 agree with Brickell. Operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Habibi Miami",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": "HABIBI CAFE",
+    "match_reason": "Available Habibi Cafe at 25.84511,-80.26373 is not Habibi Miami supper club at 452 NW North River Drive.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Selva Miami",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": "Seia Miami",
+    "match_reason": "Seia is a different venue from Selva. Fuzzy name match explicitly rejected.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Elia on the River",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "W Miami",
+    "city": "Miami",
+    "place_id": "ChIJX1XoS5222YgRb-NQO12eZe0",
+    "inventory_name": "W Miami",
+    "match_reason": "Research event is explicitly W Miami rooftop hotel party. Exact W Miami property identity and Brickell coordinates; operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Delano Miami Beach",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Standard Spa Miami Beach",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Olazul Beach House at Andaz Miami Beach",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Mexican",
+    "city": "Miami",
+    "place_id": "ChIJp8bu1-m12YgRSlYgewIxLSk",
+    "inventory_name": "The Mexican Miami",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Delilah Miami",
+    "city": "Miami",
+    "place_id": "ChIJJQZkpWm32YgR5ej28eqn7rM",
+    "inventory_name": "Delilah Miami",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "R House Wynwood",
+    "city": "Miami",
+    "place_id": "ChIJqefzYK222YgRNDCblbPPVVU",
+    "inventory_name": "R House Wynwood",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Donna Mare Italian Chophouse",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Novotel Miami Brickell — UVA / Vista",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": "Novotel Miami Brickell",
+    "match_reason": "Only parent hotel matches. Research combines UVA and Vista outlets; no restaurant/bar ID or exact combined venue record. Held under requested no-hotel-substitution rule.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Mottai",
+    "city": "Coral Gables",
+    "place_id": "ChIJjWdCwWK32YgRnRshp--0wZI",
+    "inventory_name": "Mottai Miami",
+    "match_reason": "Mottai Miami is the exact Mottai restaurant in Coral Gables; coordinates 25.74569,-80.25820 establish Coral Gables despite Miami branding. Operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "LT Steak & Seafood at The Betsy",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": "The Betsy Hotel",
+    "match_reason": "Only parent hotel matches; LT Steak & Seafood has no exact venue record. No hotel substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "dōma Wynwood",
+    "city": "Miami",
+    "place_id": "ChIJL4Z9lRC32YgRGIEdKlM-BsE",
+    "inventory_name": "dōma",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Grand Public Kitchen & Bar",
+    "city": "Miami",
+    "place_id": "ChIJ1cyBvGa32YgRKpni9-JNbbo",
+    "inventory_name": "Grand Public | Kitchen & Bar",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Goodtime Café",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Daniel’s Miami",
+    "city": "Coral Gables",
+    "place_id": "ChIJEaB8S0bH2YgRPma2JjRRJwk",
+    "inventory_name": "Daniel's Miami",
+    "match_reason": "Daniel’s Miami exact restaurant matches 1500 San Ignacio Avenue in southern Coral Gables (25.70515,-80.28241). The Fort Lauderdale Daniel’s Florida Steakhouse ID is a separate venue and is rejected. Operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Sweet Liberty Drinks & Supply Co.",
+    "city": "Miami Beach",
+    "place_id": "ChIJE1-f5Jy02YgR33kYRknZfSY",
+    "inventory_name": "Sweet Liberty Drinks & Supply Company",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates on Miami Beach barrier island; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "MILA",
+    "city": "Miami Beach",
+    "place_id": "ChIJ__-_24W02YgRXJM6PONpVbM",
+    "inventory_name": "MILA",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates on Miami Beach barrier island; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "CLAUDIE",
+    "city": "Miami",
+    "place_id": "ChIJZ3JrxAO32YgRbPAUfW6-19Q",
+    "inventory_name": "Claudie",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "CASA NEOS",
+    "city": "Miami",
+    "place_id": "ChIJ49bn4Vm32YgRh9MeU2fSIy0",
+    "inventory_name": "CASA NEOS",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in the named Miami neighborhood; unique venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Bored Cuban",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Pura Vida Miami — Miami",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": "Pura Vida Miami",
+    "match_reason": "Research represents a generic Miami brand, without a selected exact branch/address. Multiple Miami records exist; hold rather than choose arbitrarily.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Paraiso Market Cafe",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "NQC No Quiero Cocinar",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "STK Miami",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": "STK Steakhouse / STK Aventura",
+    "match_reason": "Research name says Miami without branch/address. Available records represent Miami Beach and Aventura; branch identity unresolved.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Bleau Bar at Fontainebleau Miami Beach",
+    "city": "Miami Beach",
+    "place_id": null,
+    "inventory_name": "Fontainebleau Miami Beach",
+    "match_reason": "Only parent hotel matches; Bleau Bar has no exact venue record. No hotel substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Casa Tiki",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "InterContinental Miami — Frosty’s Hideaway",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": "InterContinental Miami",
+    "match_reason": "No exact Frosty’s Hideaway popup identity found. No parent hotel substitution.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "JohnMartin’s / The Christmas Bar",
+    "city": "Coral Gables",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Biltmore Bar",
+    "city": "Coral Gables",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The House on the River",
+    "city": "Fort Lauderdale",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Bull & Whistle Bar",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Shots & Giggles",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Old Town Tavern & Beer Garden",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Fogarty’s / Flying Monkeys Saloon",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": "Fogarty’s / Flying Monkeys",
+    "match_reason": "Both separate operational IDs exist, but the research row combines two named venues. No arbitrary one-ID selection; source also folklore-only/excluded. Source research status is excluded; do not publish.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Smokin’ Tuna Saloon",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": "Smokin’ Tuna Saloon",
+    "match_reason": "No matching current inventory record retrieved. Relocated venue is 313 Duval; old premises/nearby Hard Rock or other saloon coordinates must not be reused.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Kiki on the River",
+    "city": "Miami",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "TIMBR",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJnxuawLkB2YgRHQPx1rPxwxw",
+    "inventory_name": "TIMBR Restaurant",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Earls Kitchen + Bar Las Olas",
+    "city": "Fort Lauderdale",
+    "place_id": "ChIJ44sC7V4B2YgRY7AoBR2t48I",
+    "inventory_name": "Earls Kitchen + Bar",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in Fort Lauderdale; venue name uniquely identifies this city location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Sharkey’s Bar & Grill",
+    "city": "Coral Springs",
+    "place_id": "ChIJNcRcgkQF2YgRX3wKXJrdv6E",
+    "inventory_name": "Sharkey's Bar & Grill",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates 26.26017,-80.26487 at the Royal Palm Boulevard Coral Springs location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Mai-Kai Restaurant & Polynesian Show",
+    "city": "Oakland Park",
+    "place_id": "ChIJmzf1RPUB2YgRaEhyuQFGVt4",
+    "inventory_name": "MAI-KAI Restaurant and Polynesian Show",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates 26.17243,-80.11996 on N Federal Highway at the Mai-Kai Oakland Park location. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "THRōW Social Delray Beach",
+    "city": "Delray Beach",
+    "place_id": "ChIJM7i5IL7f2IgRXHzEwGc-gZA",
+    "inventory_name": "THRōW Social Delray Beach",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates 26.46101,-80.07080 in downtown Delray Beach. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "Lilo’s Streetfood & Bar",
+    "city": "Lake Worth Beach",
+    "place_id": "ChIJZ4RDHTXY2IgR7_DJfQO00fU",
+    "inventory_name": "Lilo's Streetfood & Bar",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates 26.61561,-80.05552 in downtown Lake Worth Beach. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "C. O’Brien’s Ranch House",
+    "city": "West Palm Beach",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Funky Biscuit",
+    "city": "Boca Raton",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "The Banyan Live",
+    "city": "West Palm Beach",
+    "place_id": "ChIJfQ7nRskp2YgRk3agAqJ_Ns4",
+    "inventory_name": "The Banyan Live",
+    "match_reason": "Exact distinctive venue name (punctuation/descriptor variant only) plus coordinates in West Palm Beach; exact venue name matches. Inventory is OPERATIONAL, excluded=false, has_photo=true.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "The Singer Oceanfront Resort",
+    "city": "Riviera Beach",
+    "place_id": "ChIJ7_YlkOzU2IgRI_h_VJyHP2o",
+    "inventory_name": "The Singer Oceanfront Resort, Curio Collection by Hilton",
+    "match_reason": "Research event venue is explicitly The Singer Oceanfront Resort. Exact resort identity and Singer Island/Riviera Beach coordinates agree; operational/nonexcluded with photo.",
+    "confidence": "verified",
+    "notes": "Identity verified from existing public inventory and read-only targeted SQL on 2026-10-18. Seasonal qualification and party-only category remain as in source research; this match does not upgrade evidence."
+  },
+  {
+    "research_name": "801 Bourbon Bar",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Island House",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "Mangoes",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  },
+  {
+    "research_name": "La Te Da",
+    "city": "Key West",
+    "place_id": null,
+    "inventory_name": null,
+    "match_reason": "No exact operational, nonexcluded inventory venue in the researched city was found in the existing inventory files or targeted-name read-only SQL. Similar names, different branches and parent hotels are not substitutes.",
+    "confidence": "held",
+    "notes": "Held for identity verification; no safe publishable Place ID assigned. No source research was modified."
+  }
+]

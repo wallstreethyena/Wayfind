@@ -335,11 +335,11 @@ function CITIES() {
   let reads = 0;
   const fetchRows = async () => { reads += 1; return DB; };
   const t0 = 1_800_000_000_000;
-  const a1 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { now: t0 });
-  const a2 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { now: t0 + 60_000 });
-  const b1 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Panhandle" }), TODAY, fetchRows, { now: t0 + 61_000 });
+  const a1 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { fetchPlaces: async () => [], now: t0 });
+  const a2 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { fetchPlaces: async () => [], now: t0 + 60_000 });
+  const b1 = await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Panhandle" }), TODAY, fetchRows, { fetchPlaces: async () => [], now: t0 + 61_000 });
   ok(reads === 1 && a2.cached === true && a1.page.total === a2.page.total && b1.page.total !== a1.page.total, "two requests with the same filters inside 10 minutes read wf_events once; a different filter is its own page");
-  await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { now: t0 + CHRISTMAS_BROWSE_TTL_MS + 5_000 });
+  await christmasBrowseCached(parseChristmasBrowseQuery({ region: "Tampa Bay" }), TODAY, fetchRows, { fetchPlaces: async () => [], now: t0 + CHRISTMAS_BROWSE_TTL_MS + 5_000 });
   ok(reads === 2 && CHRISTMAS_BROWSE_TTL_MS === 600_000, "after 10 minutes the listings are read again");
   ok(/christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/christmas-in-florida/page.js")) && /christmasBrowseCached\(query, today, \(\) => fetchCuratedEvents/.test(read("app/api/christmas/browse/route.js")), "the page and the API both read through christmasBrowseCached (static)");
   // 5. Every published detailHref resolves through the page lookup, collisions included.
@@ -475,6 +475,44 @@ function CITIES() {
     const control = files.some((f) => readFileSync(f, "utf8").includes("POP UP BARS"));
     ok(files.length > 50 && control && hit.length === 0, `no production client chunk carries the research data (${files.length} chunks swept, positive control found: ${control}; hits: ${hit.map((f) => path.basename(f)).join(", ")})`);
   } else console.log("  note: no production .next build here, the production chunk sweep runs after next build");
+}
+
+// Verified hospitality uses the poster projection, with truthful browse dates.
+{
+  const day = "2026-12-03";
+  const claim = { name: "Browse Fixture", city: "Winter Park", place_id: "browse-fixture", status: "confirmed_2026", experience: "decorated_bar", season: ["christmas"], source_url: "https://example.com/christmas-2026", offering: "Christmas rooms and drinks.", checked_at: "2026-10-18", start_date: null, end_date: null, occurrence_dates: [] };
+  const inventory = { place_id: claim.place_id, name: claim.name, lat: 28.59, lng: -81.36, status: "OPERATIONAL", excluded: false, photo_url: "/fixture-venue.jpg", signals: { rating: 4.8, reviews: 300 } };
+  const listed = (patch = {}, venuePatch = {}) => christmasBrowseListings([], day, [{ ...inventory, ...venuePatch }], [{ ...claim, ...patch }]).filter((card) => card.kind === "place");
+  const undated = listed();
+  ok(undated.length === 1 && undated[0].detailHref === "/p/browse-fixture" && undated[0].season_undated === true, "hospitality browse uses exact owned identity and canonical /p detail with no invented dates");
+  ok(filterChristmasBrowse(undated, parseChristmasBrowseQuery({ category: "popup-bars", undated: "1" }), day).length === 1 && filterChristmasBrowse(undated, parseChristmasBrowseQuery({ when: "dec" }), day).length === 0, "undated hospitality appears in its category and dates-pending filter, never in a date total");
+  ok(filterChristmasBrowse(undated, parseChristmasBrowseQuery({ price: "free" }), day).length === 0 && filterChristmasBrowse(undated, parseChristmasBrowseQuery({ audience: "all-ages" }), day).length === 0, "hospitality invents neither free admission nor all-ages access");
+  const dated = listed({ start_date: "2026-12-10", end_date: "2026-12-24", select_nights: false, experience: "themed_food_drink" });
+  ok(filterChristmasBrowse(dated, parseChristmasBrowseQuery({ category: "dining", date: "2026-12-15" }), day).length === 1 && filterChristmasBrowse(dated, parseChristmasBrowseQuery({ date: "2026-12-25" }), day).length === 0, "dated menus enter dining and only the verified date range");
+  const select = listed({ occurrence_dates: ["2026-12-05", "2026-12-12"] });
+  ok(filterChristmasBrowse(select, parseChristmasBrowseQuery({ date: "2026-12-05" }), day).length === 1 && filterChristmasBrowse(select, parseChristmasBrowseQuery({ date: "2026-12-06" }), day).length === 0, "select-date hospitality filters on real occurrences even without a start_date");
+  const unknownCalendar = listed({ start_date: "2026-11-18", select_nights: true });
+  ok(filterChristmasBrowse(unknownCalendar, parseChristmasBrowseQuery({ date: "2026-12-25" }), day).length === 0, "a select-night club with no verified calendar does not claim service on Christmas Day");
+  ok(["next7", "weekend"].every((when) => filterChristmasBrowse(unknownCalendar, parseChristmasBrowseQuery({ when }), "2026-12-24").length === 0), "an unknown select-night calendar cannot qualify for next7 or weekend service filters");
+  ok(filterChristmasBrowse(unknownCalendar, parseChristmasBrowseQuery({ when: "dec" }), day).length === 1, "a month filter may retain the qualified seasonal envelope with its select-night disclosure");
+  ok(["next7", "weekend"].every((when) => filterChristmasBrowse(select, parseChristmasBrowseQuery({ when }), day).length === 1), "verified occurrence dates can qualify for next7 and weekend filters");
+  ok(listed({ end_date: "2026-12-02" }).length === 0 && listed({ occurrence_dates: ["2026-12-02"] }).length === 0 && listed({ status: "pending_2026" }).length === 0 && listed({}, { excluded: true }).length === 0, "past, exhausted, unconfirmed and excluded hospitality never enters browse");
+  const duplicate = { event_id: "browse-fixture-event", slug: "browse-fixture-event", event_name: claim.name, card_hook: "Verified holiday rooms.", city: claim.city, place_id: claim.place_id, start_date: "2026-12-10", end_date: "2026-12-24", event_status: "scheduled", source_tier: 1, verification_confidence: "high", christmas_rail: "popup-bars", tags: ["christmas"] };
+  const mergedBrowse = christmasBrowseListings([duplicate], day, [inventory], [claim, claim]);
+  ok(mergedBrowse.filter((card) => card.place_id === claim.place_id).length === 1 && mergedBrowse.some((card) => card.id === duplicate.event_id), "the same takeover keeps its event identity; duplicate hospitality claims do not add a second card");
+  const distinctParty = christmasBrowseListings([{ ...duplicate, event_id: "fixture-christmas-gala", slug: "fixture-christmas-gala", event_name: "Fixture Christmas Gala", tags: ["christmas", "party"], subcategory: "christmas-party" }], day, [inventory], [claim]);
+  ok(distinctParty.filter((card) => card.place_id === claim.place_id).length === 2, "a distinct gala at the same venue does not hide its separately verified hospitality offering");
+  ok(listed({ start_date: "2026-12-10", end_date: "2026-12-24", select_nights: true })[0].select_nights === true && listed({ start_date: "2026-12-10", end_date: "2026-12-24", select_nights: false })[0].select_nights === false, "browse preserves the helper's select-night and daily service distinction");
+  const serialized = christmasBrowsePage(undated, parseChristmasBrowseQuery({}), day).cards[0];
+  ok(serialized.kind === "place" && serialized.wfScore > 0 && serialized.take === claim.offering && serialized.sourceUrl === claim.source_url && serialized.seasonalWhen.includes("dates pending"), "serialization retains real place score, offering, proof source and truthful season chip");
+  let eventReads = 0, placeReads = 0, failed = false;
+  const fetchRows = async () => { eventReads += 1; return []; };
+  const broken = async () => { placeReads += 1; throw new Error("inventory unavailable"); };
+  try { await christmasBrowseCached(parseChristmasBrowseQuery({}), day, fetchRows, { now: 1_900_000_000_000, fetchPlaces: broken, catalog: [claim] }); } catch { failed = true; }
+  const fetchPlaces = async (ids) => { placeReads += 1; ok(ids.length === 1 && ids[0] === claim.place_id, "owned fetch receives exactly eligible hospitality IDs"); return [inventory]; };
+  const recovered = await christmasBrowseCached(parseChristmasBrowseQuery({}), day, fetchRows, { now: 1_900_000_000_001, fetchPlaces, catalog: [claim] });
+  await christmasBrowseCached(parseChristmasBrowseQuery({ category: "popup-bars" }), day, fetchRows, { now: 1_900_000_000_002, fetchPlaces, catalog: [claim] });
+  ok(failed && eventReads === 2 && placeReads === 2 && recovered.listings.some((card) => card.id === claim.place_id), "inventory failure is not cached; recovery includes hospitality and both owned reads are then reused");
 }
 
 console.log(`\ncheck-christmas-research: ${fail ? "FAIL" : "OK"}: ${pass} assertions (executed the merge, ${cards.length} cards, the browse, the event page loader and the composer for 17 cities on ${RAW.length} research rows)`);

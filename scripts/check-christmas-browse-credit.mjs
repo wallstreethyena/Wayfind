@@ -73,5 +73,12 @@ for (const e of prov.filter((x) => x.shadowed_by_db_photo === true)) {
   ok(merged && merged.hero_image.startsWith("/api/photo") && !merged.photoAttr, `${dbId}: keeps its own photo and carries no Wikimedia credit`);
 }
 
+// Hospitality remains an ordinary shared place card with working place actions.
+const placeProps = { card: { id: "browse-place-fixture", place_id: "browse-place-fixture", kind: "place", title: "Fixture Holiday Bar", city: "Winter Park", image: "/fixture-place.jpg", detailHref: "/p/browse-place-fixture", christmasRail: "popup-bars", seasonalWhen: "2026 season confirmed; dates pending", hook: "Holiday rooms and drinks.", take: "Holiday rooms and drinks.", sourceUrl: "https://example.com/holiday", wfScore: 92, rating: 4.8, reviews: 300 }, rank: 1, today: TODAY };
+const placeMarkup = renderToStaticMarkup(React.createElement(ChristmasBrowseCard, placeProps));
+const placeElement = ChristmasBrowseCard(placeProps);
+ok(placeElement.props.href === "/p/browse-place-fixture" && placeElement.props.place.id === "browse-place-fixture" && placeMarkup.includes('data-place-id="browse-place-fixture"') && placeMarkup.includes("wf-place-card") && placeMarkup.includes("2026 season confirmed; dates pending"), "hospitality renders the shared card, canonical place link and honest season chip");
+ok(placeMarkup.includes("wf-place-card-score") && !placeMarkup.includes("Price not announced") && !placeMarkup.includes("Remind me"), "hospitality renders a real place score without event-only price or reminder controls");
+
 console.log(`\ncheck-christmas-browse-credit: ${fail ? "FAIL" : "OK"}: ${pass} assertions (${cards.length} browse cards serialized, ${licensed.length} with a licensed photo, ${prov.length - live.length} shadowed)`);
 process.exit(fail ? 1 : 0);

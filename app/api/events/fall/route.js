@@ -36,6 +36,8 @@ import { eventSocialPosts } from "../../../../lib/eventSocial.js";
 import { fallStayDestinations } from "../../../../lib/fallStayDestinations.js";
 import { loadOwnerPickIds, applyCuratorPicksServer } from "../../../../lib/curatorPicksServer.js";
 
+import { seasonalHospitalityIds, seasonalHospitalityPlaces, mergeSeasonalHospitalityPlaces, reconcileSeasonalHospitalityEvents } from "../../../../lib/seasonalHospitality.js";
+
 import { FALL_FEATURED_FESTIVALS_2026, FALL_FEATURED_FESTIVAL_IDS } from "../../../../lib/fallFeaturedFestivals2026.js";
 
 const FALL_DB_DEADLINE_MS = 3500;
@@ -107,11 +109,13 @@ export async function GET(request) {
     // v31 (2026-10-09) publishes the Seminole Heights patch and Nightmare on
     // Channelside and keeps Tampa Terrors as an open run, so no v30 payload outlives it.
     // v33 also admits explicit Halloween parties into the shared seasonal pool.
-    const key = `fall-intents:v33:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    const key = `fall-intents:v34:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
+        ...seasonalHospitalityIds("fall", today),
+        ...seasonalHospitalityIds("halloween", today),
         ...FALL_PHOTO_PLACE_IDS,
         ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
@@ -125,7 +129,7 @@ export async function GET(request) {
         // must not read the ISR pages' hour-old cache entry (lib/supabase.js).
         fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory")
-          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status")
+          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded")
           .in("place_id", ids).abortSignal(signal),
         dealIds.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)
@@ -163,7 +167,7 @@ export async function GET(request) {
       .filter((e) => isTrusted(e) && isFallEvent(e) && fallEventLive(e, today) && hasUpcomingFallOccurrence(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
       const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
-      const events = eligibleRows
+      let events = eligibleRows
       .filter((e) => !FALL_SEASONAL_PLACE_IDS.has(e.event_id))
       .map((e) => {
         // eventTicketDeal, NOT the FALL_EVENT_TICKET_DEALS int map, decides
@@ -237,6 +241,7 @@ export async function GET(request) {
         url: eventOutboundUrl(e) || null,   // 2026-09-02: link_ok + quarantine + safeUrl gated
         is_free: e.is_free, price_band: e.price_band || null,
         tags: e.tags || [],
+        halloweenRail: e.halloweenRail || e.halloween_rail || null,
         creatorReels,
         ticket,
       });
@@ -353,10 +358,13 @@ export async function GET(request) {
         // Seasonal rails promise a real image of the named destination. A
         // missing/refused photo is an enrichment task, not a blank card.
         .filter((place) => place.image);
+      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "fall", today));
+      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "halloween", today));
       // Picks land before the wfScore sort and the composer's caps; unknown -> untouched.
       try { places = applyCuratorPicksServer(places, pickIds); } catch {}
       places.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
+      ({ events, places } = reconcileSeasonalHospitalityEvents(events, places));
       const composed = composeFallIntentRails(events, places, { lat, lng, today });
       return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
     }, {

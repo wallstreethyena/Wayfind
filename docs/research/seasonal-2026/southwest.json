@@ -1,0 +1,3109 @@
+[
+  {
+    "name": "Buddy Brew Coffee Sarasota",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Live ordering menu has fall drinks.",
+    "menu_items": [
+      "Spiced Pumpkin Latte",
+      "Pumpkin Pie Matcha"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://order.toasttab.com/online/buddybrewsarasota",
+    "source_type": "official",
+    "evidence_excerpt": "Live ordering menu has fall drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Live menu verified; no explicit 2026 season label or stock guarantee. One branch for concept."
+  },
+  {
+    "name": "CROP Juice",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "2480 Stickney Point Rd, Sarasota, FL 34231",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Live Fall Menu offers real pumpkin drinks and dessert.",
+    "menu_items": [
+      "Real Pumpkin Sp’iced Coffee",
+      "Pumpkin Pecan Cheezecake CROP Cream"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.cropjuice.com/menus/",
+    "source_type": "official",
+    "evidence_excerpt": "Live Fall Menu offers real pumpkin drinks and dessert.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Live seasonal menu, not copyright-based year inference; count one brand only."
+  },
+  {
+    "name": "Sarasota Bakehouse",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Current homepage promotes Halloween cupcake packs.",
+    "menu_items": [
+      "Fright Bite Cupcakes",
+      "Boo Bite Cupcakes"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://sarasotabakehouse.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Current homepage promotes Halloween cupcake packs.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Homepage changed since repository pumpkin-spice evidence; current Halloween packs verified."
+  },
+  {
+    "name": "Joy Coffee",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Repository documented pumpkin menu; fresh source access failed.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://joycoffeebradenton.square.site/?fulfillment=PICKUP&location_id=LMTGQ2Y8V9RM8",
+    "source_type": "official",
+    "evidence_excerpt": "Repository documented pumpkin menu; fresh source access failed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Prior repository verification Sept23 2026; not independently reverified Oct18."
+  },
+  {
+    "name": "Hashtag Café",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "2781 Bee Ridge Rd, Sarasota, FL 34239",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Ticketed spooky food workshops documented in repository.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.hashtagcafesrq.com/event-details/stone-fired-spooky-pizza-garlic-knot-night",
+    "source_type": "official",
+    "evidence_excerpt": "Ticketed spooky food workshops documented in repository.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fresh event fetch failed; repository says pizza Oct24 and charcuterie Oct30; hold until refreshed."
+  },
+  {
+    "name": "Tamiami Tap",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "711 S Osprey Ave, Sarasota, FL 34236",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Miracle Christmas cocktail takeover with lights and festive décor.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Miracle 2026 Locations lists Sarasota: Miracle at the Tap.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Partner confirmed for 2026. Venue evergreen page says day after Thanksgiving–Dec30; dates not promoted as explicitly year-dated."
+  },
+  {
+    "name": "Wink Wink at The Sarasota Modern",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1290 Boulevard of the Arts, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Vampire Circus décor and themed drinks on hotel patio.",
+    "menu_items": [],
+    "start_date": "2026-10-23",
+    "end_date": "2026-10-30",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/the-vampire-circus-pop-up-bar-tickets-2003435951863",
+    "source_type": "official",
+    "evidence_excerpt": "Vampire Circus décor and themed drinks on hotel patio.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Organizer hotel listing; 5–10pm. Oct25 only show ticket holders. Search retrieved listing; direct open failed."
+  },
+  {
+    "name": "Perspective Rooftop Pool Bar",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1255 N Palm Ave, Sarasota, FL 34236",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halos & Horns rooftop party with spooky cocktails and costume prizes.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.perspectiverooftopbar.com/event/halos-horns-halloween-bash-oct-31/",
+    "source_type": "official",
+    "evidence_excerpt": "Halos & Horns rooftop party with spooky cocktails and costume prizes.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Tarpon Bay Grill & Tiki",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "7150 N Tamiami Trl, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Waterfront Halloween party with creepy cocktails and live music.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/sarasota-halloween-party-tarpon-bay-grilltiki-2026-tickets-2003173140788",
+    "source_type": "official",
+    "evidence_excerpt": "Waterfront Halloween party with creepy cocktails and live music.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "6–11:30pm; organizer Eventbrite listing."
+  },
+  {
+    "name": "Sage Restaurant",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1216 1st St, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Haunted Mansion party with light bites and themed specialty cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/sages-haunted-mansion-party-tickets-2000199910777",
+    "source_type": "official",
+    "evidence_excerpt": "Haunted Mansion party with light bites and themed specialty cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "7pm–1am; reservation/ticket required."
+  },
+  {
+    "name": "Casa Blanca Modern Mexican Tequila Bar",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": "4230 14th St W, Bradenton, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Perreo Paranormal Halloween dance party and costume contest.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/casa-blanca-perreo-paranormal-tickets-2002600369614",
+    "source_type": "official",
+    "evidence_excerpt": "Perreo Paranormal Halloween dance party and costume contest.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "10pm–2am; party experience, not month-long décor takeover."
+  },
+  {
+    "name": "Mellow Mushroom Sarasota",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fifth annual Melloween adult party advertises spooky cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/mellow-mushrooms-5th-annual-melloween-tickets-2002227181398",
+    "source_type": "official",
+    "evidence_excerpt": "Fifth annual Melloween adult party advertises spooky cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "7–10pm; one brand branch counted."
+  },
+  {
+    "name": "The Gator Club",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1490 Main St, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween block party with live music, food and drinks.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://srqweekly.com/guides/halloween-events/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween block party with live music, food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "5pm–midnight. Separately known for ghost folklore; party source dated Oct12 2026."
+  },
+  {
+    "name": "Joyland",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "8333 Lockwood Ridge Rd, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Boo Bash costume party in new venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://srqweekly.com/guides/halloween-events/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Boo Bash costume party in new venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "9pm; costume cash prizes, tickets; no special menu independently verified."
+  },
+  {
+    "name": "Big Top Brewing",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "3045 Fruitville Commons Blvd, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Trunk or Treat and food-truck rally at brewery.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.bigtopbrewing.com/restaurant-brewery-2",
+    "source_type": "official",
+    "evidence_excerpt": "Trunk or Treat and food-truck rally at brewery.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "5–8pm; brewery event. Prior Pumpkin Stiltskin menu coverage is historical, not reused as current."
+  },
+  {
+    "name": "99 Bottles Taproom & Bottle Shop",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1445 2nd St, Sarasota, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween fundraising party benefitting Men Who Wear Pink.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://allevents.in/sarasota/halloween-party-benefitting-men-who-wear-pink/100002002945313350",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween fundraising party benefitting Men Who Wear Pink.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "7–10pm; organizer identified as 99 Bottles; no takeover claim."
+  },
+  {
+    "name": "Clancy’s Irish Sports Pub",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oktoberfest fundraiser and 26th annual Halloween Bash.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-17",
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://clancysirishsportspub.com/events/page/2/",
+    "source_type": "official",
+    "evidence_excerpt": "Oktoberfest fundraiser and 26th annual Halloween Bash.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Halloween party 6–10pm. Oktoberfest now past/today window; not a season-long experience."
+  },
+  {
+    "name": "Blue Marlin Seafood",
+    "city": "Bradenton Beach",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween Spooktacular includes street food, cold drinks and music.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://bluemarlinami.com/live-music/halloween-spooktacular/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween Spooktacular includes street food, cold drinks and music.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Bridge Street event starts 2pm; restaurant joins 5pm."
+  },
+  {
+    "name": "Flamingo Bay Brewing Co.",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Howl-O-Ween edition of Dog Days at brewery.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://jetsetpets.com/dog-friendly-event/dog-days-at-flamingo-bay-howl-o-ween-edition-flamingo-bay-brewing-co-october-25-2026-bradenton-fl/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Howl-O-Ween edition of Dog Days at brewery.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Pet Halloween experience; special seasonal menu unverified."
+  },
+  {
+    "name": "88 Live Piano Bar",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Official October 2026 calendar image advertises Halloween party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.88livebradenton.com/monthly-calendar/",
+    "source_type": "official",
+    "evidence_excerpt": "Official October 2026 calendar image advertises Halloween party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Search indexed October2026 calendar image; date and details need visual verification."
+  },
+  {
+    "name": "Jiggs Landing Outpost",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": "6106 63rd St E, Bradenton, FL 34203",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Haunted walk and optional haunted boat rides at waterfront outpost.",
+    "menu_items": [],
+    "start_date": "2026-10-28",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thebradentontimes.com/stories/5th-annual-haunted-walk-returns-to-jiggs-landing-preserve%2C214976",
+    "source_type": "secondary",
+    "evidence_excerpt": "Haunted walk and optional haunted boat rides at waterfront outpost.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "7–9pm nightly; walk free, boat separate reservation. Light hospitality fit; not themed-menu evidence."
+  },
+  {
+    "name": "Raffurty’s Bar and Grill",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1888 Main St, Sarasota, FL 34236",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://barcrawlusa.com/sarasota-halloween-bar-crawl-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Distinct venues; one event route, not six décor takeovers. Published crawl includes specials; individual themed menus unverified."
+  },
+  {
+    "name": "The Office",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://barcrawlusa.com/sarasota-halloween-bar-crawl-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Distinct venues; one event route, not six décor takeovers. Published crawl includes specials; individual themed menus unverified."
+  },
+  {
+    "name": "Evie’s Tavern",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://barcrawlusa.com/sarasota-halloween-bar-crawl-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Distinct venues; one event route, not six décor takeovers. Published crawl includes specials; individual themed menus unverified."
+  },
+  {
+    "name": "Molly’s Pub",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://barcrawlusa.com/sarasota-halloween-bar-crawl-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Distinct venues; one event route, not six décor takeovers. Published crawl includes specials; individual themed menus unverified."
+  },
+  {
+    "name": "Joe’s on Main",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://barcrawlusa.com/sarasota-halloween-bar-crawl-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Distinct venues; one event route, not six décor takeovers. Published crawl includes specials; individual themed menus unverified."
+  },
+  {
+    "name": "Fat Rabbit",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://barcrawlusa.com/sarasota-halloween-bar-crawl-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Named venue on organizer’s six-bar Halloween crawl route.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Distinct venues; one event route, not six décor takeovers. Published crawl includes specials; individual themed menus unverified."
+  },
+  {
+    "name": "The Breakfast Company",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Pumpkin Praline French Toast"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "The Cheesecake Factory",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Pumpkin Cheesecake"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Five-O Donut Co.",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Pumpkin Toffee Crunch"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Foxtail Coffee Co.",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Maple Pancake Cold Brew"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Jersey Girl Bagels",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Pumpkin Bagels"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Oak & Stone",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "OAKtoberfest Pizza"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Pura Vida Miami",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Fall Farro Salad"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Raining Berries",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Apple Crisp Cider"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Seasons 52",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Mini Pumpkin Pie"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "Yard House",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "UTC seasonal food guide documents prior fall offering.",
+    "menu_items": [
+      "Pumpkin Beer"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://utcsarasota.com/whats-new/food/fall-food-guide-at-utc-sarasota/",
+    "source_type": "official",
+    "evidence_excerpt": "UTC seasonal food guide documents prior fall offering.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source explicitly October4 2024. Historical lead only; no 2026 confirmation. One branch per brand."
+  },
+  {
+    "name": "The Clever Cup Coffee Shop",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "6530 Gateway Ave, Sarasota, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Prior local reporting documents pumpkin food and drinks.",
+    "menu_items": [
+      "Pumpkin Caramel Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.yourobserver.com/news/2024/oct/06/pumpkin-sarasota-eateries/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Prior local reporting documents pumpkin food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Historical Oct6 2024 evidence; current availability not independently established."
+  },
+  {
+    "name": "Yoder’s Restaurant & Amish Village",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "3434 Bahia Vista St, Sarasota, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Prior local reporting documents pumpkin food and drinks.",
+    "menu_items": [
+      "Pumpkin Cream Pie",
+      "Pumpkin Stuffed French Toast"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.yourobserver.com/news/2024/oct/06/pumpkin-sarasota-eateries/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Prior local reporting documents pumpkin food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Historical Oct6 2024 evidence; current availability not independently established."
+  },
+  {
+    "name": "The Ritz-Carlton, Sarasota",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Hotel holiday décor and festive dining program.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.ritzcarlton.com/en/hotels/srqrz-the-ritz-carlton-sarasota/experiences/holidays/",
+    "source_type": "official",
+    "evidence_excerpt": "Hotel holiday décor and festive dining program.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Page explicitly celebrates end of2025; hold until2026 dates published."
+  },
+  {
+    "name": "Antoine’s Restaurant",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seven-course Christmas Eve menu and Christmas Day on request.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.antoinessarasota.com/7-course-christmas-menu/",
+    "source_type": "official",
+    "evidence_excerpt": "Seven-course Christmas Eve menu and Christmas Day on request.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Year not stated; copyright2026 does not establish offering year. Reservations required."
+  },
+  {
+    "name": "Mademoiselle Paris",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1766 Main St, Sarasota, FL",
+    "season": [
+      "halloween",
+      "christmas"
+    ],
+    "experience": "party",
+    "offering": "Masquerade Noir Halloween with themed cocktails; festiveDecember DJ night.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31",
+      "2026-12-26"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.mademoiselleparis.com/djnight",
+    "source_type": "official",
+    "evidence_excerpt": "Official2026 DJNightSeries listsOct31 andDec26.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "2026 parties confirmed; separate undatedChristmasEve dinner remains unconfirmed. Brand counted once."
+  },
+  {
+    "name": "SweetBerries Eatery & Frozen Custard",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Official flavor calendar includes pumpkin cheesecake custard.",
+    "menu_items": [
+      "Pumpkin Cheesecake Frozen Custard"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-09-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://sweetberries.com/bradenton/",
+    "source_type": "official",
+    "evidence_excerpt": "Official flavor calendar includes pumpkin cheesecake custard.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October2026 calendar includes Sept30 adjacent cell; offering date has already passed. Not current recommendation."
+  },
+  {
+    "name": "Libby’s Neighborhood Brasserie",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "1917 S Osprey Ave, Sarasota, FL 34239",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Ordering menu labels Thanksgiving2026 and lists pumpkin crab bisque.",
+    "menu_items": [
+      "Pumpkin Crab Bisque"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://order.toasttab.com/online/libbys-neighborhood-brasserie-lakewood/item-cappucino_675a3eb1-f41d-44bd-8e8d-b98c6a99d682",
+    "source_type": "official",
+    "evidence_excerpt": "Ordering menu labels Thanksgiving2026 and lists pumpkin crab bisque.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fall/Thanksgiving seasonal meal, not Halloween décor. Search result carries Sarasota address plus Lakewood branch; exact pickup branch must be confirmed. Held pending because menu URL and displayed branch identity conflict."
+  },
+  {
+    "name": "PaddyWagon Irish Pub — Old Main Street",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": "320 Old Main St, Bradenton, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied lead suggests ghost folklore in historic pub building.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.bradenton.com/news/local/article267909122.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied lead suggests ghost folklore in historic pub building.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Lead not independently refreshed; folklore is not fact or a seasonal décor claim."
+  },
+  {
+    "name": "Motorworks Brewing",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Temporarily closed for remodeling; reopening hoped for February2027.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://thebradentontimes.com/stories/motorworks-announces-closure-hopes-to-reopen-next-year-under-new-ownership%2C207885",
+    "source_type": "secondary",
+    "evidence_excerpt": "Temporarily closed for remodeling; reopening hoped for February2027.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Exclude from2026 seasonal recommendations despite stale event listings."
+  },
+  {
+    "name": "3 Keys Brewing",
+    "city": "Bradenton",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Brewery closure reported in2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://thebradentontimes.com/stories/3-keys-to-close-while-motorworks-faces-foreclosure%2C198796",
+    "source_type": "secondary",
+    "evidence_excerpt": "Brewery closure reported in2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "No current seasonal offering; closure evidence."
+  },
+  {
+    "name": "The Oasis — Christmas Club",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "1046 Pine Ridge Rd, Naples, FL 34108",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Christmas pop-up with holiday food and themed cocktails.",
+    "menu_items": [],
+    "start_date": "2026-11-18",
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://theoasisnaples.com/26523-2/",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas pop-up with holiday food and themed cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official page explicitly states Nov18 2026. Until earlyJanuary without exact end date; closed Christmas Day."
+  },
+  {
+    "name": "Naples Coastal Kitchen",
+    "city": "Bonita Springs",
+    "area": "southwest",
+    "address": "25265 Chamber of Commerce Dr, Bonita Springs, FL 34135",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Miracle Christmas cocktail pop-up partner.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Miracle Christmas cocktail pop-up partner.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "2026 partner list verified; individual operating dates not published here."
+  },
+  {
+    "name": "Green Cup Café",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "2400 First St Unit104, Fort Myers, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall Drinks menu, last updated October5 2026.",
+    "menu_items": [
+      "Pumpkin X4",
+      "Kinda Corny",
+      "Taste of Fall"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://greencupcafe.com/menu/",
+    "source_type": "official",
+    "evidence_excerpt": "Fall Drinks menu, last updated October5 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current timestamped official menu; no invented seasonal end date."
+  },
+  {
+    "name": "Bay Street Yard",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "2136 Bay St, Fort Myers, FL 33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween series with six themed alcoholic and zero-proof drinks.",
+    "menu_items": [
+      "Blood Moon",
+      "Angry Spritz",
+      "Kiss of Death",
+      "Witches Brew",
+      "Island Monster",
+      "Little Potion Punch"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24",
+      "2026-10-27",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://baystreetyard.com/bay-street-yard-announces-lineup-of-halloween-festivities-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween series with six themed alcoholic and zero-proof drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official Oct5 2026 release; Hallow Groove, movie night and Halloween Bash. 21+ after9pm."
+  },
+  {
+    "name": "Margaritaville Beach Resort Fort Myers Beach",
+    "city": "Fort Myers Beach",
+    "area": "southwest",
+    "address": "251 Crescent St, Fort Myers Beach, FL 33931",
+    "season": [
+      "halloween",
+      "christmas"
+    ],
+    "experience": "party",
+    "offering": "Monster Bash at resort bars; Christmas dining also advertised.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.margaritavilleresorts.com/margaritaville-beach-resort-fort-myers-beach/things-to-do/calendar-of-events/monster-bash",
+    "source_type": "official",
+    "evidence_excerpt": "Monster Bash at resort bars; Christmas dining also advertised.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "License to Chill and Lah De Dah counted once as resort; spooky drinks, costume contests, pumpkin decorating. Christmas JWB menu needs separate refresh."
+  },
+  {
+    "name": "Millennial Brewing Company",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "1811 Royal Palm Ave, Fort Myers, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "The Underworld Halloween party hosted by Sip & Social.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/the-underworld-a-halloween-party-sip-social-cape-coral-tickets-2001030084850",
+    "source_type": "official",
+    "evidence_excerpt": "The Underworld Halloween party hosted by Sip & Social.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Organizer listing plus event syndication; starts8pm. Host named CapeCoral but venue is FortMyers."
+  },
+  {
+    "name": "Seed to Table",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "4835 Immokalee Rd, Naples, FL34110",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Treats & Beats Latin Horror Night with festive cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://seedtotablemarket.com/event/treats-beats-latin-horror-night/",
+    "source_type": "official",
+    "evidence_excerpt": "Treats & Beats Latin Horror Night with festive cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "6pm–2am; age21+, no cover, costume prizes; official details explicitly2026."
+  },
+  {
+    "name": "Shoeless Joe’s Sports Café",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "13051 Bell Tower Dr, Fort Myers, FL33907",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween Hootenanny with festive drinks and costume prizes.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://shoeless-joes.com/event/halloween-hootenanny/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween Hootenanny with festive drinks and costume prizes.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official2026 page,6–11:30pm."
+  },
+  {
+    "name": "Tap42 Craft Kitchen & Bar — Bell Tower",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Venue release announces two fall dessert-inspired cocktails.",
+    "menu_items": [
+      "Pumpkin Spice Latte Martini",
+      "Banana Bread Espresso Martini"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://tap42.com/on-tap/rooftop-bar-fort-myers-bell-tower/",
+    "source_type": "official",
+    "evidence_excerpt": "Venue release announces two fall dessert-inspired cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official article indexed lastweek; local branch confirmed."
+  },
+  {
+    "name": "Fort Myers Brewing Company",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Oktoberfest with small-batch seasonal beers and pumpkin release.",
+    "menu_items": [],
+    "start_date": "2026-10-15",
+    "end_date": "2026-10-18",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://fortmyers.org/blog/fort-myers-brewing-companys-oktoberfest-oct-15-18-40-beers-4-days-1-secret-menu/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Oktoberfest with small-batch seasonal beers and pumpkin release.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Chamber published brewery release datedOct6 2026. Last day asof audit."
+  },
+  {
+    "name": "The Perry Hotel Naples",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "12155 Tamiami Trl N, Naples, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Big Top Halloween poolside circus celebration with food.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://playingandlivinginparadise.com/naples-halloween-events-2/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Big Top Halloween poolside circus celebration with food.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "11am–3pm; tickets, costumes and entertainers. Not evidence of seasonal Tigress menu."
+  },
+  {
+    "name": "Waxin’s Restaurant & Bar",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "9110 Strada Pl, Naples, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Beats From Beyond Halloween party at Mercato restaurant.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://playingandlivinginparadise.com/naples-halloween-events-2/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Beats From Beyond Halloween party at Mercato restaurant.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "9pm–1am,21+; local guide links organizer Eventbrite."
+  },
+  {
+    "name": "Bone Hook Brewing Company",
+    "city": "Naples",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Starting venue for charitable Trick or Trolley bar crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://playingandlivinginparadise.com/naples-halloween-events-2/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Starting venue for charitable Trick or Trolley bar crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "7:30pm–midnight, Naples Junior Woman’sClub; no décor takeover assertion."
+  },
+  {
+    "name": "Ankrolab Brewing Company",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "3555 Bayshore Dr, Naples, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Howl-O-Ween Brew & Boos Bash benefiting animal charity.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-17"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://playingandlivinginparadise.com/naples-halloween-events-2/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Howl-O-Ween Brew & Boos Bash benefiting animal charity.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Already held; dog costumes and brewery party, no themed-menu evidence."
+  },
+  {
+    "name": "Back Porch Brewing Co.",
+    "city": "North Venice",
+    "area": "southwest",
+    "address": "3469 Precision Dr, North Venice, FL34275",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fall Fest with beer, seasonal treats and pumpkin decorating.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.bpbrewing.com/events",
+    "source_type": "official",
+    "evidence_excerpt": "Fall Fest with beer, seasonal treats and pumpkin decorating.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Page says SaturdayOct24, compatible2026, but year not explicit; hold for year confirmation."
+  },
+  {
+    "name": "Café Venice Restaurant & Bar",
+    "city": "Venice",
+    "area": "southwest",
+    "address": "101 W Venice Ave, Venice, FL34285",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Second annual Halloween Dance Party: Down the Rabbit Hole.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitvenicefl.org/calendar/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Second annual Halloween Dance Party: Down the Rabbit Hole.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "7:30–11:30pm tourism calendar explicit2026; themed party."
+  },
+  {
+    "name": "Daiquiri Deck Venice",
+    "city": "Venice",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Hosts costume contest for Witches Walk beer-and-cider stroll.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://srqweekly.com/guides/halloween-events/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Hosts costume contest for Witches Walk beer-and-cider stroll.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "5–7pm; seasonal samples at participating businesses. Specific bar menu not verified; one branch."
+  },
+  {
+    "name": "Seed and Bean Market Venice",
+    "city": "Venice",
+    "area": "southwest",
+    "address": "116 W Venice Ave, Venice, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Live ordering menu lists seasonal pumpkin latte.",
+    "menu_items": [
+      "Pumpkin Spice Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://order.toasttab.com/online/seed-and-bean-market-venice-116-west-venice-avenue/item-pumpkin-spice-latte_04d50bc5-c329-4543-8fda-709412a1a7c2",
+    "source_type": "official",
+    "evidence_excerpt": "Live ordering menu lists seasonal pumpkin latte.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Live menu; pumpkin maple pancakes separately marked outofstock and omitted."
+  },
+  {
+    "name": "BellaVino Wine Bar",
+    "city": "Venice",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "party",
+    "offering": "Christmas Eve wine evening with live entertainment.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://bellavinofl.com/events/",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas Eve wine evening with live entertainment.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Search index explicitly Dec24 2026,6–9pm; opened page differs and find returned no match. Hold until live event content reconfirmed."
+  },
+  {
+    "name": "Olde Naples Hotel",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "200 Broad Ave S, Naples, FL34102",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas2026 prix-fixe menu with seasonal dessert choices.",
+    "menu_items": [
+      "Yule Log",
+      "Apple & Cranberry Crisp"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-24",
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opalcollection.com/olde-naples-hotel/restaurants/holiday-dining/menu/christmas-2026-2/",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas2026 prix-fixe menu with seasonal dessert choices.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "3–10pm, $125perperson; distinct hotel seasonal dining."
+  },
+  {
+    "name": "Coast Restaurant at Edgewater Beach Hotel",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "1901 Gulf Shore Blvd N, Naples, FL34102",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Official Christmas2026 buffet with holiday treats and carving stations.",
+    "menu_items": [
+      "Butternut Squash Ravioli",
+      "Chef Selection of Holiday Treats"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opalcollection.com/edgewater/restaurants/holiday-menus/menu/christmas/",
+    "source_type": "official",
+    "evidence_excerpt": "Official Christmas2026 buffet with holiday treats and carving stations.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "4–9pm, adult$125; specifically Christmas meal, no décor assertion."
+  },
+  {
+    "name": "The Silver King Coastal Kitchen",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas Day dinner with exclusive holiday specials.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opentable.com/r/the-silver-king-ocean-brasserie-fort-myers?lang=es",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas Day dinner with exclusive holiday specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Restaurant-managed booking platform explicitly Dec25 2026; regular dinner menu plus specials. Do not confuse adjacent NewYear prix-fixe details with Christmas menu."
+  },
+  {
+    "name": "The Ritz-Carlton, Naples",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "280 Vanderbilt Beach Rd, Naples, FL34108",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Life-size gingerbread house display created by pastry team.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://event.marriott.com/rswrz-the-ritz-carlton-naples/events/naples/christmas-coming-soon",
+    "source_type": "official",
+    "evidence_excerpt": "Official event page explicitly December25 2026,10am–2pm.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Related TeddyBearTea datesDec12–13 and18–22 appear in official calendar. Same property counted once; dessert display, not claimed edible house access."
+  },
+  {
+    "name": "The Ritz-Carlton Naples, Tiburón",
+    "city": "Naples",
+    "area": "southwest",
+    "address": "2600 Tiburon Dr, Naples, FL34109",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas Grand Buffet with holiday dessert gallery and children’s buffet.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://event.marriott.com/amp/rswgr-the-ritz-carlton-naples-tiburon/events/naples/christmas-coming-soon",
+    "source_type": "official",
+    "evidence_excerpt": "Official event page explicitly December25 2026,11am–5pm.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Related official calendar also lists gingerbreadNov27–29, ugly sweater partyDec6, Christmas cocktailsDec13–24; same property counted once."
+  },
+  {
+    "name": "Pink Shell Beach Resort & Marina",
+    "city": "Fort Myers Beach",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Holiday dining and annual gingerbread-house building competition.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.pinkshell.com/experience/holidays-fort-myers-beach/",
+    "source_type": "official",
+    "evidence_excerpt": "Holiday dining and annual gingerbread-house building competition.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "2026 Thanksgiving RSVP visible; specific Christmas program year/dates unverified."
+  },
+  {
+    "name": "Seminole Gulf Railway Murder Mystery Dinner Train",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "2805 Colonial Blvd, Fort Myers, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "North Pole Noir Christmas murder-mystery dinner train.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://semgulf.com/murder-mysteries/",
+    "source_type": "official",
+    "evidence_excerpt": "North Pole Noir Christmas murder-mystery dinner train.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Repository source reportsNov18–Dec23 2026; live fresh read required. Hospitality experience on train, not independent station listing."
+  },
+  {
+    "name": "Nice Guys Pints & Pies",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Official homepage invites guests to Halloween.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://niceguyspizza.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Official homepage invites guests to Halloween.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "2026 Sonic Masquerade syndicated listing has conflicting FortMyers address. Do not publish address/event until venue confirms exact site."
+  },
+  {
+    "name": "Ceremony Brewing",
+    "city": "Bonita Springs",
+    "area": "southwest",
+    "address": "10441 Packinghouse Ln, Bonita Springs, FL34135",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Organizer of2026 Trick or Treat Bonita.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.ceremonybrewing.com/trickortreat",
+    "source_type": "official",
+    "evidence_excerpt": "Organizer of2026 Trick or Treat Bonita.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official page explicitly2026 and decorations/candy program; exact date not read. Kitchen closed during construction and hours affected; drinks bar open."
+  },
+  {
+    "name": "Sidney’s Rooftop at Sidney & Berne Davis Art Center",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "2301 First St, Fort Myers, FL33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Rooftop Halloween dance party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.sbdac.com/halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Rooftop Halloween dance party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Page banner says2026 and SaturdayOct31 but text saysBestCostume2025; resolve conflict before assigning date."
+  },
+  {
+    "name": "B’s Grillhouse",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Jack’s Lament pumpkin-king paint-and-sip evening.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitfortmyers.com/event/cape-coral-paint-party-jacks-lament/8403",
+    "source_type": "tourism",
+    "evidence_excerpt": "Jack’s Lament pumpkin-king paint-and-sip evening.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "6–9pm; food/drinks bought separately; creative workshop, not decorated bar or seasonal menu."
+  },
+  {
+    "name": "PopStroke Fort Myers",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "5531 Six Mile Commercial Ct, Fort Myers, FL33912",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Eat Spook Putt with Halloween cocktails and trick-or-treat golf.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.fortmyersbeach.org/events/eat-spook-putt/?r=35577",
+    "source_type": "tourism",
+    "evidence_excerpt": "Eat Spook Putt with Halloween cocktails and trick-or-treat golf.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Offering supported but exact2026 date not independently read."
+  },
+  {
+    "name": "Yahweh Café",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "16970 Alico Mission Way304, Fort Myers, FL33908",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Pumpkin painting and candle making workshop includes boba drink.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.littleconnectionstudio.com/event-details/pumpkin-painting-candle-making",
+    "source_type": "official",
+    "evidence_excerpt": "Pumpkin painting and candle making workshop includes boba drink.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Organizer venue listing10–11:30am; hospitality workshop rather than seasonal menu."
+  },
+  {
+    "name": "Aroma Joe’s North Fort Myers",
+    "city": "North Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Official local branch page advertises pumpkin latte.",
+    "menu_items": [
+      "Poppin’ Pumpkin Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://aromajoes.com/who-we-are/locations/florida/north-fort-myers/",
+    "source_type": "official",
+    "evidence_excerpt": "Official local branch page advertises pumpkin latte.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Live branch page seasonal item, exact season start/end unpublished; brand counted once."
+  },
+  {
+    "name": "Chocolattes Coffee & Roasting",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Delivery menu advertises pumpkin coffee and cold foam.",
+    "menu_items": [
+      "Pumpkin Pie Latte",
+      "Pumpkin Spice Cold Foam Cold Brew"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.doordash.com/en-AU/store/chocolattes-coffee-and-roasting-518882/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Delivery menu advertises pumpkin coffee and cold foam.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current delivery index but official menu/branch validation outstanding."
+  },
+  {
+    "name": "Gourmet Latté",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": "1518 Hancock Bridge Pkwy, Cape Coral, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Delivery menu has Fall Seasonal Drinks and Pastries section.",
+    "menu_items": [
+      "Pumpkin Cheesecake Frosted Cookie"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.ubereats.com/store/gourmet-latte-fl-1-1518-hancock-bridge-parkway-cape-coral/EwV-ygNGVZ2veYN-RTJa3w",
+    "source_type": "secondary",
+    "evidence_excerpt": "Delivery menu has Fall Seasonal Drinks and Pastries section.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official local menu refresh required; no2026 date label read."
+  },
+  {
+    "name": "Vicky Bakery Fort Myers",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Prior local coverage of pumpkin-and-cheese pastry menu.",
+    "menu_items": [
+      "Pumpkin and Cheese Pastelito",
+      "Pumpkin Flan Cheesecake",
+      "Pumpkin Café Con Leche"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.naplesnoms.com/latest-noms/vicky-bakery-fort-myers",
+    "source_type": "secondary",
+    "evidence_excerpt": "Prior local coverage of pumpkin-and-cheese pastry menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article is2025; do not promote as2026 without refresh. Brand once."
+  },
+  {
+    "name": "Mila & Mocha Café",
+    "city": "Venice",
+    "area": "southwest",
+    "address": "2357 S Tamiami Trl Units1&2, Venice, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Review aggregator describes seasonal pumpkin latte.",
+    "menu_items": [
+      "Pumpkin Spice Iced Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.restaurantji.com/fl/venice/mila-mocha-cafe-/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Review aggregator describes seasonal pumpkin latte.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Undated review cannot establish current seasonal availability."
+  },
+  {
+    "name": "Black Letter Coffee + Café",
+    "city": "Naples",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Local property blog mentions October1 fall drink menu.",
+    "menu_items": [
+      "Apple Pie Latte",
+      "Pumpkin Cider"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://thewhitcombgroup.com/blog/venetian-bays-underwater-edge-is-already-built-the-sidewalk-is-next",
+    "source_type": "secondary",
+    "evidence_excerpt": "Local property blog mentions October1 fall drink menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Weak indirect source; official menu/date confirmation required."
+  },
+  {
+    "name": "Bad Ass Coffee — Third Street",
+    "city": "Naples",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Delivery menu includes pumpkin latte.",
+    "menu_items": [
+      "Badass Pumpkin Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.ubereats.com/store/bad-ass-coffee-3rd-streets/2QV9QlzOVLqHGaDhzDft1Q",
+    "source_type": "secondary",
+    "evidence_excerpt": "Delivery menu includes pumpkin latte.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current delivery result without official seasonal2026 confirmation; brand once."
+  },
+  {
+    "name": "The Haunted Tavern",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Dark pop-up cocktail experience advertised Aug27–29 2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://secretmedianetwork.com/fort-myers/haunted-tavern-cocktail-experience/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dark pop-up cocktail experience advertised Aug27–29 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Past August run; precise host venue not verified. Do not invent permanent FortMyers bar or treat asOctober availability."
+  },
+  {
+    "name": "VooDoo Hut",
+    "city": "Kemah",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Halloween calendar found for similarly named venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://thevoodoohut.com/events/month/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween calendar found for similarly named venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Wrong geography: Kemah Texas. Excluded; not a SouthwestFlorida venue."
+  },
+  {
+    "name": "Napoli Coffee",
+    "city": "Albuquerque",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin menu search result is outside Florida.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://napolicoffee.com/menu/",
+    "source_type": "official",
+    "evidence_excerpt": "Pumpkin menu search result is outside Florida.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Wrong geography; avoid Naples-name inference."
+  },
+  {
+    "name": "Lido Beach Resort",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "700 Benjamin Franklin Dr, Sarasota, FL34236",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas2026 brunch buffet and featured cocktails.",
+    "menu_items": [
+      "Roasted Pumpkin Bisque",
+      "Sweet Potato Pie",
+      "Ginger Joy"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opalcollection.com/lido-beach/restaurants/holiday-menus/menu/christmas/",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas2026 brunch buffet and featured cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official2026 menu; adult$94 plus tax and22% service."
+  },
+  {
+    "name": "The Feast",
+    "city": "Holmes Beach",
+    "area": "manatee-sarasota",
+    "address": "5406 Marina Dr, Holmes Beach, FL34217",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "The Final Feast: haunting six-course dinner with six cocktail pairings.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://eatlikealocal.com/event/the-feast-the-final-feast-6-course-dinner/",
+    "source_type": "secondary",
+    "evidence_excerpt": "The Final Feast: haunting six-course dinner with six cocktail pairings.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Restaurant association listing explicitly2026;6pm,$90++ reservations. Specific dishes not read."
+  },
+  {
+    "name": "Tuscan Hills Coffee Company",
+    "city": "Parrish",
+    "area": "manatee-sarasota",
+    "address": "12205 81st St E, Parrish, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "September2026 local reporting identifies bestselling fall coffees.",
+    "menu_items": [
+      "Pumpkin Cookie Butter Latte",
+      "Sea Salt Toffee Coffee"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.chilichili.net/399969/tuscan-hills-coffee-company-opens-drive-thru-in-parrish-fl/",
+    "source_type": "secondary",
+    "evidence_excerpt": "September2026 local reporting identifies bestselling fall coffees.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Syndicated Bradenton Herald report with Sept3 2026 photo; mobile drive-thru concept, one location counted."
+  },
+  {
+    "name": "Ryan’s Coffee House",
+    "city": "Parrish",
+    "area": "manatee-sarasota",
+    "address": "8231 US301, Parrish, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Local report documents signature seasonal White Pumpkin coffee.",
+    "menu_items": [
+      "White Pumpkin"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.bradenton.com/entertainment/restaurants/article314181175.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Local report documents signature seasonal White Pumpkin coffee.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "January9 2026 article describes earlier trailer fall favorite; not proof of current fall2026 menu."
+  },
+  {
+    "name": "Paradise Grill",
+    "city": "Nokomis",
+    "area": "southwest",
+    "address": "1097 N Tamiami Trl, Nokomis, FL34275",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Restaurant Halloween party with costume prizes.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-27"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://eatlikealocal.com/event/paradise-grill-halloween-party/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Restaurant Halloween party with costume prizes.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "6–9pm, restaurant association listing explicitly2026."
+  },
+  {
+    "name": "The French Press",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Cold Brew with my Boo Halloween paint-and-sip event.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://wineandcanvas.com/florida/event/cape-coral-canvas-and-wine-party-cold-brew-with-my-boo/",
+    "source_type": "official",
+    "evidence_excerpt": "Cold Brew with my Boo Halloween paint-and-sip event.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Organizer2026 page;1–4pm, mimosas and café menu available. One-night workshop."
+  },
+  {
+    "name": "BackStreets Sports Bar",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Nevermind Awesome Bar & Eatery",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Green Slime Shot"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Cruiser’s Lounge",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "The Dive",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Devil’s Brew"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Dixie Roadhouse",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Hooked Island Grill",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Frankenstein Green Punch"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Monkey Bar",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Boozy Monkey Punch"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Rack’em Spirits & Times",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Midnight Margarita"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Paradise Pizza",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Pumpkin Pie White Russian"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Ralph’s Place",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Rusty’s Raw Bar & Grill",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Blood Transfusion"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "Tiki Hut Bar & Grill",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [
+      "Tipsy Pumpkin"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "The Dek Bar",
+    "city": "Cape Coral",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spooktacular crawl sampling stop.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.capecoralbreeze.com/news/local-news/2026/10/15/spooktacular-pub-crawl-business-trick-or-treat-return-to-the-south-cape-next-saturday/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Named2026 participant; sample details as listed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl only; no season-long décor established."
+  },
+  {
+    "name": "The Firestone Grill Room, Martini Bar & Skybar",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "2224 Bay St, Fort Myers, FL33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Organizer-listed Halloween crawl venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://pubcrawls.com/tribe_events/fort-myers-halloween-bar-crawl/",
+    "source_type": "official",
+    "evidence_excerpt": "Organizer-listed Halloween crawl venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Party/crawl fit only; month-long décor or daily menu not claimed."
+  },
+  {
+    "name": "Kava Culture Kava Bar",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "1615 Hendry St, Fort Myers, FL33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Organizer-listed Halloween crawl venue.",
+    "menu_items": [
+      "Blood Bags",
+      "Witches Brew"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://pubcrawls.com/tribe_events/fort-myers-halloween-bar-crawl/",
+    "source_type": "official",
+    "evidence_excerpt": "Organizer-listed Halloween crawl venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Party/crawl fit only; month-long décor or daily menu not claimed."
+  },
+  {
+    "name": "Downtown Social House",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "1406 Hendry St, Fort Myers, FL33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Organizer-listed Halloween crawl venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://pubcrawls.com/tribe_events/fort-myers-halloween-bar-crawl/",
+    "source_type": "official",
+    "evidence_excerpt": "Organizer-listed Halloween crawl venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Party/crawl fit only; month-long décor or daily menu not claimed."
+  },
+  {
+    "name": "Cowboy Up Saloon",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "1609 Hendry St, Fort Myers, FL33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Organizer-listed Halloween crawl venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://pubcrawls.com/tribe_events/fort-myers-halloween-bar-crawl/",
+    "source_type": "official",
+    "evidence_excerpt": "Organizer-listed Halloween crawl venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Party/crawl fit only; month-long décor or daily menu not claimed."
+  },
+  {
+    "name": "The Corral",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "2213 Main St, Fort Myers, FL33901",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Organizer-listed Halloween crawl venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://pubcrawls.com/tribe_events/fort-myers-halloween-bar-crawl/",
+    "source_type": "official",
+    "evidence_excerpt": "Organizer-listed Halloween crawl venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Party/crawl fit only; month-long décor or daily menu not claimed."
+  },
+  {
+    "name": "Escondido Lounge",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named stop on organizer’s2026 Halloween crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://crawlwith.us/fortmyers/halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Named stop on organizer’s2026 Halloween crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawler drink specials at each stop;4–10pm. Not a permanent spooky theme or full décor takeover."
+  },
+  {
+    "name": "Hideaway Sports Bar",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named stop on organizer’s2026 Halloween crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://crawlwith.us/fortmyers/halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Named stop on organizer’s2026 Halloween crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawler drink specials at each stop;4–10pm. Not a permanent spooky theme or full décor takeover."
+  },
+  {
+    "name": "Space39 Art Bar & Martini Lounge",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named stop on organizer’s2026 Halloween crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://crawlwith.us/fortmyers/halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Named stop on organizer’s2026 Halloween crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawler drink specials at each stop;4–10pm. Not a permanent spooky theme or full décor takeover."
+  },
+  {
+    "name": "Swamp Cat Brewing Company",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named stop on organizer’s2026 Halloween crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://crawlwith.us/fortmyers/halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Named stop on organizer’s2026 Halloween crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawler drink specials at each stop;4–10pm. Not a permanent spooky theme or full décor takeover."
+  },
+  {
+    "name": "The Lucky Screw",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named stop on organizer’s2026 Halloween crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://crawlwith.us/fortmyers/halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Named stop on organizer’s2026 Halloween crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawler drink specials at each stop;4–10pm. Not a permanent spooky theme or full décor takeover."
+  },
+  {
+    "name": "Backyard Social Fort Myers",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": "16371 Corporate Commerce Way, Fort Myers, FL33913",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "October2026 program includes Asylum After Dark and spooky movie nights.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-21",
+      "2026-10-28",
+      "2026-10-29",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://backyardsocial.com/community-blog/",
+    "source_type": "official",
+    "evidence_excerpt": "October2026 program includes Asylum After Dark and spooky movie nights.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official blog verifies2026. Asylum9pm Halloween; trunkortreatOct29; no specific themed menu read."
+  },
+  {
+    "name": "Sidelines Sports Bar & Grill",
+    "city": "Fort Myers",
+    "area": "southwest",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Performer calendar advertises Halloween party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://13southrocks.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Performer calendar advertises Halloween party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Performer source:7–11pm; verify with venue before booking."
+  },
+  {
+    "name": "Zota Beach Resort",
+    "city": "Longboat Key",
+    "area": "manatee-sarasota",
+    "address": "4711 Gulf of Mexico Dr, Longboat Key, FL34228",
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas2026 brunch with holiday cocktail and yule log.",
+    "menu_items": [
+      "Naughty but Nice",
+      "Salted Caramel Yule Log"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opalcollection.com/zota/restaurants/holiday-menus/menu/christmas/",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas2026 brunch with holiday cocktail and yule log.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "10am–3pm,adult$65. Specific2026 menu, not generic Christmas opening."
+  },
+  {
+    "name": "Cooper’s Hawk Winery & Restaurant Sarasota",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": "3130 Fruitville Commons Blvd, Sarasota, FL34240",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Dinner After Dark Halloween wine-pairing dinner and potion mixing.",
+    "menu_items": [
+      "Autumn Squash Ravioli",
+      "Chocolate & Caramel Bread Pudding"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-18"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.localwineevents.com/view/event/1018-sarasota-fl-dinner-after-dark/1035354",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dinner After Dark Halloween wine-pairing dinner and potion mixing.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "5–8pm,21+,WineClub event; booking closes48hours beforehand. Same-day event, not future recommendation."
+  },
+  {
+    "name": "Fine Wine & Tastings on Main",
+    "city": "Lakewood Ranch",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "HalloWine Walk with20+ wines, small bites and Halloween costumes.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-28"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://srqweekly.com/guides/halloween-events/",
+    "source_type": "secondary",
+    "evidence_excerpt": "HalloWine Walk with20+ wines, small bites and Halloween costumes.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "5–7:30pm,7stations. Onehost venue counted; participating retailshops not added as venues."
+  },
+  {
+    "name": "Brewster’s Tavern",
+    "city": "Sarasota",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "party",
+    "offering": "Tourism-listed partner in2026 Ugly Sweater Bar Crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-12"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitsarasota.com/events-festivals/sarasota-ugly-sweater-bar-crawl-11th-annual",
+    "source_type": "tourism",
+    "evidence_excerpt": "Tourism-listed partner in2026 Ugly Sweater Bar Crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "3–10pm; holiday drink specials for crawl ticketholders; no specific named menu or décor established."
+  },
+  {
+    "name": "The Peculiar Pub",
+    "city": "Lakewood Ranch",
+    "area": "manatee-sarasota",
+    "address": "8141 Lakewood Main St Suite103, Lakewood Ranch, FL34211",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween party listing with themed drinks.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://lakewoodranch.com/event/peculiar-pub-halloween-costume-party/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween party listing with themed drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source saysFridayOct31, corresponding2025 not2026. Hold; copyright2026 insufficient. Agave and attached Maya counted together."
+  },
+  {
+    "name": "Agave Bandido / Maya Speak-Tiki",
+    "city": "Lakewood Ranch",
+    "area": "manatee-sarasota",
+    "address": "1550 Lakefront Dr Suite100, Lakewood Ranch, FL34240",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween party listing with themed drinks.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://lakewoodranch.com/event/family-halloween-party-at-agave/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween party listing with themed drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source saysFridayOct31, corresponding2025 not2026. Hold; copyright2026 insufficient. Agave and attached Maya counted together."
+  },
+  {
+    "name": "The Lounge by Good Liquid",
+    "city": "Lakewood Ranch",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween party listing with themed drinks.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://lakewoodranch.com/event/boos-beats-at-the-lounge-by-good-liquid/",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween party listing with themed drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Source saysFridayOct31, corresponding2025 not2026. Hold; copyright2026 insufficient. Agave and attached Maya counted together."
+  },
+  {
+    "name": "Fuego Comida & Tequila",
+    "city": "Lakewood Ranch",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Homepage image announces Fall Features food and cocktail menu.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.fuegotequilalounge.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Homepage image announces Fall Features food and cocktail menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Menu exists as image; exactitems/year need visual reading before promotion."
+  },
+  {
+    "name": "The Resort at Longboat Key Club",
+    "city": "Longboat Key",
+    "area": "manatee-sarasota",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Resort holiday culinary and family activity program.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.opalcollection.com/longboat-key-club/holidays-resort-activities/",
+    "source_type": "official",
+    "evidence_excerpt": "Resort holiday culinary and family activity program.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official page explicitly labelsChristmasWeek2025;2026 not established."
+  }
+]

@@ -1,0 +1,1627 @@
+[
+  {
+    "name": "SpookEasy Lounge / The Catacombs",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1909 N 15th St, Tampa, FL 33605",
+    "season": [
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Year-round haunted bar; beer and wine upstairs, spirits in The Catacombs.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.spookeasylounge.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Year-round haunted bar; beer and wine upstairs, spirits in The Catacombs.",
+    "checked_at": "2026-10-18",
+    "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+    "notes": "One physical outing; do not split upstairs/downstairs. Source turn8view0.",
+    "research_id": "tampa-858f70e84ae4",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Sonder Social Club",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "966 Douglas Ave Unit 101, Dunedin, FL 34698",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Spooky Social Club room transformation and themed cocktail menu through November1.",
+    "menu_items": [],
+    "start_date": "2026-09-26",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.sondersocial.club/spooky-social-club",
+    "source_type": "official",
+    "evidence_excerpt": "Spooky Social Club through November 1; Santa Social follows Thanksgiving week.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official current popup page plus dated Sep30,2026 local report establish Halloween dates. Christmas offering is separate row. turn8view1/turn4view0.",
+    "research_id": "tampa-49ea531cb61b",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Strandhill Public",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "309 W Palm Ave, Tampa, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "The Haunting cocktail takeover.",
+    "menu_items": [],
+    "start_date": "2026-10-01",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.thehauntingpopup.com/locations",
+    "source_type": "official",
+    "evidence_excerpt": "The Haunting cocktail takeover.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official location list copyright2026; dated Sep30 2026 Tampa Bay Date Night Guide corroborates. Christmas Miracle2025 historical only. turn8view2.",
+    "research_id": "tampa-e9798d097c8d",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Nueva Cantina",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": "1625 4th St S, St. Petersburg, FL 33701",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Hocus Pocus restaurant takeover with themed tacos and drinks.",
+    "menu_items": [],
+    "start_date": "2026-09-28",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://nuevacantina.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Hocus Pocus restaurant takeover with themed tacos and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "One representative location per brand; official lists4 TampaBay locations. Year from dated Sep2026 local corroboration. turn8view3.",
+    "research_id": "tampa-9ffb5b0a4d72",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Dracula's Legacy Wine Bar & Bistro",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "811 N Tampa St, Tampa, FL 33602",
+    "season": [
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Romanian Dracula-themed wine bar with elaborate permanent decor.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://draculaslegacywinebar.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Romanian Dracula-themed wine bar with elaborate permanent decor.",
+    "checked_at": "2026-10-18",
+    "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+    "notes": "Tampa representative; StPete branch combined as one brand. turn9view0.",
+    "research_id": "tampa-a1ae46fc9c58",
+    "qualification": "immersive"
+  },
+  {
+    "name": "The Castle",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "2004 N 16th St, Tampa, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "party",
+    "offering": "Goth dance club; Hallucination Before Christmas December12,2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-12-12"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://castleybor.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Goth dance club; Hallucination Before Christmas December12,2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Halloween post current but full date not extracted; Christmas2026 date explicit. Club saloon/tower/dungeon are one venue. turn9view1.",
+    "research_id": "tampa-ea752cba4773",
+    "qualification": "party"
+  },
+  {
+    "name": "Fenway Hotel — Room 27",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "453 Edgewater Dr, Dunedin, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Haunted speakeasy and Halloween craft cocktail menu, two nightly seatings.",
+    "menu_items": [],
+    "start_date": "2026-10-26",
+    "end_date": "2026-10-30",
+    "occurrence_dates": [
+      "2026-10-26",
+      "2026-10-27",
+      "2026-10-28",
+      "2026-10-29",
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fenwayhotel.com/press/fenway-hotel-welcomes-halloween-spirit-with-a-month-of-haunted-happenings/",
+    "source_type": "official",
+    "evidence_excerpt": "Haunted speakeasy and Halloween craft cocktail menu, two nightly seatings.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official Sep8,2026 press release; also ballroom FrightNight Oct31, samehotel not countedtwice. Christmas2025 WinterWonderland not carried into2026. turn14view4.",
+    "research_id": "tampa-fb244778e06c",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Gasparilla Distillery & Cocktail Bar",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "2102 E 4th Ave, Tampa, FL 33605",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Six seasonal fall cocktails featuring pumpkin and apple spiced rum.",
+    "menu_items": [
+      "Pumpkin Spiced Rum",
+      "Apple Spiced Rum"
+    ],
+    "start_date": "2026-09-04",
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.gasparilladistillery.net/events/seasonal-fall-menu-launch",
+    "source_type": "official",
+    "evidence_excerpt": "Six seasonal fall cocktails featuring pumpkin and apple spiced rum.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Sep4,2026 launch explicit. Do not promote2024 Ghost of Gasparilla takeover. turn14view5.",
+    "research_id": "tampa-1a8741c07205",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "The Urban Stillhouse",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spirits After Dark lead requires organizer page retrieval.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.eventbrite.com/e/spirits-after-dark-2026-tickets-1999599213074",
+    "source_type": "official",
+    "evidence_excerpt": "Spirits After Dark lead requires organizer page retrieval.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Supplied lead claims Oct30,2026; Eventbrite429 during independent open, so not promoted. turn28view4.",
+    "research_id": "tampa-3740ef51ddc1",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Gaspar's Grotto",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Permanent pirate bar celebrating Jose Gaspar lore.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://gasparsgrotto.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Permanent pirate bar celebrating Jose Gaspar lore.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official verifies pirate theme; not horror installation and no2026 seasonal menu proven. Weak fit; keep separate from strong horror picks. turn14view6.",
+    "research_id": "tampa-a6b501448107",
+    "qualification": "weak_theme"
+  },
+  {
+    "name": "Beach House Coffee",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "3602 S Manhattan Ave, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Spice Latte",
+    "menu_items": [
+      "Pumpkin Spice Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-dc4afdeebc99",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Blooming Floral Cafe",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "4408 N Florida Ave, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Dreamer",
+    "menu_items": [
+      "Pumpkin Dreamer"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-83ed211dbad8",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Cafe Quiquiriqui",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1402 E 7th Ave, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Pie Latte",
+    "menu_items": [
+      "Pumpkin Pie Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-d88b2b537658",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Cafe Rialto",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1617 N Franklin St, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Rialto Pumpkin Matcha",
+    "menu_items": [
+      "Rialto Pumpkin Matcha"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-f5571df8e88f",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "DI Coffee",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "214 E Davis Blvd, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Jack O’ Lantern Latte",
+    "menu_items": [
+      "Jack O’ Lantern Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-e6cb902b1863",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Flatbread and Butter",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "101 W Tyler St, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Spice Latte",
+    "menu_items": [
+      "Pumpkin Spice Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-6cddd1005546",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Ivry",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "2307 S Dale Mabry Hwy, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Caramel Apple Latte",
+    "menu_items": [
+      "Caramel Apple Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-e71a983a68e2",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Kubana Kafe",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "5130 S Dale Mabry Hwy, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Spice Cortadito",
+    "menu_items": [
+      "Pumpkin Spice Cortadito"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-afd8d7f7ab9f",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Lady and the Mug",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "510 W Grand Central Ave, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin S’mores Latte",
+    "menu_items": [
+      "Pumpkin S’mores Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-bbec58d2a9f0",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Lead’s Coffee House",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "2701 N Himes Ave, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Practical Pumpkin Latte",
+    "menu_items": [
+      "Practical Pumpkin Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-0b72f3d94342",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Little Tina",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "507 N Tampa St, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Spice Latte",
+    "menu_items": [
+      "Pumpkin Spice Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-433aca5a99d6",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Lunar Coffee",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "10929 N 56th St, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Apple Oat Hojicha",
+    "menu_items": [
+      "Apple Oat Hojicha"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-305399bd1b6a",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "The Perfect Press",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "4526 W Village Dr, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Cream Matcha",
+    "menu_items": [
+      "Pumpkin Cream Matcha"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-b8065e9db5db",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Shortwave Coffee",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "615 Channelside Dr, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin Hazelnut Latte",
+    "menu_items": [
+      "Pumpkin Hazelnut Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-4914e36c315e",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Willa’s Provisions",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "310 N Rome Ave, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Florida Pumpkin Patch",
+    "menu_items": [
+      "Florida Pumpkin Patch"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://thatssotampa.com/tampa-fall-coffee-drinks/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dated2026 fall-drinks list.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "October14,2026 local roundup, turn14view0. Offering verified through current local reporting, exact service end unannounced. Exact Google Places identity still required before card promotion.",
+    "research_id": "tampa-724557d126b5",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Buddy Brew Coffee — Hyde Park",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1605 W Snow Ave, Tampa, FL 33606",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Current menu lists house-made pumpkin latte.",
+    "menu_items": [
+      "Spiced Pumpkin Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://order.toasttab.com/online/buddybrewhydepark/item-spiced-pumpkin-latte_0986534a-c4ad-4db4-8652-2cb1e2615695",
+    "source_type": "official",
+    "evidence_excerpt": "Current menu lists house-made pumpkin latte.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current official ordering menu, turn9search16. One TampaBay branch counted; Sarasota belongs separate root region.",
+    "research_id": "tampa-962eef34d9a4",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Elevenses Co.",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1001 E Columbus Dr, Tampa, FL 33605",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin caramel latte with pancake syrup cold foam, iced only.",
+    "menu_items": [
+      "Pumpkin Pancakes Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://order.toasttab.com/online/elevensesco/item-pumpkin-pancakes-latte-iced-only_c89c387a-eccc-4227-9e01-980f9b1151a9",
+    "source_type": "official",
+    "evidence_excerpt": "Pumpkin caramel latte with pancake syrup cold foam, iced only.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official live ordering menu search turn32search3 andturn32search12; not marked out-of-stock while other products are.",
+    "research_id": "tampa-604ac0d071e7",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Good Fruit Coffee Collective",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "14316 Lake Magdalene Blvd, Tampa, FL 33618",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall specials with pumpkin and salted maple drinks.",
+    "menu_items": [
+      "Pumpkin Spice Latte",
+      "Salted Maggie Maple",
+      "Pumpkin Pie Matcha",
+      "Salted Maple Matcha"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://goodfruitcoffeecollective.com/menu/",
+    "source_type": "official",
+    "evidence_excerpt": "Fall specials with pumpkin and salted maple drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current official Fall Specials menu; at Bearss Groves physical camper. turn28view6.",
+    "research_id": "tampa-23fa50adcfb0",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Atomic Cat Cafe",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": "10387 Gandy Blvd N Suite 102, St. Petersburg, FL 33702",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal Dr Pepper soda with pumpkin spice and vanilla cold foam.",
+    "menu_items": [
+      "Dr Pumpkin"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://atomiccatstpete.com/menu/",
+    "source_type": "official",
+    "evidence_excerpt": "Seasonal Dr Pepper soda with pumpkin spice and vanilla cold foam.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Explicit Fall seasonal label on current menu. turn28view5.",
+    "research_id": "tampa-dfe3d1e50e52",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Charlie Coffee",
+    "city": "Palm Harbor",
+    "area": "tampa",
+    "address": "3422 Tampa Rd, Palm Harbor, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall2026 menu with homemade pumpkin latte.",
+    "menu_items": [
+      "Pumpkin Roll Latte",
+      "S’mores Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://charliecoffeefl.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Fall2026 menu with homemade pumpkin latte.",
+    "checked_at": "2026-10-18",
+    "place_id": "ChIJ-ZFB15jtwogRpEcx2izoHr8",
+    "notes": "Official search result fully exposes Fall Menu2026 and ingredients; open fails page>4MB. turn50search0.",
+    "research_id": "tampa-4b0aa7bc41a9",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Sōl St Pete Bistro",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Limited-availability pumpkin curry, vegan or scallop option.",
+    "menu_items": [
+      "Golden Pumpkin Curry Di Mare"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://solstpete.com/st-petersburg-warehouse-arts-district-sol-st-pete-bistro-food-menu",
+    "source_type": "official",
+    "evidence_excerpt": "Limited-availability pumpkin curry, vegan or scallop option.",
+    "checked_at": "2026-10-18",
+    "place_id": "ChIJ9ZpMS-7jwogRWChZqTQG66g",
+    "notes": "Current official menu $28vegan/$48scallops. No fixed service dates. turn28view3.",
+    "research_id": "tampa-9be23b747399",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Joy Bar",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "6905 N Armenia Ave, Tampa, FL 33604",
+    "season": [
+      "christmas"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Permanent Christmas lights, tinsel and festive signature shots.",
+    "menu_items": [
+      "Salty Grinch",
+      "Mistletoe Margarita",
+      "Santa’s SweeTart",
+      "Stay Awake for Santa",
+      "Christmas Morning"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.liquordepottampa.com/joy-bar",
+    "source_type": "official",
+    "evidence_excerpt": "Permanent Christmas lights, tinsel and festive signature shots.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official explicitly says open365days/year and decorations stayup. turn21view0.",
+    "research_id": "tampa-2853cd6679c0",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Anchor & Brine",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "505 Water St, Tampa, FL 33602",
+    "season": [
+      "halloween",
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Three Halloween featured cocktails.",
+    "menu_items": [
+      "Witch’s Kiss",
+      "Deadly Lychee",
+      "Pumpkin Espresso Martini"
+    ],
+    "start_date": "2026-10-29",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://event.marriott.com/tpamc-tampa-marriott-water-street/events/tampa/halloween-featured-cocktails",
+    "source_type": "official",
+    "evidence_excerpt": "Three Halloween featured cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official Marriott listing names Anchor&Brine. turn21view2.",
+    "research_id": "tampa-de12875dbe44",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Beacon Rooftop Lounge",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Potions & Pour Decisions: three-cocktail workshop with chef-selected bites.",
+    "menu_items": [],
+    "start_date": "2026-10-01",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visittampabay.com/tampa-events/details/potions-&-pour-decisions-experience/102807/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Potions & Pour Decisions: three-cocktail workshop with chef-selected bites.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "JW Marriott Tampa Water Street; selected dates/reservation required, do not imply daily. Exact cadence not exposed. turn24view3.",
+    "research_id": "tampa-64d6f1deeaca",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Meat Market Tampa",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Frankenstein decor, holiday cocktails and Halloween Lounge dinner experience.",
+    "menu_items": [],
+    "start_date": "2026-10-31",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visittampabay.com/tampa-events/details/halloween-at-meat-market-tampa/102492/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Frankenstein decor, holiday cocktails and Halloween Lounge dinner experience.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Tourism listing verifies date and Frankenstein Laboratory;21+ lounge reservations required. turn21view3/turn24view2.",
+    "research_id": "tampa-9e0f2be15e57",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Lona Tampa",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "505 Water St, Tampa, FL 33602",
+    "season": [
+      "fall",
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Día de los Muertos El Sol menu with glowing ofrenda.",
+    "menu_items": [
+      "Fuego del Sol Short Rib",
+      "Amanecer Pumpkin Brûlée",
+      "Saffron Sour"
+    ],
+    "start_date": "2026-10-06",
+    "end_date": "2026-11-03",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://shopsandoval.com/pages/experiences/lona-tampa-el-sol",
+    "source_type": "official",
+    "evidence_excerpt": "Día de los Muertos El Sol menu with glowing ofrenda.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "RichardSandoval official experience page; Christmas Dec23-26,2026 linkedbut notindependentlyopened. Co-located Anchor&Brine are distinct restaurant concepts; root may use hotel-level dedup. turn24view4.",
+    "research_id": "tampa-690241b90764",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Taco Bus",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal horchata and apple dessert at TampaBay locations.",
+    "menu_items": [
+      "Pumpkin Spice Horchata",
+      "Apple Pie Empanadas"
+    ],
+    "start_date": "2026-09-01",
+    "end_date": "2026-11-30",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://taco-bus.com/menu/featured/",
+    "source_type": "official",
+    "evidence_excerpt": "Seasonal horchata and apple dessert at TampaBay locations.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official FAQ explicitly2026; onebrand only, branch identity required. turn50search4.",
+    "research_id": "tampa-bb8e71c4bf49",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Pura Vida Miami — Water Street",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1038 Water St, Tampa, FL",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Tampa opening announced seasonal pumpkin coffee.",
+    "menu_items": [
+      "Pumpkin Spice Cloud"
+    ],
+    "start_date": "2026-09-10",
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.cltampa.com/food-drink/new-cafe-pura-vida-miami-opens-in-downtown-tampa-this-week/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Tampa opening announced seasonal pumpkin coffee.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Sep8-9,2026 localreport cites official opening pressrelease and localmenu. turn50search5.",
+    "research_id": "tampa-6b1b012d3286",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Keel Farms",
+    "city": "Plant City",
+    "area": "tampa",
+    "address": "5202 Thonotosassa Rd, Plant City, FL 33565",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Harvest Days with seasonal food and pumpkin cider.",
+    "menu_items": [
+      "Pumpkin Cider"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://tampa.beyondthenest.com/content/harvest-days-keel-farms",
+    "source_type": "secondary",
+    "evidence_excerpt": "Harvest Days with seasonal food and pumpkin cider.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct2026 listing plus official keelfarms.com/flstatefair currentHarvestDays banner corroborates weekends10-3. Calendar end conflictingOct25/31, dates leftnull; verify exact remainingoccurrences. turn50search21/turn50search8.",
+    "research_id": "tampa-813ea01b64f6",
+    "qualification": "seasonal_menu"
+  },
+  {
+    "name": "Dunedin Brewery",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "937 Douglas Ave, Dunedin, FL",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "RAPTOBERFEST Halloween costume concert at brewery Moontower.",
+    "menu_items": [],
+    "start_date": "2026-10-24",
+    "end_date": "2026-10-24",
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://dunedinbrewery.com/event/6777723/784505638/face-melt-presents-rap-toberfest-2026",
+    "source_type": "official",
+    "evidence_excerpt": "RAPTOBERFEST Halloween costume concert at brewery Moontower.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official2026 event, weakerfit than decoratedbar; no specific seasonalfood proven. turn56search3.",
+    "research_id": "tampa-823c1426aa53",
+    "qualification": "party"
+  },
+  {
+    "name": "Aspirations Winery",
+    "city": "Clearwater",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "80s Halloween murder-mystery theater: A Night to Dismember.",
+    "menu_items": [],
+    "start_date": "2026-10-30",
+    "end_date": "2026-10-30",
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/80s-halloween-murder-mystery-theater-a-night-to-dismember-tickets-1999419501552",
+    "source_type": "official",
+    "evidence_excerpt": "80s Halloween murder-mystery theater: A Night to Dismember.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Organizer-owned Eventbrite listing insearch; specific food/drinknotestablished. turn56search2.",
+    "research_id": "tampa-db0041709271",
+    "qualification": "party"
+  },
+  {
+    "name": "Pee-Pa’s Garage Craft Brewery",
+    "city": "Pinellas Park",
+    "area": "tampa",
+    "address": "6340 49th St N, Pinellas Park, FL 33781",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fourth annual Halloween party with costume contests and DJ.",
+    "menu_items": [],
+    "start_date": "2026-10-16",
+    "end_date": "2026-10-16",
+    "occurrence_dates": [
+      "2026-10-16"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.peepasgaragecraftbrewery.com/events/",
+    "source_type": "official",
+    "evidence_excerpt": "Fourth annual Halloween party with costume contests and DJ.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Confirmed2026 via dated Oct15localreport plus officialOct16calendar. ALREADYENDED atcheck date; do not surface as upcoming. turn60view0.",
+    "research_id": "tampa-7a10f85f7e62",
+    "qualification": "party"
+  },
+  {
+    "name": "Wyndham Grand Clearwater Beach",
+    "city": "Clearwater",
+    "area": "tampa",
+    "address": "100 Coronado Dr, Clearwater, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Après Sea ski-lodge pop-up",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-b229d6826596",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "WOB Bar & Kitchen — Brandon",
+    "city": "Brandon",
+    "area": "tampa",
+    "address": "2878 Providence Lake Blvd, Brandon, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Christmas takeover",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-3e413eb065e7",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Small Giant Bar",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1051 Water St, Tampa, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Jingle Bar holiday cocktails",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-4258c30abbae",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Barterhouse Ybor",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "1811 N 15th St Suite A, Tampa, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "The Blitz holiday takeover",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-c5929712ea95",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "JW Marriott Clearwater Beach",
+    "city": "Clearwater Beach",
+    "area": "tampa",
+    "address": "691 S Gulfview Blvd, Clearwater Beach, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "12 Days of Cocktails lobby pop-up",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-7aea06a6afb9",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Coco’s Crush Bar and Grill",
+    "city": "Clearwater Beach",
+    "area": "tampa",
+    "address": "317 Coronado Dr, Clearwater Beach, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Naughty Village Christmas decor",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-8190b4493a30",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Woodwright Brewing Company",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "985 Douglas Ave, Dunedin, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Winter Wednesdays holiday drinks",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-184c1156e34d",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "The Honu",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "516 Grant St, Dunedin, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Holiday tiki lights",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-2c16463bb69c",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Intermezzo Coffee & Cocktails",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": "1111 Central Ave, St. Petersburg, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Miracle at Mezzo",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Historical2025 roundup hostidentity.2026 official Miracle list names BarMezzo at1049CentralAve instead. Do notpromote Intermezzo1111CentralAve as2026Miraclehost; separate correctedBarMezzo row. Not a claimthatIntermezzo permanentlyclosed. turn84view0/turn86view0.",
+    "research_id": "tampa-e08102646216",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "St. Petersburg Distillery",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": "800 31st St S, St. Petersburg, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Holiday cocktail menu",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Documented for2025;2026 unverified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Article updated Dec23,2025; DO NOT carry2025dates/menu into2026. turn4view1. Onephysicalvenue perrecord; none counts as2026confirmed.",
+    "research_id": "tampa-105b84d5603e",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "XMAS Bar at Glamper",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": "217 Central Ave, St. Petersburg, FL 33701",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Christmas popup is currently marked closed for season.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.xmasbar.com/st-pete",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas popup is currently marked closed for season.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official page conflictswitholdaddress2601stAveN. CLOSED FOR THE SEASON atcheck; Nov7opening FAQ noyear. Do not assign2026 opening. turn21view1.",
+    "research_id": "tampa-dc11a2bd37e6",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Canopy Road Cafe",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin cheesecake French toast reported in2026 local guide.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://frankalbertrealty.com/blog/tampa-bay-fall-food",
+    "source_type": "secondary",
+    "evidence_excerpt": "Pumpkin cheesecake French toast reported in2026 local guide.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official currentbase menu didnot show pumpkin seasonal. Location-specific availableoffer unproven; keep pending. turn6view6/turn37view0.",
+    "research_id": "tampa-55d646573d4e",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "On Swann",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Butternut squash soup lead.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://frankalbertrealty.com/blog/tampa-bay-fall-food",
+    "source_type": "secondary",
+    "evidence_excerpt": "Butternut squash soup lead.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current2026 secondarylead; official menu inaccessible; noexactlocalitemverification. turn6view6.",
+    "research_id": "tampa-157227a9454d",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Chic Image Bistro",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Summer-Fall2026 Fig & Honey Toast lead.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://frankalbertrealty.com/blog/tampa-bay-fall-food",
+    "source_type": "secondary",
+    "evidence_excerpt": "Summer-Fall2026 Fig & Honey Toast lead.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Officialhomepage openedbut didnot expose seasonal menu. turn6view6/turn37view2.",
+    "research_id": "tampa-9b0792be9619",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Mike’s Pies",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pumpkin cheesecake and seasonal pie lead.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://frankalbertrealty.com/blog/tampa-bay-fall-food",
+    "source_type": "secondary",
+    "evidence_excerpt": "Pumpkin cheesecake and seasonal pie lead.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official pickupmenu URL failed; venueoperations/pickupidentity not independently established. turn6view6/turn37view3.",
+    "research_id": "tampa-3cec2345c882",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "First Watch — Tampa Bay market",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "National fall-menu coverage excludes TampaBay.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://www.snackandbakery.com/articles/114280-first-watch-fall-menu-features-pumpkin-smoky-spice",
+    "source_type": "secondary",
+    "evidence_excerpt": "National fall-menu coverage excludes TampaBay.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Do not inferlocalavailability fromnationalmenu. Historic official pressreleases alsoexcludeTampaBay. turn50search11/turn50search36.",
+    "research_id": "tampa-f54fc758065f",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Sonder Social Club",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "966 Douglas Ave Unit 101, Dunedin, FL 34698",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Santa Social room transformation announced for Thanksgiving week.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.sondersocial.club/",
+    "source_type": "official",
+    "evidence_excerpt": "Santa Social room transformation announced for Thanksgiving week.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current official site announces nexttakeover, but noexplicit2026year/exactdate. Strong returnlead; keep pending untilvenue datespublished. Samephysicalvenue asHalloween. turn93view2.",
+    "research_id": "tampa-aaf5b288aa36",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Strandhill Public",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "309 W Palm Ave, Tampa, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Miracle Christmas cocktail-bar takeover officially listed for2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Miracle Christmas cocktail-bar takeover officially listed for2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official2026 index names TampaStrandhillPublic. Exact2026opening/closingdates notprovided, leave null; do notreuseNov29-Jan1 from2025guide. Samevenue asHalloween. turn84view0.",
+    "research_id": "tampa-613c143e751b",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Bar Mezzo",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": "1049 Central Ave, St. Petersburg, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Miracle at Bar Mezzo officially listed for2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Miracle at Bar Mezzo officially listed for2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official2026Miracleindex + https://barmezzo.com/ verifies1049CentralAve. Venuehomepage says MiracleatBarMezzo; datesabsent. Historic2025Intermezzo1111CentralAve isnotthisidentity. turn84view0/turn86view0.",
+    "research_id": "tampa-7c2f5dc1c918",
+    "qualification": "immersive"
+  },
+  {
+    "name": "The Sail Plaza / Big Ray’s Fish Camp Riverwalk",
+    "city": "Tampa",
+    "area": "tampa",
+    "address": "333 S Franklin St, Tampa, FL 33602",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Boos & Brews: larger-than-life Halloween creatures around waterfront bar and restaurant plaza.",
+    "menu_items": [],
+    "start_date": "2026-10-01",
+    "end_date": "2026-11-01",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visittampabay.com/tampa-events/details/boos-and-brews/102804/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Boos & Brews: larger-than-life Halloween creatures around waterfront bar and restaurant plaza.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Dated2026tourismlisting and officialCity https://www.tampa.gov/tcc/the-sail confirmmonsters/cocktails/seafood. Oneoutingnotseparatebar+restaurantcounts. turn93view1/turn93view0.",
+    "research_id": "tampa-dc0fdc64ae4f",
+    "qualification": "immersive"
+  },
+  {
+    "name": "Fenway Hotel — Room 27",
+    "city": "Dunedin",
+    "area": "tampa",
+    "address": "453 Edgewater Dr, Dunedin, FL",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Winter Wonderland holiday speakeasy recorded in2025.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/holiday-bars-christmas-cocktails/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Winter Wonderland holiday speakeasy recorded in2025.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Historical2025only. SeparateChristmasoffering fromconfirmed2026Halloween; samephysicalvenue, countonce. turn4view1.",
+    "research_id": "tampa-42ecbe8e205e",
+    "qualification": "unconfirmed_or_excluded"
+  },
+  {
+    "name": "Tampa Bay Drinkery",
+    "city": "St. Petersburg",
+    "area": "tampa",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Halloween-decor bar lead;2026 full takeover notconfirmed.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://tampabaydatenightguide.com/pop-up-halloween-bars-in-tampa/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween-decor bar lead;2026 full takeover notconfirmed.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Currentguide explicitlyunder PopUpBarsToBeAnnounced. Organizer https://posh.vip/e/the-vaudvillains-halloween-house-party verifiesOct17,2026partybutnotmonthlongdecor;party endedbeforecheck. Addressconflicts2756vs2760CentralAve requireGooglePlaces. turn4view0/turn82search10/turn82search29.",
+    "research_id": "tampa-2cdbb5af0758",
+    "qualification": "unconfirmed_or_excluded"
+  }
+]

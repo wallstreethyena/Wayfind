@@ -1,0 +1,3321 @@
+[
+  {
+    "name": "Elevate Skye Bar & Lounge",
+    "city": "Key West",
+    "area": "keys",
+    "address": "245 Front Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Día de los Muertos party; Latin food and drinks.",
+    "menu_items": [],
+    "start_date": "2026-10-18",
+    "end_date": "2026-10-18",
+    "occurrence_dates": [
+      "2026-10-18"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Día de los Muertos party; Latin food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "The Greeen House",
+    "city": "Key West",
+    "area": "keys",
+    "address": "431 Front Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest costume parties with drinks.",
+    "menu_items": [],
+    "start_date": "2026-10-18",
+    "end_date": "2026-10-21",
+    "occurrence_dates": [
+      "2026-10-18",
+      "2026-10-20",
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest costume parties with drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Bourbon Street Pub / New Orleans House",
+    "city": "Key West",
+    "area": "keys",
+    "address": "724 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest adult costume and pool parties; bars.",
+    "menu_items": [],
+    "start_date": "2026-10-18",
+    "end_date": "2026-10-23",
+    "occurrence_dates": [
+      "2026-10-18",
+      "2026-10-19",
+      "2026-10-21",
+      "2026-10-22",
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest adult costume and pool parties; bars.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Havana Cabana at Key West",
+    "city": "Key West",
+    "area": "keys",
+    "address": "3420 N Roosevelt Boulevard",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Duck-costume pool party; beverage samples.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-19",
+    "occurrence_dates": [
+      "2026-10-19"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Duck-costume pool party; beverage samples.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Sunset Pier",
+    "city": "Key West",
+    "area": "keys",
+    "address": "0 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Costume parties and themed cocktails during Fantasy Fest.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-23",
+    "occurrence_dates": [
+      "2026-10-19",
+      "2026-10-20",
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Costume parties and themed cocktails during Fantasy Fest.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Green Parrot Bar",
+    "city": "Key West",
+    "area": "keys",
+    "address": "601 Whitehead Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Beatles costume tribute party.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-19",
+    "occurrence_dates": [
+      "2026-10-19"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Beatles costume tribute party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Tiki House Key West",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest 5K after-party.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-19",
+    "occurrence_dates": [
+      "2026-10-19"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest 5K after-party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "A&B Lobster House",
+    "city": "Key West",
+    "area": "keys",
+    "address": "700 Front Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Gatsby masquerade wine-paired dinner.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-19",
+    "occurrence_dates": [
+      "2026-10-19"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Gatsby masquerade wine-paired dinner.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Southernmost Pint",
+    "city": "Key West",
+    "area": "keys",
+    "address": "524 Front Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Costumed Wicked and Moulin Rouge courtyard nights; food and beer.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-19",
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Costumed Wicked and Moulin Rouge courtyard nights; food and beer.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "First Flight Island Restaurant & Brewery",
+    "city": "Key West",
+    "area": "keys",
+    "address": "301 Whitehead Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Kinky Carnival costume party with open bar.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-19",
+    "occurrence_dates": [
+      "2026-10-19"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Kinky Carnival costume party with open bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Sloppy Joe’s Bar",
+    "city": "Key West",
+    "area": "keys",
+    "address": "201 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Comic, sleepwear and toga costume parties.",
+    "menu_items": [],
+    "start_date": "2026-10-19",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-19",
+      "2026-10-21",
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Comic, sleepwear and toga costume parties.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Dante’s Restaurant & Pool Bar",
+    "city": "Key West",
+    "area": "keys",
+    "address": "951 Caroline Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Patriotic and Halos & Horns pool parties; specials.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-20",
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Patriotic and Halos & Horns pool parties; specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Winslow’s Bungalows",
+    "city": "Key West",
+    "area": "keys",
+    "address": "725 Truman Avenue",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Musical-icon costume pool party; cocktails for hotel guests.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-20",
+    "occurrence_dates": [
+      "2026-10-20"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Musical-icon costume pool party; cocktails for hotel guests.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "La Concha Hotel",
+    "city": "Key West",
+    "area": "keys",
+    "address": "430 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Festival poster-signing reception with wine samples.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-20",
+    "occurrence_dates": [
+      "2026-10-20"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Festival poster-signing reception with wine samples.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Casa Marina Key West",
+    "city": "Key West",
+    "area": "keys",
+    "address": "1500 Reynolds Street",
+    "season": [
+      "halloween",
+      "christmas",
+      "fall"
+    ],
+    "experience": "party",
+    "offering": "Casa Cabaret: cocktails, bites and cabaret celebration.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-20",
+    "occurrence_dates": [
+      "2026-10-20"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Casa Cabaret: cocktails, bites and cabaret celebration.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official Christmas page explicitly says December 2026: https://casamarinaresort.com/event-calendar/christmas-in-key-west/ . Flagler’s Dec25 Christmas buffet also independently lists Dec25 2026 on OpenTable. Resort counted once across seasons. Thanksgiving 2026 buffet at Flagler’s on Nov26 is on operator-managed OpenTable https://www.opentable.com/r/flaglers-restaurant-key-west ."
+  },
+  {
+    "name": "Mary Ellen’s",
+    "city": "Key West",
+    "area": "keys",
+    "address": "420 Appelrouth Lane",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Tutu Tuesday costume crawl starting venue.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-20",
+    "occurrence_dates": [
+      "2026-10-20"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Tutu Tuesday costume crawl starting venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "General Horseplay",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "NERDELODEON tutu party; four-bar event counted once.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-20",
+    "occurrence_dates": [
+      "2026-10-20"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "NERDELODEON tutu party; four-bar event counted once.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Southernmost Beach Café / Resort",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Tutu salsa drinks; decorated spooky trivia with drink included.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-21",
+    "occurrence_dates": [
+      "2026-10-20",
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Tutu salsa drinks; decorated spooky trivia with drink included.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Rick’s Complex",
+    "city": "Key West",
+    "area": "keys",
+    "address": "202 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Costume charity drinks; UV underwater decor party.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-21",
+    "occurrence_dates": [
+      "2026-10-20",
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Costume charity drinks; UV underwater decor party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Captain Tony’s Saloon",
+    "city": "Key West",
+    "area": "keys",
+    "address": "428 Greene Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Plaid-costume Fantasy Fest party.",
+    "menu_items": [],
+    "start_date": "2026-10-20",
+    "end_date": "2026-10-20",
+    "occurrence_dates": [
+      "2026-10-20"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Plaid-costume Fantasy Fest party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Viva Argentinian Steakhouse",
+    "city": "Key West",
+    "area": "keys",
+    "address": "903 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Disco costumes and special dinner/open-bar options.",
+    "menu_items": [],
+    "start_date": "2026-10-21",
+    "end_date": "2026-10-23",
+    "occurrence_dates": [
+      "2026-10-21",
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Disco costumes and special dinner/open-bar options.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Kaya Island Eats / Key West Empourium",
+    "city": "Key West",
+    "area": "keys",
+    "address": "618 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Rockstar and pirate costume parties.",
+    "menu_items": [],
+    "start_date": "2026-10-21",
+    "end_date": "2026-10-23",
+    "occurrence_dates": [
+      "2026-10-21",
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Rockstar and pirate costume parties.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Irish Kevin’s",
+    "city": "Key West",
+    "area": "keys",
+    "address": "211 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Costume contest and 1980s party.",
+    "menu_items": [],
+    "start_date": "2026-10-21",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-21",
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Costume contest and 1980s party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Schooner Wharf Bar",
+    "city": "Key West",
+    "area": "keys",
+    "address": "202 William Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Hippie costume party; food and drinks.",
+    "menu_items": [],
+    "start_date": "2026-10-21",
+    "end_date": "2026-10-21",
+    "occurrence_dates": [
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Hippie costume party; food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Blue Flamingo Resort",
+    "city": "Key West",
+    "area": "keys",
+    "address": "3820 N Roosevelt Boulevard",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Jazz-age Sins & Sequins costume evening.",
+    "menu_items": [],
+    "start_date": "2026-10-21",
+    "end_date": "2026-10-21",
+    "occurrence_dates": [
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Jazz-age Sins & Sequins costume evening.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Margaritaville Key West",
+    "city": "Key West",
+    "area": "keys",
+    "address": "500 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Musical-icon costume karaoke; festival drink specials.",
+    "menu_items": [],
+    "start_date": "2026-10-21",
+    "end_date": "2026-10-21",
+    "occurrence_dates": [
+      "2026-10-21"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Musical-icon costume karaoke; festival drink specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Four Marlins at The Reach",
+    "city": "Key West",
+    "area": "keys",
+    "address": "1435 Simonton Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Float-costume party with beachfront food and drinks.",
+    "menu_items": [],
+    "start_date": "2026-10-22",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Float-costume party with beachfront food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "The Marker Key West Harbor Resort",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Musical-icon costume pool party.",
+    "menu_items": [],
+    "start_date": "2026-10-22",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Musical-icon costume pool party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Hank’s Hair of the Dog Saloon",
+    "city": "Key West",
+    "area": "keys",
+    "address": "409 Caroline Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Rock the Tatas costume charity party.",
+    "menu_items": [],
+    "start_date": "2026-10-22",
+    "end_date": "2026-10-22",
+    "occurrence_dates": [
+      "2026-10-22"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Rock the Tatas costume charity party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Southernmost House",
+    "city": "Key West",
+    "area": "keys",
+    "address": "1400 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Bunny-costume pool party with bar specials.",
+    "menu_items": [],
+    "start_date": "2026-10-23",
+    "end_date": "2026-10-23",
+    "occurrence_dates": [
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Bunny-costume pool party with bar specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Hog’s Breath Saloon",
+    "city": "Key West",
+    "area": "keys",
+    "address": "400 Front Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Disco costume party and drink specials.",
+    "menu_items": [],
+    "start_date": "2026-10-23",
+    "end_date": "2026-10-23",
+    "occurrence_dates": [
+      "2026-10-23"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Disco costume party and drink specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Fantasy Fest is an adult costume-festival connection, not proof of Halloween decor or a themed menu unless expressly stated. Exact dates are official 2026 schedule entries. Do not split event names into duplicate venues."
+  },
+  {
+    "name": "Latitudes at Sunset Key Cottages",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas dinner menu with prime rib and holiday desserts.",
+    "menu_items": [
+      "Slow Roasted Prime Rib",
+      "Cherry and White Chocolate Bread Pudding"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.opalcollection.com/sunset-key-cottages/restaurants/holiday-menus/menu/christmas/",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas dinner menu with prime rib and holiday desserts.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official page search title says Christmas 2026, but body says December 25 without year. Hold until explicit 2026 menu date is established."
+  },
+  {
+    "name": "Wicked Bread Co.",
+    "city": "Plantation",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "October 2026 themed breads.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "October 2026 themed breads.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "No Man’s Land",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Nightmare Before Christmas decor and cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Nightmare Before Christmas decor and cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Rosalia’s Kitchen",
+    "city": "Miramar",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "October 2026 horror-themed dishes and cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "October 2026 horror-themed dishes and cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Whiskey Neat",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Witching Hour themed cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Witching Hour themed cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "RM. 901 at Hyatt Centric Las Olas",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Carrie prom-themed cocktail experience.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Carrie prom-themed cocktail experience.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Hidden Speakeasy at Eatapas",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "October Halloween decor and five cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "October Halloween decor and five cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "MAASS",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct31 terrace masquerade happy hour.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Oct31 terrace masquerade happy hour.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Living Room at W Fort Lauderdale",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct31 Haunted Havana cocktail party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Oct31 Haunted Havana cocktail party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Nubé Rooftop",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Black Moon Ball with themed drinks.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Black Moon Ball with themed drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Rooftop @1WLO",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "gRAVEyard Halloween cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "gRAVEyard Halloween cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "The Wilder",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Oct30–31 Dracula’s Ball gothic decor.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Oct30–31 Dracula’s Ball gothic decor.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "Rhythm & Vine",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Slasher disco costume party with cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Slasher disco costume party with cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current tourism article dated Oct14 2026. One Whiskey Neat venue counted; Plantation branch not added as padding. Menus verified in article; unspecified dates remain null."
+  },
+  {
+    "name": "The Wharf Fort Lauderdale",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Hogwharf cocktail weekend ran Oct9–11 2026.",
+    "menu_items": [],
+    "start_date": "2026-10-09",
+    "end_date": "2026-10-11",
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://www.visitlauderdale.com/blog/stories/post/best-halloween-bars-restaurants/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Hogwharf cocktail weekend ran Oct9–11 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Expired before check date. Not current inventory."
+  },
+  {
+    "name": "Jay’s",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": "441 NE 3rd Avenue",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Sinners & Saints Halloween party with open-bar hour.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.jaysfortlauderdale.com/halloween",
+    "source_type": "official",
+    "evidence_excerpt": "Sinners & Saints Halloween party with open-bar hour.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Bokamper’s Sports Bar & Grill",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct30 costume party with food and drink specials.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://bokampers.com/fort-lauderdale/whats-happening/halloween-party/",
+    "source_type": "official",
+    "evidence_excerpt": "Oct30 costume party with food and drink specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "The Cove Waterfront Restaurant & Tiki Bar",
+    "city": "Deerfield Beach",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Oct31 Halloween bash and Black Magic Margarita.",
+    "menu_items": [
+      "Black Magic Margarita"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.thecovedeerfield.com/events/halloween-bash-at-the-cove-15485536",
+    "source_type": "official",
+    "evidence_excerpt": "Oct31 Halloween bash and Black Magic Margarita.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Shooters Waterfront",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 cocktail trio.",
+    "menu_items": [
+      "Pumpkin Pie Martini",
+      "Cinnamon Apple Ice Cream Martini",
+      "Cranberry Aperol Spritz"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 cocktail trio.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Voodoo Bayou Las Olas",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Gothic Cajun restaurant and cocktail bar.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://voodoobayou.com/las-olas/",
+    "source_type": "official",
+    "evidence_excerpt": "Gothic Cajun restaurant and cocktail bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Permanent thematic fit; does not prove a 2026 seasonal takeover."
+  },
+  {
+    "name": "The Shorely at Marina Village",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Listed as Miracle 2026 Christmas cocktail pop-up.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Listed as Miracle 2026 Christmas cocktail pop-up.",
+    "checked_at": "2026-10-18",
+    "place_id": "ChIJ1zIbt3sB2YgR_8jyaGTRxJg",
+    "notes": "Season confirmed; local opening/end dates unannounced. Place ID from existing repo research."
+  },
+  {
+    "name": "Blitzen’s at Omni Fort Lauderdale",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Official Christmas pop-up page advertises themed cocktails and decorations.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.omnihotels.com/hotels/fort-lauderdale/dining/blitzens",
+    "source_type": "official",
+    "evidence_excerpt": "Official Christmas pop-up page advertises themed cocktails and decorations.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "No explicit 2026 dates retrieved. Do not label confirmed until year is verified."
+  },
+  {
+    "name": "Roxy’s Pub",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": "309 Clematis Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Moon Crawl starting pub and Halloween-night crawl stop.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://downtownwpb.com/halloween/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Moon Crawl starting pub and Halloween-night crawl stop.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "DDA article dated Oct9 2026. Crawl participation confirms party only, not decorated rooms or themed menus."
+  },
+  {
+    "name": "Treehouse Rooftop Bar & Restaurant",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": "380 Trinity Place",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Olympus costume party with included drink.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://downtownwpb.com/halloween/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Olympus costume party with included drink.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "DDA article dated Oct9 2026. Crawl participation confirms party only, not decorated rooms or themed menus."
+  },
+  {
+    "name": "Respectable Street",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": "518 Clematis Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween emo costume dance party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://downtownwpb.com/halloween/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Halloween emo costume dance party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "DDA article dated Oct9 2026. Crawl participation confirms party only, not decorated rooms or themed menus."
+  },
+  {
+    "name": "Camelot",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": "114 S Narcissus Avenue",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween costume bar-crawl starting venue.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://downtownwpb.com/halloween/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Halloween costume bar-crawl starting venue.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "DDA article dated Oct9 2026. Crawl participation confirms party only, not decorated rooms or themed menus."
+  },
+  {
+    "name": "Forget Me Not",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named Halloween-night bar-crawl participant.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://downtownwpb.com/halloween/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Named Halloween-night bar-crawl participant.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "DDA article dated Oct9 2026. Crawl participation confirms party only, not decorated rooms or themed menus."
+  },
+  {
+    "name": "Locals Only",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Named Halloween-night bar-crawl participant.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://downtownwpb.com/halloween/",
+    "source_type": "tourism",
+    "evidence_excerpt": "Named Halloween-night bar-crawl participant.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "DDA article dated Oct9 2026. Crawl participation confirms party only, not decorated rooms or themed menus."
+  },
+  {
+    "name": "The Belgrove Resort & Spa",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": "2020 Banyan Resort Way",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Oct31 Halloween culinary and cocktail party; Oct29 Día de los Muertos tequila pairing.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-29",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://event.marriott.com/pbiwk-the-belgrove-west-palm-beach-autograph-collection/events/west-palm-beach/the-belgrove-after-dark-a-halloween-affair",
+    "source_type": "official",
+    "evidence_excerpt": "Oct31 Halloween culinary and cocktail party; Oct29 Día de los Muertos tequila pairing.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct29 additional source https://www.thepalmbeaches.com/event/art-of-pairing-day-of-the-dead-with-don-julio . Count resort once."
+  },
+  {
+    "name": "The Butcher’s Club at PGA National",
+    "city": "Palm Beach Gardens",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Christmas holiday special alongside à la carte menu, Dec24–25 2026.",
+    "menu_items": [],
+    "start_date": "2026-12-24",
+    "end_date": "2026-12-25",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.thepalmbeaches.com/event/christmas-at-the-butchers-club",
+    "source_type": "tourism",
+    "evidence_excerpt": "Christmas holiday special alongside à la carte menu, Dec24–25 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Novecento Delray",
+    "city": "Delray Beach",
+    "area": "palm-beach",
+    "address": "116 NE 6th Avenue",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Listed as Miracle 2026 Christmas cocktail pop-up.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Listed as Miracle 2026 Christmas cocktail pop-up.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Local dates not announced."
+  },
+  {
+    "name": "Second Rodeo",
+    "city": "Boynton Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Listed as Sippin’ Santa 2026 tropical Christmas pop-up.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.sippinsantapopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Listed as Sippin’ Santa 2026 tropical Christmas pop-up.",
+    "checked_at": "2026-10-18",
+    "place_id": "ChIJ3yybHX3f2IgR63BD308M-Ko",
+    "notes": "Season confirmed; local dates unannounced. ID from existing repo research."
+  },
+  {
+    "name": "Florie’s / Seaway at Four Seasons Resort Palm Beach",
+    "city": "Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Official festive dining page describes Christmas Eve, brunch and lunch.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.fourseasons.com/palmbeach/seasonal/christmas/",
+    "source_type": "official",
+    "evidence_excerpt": "Official festive dining page describes Christmas Eve, brunch and lunch.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Search extraction explicitly said 2026 events to be confirmed. Resort grouped once; no inferred 2026 dates."
+  },
+  {
+    "name": "Palm House",
+    "city": "Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "christmas"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Official page says 2026 festive dining will be announced soon.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.palmhouse.com/festive/",
+    "source_type": "official",
+    "evidence_excerpt": "Official page says 2026 festive dining will be announced soon.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Not a current confirmed Christmas dining experience."
+  },
+  {
+    "name": "Pura Vida Miami — Jupiter",
+    "city": "Jupiter",
+    "area": "palm-beach",
+    "address": "147 Soundings Avenue",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 pumpkin coffee, hot or iced.",
+    "menu_items": [
+      "Pumpkin Spice Cloud"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.aol.com/articles/fall-flavors-palm-beach-county-100121000.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 pumpkin coffee, hot or iced.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Palm Beach Post report dated Sept30 2026 syndicated by AOL. One local branch per brand. Crema Halloween Ube Chai ends Nov1; pumpkin latte Nov29."
+  },
+  {
+    "name": "Plum Market",
+    "city": "Palm Beach Gardens",
+    "area": "palm-beach",
+    "address": "2140 PGA Boulevard",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall-prepared foods through October 2026.",
+    "menu_items": [
+      "Pumpkin Spice Overnight Oats",
+      "Pumpkin Spiced Squash Salad"
+    ],
+    "start_date": null,
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.aol.com/articles/fall-flavors-palm-beach-county-100121000.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall-prepared foods through October 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Palm Beach Post report dated Sept30 2026 syndicated by AOL. One local branch per brand. Crema Halloween Ube Chai ends Nov1; pumpkin latte Nov29."
+  },
+  {
+    "name": "The Melting Pot — Palm Beach Gardens",
+    "city": "Palm Beach Gardens",
+    "area": "palm-beach",
+    "address": "11811 US 1",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fondue Into Fall seasonal three-course menu.",
+    "menu_items": [
+      "Cranberry Pecan Cheese Fondue",
+      "Pumpkin Spice White Chocolate Fondue"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-22",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.aol.com/articles/fall-flavors-palm-beach-county-100121000.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fondue Into Fall seasonal three-course menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Palm Beach Post report dated Sept30 2026 syndicated by AOL. One local branch per brand. Crema Halloween Ube Chai ends Nov1; pumpkin latte Nov29."
+  },
+  {
+    "name": "Crema Gourmet — West Palm Beach",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": "216 Clematis Street",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall pumpkin latte and Halloween ube chai.",
+    "menu_items": [
+      "Pumpkin Spice Latte",
+      "Halloween Ube Chai Latte"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-29",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.aol.com/articles/fall-flavors-palm-beach-county-100121000.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall pumpkin latte and Halloween ube chai.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Palm Beach Post report dated Sept30 2026 syndicated by AOL. One local branch per brand. Crema Halloween Ube Chai ends Nov1; pumpkin latte Nov29."
+  },
+  {
+    "name": "Another Broken Egg Cafe — Delray Beach",
+    "city": "Delray Beach",
+    "area": "palm-beach",
+    "address": "430 E Linton Boulevard",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 pumpkin brunch cocktails.",
+    "menu_items": [
+      "Pumpkin Pie Cold Brew",
+      "Pumpkin Brunch Old Fashioned"
+    ],
+    "start_date": null,
+    "end_date": "2026-11-22",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.aol.com/articles/fall-flavors-palm-beach-county-100121000.html",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 pumpkin brunch cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Palm Beach Post report dated Sept30 2026 syndicated by AOL. One local branch per brand. Crema Halloween Ube Chai ends Nov1; pumpkin latte Nov29."
+  },
+  {
+    "name": "Cup of Joy Coffee Bar",
+    "city": "Belle Glade",
+    "area": "palm-beach",
+    "address": "145 N Main Street, Suite 102",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "2026 autumn coffee menu with pumpkin and pecan flavors.",
+    "menu_items": [
+      "Pumpkin Cinnabun",
+      "Pecan Pie",
+      "Caramel Apple"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://gigglemagazinejupiter.com/palm-beach-county-fall-coffee-menus/",
+    "source_type": "secondary",
+    "evidence_excerpt": "2026 autumn coffee menu with pumpkin and pecan flavors.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Meat Market Palm Beach",
+    "city": "Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "A Haunting: Halloween cocktails, food and costumes.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.meatmarket.net/news-item/halloween-palm-beach/",
+    "source_type": "official",
+    "evidence_excerpt": "A Haunting: Halloween cocktails, food and costumes.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official page search title explicitly Halloween Party 2026; dinner reservations accepted."
+  },
+  {
+    "name": "Celona Restaurant & Gin Lounge",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Dusk Till Dawn Halloween music party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.eventbrite.com/e/grooves-palm-beach-presents-dusk-till-dawn-halloween-special-tickets-2003178666315",
+    "source_type": "official",
+    "evidence_excerpt": "Dusk Till Dawn Halloween music party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Organizer ticket listing. Party only; no themed-menu claim."
+  },
+  {
+    "name": "Pierre’s at Morada Bay",
+    "city": "Islamorada",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct31 Masquerade on the Bay at The Lounge.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://visitfloridakeys.com/plan-your-trip/plan-book/events/the-masquerade-on-the-bay-at-pierres",
+    "source_type": "tourism",
+    "evidence_excerpt": "Oct31 Masquerade on the Bay at The Lounge.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Lorelei Restaurant & Cabana Bar",
+    "city": "Islamorada",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct31 Halloween music celebration with food and drinks.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.loreleicabanabar.com/entertainment/brothers-of-others-happy-halloween/",
+    "source_type": "official",
+    "evidence_excerpt": "Oct31 Halloween music celebration with food and drinks.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Bungalows Key Largo",
+    "city": "Key Largo",
+    "area": "keys",
+    "address": "99010 Overseas Highway",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Oct31 Wicked Pour mixology, spooky dinner specials and costume party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.bungalowskeylargo.com/florida-keys-halloween-bungalows-key-largo/",
+    "source_type": "official",
+    "evidence_excerpt": "Oct31 Wicked Pour mixology, spooky dinner specials and costume party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Adults-only all-inclusive resort; dining reservations required. Resort outlets counted once; verify guest-access requirements before booking."
+  },
+  {
+    "name": "Hog Heaven Sports Bar & Grill",
+    "city": "Islamorada",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Pirates of Islamorada Halloween party Oct31.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hogheavenbarandgrill.com/events-and-parties/",
+    "source_type": "official",
+    "evidence_excerpt": "Pirates of Islamorada Halloween party Oct31.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Caribbean Club",
+    "city": "Key Largo",
+    "area": "keys",
+    "address": "104080 Overseas Highway",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Oct31 costume party with spooky drink specials.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://stayhappening.com/e/halloween-party-caribbean-club-sat-10-31-E2ISYX1BWNK",
+    "source_type": "secondary",
+    "evidence_excerpt": "Oct31 costume party with spooky drink specials.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current secondary listing; operator verification still desirable."
+  },
+  {
+    "name": "The Sylvester",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "3456 N Miami Avenue",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Black Lagoon Oct1–31 2026 immersive horror cocktails.",
+    "menu_items": [
+      "Abyssa’s Obsession",
+      "Bone Temple"
+    ],
+    "start_date": "2026-10-01",
+    "end_date": "2026-10-31",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miamiandbeaches.com/event/black-lagoon-pop-up/42947",
+    "source_type": "tourism",
+    "evidence_excerpt": "Black Lagoon Oct1–31 2026 immersive horror cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Bar Kaiju",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "8300 NE 2nd Avenue, Mezzanine, The Citadel",
+    "season": [
+      "halloween"
+    ],
+    "experience": "permanent_theme",
+    "offering": "Permanent monster-inspired cocktail bar.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "permanent_verified",
+    "source_url": "https://www.barkaiju.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Permanent monster-inspired cocktail bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Year-round kaiju theme; no seasonal takeover inferred."
+  },
+  {
+    "name": "Regatta Grove",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "3415 Pan American Drive",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fangtasia Halloween waterfront party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://regattagrove.com/events/halloween-fangtasia",
+    "source_type": "official",
+    "evidence_excerpt": "Fangtasia Halloween waterfront party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Operator current event calendar states Oct30–31; current Oct15 2026 Resident report independently matches dates. https://resident.com/events/2026/10/15/miami-halloween-2026-guide ."
+  },
+  {
+    "name": "Rosa Sky",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "115 SW 8th Street, 22nd Floor",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Rosa Obscura Halloween rooftop party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://rosaskyrooftop.com/special-events/",
+    "source_type": "official",
+    "evidence_excerpt": "Rosa Obscura Halloween rooftop party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Operator current event calendar states Oct30–31; current Oct15 2026 Resident report independently matches dates. https://resident.com/events/2026/10/15/miami-halloween-2026-guide ."
+  },
+  {
+    "name": "Watr at 1 Rooftop",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Spirits Above the City yokai-themed rooftop food and cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.1hotels.com/south-beach/do/events/spirits-above-the-city-halloween-at-watr",
+    "source_type": "official",
+    "evidence_excerpt": "Spirits Above the City yokai-themed rooftop food and cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official supplied event URL; current Oct13 2026 Haute Living article confirms Oct31 9pm–2am."
+  },
+  {
+    "name": "Faena Miami Beach",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Oct31 property-wide Halloween dining, cocktails and performances.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.faena.com/miami-beach/things-to-do/event-calendar/halloween-at-faena-miami-beach-0",
+    "source_type": "official",
+    "evidence_excerpt": "Oct31 property-wide Halloween dining, cocktails and performances.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Pao, Los Fuegos, Living Room and theater are grouped as one resort experience; Pao specifically offers Halloween food/drink specials, unnamed."
+  },
+  {
+    "name": "Sexy Fish Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "1001 S Miami Avenue",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Vampire Tide gothic dinner, installations and late-night menu.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://sexyfishmiami.com/halloween-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Vampire Tide gothic dinner, installations and late-night menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "Bagatelle Miami River",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "311 NW South River Drive",
+    "season": [
+      "halloween",
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Halloween 2026 dinner specials and seasonal cacao Negroni.",
+    "menu_items": [
+      "Butternut Squash Pizzetta",
+      "Sancho Pancho"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.sevenrooms.com/experiences/bagatellemiamiriver/tales-of-the-river-4786764401197056",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween 2026 dinner specials and seasonal cacao Negroni.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official booking experience explicitly Halloween 2026. Seasonal Negroni additionally reported https://www.modernluxury.com/miami-fall-cocktails-2026/ ."
+  },
+  {
+    "name": "Seia",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "830 Brickell Plaza",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Venetian masquerade dining and festive cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Venetian masquerade dining and festive cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "Habibi Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "452 NW North River Drive",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Golden-oasis Halloween supper club decor.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Golden-oasis Halloween supper club decor.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "Selva Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Dark Side of the Jungle Halloween nights.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-29",
+      "2026-10-30",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Dark Side of the Jungle Halloween nights.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "Elia on the River",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Venetian masquerade waterfront dinner.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Venetian masquerade waterfront dinner.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "W Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Haunted rooftop Halloween costume party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Haunted rooftop Halloween costume party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "Delano Miami Beach",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Queen of the Jungle; open bar and hors d’oeuvres.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Queen of the Jungle; open bar and hors d’oeuvres.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "The Standard Spa Miami Beach",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": "40 Island Avenue",
+    "season": [
+      "halloween",
+      "fall"
+    ],
+    "experience": "party",
+    "offering": "Halloween House Party; red pool and cocktails.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween House Party; red pool and cocktails.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted. Monterrey Bar Double Standard fall drink is reported by Modern Luxury 2026 seasonal guide."
+  },
+  {
+    "name": "Olazul Beach House at Andaz Miami Beach",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween costume chess-club evening.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-29"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween costume chess-club evening.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted."
+  },
+  {
+    "name": "The Mexican",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "601 Brickell Key Drive, Suite 100",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "La Ofrenda special menu and mariachis.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://hauteliving.com/2026/10/best-halloween-events-miami-2026/799014/",
+    "source_type": "secondary",
+    "evidence_excerpt": "La Ofrenda special menu and mariachis.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Oct13 2026 current editorial report. Exact pricing is inconsistent within the article and is intentionally omitted. La Ofrenda continues Nov1–2 2026."
+  },
+  {
+    "name": "Delilah Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 pumpkin espresso cocktail.",
+    "menu_items": [
+      "Pumpkin Espresso Martini"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 pumpkin espresso cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "R House Wynwood",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 pumpkin cocktail with candied bacon.",
+    "menu_items": [
+      "Pumpkin Spice Espresso Martini"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 pumpkin cocktail with candied bacon.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "Donna Mare Italian Chophouse",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Limited autumn cocktails with walnut and pear.",
+    "menu_items": [
+      "Tuscan Harvest Old Fashioned",
+      "Amalfi Spritz"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Limited autumn cocktails with walnut and pear.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "Novotel Miami Brickell — UVA / Vista",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Three-cocktail fall 2026 hotel program.",
+    "menu_items": [
+      "Autumn Harvest",
+      "Smoked Pear Old-Fashioned",
+      "Cranberry Sage Spritz"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Three-cocktail fall 2026 hotel program.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "Mottai",
+    "city": "Coral Gables",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Pear and warming-spice seasonal spritz.",
+    "menu_items": [
+      "Hyogo Spritz"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Pear and warming-spice seasonal spritz.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "LT Steak & Seafood at The Betsy",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "October 2026 chai-spiced rum cocktail.",
+    "menu_items": [
+      "Festive Old-Fashioned"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "October 2026 chai-spiced rum cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "dōma Wynwood",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall bourbon, cranberry and spice cocktail.",
+    "menu_items": [
+      "The Bourbon Garden"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall bourbon, cranberry and spice cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "Grand Public Kitchen & Bar",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Autumn cocktail with toasted cinnamon.",
+    "menu_items": [
+      "Peach and Honey Smash"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Autumn cocktail with toasted cinnamon.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "Goodtime Café",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Seasonal dessert-inspired espresso cocktail flight.",
+    "menu_items": [
+      "Espresso Martini Flight"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://premierguidemiami.com/article/fall-cocktails-south-florida-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Seasonal dessert-inspired espresso cocktail flight.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current Sept28 2026 reporting. Novotel outlets grouped once; seasonal end dates unannounced."
+  },
+  {
+    "name": "Daniel’s Miami",
+    "city": "Coral Gables",
+    "area": "miami-dade",
+    "address": "1500 San Ignacio Avenue",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 apple dessert-inspired bourbon cocktail.",
+    "menu_items": [
+      "Apple Cobbler Old Fashioned"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.modernluxury.com/miami-fall-cocktails-2026/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 apple dessert-inspired bourbon cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 seasonal drinks article; menu availability end date not supplied."
+  },
+  {
+    "name": "Sweet Liberty Drinks & Supply Co.",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": "237 20th Street, Suite B",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall 2026 peanut butter and jam whiskey cocktail.",
+    "menu_items": [
+      "PB & J Old Fashioned"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.modernluxury.com/miami-fall-cocktails-2026/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall 2026 peanut butter and jam whiskey cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 seasonal drinks article; menu availability end date not supplied."
+  },
+  {
+    "name": "MILA",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": "1636 Meridian Avenue",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall apple and brown-butter cognac cocktail.",
+    "menu_items": [
+      "Golden Orchard"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.modernluxury.com/miami-fall-cocktails-2026/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall apple and brown-butter cognac cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 seasonal drinks article; menu availability end date not supplied."
+  },
+  {
+    "name": "CLAUDIE",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "1101 Brickell Avenue, Suite 113",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall apple and porcini cognac cocktail.",
+    "menu_items": [
+      "Hemingway’s Hilltop"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.modernluxury.com/miami-fall-cocktails-2026/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall apple and porcini cognac cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 seasonal drinks article; menu availability end date not supplied."
+  },
+  {
+    "name": "CASA NEOS",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "40 SW North River Drive",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Fall sweet-potato and turmeric gin cocktail.",
+    "menu_items": [
+      "Root & Smoke"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.modernluxury.com/miami-fall-cocktails-2026/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Fall sweet-potato and turmeric gin cocktail.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 seasonal drinks article; menu availability end date not supplied."
+  },
+  {
+    "name": "Bored Cuban",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Calabaza SZN pumpkin/cookie-butter drinks and pastries through Nov5 2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": "2026-11-05",
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miamilivingmagazine.com/post/bored-cuban-launches-calabaza-szn-fall-menu-in-miami-through-november-5-2026",
+    "source_type": "secondary",
+    "evidence_excerpt": "Calabaza SZN pumpkin/cookie-butter drinks and pastries through Nov5 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Local coffee brand grouped once; no branch padding."
+  },
+  {
+    "name": "Pura Vida Miami — Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "2026 seasonal Pumpkin Spice Cloud coffee.",
+    "menu_items": [
+      "Pumpkin Spice Cloud"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.qsrmagazine.com/news/pura-vida-miami-introduces-fall-flavors/",
+    "source_type": "secondary",
+    "evidence_excerpt": "2026 seasonal Pumpkin Spice Cloud coffee.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Sept16 2026 corporate announcement coverage. Single local brand entry; ID from fallPool.js needs branch/address validation before mapping."
+  },
+  {
+    "name": "Paraiso Market Cafe",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "3131 NE 7th Avenue CU6",
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Operator ordering menu currently lists pumpkin coffee under Fall Menu.",
+    "menu_items": [
+      "Pumpkin Cream Cold Brew",
+      "Pumpkin Spice Latte"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://order.toasttab.com/online/paraiso-market-cafe-3131-ne-7th-avenue-cu6/item-pumpkin-spice-latte_e0414a22-aad6-4aef-a4f5-6528ec5d3b5e",
+    "source_type": "official",
+    "evidence_excerpt": "Operator ordering menu currently lists pumpkin coffee under Fall Menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Live operator menu but no explicit year; do not infer seasonal availability from search crawl date."
+  },
+  {
+    "name": "NQC No Quiero Cocinar",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Operator ordering menu lists pumpkin cortadito and café con leche.",
+    "menu_items": [
+      "Pumpkin Spice Cortadito",
+      "Pumpkin Spice Cafe con Leche"
+    ],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://order.toasttab.com/online/nqcmiami/item-pumpkin-spice-cortadito_e926e5d9-91ae-46e8-83ed-f4df378a65c6",
+    "source_type": "official",
+    "evidence_excerpt": "Operator ordering menu lists pumpkin cortadito and café con leche.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Live menu but explicit 2026 availability not retrieved."
+  },
+  {
+    "name": "STK Miami",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "fall"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Welcome Back Pumpkin official fall menu 2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://stksteakhouse.com/happenings/welcome-back-pumpkin-2026/",
+    "source_type": "official",
+    "evidence_excerpt": "Welcome Back Pumpkin official fall menu 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Brand counts once locally; local availability/participation should be checked. Published weekday/date text is inconsistent: page calls Sept8 2026 Monday although it is Tuesday; no exact start date imported."
+  },
+  {
+    "name": "Bleau Bar at Fontainebleau Miami Beach",
+    "city": "Miami Beach",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Death by Disco Halloween cocktails and costume party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fontainebleau.com/miamibeach/venue/bleau-bar/",
+    "source_type": "official",
+    "evidence_excerpt": "Death by Disco Halloween cocktails and costume party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official venue calendar explicitly displays October 2026 Halloween party."
+  },
+  {
+    "name": "Casa Tiki",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "1728 SW 8th Street",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Miracle on Calle Ocho listed on official 2026 locations.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miraclepopup.com/locations-2026",
+    "source_type": "official",
+    "evidence_excerpt": "Miracle on Calle Ocho listed on official 2026 locations.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Local dates unannounced; national partner listing proves season only."
+  },
+  {
+    "name": "InterContinental Miami — Frosty’s Hideaway",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "100 Chopin Plaza",
+    "season": [
+      "christmas"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Christmas pop-up cocktails; official page advertises 2026 tickets soon.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "pending_2026",
+    "source_url": "https://www.icmiamihotel.com/frostys",
+    "source_type": "official",
+    "evidence_excerpt": "Christmas pop-up cocktails; official page advertises 2026 tickets soon.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "2026 announced with tickets forthcoming; no local operating dates confirmed. Hotel lobby, Olé and Toro Toro grouped once; avoid multiplying hotel programs into venues."
+  },
+  {
+    "name": "JohnMartin’s / The Christmas Bar",
+    "city": "Coral Gables",
+    "area": "miami-dade",
+    "address": "253 Miracle Mile",
+    "season": [
+      "christmas",
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "2026 Halloween bar takeover; Christmas dates still pending.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miamicurated.com/entertainment/more-eating-news-october-2026/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Current October 2026 article confirms renewed Halloween bar transformation.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Halloween confirmed; Christmas remains pending despite operator https://thechristmasbarmia.com/ displaying Nov14–Dec28 without a year. Mixed-season status must not be interpreted as Christmas 2026 confirmed."
+  },
+  {
+    "name": "The Biltmore Bar",
+    "city": "Coral Gables",
+    "area": "miami-dade",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://biltmorehotel.com/coral-gables-dining/biltmore-bar/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Folklore is not themed food, seasonal decor or a confirmed 2026 party. Excluded from qualifying coverage."
+  },
+  {
+    "name": "The House on the River",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://thehouseontheriver.com/history",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Folklore is not themed food, seasonal decor or a confirmed 2026 party. Excluded from qualifying coverage."
+  },
+  {
+    "name": "Bull & Whistle Bar",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://www.hauntedkeywest.com/bars",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Folklore is not themed food, seasonal decor or a confirmed 2026 party. Excluded from qualifying coverage."
+  },
+  {
+    "name": "Shots & Giggles",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://www.hauntedkeywest.com/bars",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Folklore is not themed food, seasonal decor or a confirmed 2026 party. Excluded from qualifying coverage."
+  },
+  {
+    "name": "Old Town Tavern & Beer Garden",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://www.hauntedkeywest.com/bars",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Folklore is not themed food, seasonal decor or a confirmed 2026 party. Excluded from qualifying coverage."
+  },
+  {
+    "name": "Fogarty’s / Flying Monkeys Saloon",
+    "city": "Key West",
+    "area": "keys",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "folklore",
+    "offering": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [],
+    "status": "excluded",
+    "source_url": "https://www.hauntedkeywest.com/bars",
+    "source_type": "secondary",
+    "evidence_excerpt": "Supplied historical ghost-story lead; no seasonal decor or menu verified.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Folklore is not themed food, seasonal decor or a confirmed 2026 party. Excluded from qualifying coverage."
+  },
+  {
+    "name": "Smokin’ Tuna Saloon",
+    "city": "Key West",
+    "area": "keys",
+    "address": "313 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct24 Fantasy Fest parade dinner and drink party at 313 Duval.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Official 2026 schedule lists new Smokin Tuna VIP parade dinner party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Supplied folklore lead upgraded using actual current festival event. Earlier premises/address are not reused."
+  },
+  {
+    "name": "Kiki on the River",
+    "city": "Miami",
+    "area": "miami-dade",
+    "address": "450 NW North River Drive",
+    "season": [
+      "halloween"
+    ],
+    "experience": "decorated_bar",
+    "offering": "Oct31 Kiki in the ’80s retro Halloween decor and dining.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.miamiandbeaches.com/event/kiki-in-the-80s-halloween-party/43324",
+    "source_type": "tourism",
+    "evidence_excerpt": "Oct31 Kiki in the ’80s retro Halloween decor and dining.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Also Oct24 Paws & Pose costumed dog brunch, official tourism https://www.miamiandbeaches.com/event/paws-and-pose-halloween/43236 . Count one venue."
+  },
+  {
+    "name": "TIMBR",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": "15 W Las Olas Boulevard",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Oct31 Halloween Noir Masquerade with open bar and passed bites.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30",
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opentable.com/r/timbr-fort-lauderdale?lang=es",
+    "source_type": "official",
+    "evidence_excerpt": "Oct31 Halloween Noir Masquerade with open bar and passed bites.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Operator-managed booking experience explicitly Oct31 2026. Oct30 separate organizer costume party https://www.eventbrite.com/e/halloween-eve-party-costume-contest-tickets-1998158296253 . Venue counted once."
+  },
+  {
+    "name": "Earls Kitchen + Bar Las Olas",
+    "city": "Fort Lauderdale",
+    "area": "broward",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween bar and mingling dining experience Oct31 2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.opentable.com/restaurant/profile/1399723?lang=en-us",
+    "source_type": "official",
+    "evidence_excerpt": "Halloween bar and mingling dining experience Oct31 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Operator booking experience; no themed dish names proven."
+  },
+  {
+    "name": "Sharkey’s Bar & Grill",
+    "city": "Coral Springs",
+    "area": "broward",
+    "address": "10365 Royal Palm Boulevard",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Skullapalooza Halloween 2026 costume party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://sharkeysfl.com/",
+    "source_type": "official",
+    "evidence_excerpt": "Skullapalooza Halloween 2026 costume party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Operator explicitly names Skullapalooza Halloween 2026. Oct30 date and costume prize corroborated https://weekendbroward.com/halloween-events-around-town/ ."
+  },
+  {
+    "name": "Mai-Kai Restaurant & Polynesian Show",
+    "city": "Oakland Park",
+    "area": "broward",
+    "address": "3599 N Federal Highway",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Hulaween Disco Party; specialty Halloween cocktails and costumes.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://weekendbroward.com/halloween-events-around-town/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Hulaween Disco Party; specialty Halloween cocktails and costumes.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 roundup. Operator upcoming-events URL redirected homepage, so primary event confirmation still desirable; venue city is Oakland Park despite Fort Lauderdale postal branding."
+  },
+  {
+    "name": "THRōW Social Delray Beach",
+    "city": "Delray Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Camp Throw Social Halloween costume party.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://weekendbroward.com/halloween-events-around-town/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Camp Throw Social Halloween costume party.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Current 2026 Halloween roundup names costume contest, DJ and live band."
+  },
+  {
+    "name": "Lilo’s Streetfood & Bar",
+    "city": "Lake Worth Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Starting venue for Oct31 Halloween bar crawl.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://weekendbroward.com/halloween-events-around-town/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Starting venue for Oct31 Halloween bar crawl.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Crawl hub only; does not establish decorated bar or themed menu."
+  },
+  {
+    "name": "C. O’Brien’s Ranch House",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "1980s-themed Halloween party Oct30.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-30"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://weekendbroward.com/halloween-events-around-town/",
+    "source_type": "secondary",
+    "evidence_excerpt": "1980s-themed Halloween party Oct30.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "The Funky Biscuit",
+    "city": "Boca Raton",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween Fleetwood Mac tribute with Stevie Nicks costume contest.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://weekendbroward.com/halloween-events-around-town/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween Fleetwood Mac tribute with Stevie Nicks costume contest.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "The Banyan Live",
+    "city": "West Palm Beach",
+    "area": "palm-beach",
+    "address": null,
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Halloween Queen tribute with Freddie Mercury costume contest.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-31"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://weekendbroward.com/halloween-events-around-town/",
+    "source_type": "secondary",
+    "evidence_excerpt": "Halloween Queen tribute with Freddie Mercury costume contest.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "The Singer Oceanfront Resort",
+    "city": "Riviera Beach",
+    "area": "palm-beach",
+    "address": "3700 North Ocean Drive",
+    "season": [
+      "halloween"
+    ],
+    "experience": "themed_food_drink",
+    "offering": "Interactive Masquerade Murder Mystery Dinner Oct24 2026.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.thepalmbeaches.com/event/masquerade-murder-mystery-dinner",
+    "source_type": "tourism",
+    "evidence_excerpt": "Interactive Masquerade Murder Mystery Dinner Oct24 2026.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": ""
+  },
+  {
+    "name": "801 Bourbon Bar",
+    "city": "Key West",
+    "area": "keys",
+    "address": "801 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest private couples party with premium open bar.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-23",
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest private couples party with premium open bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official 2026 festival schedule. Adult costume-festival party; no Halloween decor/menu names inferred."
+  },
+  {
+    "name": "Island House",
+    "city": "Key West",
+    "area": "keys",
+    "address": "1129 Fleming Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest themed adult resort parties with food and bar.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-21",
+      "2026-10-23",
+      "2026-10-25"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest themed adult resort parties with food and bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official 2026 festival schedule. Adult costume-festival party; no Halloween decor/menu names inferred."
+  },
+  {
+    "name": "Mangoes",
+    "city": "Key West",
+    "area": "keys",
+    "address": "700 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest parade party with special dinner menu.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest parade party with special dinner menu.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official 2026 festival schedule. Adult costume-festival party; no Halloween decor/menu names inferred."
+  },
+  {
+    "name": "La Te Da",
+    "city": "Key West",
+    "area": "keys",
+    "address": "1125 Duval Street",
+    "season": [
+      "halloween"
+    ],
+    "experience": "party",
+    "offering": "Fantasy Fest parade viewing party at hotel restaurant/bar.",
+    "menu_items": [],
+    "start_date": null,
+    "end_date": null,
+    "occurrence_dates": [
+      "2026-10-24"
+    ],
+    "status": "confirmed_2026",
+    "source_url": "https://www.fantasyfest.com/schedule/",
+    "source_type": "official",
+    "evidence_excerpt": "Fantasy Fest parade viewing party at hotel restaurant/bar.",
+    "checked_at": "2026-10-18",
+    "place_id": null,
+    "notes": "Official 2026 festival schedule. Adult costume-festival party; no Halloween decor/menu names inferred."
+  }
+]

@@ -1,5 +1,6 @@
 "use client";
 import RailGuideSlot from "./RailGuideSlot";
+import { hospitalityDateChipLabel } from "../../lib/seasonalHospitalityCopy.js";
 import GuideRailCollection from "./GuideRailCollection";
 
 // WO11 (2026-09-02): each of Fall Intent's ten rails now pages independently
@@ -127,10 +128,11 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
           const facts = isEvent
             ? [card.city || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
             : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
-          const placeChips = !isEvent && card.shotLocation ? [
-            { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation },
+          const placeChips = !isEvent ? [
+            card.hospitalityEvidence && card.seasonalWhen ? { key: "season", icon: "🗓", label: hospitalityDateChipLabel(card.seasonalWhen), title: card.seasonalWhen } : null,
+            card.shotLocation ? { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation } : null,
             card.accessNote ? { key: "access", icon: "✓", label: "Check access", title: card.accessNote } : null,
-            card.sourceUrl ? { key: "proof", icon: "↗", label: "Proof source", title: "Open the official source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
+            card.sourceUrl && (card.shotLocation || card.hospitalityEvidence) ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
           ].filter(Boolean) : [];
           const cta = isEvent ? eventCta(card, onTrack) : null;
           const openEventVenue = isEvent && card.place_id && onOpenPlace
@@ -153,7 +155,7 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
             creatorVideos={isEvent ? card.creatorReels : undefined}
             title={card.title || card.name} eyebrow={eyebrow} rank={rank} spooky={spooky}
             score={isEvent ? null : toDisplayScore(Number.isFinite(card.governed_score) ? card.governed_score : card.wfScore)} when={isEvent ? card.when : null}
-            facts={facts} chips={spooky ? withSpookyChip(baseChips) : baseChips}
+            facts={facts} chips={spooky && !card.hospitalityEvidence ? withSpookyChip(baseChips) : baseChips}
             take={card.hook || (card.shotLocation ? `${card.shotLocation}. ${card.take} ${card.fallReason || ""}`.trim() : card.take) || null} cta={cta}
             href={eventBodyHref} external={eventBodyExternal}
             ariaLabel={`Open ${card.title || card.name}`} onOpen={isEvent ? (card.detailHref || card.officialOnly ? undefined : openEventVenue || undefined) : (place && onOpenPlace ? () => onOpenPlace(place) : undefined)}
@@ -186,7 +188,7 @@ export default function FallIntentRails({
   const lng = center && Number.isFinite(center.lng) ? center.lng : null;
   const clock = useEventClock(active);
   const today = siteTodayStr(clock);
-  const expectedRailCount = collection === "halloween" ? 7 : 10;
+  const expectedRailCount = collection === "halloween" ? 9 : 10;
   const GuideCollection = collection === "halloween" ? NoGuideSlot : GuideRailCollection;
   const key = useMemo(() => active && lat != null && lng != null ? `${lat.toFixed(2)}|${lng.toFixed(2)}|${today}|${collection}` : "", [active, lat, lng, today, collection]);
   const siteDay = useSiteToday(); // midnight Eastern re-render (lib/siteDayClock.js)

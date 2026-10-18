@@ -426,7 +426,7 @@ ok(/FallIntentRails = dynamic/.test(daypart), "the ten-rail component is lazy an
 ok(/selRail\.id === "augtober"/.test(daypart) && /<FallIntentRails/.test(daypart), "the Augtober poster opens the specialized collection");
 ok(/selRail\.id === "augtober" \|\| selRail\.id === "halloween" \|\| selRail\.id === "tonight"/.test(daypart), "generic place fallback is suppressed for Augtober, Halloween and Night Out");
 ok(!/fallEvents\.map|wf8-falltile/.test(daypart), "the old mixed inline fall strip is retired rather than duplicated");
-ok(/const expectedRailCount = collection === "halloween" \? 7 : 10/.test(component) && /result\.rails\.length !== expectedRailCount/.test(component), "the client fails closed on an incomplete rail contract");
+ok(/const expectedRailCount = collection === "halloween" \? 9 : 10/.test(component) && /result\.rails\.length !== expectedRailCount/.test(component), "the client fails closed on an incomplete rail contract");
 ok(/FALL_LOAD_TIMEOUT_MS = 10000/.test(component) && /fetchRailJson/.test(component), "the collection cannot leave a first-time reader on an endless skeleton");
 ok(/\}, \[key, retry\]\);/.test(component) && !/\[key, city, retry, onTrack\]/.test(component), "parent telemetry re-renders cannot abort the rail request and strand its duplicate guard");
 // WO11 (2026-09-02): the whole-blob "Load every verified fall option" button
