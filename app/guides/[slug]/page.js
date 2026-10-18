@@ -20,7 +20,7 @@ import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 // resolution path: two ways to turn a place into a booking href, which is how an
 // earning link once rendered with no FTC disclosure.
 import { bookingTargets } from "../../../lib/bookingResolve";
-import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta } from "../../../lib/guideCta";
+import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta, ctaProofScope } from "../../../lib/guideCta";
 import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
 import GuideStays from "../../components/GuideStays";
@@ -50,6 +50,8 @@ import { guideCommerceChrome } from "../../../lib/guideEditorialMode";
 import GuideEmailCapture from "./GuideEmailCapture";
 import GuidePickDecision from "./GuidePickDecision";
 import { inlineBookConfig } from "../../../lib/guideInlineBook";
+import GuidePickOffer from "./GuidePickOffer";
+import { guidePickOffers, replacesCityStrip } from "../../../lib/guidePickOffers";
 import { COUPONS, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 // Venue-local US Eastern, DST-aware. NEVER new Date().toISOString() — that is UTC
 // and expires a coupon roughly four hours early.
@@ -739,7 +741,12 @@ export default async function GuidePage({ params }) {
   // review count, needs no key at build time and no quota, so it is tried first
   // and rankedFor stays as the fallback. Failure is still reported as
   // "unavailable" rather than folded into "no-match".
-  if (primaryCta && primaryCta.place) {
+  // Proof scope (lib/guideCta.ctaProofScope): a place rating may sit under the
+  // CTA only when the CTA's destination IS that place. A tour product sold
+  // under a place name gets no borrowed rating ("not-applicable").
+  if (primaryCta && primaryCta.place && ctaProofScope(primaryCta) !== "place") {
+    socialStatus = "not-applicable";
+  } else if (primaryCta && primaryCta.place) {
     const hit = await inventorySocial(primaryCta.place);
     if (hit === "unconfigured") {
       socialStatus = "unavailable";
@@ -808,7 +815,9 @@ export default async function GuidePage({ params }) {
   // fails or comes back empty keeps the seed, so it can no longer insert or
   // collapse under the reader. Guides whose city has no owned cache, or a seed
   // read that fails, get `undefined` = exactly the previous client-only path.
-  const railSeed = chrome.bookableHighlights && railIntent && bridgeCity
+  // Focused-offer guides (lib/guidePickOffers.js) replace the 30-tile city
+  // strip with verified offers under the picks they book.
+  const railSeed = chrome.bookableHighlights && railIntent && bridgeCity && !replacesCityStrip(params.slug)
     ? await ssrPartnerInventory({ city: bridgeCity.name, intent: railIntent })
     : undefined;
   let bridgePicks = [];
@@ -1009,7 +1018,7 @@ export default async function GuidePage({ params }) {
           Sits BELOW the intro and ABOVE the picks: the guide's own editorial
           earns the reader first. These never enter the guide's ranking, and
           the component carries its own commission disclosure. */}
-      {chrome.bookableHighlights && railIntent && bridgeCity ? (
+      {chrome.bookableHighlights && railIntent && bridgeCity && !replacesCityStrip(params.slug) ? (
         <IntentPartnerPick
           city={bridgeCity.name}
           intent={railIntent}
@@ -1114,7 +1123,9 @@ export default async function GuidePage({ params }) {
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {/* guide-inline-book-v1 (lib/guideInlineBook.js): client-only
                   treatment; the server HTML and the control arm are unchanged. */}
-              {inlineBookConfig(params.slug, i) ? <GuidePickDecision slug={params.slug} pickIndex={i} /> : null}
+              {inlineBookConfig(params.slug, i) && !replacesCityStrip(params.slug) ? <GuidePickDecision slug={params.slug} pickIndex={i} /> : null}
+              {/* Focused offers attach by the pick's stable id, never its number. */}
+              <GuidePickOffer entry={guidePickOffers(params.slug, pick)} slug={params.slug} />
               <div className="wf-guide-actions">
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}

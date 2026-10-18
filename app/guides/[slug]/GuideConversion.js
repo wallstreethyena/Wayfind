@@ -156,7 +156,10 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
               because a fabricated "0 reviews" is worse than silence. */}
           {social ? (
             <div style={{ marginTop: 9, fontSize: 12.5, color: "#8A97A6", textAlign: "center" }}>
-              {social.rating}★ · {social.reviews.toLocaleString()} reviews{social.name ? " · " + social.name : ""}
+              {/* Source named: this is the PLACE's Google rating, and the page
+                  only passes it when the CTA's destination is that place
+                  (lib/guideCta.ctaProofScope). A tour never inherits it. */}
+              {social.rating}★ · {social.reviews.toLocaleString()} Google reviews{social.name ? " of " + social.name : ""}
             </div>
           ) : null}
 

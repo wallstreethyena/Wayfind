@@ -80,7 +80,8 @@ assert.equal(honestPartnerLabel("Book the Myakka River e-bike safari", "Myakka R
 // bookable version of one of the guide's own picks.
 const partnerTours = [
   ["bioluminescence-kayak-tour-space-coast", "123164P2", "Bioluminescent Clear Kayak Tours in Titusville (Haulover Canal, Merritt Island NWR)", /^Book a Merritt Island clear kayak glow tour$/],
-  ["things-to-do-sarasota", "300175P8", "Mangrove Tunnel Guided Kayak Tours: Explore Lido Key's Nature (Ted Sperling Park)", /^Book a Lido Key mangrove tunnel kayak tour$/],
+  // 2026-10-18 (owner, t5u): same product as the Lido pick offer.
+  ["things-to-do-sarasota", "108117P1", "Sarasota Guided Mangrove Tunnel Kayak Tour (Sea Life Kayak Adventures, Ted Sperling Nature Park)", /^Lido kayak tour · Check dates and price$/],
   ["ybor-city-tampa-guide", "5642110P1", "Historic Ybor City Food and Culture Walking Tour", /^Book the Ybor City food and culture tour$/],
 ];
 for (const [slug, offerId, verifiedTitle, label] of partnerTours) {
