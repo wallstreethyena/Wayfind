@@ -28,6 +28,7 @@ import {
   markInternalBrowser,
   sanitizeAnalyticsProperties,
 } from "../../lib/browserAnalytics";
+import { readCrownCampaign } from "../../lib/crownCampaign.js";
 
 export default function PostHogProvider({ children }) {
   const pathname = usePathname();
@@ -94,6 +95,10 @@ export default function PostHogProvider({ children }) {
           sanitize_properties: sanitizeAnalyticsProperties,
         });
         ph.register({ $internal_or_test_user: false });
+        try {
+          const crown = readCrownCampaign(window.sessionStorage);
+          if (crown && typeof ph.register_for_session === "function") ph.register_for_session(crown);
+        } catch (e) {}
         phClient = ph;
         window.posthog = ph;
         window._phInit = "ready";

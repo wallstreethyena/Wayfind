@@ -16,6 +16,7 @@ import { FALL_DISCOVERIES_2026 } from '../lib/fallDiscoveries2026.js';
 import { orderPlaceRecommendations } from '../lib/placeRecommendationOrder.js';
 import * as eventVisitFacts from '../lib/eventVisitFacts.js';
 import * as eventTimeReal from '../lib/eventTime.js';
+import * as crownCampaign from '../lib/crownCampaign.js';
 let event, curated, photographs, social = [];
 let mapPicks, nearbyPicks;
 const reviewDir = process.argv.includes("--write-review") ? "public/design" : null;
@@ -75,6 +76,7 @@ function page(file) {
   if(spec.includes('EventMapPlaces'))return {default:page('app/components/EventMapPlaces.js')};
   if(spec.includes('TicketButton'))return {default:p=>React.createElement('a',{'data-ticket':p.provider,href:p.url},p.label)};
   if(spec.includes('EventWhere'))return {default:page('app/components/EventWhere.js')};
+  if(spec.includes('crownCampaign'))return crownCampaign;
   if(spec.includes('EventRouteJump'))return {default:p=>React.createElement('a',{className:'wfw-btn wfw-dir',href:'#event-route'},p.children)};
   return new Proxy({...stubs,default:leaf},{get:(o,k)=>k in o?o[k]:leaf});
  };
