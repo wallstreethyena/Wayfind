@@ -43,6 +43,7 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     "../../../../lib/fallLiveArea20261019.js": { FALL_LIVE_AREA_2026_10_19: [] },
     "../../../../lib/seasonalLiveAreaResolve.js": { resolveSeasonalLiveArea: () => ({ fall: [], christmas: [] }) },
     "../../../../lib/seasonalLiveAreaInventory.js": { readSeasonalPendingInventory: async () => ({ rows: [], failed: false }) },
+    "../../../../lib/seasonalPosterFiling.js": { fileScopedPosters: (rails) => ({ fallRails: rails, halloweenSource: rails, movedOffFall: [], movedOffHalloween: [] }) },
     "../../../../lib/curatorPicksServer.js": { loadOwnerPickIds: async () => new Set(), applyCuratorPicksServer: (places) => places },
     "../../../../lib/fallStayDestinations.js": { fallStayDestinations: () => [] },
     "../../../../lib/curatedEvents.js": {

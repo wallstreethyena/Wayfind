@@ -23,6 +23,7 @@ import { CURATED_OWNED_PLACE_PHOTOS } from "../../../../lib/curatedOwnedPlacePho
 import { fastCachedRail, geoCell } from "../../../../lib/railFastCache.js";
 import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence } from "../../../../lib/fallIntentRails.js";
 import { composeHalloweenRails } from "../../../../lib/halloweenIntentRails.js";
+import { fileScopedPosters } from "../../../../lib/seasonalPosterFiling.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
@@ -402,8 +403,12 @@ export async function GET(request) {
     });
     // Regroup the full trusted answer before either response window or paging.
     // Copy instead of mutating the shared Fall cache, including warm entries.
+    // Filing only removes a 2026-10-19 card whose stored label matches exactly
+    // one poster. Flagged cards stay on the rails the composer already built.
+    const filed = fileScopedPosters(cached.value.rails, { today });
     if (halloween) cached = { ...cached, value: { ...cached.value,
-      rails: composeHalloweenRails(cached.value.rails, today), collection: "halloween" } };
+      rails: composeHalloweenRails(filed.halloweenSource, today), collection: "halloween" } };
+    else cached = { ...cached, value: { ...cached.value, rails: filed.fallRails } };
     const complete = cached.value?.sourceFailures === 0;
     const headers = {
       "cache-control": complete ? "public, s-maxage=900, stale-while-revalidate=86400" : "no-store",
