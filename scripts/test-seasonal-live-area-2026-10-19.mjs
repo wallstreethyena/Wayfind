@@ -29,6 +29,16 @@ const FALL_RAIL = {
   "storytime-with-mother-boo-2026": "family",
   "mosi-fright-light-2026": "family",
   "ami-mangrove-murders-paddle-2026": "haunts",
+  "st-pete-pier-dog-parade-2026": "festivals",
+  "cracker-country-tall-tales-2026": "festivals",
+  "boyd-hill-terrors-in-the-trees-2026": "haunts",
+  "imagine-museum-mysterious-nights-2026": "date-night",
+  "mfa-art-after-dark-halloween-2026": "date-night",
+  "sahib-shrine-trunk-or-treat-2026": "family",
+  "robert-taylor-trunk-or-treat-2026": "family",
+  "oldsmar-haunted-happenings-2026": "family",
+  "folly-farm-fright-nights-2026": "haunts",
+  "bloomingdale-square-trick-or-treat-2026": "family",
 };
 const HALLOWEEN_RAIL = {
   "dinosaur-world-jurassic-haunt-2026": "family",
@@ -36,6 +46,16 @@ const HALLOWEEN_RAIL = {
   "storytime-with-mother-boo-2026": "family",
   "mosi-fright-light-2026": "family",
   "ami-mangrove-murders-paddle-2026": "family",
+  "st-pete-pier-dog-parade-2026": "festivals",
+  "cracker-country-tall-tales-2026": "festivals",
+  "boyd-hill-terrors-in-the-trees-2026": "haunts",
+  "imagine-museum-mysterious-nights-2026": "festivals",
+  "mfa-art-after-dark-halloween-2026": "festivals",
+  "sahib-shrine-trunk-or-treat-2026": "family",
+  "robert-taylor-trunk-or-treat-2026": "family",
+  "oldsmar-haunted-happenings-2026": "family",
+  "folly-farm-fright-nights-2026": "haunts",
+  "bloomingdale-square-trick-or-treat-2026": "family",
 };
 const PLACE = {
   "dinosaur-world-jurassic-haunt-2026": "ChIJleFCpOE03YgR_W7zvLgzvVQ",
@@ -43,10 +63,24 @@ const PLACE = {
   "storytime-with-mother-boo-2026": "ChIJQZRp15bDwogReY6sMTk-YWg",
   "mosi-fright-light-2026": "ChIJVZ5IfwDHwogRPN9rxQyX_L4",
   "ami-mangrove-murders-paddle-2026": "ChIJSzFosAERw4gRdoKp0B-JmGY",
+  "st-pete-pier-dog-parade-2026": "ChIJX-E766nhwogR8u_Re6nJTyk",
+  "cracker-country-tall-tales-2026": "ChIJcewX6kvPwogR4hM5ObiHHFo",
+  "boyd-hill-terrors-in-the-trees-2026": "ChIJDa6Sb_4dw4gRvC9L3jFeVfo",
+  "imagine-museum-mysterious-nights-2026": "ChIJyzrZADLiwogRDSaWoWljzTE",
+  "mfa-art-after-dark-halloween-2026": "ChIJH_yrCJ7hwogRBdasI9ePfT0",
+  "sahib-shrine-trunk-or-treat-2026": "ChIJJTaxBKJAw4gRP_O4kUtnaE0",
+  "robert-taylor-trunk-or-treat-2026": "ChIJK4NgI5E_w4gRntbbDcsYdQE",
+  "oldsmar-haunted-happenings-2026": "ChIJV66wZBXswogRrM3FN9_qikA",
+  "folly-farm-fright-nights-2026": "ChIJoakkImnuwogRj5Szyimd6b8",
+  "bloomingdale-square-trick-or-treat-2026": "ChIJU4LV-XbSwogRmb2VHDNtVuk",
 };
+// Family radius is 27 miles, so the two Sarasota trunk-or-treats are true at
+// a Sarasota viewer and absent for downtown Tampa. That is the radius, not a miss.
+const TAMPA_FALL = Object.keys(FALL_RAIL).filter((id) => id !== "sahib-shrine-trunk-or-treat-2026" && id !== "robert-taylor-trunk-or-treat-2026");
+const SARASOTA = { lat: 27.3364, lng: -82.5307 };
 
-check("five live-area rows are trusted, pinned, photo-backed and still upcoming on Oct 19", () => {
-  assert.equal(FALL_LIVE_AREA_2026_10_19.length, 5);
+check("live-area rows are trusted, pinned, photo-backed and still upcoming on Oct 19", () => {
+  assert.equal(FALL_LIVE_AREA_2026_10_19.length, 15);
   for (const row of FALL_LIVE_AREA_2026_10_19) {
     assert.equal(FALL_DISCOVERY_RAIL[row.event_id], FALL_RAIL[row.event_id], row.event_id);
     assert.equal(fallEventRail(row), FALL_RAIL[row.event_id], row.event_id);
@@ -66,18 +100,28 @@ check("five live-area rows are trusted, pinned, photo-backed and still upcoming 
   assert.deepEqual(occurrenceDatesFor({ event_id: "storytime-with-mother-boo-2026" }), ["2026-10-14", "2026-10-21"]);
 });
 
-check("Tampa Fall and Halloween rails place each live-area card on its one shelf", () => {
+check("Tampa Fall and Halloween rails place each in-range live-area card on its one shelf", () => {
   const fall = composeFallIntentRails(FALL_LIVE_AREA_2026_10_19, [], { ...TAMPA, today: TODAY, now: new Date("2026-10-19T16:00:00Z") });
-  for (const [id, rail] of Object.entries(FALL_RAIL)) {
-    assert.ok(idsOf(fall.rails, rail).includes(id), `${id} missing from Fall ${rail}`);
+  for (const id of TAMPA_FALL) {
+    assert.ok(idsOf(fall.rails, FALL_RAIL[id]).includes(id), `${id} missing from Fall ${FALL_RAIL[id]}`);
   }
+  for (const id of ["sahib-shrine-trunk-or-treat-2026", "robert-taylor-trunk-or-treat-2026"]) {
+    assert.ok(!idsOf(fall.rails, "family").includes(id), id + " is outside the 27 mile family radius");
+  }
+  const sarasota = composeFallIntentRails(FALL_LIVE_AREA_2026_10_19, [], { ...SARASOTA, today: TODAY, now: new Date("2026-10-19T16:00:00Z") });
+  assert.ok(idsOf(sarasota.rails, "family").includes("sahib-shrine-trunk-or-treat-2026"));
+  assert.ok(idsOf(sarasota.rails, "family").includes("robert-taylor-trunk-or-treat-2026"));
   const halloween = composeHalloweenRails(fall.rails, TODAY);
-  for (const [id, rail] of Object.entries(HALLOWEEN_RAIL)) {
-    assert.ok(idsOf(halloween, rail).includes(id), `${id} missing from Halloween ${rail}`);
+  for (const id of TAMPA_FALL) {
+    assert.ok(idsOf(halloween, HALLOWEEN_RAIL[id]).includes(id), `${id} missing from Halloween ${HALLOWEEN_RAIL[id]}`);
   }
   assert.ok(idsOf(halloween, "last-minute").includes("ami-mangrove-murders-paddle-2026"));
   assert.ok(idsOf(halloween, "last-minute").includes("storytime-with-mother-boo-2026"));
+  assert.ok(idsOf(halloween, "last-minute").includes("st-pete-pier-dog-parade-2026"));
+  assert.ok(idsOf(halloween, "last-minute").includes("folly-farm-fright-nights-2026"));
   assert.ok(!idsOf(halloween, "last-minute").includes("mosi-fright-light-2026"));
+  assert.ok(!idsOf(halloween, "last-minute").includes("mfa-art-after-dark-halloween-2026"));
+  assert.ok(!idsOf(halloween, "last-minute").includes("bloomingdale-square-trick-or-treat-2026"));
   assert.ok(!idsOf(halloween, "ghost-tours").includes("tampa-theatre-nightmare-on-franklin-2026"));
 });
 
@@ -101,7 +145,7 @@ function xmasRails(today) {
 }
 
 check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backed", () => {
-  assert.equal(RAW.length, 760);
+  assert.equal(RAW.length, 770);
   for (const [id, expect] of Object.entries(XMAS)) {
     const raw = RAW.find((row) => row.id === id);
     assert.ok(raw, id);
@@ -120,6 +164,39 @@ check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backe
   const film = researchEvent(RAW.find((row) => row.id === "florida-orchestra-nightmare-before-christmas-2026"));
   assert.deepEqual(film.occurrence_dates, ["2026-12-05", "2026-12-06"]);
   assert.equal(film.start_time, null);
+});
+
+const XMAS_MORE = {
+  "junior-league-tampa-holiday-gift-market-2026": { rail: "towns-markets", place: "ChIJeQ-y5zXPwogRFU7AXbruMCg", start: "2026-11-12" },
+  "venice-mayors-hometown-christmas-2026": { rail: "towns-markets", place: "ChIJu73by6Rbw4gR857K3YRfLQo", start: "2026-11-27" },
+  "oxford-exchange-holiday-gift-bazaar-2026": { rail: "towns-markets", place: "ChIJ11hsiYXEwogRjDBv39F04J8", start: "2026-12-03" },
+  "st-pete-ballet-nutcracker-2026": { rail: "shows-outings", place: "ChIJR6tho_7hwogRcONKTjQvrNk", start: "2026-12-03" },
+  "meadows-farmers-holiday-market-2026": { rail: "towns-markets", place: "ChIJsdbMXlI5w4gRqnshlVBQne8", start: "2026-12-06" },
+  "art-ovation-holiday-art-mart-2026": { rail: "towns-markets", place: "ChIJn_4zMBJAw4gRnyPviItiNRs", start: "2026-12-13" },
+  "venice-nights-christmas-carols-2026": { rail: "towns-markets", place: "ChIJg1HuP9xbw4gRs9PHCFmC4VU", start: "2026-12-19" },
+  "sarasota-art-museum-barker-holiday-2026": { rail: "shows-outings", place: "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4", start: "2026-12-17" },
+  "boyd-hill-smores-with-santa-2026": { rail: "shows-outings", place: "ChIJDa6Sb_4dw4gRvC9L3jFeVfo", start: "2026-12-12" },
+  "vinoy-park-holiday-movie-2026": { rail: "shows-outings", place: "ChIJESS-JgvhwogRnfB1lK46okc", start: "2026-12-12" },
+};
+
+check("ten more confirmed Christmas rows stay in the window and off the Florida catchall", () => {
+  const zoo = RAW.find((row) => row.id === "zootampa-christmas-in-the-wild-2026");
+  assert.equal(zoo.state, "recurring_unconfirmed");
+  for (const [id, expect] of Object.entries(XMAS_MORE)) {
+    const raw = RAW.find((row) => row.id === id);
+    assert.ok(raw, id);
+    assert.equal(raw.state, "confirmed_dated");
+    assert.equal(raw.place_id, expect.place);
+    assert.equal(raw.primary_rail, expect.rail);
+    assert.equal(raw.start_date, expect.start);
+    const event = researchEvent(raw);
+    assert.equal(christmasEventRail(event), expect.rail, id);
+    assert.equal(inChristmasWindow(event), true, id);
+    assert.notEqual(event.city, "Florida");
+  }
+  const nut = researchEvent(RAW.find((row) => row.id === "st-pete-ballet-nutcracker-2026"));
+  assert.deepEqual(nut.occurrence_dates, ["2026-12-03", "2026-12-04", "2026-12-05"]);
+  assert.equal(nut.start_time, null);
 });
 
 check("one card per venue per rail, and the next show takes the shelf when the sooner one ends", () => {

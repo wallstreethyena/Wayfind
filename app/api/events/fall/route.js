@@ -114,7 +114,10 @@ export async function GET(request) {
     // Jurassic Haunt, Nightmare on Franklin Street, Storytime with Mother Boo,
     // MOSI Fright Light and the Neal Preserve haunted paddle, so no v34 payload
     // outlives the deploy.
-    const key = `fall-intents:v35:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v36 adds the second live-area pass: Pier dog parade, Cracker Country,
+    // Boyd Hill, Imagine Museum, MFA, Sahib Shrine, Robert L. Taylor, Oldsmar,
+    // Folly Farm and Bloomingdale Square. No v35 payload outlives this deploy.
+    const key = `fall-intents:v36:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
