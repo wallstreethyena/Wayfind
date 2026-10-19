@@ -21,6 +21,7 @@ import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../l
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
 import { eventProviderCap, eventProviderSpendAllow } from "../../../lib/eventProviderSpend.js";
+import { applyFreshTicketmasterStarts, applyStoredStartCorrections, needsTicketmasterStartRefresh, ticketmasterStartFields, TICKETMASTER_START_REFRESH_TTL_MS } from "../../../lib/eventStartRefresh.js";
 
 function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
@@ -41,11 +42,13 @@ function today() {
 const TM_SEGMENTS = ["Music", "Sports", "Arts & Theatre", "Family", "Film", "Miscellaneous"];
 const _tmMem = new Map();
 const TM_TTL = 10 * 60 * 1000;
-async function fromTicketmaster(lat, lng, radius, keyword) {
+async function fromTicketmaster(lat, lng, radius, keyword, opts = {}) {
   const key = process.env.TICKETMASTER_API_KEY;
   if (!key) return { configured: false, events: [] };
   try {
-    const ck = [Number(lat).toFixed(2), Number(lng).toFixed(2), radius || "", keyword || ""].join("|");
+    // startsOnly is the same unfiltered Discovery query (one call, same spend
+    // gate). It must not share the full seven-segment memory entry.
+    const ck = [Number(lat).toFixed(2), Number(lng).toFixed(2), radius || "", keyword || "", opts.startsOnly ? "starts" : "full"].join("|");
     const hit = _tmMem.get(ck);
     if (hit && hit.exp > Date.now()) return { configured: true, events: hit.events };
     const baseParams = (extra) => {
@@ -59,7 +62,7 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
     };
     if (!eventProviderCap("ticketmaster")) return { configured: true, ok: false, reason: "spend cap unavailable", events: [] };
     let requested = false;
-    const calls = [null, ...(keyword ? [] : TM_SEGMENTS)].map(async (seg) => {
+    const calls = [null, ...((keyword || opts.startsOnly) ? [] : TM_SEGMENTS)].map(async (seg) => {
       if (!(await eventProviderSpendAllow("ticketmaster"))) return null;
       requested = true;
       return fetch(`https://app.ticketmaster.com/discovery/v2/events.json?${baseParams(seg).toString()}`)
@@ -142,6 +145,13 @@ async function fromTicketmaster(lat, lng, radius, keyword) {
         // Phase 1: cancelled/postponed events used to flow into cards
         // unchecked -- the pipeline now excludes on this field.
         status: e.dates && e.dates.status && e.dates.status.code ? e.dates.status.code : "",
+        // Discovery's own uncertainty flags. A later cache read uses these,
+        // plus "TBD" / "If Necessary" in the title, to decide the start is not
+        // safe to keep for 21 days.
+        timeTBA: dates.timeTBA === true,
+        dateTBA: dates.dateTBA === true,
+        dateTBD: dates.dateTBD === true,
+        noSpecificTime: dates.noSpecificTime === true,
       };
     });
     // A denied budget did not ask Ticketmaster, so it must not poison the
@@ -765,7 +775,44 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // feed (the Columbus, OH poster). Cached payloads built before the rule may hold
 // out-of-state rows, so the key moves.
 const EVENTS_FEED_RULES = "florida-v1";
-async function aggregateEvents({ lat, lng, keyword, radius, city }) {
+// One Discovery re-read per geo cell. Not the 21-day feed cache, and not a
+// place/photo TTL: those rules stay where they are.
+function ticketmasterStartKey(lat, lng, radius) {
+  return "evtmstart|" + Number(lat).toFixed(1) + "|" + Number(lng).toFixed(1) + "|" + (radius || 25);
+}
+// 2026-10-19 — a 21-day cached row kept Ticketmaster's "If Necessary"
+// placeholder (17:00) after the feed had moved on. Events that start within
+// 72 hours, or that are flagged TBD / placeholder / "If Necessary", take
+// their start from a fresh Discovery read. One call, same spend gate, and a
+// one-hour shared map so a cache hit does not fan out seven segment queries.
+// The 21-day feed TTL is unchanged. A denied grant leaves the cached row.
+async function refreshCachedTicketmasterStarts(events, { lat, lng, radius }) {
+  const now = new Date();
+  if (!events.some((e) => needsTicketmasterStartRefresh(e, now))) return applyStoredStartCorrections(events);
+  const hit = await cget(ticketmasterStartKey(lat, lng, radius));
+  let fresh = hit && hit.v && typeof hit.v === "object" && !Array.isArray(hit.v) ? Object.values(hit.v) : null;
+  if (!fresh) {
+    const tm = await fromTicketmaster(lat, lng, radius, null, { startsOnly: true });
+    fresh = tm && Array.isArray(tm.events) ? tm.events : [];
+    if (fresh.length) {
+      const map = {};
+      for (const e of fresh) {
+        const fields = ticketmasterStartFields(e);
+        if (fields && fields.id) map[fields.id] = fields;
+      }
+      await cset(ticketmasterStartKey(lat, lng, radius), map, TICKETMASTER_START_REFRESH_TTL_MS);
+    }
+  }
+  return applyStoredStartCorrections(applyFreshTicketmasterStarts(events, fresh, now));
+}
+async function aggregateEvents(input) {
+  const payload = await aggregateEventsRaw(input);
+  if (!payload || !Array.isArray(payload.events) || !payload.events.length) return payload;
+  if (payload.cached) payload.events = await refreshCachedTicketmasterStarts(payload.events, input);
+  else payload.events = applyStoredStartCorrections(payload.events);
+  return payload;
+}
+async function aggregateEventsRaw({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();
   // Same rule as validateEvent: a running event stays until its LAST day.
