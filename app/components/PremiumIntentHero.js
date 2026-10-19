@@ -50,7 +50,7 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
         .wf-intent-trust{font-size:11.5px;color:#4a5568;margin:24px 0 0}
         @media(max-width:760px){
           .wf-intent-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:24px}
-          .wf-intent-photo{min-height:270px}.wf-intent-chrome{padding:0 2px 10px}.wf-intent-brand{width:104px}.wf-intent-back{padding:8px 12px;font-size:12.5px}
+          .wf-intent-photo{min-height:270px;height:270px}.wf-intent-chrome{padding:0 2px 10px}.wf-intent-brand{width:104px}.wf-intent-back{padding:8px 12px;font-size:12.5px}
           .wf-intent-caption{left:24px;right:24px;bottom:22px;font-size:29px}
           .wf-intent-panel{padding:25px 24px 28px}.wf-intent-top{margin-bottom:16px}
           .wf-intent-title{font-size:clamp(21px,6.8vw,39px);letter-spacing:-1.35px;margin-bottom:14px}.wf-intent-copy{font-size:15px;line-height:1.45;margin-bottom:17px}
@@ -82,7 +82,13 @@ export default function PremiumIntentHero({ eyebrow, location, title, descriptio
         <div className="wf-intent-photo">
           <picture>
             {imageWebp ? <source srcSet={imageWebp} type="image/webp" /> : null}
-            <img src={image} alt="" fetchPriority="high" decoding="async" width="800" height="1200" />
+            {/* decoding=sync: this is the LCP image. async asked the browser to
+                paint the page without it and present the decode later, and on
+                a busy main thread that later was several seconds (measured
+                2026-10-18: bytes in by ~1s, element render delay ~7s). The
+                photo box has a definite height so the absolute image has a
+                used size on the first layout pass. */}
+            <img src={image} alt="" fetchPriority="high" decoding="sync" width="800" height="1200" />
           </picture>
           <div className="wf-intent-caption">{caption || <>A better decision<br />is closer than you think.</>}</div>
         </div>
