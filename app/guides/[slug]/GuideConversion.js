@@ -33,6 +33,7 @@ import { track } from "../../../lib/track";
 import { emitCommerce } from "../../../lib/commerce";
 import { mintClickId, withClickId, isEarningGoHref } from "../../../lib/hubConversion";
 import { isSearchAsBookHref } from "../../../lib/viatorDenylist";
+import { GuideCommissionLine } from "../../components/GuideCommissionLine";
 
 export default function GuideConversion({ slug, region, cta, next, social, socialStatus }) {
   const ref = useRef(null);
@@ -151,12 +152,21 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
             {cta.label}{cta.sponsored ? " ↗" : ""}
           </a>
 
+          {/* Same sentence as the in-pick offer card, and only on a link that
+              actually earns. Directions and other non-affiliate next steps
+              stay quiet — a commission line under a link that earns nothing
+              is a false disclosure. */}
+          {cta.monetized && cta.sponsored ? <GuideCommissionLine /> : null}
+
           {/* Social proof NEXT TO the CTA, and only when the data exists. No
               placeholders: an absent count renders nothing rather than a zero,
               because a fabricated "0 reviews" is worse than silence. */}
           {social ? (
             <div style={{ marginTop: 9, fontSize: 12.5, color: "#8A97A6", textAlign: "center" }}>
-              {social.rating}★ · {social.reviews.toLocaleString()} reviews{social.name ? " · " + social.name : ""}
+              {/* Source named: this is the PLACE's Google rating, and the page
+                  only passes it when the CTA's destination is that place
+                  (lib/guideCta.ctaProofScope). A tour never inherits it. */}
+              {social.rating}★ · {social.reviews.toLocaleString()} Google reviews{social.name ? " of " + social.name : ""}
             </div>
           ) : null}
 

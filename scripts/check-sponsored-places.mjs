@@ -213,6 +213,8 @@ ok(html.includes(esc(rio.body)), "the advertiser's body copy renders");
 ok(html.includes(rio.claim), "the advertiser's own claim renders");
 ok(!html.includes("384") && !/4\.9★/.test(html) && !/Wayfind Score 9\.2 out of 10/.test(html),
   "a stale snapshot does not render 9.2, 4.9, or 384 on the paid card");
+ok(!/0\.0★/.test(html) && !/\b0 Google reviews\b/.test(html),
+  "a withheld snapshot does not print 0.0 stars or 0 Google reviews");
 ok(!/wayfind-score-badge/.test(html), "a stale snapshot does not render a score badge");
 ok(/withheld until a current review snapshot/.test(html), "the card says the public score is withheld");
 ok(freshHtml.includes("384") && /Google reviews/.test(freshHtml), "a fresh snapshot renders the review count, attributed to Google");
@@ -290,8 +292,13 @@ const freshPageHtml = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body
 ok(pageHtml.includes(rio.label), "the page renders the sponsored label");
 // The literal transaction, in a sentence a reader cannot misread — and NOT the
 // "<brand> partner" construction lib/creatorRights.js bans.
-ok(/pays to be featured/i.test(pageHtml.replace(/\s+/g, " ")),
-  "the page says in plain words that the business pays to be featured");
+const pageFlat = pageHtml.replace(/\s+/g, " ");
+ok(/is a labeled sponsor on Wayfind/i.test(pageFlat)
+  && /Sponsored · Paid partner/.test(pageFlat)
+  && /outside ranked lists/.test(pageFlat)
+  && /never paid for/.test(pageFlat)
+  && !/pays to be featured/i.test(pageFlat),
+  "the page calls the business a labeled sponsor, names Sponsored · Paid partner, places it outside ranked lists, and does not say it pays to be featured");
 ok(/no advertiser can move it/i.test(pageHtml), "…and that the score cannot be bought");
 ok(pageHtml.includes("Wayfind Score"), "the Wayfind Score is named on the page");
 ok(/Wayfind Score withheld/.test(pageHtml) && !/9\.2/.test(pageHtml) && !/4\.9/.test(pageHtml),
@@ -338,7 +345,8 @@ const sharedCardCss = readFileSync(join(ROOT, "app/components/css.js"), "utf8").
 ok(/\.wf-place-card-attachment\{[^}]*border-top:3pxsolidvar\(--wf-place-card-accent/.test(sharedCardCss)
     && /class="wf-place-card-attachment"[^>]*--wf-place-card-accent:#6D2E8E/.test(html),
   "the advertiser's colour is supplied to the shared attachment's single edge rule");
-ok(html.includes("Google reviews"), "the review count is attributed to Google on the card");
+ok(/Google review count/.test(html) && !/\b0 Google reviews\b/.test(html),
+  "the withheld card names the Google review count in the disclosure and does not print a zero count");
 ok(/class="wf-place-card-name"[^>]*>Rio Body Wax<\/a>/.test(html),
   "the business name is the canonical card title, not the ad copy");
 ok(html.includes('href="/partners/rio-body-wax-gastonia"'), "the card links into the partner page");

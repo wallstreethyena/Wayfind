@@ -114,7 +114,12 @@ checkClick(mod.onInlineOfferClick);
 // 6. mounting
 const page = readFileSync(path.join(REPO, "app/guides/[slug]/page.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const loop = page.slice(page.indexOf("g.picks.map((pick, i)"), page.indexOf("g.picks.map((pick, i)") + 4000);
-ok(/inlineBookConfig\(params\.slug, i\)\s*\?\s*<GuidePickDecision[\s/>]/.test(loop), "mount: page.js renders <GuidePickDecision inside the picks loop, gated by inlineBookConfig");
+ok(/inlineBookConfig\(params\.slug, i\)(\s*&&\s*!replacesCityStrip\(params\.slug\))?\s*\?\s*<GuidePickDecision[\s/>]/.test(loop), "mount: page.js renders <GuidePickDecision inside the picks loop, gated by inlineBookConfig");
+// 2026-10-18 (owner, t5u): focused-offer guides (lib/guidePickOffers.js) end
+// this test's treatment there. Its runtime "most-reviewed airboat" offer was
+// Wild Florida under the Boggy Creek pick; the owner wants Boggy Creek as the
+// pick's offer and Wild Florida only as a labelled alternative.
+ok(/inlineBookConfig\(params\.slug, i\)\s*&&\s*!replacesCityStrip\(params\.slug\)\s*\?/.test(loop), "mount: off on focused-offer guides (replacesCityStrip), so no unlabelled runtime offer sits beside a verified one");
 ok((page.match(/<GuidePickDecision[\s/>]/g) || []).length === 1, "mount: rendered in exactly one place");
 
 // red-prove

@@ -4,6 +4,8 @@
 // denial can be asserted to make zero HTTP requests.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { pathToFileURL } from "node:url";
 import { eventProviderCap, eventProviderSpendAllow } from "../lib/eventProviderSpend.js";
 import { lastEventDay } from "../lib/eventsPipeline.js";
 // The route's cached-feed filter calls the REAL last-day rule (2026-10-08).
@@ -23,7 +25,12 @@ for (const key of envKeys) delete process.env[key];
 
 async function routeWith({ cacheValue = null, spendAllowed = false }) {
   let source = readFileSync("app/api/events/route.js", "utf8");
-  source = source.replace(/^import[^;]+;\n/gm, "");
+  // The start-refresh helpers are real. A data: URL cannot resolve the
+  // route's relative import, so that one import is pinned to the file URL
+  // and kept; every other import is still replaced by the fixtures below.
+  const refreshHref = pathToFileURL(join(process.cwd(), "lib/eventStartRefresh.js")).href;
+  source = source.replace('from "../../../lib/eventStartRefresh.js"', "from " + JSON.stringify(refreshHref));
+  source = source.replace(/^import[^;]+;\n/gm, (line) => line.includes("eventStartRefresh.js") ? line : "");
   const prelude = `
     const processEvents = () => ({ events: [], usableCount: 0, health: [], excludedByReason: {} });
     const siteTodayStr = () => "2099-01-01";
@@ -137,6 +144,24 @@ try {
   assert.deepEqual((await response.json()).events.map((event) => event.id), ["cached"], "fresh default cache is served");
   assert.equal(httpCalls, 0, "fresh default cache performs zero HTTP requests");
   assert.equal(globalThis.__eventsSpend.grants, 0, "fresh default cache asks for no grants");
+
+  // A cached Ticketmaster row inside the re-read rule may ask the existing
+  // spend gate. A denial still performs zero Discovery calls and keeps the row.
+  route = await routeWith({
+    cacheValue: { v: [{ id: "tm_placeholder", source: "Ticketmaster", name: "Playoff (If Necessary)", date: "2099-01-02", time: "17:00:00" }] },
+    spendAllowed: false,
+  });
+  httpCalls = 0;
+  globalThis.fetch = async () => { httpCalls++; throw new Error("denied re-read called network"); };
+  response = await route.POST(new Request("https://www.gowayfind.com/api/events", {
+    method: "POST", headers: { "content-type": "application/json" },
+    body: JSON.stringify({ lat: 0, lng: 0, radius: 25, city: "Fixture" }),
+  }));
+  const reread = await response.json();
+  assert.equal(reread.events[0].id, "tm_placeholder", "a denied re-read keeps the cached event");
+  assert.equal(reread.events[0].time, "17:00:00", "a denied re-read keeps the cached start");
+  assert.equal(httpCalls, 0, "a denied Ticketmaster re-read performs zero HTTP requests");
+  assert.equal(globalThis.__eventsSpend.grants, 1, "the re-read asks for one Discovery grant, not the seven-segment fan-out");
 
   // Public inputs are typed and bounded before the route can consult a cache
   // or fan out.  Test GET too because it is publicly callable.

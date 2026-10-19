@@ -545,10 +545,10 @@
     "owner": "Revenue QA"
   },
   "scripts/test-no-paid-placement-policy.mjs": {
-    "protects": "/partners names the live Rio sponsorship and does not offer placement for sale; the Rio partner page drops the unsourced county-ranking claim and dates its Google snapshot; the affiliate opportunity worklist can never carry a commission-led partner instruction.",
+    "protects": "/editorial-policy, /how-wayfind-ranks, /partners, and the Rio partner page say rankings, list order, guide picks, and the Wayfind Score are never paid for, name the Sponsored \u00b7 Paid partner label, and place that sponsorship outside ranked lists; none of them claims the site has no paid placement or that a business pays to be featured. The affiliate opportunity worklist can never carry a commission-led partner instruction.",
     "blastRadius": {
       "category": "trust",
-      "detail": "If it rots, a public page can again offer paid featured placement against the published editorial policy, or the revenue worklist can steer partner choice by commission."
+      "detail": "If it rots, a public page can again deny a labeled sponsorship that is live, or can offer paid rank, list position, a guide pick, or a Wayfind Score, or the revenue worklist can steer partner choice by commission."
     },
     "owner": "Revenue QA"
   },
@@ -920,11 +920,27 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-site-fixes-20261019.mjs": {
+    "protects": "Beach, things-to-do, nightlife and best-beaches pages make no 'no ads' claim next to partner rails and say rankings are never for sale; the best-beaches stay CTA shows the commission line as visible text; cached Ticketmaster starts inside 72 hours or flagged TBD/placeholder/If Necessary are re-read from Discovery, and the Rays ALCS Game 6 row is 8:08 PM ET; best-beaches ranks only beaches; town pages never point readers to an app; the drum circle guide says about an hour before sunset.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "2026-10-19 concept pack: headers said 'no ads, no paid placement' beside Viator rails, the Rays ALCS Game 6 listed at 17:00 instead of 8:08 PM ET, a fishing charter ranked #1 on /best-beaches/tampa, /florida/anna-maria-island said 'in the app', and the drum circle guide said two hours before sunset."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-shared-google-photo-serving.mjs": {
     "protects": "Shared photo service reuses retained images across visitors, widths and dates without Google calls, while preserving credited surfaces, monthly spend gates and bounded acquisition.",
     "blastRadius": {
       "category": "revenue",
       "detail": "Photo outages and duplicate paid acquisitions affect every visitor. Stored Google content must retain source attribution and remain revocable by the owner."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/check-viator-pid.mjs": {
+    "protects": "Every Viator link Wayfind emits carries the owner's own partner ID P00320881 (pinned in lib/viatorPid.js, overwriting any stored, API-returned or caller pid), with mcid=42383 and the right medium, and the retired pid appears in no tracked file.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-19: until this date every Viator click carried a pid that is not on the owner's Viator account, so the account showed 0 visitors and 0 bookings for all time. A drift back would silently send all Viator traffic to someone else's account again."
     },
     "owner": "Revenue QA"
   }

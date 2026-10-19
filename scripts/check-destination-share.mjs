@@ -59,6 +59,7 @@ const strip = (src) => src
 const STANDARD = {
   "app/fall-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/halloween-in-florida/page.js": "app/components/SeasonalSearchHub.js",
+  "app/sarasota-halloween-crown/page.js": "app/sarasota-halloween-crown/page.js",
   "app/christmas-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/new-years-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/florida-events/page.js": "app/florida-events/page.js",

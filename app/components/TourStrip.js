@@ -6,7 +6,7 @@
 // runtime (proven by the homepage card), so we fetch there.
 //
 // 2026-08-04 — THE HREF NO LONGER CARRIES THE PARTNER URL. This rendered
-// `href={t.url}`: the raw viator.com product link with `pid=P00308545` readable
+// `href={t.url}`: the raw viator.com product link with `pid=P00320881` readable
 // in view-source, on three live surfaces — /things-to-do/[city] and
 // /beaches/[city] (both via lib/landing.js) and /best-beaches/[metro]. Four
 // were sitting in the DOM of /things-to-do/parrish when this was found.

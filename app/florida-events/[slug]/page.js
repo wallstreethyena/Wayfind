@@ -31,6 +31,8 @@ import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
+import CrownOutbound from "../../components/CrownOutbound.js";
+import { CROWN_EVENT_SLUGS } from "../../../lib/crownCampaign.js";
 import ReturnToWayfind from "../../components/ReturnToWayfind.js";
 import { pairingHref } from "../../../lib/eventPairings";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
@@ -216,6 +218,7 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
+  const crownTracked = CROWN_EVENT_SLUGS.has(params.slug);
   // "Remind me" (owner, 2026-10-14): only for an event with a real date. An
   // undated season, a watchlist twin and a past event get no button.
   const remind = reminderFactsFor(e, { occurrences: occurrenceDatesFor(e) });
@@ -255,7 +258,7 @@ export default async function CuratedEventPage({ params }) {
   };
 
   return (
-    <main className="wf-event-experience"><EventExperienceStyles /><div className="wf-event-wrap">
+    <main className="wf-event-experience"><EventExperienceStyles />{crownTracked ? <CrownOutbound slug={params.slug} /> : null}<div className="wf-event-wrap">
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
 
@@ -301,7 +304,8 @@ export default async function CuratedEventPage({ params }) {
       {ticket ? (
         <div style={S.ticketWrap}>
           <a style={S.tix} href={ticket.href} target="_blank" rel={ticket.kind === "affiliate" ? "sponsored nofollow noopener" : ticket.rel}
-            aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}>
+            aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}
+            {...(crownTracked ? { "data-wf-ticket": "1", ...(ticket.kind === "affiliate" ? { "data-wf-ticket-kind": "affiliate" } : {}) } : {})}>
             {"🎟️ " + ticket.label}
           </a>
           {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
@@ -427,6 +431,7 @@ export default async function CuratedEventPage({ params }) {
         lng={mapPoint ? mapPoint.lng : NaN}
         approximate={isApproximateLocation(e)}
         picks={pairings}
+        ticketLink={crownTracked}
       />
       {pairingResult.unavailable ? (
         <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>
@@ -446,7 +451,7 @@ export default async function CuratedEventPage({ params }) {
 
       {site ? (
         <p style={S.p}>
-          <a style={S.link} href={site} rel="nofollow noopener" target="_blank">
+          <a style={S.link} href={site} rel="nofollow noopener" target="_blank" {...(crownTracked ? { "data-wf-ticket": "1" } : {})}>
             Official site: confirm dates and tickets before you travel
           </a>
         </p>

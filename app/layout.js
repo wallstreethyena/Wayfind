@@ -333,8 +333,13 @@ export default function RootLayout({ children }) {
             wrapper holds the 100dvh app shell, so any extra height here is pure
             document scroll that drags the app under the browser chrome. */}
         <DocumentPosition />
+        {/* #wf-scroll is layout-neutral until the phone feedback bar opts the
+            body into a column (app/components/SiteFeedback.js). Document routes
+            then scroll inside this node and the Feedback control sits under it,
+            so the control cannot cover copy. The app shell ("/" and /p) never
+            takes that opt-in. */}
+        <div id="wf-scroll">
         <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
-        <Suspense fallback={null}><SiteFeedback /></Suspense>
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
@@ -399,6 +404,8 @@ export default function RootLayout({ children }) {
           </div>
         </footer>
         </FooterVeil>
+        </div>
+        <Suspense fallback={null}><SiteFeedback /></Suspense>
         </PostHogProvider>
       </body>
     </html>

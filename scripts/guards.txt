@@ -512,6 +512,8 @@ node scripts/check-guide-cta-single-capture.mjs
 node scripts/test-guide-inline-book.mjs
 node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
+node scripts/test-guide-pick-offers.mjs
+node scripts/test-guide-pick-offers.mjs --red-prove
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
@@ -1451,6 +1453,7 @@ node scripts/check-guard-registry.mjs
 node scripts/test-secret-output-guard.mjs
 node scripts/test-viator-smoke-shape.mjs
 node scripts/test-viator-campaign.mjs
+node scripts/check-viator-pid.mjs
 node scripts/test-no-paid-placement-policy.mjs
 # Layer 2: THE INVERSE TEST. check-book-cta-needs-a-seller.mjs already locks
 # isTicketyPlace's type rules; this closes the one gap it leaves — it only
@@ -2285,3 +2288,12 @@ node scripts/test-shared-google-photo-serving.mjs
 # 2026-10-18 audit: stale sponsored snapshots publish no score, affiliate
 # disclosure is visible text, and a definitive photo miss is not refetched.
 node scripts/test-audit-trust-20261018.mjs
+# 2026-10-18 Sarasota Halloween Crown: corrected event facts, equal fan-vote
+# cards, and the session campaign events (crown_page_viewed, crown_contender_clicked,
+# event_outbound_clicked / commerce_cta_clicked).
+node scripts/test-halloween-crown.mjs
+# 2026-10-19 site fixes (WF-CREATIVE-20261019-001): honest merit copy next to
+# partner rails, Ticketmaster starts re-read inside 72 hours (and the one
+# stored Rays first pitch), beaches-only rankings, website (not app) copy,
+# drum circle about an hour before sunset.
+node scripts/test-site-fixes-20261019.mjs

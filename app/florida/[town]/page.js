@@ -36,8 +36,8 @@ export async function generateMetadata({ params }) {
   if (!t) return { title: "Not found" };
   const url = `${SITE_URL}/florida/${params.town}`;
   const title = `Things to Do in ${t.title}, FL (${new Date().getFullYear()}): Local Guide`;
-  const longDescription = `${t.tag}. The top-rated places in ${t.title}, FL right now, ranked by real reviews with no ads or paid placement.`;
-  const shortDescription = `${t.tag}. Top-rated in ${t.title}, FL, ranked by real reviews, no ads.`;
+  const longDescription = `${t.tag}. The top-rated places in ${t.title}, FL right now, ranked by real reviews. Rankings are never for sale.`;
+  const shortDescription = `${t.tag}. Top-rated in ${t.title}, FL, ranked by real reviews, never for sale.`;
   const description = longDescription.length <= 155 ? longDescription : shortDescription;
   // THE SHARE-CARD RULE: a card unique to this page, never the homepage art.
   const ogImg = `${SITE_URL}/api/og?t=${encodeURIComponent("Things to do in " + t.title + ", Florida")}&loc=${encodeURIComponent(t.title)}`;
@@ -108,7 +108,7 @@ export default async function Page({ params }) {
       {topTen.length >= 3 ? (
         <>
           <h2 style={S.h2}>The top-rated places right now</h2>
-          <p style={S.p}>Ranked by rating and review volume with Wayfind&apos;s junk filter — no ads, no paid placement. Live hours and the full list are in the app.</p>
+          <p style={S.p}>Ranked by rating and review volume with Wayfind&apos;s junk filter. Rankings are never for sale. Tap any pick for live hours and the full list on GoWayfind.com.</p>
           <ul className="wf-place-card-list" style={{ listStyle: "none", margin: 0, padding: 0 }}>
           {topTen.map((p, i) => {
             const why = whyLine(p, "spot");

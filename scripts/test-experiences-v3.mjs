@@ -35,7 +35,16 @@ ok(metroToDest("Nowhere") === null, "unknown metro -> null (serve then falls bac
 const sample = { productCode: "263521P1", title: "Dolphin Tour", productUrl: "https://www.viator.com/x", images: [{ variants: [{ width: 400, url: "https://img/x.jpg" }] }], reviews: { combinedAverageRating: 5, totalReviews: 40 }, pricing: { summary: { fromPrice: 475 } }, duration: { fixedDurationInMinutes: 120 }, flags: ["LIKELY_TO_SELL_OUT"] };
 const row = productToRow(sample, "25738", "Sarasota");
 ok(row.product_code === "263521P1", "row keyed by productCode");
-ok(row.product_url === sample.productUrl, "product_url passed straight through — never reconstructed");
+// 2026-10-19: only the pid is pinned to Wayfind's account (lib/viatorPid.js);
+// host, path and every other param pass through exactly as the API returned them.
+ok(row.product_url === "https://www.viator.com/x?pid=P00320881", "product_url passes through with only the pid pinned — never reconstructed");
+{
+  const api = "https://www.viator.com/tours/Sarasota/x/d25738-108117P1?mcid=42383&pid=P00000999&medium=api&api_version=2.0";
+  const r2 = productToRow({ ...sample, productUrl: api }, "25738", "Sarasota");
+  const u2 = new URL(r2.product_url);
+  ok(u2.searchParams.get("pid") === "P00320881" && u2.searchParams.get("mcid") === "42383" && u2.searchParams.get("medium") === "api" && u2.searchParams.get("api_version") === "2.0" && u2.pathname === new URL(api).pathname,
+    "an API URL carrying another pid is stored with Wayfind's pid, everything else unchanged");
+}
 ok(row.rating === 5 && row.reviews === 40 && row.from_price === 475 && row.duration_min === 120, "numeric fields mapped");
 ok(row.selling_out === true, "LIKELY_TO_SELL_OUT -> selling_out true");
 ok(productToRow({ title: "no code" }, "25738", "Sarasota") === null, "product without code/url is dropped");
