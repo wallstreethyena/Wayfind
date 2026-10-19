@@ -545,10 +545,10 @@
     "owner": "Revenue QA"
   },
   "scripts/test-no-paid-placement-policy.mjs": {
-    "protects": "/partners names the live Rio sponsorship and does not offer placement for sale; the Rio partner page drops the unsourced county-ranking claim and dates its Google snapshot; the affiliate opportunity worklist can never carry a commission-led partner instruction.",
+    "protects": "/editorial-policy, /how-wayfind-ranks, /partners, and the Rio partner page say rankings, list order, guide picks, and the Wayfind Score are never paid for, name the Sponsored · Paid partner label, and place that sponsorship outside ranked lists; none of them claims the site has no paid placement or that a business pays to be featured. The affiliate opportunity worklist can never carry a commission-led partner instruction.",
     "blastRadius": {
       "category": "trust",
-      "detail": "If it rots, a public page can again offer paid featured placement against the published editorial policy, or the revenue worklist can steer partner choice by commission."
+      "detail": "If it rots, a public page can again deny a labeled sponsorship that is live, or can offer paid rank, list position, a guide pick, or a Wayfind Score, or the revenue worklist can steer partner choice by commission."
     },
     "owner": "Revenue QA"
   },
