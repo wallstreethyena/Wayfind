@@ -17,6 +17,16 @@ function miles(distance) {
   return distance < 10 ? distance.toFixed(1) + " mi" : Math.round(distance) + " mi";
 }
 
+function snapshotMeta(pick) {
+  if (!pick || pick.scoreWithheld) return "";
+  const bits = [];
+  if (pick.rating != null && Number.isFinite(Number(pick.rating))) bits.push(Number(pick.rating).toFixed(1) + "★");
+  if (pick.reviews != null && Number.isFinite(Number(pick.reviews)) && Number(pick.reviews) > 0) {
+    bits.push(Number(pick.reviews).toLocaleString() + " Google reviews");
+  }
+  return bits.length ? " · " + bits.join(" · ") : "";
+}
+
 function branchOf(pick) {
   const parts = String(pick.venueLine || "").split("·");
   return parts.length > 1 ? parts[parts.length - 1].trim() : "";
@@ -64,13 +74,15 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
   } : null;
   const seenRef = useCommerceImpression(ctx);
   const hasStoreKey = !!(pick && pick.placeId);
+  const showSnapshot = !!(pick && !pick.scoreWithheld);
   const place = hasStoreKey ? {
     id: pick.placeId,
     name: pick.advertiser,
     lat: pick.lat,
     lng: pick.lng,
-    rating: pick.rating,
-    reviews: pick.reviews,
+    rating: showSnapshot ? pick.rating : null,
+    reviews: showSnapshot ? pick.reviews : null,
+    wfScore: showSnapshot ? pick.wfScore : null,
     photo: pick.photo || null,
     cardCategory: pick.category || "Local business",
     distMi: pick.distMi,
@@ -137,7 +149,7 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
           {pick.person.name}{pick.person.role ? " · " + pick.person.role : ""}
         </div> : null}
         <div className="wf-place-card-attachment-meta">
-          {branch || pick.advertiser}{distance ? " · " + distance + " away" : ""}{Number.isFinite(Number(pick.rating)) ? " · " + Number(pick.rating).toFixed(1) + "★" : ""}{Number.isFinite(Number(pick.reviews)) ? " · " + Number(pick.reviews).toLocaleString() + " Google reviews" : ""}
+          {branch || pick.advertiser}{distance ? " · " + distance + " away" : ""}{snapshotMeta(pick)}
         </div>
         {pick.body ? <p className="wf-place-card-attachment-body">{pick.body}</p> : null}
         <a href={pick.outboundHref} target="_blank" rel="sponsored nofollow noopener" data-commerce-owner="SponsoredPlaceCard" onClick={onBook}

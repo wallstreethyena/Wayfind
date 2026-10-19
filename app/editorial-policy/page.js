@@ -2,7 +2,7 @@
 // keep every sentence true of the actual process.
 export const metadata = {
   title: "Editorial policy | Wayfind",
-  description: "How Wayfind researches, verifies, and corrects its guides and rankings — and how affiliate links are handled.",
+  description: "How Wayfind researches, verifies, and corrects its guides and rankings. Rankings, list order, guide picks, and the Wayfind Score are never paid for, and affiliate commission never changes them. A labeled sponsorship can appear outside those lists.",
   alternates: { canonical: "https://www.gowayfind.com/editorial-policy" },
 };
 
@@ -25,7 +25,7 @@ export default function Page() {
       <h2 style={S.h2}>Verification</h2>
       <p style={S.p}>Every guide carries an updated date, which is when its facts — hours, prices, status — were last checked against official listings. Inside the app, hours and open-now status are computed live from current venue data rather than copied from articles.</p>
       <h2 style={S.h2}>Rankings</h2>
-      <p style={S.p}>List order and the Wayfind Score are our editorial opinion, produced by the same method everywhere in the app, and carrying no ads and no paid placement. The Score is pure merit; anything we earn a commission on is a separate, clearly-labeled layer that never changes it. Read <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
+      <p style={S.p}>List order, guide picks, and the Wayfind Score are our editorial opinion, produced by the same method everywhere in the app. Rankings, list order, guide picks, and the Wayfind Score are never paid for, and affiliate commission never changes them. Wayfind may show a clearly labeled sponsorship. The label is &ldquo;Sponsored · Paid partner.&rdquo; It can appear as a card near the business, outside ranked lists, and on its partner page. It does not sit inside a ranked list and it has no effect on a Wayfind Score. Anything we earn a commission on is a separate, clearly-labeled layer that never changes the Score. Read <a style={S.a} href="/how-wayfind-ranks">how Wayfind ranks</a>.</p>
       <h2 style={S.h2}>Affiliate links</h2>
       <p style={S.p}>Some links go to booking partners (for example Viator or hotel sites) and may earn Wayfind a commission. Affiliate potential never changes what we recommend or where it ranks, and pages with partner links say so. If something isn&apos;t worth your money, we say that too.</p>
       <h2 style={S.h2}>Corrections</h2>
