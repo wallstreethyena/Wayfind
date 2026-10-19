@@ -32,7 +32,7 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 const TODAY = "2026-10-14";
 const NOW = Date.parse("2026-10-14T12:00:00Z");
 const iso = (ms) => new Date(ms).toISOString().replace(/\.\d{3}Z$/, "Z");
-const regs = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008"].map((f) => import("../lib/" + f + ".js")));
+const regs = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008", "fallLiveArea20261019"].map((f) => import("../lib/" + f + ".js")));
 const FALL = regs.flatMap((m) => Object.values(m).find(Array.isArray) || []);
 const XMAS = mergeChristmasResearch([]);
 const fall = (id) => FALL.find((r) => r.event_id === id);
