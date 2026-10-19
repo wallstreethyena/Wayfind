@@ -81,7 +81,7 @@ ok(checked > 0, "found no money-path env read at all — the scanner is broken, 
 // ── behaviour, not just shape ───────────────────────────────────────────────
 ok(credential("[SENSITIVE]") === "", 'credential("[SENSITIVE]") must be empty');
 ok(credential("  [SENSITIVE]  ") === "", "…including with whitespace");
-ok(credential("P00308545") === "P00308545", "self-test: a REAL pid must survive — rejecting one takes revenue to zero silently");
+ok(credential("P00320881") === "P00320881", "self-test: a REAL pid must survive — rejecting one takes revenue to zero silently");
 ok(isPlaceholderCredential("[SENSITIVE]") === true, "the classifier must know Vercel's placeholder");
 ok(isValidConversionLabel("[SENSITIVE]") === false, "an Ads conversion label must reject the placeholder too");
 ok(isValidConversionLabel("AbC-D_efGh12345678") === true, "self-test: a real conversion label must still validate");

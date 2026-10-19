@@ -87,7 +87,7 @@ for (const [name, types] of PAID) {
   ok(typeof url === "string" && url.length > 0, `ticketsUrl(${name}) returns a real string — the SAME code path DOES produce a CTA for paid inventory`);
   if (typeof url === "string") {
     ok(/^https:\/\/www\.viator\.com\//.test(url), `…and it is a viator.com URL (${name})`);
-    ok(url.includes("pid=P00000001"), `…carrying OUR fixture pid, proving withViatorTracking() ran on this exact call (${name})`);
+    ok(url.includes("pid=P00320881"), `…carrying Wayfind's pinned pid P00320881, proving withViatorTracking() ran on this exact call (${name})`);
     ok(url.includes("mcid=42383") && url.includes("medium=link"), `…with attribution params intact (${name})`);
   }
 }

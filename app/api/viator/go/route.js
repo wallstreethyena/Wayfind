@@ -28,6 +28,7 @@ import {
 } from "../../../../lib/viatorIntegrity.js";
 
 export { sanitizeClientClickId };
+import { WAYFIND_VIATOR_PID } from "../../../../lib/viatorPid.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 
@@ -35,7 +36,8 @@ import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
 // lookup, so a value present in the runtime can never be baked out as "".
 const getKey = () => credential(process.env["VIATOR_API_KEY"]);
-const getPid = () => credential(process.env["NEXT_PUBLIC_VIATOR_PID"]);
+// 2026-10-19: pinned to Wayfind's Viator account (lib/viatorPid.js), never env.
+const getPid = () => WAYFIND_VIATOR_PID;
 
 // Warm-instance memory cache: query -> { url, exp }. v2: the key is prefixed with
 // RESOLVER_VERSION so a resolver change (like this geo-whitelist) invalidates every

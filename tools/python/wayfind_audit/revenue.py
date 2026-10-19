@@ -258,7 +258,7 @@ def tracking(row, provider):
         if provider == "viator":
             return (
                 u.hostname in ("viator.com", "www.viator.com")
-                and parse_qs(u.query).get("pid") == ["P00308545"]
+                and parse_qs(u.query).get("pid") == ["P00320881"]
                 and u.path.endswith("-" + row["product_code"])
             )
         dest = row.get("dest_url") or ""

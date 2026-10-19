@@ -160,7 +160,7 @@ const { landingRailSeeds } = await import("../lib/landingRails.js");
 // ── fixtures ───────────────────────────────────────────────────────────────────
 // Ratings descend with the code's position so the strip's rank order is known.
 const row = (code, rating = 4.8, extra = {}) => ({ code, title: `Distinct adventure ${code} on the bay`, image: `https://media.viator.com/${code}.jpg`, rating, reviews: 500, fromPrice: 50, duration: "2h",
-  url: `https://www.viator.com/tours/x/${code}?mcid=42383&pid=P00308545&medium=api`, ...extra });
+  url: `https://www.viator.com/tours/x/${code}?mcid=42383&pid=P00320881&medium=api`, ...extra });
 const CITY = { name: "Sarasota", lat: 27.33, lng: -82.53 };
 const RAIL = ["A1", "A2", "A3"].map((c) => row(c, 4.6));
 // Strip candidates: the two rail products rank FIRST (4.9), then four strip-only ones.
