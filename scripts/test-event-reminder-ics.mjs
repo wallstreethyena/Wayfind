@@ -49,7 +49,7 @@ let ICAL;
 try { ICAL = (await import("ical.js")).default; } catch (e) { ICAL = null; }
 if (!ICAL) { console.log("test-event-reminder-ics: FAIL (the ical.js parser is not installed: run npm ci. This guard never skips its parser.)"); process.exit(1); }
 
-const regs = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008"].map((f) => import("../lib/" + f + ".js")));
+const regs = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008", "fallLiveArea20261019"].map((f) => import("../lib/" + f + ".js")));
 const FALL = regs.flatMap((m) => Object.values(m).find(Array.isArray) || []);
 const XMAS = mergeChristmasResearch([]);
 const real = (id) => [...FALL, ...XMAS].find((r) => r.event_id === id);

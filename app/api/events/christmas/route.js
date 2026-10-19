@@ -54,7 +54,13 @@ export async function GET(request) {
     //   time, the five location corrections, the distance group ordering law.
     // v6 (2026-10-13): the research data is the source (752 rows, watchlist
     //   never shown), one card per experience, honesty labels.
-    const key = `christmas-intents:v7:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v8 (2026-10-19): eight confirmed Tampa Bay shows (Ruth Eckerd Hall,
+    //   the Mahaffey Theater and MOSI) join the research file, so no v7
+    //   payload outlives the deploy.
+    // v9 adds ten more confirmed cards (gift market, Venice tree lighting,
+    // Oxford Exchange, St. Pete Ballet, Meadows market, Art Ovation, Venice
+    // Nights, Sarasota Art Museum, Boyd Hill workshop, Vinoy movie).
+    const key = `christmas-intents:v9:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);

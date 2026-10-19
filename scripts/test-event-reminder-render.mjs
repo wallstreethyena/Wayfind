@@ -151,7 +151,7 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
 
 // ── the button on Fall, Halloween and Christmas dated cards; absent on undated, past, canceled ──────────
 {
-  const registries = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008"].map((f) => import("../lib/" + f + ".js")));
+  const registries = await Promise.all(["fallDiscoveries2026", "fallFeaturedFestivals2026", "fallGapFill20261007", "fallFoodGap20261008", "fallTampaPicks20261008", "fallLiveArea20261019"].map((f) => import("../lib/" + f + ".js")));
   const FALL_ROWS = registries.flatMap((m) => Object.values(m).find(Array.isArray) || []);
   const { addDays } = await import("../lib/eventReminder.js");
   const realRow = (id) => FALL_ROWS.find((r) => r.event_id === id);
