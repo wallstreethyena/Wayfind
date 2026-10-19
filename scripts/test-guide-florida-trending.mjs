@@ -115,8 +115,13 @@ ok(art?.src === "/guides/unsplash/tampa-waterfront-kody-cheyne.webp" && art.kind
 ok(Array.isArray(GUIDE_CONTEXT_LINKS[SLUG]) && GUIDE_CONTEXT_LINKS[SLUG].length === 2, "related guides follow the lovebug context-link shape");
 
 const moduleSrc = readFileSync(new URL("../lib/guidesFloridaTrending2026.js", import.meta.url), "utf8");
-ok(!/placeRail\s*:/.test(moduleSrc), "the module does not declare a place rail");
-ok(!/editorialMode\s*:/.test(moduleSrc), "the module does not set editorialMode");
+const placeRailProbe = /placeRail\s*:/;
+const editorialModeProbe = /editorialMode\s*:/;
+ok(/export const FLORIDA_TRENDING_2026_GUIDES\s*=/.test(moduleSrc), "the source probe finds the guide export that is present");
+ok(placeRailProbe.test("placeRail: { title: \"Nearby\" },") === true, "the place-rail probe matches a declaration fixture");
+ok(editorialModeProbe.test("editorialMode: true,") === true, "the editorialMode probe matches a declaration fixture");
+ok(!placeRailProbe.test(moduleSrc), "the module does not declare a place rail");
+ok(!editorialModeProbe.test(moduleSrc), "the module does not set editorialMode");
 
 // The phrase checks have to be able to fail. A string that contains the
 // banned wording must not pass the same predicate the guide just passed.
