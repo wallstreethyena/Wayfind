@@ -39,7 +39,7 @@ const goLinks = (html) => hrefsOf(html).filter((h) => /^\/api\/(commerce|viator)
 const tourMod = await loadComponent(rel("../app/components/TourStrip.js"), REPO);
 const Strip = tourMod.default;
 const ROWS = [1, 2, 3].map((i) => ({ code: `25738P${i}`, title: `Kayak tour number ${i} of the bay`, image: `https://media.viator.com/${i}.jpg`, rating: 4.8, reviews: 500 + i, fromPrice: 50 + i,
-  url: `https://www.viator.com/tours/x/25738P${i}?mcid=42383&pid=P00308545&medium=api` }));
+  url: `https://www.viator.com/tours/x/25738P${i}?mcid=42383&pid=P00320881&medium=api` }));
 const stripHtml = renderToStaticMarkup(React.createElement(Strip, { lat: 27.33, lng: -82.53, title: "Book an experience in Sarasota", initialItems: ROWS }));
 const stripLinks = goLinks(stripHtml);
 ok(stripLinks.length === 3, `seeded TourStrip renders one go-link per row in the server markup (got ${stripLinks.length})`);
