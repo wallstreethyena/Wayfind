@@ -691,7 +691,7 @@ scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4
 scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	25	0	0	fe5b1fca49aac46725311df93665ce7831177eb2b9055f84644dfbbe35afd533
 scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	0	0	1b0c16587c6bbc8eac01f417c4a312ae71bd109f1a6f4733640b4ff6d7cb88d2
 scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	9707818cbfca8a511e52dbb93f8859a31bdb079653cbb4369192a56376f8b9b8
-scripts/test-guide-pick-offers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	82d6fb05826838d4b1983393e61668198b0d4ad29f8895e9cef8d3eff62c0a8b
+scripts/test-guide-pick-offers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0	05df2e4d7f57d964aa9e4e3d8ba75f6c8187e434009a0c01033541e471c5615e
 scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	21ae009673cf910f1df0a42dc22e59f4aacf4d76cbf5d3bd50e2cc6eeb03486f
 scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	75a7c656b0b56bc49804ebbe653154accdbcc56ee273511e975b1868baf9fdd9
 scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c71ddcdd9e9c00d77ab5575d17842f71b14bba71973917741ecc1789
@@ -901,7 +901,7 @@ scripts/test-shell-key-guide-deeplinks.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	1	
 scripts/test-shopping.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	1	1	4c59a686a088111c4dd87ae3603ff3e737abeba106789844a400ff16ffa07eed
 scripts/test-showtime-dedup.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	dac28a0eaf89cb4592bc35ea57bc74dd7926b572ac3a9f175fafac8de2e78aab
 scripts/test-sighting-renewal.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	790a8ed56840b72c7d01c9fe7c6925c82a6dbe8b087c8bf552f9a0c5b0fd8957
-scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	21	0	0	4ff86e8bdbf5c3d95bf91459f41c9d1c538df20a529d5e061d8bd41ce099510f
+scripts/test-site-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	e25164f065bc8be41d2a768d5ca983b23cbd67ec55aaae13c9b1a7506e0798c4
 scripts/test-site-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	1	1	0e3112c1683fd967704d6bbda5a029df3e5b952533e319b0c8cc6090da62bdec
 scripts/test-sort-modes.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	0016368f6700aa5f04378532f0dddbbd17c00d4fbfee345eae5e4bbbbf26876f
 scripts/test-sparse-category.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	0f7c4d415efec36680b9357ee540ab5d0f6333736087ee9107aa1963779fc10f

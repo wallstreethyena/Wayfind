@@ -15,6 +15,7 @@ import { useEffect, useRef } from "react";
 import { commerceHref, emitCommerce, mintClickId } from "../../../lib/commerce";
 import { track } from "../../../lib/track";
 import { PICK_OFFER_CTA } from "../../../lib/guidePickOffers";
+import { GuideCommissionLine } from "../../components/GuideCommissionLine";
 
 export const SURFACE = "guide_pick";
 const DISCLOSURE_VERSION = "guide-pick-offer-v2";
@@ -82,7 +83,7 @@ function OfferCard({ offer, slug, pickId }) {
       >
         {PICK_OFFER_CTA} ↗
       </a>
-      <p style={small}>Opens the product page on Viator{offer.operator ? `; operated by ${offer.operator}` : ""}. Wayfind may earn a commission, which never changes our picks or their order.</p>
+      <GuideCommissionLine lead={"Opens the product page on Viator" + (offer.operator ? `; operated by ${offer.operator}` : "") + "."} />
     </div>
   );
 }
