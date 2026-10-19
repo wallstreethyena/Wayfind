@@ -27,7 +27,7 @@ export default function BeachPageClient({ topBeach, metro, label, variant }) {
 
   const share = () => {
     const url = window.location.origin + "/best-beaches/" + metro;
-    const data = { title: "The best beaches — " + label, text: "Every beach ranked by the Wayfind Score. One list, no ads.", url };
+    const data = { title: "The best beaches — " + label, text: "Every beach ranked by the Wayfind Score. One list, never for sale.", url };
     openShareFlow(data, () => { setCopied(true); setTimeout(() => setCopied(false), 1800); });
   };
 

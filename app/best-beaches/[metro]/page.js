@@ -5,7 +5,7 @@
 // Bayesian formula); why-lines explain the rank, never invent sand or surf.
 // Live water conditions render client-side for the #1 beach only (compact).
 import { notFound } from "next/navigation";
-import { BEACH_METROS, rankBeaches, beachWhy } from "../../../lib/beaches";
+import { BEACH_METROS, rankBeaches, beachWhy, isRankableBeach } from "../../../lib/beaches";
 import { metroCovers } from "../../../lib/metroRegions";
 import { mapWfEditorial } from "../../../lib/editorialRule";
 import EditorialLandingHero, { editorialHeroCss } from "../../components/EditorialLandingHero";
@@ -25,6 +25,8 @@ import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
 // app/components/Stay22LinkSwap.js and scripts/check-no-sitewide-autolinker.mjs
 // for why it no longer loads from app/layout.js.
 import Stay22LinkSwap from "../../components/Stay22LinkSwap";
+// One sentence for every affiliate CTA (same constant the guide offers use).
+import { GUIDE_OFFER_COMMISSION_LINE } from "../../../lib/affiliateDisclosure.js";
 
 export const revalidate = 3600;
 
@@ -52,6 +54,19 @@ async function editorialsFor(ids) {
   } catch (e) { return {}; }
 }
 
+async function primaryTypesFor(url, anon, ids) {
+  if (!url || !anon || !ids.length) return {};
+  try {
+    const rows = await fetchBeachJson(url + "/rest/v1/wf_inventory?select=place_id,primary_type&place_id=in.(" + ids.map(encodeURIComponent).join(",") + ")", {
+      headers: { apikey: anon, Authorization: "Bearer " + anon },
+      next: { revalidate: 3600 },
+    });
+    const out = {};
+    for (const r of Array.isArray(rows) ? rows : []) if (r && r.place_id) out[r.place_id] = r.primary_type || "";
+    return out;
+  } catch (e) { return {}; }
+}
+
 async function beachesFor(metro) {
   const c = CENTROID[metro];
   const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim().replace(/\/+$/, "");
@@ -68,8 +83,13 @@ async function beachesFor(metro) {
       next: { revalidate: 3600 },
     });
 
-    return rankBeaches((Array.isArray(rows) ? rows : [])
-      .filter((b) => metroCovers(metro, b.metro))
+    const near = (Array.isArray(rows) ? rows : []).filter((b) => metroCovers(metro, b.metro));
+    // The RPC does not return what a row IS, so read primary types for just
+    // these ids (anon-readable wf_inventory). Fail-soft: on a miss the name
+    // rule in isRankableBeach still refuses charters and tours.
+    const types = await primaryTypesFor(url, anon, near.map((b) => b.place_id));
+    return rankBeaches(near
+      .filter((b) => isRankableBeach({ name: b.name, primary_type: types[b.place_id] || "" }))
       .map((b) => ({
         id: b.place_id, name: b.name, photo_ref: b.photo_ref, editorial: b.editorial,
         lat: b.lat, lng: b.lng,
@@ -105,7 +125,7 @@ export async function generateMetadata({ params }) {
   const og = SITE_URL + "/api/og/beaches?metro=" + encodeURIComponent(params.metro) + "&t=" + encodeURIComponent(top3) + "&n=" + beaches.length + "&rv=" + totalReviews;
   const near = NEAR_LABEL[params.metro] || meta.label;
   const title = "The Best Beaches Near " + near + " | Wayfind";
-  const description = "Stop searching and start choosing. Wayfind's shortlist reveals the beaches near " + meta.short + " that fit the day you actually want — clear winners, honest tradeoffs, and no paid placement.";
+  const description = "Stop searching and start choosing. Wayfind's shortlist reveals the beaches near " + meta.short + " that fit the day you actually want — clear winners, honest tradeoffs, and rankings that are never for sale.";
   return {
     title, description,
     alternates: { canonical: SITE_URL + "/best-beaches/" + params.metro },
@@ -176,7 +196,7 @@ export default async function BeachesPage({ params }) {
   if (beaches.length) {
     ld.push({ "@context": "https://schema.org", "@type": "ItemList", name: "The best beaches — " + meta.label, numberOfItems: beaches.length, itemListElement: beaches.map((b, i) => ({ "@type": "ListItem", position: i + 1, item: { "@type": "Beach", name: b.name, geo: b.lat != null ? { "@type": "GeoCoordinates", latitude: b.lat, longitude: b.lng } : undefined } })) });
     ld.push({ "@context": "https://schema.org", "@type": "FAQPage", mainEntity: [
-      { "@type": "Question", name: "What is the best beach near " + meta.short + "?", acceptedAnswer: { "@type": "Answer", text: beaches[0].name + " currently ranks #1" + (beaches[0].rating != null ? " with a " + beaches[0].rating + "★ rating across " + (beaches[0].reviews || 0).toLocaleString() + " reviews" : "") + ", on the Wayfind Score. No ads, no paid placement." } },
+      { "@type": "Question", name: "What is the best beach near " + meta.short + "?", acceptedAnswer: { "@type": "Answer", text: beaches[0].name + " currently ranks #1" + (beaches[0].rating != null ? " with a " + beaches[0].rating + "★ rating across " + (beaches[0].reviews || 0).toLocaleString() + " reviews" : "") + ", on the Wayfind Score. Rankings are never for sale." } },
     ] });
   }
 
@@ -257,6 +277,10 @@ export default async function BeachesPage({ params }) {
             </span>
             <span style={{ flexShrink: 0, background: C.accent, color: "#0D1117", borderRadius: 999, padding: "7px 14px", fontSize: 12, fontWeight: 800 }}>Check rates ↗</span>
           </a>
+          {/* 2026-10-19: the commission line sits directly under the partner
+              stay CTA as visible text (no hover, no title attribute), so a phone
+              reader sees it before tapping "Check rates". */}
+          <p data-stay-commission style={{ margin: "8px 2px 0", fontSize: 12.5, lineHeight: 1.45, color: "#E6EDF3" }}>{GUIDE_OFFER_COMMISSION_LINE}</p>
           </>
         ) : null}
 

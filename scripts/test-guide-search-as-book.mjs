@@ -36,7 +36,7 @@ const CR_SLUG = "swim-with-manatees-crystal-river";
 const LIVE_LEAK =
   "/api/viator/go?q=Crystal%20River%20manatee%20swim%20tour&city=Crystal%20River&kind=entertainment&placeId=guide%3ASwim%20with%20the%20manatees%20in%20Kings%20Bay&intent=search";
 const SEARCH_RESULTS =
-  "https://www.viator.com/searchResults/all?text=Crystal%20River%20manatee%20swim%20tour&pid=P00308545&mcid=42383&medium=link";
+  "https://www.viator.com/searchResults/all?text=Crystal%20River%20manatee%20swim%20tour&pid=P00320881&mcid=42383&medium=link";
 const GATORLAND_PRODUCT =
   "https://www.viator.com/tours/Orlando/Gatorland-General-Admission-Ticket/d663-3458ENTRY";
 const GATORLAND_GO =

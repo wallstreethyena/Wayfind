@@ -176,17 +176,22 @@ const bareDirect = runJson(DIRECT_PROBE, bareEnv);
 const credDirect = runJson(DIRECT_PROBE, credEnv);
 ok(bareDirect && credDirect,
   `the viatorDirectUrl probe must return JSON (bare=${JSON.stringify(bareDirect)}, credentialed=${JSON.stringify(credDirect)})`);
-// Bare: unattributed (raw URL, no pid) — attributed count 0. The function
-// returns the input URL when VIATOR is unset; it does not return null. Count
-// attributed results so the measurement matches the builder.
-ok(bareDirect && bareDirect.attributed === false,
-  `PREMISE FAILED: bare viatorDirectUrl must not stamp a pid (got ${JSON.stringify(bareDirect)})`);
-ok(credDirect && credDirect.href && credDirect.attributed === true,
-  `THE PASS PROVES NOTHING: credentialed viatorDirectUrl must return a non-null attributed viator.com URL (got ${JSON.stringify(credDirect)})`);
-ok(credDirect && typeof credDirect.href === "string" && credDirect.href.includes(GUARD_STUB_ENV.NEXT_PUBLIC_VIATOR_PID),
-  "credentialed viatorDirectUrl must carry the stub PID — otherwise the second pass did not apply GUARD_STUB_ENV");
-ok(bareDirect && credDirect && bareDirect.href !== credDirect.href,
-  `the credentialed pass must reach strictly more than the bare pass (bareDirect=${JSON.stringify(bareDirect)}, credDirect=${JSON.stringify(credDirect)})`);
+// 2026-10-19: Viator's pid is PINNED in code (lib/viatorPid.js) to Wayfind's
+// own account, so viatorDirectUrl is attributed with P00320881 in BOTH passes and
+// the env stub can no longer change it. That is the property now asserted. The
+// credentialed pass still matters for GYG and for proving the stubs reach the
+// child, which the ENV probe below measures directly.
+ok(bareDirect && bareDirect.attributed === true && String(bareDirect.href).includes("pid=P00320881"),
+  `bare viatorDirectUrl must carry Wayfind's pinned pid P00320881 (got ${JSON.stringify(bareDirect)})`);
+ok(credDirect && credDirect.attributed === true && String(credDirect.href).includes("pid=P00320881"),
+  `credentialed viatorDirectUrl must carry Wayfind's pinned pid P00320881, never the stub (got ${JSON.stringify(credDirect)})`);
+ok(credDirect && !String(credDirect.href).includes(GUARD_STUB_ENV.NEXT_PUBLIC_VIATOR_PID),
+  "credentialed viatorDirectUrl must NOT carry the stub PID — env no longer chooses the Viator pid");
+const ENV_PROBE = `console.log(JSON.stringify({ v: process.env.NEXT_PUBLIC_VIATOR_PID || null, g: process.env.NEXT_PUBLIC_GYG_PID || null }));`;
+const bareEnvSeen = runJson(ENV_PROBE, bareEnv);
+const credEnvSeen = runJson(ENV_PROBE, credEnv);
+ok(bareEnvSeen && credEnvSeen && credEnvSeen.v === GUARD_STUB_ENV.NEXT_PUBLIC_VIATOR_PID && credEnvSeen.g === GUARD_STUB_ENV.NEXT_PUBLIC_GYG_PID && bareEnvSeen.v === null,
+  `the credentialed pass must apply GUARD_STUB_ENV and the bare pass must not (bare=${JSON.stringify(bareEnvSeen)}, credentialed=${JSON.stringify(credEnvSeen)})`);
 
 /* ── 4. the runner must actually perform the pass ─────────────────────────── */
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
@@ -209,5 +214,5 @@ console.log(
   `check-credentialed-paths: OK — ${pass} assertions; ${keys.length} public stub(s), ` +
   `${CREDENTIALED_GUARDS.length} guard(s) in the credentialed set; ` +
   `MEASURED by spawn: ${bare} exact go-CTA(s) bare vs ${cred} credentialed (bare exact is allowed); ` +
-  `viatorDirectUrl attributed ${bareDirect && bareDirect.attributed ? 1 : 0} bare vs ${credDirect && credDirect.attributed ? 1 : 0} credentialed, so the second pass reaches code the first cannot`
+  `viatorDirectUrl attributed ${bareDirect && bareDirect.attributed ? 1 : 0} bare vs ${credDirect && credDirect.attributed ? 1 : 0} credentialed, Viator pid pinned (P00320881) in both passes; stubs measured reaching the credentialed child`
 );
