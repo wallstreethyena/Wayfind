@@ -41,6 +41,8 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     "../../../../lib/fallFoodGap20261008.js": { FALL_FOOD_GAP_2026_10_08: [] },
     "../../../../lib/fallTampaPicks20261008.js": { FALL_TAMPA_PICKS_2026_10_08: [] },
     "../../../../lib/fallLiveArea20261019.js": { FALL_LIVE_AREA_2026_10_19: [] },
+    "../../../../lib/seasonalLiveAreaResolve.js": { resolveSeasonalLiveArea: () => ({ fall: [], christmas: [] }) },
+    "../../../../lib/seasonalLiveAreaInventory.js": { readSeasonalPendingInventory: async () => ({ rows: [], failed: false }) },
     "../../../../lib/curatorPicksServer.js": { loadOwnerPickIds: async () => new Set(), applyCuratorPicksServer: (places) => places },
     "../../../../lib/fallStayDestinations.js": { fallStayDestinations: () => [] },
     "../../../../lib/curatedEvents.js": {

@@ -31,6 +31,8 @@ import { FALL_GAP_FILL_2026_10_07 } from "../../../../lib/fallGapFill20261007.js
 import { FALL_FOOD_GAP_2026_10_08 } from "../../../../lib/fallFoodGap20261008.js";
 import { FALL_TAMPA_PICKS_2026_10_08 } from "../../../../lib/fallTampaPicks20261008.js";
 import { FALL_LIVE_AREA_2026_10_19 } from "../../../../lib/fallLiveArea20261019.js";
+import { resolveSeasonalLiveArea } from "../../../../lib/seasonalLiveAreaResolve.js";
+import { readSeasonalPendingInventory } from "../../../../lib/seasonalLiveAreaInventory.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
@@ -117,7 +119,11 @@ export async function GET(request) {
     // v36 adds the second live-area pass: Pier dog parade, Cracker Country,
     // Boyd Hill, Imagine Museum, MFA, Sahib Shrine, Robert L. Taylor, Oldsmar,
     // Folly Farm and Bloomingdale Square. No v35 payload outlives this deploy.
-    const key = `fall-intents:v36:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v37 publishes the confirmed rows in lib/seasonalLiveAreaPending20261019.js
+    // once each venue is in inventory with its own stored photo. A cached v36
+    // payload was built before that venue existed, so it must not outlive this
+    // deploy and hide the new card.
+    const key = `fall-intents:v37:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -132,17 +138,20 @@ export async function GET(request) {
       const signal = AbortSignal.timeout(FALL_DB_DEADLINE_MS);
       // All three reads are independent. Start them together so a cold cache
       // costs one Supabase round trip rather than a waterfall of three.
-      const [rows, placeResult, dealResult, pickIds] = await Promise.all([
+      const [rows, placeResult, dealResult, pickIds, pendingInventory] = await Promise.all([
         // fresh: the rail retires an event the moment its date passes, so it
         // must not read the ISR pages' hour-old cache entry (lib/supabase.js).
         fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory")
-          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded")
+          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,photo_url,status,excluded")
           .in("place_id", ids).abortSignal(signal),
         dealIds.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)
           : Promise.resolve({ data: [], error: null }),
         loadOwnerPickIds().catch(() => null), // owner picks (lib/curatorPicksServer.js); null = unknown
+        // Its own deadline. A slow name lookup skips these cards and leaves
+        // the rails that were already on the poster running.
+        readSeasonalPendingInventory(),
       ]);
       const sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error);
       if (placeResult.error) console.error("[api/events/fall] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
@@ -158,7 +167,19 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19]);
+      const inventoryById = new Map();
+      const rememberPlace = (row) => {
+        if (!row?.place_id) return;
+        const prev = inventoryById.get(row.place_id);
+        if (!prev || (!hasStoredPlacePhoto(prev) && hasStoredPlacePhoto(row))) inventoryById.set(row.place_id, row);
+      };
+      for (const row of placeResult.data || []) rememberPlace(row);
+      for (const row of pendingInventory.rows || []) rememberPlace(row);
+      // Photo-backed rows only. The Scarecrow date correction is the one
+      // place_id-less row, and the image filter below keeps it off the poster
+      // until Crystal River Heritage Village resolves.
+      const resolved = resolveSeasonalLiveArea([...inventoryById.values()], { today });
+      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19, ...resolved.fall]);
       // /florida-events/<slug> is served from wf_events by slug. A registry row
       // whose database seed is lagging has no page yet, so it gets no
       // detailHref — the card falls back to the venue sheet / official page
@@ -174,7 +195,6 @@ export async function GET(request) {
       .filter((e) => isFloridaVenue(e)) // Florida venue rule (lib/floridaVenue.js)
       .filter((e) => isTrusted(e) && isFallEvent(e) && fallEventLive(e, today) && hasUpcomingFallOccurrence(e, today))
       .sort((a, b) => String(a.start_date).localeCompare(String(b.start_date)));
-      const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
       let events = eligibleRows
       .filter((e) => !FALL_SEASONAL_PLACE_IDS.has(e.event_id))
       .map((e) => {

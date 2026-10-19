@@ -2209,6 +2209,7 @@ node scripts/test-fall-gap-fill-2026-10-06.mjs
 node scripts/test-fall-farm-food-gap-2026-10-07.mjs
 node scripts/test-fall-tampa-picks-2026-10-08.mjs
 node scripts/test-seasonal-live-area-2026-10-19.mjs
+node scripts/test-seasonal-pending-rails-2026-10-19.mjs
 node scripts/test-fall-food-gap-2026-10-08.mjs
 node scripts/check-guide-card.mjs
 node scripts/test-credited-photo-warm.mjs

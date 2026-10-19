@@ -1,8 +1,8 @@
 -- Seasonal live-area places, 2026-10-19.
 -- Do not apply this from a cloud agent. It is for the founder to run.
--- It does not set photo_ref. A card in lib/seasonalLiveAreaPending20261019.js
--- stays off the posters until that place has its own stored photo and a later
--- change spreads the pending rows into the serving registry.
+-- It does not set photo_ref. lib/seasonalLiveAreaResolve.js adds a card from
+-- lib/seasonalLiveAreaPending20261019.js only when wf_inventory already has
+-- that venue and a stored photo. A row here without a photo stays off the poster.
 --
 -- Places already in wf_inventory with photo_ref null, left untouched here:
 --   Benchmark International Arena          ChIJSV2_Mo3EwogRc8CZwwOroSs
