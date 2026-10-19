@@ -42,7 +42,7 @@ ok(u.searchParams.get("medium") === "api", "API productUrl KEEPS medium=api (was
 ok(u.searchParams.get("api_version") === "2.0", "api_version untouched");
 ok(u.searchParams.get("campaign") === tag, "campaign param set");
 ok(u.searchParams.get("mcid") === "42383", "mcid unchanged");
-ok(u.searchParams.get("pid") === "P00000123", "pid set");
+ok(u.searchParams.get("pid") === "P00320881", "pid overwritten with Wayfind's pinned pid (stored pid P00000123 never survives)");
 ok(u.searchParams.getAll("pid").length === 1 && u.searchParams.getAll("medium").length === 1 && u.searchParams.getAll("campaign").length === 1, "no duplicated params");
 const b = new URL(withViatorTracking(BUILT));
 ok(b.searchParams.get("medium") === "link" && b.searchParams.get("mcid") === "42383", "link-built URL gets medium=link");

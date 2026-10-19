@@ -55,7 +55,7 @@ def test_stale_and_fresh_controls():
 def test_tracking_is_exact_and_host_locked():
     row = {
         "product_code": "173028P1",
-        "product_url": "https://www.viator.com/tours/x/d5403-173028P1?pid=P00308545",
+        "product_url": "https://www.viator.com/tours/x/d5403-173028P1?pid=P00320881",
     }
     assert tracking(row, "viator")
     row["product_url"] = row["product_url"].replace("viator.com", "viator.com.evil.test")

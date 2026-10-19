@@ -29,7 +29,7 @@ const { prepareTourStripItems } = await import("../lib/tourStripItems.js");
 const { railViatorCodes, landingRailSeeds } = await import("../lib/landingRails.js");
 
 const row = (code, extra = {}) => ({ code, title: `Distinct adventure ${code} on the bay`, image: `https://media.viator.com/${code}.jpg`, rating: 4.8, reviews: 500, fromPrice: 50, duration: "2h",
-  url: `https://www.viator.com/tours/x/${code}?mcid=42383&pid=P00308545&medium=api`, ...extra });
+  url: `https://www.viator.com/tours/x/${code}?mcid=42383&pid=P00320881&medium=api`, ...extra });
 const links = (html) => [...html.matchAll(/href="([^"]*)"/g)].map((m) => m[1].replace(/&amp;/g, "&")).filter((h) => h.startsWith("/api/commerce/go?"))
   .map((h) => { const q = new URLSearchParams(h.split("?")[1]); return { offer: q.get("offer"), surface: q.get("surface") }; });
 const count = (ls, offer) => ls.filter((l) => l.offer === offer).length;

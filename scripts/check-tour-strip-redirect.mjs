@@ -5,7 +5,7 @@
 // is the only non-vacuous way to check it.
 //
 // THE LEAK (found 2026-08-04, live on production). TourStrip rendered
-// `href={t.url}` — the raw viator.com product URL with `pid=P00308545` readable
+// `href={t.url}` — the raw viator.com product URL with `pid=P00320881` readable
 // in view-source — on three surfaces: /things-to-do/[city] and /beaches/[city]
 // (lib/landing.js) and /best-beaches/[metro]. Four were in the DOM of
 // /things-to-do/parrish. Same shape that produced ~144 CJ clicks/day against
@@ -44,11 +44,11 @@ ok(typeof tourHref === "function", "TourStrip exports tourHref so this guard can
 // ever renders it again, the assertions below see it.
 const ROWS = [
   { code: "173028P1", title: "Clear Kayak Tour of Shell Key", image: "https://media.viator.com/a.jpg", rating: 4.9, reviews: 800, fromPrice: 69,
-    url: "https://www.viator.com/tours/St-Petersburg/Clear-Kayak/d5403-173028P1?mcid=42383&pid=P00308545&medium=api" },
+    url: "https://www.viator.com/tours/St-Petersburg/Clear-Kayak/d5403-173028P1?mcid=42383&pid=P00320881&medium=api" },
   { code: "108117P1", title: "Sarasota Guided Mangrove Tunnel Kayak Tour", image: "https://media.viator.com/b.jpg", rating: 5, reviews: 400, fromPrice: 64,
-    url: "https://www.viator.com/tours/Sarasota/Mangrove/d25738-108117P1?mcid=42383&pid=P00308545&medium=api" },
+    url: "https://www.viator.com/tours/Sarasota/Mangrove/d25738-108117P1?mcid=42383&pid=P00320881&medium=api" },
   { code: "179637P1", title: "Little Toot Dolphin Adventure", image: "https://media.viator.com/c.jpg", rating: 4.8, reviews: 950, fromPrice: 35,
-    url: "https://www.viator.com/tours/Clearwater/Dolphin/d22457-179637P1?mcid=42383&pid=P00308545&medium=api" },
+    url: "https://www.viator.com/tours/Clearwater/Dolphin/d22457-179637P1?mcid=42383&pid=P00320881&medium=api" },
 ];
 
 // ── the invariant, by CALLING the decision point ──────────────────────────
@@ -77,7 +77,7 @@ for (let i = 0; i < ROWS.length; i += 1) {
 ok(ROWS.every((r) => /pid=P\d+/.test(r.url)), "positive control: the fixture rows really do carry a live pid= partner url, so there is something to leak");
 ok(hrefs.every((h) => !/pid=/.test(h)), "no partner pid reaches the rendered href — the redirect re-applies it server-side instead");
 // A row with no offer id must produce NOTHING, never the raw url.
-ok(tourHref({ url: "https://www.viator.com/tours/x?pid=P00308545" }) === null,
+ok(tourHref({ url: "https://www.viator.com/tours/x?pid=P00320881" }) === null,
    "a row with no offer id returns null — it must not fall back to the partner url");
 ok(tourHref(null) === null, "a null row returns null (no crash, no link)");
 
@@ -91,7 +91,7 @@ ok(/if\s*\(!href\)\s*return null/.test(code), "a row with no offer id renders NO
 
 // ── positive control ──────────────────────────────────────────────────────
 // If the matcher cannot see a partner URL, every green above is vacuous.
-ok(PARTNER_HOSTS.test('href="https://www.viator.com/tours/x?pid=P00308545"'),
+ok(PARTNER_HOSTS.test('href="https://www.viator.com/tours/x?pid=P00320881"'),
    "positive control: the matcher recognises a raw Viator href");
 ok(!PARTNER_HOSTS.test('href="/api/commerce/go?provider=viator&offer=173028P1"'),
    "negative control: our own redirect path is NOT flagged as a partner host");

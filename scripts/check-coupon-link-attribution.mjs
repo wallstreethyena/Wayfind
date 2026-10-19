@@ -4,7 +4,7 @@
 //
 // Audit finding F5 (2026-08-02). Of 23 live coupons, four rendered a partner
 // URL straight into an <a href>: two CityPASS links on anrdoezrs.net, one
-// Viator product URL with `pid=P00308545` readable in view-source, and one
+// Viator product URL with `pid=P00320881` readable in view-source, and one
 // Klook homepage carrying a legacy `aid`. That is the identical shape that
 // produced ~144 CJ clicks/day against ~50 human visitors on the deals rail
 // before that rail moved behind /api/commerce/go — a crawler that renders JS
@@ -43,7 +43,7 @@ const isMonetized = (u) => { const h = hostOf(u); return !!h && MONETIZED.some((
 // trusting a single green below.
 ok(isMonetized("https://www.anrdoezrs.net/links/101643573/type/dlg/sid/x/https://www.citypass.com/orlando"),
    "positive control: the matcher recognises a CJ redirect link as monetized");
-ok(isMonetized("https://www.viator.com/tours/Sarasota/x/d25738-5560271P1?pid=P00308545"),
+ok(isMonetized("https://www.viator.com/tours/Sarasota/x/d25738-5560271P1?pid=P00320881"),
    "positive control: the matcher recognises a tracked Viator product URL as monetized");
 ok(!isMonetized("https://www.ringling.org/tickets-admission/"),
    "negative control: a museum's own ticket page is NOT treated as monetized");

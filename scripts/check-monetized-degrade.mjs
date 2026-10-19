@@ -50,7 +50,7 @@ process.stdout.write(JSON.stringify(r === undefined ? null : r));`;
 const BUILDERS = [
   {
     fn: "experienceSearchUrl", args: ["kayak tour", "Sarasota"],
-    env: "NEXT_PUBLIC_VIATOR_PID", set: "P00000000", attributed: "P00000000",
+    env: "NEXT_PUBLIC_VIATOR_PID", set: "P00000000", attributed: "pid=P00320881", pinned: true,
     // Also listed as unmonetized in the spec; it is monetized and ALREADY
     // correct — `if (VIATOR) ... if (GYG) ... return null`. Included because a
     // builder that fails closed today is exactly the one worth pinning.
@@ -58,7 +58,7 @@ const BUILDERS = [
   },
   {
     fn: "ticketsUrl", args: [{ name: "The Ringling", address: "5401 Bay Shore Rd, Sarasota, FL 34243, USA", types: ["museum", "tourist_attraction"] }],
-    env: "NEXT_PUBLIC_VIATOR_PID", set: "P00000000", attributed: "P00000000",
+    env: "NEXT_PUBLIC_VIATOR_PID", set: "P00000000", attributed: "pid=P00320881", pinned: true,
     mustFailClosed: true, extraUnset: { NEXT_PUBLIC_GYG_PID: "" },
   },
 ];
@@ -75,7 +75,12 @@ for (const b of BUILDERS) {
 
   // (b) env UNSET -> null, or a dated exemption.
   const off = call(b.fn, b.args, { [b.env]: "", ...(b.extraUnset || {}) });
-  if (b.mustFailClosed) {
+  if (b.pinned) {
+    // 2026-10-19: Viator's pid is pinned in code (lib/viatorPid.js), so there is
+    // no unattributed state to fail closed from: unset env is still attributed.
+    ok(typeof off === "string" && off.includes(b.attributed),
+      `${b.fn} with ${b.env} UNSET must still carry Wayfind's pinned Viator pid — got ${JSON.stringify(off)}`);
+  } else if (b.mustFailClosed) {
     ok(off === null,
       `${b.fn} with ${b.env} UNSET returned ${JSON.stringify(off)} instead of null. That is a WORKING, UNATTRIBUTED link — it converts and pays us nothing, and it occupies the slot a live CTA would hold. Return null so the caller's null-check suppresses the row.`);
   } else {
@@ -97,21 +102,22 @@ ok(BUILDERS.filter((b) => !b.mustFailClosed).length <= 1, "at most ONE dated exe
 // beats every presence check, because "[SENSITIVE]" is eleven characters long.
 // The contract: a placeholder degrades EXACTLY like unset.
 const RINGLING = { name: "The Ringling", address: "5401 Bay Shore Rd, Sarasota, FL 34243, USA", types: ["museum", "tourist_attraction"] };
+// 2026-10-19: Viator's pid no longer comes from env or the caller. It is pinned
+// to Wayfind's own account (lib/viatorPid.js), so a placeholder, a fixture pid,
+// or any other value can never reach a live viator.com link — every one of them
+// comes out as pid=P00320881. (Placeholders still matter for GYG below.)
 for (const ph of ["[SENSITIVE]", "sensitive", "<your-pid>", "changeme", "undefined"]) {
   const t = call("ticketsUrl", [RINGLING], { NEXT_PUBLIC_VIATOR_PID: ph, NEXT_PUBLIC_GYG_PID: "" });
-  ok(t === null,
-    `ticketsUrl with NEXT_PUBLIC_VIATOR_PID=${JSON.stringify(ph)} returned ${JSON.stringify(t)} instead of null. A placeholder must fail CLOSED exactly like an unset var — never stamp itself onto a live viator.com link that converts and pays us nothing.`);
+  ok(typeof t === "string" && t.includes("pid=P00320881") && !t.includes(encodeURIComponent(ph)),
+    `ticketsUrl with NEXT_PUBLIC_VIATOR_PID=${JSON.stringify(ph)} must carry Wayfind's pinned pid, never the placeholder — got ${JSON.stringify(t)}`);
   const w = call("withViatorTracking", ["https://www.viator.com/tours/x", ph], {});
-  ok(w === "https://www.viator.com/tours/x",
-    `withViatorTracking with an explicit placeholder pid must pass the url through untouched (lib/viatorServer.js supplies its own pid this way) — got ${JSON.stringify(w)}`);
+  ok(typeof w === "string" && new URL(w).searchParams.get("pid") === "P00320881",
+    `withViatorTracking with an explicit placeholder pid must still stamp Wayfind's pinned pid — got ${JSON.stringify(w)}`);
 }
-// THE OTHER HALF, and the one that matters more: a rejecter that rejects real
-// credentials would take revenue to zero silently, which is worse than the bug
-// it fixes. Every pid shape the suite and production actually use must survive.
-for (const real of ["P00000000", "P_TEST_000000", "P00308545"]) {
-  const w = call("withViatorTracking", ["https://www.viator.com/tours/x", real], {});
-  ok(typeof w === "string" && w.includes(`pid=${real}`),
-    `withViatorTracking must still stamp the REAL pid ${JSON.stringify(real)} — got ${JSON.stringify(w)}. The placeholder list is exact-match for exactly this reason.`);
+for (const other of ["P00000000", "P_TEST_000000", "P00320881"]) {
+  const w = call("withViatorTracking", ["https://www.viator.com/tours/x", other], {});
+  ok(typeof w === "string" && new URL(w).searchParams.get("pid") === "P00320881",
+    `withViatorTracking must always stamp Wayfind's pinned pid P00320881, whatever pid it is handed (${JSON.stringify(other)}) — got ${JSON.stringify(w)}`);
 }
 
 // Vrbo no longer accepts a client-side template. Its verified CJ creative
@@ -184,4 +190,4 @@ for (const fn of exports_) {
     `lib/affiliates.js exports ${fn}() and this guard does not classify it. Add it to BUILDERS (with its env var and the substring that proves attribution) or to KNOWN_UNMONETIZED with a reason. An unclassified URL builder is how the next VRBO ships.`);
 }
 
-console.log(`check-monetized-degrade: OK — ${pass} assertions across ${BUILDERS.length} builders (env SET => attributed, env UNSET => null; every affiliates.js export classified)`);
+console.log(`check-monetized-degrade: OK — ${pass} assertions across ${BUILDERS.length} builders (env SET => attributed, env UNSET => null or pinned Viator pid; every affiliates.js export classified)`);
