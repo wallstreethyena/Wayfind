@@ -30,7 +30,17 @@ const CSS = `
 .wf-site-feedback-panel-head h2{margin:0;font-size:14px;font-weight:700}
 .wf-site-feedback-close{min-width:36px;min-height:36px;padding:5px;background:none;border:0;border-radius:8px;color:#CBD5E1;font:inherit;font-size:20px;cursor:pointer}
 .wf-site-feedback-panel input,.wf-site-feedback-panel textarea{font-size:16px!important}
-@media(max-width:480px){.wf-site-feedback-trigger{min-height:40px}.wf-site-feedback-panel{padding:9px}}
+/* Phone documents: the trigger leaves the overlay and sits in a bar under
+   #wf-scroll. Copy, bylines, chips, CTAs and disclosures scroll above it and
+   their boxes cannot intersect the button. The in-app shell (/p) keeps the
+   fixed control, which clears that shell's own tab bar. */
+@media(max-width:520px){
+  body:has(.wf-site-feedback-doc){display:flex;flex-direction:column;height:100dvh;max-height:100dvh;overflow:hidden}
+  body:has(.wf-site-feedback-doc) #wf-scroll{flex:1 1 auto;min-height:0;overflow-x:clip;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  body:has(.wf-site-feedback-doc) .wf-site-feedback-dock{flex:0 0 auto;display:flex;justify-content:flex-end;align-items:center;padding:8px 12px calc(8px + env(safe-area-inset-bottom));background:#040810;border-top:1px solid #1F2937}
+  body:has(.wf-site-feedback-doc) .wf-site-feedback-trigger{position:static;right:auto;bottom:auto;min-height:40px;min-width:44px;box-shadow:none}
+  body:has(.wf-site-feedback-doc) .wf-site-feedback-panel{left:8px;right:8px;bottom:calc(60px + env(safe-area-inset-bottom));width:auto;max-height:calc(100dvh - 84px - env(safe-area-inset-top) - env(safe-area-inset-bottom));padding:9px}
+}
 `;
 
 // Exported separately so a guard renders the real shared form in its open
@@ -49,10 +59,17 @@ export function SiteFeedbackPanel({ pathname, onClose, panelId = "wf-site-feedba
   );
 }
 
+function feedbackReservesSpace(pathname) {
+  // /p renders the app shell (bottom nav). Every other public route is a
+  // document the floating control was covering.
+  return pathname !== "/p" && !pathname.startsWith("/p/");
+}
+
 function FeedbackControl({ pathname }) {
   const [open, setOpen] = useState(false);
   const triggerRef = useRef(null);
   const panelId = useId();
+  const reservesSpace = feedbackReservesSpace(pathname);
   function closeFeedback() {
     setOpen(false);
     requestAnimationFrame(() => triggerRef.current?.focus());
@@ -67,7 +84,9 @@ function FeedbackControl({ pathname }) {
   }, [open]);
   return <>
     <style dangerouslySetInnerHTML={{ __html: CSS }} />
-    <button ref={triggerRef} type="button" className="wf-site-feedback-trigger" aria-expanded={open} aria-controls={panelId} onClick={() => open ? closeFeedback() : setOpen(true)} style={open ? { visibility: "hidden" } : undefined}>Feedback</button>
+    <div className="wf-site-feedback-dock">
+      <button ref={triggerRef} type="button" className={"wf-site-feedback-trigger" + (reservesSpace ? " wf-site-feedback-doc" : "")} aria-expanded={open} aria-controls={panelId} onClick={() => open ? closeFeedback() : setOpen(true)} style={open ? { visibility: "hidden" } : undefined}>Feedback</button>
+    </div>
     {open && <SiteFeedbackPanel pathname={pathname} panelId={panelId} onClose={closeFeedback} />}
   </>;
 }
