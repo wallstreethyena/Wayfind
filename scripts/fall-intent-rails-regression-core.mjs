@@ -2,6 +2,7 @@
 import { FALL_GAP_FILL_2026_10_07 } from "../lib/fallGapFill20261007.js";
 import { FALL_FOOD_GAP_2026_10_08 } from "../lib/fallFoodGap20261008.js";
 import { FALL_TAMPA_PICKS_2026_10_08 } from "../lib/fallTampaPicks20261008.js";
+import { FALL_LIVE_AREA_2026_10_19 } from "../lib/fallLiveArea20261019.js";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import {
@@ -248,6 +249,7 @@ const seededJsonIdSet = new Set(seededJsonIds);
 // Rock the Bay on Yacht StarShip) are pinned by event_id.
 const tampaPassIds = new Set([
   ...FALL_TAMPA_PICKS_2026_10_08.map((row) => row.event_id),
+  ...FALL_LIVE_AREA_2026_10_19.map((row) => row.event_id),
   ...JSON.parse(readFileSync(new URL("../scripts/local-calendars/verified/batch-039.json", import.meta.url), "utf8")).publish.map((row) => row.event_id),
 ]);
 const seededIds = new Set(seedSources.flatMap((src) => [...src.matchAll(/event_id: "([a-z0-9-]+-2026)"/g)].map((m) => m[1])));

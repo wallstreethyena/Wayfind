@@ -30,6 +30,7 @@ import { isFloridaVenue } from "../../../../lib/floridaVenue.js";
 import { FALL_GAP_FILL_2026_10_07 } from "../../../../lib/fallGapFill20261007.js";
 import { FALL_FOOD_GAP_2026_10_08 } from "../../../../lib/fallFoodGap20261008.js";
 import { FALL_TAMPA_PICKS_2026_10_08 } from "../../../../lib/fallTampaPicks20261008.js";
+import { FALL_LIVE_AREA_2026_10_19 } from "../../../../lib/fallLiveArea20261019.js";
 import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { FALL_COLLECTION_POSTER, FALL_EVENT_VENUE_PLACE_IDS, fallEventCardImageSrc, eventImageIsVenue, mergeFallDiscoveryRows } from "../../../../lib/fallEventImage.js";
 import { eventSocialPosts } from "../../../../lib/eventSocial.js";
@@ -109,7 +110,11 @@ export async function GET(request) {
     // v31 (2026-10-09) publishes the Seminole Heights patch and Nightmare on
     // Channelside and keeps Tampa Terrors as an open run, so no v30 payload outlives it.
     // v33 also admits explicit Halloween parties into the shared seasonal pool.
-    const key = `fall-intents:v34:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v35 (2026-10-19) publishes the live-area pass (lib/fallLiveArea20261019.js):
+    // Jurassic Haunt, Nightmare on Franklin Street, Storytime with Mother Boo,
+    // MOSI Fright Light and the Neal Preserve haunted paddle, so no v34 payload
+    // outlives the deploy.
+    const key = `fall-intents:v35:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -117,7 +122,7 @@ export async function GET(request) {
         ...seasonalHospitalityIds("fall", today),
         ...seasonalHospitalityIds("halloween", today),
         ...FALL_PHOTO_PLACE_IDS,
-        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08].map((row) => row.place_id).filter(Boolean),
+        ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
       const dealIds = [...new Set(Object.values(FALL_EVENT_TICKET_DEALS))];
@@ -150,7 +155,7 @@ export async function GET(request) {
       // The owner-supplied discovery registry is publish-ready source data,
       // not merely a seed script. Merge it at read time so a missed/lagging
       // database seed cannot erase verified farms, cafes and spooky dates.
-      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08]);
+      const eventRows = mergeFallDiscoveryRows(rows, [...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19]);
       // /florida-events/<slug> is served from wf_events by slug. A registry row
       // whose database seed is lagging has no page yet, so it gets no
       // detailHref — the card falls back to the venue sheet / official page
