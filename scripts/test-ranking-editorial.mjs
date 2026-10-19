@@ -147,8 +147,11 @@ const hero = (wl.match(/<PremiumIntentHero[\s\S]*?\/>/) || [""])[0];
 ok(hero.length > 0, "the landing hero block is findable — every assertion below reads it");
 ok(/review volume/i.test(hero) && /proximity|distance/i.test(hero),
   "the hero states the METHOD: rating weighted by review volume, then proximity");
-ok(/no ads/i.test(hero) && /paid placement/i.test(hero),
-  "the hero states the merit claim: no ads, no paid placement — matching what landingMetadata already tells search engines");
+// 2026-10-19: these pages carry partner tour rails and an affiliate footer, so
+// "no ads" was false. The hero states the true merit claim instead: rankings
+// are never for sale, and partner links may earn a commission.
+ok(/never for sale/i.test(hero) && /commission/i.test(hero) && !/no ads/i.test(hero),
+  "the hero states the merit claim honestly: rankings never for sale, partner links may earn a commission, no 'no ads' claim");
 // 2026-10-01: the scope ("in <City>" / "in and near <Town>") comes from ONE
 // helper, landingScope(), for the H1 and <title> alike (rendered + compared in
 // scripts/test-evergreen-eligibility.mjs).

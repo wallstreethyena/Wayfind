@@ -32,6 +32,7 @@ import ShareButton from "../../../components/ShareButton.js";
 import { pageShareUrl } from "../../../../lib/pageShareUrl.js";
 import { eventPlaceholder } from "../../../../lib/eventPlaceholder.js";
 import { eventJsonLdDates } from "../../../../lib/eventTime.js";
+import { applyStoredStartCorrection } from "../../../../lib/eventStartRefresh.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -77,7 +78,10 @@ function fmtDate(dateStr, timeStr) {
 async function getEvent(params) {
   const id = idFromSlug(params.slug);
   if (!id) return null;
-  return resolveEventById(id);
+  const e = await resolveEventById(id);
+  // The by-id Ticketmaster read above is already live. One stored start
+  // correction still applies when that feed's clock is the placeholder.
+  return applyStoredStartCorrection(e);
 }
 
 export async function generateMetadata({ params }) {
@@ -124,6 +128,15 @@ export async function generateMetadata({ params }) {
     twitter: { card: "summary_large_image", title: ogTitle, description: ogDesc, images: [og] },
     robots: { index: false, follow: true }, // noindex until the owner decides event pages should enter the crawl budget (infinite, dated inventory)
   };
+}
+
+// "20:08:00" -> "8:08 PM". The card used to print the raw 24-hour feed value.
+function fmtClock(timeStr) {
+  const m = String(timeStr || "").match(/^(\d{1,2}):(\d{2})/);
+  if (!m) return null;
+  const h = Number(m[1]);
+  if (h > 23) return null;
+  return `${h % 12 || 12}:${m[2]} ${h < 12 ? "AM" : "PM"}`;
 }
 
 function fmtDay(dateStr) {
@@ -201,7 +214,7 @@ async function EventListPage({ params }) {
                 placeholder={eventPlaceholder(e.segment || e.genre || "events", e)}
                 title={e.name}
                 eyebrow="Event"
-                when={{ label: fmtDay(e.date).toUpperCase(), value: e.time ? e.time.slice(0, 5) : "All day", tone: "later" }}
+                when={{ label: fmtDay(e.date).toUpperCase(), value: fmtClock(e.time) || "All day", tone: "later" }}
                 facts={[e.venue || city.name, e.price || null].filter(Boolean)}
                 href={e.dest}
                 external={!internal}

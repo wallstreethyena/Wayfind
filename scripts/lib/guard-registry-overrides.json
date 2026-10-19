@@ -920,6 +920,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-site-fixes-20261019.mjs": {
+    "protects": "Beach, things-to-do, nightlife and best-beaches pages make no 'no ads' claim next to partner rails and say rankings are never for sale; the best-beaches stay CTA shows the commission line as visible text; cached Ticketmaster starts inside 72 hours or flagged TBD/placeholder/If Necessary are re-read from Discovery, and the Rays ALCS Game 6 row is 8:08 PM ET; best-beaches ranks only beaches; town pages never point readers to an app; the drum circle guide says about an hour before sunset.",
+    "blastRadius": {
+      "category": "trust",
+      "detail": "2026-10-19 concept pack: headers said 'no ads, no paid placement' beside Viator rails, the Rays ALCS Game 6 listed at 17:00 instead of 8:08 PM ET, a fishing charter ranked #1 on /best-beaches/tampa, /florida/anna-maria-island said 'in the app', and the drum circle guide said two hours before sunset."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-shared-google-photo-serving.mjs": {
     "protects": "Shared photo service reuses retained images across visitors, widths and dates without Google calls, while preserving credited surfaces, monthly spend gates and bounded acquisition.",
     "blastRadius": {
