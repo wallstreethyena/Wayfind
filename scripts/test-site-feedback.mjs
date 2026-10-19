@@ -18,6 +18,8 @@ for (const route of ["/guides", "/guides/orlando-date", "/p/ChIJ_place", "/place
   assert.match(html, />Feedback<\/button>/, route);
   assert.match(html, /aria-expanded="false"/, "each new route starts closed");
   assert.doesNotMatch(html, /<textarea|<form|role="dialog"/, "navigation never opens or traps a form");
+  if (route === "/p/ChIJ_place") assert.doesNotMatch(html, /class="wf-site-feedback-trigger wf-site-feedback-doc"/, "the app shell keeps the floating control above its own tab bar");
+  else assert.match(html, /class="wf-site-feedback-trigger wf-site-feedback-doc"/, route + " reserves a phone bar so the control cannot cover copy");
 }
 for (const route of ["/", "", null, "/command-center", "/admin/feedback", "/auth/callback", "/login", "/account", "/favorites", "/itinerary", "/design/beach-review", "/api/feedback", "/unknown", "//example.com/guides"]) {
   assert.equal(renderRoute(route), "", `${route} must not acquire a public feedback overlay`);
@@ -66,5 +68,12 @@ assert.equal(focused, true);
 
 const layout = readFileSync(path.join(root, "app/layout.js"), "utf8");
 assert.match(layout, /<Suspense fallback=\{null\}><SiteFeedback \/><\/Suspense>/, "the actual root layout mounts the route-aware control inside Suspense");
+const scrollAt = layout.indexOf('<div id="wf-scroll">');
+const feedbackAt = layout.indexOf("<Suspense fallback={null}><SiteFeedback /></Suspense>");
+assert.ok(scrollAt !== -1 && feedbackAt > scrollAt, "#wf-scroll exists and the feedback control follows it");
+const scrollRegion = layout.slice(scrollAt, feedbackAt);
+assert.equal((scrollRegion.match(/<div\b/g) || []).length, (scrollRegion.match(/<\/div>/g) || []).length, "the feedback control is a sibling after #wf-scroll, so a phone dock can sit outside the scroller");
+assert.match(source, /body:has\(\.wf-site-feedback-doc\)\{display:flex;flex-direction:column;height:100dvh/, "phone document routes lock the body and scroll inside #wf-scroll");
+assert.match(source, /body:has\(\.wf-site-feedback-doc\) \.wf-site-feedback-trigger\{position:static/, "the phone trigger leaves the overlay and sits in the dock");
 assert.doesNotMatch(source, /beforeunload|popstate|history\.(push|replace)State/, "feedback does not intercept exits or browser navigation");
 console.log("test-site-feedback: OK — real public-route rendering, reusable open form, private route exclusions, path-only context, route reset and close focus");

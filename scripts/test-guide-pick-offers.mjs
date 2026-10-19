@@ -118,7 +118,21 @@ ok2(/offer=5039P5&amp;surface=guide_pick&amp;content=things-to-do-orlando-not-th
 ok2(!/viator\.com/.test(html), "render: no partner URL in the DOM");
 const ri = html.indexOf("Closed Sundays"), bi = html.indexOf("Check dates and price", html.indexOf("5467OHEP"));
 ok2(ri > -1 && bi > ri, "render: the restriction sits before its button");
-ok2(/Wayfind may earn a commission/.test(html), "render: disclosure present");
+ok2(/Wayfind may earn a commission, which never changes our picks or their order/.test(html), "render: pick offer uses the shared commission sentence");
+ok2(/#E6EDF3/.test(html), "render: the commission line is the light body tone, not slate on navy");
+const altBtn = html.slice(html.indexOf("5467OHEP"));
+ok2(/background:transparent/.test(altBtn) && /border:1px solid #F97316/.test(altBtn), "render: the Wild Florida alternative button stays outlined");
+const convMod = await loadComponent(path.join(REPO, "app/guides/[slug]/GuideConversion.js"), REPO);
+const affiliateHtml = renderToStaticMarkup(createElement(convMod.default, {
+  slug: "things-to-do-sarasota", region: "Sarasota", next: null, social: null, socialStatus: "not-applicable",
+  cta: { kind: "deal", href: "/api/commerce/go?provider=viator&offer=108117P1&surface=guide", label: "Lido kayak tour", sponsored: true, monetized: true, exact: true, place: "Lido Key", provider: "viator", offerId: "108117P1" },
+}));
+ok2(/Your next step/.test(affiliateHtml) && /Wayfind may earn a commission, which never changes our picks or their order/.test(affiliateHtml), "render: an affiliate bottom CTA shows the same commission line");
+const directionsHtml = renderToStaticMarkup(createElement(convMod.default, {
+  slug: "example", region: "Sarasota", next: null, social: null, socialStatus: "not-applicable",
+  cta: { kind: "directions", href: "https://www.google.com/maps/dir/?api=1&destination=Example", label: "Get directions", sponsored: false, monetized: false, exact: false, place: "Example" },
+}));
+ok2(!/Wayfind may earn a commission/.test(directionsHtml), "render: a directions next step shows no commission line");
 
 if (RED) {
   const r1 = run({ ...real, lookup: (s, p, i) => (i === 1 ? offersLib.guidePickOffers(s, { id: "lido-mangrove-tunnels" }) : null) });
