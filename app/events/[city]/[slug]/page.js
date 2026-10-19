@@ -81,7 +81,9 @@ async function getEvent(params) {
   const e = await resolveEventById(id);
   // The by-id Ticketmaster read above is already live. One stored start
   // correction still applies when that feed's clock is the placeholder.
-  return applyStoredStartCorrection(e);
+  // The helper may replace the clock and title. A null result is not a
+  // missing event: notFound() stays reserved for an id that did not resolve.
+  return applyStoredStartCorrection(e) || e;
 }
 
 export async function generateMetadata({ params }) {
