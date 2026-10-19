@@ -111,6 +111,10 @@ for (const sp of [{}, { near: "Orlando" }, { q: "Orlando" }, { near: "Tampa" }, 
     `homeProofCopy(${JSON.stringify(sp)}) does not claim "Near <city> right now"`);
   ok(homeProofNamesCity(sp) === false,
     `homeProofNamesCity(${JSON.stringify(sp)}) is false — the ISR document is city-neutral`);
+  ok(/— and rankings are never for sale\./.test(copy.sub),
+    `homeProofCopy(${JSON.stringify(sp)}) says rankings are never for sale`);
+  ok(!/no ads|paid placement|no sponsors?/i.test(`${copy.kicker} ${copy.heading} ${copy.sub}`),
+    `homeProofCopy(${JSON.stringify(sp)}) does not claim there are no ads, sponsors, or paid placement`);
 }
 
 /* ── A. DaypartRail fail-closed ────────────────────────────────────────── */
@@ -171,6 +175,8 @@ ok(/setLocResolved\(true\)/.test(HOME),
 /* ── D + F. HomeProof is city-neutral; Tampa cannot keep Sarasota ──────── */
 const PAGE = strip(read("app/page.js"));
 ok(/homeProofCopy\(/.test(PAGE), "HomeProof renders homeProofCopy(), not a hardcoded city");
+ok(!/no ads, no paid placement/i.test(PAGE),
+  "the homepage document cannot reintroduce 'no ads, no paid placement'");
 ok(!/Near Sarasota right now/.test(PAGE),
   "page.js source (comments stripped) does not emit \"Near Sarasota right now\"");
 ok(/rankedFor\(/.test(PAGE),

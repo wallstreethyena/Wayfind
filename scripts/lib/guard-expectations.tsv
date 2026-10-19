@@ -257,7 +257,7 @@ scripts/check-live-reads.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	89fede7a30c2
 scripts/check-local-calendars-import.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	f16950f56f277dfeb6d77dcc910f6e659144cf6cf568c3f702b7c14783055270
 scripts/check-local-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	4f9dd3976f0b399ab0753738eae86e34a490a60ce3329ea74321cd6e2524bebf
 scripts/check-location-fail-open.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	43	2	5	3b4335f58050899cc3232d933112b31be9681d97a84772af7ba4180512057104
-scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	101	0	0	a30a5106e3f34e2482de03188724da6815cba082f853f7dbcc2fafc8559319c2
+scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	104	0	0	e2e19b672766abf826aaad856499419c2a9fef0ac01f4d3a29878d6aa9c67aa8
 scripts/check-locks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	b3c28ea038c04167de21229a233777d4ef55c4b620b1e679a5ce7a96e5416933
 scripts/check-lodging.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	b0c933db1852f36e655d034be32596ef29f63c07bdbec8465bf34640022ebd49
 scripts/check-lunch-in-my-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	075963393aaafe8b7996dab88498b3304a7a1ae1081688a62aab4601eac6b9bf
