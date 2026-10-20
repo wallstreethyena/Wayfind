@@ -16,7 +16,8 @@ const ast=ts.createSourceFile("place-share.js",source,ts.ScriptTarget.ES2022,tru
 const declaration=(name)=>{const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(node,`real ${name} declaration must exist`);return node.getText(ast).replace(/^export\s+/,"");};
 let metadataSource=declaration("generateMetadata");
 if(MUTATION){const recovery=/const identity = await getInventoryIdentity\(id, \{ freshOnly: true \}\);/;assert.ok(recovery.test(metadataSource),"mutation must find the real authoritative name lookup");metadataSource=metadataSource.replace(recovery,"const identity = null;");}
-const metadata=Function("getInventoryIdentity","SITE_URL","placeCanonical","FALL_CARD_IDS","fallSkinLive","siteTodayStr",`${declaration("s")}\n${metadataSource}\nreturn generateMetadata;`)(getInventoryIdentity,"https://www.gowayfind.com",()=>null,new Set(),()=>false,()=>"2026-10-04");
+let durableUrl=null;const durableAsked=[];
+const metadata=Function("getInventoryIdentity","SITE_URL","placeCanonical","FALL_CARD_IDS","fallSkinLive","siteTodayStr","durablePlaceUrl",`${declaration("s")}\n${metadataSource}\nreturn generateMetadata;`)(getInventoryIdentity,"https://www.gowayfind.com",()=>null,new Set(),()=>false,()=>"2026-10-04",async(id)=>{durableAsked.push(id);return durableUrl;});
 const originalFetch=globalThis.fetch,originalNow=Date.now;
 const keys=["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY"];
 const now=Date.parse("2026-10-04T12:00:00Z"),DAY=86400000;
@@ -41,6 +42,10 @@ try{
  for(const patch of [{refreshed_at:new Date(now-30*DAY).toISOString()},{refreshed_at:new Date(now-31*DAY).toISOString()},{refreshed_at:new Date(now+1).toISOString()},{refreshed_at:null},{place_id:"another-place"},{excluded:true},{name:" "}]){
   row={...fresh(),...patch};const stale=await build();eq(stale.title,"A spot worth your time · Wayfind","unverified identity must not enter a share card");yes(!stale.openGraph.images[0].url.includes("Verified%20Place%20Name"));
  }
+ // Canonical (audit 2026-10-20): an indexable durable /places page takes the share link's canonical; otherwise /p keeps its own.
+ eq(bare.alternates.canonical,"https://www.gowayfind.com/p/ChIJfixture","no durable page → /p keeps its own canonical");
+ durableUrl="https://www.gowayfind.com/places/ChIJfixture";eq((await build()).alternates.canonical,"https://www.gowayfind.com/places/ChIJfixture","an indexable /places page receives the share link's canonical");durableUrl=null;
+ yes(durableAsked.length>0&&durableAsked.every(id=>id==="ChIJfixture"),"the durable lookup is asked about this exact id");
  row=null;eq((await build({t:"Existing caller title"})).title,"Existing caller title · Wayfind","unavailable authoritative identity preserves the legacy supplied title");
  mode="denied";eq((await build()).title,"A spot worth your time · Wayfind");mode="throw";eq((await build()).title,"A spot worth your time · Wayfind");mode="ok";
  const before=calls.length;eq(await getInventoryIdentity("bad/id",{freshOnly:true,now}),null);eq(calls.length,before,"invalid fresh identity IDs issue no request");

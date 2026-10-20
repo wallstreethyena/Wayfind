@@ -61,7 +61,10 @@ const cityCard = COUPONS.find((c) => c && c.id === "cpn-clipp-fl-sarasota");
 ok(!!cityCard && /^\d{4}-\d{2}-\d{2}$/.test(String(cityCard.expires)), "the Sarasota Clipp city card exists and carries an ISO audit expiry");
 if (cityCard) {
   const exp = String(cityCard.expires).slice(0, 10);
-  const lastInstant = new Date(Date.parse(exp + "T00:00:00Z") + 86400000 + 4 * 3600000 - 1000); // 23:59:59 ET on exp (EDT)
+  // Compute the exact 23:59:59 ET instant on `exp` whether `exp` falls in EDT (UTC-4) or EST (UTC-5 after Nov 1).
+  const candidateEdt = new Date(Date.parse(exp + "T00:00:00Z") + 86400000 + 4 * 3600000 - 1000);
+  const candidateEst = new Date(Date.parse(exp + "T00:00:00Z") + 86400000 + 5 * 3600000 - 1000);
+  const lastInstant = siteTodayStr( new Date(candidateEdt.getTime() + 1000)) !== exp ? candidateEdt : candidateEst;
   const nextInstant = new Date(lastInstant.getTime() + 1000);                                    // 00:00:00 ET the day after
   ok(siteTodayStr(lastInstant) === exp, `23:59:59 ET on ${exp} is still ${exp} (got ${siteTodayStr(lastInstant)})`);
   ok(couponIsLive(cityCard, siteTodayStr(lastInstant)) === true, "city card is live at the last second of its last local day");
