@@ -41,4 +41,14 @@ h = host({src:'pending'}); h.visible(true); h.unmount(); assert.equal(h.timers.s
 h = host({src:'/api/photo?place=ChIJFixtureAlpha0001'});
 assert.equal(h.tree().children[0].type,'credited-card-photo','API photos use the shared credited viewer lifecycle');
 assert.equal(h.tree().children[0].props.src,'/api/photo?place=ChIJFixtureAlpha0001');
+// The wrapper must pass the caller's fitting policy to the actual pixels,
+// in BOTH direct and credited-photo lanes. Discovery cards keep cover by default.
+for (const src of ['owned.jpg', '/api/photo?place=ChIJFixtureAlpha0001']) {
+  for (const fit of [undefined, 'contain']) {
+    const props = { src, ...(fit ? { fit } : {}) };
+    const sample = host(props);
+    const image = src.startsWith('/api/') ? sample.tree().children[0] : sample.img();
+    assert.equal(image.props.style.objectFit, fit || 'cover', `${src}: fit reaches the inner image`);
+  }
+}
 console.log('test-shared-photo-lifecycle: OK — cached completion, source races, fallback chain, visibility deadlines and cleanup');

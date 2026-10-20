@@ -101,7 +101,6 @@ function TrendBlock({ trend, index, photoRefFor, onLog, onMeaningful, onOpenPlac
     const place = asPlace(p, photoRefFor(p));
     const facts = [
       p.reviews ? compact(p.reviews) + " reviews" : null,
-      Number.isFinite(p.distanceMi) ? (p.distanceMi < 10 ? p.distanceMi.toFixed(1) : Math.round(p.distanceMi)) + " mi" : null,
       // v7.12 (owner): every place card carries the price when it is verified.
       priceLabel(p.priceLevel),
     ].filter(Boolean);

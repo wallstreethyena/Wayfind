@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance from "./PlaceDistance.js";
 // TodaysBest — the Today's Best accordion (owner direction 2026-07-21):
 // one drop-down row per engine-served category, each expanding to the best
 // of the best nearby from wf_best_picks (wf_trends boost seam ready in
@@ -25,7 +26,7 @@ function PickRow({ p, onGo }) {
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{p.name}</div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 2, ...TYPE.meta, fontSize: 12.5, color: C.muted }}>
-          {isFinite(p.distance_mi) ? <span>{p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)} mi</span> : null}
+          <PlaceDistance place={p} />
           {/* v7.00 — was p={{rating, reviews}}. A synthetic object has no id and no
               name, so creatorVideosFor() could never match it and this row showed
               the UNBOOSTED number under a card the ranked list had just moved up.

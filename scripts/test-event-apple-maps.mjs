@@ -89,6 +89,20 @@ check(controller.map.overlays[0] === routeOverlay && controller.map.showCalls ==
 controller.map.listener.fn({ annotation: streamedStay });
 check(selected === "22", "selection follows the normalized identity of a streamed pin");
 
+const parking = [{ id: "parking:one", name: "Garage", lat: 27.3001, lng: -82.5001, distanceMeters: 15 }];
+controller.setParkingMode(true, parking);
+check(controller.map.annotations.length === 2 && controller.map.annotations.some(a => a.image[1] === mapPinUrl("parking")), "parking mode retains the venue and uses the shared P pin");
+check(controller.map.overlays.length === 0 && controller.map.shown.every(a => a !== routeOverlay), "parking view excludes the saved drive and unrelated places from camera bounds");
+controller.selectParking("parking:one");
+check(controller.map.annotations.find(a => a.__wayfindId === "parking:one").selected === true, "accessible list selection selects its actual parking pin");
+controller.setPicks([{ id: "new-stay", name: "Late hotel", lat: 27.9, lng: -82.8, mapKind: "stay" }]);
+check(!controller.map.annotations.some(a => a.__wayfindId === "new-stay"), "late hotel results cannot leak into parking mode");
+controller.setParkingMode(false);
+check(controller.map.annotations.length === 2 && controller.map.annotations.some(a => a.__wayfindId === "new-stay") && !controller.map.annotations.some(a => a.__wayfindId === "parking:one"), "leaving parking restores the latest regular picks without duplicate pins");
+check(controller.map.overlays.length === 1 && controller.map.overlays[0] === routeOverlay && controller.map.shown.includes(routeOverlay), "leaving parking restores the saved drive and its bounds without another routing request");
+controller.setParkingMode(false);
+check(controller.map.overlays.length === 1 && controller.map.annotations.length === 2, "repeated normal-mode calls cannot duplicate restored overlays or annotations");
+
 const failing = controller.routeFromCoordinate({ lat: 27.4, lng: -82.4 });
 callbacks[2].reject(new Error("quota"));
 await assert.rejects(failing, /driving route/);
@@ -111,5 +125,18 @@ const timedSearch = timeoutController.searchAndRoute("Sarasota");
 await assert.rejects(timedSearch, /timed out/);
 check(searches.at(-1).search.cancelledRequest, "a search promise that never settles times out and is passed to MapKit cancel");
 timeoutController.destroy();
+
+const lateController = createAppleMapController({ mapkit: fakeKit, container: {}, venue, venueKind: "place" });
+check(lateController.map.annotations[0].image[1] === mapPinUrl("other"), "ordinary place venues do not get an event star");
+const lateRoute = lateController.routeFromCoordinate({ lat: 28, lng: -82 });
+lateController.setParkingMode(true, parking);
+callbacks.at(-1).resolve({ routes: [{ polyline: { id: "late-route" }, distance: 2000, expectedTravelTime: 120 }] });
+await lateRoute;
+check(lateController.map.overlays.length === 0 && !lateController.map.shown.some(a => a.id === "late-route"), "a drive finishing after parking opens cannot zoom the map back out");
+lateController.setParkingMode(false);
+check(lateController.map.overlays[0].id === "late-route", "late completed route remains available when returning from parking");
+lateController.setParkingMode(true, parking);
+lateController.destroy();
+check(lateController.map.annotations.length === 0, "unmount removes parking pins as well as regular pins");
 
 console.log(`test-event-apple-maps: OK — ${pass} assertions (category pins, exact/deduped card identity, streamed updates that preserve routes, MapKit JS 6 promises, cancellation, timeouts, and teardown)`);

@@ -78,7 +78,6 @@ function BirthdayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked
               const facts = [
                 place.reviews ? compact(place.reviews) + " reviews" : null,
                 priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null,
-                Number.isFinite(place.distMi) ? place.distMi + " mi" : null,
               ].filter(Boolean);
               const chips = reward ? [
                 { key: "window", icon: "🎁", label: reward.window, title: reward.window },

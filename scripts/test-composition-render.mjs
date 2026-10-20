@@ -134,7 +134,7 @@ const places = [
 const pr = render(createElement(Blocks.PerfectRightNow, { picks, places, durablePlaces: [places[1], places[0]] }));
 ok(pr.includes("Right now"), "PerfectRightNow renders its heading when it has data");
 ok(pr.includes("Ortygia"), "PerfectRightNow renders the place NAME");
-ok(pr.includes("2.1 miles away"), "PerfectRightNow derives a current distance reason instead of trusting generic API copy");
+ok(pr.includes("Open now") && !pr.includes("2.1 miles away"), "PerfectRightNow shows open status and never a search-origin distance without a device fix");
 ok(/>1</.test(pr), "PerfectRightNow renders the rank number");
 ok(render(createElement(Blocks.PerfectRightNow, { picks: picks.slice(0, 1), places, durablePlaces: [places[1]] })) === "",
   "PerfectRightNow suppresses a single result because one card is not a shortlist");

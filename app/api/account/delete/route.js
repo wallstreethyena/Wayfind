@@ -117,6 +117,23 @@ async function deleteEmailRows(s, table, email) {
   }
 }
 
+// Itinerary snapshots are self-contained links, not unowned database rows.
+// Never use a client-writable share_code to authorize service-role deletion.
+async function deleteItineraries(s, userId) {
+  try {
+    const removed = await fetch(`${s.url}/rest/v1/wf_itineraries?user_id=eq.${userId}`, {
+      method: "DELETE",
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+      headers: { apikey: s.key, authorization: "Bearer " + s.key, prefer: "return=minimal" },
+    });
+    if (removed.status === 404) return "absent";
+    return removed.ok ? "ok" : "failed";
+  } catch {
+    return "failed";
+  }
+}
+
 async function restDelete(s, path, query) {
   try {
     const r = await fetch(`${s.url}/rest/v1/${path}?${query}`, {
@@ -252,6 +269,11 @@ export async function POST(req) {
   // survive the Admin delete below unless removed explicitly.
   cleaned.wf_feedback = await restDelete(s, "wf_feedback", `user_id=eq.${userId}`);
   cleaned.wf_taste = await restDelete(s, "wf_taste", `user_id=eq.${userId}`);
+  // Itineraries cascade from auth.users once the migration is applied. Delete
+  // them explicitly too, so a database
+  // that has the table but not the FK still loses the rows. A 404 (migration
+  // not applied yet) is "absent", not a reason to keep the account.
+  cleaned.wf_itineraries = await deleteItineraries(s, userId);
 
   // c. ON DELETE SET NULL tables that also carry a free-text PII column —
   // the row itself is anonymized by the FK on delete, but its email column

@@ -4,7 +4,7 @@
     "why": "RLS refuses a write by returning 0 rows or a 204, not by throwing. Two bugs lived in this repo for weeks because of it: nobody could delete their own comment, and signed-in users were told 'you're on the list' while their waitlist insert was rejected. scripts/check-client-writes-have-policies.mjs compares this contract against every write the browser actually attempts.",
     "generatedAt": "2026-08-25",
     "project": "gbhtoehdxkzjsmmkisgu",
-    "note": "Tables only. Views are never written by the client, so they are out of scope."
+    "note": "Tables only. Views are never written by the client, so they are out of scope. wf_itineraries and wf_itinerary_items are the grants in supabase/migrations/20261020120000_wf_itineraries.sql. That migration is declared pending and is not in production. Re-run sync-policy-snapshot after it is applied; until then these two rows are the migration contract, proved by scripts/test-itinerary-rls.mjs."
   },
   "tables": {
     "comments":                 { "anon": ["INSERT","SELECT","UPDATE"], "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
@@ -29,6 +29,8 @@
     "wf_experiences":           { "anon": ["SELECT"], "authenticated": ["SELECT"] },
     "wf_hero_images":           { "anon": ["SELECT"] },
     "wf_inventory":             { "anon": ["SELECT"], "authenticated": ["SELECT"] },
+    "wf_itineraries":           { "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
+    "wf_itinerary_items":       { "authenticated": ["DELETE","INSERT","SELECT","UPDATE"] },
     "wf_lists":                 { "anon": ["SELECT"], "authenticated": ["SELECT"] },
     "wf_media_reports":         { "authenticated": ["INSERT","SELECT"] },
     "wf_place_ids":             { "anon": ["SELECT"] },

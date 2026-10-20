@@ -43,7 +43,6 @@ export default function BreakfastRails({ places = [], city = "", hasMore = false
                   const facts = [
                     place.reviews ? compact(place.reviews) + " reviews" : null,
                     priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null,
-                    Number.isFinite(place.distMi) ? place.distMi + " mi" : null,
                   ].filter(Boolean);
                   return <RailCard
                     key={place.id}

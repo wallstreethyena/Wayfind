@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance from "./PlaceDistance.js";
 // app/components/ExploreBridge.js — the content-to-product handoff, under test.
 //
 // WHAT IT IS TESTING
@@ -164,7 +165,7 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
                   {p.rating != null ? <span style={{ fontWeight: 800, color: "#FBBF24" }}>{p.rating}★{p.reviews ? <span style={{ color: "#94A3B8", fontWeight: 600 }}> ({p.reviews.toLocaleString()})</span> : null}</span> : null}
                   {p.openNow === true ? <span style={{ color: "#22C55E", fontWeight: 700 }}>Open now</span> : null}
                   {p.openNow === false ? <span style={{ color: "#94A3B8", fontWeight: 700 }}>Closed</span> : null}
-                  {p.distMi != null ? <span style={{ color: "#94A3B8" }}>{p.distMi.toFixed(1)} mi from {where || "centre"}</span> : null}
+                  <PlaceDistance place={p} style={{ color: "#94A3B8" }} />
                 </div>
                 {p.reason ? <div style={S.reason}>{p.reason}</div> : null}
               </div>
