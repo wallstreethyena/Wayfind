@@ -784,6 +784,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-seasonal-venue-spend.mjs": {
+    "protects": "The October 2026 seasonal venue script may take 130 extra text_pro grants and 62 extra details_enterprise and details_pro grants, and only during that UTC ledger month; spendAllow, spendAllowCapped and effectiveCap stay on the existing ceilings.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "If this allowance leaked into other callers or outlived October 2026, Text Search and Place Details could keep spending past the free-tier and promote-paid ceilings. Using every extra grant costs at most $1.294."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-spend-tests-prod-env.mjs": {
     "protects": "Every spend-gate test is re-executed with the production paid switches ON (WAYFIND_PROMOTE_PAID, PROMOTE_DETAILS_MONTH_CAP, WAYFIND_PHOTOS_PAID, GOOGLE_PHOTOS_MONTH_CAP) and must exit 0, so a test that reads those switches ambiently cannot pass CI and then fail the Vercel prebuild.",
     "blastRadius": {

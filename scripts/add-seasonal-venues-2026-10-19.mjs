@@ -475,6 +475,9 @@ function selfTest() {
   if (/wf_promote_config[^?\n]{0,80}(PATCH|method:\s*"PATCH"|method:\s*"POST")/.test(code)) throw new Error("this script must not write wf_promote_config");
   if (!parseArgs(["--bypass-month-cap"]).error) throw new Error("the unsafe bypass must be rejected");
   if (!code.includes("BILL_CAP = 130")) throw new Error("the call cap must stay 130");
+  if (!code.includes("seasonalVenueOctoberCap(sku)") || !code.includes("spendAllowSeasonalVenue(sku)")) {
+    throw new Error("October calls must use the dated seasonal allowance");
+  }
   const args = parseArgs([]);
   if (args.apply !== false) throw new Error("default mode must be dry-run");
   if (parseArgs(["--apply"]).apply !== true) throw new Error("--apply must write");
@@ -538,7 +541,7 @@ async function main() {
   for (const name of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "WAYFIND_GATE", "WAYFIND_PROMOTE_PAID", "PROMOTE_DETAILS_MONTH_CAP"]) {
     if (env[name] && !process.env[name]) process.env[name] = env[name];
   }
-  const { spendAllow, spendAllowCapped, gateShut, refundToLedger } = await import("../lib/spendGate.js");
+  const { spendAllow, spendAllowCapped, spendAllowSeasonalVenue, seasonalVenueOctoberCap, gateShut, refundToLedger } = await import("../lib/spendGate.js");
 
   const secrets = [key, googleKey];
   const H = { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json" };
@@ -605,7 +608,12 @@ async function main() {
       return "the 130 billed-call cap for this run is used up";
     }
     try {
-      const ok = sku === "text_pro" ? await spendAllow("text_pro") : await spendAllowCapped(sku, monthCap);
+      // October 2026: the dated ceiling in lib/spendGate.js. Any other month
+      // keeps the normal grant. BILL_CAP below still stops this run at 130.
+      const octoberCap = seasonalVenueOctoberCap(sku);
+      const ok = octoberCap != null
+        ? await spendAllowSeasonalVenue(sku)
+        : (sku === "text_pro" ? await spendAllow("text_pro") : await spendAllowCapped(sku, monthCap));
       if (!ok) return `the monthly spend cap blocked a ${sku} call.`;
     } catch (e) {
       return scrub(e.message || e, secrets);

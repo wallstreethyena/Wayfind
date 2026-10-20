@@ -2216,6 +2216,7 @@ node scripts/test-fall-tampa-picks-2026-10-08.mjs
 node scripts/test-seasonal-live-area-2026-10-19.mjs
 node scripts/test-seasonal-pending-rails-2026-10-19.mjs
 node scripts/test-seasonal-add-safety.mjs
+node scripts/test-seasonal-venue-spend.mjs
 node scripts/test-seasonal-poster-filing-2026-10-19.mjs
 node scripts/test-fall-food-gap-2026-10-08.mjs
 node scripts/check-guide-card.mjs
