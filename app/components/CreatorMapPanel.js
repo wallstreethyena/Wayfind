@@ -1,4 +1,5 @@
 "use client";
+import CreatorVideoAction from "./CreatorVideoAction";
 import { PIN_CATEGORIES } from "../../lib/mapPinStandard.js";
 import MapCategoryPin from "./MapCategoryPin.js";
 
@@ -126,9 +127,9 @@ export default function CreatorMapPanel({ handle, places = [], intro = "" }) {
               Open in Wayfind →
             </a>
             {selected.videoUrl ? (
-              <a href={selected.videoUrl} target="_blank" rel="noopener" style={{ fontSize: 13.5, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" }}>
-                View @{handle}&apos;s post ↗
-              </a>
+              <CreatorVideoAction platform={selected.videoPlatform} url={selected.videoUrl} label={`Open @${handle}’s post in Wayfind`} style={{ fontSize: 13.5, fontWeight: 800, color: "#CBD5E1", textDecoration: "none" }}>
+                View @{handle}&apos;s post in Wayfind
+              </CreatorVideoAction>
             ) : null}
           </div>
         </div>

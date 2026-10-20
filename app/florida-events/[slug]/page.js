@@ -38,6 +38,7 @@ import { pairingHref } from "../../../lib/eventPairings";
 import { cachedEventPairings } from "../../../lib/eventPairingsCache";
 import { clockLabel } from "../../../lib/fallPool.js";
 import { eventSocialPosts } from "../../../lib/eventSocial.js";
+import CreatorVideoAction from "../../components/CreatorVideoAction";
 import VideoFacade from "../../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
 import CreatorVideoRail from "../../components/CreatorVideoRail.js";
@@ -233,12 +234,12 @@ export default async function CuratedEventPage({ params }) {
     <div style={{ padding: "18px 16px 14px" }}>
       <h3 style={{ margin: "0 0 6px", color: "#fff", fontFamily: "Georgia,serif", fontSize: 22, lineHeight: 1.25 }}>{e.event_name}</h3>
       <p style={{ margin: "0 0 10px", color: "#aaa3a0", fontSize: 13 }}>{[e.venue, e.city].filter(Boolean).join(" · ")}</p>
-      <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the creator’s post to see more."}</p>
+      <p style={{ margin: 0, color: "#cbbab2", fontSize: 13, lineHeight: 1.5 }}>Seen by @{post.creator}. {socialPoster ? "Event cover shown." : "Open the post here to see more."}</p>
     </div>
-    <a href={post.url} target="_blank" rel="noopener" style={S.socialLink}
-      aria-label={`View @${post.creator}'s Instagram post about ${e.event_name} (opens in a new tab)`}>
-      View @{post.creator}&rsquo;s post on Instagram ↗
-    </a>
+    <CreatorVideoAction platform={post.platform} url={post.url} style={S.socialLink}
+      label={`Open @${post.creator}'s post about ${e.event_name} in Wayfind`}>
+      Watch @{post.creator}&rsquo;s post in Wayfind
+    </CreatorVideoAction>
   </>;
   // Real nearby places worth an outing, ranked by Wayfind — [] (and no section)
   // where there is nothing honestly nearby, so a page never shows a thin shelf.
@@ -397,8 +398,8 @@ export default async function CuratedEventPage({ params }) {
               <article key={post.url} style={S.socialPost}>
                 {/* The facade paints only Wayfind UI until the reader taps it;
                     Instagram's official iframe and third-party request are
-                    created after that click. The native link below remains a
-                    visible fallback when an embed is blocked or removed. */}
+                    created after that click. The attributed action below opens
+                    the shared Wayfind player without navigating away. */}
                 {isEmbeddable(post.platform, post.url) ? <CreatorPlaybackDetails buttonStyle={{ color: "#efd0a6" }} details={socialDetails(post)}>
                   <VideoFacade
                     platform={post.platform}

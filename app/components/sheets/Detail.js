@@ -1,4 +1,5 @@
 "use client";
+import CreatorVideoAction from "../CreatorVideoAction";
 import PlaceDistance, { usePlaceDistance } from "../PlaceDistance.js";
 // Extracted from app/home.js (G3, July 2026 decomposition). Render-only.
 // The place-detail bottom sheet — Wayfind's core, most-used UI surface.
@@ -1084,7 +1085,7 @@ export default function DetailSheet({ ctx }) {
                       const headline = instagramPost
                         ? (handle ? `View ${handle}'s post about ${detail.name}` : `View ${detail.name} on Instagram`)
                         : (handle ? `Watch ${handle}'s video about ${detail.name}` : `See ${detail.name} on ${p.label}`);
-                      const actionLabel = instagramPost ? "View on Instagram ↗" : "Watch Video ↗";
+                      const actionLabel = "Watch in Wayfind";
                       // v6.91 (owner): "add a glowing light to the back of those
                       // that matched the color of the box, make it a global
                       // rule so we don't have to keep adjusting manually." The
@@ -1102,11 +1103,10 @@ export default function DetailSheet({ ctx }) {
                       // bans in chrome, same approved-exception category as
                       // .wf-deal-glow.
                       return (
-                        <a key={"cvid" + i} href={v.url} target="_blank" rel="noopener"
+                        <CreatorVideoAction key={"cvid" + i} platform={v.platform} url={v.url} label={`${headline} in Wayfind`}
                            onClick={() => { try { logEvent("creator_video", detail, { platform: v.platform, creator: v.creator || "" }); } catch (e) {} }}
-                           aria-label={`${headline} (opens in a new tab)`}
                            className="wf-social-glow"
-                           style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
+                           style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${p.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${p.color}`, borderRadius: 14, padding: 12, marginBottom: i < cvs.length - 1 ? 10 : 0, minHeight: 44, "--glow-rgb": PLATFORM_RGB[v.platform] || PLATFORM_RGB.tiktok }}>
                           <div style={{ position: "relative", flexShrink: 0, width: 88, height: 88, borderRadius: 11, overflow: "hidden", background: `linear-gradient(135deg, ${p.color} 0%, #0D1117 130%)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
                             {v.thumbnail && <FallbackImg src={v.thumbnail} icon="▶️" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />}
                             <span aria-hidden="true" style={{ position: "relative", width: 36, height: 36, borderRadius: "50%", background: "rgba(13,17,23,.66)", border: "1.5px solid rgba(255,255,255,.92)", color: "#fff", fontSize: 15, display: "flex", alignItems: "center", justifyContent: "center", paddingLeft: 3 }}>▶</span>
@@ -1120,7 +1120,7 @@ export default function DetailSheet({ ctx }) {
                               {handle && <span style={{ fontSize: 11.5, color: C.muted }}>· by {handle}</span>}
                             </div>
                           </div>
-                        </a>
+                        </CreatorVideoAction>
                       );
                     })}
                   </div>
@@ -1500,13 +1500,13 @@ export default function DetailSheet({ ctx }) {
                           <div style={{ fontSize: 13, color: C.muted }}>Finding videos…</div>
                         ) : (
                           videos.map((v) => (
-                            <a key={v.id} href={v.url} target="_blank" rel="noreferrer" style={{ display: "flex", gap: 10, marginBottom: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
+                            <CreatorVideoAction key={v.id} platform="youtube" url={v.url} label={`Watch ${v.title} in Wayfind`} style={{ width: "100%", display: "flex", gap: 10, marginBottom: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, overflow: "hidden" }}>
                               {v.thumb && <FallbackImg src={v.thumb} icon="▶️" style={{ width: 120, height: 68, objectFit: "cover", flexShrink: 0 }} />}
                               <div style={{ padding: "7px 8px 7px 0", minWidth: 0 }}>
                                 <div style={{ fontSize: 12.5, fontWeight: 600, color: C.text, lineHeight: 1.35, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{v.title}</div>
                                 <div style={{ fontSize: 11, color: C.muted, marginTop: 3 }}>{v.channel}</div>
                               </div>
-                            </a>
+                            </CreatorVideoAction>
                           ))
                         )}
                       </div>

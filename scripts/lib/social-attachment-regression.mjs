@@ -223,13 +223,13 @@ export function checkSocialAttachments(repo) {
 
   const eventPage = readFileSync(path.join(repo, "app/florida-events/[slug]/page.js"), "utf8");
   ensure(/eventSocialPosts\(e\.event_id\)/.test(eventPage) && /<CreatorVideoRail/.test(eventPage) && /<VideoFacade/.test(eventPage), "event pages must render reviewed creator posts through the shared premium rail and click-to-load facade");
-  ensure(/View @\{post\.creator\}&rsquo;s post on Instagram/.test(eventPage) && /href=\{post\.url\}/.test(eventPage), "event pages must keep visible, attributed native-link fallbacks");
+  ensure(/<CreatorVideoAction platform=\{post\.platform\} url=\{post\.url\}/.test(eventPage) && /Watch @\{post\.creator\}&rsquo;s post in Wayfind/.test(eventPage), "event posts must retain attribution and open the shared in-app player");
   ensure(eventPage.indexOf('aria-label="Creator posts about this event"') < eventPage.indexOf("\n      <EventWhere\n"), "event creator posts must appear before the map and nearby recommendations");
   ensure(/poster=\{socialPoster\}/.test(eventPage) && /fallbackPoster=\{socialPosterFallback\}/.test(eventPage), "event creator facades must open with the event's available hero cover");
 
   const facade = readFileSync(path.join(repo, "app/components/VideoFacade.js"), "utf8");
   ensure(/from "\.\.\/\.\.\/lib\/creatorPlatforms"/.test(facade) && !/from "\.\.\/\.\.\/lib\/creatorVideos"/.test(facade), "the facade must not pull the full creator registry into an event-page chunk");
-  ensure(/if \(play\)/.test(facade) && /<iframe src=\{src\}/.test(facade), "the third-party iframe must remain behind an explicit play/view action");
+  ensure(/if \(play\)/.test(facade) && /<CreatorVideoPlayer platform=\{platform\}/.test(facade), "the third-party iframe must remain behind an explicit play/view action");
   ensure(/const instagramPost = platform === "instagram"/.test(facade) && /instagramPost \? "View post" : "Play"/.test(facade), "every Instagram embed must use post-neutral wording because the provider may offer only a native handoff");
   const detail = readFileSync(path.join(repo, "app/components/sheets/Detail.js"), "utf8");
   ensure(detail.includes("Watch ${handle}'s video about ${detail.name}") && !detail.includes("Watch ${handle}'s visit to ${detail.name}"), "creator video headlines must describe the source without inventing a personal visit for a district guide or roundup");
