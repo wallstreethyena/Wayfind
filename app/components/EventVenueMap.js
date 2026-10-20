@@ -155,7 +155,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
     <div className="wfev-grid">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="wfev-cats" aria-label="Map categories">
-        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => chooseCategory(null)}><MapCategoryPin /><span>All places</span>{nearbyStatus === "loading" && pins.length === 0 ? <span>…</span> : nearbyStatus === "error" && pins.length === 0 ? null : <b>{pins.length}</b>}</button>
+        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => chooseCategory(null)}><MapCategoryPin />{nearbyStatus === "loading" && pins.length === 0 ? <><span>All places</span><span>…</span></> : nearbyStatus === "error" && pins.length === 0 ? <span>All places</span> : <><span>All places</span><b>{pins.length}</b></>}</button>
         {canPark ? <button type="button" className="wfev-cat" aria-pressed={parkingMode} onClick={() => { if (!parkingMode) chooseCategory("parking"); }}><MapCategoryPin family="parking" /><span>Parking</span></button> : null}
         {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => chooseCategory(active === group.family ? null : group.family)}><MapCategoryPin family={group.family} /><span>{group.label}</span><b>{group.count}</b></button>)}
       </div>
