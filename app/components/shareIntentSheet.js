@@ -85,7 +85,8 @@ export function askShareIntent(o) {
       st.id = anim;
       st.textContent = "@keyframes wfSiUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}"
         + "@keyframes wfSiFade{from{opacity:0}to{opacity:1}}"
-        + "@media (prefers-reduced-motion: reduce){#" + ID + " *{animation:none!important}}";
+        + "@media (prefers-reduced-motion: reduce){#" + ID + " *{animation:none!important}}"
+        + "@media (min-width:720px){#" + ID + "{align-items:center!important;padding:24px}#" + ID + ">div:nth-child(2){border-radius:16px;border:1px solid #30363D}}";
       (document.head || document.body).appendChild(st);
     }
   } catch (e) {}

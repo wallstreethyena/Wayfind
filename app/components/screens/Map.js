@@ -17,6 +17,8 @@ import useMissingPlacePhotos from "../useMissingPlacePhotos";
 import { tbPhotoUrl } from "../../../lib/todaysBest";
 import { hasPlacePhotoRef } from "../../../lib/placePhoto";
 import { useCuratorPicks, applyCuratorPicks } from "../../../lib/curatorPicks";
+import { shareCard } from "../../../lib/cardActions";
+import { openShareFlow } from "../../../lib/shareFlow.js";
 import useAppleMapRecovery from "../useAppleMapRecovery.js";
 
 // v6.71 (Wave 2): same flame + water-quality read as every other beach
@@ -419,7 +421,7 @@ export default function MapScreen({ ctx }) {
                             onSave={(e) => { try { quickSaveFavorite(e, actionPlace(mp)); } catch (er) {} }}
                             onLike={(e) => { try { toggleLike(e, actionPlace(mp)); } catch (er) {} }}
                             onDislike={(e) => { try { toggleDislike(e, actionPlace(mp)); } catch (er) {} }}
-                            onShare={() => { try { addShared(actionPlace(mp)); } catch (er) {} }}
+                            onShare={(place) => { const target = (place && place.id) ? place : actionPlace(mp); try { addShared(actionPlace(mp)); giveawayMark && giveawayMark(mp.id); } catch (er) {} try { shareCard(target, { surface: "map_preview" }); } catch (er) {} }}
                           />
                         </ul>
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "7px 12px 9px" }}>
@@ -454,6 +456,9 @@ export default function MapScreen({ ctx }) {
                           ) : null}
                           {ev.venue && (
                             <button onClick={() => openVenue(ev)} style={{ display: "block", width: "100%", textAlign: "left", background: "transparent", border: "none", borderTop: `1px solid ${C.border}`, padding: "8px 12px", fontSize: 11.5, fontWeight: 700, color: C.light, cursor: "pointer" }}>📍 View venue on Wayfind ›</button>
+                          )}
+                          {ev.dest && (
+                            <button onClick={() => { try { logEvent("share", null, { id: ev.id, kind: "map_event_preview" }); } catch (e2) {} try { openShareFlow({ title: ev.name, url: ev.destKind === "internal" ? ev.dest : ticketUrl(ev.dest), text: ev.name + (ev.venue ? " at " + ev.venue : "") + ". Found on Wayfind." }); } catch (e2) {} }} style={{ display: "block", width: "100%", minHeight: 44, textAlign: "left", background: "transparent", border: "none", borderTop: `1px solid ${C.border}`, padding: "8px 12px", fontSize: 12.5, fontWeight: 800, color: C.text, cursor: "pointer" }}>↗ Share this event</button>
                           )}
                           <button onClick={(ev2) => { ev2.stopPropagation(); setEventPreview(null); }} aria-label="Dismiss" style={{ position: "absolute", top: 7, right: 7, width: 24, height: 24, borderRadius: 999, border: "none", background: "rgba(0,0,0,.5)", color: "#fff", fontSize: 13, lineHeight: 1, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" }}>✕</button>
                         </div>

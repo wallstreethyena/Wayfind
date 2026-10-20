@@ -6,7 +6,7 @@ import { openExternal } from "../../../lib/links";
 import * as Trips from "../../../lib/trips";
 
 export default function ItineraryScreen({ ctx }) {
-  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, requireAuth } = ctx;
+  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, requireAuth } = ctx;
   return (
     <>
         {!activeTrip && (() => {
@@ -88,7 +88,8 @@ export default function ItineraryScreen({ ctx }) {
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
-                {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
+                {items.length > 0 && shareList && <button onClick={() => { try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
+                {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
               </div>
               {items.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>

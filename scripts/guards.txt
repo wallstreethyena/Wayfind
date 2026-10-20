@@ -2182,6 +2182,9 @@ node scripts/test-fall-card-integration.mjs
 # Unified share intent, gated group action and text-first transport runtime/negative controls.
 node scripts/test-unified-share-flow.mjs
 
+# Global share entry points: map/itinerary/top-40 wiring and fail-closed group gating.
+node scripts/test-global-share-entrypoints.mjs
+
 node scripts/test-group-plan.mjs
 
 node scripts/test-group-plan-time.mjs
