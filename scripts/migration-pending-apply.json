@@ -45,7 +45,7 @@
     "file": "supabase/migrations/20261020120000_wf_itineraries.sql",
     "sha256": "264ff046851c44660414da2d1bdfedb13f63de3d9e55b7a3391793bd2a753263",
     "decision_owner": "wallstreethyena",
-    "tracking": "itinerary option B — Gabe approved the product scope; do not apply until the PR is reviewed (#0)",
+    "tracking": "#1851 itinerary option B — Gabe approved the product scope; do not apply until this PR is reviewed",
     "reason": "Additive wf_itineraries and wf_itinerary_items with owner-only RLS. Not applied to production project gbhtoehdxkzjsmmkisgu. Feature flags default off, so the browser writes stay idle until an owner applies this file with scripts/apply-migration.mjs and turns the flags on. Rollback is drop table public.wf_itinerary_items, drop table public.wf_itineraries."
   }
 ]
