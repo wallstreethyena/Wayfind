@@ -70,6 +70,20 @@ rejects(() => make({ times: [{ startsAt: '2026-10-10T19:00:00Z', endsAt: '2026-1
 rejects(() => make({ times: [{ startsAt: '2027-01-02T11:00:00Z', endsAt: '2027-01-02T12:00:00.001Z' }] }, { timeIds: ['time-1'] }), 'INVALID_INTERVAL');
 eq(make({ times: [{ startsAt: '2027-01-02T11:00:00Z', endsAt: '2027-01-02T12:00:00Z' }] }, { timeIds: ['time-1'] }).times.length, 1, 'exact ninety-day ending is allowed');
 eq(make({ times: [{ startsAt: '2026-10-10T18:00:00Z', endsAt: '2026-10-10T19:00:00Z' }, { startsAt: '2026-10-10T19:00:00Z', endsAt: '2026-10-10T20:00:00Z' }] }).times.length, 2, 'adjacent intervals are nonoverlapping');
+// Missing duration stays unknown, with the same future/calendar/overlap safeguards.
+const startOnly = make({ times: [{ startsAt: input.times[0].startsAt }, { startsAt: input.times[1].startsAt, endsAt: null }] });
+eq(startOnly.times.map((time) => time.endsAt), [null, null], 'omitted and null end normalize to unknown, never a fabricated duration');
+eq(make({ times: [{ startsAt: '2027-01-02T12:00:00Z' }] }, { timeIds: ['time-1'] }).times[0].endsAt, null, 'start-only exact ninety-day bound allowed');
+rejects(() => make({ times: [{ startsAt: '2027-01-02T12:00:00.001Z' }] }, { timeIds: ['time-1'] }), 'INVALID_INTERVAL');
+rejects(() => make({ times: [{ startsAt: DEADLINE }] }, { timeIds: ['time-1'] }), 'INVALID_DEADLINE');
+for (const endsAt of ['', false, '2026-02-30T12:00:00Z']) rejects(() => make({ times: [{ startsAt: input.times[0].startsAt, endsAt }] }, { timeIds: ['time-1'] }), 'INVALID_DATE');
+rejects(() => make({ times: [{ startsAt: input.times[0].startsAt }, { startsAt: '2026-10-10T14:00:00-04:00', endsAt: null }] }), 'OVERLAPPING_TIMES');
+rejects(() => make({ times: [input.times[0], { startsAt: '2026-10-10T19:00:00Z' }] }), 'OVERLAPPING_TIMES');
+rejects(() => make({ times: [{ startsAt: '2026-10-10T19:00:00Z' }, input.times[0]] }), 'OVERLAPPING_TIMES');
+eq(make({ times: [input.times[0], { startsAt: input.times[0].endsAt }] }).times[1].endsAt, null, 'start at known closing boundary is adjacent');
+eq(participantPlanView(startOnly, 'guest-1', { now: NOW }).times[0].endsAt, null, 'participant projection preserves unknown duration');
+eq(organizerPlanView(startOnly, { now: NOW }).times[0].endsAt, null, 'organizer projection preserves unknown duration');
+
 rejects(() => make({ organizerAvailableTimeIds: ['forged'] }), 'INVALID_TIME');
 rejects(() => make({ organizerAvailableTimeIds: ['time-1', 'time-1'] }), 'DUPLICATE_TIME');
 

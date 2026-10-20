@@ -55,7 +55,7 @@ scripts/check-christmas-browse-credit.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0
 scripts/check-christmas-card-photo-slot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	b3dcaae2c6c6d60575974a5e61370b243c62610a4a5232a99cc809d9f89f2ddf
 scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	3ba1bd393522d685ea99eb931914a694d9ac8e688dbf8a3245ad3ab0f636c9eb
 scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	257	0	0	cbbad01359756390f983641f40a3b8fdff778a556b142f5b85583542fe05c747
-scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	152	0	0	871456420c6873840aec56a0a844438ed6c0c39948b8197052d76a3a04d98d21
+scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	159	0	0	1c4b158132b424297c294d76b8fa2a0671d5261e6e421108c5192f5f572d7532
 scripts/check-christmas-venue-matches.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	305e3ed2c79eaf6df673523cbf28226d057d15b0d46eae31a16b279bcb9a5203
 scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	0d8c182546f20762819ff16535323a8cde407967f6a41884e27dacdc18380d1a
 scripts/check-client-writes-have-policies.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	46db82c5841a98f27be9cd3ba7aea88b3b802145534e092603ed9b0d608cd0da
@@ -677,14 +677,14 @@ scripts/test-google-photo-prefetch-pause.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	
 scripts/test-google-photo-store.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	41	0	0	49e05a598c791766200140284d65c79a0015db28dcee29ac573b933b8b6a74b8
 scripts/test-group-plan-candidates.mjs	0	CALL	blocks-ci-and-deploy	1	-	3	0	0	a1076050c99b40f44737839f31f045303f349606708e2b0689ff96455b1aa40d
 scripts/test-group-plan-notifications.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	6016f811cc3119d97fd09e85db167ae507c7b2a29dd3e78577607bc2a2ced7fd
-scripts/test-group-plan-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	f4b14ff049008ba5875d15d289cd7cf81fb56ed4cd98f671966718acf3299eb4
+scripts/test-group-plan-schema.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	0657d1bafc06ac728bd513200301356b34c538694e8a6453624c7c01663736b2
 scripts/test-group-plan-service.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	7177e168ebf2792e08828f7869c671e9ebeb214c5fb5e02e72fe738a6b59d625
 scripts/test-group-plan-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	b6937b9293bd382fc23966a12012e9dc39bedb27b585cc5e25ab5ba57c068b38
-scripts/test-group-plan-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	172	0	0	e839278e8b461fb73f3a1770c316947afa9ec8a66a7ad022f65fa4657ef7070c
-scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	124	0	0	9feb2e75222fc23dbab358c95b7e14dd92c3eb96f8be3dbe49d9ab7b18ff4b77
-scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	140	0	0	7a9d8920ce77016d850e4c84a1f2eb5f0144bc172ea7c08c5fecf956b5a4dff6
+scripts/test-group-plan-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	220	0	0	97cb7a357dc81ad9d1eb2d42c4dccd488828fc977499d6889bfc5224f6e7c449
+scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	3101cb57e13f8b98fd7881acef3c6cbe7aa3089098ca69d2ef4127bbc284e66b
+scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	164	0	0	8bc6a6963bd8e249d3bac58f90dfc29fe011127294c855213a7d982de590be67
 scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a6b7662600b0037bd5cc4bb8b1a34ba7b70aecf2620e495ac48051a84367
-scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	187	0	0	09ab1df2e24183941921fa73571acd62c587e361236f60651c7b331231c7846c
+scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	194	0	0	8385835f396ec7061fe2c3a38766c00fed76e8fd55a1e01b160abcfbfedabb7c
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	29	0	0	fd17a788091d503dd99c2f5f45ac56d53805e1c0c90e3e02326445819d67e6bc
 scripts/test-guide-context-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	02b780e7560741e93995b5036f426e06a934a7dcd7b8bb26878ac73449368761
