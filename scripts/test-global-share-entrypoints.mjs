@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { groupPlanHref, concreteSharePlaceId } from "../lib/shareContext.js";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const read = (rel) => readFileSync(path.join(ROOT, rel), "utf8");
@@ -25,6 +26,13 @@ check(() => assert.doesNotMatch(best, /onShare=\{\(\) => \{ try \{ onLog && onLo
 const itin = read("app/components/screens/Itinerary.js");
 check(() => assert.match(itin, /shareList\(items\.map\(\(it\) => it\.place\)/, "itinerary trip shares through the existing list flow"));
 check(() => assert.match(itin, /Share ↗/, "itinerary trip shows a Share action"));
+
+// Executed behavior: the shared gate itself, not just its source text.
+check(() => assert.equal(groupPlanHref("ChIJfixture", "Ulele", false), null));
+check(() => assert.equal(groupPlanHref("", "Ulele", true), null));
+check(() => assert.match(groupPlanHref("ChIJfixture", "Ulele", true), /^\/group-plans\/new\?place=ChIJfixture/));
+check(() => assert.equal(concreteSharePlaceId("a/b"), ""));
+check(() => assert.equal(concreteSharePlaceId(" ChIJfixture "), "ChIJfixture"));
 
 // Group Vote stays fail-closed behind both rollout flags. This PR prepares
 // entry points; activation remains the owner's migration/verification step.
