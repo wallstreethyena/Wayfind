@@ -229,6 +229,11 @@ test("live venue map returns parking and venue-local nearby pins", async ({ page
   await map.getByRole("button", { name: "Parking", exact: true }).click();
   await expect(map.locator(".wfev-parking-select").first()).toBeVisible({ timeout: 25000 });
   expect(await map.locator(".wfev-parking-select").count()).toBeGreaterThan(0);
+  await expect.poll(() => page.evaluate(() => {
+    const region = window.mapkit?.maps?.find(m => m.element?.closest('[aria-label="Map and parking near Universal Studios Florida"]'))?.region;
+    return !!region && region.span.latitudeDelta > 0 && region.span.latitudeDelta < 0.08
+      && region.span.longitudeDelta > 0 && region.span.longitudeDelta < 0.08;
+  }), { timeout: 10000, message: "Parking results must also frame the nearby lots, not the whole city" }).toBe(true);
   await expect(map.getByText(/Parking could not be loaded|No parking found/)).toHaveCount(0);
   const drive = new URL(await map.getByRole("link", { name: /^Drive to / }).first().getAttribute("href"));
   const walk = new URL(await map.getByRole("link", { name: /^Walk from / }).first().getAttribute("href"));

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
-import { createParkingSearch, hasParkingCoordinate, parkingDirectionsUrl } from "../lib/appleParking.js";
+import { createParkingSearch, hasParkingCoordinate, parkingDirectionsUrl, parkingMapRegion } from "../lib/appleParking.js";
 import { mapFailureReason } from "../lib/mapDiagnostics.js";
 
 let assertions = 0;
@@ -9,6 +9,18 @@ const check = Object.fromEntries(["equal", "deepEqual", "ok", "rejects"].map((me
   return assert[method](...args);
 }]));
 const venue = { lat: 27.3, lng: -82.5 };
+check.equal(parkingMapRegion(null), null, "unknown venues cannot create a map frame");
+check.deepEqual(parkingMapRegion(venue), { center: venue, latitudeDelta: 0.018, longitudeDelta: 0.018 }, "loading and empty parking keep the immediate venue surroundings");
+const framingPoints = [{ lat: 27.302, lng: -82.506 }, { lat: 27.298, lng: -82.494 }];
+const framingSnapshot = JSON.stringify(framingPoints);
+const frame = parkingMapRegion(venue, framingPoints);
+check.ok(frame.latitudeDelta < 0.03 && frame.longitudeDelta < 0.03, "nearby lots never inherit a city-wide discovery camera");
+for (const point of [venue, ...framingPoints]) check.ok(Math.abs(point.lat - frame.center.lat) <= frame.latitudeDelta / 2 && Math.abs(point.lng - frame.center.lng) <= frame.longitudeDelta / 2, "the padded frame contains the actual venue and every parking coordinate");
+check.equal(JSON.stringify(framingPoints), framingSnapshot, "framing does not mutate provider facts");
+check.equal(parkingMapRegion(venue, [venue]).latitudeDelta, 0.008, "coincident points retain useful street context");
+const dateline = parkingMapRegion({ lat: 10, lng: 179.999 }, [{ lat: 10.001, lng: -179.999 }]);
+check.ok(dateline.longitudeDelta < 0.01 && Math.abs(dateline.center.lng) > 179, "nearby parking across the date line never frames the whole world");
+check.ok(parkingMapRegion({ lat: 89.999, lng: 0 }, [{ lat: 90, lng: 0 }]).center.lat <= 90 - 0.004, "polar framing remains within legal region bounds");
 const wait = () => new Promise((resolve) => setTimeout(resolve, 0));
 const deferred = () => {
   let resolve;

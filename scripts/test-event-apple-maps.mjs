@@ -21,9 +21,12 @@ class FakeMap {
   removeOverlay(overlay) { this.overlays = this.overlays.filter((x) => x !== overlay); }
   removeAnnotations(items) { const removing = new Set(items || []); this.annotations = this.annotations.filter((item) => !removing.has(item)); }
   showItems(items, options) { this.showCalls += 1; this.shown = items; this.showOptions = options; }
+  setRegionAnimated(region, animated) { this.region = region; this.cameraAnimated = animated; }
   destroy() { this.removed = true; }
 }
 class FakeCoordinate { constructor(latitude, longitude) { this.latitude = latitude; this.longitude = longitude; } }
+class FakeCoordinateSpan { constructor(latitudeDelta, longitudeDelta) { Object.assign(this, { latitudeDelta, longitudeDelta }); } }
+class FakeCoordinateRegion { constructor(center, span) { Object.assign(this, { center, span }); } }
 class FakeAnnotation { constructor(coordinate, options) { this.coordinate = coordinate; Object.assign(this, options); } }
 class FakePadding { constructor(top, right, bottom, left) { Object.assign(this, { top, right, bottom, left }); } }
 class FakeDirections {
@@ -35,7 +38,7 @@ class FakeSearch {
   search(query) { return new Promise((resolve, reject) => searches.push({ query, resolve, reject, search: this })); }
   cancel(request) { this.cancelledRequest = request; }
 }
-const fakeKit = { Map: FakeMap, Coordinate: FakeCoordinate, ImageAnnotation: FakeAnnotation, Directions: FakeDirections, Search: FakeSearch, Style: class Style { constructor(options) { Object.assign(this, options); } }, Padding: FakePadding };
+const fakeKit = { Map: FakeMap, Coordinate: FakeCoordinate, CoordinateSpan: FakeCoordinateSpan, CoordinateRegion: FakeCoordinateRegion, ImageAnnotation: FakeAnnotation, Directions: FakeDirections, Search: FakeSearch, Style: class Style { constructor(options) { Object.assign(this, options); } }, Padding: FakePadding };
 let pass = 0;
 const check = (condition, message) => { assert.ok(condition, message); pass += 1; };
 
@@ -91,6 +94,8 @@ check(selected === "22", "selection follows the normalized identity of a streame
 
 const parking = [{ id: "parking:one", name: "Garage", lat: 27.3001, lng: -82.5001, distanceMeters: 15 }];
 controller.setParkingMode(true, parking);
+check(controller.map.region.span.latitudeDelta < 0.03 && controller.map.region.span.longitudeDelta < 0.03, "parking commits a local camera after fitting custom annotation images");
+check(controller.map.cameraAnimated === false && controller.map.showOptions.animate === false, "parking cancels a previous wide camera animation instead of racing it");
 check(controller.map.annotations.length === 2 && controller.map.annotations.some(a => a.image[1] === mapPinUrl("parking")), "parking mode retains the venue and uses the shared P pin");
 check(controller.map.overlays.length === 0 && controller.map.shown.every(a => a !== routeOverlay), "parking view excludes the saved drive and unrelated places from camera bounds");
 controller.selectParking("parking:one");
