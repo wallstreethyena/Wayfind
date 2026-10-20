@@ -69,7 +69,13 @@ const FLAGS = { partial: "Not everyone replied", tie: "It’s a tie", unavailabl
 
 await test("title and plain description",() => {
  const html = markup(Org,org(view(open2)));
- matches(html,/<h1>Group Vote<\/h1>/); matches(html,/Pick a place and a time together/);
+ matches(html,/<h1>Group Vote<\/h1>/); matches(html,/Your people\. A few great options\. One plan together/);
+});
+await test("draft review, people, dates and invitation action precede place research",()=>{
+ const html=markup(Org,org(view(make(two))));
+ matches(html,/Your group vote at a glance/);matches(html,/Alice Private/);matches(html,/Bob Private/);matches(html,/When could we go/);matches(html,/Start invitations/);matches(html,/wf-place-card/);
+ yes(html.indexOf("Your group vote at a glance")<html.indexOf("Start invitations"));yes(html.indexOf("Start invitations")<html.indexOf("data-iconic-place-card"),"invitation action is above the entire canonical place list");
+ yes(html.indexOf("Alice Private")<html.indexOf("Start invitations"));matches(html,/Why this place &amp; sources/);absent(html,/class="gpo-circle voted"|Vote received|class="gpo-confetti"/,"draft must not fabricate responses or celebrate a save");
 });
 await test("tie plan renders exactly the tie box",() => {
  const h = hooks(Org,org(view(tie2))); h.render();

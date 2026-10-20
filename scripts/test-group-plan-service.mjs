@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { applyGroupPlanCommand } from '../lib/groupPlan.js';
+import { scheduledGroupTimeFit } from '../lib/groupPlanPlaceData.js';
 import { createGroupPlanService } from '../lib/groupPlanService.js';
 import { groupPlanConfiguration, createGroupPlanRepository, verifiedGroupOrganizer } from '../lib/groupPlanRepository.js';
 import { inviteCapability, verifyInviteCapability, finalCapability, verifyFinalCapability, groupRateKey, sameOriginGroupRequest, readGroupJson } from '../lib/groupPlanSecurity.js';
@@ -234,6 +235,23 @@ await test('venue hours are separate from attendee availability and known closur
  const closed=fixture(),closedPlan=await closed.start();await closed.respond(closedPlan,0,116);await closed.respond(closedPlan,1,117);
  closed.placeData.hydrate=async(ids)=>ids.map(id=>({id,name:'Known closed venue',status:'OPERATIONAL',openTimeIds:[],closedTimeIds:[closedPlan.times[0].id]}));
  await rejects(closed.service.command(closedPlan.id,{id:commandId(118),type:'finalize',placeId:'original',timeId:closedPlan.times[0].id,acknowledgeVenueHours:true,acknowledgeUnavailable:true},{user:closed.user}),'VENUE_CLOSED');eq(closed.records.get(closedPlan.id).status,'closed','known venue closure cannot be overridden by acknowledgments');
+});
+await test('start-only lifecycle retains unknown duration and requires venue confirmation',async()=>{
+ const f=fixture(),made=await f.create({times:[{startsAt:'2026-10-10T18:00:00Z'}]});
+ eq(made.times[0].endsAt,null,'server creation returns an unknown end');
+ eq(f.records.get(made.id).state.times[0].endsAt,null,'stored choice contains no fabricated duration');
+ const plan=await f.service.command(made.id,{id:commandId(140),type:'start'},{user:f.user});
+ const guest=await f.service.read(plan.id,{token:plan.invites[0].token});eq(guest.times[0].endsAt,null,'invitee sees start-only choice');
+ await f.respond(plan,0,141);await f.respond(plan,1,142);
+ const details={timeZone:'UTC',hoursAsOf:new Date(NOW).toISOString(),oh:{periods:[{open:{day:6,hour:18},close:{day:6,hour:19}}]}};
+ f.placeData.hydrate=async(ids,times)=>ids.map(id=>({id,name:'Open at arrival',status:'OPERATIONAL',...scheduledGroupTimeFit(details,times,f.time)}));
+ const command={id:commandId(143),type:'finalize',placeId:'original',timeId:plan.times[0].id};
+ await rejects(f.service.command(plan.id,command,{user:f.user}),'VENUE_HOURS_CHECK_REQUIRED');
+ eq(f.records.get(plan.id).status,'closed','unknown duration is not silently verified');
+ const final=await f.service.command(plan.id,{...command,acknowledgeVenueHours:true},{user:f.user});
+ eq(final.finalPlan.venueHoursStatus,'organizer_checked','acknowledgment is explicit');
+ const publicFinal=await f.service.read(plan.id,{finalToken:final.finalToken});
+ eq(publicFinal.times[0].endsAt,null,'shared final preserves unknown duration');
 });
 await test('hydration outage is visible and leaves stored options untouched',async()=>{
  const f=fixture(),plan=await f.start();f.failHydrate=true;

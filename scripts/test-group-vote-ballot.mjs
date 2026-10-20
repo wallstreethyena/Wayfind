@@ -183,6 +183,19 @@ await test("explore links use real routes: town pages when a town is known, gene
   eq(UI.exploreLinks({lat:40.7,lng:-74.0})[0].href,"/?q=best%20restaurants%20nearby","far from every town falls back to generic");
 });
 
+await test("progress requires choices and success waits for server response",() => {
+  const calls=[];const initial=view(open3),h=hooks(Ballot,props(initial,{onCommand:c=>calls.push(c)}));
+  const progress=()=>nodes(h.tree).find(n=>n.props?.role==="progressbar").props["aria-valuenow"];
+  h.render();eq(nodes(h.tree).filter(n=>n.props?.className==="gb-receipt-mark is-new").length,0,"no celebration before server acknowledgement");eq(progress(),0,"a suggested place has not completed the explicit choice step");matches(text(h.tree),/Choose your place and times/);
+  nodes(h.tree).find(n=>n.type===Options).props.onSelect("place-2");h.render();eq(progress(),1);
+  nodes(h.tree).filter(n=>n.type==="input"&&n.props.type==="checkbox")[1].props.onChange({target:{checked:true}});h.render();eq(progress(),2);
+  button(h.tree,"Send my vote").props.onClick();h.render();eq(calls.length,1);eq(progress(),2,"issuing a command is not evidence it saved");absent(text(h.tree),/Vote sent\./);
+  h.render(props(view(voted),{onCommand:c=>calls.push(c)}));eq(progress(),3);matches(text(h.tree),/Vote sent\./);yes(nodes(h.tree).find(n=>n.props?.className==="gb-receipt-mark is-new"),"a newly acknowledged response celebrates once");yes(nodes(h.tree).find(n=>n.props?.className==="gb-done"&&n.props.role==="status"));
+  nodes(h.tree).find(n=>n.type===Options).props.onSelect("place-3");h.render();eq(progress(),2);absent(text(h.tree),/Vote sent\./,"old receipt must not claim the unsaved edit succeeded");matches(text(h.tree),/Changes ready to send/);
+  const loaded=markup(Ballot,props(view(voted)));absent(loaded,/class="gb-receipt-mark is-new"/,"reopening a saved ballot must not celebrate again");matches(loaded,/class="gb-receipt-mark"/,"saved response retains its quiet check badge");
+  const busy=markup(Ballot,props(initial,{busy:true}));matches(busy,/Saving your vote/);absent(busy,/class="gb-done"/);matches(UI.GROUP_BALLOT_CSS,/@media \(prefers-reduced-motion: reduce\)\{[^}]*animation:none!important[^}]*transition:none!important/,"same reduced-motion rule covers receipt and selection animation");
+});
+
 await test("CSS: reduced motion block present and every duration is at most .5s",() => {
   const css = UI.GROUP_BALLOT_CSS;
   matches(css,/@media \(prefers-reduced-motion: reduce\)\{[^}]*animation:none!important[^}]*transition:none!important/);
