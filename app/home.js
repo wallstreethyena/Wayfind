@@ -11315,12 +11315,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               })()}
               {/* v3.7: mobile inline "You are exploring" card removed — it duplicated the 📍 This area tile sheet. Data is unchanged; it now loads only when the tile is opened. */}
               {/* v4.1: standalone "Happening at the library" card removed from home — this content now lives in the Community tile sheet (menuSheet === "community"). libraryEvents state and fetch are unchanged. */}
-              {/* v5.35 hydration: the moment phrase ("Friday evening") comes
-                  from post-mount state — the SSR'd shell can be up to an hour
-                  old (ISR), so computing it at render made server and client
-                  disagree (this was the live React 418/423). Both sides render
-                  the generic line first; the moment arrives one paint later. */}
-              {!browseCat && suggested === null && <div style={{ minHeight: "62vh" }}><Loader label={bootMoment ? `Finding the best options for ${bootMoment} near ${locName ? locName.split(",")[0] : "this area"}…` : "Finding the best options…"} sub={`open now first · within ${DEFAULT_RADIUS_MI} miles · ranked by real reviews, not ads`} pad="8px 2px" /></div>}
+              {/* v5.35 / Move 3: inline ranked feed ("Finding the best options for" / "ranked by real reviews, not ads") was removed from home; DaypartRail renders its own PlaceCardSkeletons, so no 62vh ghost loader sits above CommunityFooter when !browseCat. */}
               {/* Wayfind Picks list removed from home: the ranked list now lives behind the Wayfind Picks hero card above, which opens the curated top 10 sheet. */}
               {/* Roll the Dice now renders as the last hook card inside the "Worth a look" section above, matching the editorial cards. */}
               {/* Inline ranked feed removed from home: browsing the full ranked list now happens inside the Wayfind Picks sheet, the Nearby tile, search, and categories. */}

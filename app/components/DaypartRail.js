@@ -1673,11 +1673,14 @@ export default function DaypartRail({
       </>
     );
   };
-  const near = (live && live.cityLabel) ? ` near ${live.cityLabel}` : "";
+  const resolvedCityLabel = honestCityLabel(locName)
+    ? ((live && live.cityLabel) || shown.cityLabel || locName)
+    : ((Number.isFinite(lat) && Number.isFinite(lng)) ? ((live && live.cityLabel) || shown.cityLabel || cityLabel || "") : "");
+  const near = resolvedCityLabel ? ` near ${resolvedCityLabel}` : "";
   // The town to NAME in an honest-empty sentence. The reader's own label first
   // (it is what the chrome is already showing them, so the copy matches the
   // page), then whatever the payload named, then nothing — and never "you".
-  const dropCity = honestCityLabel(locName) || (shown.cityLabel ? honestCityLabel(shown.cityLabel) : "") || "";
+  const dropCity = honestCityLabel(locName) || (resolvedCityLabel ? honestCityLabel(resolvedCityLabel) : "") || "";
 
   return (
     <GuideDiscoveryContext.Provider value={guides}>
@@ -1710,7 +1713,7 @@ export default function DaypartRail({
                 const href = intentDoorway || (id === "datenight" || id === "season" || id === "family"
                   ? dateNightIntentHref({
                     href: railDest || (id === "family" ? "/family" : id === "season" ? "/summer-picks" : "/date-night"),
-                    cityLabel: shown.cityLabel || cityLabel,
+                    cityLabel: resolvedCityLabel || cityLabel,
                     lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
                     lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
                   })
@@ -1838,7 +1841,7 @@ export default function DaypartRail({
               active
               places={nightOutPlaces}
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -1870,7 +1873,7 @@ export default function DaypartRail({
             <DateNightRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
@@ -1895,7 +1898,7 @@ export default function DaypartRail({
             <BirthdayRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -1917,7 +1920,7 @@ export default function DaypartRail({
             <FamilyDayPage
               embedded
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || cityLabel || ""}
+              city={resolvedCityLabel || cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1934,7 +1937,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "breakfast" && !composerWaiting ? (
             <BreakfastRails
               places={dropList}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               hasMore={selectedHasMore}
               loadingMore={railPageState[selectedPageScope] === "loading"}
               onLoadMore={loadSelectedRailPage}
@@ -1954,7 +1957,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "break" ? (
             <LunchBreakRails
               places={lunchBreakLive || lunchBreakPlaces}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1971,7 +1974,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "eat" && !composerWaiting ? (
             <WorthEatingRails
               places={dropList}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               hasMore={selectedHasMore}
               loadingMore={railPageState[selectedPageScope] === "loading"}
               onLoadMore={loadSelectedRailPage}
@@ -1992,7 +1995,7 @@ export default function DaypartRail({
             <TodayDiscoveryRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
@@ -2011,7 +2014,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "locals" ? (
             <CreatorPicksRails
               places={dropList}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               pageScope={selectedPageScope}
               hasMore={selectedHasMore}
               loadingMore={railPageState[selectedPageScope] === "loading"}
@@ -2036,7 +2039,7 @@ export default function DaypartRail({
               collection={selRail.id === "halloween" ? "halloween" : "fall"}
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -2055,7 +2058,7 @@ export default function DaypartRail({
             <ChristmasIntentRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -2074,7 +2077,7 @@ export default function DaypartRail({
             <SummerIntentRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
@@ -2086,7 +2089,7 @@ export default function DaypartRail({
               active
               hasRankedFallback={dropList.length > 0}
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -2317,7 +2320,7 @@ export default function DaypartRail({
                     // the card's sourced hook (the share audit's S2 — a card
                     // share was shipping with neither).
                     onShare={onShare ? (pl) => onShare(pl || p, {
-                      city: shown.cityLabel || "",
+                      city: resolvedCityLabel,
                       hook: isPaid ? (p.hook || "") : (toHookLine(hooks[p.id], p.name) || ""),
                     }) : null}
                     // v8.88 — read-only ONLY when there is nowhere to write.
