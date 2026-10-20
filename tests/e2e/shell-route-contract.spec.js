@@ -210,16 +210,20 @@ test.describe("Live venue maps", () => {
 test("live venue map returns parking and venue-local nearby pins", async ({ page }) => {
   test.skip(!process.env.E2E_BASE_URL, "Live provider canary requires a deployed origin; offline fixture coverage runs in the guard suite.");
   test.setTimeout(90000);
+  // Both endpoints read owned inventory; the park feed opens the control venue.
+  const ownedInventory = new Set(["/api/places/map", "/api/theme-parks"]);
   await page.route("**/*", async (route) => {
     const url = new URL(route.request().url());
     if (/googleapis\.com$|google-analytics\.com$|posthog\.com$/.test(url.hostname)) return route.abort();
-    if (url.pathname.startsWith("/api/") && url.pathname !== "/api/places/map") {
+    if (url.pathname.startsWith("/api/") && !ownedInventory.has(url.pathname)) {
       return route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"Unrelated enrichment disabled in live map canary"}' });
     }
     return route.continue();
   });
   await page.goto("/", { waitUntil: "domcontentloaded" });
-  await page.getByRole("link", { name: "Universal Studios Florida", exact: true }).first().click();
+  const control = page.getByRole("link", { name: "Universal Studios Florida", exact: true }).first();
+  await expect(control, "The owned theme-park feed must render the control venue").toBeVisible({ timeout: 20000 });
+  await control.click();
   const map = page.getByRole("region", { name: "Map and parking near Universal Studios Florida", exact: true });
   await expect(map).toBeVisible({ timeout: 20000 });
   await map.scrollIntoViewIfNeeded();
