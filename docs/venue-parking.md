@@ -49,6 +49,11 @@ neither is presented as an authoritative zero. No paid search is added.
   parking pins, late updates, saved-route restoration and teardown.
 - `node scripts/test-venue-nearby.mjs`: real hook, inventory paging and map
   wrapper, including a visitor in another city, late responses and retry.
+- The existing 30-minute production route canary runs
+  `tests/e2e/venue-map-live.spec.js` against the real deployed Apple SDK. It
+  requires nearby pins and at least one real parking result at its known park
+  control, checks drive/walk targets and category return, blocks unrelated
+  enrichment/Google requests, and uploads screenshots/traces on failure.
 - `node scripts/test-venue-parking-ui.mjs --require-browser`: real React controls
   at 390/768/1400px with a deterministic Apple fixture. Optional
   `--browser-executable=/absolute/path/to/chrome` selects a local test browser.

@@ -64,7 +64,13 @@ jobs:
       - name: Shell route contract against production
         env:
           E2E_BASE_URL: https://www.gowayfind.com
-        run: npx playwright test tests/e2e/shell-route-contract.spec.js
+        run: npx playwright test tests/e2e/shell-route-contract.spec.js tests/e2e/venue-map-live.spec.js
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: production-route-and-map-evidence
+          path: test-results/
+          retention-days: 7
 
   inventory:
     name: production data integrity
