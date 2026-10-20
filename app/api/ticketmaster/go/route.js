@@ -19,11 +19,10 @@ export const runtime = "nodejs";
 
 import { randomUUID } from "node:crypto";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
-import { commercePayload, rankBucket } from "../../../../lib/commerce.js";
+import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isCrawler } from "../../../../lib/crawler.js";
 
-const UUID_LIKE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const FALLBACK = "/events";
 
 export async function GET(req) {
@@ -33,9 +32,7 @@ export async function GET(req) {
   const contentId = String(sp.get("content") || "").trim().slice(0, 120) || null;
   const offerId = String(sp.get("offer") || "").trim().slice(0, 120) || null;
   const rank = sp.get("rank");
-  const clickIdFromClient = String(sp.get("click_id") || "").trim();
-
-  const clickId = UUID_LIKE.test(clickIdFromClient) ? clickIdFromClient : randomUUID();
+  const clickId = sanitizeClientClickId(sp.get("click_id")) || randomUUID();
   // The visitor's PostHog id when the cookie is present; otherwise the click id,
   // sent personless so a cookie-less click never becomes a new "visitor".
   const cookieDistinctId = distinctIdFromCookies(req.headers.get("cookie"));

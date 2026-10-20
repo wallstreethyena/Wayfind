@@ -23,6 +23,7 @@ import { homeShellData } from "../../../lib/homeShellData";
 import { FALL_CARD_IDS, fallSkinLive } from "../../../lib/fallSkin";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { getInventoryIdentity } from "../../../lib/inventoryIdentity.js";
+import { durablePlaceUrl } from "../../../lib/placeData";
 
 function s(v) {
   if (Array.isArray(v)) return v[0] || "";
@@ -76,7 +77,10 @@ export async function generateMetadata({ params, searchParams }) {
   return {
     robots: { index: false, follow: true }, // share/app-state URLs: infinite query space, not for the index (SEO audit July 2026)
     metadataBase: new URL(SITE_URL),
-    alternates: { canonical: placeCanonical(id, SITE_URL) || (SITE_URL + "/p/" + encodeURIComponent(id)) },
+    // A share link for a place that has a durable, indexable /places/{id}
+    // page hands its signals there (that page is the one built to rank);
+    // otherwise it keeps its own /p canonical. Never spends Google Places.
+    alternates: { canonical: (await durablePlaceUrl(id)) || placeCanonical(id, SITE_URL) || (SITE_URL + "/p/" + encodeURIComponent(id)) },
     title: t + " \u00b7 Wayfind",
     description: desc,
     openGraph: {

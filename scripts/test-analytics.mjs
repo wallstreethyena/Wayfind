@@ -336,11 +336,10 @@ function harness() {
     ok(minted === 0, "the minter is never called when the href already carries a valid click_id");
   }
 
-  // /api/viator/go (and the other two non-joinable routes) are never
-  // rewritten, even when unowned — only /api/commerce/go joins on click_id.
+  // /api/viator/go (and all partner /go routes) also join on click_id when unowned.
   {
     const plan = PC.planPartnerClick({ href: "/api/viator/go?placeId=x&q=museum", owned: false, locationHost: "www.gowayfind.com", mint });
-    ok(!!plan && plan.rewriteHref === null, "/api/viator/go is never rewritten");
+    ok(!!plan && typeof plan.rewriteHref === "string" && plan.rewriteHref.indexOf("click_id=" + plan.clickId) >= 0, "/api/viator/go rewrites unowned href with click_id so server redirect joins");
     ok(!!plan && plan.googleParams.provider === "viator", "the route's own provider is used when the href carries none");
   }
 
