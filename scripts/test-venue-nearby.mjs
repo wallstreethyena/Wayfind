@@ -10,7 +10,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const { default: hook, venueNearbyBounds } = await loadComponent(fileURLToPath(new URL("../app/components/useVenueNearby.js", import.meta.url)), root);
 const { default: PlaceParkingMap } = await loadComponent(fileURLToPath(new URL("../app/components/PlaceParkingMap.js", import.meta.url)), root);
 const venue = { id: "venue", name: "Orlando cafe", lat: 28.47, lng: -81.46 };
-const local = { id: "local", name: "Nearby park", lat: 28.48, lng: -81.46, category: "attractions", types: ["park"], governed_score: 96, rating: 4.8, reviews: 1500, status: "OPERATIONAL" };
+const local = { id: "local", name: "Nearby park", lat: 28.48, lng: -81.46, category: "attractions", types: ["park"], governed_score: 96, rating: 4.8, reviews: 1500, status: "OPERATIONAL", distMi: 0.69 };
 const distant = { ...local, id: "distant", name: "Visitor's Washington park", lat: 38.89, lng: -77.03 };
 const tick = () => new Promise(resolve => setImmediate(resolve));
 let checks = 0;
@@ -55,6 +55,8 @@ try {
   answer(requests[1], [{ ...local, id: "second-local", lat: 28.49 }]); await tick();
   result = h.render([venue, [distant]]); h.flush();
   check(result.status === "ready" && result.places.map(p => p.id).join() === "local,second-local", "all pages settle before local radius/exclusion rules produce recommendations");
+  check(result.places.every(p => !("distMi" in p)), "venue-relative API distances cannot impersonate visitor distances or produce false closer claims");
+  check(local.distMi === 0.69 && result.places[0].governed_score === local.governed_score, "adapting distance semantics never mutates shared facts or scores");
   h.render([{ ...venue, photo: "updated-photo" }, [distant]]); h.flush();
   check(requests.length === 2, "photo/editorial renders never restart geographic discovery");
 

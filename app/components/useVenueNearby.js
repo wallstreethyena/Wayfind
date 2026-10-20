@@ -43,5 +43,9 @@ export default function useVenueNearby(place, contextPlaces = [], enabled = true
   }, [key, enabled, attempt]);
   const current = result.key === key ? result : { status: venueNearbyBounds(place) ? "loading" : "unavailable", places: [] };
   const candidates = current.status === "ready" ? current.places : detailNearbyPool(place, contextPlaces);
-  return { status: current.status, places: mergeMapAreaContext(candidates, contextPlaces), retry: () => setAttempt((value) => value + 1) };
+  // The map API's distMi is relative to this request's venue. Legacy detail
+  // comparisons expect visitor/search-origin miles, so never hand them that
+  // different measurement. PlaceDistance owns current-device display facts.
+  const places = mergeMapAreaContext(candidates, contextPlaces).map(({ distMi, ...facts }) => facts);
+  return { status: current.status, places, retry: () => setAttempt((value) => value + 1) };
 }
