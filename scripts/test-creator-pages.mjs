@@ -24,7 +24,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { renderToStaticMarkup } from "react-dom/server";
-import { allCreators, CREATOR_PAGE_MIN_SPOTS, hasCreatorPage, FEATURED_CREATOR } from "../lib/creatorVideos.js";
+import { allCreators, videosByKey, CREATOR_PAGE_MIN_SPOTS, hasCreatorPage, FEATURED_CREATOR } from "../lib/creatorVideos.js";
+import { isEmbeddable } from "../lib/videoEmbed.js";
 import { claimsAffiliation, REMOVAL_CONTACT } from "../lib/creatorRights.js";
 
 const REPO = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -107,6 +108,31 @@ ok(!claimsAffiliation(html), "the RENDERED page makes no affiliation claim");
 ok(/not affiliated with Wayfind/i.test(html), "…and states the independence disclosure outright");
 ok(html.includes(REMOVAL_CONTACT), "…and offers the removal route before anyone has to ask");
 ok(html.includes("/creators\"") || html.includes("href=\"/creators\""), "links back to the index — no orphan page");
+
+// Audit every published creator page, not only Cindy's positive control.
+// Real rendered cover buttons must carry the SVG matching their media kind.
+let auditedCovers = 0;
+function auditVideoCovers(markup, route) {
+  const covers = [...markup.matchAll(/<button\b[^>]*data-creator-embed-action="(play|view-post)"[^>]*>[\s\S]*?<\/button>/g)];
+  for (const [button, action] of covers) {
+    auditedCovers++;
+    ok(button.includes(action === "play" ? "data-creator-play-icon" : "data-creator-post-icon"), `${route}: ${action} has a visible SVG control`);
+    ok(!button.includes("◎") && !button.includes("<iframe"), `${route}: no circle substitute or eager provider iframe`);
+  }
+  return covers.length;
+}
+for (const handle of slugs) {
+  const markup = renderToStaticMarkup(await CreatorPage({ handle, mapPlaces: [] }));
+  const expected = creatorProfile(handle).spots.filter(s => isEmbeddable(s.video.platform, s.video.url)).length;
+  ok(auditVideoCovers(markup, `/creators/${handle}`) === expected, `${handle}: every embeddable post has a rendered cover (${expected})`);
+}
+const trendingMod = await loadComponent(path.join(REPO, "lib/trending.js"), REPO);
+for (const slug of trendingMod.trendingCitySlugs()) {
+  const markup = renderToStaticMarkup(trendingMod.TrendingCityPage({ slug }));
+  const expected = trendingMod.TRENDING[slug].places.flatMap(p => videosByKey(p.key)).filter(v => isEmbeddable(v.platform, v.url)).length;
+  ok(auditVideoCovers(markup, `/trending/${slug}`) === expected, `${slug}: every embeddable post has a rendered cover (${expected})`);
+}
+ok(auditedCovers > 50, `non-vacuous sitewide creator/trending audit (${auditedCovers} covers)`);
 
 // ── v8.94: the creator's own map, and the share control ─────────────────────
 //
@@ -340,4 +366,4 @@ if (fail.length) {
   for (const f of fail) console.log("  - " + f);
   process.exit(1);
 }
-console.log(`test-creator-pages: OK — ${pass} assertions; ${slugs.length} pages, ${pagedCreators().length} creators, rendered`);
+console.log(`test-creator-pages: OK — ${pass} assertions; ${slugs.length} creator pages, ${trendingMod.trendingCitySlugs().length} trending pages, ${auditedCovers} rendered covers`);

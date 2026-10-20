@@ -15,7 +15,7 @@ const component = (file, mocks) => {
 };
 function harness(file, mocks, ref = {}) {
   const states = []; let cursor = 0;
-  const hooks = { ...React, useRef: () => ({ current: ref }), useState: initial => {
+  const hooks = { ...React, useEffect: () => {}, useRef: () => ({ current: ref }), useState: initial => {
     const i = cursor++; if (!(i in states)) states[i] = initial;
     return [states[i], value => { states[i] = typeof value === "function" ? value(states[i]) : value; }];
   } };
@@ -62,10 +62,42 @@ for (const [platform, url, expected] of [
 }
 const unavailable = harness("app/components/CreatorVideoPlayer.js", { "../../lib/videoEmbed": { embedSrc } });
 assert.ok(!nodes(unavailable({ platform: "facebook", url: "https://www.facebook.com/share/r/test/", label: "Unavailable" })).some(n => n.type === "iframe" || n.type === "a"), "unsupported post stays in app without redirect");
+// Exercise the real cover across every supported video URL format and layout.
+// A loaded iframe is intentionally absent until a reader activates the cover.
+for (const [platform, url, video] of [
+  ["instagram", props.url, true],
+  ["instagram", "https://www.instagram.com/reels/test/", true],
+  ["instagram", "https://www.instagram.com/tv/test/", true],
+  ["instagram", "https://www.instagram.com/p/flyer/", false],
+  ["tiktok", "https://www.tiktok.com/@creator/video/6718335390845095173", true],
+  ["youtube", "https://youtu.be/abcdefghijk", true],
+]) for (const premium of [false, true]) {
+  let collapsed = 0;
+  const facade = harness("app/components/VideoFacade.js", {
+    "./CreatorVideoPlayer": { default: PlayerStub },
+    "../../lib/videoEmbed": { embedSrc },
+    "../../lib/creatorPlatforms": { PLATFORM: {} },
+    "../../lib/cardPhotoRequest.js": { isApiPhotoSrc: () => false },
+    "./CreatorPlaybackDetails": { usePlaybackDetails: () => () => collapsed++ },
+  });
+  const coverProps = { platform, url, label: "Video fixture", ...(premium ? { coverTitle: "Venue", coverCity: "Sarasota" } : {}) };
+  const cover = facade(coverProps);
+  assert.equal(cover.type, "button");
+  assert.equal(cover.props.href, undefined);
+  assert.equal(cover.props["data-creator-embed-action"], video ? "play" : "view-post");
+  assert.equal(cover.props.style.aspectRatio, premium ? "3 / 4" : "9 / 16");
+  const before = nodes(cover);
+  assert.equal(before.filter(n => n.type === "svg" && n.props["data-creator-play-icon"] === "").length, video ? 1 : 0, `${platform}: visible play SVG for videos only`);
+  assert.equal(before.filter(n => n.type === "svg" && n.props["data-creator-post-icon"] === "").length, video ? 0 : 1);
+  assert.ok(!before.some(n => n.type === "iframe" || n.type === PlayerStub));
+  cover.props.onClick();
+  assert.equal(collapsed, 1);
+  assert.equal(nodes(facade(coverProps)).filter(n => n.type === PlayerStub).length, 1, "cover tap mounts the in-app player");
+}
 // Structural coverage supplements lifecycle tests: these are the six entry surfaces.
 for (const file of ["app/components/sheets/Detail.js", "app/components/sheets/SocialFind.js", "app/components/CreatorMapPanel.js", "lib/creatorPages.js", "lib/trending.js", "app/florida-events/[slug]/page.js"]) {
   const source = readFileSync(new URL("../" + file, import.meta.url), "utf8");
   assert.ok(source.includes("<CreatorVideoAction"), file + " uses shared action");
   assert.doesNotMatch(source, /<a\b[^>]*href=\{(?:v\.url|video\.url|post\.url|selected\.videoUrl)\}/, file + " cannot send primary video taps off-site");
 }
-console.log("creator-in-app-playback PASS: six surfaces, lazy load, attribution, open, close, Escape, four official URL formats, error, retry, unsupported-post control");
+console.log("creator-in-app-playback PASS: six surfaces, 12 real cover variants with SVG controls, lazy load, attribution, open, close, Escape, four official URL formats, error, retry, unsupported-post control");
