@@ -1,19 +1,13 @@
 "use client";
-// Click-to-load facade for an EMBEDDABLE creator video on the indexable
-// /trending/[city] pages. Renders a lightweight branded tile (zero third-party JS
-// on load — Core Web Vitals safe); only on tap does it swap in the platform's
-// OFFICIAL embed iframe. It renders ONLY for platforms with a tokenless
-// embeddable-by-id player (TikTok/YouTube/Instagram) — for anything else it
-// returns null, and the trending card shows a normal external link instead
-// (Facebook /share/r/ reels are treated as a social link, never framed as a video).
-// A separate always-visible "Watch on {platform}" link on the card is the fallback
-// if the player fails or the post is removed.
+// Shared, lazy creator-post cover. The official player loads only after a tap.
+// Provider availability varies by post; no creator media is copied or rehosted.
 import { useState, useRef, useEffect } from "react";
 // Presentation metadata lives in its own tiny module. Importing it through
 // creatorVideos would pull the entire curated registry into every route that
 // uses this facade, including individual event pages.
 import { PLATFORM } from "../../lib/creatorPlatforms";
 import { embedSrc } from "../../lib/videoEmbed";
+import CreatorVideoPlayer from "./CreatorVideoPlayer";
 import { usePlaybackDetails } from "./CreatorPlaybackDetails";
 import { isApiPhotoSrc } from "../../lib/cardPhotoRequest.js";
 
@@ -54,8 +48,8 @@ export default function VideoFacade({ platform, url, label, poster: posterProp =
 
   if (play) {
     return (
-      <div style={{ ...frame, aspectRatio: "9 / 16", background: "#000" }}>
-        <iframe src={src} title={label} allow="autoplay; encrypted-media; fullscreen; picture-in-picture" allowFullScreen loading="lazy" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", border: 0 }} />
+      <div style={{ ...frame, background: "#000" }}>
+        <CreatorVideoPlayer platform={platform} url={url} label={label} />
       </div>
     );
   }

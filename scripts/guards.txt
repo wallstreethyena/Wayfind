@@ -2317,3 +2317,5 @@ node scripts/test-rail-device-distance.mjs
 node scripts/test-itinerary-plan.mjs
 node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
+
+node scripts/test-creator-in-app-playback.mjs

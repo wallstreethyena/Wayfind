@@ -23,6 +23,7 @@ import { C, sheetBg, sheet, SHEET_EASE, Grabber, Icon } from "../kit";
 import { PLATFORM, PLATFORM_RGB, creatorStats, allCreators, hasCreatorPage, creatorVideosFor, regionsWithFinds, spotsByCity, libraryStats } from "../../../lib/creatorVideos";
 import { captionFor } from "../../../lib/creatorCaptions";
 import CreatorAvatar from "../CreatorAvatar";
+import CreatorVideoAction from "../CreatorVideoAction";
 import VideoFacade from "../VideoFacade";
 import CreatorPlaybackDetails from "../CreatorPlaybackDetails";
 import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
@@ -227,29 +228,22 @@ export default function SocialFindSheet({ ctx }) {
   const glowRgb = PLATFORM_RGB[video.platform] || PLATFORM_RGB.tiktok;
   const photo = (place.photos && place.photos[0]) || place.photo || null;
   const handle = video.creator || null;
-  const instagramPost = video.platform === "instagram";
   const stats = creatorStats(handle);
   const otherSpots = stats.spots.filter((s) => s.name !== place.name);
   const others = curatedSpot ? [] : (videoHeroPlaces || []).filter((v) => v.place && v.place.id !== place.id).slice(0, 8);
   const creatorAttribution = <>
-    <a
-      href={video.url}
-      target="_blank"
-      rel="noopener"
+    <CreatorVideoAction platform={video.platform} url={video.url} label={`Open ${handle ? "@" + handle : "this creator"}'s post in Wayfind`}
       onClick={() => { try { logEvent("creator_video", place, { platform: video.platform, creator: handle || "", src: "social_find_sheet" }); } catch (e) {} }}
-      aria-label={instagramPost
-        ? `View ${handle ? "@" + handle : "this creator"}'s Instagram post (opens in a new tab)`
-        : `Watch ${handle ? "@" + handle : "this creator"}'s video (opens in a new tab)`}
       className="wf-social-glow"
-      style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
+      style={{ width: "100%", display: "flex", alignItems: "center", gap: 12, textDecoration: "none", background: `linear-gradient(160deg, ${plat.color}1f 0%, ${C.card} 60%)`, border: `1.5px solid ${plat.color}`, borderRadius: 14, padding: 14, marginBottom: 16, "--glow-rgb": glowRgb }}
     >
       <CreatorAvatar handle={handle} platform={video.platform} size={52} color={plat.color} />
       <div style={{ minWidth: 0, flex: 1 }}>
         <div style={{ fontSize: 15, fontWeight: 800, color: C.text }}>{handle ? "@" + handle : plat.label + " creator"}</div>
         <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>{stats.count > 0 ? `Featured at ${stats.count} spot${stats.count === 1 ? "" : "s"} on Wayfind` : `On ${plat.label}`}</div>
-        <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>{instagramPost ? "View on Instagram ↗" : `Watch on ${plat.label} ↗`}</div>
+        <div style={{ fontSize: 12.5, fontWeight: 800, color: plat.color, marginTop: 6 }}>Watch in Wayfind</div>
       </div>
-    </a>
+    </CreatorVideoAction>
     {captionFor(video) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.55, marginBottom: 18 }}>{captionFor(video)}</div>}
   </>;
   const curatedDetails = <div style={{ paddingTop: 12 }}>

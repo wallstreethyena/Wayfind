@@ -27,7 +27,7 @@ import { eventTitleWithYear } from "../lib/eventTitle.js";
 import { floridaEventSitemapRows } from "../lib/curatedEvents.js";
 import { composeChristmasIntentRails, christmasEventRail, CHRISTMAS_LOCAL_ONLY_RAILS, CHRISTMAS_STATEWIDE_RAILS, christmasDistanceGroup } from "../lib/christmasIntentRails.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
-import { christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
+import { CHRISTMAS_CARD_LABELS, christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
 import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow, CHRISTMAS_WATCHLIST_PAGE_LINE } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
@@ -472,7 +472,10 @@ function CITIES() {
   if (existsSync(chunks) && existsSync(path.join(ROOT, ".next/BUILD_ID"))) {
     const files = walk(chunks).filter((f) => !/_app-pages-browser_|app-pages-internals|_ssr_/.test(f));
     const hit = files.filter((f) => /weirsdale-cottom-farm-christmas-village-2026|evidence_quote|US Census 2023 Gazetteer/.test(readFileSync(f, "utf8")));
-    const control = files.some((f) => readFileSync(f, "utf8").includes("POP UP BARS"));
+    // Prove the sweep sees the real Christmas client module. Use its current
+    // label so an editorial rename cannot invalidate this server-data check.
+    const controlLabel = CHRISTMAS_CARD_LABELS["popup-bars"];
+    const control = typeof controlLabel === "string" && controlLabel.length > 0 && files.some((f) => readFileSync(f, "utf8").includes(controlLabel));
     ok(files.length > 50 && control && hit.length === 0, `no production client chunk carries the research data (${files.length} chunks swept, positive control found: ${control}; hits: ${hit.map((f) => path.basename(f)).join(", ")})`);
   } else console.log("  note: no production .next build here, the production chunk sweep runs after next build");
 }

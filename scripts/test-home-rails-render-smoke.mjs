@@ -185,8 +185,9 @@ const CreatorPlaybackDetails = playbackDetailsModule.default;
   ok(open === true, "the executed Details transition reopens the supporting content");
 
   const facadeSource = readFileSync(path.join(REPO, "app/components/VideoFacade.js"), "utf8");
-  ok(/if \(play\)[\s\S]*?aspectRatio: "9 \/ 16"[\s\S]*?<iframe/.test(facadeSource),
-    "the active player branch is locked to a full 9:16 frame");
+  const playerSource = readFileSync(path.join(REPO, "app/components/CreatorVideoPlayer.js"), "utf8");
+  ok(/if \(play\)[\s\S]*?<CreatorVideoPlayer/.test(facadeSource) && /aspectRatio: platform === "youtube" \? "16 \/ 9" : "9 \/ 16"/.test(playerSource),
+    "the facade delegates to the shared player with portrait social and landscape YouTube frames");
 }
 
 // v7.05 — THE FOUR INTENT RAILS. IntentRailBody is the newest member of the
