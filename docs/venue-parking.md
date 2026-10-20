@@ -24,6 +24,11 @@ take over the parking view. Search results live only in the mounted view's memor
 switching categories reuses them. No Apple results are persisted to a database or
 browser storage. Errors and empty responses have separate visible states.
 
+Parking commits a padded coordinate-based local region after attaching the
+custom image pins and cancels the previous category's camera animation. It does
+not rely on asynchronous image sizing to frame the lots. The live canary checks
+the achieved Apple map span as well as parking rows and navigation targets.
+
 ## Provider failure and venue-local discovery
 
 If Apple's POI service rejects, is malformed, or stalls for four seconds, the
