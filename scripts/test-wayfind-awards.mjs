@@ -1,6 +1,8 @@
 #!/usr/bin/env node
-// scripts/test-wayfind-awards.mjs — the Best Breakfast 2026 winners wear their
-// earned award on every place card, and NOTHING else does.
+// scripts/test-wayfind-awards.mjs — the Best Breakfast 2026 and Best Cafés 2026
+// winners wear their earned award on every place card, and NOTHING else does.
+// Owner (2026-10-20): "add the badge to the winners of the cafe same way we did
+// for the breakfast".
 //
 // Owner (2026-10-03): "add the badge to the place card for the breakfast places
 // that won the 2026 breakfast award and make sure there is an editorial for the
@@ -27,7 +29,9 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`])\/\/
 
 // ── 1. The registry, CALLED ────────────────────────────────────────────────
 const ids = awardedPlaceIds();
-ok(ids.length === 6, "Best Breakfast 2026 has 6 winning locations (got " + ids.length + ")");
+ok(ids.length === 12, "Best Breakfast 2026 + Best Cafés 2026 have 6 + 6 winning locations (got " + ids.length + ")");
+ok(AWARDS.map((a) => a.id).join() === "best-breakfast-2026,best-cafes-2026", "the two published awards are registered");
+ok(AWARDS.every((a) => a.winners.length === 6), "each award has its 6 winning locations");
 ok(new Set(ids).size === ids.length, "no place wins twice");
 for (const award of AWARDS) {
   for (const w of award.winners) {
@@ -49,6 +53,22 @@ ok(wayfindAwardFor("ChIJFfdjBlz9wogR6wSfGKbqL0k").detail === "#1 near Anna Maria
 // Another Keke's location (University Pkwy) and another Bistro Café (downtown) did NOT win.
 ok(wayfindAwardFor("ChIJfeY1tNk4w4gRNX1FjX6p6xo") === null, "a non-winning Keke's location wears no award");
 ok(wayfindAwardFor({ id: "ChIJISrRpNC32YgRBTY3l4DVuCk" }) === null, "the downtown Bistro Café (not the winner) wears no award");
+// Best Cafés 2026: area answers say "near", never "in"; Tealicious is Tampa Bay, not Tampa.
+ok(wayfindAwardFor("ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI").detail === "#1 near Anna Maria Island",
+  "Joy Coffee (Bradenton) is #1 NEAR Anna Maria Island, never placed in it");
+ok(wayfindAwardFor("ChIJA-QkamE7w4gRfdzcxEHyPls").detail === "#1 near Parrish",
+  "ATRIA Cafe (Lakewood Ranch) is #1 NEAR Parrish, never placed in it");
+ok(wayfindAwardFor("ChIJY_kA8nfjwogR1AhPPGA2k7o").label === "Best Cafés 2026 · Tampa Bay",
+  "Tealicious Cafe (St. Petersburg) won Tampa Bay, never Tampa");
+ok(wayfindAwardFor("ChIJEUEmzE1Bw4gRHHXe_oxJF7E").label === "Best Cafés 2026 · 5 cities",
+  "Hashtag Café shows its five city sweep");
+// Café Bastille won at Downtown Miami only; its other locations wear nothing.
+ok(wayfindAwardFor("ChIJG2-9xp222YgRJ_Dqby74tmg").label === "Best Cafés 2026 · Miami", "Café Bastille Downtown Miami wears the award");
+ok(wayfindAwardFor("ChIJayhIp7i12YgRW94lbHWSNas") === null, "Café Bastille Miami Beach (not the winner) wears no award");
+ok(wayfindAwardFor("ChIJH9758boB2YgRrs8O7f55ATA") === null, "Café Bastille Fort Lauderdale (not the winner) wears no award");
+// The St. Pete Beach cafés left out of the Anna Maria Island slide did not win.
+ok(wayfindAwardFor("ChIJVzO7EWj9wogR97bcEQKnzJ4") === null && wayfindAwardFor("ChIJe5Ox97ECw4gR2fGQC-g97jc") === null,
+  "Tiki Bagel and Café Soleil (St. Pete Beach) wear no award");
 ok(wayfindAwardFor(null) === null && wayfindAwardFor({}) === null && wayfindAwardFor("") === null, "empty input is null");
 
 // ── 2. RENDER the house cards ───────────────────────────────────────────────
@@ -82,6 +102,17 @@ const rl = renderToStaticMarkup(React.createElement(RailCard, {
   award: { icon: "3", label: "Top breakfast pick", tone: 3 },
 }));
 ok(rl.includes("Top breakfast pick") && !rl.includes("is-wayfind-award"), "RailCard keeps the caller's band for a non-winner");
+
+// ── 2a. A Best Cafés 2026 winner renders the café award on both cards ───────
+{
+  const CAFE = { id: "ChIJEUEmzE1Bw4gRHHXe_oxJF7E", name: "Hashtag Café", rating: 4.9, reviews: 968, types: ["coffee_shop", "cafe"], primaryType: "coffee_shop", governed_score: 98 };
+  const ic = renderToStaticMarkup(React.createElement(Iconic, { place: CAFE, rank: 1 }));
+  ok(ic.includes("is-wayfind-award") && ic.includes("2026 WINNER") && ic.includes("Best Cafés") && !ic.includes("Best Breakfast"),
+    "IconicPlaceCard shows the Best Cafés award (not breakfast) for a café winner");
+  const rc = renderToStaticMarkup(React.createElement(RailCard, { place: CAFE, title: CAFE.name, rank: 2, score: 9.8, award: { icon: "2", label: "Top café pick", tone: 2 } }));
+  ok(rc.includes("is-wayfind-award") && rc.includes("Best Cafés") && !rc.includes("Top café pick"),
+    "RailCard shows the Best Cafés award as the one credential for a café winner");
+}
 
 // ── 2b. The badge sticker + WINNER eyebrow, rendered by ALL three card renderers
 const AwardsRail = (await loadComponent(path.join(ROOT, "app/components/AwardsRail.js"), ROOT)).default;
