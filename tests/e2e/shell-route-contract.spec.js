@@ -16,6 +16,7 @@
 // the deployed site when E2E_BASE_URL is set — so the same assertions gate a
 // deploy AND act as the production canary.
 const { test, expect } = require("@playwright/test");
+test.use({ screenshot: "only-on-failure", trace: "retain-on-failure" });
 
 // A stable, real place: Siesta Beach, 27,786 reviews, the most-reviewed row in
 // the inventory. Used as the /p/<id> deep-link fixture.
@@ -201,4 +202,42 @@ test("a tap on a card that has not hydrated yet is never lost", async ({ browser
     })
     .toBeTruthy();
   await context.close();
+});
+
+
+// Live Apple parking is part of the existing production route canary.
+test.describe("Live venue maps", () => {
+test("live venue map returns parking and venue-local nearby pins", async ({ page }) => {
+  test.skip(!process.env.E2E_BASE_URL, "Live provider canary requires a deployed origin; offline fixture coverage runs in the guard suite.");
+  test.setTimeout(90000);
+  await page.route("**/*", async (route) => {
+    const url = new URL(route.request().url());
+    if (/googleapis\.com$|google-analytics\.com$|posthog\.com$/.test(url.hostname)) return route.abort();
+    if (url.pathname.startsWith("/api/") && url.pathname !== "/api/places/map") {
+      return route.fulfill({ status: 503, contentType: "application/json", body: '{"error":"Unrelated enrichment disabled in live map canary"}' });
+    }
+    return route.continue();
+  });
+  await page.goto("/", { waitUntil: "domcontentloaded" });
+  await page.getByRole("link", { name: "Universal Studios Florida", exact: true }).first().click();
+  const map = page.getByRole("region", { name: "Map and parking near Universal Studios Florida", exact: true });
+  await expect(map).toBeVisible({ timeout: 20000 });
+  await map.scrollIntoViewIfNeeded();
+  const all = map.getByRole("button", { name: /^All places/ });
+  await expect(all).toHaveText(/All places\s*[1-9]\d*/, { timeout: 25000 });
+  await expect(page.locator("[data-where-to-go-next]")).toBeVisible({ timeout: 25000 });
+  await map.getByRole("button", { name: "Parking", exact: true }).click();
+  await expect(map.locator(".wfev-parking-select").first()).toBeVisible({ timeout: 25000 });
+  expect(await map.locator(".wfev-parking-select").count()).toBeGreaterThan(0);
+  await expect(map.getByText(/Parking could not be loaded|No parking found/)).toHaveCount(0);
+  const drive = new URL(await map.getByRole("link", { name: /^Drive to / }).first().getAttribute("href"));
+  const walk = new URL(await map.getByRole("link", { name: /^Walk from / }).first().getAttribute("href"));
+  expect(drive.hostname).toBe("maps.apple.com");
+  expect(walk.hostname).toBe("maps.apple.com");
+  expect(drive.searchParams.get("daddr")).toBe(walk.searchParams.get("saddr"));
+  expect(walk.searchParams.get("daddr")).not.toBe(walk.searchParams.get("saddr"));
+  await all.click();
+  await expect(map.locator(".wfev-parking")).toHaveCount(0);
+});
+
 });

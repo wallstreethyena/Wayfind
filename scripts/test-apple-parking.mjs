@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import assert from "node:assert/strict";
 import { createParkingSearch, hasParkingCoordinate, parkingDirectionsUrl } from "../lib/appleParking.js";
+import { mapFailureReason } from "../lib/mapDiagnostics.js";
 
 let assertions = 0;
 const check = Object.fromEntries(["equal", "deepEqual", "ok", "rejects"].map((method) => [method, (...args) => {
@@ -118,6 +119,50 @@ check.equal(failed.requests.length, 1, "an errored first request does not expand
 check.equal((await failedService.search()).places.length, 0, "failed requests are retryable and never cached as empty");
 const secondFailed = fakeMapkit([{ places: [place("one", 100)] }, () => Promise.reject(new Error("expansion failed"))]);
 await check.rejects(createParkingSearch({ mapkit: secondFailed.mapkit, venue }).search(), { code: "PARKING_PROVIDER" }, "a failed expansion cannot claim a complete nearby result");
+
+function generalSearch(fake, steps) {
+  const requests = [];
+  fake.mapkit.CoordinateSpan = class { constructor(latitudeDelta, longitudeDelta) { Object.assign(this, { latitudeDelta, longitudeDelta }); } };
+  fake.mapkit.CoordinateRegion = class { constructor(center, span) { Object.assign(this, { center, span }); } };
+  fake.mapkit.RegionPriority = { Required: "required" };
+  fake.mapkit.Search = class {
+    search(query, options) {
+      requests.push({ query, options });
+      const step = steps.shift();
+      return typeof step === "function" ? step(options) : Promise.resolve(step);
+    }
+  };
+  return requests;
+}
+const poiDown = fakeMapkit([() => Promise.reject(new Error("POI service unavailable"))]);
+const fallbackCalls = generalSearch(poiDown, [{ places: [place("close", 100), place("middle", 400), place("far", 600), place("outside", 2500)] }]);
+const diagnostics = [];
+const recovered = await createParkingSearch({ mapkit: poiDown.mapkit, venue, onDiagnostic: d => diagnostics.push(d) }).search();
+check.deepEqual(recovered.places.map(p => p.id), ["close", "middle", "far"], "real service failure recovers through filtered Apple Search, retaining radial exclusion");
+check.equal(poiDown.requests.length, 1, "a failed POI service is not retried during this attempt");
+check.equal(fallbackCalls.length, 1, "three fallback results stop expansion");
+check.equal(fallbackCalls[0].query, "parking", "fallback searches parking, not arbitrary businesses");
+check.deepEqual(fallbackCalls[0].options.pointOfInterestFilter, { including: ["Parking"] }, "fallback keeps the strict Parking category filter");
+check.equal(fallbackCalls[0].options.regionPriority, "required", "fallback requires the venue's region");
+check.deepEqual(fallbackCalls[0].options.region.center, new poiDown.mapkit.Coordinate(venue.lat, venue.lng), "fallback is centered on the selected venue");
+check.equal(fallbackCalls[0].options.includeAddresses, false, "addresses cannot masquerade as parking");
+check.equal(fallbackCalls[0].options.includeQueries, false, "query suggestions cannot masquerade as parking");
+check.ok(fallbackCalls[0].options.signal instanceof AbortSignal, "fallback shares the existing attempt cancellation");
+check.ok(!("center" in fallbackCalls[0].options), "POI-only options never leak into the general Search contract");
+check.deepEqual(diagnostics, [{ provider: "points-of-interest", reason: "unavailable" }], "provider degradation is observable without credentials or coordinates");
+check.equal(mapFailureReason(new Error("401 token private-value origin https://example.com/?secret=not-for-logs")), "authorization", "diagnostics classify authorization without leaking the provider message");
+check.equal(mapFailureReason(new Error("429 quota")), "rate-limit", "quota problems are distinguishable from an empty result");
+const fallbackEmpty = fakeMapkit([() => Promise.reject(new Error("POI down"))]);
+const emptyCalls = generalSearch(fallbackEmpty, [{ places: [] }, { places: [] }]);
+check.equal((await createParkingSearch({ mapkit: fallbackEmpty.mapkit, venue }).search()).places.length, 0, "completed fallback emptiness remains distinct from failure");
+check.equal(emptyCalls.length, 2, "fallback expands only once, at most three calls including the failed service");
+const bothDown = fakeMapkit([() => Promise.reject(new Error("POI down"))]);
+generalSearch(bothDown, [() => Promise.reject(new Error("Search down"))]);
+await check.rejects(createParkingSearch({ mapkit: bothDown.mapkit, venue }).search(), { code: "PARKING_PROVIDER" }, "two provider failures never render as no parking found");
+const poiHung = fakeMapkit([() => new Promise(() => {})]);
+const hungFallback = generalSearch(poiHung, [{ places: [place("a", 50), place("b", 100), place("c", 150)] }]);
+check.equal((await createParkingSearch({ mapkit: poiHung.mapkit, venue, requestTimeoutMs: 1000, providerTimeoutMs: 5 }).search()).places.length, 3, "a hung POI service cannot consume the entire fallback deadline");
+check.ok(poiHung.requests[0].signal.aborted && !hungFallback[0].options.signal.aborted, "only the failed POI request is aborted while fallback retains the live attempt");
 
 const old = deferred();
 const current = deferred();
