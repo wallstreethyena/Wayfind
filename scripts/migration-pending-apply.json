@@ -40,5 +40,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1806 follow-up (sighting-renewal cron)",
     "reason": "Heartbeat row (1800 min) for the new daily cron /api/cron/sighting-renewal so its silence pages; same shape as 20261015130000_wf_heartbeat_expected_daily_crons.sql. Insert-where-not-exists, idempotent, no other table touched. Written with read-only DB access; apply after the cron merges and its first pulse lands. Not applied."
+  },
+  {
+    "file": "supabase/migrations/20261020120000_wf_itineraries.sql",
+    "sha256": "264ff046851c44660414da2d1bdfedb13f63de3d9e55b7a3391793bd2a753263",
+    "decision_owner": "wallstreethyena",
+    "tracking": "itinerary option B — Gabe approved the product scope; do not apply until the PR is reviewed (#0)",
+    "reason": "Additive wf_itineraries and wf_itinerary_items with owner-only RLS. Not applied to production project gbhtoehdxkzjsmmkisgu. Feature flags default off, so the browser writes stay idle until an owner applies this file with scripts/apply-migration.mjs and turns the flags on. Rollback is drop table public.wf_itinerary_items, drop table public.wf_itineraries."
   }
 ]

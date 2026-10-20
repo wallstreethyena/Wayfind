@@ -2302,3 +2302,9 @@ node scripts/test-halloween-crown.mjs
 # stored Rays first pitch), beaches-only rankings, website (not app) copy,
 # drum circle about an hour before sunset.
 node scripts/test-site-fixes-20261019.mjs
+
+# Itinerary option B: proximity insert, date reflow that never drops a stop,
+# lossless merge, flags default off, private share payload, and RLS on the
+# unapplied wf_itineraries migration (PGlite only — production is not contacted).
+node scripts/test-itinerary-plan.mjs
+node scripts/test-itinerary-rls.mjs

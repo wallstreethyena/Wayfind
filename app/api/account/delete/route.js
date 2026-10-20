@@ -117,6 +117,35 @@ async function deleteEmailRows(s, table, email) {
   }
 }
 
+// Best-effort itinerary wipe. share_code points at a shared_lists row the
+// owner created; that table has no user_id, so it will not cascade.
+async function deleteItineraries(s, userId) {
+  try {
+    const listed = await fetch(`${s.url}/rest/v1/wf_itineraries?select=share_code&user_id=eq.${userId}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+      headers: { apikey: s.key, authorization: "Bearer " + s.key },
+    });
+    if (listed.status === 404) return "absent";
+    if (!listed.ok) return "failed";
+    const rows = await listed.json().catch(() => []);
+    const codes = (Array.isArray(rows) ? rows : [])
+      .map((row) => row && row.share_code)
+      .filter((code) => typeof code === "string" && /^[a-z0-9]{7}$/.test(code));
+    if (codes.length) await restDelete(s, "shared_lists", `code=in.(${codes.join(",")})`);
+    const removed = await fetch(`${s.url}/rest/v1/wf_itineraries?user_id=eq.${userId}`, {
+      method: "DELETE",
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+      headers: { apikey: s.key, authorization: "Bearer " + s.key, prefer: "return=minimal" },
+    });
+    if (removed.status === 404) return "absent";
+    return removed.ok ? "ok" : "failed";
+  } catch {
+    return "failed";
+  }
+}
+
 async function restDelete(s, path, query) {
   try {
     const r = await fetch(`${s.url}/rest/v1/${path}?${query}`, {
@@ -252,6 +281,11 @@ export async function POST(req) {
   // survive the Admin delete below unless removed explicitly.
   cleaned.wf_feedback = await restDelete(s, "wf_feedback", `user_id=eq.${userId}`);
   cleaned.wf_taste = await restDelete(s, "wf_taste", `user_id=eq.${userId}`);
+  // Itineraries cascade from auth.users once the migration is applied. Delete
+  // them explicitly too, and drop the unlisted share snapshot, so a database
+  // that has the table but not the FK still loses the rows. A 404 (migration
+  // not applied yet) is "absent", not a reason to keep the account.
+  cleaned.wf_itineraries = await deleteItineraries(s, userId);
 
   // c. ON DELETE SET NULL tables that also carry a free-text PII column —
   // the row itself is anonymized by the FK on delete, but its email column

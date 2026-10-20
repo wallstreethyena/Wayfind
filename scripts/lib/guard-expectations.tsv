@@ -447,7 +447,7 @@ scripts/check-why-picked-empty.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	1e8841
 scripts/check-wikimedia-backoff-ledger-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	23d0486897463aa6348dd635c1fa48f4a7d59d17e3d6e8d58c90e574e6e68a5c
 scripts/check-wikipedia-identity-verification.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	72242a58f8c1a0a285f4918326ad1a801681dd95b352b20b89ddab75dddf25b6
 scripts/check-writes-fail-loudly.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	b7157f8325aa22f13ab4b9044787915f9b420bba3e63c62e6ee2cde211a4a095
-scripts/test-account-delete.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	e14bd4794933ca6260c05f8d525ba5f7861947377fea6b4553a143fce851d546
+scripts/test-account-delete.mjs	0	CALL	blocks-ci-and-deploy	1	-	100	0	0	9f1cbdfdc45c259baae7071604be45b622e255eb1c94c99e02ec55cd5176581a
 scripts/test-activation.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	411634c80791a2ec0007d7957f1547e95efbaad35134c165695e81179542a6b0
 scripts/test-adaptive-widen.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	93eaec882e8c59f405304cdbea58b34d97e73d1ff97735522415ea6284974d09
 scripts/test-address-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	34d4a50846885fd63d1c38abf23c63ca5ddac046e6eaf0553f65db1e0f63b282
@@ -730,6 +730,8 @@ scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
+scripts/test-itinerary-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	2a8430302575df40668412519786bc14a96193a41317117489cf4cb01e917030
+scripts/test-itinerary-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	45505a54dd6547c68a634a1200100de292d6468d3600eefccc726c0f0fb3fd22
 scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5ea593b0296922d167adf48e497cf0d6f736dff321b8786477
 scripts/test-job-pulse.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b81158f224bb3bd309b31a39a9a1de2cca6bd4f42f5e44ef816fdfe7a65a438b
 scripts/test-job-watch-delivery.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	589239d187908c9313845e2772ea0cef01bdbcba7445b9e49d50530ca8819f31

@@ -182,6 +182,7 @@ const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loa
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const ItineraryScreen = nextDynamic(loadItinerary, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SharedScreen = nextDynamic(loadShared, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const SharedItineraryScreen = nextDynamic(() => import("./components/screens/SharedItinerary"), { ssr: false, loading: () => null });
 const EventsScreen = nextDynamic(loadEventsScreen, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const MapScreen = nextDynamic(loadMap, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const ExperienceScreen = nextDynamic(loadExperience, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -209,6 +210,7 @@ const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlace
 // crawled as our own content.
 const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
+import { EMPTY_ITINERARY_FLAGS, readItineraryFlags } from "../lib/itineraryFlags";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
 // standalone intent pages can render the bookable rail too — it was a local
@@ -2221,12 +2223,12 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
 // behind it; the auth dialog auto-opens. Reuses the one auth source of truth
 // (setAuthOpen) — no second auth system.
 const AUTH_SCREENS = new Set(["saved", "itinerary"]);
-function AuthWall({ label, onSignIn }) {
+function AuthWall({ label, onSignIn, detail }) {
   return (
     <div style={{ textAlign: "center", padding: "56px 24px", color: C.muted }}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><NavIcon name="saved" color={C.accent} size={40} /></div>
       <strong style={{ display: "block", color: C.text, fontSize: 17 }}>Sign in to view {label}</strong>
-      <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>Sign in to save places, create lists, and plan trips. Your saves sync across all your devices.</p>
+      <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>{detail || "Sign in to save places, create lists, and plan trips. Your saves sync across all your devices."}</p>
       <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
     </div>
   );
@@ -4235,9 +4237,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [videos, setVideos] = useState(null);
   const [videosLoading, setVideosLoading] = useState(false);
   const [sharedList, setSharedList] = useState(null);
+  const [sharedItinerary, setSharedItinerary] = useState(null);
   // Trip planner: destinations keyed by city+state. Own store, persisted
   // separately from lists. See lib/trips.js for the model.
   const [trips, setTrips] = useState({});
+  const [itineraryFlags, setItineraryFlags] = useState(EMPTY_ITINERARY_FLAGS);
   const [activeTrip, setActiveTrip] = useState(null);   // open trip key, or null for the index
   const [tripNoteEdit, setTripNoteEdit] = useState(null); // place id whose note is being edited
   const [tripMoveFor, setTripMoveFor] = useState(null);   // place id being moved to another trip
@@ -4400,7 +4404,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [surpriseLoading, setSurpriseLoading] = useState(false);
   const diceRouteRef = useRef(false);
   const [toast, setToast] = useState("");
-  function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 1800); }
+  const [toastAction, setToastAction] = useState(null);
+  const toastTimer = useRef(null);
+  function showToast(msg, action) {
+    setToast(msg);
+    setToastAction(action && action.label && typeof action.run === "function" ? action : null);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => { setToast(""); setToastAction(null); }, action ? 4500 : 1800);
+  }
   const videoCache = useRef({});
   const [insight, setInsight] = useState(null);
   const [insightLoading, setInsightLoading] = useState(false);
@@ -5532,6 +5543,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           setDislikedItems({});
           setSharedItems({});
           setLists({ favorites: { id: "favorites", name: "Favorites", emoji: "\u2764\ufe0f", places: [] } });
+          setTrips({});
         } catch (e) {}
         setAccountOpen(false);
         showToast("Your account was deleted");
@@ -7161,9 +7173,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
       } catch (e) {}
     }
-    if (listStr) {
+    if (listStr && listStr.indexOf("wftrip1.") === 0) {
+      import("../lib/itineraryShare.js").then(({ decodeItineraryShare }) => {
+        const trip = decodeItineraryShare(listStr);
+        if (trip && trip.items && trip.items.length) {
+          setSharedItinerary(trip);
+          setSharedList(null);
+          setScreen("shared");
+          logEvent("share_open", null, { kind: "itinerary", n: trip.items.length });
+          markShareOpen();
+        }
+      }).catch(() => {});
+    } else if (listStr) {
       const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
+      if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
     } else if (placeId) {
       logEvent("share_open", null, { kind: "place", place_id: placeId });
       markShareOpen();
@@ -7228,6 +7251,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [lists]);
 
   // Trip planner store: load once on mount, then persist on every change.
+  // Cloud sync is a second writer behind itinerary_v2 + itinerary_sync. With
+  // the flags off this stays the browser store it has always been.
   useEffect(() => {
     try { const raw = localStorage.getItem("wayfind_trips"); if (raw) setTrips(JSON.parse(raw) || {}); } catch {}
   }, []);
@@ -7236,6 +7261,66 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (!tripsHydrated.current) { tripsHydrated.current = true; return; }
     try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
   }, [trips]);
+  useEffect(() => {
+    let stop = false;
+    const read = () => { if (!stop) { try { setItineraryFlags(readItineraryFlags(window.posthog)); } catch (e) {} } };
+    read();
+    let unsub = null;
+    try { if (window.posthog && typeof window.posthog.onFeatureFlags === "function") unsub = window.posthog.onFeatureFlags(read); } catch (e) {}
+    const timer = setInterval(read, 1000);
+    const done = setTimeout(() => clearInterval(timer), 20000);
+    return () => { stop = true; clearInterval(timer); clearTimeout(done); if (typeof unsub === "function") { try { unsub(); } catch (e) {} } };
+  }, []);
+  const itinerarySyncReady = useRef(false);
+  const itinerarySyncKeys = useRef([]);
+  const itinerarySkipPush = useRef(false);
+  useEffect(() => { itinerarySyncReady.current = false; itinerarySyncKeys.current = []; }, [user && user.id]);
+  useEffect(() => {
+    if (!itineraryFlags.sync || !user || !supabase) return undefined;
+    let cancelled = false;
+    (async () => {
+      let local = {};
+      try { local = JSON.parse(localStorage.getItem("wayfind_trips") || "{}") || {}; } catch (e) {}
+      const [syncMod, migrateMod] = await Promise.all([
+        import("../lib/itinerarySync.js"),
+        import("../lib/itineraryMigrate.js"),
+      ]);
+      if (cancelled) return;
+      const remote = await syncMod.fetchRemoteTrips(supabase, user.id);
+      if (cancelled || remote == null) return;
+      // Re-read after the network wait. A stop added while the fetch was in
+      // flight is already in localStorage; merging the earlier snapshot would
+      // drop it.
+      let latest = local;
+      try { latest = JSON.parse(localStorage.getItem("wayfind_trips") || "{}") || local; } catch (e) {}
+      const merged = migrateMod.mergeTrips(latest, remote);
+      const removedDuring = Object.keys(local).filter((key) => !latest[key]);
+      const migrated = Object.keys(local).filter((k) => local[k] && local[k].items && local[k].items.length && !remote[k]);
+      itinerarySkipPush.current = true;
+      itinerarySyncKeys.current = Object.keys(merged);
+      itinerarySyncReady.current = true;
+      setTrips(merged);
+      const pushed = await syncMod.pushTrips(supabase, user.id, merged, removedDuring);
+      if (cancelled) return;
+      if (pushed && migrated.length) { try { logEvent("itinerary_migrated_local", null, { trips: migrated.length }); } catch (e) {} }
+      if (pushed) { try { logEvent("itinerary_synced", null, { trips: Object.keys(merged).length }); } catch (e) {} }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user && user.id, itineraryFlags.sync, !!supabase]);
+  useEffect(() => {
+    if (!itineraryFlags.sync || !user || !supabase || !itinerarySyncReady.current) return undefined;
+    if (itinerarySkipPush.current) { itinerarySkipPush.current = false; return undefined; }
+    const snapshot = trips;
+    const prev = itinerarySyncKeys.current;
+    const handle = setTimeout(() => {
+      import("../lib/itinerarySync.js").then((syncMod) => syncMod.pushTrips(supabase, user.id, snapshot, prev)).then((ok) => {
+        if (ok) itinerarySyncKeys.current = Object.keys(snapshot || {});
+      }).catch(() => {});
+    }, 700);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trips, itineraryFlags.sync, user && user.id, !!supabase]);
 
   useEffect(() => {
     let gotGPS = false;
@@ -9034,7 +9119,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
         }
       } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now()));
+      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "list_save" }));
     }
     setSaveTarget(null);
   }
@@ -9057,13 +9142,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   function addToItinerary(p) {
     if (!p || !p.id) return;
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
+    let insertion = "manual";
     try {
       const meta = Trips.tripMetaForPlace(p);
+      const existing = (trips[meta.key] && trips[meta.key].items) || [];
+      const plan = itineraryFlags.autoOrder ? Trips.nearestStopIndex(existing, p) : { auto: false };
+      insertion = itineraryFlags.autoOrder && plan.auto ? "auto" : "manual";
       if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
-      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary" }); } catch (e) {}
+      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary", insertion }); } catch (e) {}
+      try { logEvent("itinerary_item_added", p, { source: "card_itinerary", insertion, key: meta.key }); } catch (e) {}
     } catch (e) {}
-    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
-    showToast("🗓️ Added to your itinerary");
+    const before = trips;
+    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "card_itinerary" }));
+    if (insertion === "auto") showToast("Added next to a nearby stop", { label: "Undo", run: () => setTrips(before) });
+    else showToast("🗓️ Added to your itinerary");
   }
 
   // One-tap save straight to Favorites from a card heart.
@@ -9090,7 +9182,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
         }
       } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
+      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "quick_save" }));
     }
     if (supabase && user) {
       if (has) {
@@ -9279,6 +9371,42 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     if (payload) return originUrl(`/s/${payload}?${q}`);
     return originUrl("/");
+  }
+  async function shareItinerary(trip) {
+    if (!itineraryFlags.share || !trip || !trip.items || !trip.items.length) return;
+    let payload = "";
+    try {
+      const { encodeItineraryShare } = await import("../lib/itineraryShare.js");
+      payload = encodeItineraryShare(trip);
+    } catch (e) {}
+    if (!payload) { showToast("Couldn't share that trip"); return; }
+    let code = null;
+    if (supabase) {
+      try {
+        code = randCode();
+        const { error } = await supabase.from("shared_lists").insert({
+          code,
+          payload,
+          title: (trip.city || "Trip") + " itinerary",
+          loc: trip.city || "",
+          n: trip.items.length,
+        });
+        if (error) code = null;
+      } catch (e) { code = null; }
+    }
+    if (code) {
+      setTrips((prev) => {
+        const current = prev[trip.key];
+        if (!current) return prev;
+        return { ...prev, [trip.key]: { ...current, visibility: "private", shareCode: code, updatedTs: Date.now() } };
+      });
+    }
+    const title = (trip.city || "Trip") + (trip.state ? ", " + trip.state : "");
+    const q = "t=" + encodeURIComponent(title + " itinerary") + "&n=" + trip.items.length;
+    const url = code ? originUrl("/s/" + code + "?" + q) : originUrl("/s/" + encodeURIComponent(payload) + "?" + q);
+    shareLink("Wayfind trip: " + title, url, () => showToast("Private link copied"), title + "\nPrivate link — anyone with it can view this trip.", () => {
+      try { logEvent("itinerary_shared", null, { key: trip.key, n: trip.items.length, visibility: "private" }); } catch (e) {}
+    });
   }
   async function shareList(places, title) {
     if (!places || !places.length) return;
@@ -9644,6 +9772,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     personalize, setConsent, setTasteOpen, tasteVecState,
     // itinerary
     activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, openBrowse, reservations, removeRes, saveResConf,
+    itineraryFlags, shareTrip: shareItinerary, sharedItinerary, setSharedItinerary,
     // shared list
     sharedList, setSharedList,
     // events
@@ -11243,9 +11372,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
+        {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}
         {screen === "events" && <EventsScreen ctx={ctx} />}
       </div>
 
@@ -11408,7 +11538,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
       {/* Copied toast */}
       {toast && (
-        <div style={{ position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)" }}>{toast}</div>
+        <div style={{ position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)", display: "flex", alignItems: "center", gap: 10 }}>
+          <span>{toast}</span>
+          {toastAction ? <button type="button" onClick={() => { const run = toastAction.run; setToast(""); setToastAction(null); try { run(); } catch (e) {} }} style={{ background: "transparent", border: "none", color: C.accent, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: 0 }}>Undo</button> : null}
+        </div>
       )}
 
       {/* Full-screen photo viewer — pages through the whole gallery (v6.43) */}
