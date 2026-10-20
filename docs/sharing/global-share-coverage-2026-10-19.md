@@ -47,6 +47,20 @@ links land on `/p/[id]`; event shares keep their tracked ticket route.
   `check-favorites-auth`, `check-card-actions`, map and detail guards,
   `npm run check:jsx`, and `next build`.
 - `node scripts/run-guards.mjs` stops at `test-home-first-paint` (guard 150),
-  which fails identically on unmodified `origin/main` in this environment
-  because Chromium cannot launch here. Browser screenshots and a live server
-  smoke test were not possible in this sandbox and remain release QA.
+  which fails identically on unmodified `origin/main` in this environment.
+- Live headless QA (system Chrome against a local production build) verified:
+  guide Share opens the intent sheet; `Just share it` opens the chooser with
+  working `sms:` and `mailto:` composers, `More share options`, and
+  `Copy link` (chooser closes after copy); the invite name step renders and
+  closes from the scrim; Escape closes both sheets; the sheets center on a
+  1280px viewport (this caught a real bug: the first centering rule lost to
+  the sheets' inline bottom anchoring and needed `!important`); with both
+  group flags on in a throwaway QA build, `/group-plans/new` and
+  `/group-plans` render their signed-out sign-in blocks, and
+  `test-unified-share-flow` proves the `Group Vote` button appears third for
+  a concrete place and navigates to the create page.
+- Not exercised live: map previews, itinerary trips, top-40 cards, and guide
+  pick cards. They need real place data or a signed-in account, which the
+  placeholder-key QA build cannot supply. Their wiring is covered by the new
+  guard and the existing card-action tests; the sheet they open is the one
+  verified live above.
