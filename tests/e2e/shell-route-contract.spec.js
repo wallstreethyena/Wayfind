@@ -225,6 +225,7 @@ test("live venue map returns parking and venue-local nearby pins", async ({ page
   await map.scrollIntoViewIfNeeded();
   const all = map.getByRole("button", { name: /^All places/ });
   await expect(all).toHaveText(/All places\s*[1-9]\d*/, { timeout: 25000 });
+  await expect(page.locator("[data-where-to-go-next]")).toBeVisible({ timeout: 25000 });
   await map.getByRole("button", { name: "Parking", exact: true }).click();
   await expect(map.locator(".wfev-parking-select").first()).toBeVisible({ timeout: 25000 });
   expect(await map.locator(".wfev-parking-select").count()).toBeGreaterThan(0);
