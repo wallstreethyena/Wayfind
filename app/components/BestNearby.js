@@ -37,6 +37,7 @@ import { nowSubline } from "../../lib/intentPages.js";
 import { LOAD_FAILED, LOAD_PENDING, canClaim, isFailed, settleLoad } from "../../lib/loadState.js";
 import { couponForPlace } from "../../lib/coupons.js";
 import { existingTypeSignals } from "../../lib/placeCategory.js";
+import { shareCard as fallbackShareCard } from "../../lib/cardActions.js";
 
 // THE CHIP HAS TO STATE THE OFFER (v7.41). Owner, 2026-08-12: "we dont offer
 // the coupon on the place card or tell the user there is a coupon or
@@ -1124,7 +1125,7 @@ export default function BestNearby({
                     ariaLabel={"Open " + p.name}
                     place={{ id: p.place_id || p.id, name: p.name, lat: p.lat, lng: p.lng, rating: p.rating, reviews: p.reviews, photo: cardPhoto(p, 640) }}
                     onOpen={() => { try { onLog && onLog("best_nearby_detail", { id: p.place_id, name: p.name }, { rail: "top40", pos: i + 1 }); } catch (e) {} openPlace(p); }}
-                    onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} }}
+                    onShare={() => { try { onLog && onLog("share", null, { id: p.place_id, kind: "top40_card" }); } catch (e) {} if (onShare) { try { onShare({ id: p.place_id, name: p.name }); } catch (e) {} } else { try { fallbackShareCard({ id: p.place_id, name: p.name }, { surface: "top40_card" }); } catch (e) {} } }}
                   />
                 );
               })}
