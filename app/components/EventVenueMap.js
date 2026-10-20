@@ -14,6 +14,7 @@ import { createAppleMapController, loadAppleMapKit } from "../../lib/appleMapsRu
 import { appleMapsTokenUsable } from "../../lib/appleMapsToken.js";
 import { EVENT_MAP_FAMILY, eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { hasParkingCoordinate } from "../../lib/appleParking.js";
+import { mapFailureReason, reportMapServiceIssue } from "../../lib/mapDiagnostics.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -29,7 +30,7 @@ ${VENUE_MAP_SHELL_CSS}
 
 const thumb = (p) => p.photo || (p.photoRef ? "/api/photo?ref=" + encodeURIComponent(p.photoRef) + "&g=2&w=640" : "/api/photo?place=" + encodeURIComponent(p.id) + "&g=2&w=640");
 
-export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady, venueKind = "event", parkingEnabled = true }) {
+export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady, venueKind = "event", parkingEnabled = true, nearbyStatus }) {
   const hostRef = useRef(null);
   const controllerRef = useRef(null);
   // Under a PhotoPolicyProvider (guides) the pin card shows no Google photo:
@@ -122,8 +123,11 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
         parkingCache.current.set(venueKey, next);
         setParking(next);
         controller.setParkingMode(true, next.places);
-      }).catch(() => {
-        if (isCurrent()) setParking({ status: "error", places: [] });
+      }).catch((error) => {
+        if (isCurrent()) {
+          reportMapServiceIssue("parking", mapFailureReason(error?.cause || error));
+          setParking({ status: "error", places: [] });
+        }
       });
     }
     return () => {
@@ -151,7 +155,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
     <div className="wfev-grid">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="wfev-cats" aria-label="Map categories">
-        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => chooseCategory(null)}><MapCategoryPin /><span>All places</span><b>{pins.length}</b></button>
+        <button type="button" className="wfev-cat" aria-pressed={active === null} onClick={() => chooseCategory(null)}><MapCategoryPin /><span>All places</span>{nearbyStatus === "loading" && pins.length === 0 ? <span>…</span> : nearbyStatus === "error" && pins.length === 0 ? null : <b>{pins.length}</b>}</button>
         {canPark ? <button type="button" className="wfev-cat" aria-pressed={parkingMode} onClick={() => { if (!parkingMode) chooseCategory("parking"); }}><MapCategoryPin family="parking" /><span>Parking</span></button> : null}
         {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => chooseCategory(active === group.family ? null : group.family)}><MapCategoryPin family={group.family} /><span>{group.label}</span><b>{group.count}</b></button>)}
       </div>

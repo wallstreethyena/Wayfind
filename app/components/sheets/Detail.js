@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import { safeUrl } from "../../../lib/links.js";
 import AwardsRail from "../AwardsRail";
 import PlaceParkingMap from "../PlaceParkingMap.js";
+import useVenueNearby from "../useVenueNearby.js";
 import { C, sheetBg, sheet, SHEET_EASE, Grabber, directionsUrl, offerLabel, scoreLabel, stars, PlaceScoreChip, PriceBadge, TRENDING_POPULARITY_THRESHOLD } from "../kit";
 import { priceLevelOf } from "../../../lib/price";
 // v8.82 — the season travels with the share (see lib/fallSkin.fallShareLine).
@@ -453,6 +454,7 @@ export function detailFeedbackPath(detail) {
 export default function DetailSheet({ ctx }) {
   const { detail, setDetail, detailExtra, setLightbox, reviewsOpen, setReviewsOpen, hoursOpen, setHoursOpen, venueEvents, venueEventsLoading, venueEventsOpen, setVenueEventsOpen, videos, videosLoading, beachCond, beachCondLoading, insight, insightLoading, insightFull, insightFullLoading, showMore, viaTours, debugOn, placeComments, setPlaceComments, commentType, setCommentType, placePosts, setPlacePosts, confirmDel, setConfirmDel, taInfo, insider, detailContext, myVotes, communityVotes, galleryRef, noteRef, scrollGallery, loadFullInsight, addReservation, handleVote, loadVenueEvents, placeShareUrl, FeaturedTag, curatedNote, curatedFor, wayfindNotes, betterAlternatives, similarPlaces, relatedPicks, placeKind, isBeach, suggested, places, offers, locName, blurbs, blurbLine, liked, disliked, user, authReady, sheetDragStart, sheetDragMove, sheetDragEnd, quickSaveFavorite, isSaved, toggleLike, toggleDislike, addShared, giveawayMark, logEvent, openExternal, openCuisine, openExperience, openDetail, setAuthOpen, ticketUrl, formatEventDate, shareLink, showToast, dedupePlaces, primaryCategory, experienceBadges, Critter, FallbackImg, liveOpen, weather, isSharedPlaceArrival, BUILD_ID } = ctx;
   const userDistance = usePlaceDistance(detail);
+  const venueNearby = useVenueNearby(detail, [...(suggested || []), ...(places || [])], !detail?._event);
   const [lunchChallengeView, setLunchChallengeView] = useState(false);
   useEffect(() => {
     try {
@@ -1050,7 +1052,7 @@ export default function DetailSheet({ ctx }) {
               {/* 2026-09-23 (owner): ONE disclosure line per detail sheet. When the
                   line already rendered under the primary action, this one stays off. */}
               {!ftcNearPrimary && <BookingCTA variant="disclosure" detail={detail} kind={placeKind(detail)} viaTours={viaTours} />}
-              <PlaceParkingMap place={detail} />
+              <PlaceParkingMap place={detail} nearby={venueNearby} />
               {Array.isArray(detail._children) && detail._children.length ? (
                 <section data-contained-venues style={{ margin: "10px 0 16px", padding: "13px 14px", background: "rgba(255,255,255,.025)", border: `1px solid ${C.border}`, borderRadius: 14 }}>
                   <div style={{ fontSize: 10.5, fontWeight: 800, color: C.light, letterSpacing: ".6px", textTransform: "uppercase" }}>Inside {detail.name}</div>
@@ -1177,7 +1179,7 @@ export default function DetailSheet({ ctx }) {
                   the current place. Partner inventory decorates a good match;
                   it never decides which match earns a slot. */}
               {!detail._event && (() => {
-                const nextPool = dedupePlaces([...(suggested || []), ...places]).filter((p) => p && p.id !== detail.id);
+                const nextPool = venueNearby.places;
                 const picks = pairsWellWith(detail, nextPool, { max: 3, radiusMi: DETAIL_NEARBY_RADIUS_MI })
                   .map((pick) => ({ ...pick, partner: placePartnerPick(pick.p, pinQ) }));
                 if (!picks.length) return null;
@@ -1681,7 +1683,7 @@ export default function DetailSheet({ ctx }) {
                 <TripConnections place={detail} onOpenPlace={(place) => openDetail(place, "trip_connections")} />
               ) : null}
               {!detail._event && (() => {
-                const simPool = detailNearbyPool(detail, dedupePlaces([...(suggested || []), ...(places || [])]));
+                const simPool = venueNearby.places;
                 const badgesOf = (x) => { try { return new Set(experienceBadges(x, null, 99).map((b) => b.key)); } catch (er) { return new Set(); } };
                 const sim = similarPlaces(simPool, detail, 4, badgesOf);
                 if (sim.length === 0) return null;
@@ -1709,7 +1711,7 @@ export default function DetailSheet({ ctx }) {
               })()}
 
               {(() => {
-                const altPool = detailNearbyPool(detail, dedupePlaces([...(suggested || []), ...(places || [])]));
+                const altPool = venueNearby.places;
                 const alts = betterAlternatives(detail, altPool, 3);
                 const Row = (p, reasons, knownFor) => (
                   <div key={"alt-" + p.id} onClick={() => openDetail(p)} style={{ display: "flex", gap: 11, alignItems: "center", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: 10, marginBottom: 8, cursor: "pointer" }}>
