@@ -76,6 +76,12 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
       for (const e of entries) {
         if (e.isIntersecting && !seen.current) {
           seen.current = true;
+          // 2026-10-20 (audit: guide impressions were invisible to the commerce
+          // funnel): the impression also carries the SAME commerce context the
+          // click sends through emitCommerce below, so impressions and clicks
+          // join on surface / provider / offer_id. Monetized CTAs only, so a Directions
+          // impression never counts as a provider impression. One caller per event.
+          const impressionProvider = cta.provider || (cta.kind === "hotel" ? "stay22" : (cta.kind === "deal" ? "deal" : "viator"));
           try {
             track("commerce_impression", {
               slug, region, cta_kind: cta.kind, monetized: !!cta.monetized,
@@ -83,6 +89,7 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
               // product. Without it cta_kind:"tour" conflated the two and a 0%
               // click rate could not be read as a bad offer or a vague label.
               exact: !!cta.exact,
+              ...(cta.monetized ? { surface: "guide", provider: impressionProvider, offer_id: String(cta.offerId || cta.place || slug), content_id: slug } : {}),
               place: cta.place || null, has_social: !!social,
               // Carried so a DEGRADED social lookup is countable rather than
               // looking like a place that simply has no reviews.

@@ -55,6 +55,8 @@ const noOffers = {};
   ok(cta.type === DETAIL_CTA_TYPES.tickets, "attraction with verified tours → Book tickets");
   ok(cta.monetized, "attraction tickets CTA is monetized");
   ok(cta.href, "attraction tickets CTA has an href");
+  const closedWithTours = resolveDetailCta({ detail: p, kind: "attraction", viaTours, locName: "Tampa, FL", offers: noOffers, openState: closed });
+  ok(closedWithTours.type === DETAIL_CTA_TYPES.tickets && closedWithTours.monetized, "closed attraction with verified advance tours still renders Book tickets for evening planners");
 }
 
 // 3. Attraction without tours → Directions (honest fallback).
