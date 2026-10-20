@@ -83,6 +83,7 @@ try {
   check(requests.length === 5, "the map reuses the detail read instead of issuing duplicate inventory requests");
   wrapper.unmount();
   check(readFileSync(new URL("./guards.txt", import.meta.url), "utf8").includes("node scripts/test-venue-nearby.mjs"), "the recurrence guard is wired into every build");
-  check(readFileSync(new URL("../.github/workflows/canary.yml", import.meta.url), "utf8").includes("tests/e2e/venue-map-live.spec.js"), "the existing production canary also runs a live provider interaction, not token health alone");
+  check(readFileSync(new URL("../.github/workflows/canary.yml", import.meta.url), "utf8").includes("tests/e2e/shell-route-contract.spec.js")
+    && readFileSync(new URL("../tests/e2e/shell-route-contract.spec.js", import.meta.url), "utf8").includes('test("live venue map returns parking and venue-local nearby pins"'), "the existing production canary also runs a live provider interaction, not token health alone");
 } finally { h.unmount(); globalThis.fetch = originalFetch; }
 console.log(`test-venue-nearby: OK — ${checks} assertions; real hook/pager/map wiring, remote visitor, pagination, venue handoff, stale response, failure and retry`);
