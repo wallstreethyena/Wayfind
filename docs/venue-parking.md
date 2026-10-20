@@ -24,12 +24,37 @@ take over the parking view. Search results live only in the mounted view's memor
 switching categories reuses them. No Apple results are persisted to a database or
 browser storage. Errors and empty responses have separate visible states.
 
+## Provider failure and venue-local discovery
+
+If Apple's POI service rejects, is malformed, or stalls for four seconds, the
+same attempt switches to Apple's general Search service with the Parking-only
+filter and a required venue-centered region. The exact circular distance gate
+still applies. This makes at most three calls (one failed POI call and two
+radius searches) under the existing total deadline. A failed fallback remains
+an error, never an empty parking result. Abort and venue-change ownership apply
+to both services. Enumerated provider diagnostics reach console and configured
+Sentry without raw messages, credentials, queries, or coordinates.
+
+Place sheets and durable place maps share `useVenueNearby`. It pages the owned
+map inventory around the selected venue, within eight miles, instead of using
+the visitor's browsing city as the candidate source. The map reuses that read
+and applies its existing score standard. Loading and failure are explicit;
+neither is presented as an authoritative zero. No paid search is added.
+
 ## Verification
 
 - `node scripts/test-apple-parking.mjs`: provider contract, radii, bounds, sorting,
   directions, cancellation, timeout, stale results, and error/empty distinction.
 - `node scripts/test-event-apple-maps.mjs`: real controller with deterministic SDK;
   parking pins, late updates, saved-route restoration and teardown.
+- `node scripts/test-venue-nearby.mjs`: real hook, inventory paging and map
+  wrapper, including a visitor in another city, late responses and retry.
+- The existing 30-minute production route canary runs
+  the live venue-map case in `tests/e2e/shell-route-contract.spec.js` against the real deployed Apple SDK. It
+  requires nearby pins and at least one real parking result at its known park
+  control, checks drive/walk targets and category return, blocks unrelated
+  enrichment/Google requests, and fails the existing route job and canary
+  heartbeat on regression. Screenshots/traces are written to the test output.
 - `node scripts/test-venue-parking-ui.mjs --require-browser`: real React controls
   at 390/768/1400px with a deterministic Apple fixture. Optional
   `--browser-executable=/absolute/path/to/chrome` selects a local test browser.
