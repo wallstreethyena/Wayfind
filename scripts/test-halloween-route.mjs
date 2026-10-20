@@ -2,6 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
+import { fileScopedPosters } from "../lib/seasonalPosterFiling.js";
 import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import { pageOneRail } from "../lib/railPage.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
@@ -16,6 +17,7 @@ async function harness(code = source) {
   const imports = {
     "siteTime": { siteTodayStr: () => "2026-10-13" },
     "railFastCache": { geoCell: (v) => v, fastCachedRail: async () => ({ value: cached, state: "hit" }) },
+    "seasonalPosterFiling": { fileScopedPosters },
     "halloweenIntentRails": { composeHalloweenRails },
     "railPage": { pageOneRail }, "railResponse": { windowRailAnswer },
     "fallStayDestinations": { fallStayDestinations: () => ["fall-stay"] },

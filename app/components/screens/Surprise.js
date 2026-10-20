@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance from "../PlaceDistance.js";
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only: all
 // state and callbacks arrive via the single ctx prop assembled in PageInner.
 //
@@ -93,7 +94,7 @@ export default function SurpriseScreen({ ctx }) {
               imgEl={<FallbackImg src={other.photo} icon={iconForPlace(other)} style={ROW_IMG_STYLE} />}
               title={other.name}
               score={null}
-              why={(other.distMi != null ? other.distMi.toFixed(1) + " mi" : "") + (liveOpen(other) === false ? (other.distMi != null ? " · " : "") + (other.nextOpen && other.nextOpen.today ? other.nextOpen.label : "Opens later") : "")}
+              why={<><PlaceDistance place={other} />{liveOpen(other) === false ? " · " + (other.nextOpen && other.nextOpen.today ? other.nextOpen.label : "Opens later") : ""}</>}
               badge={<PlaceScoreChip p={other} size={12} />} />
           );
           return (
@@ -179,7 +180,7 @@ export default function SurpriseScreen({ ctx }) {
                     {liveOpen(p) === false && <span style={{ fontSize: 12, fontWeight: 700, color: p.nextOpen && p.nextOpen.today ? C.gold : C.red }}>{p.nextOpen && p.nextOpen.today ? p.nextOpen.label : "Closed today"}</span>}
                     {p.price && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· {p.price}</span>}
                     {cuisineLabel && <span style={{ fontSize: 12, color: C.muted }}>· {cuisineLabel}</span>}
-                    {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+                    <PlaceDistance place={p} prefix="· " style={{ fontSize: 12, color: C.muted }} />
                   </div>
                   {p.address && <div style={{ fontSize: 12, color: C.muted, marginTop: 7, lineHeight: 1.4 }}>📍 {p.address}</div>}
                   {sWhy.length > 0 && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ fontWeight: 800 }}>Why: </span>{sWhy.slice(0, 4).join(" · ")}</div>}

@@ -23,7 +23,10 @@
 import { useCallback, useEffect, useState } from "react";
 import IconicPlaceCard from "./IconicPlaceCard";
 import { placeCardDetailHref } from "../../lib/placeCardRoute.js";
-import { addPlaceToTrips, tripMetaForPlace } from "../../lib/trips";
+import { tripMetaForPlace } from "../../lib/trips";
+import { addStopToStoredTrips } from "../../lib/itineraryAdd";
+import { readItineraryFlags } from "../../lib/itineraryFlags";
+import { track } from "../../lib/track";
 import { readLocalLikeState, persistLike, persistDislike, recordTasteSignal } from "../../lib/likeSignal";
 
 const LISTS_KEY = "wayfind_lists";
@@ -103,7 +106,10 @@ export default function GuidePlaceCard({ place, rank, editorial }) {
       already = !!(t && t.items && t.items.some((it) => it.id === p.id));
     } catch (er) {}
     if (already) { setInTrip(true); return; }
-    write(TRIPS_KEY, addPlaceToTrips(trips, p, Date.now()));
+    const flags = readItineraryFlags(typeof window !== "undefined" ? window.posthog : null);
+    const result = addStopToStoredTrips(trips, p, Date.now(), { autoOrder: flags.autoOrder, addedVia: "guide" });
+    if (!result.already) write(TRIPS_KEY, result.trips);
+    for (const ev of result.events) { try { track(ev.name, ev.props); } catch (er) {} }
     setInTrip(true);
   }, []);
 

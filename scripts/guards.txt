@@ -2213,6 +2213,9 @@ node scripts/test-fall-gap-fill-2026-10-06.mjs
 node scripts/test-fall-farm-food-gap-2026-10-07.mjs
 node scripts/test-fall-tampa-picks-2026-10-08.mjs
 node scripts/test-seasonal-live-area-2026-10-19.mjs
+node scripts/test-seasonal-pending-rails-2026-10-19.mjs
+node scripts/test-seasonal-add-safety.mjs
+node scripts/test-seasonal-poster-filing-2026-10-19.mjs
 node scripts/test-fall-food-gap-2026-10-08.mjs
 node scripts/check-guide-card.mjs
 node scripts/test-credited-photo-warm.mjs
@@ -2302,3 +2305,14 @@ node scripts/test-halloween-crown.mjs
 # stored Rays first pitch), beaches-only rankings, website (not app) copy,
 # drum circle about an hour before sunset.
 node scripts/test-site-fixes-20261019.mjs
+node scripts/test-apple-parking.mjs
+node scripts/test-venue-parking-ui.mjs
+# Display distance uses one fresh device watch, never an API/search-center distance.
+node scripts/test-device-distance.mjs
+node scripts/test-rail-device-distance.mjs
+
+# Itinerary option B: proximity insert, date reflow that never drops a stop,
+# lossless merge, flags default off, private share payload, and RLS on the
+# unapplied wf_itineraries migration (PGlite only — production is not contacted).
+node scripts/test-itinerary-plan.mjs
+node scripts/test-itinerary-rls.mjs

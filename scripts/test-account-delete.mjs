@@ -86,6 +86,13 @@ async function mockFetch(url, opts) {
     const rows = scenario.emailRows ? (scenario.emailRows[table] || []) : [{ id: 11, email: scenario.authUserBody.email }];
     return jsonResponse(scenario.restStatus === 200 ? 200 : scenario.restStatus, rows);
   }
+  if (u.includes("/rest/v1/wf_itineraries")) {
+    if (scenario.itinerariesStatus && scenario.itinerariesStatus !== 200) return jsonResponse(scenario.itinerariesStatus, { message: "not found" });
+    return jsonResponse(200, scenario.itineraryRows || []);
+  }
+  if (u.includes("/rest/v1/shared_lists")) {
+    return jsonResponse(scenario.restStatus, {});
+  }
   if (u.includes("/rest/v1/wf_feedback") || u.includes("/rest/v1/wf_taste") || u.includes("/rest/v1/wf_city_requests")
     || u.includes("/rest/v1/wf_email_signups") || u.includes("/rest/v1/wf_waitlist") || u.includes("/rest/v1/wf_giveaway_entries")
     || u.includes("/rest/v1/device_push_tokens")) {
@@ -233,6 +240,7 @@ ok(cleanupBeforeAdmin(corruptedOrder) === false, "red proof: cleanupBeforeAdmin 
   ok(body.cleaned && String(body.cleaned.storage_user_media).startsWith("deleted:"), "cleaned.storage_user_media reports a deletion, got " + (body.cleaned && body.cleaned.storage_user_media));
   ok(body.cleaned && String(body.cleaned.storage_comment_photos).startsWith("deleted:"), "cleaned.storage_comment_photos reports a deletion, got " + (body.cleaned && body.cleaned.storage_comment_photos));
   ok(body.cleaned && body.cleaned.device_push_tokens === "ok", "cleaned.device_push_tokens === ok when a deviceId was supplied");
+  ok(body.cleaned && body.cleaned.wf_itineraries === "ok", "cleaned.wf_itineraries === ok, got " + (body.cleaned && body.cleaned.wf_itineraries));
 
   ok(cleanupBeforeAdmin(calls), "every cleanup step's first call happens before the Admin user delete");
   const adminIdx = firstIndex(calls, (c) => c.url.includes("/auth/v1/admin/users/") && c.method === "DELETE");
@@ -241,9 +249,38 @@ ok(cleanupBeforeAdmin(corruptedOrder) === false, "red proof: cleanupBeforeAdmin 
     firstIndex(calls, (c) => c.url.includes("/rest/v1/wf_giveaway_entries") && c.method === "DELETE")
   );
   ok(adminIdx > lastCleanupIdx, "Admin delete is strictly the last of the ordered cleanup steps");
+  const itinIdx = firstIndex(calls, (c) => c.url.includes("/rest/v1/wf_itineraries") && c.method === "DELETE");
+  ok(itinIdx >= 0 && itinIdx < adminIdx, "itinerary rows are deleted before the auth user");
 
   ok(!raw.includes(USER_EMAIL), "response body never contains the user's email");
   ok(!raw.includes("usertoken"), "response body never contains the bearer token");
+}
+
+// ---------------------------------------------------------------------------
+// 5a. Itinerary table not applied yet: 404 is "absent", deletion continues.
+// A client-supplied share code must never authorize deletion of an unowned snapshot.
+// ---------------------------------------------------------------------------
+{
+  resetScenario();
+  scenario.itinerariesStatus = 404;
+  resetCalls();
+  const res = await POST(req({ ip: "10.0.0.5a" }));
+  const body = await res.json();
+  ok(res.status === 200, "a missing itinerary table still deletes the account, got " + res.status);
+  ok(body.cleaned && body.cleaned.wf_itineraries === "absent", "cleaned.wf_itineraries === absent when the table 404s, got " + (body.cleaned && body.cleaned.wf_itineraries));
+  ok(calls.some((c) => c.url.includes("/auth/v1/admin/users/") && c.method === "DELETE"), "admin delete still runs when itineraries are absent");
+  ok(calls.some((c) => c.url.includes("/rest/v1/wf_itineraries") && c.method === "DELETE"), "missing-table status is read from the scoped delete itself");
+}
+{
+  resetScenario();
+  scenario.itineraryRows = [{ share_code: "abc1234" }, { share_code: "NOPE" }, { share_code: null }];
+  resetCalls();
+  const res = await POST(req({ ip: "10.0.0.5c" }));
+  const body = await res.json();
+  ok(res.status === 200, "an itinerary with a share code still deletes, got " + res.status);
+  ok(body.cleaned && body.cleaned.wf_itineraries === "ok", "itinerary cleanup stays ok without deleting unowned snapshots");
+  const shareCall = calls.find((c) => c.url.includes("/rest/v1/shared_lists") && c.method === "DELETE");
+  ok(!shareCall, "a well-formed client-writable share_code cannot delete another person's shared_lists row");
 }
 
 // ---------------------------------------------------------------------------

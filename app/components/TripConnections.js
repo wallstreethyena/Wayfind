@@ -40,7 +40,7 @@ export function tripConnectionCardProps(item, index, { kind, center, onOpenPlace
     editorial: item.blurb || item.editorial || null,
     editorialTier: "known",
     surface: "trip_connections",
-    rankingNote: Number.isFinite(item.distMi) ? `${item.distMi.toFixed(1)} miles from ${anchor}` : null,
+    rankingNote: `Near ${anchor}`,
     onOpen: item.mapsOnly ? undefined : onOpenPlace,
   };
 }

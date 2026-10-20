@@ -93,7 +93,7 @@ try { crons = JSON.parse(readFileSync(REPO + "vercel.json", "utf8")).crons || []
 ok(crons.some((c) => String(c.path || "").startsWith("/api/cron/experiences-link-health")), "vercel.json must schedule the sweep — a pipeline that ran once is indistinguishable from no pipeline");
 
 /* ── 7. the real route reports work truthfully ──────────────────────────── */
-async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, patchHangs = false, watchdogMs = null, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
+async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs = false, selectDelayMs = 0, settleMs = 0, realReadTimeout = false, readAdvanceMs = 0, probeAdvanceMs = 0, patchAdvanceMs = 0, selected = [], selectStatus = 200, patchStatus = 204, patchThrows = false, patchHangs = false, watchdogMs = null, productStatus = 200, productBody = { status: "ACTIVE" }, withViatorKey = true, products = {} } = {}) {
   const saved = {
     CRON_SECRET: process.env.CRON_SECRET,
     VIATOR_API_KEY: process.env.VIATOR_API_KEY,
@@ -104,6 +104,7 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     LINK_HEALTH_WATCHDOG_MS: process.env.LINK_HEALTH_WATCHDOG_MS,
     fetch: globalThis.fetch,
     setTimeout: globalThis.setTimeout,
+    now: Date.now,
   };
   process.env.CRON_SECRET = "cron-fixture";
   process.env.LINK_HEALTH_PACE_MS = "0"; // real route, zero waits
@@ -114,9 +115,11 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   if (withViatorKey) process.env.VIATOR_API_KEY = "viator-fixture";
   else delete process.env.VIATOR_API_KEY;
 
-  const pulses = [], patches = [], providerRequests = [];
+  const pulses = [], patches = [], providerRequests = [], signals = [];
+  let clock = saved.now();
+  if (readAdvanceMs || probeAdvanceMs || patchAdvanceMs) Date.now = () => clock;
   // Exercise the real abort signal without waiting six seconds per fixture.
-  globalThis.setTimeout = (fn, ms, ...args) => saved.setTimeout(fn, ms === 6000 ? 0 : ms, ...args);
+  globalThis.setTimeout = (fn, ms, ...args) => saved.setTimeout(fn, ms === 6000 && !realReadTimeout ? 0 : ms, ...args);
   globalThis.fetch = async (url, init = {}) => {
     const u = String(url);
     const method = String(init.method || "GET").toUpperCase();
@@ -127,16 +130,26 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     if (u.includes("/rest/v1/wf_experiences")) {
       if (method === "PATCH") {
         patches.push({ url: u, body: JSON.parse(init.body) });
+        clock += patchAdvanceMs;
+        signals.push(init.signal);
         if (patchThrows) throw new Error("fixture PATCH network failure");
-        if (patchHangs) return new Promise(() => {}); // ignores the abort signal: only the watchdog can end this run
+        if (patchHangs) return new Promise(() => {}); // ignores abort: the operation budget must still end the run
         return new Response(null, { status: patchStatus });
       }
+      signals.push(init.signal);
+      clock += readAdvanceMs;
+      if (selectHangs) return new Promise(() => {});
+      if (selectDelayMs) await new Promise((resolve) => saved.setTimeout(resolve, selectDelayMs));
+      if (bodyHangs) return { ok: true, status: 200, json: () => new Promise(() => {}) };
       return selectStatus === 200
         ? Response.json(selected)
         : Response.json({ error: "fixture select failure" }, { status: selectStatus });
     }
     if (u.includes("api.viator.com/partner/products/")) {
       providerRequests.push(u);
+      clock += probeAdvanceMs;
+      signals.push(init.signal);
+      if (providerHangs) return new Promise(() => {});
       const fixture = products[decodeURIComponent(u.split("/").at(-1))];
       if (fixture) {
         if (fixture.timeout) return new Promise((resolve, reject) => {
@@ -158,10 +171,13 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     const response = await runExperienceLinkHealth(new Request("https://www.gowayfind.com/api/cron/experiences-link-health", {
       headers: { authorization: "Bearer cron-fixture" },
     }));
-    return { response, body: await response.json(), pulses, patches, providerRequests };
+    const body = await response.json();
+    if (settleMs) await new Promise((resolve) => saved.setTimeout(resolve, settleMs));
+    return { response, body, pulses, patches, providerRequests, signals };
   } finally {
     globalThis.fetch = saved.fetch;
     globalThis.setTimeout = saved.setTimeout;
+    Date.now = saved.now;
     for (const key of ["CRON_SECRET", "VIATOR_API_KEY", "SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "LINK_HEALTH_PACE_MS", "LINK_HEALTH_BACKOFF_MS", "LINK_HEALTH_WATCHDOG_MS"]) {
       if (saved[key] === undefined) delete process.env[key];
       else process.env[key] = saved[key];
@@ -283,6 +299,10 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
   ok(write.response.status === 500 && write.pulses.length === 1 && note.write === "patch-fetch-error", "persistence failure is distinct from provider reasons");
   ok(Object.values(note.probes).reduce((a, b) => a + b, 0) === 400 && Object.keys(note.probes).length === 9, "400-row failure pulse preserves all nine reason counts within storage limit");
   ok(write.pulses[0].note.length <= 200 && write.pulses[0].succeeded === 0, "failed persistence never claims saved successes");
+  const partial = await runSweep({ selected: capRows, products: capProducts, readAdvanceMs: 20000, probeAdvanceMs: 100, patchThrows: true });
+  const partialNote = JSON.parse(partial.pulses[0].note);
+  ok(partialNote.left > 0 && partialNote.left + partial.body.checked === 400 && partial.pulses[0].note.length <= 200, "a truncated 400-row failure preserves its deferred count as valid stored JSON");
+  ok(Object.keys(partialNote.probes).length === 9 && Object.values(partialNote.probes).reduce((a, b) => a + b, 0) === partial.body.checked, "truncation plus persistence failure retains all nine actual probe reasons");
   const bodyNetwork = await runSweep({ selected: [{ product_code: "BODY", link_ok: true }], products: { BODY: { bodyNetworkError: true } } });
   ok(bodyNetwork.body.probe_outcomes.network_error === 1 && !bodyNetwork.body.probe_outcomes.invalid_json, "response-body transport failure is distinct from malformed JSON");
   const healthy = await runSweep({ selected: [{ product_code: "GOOD", link_ok: false }] });
@@ -341,14 +361,57 @@ async function runSweep({ selected = [], selectStatus = 200, patchStatus = 204, 
     runSweep({ selected: [{ product_code: "HANG", link_ok: true, fail_count: 0 }], patchHangs: true, watchdogMs: 300 }),
     new Promise((resolve) => globalThis.setTimeout(() => resolve("never-answered"), 5000)),
   ]);
-  ok(hung !== "never-answered", "a hung sweep is ended by the watchdog instead of running until the platform kills it");
+  ok(hung !== "never-answered", "a hung sweep is ended by its work budget or watchdog before the platform kills it");
   if (hung !== "never-answered") {
-    ok(hung.response.status === 500 && hung.body.ok === false && /watchdog/.test(hung.body.error || ""), "the watchdog answers HTTP 500, not 200");
-    ok(hung.pulses.length === 1 && hung.pulses[0].job === "experiences-link-health" && hung.pulses[0].failed === 1 && /watchdog/.test(hung.pulses[0].note || ""), "the watchdog records exactly one failed pulse naming itself");
+    ok(hung.response.status === 500 && hung.body.ok === false && /watchdog|persistence failed/.test(hung.body.error || ""), "a bounded hung write answers HTTP 500 with its failure reason");
+    ok(hung.pulses.length === 1 && hung.pulses[0].job === "experiences-link-health" && hung.pulses[0].failed === 1 && /watchdog|patch/.test(hung.pulses[0].note || ""), "a bounded hung write records exactly one failed pulse naming its cause");
   }
   const okRun = await runSweep({ selected: [{ product_code: "OKAY", link_ok: true, fail_count: 0 }], watchdogMs: 5000 });
   ok(okRun.response.status === 200 && okRun.pulses.length === 1 && okRun.pulses[0].failed === 0, "a healthy run under the watchdog is untouched: one success pulse");
   ok(/PROBE_BUDGET_MS = 30000/.test(routeSrc) && /WATCHDOG_MS = 48000/.test(routeSrc) && /maxDuration = 60/.test(routeSrc), "probe budget (30s) and watchdog (48s) sit inside maxDuration (60s)");
+}
+
+// Regression: reserving a pace slot after the deadline used to walk all 400
+// remaining rows (100s of fake time), hiding real completed work behind 48s watchdog.
+{
+  let t = 0, calls = 0; const waits = [];
+  const result = await runPoliteProbes(Array.from({ length: 400 }, (_, i) => String(i)), async () => {
+    calls++; return { verdict: "alive", reason: "active", outcome: "alive" };
+  }, { concurrency: 2, minGapMs: 250, deadlineAt: 30000, now: () => t,
+    sleep: async (ms) => { waits.push(ms); t += ms; } });
+  ok(t <= 30000, `400-row pacing stops at its deadline instead of draining queued sleeps (elapsed ${t}ms)`);
+  ok(calls > 0 && result.filter(Boolean).length === calls && result.includes(null), "deadline retains completed probes and leaves unstarted rows untouched");
+  const before = waits.length;
+  await runPoliteProbes(Array(400).fill("LATE"), async () => { throw new Error("past-deadline probe"); },
+    { deadlineAt: t - 1, now: () => t, sleep: async (ms) => { waits.push(ms); t += ms; } });
+  ok(waits.length === before, "an expired deadline schedules no sleeps even for a full worklist");
+}
+
+// The read, response body and an abort-ignoring provider each have their own
+// real timeout; none should need the outer watchdog to become visible.
+{
+  for (const fixture of [{ selectHangs: true }, { bodyHangs: true }, { selected: [{ product_code: "HUNG" }], providerHangs: true }]) {
+    const r = await runSweep(fixture);
+    ok(r.response.status === 500 && r.pulses.length === 1 && !/watchdog/.test(r.pulses[0].note), "hung fetch/body is bounded before the watchdog and records one failure");
+    ok(r.signals.some((signal) => signal?.aborted) && r.patches.every((p) => !Object.hasOwn(p.body, "link_ok")), "timeout aborts its request and never kills unknown products");
+  }
+  const lateRead = await runSweep({ selected: [{ product_code: "LATE" }], selectDelayMs: 60, selectStatus: 500, watchdogMs: 15, realReadTimeout: true, settleMs: 90 });
+  ok(lateRead.response.status === 500 && lateRead.pulses.length === 1 && /watchdog/.test(lateRead.pulses[0].note), "a read failing after the watchdog cannot emit a second pulse");
+  ok(lateRead.signals[0]?.aborted && lateRead.providerRequests.length === 0 && lateRead.patches.length === 0, "watchdog cancellation prevents all later provider work and writes");
+  const lateSuccess = await runSweep({ selected: [{ product_code: "LATE" }], selectDelayMs: 60, watchdogMs: 15, realReadTimeout: true, settleMs: 90 });
+  ok(lateSuccess.pulses.length === 1 && lateSuccess.providerRequests.length === 0 && lateSuccess.patches.length === 0, "a successful late read also cannot restart the cancelled sweep");
+
+  const selected = Array.from({ length: 40 }, (_, i) => ({ product_code: `BUDGET${i}`, link_ok: true, fail_count: 0 }));
+  const truncated = await runSweep({ selected, readAdvanceMs: 20000, probeAdvanceMs: 1000 });
+  ok(truncated.response.status === 200 && truncated.body.checked === 10 && truncated.body.not_reached === 30, "read time is charged to the same 30s probe budget, retaining completed work");
+  ok(JSON.parse(truncated.pulses[0].note).left === 30 && truncated.patches.every((p) => !decodeURIComponent(p.url).includes('"BUDGET10"')), "pulse reports truncation and unreached rows remain queued untouched");
+  const writes = await runSweep({ selected: selected.slice(0, 20), productStatus: 404, patchAdvanceMs: 7000 });
+  ok(writes.response.status === 500 && /patch-budget-exhausted/.test(writes.body.error) && writes.patches.length === 6, "serial per-row PATCHes share a total 42s work budget rather than 8s each without limit");
+  ok(writes.pulses.length === 1 && writes.pulses[0].succeeded === 0 && writes.patches.every((p) => p.body.link_ok === true && p.body.fail_count === 1), "exhausted persistence records failure and preserves first-strike health decisions");
+  const cancelled = new AbortController(); cancelled.abort();
+  let calls = 0, sleeps = 0;
+  const raw = await runPoliteProbes(["CANCELLED"], async () => { calls++; }, { signal: cancelled.signal, sleep: async () => { sleeps++; } });
+  ok(calls === 0 && sleeps === 0 && raw[0] === null, "an already-cancelled runner neither sleeps nor probes");
 }
 
 /* ── verdict ─────────────────────────────────────────────────────────────── */

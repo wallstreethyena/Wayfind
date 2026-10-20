@@ -26,9 +26,11 @@ import { windowRailAnswer } from "../../../../lib/railResponse.js";
 import { isServableDeal } from "../../../../lib/eventTicketDeals.js";
 import { seasonalHospitalityIds, seasonalHospitalityPlaces, mergeSeasonalHospitalityPlaces, reconcileSeasonalHospitalityEvents } from "../../../../lib/seasonalHospitality.js";
 import { withChristmasGuides } from "../../../../lib/christmasGuides.js";
+import { resolveSeasonalLiveArea } from "../../../../lib/seasonalLiveAreaResolve.js";
+import { readSeasonalPendingInventory } from "../../../../lib/seasonalLiveAreaInventory.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
-const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded";
+const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,photo_url,status,excluded";
 
 function json(body, status = 200, cache = "public, s-maxage=900, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
@@ -60,29 +62,44 @@ export async function GET(request) {
     // v9 adds ten more confirmed cards (gift market, Venice tree lighting,
     // Oxford Exchange, St. Pete Ballet, Meadows market, Art Ovation, Venice
     // Nights, Sarasota Art Museum, Boyd Hill workshop, Vinoy movie).
-    const key = `christmas-intents:v9:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v10 publishes the confirmed rows in lib/seasonalLiveAreaPending20261019.js
+    // once each venue is in inventory with its own stored photo. A cached v9
+    // payload was built before that venue existed, so it must not hide the card.
+    const key = `christmas-intents:v10:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);
-      const [rows, placeResult, dealResult] = await Promise.all([
+      const [rows, placeResult, dealResult, pendingInventory] = await Promise.all([
         fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory").select(PLACE_COLUMNS).in("place_id", [...new Set([...CHRISTMAS_PLACE_IDS, ...CHRISTMAS_VENUE_PLACE_IDS, ...seasonalHospitalityIds("christmas", today)])]).abortSignal(signal),
         // wf_deals health for Undercover Tourist entries; owned read, no paid call.
         CHRISTMAS_TICKET_DEAL_IDS.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", CHRISTMAS_TICKET_DEAL_IDS).abortSignal(signal)
           : Promise.resolve({ data: [], error: null }),
+        // Its own deadline. A slow name lookup skips these cards and leaves
+        // the rails that were already on the poster running.
+        readSeasonalPendingInventory(),
       ]);
-      let sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error);
+      let sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error) + Number(!!pendingInventory.failed);
       // isServableDeal, not an inline link_ok check: only link_ok === false is dead.
       const byDealId = new Map((dealResult.data || []).filter((deal) => isServableDeal(deal)).map((deal) => [deal.id, deal]));
       if (placeResult.error) console.error("[api/events/christmas] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
+      const inventoryById = new Map();
+      const rememberPlace = (row) => {
+        if (!row?.place_id) return;
+        const prev = inventoryById.get(row.place_id);
+        if (!prev || (!hasStoredPlacePhoto(prev) && hasStoredPlacePhoto(row))) inventoryById.set(row.place_id, row);
+      };
+      for (const row of placeResult.data || []) rememberPlace(row);
+      for (const row of pendingInventory.rows || []) rememberPlace(row);
+      const resolved = resolveSeasonalLiveArea([...inventoryById.values()], { today });
       // The research data (lib/christmasResearch.js, data/christmas-2026-research.json)
       // merged at read time: one row per experience, each carrying its rail and
       // the five location corrections. Watchlist rows never enter. No DB write.
-      const mergedRows = mergeChristmasResearch(rows || []);
-      const inventoryById = new Map((placeResult.data || []).map((row) => [row.place_id, row]));
+      // Photo-backed pending rows are appended only after that merge.
+      const mergedRows = mergeChristmasResearch(rows || []).concat(resolved.christmas);
       // Fill the venue identity and coordinates the row lacks (never guessed: lib/christmasPool.js).
       const eligibleRows = mergedRows.filter((e) => isFloridaVenue(e) && isTrusted(e) && christmasEventRail(e)).map((e) => enrichChristmasEvent(e, inventoryById));
 

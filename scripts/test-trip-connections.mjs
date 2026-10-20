@@ -116,7 +116,7 @@ const { TripConnectionsContent, tripConnectionCardProps, tripConnectionsParams }
 const openPlace = () => {};
 const cardProps = tripConnectionCardProps(selected[0], 0, { kind: "attractions", onOpenPlace: openPlace });
 assert.equal(cardProps.onOpen, openPlace, "an attraction card keeps the sheet callback");
-assert.match(cardProps.rankingNote, /miles from the hotel/);
+assert.match(cardProps.rankingNote, /Near the hotel/);
 assert.equal(tripConnectionCardProps({ ...selected[0], mapsOnly: true }, 0, { onOpenPlace: openPlace }).onOpen, undefined);
 assert.equal(tripConnectionsParams({ place: impostor, center: orlando }), null, "unrelated detail cards make no request");
 const placeParams = tripConnectionsParams({ place: { ...hotel, lat: 28.48, lng: -81.47 }, center: { lat: 25, lng: -80 } });
@@ -141,7 +141,7 @@ const readyHtml = renderToStaticMarkup(createElement(TripConnectionsContent, {
   currentKey: "hotel", titleId: "connections-1", onOpenPlace: openPlace, onRetry: () => {},
 }));
 assert.match(readyHtml, /Big days near Verified Resort/);
-assert.match(readyHtml, /miles from the hotel/);
+assert.match(readyHtml, /Near the hotel/);
 assert.match(readyHtml, /role="listitem"/);
 assert.equal(renderToStaticMarkup(createElement(TripConnectionsContent, {
   state: { key: "old-hotel", status: "ready", places: [selected[0]], kind: "attractions", title: "Old hotel", description: "Old result" },

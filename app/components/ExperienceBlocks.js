@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance from "./PlaceDistance.js";
 // ExperienceBlocks — THE list-surface composition, in one place.
 //
 // OWNER DIRECTIVE (2026-07-31): "I want this template, this design, this
@@ -152,8 +153,7 @@ export function rightNowReason(p, context, nowMs) {
   if (status.nextTransition && status.nextTransition.type === "close") {
     return status.nextTransition.label.replace(/^Closes\s+/, "Open until ");
   }
-  const miles = Number(p.distMi);
-  return (miles < 1 ? "Less than a mile away" : (miles < 10 ? miles.toFixed(1) : Math.round(miles)) + " miles away");
+  return "Open now";
 }
 
 export function rightNowContextLabel(context) {
@@ -201,7 +201,7 @@ export function PerfectRightNow({ picks, places, durablePlaces, context, nowMs, 
           <span style={{ flexShrink: 0, width: 22, height: 22, borderRadius: "50%", background: C.adim, color: C.light, fontSize: 12, fontWeight: 800, display: "inline-flex", alignItems: "center", justifyContent: "center" }}>{i + 1}</span>
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{x.p.name}<span style={{ marginLeft: 6, display: "inline-flex", verticalAlign: "middle" }}><PlaceScoreChip p={x.p} size={12} /></span>{x.p.trending && x.p.trend_reason ? <span style={{ marginLeft: 6, fontSize: 11, fontWeight: 800, color: "#FB923C" }}>🔥 {x.p.trend_reason}</span> : null}</div>
-            {x.why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}</div> : null}
+            {x.why ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: 2 }}>{x.why}<PlaceDistance place={x.p} prefix=" · " /></div> : null}
           </div>
         </div>
       ))}

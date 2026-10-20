@@ -25,7 +25,8 @@
     "audit:regression": "npm run prebuild && npm run test:e2e && npm run check:bundle && node scripts/check-headers.mjs",
     "events:verify": "node scripts/events-verify.mjs",
     "postbuild": "node scripts/check-bundle.mjs",
-    "os:state": "node scripts/os-state.mjs --write --mirror"
+    "os:state": "node scripts/os-state.mjs --write --mirror",
+    "add-seasonal-venues": "node scripts/add-seasonal-venues-2026-10-19.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",

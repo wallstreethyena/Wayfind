@@ -57,7 +57,7 @@ ok(/<EventActions event=/.test(detail), "event detail lost its action panel");
 for (const label of ["Save event", "Add to itinerary", "Like", "Not for me", "Share this event"]) {
   ok(eventActions.includes(label), `event detail lost ${label}`);
 }
-ok(/addPlaceToTrips\(/.test(eventActions), "Add to itinerary does not write through the shared trip model");
+ok(/addStopToStoredTrips\(/.test(eventActions) && /addPlaceToTrips\(/.test(readFileSync(join(ROOT, "lib/itineraryAdd.js"), "utf8")), "Add to itinerary does not write through the shared trip model");
 for (const title of ["Eat nearby", "Keep the night going", "Stay nearby"]) {
   ok(plan.includes(`title: "${title}"`), `event plan lost the ${title} rail`);
 }
