@@ -10,7 +10,7 @@
 # registry-meta-sha256: a3df4dac554232de3e0786b6c81554c3eb1a072a25592a97d6f92e6d70a841c2
 path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
-scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	7682d21647b41334852da7957f3960493dfd6da53d226b4fb19ecb6a9db70ce8
+scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	76	0	0	3fcac29c4dde5b30f400481e996cf01c06b1303258a0ddf705b4e1b918c82f33
 scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	5e4e758b63777c1c64b4651e06c06741f0169f1352d3af3ba919801a778b194e
 scripts/check-anchor-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	74550830f3d6a6c95ab886c34a35c2deb66b4afde9839a700f9f2628d625f412
 scripts/check-anchors.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	7b4479aa9372d490ae375886aba87e7470b01260d5ed426d9598ccab52b7039f
@@ -150,7 +150,7 @@ scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1
 scripts/check-events-running-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	a413bf9d41e16736096b19aab304d334b80f22badcbff61777df199da35efad7
 scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	ebf7862dbf5898058d0c60b162294d8935be4d7ecf4d17e99029c379ce377286
 scripts/check-evergreen-landing-zero-spend.mjs	1	RENDER	blocks-ci-and-deploy	1	claude.exe (Wayfind lane)	61	0	0	3a70e992e93fdfd28e6d4d96d534633f3f69d13450a3237214f538cf9b586de8
-scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	88	0	0	a6c78cc766105ece48d3e6f89f947d25eae5a7496076b29eb766a07ec4ba52e5
+scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	103	0	0	0a77fa0fe2b69d71d3d37dc18fb0f79d6109a40c8d11a931609668642981f464
 scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1	3f2a8f206a514832c5b1fd1ce498e29d21a27b75cf1b5848d03b2502c26de7b2
 scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	61bbeeefa29ad5941a3367db694c301803b5df17fbcebfaf76adba85b50d7d74
 scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	16ab10b0900dd3df4d8820402773fd40aacd8d01c8ad1abd92f11b8bfbb7e684
@@ -399,7 +399,7 @@ scripts/check-sitemap.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2cb6f24bc265a74
 scripts/check-sitetime.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	5121e303b7ba5452271a90b036c3d926d74a5125e79e0742ba906708d28c3cf0
 scripts/check-skeleton-has-a-voice.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	2	1	cb4dc43f4697390e0f7a87683262562af1e20c456278be3ae01650b2bb9a2ad2
 scripts/check-social-extract-cannot-invent.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	ceef4f2f67f0173357c859c82fd5fe4eb18a5b9c107119a1cbd6c14cb0f25776
-scripts/check-social-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a061519a926a28c12891fb8abcf74b4b746d5ee0647a7bf911a7d4429e82c2b2
+scripts/check-social-intelligence.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	7bfffc0e5f351ec00104f971f4ada35b756c03c908b9a3717e33da14a2a96864
 scripts/check-social-provider-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	0834c27ae3626330964a39e56ca29fb655c5a9957287ae951e92a4bbced1bd1c
 scripts/check-social-qualification.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	934766bf5b6476c28a535634d851b6a2bd4d91e2b1176f2c6b956327cc947113
 scripts/check-soft-404.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	4ff2f18137ee39e902f6829384ca91eb8000b8af655f952d72e1a0d665a13536
@@ -447,7 +447,7 @@ scripts/check-why-picked-empty.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	1e8841
 scripts/check-wikimedia-backoff-ledger-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	23d0486897463aa6348dd635c1fa48f4a7d59d17e3d6e8d58c90e574e6e68a5c
 scripts/check-wikipedia-identity-verification.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	72242a58f8c1a0a285f4918326ad1a801681dd95b352b20b89ddab75dddf25b6
 scripts/check-writes-fail-loudly.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	b7157f8325aa22f13ab4b9044787915f9b420bba3e63c62e6ee2cde211a4a095
-scripts/test-account-delete.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	e14bd4794933ca6260c05f8d525ba5f7861947377fea6b4553a143fce851d546
+scripts/test-account-delete.mjs	0	CALL	blocks-ci-and-deploy	1	-	100	0	0	9f1cbdfdc45c259baae7071604be45b622e255eb1c94c99e02ec55cd5176581a
 scripts/test-activation.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	411634c80791a2ec0007d7957f1547e95efbaad35134c165695e81179542a6b0
 scripts/test-adaptive-widen.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	93eaec882e8c59f405304cdbea58b34d97e73d1ff97735522415ea6284974d09
 scripts/test-address-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	90	0	0	34d4a50846885fd63d1c38abf23c63ca5ddac046e6eaf0553f65db1e0f63b282
@@ -459,8 +459,9 @@ scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
 scripts/test-app-rating.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	5b4dc84cbd73a12c5c66af3e8f9048c363058a2ab5b4305956bd33ec217931eb
 scripts/test-apple-explorer-map.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	d0fe6060b3f701b91332fa524c72f75043c9864c0912a8406dc4cd9860e64e79
-scripts/test-apple-map-recovery-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	4a8571297e8a55f0f2d3172f30f01dafa30e07300f6252bd006c25e98726232a
+scripts/test-apple-map-recovery-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	574319297f2c469099d8e2e74464b0164a11bbce0d40023dd5faf8d88790041e
 scripts/test-apple-map-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	134	0	0	75fae08edc9da757bf5cc8a4f8c057dd31d50bfcfad9b4190d1ddd27b58b9dc9
+scripts/test-apple-parking.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	0	0	f4ad36371c821235b0cff1a998331cd050ccb4c6c98c651e01ac507384b1ada3
 scripts/test-area-twins.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	a28fec657ae20e8cf44ffe04b2bdac9c9a520eea709183687b878fc2bee0eacc
 scripts/test-atlas-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	1	5	b75cad4e9770aeae6a39a471ebe29d46c803a0eed925fe59e927ea0b61dcd94d
 scripts/test-atlas-card-hooks.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	71d1560b678291583ab1a05b4e7864cd781edffa4a9f65581df0106b4f7a4545
@@ -582,11 +583,12 @@ scripts/test-deals.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	e2b6b8650ae5690ce4
 scripts/test-destinations.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	2bb096d5825913daa1d0ac015fd48ee045571985348fded71468f787e2fc4e03
 scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	64de47dedffb4b9f489e92eefd40a6d327ffb41257b14fec6a7c9afecb62ee35
 scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	7aa6bf67e41dc3d536e43e6d871d729593c6e964daec5d1969086b82fd135bb1
-scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	d2550d22996823f8b20a5864876a0fa97616f3f37ffdeb53a6bb4b59cfec93f4
+scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	a0977e4d7aedf5b6e065c9e99623b655c571d0af13ccde73d8c3573e37f3e4af
 scripts/test-detail-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	e21f04368be475b7c99c4532e2f8bd12dc6980f564a1c45375ed988920637d66
 scripts/test-detail-open-once.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c3dbbe48126179cfdfa036db7d3066d8de302810c2e1ddaf291d4c0d8ff146df
 scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	4a2abf06e95005ba87262ee9d9e7d4fa3ba19fd3d78f5b949c4a5c351845ca19
 scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	3878d5702d144f1a4cc8dd882b2dbc7de557218336567b762f6dc622a7ea750e
+scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	55	0	0	e76e3cba03a18fb0e5c3159bf020393eb0f632de0dfe04328beb00011a2f55cc
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	6618fc1569a80c34d8bd1ab8fee5a619dbafa60d2e26e475011a28f8db7f3b4c
 scripts/test-doc-ownership-shallow.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	a7fc950b33e73074eaf31d622c2dfe3e06f022191fde062f489e4de4160f576c
@@ -604,14 +606,14 @@ scripts/test-editorial-rollout.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	6229b4
 scripts/test-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	571aa9be7594ce94c3da678d1729483ea211c1f48d5b93140ff7e94dea14968f
 scripts/test-empty-rail-visibility.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	7b4252de66af4f819f8aa19ce21a3b28261c6b1273513b7e62850cfe3c67d9f8
 scripts/test-enterprise-search-blocking.mjs	0	RENDER	blocks-ci-and-deploy	1	-	37	0	0	2da96e6e60ca6539a3d8347ce6933022c75e4906eff96f15e4c19a484ee112f5
-scripts/test-event-apple-maps.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	11d88b369e00b4e91cd1e8f8176205c3cf7256a421451b2b8a6a638f040cfe91
+scripts/test-event-apple-maps.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	05cc9e0ca62f41289a9412f3911ad56e54a08438f3ecf70fe2fe3f5e743b858f
 scripts/test-event-category-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	ff1c72c1fd4c33c33d27f5d61c9e3b5bda68bde4c308866c704d96129bbce03a
 scripts/test-event-driving-route.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0	bc84c6949752d1c61dc6290009a5daf12783c1bd8e8bfebf5c87f2618be88558
 scripts/test-event-experience.mjs	0	RENDER	blocks-ci-and-deploy	1	-	64	0	0	5022d560d3532b16fc13ecf365b8b68290cc9d305f632437f888f43ac0f5b2ca
 scripts/test-event-hero-credited-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	b77b35b22d990c96065c77418ef5a9ecf4462595569eb98ff7b4ae2bb7a1962f
 scripts/test-event-hero-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	b331c0bbdb5e0259a55e8f2ed6a693d0dd4fafb5fea59aaf53b69d2a24c39289
 scripts/test-event-mobile-repair.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	f135c76c61c0bef452e306a6b37e5318bc387478fc36b5d476b3932dab1f5808
-scripts/test-event-nearby-cards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	43	0	0	0b764682124dff932bf303fa8f5b64561fc53eda09e03f997d045a104c957d8b
+scripts/test-event-nearby-cards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	4ad4928c8d0332bcdf8a64a9591dc12061995530f76ad8dc8b2fd8be5d07fa30
 scripts/test-event-popularity.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	16e7b9d101dae2239797403ac7e6b8742733da4132185356129c0076115b7885
 scripts/test-event-poster.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	a9d0ea03a5d986319eb2af394e2ce036bed223be362e3142bfbfcd6cf998dda4
 scripts/test-event-rail-images.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	e70c6c061e165dd5e7fbaa054ba43bebeccf4c53e4b961ced5755ccccd4ce1c1
@@ -640,7 +642,7 @@ scripts/test-explore-bridge-gate.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	15
 scripts/test-explore-menu.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	9ec2c6187ff357309ba4356c635c396242cc8dea39ac9328bc95c2d0eb1f58c1
 scripts/test-extra-miles.mjs	0	RENDER	blocks-ci-and-deploy	1	-	87	0	0	1754a4ca0a6172aead1096a165e4ff007e800f0e280ac7ec4be22620589f4dc7
 scripts/test-fall-additions-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	3a36a48fe08a70809e2c9117f9cb1760068f05305755b6e954409fd5caa68c51
-scripts/test-fall-cache-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	1b9d8a9165eb1fdbbf3257b6d0a3c0177ab9beb8a06ff0306fbef3547c51e9ea
+scripts/test-fall-cache-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	5594193626dfebfd43132e6c3626f53e2234df3a9fa872023be38c4a84461e64
 scripts/test-fall-card-integration.mjs	0	RENDER	blocks-ci-and-deploy	1	-	17	0	0	d3ae8fb07eae8307e3fcd449fbd87aef6fbc652ce34defcf6cdc3c0729dd58c7
 scripts/test-fall-destination-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0	ae6627e9198b035a957a7be8268735ea0cfd395b269f33351dfce034c8b31579
 scripts/test-fall-discovery-report.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	85d86782cc80ab88d387391fef8aa36a0812db41511128eb0ca06f41344fe9f1
@@ -730,6 +732,8 @@ scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
+scripts/test-itinerary-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	0822151810ea5c998ec858a20ee675ce6bde2f39f2926f3064441a59a9b9ccb1
+scripts/test-itinerary-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	c9396bafb61c9cde28c5ee7f89fe82d43bb4d18eb5b09fd415fd8e1e3d74698c
 scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5ea593b0296922d167adf48e497cf0d6f736dff321b8786477
 scripts/test-job-pulse.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b81158f224bb3bd309b31a39a9a1de2cca6bd4f42f5e44ef816fdfe7a65a438b
 scripts/test-job-watch-delivery.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	589239d187908c9313845e2772ea0cef01bdbcba7445b9e49d50530ca8819f31
@@ -764,7 +768,7 @@ scripts/test-map-area-data.mjs	0	RENDER	blocks-ci-and-deploy	1	-	120	0	0	e957ff1
 scripts/test-map-cost.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	2	b3679bd4137f11051435631f04102accc32f3f8f5a8dd91321c9f29aaed4bcd4
 scripts/test-map-explorer.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	ff5316810d8eb1e83878baaefb584ea020e1ad188abfb6e0a6e9e5d3d8318216
 scripts/test-map-family-layout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0	c681f2c2efaad60891a18471039a73a39e98ccb44e1893f7476fe922af8aff52
-scripts/test-map-pin-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	51290b0e14583f222045f1cf58d1ff18a2f7b9f02178dbbc7d094a2521f712d2
+scripts/test-map-pin-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0	4c789a37ec2a7090ed38d94041f219c08a4749b78e5b37a8c3a3489cc3f2d396
 scripts/test-map-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	32	0	0	d2f03bbf284b8e4f8cd4215d9886e4f40155e6661ca1984c76455db1b415ddef
 scripts/test-map-teardown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	e26ed8d8c761a6cfbf2fec6cf10e04b9fe88007581b27f589b166a9eb1cf585b
 scripts/test-map-worker.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	2f8097cfa17238a0cdf813749786945d4c7d086ea2768ba82f383ee0fa3f36e0
@@ -837,7 +841,7 @@ scripts/test-place-card-layout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0	3f64
 scripts/test-place-page-book-click-id.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	42	0	0	33f86756cc5c143473bcf3ea844f117e21581b383a0fb1187c69a260dc897c04
 scripts/test-place-photo-replay.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	cf698ed6c177ba9d6b4bd2a1a45797c4aba919957abb51e051c9500b4152ba30
 scripts/test-place-products.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	a0c96375ec9be4febbae0c59c6d2c77123985e51469c53f4879a4ad4dc261dea
-scripts/test-place-recommendation-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	70	0	0	98f841e630b5d08cb435becd91c784bcc81252a1eb1c2965363bbe498e736a1d
+scripts/test-place-recommendation-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71	0	0	aa62f04f9863b3272ccfba6d721052aa4c7d22cf10bb7e1aaf432ebcfcc856fe
 scripts/test-place-share-metadata.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	ba24501c243f7ded0efce2210ddf79f57c9e9c2f998438b181e80d7f686f0be6
 scripts/test-place-suggestions.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	41	1	0	118b2fd364e3f09a18419f254667082f85805150c1a8260b97a0d00afc197505
 scripts/test-plist-parse.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	60eca4881e8f46ca518cce4708a8e6c9f530af4e7b8bead1cc4d53d04066f3cf
@@ -863,6 +867,7 @@ scripts/test-provider-spend-caps.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14
 scripts/test-public-diagnostics-retired.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	0	0	0109c4cbf75bdee545f9a3953a23099640d6a7be75476849f03ad2e915d8d1bc
 scripts/test-rail-compute-budget.mjs	0	RENDER	blocks-ci-and-deploy	1	-	0	0	0	036f25f96fe74b22ecc05138242722ab54944d4addc1f2e8fdcdab6b02d2535b
 scripts/test-rail-daylight.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	bc7aaa490934b62c0d62dcf28ea107da46f53d3979cde776972d291326f9e132
+scripts/test-rail-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	39a10c1d474cc39794a9ba068b0e0ad4380c4cef716ae2886ea642fb89aa1d3c
 scripts/test-rail-failure.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	d594470349950484cd878f6b483a48f7913ca5d556b68b57a1243f2292836d3c
 scripts/test-rail-like-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	b224df52a9248bab7f929a7c552ed16420c8f641dc1ce0292af05a8b73e30adc
 scripts/test-rail-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	48272b6625bf1f70cf51f324eab862f6ab9b869064e87428fd5dcfece12ecc17
@@ -887,9 +892,12 @@ scripts/test-scorelabel.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	92e863d7488094
 scripts/test-search-experience.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	0d6d5e54edd0be869bf542e1cd49c97edfed0e09c985ea5999d753144f0e9fb2
 scripts/test-search-sku-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	19b998eb08ec428ea56f3137cd0f00dedce5308bb7df386a17c1e42e54f258e5
 scripts/test-searched-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8c6625375e2336d081a5ad4cd2659a6886cca7cbd95f0b10401e0daa4b1d1313
+scripts/test-seasonal-add-safety.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	60030cbd17e8892ff24c6fb2d55ed4b8975f56cbedc014db6260edda3cba08b7
 scripts/test-seasonal-brand.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a29f3b33c45ed640650540ea0257cf120bac42dc644f9079e2887940a7e158ec
 scripts/test-seasonal-live-area-2026-10-19.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	0625d4131958722f962dde2afe53632d2ffc6b0008d857b1c221cb2d5e5489eb
+scripts/test-seasonal-pending-rails-2026-10-19.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	baf5c56b3c5a60b072a19998574ae004e6438f60d17a3874ea7e0cd3d1e32e13
 scripts/test-seasonal-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	70045336e7739ee9777d1053a5f9f6f9f5e916bfc72562000562a397296e1af8
+scripts/test-seasonal-poster-filing-2026-10-19.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	9e805c23254a50a930b1740681cb82a89b2586b305adbdc94eaa7846d3e52f77
 scripts/test-seasonal-search.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	0ceb9a650249c5920688c7862d47413f468bcb265bac115d3fa0c00a1acf8ceb
 scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	da1918de719a42249cfe743a5deb9d75fe0110a1b38467c897b69f0aac17f348
 scripts/test-seed.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2aba20e1c5dc6ac4b71a63c544adea5d3f7dd507c2bdd453ed782da8eb8399ec
@@ -898,7 +906,7 @@ scripts/test-session-map-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	a3651
 scripts/test-share-metrics.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	94908e8066fae716fd7c9fcddb5f8e569ecb4cc5ba7655c74ad93a4f672cd7a9
 scripts/test-share-out-chooser.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0	94d5d3ae41c817d476a819339149c1a810a145d8fa232df312cd729bbbff7c60
 scripts/test-shared-google-photo-serving.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	55800b1f443cfbcd484711986e5b86356995fb7bf594ec50d1eda6b2adc9cf39
-scripts/test-shared-photo-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	874270b23e5facac3eebf2904e37b3ace8764baec33f28e6b232efe3132f05fc
+scripts/test-shared-photo-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	7b0252f3aa64901b8d3564d717c1a38d85ea59191d8ce2a78f94d4278cc93b02
 scripts/test-sheet-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	15	2	2	eb44f447073981b945f2adc5c6f4ab71603b273111b9ccad524caa327f47e26c
 scripts/test-shell-key-clear-kayak-pin.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	70	0	0	0be1454eb40e715c817efd673d898ba0fadc537005a9844c6a46a4ba6ce386b8
 scripts/test-shell-key-guide-deeplinks.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	1	2	1b25247d9bd63ea7c16b6c03bcf4b9b9e54bf9bef848cbb4485c608937ee5f95
@@ -942,6 +950,7 @@ scripts/test-trending-page.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	699dd
 scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794ca88e16f8e42aa820145034722fc51a0785fbaeeb190a14974a778d
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
 scripts/test-unified-share-flow.mjs	0	RENDER	blocks-ci-and-deploy	1	-	80	0	0	62302e3a776f8d0a4cbf70991ab10ee7525699bdb4f43269378c92d718f794cb
+scripts/test-venue-parking-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	4956ed67cf85bca16b076a50480ac9b186e6da0a9b0965dfaca34793992ecfda
 scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	77a8cd2adcfe7a64b361c83e01bcb32af49561c846d7433fcd7f00b410ec10bb
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4

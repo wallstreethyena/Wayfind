@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance from "./PlaceDistance.js";
 // app/components/ExtraMilesTail.js — "Worth the Extra Miles" (Lane E).
 //
 // The long-distance tail under the homepage Worth the Drive drop. Rendered
@@ -79,7 +80,7 @@ export default function ExtraMilesTail({ lat, lng }) {
                   onError={(e) => { try { e.currentTarget.style.display = "none"; } catch (_) {} }} />
               </div>
               <div className="wf8-xm-b">
-                <span className="wf8-xm-k">{c.drive} · {c.distMi} mi</span>
+                <PlaceDistance place={c} className="wf8-xm-k" />
                 <span className="wf8-xm-n">{c.title}</span>
                 <span className="wf8-xm-t">{c.hook}</span>
                 <span className="wf8-xm-go">See the park →</span>

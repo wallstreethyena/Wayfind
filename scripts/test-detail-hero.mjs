@@ -4,6 +4,7 @@
 // of a missing src painted the branded pin. A photo-led hero exists ONLY
 // when hasRealPlacePhoto(detail) is true.
 import { readFileSync } from "fs";
+import ts from "typescript";
 import { hasRealPlacePhoto, mergeHealedPlacePhotos, detailHeroLayout } from "../lib/detailHero.js";
 
 let failures = 0;
@@ -148,6 +149,42 @@ ok(/isSharedPlaceArrival:\s*!!initialPlaceId/.test(home),
   "the shared-place route marks its initial detail presentation");
 ok(/isSharedPlaceArrival\s*\?\s*\{\s*\.\.\.sheetBg,\s*background:\s*["']#050608["']\s*\}\s*:\s*sheetBg/.test(detailSrc),
   "shared place arrivals hide unrelated homepage posters behind an opaque neutral backdrop");
+
+// Execute the actual hero JSX, including each layout branch, in the build guard.
+// This catches removal of the contain opt-in even if FallbackImg itself is correct.
+const ast = ts.createSourceFile('Detail.jsx', detailSrc, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+let heroNode;
+function findHero(node) {
+  if (ts.isJsxElement(node) && node.openingElement.attributes.properties.some(p => p.name?.text === 'data-detail-hero')) heroNode = node;
+  ts.forEachChild(node, findHero);
+}
+findHero(ast);
+ok(!!heroNode, 'runtime hero fixture locates the shipped JSX');
+const heroJs = ts.transpileModule('const render = () => (' + heroNode.getText(ast) + ');', { compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2020 } }).outputText;
+const createElement = (type, props, ...children) => ({ type, props: props || {}, children });
+const walk = node => !node || typeof node !== 'object' ? [] : Array.isArray(node) ? node.flatMap(walk) : [node, ...node.children.flatMap(walk)];
+for (const [label, expandedHero, showHero, liveId, photos] of [
+  ['existing gallery', true, true, 'ChIJfixture', ['portrait.jpg', 'wide.jpg']],
+  ['late photo', false, true, 'ChIJfixture', ['portrait.jpg']],
+  ['late owned photo', false, true, null, ['owned.jpg']],
+  ['pending photo', false, false, 'ChIJfixture', []],
+  ['no photo lookup', false, false, null, []],
+]) {
+  const ctx = { expandedHero, showHero, liveId, galleryPhotos: photos, heroSrc: photos[0], galleryIdx: 0,
+    detail: { name: 'Fixture place' }, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
+    onGalleryScroll() {}, scrollGallery() {}, galleryBtn: () => ({}), setLightbox() {},
+    primaryCategory: () => 'Food', isLivePlaceId: id => !!id };
+  const render = new Function('React', ...Object.keys(ctx), heroJs + ';return render;')({ createElement, Fragment: 'fragment' }, ...Object.values(ctx));
+  const nodes = walk(render());
+  const images = nodes.filter(n => n.type === 'fixture-image');
+  ok(images.length === photos.length, label + ': every available gallery photo renders');
+  ok(images.every(n => n.props.fit === 'contain'), label + ': every detail image requests full-photo fit');
+  const preview = nodes.find(n => 'data-detail-photo-preview' in n.props);
+  ok(!!preview === !expandedHero, label + ': preview space reserved before async success');
+  if (preview) ok(preview.props.style.width === 112 && preview.props.style.height === 112, label + ': stable preview bounds');
+  const title = nodes.find(n => n.children.includes('Fixture place'));
+  ok(!!title && !nodes.some(n => n.props.style?.position === 'absolute' && walk(n).includes(title)), label + ': title is not painted over photo');
+}
 
 if (failures) process.exit(1);
 console.log("test-detail-hero: OK — real photos[] / Google photoRef → hero; missing, empty, branded-fallback, and stock → compact; Detail no longer paints a 250px branded pin; heal-on-open asks for photos and fails closed");

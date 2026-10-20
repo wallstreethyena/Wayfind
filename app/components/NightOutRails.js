@@ -116,7 +116,6 @@ function NightOutRailSection({
           facts={[
             soloItem.reviews ? compact(soloItem.reviews) + " reviews" : null,
             priceLabel(soloItem.priceLevel != null ? soloItem.priceLevel : soloItem.priceNum) || null,
-            Number.isFinite(soloItem.distMi) ? soloItem.distMi + " mi" : null,
           ].filter(Boolean)}
           take={toHookLine(soloItem.editorial, soloItem.name) || null}
           cta={null}
@@ -153,7 +152,6 @@ function NightOutRailSection({
           const facts = [
             place.reviews ? compact(place.reviews) + " reviews" : null,
             priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null,
-            Number.isFinite(place.distMi) ? place.distMi + " mi" : null,
           ].filter(Boolean);
           const href = directionsUrl(place);
           return <RailCard key={place.id} className="wf-exploding-primary"

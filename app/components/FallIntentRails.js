@@ -127,7 +127,7 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
           const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
           const facts = isEvent
             ? [card.city || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
-            : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean);
+            : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
           const placeChips = !isEvent ? [
             card.hospitalityEvidence && card.seasonalWhen ? { key: "season", icon: "🗓", label: hospitalityDateChipLabel(card.seasonalWhen), title: card.seasonalWhen } : null,
             card.shotLocation ? { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation } : null,

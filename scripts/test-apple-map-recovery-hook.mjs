@@ -20,6 +20,10 @@ const answer = (request, places) => {
 };
 const tick = () => new Promise((r) => setImmediate(r));
 let count = 0;
+const diagnostics = [];
+const originalInfo = console.info;
+console.info = (...args) => { diagnostics.push(args); };
+process.on('exit', () => { console.info = originalInfo; });
 
 function hookHost() {
   const slots = [], effects = [];
@@ -100,6 +104,26 @@ await check('accepted result rerenders without cancelling the two remaining sear
     assert.deepEqual(completed.places.map((p) => p.id).sort(), ['one', 'three', 'two']);
     assert.equal(completed.status, 'ready'); assert.equal(completed.stats.recovered, 3);
     assert.equal(sdk.maximum(), 2);
+  } finally { h.host.unmount(); }
+});
+
+await check('photo-only updates preserve accepted pins and leave the remaining batch running', async () => {
+  const sdk = fakeSDK(); const mapped = { ...place('mapped'), mapCoord: { ok: true } };
+  const h = mount(sdk, { existing: [mapped] });
+  try {
+    h.render(); await tick(); answer(sdk.requests[0], h.props.places); await tick();
+    assert.equal(h.render().places.length, 1); assert.equal(sdk.requests.length, 3);
+    const updated = h.props.places.map((p) => ({ ...p, photo: `/updated-photo-${p.id}.jpg` }));
+    const progressive = h.render({ places: updated, existing: [{ ...mapped, photo: '/updated-mapped-photo.jpg' }] });
+    assert.deepEqual(progressive.places.map((p) => p.id), ['one'], 'healing a photo cannot hide the accepted Apple coordinate');
+    assert.ok(sdk.requests.slice(1).every((r) => !r.opts.signal.aborted), 'photo changes cannot abort the rest of the batch');
+    answer(sdk.requests[1], h.props.places); answer(sdk.requests[2], h.props.places); await tick();
+    const complete = h.render(); assert.equal(complete.places.length, 3); assert.equal(complete.stats.recovered, 3);
+    const metadataOnly = h.props.places.map((p) => ({ ...p, photoRef: 'new-photo-ref', photos: [{ name: 'new-photo' }],
+      editorial: 'Updated prose', _invEditorial: 'Updated card prose', editorialSummary: { text: 'Updated prose' }, score_explanation: { score: 1 } }));
+    assert.equal(h.render({ places: metadataOnly }).places.length, 3, 'photo/editorial/receipt metadata cannot invalidate semantic evidence');
+    await tick(); assert.equal(sdk.requests.length, 3, 'metadata updates spend no extra search attempts');
+    assert.equal(h.render().status, 'ready');
   } finally { h.host.unmount(); }
 });
 
@@ -201,6 +225,40 @@ await check('changed candidate evidence invalidates a previously accepted cached
   } finally { h.host.unmount(); }
 });
 
+await check('material identity, taxonomy, score and coordinate-policy changes invalidate cached pins', async () => {
+  const changes = [
+    ['name', { name: 'A different Cafe' }], ['locality', { locality: 'Tampa' }], ['address', { address: '100 Main St' }],
+    ['chain', { isChain: true }], ['status', { businessStatus: 'CLOSED_PERMANENTLY' }],
+    ['primary type', { primaryType: 'bank' }], ['type alias', { google_types: ['bank'] }],
+    ['category', { category: 'shopping' }], ['secondary category', { secondaryCategories: ['nightlife'] }],
+    ['tag', { tags: ['dinner'] }], ['score', { wfScore: 90, governed_score: 90 }],
+    ['rating', { rating: 4.9 }], ['reviews', { reviews: 300 }], ['creator evidence', { creator_video: true }],
+    ['trend', { trending: true, trend_reason: 'Verified demand' }], ['distance', { distMi: 20 }],
+    ['freshness', { mapCoord: { ok: false, until: '2026-10-01T00:00:00Z' } }],
+    ['coordinate permission', { mapCoord: { ok: true, source: 'official_venue' } }],
+  ];
+  for (const [label, changed] of changes) {
+    const sdk = fakeSDK(); const h = mount(sdk, { places: [place('material')] });
+    try {
+      h.render(); await tick(); answer(sdk.requests[0], h.props.places); await tick();
+      assert.equal(h.render().places.length, 1, `${label}: positive accepted control`);
+      assert.deepEqual(h.render({ places: h.props.places.map((p) => ({ ...p, ...changed })) }).places, [], `${label}: superseded evidence cannot keep an accepted pin`);
+      await tick(); assert.equal(sdk.requests.length, 1, `${label}: invalidation cannot reset the session attempt budget`);
+    } finally { h.host.unmount(); }
+  }
+});
+
+await check('new score evidence aborts an in-flight result with the same fingerprint used by cache validity', async () => {
+  const sdk = fakeSDK({ ignoreAbort: true }); const h = mount(sdk, { places: [place('pending-score')] });
+  try {
+    h.render(); await tick(); assert.equal(sdk.requests.length, 1);
+    h.render({ places: h.props.places.map((p) => ({ ...p, creator_video: true })) });
+    assert.equal(sdk.requests[0].opts.signal.aborted, true, 'creator score evidence must restart the effect, not just invalidate its future result');
+    answer(sdk.requests[0], h.props.places); await tick();
+    assert.deepEqual(h.render().places, []); assert.equal(sdk.requests.length, 1);
+  } finally { h.host.unmount(); }
+});
+
 await check('new mapped branch evidence aborts an in-flight single-location assumption', async () => {
   const sdk = fakeSDK({ ignoreAbort: true }); const missing = place('pending-branch');
   const h = mount(sdk, { places: [missing] });
@@ -211,6 +269,24 @@ await check('new mapped branch evidence aborts an in-flight single-location assu
     assert.equal(sdk.requests[0].opts.signal.aborted, true, 'the prior search cannot retain an outdated unique-name assumption');
     answer(sdk.requests[0], [missing]); await tick();
     assert.deepEqual(h.render().places, []); assert.equal(sdk.requests.length, 1, 'changed identity evidence cannot create a same-scope retry loop');
+  } finally { h.host.unmount(); }
+});
+
+await check('completed recovery diagnostics contain only counts and flags, including service errors', async () => {
+  const sdk = fakeSDK(); const h = mount(sdk, { places: [place('private-id')] });
+  try {
+    const start = diagnostics.length;
+    h.render(); await tick(); sdk.requests[0].reject(new Error('Private query, identifier and coordinates must not be logged')); await tick();
+    assert.equal(h.render().stats.errors, 1);
+    const emitted = diagnostics.slice(start); assert.equal(emitted.length, 1);
+    assert.equal(emitted[0][0], '[Wayfind Apple recovery]');
+    const summary = JSON.parse(emitted[0][1]); assert.equal(summary.errors, 1); assert.equal(summary.recovered, 0); assert.equal(summary.calls, 1);
+    for (const [prefix, text] of diagnostics) {
+      assert.equal(prefix, '[Wayfind Apple recovery]');
+      const counts = JSON.parse(text);
+      assert.ok(Object.values(counts).every((value) => typeof value === 'number' || typeof value === 'boolean'), 'no query, content, coordinate, identifier or raw error values');
+      assert.ok(!Object.keys(counts).some((key) => /place|query|name|coordinate|lat|lng|source|message|stack/i.test(key)));
+    }
   } finally { h.host.unmount(); }
 });
 

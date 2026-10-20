@@ -71,8 +71,8 @@ try {
   ok(html.includes("Worth comparing nearby"), "actual Detail renders alternatives section");
   ok(html.includes(local.name), "actual Detail retains Orlando positive control");
   ok(!html.includes(dc.name), "actual Detail excludes Washington despite its higher score/shorter visitor distance");
-  ok(html.includes("mi from this place"), "destination distance has explicit origin");
-  ok(html.includes("closer to you, 760.0 mi vs 762.0"), "visitor comparison reason names its different origin");
+  ok(!html.includes("mi from this place"), "place cards omit destination-origin miles when the device location is unknown");
+  ok(html.includes("closer to the search area") && !html.includes("760.0 mi"), "legacy comparison copy cannot impersonate current-device miles");
   const fallback = render(seed, [dc, local], false);
   ok(fallback.includes("One of the strongest nearby") && fallback.includes(local.name) && !fallback.includes(dc.name), "comparison fallback uses same destination gate");
   const farOnly = render(seed, [dc]);

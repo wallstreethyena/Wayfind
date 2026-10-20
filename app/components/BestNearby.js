@@ -24,6 +24,8 @@ import { SERVICE_RX } from "../../lib/placeFilter.js";
 // v7.04 — the Top 40 rail renders the SAME card every other rail renders.
 import RailCard, { RailNav, RailDots } from "./RailCard";
 import CardPhoto from "./CardPhoto.js";
+import { usePlaceDistance } from "./PlaceDistance.js";
+import { formatDistanceMiles } from "../../lib/deviceDistance.js";
 // v7.05 — the four intent rails (hidden gems / tonight / worth the drive /
 // big fun small budget) render the SAME card from the SAME engine their
 // destination pages use. See IntentRail.js for why this is the real list and
@@ -401,6 +403,16 @@ export const DEFAULT_SECTION = "best";
 // Exploding Near You is open on arrival; every path beneath it is closed until
 // the reader chooses it. The closed set persists in lib/railCollapse.js, so a
 // deliberate reader preference still wins on later visits.
+function BeachConditionsFacts({ beach }) {
+  const distanceLabel = formatDistanceMiles(usePlaceDistance(beach));
+  return <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
+    {[distanceLabel !== null ? distanceLabel + " mi" : null,
+      isFinite(beach.waterTempF) ? "water " + Math.round(beach.waterTempF) + "°" : null,
+      isFinite(beach.waveHeightFt) ? "waves " + beach.waveHeightFt + " ft" : null,
+      ...(beach.reasons || []).slice(0, 1)].filter(Boolean).join(" · ")}
+  </div>;
+}
+
 export default function BestNearby({
   center, weather, events, videoPlaces, city, creatorSlot, eventsSlot, onOpenPlace, onLog,
   isSaved, liked, disliked, onSave, onLike, onDislike, onShare, onExperience, onFindSimilar,
@@ -957,12 +969,7 @@ export default function BestNearby({
           <NavIcon name="beach" size={20} strokeWidth={1.6} color={C.blue} />
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 13.5, fontWeight: 700, color: C.text }}>{STATUS_LABEL[d.beach.status] || "Beach nearby"} · {d.beach.name}</div>
-            <div style={{ fontSize: 12, color: C.muted, marginTop: 2 }}>
-              {[isFinite(d.beach.distance_mi) ? d.beach.distance_mi.toFixed(1) + " mi" : null,
-                isFinite(d.beach.waterTempF) ? "water " + Math.round(d.beach.waterTempF) + "°" : null,
-                isFinite(d.beach.waveHeightFt) ? "waves " + d.beach.waveHeightFt + " ft" : null,
-                ...(d.beach.reasons || []).slice(0, 1)].filter(Boolean).join(" · ")}
-            </div>
+            <BeachConditionsFacts beach={d.beach} />
           </div>
         </div>
       ) : null}
@@ -1068,7 +1075,6 @@ export default function BestNearby({
                   p.reviews ? compactReviews(p.reviews) + " reviews" : null,
                   priceLabel(p.price_level != null ? p.price_level : p.priceLevel),
                   st.open === true ? "Open" : st.open === false ? "Closed" : null,
-                  isFinite(p.distance_mi) ? (p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)) + " mi" : null,
                   // The trend bump is DISCLOSED wherever it is applied — the
                   // same rule the rows below follow with <TrendReason>.
                   p.trending && p.trend_reason ? "🔥 " + p.trend_reason : null,
@@ -1228,7 +1234,6 @@ export default function BestNearby({
                             facts={[
                               p.reviews ? compactReviews(p.reviews) + " reviews" : null,
                               priceLabel(p.price_level != null ? p.price_level : p.priceLevel),
-                              isFinite(p.distance_mi) ? (p.distance_mi < 10 ? p.distance_mi.toFixed(1) : Math.round(p.distance_mi)) + " mi" : null,
                             ].filter(Boolean)}
                             chips={[
                               // v7.15: no tag bubbles; Deal only.
@@ -1272,10 +1277,9 @@ export default function BestNearby({
                             badge={<>{r.trending ? <Flame reason={r.trend_reason} /> : null}<TrendReason r={r} /></>}
                             facts={[
                               r.reviews ? compactReviews(r.reviews) + " reviews" : null,
-                              isFinite(r.distance_mi) ? (r.distance_mi < 10 ? r.distance_mi.toFixed(1) : Math.round(r.distance_mi)) + " mi" : null,
                             ].filter(Boolean)}
                             ariaLabel={"Open " + r.title}
-                            place={{ id: r.id, name: r.title, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) }}
+                            place={{ id: r.id, name: r.title, lat: r.lat, lng: r.lng, rating: r.rating, reviews: r.reviews, photo: cardPhoto(r, 640) }}
                             saved={!!(isSaved && isSaved({ id: r.id }))}
                             liked={!!(liked && liked[r.id])}
                             disliked={!!(disliked && disliked[r.id])}

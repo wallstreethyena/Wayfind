@@ -55,24 +55,26 @@ export function coveragePulseRow(tally) {
   const ids = unmapped.map((c) => c.eventId).join(", ");
   const note = unmapped.length
     ? `leak: ${unmapped.length} sellable event(s) with no affiliate mapping — ${ids}`
-    : `clean: ${tally.mapped} mapped, ${tally.decidedSeparatelyTicketed} decided-separately-ticketed, ${tally.noPartner} no-partner`;
+    : `clean: ${tally.mapped} mapped, ${tally.decidedNoExactProduct} reviewed-no-exact-product, ${tally.noPartner} no-partner`;
   return { attempted: 1, succeeded: unmapped.length ? 0 : 1, failed: unmapped.length, note: note.slice(0, 200) };
 }
 
 /** Pure: tally every row by coverage state. */
 export function tallyCoverage(rows, opts = {}) {
-  const tally = { mapped: 0, unmapped: [], decidedSeparatelyTicketed: 0, noPartner: 0, noUrl: 0, decidedSeparatelyTicketedIds: [] };
+  const tally = { mapped: 0, unmapped: [], decidedNoExactProduct: 0, decidedNoExactProductIds: [], noPartner: 0, noUrl: 0 };
   for (const row of Array.isArray(rows) ? rows : []) {
     // opts.today is for fixtures only; the cron passes nothing, so reviewed
     // decisions expire against the real venue-local date and page as designed.
     const c = eventAffiliateCoverage(row, opts);
     if (c.status === COVERAGE.MAPPED) tally.mapped++;
     else if (c.status === COVERAGE.UNMAPPED) tally.unmapped.push(c);
-    else if (c.status === COVERAGE.DECIDED_SEPARATELY_TICKETED) { tally.decidedSeparatelyTicketed++; tally.decidedSeparatelyTicketedIds.push(c.eventId); }
+    else if (c.status === COVERAGE.DECIDED_NO_EXACT_PRODUCT) { tally.decidedNoExactProduct++; tally.decidedNoExactProductIds.push(c.eventId); }
     else if (c.status === COVERAGE.NO_PARTNER) tally.noPartner++;
     else tally.noUrl++;
   }
-  return tally;
+  // Compatibility for existing consumers; these aliases mean reviewed,
+  // expiring no-exact-product decisions, never every separately sold event.
+  return { ...tally, decidedSeparatelyTicketed: tally.decidedNoExactProduct, decidedSeparatelyTicketedIds: tally.decidedNoExactProductIds };
 }
 
 export async function GET(req) {
@@ -107,7 +109,8 @@ export async function GET(req) {
     scanned: rows.length,
     mapped: tally.mapped,
     unmapped: tally.unmapped.map((c) => ({ event_id: c.eventId, merchant: c.merchant.key, url: c.url, admission_provider: c.merchant.admission.provider, admission_offer_id: c.merchant.admission.offerId })),
-    decided_separately_ticketed: tally.decidedSeparatelyTicketedIds,
+    decided_no_exact_product: tally.decidedNoExactProductIds,
+    decided_separately_ticketed: tally.decidedNoExactProductIds, // legacy response alias
     no_partner: tally.noPartner,
     no_url: tally.noUrl,
     pulse: { ...pulseRow, recorded: pulsed },

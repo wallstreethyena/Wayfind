@@ -98,8 +98,10 @@ const withOuting = [
 const outingRailHtml = renderToStaticMarkup(createElement(EventNearbyCards, { places: withOuting }));
 assert.match(outingRailHtml, /Make a night of it/, "the rail title comes from the first row's outing.railTitle, not the static legacy copy");
 assert.match(outingRailHtml, /Picks for before and after, ranked by Wayfind Score and walking distance\./, "the rail description comes from the first row's outing.railNote");
-assert.match(outingRailHtml, /Dinner before the show · 1\.2 mi from the venue/, "each card's own ranking note comes from row.rankingNote (its slot), not a generic sentence");
-assert.match(outingRailHtml, /Nightcap · 2\.2 mi from the venue/, "a second row keeps its own slot's ranking note");
+assert.match(outingRailHtml, /Dinner before the show/, "each card's own ranking note comes from row.rankingNote (its slot), not a generic sentence");
+assert.match(outingRailHtml, /Nightcap/, "a second row keeps its own slot's ranking note");
+
+assert.doesNotMatch(outingRailHtml, /[0-9.]+ mi from the venue/, "place cards never display venue-origin miles as the user distance");
 
 // One ordered admission result feeds both map and rail. Reject every row that
 // would create a false pin, an unscored card, a dead card, or a fake distance.

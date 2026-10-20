@@ -45,7 +45,8 @@
 import { readFileSync, readdirSync, statSync, existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVENT_TICKET_DEALS, isServableDeal, eventTicketCta, eventTicketDeal, NO_EXACT_AFFILIATE_PRODUCT } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, SEPARATELY_TICKETED, isServableDeal, eventTicketCta, eventTicketDeal, NO_EXACT_AFFILIATE_PRODUCT, staleNoProductDecisions } from "../lib/eventTicketDeals.js";
+import { curatedToFeedEvent, eventDetailTicketAction } from "../lib/curatedEvents.js";
 import { UT_EVENT_DEAL_IDS, CJ_PID } from "../lib/deals.js";
 import { PROVIDERS } from "../lib/commerceProviders.js";
 import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
@@ -211,13 +212,14 @@ const fx = [
   { event_id: "fantasy-fest-2026", official_event_url: "https://fantasyfest.com/" },
   { event_id: "no-url-2026" },
   { event_id: "zoo-boo-zoo-miami-2026", official_event_url: "https://www.zoomiami.org/zoo-boo" },
+  { event_id: "zoo-lights-miami-2026", official_ticket_url: "https://www.zoomiami.org/zoo-lights", official_event_url: "https://www.zoomiami.org/zoo-lights", event_name: "Zoo Lights Miami", start_date: "2026-11-27", end_date: "2026-12-30", is_free: false },
 ];
 // The fixture runs at a PINNED date inside every reviewed decision's window.
 // It used to run at the real date, so the day a reviewBy passed (2026-09-29)
 // this build guard went red on unchanged code and blocked every Vercel deploy.
 // Expiry is still tested below, explicitly, at dates past each window; the
 // nightly cron keeps using the real date so an expired decision still pages.
-const FIXTURE_TODAY = "2026-09-25";
+const FIXTURE_TODAY = "2026-10-18";
 const statuses = fx.map((e) => eventAffiliateCoverage(e, { today: FIXTURE_TODAY }).status);
 ok(statuses.slice(0, 6).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
 ok(statuses[6] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Asian Lantern is a current reviewed no-exact-product decision, not a silent leak");
@@ -225,6 +227,23 @@ ok(statuses[7] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "ZooTampa Christmas is a c
 ok(statuses[8] === COVERAGE.UNMAPPED, "a new event at an affiliate merchant with no mapping or current decision is a revenue leak");
 ok(statuses[9] === COVERAGE.NO_PARTNER && statuses[10] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
 ok(statuses[11] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
+const zooLights = { ...fx[12], slug: "zoo-lights-miami-2026" };
+ok(SEPARATELY_TICKETED.includes(zooLights.event_id) && eventTicketDeal(zooLights.event_id) === null && eventTicketCta(zooLights.event_id) === null,
+  "Zoo Lights is separately ticketed and never borrows Zoo Miami daytime admission");
+ok(statuses[12] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Zoo Lights' unavailable exact partner product is a current reviewed decision");
+const zooLightsFeed = curatedToFeedEvent(zooLights);
+const zooLightsTicket = eventDetailTicketAction(zooLights);
+ok(zooLightsFeed.url === zooLights.official_ticket_url && !zooLightsFeed.ticketVia && !zooLightsFeed.ticketProduct,
+  "Zoo Lights feed preserves the organizer ticket URL without a false affiliate claim");
+ok(zooLightsTicket?.kind === "organizer" && zooLightsTicket.href === zooLights.official_ticket_url,
+  "Zoo Lights detail keeps the official ticket CTA while its affiliate product is unavailable");
+ok(eventAffiliateCoverage(zooLights, { today: "2026-11-01" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
+  "Zoo Lights decision remains current on its review-by boundary");
+const zooLightsExpired = tallyCoverage([zooLights], { today: "2026-11-02" });
+ok(zooLightsExpired.unmapped.length === 1 && zooLightsExpired.decidedNoExactProduct === 0 && coveragePulseRow(zooLightsExpired).succeeded === 0,
+  "the day after review-by, Zoo Lights returns to the leak alert and fails its coverage pulse");
+ok(staleNoProductDecisions("2026-11-02").some((r) => r.eventId === zooLights.event_id),
+  "the existing no-product review guard also detects an overdue Zoo Lights decision");
 ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }).status === COVERAGE.MAPPED, "the feed's wfc: prefix resolves like the bare id");
 
 for (const [eventId, row] of Object.entries(NO_EXACT_AFFILIATE_PRODUCT)) {
@@ -254,6 +273,15 @@ const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-fl
 const leakTally = tallyCoverage(fx, { today: FIXTURE_TODAY });
 const cleanRow = coveragePulseRow(cleanTally);
 const leakRow = coveragePulseRow(leakTally);
+ok(cleanTally.decidedNoExactProduct === 3 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
+  "tally counts all three reviewed no-exact-product decisions, including Zoo Lights");
+ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 7,
+  "reviewed decisions do not inflate the missing-URL bucket; mapped and no-partner controls stay distinct");
+ok(cleanTally.mapped + cleanTally.decidedNoExactProduct + cleanTally.noPartner + cleanTally.noUrl + cleanTally.unmapped.length === fx.length - 1,
+  "coverage buckets account for every scanned row exactly once");
+ok(cleanTally.decidedSeparatelyTicketed === cleanTally.decidedNoExactProduct && cleanTally.decidedSeparatelyTicketedIds === cleanTally.decidedNoExactProductIds,
+  "legacy tally aliases preserve compatibility with the corrected reviewed decision count");
+ok(/3 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
 ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /new-central-florida-zoo-special-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
 ok(leakRow.note.length <= 200, "the note fits the pulse column");
