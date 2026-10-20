@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
@@ -182,6 +183,7 @@ const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loa
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const ItineraryScreen = nextDynamic(loadItinerary, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SharedScreen = nextDynamic(loadShared, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
+const SharedItineraryScreen = nextDynamic(() => import("./components/screens/SharedItinerary"), { ssr: false, loading: () => null });
 const EventsScreen = nextDynamic(loadEventsScreen, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const MapScreen = nextDynamic(loadMap, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const ExperienceScreen = nextDynamic(loadExperience, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -209,6 +211,7 @@ const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlace
 // crawled as our own content.
 const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
 import * as Trips from "../lib/trips";
+import { EMPTY_ITINERARY_FLAGS, readItineraryFlags } from "../lib/itineraryFlags";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
 // standalone intent pages can render the bookable rail too — it was a local
@@ -1371,7 +1374,7 @@ function placeShareUrl(p, loc, hook) {
   add("loc", loc ? String(loc).split(",")[0] : "");
   if (p.rating != null) add("r", p.rating);
   if (p.reviews != null) add("rev", p.reviews);
-  if (p.distMi != null) add("mi", p.distMi.toFixed(1));
+  // A shared preview cannot know its reader's device location.
   if (hook) add("hk", hook);
   add("cat", primaryCategory(p) || "");
   const sl = scoreLabel(p.wfScore);
@@ -1905,7 +1908,7 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover" }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
@@ -1977,12 +1980,12 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
       }
     };
   }, [activeSrc, state]);
-  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} /></div>;
+  if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /></div>;
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
   return (
     <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}>
       {state === "skeleton" && <div className="wf-skeleton" style={{ position: "absolute", inset: 0 }} aria-hidden="true" />}
-      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
+      <img key={activeSrc} ref={imgRef} decoding="async" src={activeSrc} alt={alt || ""} loading="lazy" draggable={false} onLoad={() => markOutcome(activeSrc, "loaded")} onError={() => markOutcome(activeSrc, "error")} onClick={onClick} style={{ width: "100%", height: "100%", objectFit: fit, display: "block", opacity: state === "image" ? 1 : 0, transition: "opacity 180ms ease" }} />
     </div>
   );
 }
@@ -2221,12 +2224,12 @@ function SortControl({ sortBy, onSort, mi, onMi, where, dealsAvailable, dealsOnl
 // behind it; the auth dialog auto-opens. Reuses the one auth source of truth
 // (setAuthOpen) — no second auth system.
 const AUTH_SCREENS = new Set(["saved", "itinerary"]);
-function AuthWall({ label, onSignIn }) {
+function AuthWall({ label, onSignIn, detail }) {
   return (
     <div style={{ textAlign: "center", padding: "56px 24px", color: C.muted }}>
       <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}><NavIcon name="saved" color={C.accent} size={40} /></div>
       <strong style={{ display: "block", color: C.text, fontSize: 17 }}>Sign in to view {label}</strong>
-      <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>Sign in to save places, create lists, and plan trips. Your saves sync across all your devices.</p>
+      <p style={{ fontSize: 13.5, color: C.muted, maxWidth: 320, margin: "8px auto 18px", lineHeight: 1.55 }}>{detail || "Sign in to save places, create lists, and plan trips. Your saves sync across all your devices."}</p>
       <button onClick={onSignIn} style={{ minHeight: 44, padding: "11px 22px", borderRadius: 12, background: C.accent, border: "none", color: "#0D1117", fontSize: 14.5, fontWeight: 800, cursor: "pointer" }}>Sign in</button>
     </div>
   );
@@ -2859,7 +2862,7 @@ function generateHooks(places, locName) {
     .sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
   if (farBest[0]) hooks.push({
     id: "drive", accent: "#38BDF8", emoji: "🚗", label: "Worth the drive?", highlightWord: "drive",
-    hook: `Would you drive ${Math.round(farBest[0].distMi)} miles for this?`,
+    hook: "Worth the trip?",
     detail: `${farBest[0].name} · ★${farBest[0].rating}`,
     cta: "Decide →", action: { type: "detail", place: farBest[0] },
   });
@@ -3428,7 +3431,7 @@ function betterAlternatives(current, pool, n) {
     let edge = 0;
     if (p.openNow === true && curOpen === false) { reasons.push("open now"); edge += 4; }
     if (p.rating != null && p.rating >= curR + 0.2 && (p.reviews || 0) >= 25) { reasons.push("rated higher at " + p.rating + "★"); edge += 3; }
-    if (curD != null && p.distMi != null && p.distMi <= curD - 2) { reasons.push("closer, " + p.distMi.toFixed(1) + " mi vs " + curD.toFixed(1)); edge += 3; }
+    if (curD != null && p.distMi != null && p.distMi <= curD - 2) { reasons.push("closer to the search area"); edge += 3; }
     if (curP != null && p.priceNum != null && p.priceNum < curP && (p.rating || 0) >= curR - 0.2) { reasons.push("more affordable"); edge += 1; }
     if ((p.reviews || 0) >= curRev * 2 && (p.reviews || 0) >= 300 && (p.rating || 0) >= curR - 0.1) { reasons.push("more reviewed, " + p.reviews.toLocaleString()); edge += 1; }
     if (reasons.length) {
@@ -3719,7 +3722,6 @@ function pickReason(p, ctx) {
   else if (r != null && r >= 4.5) sig.push(vary([r + "★ rated", "locals rate it " + r + "★", r + "★ and consistent"]));
   else if (r != null) sig.push(r + "★");
   if (p.openNow === true) sig.push("open now");
-  if (p.distMi != null && p.distMi <= 6) sig.push(p.distMi.toFixed(1) + " mi away");
   if (kind === "entertainment" || (p.labels || []).includes("Good for groups")) sig.push("group-friendly");
   const sigStr = sig.length ? sig.slice(0, 3).join(", ") : "close by and worth a look";
   const _cap = good.charAt(0).toUpperCase() + good.slice(1);
@@ -3781,6 +3783,7 @@ function themedHook(key, p) {
 }
 
 function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike, hideShare, extra }) {
+  const userDistance = usePlaceDistance(place);
   if (!h) return null;
   const acc = h.accent || C.accent;
   const photo = place && ((place.photos && place.photos[0]) || place.photo);
@@ -3804,9 +3807,9 @@ function HookSolo({ h, place, liked, onOpen, onLike, onShare, collage, hideLike,
             <span style={{ fontSize: 11 }}>{h.emoji}</span>
             <span style={{ fontSize: 9, fontWeight: 800, color: acc, textTransform: "uppercase", letterSpacing: "0.8px" }}>{h.label}</span>
           </div>
-          {place && place.distMi != null && (
+          {userDistance != null && (
             <div style={{ display: "inline-flex", alignItems: "center", background: "rgba(0,0,0,.55)", border: "1px solid rgba(255,255,255,.2)", borderRadius: 999, padding: "4px 9px", backdropFilter: "blur(4px)" }}>
-              <span style={{ fontSize: 9.5, fontWeight: 800, color: "rgba(255,255,255,.85)" }}>{place.distMi.toFixed(1)} mi</span>
+              <span style={{ fontSize: 9.5, fontWeight: 800, color: "rgba(255,255,255,.85)" }}>{userDistance.toFixed(1)} mi</span>
             </div>
           )}
         </div>
@@ -4235,9 +4238,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [videos, setVideos] = useState(null);
   const [videosLoading, setVideosLoading] = useState(false);
   const [sharedList, setSharedList] = useState(null);
+  const [sharedItinerary, setSharedItinerary] = useState(null);
   // Trip planner: destinations keyed by city+state. Own store, persisted
   // separately from lists. See lib/trips.js for the model.
   const [trips, setTrips] = useState({});
+  const [itineraryFlags, setItineraryFlags] = useState(EMPTY_ITINERARY_FLAGS);
   const [activeTrip, setActiveTrip] = useState(null);   // open trip key, or null for the index
   const [tripNoteEdit, setTripNoteEdit] = useState(null); // place id whose note is being edited
   const [tripMoveFor, setTripMoveFor] = useState(null);   // place id being moved to another trip
@@ -4400,7 +4405,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [surpriseLoading, setSurpriseLoading] = useState(false);
   const diceRouteRef = useRef(false);
   const [toast, setToast] = useState("");
-  function showToast(msg) { setToast(msg); setTimeout(() => setToast(""), 1800); }
+  const [toastAction, setToastAction] = useState(null);
+  const toastTimer = useRef(null);
+  function showToast(msg, action) {
+    setToast(msg);
+    setToastAction(action && action.label && typeof action.run === "function" ? action : null);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => { setToast(""); setToastAction(null); }, action ? 4500 : 1800);
+  }
   const videoCache = useRef({});
   const [insight, setInsight] = useState(null);
   const [insightLoading, setInsightLoading] = useState(false);
@@ -5532,6 +5544,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           setDislikedItems({});
           setSharedItems({});
           setLists({ favorites: { id: "favorites", name: "Favorites", emoji: "\u2764\ufe0f", places: [] } });
+          setTrips({});
         } catch (e) {}
         setAccountOpen(false);
         showToast("Your account was deleted");
@@ -7161,9 +7174,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
       } catch (e) {}
     }
-    if (listStr) {
+    if (listStr && listStr.indexOf("wftrip1.") === 0) {
+      import("../lib/itineraryShare.js").then(({ decodeItineraryShare }) => {
+        const trip = decodeItineraryShare(listStr);
+        if (trip && trip.items && trip.items.length) {
+          setSharedItinerary(trip);
+          setSharedList(null);
+          setScreen("shared");
+          logEvent("share_open", null, { kind: "itinerary", n: trip.items.length });
+          markShareOpen();
+        }
+      }).catch(() => {});
+    } else if (listStr) {
       const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
+      if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
     } else if (placeId) {
       logEvent("share_open", null, { kind: "place", place_id: placeId });
       markShareOpen();
@@ -7228,6 +7252,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [lists]);
 
   // Trip planner store: load once on mount, then persist on every change.
+  // Cloud sync is a second writer behind itinerary_v2 + itinerary_sync. With
+  // the flags off this stays the browser store it has always been.
   useEffect(() => {
     try { const raw = localStorage.getItem("wayfind_trips"); if (raw) setTrips(JSON.parse(raw) || {}); } catch {}
   }, []);
@@ -7236,6 +7262,69 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (!tripsHydrated.current) { tripsHydrated.current = true; return; }
     try { setLocal("wayfind_trips", JSON.stringify(trips)); } catch {}
   }, [trips]);
+  useEffect(() => {
+    let stop = false;
+    const read = () => { if (!stop) { try { setItineraryFlags(readItineraryFlags(window.posthog)); } catch (e) {} } };
+    read();
+    let unsub = null;
+    try { if (window.posthog && typeof window.posthog.onFeatureFlags === "function") unsub = window.posthog.onFeatureFlags(read); } catch (e) {}
+    const timer = setInterval(read, 1000);
+    const done = setTimeout(() => clearInterval(timer), 20000);
+    return () => { stop = true; clearInterval(timer); clearTimeout(done); if (typeof unsub === "function") { try { unsub(); } catch (e) {} } };
+  }, []);
+  const itinerarySyncReady = useRef(false);
+  const itinerarySyncKeys = useRef([]);
+  const itinerarySkipPush = useRef(false);
+  useEffect(() => { itinerarySyncReady.current = false; itinerarySyncKeys.current = []; }, [user && user.id]);
+  useEffect(() => {
+    if (!itineraryFlags.sync || !user || !supabase) return undefined;
+    let cancelled = false;
+    (async () => {
+      let local = {};
+      const { tripsForOwner } = await import("../lib/itinerarySync.js");
+      if (cancelled) return;
+      try { local = tripsForOwner(localStorage, user.id); } catch (e) { return; }
+      setTrips(local);
+      const [syncMod, migrateMod] = await Promise.all([
+        import("../lib/itinerarySync.js"),
+        import("../lib/itineraryMigrate.js"),
+      ]);
+      if (cancelled) return;
+      const remote = await syncMod.fetchRemoteTrips(supabase, user.id);
+      if (cancelled || remote == null) return;
+      // Re-read after the network wait. A stop added while the fetch was in
+      // flight is already in localStorage; merging the earlier snapshot would
+      // drop it.
+      let latest = local;
+      try { latest = JSON.parse(localStorage.getItem("wayfind_trips") || "{}") || local; } catch (e) {}
+      const merged = migrateMod.mergeTrips(latest, remote);
+      const removedDuring = Object.keys(local).filter((key) => !latest[key]);
+      const migrated = Object.keys(local).filter((k) => local[k] && local[k].items && local[k].items.length && !remote[k]);
+      itinerarySkipPush.current = true;
+      itinerarySyncKeys.current = Object.keys(merged);
+      itinerarySyncReady.current = true;
+      setTrips(merged);
+      const pushed = await syncMod.pushTrips(supabase, user.id, merged, removedDuring);
+      if (cancelled) return;
+      if (pushed && migrated.length) { try { logEvent("itinerary_migrated_local", null, { trips: migrated.length }); } catch (e) {} }
+      if (pushed) { try { logEvent("itinerary_synced", null, { trips: Object.keys(merged).length }); } catch (e) {} }
+    })();
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user && user.id, itineraryFlags.sync, !!supabase]);
+  useEffect(() => {
+    if (!itineraryFlags.sync || !user || !supabase || !itinerarySyncReady.current) return undefined;
+    if (itinerarySkipPush.current) { itinerarySkipPush.current = false; return undefined; }
+    const snapshot = trips;
+    const prev = itinerarySyncKeys.current;
+    const handle = setTimeout(() => {
+      import("../lib/itinerarySync.js").then((syncMod) => syncMod.pushTrips(supabase, user.id, snapshot, prev)).then((ok) => {
+        if (ok) itinerarySyncKeys.current = Object.keys(snapshot || {});
+      }).catch(() => {});
+    }, 700);
+    return () => clearTimeout(handle);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trips, itineraryFlags.sync, user && user.id, !!supabase]);
 
   useEffect(() => {
     let gotGPS = false;
@@ -9034,7 +9123,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
         }
       } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now()));
+      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "list_save" }));
     }
     setSaveTarget(null);
   }
@@ -9057,13 +9146,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   function addToItinerary(p) {
     if (!p || !p.id) return;
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
+    let insertion = "manual";
     try {
       const meta = Trips.tripMetaForPlace(p);
+      const existing = (trips[meta.key] && trips[meta.key].items) || [];
+      const plan = itineraryFlags.autoOrder ? Trips.nearestStopIndex(existing, p) : { auto: false };
+      insertion = itineraryFlags.autoOrder && plan.auto ? "auto" : "manual";
       if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
-      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary" }); } catch (e) {}
+      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary", insertion }); } catch (e) {}
+      try { logEvent("itinerary_item_added", p, { source: "card_itinerary", insertion, key: meta.key }); } catch (e) {}
     } catch (e) {}
-    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
-    showToast("🗓️ Added to your itinerary");
+    const before = trips;
+    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "card_itinerary" }));
+    if (insertion === "auto") showToast("Added next to a nearby stop", { label: "Undo", run: () => setTrips(before) });
+    else showToast("🗓️ Added to your itinerary");
   }
 
   // One-tap save straight to Favorites from a card heart.
@@ -9090,7 +9186,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
         }
       } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now()));
+      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "quick_save" }));
     }
     if (supabase && user) {
       if (has) {
@@ -9279,6 +9375,23 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     if (payload) return originUrl(`/s/${payload}?${q}`);
     return originUrl("/");
+  }
+  async function shareItinerary(trip) {
+    if (!itineraryFlags.share || !trip || !trip.items || !trip.items.length) return;
+    let payload = "";
+    try {
+      const { encodeItineraryShare } = await import("../lib/itineraryShare.js");
+      payload = encodeItineraryShare(trip);
+    } catch (e) {}
+    if (!payload) { showToast("Couldn't share that trip"); return; }
+    // Snapshots live in the link itself. shared_lists has no owner column,
+    // so it cannot safely support private itinerary cleanup or revocation.
+    const title = (trip.city || "Trip") + (trip.state ? ", " + trip.state : "");
+    const q = "t=" + encodeURIComponent(title + " itinerary") + "&n=" + trip.items.length;
+    const url = originUrl("/s/" + encodeURIComponent(payload) + "?" + q);
+    shareLink("Wayfind trip: " + title, url, () => showToast("Private link copied"), title + "\nPrivate link — anyone with it can view this trip.", () => {
+      try { logEvent("itinerary_shared", null, { key: trip.key, n: trip.items.length, visibility: "private" }); } catch (e) {}
+    });
   }
   async function shareList(places, title) {
     if (!places || !places.length) return;
@@ -9572,7 +9685,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   {exHero.reviews != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.reviews.toLocaleString()} reviews</span>}
                   {open === true && <span style={{ fontSize: 12, fontWeight: 700, color: C.green }}>· Open now</span>}
                   {open === false && <span style={{ fontSize: 12, fontWeight: 700, color: exHero.nextOpen && exHero.nextOpen.today ? C.gold : C.red }}>· {exHero.nextOpen && exHero.nextOpen.today ? exHero.nextOpen.label : "Closed"}</span>}
-                  {exHero.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {exHero.distMi.toFixed(1)} mi</span>}
+                  <PlaceDistance place={exHero} prefix="· " style={{ fontSize: 12, color: C.muted }} />
                 </div>
                 {blurbLine(blurbs[exHero.id]) && <div style={{ fontSize: 13.5, color: C.light, lineHeight: 1.5, marginTop: 10 }}><span style={{ color: C.accent, fontWeight: 800 }}>Why: </span>{blurbLine(blurbs[exHero.id])}</div>}
               </div>
@@ -9644,6 +9757,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     personalize, setConsent, setTasteOpen, tasteVecState,
     // itinerary
     activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, openBrowse, reservations, removeRes, saveResConf,
+    itineraryFlags, shareTrip: shareItinerary, sharedItinerary, setSharedItinerary,
     // shared list
     sharedList, setSharedList,
     // events
@@ -11243,9 +11357,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
+        {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}
         {screen === "events" && <EventsScreen ctx={ctx} />}
       </div>
 
@@ -11394,7 +11509,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                       <PlaceScoreChip p={p} size={12} />
                       {(() => { const c = Dining.costForTwo(p); return c.listed ? <span style={{ color: C.green, fontWeight: 700 }}>{c.tier || "$$"}</span> : (p.price ? <span style={{ color: C.green, fontWeight: 700 }}>{p.price}</span> : null); })()}
                       {(() => { const lo = liveOpen(p); return lo === true ? <span style={{ color: C.green, fontWeight: 700 }}>Open</span> : lo === false ? <span style={{ color: C.red, fontWeight: 700 }}>Closed</span> : null; })()}
-                      {p.distMi != null && <span style={{ color: C.muted }}>{p.distMi.toFixed(1)} mi</span>}
+                      <PlaceDistance place={p} style={{ color: C.muted }} />
                     </div>
                   </div>
                   <span style={{ color: C.muted, fontSize: 16, flexShrink: 0 }}>›</span>
@@ -11408,7 +11523,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
       {/* Copied toast */}
       {toast && (
-        <div style={{ position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)" }}>{toast}</div>
+        <div style={{ position: "fixed", bottom: 84, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)", display: "flex", alignItems: "center", gap: 10 }}>
+          <span>{toast}</span>
+          {toastAction ? <button type="button" onClick={() => { const run = toastAction.run; setToast(""); setToastAction(null); try { run(); } catch (e) {} }} style={{ background: "transparent", border: "none", color: C.accent, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: 0 }}>Undo</button> : null}
+        </div>
       )}
 
       {/* Full-screen photo viewer — pages through the whole gallery (v6.43) */}
@@ -12107,7 +12225,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
             ); })()}
             {p.priceNum != null ? <PriceMeter level={p.priceNum} word /> : (p.price && <span style={{ fontSize: 13, color: C.green, fontWeight: 700 }}>{p.price}</span>)}
             {(() => { const lo = liveOpen(p); /* v4.67: hours-computed, never stale cache */ return lo != null ? <span style={{ fontSize: 11, fontWeight: 600, color: lo ? C.green : C.red }}>{lo ? "Open" : "Closed"}</span> : null; })()}
-            {p.distMi != null && <span style={{ fontSize: 12, color: C.muted }}>· {p.distMi.toFixed(1)} mi</span>}
+            <PlaceDistance place={p} prefix="· " style={{ fontSize: 12, color: C.muted }} />
           </div>
           {/* v6.57: beach signals — a "Trending" flame from the popularity cron
               (wf_place_popularity_scored) and a water-quality read

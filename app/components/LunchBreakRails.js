@@ -33,7 +33,7 @@ export default function LunchBreakRails({ places = [], city = "", onOpenPlace, i
             {rail.places.map((place, index) => {
               const cardRank = index + 1;
               const photo = place.photo || place.photoUrl || (place.photoRef || place.photo_ref ? "/api/photo?ref=" + encodeURIComponent(place.photoRef || place.photo_ref) + "&g=2&w=640" : null);
-              const facts = [place.reviews ? compact(place.reviews) + " reviews" : null, priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null, Number.isFinite(place.distMi) ? place.distMi + " mi" : null].filter(Boolean);
+              const facts = [place.reviews ? compact(place.reviews) + " reviews" : null, priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null].filter(Boolean);
               const directions = directionsUrl(place);
               return <RailCard key={place.id} className="wf-exploding-primary" photo={photo} place={place} title={place.name} eyebrow={rail.title} rank={cardRank}
                 score={toDisplayScore(railScoreOf(place))} facts={facts}

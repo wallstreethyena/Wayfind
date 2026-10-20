@@ -1,12 +1,21 @@
 "use client";
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only; the
 // two original sibling branches (trip list, open trip) keep their conditions.
+import { useEffect, useState } from "react";
 import { C } from "../kit";
 import { openExternal } from "../../../lib/links";
 import * as Trips from "../../../lib/trips";
 
 export default function ItineraryScreen({ ctx }) {
-  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, requireAuth } = ctx;
+  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, itineraryFlags, shareTrip, requireAuth } = ctx;
+  const mapOn = !!(itineraryFlags && itineraryFlags.map);
+  const [RouteMap, setRouteMap] = useState(null);
+  useEffect(() => {
+    if (!mapOn) { setRouteMap(null); return undefined; }
+    let cancelled = false;
+    import("../ItineraryRouteMap").then((mod) => { if (!cancelled) setRouteMap(() => mod.default); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [mapOn]);
   return (
     <>
         {!activeTrip && (() => {
@@ -28,6 +37,7 @@ export default function ItineraryScreen({ ctx }) {
                 {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
               </div>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Reorder your stops, mark what you have hit, and route the whole trip in Google Maps.</div>
+              {itineraryFlags && itineraryFlags.sync ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: -10, marginBottom: 16 }}>Your trips sync across your devices.</div> : null}
               {reservations.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -82,15 +92,17 @@ export default function ItineraryScreen({ ctx }) {
           const doRoute = () => { const u = Trips.routeUrl(t); if (u) { openExternal(u); try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
           return (
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
                 <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, cursor: "pointer" }}>‹</button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
                 {items.length > 0 && shareList && <button onClick={() => { try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
+                {itineraryFlags && itineraryFlags.share && items.length > 0 && <button onClick={() => { if (!requireAuth("Sign up free to share a private link to this trip.")) return; if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
                 {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
               </div>
+              {RouteMap ? <RouteMap items={items} /> : null}
               {items.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
               ) : items.map((it, i) => {

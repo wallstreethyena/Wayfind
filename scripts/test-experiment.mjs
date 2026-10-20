@@ -109,7 +109,7 @@ const E = await import("../lib/experiment.js");
   // The decision content the experiment is actually testing.
   ok(comp.indexOf("What are you looking for") >= 0, "the bridge asks a decision question");
   for (const l of ["Tonight", "Free", "Family", "Near me"]) ok(comp.indexOf(l) >= 0, "intent present: " + l);
-  for (const [n, w] of [["p.rating", "rating"], ["p.reviews", "review count"], ["p.distMi", "distance"], ["p.openNow", "open status"], ["p.reason", "reason to choose"]]) {
+  for (const [n, w] of [["p.rating", "rating"], ["p.reviews", "review count"], ["<PlaceDistance place={p}", "device distance when available"], ["p.openNow", "open status"], ["p.reason", "reason to choose"]]) {
     ok(comp.indexOf(n) >= 0, "each pick shows " + w);
   }
   ok(comp.indexOf('"/?place=" + encodeURIComponent(p.id)') >= 0, "a pick opens the place directly");

@@ -1,4 +1,5 @@
 "use client";
+import PlaceDistance from "./PlaceDistance.js";
 // A decision concierge for paid traffic. It turns an undifferentiated list
 // into one clear choice, two alternatives, and a lightweight local shortlist.
 // Attribution and the existing analytics event names intentionally stay intact.
@@ -237,15 +238,13 @@ function fit(place, intent) {
 function whyLine(place, intent, language = "en") {
   const cat = categoryOf(place);
   const reviews = Number(place?.reviews || 0);
-  const distance = Number(place?.distMi || 0);
   const curated = CURATED_WHY[String(place?.name || "").trim().toLowerCase()];
   if (curated) return curated[language] || curated.en;
-  if (intent === "tonight" && place?.openNow === true) return `Open now, ${distance.toFixed(1)} miles away, with ${reviews.toLocaleString()} guest reviews behind it.`;
+  if (intent === "tonight" && place?.openNow === true) return `Open now, with ${reviews.toLocaleString()} guest reviews behind it.`;
   if (intent === "family" && /park|zoo|aquarium|garden|museum|theme/.test(cat.toLowerCase())) return `${cat} appeal backed by a ${place.rating || "high"}★ rating and ${reviews.toLocaleString()} reviews.`;
-  if (intent === "outdoors" && /outdoors|garden/.test(cat.toLowerCase())) return `An outdoor reset just ${distance.toFixed(1)} miles away, validated by ${reviews.toLocaleString()} reviews.`;
+  if (intent === "outdoors" && /outdoors|garden/.test(cat.toLowerCase())) return `An outdoor reset, validated by ${reviews.toLocaleString()} reviews.`;
   if (intent === "tours" && /tour/.test(cat.toLowerCase())) return `A bookable Orlando experience with ${reviews.toLocaleString()} reviews and a ${place.rating || "high"}★ rating.`;
   if (reviews >= 50000) return `One of Orlando’s most proven crowd favorites — ${place.rating || "highly rated"}★ across ${reviews.toLocaleString()} guest reviews.`;
-  if (distance > 0) return `A consistently strong choice: ${place.rating || "highly rated"}★ across ${reviews.toLocaleString()} reviews, just ${distance.toFixed(1)} miles away.`;
   return `${place.rating || "Highly rated"}★ across ${reviews.toLocaleString()} reviews — a place with enough proof to earn your time.`;
 }
 
@@ -271,7 +270,7 @@ function Meta({ place }) {
       {place?.reviews ? <span>{Number(place.reviews).toLocaleString()} reviews</span> : null}
       {place?.openNow === true ? <><i>·</i><span className="open">Open now</span></> : null}
       {placeState(place) === "closed" ? <><i>·</i><span>{closedLabel(place)}</span></> : null}
-      {place?.distMi != null ? <><i>·</i><span>{Number(place.distMi).toFixed(1)} mi</span></> : null}
+      <PlaceDistance place={place} />
     </div>
   );
 }

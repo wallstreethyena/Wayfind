@@ -154,7 +154,7 @@ These are not part of the 65. The `place_id` is already known. None of these dat
 | K127 | Clearwater Marine Aquarium | 249 Windward Passage, Clearwater, 33767 | Clearwater | `ChIJiZrtZSvxwogRE9eu4Xpy9Yc` | `wf_place_ids` only | Candlelight Christmas Carols on Strings | 2026-12-19 |
 | K122 | Benchmark International Arena | 401 Channelside Drive, Tampa, Florida 33602 | Tampa | `ChIJSV2_Mo3EwogRc8CZwwOroSs` | yes, `photo_ref` null | Trans-Siberian Orchestra The Ghosts of Christmas Eve | 2026-12-20 |
 
-A stored photo does not put these five on a poster by itself. `lib/seasonalLiveAreaPending20261019.js` is not imported by a route. A later change has to spread those rows into the serving registry.
+A stored photo does not put these five on a poster by itself. `lib/seasonalLiveAreaResolve.js` reads `lib/seasonalLiveAreaPending20261019.js` when the Fall and Christmas posters are served, and it adds a card only when `wf_inventory` has that venue and a stored photo of it. A miss stays off the poster.
 
 ## Same gap, counted outside the 65
 

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useContentCardActions } from "../../../../lib/contentCardActions";
-import { addPlaceToTrips } from "../../../../lib/trips";
+import { addStopToStoredTrips } from "../../../../lib/itineraryAdd";
+import { readItineraryFlags } from "../../../../lib/itineraryFlags";
+import { track } from "../../../../lib/track";
 
 const TRIPS_KEY = "wayfind_trips";
 
@@ -35,6 +37,7 @@ export default function EventActions({ event }) {
 
   if (!event) return null;
   const addEvent = () => {
+    if (inTrip || !event || !event.id) return;
     try {
       const trips = JSON.parse(localStorage.getItem(TRIPS_KEY) || "{}") || {};
       const place = {
@@ -50,8 +53,11 @@ export default function EventActions({ event }) {
         time: event.time,
         url: typeof window !== "undefined" ? window.location.href : "",
       };
-      localStorage.setItem(TRIPS_KEY, JSON.stringify(addPlaceToTrips(trips, place, Date.now())));
+      const flags = readItineraryFlags(typeof window !== "undefined" ? window.posthog : null);
+      const result = addStopToStoredTrips(trips, place, Date.now(), { autoOrder: flags.autoOrder, addedVia: "event_page" });
+      if (!result.already) localStorage.setItem(TRIPS_KEY, JSON.stringify(result.trips));
       setInTrip(true);
+      for (const ev of result.events) track(ev.name, ev.props);
     } catch {}
   };
 

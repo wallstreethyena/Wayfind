@@ -89,3 +89,116 @@ assert.match(route, /creators_read:\s*creators\.length/);
 const vercel = readFileSync(new URL("../vercel.json", import.meta.url), "utf8");
 assert.match(vercel, /\/api\/cron\/social-intelligence/);
 console.log('Social preflight: capped paging, ceiling failure, fresh qualification and duplicate controls passed');
+
+// Execute the real GET body, queue, qualification and paginated readers. Only
+// the database transport and pulse sink are fixtures; no publication or HTTP.
+const loadGet = new Function('process', 'createClient', 'readSocialPages', 'readSocialIdentityInventory', 'buildSocialReviewQueue', 'recordPulse',
+  route.replace(/^import[^;]+;\n/gm, '').replace(/^export /gm, '') + '\nreturn GET;');
+const closedLeads = [
+  { platform: 'web', media_id: 'owner-20261013-naree-tampa', review_status: 'promoted', source_place_id: 'closed-place' },
+  { platform: 'web', media_id: 'owner-20261013-forbici-st-pete', review_status: 'promoted', location_name: 'Closed venue' },
+  { ...lead, media_id: 'rejected-eligible', review_status: 'rejected' },
+  { ...lead, media_id: 'promoted-eligible', review_status: 'promoted' },
+];
+const closedQueue = buildSocialReviewQueue(closedLeads, inventory, { now });
+assert.equal(closedQueue.inspected, 4);
+assert.equal(closedQueue.attempted, 0);
+assert.deepEqual(closedQueue.skipped, { previously_promoted: 3, previously_rejected: 1 });
+assert.deepEqual(closedQueue.rejected, {});
+assert.deepEqual(closedQueue.candidates, []);
+assert.deepEqual(socialIdentityHints(closedLeads, [creator]), { ids: [], names: [] });
+assert.equal(queue.attempted, 2, 'duplicates are inspected but not attempted twice');
+assert.equal(queue.attempted, queue.candidates.length + Object.values(queue.rejected).reduce((a, b) => a + b, 0));
+
+// The handler receives its own process facade. Its configuration is entirely
+// explicit and never reads or mutates the guard runner's environment.
+const fixtureProcess = { env: {
+  CRON_SECRET: 'social-fixture-cron',
+  NEXT_PUBLIC_SUPABASE_URL: 'https://social-fixture.invalid',
+  SUPABASE_SERVICE_ROLE_KEY: 'social-fixture-service',
+} };
+const originalFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async () => { throw new Error('social preflight must not call a provider'); };
+  async function runPreflight(leads, { readError = false, authorization = true } = {}) {
+    const reads = [], pulses = [];
+    const fixtureDb = { from(table) {
+      assert.ok(['wf_social_candidates', 'wf_social_creators', 'wf_inventory'].includes(table), 'read only known private preflight tables');
+      reads.push(table);
+      let cursor = null, key = null, filter = () => true;
+      const q = {
+        select() { return q; }, order(field) { key = field; return q; }, limit() { return q; },
+        eq(field, value) { assert.equal(field, 'status'); assert.equal(value, 'OPERATIONAL'); return q; },
+        in(field, values) { filter = row => values.includes(row[field]); return q; },
+        gt(field, value) { cursor = value; return q; }, abortSignal() { return q; },
+        then(resolve) {
+          const rows = table === 'wf_social_candidates' ? leads : table === 'wf_inventory' ? inventory : [];
+          resolve(readError ? { data: null, error: { message: 'fixture read unavailable' } }
+            : { data: rows.filter(filter).filter(row => cursor === null || row[key] > cursor).sort((a, b) => String(a[key]).localeCompare(String(b[key]))), error: null });
+        },
+      };
+      return q;
+    } };
+    const GET = loadGet(fixtureProcess, () => fixtureDb, readSocialPages, readSocialIdentityInventory, buildSocialReviewQueue,
+      async (job, pulse) => { assert.equal(job, 'social-intelligence'); pulses.push(pulse); return true; });
+    const response = await GET(new Request('https://fixture.invalid/api/cron/social-intelligence', {
+      headers: authorization ? { authorization: 'Bearer social-fixture-cron' } : {},
+    }));
+    return { status: response.status, body: await response.json(), pulses, reads };
+  }
+  function assertPulse(result, attempted, succeeded, failed) {
+    assert.equal(result.pulses.length, 1, 'one heartbeat per run');
+    assert.deepEqual(Object.fromEntries(['attempted', 'succeeded', 'failed'].map(key => [key, result.pulses[0][key]])), { attempted, succeeded, failed });
+  }
+  function assertPrivate(result) {
+    assert.equal(result.status, 200);
+    assert.equal(result.body.publication_enabled, false);
+    assert.equal(result.body.mode, 'private_review');
+    assert.equal(result.body.published, 0);
+    assert.equal(result.body.paid_calls, 0);
+    for (const candidate of result.body.candidates) assert.equal(candidate.publishable, false);
+  }
+  const closed = await runPreflight(closedLeads);
+  assertPrivate(closed);
+  assertPulse(closed, 0, 0, 0);
+  assert.equal(closed.body.inspected, 4);
+  assert.deepEqual(closed.body.skipped, closedQueue.skipped);
+  assert.ok(!closed.reads.includes('wf_inventory'), 'closed history cannot trigger identity inventory reads');
+  const productionRows = await runPreflight(closedLeads.slice(0, 2));
+  assertPulse(productionRows, 0, 0, 0);
+  assert.equal(productionRows.body.inspected, 2, 'the exact two promoted production IDs remain visible as stored history');
+  const eligible = await runPreflight([{ ...lead, review_status: 'pending', source_place_id: 'farm-1' }]);
+  assertPrivate(eligible);
+  assertPulse(eligible, 1, 1, 0);
+  assert.equal(eligible.body.candidates[0].identity.place_id, 'farm-1');
+  const disqualified = await runPreflight([{ ...lead, review_status: 'pending', like_count: 1000 }]);
+  assertPrivate(disqualified);
+  assertPulse(disqualified, 1, 0, 1);
+  assert.deepEqual(disqualified.body.rejected, { below_like_threshold: 1 });
+  const mixed = await runPreflight([...closedLeads, lead, { ...lead, media_id: 'bad', caption: 'ordinary dinner' }]);
+  assertPrivate(mixed);
+  assertPulse(mixed, 2, 1, 1);
+  assert.deepEqual(mixed.body.rejected, { no_seasonal_offering: 1 });
+  assert.deepEqual(mixed.body.skipped, closedQueue.skipped);
+  const empty = await runPreflight([]);
+  assertPrivate(empty);
+  assertPulse(empty, 0, 0, 0);
+  assert.equal(empty.body.acquisition_status, 'no_stored_leads');
+  const unavailable = await runPreflight(closedLeads, { readError: true });
+  assert.equal(unavailable.status, 503);
+  assert.equal(unavailable.body.error, 'social_preflight_incomplete');
+  assertPulse(unavailable, 1, 0, 1);
+  delete fixtureProcess.env.SUPABASE_SERVICE_ROLE_KEY;
+  const missingDb = await runPreflight(closedLeads);
+  assert.equal(missingDb.status, 503);
+  assert.equal(missingDb.body.error, 'supabase_unconfigured');
+  assertPulse(missingDb, 1, 0, 1);
+  assert.deepEqual(missingDb.reads, []);
+  const unauthorized = await runPreflight(closedLeads, { authorization: false });
+  assert.equal(unauthorized.status, 401);
+  assert.deepEqual(unauthorized.pulses, []);
+  assert.deepEqual(unauthorized.reads, []);
+} finally {
+  globalThis.fetch = originalFetch;
+}
+console.log('Social preflight runtime: terminal history, eligible/disqualified/mixed work, empty, read failure, missing DB and authorization passed');

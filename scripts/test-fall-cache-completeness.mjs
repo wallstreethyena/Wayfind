@@ -13,7 +13,7 @@ const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const railIds = ["food", "farms", "theme-parks", "haunts", "family",
   "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
 
-async function routeHarness({ dealError = null, cachedValue } = {}) {
+async function routeHarness({ dealError = null, pendingFailed = false, cachedValue } = {}) {
   const observed = { usable: null, loaded: false };
   const inventory = [{
     place_id: "p1", name: "Fall Place", lat: 27.95, lng: -82.46, status: "OPERATIONAL",
@@ -41,6 +41,9 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
     "../../../../lib/fallFoodGap20261008.js": { FALL_FOOD_GAP_2026_10_08: [] },
     "../../../../lib/fallTampaPicks20261008.js": { FALL_TAMPA_PICKS_2026_10_08: [] },
     "../../../../lib/fallLiveArea20261019.js": { FALL_LIVE_AREA_2026_10_19: [] },
+    "../../../../lib/seasonalLiveAreaResolve.js": { resolveSeasonalLiveArea: () => ({ fall: [], christmas: [] }) },
+    "../../../../lib/seasonalLiveAreaInventory.js": { readSeasonalPendingInventory: async () => ({ rows: [], failed: pendingFailed }) },
+    "../../../../lib/seasonalPosterFiling.js": { fileScopedPosters: (rails) => ({ fallRails: rails, halloweenSource: rails, movedOffFall: [], movedOffHalloween: [] }) },
     "../../../../lib/curatorPicksServer.js": { loadOwnerPickIds: async () => new Set(), applyCuratorPicksServer: (places) => places },
     "../../../../lib/fallStayDestinations.js": { fallStayDestinations: () => [] },
     "../../../../lib/curatedEvents.js": {
@@ -138,6 +141,15 @@ async function routeHarness({ dealError = null, cachedValue } = {}) {
   const response = await h.GET(new Request("https://wayfind.test/api/events/fall?lat=27.95&lng=-82.46"));
   ok(h.observed.usable === false, "historical entry with unknown completeness is rejected by FastCache admission");
   ok(response.headers.get("cache-control") === "no-store", "unknown source health fails closed at the CDN boundary");
+}
+
+
+{
+  const h = await routeHarness({ pendingFailed: true });
+  const response = await h.GET(new Request("https://wayfind.test/api/events/fall?lat=27.95&lng=-82.46"));
+  const body = await response.json();
+  ok(body.sourceFailures === 1 && h.observed.usable === false, "a failed seasonal lookup prevents complete-cache admission");
+  ok(response.headers.get("cache-control") === "no-store", "missing seasonal inventory never becomes a complete CDN response");
 }
 
 console.log(`test-fall-cache-completeness: ${checks} runtime assertions passed`);

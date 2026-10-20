@@ -1,4 +1,5 @@
 "use client";
+import { usePlaceDistance } from "./PlaceDistance.js";
 
 // Paid inventory uses the canonical place renderer. The purchased position,
 // advertiser copy and links live in the slot around it; score, facts, frame,
@@ -64,6 +65,7 @@ export function sponsoredActions({ hasStoreKey, actionPlace, wired, fb, content 
 }
 
 export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, liked: likedProp, disliked: dislikedProp, onSave, onLike, onDislike, onShare }) {
+  const userDistance = usePlaceDistance(pick);
   const ctx = pick ? {
     surface: "home_sponsored_card",
     provider: "direct",
@@ -104,7 +106,7 @@ export default function SponsoredPlaceCard({ pick, onLog, saved: savedProp, like
   const actionPlace = place || { id: pick.id, name: pick.advertiser, photo: pick.photo || null };
   const { doSave, doLike, doDislike, doShare, saved, liked, disliked } = sponsoredActions({ hasStoreKey, actionPlace, wired, fb, content });
   const branch = branchOf(pick);
-  const distance = miles(pick.distMi);
+  const distance = miles(userDistance);
   const accent = pick.accent || C.purple;
 
   const log = (action, extra) => {

@@ -60,7 +60,6 @@ export default function CreatorPicksRails({
             const facts = [
               place.reviews ? `${compact(place.reviews)} reviews` : null,
               priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null,
-              Number.isFinite(place.distMi) ? `${place.distMi} mi` : null,
             ].filter(Boolean);
             const directions = directionsUrl(place);
             return <RailCard

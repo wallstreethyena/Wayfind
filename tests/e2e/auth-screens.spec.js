@@ -21,12 +21,15 @@ test("signed-out: Itinerary shows the sign-in wall, not the Itinerary screen", a
   await expect(page.getByText("Sign in to view your Itinerary")).toBeVisible({ timeout: 15_000 });
 });
 
-test("no local-persistence copy promises device storage on the bridge pages", async ({ page }) => {
-  for (const path of ["/favorites", "/itinerary"]) {
-    const html = await (await page.request.get(path)).text();
-    expect(html).not.toMatch(/live on this device|persist locally|only on this phone/i);
-    expect(html).toMatch(/sync across all your devices|sync them across/i);
-  }
+test("bridge pages do not promise device-only storage", async ({ page }) => {
+  const favorites = await (await page.request.get("/favorites")).text();
+  expect(favorites).not.toMatch(/live on this device|persist locally|only on this phone/i);
+  expect(favorites).toMatch(/sync across all your devices|sync them across/i);
+
+  const itinerary = await (await page.request.get("/itinerary")).text();
+  expect(itinerary).not.toMatch(/live on this device|persist locally|only on this phone/i);
+  expect(itinerary).not.toMatch(/plans sync|sync across all your devices|sync them across/i);
+  expect(itinerary).toMatch(/Sign in to plan trips/i);
 });
 
 test("sign-in dialog is accessible: labelled inputs, semantic controls, visible close", async ({ page }) => {

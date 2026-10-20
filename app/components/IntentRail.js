@@ -134,7 +134,6 @@ const poolKey = (intent, lat, lng, bucket, gate) =>
 
 const photoUrl = (r) => (r && r.photoRef ? "/api/photo?ref=" + encodeURIComponent(r.photoRef) + "&g=2&w=480" : null);
 const compactReviews = (n) => (Number(n) >= 1000 ? Math.round(Number(n) / 100) / 10 + "k" : String(Number(n) || 0));
-const milesLabel = (d) => (Number.isFinite(d) ? (d < 10 ? d.toFixed(1) : Math.round(d)) + " mi" : null);
 // Same shape businessStatus reads on every other surface; toRow already carries
 // both fields, so open/closed here is the real thing, not a guess.
 const rowStatus = (r) => businessStatus({ ...r, oh: r.oh || r.regularOpeningHours || null, utcOffset: r.utcOffset != null ? r.utcOffset : r.utcOffsetMinutes });
@@ -519,7 +518,6 @@ export default function IntentRailBody({
                 r.reviews ? compactReviews(r.reviews) + " reviews" : null,
                 priceLabel(r.priceLevel),
                 st.open === true ? "Open" : st.open === false ? "Closed" : null,
-                milesLabel(r.distMi),
                 // The trend bump is DISCLOSED wherever it is applied — the same
                 // rule the Top 40 rail and the ranked rows follow.
                 r.trending && r.trend_reason ? "🔥 " + r.trend_reason : null,

@@ -89,7 +89,7 @@ function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, d
         {items.map((place, index) => {
           const rank = index + 1;
           const photo = place.photo || (place.photoRef ? "/api/photo?ref=" + encodeURIComponent(place.photoRef) + "&g=2&w=640" : null);
-          const facts = [place.reviews ? compact(place.reviews) + " reviews" : null, priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null, Number.isFinite(place.distMi) ? place.distMi + " mi" : null].filter(Boolean);
+          const facts = [place.reviews ? compact(place.reviews) + " reviews" : null, priceLabel(place.priceLevel != null ? place.priceLevel : place.priceNum) || null].filter(Boolean);
           const band = rail.id === "beaches" ? beachWaterBand(place.water) : "unknown";
           const chips = band !== "unknown" ? [{ key: "water", icon: "💧", label: WATER_LABEL[band], title: beachDecisionReason(place.water) || WATER_LABEL[band] }] : [];
           const directions = directionsUrl(place);
