@@ -248,6 +248,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-affiliate-tags.mjs": {
+    "protects": "Fixture lock for the affiliate-tag guard: a Viator URL with no pid fails, a URL stamped pid=P00320881 mcid=42383 medium=link passes, a bare Tiqets URL fails, and an official non-affiliate link passes only with the same-line wf-affiliate-allow: official annotation.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A green fixture suite that no longer fails an untagged partner URL would let the known bare-viator.com regression (affiliate id dropped) ship again."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-affiliates.mjs": {
     "protects": "Outbound Viator URLs carry pid/mcid/medium EXACTLY once with consistent values, regardless of what the source URL already contains \u2014 string concatenation must never double them.",
     "blastRadius": {
