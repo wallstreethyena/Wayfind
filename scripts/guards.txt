@@ -2327,3 +2327,4 @@ node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
 
 node scripts/test-creator-in-app-playback.mjs
+node scripts/test-guide-rays-game-day.mjs
