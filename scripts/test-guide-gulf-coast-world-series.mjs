@@ -55,7 +55,6 @@ ok(text.includes("https://secure.rutheckerdhall.com/33480/33481"), "Jake Owen ti
 
 ok(text.includes("Sunday, October 25, 2026, at 7:00 PM"), "Yung Gravy is Sunday, October 25, at 7:00 PM");
 ok(text.includes("Joyrider Tour") && text.includes("Terror Reid"), "the Jannus page's tour name and opener are kept");
-ok(text.includes("https://www.ticketmaster.com/event/0D0065159FC782E6"), "Yung Gravy's Ticketmaster event is the one on the Get Tickets button");
 ok(text.includes("EsDeeKid") && text.includes("different shows"), "the other Jannus nights are named as different shows");
 
 ok(text.includes("6:00 PM to 7:30 PM") && text.includes("8:30 PM to 10:00 PM"), "the paddle has two departures");
@@ -79,6 +78,7 @@ const tickets = guide.picks.map((p) => ({ name: p.name, ticket: guidePickTicket(
 ok(tickets.every((row) => row.ticket), "every pick's button survives the shared gate");
 const aff = tickets.filter((row) => row.ticket.affiliate).map((row) => row.name);
 ok(aff.length === 2 && aff.includes("Yung Gravy at Jannus Live") && aff.includes("World Series home games at Tropicana Field"), "only the two Ticketmaster buttons are affiliate");
+ok(decodeURIComponent(new URL(tickets.find((row) => row.name === "Yung Gravy at Jannus Live").ticket.href, "https://www.gowayfind.com").searchParams.get("url")) === "https://www.ticketmaster.com/event/0D0065159FC782E6" && decodeURIComponent(new URL(tickets.find((row) => row.name === "World Series home games at Tropicana Field").ticket.href, "https://www.gowayfind.com").searchParams.get("url")) === "https://www.ticketmaster.com/tampa-bay-rays-tickets/artist/806027?home_away=home", "the two Ticketmaster buttons keep the same destinations inside /api/ticketmaster/go");
 for (const row of tickets) {
   if (row.ticket.affiliate) {
     ok(row.ticket.href.startsWith("/api/ticketmaster/go?"), `${row.name} uses the Ticketmaster redirect`);
