@@ -342,6 +342,14 @@ ok(!categoryNavHrefs("Orlando").some((h) => /sarasota/i.test(h)),
 ok(!/href="\/restaurants\/sarasota"/.test(PAGE) && !/href="\/restaurants\/sarasota"/.test(strip(read("app/layout.js"))),
   "shared homepage/footer HTML does not hardcode /restaurants/sarasota");
 
+/* ── Move 3: DaypartRail does not leak seed cityLabel ("Parrish") before location resolves, and home has no 62vh ghost loader ── */
+ok(/const resolvedCityLabel = honestCityLabel\(locName\)/.test(RAIL),
+  "DaypartRail gates resolvedCityLabel on honestCityLabel(locName) so DEFAULT_CENTER's Parrish cityLabel never leaks into drop headers or sub-rails before location resolves");
+ok(/const near = resolvedCityLabel \? ` near \$\{resolvedCityLabel\}` : ""/.test(RAIL),
+  "DaypartRail drop header near-phrase uses resolvedCityLabel");
+ok(!/!browseCat && suggested === null &&[\s\S]{0,160}minHeight:\s*["']62vh["']/.test(HOME),
+  "home.js does not render the 62vh ghost loader when !browseCat && suggested === null");
+
 if (fail.length) {
   console.error(`check-location-honesty: ${pass} passed, ${fail.length} FAILED`);
   for (const f of fail) console.error("  ✗ " + f);

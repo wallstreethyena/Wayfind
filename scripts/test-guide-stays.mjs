@@ -20,9 +20,9 @@ const ok = (c, m) => { if (!c) fail(m); passed++; };
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const at = (rel) => fileURLToPath(new URL("../" + rel, import.meta.url));
 
-// Config: exactly the Sarasota guide, nothing else, valid coordinates.
-ok(Object.keys(GUIDE_STAYS).join() === "things-to-do-sarasota", "only things-to-do-sarasota is opted in");
-ok(guideStaysConfig("things-to-do-orlando") === null && guideStaysConfig("constructor") === null, "un-opted slugs (and prototype keys) have no config");
+// Config: Manatee–Sarasota guides in the verified hotel market, valid coordinates.
+ok(Object.keys(GUIDE_STAYS).length === 17 && Object.hasOwn(GUIDE_STAYS, "things-to-do-sarasota") && Object.hasOwn(GUIDE_STAYS, "things-to-do-in-sarasota-florida") && Object.hasOwn(GUIDE_STAYS, "things-to-do-in-bradenton-florida"), "Manatee–Sarasota guides are opted in (17 guides)");
+ok(guideStaysConfig("things-to-do-orlando") === null && guideStaysConfig("things-to-do-in-tampa-florida") === null && guideStaysConfig("constructor") === null, "un-opted slugs outside the verified hotel market (and prototype keys) have no config");
 const cfg = guideStaysConfig("things-to-do-sarasota");
 ok(cfg && Math.abs(cfg.lat - 27.33) < 0.1 && Math.abs(cfg.lng + 82.53) < 0.1, "Sarasota anchor is in Sarasota");
 ok(hotelBookingRecords().length >= 30, "the verified-hotel allow-list is present (" + hotelBookingRecords().length + ")");
