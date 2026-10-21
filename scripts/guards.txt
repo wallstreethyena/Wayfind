@@ -2327,3 +2327,5 @@ node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
 
 node scripts/test-creator-in-app-playback.mjs
+
+node scripts/test-event-source-corrections-20261021.mjs

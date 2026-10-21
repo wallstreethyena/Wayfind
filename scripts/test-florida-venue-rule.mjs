@@ -102,11 +102,11 @@ ok(tampaIp.ok === true && Math.abs(tampaIp.lat - 27.95) < 1e-6 && /Tampa/.test(t
 // 4. Wiring that a call cannot see (cache key, route fields): code only, comments stripped.
 const code = (p) => readFileSync(new URL("../" + p, import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, " ").replace(/(^|[^:])\/\/[^\n]*/g, "$1 ");
 const route = code("app/api/events/route.js");
-ok(/const EVENTS_FEED_RULES = "florida-v1"/.test(route), "EVENTS_FEED_RULES was bumped to florida-v1");
+ok(/const EVENTS_FEED_RULES = "florida-v2-verified-20261021"/.test(route), "EVENTS_FEED_RULES was bumped to florida-v2-verified-20261021");
 ok(!/"running-v1"/.test(route), "the old feed rules version is gone from the cache key");
 ok(/state:\s*venue && venue\.state/.test(route), "Ticketmaster venue state is captured");
 ok(/address\.region/.test(route) && /v && v\.region/.test(route), "Eventbrite and Bandsintown pass venue state");
-ok(/florida-v1/.test(route) && !/"running-v1"/.test(route), "stale cache entries are unreachable under the new key");
+ok(/florida-v2-verified-20261021/.test(route) && !/"running-v1"/.test(route), "stale cache entries are unreachable under the new key");
 for (const f of ["lib/posterEvents.js", "lib/livePosterSelection.js", "lib/sportsRail.js", "lib/livePicks.js", "app/api/events/fall/route.js", "app/api/events/christmas/route.js"]) {
   ok(/\bisFloridaVenue\(/.test(code(f)), `${f} calls isFloridaVenue`);
 }

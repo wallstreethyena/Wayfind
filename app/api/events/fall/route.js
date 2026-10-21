@@ -127,7 +127,8 @@ export async function GET(request) {
     // payload was built before that venue existed, so it must not outlive this
     // deploy and hide the new card.
     // v38 adds the owner-selected statewide seasonal photo projection.
-    const key = `fall-intents:v38:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v39 publishes the October 21 session/source corrections and reviewed DB rows.
+    const key = `fall-intents:v39:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
