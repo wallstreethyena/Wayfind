@@ -12,7 +12,7 @@ import { TP_PROGRAMS } from "../../lib/travelpayouts.js";
 
 const URL_RE = /https?:\/\/[^\s"'`<>\\)]+/g;
 const ALLOW_RE = /wf-affiliate-allow:\s*official\b/;
-const BUILDER_CALL_RE = /withViatorTracking\s*\(|viatorDirectUrl\s*\(|viatorProductGoUrl\s*\(|pinViatorPid\s*\(|tpDeepLink\s*\(|awinDeepLink\s*\(|clippDeepLink\s*\(|rawPathDeepLink\s*\(|tnRawPathDeepLink\s*\(|tmImpactLink\s*\(|ticketOutUrl\s*\(|stay22HotelRedirectUrl\s*\(|cjPartnerDeepLink\s*\(|cityPassTrackedUrl\s*\(/;
+const BUILDER_CALL_RE = /withViatorTracking\s*\(|viatorDirectUrl\s*\(|viatorProductGoUrl\s*\(|pinViatorPid\s*\(|tpDeepLink\s*\(|awinDeepLink\s*\(|clippDeepLink\s*\(|rawPathDeepLink\s*\(|tnRawPathDeepLink\s*\(|tmImpactLink\s*\(|ticketOutUrl\s*\(|ticketmasterGoUrl\s*\(|stay22HotelRedirectUrl\s*\(|cjPartnerDeepLink\s*\(|cityPassTrackedUrl\s*\(/;
 
 function must(re, src, what) {
   const m = re.exec(src);
