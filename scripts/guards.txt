@@ -60,6 +60,8 @@ node scripts/check-guide-standard.mjs
 # endsOn (lib/guideLifecycle.js); never deleted, never promoted as current.
 node scripts/check-guide-lifecycle.mjs
 node scripts/test-affiliates.mjs
+node scripts/test-affiliate-tags.mjs
+node scripts/guard-affiliate-tags.mjs
 node scripts/check-legal.mjs
 node scripts/check-favorites-auth.mjs
 node scripts/test-booking-resolver.mjs
