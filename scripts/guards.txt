@@ -2171,6 +2171,10 @@ node scripts/test-coord-provenance.mjs --red-prove
 # 2026-10-15 — data pass B: licensed non-Google coordinates (Wikidata CC0, Census geocodes of official
 # venue addresses), lawful-match rules, committed SQL executed in PGlite. Self red-proves.
 node scripts/test-independent-coords-pass.mjs --red-prove
+# 2026-10-21 — Google-free re-verification of the 247 #1809 rows held behind counsel Q1: the new pending file
+# carries no row whose evidence chain includes Google (no Google coord/name/URL/corroboration), equals the audit
+# CSV's VERIFIED rows, keeps the 3 held files byte-identical; SQL executed in PGlite. Self red-proves.
+node scripts/test-coords-independent-verified.mjs --red-prove
 # 2026-10-15 — daily zero-cost sighting renewal (app/api/cron/sighting-renewal) sharing one rule set with the
 # backfill script: never copies the stored coordinate, never re-dates past seen_at, removes expired, zero Google calls. Self red-proves.
 node scripts/test-sighting-renewal.mjs --red-prove
