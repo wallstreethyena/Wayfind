@@ -5,6 +5,7 @@ const { CJ_PARTNERS, CJ_PARTNER_OFFERS, cjPartnerDeepLink } = await import("../l
 const { PROVIDERS, resolveOffer } = await import("../lib/commerceProviders.js");
 const { vrboUrl } = await import("../lib/affiliates.js");
 const { vrboMarketOfferId } = await import("../lib/vrboMarkets.js");
+const { guideVacationRentalCta, GUIDE_VRBO_SURFACE } = await import("../lib/guideCta.js");
 const { GET } = await import("../app/api/commerce/go/route.js");
 let pass = 0;
 const ok = (condition, label) => { assert.ok(condition, label); pass++; };
@@ -50,6 +51,16 @@ try {
     ok(href?.startsWith("/api/commerce/go?"), `${city}: first-party client link`);
     const u = new URL(href, "https://www.gowayfind.com");
     ok(u.searchParams.get("provider") === "vrbo" && u.searchParams.get("offer") === id, `${city}: exact client/server offer agreement`);
+  }
+  {
+    const guide = guideVacationRentalCta("best-hotels-near-magic-kingdom");
+    const gu = new URL(guide.href, "https://www.gowayfind.com");
+    ok(gu.searchParams.get("surface") === GUIDE_VRBO_SURFACE && gu.searchParams.get("offer") === "vrbo-orlando", "Magic Kingdom guide uses the Orlando Vrbo offer and its own surface");
+    const response = await GET(new Request(new URL(guide.href, "https://www.gowayfind.com"), { headers: { "user-agent": "Mozilla/5.0" } }));
+    const location = response.headers.get("location") || "";
+    const dest = new URL(location);
+    ok(response.status === 302 && dest.pathname === "/click-101643573-10697641" && dest.searchParams.get("url") === "https://www.vrbo.com/vacation-rentals/usa/florida/central-disney-orlando/orlando", "guide Vrbo click 302s through CJ PID 101643573 onto the Orlando market");
+    ok(dest.searchParams.get("sid") === GUIDE_VRBO_SURFACE, "guide redirect sid is the guide surface");
   }
   for (const city of ["", "Paris", "Orlando, CA", "Tampa, Kansas", "constructor", "__proto__", "toString"]) {
     ok(vrboMarketOfferId(city) === null && vrboUrl(city) === null, `${city || "empty"}: no unsupported market link`);
