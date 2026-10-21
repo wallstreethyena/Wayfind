@@ -19,6 +19,7 @@ import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } f
 import { GULF_COAST_FALL_2026_ROWS } from "../lib/gulfCoastFall2026.js";
 import { railScrollNeedsMore, windowRailAnswer } from "../lib/railResponse.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../lib/fallPhotoSpots.js";
+import { FALL_PHOTO_DESTINATIONS_2026, fallPhotoEvidence } from "../lib/fallPhotoDestinations2026.js";
 import { FALL_COLLECTION_POSTER, fallEventCardImageSrc } from "../lib/fallEventImage.js";
 import { FALL_EVENT_VENUE_PLACE_IDS } from "../lib/fallEventImage.js";
 import { DISPLAYABLE_STATUS } from "../lib/curatedEvents.js";
@@ -63,8 +64,9 @@ ok(photoReady.length === 24 && photoReady.every((row) => {
     && row.hero_image === `/api/photo?place=${row.place_id}&w=${proof.live_photo_width}`;
 }), "every one of the 24 photo-ready cards has the exact operational owned venue and its own image URL");
 const composedPublication = composeFallIntentRails(photoReady, [], { lat: 27.3364, lng: -82.5307, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") });
-const renderedPublication = composedPublication.rails.flatMap((rail) => rail.cards.map((row) => row.event_id || row.id));
-ok(renderedPublication.slice().sort().join("|") === photoReady.map((row) => row.event_id).sort().join("|"), "Sarasota renders the exact 24 photo-ready curated selections once, without filling from held candidates");
+const renderedPublication = composedPublication.rails.flatMap((rail) => rail.cards
+  .filter((row) => rail.id === fallEventRail(row)).map((row) => row.event_id || row.id));
+ok(renderedPublication.slice().sort().join("|") === photoReady.map((row) => row.event_id).sort().join("|"), "Sarasota keeps all 24 photo-ready curated selections in their original primary shelves, without filling from held candidates");
 const runaway = publishedById.get("runaway-pumpkin-5k-family-fest-2026");
 const nearbyRunaway = (lat, lng) => composeFallIntentRails([runaway], [], { lat, lng, today: "2026-09-10", now: new Date("2026-09-10T16:00:00Z") }).rails.flatMap((rail) => rail.cards);
 ok(nearbyRunaway(27.3364, -82.5307).length === 0 && nearbyRunaway(27.04, -82.217).length === 1, "Runaway remains outside Sarasota's 27-mile family cap but eligible from North Port when its photo is resolved");
@@ -223,6 +225,73 @@ for (const origin of [{ lat: 27.4989, lng: -82.5748 }, { lat: 27.3364, lng: -82.
 ok(!FALL_PLACE_IDS["ChIJHRtA_2MXw4gR8krgF386Zso"], "First Watch Bradenton is excluded because the official fall menu announcement excludes the Tampa Bay area");
 ok(FALL_PHOTO_PLACE_IDS.length >= 6, "the photo rail has a useful researched Gulf Coast starting set");
 ok(Object.values(FALL_PHOTO_SPOTS).every((spot) => spot.shotLocation && spot.visualProof && spot.fallReason && spot.bestTime && spot.accessNote && /^https:\/\//.test(spot.sourceUrl)), "every photo spot carries the exact shot, visible asset, fall reason, timing, access and proof source");
+
+// The owner's statewide photo shortlist is an additional exact-identity
+// intent. It must not widen the farm, park or old scenic-place shelves.
+const photoToday = "2026-10-21";
+const currentLocalFarmEvent = (event_id) => !FALL_FEATURED_FESTIVAL_IDS.has(event_id)
+  && (!FALL_DISCOVERY_RAIL[event_id] || FALL_DISCOVERY_RAIL[event_id] === "farms")
+  && fallPhotoEvidence({ event_id }, photoToday);
+const selectedFarm = FALL_PHOTO_DESTINATIONS_2026.find((row) => /farm|pumpkin/i.test(row.name)
+  && row.eventIds?.some(currentLocalFarmEvent));
+const selectedPark = FALL_PHOTO_DESTINATIONS_2026.find((row) => /park|preserve|garden/i.test(row.name)
+  && row.placeIds?.some((place_id) => fallPhotoEvidence({ place_id }, photoToday)));
+ok(!!selectedFarm && !!selectedPark, "the statewide shortlist has a current exact farm event and scenic park identity");
+if (selectedFarm && selectedPark) {
+  const eventId = selectedFarm.eventIds.find(currentLocalFarmEvent);
+  const parkId = selectedPark.placeIds.find((place_id) => fallPhotoEvidence({ place_id }, photoToday));
+  const farmPlaceId = selectedFarm.placeIds?.[0] || "exact-farm-venue-fixture";
+  const farm = event({ id: eventId, event_id: eventId, place_id: farmPlaceId,
+    event_name: selectedFarm.name, title: selectedFarm.name, distMi: 300,
+    tags: ["fall", "farm", "pumpkins"], start_date: "2026-10-01", end_date: "2026-11-30",
+    occurrence_dates: ["2026-10-23", "2026-10-24"], wfScore: 82,
+    hero_image: "https://example.com/exact-farm-owned.jpg" });
+  const scenicPark = { kind: "place", id: parkId, place_id: parkId, name: selectedPark.name,
+    fallRail: "day-trips", distMi: 300, wfScore: 91, image: "https://example.com/exact-park-owned.jpg" };
+  const sourceBefore = JSON.stringify([farm, scenicPark]);
+  const photoContext = { lat: 27.95, lng: -82.46, today: photoToday, now: new Date(`${photoToday}T16:00:00Z`) };
+  const farAnswer = composeFallIntentRails([farm], [scenicPark], photoContext);
+  const photoCards = farAnswer.rails.find((rail) => rail.id === "photos").cards;
+  ok(photoCards.some((card) => card.id === eventId) && photoCards.some((card) => card.id === parkId),
+    "an exact selected farm and park both enter Photos from 300 miles away");
+  ok(!farAnswer.rails.find((rail) => rail.id === fallEventRail(farm)).cards.some((card) => card.id === eventId)
+    && !farAnswer.rails.find((rail) => rail.id === "day-trips").cards.some((card) => card.id === parkId),
+    "statewide photo admission does not widen either original shelf");
+  const nearAnswer = composeFallIntentRails([{ ...farm, distMi: 5 }], [{ ...scenicPark, distMi: 5 }], photoContext);
+  ok(nearAnswer.rails.find((rail) => rail.id === fallEventRail(farm)).cards.some((card) => card.id === eventId)
+    && nearAnswer.rails.find((rail) => rail.id === "day-trips").cards.some((card) => card.id === parkId),
+    "selected photo destinations retain their original shelf where its radius permits");
+  const photoFarm = photoCards.find((card) => card.id === eventId);
+  ok(photoFarm?.wfScore === farm.wfScore && photoFarm?.editorial_score === farm.editorial_score
+    && photoFarm?.hero_image === farm.hero_image && photoFarm?.occurrence_dates === farm.occurrence_dates,
+    "photo projection preserves ratings, owned image, identity and exact event calendar");
+  ok(photoFarm?.take === selectedFarm.visualProof && photoFarm?.shotLocation === selectedFarm.shotLocation,
+    "only the photo projection receives the exact camera position and visible-subject evidence");
+  const primaryFarm = nearAnswer.rails.find((rail) => rail.id === fallEventRail(farm)).cards.find((card) => card.id === eventId);
+  ok(primaryFarm?.shotLocation === farm.shotLocation && primaryFarm?.card_hook === farm.card_hook
+    && JSON.stringify([farm, scenicPark]) === sourceBefore, "projection leaves primary cards and source rows untouched");
+  const sameVenue = composeFallIntentRails([farm], [{ ...scenicPark, id: farmPlaceId, place_id: farmPlaceId,
+    name: `${selectedFarm.name} venue`, fallRail: "photos", distMi: 5,
+    seasonalStart: "2026-10-01", seasonalThrough: "2026-11-30" }], photoContext)
+    .rails.find((rail) => rail.id === "photos").cards;
+  ok(sameVenue.length === 1 && sameVenue[0].kind === "event" && sameVenue[0].id === eventId
+    && sameVenue[0].occurrence_dates === farm.occurrence_dates, "a dated event wins over its generic venue once in Photos and retains its calendar");
+  const exhausted = composeFallIntentRails([{ ...farm, occurrence_dates: ["2026-10-20"] },
+    { ...farm, id: "expired-envelope", event_id: eventId, end_date: "2026-10-20" }], [], photoContext);
+  ok(exhausted.rails.find((rail) => rail.id === "photos").cards.length === 0,
+    "expired exact occurrences and expired date envelopes cannot enter the statewide photo shelf");
+  const afterPhotoSeason = new Date(`${selectedPark.endsOn || selectedPark.reviewThrough || "2026-11-26"}T12:00:00Z`);
+  afterPhotoSeason.setUTCDate(afterPhotoSeason.getUTCDate() + 1);
+  const endedPhotoAnswer = composeFallIntentRails([], [scenicPark], {
+    ...photoContext, today: afterPhotoSeason.toISOString().slice(0, 10), now: afterPhotoSeason,
+  });
+  ok(endedPhotoAnswer.rails.find((rail) => rail.id === "photos").cards.length === 0,
+    "a permanent park stops its statewide photo projection when the verified seasonal evidence expires");
+  const genericFar = composeFallIntentRails([event({ id: "generic-far-farm", event_id: "generic-far-farm",
+    event_name: "Unselected Pumpkin Farm", tags: ["fall", "farm", "pumpkins"], distMi: 300 })],
+  [{ id: "generic-far-park", name: "Unselected Scenic Park", fallRail: "photos", distMi: 300 }], photoContext);
+  ok(genericFar.rails.every((rail) => rail.cards.length === 0), "unlisted distant farms and generic scenic parks gain no statewide photo permission");
+}
 
 const discoveryIds = FALL_DISCOVERIES_2026.map((row) => row.event_id);
 ok(FALL_DISCOVERIES_2026.length === 33 && new Set(discoveryIds).size === 33, "all 33 Fall in Florida discoveries exist exactly once");
@@ -466,8 +535,11 @@ for (const origin of [[27.5875, -82.4251], [25.7617, -80.1918]]) {
   const cards = answer.rails.find((rail) => rail.id === "festivals").cards;
   ok(cards.length === 5 && new Set(cards.map((card) => card.event_id)).size === 5,
     `all five festivals appear exactly once from ${origin.join(",")}`);
-  ok(answer.rails.filter((rail) => rail.id !== "festivals").every((rail) => !rail.cards.some((card) => FALL_FEATURED_FESTIVAL_IDS.has(card.event_id))),
-    "featured festivals do not duplicate into farms or family rails");
+  ok(answer.rails.filter((rail) => rail.id !== "festivals" && rail.id !== "photos")
+    .every((rail) => !rail.cards.some((card) => FALL_FEATURED_FESTIVAL_IDS.has(card.event_id)))
+    && answer.rails.find((rail) => rail.id === "photos").cards
+      .every((card) => !FALL_FEATURED_FESTIVAL_IDS.has(card.event_id) || !!fallPhotoEvidence(card, "2026-09-25")),
+    "featured festivals stay out of farms and family; only exact photo evidence permits their additional photo intent");
   const dates = cards.map((card) => nextFallOccurrence(card, "2026-09-25"));
   ok(dates.join("|") === ["2026-10-03", "2026-10-03", "2026-10-10", "2026-10-10", "2026-10-17"].join("|"),
     "the actual festival cards order by next attendance day");

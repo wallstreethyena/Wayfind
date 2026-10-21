@@ -128,12 +128,12 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
           const facts = isEvent
             ? [card.city || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
             : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
-          const placeChips = !isEvent ? [
+          const placeChips = [
             card.hospitalityEvidence && card.seasonalWhen ? { key: "season", icon: "🗓", label: hospitalityDateChipLabel(card.seasonalWhen), title: card.seasonalWhen } : null,
             card.shotLocation ? { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation } : null,
             card.accessNote ? { key: "access", icon: "✓", label: "Check access", title: card.accessNote } : null,
             card.sourceUrl && (card.shotLocation || card.hospitalityEvidence) ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
-          ].filter(Boolean) : [];
+          ].filter(Boolean);
           const cta = isEvent ? eventCta(card, onTrack) : null;
           const openEventVenue = isEvent && card.place_id && onOpenPlace
             ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
@@ -142,7 +142,9 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
           const eventBodyExternal = isEvent && !card.detailHref;
           // Spooky skin (lib/spookySkin.js): only inside the fall skin, only through Nov 1.
           const spooky = fallSkin && isSpookyCard(card, siteTodayStr(), { railId: rail.id });
-          const baseChips = isEvent ? eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null }) : placeChips;
+          const baseChips = isEvent ? (rail.id === "photos"
+            ? [...eventChips(card).filter((chip) => chip.key === "schedule"), ...placeChips].slice(0, 4)
+            : eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null })) : placeChips;
           // "Halloween event" only when the event's own text says Halloween; otherwise the real rail title stays.
           const eyebrow = spooky && isEvent && sayHalloween(card) ? "Halloween event" : (spooky ? spookyEyebrow(rail.title) : rail.title);
           return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}

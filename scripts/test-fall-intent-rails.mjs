@@ -5,4 +5,5 @@
 // check-/test- filenames so the generated guard registry is not a merge hot spot.
 await import("./seasonal-hospitality-regression.mjs");
 await import("./fall-intent-rails-regression-core.mjs");
+await import("./fall-photo-destinations-regression.mjs");
 await import("./fall-venue-identity-regression.mjs");
