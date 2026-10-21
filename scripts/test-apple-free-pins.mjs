@@ -72,9 +72,23 @@ await check("A8 no area, no name, no Apple id: refused", () => {
   assert.equal(matchApplePlace(cafe({ name: "" }), [apple()], { box }).ok, false);
   assert.equal(matchApplePlace(cafe(), [apple({ id: null })], { box }).ok, false);
 });
+await check("A10 an extended name is a different business; a branch-word suffix matches only with agreeing city and category", () => {
+  const tampaBox = { north: 28.17, south: 27.6, east: -82.2, west: -82.75 };
+  const at = (name, locality = "Tampa", cat = "Restaurant") => ({ id: "IAPPLE7777", name, locality, pointOfInterestCategory: cat, coordinate: { latitude: 27.95, longitude: -82.46 } });
+  const joes = matchApplePlace({ name: "Joe's Pizza", locality: "Tampa", primaryType: "restaurant" }, [at("Joe's Pizza & Pasta")], { box: tampaBox });
+  assert.equal(joes.ok, false); assert.equal(joes.reason, "name-extended");
+  assert.ok(nameScore("Joe's Pizza", "Joe's Pizza & Pasta") < NAME_MIN, "a prefix alone scores below NAME_MIN");
+  assert.equal(matchApplePlace({ name: "Ulele", locality: "Tampa", primaryType: "restaurant" }, [at("Ulele Restaurant & Bar")], { box: tampaBox }).ok, true, "venue-word suffix + same city + agreeing category");
+  assert.equal(matchApplePlace({ name: "Ulele", primaryType: "restaurant" }, [at("Ulele Restaurant & Bar")], { box: tampaBox }).reason, "prefix-needs-locality", "no Wayfind city: refused");
+  assert.equal(matchApplePlace({ name: "Ulele", locality: "Tampa", primaryType: "restaurant" }, [at("Ulele Restaurant & Bar", "Tampa", null)], { box: tampaBox }).ok, false, "no Apple category: refused");
+  assert.equal(matchApplePlace({ name: "Latin Grill Tampa", locality: "Brandon", primaryType: "restaurant" }, [at("Latin Grill")], { box: tampaBox }).ok, false, "a city-word suffix still needs the cities to agree");
+  assert.equal(matchApplePlace({ name: "Bean Wandering Coffee Downtown", locality: "St. Petersburg", primaryType: "cafe" }, [at("Bean Wandering", "Saint Petersburg", "Cafe")], { box: tampaBox }).ok, true);
+});
 await check("A9 a resolved Place ID that now names another business is not pinned", () => {
   assert.equal(recheckResolvedPlace(cafe(), apple(), box).ok, true);
   assert.equal(recheckResolvedPlace(cafe(), apple({ name: "Tire Kingdom" }), box).reason, "apple-identity-changed");
+  assert.equal(recheckResolvedPlace(cafe({ name: "Ulele" }), apple({ name: "Ulele Restaurant & Bar" }), box).ok, true, "a rename that adds venue words keeps the stored ID's pin");
+  assert.equal(recheckResolvedPlace(cafe({ name: "Ulele" }), apple({ name: "Bern's Steak House" }), box).ok, false);
   assert.equal(recheckResolvedPlace(cafe(), apple({ coordinate: { latitude: 30, longitude: -84 } }), box).reason, "outside-area");
 });
 
@@ -111,11 +125,50 @@ await check("B2 no ledger (pre-migration) = zero Place ID lookups; Search keeps 
   await throws.recover({ places: [listPlace(4, { applePlaceId: "IAPPLEID4X" })], bounds, origin, category: "food" });
   assert.equal(lk.length, 0, "a failing grant is a refusal");
 });
-await check("B3 with a ledger, a zero Search grant means zero searches (ceiling reached)", async () => {
+await check("B3 a drained (or spoof-drained) ledger never zeroes Search: legacy caps (12 per batch, 36 per mount) apply", async () => {
   const se = [];
   const engine = createAppleMapRecovery({ search: async (q) => { se.push(q); return { places: [] }; }, grant: async () => ({ granted: 0, ledger: true }) });
   const stats = await engine.recover({ places: [listPlace(1), listPlace(2)], bounds, origin, category: "food" });
-  assert.equal(se.length, 0); assert.equal(stats.grantLimited, true); assert.equal(stats.ledger, true);
+  assert.equal(se.length, 2, "Search still runs when the ledger grants 0"); assert.equal(stats.searchLegacyFallback, true); assert.equal(stats.ledger, true);
+  for (let s = 0; s < 4; s++) await engine.recover({ places: Array.from({ length: 16 }, (_, i) => listPlace(100 + s * 20 + i)), bounds, origin, category: "food", scope: `d${s}` });
+  assert.equal(se.length, 36, "legacy lifetime cap of 36 searches per mounted map still holds");
+  const lk = [];
+  const drained = createAppleMapRecovery({ search: async () => ({ places: [] }), lookup: lookupOk(lk), grant: async () => ({ granted: 0, ledger: true }) });
+  await drained.recover({ places: [listPlace(9, { applePlaceId: "IAPPLEID9X" })], bounds, origin, category: "food" });
+  assert.equal(lk.length, 0, "a drained ledger still blocks Place ID lookups");
+});
+await check("B6 the budget route has its own 10/min per-IP window", async () => {
+  const { guardPaidRoute, routeRateLimitHit, APPLE_BUDGET_RL } = await import("../lib/apiGuard.js");
+  assert.deepEqual([APPLE_BUDGET_RL.key, APPLE_BUDGET_RL.limit], ["apple-budget", 10]);
+  const req = (ip) => new Request("https://www.gowayfind.com/api/maps/apple-budget", { method: "POST", headers: { "x-forwarded-for": ip, "sec-fetch-site": "same-origin", origin: "https://www.gowayfind.com", host: "www.gowayfind.com" } });
+  const results = [];
+  for (let i = 0; i < 11; i++) results.push(guardPaidRoute(req("203.0.113.7"), { routeLimit: APPLE_BUDGET_RL }));
+  assert.ok(results.slice(0, 10).every((r) => r === null), "first ten pass");
+  assert.equal(results[10] && results[10].status, 429, "the eleventh in a minute is refused");
+  assert.equal(guardPaidRoute(req("203.0.113.8"), { routeLimit: APPLE_BUDGET_RL }), null, "another IP is unaffected");
+  assert.equal(guardPaidRoute(req("203.0.113.7")), null, "the general 120/min window is unaffected for other routes");
+  const t = 1e12;
+  for (let i = 0; i < 10; i++) routeRateLimitHit("probe", "198.51.100.1", 10, t);
+  assert.equal(routeRateLimitHit("probe", "198.51.100.1", 10, t), true);
+  assert.equal(routeRateLimitHit("probe", "198.51.100.1", 10, t + 61000), false, "the window slides");
+  const mw = readFileSync(ROOT + "middleware.js", "utf8");
+  assert.match(mw, /path === "\/api\/maps\/apple-budget" \? APPLE_BUDGET_RL/, "middleware applies the window to the budget route");
+  assert.match(mw, /"\/api\/maps\/apple-budget",/, "the budget route is in the middleware matcher");
+});
+await check("B7 grants are clamped to 24 per request and the browser asks in chunks of at most 24 (at most 4 requests per batch)", async () => {
+  assert.equal(APPLE_GRANT_MAX, 24);
+  const asks = [];
+  const lk = [];
+  const many = Array.from({ length: 96 }, (_, i) => listPlace(300 + i, { applePlaceId: `IAPPLEIDM${i}X` }));
+  const engine = createAppleMapRecovery({ search: async () => ({ places: [] }), lookup: lookupOk(lk), grant: async (u) => { asks.push(u); return { granted: Math.min(u, 24), ledger: true }; } });
+  await engine.recover({ places: many, bounds, origin, category: "food" });
+  assert.ok(asks.length <= 5 && asks.every((u) => u <= 24), `asks ${asks}`);
+  assert.equal(lk.length, 96);
+  const short = []; const lk2 = [];
+  const e2 = createAppleMapRecovery({ search: async () => ({ places: [] }), lookup: lookupOk(lk2), grant: async (u) => { short.push(u); return { granted: 5, ledger: true }; } });
+  await e2.recover({ places: many.slice(0, 40), bounds, origin, category: "food" });
+  assert.equal(lk2.length, 5, "a short grant stops asking");
+  assert.equal(short.length, 1, "no second lookup request after a short grant");
 });
 await check("B4 lifetime lookup cap per mounted map holds across scopes", async () => {
   const lk = [];

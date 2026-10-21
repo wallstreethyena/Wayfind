@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute, isOperatorDiagnostic } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -194,5 +194,7 @@ export function middleware(req) {
   // measured 403-before-401 failure this repairs.
   const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path)
     || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
-  return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
+  // Apple pin budget: its own 10/min per-IP window (lib/apiGuard.APPLE_BUDGET_RL).
+  const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL : undefined;
+  return guardPaidRoute(req, { rateLimitOnly, routeLimit }) || NextResponse.next();
 }
