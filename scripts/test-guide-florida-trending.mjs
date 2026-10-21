@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * test-guide-florida-trending — content lock for the Oct 19, 2026 week (updated Oct 20).
+ * test-guide-florida-trending — content lock for the Oct 19, 2026 week (updated Oct 21).
  *
  * The page is the existing /guides/[slug] template. This file checks the
  * published record: two ranked sections, source link and date on every row,
@@ -18,12 +18,21 @@ const SLUG = "trending-in-florida-this-week-oct-19-2026";
 
 const TRENDING_URLS = [
   "https://www.mlb.com/rays/news/2026-mlb-world-series-faq-schedule-times-teams-and-more",
-  "https://www.mlb.com/rays/news/2026-mlb-world-series-faq-schedule-times-teams-and-more",
+  "https://www.mlb.com/rays/fans/watch-party",
   "https://api.weather.gov/gridpoints/TBW/71,70/forecast",
   "https://myfwc.com/research/redtide/statewide/",
   "https://tampatheatre.org/movie-categories/nightmare/",
-  "https://www.theritzybor.com/event/clutch2026/",
-  "https://jannuslive.com/events/dying-fetus-sanguisugabogg/",
+  "https://www.strazcenter.org/events/2627-season/encore/hamilton/",
+  "https://frenchysonline.com/stonecrabweekend/",
+  "https://madeirabeachfl.gov/event/45th-annual-johns-pass-seafood-festival-2/",
+  "https://clearwatergreekfest.com/",
+  "https://barcrawlusa.com/event/st-pete-boos-booze-halloween-bar-crawl/",
+  "https://fruitvillegrovefarm.com/festival/",
+  "https://www.suncoastenchantedalliance.org/witches-ride-event-info",
+  "https://www.sarasotafl.gov/Events-directory/Haunted-Trail-Bark-O-Ween-at-Arlington-Park",
+  "https://www.rutheckerdhall.com/events/detail/cake",
+  "https://www.vanwezel.org/events/detail/movie-pops-star-wars-return-of-the-jedi-in-concert",
+  "https://www.livenation.com/event/vvG1VZ_FDr-qK6/teddy-swims-the-ugly-tour",
   "https://www.rutheckerdhall.com/events/detail/abba",
   "https://www.myclearwater.com/Events-and-Meetings/Jake-Owen-and-Niko-Moon",
   "https://lbknews.com/culture-key/event/golden-groovers-the-music-of-stevie-wonder/",
@@ -79,10 +88,10 @@ ok(guideKinds(SLUG).join() === "events", "the guide is classified as events and 
 ok(!guide?.picks?.some((p) => p.placeId || p.bookQuery || p.viatorUrl), "picks carry no place id and no partner booking field");
 
 const picks = guide?.picks || [];
-ok(picks.length === 37, "19 trending rows plus 18 search phrases (" + picks.length + ")");
-const trending = picks.slice(0, 19);
-const search = picks.slice(19);
-ok(trending.length === 19 && trending.every((p, i) => p.eyebrow === "Trending " + (i + 1)), "first section is trending ranks 1 through 19");
+ok(picks.length === 46, "28 trending rows plus 18 search phrases (" + picks.length + ")");
+const trending = picks.slice(0, 28);
+const search = picks.slice(28);
+ok(trending.length === 28 && trending.every((p, i) => p.eyebrow === "Trending " + (i + 1)), "first section is trending ranks 1 through 28");
 ok(search.length === 18 && search.every((p, i) => p.eyebrow === "Search phrase " + (i + 1)), "second section is search ranks 1 through 18");
 
 trending.forEach((pick, i) => {
@@ -94,9 +103,9 @@ search.forEach((pick, i) => {
   ok(/2026-10-20 \(past 7 days\)/.test(pick.blurb || ""), "search row " + (i + 1) + " shows the pull date");
 });
 
-ok(/Bat Boy/.test(trending[15]?.name || "") && /Status: verified/.test(trending[15]?.blurb || ""), "Bat Boy is verified on the organizer calendar");
-ok(/Citrus County/.test(trending[17]?.blurb || ""), "trending row 18 is labeled Citrus County");
-ok(forbids(trending[12]?.blurb || "", "sold out"), "Dracula drops the sold-out claim that could not be rechecked");
+ok(/Bat Boy/.test(trending[24]?.name || "") && /Status: verified/.test(trending[24]?.blurb || ""), "Bat Boy is verified on the organizer calendar");
+ok(/Citrus County/.test(trending[26]?.blurb || ""), "trending row 27 is labeled Citrus County");
+ok(forbids(trending[21]?.blurb || "", "sold out"), "Dracula drops the sold-out claim that could not be rechecked");
 ok(/Tampa–St\. Pete \(Sarasota\) DMA/.test(guide?.intro || ""), "the intro names the Tampa–St. Pete (Sarasota) DMA");
 ok(/relative/i.test(guide?.intro || "") && /no absolute search volume/i.test(guide?.intro || ""), "the intro says Google Trends values are relative and claims no absolute volume");
 ok(/background levels/i.test(JSON.stringify(guide)), "red tide is worded as background levels");
@@ -105,7 +114,7 @@ ok(/AL pennant/.test(JSON.stringify(guide)) && /Brewers/.test(JSON.stringify(gui
 const published = JSON.stringify(guide);
 ok(forbids(published, "game 7 is tuesday") && forbids(published, "can clinch"), "stale ALCS copy from October 19 is gone");
 ok(forbids(published, "no red tide"), "copy does not say no red tide");
-ok(/gowayfind\.com\/florida-events\/halloween-on-central-st-pete-2026/.test(trending[18]?.blurb || ""), "Halloween on Central links to the existing Wayfind event page");
+ok(/gowayfind\.com\/florida-events\/halloween-on-central-st-pete-2026/.test(trending[27]?.blurb || ""), "Halloween on Central links to the existing Wayfind event page");
 ok(forbids(published, "egman"), "the unconfirmed egman search is not published");
 
 const art = guideHero(SLUG);
