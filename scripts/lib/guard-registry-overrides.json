@@ -48,6 +48,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-ticketmaster-static-ctas.mjs": {
+    "protects": "A Ticketmaster-family CTA in published static content leaves through /api/ticketmaster/go, and a browser request for that URL 302s to ticketmaster.evyy.net/c/7475855/264167/4272 with the original destination in u. curl is still refused to /events. An official source stays raw only with a same-line wf-affiliate-allow: official marker, and the Official site button is not rewritten.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A plain ticketmaster.com or livenation.com CTA sends the click with no Impact attribution. The Florida trending guide's Rays home-games line was that shape, and Christmas with Chris Tomlin's Get tickets button was a raw Live Nation URL. Marking a button official would keep the click and drop the commission."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-direct-affiliate-urls.mjs": {
     "protects": "No raw partner affiliate URL (Viator, Ticketmaster, etc.) is ever hand-built or hardcoded outside the server redirect layer, which is what keeps attribution traceable.",
     "blastRadius": {
