@@ -9,7 +9,8 @@
  */
 import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
-import { guidePrimaryCta, guideIntent, guideContinue } from "../lib/guideCta.js";
+import { guidePrimaryCta, guideIntent, guideContinue, guideVacationRentalCta, GUIDE_VRBO_LABEL, GUIDE_VRBO_SURFACE, GUIDE_VRBO_SLUG } from "../lib/guideCta.js";
+import { planPartnerClick } from "../lib/partnerClick.js";
 
 let pass = 0;
 const fail = [];
@@ -92,6 +93,37 @@ for (const v of ['"cta"', '"continue"', '"save"'])
 ok(/!cta \|\| !cta\.monetized/.test(conv),
   "primary_cta_null keys off MONETIZABLE, so Directions correctly still fires it (directive redefinition)");
 ok(/guide_saved/.test(conv) && /Save this guide/.test(conv), "§5 exit-on-peak save prompt exists");
+
+// Magic Kingdom hotels: the existing Vrbo Orlando handoff sits in the guide
+// CTA block. The hotel primary CTA and resort booking slots stay as they were.
+{
+  const hotel = guidePrimaryCta(GUIDES[GUIDE_VRBO_SLUG], "2026-07-30");
+  ok(guideIntent(GUIDES[GUIDE_VRBO_SLUG]) === "hotel", "Magic Kingdom hotels stays a hotel guide");
+  ok((GUIDES[GUIDE_VRBO_SLUG].picks || []).filter((p) => p && p.hotel).length === 6, "all six resort picks keep hotel:true — booking slots untouched");
+  ok(!String(hotel && hotel.href || "").includes("provider=vrbo"), "the primary CTA is not replaced by the Vrbo link");
+  const vrbo = guideVacationRentalCta(GUIDE_VRBO_SLUG);
+  ok(vrbo && vrbo.label === GUIDE_VRBO_LABEL, "Vrbo link label names vacation rentals near Disney on Vrbo");
+  ok(vrbo && vrbo.sponsored === true, "Vrbo guide link is sponsored");
+  const u = new URL(vrbo.href, "https://www.gowayfind.com");
+  ok(u.pathname === "/api/commerce/go" && u.searchParams.get("provider") === "vrbo" && u.searchParams.get("offer") === "vrbo-orlando", "href is vrboUrl('orlando') through /api/commerce/go");
+  ok(u.searchParams.get("surface") === GUIDE_VRBO_SURFACE, "surface is guide-specific so the CJ sid is not the detail sheet");
+  ok(u.searchParams.get("content") === GUIDE_VRBO_SLUG, "content names the guide");
+  let others = 0;
+  for (const slug of Object.keys(GUIDES)) {
+    if (slug === GUIDE_VRBO_SLUG) continue;
+    if (guideVacationRentalCta(slug)) others++;
+  }
+  ok(others === 0, "no other guide grows a Vrbo link");
+  const plan = planPartnerClick({
+    href: vrbo.href, owned: false, locationHost: "www.gowayfind.com", fallbackSurface: "guide", mint: () => "wf-guidvrbo1",
+  });
+  ok(plan && plan.emitPostHog === true && plan.ctx.provider === "vrbo" && plan.ctx.offer_id === "vrbo-orlando" && plan.ctx.surface === GUIDE_VRBO_SURFACE && plan.ctx.content_id === GUIDE_VRBO_SLUG,
+    "CommerceClickBeacon's planner emits one commerce click for this unowned guide link");
+  ok(/data-guide-vrbo="orlando"/.test(conv) && /rel="noreferrer sponsored"/.test(conv) && /GuideCommissionLine/.test(conv),
+    "the guide CTA component renders the Vrbo anchor as rel=sponsored under the commission line");
+  ok(!/data-commerce-owner="GuideConversion"[\s\S]*data-guide-vrbo/.test(conv) || (conv.match(/data-commerce-owner="GuideConversion"/g) || []).length === 1,
+    "the Vrbo anchor does not add a second GuideConversion owner (beacon records the click once)");
+}
 
 if (fail.length) {
   console.error("check-guide-conversion: FAIL");

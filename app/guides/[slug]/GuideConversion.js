@@ -35,7 +35,7 @@ import { mintClickId, withClickId, isEarningGoHref } from "../../../lib/hubConve
 import { isSearchAsBookHref } from "../../../lib/viatorDenylist";
 import { GuideCommissionLine } from "../../components/GuideCommissionLine";
 
-export default function GuideConversion({ slug, region, cta, next, social, socialStatus }) {
+export default function GuideConversion({ slug, region, cta, next, social, socialStatus, vacationRental }) {
   const ref = useRef(null);
   const seen = useRef(false);
   const [saved, setSaved] = useState(false);
@@ -190,6 +190,23 @@ export default function GuideConversion({ slug, region, cta, next, social, socia
           Use the place links above for current hours, directions, and any verified booking options available for this outing.
         </div>
       )}
+
+      {/* Whole-home alternative. Same link row as "Next", no owner marker:
+          CommerceClickBeacon (guides layout) records the one commerce click
+          and stamps click_id. Resort booking buttons are a different slot. */}
+      {vacationRental && vacationRental.href && vacationRental.label ? (
+        <>
+          <a
+            href={vacationRental.href}
+            rel="noreferrer sponsored"
+            data-guide-vrbo="orlando"
+            style={{ display: "block", marginTop: 12, padding: "13px 16px", borderRadius: 14, border: "1px solid #1C2530", background: "transparent", color: "#F4F6F8", fontSize: 14, fontWeight: 700, textDecoration: "none" }}
+          >
+            {vacationRental.label}
+          </a>
+          <GuideCommissionLine />
+        </>
+      ) : null}
 
       {next ? (
         <a
