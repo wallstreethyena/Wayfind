@@ -25,6 +25,8 @@ import { composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence }
 import { composeHalloweenRails } from "../../../../lib/halloweenIntentRails.js";
 import { fileScopedPosters } from "../../../../lib/seasonalPosterFiling.js";
 import { pageOneRail } from "../../../../lib/railPage.js";
+import { FALL_PHOTO_DESTINATIONS_2026, fallPhotoKnownPlaceIds, matchFallPhotoInventory, blockCalendarControlledPhotoPlaces, blockUnavailablePhotoEvents } from "../../../../lib/fallPhotoDestinations2026.js";
+import { readFallPhotoInventory } from "../../../../lib/fallPhotoInventory2026.js";
 import { FALL_PHOTO_PLACE_IDS, FALL_PHOTO_SPOTS } from "../../../../lib/fallPhotoSpots.js";
 import { FALL_DISCOVERIES_2026, FALL_DISCOVERY_RAIL, FALL_SEASONAL_PLACE_IDS } from "../../../../lib/fallDiscoveries2026.js";
 import { isFloridaVenue } from "../../../../lib/floridaVenue.js";
@@ -124,7 +126,8 @@ export async function GET(request) {
     // once each venue is in inventory with its own stored photo. A cached v36
     // payload was built before that venue existed, so it must not outlive this
     // deploy and hide the new card.
-    const key = `fall-intents:v37:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v38 adds the owner-selected statewide seasonal photo projection.
+    const key = `fall-intents:v38:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -132,6 +135,7 @@ export async function GET(request) {
         ...seasonalHospitalityIds("fall", today),
         ...seasonalHospitalityIds("halloween", today),
         ...FALL_PHOTO_PLACE_IDS,
+        ...fallPhotoKnownPlaceIds(today),
         ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19].map((row) => row.place_id).filter(Boolean),
         ...Object.values(FALL_EVENT_VENUE_PLACE_IDS),
       ])];
@@ -139,12 +143,12 @@ export async function GET(request) {
       const signal = AbortSignal.timeout(FALL_DB_DEADLINE_MS);
       // All three reads are independent. Start them together so a cold cache
       // costs one Supabase round trip rather than a waterfall of three.
-      const [rows, placeResult, dealResult, pickIds, pendingInventory] = await Promise.all([
+      const [rows, placeResult, dealResult, pickIds, pendingInventory, photoInventory] = await Promise.all([
         // fresh: the rail retires an event the moment its date passes, so it
         // must not read the ISR pages' hour-old cache entry (lib/supabase.js).
         fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory")
-          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,photo_url,status,excluded")
+          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded")
           .in("place_id", ids).abortSignal(signal),
         dealIds.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)
@@ -153,8 +157,9 @@ export async function GET(request) {
         // Its own deadline. A slow name lookup skips these cards and leaves
         // the rails that were already on the poster running.
         readSeasonalPendingInventory(),
+        readFallPhotoInventory(today),
       ]);
-      const sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error) + Number(!!pendingInventory.failed);
+      const sourceFailures = Number(!!placeResult.error) + Number(!!dealResult.error) + Number(!!pendingInventory.failed) + Number(!!photoInventory.failed);
       if (placeResult.error) console.error("[api/events/fall] place inventory degraded", { message: String(placeResult.error.message || placeResult.error) });
 
       // isServableDeal, NOT an inline `deal.link_ok &&`. The inline form shipped
@@ -173,9 +178,11 @@ export async function GET(request) {
         if (!row?.place_id) return;
         const prev = inventoryById.get(row.place_id);
         if (!prev || (!hasStoredPlacePhoto(prev) && hasStoredPlacePhoto(row))) inventoryById.set(row.place_id, row);
+        else if (!prev.locality && row.locality) inventoryById.set(row.place_id, { ...prev, locality: row.locality });
       };
       for (const row of placeResult.data || []) rememberPlace(row);
       for (const row of pendingInventory.rows || []) rememberPlace(row);
+      for (const row of photoInventory.rows || []) rememberPlace(row);
       // Photo-backed rows only. The Scarecrow date correction is the one
       // place_id-less row, and the image filter below keeps it off the poster
       // until Crystal River Heritage Village resolves.
@@ -387,6 +394,30 @@ export async function GET(request) {
         // Seasonal rails promise a real image of the named destination. A
         // missing/refused photo is an enrichment task, not a blank card.
         .filter((place) => place.image);
+      // Photo-only venue projection. Existing dated events are preferred by the
+      // composer; permanent venues never invent an event or ticket availability.
+      for (const spot of FALL_PHOTO_DESTINATIONS_2026) {
+        const inventory = matchFallPhotoInventory(spot, [...inventoryById.values()], today);
+        if (!inventory) continue;
+        const owned = CURATED_OWNED_PLACE_PHOTOS[inventory.place_id];
+        const source = owned ? { ...inventory, photo_url: owned.url } : inventory;
+        if (!hasStoredPlacePhoto(source)) continue;
+        const rating = typeof source.signals?.rating === "number" ? source.signals.rating : null;
+        places.push({
+          kind: "place", id: source.place_id, place_id: source.place_id,
+          title: spot.name, name: spot.name, city: source.locality || spot.cityNames?.[0] || null,
+          lat: source.lat, lng: source.lng, metro: source.metro, category: source.category,
+          rating, reviews: source.signals?.reviews || 0,
+          wfScore: rating > 0 ? wayfindScore(rating, source.signals?.reviews || 0) : null,
+          image: cardImageSrc({ place_id: source.place_id, photo_ref: source.photo_ref, photo_url: source.photo_url, signals: source.signals }, 640),
+          photoAttr: owned?.credit || null, photoAttrHref: owned?.creditUrl || null,
+          fallPhotoDestinationRank: spot.rank,
+          seasonalStart: spot.startsOn || null, seasonalThrough: spot.endsOn || null,
+          // Photos are added by the exact-evidence composer, never a bare
+          // photos assignment that could bypass evidence expiry.
+          fallRail: null,
+        });
+      }
       places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "fall", today));
       places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "halloween", today));
       // Picks land before the wfScore sort and the composer's caps; unknown -> untouched.
@@ -394,6 +425,14 @@ export async function GET(request) {
       places.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
 
       ({ events, places } = reconcileSeasonalHospitalityEvents(events, places));
+      // A rejected/exhausted dated program must not reappear as its bare
+      // venue. The source calendar wins even when image/link/status gates
+      // kept the event out of the serialized candidate array.
+      const photoCalendars = photoInventory.calendarFailed
+        ? FALL_PHOTO_DESTINATIONS_2026.flatMap((spot) => (spot.eventIds || []).map((event_id) => ({ event_id })))
+        : photoInventory.calendars;
+      places = blockCalendarControlledPhotoPlaces(places, [...eventRows, ...(photoCalendars || [])]);
+      events = blockUnavailablePhotoEvents(events, photoInventory.calendars, today, photoInventory.calendarFailed);
       const composed = composeFallIntentRails(events, places, { lat, lng, today });
       return { today, ...composed, sourceCount: events.length + places.length, sourceFailures };
     }, {

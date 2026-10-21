@@ -6,6 +6,7 @@ import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import * as seasonalHospitality from "../lib/seasonalHospitality.js";
 import * as eventSocial from "../lib/eventSocial.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
+import * as fallPhotoDestinations from "../lib/fallPhotoDestinations2026.js";
 
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
@@ -13,7 +14,7 @@ const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const railIds = ["food", "farms", "theme-parks", "haunts", "family",
   "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
 
-async function routeHarness({ dealError = null, pendingFailed = false, cachedValue } = {}) {
+async function routeHarness({ dealError = null, pendingFailed = false, photoFailed = false, cachedValue } = {}) {
   const observed = { usable: null, loaded: false };
   const inventory = [{
     place_id: "p1", name: "Fall Place", lat: 27.95, lng: -82.46, status: "OPERATIONAL",
@@ -43,6 +44,8 @@ async function routeHarness({ dealError = null, pendingFailed = false, cachedVal
     "../../../../lib/fallLiveArea20261019.js": { FALL_LIVE_AREA_2026_10_19: [] },
     "../../../../lib/seasonalLiveAreaResolve.js": { resolveSeasonalLiveArea: () => ({ fall: [], christmas: [] }) },
     "../../../../lib/seasonalLiveAreaInventory.js": { readSeasonalPendingInventory: async () => ({ rows: [], failed: pendingFailed }) },
+    "../../../../lib/fallPhotoDestinations2026.js": fallPhotoDestinations,
+    "../../../../lib/fallPhotoInventory2026.js": { readFallPhotoInventory: async () => ({ rows: [], calendars: [], calendarFailed: photoFailed, failed: photoFailed }) },
     "../../../../lib/seasonalPosterFiling.js": { fileScopedPosters: (rails) => ({ fallRails: rails, halloweenSource: rails, movedOffFall: [], movedOffHalloween: [] }) },
     "../../../../lib/curatorPicksServer.js": { loadOwnerPickIds: async () => new Set(), applyCuratorPicksServer: (places) => places },
     "../../../../lib/fallStayDestinations.js": { fallStayDestinations: () => [] },
@@ -150,6 +153,16 @@ async function routeHarness({ dealError = null, pendingFailed = false, cachedVal
   const body = await response.json();
   ok(body.sourceFailures === 1 && h.observed.usable === false, "a failed seasonal lookup prevents complete-cache admission");
   ok(response.headers.get("cache-control") === "no-store", "missing seasonal inventory never becomes a complete CDN response");
+}
+
+{
+  const h = await routeHarness({ photoFailed: true });
+  const response = await h.GET(new Request("https://wayfind.test/api/events/fall?lat=27.95&lng=-82.46"));
+  const body = await response.json();
+  ok(h.observed.loaded && h.observed.usable === false, "a failed photo lookup cannot enter healthy FastCache even with other populated rails");
+  ok(body.sourceFailures === 1 && body.rails.length === 10 && body.rails[0].cards.length > 0,
+    "photo lookup failure remains visible alongside usable existing Fall cards");
+  ok(response.headers.get("cache-control") === "no-store", "an incomplete photo source cannot be cached as a complete CDN answer");
 }
 
 console.log(`test-fall-cache-completeness: ${checks} runtime assertions passed`);

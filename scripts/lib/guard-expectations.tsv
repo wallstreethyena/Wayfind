@@ -644,7 +644,7 @@ scripts/test-explore-bridge-gate.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	15
 scripts/test-explore-menu.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	9ec2c6187ff357309ba4356c635c396242cc8dea39ac9328bc95c2d0eb1f58c1
 scripts/test-extra-miles.mjs	0	RENDER	blocks-ci-and-deploy	1	-	87	0	0	1754a4ca0a6172aead1096a165e4ff007e800f0e280ac7ec4be22620589f4dc7
 scripts/test-fall-additions-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	3a36a48fe08a70809e2c9117f9cb1760068f05305755b6e954409fd5caa68c51
-scripts/test-fall-cache-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	5594193626dfebfd43132e6c3626f53e2234df3a9fa872023be38c4a84461e64
+scripts/test-fall-cache-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	768e286fa1138edb6562db7eb6599720e449e33718c3d7a0f1b558a56481b598
 scripts/test-fall-card-integration.mjs	0	RENDER	blocks-ci-and-deploy	1	-	17	0	0	d3ae8fb07eae8307e3fcd449fbd87aef6fbc652ce34defcf6cdc3c0729dd58c7
 scripts/test-fall-destination-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0	ae6627e9198b035a957a7be8268735ea0cfd395b269f33351dfce034c8b31579
 scripts/test-fall-discovery-report.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	85d86782cc80ab88d387391fef8aa36a0812db41511128eb0ca06f41344fe9f1
