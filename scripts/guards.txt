@@ -539,6 +539,7 @@ node scripts/check-guards-can-fail.mjs
 node scripts/check-provider-redirects.mjs
 node scripts/test-redirect-integrity.mjs
 node scripts/check-direct-affiliate-urls.mjs
+node scripts/check-ticketmaster-static-ctas.mjs
 
 # 2026-09-22 click-hijack fix: no site-wide third-party auto-linker script in
 # app/layout.js (Stay22 LinkSwap route-scoped, Travelpayouts Drive removed).
