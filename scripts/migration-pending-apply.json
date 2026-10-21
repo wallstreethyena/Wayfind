@@ -59,7 +59,14 @@
     "file": "supabase/migrations/20261020120000_wf_itineraries.sql",
     "sha256": "f2596598fd49234d6f25979469c1ade95137ef2bb7d16a19f82d02e1d9f9dfb6",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1851 itinerary option B \u2014 Gabe approved the product scope; do not apply until this PR is reviewed",
+    "tracking": "#1851 itinerary option B — Gabe approved the product scope; do not apply until this PR is reviewed",
     "reason": "Additive wf_itineraries and wf_itinerary_items with owner-only RLS. Not applied to production project gbhtoehdxkzjsmmkisgu. Feature flags default off, so the browser writes stay idle until an owner applies this file with scripts/apply-migration.mjs and turns the flags on. Rollback is drop table public.wf_itinerary_items, drop table public.wf_itineraries."
+  },
+  {
+    "file": "supabase/migrations/20261021180000_wf_apple_place_ids.sql",
+    "sha256": "e48800727ae58370478ded154224fce8fbd394aa3ab30b19715a65e47aef908d",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) — do not apply until the PR is reviewed",
+    "reason": "Additive wf_apple_place_ids (Apple Place IDs only; exempt from DPLA Attachment 6 section 2.5) with RLS on and no anon/authenticated grants, plus the apple_maps row in wf_source_registry (15,000 calls/day ceiling under Apple's free 25,000). Not applied to production project gbhtoehdxkzjsmmkisgu. Until applied, the list ships no Place IDs and the map makes no Place ID lookups. Rollback: delete the apple_maps registry row (after its usage rows), drop table public.wf_apple_place_ids."
   }
 ]
