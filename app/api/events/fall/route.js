@@ -148,7 +148,7 @@ export async function GET(request) {
         // must not read the ISR pages' hour-old cache entry (lib/supabase.js).
         fetchCuratedEvents({ signal, fresh: true }),
         supabase.from("wf_inventory")
-          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,photo_url,status,excluded")
+          .select("place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded")
           .in("place_id", ids).abortSignal(signal),
         dealIds.length
           ? supabase.from("wf_deals").select("id,affiliate_url,active,link_ok,provider").in("id", dealIds).abortSignal(signal)

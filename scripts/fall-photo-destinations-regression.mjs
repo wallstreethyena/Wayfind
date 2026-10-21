@@ -13,6 +13,7 @@ import { composeFallIntentRails } from "../lib/fallIntentRails.js";
 import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import { mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
 import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
+import { occurrenceDatesFor } from "../lib/eventOccurrences.js";
 
 const today = "2026-10-21";
 let checks = 0;
@@ -136,29 +137,51 @@ check(photos([blockedLegacyPhotoEvent], []).length === 0,
 // Exercise the actual reader with a mock database chain, without a live client.
 const readerUrl = new URL("../lib/fallPhotoInventory2026.js", import.meta.url);
 const readerSource = readFileSync(readerUrl, "utf8");
-async function mockedReader(fail) {
+const exactCalendarId = "hunsader-pumpkin-2026";
+const databaseCalendars = [
+  { event_id: spot.eventIds[0], event_status: "cancelled", start_date: "2026-10-01", end_date: "2026-11-30" },
+  { event_id: exactCalendarId, event_status: "scheduled", start_date: "2026-10-10", end_date: "2026-10-25" },
+];
+async function mockedReader(fail, sourceText = readerSource) {
   const stub = `export const requests = [];
-const supabase = { from(table) { return {
-  select(columns) { requests.push({ table, columns }); return this; },
-  in(column, values) { requests.at(-1).column = column; requests.at(-1).values = values; return this; },
-  abortSignal(signal) { requests.at(-1).hasDeadline = signal instanceof AbortSignal;
+export const schemaErrors = [];
+const schema = {
+  wf_inventory: new Set("place_id,name,lat,lng,metro,locality,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded".split(",")),
+  wf_events: new Set("event_id,event_status,start_date,end_date".split(",")),
+};
+const supabase = { from(table) { const request = { table }; return {
+  select(columns) { Object.assign(request, { columns }); requests.push(request); return this; },
+  in(column, values) { Object.assign(request, { column, values }); return this; },
+  abortSignal(signal) { request.hasDeadline = signal instanceof AbortSignal;
+    const unknown = request.columns.split(",").filter(column => !schema[table]?.has(column));
+    if (unknown.length) {
+      schemaErrors.push({ table, columns: unknown });
+      return Promise.resolve({ data: null, error: { code: "42703", message: "column does not exist: " + unknown.join(",") } });
+    }
     if (${JSON.stringify(fail)} === true || (${JSON.stringify(fail)} === "calendar" && table === "wf_events"))
       return Promise.resolve({ data: null, error: { message: "fixture failure" } });
     return Promise.resolve(table === "wf_events"
-      ? { data: [{ event_id: ${JSON.stringify(spot.eventIds[0])}, event_status: "cancelled", start_date: "2026-10-01", end_date: "2026-11-30", occurrence_dates: ["2026-10-24"] }], error: null }
+      ? { data: ${JSON.stringify(databaseCalendars)}.filter(row => request.values.includes(row.event_id)), error: null }
       : { data: [{ place_id: "owned-fixture" }], error: null }); }
 }; } };`;
-  const source = readerSource.replace('import { supabase } from "./supabase.js";', stub)
-    .replace('"./fallPhotoDestinations2026.js"', JSON.stringify(new URL("../lib/fallPhotoDestinations2026.js", import.meta.url).href));
-  check(source !== readerSource && !source.includes('from "./supabase.js"'), "reader mock replaces the actual database dependency");
+  const source = sourceText.replace('import { supabaseLive as supabase } from "./supabase.js";', stub)
+    .replace('"./fallPhotoDestinations2026.js"', JSON.stringify(new URL("../lib/fallPhotoDestinations2026.js", import.meta.url).href))
+    .replace('"./eventOccurrences.js"', JSON.stringify(new URL("../lib/eventOccurrences.js", import.meta.url).href));
+  check(source !== readerSource && !source.includes('from "./supabase.js"'), "reader mock replaces the actual uncached database dependency");
   return import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`);
 }
 const healthyReader = await mockedReader(false);
 const healthy = await healthyReader.readFallPhotoInventory(today);
-check(!healthy.failed && healthy.rows.length > 0, "a healthy owned-name read returns usable inventory");
+check(!healthy.failed && healthy.rows.length > 0 && healthyReader.schemaErrors.length === 0,
+  "a healthy owned-name read uses only real schema columns and returns usable inventory");
 check(healthy.calendarFailed === false && healthy.calendars.some((row) => row.event_id === spot.eventIds[0]
-  && row.event_status === "cancelled" && row.occurrence_dates.includes("2026-10-24")),
-  "the calendar read preserves cancelled event status and exact occurrence dates that the public event feed omits");
+  && row.event_status === "cancelled"), "the calendar read preserves cancelled event status that the public event feed omits");
+const exactCalendar = healthy.calendars.find((row) => row.event_id === exactCalendarId);
+check(exactCalendar && JSON.stringify(exactCalendar.occurrence_dates) === JSON.stringify(occurrenceDatesFor({ event_id: exactCalendarId }))
+  && exactCalendar.occurrence_dates.includes("2026-10-24"), "exact occurrences come from the real checked-in occurrence helper rather than a nonexistent database column");
+check(!blockUnavailablePhotoEvents([{ event_id: exactCalendarId }], [exactCalendar], "2026-10-21")[0].fallPhotoBlocked
+  && blockUnavailablePhotoEvents([{ event_id: exactCalendarId }], [{ ...exactCalendar, end_date: "2026-11-30" }], "2026-10-26")[0].fallPhotoBlocked,
+  "real helper-derived event days remain available before their last date and become exhausted afterward");
 check(photos([], blockCalendarControlledPhotoPlaces([genericPlace], healthy.calendars)).length === 0,
   "a cancellation returned only by the private calendar reader blocks generic venue resurrection");
 const inventoryRequests = healthyReader.requests.filter((r) => r.table === "wf_inventory");
@@ -169,8 +192,9 @@ check(inventoryRequests.length > 0 && inventoryRequests.every((r) => r.column ==
 const knownEventIds = new Set(FALL_PHOTO_DESTINATIONS_2026.flatMap((s) => s.eventIds));
 check(calendarRequests.length > 0 && calendarRequests.every((r) => r.column === "event_id"
   && r.values.length > 0 && r.values.length <= knownEventIds.size && r.values.every((id) => knownEventIds.has(id)) && r.hasDeadline
-  && ["event_id", "event_status", "start_date", "end_date", "occurrence_dates"].every((column) => r.columns.includes(column))),
-  "calendar reads use bounded exact reviewed event identities and include all fields needed to preserve calendar holds");
+  && ["event_id", "event_status", "start_date", "end_date"].every((column) => r.columns.includes(column))
+  && !r.columns.split(",").includes("occurrence_dates")),
+  "calendar reads use bounded exact reviewed event identities and real database status/date columns");
 const failedReader = await mockedReader(true);
 const originalError = console.error;
 const errors = [];
@@ -191,11 +215,31 @@ try {
 } finally { console.error = originalError; }
 check(calendarFailed.failed === true && calendarFailed.calendarFailed === true && calendarFailed.rows.length > 0,
   "a calendar-only failure keeps healthy venue rows available but signals that photo calendar admission must fail closed");
+const nonexistentColumns = readerSource.replace("photo_ref,status", "photo_ref,photo_url,status")
+  .replace('.select("event_id,event_status,start_date,end_date")', '.select("event_id,event_status,start_date,end_date,occurrence_dates")');
+check(nonexistentColumns !== readerSource && nonexistentColumns.includes("photo_url,status")
+  && nonexistentColumns.includes("end_date,occurrence_dates"), "schema negative control reinstates both invalid production SELECT columns");
+const invalidSchemaReader = await mockedReader(false, nonexistentColumns);
+let invalidSchema;
+try {
+  console.error = () => {};
+  invalidSchema = await invalidSchemaReader.readFallPhotoInventory(today);
+} finally { console.error = originalError; }
+check(invalidSchema.failed && invalidSchema.calendarFailed && invalidSchema.rows.length === 0
+  && invalidSchemaReader.schemaErrors.some((error) => error.table === "wf_inventory" && error.columns.includes("photo_url"))
+  && invalidSchemaReader.schemaErrors.some((error) => error.table === "wf_events" && error.columns.includes("occurrence_dates")),
+  "the actual reader fails visibly against the real-schema mock when either nonexistent SELECT column returns");
 const unknownCalendars = FALL_PHOTO_DESTINATIONS_2026.flatMap((s) => s.eventIds.map((event_id) => ({ event_id })));
 check(photos([], blockCalendarControlledPhotoPlaces([genericPlace], unknownCalendars)).length === 0
   && photos([], blockCalendarControlledPhotoPlaces([unrelated], unknownCalendars)).length === 1,
   "unknown calendars fail closed for event-dependent photos while verified venue-only photos remain available");
 const route = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
+const sharedInventoryReader = readFileSync(new URL("../lib/seasonalLiveAreaInventory.js", import.meta.url), "utf8");
+const routeSelects = [...route.matchAll(/\.select\("([^"]+)"\)/g)].map((match) => match[1]);
+const sharedColumns = sharedInventoryReader.match(/const COLUMNS = "([^"]+)"/)[1].split(",");
+check(routeSelects.length > 0 && routeSelects.every((columns) => !columns.split(",").includes("photo_url"))
+  && sharedColumns.includes("signals") && sharedColumns.includes("photo_ref") && !sharedColumns.includes("photo_url"),
+  "both the primary Fall read and shared seasonal lookup use stored photo evidence without selecting a nonexistent photo_url column");
 check(/const photoCalendars = photoInventory\.calendarFailed/.test(route)
   && /blockCalendarControlledPhotoPlaces\(places, \[\.\.\.eventRows, \.\.\.\(photoCalendars \|\| \[\]\)\]\)/.test(route),
   "the API combines all-status calendar rows with public source rows and applies its calendar-failure branch before composing");
