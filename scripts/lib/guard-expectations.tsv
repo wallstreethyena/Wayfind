@@ -591,7 +591,7 @@ scripts/test-detail-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	e21f0436
 scripts/test-detail-open-once.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c3dbbe48126179cfdfa036db7d3066d8de302810c2e1ddaf291d4c0d8ff146df
 scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	4a2abf06e95005ba87262ee9d9e7d4fa3ba19fd3d78f5b949c4a5c351845ca19
 scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	3878d5702d144f1a4cc8dd882b2dbc7de557218336567b762f6dc622a7ea750e
-scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	55	0	0	e76e3cba03a18fb0e5c3159bf020393eb0f632de0dfe04328beb00011a2f55cc
+scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	87daa2e91ce4f32b6924b8681f9769b95b19570e7bcf6859a5aa884567f72cff
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
 scripts/test-direct-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	6618fc1569a80c34d8bd1ab8fee5a619dbafa60d2e26e475011a28f8db7f3b4c
 scripts/test-doc-ownership-shallow.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	a7fc950b33e73074eaf31d622c2dfe3e06f022191fde062f489e4de4160f576c
