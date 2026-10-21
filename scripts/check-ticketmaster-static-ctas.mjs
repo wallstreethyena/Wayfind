@@ -27,6 +27,9 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
 
 // Literals in lib/affiliates.js are read at import. Delete overrides first so
 // this process proves the baked-in Impact ids, not whatever the shell exported.
+// The route handler calls captureServer. A direct run of this file must not
+// write provider_redirect_* into production analytics (check-guards-emit-no-analytics).
+process.env.WF_SUPPRESS_ANALYTICS = "1";
 delete process.env.NEXT_PUBLIC_IMPACT_SID;
 delete process.env.NEXT_PUBLIC_TM_IMPACT_CAMPAIGN;
 delete process.env.NEXT_PUBLIC_TM_IMPACT_AD;
