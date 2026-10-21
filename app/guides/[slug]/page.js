@@ -21,6 +21,7 @@ import { cachedGuideProduct } from "../../../lib/guideProductResolveCache";
 // earning link once rendered with no FTC disclosure.
 import { bookingTargets } from "../../../lib/bookingResolve";
 import { guidePrimaryCta, guideContinue, guideIntent, paintGuideCta, ctaProofScope } from "../../../lib/guideCta";
+import { guidePickTicket } from "../../../lib/guidePickTicket";
 import { withPageParam } from "../../../lib/commerce";
 import GuideConversion from "./GuideConversion";
 import GuideStays from "../../components/GuideStays";
@@ -1107,6 +1108,7 @@ export default async function GuidePage({ params }) {
       ) : null}
       {g.picks.map((pick, i) => {
         const resolved = pickPlaces[i];
+        const ticket = guidePickTicket(pick.ticket);
         // One editorial photograph per recommendation. Curated images win;
         // otherwise use the same venue-owned source as discovery cards.
         const pickImage = curatedPickImages[i] || editorialImages.get(resolved?.id);
@@ -1130,6 +1132,17 @@ export default async function GuidePage({ params }) {
                 {pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ ...S.btnGhost, marginLeft: 0 }}>Open place</a> : null}
                 {(pick.appQuery !== null) ? <a href={appUrl(pick.appQuery || pick.name, pick)} style={{ ...S.btnGhost, marginLeft: 0 }}>Explore this place</a> : null}
                 {pick.eventSlug ? <a href={"/florida-events/" + encodeURIComponent(pick.eventSlug)} style={{ ...S.btnGhost, marginLeft: 0 }}>Dates, tickets &amp; verdict</a> : null}
+                {ticket ? (
+                  <a
+                    href={ticket.href}
+                    style={{ ...S.btnGhost, marginLeft: 0 }}
+                    {...(ticket.affiliate
+                      ? { rel: "sponsored noreferrer" }
+                      : { target: "_blank", rel: "noopener noreferrer" })}
+                  >
+                    {ticket.label}
+                  </a>
+                ) : null}
               </div>
             </div>
             {placeRail.insertAfterPick === pick.name && placeRail.places.length ? (
