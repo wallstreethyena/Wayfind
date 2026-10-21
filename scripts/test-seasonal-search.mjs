@@ -28,7 +28,15 @@ for (const hub of SEASONAL_SEARCH_HUBS) {
   for (const section of seasonalSearchSections(hub, "2026-10-09")) {
     assert.ok(html.includes('id="' + section.id + '"'));
     for (const link of section.links) {
-      assert.ok(html.includes('href="' + link.href + '"'), "visible link: " + link.href);
+      const attr = link.href.replace(/&/g, "&amp;");
+      assert.ok(html.includes('href="' + attr + '"'), "visible link: " + link.href);
+      if (link.sponsored) {
+        // 2026-10-21: ticket links only via the tracked redirect, from the registry.
+        assert.match(link.href, /^\/api\/commerce\/go\?provider=undercover_tourist&offer=\d+&surface=seasonal_hub&content=[a-z0-9-]+$/, "tracked ticket link: " + link.href);
+        assert.ok(html.includes('href="' + attr + '" rel="sponsored noopener"'), "sponsored rel: " + link.href);
+        assert.ok(!collection.mainEntity.itemListElement.some((item) => item.url.includes("/api/commerce/go")), "no redirect in schema");
+        assert.ok(html.includes("Some links on this page and in our guides are affiliate links"), hub.slug + " discloses on-page affiliate links");
+      }
       if (link.href.startsWith("/guides/")) {
         const slug = link.href.slice(8);
         assert.ok(GUIDES[slug] || existsSync(path.join(root, "app", link.href, "page.js")), "real guide: " + slug);
@@ -37,10 +45,13 @@ for (const hub of SEASONAL_SEARCH_HUBS) {
   }
   const future = renderToStaticMarkup(React.createElement(Hub, { slug: hub.slug, today: "2027-02-01" }));
   for (const section of hub.sections) for (const link of section.links) {
-    if (link.endsOn && link.endsOn < "2027-02-01") assert.ok(!future.includes('href="' + link.href + '"'), "expired edition removed: " + link.href);
+    if (link.endsOn && link.endsOn < "2027-02-01") assert.ok(!future.includes('href="' + link.href.replace(/&/g, "&amp;") + '"'), "expired edition removed: " + link.href);
   }
   assert.ok(!future.includes("countdown to 2027"), "expired NYE announcement is not promoted");
 }
+const sponsoredCount = (slug) => SEASONAL_SEARCH_HUBS.find((h) => h.slug === slug).sections.flatMap((s) => s.links).filter((l) => l.sponsored).length;
+assert.equal(sponsoredCount("fall-in-florida"), 2, "fall hub ticket links");
+assert.equal(sponsoredCount("halloween-in-florida"), 4, "halloween hub ticket links");
 const fall = SEASONAL_SEARCH_HUBS[0];
 assert.ok(seasonalSearchSections(fall, "2026-11-30")[0].links.some((l) => l.href.includes("fall-festivals")));
 assert.ok(!seasonalSearchSections(fall, "2026-12-01")[0].links.some((l) => l.href.includes("fall-festivals")));
