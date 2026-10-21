@@ -902,7 +902,7 @@ scripts/test-seasonal-live-area-2026-10-19.mjs	0	CALL	blocks-ci-and-deploy	1	-	8
 scripts/test-seasonal-pending-rails-2026-10-19.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	baf5c56b3c5a60b072a19998574ae004e6438f60d17a3874ea7e0cd3d1e32e13
 scripts/test-seasonal-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	70045336e7739ee9777d1053a5f9f6f9f5e916bfc72562000562a397296e1af8
 scripts/test-seasonal-poster-filing-2026-10-19.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	9e805c23254a50a930b1740681cb82a89b2586b305adbdc94eaa7846d3e52f77
-scripts/test-seasonal-search.mjs	0	RENDER	blocks-ci-and-deploy	1	-	23	0	0	0ceb9a650249c5920688c7862d47413f468bcb265bac115d3fa0c00a1acf8ceb
+scripts/test-seasonal-search.mjs	0	RENDER	blocks-ci-and-deploy	1	-	29	0	0	c038fd4db292425a3db52b9d1b41ae61b80b2270c197c94e8f91814214230790
 scripts/test-secret-output-guard.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	da1918de719a42249cfe743a5deb9d75fe0110a1b38467c897b69f0aac17f348
 scripts/test-seed.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	2aba20e1c5dc6ac4b71a63c544adea5d3f7dd507c2bdd453ed782da8eb8399ec
 scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	1	4	addd3fe9f7547087bee96fd15d267ef6ccd2be6d0d17bc64704077e08f4d83a0
