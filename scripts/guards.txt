@@ -564,6 +564,7 @@ node scripts/test-card-store-coherence.mjs
 # never poses as a visitor device (2026-10-01, Website user flow analysis).
 node scripts/test-analytics-write-suppression.mjs
 node scripts/check-viator-redirect-layer.mjs
+node scripts/check-viator-go-location-pid.mjs
 node scripts/check-intent-partner-picks.mjs
 # 2026-09-15 (Lane C) — every registered partner offer earns an intent-page or
 # place-page home. Locks placePagePartner() (lib/placeData.js, /places/[id]'s

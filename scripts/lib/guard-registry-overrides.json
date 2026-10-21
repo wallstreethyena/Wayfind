@@ -232,6 +232,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-viator-go-location-pid.mjs": {
+    "protects": "Every viator.com Location a redirect route returns carries pid=P00320881, and /api/viator/go's bare ?q= resolve stamps an untagged Partner API productUrl through withViatorTracking.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-21: a bare /api/viator/go?q= with no product= and no intent=search 302'd to the Partner API productUrl with no pid, mcid, or medium. The click converted on Viator and never reached account P00320881."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-viator-redirect-layer.mjs": {
     "protects": "No monetized Viator link on /culture/[metro] reaches the DOM as a raw partner URL, and the exact-product passthrough can never become an open redirect.",
     "blastRadius": {
