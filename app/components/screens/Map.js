@@ -125,8 +125,8 @@ export default function MapScreen({ ctx }) {
   // coordinate inside its source's permitted window, lib/coordProvenance.js)
   // is counted and said on screen, never silently missing.
   const listAccounting = useMemo(() => (mapMode === "places" && !explicitList
-    ? accountListOnMap({ listPlaces: contextualView || [], pins: view, areaPlaces: liveAreaPlaces, areaStatus })
-    : null), [mapMode, explicitList, contextualView, view, liveAreaPlaces, areaStatus]);
+    ? accountListOnMap({ listPlaces: contextualView || [], pins: view, areaPlaces: liveAreaPlaces, areaStatus, appleOutcomes: appleRecovery.stats && appleRecovery.stats.outcomes })
+    : null), [mapMode, explicitList, contextualView, view, liveAreaPlaces, areaStatus, appleRecovery.stats]);
   const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
   const unpinnedNote = unpinnedForCoord > 0
     ? `${unpinnedForCoord} of ${listAccounting.total} list places still need a confirmed map location.${appleRecovery.status === "loading" ? " Checking top picks with Apple Maps…" : ""}`
@@ -139,7 +139,7 @@ export default function MapScreen({ ctx }) {
     try {
       if (typeof window === "undefined") return;
       window.__wfMapList = listAccounting
-        ? { listIds: listAccounting.rows.map((r) => r.id), pinned: listAccounting.rows.filter((r) => r.status === "pinned").map((r) => r.id), unmapped: listAccounting.unmapped, counts: listAccounting.counts, note: unpinnedNote, at: Date.now() }
+        ? { listIds: listAccounting.rows.map((r) => r.id), pinned: listAccounting.rows.filter((r) => r.status === "pinned").map((r) => r.id), unmapped: listAccounting.unmapped, counts: listAccounting.counts, apple: listAccounting.apple, note: unpinnedNote, at: Date.now() }
         : null;
       window.__wfAppleRecovery = { status: appleRecovery.status, ...appleRecovery.stats, recoveredIds: appleRecovery.places.map((p) => p.id) };
     } catch (e) {}

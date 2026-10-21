@@ -34,6 +34,11 @@ export const config = {
     // Private group ballots use their own capability/owner authorization too.
     "/api/group-plans/:path*",
     "/api/places/search",
+    // Free Apple Maps pins: same-origin POST that reserves units against the
+    // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost
+    // gate (Apple's allowance is free); an abuse gate so a script cannot burn
+    // the day's allowance and blank everyone's pins.
+    "/api/maps/apple-budget",
     // Search box autocomplete + suggestion-detail proxies (2026-07-25 audit):
     // these used to be direct client->Google calls via the Maps JS library —
     // the one metered Places surface that bypassed this guard entirely. See

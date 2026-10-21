@@ -143,6 +143,10 @@ const preludeFor = (failBroad) => `
   const DAY = 86400000;
   // The route's one lib/coordProvenance.js import (inv=1 list schema echo).
   const INV_LIST_SCHEMA = "mapcoord1";
+  // The route's lib/applePlaceIds.js import (stored Apple Place IDs, DB-only;
+  // locked by scripts/test-apple-free-pins.mjs). Records the call, attaches none.
+  export const appleIdCalls = { n: 0 };
+  const attachApplePlaceIds = async (places) => { appleIdCalls.n++; return 0; };
   const NextResponse = { json(value, init = {}) { return new Response(JSON.stringify(value), { status: init.status || 200, headers: init.headers }); } };
   const attractionDiscoveryPlaceIds = (cat, sub) => ["family", "attractions"].includes(String(cat)) && ["all", "kids"].includes(String(sub || "all")) ? ${JSON.stringify(ATTRACTION_DISCOVERY_IDS)} : [];
   // Mirrors the REAL serveFromInventory's failLoud contract exactly: with

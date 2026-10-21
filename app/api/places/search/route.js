@@ -17,6 +17,7 @@ import { placeDiscoveryRef } from "../../../../lib/discoveryRef";
 import { mergeOwnedSignals, ownedLookupIds } from "../../../../lib/ownedLibrary";
 import { attractionDiscoveryPlaceIds, loadAttractionDiscovery } from "../../../../lib/attractionDiscovery";
 import { INV_LIST_SCHEMA } from "../../../../lib/coordProvenance.js";
+import { attachApplePlaceIds } from "../../../../lib/applePlaceIds.js";
 
 export const dynamic = "force-dynamic";
 // 2026-09-23 — the inv=1 branch now reads its category box EXHAUSTIVELY
@@ -241,6 +242,9 @@ async function handleSearch(params, origin) {
         const result = await serveFromInventory(String(params.cat || ""), lat, lng, radius, invN, params.sub, { offset: invOffset, withMeta: true, failLoud: true });
         const meta = result && result.meta ? result.meta : { eligible: 0, served: 0, offset: invOffset, truncated: false };
         const places = result && Array.isArray(result.places) ? result.places : [];
+        // Free Apple pins: stored Apple Place IDs for places whose stored
+        // coordinate may not be drawn (lib/applePlaceIds.js). DB-only.
+        await attachApplePlaceIds(places);
         return NextResponse.json({
           places, cached: false, source: "inventory-direct", schema: INV_LIST_SCHEMA,
           // total = the full eligible count under this exact chip/radius, not
@@ -297,6 +301,7 @@ async function handleSearch(params, origin) {
       const meta = discoveryMeta || { eligible: merged.length, served: merged.length, offset: invOffset, truncated: false };
       const extraCandidates = Math.max(0, merged.length - meta.served);
       const total = meta.eligible + extraCandidates;
+      await attachApplePlaceIds(merged);
       return NextResponse.json({
         places: merged, cached: false, source: "inventory-direct", schema: INV_LIST_SCHEMA,
         // nextOffset: where the RANKED read stopped. Page 0 can carry exact-ID

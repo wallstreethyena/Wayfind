@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createAppleMapRecovery, createAppleMapSearch, planAppleMapRecovery } from "../../lib/appleMapRecovery.js";
+import { createAppleMapRecovery, createAppleMapSearch, createApplePlaceLookup, createAppleBudgetGrant, planAppleMapRecovery } from "../../lib/appleMapRecovery.js";
 
 // Cache validity and effect restarts must agree on the evidence that actually
 // governs recovery. Photo, editorial and calculation-receipt updates cannot
@@ -9,7 +9,7 @@ import { createAppleMapRecovery, createAppleMapSearch, planAppleMapRecovery } fr
 function recoveryEvidence(place) {
   const address = place.address;
   return JSON.stringify({
-    identity: [place.id, place.name, place.city, place.locality,
+    identity: [place.id, place.name, place.city, place.locality, place.applePlaceId,
       typeof address === "string" ? address : [address?.street, address?.locality],
       place.formattedAddress, place.formatted_address, place.subThoroughfare, place.thoroughfare,
       place.isChain, place.is_chain, place.chain, place.chainName, place.chain_name],
@@ -44,7 +44,9 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
   const key = `${scopeKey}|${evidenceKey}`;
   useEffect(() => {
     if (!mapkit) return undefined;
-    const instance = createAppleMapRecovery({ search: createAppleMapSearch(mapkit) });
+    // Stored Apple Place IDs resolve through PlaceLookup; every Apple call is
+    // reserved against the one daily free ceiling first (/api/maps/apple-budget).
+    const instance = createAppleMapRecovery({ search: createAppleMapSearch(mapkit), lookup: createApplePlaceLookup(mapkit), grant: createAppleBudgetGrant() });
     engine.current = instance;
     return () => { instance.destroy(); if (engine.current === instance) engine.current = null; };
   }, [mapkit]);
@@ -67,6 +69,7 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
           rejected: stats.rejected, errors: stats.errors, timedOut: stats.timedOut,
           batchLimited: stats.batchLimited, remainingCandidates: stats.remainingCandidates,
           budgetExhausted: stats.budgetExhausted, capacityLimited: stats.capacityLimited, aborted: stats.aborted,
+          lookups: stats.lookups, ledger: stats.ledger, lookupGranted: stats.lookupGranted, searchGranted: stats.searchGranted, grantLimited: stats.grantLimited,
         }));
       } catch {}
       if (live) setProgress({ key, status: stats.errors || stats.timedOut || stats.capacityLimited ? "partial" : "ready", stats: { ...stats, places: undefined } });
