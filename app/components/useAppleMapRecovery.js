@@ -69,7 +69,7 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
           rejected: stats.rejected, errors: stats.errors, timedOut: stats.timedOut,
           batchLimited: stats.batchLimited, remainingCandidates: stats.remainingCandidates,
           budgetExhausted: stats.budgetExhausted, capacityLimited: stats.capacityLimited, aborted: stats.aborted,
-          lookups: stats.lookups, ledger: stats.ledger, lookupGranted: stats.lookupGranted, searchGranted: stats.searchGranted, grantLimited: stats.grantLimited,
+          lookups: stats.lookups || 0, ledger: stats.ledger === true, lookupGranted: stats.lookupGranted || 0, searchGranted: stats.searchGranted || 0, grantLimited: !!stats.grantLimited,
         }));
       } catch {}
       if (live) setProgress({ key, status: stats.errors || stats.timedOut || stats.capacityLimited ? "partial" : "ready", stats: { ...stats, places: undefined } });
