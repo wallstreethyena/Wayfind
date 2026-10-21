@@ -34,7 +34,7 @@ const TRENDING_URLS = [
   "https://www.vanwezel.org/events/detail/movie-pops-star-wars-return-of-the-jedi-in-concert",
   "https://www.livenation.com/event/vvG1VZ_FDr-qK6/teddy-swims-the-ugly-tour",
   "https://www.rutheckerdhall.com/events/detail/abba",
-  "https://www.myclearwater.com/Events-and-Meetings/Jake-Owen-and-Niko-Moon",
+  "https://www.rutheckerdhall.com/events/detail/jake-owen",
   "https://lbknews.com/culture-key/event/golden-groovers-the-music-of-stevie-wonder/",
   "https://jannuslive.com/shows/calendar/",
   "https://jannuslive.com/shows/calendar/",
@@ -110,6 +110,12 @@ ok(/Tampa–St\. Pete \(Sarasota\) DMA/.test(guide?.intro || ""), "the intro nam
 ok(/relative/i.test(guide?.intro || "") && /no absolute search volume/i.test(guide?.intro || ""), "the intro says Google Trends values are relative and claims no absolute volume");
 ok(/background levels/i.test(JSON.stringify(guide)), "red tide is worded as background levels");
 ok(/AL pennant/.test(JSON.stringify(guide)) && /Brewers/.test(JSON.stringify(guide)) && /October 26, at 8 PM ET/.test(JSON.stringify(guide)) && /October 23/.test(JSON.stringify(guide)), "Rays copy is the AL pennant and the World Series vs the Brewers: G1 Oct 23, first Trop game Oct 26 8 PM ET");
+
+// Primary venue pages distinguish doors/showtime and separate location calendars.
+ok(/Date: 2026-10-22 6:30 PM/.test(trending[17]?.blurb || "") && /5:30 PM doors/.test(trending[17]?.blurb || ""), "Jake Owen uses the venue showtime and retains doors separately");
+ok(/Mumiy Troll starts at 8 PM, with doors at 7 PM/.test(trending[20]?.blurb || "") && !/all 7 PM/.test(trending[20]?.blurb || ""), "Jannus shows have individual start times");
+ok(/Clearwater Beach runs noon to 10 PM Friday and Saturday/.test(trending[6]?.blurb || "") && /Dunedin's Friday music starts at 4 PM/.test(trending[6]?.blurb || ""), "Frenchy's locations retain separate music schedules");
+ok(/families 6 to 7:30 PM/.test(trending[25]?.blurb || "") && /adults 18\+ 8:30 to 10 PM/.test(trending[25]?.blurb || ""), "guide paddle copy matches the two real sessions");
 
 const published = JSON.stringify(guide);
 ok(forbids(published, "game 7 is tuesday") && forbids(published, "can clinch"), "stale ALCS copy from October 19 is gone");
