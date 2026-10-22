@@ -320,7 +320,7 @@ assertReturn(code, { screen: 'map', cat: 'nightlife', sub: 'speakeasy', center: 
 const guard = 'if (detailReturnEntryRef.current && window.history.state?.__wfPositionKey === detailReturnEntryRef.current) {\n          activeEntryKey.current = detailReturnEntryRef.current;\n          return;\n        }';
 assert.equal(source.split(guard).length, 2, 'one narrowly scoped parent-entry guard');
 assert.throws(() => assertReturn(historyCode(source.replace(guard, '')), parrish), /detail Back preserves live cat/);
-ok(true, 'real shell history preserves map filters/location on detail Back, restores real screen and standalone returns, and rejects the original-bug mutation');
+console.log('Real shell history: map filters/location preserved on detail Back; screen and standalone returns restored; original-bug mutation rejected.');
 
 }
 
