@@ -257,7 +257,7 @@ scripts/check-live-reads.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	89fede7a30c2
 scripts/check-local-calendars-import.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	f16950f56f277dfeb6d77dcc910f6e659144cf6cf568c3f702b7c14783055270
 scripts/check-local-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	4f9dd3976f0b399ab0753738eae86e34a490a60ce3329ea74321cd6e2524bebf
 scripts/check-location-fail-open.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	43	2	5	3b4335f58050899cc3232d933112b31be9681d97a84772af7ba4180512057104
-scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	107	0	0	cec335e4d089a6157b4c80eefeb9121e923dfea1bd37707d164ce741f34cee18
+scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	111	0	0	a295a4cd857235424fb32d906803eaa423a7def2ca9714102970e4d59c898d90
 scripts/check-locks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	b3c28ea038c04167de21229a233777d4ef55c4b620b1e679a5ce7a96e5416933
 scripts/check-lodging.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	b0c933db1852f36e655d034be32596ef29f63c07bdbec8465bf34640022ebd49
 scripts/check-lunch-in-my-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	075963393aaafe8b7996dab88498b3304a7a1ae1081688a62aab4601eac6b9bf
@@ -891,6 +891,7 @@ scripts/test-ranked-experience-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	1	3	
 scripts/test-ranking-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	a954710f51e3a8d496e74df3717f1038f248d9da883342dfa0bd60e92b61dab2
 scripts/test-rays-world-series-poster.mjs	0	RENDER	blocks-ci-and-deploy	1	-	17	0	0	1375885c3e7287cb47e7c9990f34a47270fbd9521d5cbd273d2728ac794fc718
 scripts/test-reaction-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	6	0	0	220676c3fce47c15caef74152814bc4cb854b6dd2eafb823e4526e90555db2b2
+scripts/test-reconcile-list-map-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	dca906ab3e256ee0683cd2195cebbd3fa1ba7a9cb7491201f1bd37a7ff1e652a
 scripts/test-red-tide.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	3665c2f2520aa17bb8ea626382bfb62e9fe5e2d003f19766b480c7ef13281b5e
 scripts/test-redirect-integrity.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	12	0	0	790d24d12b3b1c8d27042d4e54666b92e602bfb441d32e31422a32a22c8bae83
 scripts/test-redirect-visitor-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	fd907a102fcbc5df55d14534e43b810033af225829a3b33407c5796884e4513b
