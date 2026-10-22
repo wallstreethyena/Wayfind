@@ -66,6 +66,8 @@ eq(fg.calls.length, 3, "three distinct keys asked once each");
 forgetPlacePhoto(A); forgetPlacePhoto("not-a-place-id");
 await getPlacePhoto(A, { surface: "card", nospend: true, fetchImpl: fg }); await getPlacePhoto(B, { surface: "card", fetchImpl: fg });
 eq(fg.calls.length, 4, "forgotten place is asked again; the other place is still reused");
+await getPlacePhoto(A, { surface: "card", fetchImpl: fg });
+eq(fg.calls.length, 4, "the spend-capable answer is KEPT: an image error can never cause a second purchase");
 ok(/nospend=1/.test(fg.calls[3]), "the recovery re-ask carries nospend=1");
 
 // 5. Temporary failure recovery: one delayed retry, then success is kept.
