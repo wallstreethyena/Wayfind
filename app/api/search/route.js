@@ -4,6 +4,7 @@
 import { searchOwnedPlaces } from "../../../lib/directSearch.js";
 import { resolveSearchIntent } from "../../../lib/searchIntent.js";
 import { searchLibrary } from "../../../lib/unifiedSearch.js";
+import { searchResultCards } from "../../../lib/searchCards.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -39,12 +40,14 @@ export async function GET(request) {
   const hasPoint = finiteParam(lat) && finiteParam(lng);
   const phraseWithoutPoint = !hasPoint && resolveSearchIntent(params.get("q"), {}).recognized === true;
   if (result && (result.reason !== "unsupported_location" || phraseWithoutPoint)) {
+    let filters = null;
     try {
       const library = await searchLibrary({
         query: params.get("q"),
         lat,
         lng,
       });
+      filters = library.meta && library.meta.filters;
       if (library.results && library.results.length) {
         const next = { ...result, status: "ok", results: library.results };
         delete next.reason;
@@ -52,6 +55,23 @@ export async function GET(request) {
       }
     } catch {
       // The place answer still stands when the library read throws.
+    }
+    try {
+      const cards = await searchResultCards({
+        query: params.get("q"),
+        lat,
+        lng,
+        ownedPlaces: result.places,
+        filters,
+        env: process.env,
+      });
+      if (cards.cards && cards.cards.length) {
+        const next = { ...result, status: "ok", cards: cards.cards };
+        delete next.reason;
+        result = next;
+      }
+    } catch {
+      // A card-feed failure leaves the place and library answer in place.
     }
   }
   return Response.json(result, { status: 200, headers: NO_STORE });

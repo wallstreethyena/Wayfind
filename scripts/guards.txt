@@ -2359,3 +2359,4 @@ node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
 # not applied here.
 node scripts/test-unified-search.mjs
 node scripts/check-search-understand.mjs
+node scripts/test-search-taxonomy.mjs
