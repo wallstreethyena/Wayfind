@@ -8663,6 +8663,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
   }
 
+  function isSafeSearchHref(href) {
+    return typeof href === "string" && href.charAt(0) === "/" && href.charAt(1) !== "/" && !href.includes("\\") && href.length <= 240;
+  }
+
   async function ownedSearch(q, searchCenter) {
     const params = new URLSearchParams({ q });
     if (searchCenter && Number.isFinite(searchCenter.lat) && Number.isFinite(searchCenter.lng)) {
@@ -8671,12 +8675,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     const data = await mainSearchJson("/api/search?" + params.toString());
     if (!data || !["ok", "empty", "unavailable"].includes(data.status) || !Array.isArray(data.places)) throw new Error("invalid_search_response");
-    const matches = data.places.map((row) => {
+    const places = data.places.map((row) => {
       const place = normalizeSearchPlace(row);
       if (!place) return null;
       const distance = Number.isFinite(place._searchDistanceMi) ? `${place._searchDistanceMi.toFixed(1)} mi from search area` : "Place in Wayfind";
       return { kind: "place", placeId: place.id, text: place.name, secondary: place.address || distance, place, exactMatch: row.exactMatch === true };
     }).filter(Boolean);
+    const library = (Array.isArray(data.results) ? data.results : []).map((row) => {
+      if (!row || !isSafeSearchHref(row.href) || !["event", "guide", "page", "coupon"].includes(row.kind)) return null;
+      const text = String(row.title || "").trim();
+      if (!text) return null;
+      return { kind: row.kind, text, secondary: String(row.secondary || row.kind), href: row.href, lead: row.lead === true };
+    }).filter(Boolean);
+    const matches = [...library.filter((row) => row.lead), ...places, ...library.filter((row) => !row.lead)].slice(0, 8);
     if (data.status === "ok" && !matches.length) throw new Error("invalid_search_response");
     return { ...data, matches };
   }
@@ -8696,9 +8707,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (request !== suggestionRequestRef.current) return;
       setSuggestions([...cities, ...result.matches].slice(0, 8));
       setSugIdx(-1);
-      setSearchFeedback(result.status === "ok" || cities.length ? "" : searchFailureMessage(result));
-      setSearchRecovery(result.status !== "ok" && !cities.length);
-      setSearchMissing(result.status === "empty" && !cities.length);
+      const found = result.status === "ok" || cities.length || result.matches.length;
+      setSearchFeedback(found ? "" : searchFailureMessage(result));
+      setSearchRecovery(result.status !== "ok" && !cities.length && !result.matches.length);
+      setSearchMissing(result.status === "empty" && !cities.length && !result.matches.length);
     } catch {
       if (request !== suggestionRequestRef.current) return;
       setSuggestions(cities);
@@ -8791,6 +8803,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       if (item.kind === "area" && item.city) goToSearchCity(item.city, attempt);
       else if (item.kind === "place" && item.place) openSearchPlace(item.place, attempt, item.context || "search");
+      else if ((item.kind === "event" || item.kind === "guide" || item.kind === "page" || item.kind === "coupon") && isSafeSearchHref(item.href)) {
+        setQuery("");
+        setSuggestions([]);
+        setSearchFeedback("");
+        setSearchRecovery(false);
+        setSearchMissing(false);
+        setSearchMode(false);
+        attempt.finish("page_opened", { status: "ok", count: 1, kind: item.kind, result_source: "owned-library" });
+        window.location.assign(item.href);
+      }
       else throw new Error("invalid_search_selection");
     } catch {
       setSearchFeedback("Could not open that result. Please search again.");
@@ -10464,7 +10486,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : "Explore this city"}</div>
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : (s.secondary || "Explore this city")}</div>
                     </div>
                   </li>
                 ))}
