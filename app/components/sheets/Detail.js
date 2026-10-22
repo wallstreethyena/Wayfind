@@ -1289,7 +1289,15 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginBottom: 16 }}>
               {!detail._event && nearbyTourListAllowed(detail, pinQ) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
+                // Affiliate leak closure (2026-10-22, The Ringling): a tickety
+                // place (museum/attraction) whose primary honestly cannot be
+                // a Book button — no verified product sells its admission —
+                // keeps its official-site/Directions links, but the tracked
+                // tickets CTA (BookingCTA's Search Viator fallback through
+                // /api/viator/go) must still render. The editorial-note
+                // suppression may not remove the only tracked outbound on a
+                // tickety sheet, so it applies only to non-tickety places.
+                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl && !Aff.isTicketyPlace(detail)} placeId={detail.id} city={ctaCity} />;
               })()}
               {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
               {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
