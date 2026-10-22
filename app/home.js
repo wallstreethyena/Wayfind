@@ -125,6 +125,7 @@ import nextDynamic from "next/dynamic";
 // The community tools sit below the entire discovery feed. Keep their form
 // state and submission code out of the first screen bundle.
 const CommunityFooter = nextDynamic(() => import("./components/CommunityFooter"), { ssr: false });
+const PoweredByStrip = nextDynamic(() => import("./components/PoweredByStrip"), { ssr: false });
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map…</span></div> });
@@ -11347,7 +11348,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
                 </div>
                 <div style={{ fontSize: 13, color: "#E6EDF3", lineHeight: 1.45, maxWidth: 420, margin: "0 auto" }}>Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings.</div>
-                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 11, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind · {BUILD_ID}</div>
+                <PoweredByStrip compact />
+                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 11, color: C.muted, opacity: 0.6, marginTop: 12, textAlign: "center", cursor: "pointer" }}>Wayfind · {BUILD_ID}</div>
               </div>
               <div style={{ height: 20 }} />
               </div>
