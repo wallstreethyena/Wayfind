@@ -2351,3 +2351,9 @@ node scripts/test-guide-rays-game-day.mjs
 # Read-only list vs map reconciliation tool (pure join + expiry re-check + cluster accounting;
 # the browser capture is run by hand against the live site, never in CI).
 node scripts/test-reconcile-list-map-live.mjs
+
+# Unified search draft: phrase pages, catalog rank, event fallback, and the
+# Claude filter (off unless WAYFIND_SEARCH_UNDERSTAND=on). The migration is
+# not applied here.
+node scripts/test-unified-search.mjs
+node scripts/check-search-understand.mjs
