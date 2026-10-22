@@ -2336,3 +2336,7 @@ node scripts/test-creator-in-app-playback.mjs
 
 node scripts/test-event-source-corrections-20261021.mjs
 node scripts/test-guide-rays-game-day.mjs
+
+# Read-only list vs map reconciliation tool (pure join + expiry re-check + cluster accounting;
+# the browser capture is run by hand against the live site, never in CI).
+node scripts/test-reconcile-list-map-live.mjs
