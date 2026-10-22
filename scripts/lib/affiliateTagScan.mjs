@@ -427,7 +427,8 @@ export function contentFiles(root) {
   for (const rel of ["app/guides", "app/events", "app/florida-events", "app/culture"]) {
     walk(path.join(root, rel), files, text);
   }
-  walk(path.join(root, "data"), files, (p) => /guide|event/i.test(p) && text(p));
+  // Data coverage must depend on file type, never the checkout directory name.
+  walk(path.join(root, "data"), files, text);
   return files;
 }
 

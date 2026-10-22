@@ -3,10 +3,11 @@
 // A broken Viator URL (no pid) must fail. A stamped one must pass. A bare
 // Tiqets URL must fail. An explicit official annotation must pass.
 import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdtempSync, symlinkSync, rmSync } from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { loadRules, scanText, scanFile, auditViatorText, judgeUrl } from "./lib/affiliateTagScan.mjs";
+import { loadRules, scanText, scanFile, auditViatorText, judgeUrl, contentFiles } from "./lib/affiliateTagScan.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const FIX = path.join(ROOT, "scripts/fixtures/affiliate-tags");
@@ -118,6 +119,20 @@ ok(scanText(`  "booking_url": "${tm}",`, researchFile, rules).violations.length 
 ok(scanText('  "ticket_url": "https://www.viator.com/tours/x/d1-1",', researchFile, rules).violations.length === 1, "other merchants cannot inherit the Ticketmaster adapter context");
 const mixedFields = scanText(`"official_url": "${tm}", "booking_url": "${tm}", "ticket_url": "${tm}"`, researchFile, rules);
 ok(mixedFields.official.length === 1 && mixedFields.inputs.length === 1 && mixedFields.violations.length === 1, "same-line repeated URL keeps each field's separate obligation");
+
+// The same checkout must cover the same data whether its parent path happens
+// to contain "event" or not. Both aliases point at this exact source tree.
+const pathProbe = mkdtempSync(path.join(os.tmpdir(), "wf-affiliate-paths-"));
+try {
+  const roots = [path.join(pathProbe, "plain-checkout"), path.join(pathProbe, "event-checkout")];
+  const censuses = roots.map((root) => {
+    symlinkSync(ROOT, root, "dir");
+    return contentFiles(root).map((file) => path.relative(root, file)).sort();
+  });
+  ok(JSON.stringify(censuses[0]) === JSON.stringify(censuses[1]), "checkout names cannot change the scanned content census");
+  ok(censuses.every((files) => files.includes("data/christmas-2026-research.json")), "both pathnames scan the Christmas ticket inputs");
+  ok(censuses.every((files) => files.includes("data/fall-discovery/official-sources.json")), "both pathnames retain all supported source-data coverage");
+} finally { rmSync(pathProbe, { recursive: true, force: true }); }
 
 if (failures.length) {
   console.error("test-affiliate-tags: FAIL");
