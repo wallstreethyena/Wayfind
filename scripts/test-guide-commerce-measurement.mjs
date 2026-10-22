@@ -126,6 +126,7 @@ const deals = [...affiliateRows, freeRow].map(toDeal);
   ok(new Set(imps.map((p) => p.offer_id)).size === 2 && imps.every((p) => p.provider && p.content_id), "each impression names its own provider, offer and content");
   // the click beacon reads the same four keys off the href -> the pair joins.
   for (const a of m.anchors.filter((x) => String(x.props.href).startsWith("/api/commerce/go?"))) {
+    ok(/\bsponsored\b/.test(a.props.rel) && /\bnofollow\b/.test(a.props.rel), "internal affiliate redirects carry sponsored + nofollow even though external=false");
     const q = new URL(a.props.href, "https://x.test").searchParams;
     ok(q.get("surface") === "guide_deals", "the affiliate href's surface is guide_deals, not coupons");
     ok(imps.some((p) => p.offer_id === q.get("offer") && p.provider === q.get("provider") && p.content_id === q.get("content")), "the impression and the click href agree on provider/offer/content (CTR join)");
@@ -137,6 +138,8 @@ const deals = [...affiliateRows, freeRow].map(toDeal);
   m.anchors[0].props.onClick(); m.anchors[0].props.onClick();
   ok(named("deal_card_clicked").length === 1, "deal_card_clicked still fires once per card per pageview");
   ok(named("commerce_cta_clicked").length === 0, "the card itself does not emit commerce_cta_clicked (the beacon owns the click: no second emitter)");
+  const courtesy = mount(GuideDealCards, { slug: "free-guide", region: "Sarasota", deals: [{ ...toDeal(freeRow), url: "/coupons", commerce: null, external: false }] });
+  ok(courtesy.anchors.length === 1 && !/\bsponsored\b/.test(courtesy.anchors[0].props.rel || ""), "an internal courtesy link stays unsponsored");
 }
 
 // ── 2. click beacon: one activation -> one commerce_cta_clicked ─────────────

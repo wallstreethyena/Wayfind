@@ -1,6 +1,6 @@
 import { SITE_URL } from "../../lib/site";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { CROWN_PATH } from "../../lib/crownCampaign.js";
+import { CROWN_PATH, CROWN_PUBLISHED } from "../../lib/crownCampaign.js";
 import { WF_PLACE_CARD_CSS } from "../components/css";
 import ShareButton from "../components/ShareButton";
 import CrownCards from "./CrownCards";
@@ -9,7 +9,7 @@ export const metadata = {
   title: "Sarasota Halloween Crown",
   description: "Three Sarasota Halloween date nights. Fan vote, not a Wayfind Score.",
   alternates: { canonical: SITE_URL + CROWN_PATH },
-  robots: { index: true, follow: true },
+  robots: { index: CROWN_PUBLISHED, follow: true },
 };
 
 export default function SarasotaHalloweenCrownPage() {

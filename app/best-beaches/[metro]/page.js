@@ -19,11 +19,9 @@ import { fetchBeachJson } from "../../../lib/beachPageRead";
 // full rationale. Same durable-eligible set the sitemap uses; async, fail-soft.
 import { listIndexedIds } from "../../../lib/placeIndex.js";
 import { selectEligiblePlaceLinks } from "../../../lib/hubPlaceLinks.js";
-// This route renders the ONE raw, unwrapped Booking.com "Stay near <beach>"
-// link on the site (below, "the house hotel pattern") — the only place left
-// that needs Stay22's client-side LinkSwap rewriter. See
-// app/components/Stay22LinkSwap.js and scripts/check-no-sitewide-autolinker.mjs
-// for why it no longer loads from app/layout.js.
+// Stay22 stays scoped here, with popups disabled. The initial stay href is
+// already attributed so a blocked or delayed browser script cannot leak traffic.
+import { stay22AreaSearchUrl } from "../../../lib/hotelRedirect.js";
 import Stay22LinkSwap from "../../components/Stay22LinkSwap";
 // One sentence for every affiliate CTA (same constant the guide offers use).
 import { GUIDE_OFFER_COMMISSION_LINE } from "../../../lib/affiliateDisclosure.js";
@@ -262,14 +260,11 @@ export default async function BeachesPage({ params }) {
         <TourStrip lat={CENTROID[params.metro] ? CENTROID[params.metro].lat : 27.4} lng={CENTROID[params.metro] ? CENTROID[params.metro].lng : -82.55} title="Make it a beach day" subtitle="Bookable on-the-water experiences near these beaches — ranked by the same Score." waterOnly />
 
         {beaches[0] ? (
-          /* Stay lane (owner-approved #1): the house hotel pattern — a PLAIN
-             Booking.com area search; Stay22 LinkSwap (scoped to THIS route as
-             of the 2026-09-22 click-hijack fix — see Stay22LinkSwap above)
-             rewrites it to the best-paying provider with our attribution.
-             We never rank or name specific hotels here — no invented superlatives. */
+          /* An area search near the actual top beach, never a claim about
+             a specific verified hotel. Stay22 attribution is in the HTML. */
           <>
           <Stay22LinkSwap />
-          <a href={"https://www.booking.com/searchresults.html?ss=" + encodeURIComponent(beaches[0].name + " Florida")} target="_blank" rel="noreferrer nofollow sponsored" style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, background: C.card, border: "1px solid " + C.border, borderRadius: 14, padding: "13px 15px", textDecoration: "none", color: "inherit" }}>
+          <a href={stay22AreaSearchUrl(beaches[0].name + " Florida", "beaches-" + params.metro)} target="_blank" rel="noreferrer nofollow sponsored" style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 14, background: C.card, border: "1px solid " + C.border, borderRadius: 14, padding: "13px 15px", textDecoration: "none", color: "inherit" }}>
             <span aria-hidden="true" style={{ fontSize: 20 }}>🏨</span>
             <span style={{ flex: 1, minWidth: 0 }}>
               <span style={{ display: "block", fontSize: 14, fontWeight: 800 }}>Stay near {beaches[0].name}</span>

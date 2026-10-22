@@ -8,7 +8,7 @@ import { EVENT_WINDOWS } from "../lib/eventsList";
 import { TOWN_HUBS } from "../lib/cultureHubs";
 import { CULTURE } from "../lib/cultureCorpus";
 import { SITE_URL } from "../lib/site";
-import { CROWN_PATH } from "../lib/crownCampaign.js";
+import { CROWN_PATH, CROWN_PUBLISHED } from "../lib/crownCampaign.js";
 import { SEASONAL_SEARCH_HUBS } from "../lib/seasonalSearch";
 import { LANDING_CITIES, landingPaths } from "../lib/landing";
 import { trendingCitySlugs } from "../lib/trending";
@@ -79,6 +79,6 @@ export default async function sitemap() {
   const placeIds = await listIndexedIds(500);
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
   const seasonal = SEASONAL_SEARCH_HUBS.map(({ slug }) => ({ url: `${SITE_URL}/${slug}` }));
-  const crown = [{ url: `${SITE_URL}${CROWN_PATH}` }];
+  const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
   return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...crown, ...places];
 }

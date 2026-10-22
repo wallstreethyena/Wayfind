@@ -18,7 +18,7 @@ import { SEASONAL_SEARCH_HUBS } from "../lib/seasonalSearch.js";
 import { PHOTO_SURFACES } from "../lib/photoSurfaces.js";
 import { captureOrQueue, sanitizeAnalyticsProperties } from "../lib/browserAnalytics.js";
 import {
-  CROWN_PATH, CROWN_CREATIVE_ID, CROWN_CONTENDERS, CROWN_SESSION_KEY, CROWN_QA_KEY,
+  CROWN_PATH, CROWN_PUBLISHED, CROWN_CREATIVE_ID, CROWN_CONTENDERS, CROWN_SESSION_KEY, CROWN_QA_KEY,
   saveCrownCampaign, readCrownCampaign, claimCrownPageView, crownPageViewedProps,
   contenderClickProps, contenderDestination, decorateCrownHref, crownClickId,
   isQaClick, outboundTicketEvent,
@@ -214,8 +214,18 @@ const analyticsSource = readFileSync(path.join(ROOT, "lib/browserAnalytics.js"),
 ok(analyticsSource.includes(CROWN_SESSION_KEY) && !/from\s+["']\.\/crownCampaign\.js["']/.test(analyticsSource), "analytics reads the Crown session without a relative import the data-url test cannot resolve");
 const provider = readFileSync(path.join(ROOT, "app/components/PostHogProvider.js"), "utf8");
 ok(/register_for_session/.test(provider) && /sanitize_properties:\s*sanitizeAnalyticsProperties/.test(provider), "PostHog registers the Crown session and still sanitizes every payload");
-const sitemap = readFileSync(path.join(ROOT, "app/sitemap.js"), "utf8");
-ok(sitemap.includes("CROWN_PATH"), "the Crown URL is in the sitemap source");
+// The owner took this route down at Vercel on October 20. The archived
+// component above still has to render correctly; that does not publish it.
+ok(CROWN_PUBLISHED === false, "the owner-requested Crown takedown remains in force");
+ok(page.metadata.robots.index === false, "the held Crown page is noindex even without the edge rule");
+const realFetch = globalThis.fetch;
+try {
+  globalThis.fetch = async () => new Response("[]", { status: 200, headers: { "content-type": "application/json" } });
+  const sitemap = await loadComponent(path.join(ROOT, "app/sitemap.js"), ROOT);
+  const urls = (await sitemap.default()).map((row) => new URL(row.url).pathname);
+  ok(urls.includes("/guides") && urls.includes("/restaurants/sarasota"), "the real sitemap still lists published guide and Sarasota controls");
+  ok(!urls.some((url) => url === CROWN_PATH || url.startsWith(CROWN_PATH + "/")), "the real sitemap never advertises the taken-down Crown route or subpaths");
+} finally { globalThis.fetch = realFetch; }
 
 let measured = null;
 try {
