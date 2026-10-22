@@ -523,7 +523,7 @@ scripts/test-card-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	19	
 scripts/test-card-chips-deterministic.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	faa512378c123860334fb7ea02a75be949b43eb464f4e557513f4b5a246643c4
 scripts/test-card-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	16fa6f4413a8f9f8a90c8d017f626ac8ec0dbbb02473c4e5360fd04b2c93c033
 scripts/test-card-photo-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	01ca9684dac839a3abeceb4ecad39fccf3b3e2a2b7123bf4401bcdc4593938b3
-scripts/test-card-photo-viewer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	82	0	0	9b9769c7d9f5dae225cfd4fcbf68243238dace3be591f168cb82dbe47e26a344
+scripts/test-card-photo-viewer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	91	0	0	6c12ba3ec8ae80d91850ea677932c5c5a7096ffd8908493bbb31fec3f8182efe
 scripts/test-card-store-coherence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	beecd02d00e38744089602b4c26f4781e5acd97f43a98aaa58e1507f7424de92
 scripts/test-card-tap-tracking.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	30e932f8c2514e47db21dcd29ecb40e4ef321827d57a7d133f08dd6b522065f0
 scripts/test-cash-register-batch-2026-08-20.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	64	0	0	fbf7e39547b90b6cd621ad3614acc2a9ba9d888ad97c282ad2d25aef63fa6b89
@@ -819,7 +819,7 @@ scripts/test-pairs-well-with.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	e871a91b
 scripts/test-partner-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	3fbeeed0e03443507a8338bec4b9e21bbf6c35980ca9170d6dc8f1b62b6eddd4
 scripts/test-partner-rail-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	5c792a6ff5db031a9b243e2bd923152800b1af229fc053bf4f6e8e8c45263cff
 scripts/test-personalization.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	ff9c6fb7d5aa60cd088202df40964d969cdbfd3f4bb63f0a84f45a075be61941
-scripts/test-photo-answers.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	73620c8a0e9c3adb6a5536a58353a5cc682ac357401940168e573ceddf5397e4
+scripts/test-photo-answers.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	150a75206353566884fef4c8da545b940e5c2d00a5ec14b9eb1a1ad69d6ccffe
 scripts/test-photo-cache-width-reuse.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	0dc741b09c2acc6b436b5814b462bdd38e7cb97640874a3bd866213037f5b8df
 scripts/test-photo-credit-capture.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	6e321f019357546df151a6348c3e32f0390d0332b152932edbae740e569dc28f
 scripts/test-photo-credit-new-tab.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	740f163c03ec04e0853a9f1059ada4c63e14a1d90298f8c6686c4257b42bc6e9
