@@ -4,7 +4,7 @@ Rreal Tacos Downtown Tampa was absent from wf_inventory and wf_events. Official 
 
 Official seasonal menu: https://www.rrealtacos.com/halloween-bar. Confirms Zombie Punch, Witches Brew Margarita, Halloween birria and coffin boxes. Box availability is through Halloween while supplies last; do not promise every menu item through November 2.
 
-Exact owner-submitted video: https://www.instagram.com/life_withkaymarie/reel/DesRyKbhtxf/ by life_withkaymarie. Public profile grid shows October 19, 2026 and RREAL TACOS TAMPA thumbnail. The owner screenshot supplies the caption and November 2 closing date. The post detail requires Instagram sign-in in the research browser. Do not invent views, followers or reach. This is a venue-specific reel, eligible for the venue and its Halloween bar listing. No Google Place ID has been verified; use the existing name + city fallback.
+Exact owner-submitted video: https://www.instagram.com/reel/DesRyKbhtxf/ by life_withkaymarie. Public profile grid shows October 19, 2026 and RREAL TACOS TAMPA thumbnail. The owner screenshot supplies the caption and November 2 closing date. The post detail requires Instagram sign-in in the research browser. Do not invent views, followers or reach. This is a venue-specific reel, eligible for the venue and its Halloween bar listing. No Google Place ID has been verified; use the existing name + city fallback.
 
 Tropicana Field exists in wf_inventory as ChIJkXdv95vhwogR3e84WZCqrJ4. The owner Rays screenshot is a division championship graphic, not venue video. No attachment is made from it.
 
