@@ -1,5 +1,8 @@
-// FREE direct search over Wayfind-owned place data. No Google or paid fallback.
+// Owned search: place names stay on the free inventory matcher. Pages, guides,
+// events, and coupons come from the library index. The optional Claude filter
+// is inside searchLibrary and stays off unless WAYFIND_SEARCH_UNDERSTAND=on.
 import { searchOwnedPlaces } from "../../../lib/directSearch.js";
+import { searchLibrary } from "../../../lib/unifiedSearch.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -23,6 +26,22 @@ export async function GET(request) {
       query: String(params.get("q") || "").trim().slice(0, 160),
       reason: "source_unavailable",
     };
+  }
+  if (result && result.reason !== "unsupported_location") {
+    try {
+      const library = await searchLibrary({
+        query: params.get("q"),
+        lat: params.get("lat"),
+        lng: params.get("lng"),
+      });
+      if (library.results && library.results.length) {
+        const next = { ...result, status: "ok", results: library.results };
+        delete next.reason;
+        result = next;
+      }
+    } catch {
+      // The place answer still stands when the library read throws.
+    }
   }
   return Response.json(result, { status: 200, headers: NO_STORE });
 }

@@ -101,6 +101,7 @@ if (mod) {
 const RANKERS = [
   "lib/ranking.js", "lib/score.js", "lib/intentPages.js", "lib/beaches.js",
   "lib/landing.js", "lib/placeFilter.js", "lib/inventoryServe.js", "lib/memberSignals.js",
+  "lib/searchRank.js",
 ];
 let checkedRankers = 0;
 for (const rel of RANKERS) {
