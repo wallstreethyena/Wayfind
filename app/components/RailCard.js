@@ -598,7 +598,7 @@ export default function RailCard({
                   detail): say "Tour" in the existing eyebrow slot so a tour
                   card is never mistaken for a place card. Text only — the
                   slot, row, and card dimensions are unchanged. */}
-              {(() => { const shownEyebrow = (!place && contentSubject && contentSubject.type === "experience") ? (eyebrow ? `Tour · ${eyebrow}` : "Tour") : eyebrow; return shownEyebrow ? (onEyebrow
+              {(() => { const shownEyebrow = (!place && actionItem && actionItem.type === "experience") ? (eyebrow ? `Tour · ${eyebrow}` : "Tour") : eyebrow; return shownEyebrow ? (onEyebrow
                 ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{shownEyebrow} ›</button>
                 : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
