@@ -41,6 +41,7 @@ import {
   milesBetween,
   cityOriginsWire,
   firstPaintRailOrigin,
+  nearestOwnedCityName,
 } from "../lib/locationHonesty.js";
 import { nearestCoveredCity, railDistanceMi } from "../lib/railCoverage.js";
 
@@ -355,4 +356,10 @@ if (fail.length) {
   for (const f of fail) console.error("  ✗ " + f);
   process.exit(1);
 }
+// #1687 — the free owned fallback names the nearest covered city, or nothing.
+ok(nearestOwnedCityName(27.3364, -82.5307) === "Sarasota, FL", "Sarasota coords name Sarasota without a paid geocode");
+ok(nearestOwnedCityName(27.9506, -82.4572) === "Tampa, FL", "Tampa coords name Tampa");
+ok(nearestOwnedCityName(39.7392, -104.9903) === "", "outside covered range the fallback stays empty (Denver)");
+ok(nearestOwnedCityName(NaN, NaN) === "", "invalid coords stay empty");
+
 console.log(`check-location-honesty: ${pass} assertions passed (fail-closed rails, city-neutral HomeProof, seed is not a city, dests does not eat suggestions)`);
