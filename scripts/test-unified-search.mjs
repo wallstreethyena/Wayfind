@@ -32,9 +32,9 @@ assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), fal
   assert.equal(things.meta.understand, "skipped_intent");
   assert.equal(things.meta.called, false);
 
-  const savedUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const savedKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  const savedFlag = process.env.WAYFIND_SEARCH_UNDERSTAND;
+  delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+  delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  delete process.env.WAYFIND_SEARCH_UNDERSTAND;
   process.env.NEXT_PUBLIC_SUPABASE_URL = "https://e2eplaceholder.supabase.co";
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "e2e-placeholder-anon-key-not-real";
   process.env.WAYFIND_SEARCH_UNDERSTAND = "";
@@ -53,9 +53,9 @@ assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), fal
     assert.equal(pizza.reason, "unsupported_location");
     assert.equal(pizza.results, undefined, "an unknown query with no point does not attach another city's deals");
   } finally {
-    if (savedUrl == null) delete process.env.NEXT_PUBLIC_SUPABASE_URL; else process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
-    if (savedKey == null) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = savedKey;
-    if (savedFlag == null) delete process.env.WAYFIND_SEARCH_UNDERSTAND; else process.env.WAYFIND_SEARCH_UNDERSTAND = savedFlag;
+    delete process.env.NEXT_PUBLIC_SUPABASE_URL;
+    delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    delete process.env.WAYFIND_SEARCH_UNDERSTAND;
   }
 }
 
@@ -127,26 +127,15 @@ assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), fal
   }
 }
 
-const saved = {
-  WAYFIND_SEARCH_UNDERSTAND: process.env.WAYFIND_SEARCH_UNDERSTAND,
-  WAYFIND_GATE: process.env.WAYFIND_GATE,
-  ANTHROPIC_MONTHLY_REQUEST_CAP: process.env.ANTHROPIC_MONTHLY_REQUEST_CAP,
-  ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY,
-  SUPABASE_URL: process.env.SUPABASE_URL,
-  SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+const FLAG_ON = {
+  WAYFIND_SEARCH_UNDERSTAND: "on",
+  WAYFIND_GATE: "open",
+  ANTHROPIC_MONTHLY_REQUEST_CAP: "10",
+  ANTHROPIC_API_KEY: "sk-ant-test-not-a-real-key",
+  SUPABASE_URL: "https://search.example.co",
+  SUPABASE_SERVICE_ROLE_KEY: "service-test-key",
 };
-function restoreEnv() {
-  for (const [key, value] of Object.entries(saved)) {
-    if (value === undefined) delete process.env[key];
-    else process.env[key] = value;
-  }
-}
-process.env.WAYFIND_SEARCH_UNDERSTAND = "on";
-process.env.WAYFIND_GATE = "open";
-process.env.ANTHROPIC_MONTHLY_REQUEST_CAP = "10";
-process.env.ANTHROPIC_API_KEY = "sk-ant-test-not-a-real-key";
-process.env.SUPABASE_URL = "https://search.example.co";
-process.env.SUPABASE_SERVICE_ROLE_KEY = "service-test-key";
+for (const [key, value] of Object.entries(FLAG_ON)) process.env[key] = value;
 
 const previousFetch = globalThis.fetch;
 try {
@@ -161,7 +150,7 @@ try {
     }
     return json([]);
   };
-  const failed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: process.env });
+  const failed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
   assert.equal(failed.meta.understand, "invalid");
   assert.equal(failed.meta.called, true);
   assert.ok(failureCalls.some((url) => url.includes("api.anthropic.com")), "a non-phrase query with the flag on calls Claude");
@@ -177,7 +166,7 @@ try {
     if (target.includes("/rpc/wf_search_documents_query")) return json({ error: "missing" }, 404);
     return json([]);
   };
-  const capped = await searchLibrary({ query: "scalloping", ...SARASOTA, env: process.env });
+  const capped = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
   assert.equal(capped.meta.understand, "cap");
   assert.equal(capped.meta.called, false);
   assert.ok(capCalls.some((url) => url.includes("wf_spend_take")), "the cap check uses the monthly ledger");
@@ -204,7 +193,7 @@ try {
     return json([]);
   };
   const started = Date.now();
-  const timed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: process.env });
+  const timed = await searchLibrary({ query: "scalloping", ...SARASOTA, env: FLAG_ON });
   const elapsed = Date.now() - started;
   assert.equal(timed.meta.understand, "timeout");
   assert.ok(elapsed < 4000, `timeout must land near 1.5s, took ${elapsed}ms`);
@@ -212,7 +201,7 @@ try {
   assert.ok(slowCalls.some((url) => url.includes("api.anthropic.com")));
 } finally {
   globalThis.fetch = previousFetch;
-  restoreEnv();
+  for (const key of Object.keys(FLAG_ON)) delete process.env[key];
 }
 
 assert.equal(parseUnderstandFilters('{"city":"sarasota","category":"food","price":"$","when":"tonight","kid_friendly":false,"keywords":["seafood"]}').city, "sarasota");
