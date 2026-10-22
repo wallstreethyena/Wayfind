@@ -25,6 +25,7 @@ import { probeAndClassify } from "../../../../lib/linkProbe.js";
 import { hostOfUrl, isBadVerdict, dedupeVerdictRows } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
+import { summarizeLinkHealthPulse, unknownSince, daysBetween, STUCK_DAYS } from "../../../../lib/eventLinkPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -118,6 +119,7 @@ export async function GET(req) {
 
   const nowIso = new Date().toISOString();
   const counts = { alive: 0, bad: 0, strike: 0, unknown: 0 };
+  let stuck = 0;
   const patch = async (eventId, body) => {
     const r = await fetch(`${s.url}/rest/v1/wf_events?event_id=eq.${encodeURIComponent(eventId)}`, {
       method: "PATCH", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(body), cache: "no-store",
@@ -133,7 +135,17 @@ export async function GET(req) {
       if (p.verdict === "unknown") continue;
       verdictRows.push({ url: p.url, host: hostOfUrl(p.url) || "", verdict: p.verdict, reason: p.reason, title: p.title || null, final_url: p.finalUrl || null, expected: [row.event_name, row.venue].filter(Boolean).join(" | "), checked_at: nowIso });
     }
-    if (worst.verdict === "unknown") { counts.unknown++; err = err || await patch(row.event_id, { link_checked_at: nowIso }); continue; }
+    if (worst.verdict === "unknown") {
+      // Inconclusive is a skip, never a verdict. Track HOW LONG a row has been
+      // unreadable ("unknown:YYYY-MM-DD" = first seen) so a permanent wall is
+      // escalated instead of hiding. A bad/strike state is never overwritten.
+      counts.unknown++;
+      const held = row.link_ok === false || (row.link_verdict || "").startsWith("strike:");
+      const since = unknownSince(row.link_verdict) || today;
+      if (daysBetween(since, today) > STUCK_DAYS) stuck++;
+      err = err || await patch(row.event_id, held ? { link_checked_at: nowIso } : { link_verdict: `unknown:${since}`, link_checked_at: nowIso });
+      continue;
+    }
     if (!isBadVerdict(worst.verdict)) {
       counts.alive++;
       err = err || await patch(row.event_id, { link_ok: true, link_verdict: "alive", link_checked_at: nowIso, link_final_url: worst.finalUrl || null });
@@ -164,12 +176,8 @@ export async function GET(req) {
     if (!r.ok) err = err || `verdicts-${r.status}`;
   }
   try {
-    await recordPulse(JOB, {
-      attempted: rows.length,
-      succeeded: counts.alive + counts.bad + counts.strike,
-      failed: counts.unknown,
-      note: err ? `persistence error: ${err}`.slice(0, 200) : ([counts.bad ? `${counts.bad} event link(s) darkened` : null, counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null].filter(Boolean).join('; ') || null),
-    });
+    const pulse = summarizeLinkHealthPulse({ rows: rows.length, ...counts, stuck, err });
+    await recordPulse(JOB, { attempted: pulse.attempted, succeeded: pulse.succeeded, failed: pulse.failed, note: pulse.note });
   } catch (e) {}
-  return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, flagged }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, stuck, flagged }, { headers: { "Cache-Control": "no-store" } });
 }
