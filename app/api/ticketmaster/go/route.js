@@ -21,7 +21,7 @@ import { randomUUID } from "node:crypto";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
-import { isCrawler } from "../../../../lib/crawler.js";
+import { assessRedirectRequest, refusedResponse, ROBOTS_HEADER } from "../../../../lib/redirectGuard.js";
 
 const FALLBACK = "/events";
 
@@ -64,11 +64,21 @@ export async function GET(req) {
         Location: new URL(FALLBACK, req.url).toString(),
         "Cache-Control": "no-store, max-age=0",
         "Referrer-Policy": "no-referrer",
+        ...ROBOTS_HEADER,
       },
     });
   };
 
-  if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
+  // THE REQUEST GATE (lib/redirectGuard.js) runs BEFORE resolving anything:
+  // self-identified bots, HEAD and prefetch are always refused; header-signal
+  // suspects are refused only when WF_REDIRECT_GUARD_MODE=refuse. A refused
+  // request emits provider_redirect_refused and never sees a partner Location.
+  const guard = assessRedirectRequest(req, { clickId: sanitizeClientClickId(sp.get("click_id")) });
+  Object.assign(base, guard.eventProps);
+  if (guard.refuse) {
+    try { emit("provider_redirect_refused", { refuse_reason: guard.refuseReason }); } catch {}
+    return refusedResponse(req, guard, FALLBACK);
+  }
   if (!rawUrl) return fail("missing-url");
   if (!isTicketmasterFamily(rawUrl)) return fail("url-not-ticketmaster-family");
 
@@ -82,6 +92,13 @@ export async function GET(req) {
       Location: dest,
       "Cache-Control": "no-store, max-age=0",
       "Referrer-Policy": "no-referrer",
+      ...ROBOTS_HEADER,
     },
   });
+}
+
+// HEAD is never a click. Exported explicitly so it reaches the gate with its
+// real method (refused: 204, no Location, no provider_redirect_started).
+export async function HEAD(req) {
+  return GET(req);
 }

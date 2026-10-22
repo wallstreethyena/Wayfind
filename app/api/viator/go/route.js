@@ -20,7 +20,8 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
-import { isCrawler, isSyntheticMonitor } from "../../../../lib/crawler.js";
+import { isSyntheticMonitor } from "../../../../lib/crawler.js";
+import { assessRedirectRequest, refusedResponse, ROBOTS_HEADER } from "../../../../lib/redirectGuard.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -69,6 +70,17 @@ function partnerLocation(location) {
 
 // Response.redirect requires an absolute URL. Book fail-closed is our own
 // origin, never a partner guess.
+// Every 302 this route answers is uncacheable and noindex. A CDN-cached 302
+// is served WITHOUT running lib/redirectGuard.js — a cached partner Location
+// would reach the next bot ungated and unrecorded — and a cached refusal
+// would reach the next human.
+function redirect302(location) {
+  return new Response(null, {
+    status: 302,
+    headers: { Location: location, "Cache-Control": "no-store, max-age=0", "Referrer-Policy": "no-referrer", ...ROBOTS_HEADER },
+  });
+}
+
 function siteLocation(req, location) {
   const loc = String(location || FALLBACK || "/");
   try {
@@ -264,19 +276,21 @@ export async function GET(req) {
 
   const failAndRedirect = (reason, url) => {
     emit("provider_redirect_failed", { failure_reason: reason });
-    return Response.redirect(url, 302);
+    return redirect302(url);
   };
 
-  // Refuse crawlers BEFORE resolving anything, matching /api/commerce/go,
-  // /api/hotels/go and /api/ticketmaster/go: no freetext search is even
-  // attempted, so a bot can never spend the Viator search-API ledger or mint
-  // an exact-product handoff. (2026-09-15 07:00Z: 94 provider_redirect_started
-  // in one hour, 106 IPs, desktop Chrome/Mac UAs, `q:`-prefixed offer ids —
-  // this route was the only /go route with no isCrawler gate.)
-  if (isCrawler(req.headers.get("user-agent"))) {
-    const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
-    emit("provider_redirect_failed", { failure_reason: "crawler-refused", resolver_path: chosen.resolver_path });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+  // THE REQUEST GATE runs BEFORE resolving anything (lib/redirectGuard.js):
+  // no freetext search is attempted, so a refused request can never spend the
+  // Viator search-API ledger or mint an exact-product handoff. It covers what
+  // the old isCrawler-only gate did (self-identified bots, 2026-09-15: 94
+  // provider_redirect_started in one hour) plus HEAD / prefetch, and stamps
+  // its classification on every event below. A refused request emits
+  // provider_redirect_refused — never _started, never _failed.
+  const guard = assessRedirectRequest(req, { clickId: clientClickId });
+  Object.assign(baseProps, guard.eventProps);
+  if (guard.refuse) {
+    emit("provider_redirect_refused", { refuse_reason: guard.refuseReason });
+    return refusedResponse(req, guard, chooseViatorGoLocation({ siteFallback: FALLBACK }).location);
   }
 
   // The provider-health probe used to be public and made a real metered
@@ -312,16 +326,17 @@ export async function GET(req) {
           status: 302,
           headers: {
             Location: partnerLocation(chosen.location),
-            "Cache-Control": "public, s-maxage=3600, max-age=0",
+            "Cache-Control": "no-store, max-age=0",
             "Referrer-Policy": "no-referrer",
+            ...ROBOTS_HEADER,
           },
         });
       }
       emit("provider_redirect_failed", { failure_reason: chosen.reason, resolver_path: chosen.resolver_path });
-      return Response.redirect(siteLocation(req, chosen.location), 302);
+      return redirect302(siteLocation(req, chosen.location));
     }
     emit("provider_redirect_failed", { failure_reason: "invalid-product-url", resolver_path: "fail-closed" });
-    return Response.redirect(siteLocation(req, FALLBACK), 302);
+    return redirect302(siteLocation(req, FALLBACK));
   }
 
   // Honest Search Viator (intent=search). Book never uses this rung.
@@ -338,7 +353,7 @@ export async function GET(req) {
       failure_reason: chosen.ok ? undefined : chosen.reason,
       resolver_path: chosen.resolver_path,
     });
-    return Response.redirect(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), 302);
+    return redirect302(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location));
   }
 
   // BOOK. Missing query or a failed resolve used to 302 to searchResults /
@@ -346,7 +361,7 @@ export async function GET(req) {
   if (!q) {
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "missing-query", resolver_path: chosen.resolver_path });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+    return redirect302(siteLocation(req, chosen.location));
   }
 
   // OUR OWN SYNTHETIC MONITOR MUST NEVER SPEND THE METERED VIATOR LEDGER.
@@ -377,7 +392,7 @@ export async function GET(req) {
   if (isSyntheticMonitor(req.headers.get("user-agent"))) {
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "synthetic-monitor-search-skipped", resolver_path: chosen.resolver_path });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+    return redirect302(siteLocation(req, chosen.location));
   }
 
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
@@ -392,6 +407,11 @@ export async function GET(req) {
     resolver_path: chosen.resolver_path,
   });
 
-  const cache = chosen.ok ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
-  return new Response(null, { status: 302, headers: { Location: chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
+  return redirect302(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location));
+}
+
+// HEAD is never a click. Exported explicitly so it reaches the gate with its
+// real method (refused: 204, no Location, no provider_redirect_started).
+export async function HEAD(req) {
+  return GET(req);
 }

@@ -96,8 +96,18 @@ for (const [ua, label] of HUMANS) ok(isCrawler(ua) === false, `${label} passes t
 
 /* ── the route actually applies it, before resolving anything ─────────────── */
 const route = readFileSync(path.resolve("app/api/commerce/go/route.js"), "utf8");
-ok(/isCrawler\(req\.headers\.get\("user-agent"\)\)/.test(route), "the route calls isCrawler on the request UA");
-const gateAt = route.indexOf("isCrawler(");
+// 2026-10-22: the UA check moved into the shared gate lib/redirectGuard.js
+// (assessRedirectRequest calls isCrawler first). Follow the code: the route
+// must CALL the gate on the request, and the gate must refuse a bot UA — proven
+// by calling it, not by reading it.
+ok(/assessRedirectRequest\(req\b/.test(route), "the route calls the shared request gate (assessRedirectRequest) on the request");
+{
+  const { assessRedirectRequest } = await import(path.resolve("lib/redirectGuard.js"));
+  const botReq = { url: "https://www.gowayfind.com/api/commerce/go", method: "GET", headers: { get: (n) => (String(n).toLowerCase() === "user-agent" ? BOTS[0][0] : null) } };
+  const a = assessRedirectRequest(botReq, { consumeToken: false });
+  ok(a.refuse === true && a.refuseReason === "crawler-refused", `the shared gate refuses ${BOTS[0][1]} as crawler-refused (got ${a.classification}/${a.refuseReason})`);
+}
+const gateAt = route.indexOf("assessRedirectRequest(");
 const resolveAt = route.indexOf("resolveOffer(");
 ok(gateAt > 0 && resolveAt > 0 && gateAt < resolveAt,
   "the crawler gate runs BEFORE resolveOffer — a refused bot must not even cause a partner URL to be looked up");
