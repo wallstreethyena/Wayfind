@@ -11,6 +11,7 @@ import { SITE_URL } from "../lib/site";
 import { CROWN_PATH, CROWN_PUBLISHED } from "../lib/crownCampaign.js";
 import { SEASONAL_SEARCH_HUBS } from "../lib/seasonalSearch";
 import { LANDING_CITIES, landingPaths } from "../lib/landing";
+import { LANDING_CITIES as CITY_STATES } from "../lib/landingCities";
 import { trendingCitySlugs } from "../lib/trending";
 import { creatorSlugs } from "../lib/creatorPages";
 import { sponsorSlugs } from "../lib/sponsoredPlaces";
@@ -35,10 +36,16 @@ export default async function sitemap() {
     if (updated) row.lastModified = new Date(updated);
     return row;
   });
-  const culture = Object.keys(CULTURE).map((m) => ({ url: `${SITE_URL}/culture/${m}` }));
+  // Florida is the active market: out-of-market rows (the Hawaii towns and
+  // Boston in the culture corpus) keep working at their URLs but leave the
+  // sitemap, so search engines are not offered another market's pages.
+  const FL_CITY_SLUGS = new Set(Object.entries(CITY_STATES).filter(([, c]) => c && c.state === "FL").map(([slug]) => slug));
+  const culture = Object.keys(CULTURE).filter((m) => FL_CITY_SLUGS.has(m) || m === "keys").map((m) => ({ url: `${SITE_URL}/culture/${m}` }));
   // Every cat × LANDING_CITIES slug, plus ONLY the published evergreen pairs
   // (lib/evergreenCities.js) — a withheld pair has no page and no row here.
-  const landing = landingPaths().map((p) => ({ url: SITE_URL + p }));
+  // Evergreen slugs are not LANDING_CITIES keys, so "not a known non-FL city"
+  // keeps them while dropping the HI towns.
+  const landing = landingPaths().filter((p) => { const c = CITY_STATES[p.split("/")[2]]; return !c || c.state === "FL"; }).map((p) => ({ url: SITE_URL + p }));
   const hubs = Object.values(TOWN_HUBS).map((slug) => ({ url: `${SITE_URL}/florida/${slug}` }));
   const trending = [`${SITE_URL}/trending`, ...trendingCitySlugs().map((s) => `${SITE_URL}/trending/${s}`)].map((url) => ({ url }));
   // v8.33 — the indexable creator layer. Only creators who clear
@@ -48,7 +55,7 @@ export default async function sitemap() {
   const bestBeaches = Object.keys(BEACH_METROS).map((m) => ({ url: `${SITE_URL}/best-beaches/${m}` }));
   // LANDING_CITIES only: evergreen towns have no /events/<city>/<window> page
   // (that route fans out to live, partly metered event providers per geo).
-  const eventWindows = Object.keys(LANDING_CITIES).flatMap((c) => Object.keys(EVENT_WINDOWS).map((w) => ({ url: `${SITE_URL}/events/${c}/${w}` })));
+  const eventWindows = Object.keys(LANDING_CITIES).filter((c) => FL_CITY_SLUGS.has(c)).flatMap((c) => Object.keys(EVENT_WINDOWS).map((w) => ({ url: `${SITE_URL}/events/${c}/${w}` })));
   // v8.43.1 — the paid-partner layer. sponsorSlugs() only returns advertisers
   // that cleared sponsorHasPage(), so a sponsor with no real content can never
   // put a thin URL in here to chase a placement.
