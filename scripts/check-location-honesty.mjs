@@ -41,6 +41,7 @@ import {
   milesBetween,
   cityOriginsWire,
   firstPaintRailOrigin,
+  nearestOwnedCityName,
 } from "../lib/locationHonesty.js";
 import { nearestCoveredCity, railDistanceMi } from "../lib/railCoverage.js";
 
@@ -349,6 +350,12 @@ ok(/const near = resolvedCityLabel \? ` near \$\{resolvedCityLabel\}` : ""/.test
   "DaypartRail drop header near-phrase uses resolvedCityLabel");
 ok(!/!browseCat && suggested === null &&[\s\S]{0,160}minHeight:\s*["']62vh["']/.test(HOME),
   "home.js does not render the 62vh ghost loader when !browseCat && suggested === null");
+
+// #1687 — the free owned fallback names the nearest covered city, or nothing.
+ok(nearestOwnedCityName(27.3364, -82.5307) === "Sarasota, FL", "Sarasota coords name Sarasota without a paid geocode");
+ok(nearestOwnedCityName(27.9506, -82.4572) === "Tampa, FL", "Tampa coords name Tampa");
+ok(nearestOwnedCityName(39.7392, -104.9903) === "", "outside covered range the fallback stays empty (Denver)");
+ok(nearestOwnedCityName(NaN, NaN) === "", "invalid coords stay empty");
 
 if (fail.length) {
   console.error(`check-location-honesty: ${pass} passed, ${fail.length} FAILED`);
