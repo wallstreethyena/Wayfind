@@ -53,6 +53,7 @@ try {
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
   await page.addInitScript(()=>{
     window.parkingCalls=[];window.pendingParking=[];window.responseMode='success';
+    window.venueSearchCalls=[];window.venueSearchMode='none';window.venueGeocodeCalls=[];window.parkingTextCalls=[];
     class Coordinate{constructor(latitude,longitude){Object.assign(this,{latitude,longitude});}}
     class Map{constructor(container){this.annotations=[];this.overlays=[];container.innerHTML='<div class="fixture-map">Local map fixture · no live tiles</div>';}
       addAnnotations(items){this.annotations.push(...items);} removeAnnotations(items){this.annotations=this.annotations.filter(x=>!items.includes(x));}
@@ -66,7 +67,24 @@ try {
       if(window.responseMode==='pending')return new Promise(resolve=>window.pendingParking.push(()=>resolve(data)));
       return Promise.resolve(data);
     }}
-    window.mapkit={Map,Coordinate,ImageAnnotation,Padding:class{},CoordinateRegion:class{constructor(center,span){Object.assign(this,{center,span});}},CoordinateSpan:class{},PointsOfInterestSearch,PointOfInterestCategory:{Parking:'Parking'},PointOfInterestFilter:{including:categories=>({categories})}};
+    // Apple venue check (lib/appleVenueLocation.js). Search answers the venue
+    // lookup: 'none' = no match, 'match' = one Stadium result 3.3 km north of the
+    // provider point. A Search carrying the Parking POI filter is the parking
+    // text-search fallback inside lib/appleParking.js, not a venue lookup: it is
+    // kept out of venueSearchCalls and mirrors the POI fixture's error mode, so
+    // the parking error and empty cases below behave exactly as without Search.
+    class Search{constructor(options){this.options=options;}
+      search(query,options){
+        const parkingFallback=!!(options&&options.pointOfInterestFilter&&options.pointOfInterestFilter.categories&&options.pointOfInterestFilter.categories.includes('Parking'));
+        if(parkingFallback){window.parkingTextCalls.push({query});
+          return window.responseMode==='error'?Promise.reject(new Error('quota fixture')):Promise.resolve({places:[]});}
+        window.venueSearchCalls.push({query});
+        return Promise.resolve(window.venueSearchMode==='match'
+          ?{places:[{id:'apple-venue',name:'Fixture venue',coordinate:new Coordinate(27.33,-82.5),pointOfInterestCategory:'Stadium',locality:'Sarasota'}]}
+          :{places:[]});
+      }}
+    class Geocoder{lookup(query,callback){window.venueGeocodeCalls.push({query});setTimeout(()=>callback(null,{results:[]}),0);}}
+    window.mapkit={Map,Coordinate,ImageAnnotation,Padding:class{},CoordinateRegion:class{constructor(center,span){Object.assign(this,{center,span});}},CoordinateSpan:class{},PointsOfInterestSearch,Search,Geocoder,RegionPriority:{Required:'required'},PointOfInterestCategory:{Parking:'Parking'},PointOfInterestFilter:{including:categories=>({categories})}};
   });
   await page.goto(`http://127.0.0.1:${server.address().port}`);
   // Hold the actual import placeholder before mounting the live map. Both
@@ -128,6 +146,47 @@ try {
   await page.getByRole('button',{name:'Try parking again'}).click();
   await page.getByText('No parking found within 1.0 mi.',{exact:false}).waitFor();
   assert.equal(await page.locator('.wfev-parking-select').count(),0);
+  // Provider-sourced venue correction. A Ticketmaster point can be a ZIP centroid
+  // kilometres from the building; the Apple-verified point must drive the pin, the
+  // Parking search and the Walk link, and only for locationTrust "provider".
+  const near=(a,b)=>Math.abs(a-b)<1e-9;
+  const venuePin=()=>page.evaluate(()=>{const a=window.controller?.map.annotations.find(x=>x.title==='Fixture venue');return a?{lat:a.coordinate.latitude,lng:a.coordinate.longitude}:null;});
+  // Mount a venue and wait for ITS controller (built after the Apple venue check), so a wrong
+  // point fails the assertion that names it rather than timing out on a wait.
+  const mountVenue=async(v)=>{await page.evaluate(v=>{window.controller=null;window.renderVenue(v);},v);await page.waitForFunction(()=>!!window.controller&&window.controller.map.annotations.some(a=>a.title==='Fixture venue'));};
+  await page.evaluate(()=>{window.responseMode='success';window.venueSearchMode='match';});
+  assert.equal(await page.evaluate(()=>window.venueSearchCalls.length),0,'venues without provider trust never ran an Apple venue Search');
+  assert.equal(await page.evaluate(()=>window.venueGeocodeCalls.length),0,'venues without provider trust never ran an Apple geocode');
+  const providerVenue={id:'tm-venue',name:'Fixture venue',lat:27.3,lng:-82.5,locationTrust:'provider',street:'1 Fixture Way',city:'Sarasota',state:'FL'};
+  await mountVenue(providerVenue);
+  const corrected=await venuePin();
+  assert.ok(near(corrected.lat,27.33)&&near(corrected.lng,-82.5),`provider venue pin must sit on the Apple-verified point 27.33,-82.5 (not the provider's 27.3), got ${corrected.lat},${corrected.lng}`);
+  assert.equal(await page.evaluate(()=>window.venueSearchCalls.length),1,'exactly one Apple venue Search for the provider venue');
+  const parkingBefore=await page.evaluate(()=>window.parkingCalls.length);
+  const parkingTextBefore=await page.evaluate(()=>window.parkingTextCalls.length);
+  await page.getByRole('button',{name:'Parking',exact:true}).click();
+  await page.getByRole('button',{name:'Show Closest Garage on the map'}).waitFor();
+  const parkingAfter=await page.evaluate(()=>window.parkingCalls.slice());
+  assert.equal(parkingAfter.length,parkingBefore+1,'one parking search for the corrected venue');
+  const corrCall=parkingAfter.at(-1);
+  assert.ok(near(corrCall.lat,27.33)&&near(corrCall.lng,-82.5),`Parking search must be centered on the corrected point 27.33,-82.5 (not 27.3), got ${corrCall.lat},${corrCall.lng}`);
+  const correctedWalk=new URL(await page.getByRole('link',{name:'Walk from Closest Garage to Fixture venue'}).getAttribute('href'));
+  assert.equal(correctedWalk.searchParams.get('daddr'),'27.33,-82.5','Walk to venue must end at the corrected point');
+  assert.equal(await page.evaluate(()=>window.parkingTextCalls.length),parkingTextBefore,'the corrected venue parking search never fell back to the text search');
+  await page.evaluate(v=>window.renderVenue({...v}),providerVenue);
+  await page.waitForTimeout(150);
+  assert.equal(await page.evaluate(()=>window.venueSearchCalls.length),1,'re-rendering the same venue issues no second venue Search');
+  assert.ok(near((await venuePin()).lat,27.33),'re-rendered venue keeps the corrected pin');
+  // Same name, verified trust: Apple is never asked and the point never moves.
+  await mountVenue({...providerVenue,id:'verified-venue',locationTrust:'verified'});
+  const stayed=await venuePin();
+  assert.ok(near(stayed.lat,27.3)&&near(stayed.lng,-82.5),`verified venue keeps its own coordinates 27.3,-82.5, got ${stayed.lat},${stayed.lng}`);
+  assert.equal(await page.evaluate(()=>window.venueSearchCalls.length),1,'a verified venue never calls Apple venue Search (count unchanged)');
+  assert.equal(await page.evaluate(()=>window.venueGeocodeCalls.length),0,'a verified venue never calls the Apple geocoder');
+  // Back to the provider venue after a remount: the per-session cache answers, no second Search.
+  await mountVenue(providerVenue);
+  assert.ok(near((await venuePin()).lat,27.33),'remounted provider venue is corrected again from the session cache');
+  assert.equal(await page.evaluate(()=>window.venueSearchCalls.length),1,'remounting the provider venue reuses the session cache (no second Search)');
   assert.deepEqual(errors,[]);
-  console.log('test-venue-parking-ui: PASS — real React controls, delayed-import shell stability and 390/768/1400px containment, on-demand requests, closest order, directions, selection, cache, venue change, stale response, failure and empty retry. Apple provider mocked; no live coverage claim.');
+  console.log('test-venue-parking-ui: PASS — real React controls, delayed-import shell stability and 390/768/1400px containment, on-demand requests, closest order, directions, selection, cache, venue change, stale response, failure and empty retry; provider venue correction (Apple-verified pin, parking center and Walk link moved once, session cache reused, verified venues never searched). Apple provider mocked; no live coverage claim.');
 } finally {await browser.close();await new Promise(resolve=>server.close(resolve));}

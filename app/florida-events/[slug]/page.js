@@ -433,6 +433,7 @@ export default async function CuratedEventPage({ params }) {
         approximate={isApproximateLocation(e)}
         picks={pairings}
         ticketLink={crownTracked}
+        location={{ trust: "verified" }}
       />
       {pairingResult.unavailable ? (
         <p role="status" style={{ ...S.p, maxWidth: 820, margin: "12px auto 24px", color: "#aab4c2" }}>

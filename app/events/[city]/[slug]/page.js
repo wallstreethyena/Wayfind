@@ -235,6 +235,20 @@ async function EventListPage({ params }) {
   );
 }
 
+// 2026-10-22 — WHERE THE POINT CAME FROM decides whether the browser map may
+// move it. Ticketmaster venue records often carry a ZIP/city centroid
+// (Tropicana Field sat 3.5 km south of the stadium; 51 of 146 live Florida
+// venues are over 150 m off), so their point is a "provider" hint that
+// lib/appleVenueLocation.js verifies against Apple before the pin, the
+// parking search and the walk/drive links are drawn. Staples (ls_*) carry
+// owner-set coordinates and stay "verified": never queried, never moved.
+function eventLocationTrust(e) {
+  // No venue name, or a placeholder ("TBA"), gives Apple nothing to match:
+  // the page would otherwise search the CITY name as a venue.
+  if (!e || e.source !== "Ticketmaster" || !String(e.venue || "").trim() || /^(tba|tbd|to be announced|to be determined)\b/i.test(String(e.venue).trim())) return { trust: "verified" };
+  return { trust: "provider", street: e.address || "", city: e.city || "", state: e.stateCode || e.state || "", segment: e.segment || "" };
+}
+
 export default async function EventPage({ params }) {
   if (isEventWindow(params.slug)) return EventListPage({ params });
   const e = await getEvent(params);
@@ -338,6 +352,7 @@ export default async function EventPage({ params }) {
             lat={lat}
             lng={lng}
             picks={picks}
+            location={eventLocationTrust(e)}
           />
         )}
         {e.description && (
