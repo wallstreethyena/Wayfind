@@ -3,6 +3,7 @@
 // paidAnthropicRequest ledger path with a stubbed grant.
 import assert from "node:assert/strict";
 import { GET as searchRoute } from "../app/api/search/route.js";
+import { resolveSearchCity } from "../lib/searchIntent.js";
 import { searchLibrary } from "../lib/unifiedSearch.js";
 import { measureUnderstandRequest, parseUnderstandFilters, searchUnderstandEnabled } from "../lib/searchUnderstand.js";
 import { trigramSimilarity } from "../lib/searchRank.js";
@@ -15,6 +16,7 @@ function json(body, status = 200) {
   return new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 }
 
+assert.equal(resolveSearchCity({ query: "things to do", lat: null, lng: null }).city.slug, "parrish", "a missing point is not the coordinate 0,0");
 assert.equal(searchUnderstandEnabled({}), false, "the Claude layer is off when the flag is absent");
 assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "on" }), true);
 assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), false, "only the exact value on enables it");
@@ -43,6 +45,13 @@ assert.equal(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "true" }), fal
     assert.equal(body.results[0].href, "/things-to-do/parrish");
     assert.equal(body.results[0].kind, "page");
     assert.equal(body.reason, undefined, "a library hit replaces the place-search miss");
+    const beforeGps = await searchRoute(new Request("https://www.gowayfind.com/api/search?q=things%20to%20do"));
+    const assumed = await beforeGps.json();
+    assert.equal(assumed.results[0].href, "/things-to-do/parrish", "things to do with no point is the home market");
+    const unknown = await searchRoute(new Request("https://www.gowayfind.com/api/search?q=pizza"));
+    const pizza = await unknown.json();
+    assert.equal(pizza.reason, "unsupported_location");
+    assert.equal(pizza.results, undefined, "an unknown query with no point does not attach another city's deals");
   } finally {
     if (savedUrl == null) delete process.env.NEXT_PUBLIC_SUPABASE_URL; else process.env.NEXT_PUBLIC_SUPABASE_URL = savedUrl;
     if (savedKey == null) delete process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY; else process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = savedKey;
