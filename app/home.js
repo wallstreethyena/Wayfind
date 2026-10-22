@@ -380,7 +380,7 @@ const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 function ticketUrl(url, opts = {}) {
   const s = safeUrl(url);
   if (!s) return null;
-  if (Aff.isTicketmasterFamily(s)) return Aff.ticketmasterGoUrl(s, { surface: opts.surface || "event_card", contentId: opts.contentId });
+  if (Aff.isTicketmasterFamily(s)) return Aff.ticketmasterGoUrl(s, { surface: opts.surface || "event_card", contentId: opts.contentId, offerId: opts.offerId });
   return s;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
