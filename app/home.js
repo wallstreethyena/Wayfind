@@ -3943,6 +3943,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // no same-origin previous page — close replaces onto "/".
   const placeRouteReturnRef = useRef(false);
   const placeActionHomeRef = useRef(false);
+  const detailReturnEntryRef = useRef(null);
   const claimInterrupt = (kind) => {
     try {
       if (dialogOpenRef.current) return false;
@@ -8040,6 +8041,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => {
     const onPop = () => {
       try {
+        // Closing a detail sheet reveals the still-mounted screen. Its live
+        // filters and search center are newer than a saved history snapshot.
+        // Only bypass restoration for the exact entry beneath that sheet;
+        // real screen traversal must still restore its destination position.
+        if (detailReturnEntryRef.current && window.history.state?.__wfPositionKey === detailReturnEntryRef.current) {
+          activeEntryKey.current = detailReturnEntryRef.current;
+          return;
+        }
         const p = window.location.pathname;
         if (activeEntryKey.current) positionWriter.current?.(activeEntryKey.current);
         const key = window.history.state?.__wfPositionKey;
@@ -8447,6 +8456,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (!detail) return;
     // Same path is kept (including /p/{id}). Back closes the overlay; the
     // address bar does not collapse to "/".
+    detailReturnEntryRef.current = positionEntryKey();
     window.history.pushState({ wf: "detail" }, "");
     const onPop = () => {
       setDetail(null);
@@ -8461,7 +8471,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       }
     };
     window.addEventListener("popstate", onPop);
-    return () => window.removeEventListener("popstate", onPop);
+    return () => {
+      detailReturnEntryRef.current = null;
+      window.removeEventListener("popstate", onPop);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!detail]);
 
