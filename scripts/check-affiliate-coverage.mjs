@@ -49,7 +49,10 @@ import { EVENT_TICKET_DEALS, SEPARATELY_TICKETED, isServableDeal, eventTicketCta
 import { curatedToFeedEvent, eventDetailTicketAction } from "../lib/curatedEvents.js";
 import { UT_EVENT_DEAL_IDS, CJ_PID } from "../lib/deals.js";
 import { PROVIDERS } from "../lib/commerceProviders.js";
-import { PARTNER_OFFER_REGISTRY } from "../lib/partnerOfferRegistry.js";
+import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferRegistry.js";
+import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
+import { TP_PROGRAMS, isTpProgramLive } from "../lib/travelpayouts.js";
+import { partnerTicketLabel } from "../lib/partnerCopy.js";
 import { AFFILIATE_MERCHANTS, MERCHANT_HOSTS, affiliateMerchantForUrl, eventAffiliateCoverage, unmappedSellableEvents, COVERAGE } from "../lib/affiliateLibrary.js";
 import { coveragePulseRow, tallyCoverage } from "../app/api/cron/affiliate-coverage/route.js";
 
@@ -285,6 +288,47 @@ ok(/3 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and cou
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
 ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /new-central-florida-zoo-special-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
 ok(leakRow.note.length <= 200, "the note fits the pulse column");
+
+// ── 8. Travelpayouts Wave 2 cannot silently drop (2026-10-22) ─────────────
+// Four programs lit in lib/travelpayouts.js (welcomepickups, kiwitaxi,
+// radicalstorage, bikesbooking) with no card emitting their links. Each must
+// now hold at least one partner pick that RESOLVES BY CALL through the real
+// redirect wiring — or be asserted dark-with-reason below. A future edit
+// that deletes a pick, a registry row or a provider turns this red instead
+// of silently un-earning a live program.
+const WAVE2_DARK_WITH_REASON = Object.freeze({
+  bikesbooking: "BikesBooking's own sitemap (548 rent-a-bicycle-in-* cities, fetched 2026-10-22) lists no Anna Maria Island, Sarasota, Bradenton or Tampa page, so no real Anna Maria bike-rental product exists to pin; wiring one would invent the hop.",
+});
+for (const key of ["welcomepickups", "kiwitaxi", "radicalstorage", "bikesbooking"]) {
+  ok(isTpProgramLive(key) === true, `Wave 2: ${key} is LIVE in TP_PROGRAMS (so the pick assertions below are not vacuous)`);
+  const picks = PLACE_PARTNER_PICKS.filter((r) => r.provider === key);
+  if (key in WAVE2_DARK_WITH_REASON) {
+    ok(picks.length === 0, `Wave 2: ${key} is asserted DARK-WITH-REASON (no partner pick) — ${WAVE2_DARK_WITH_REASON[key]}`);
+    ok(typeof WAVE2_DARK_WITH_REASON[key] === "string" && WAVE2_DARK_WITH_REASON[key].length >= 20, `Wave 2: ${key} dark state carries an auditable reason`);
+    continue;
+  }
+  ok(picks.length >= 1, `Wave 2: ${key} has at least one partner pick (got ${picks.length}) — a live program with no pick earns nothing and must not drop silently`);
+  ok(!!PROVIDERS[key], `Wave 2: provider "${key}" is wired into the commerce redirect`);
+  for (const pick of picks) {
+    const entry = partnerOfferById(pick.offerId, key);
+    ok(!!entry, `Wave 2: ${pick.offerId} resolves in PARTNER_OFFER_REGISTRY under ${key}`);
+    if (!entry) continue;
+    ok(PROVIDERS[key].resolve(pick.offerId) === entry.destination, `Wave 2: PROVIDERS.${key}.resolve("${pick.offerId}") returns the registry destination`);
+    const tracked = PROVIDERS[key].track(entry.destination);
+    const tu = tracked ? new URL(tracked) : null;
+    ok(!!tu && tu.origin + tu.pathname === "https://tp.media/r" && tu.searchParams.get("u") === new URL(entry.destination).toString() && tu.searchParams.get("campaign_id") === TP_PROGRAMS[key].campaignId && tu.searchParams.get("p") === TP_PROGRAMS[key].promoId,
+      `Wave 2: ${pick.offerId} tracks through tp.media/r under ${key}'s own campaign/promo ids`);
+    for (const alias of pick.aliases) {
+      const got = placePartnerPick({ name: alias });
+      ok(got && got.offerId === pick.offerId, `Wave 2: placePartnerPick("${alias}") returns ${pick.offerId} BY CALL (got ${got ? got.offerId : "null"})`);
+    }
+    const label = partnerTicketLabel(pick.merchant, { product: pick.product });
+    ok(!/Tickets/.test(label), `Wave 2: ${pick.offerId} button copy never calls a ${pick.product} "Tickets" (got "${label}")`);
+  }
+}
+// TripAdvisor Experiences stays DARK: in review, no ids, no pick, no provider path.
+ok(isTpProgramLive("tripadvisorexperiences") === false, "Wave 2: TripAdvisor Experiences stays DARK (isTpProgramLive false)");
+ok(PLACE_PARTNER_PICKS.every((r) => r.provider !== "tripadvisorexperiences"), "Wave 2: no partner pick emits TripAdvisor Experiences");
 
 console.log(fail ? `check-affiliate-coverage: FAIL — ${fail} failed, ${pass} passed` : `check-affiliate-coverage: OK — ${pass} assertions; unknown≠dead, one predicate, ${scanned.length} files clean of truthy link_ok gates, ${AFFILIATE_MERCHANTS.length}-merchant library consistent, nightly watch wired`);
 process.exit(fail ? 1 : 0);
