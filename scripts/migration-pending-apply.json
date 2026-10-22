@@ -7,13 +7,6 @@
     "reason": "Data only: one wf_heartbeat_expected row ('guide-visual-monitor', 720 min) so the new 6-hourly GitHub monitor pages if it silently stops. No schema/grant/RLS change; idempotent; rollback is a one-row delete. Until applied, failed runs still page via their own pulse; only a stopped workflow would go unnoticed. Owner applies (or approves) via scripts/apply-migration.mjs."
   },
   {
-    "file": "supabase/migrations/20261014120000_winter_haven_downtown_twin.sql",
-    "sha256": "edeb78fbf93819678dc500e52b6587f3d3915d5d3c59e4634ac7545b248c36db",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#1776",
-    "reason": "Soft-excludes the duplicate 'Downtown, Winter Haven, Fl' pin (ChIJr9OaGuES3YgRCkHnqB00tbo) as duplicate_of the 'Downtown Winter Haven' keeper (ChIJ_wzoOQAT3YgR5o8e69WR3UU); same Downtown Historic District, 87 m apart. Nothing deleted. Reverse: supabase/data-fixes/20261014_winter_haven_downtown_twin_REVERSE.sql. Written with read-only DB access; owner approved conditionally; orchestrator applies after review. Not applied."
-  },
-  {
     "file": "supabase/migrations/20261015180000_wf_inventory_wikidata_coords.sql",
     "sha256": "24a68c0493421925c5e503415ec45a15ad53f2b04dd23d814bd9e70388b9922c",
     "decision_owner": "wallstreethyena",
