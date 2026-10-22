@@ -39,6 +39,9 @@ export const config = {
     // gate (Apple's allowance is free); an abuse gate so a script cannot burn
     // the day's allowance and blank everyone's pins.
     "/api/maps/apple-budget",
+    // List-to-map: a same-origin POST fanning a list's ids out into owned
+    // inventory + stored Apple Place ID reads. DB-only; an anti-scraping gate.
+    "/api/places/map/list",
     // Search box autocomplete + suggestion-detail proxies (2026-07-25 audit):
     // these used to be direct client->Google calls via the Maps JS library —
     // the one metered Places surface that bypassed this guard entirely. See

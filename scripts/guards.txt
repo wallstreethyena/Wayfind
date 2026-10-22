@@ -2167,6 +2167,9 @@ node scripts/test-apple-map-recovery.mjs
 node scripts/test-apple-map-recovery-hook.mjs
 # 2026-10-21 — free Apple pins: identity guards, the one daily Apple ceiling, Place-ID-only storage, list/map parity, no Google.
 node scripts/test-apple-free-pins.mjs
+# 2026-10-22 — map release: list-to-map with no hidden 9.2 floor, the nightly Apple Place ID backfill
+# (shared daily ceiling, both credential paths, clean stops), identity refusals; 25 mutations must go RED.
+node scripts/test-map-release-2026-10.mjs --red-prove
 node scripts/test-map-area-data.mjs
 node scripts/test-map-area-collation-paging.mjs --red-prove
 # 2026-10-20 — map admits exactly the rows the list admits (lib/servableRow.js); the live probe's
