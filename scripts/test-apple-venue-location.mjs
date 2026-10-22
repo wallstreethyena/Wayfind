@@ -43,7 +43,9 @@ check.equal(matchAppleVenue({ ...trop, name: "Spec Martin Stadium" }, [apple("A4
 check.equal(matchAppleVenue({ ...trop, name: "Spec Martin Stadium" }, [apple("A4", "Spec Martin Municipal Stadium", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium", locality: "Saint Petersburg" })]).ok, true, "0.86 agreement with a venue category passes");
 check.equal(matchAppleVenue(trop, [apple("A5", "Tropicana Field", stadium.lat, stadium.lng, { pointOfInterestCategory: "Store" })]).reason, "non-venue-category", "a store with the venue's name is not the venue");
 check.equal(matchAppleVenue(trop, [apple("A6", "Tropicana Field", 28.1, -82.65, { pointOfInterestCategory: "Stadium" })]).reason, "too-far", `beyond ${VENUE_MAX_CORRECTION_METERS} m is another place`);
-check.equal(matchAppleVenue(trop, [apple("A7", "Tropicana Field", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium", locality: "Tampa" })]).ok, true, "an exact name with a venue category tolerates a differing postal city");
+check.equal(matchAppleVenue(trop, [apple("A7", "Tropicana Field", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium", locality: "Tampa" })]).reason, "locality-mismatch", "an exact name in a DIFFERENT city may never move the point (reviewer: Heritage Park, Plant City vs Lakeland)");
+check.equal(matchAppleVenue(trop, [apple("A7b", "Tropicana Field", centroid.lat + 0.0005, centroid.lng, { pointOfInterestCategory: "Stadium", locality: "Tampa" })]).ok, true, "but it may confirm a provider point it sits on top of");
+check.equal(matchAppleVenue({ ...trop, name: "Heritage Park", city: "Plant City" }, [apple("H1", "Heritage Park", centroid.lat + 0.14, centroid.lng, { pointOfInterestCategory: "Park", locality: "Lakeland" })]).ok, false, "a same-named park in the next town is not this venue");
 check.equal(matchAppleVenue({ ...trop, name: "Spec Martin Stadium" }, [apple("A8", "Spec Martin Municipal Stadium", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium", locality: "Tampa" })]).reason, "locality-mismatch", "a looser name in a different city is refused");
 check.equal(matchAppleVenue(trop, [apple("A9", "Tropicana Field", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium" }), apple("A10", "Tropicana Field", stadium.lat + 0.02, stadium.lng, { pointOfInterestCategory: "Stadium" })]).reason, "ambiguous", "two distinct same-name places: refuse, never guess");
 check.equal(matchAppleVenue(trop, [apple("A9", "Tropicana Field", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium" }), apple("A11", "Tropicana Field", stadium.lat + 0.0003, stadium.lng, { pointOfInterestCategory: "Stadium" })]).ok, true, "one place listed twice within 60 m is one place");
@@ -60,11 +62,11 @@ check.equal(matchAppleVenue({ ...trop, name: "Ulele" }, [apple("B4", "Ulele Rest
 check.equal(matchAppleVenue({ ...trop, name: "Ulele" }, [apple("B4", "Ulele Restaurant & Bar", stadium.lat, stadium.lng, { pointOfInterestCategory: "Restaurant" })]).reason, "prefix-needs-locality", "a branch-suffix name without a city is refused");
 
 // ---- streetParts / matchVenueAddress: the address rung ---------------------
-check.deepEqual(streetParts("One Tropicana Dr."), { number: "1", tokens: ["tropicana"] }, "a spelled-out house number is a number");
-check.deepEqual(streetParts("1010 N W C MacInnes Pl"), { number: "1010", tokens: ["macinnes"] }, "direction letters and road kinds are noise");
+check.deepEqual(streetParts("One Tropicana Dr."), { number: "1", tokens: ["tropicana"], dirs: [], kinds: ["dr"] }, "a spelled-out house number is a number; the road kind is kept apart");
+check.deepEqual(streetParts("1010 N W C MacInnes Pl"), { number: "1010", tokens: ["macinnes"], dirs: ["n", "w"], kinds: ["pl"] }, "direction letters and road kinds are kept apart from the road name");
 check.deepEqual(streetParts("N Macinnes Pl"), null, "no house number, no address rung");
 check.deepEqual(streetParts(""), null, "empty street");
-check.deepEqual(streetParts("4802 5th Ave N"), { number: "4802", tokens: ["5th"] }, "an ordinal street keeps its ordinal");
+check.deepEqual(streetParts("4802 5th Ave N"), { number: "4802", tokens: ["5th"], dirs: ["n"], kinds: ["ave"] }, "an ordinal street keeps its ordinal, its direction and its kind");
 const geo = (sub, thor, lat, lng, locality = "Saint Petersburg") => ({ name: `${sub} ${thor}`, subThoroughfare: sub, thoroughfare: thor, locality, coordinate: { latitude: lat, longitude: lng } });
 const addr = matchVenueAddress(trop, [geo("1", "Tropicana Dr", stadium.lat, stadium.lng)]);
 check.equal(addr.ok, true, "Apple echoing 1 Tropicana Dr in the same city is the venue address");
@@ -72,6 +74,12 @@ check.ok(addr.driftMeters > 3000, "address drift measured from the provider poin
 check.equal(matchVenueAddress({ ...trop, street: "1010 N W C MacInnes Pl", city: "Tampa" }, [geo("1010", "N Macinnes Pl", 27.9516, -82.4639, "Tampa")]).ok, true, "a shorter Apple street spelling still shares the road name");
 check.equal(matchVenueAddress(trop, [geo("2", "Tropicana Dr", stadium.lat, stadium.lng)]).reason, "house-number-mismatch", "another house number is another building");
 check.equal(matchVenueAddress(trop, [geo("1", "Central Ave", stadium.lat, stadium.lng)]).reason, "street-mismatch", "another street is another building");
+// Reviewer counterexamples (2026-10-22): qualifiers decide the block on a grid city.
+check.equal(matchVenueAddress({ ...trop, street: "400 1st St S" }, [geo("400", "1st St N", stadium.lat, stadium.lng)]).reason, "street-mismatch", "400 1st St S is not 400 1st St N");
+check.equal(matchVenueAddress({ ...trop, street: "500 Park Ave" }, [geo("500", "Park Blvd", stadium.lat, stadium.lng)]).reason, "street-mismatch", "Park Ave is not Park Blvd");
+check.equal(matchVenueAddress({ ...trop, street: "4802 5th Ave N" }, [geo("4802", "5th St N", stadium.lat, stadium.lng)]).reason, "street-mismatch", "5th Ave N is not 5th St N");
+check.equal(matchVenueAddress({ ...trop, street: "400 1st St S" }, [geo("400", "1st Street South", stadium.lat, stadium.lng)]).ok, true, "spelled-out qualifiers are the same block");
+check.equal(matchVenueAddress({ ...trop, street: "400 1st St S" }, [geo("400", "1st St", stadium.lat, stadium.lng)]).ok, true, "a side that states no directional is neutral");
 check.equal(matchVenueAddress(trop, [geo("1", "Tropicana Dr", stadium.lat, stadium.lng, "Tampa")]).reason, "locality-mismatch", "the same address in another city is refused");
 check.equal(matchVenueAddress(trop, [geo("1", "Tropicana Dr", 28.2, -82.65)]).reason, "too-far", "a far geocode is refused");
 check.equal(matchVenueAddress(trop, []).reason, "no-results", "no geocoder results");
@@ -166,6 +174,9 @@ result = await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop });
 check.equal(result.status, "kept", "unsure keeps the provider point");
 check.deepEqual(result.point, centroid, "the provider point");
 check.equal(result.reason, "name-mismatch/street-mismatch", "both refusals are named");
+kit.calls.search.length = 0;
+await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop });
+check.equal(kit.calls.search.length, 0, "a definite refusal is cached for the session");
 
 // 6. Provider errors never reject and never move the point.
 clearAppleVenueLocationCacheForTests();
@@ -179,6 +190,9 @@ kit = fakeMapkit({ searchError: new Error("429 Too Many Requests"), geocodeError
 result = await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop });
 check.equal(result.status, "kept", "two failed providers keep the point");
 check.equal(result.reason, "rate-limit/network", "enumerated reasons only, never payloads");
+kit.calls.search.length = 0;
+await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop });
+check.equal(kit.calls.search.length, 1, "a transient refusal is not cached: a remount asks Apple again");
 restore();
 
 // 7. A stalled search is bounded by the deadline and keeps the point.
@@ -190,6 +204,7 @@ result = await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop, time
 check.ok(Date.now() - startedAt < 400, "the deadline, not the provider, decides how long the map waits");
 check.equal(result.status, "kept", "a timeout keeps the provider point");
 check.equal(result.reason, "timeout", "and says why");
+check.equal(await resolveAppleVenueLocation({ mapkit: fakeMapkit({ places: [apple("A1", "Tropicana Field", stadium.lat, stadium.lng, { pointOfInterestCategory: "Stadium" })] }).mapkit, venue: trop }).then((r) => r.status), "corrected", "a timeout is forgotten, so the next attempt can still correct");
 restore();
 
 // 8. Unsupported SDK pieces degrade to the provider point.
