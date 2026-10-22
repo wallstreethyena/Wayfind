@@ -9,7 +9,7 @@ import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
 
-export default function ThemeParkRail({ mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, onOpenPlace,
+export default function ThemeParkRail({ mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, excludeOfferIds = null, onOpenPlace,
   isSaved, isOnTrip, isLiked, isDisliked, liked, disliked,
   onSave, onItinerary, onLike, onDislike, onShare, onBadge }) {
   // `initialItems` (2026-09-29) is a SERVER seed from lib/landingRails.js — the
@@ -29,7 +29,7 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
       .then((body) => setLoaded(Array.isArray(body.items) ? body.items : []), () => { if (!seeded) setLoaded([]); });
     return () => controller.abort();
   }, [mode, query, items]);
-  const rows = orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => themeParkForPlace(place) && placePartnerPick(place, pinQ)), familyContext));
+  const rows = orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => { if (!themeParkForPlace(place)) return false; const pick = placePartnerPick(place, pinQ); return !!pick && !(excludeOfferIds && excludeOfferIds.includes(pick.offerId)); }), familyContext));
   if (!rows.length) return null;
   const heading = themeParkHeading(mode);
   const railId = `theme-parks-${mode}`;

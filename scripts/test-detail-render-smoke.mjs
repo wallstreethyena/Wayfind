@@ -63,6 +63,16 @@ ok(typeof mod.hasBookingCTA === "function", "hasBookingCTA is exported for Detai
 // with no query string or raw punctuation.
 const feedbackMod = await loadComponent(fileURLToPath(new URL("../app/components/CommunityFooter.js", import.meta.url)), REPO);
 const detailSheetMod = await loadComponent(fileURLToPath(new URL("../app/components/sheets/Detail.js", import.meta.url)), REPO);
+// Execute the same rel selector used by both curated coupons and DB offers.
+for (const [offer, href] of [
+  [{ commerce: { provider: "clipp" } }, "/api/commerce/go?provider=clipp&offer=clipp-m-chez-leon"],
+  [{}, "/api/commerce/go?provider=clipp&offer=clipp-fl-tampa"],
+  [{ affiliate_url: "https://www.dpbolvw.net/click-test" }, "https://www.dpbolvw.net/click-test"],
+]) {
+  const rel = detailSheetMod.offerLinkRel(offer, href);
+  ok(/\bsponsored\b/.test(rel) && /\bnofollow\b/.test(rel), "detail coupon/offer affiliate handoffs carry sponsored + nofollow");
+}
+ok(detailSheetMod.offerLinkRel({}, "https://restaurant.example/menu") === "noreferrer", "a free operator offer is not labeled sponsored");
 const hookSheetMod = await loadComponent(fileURLToPath(new URL("../app/components/sheets/HookDetail.js", import.meta.url)), REPO);
 const feedbackHtml = renderToStaticMarkup(createElement(feedbackMod.default, {
   compact: true, path: detailSheetMod.detailFeedbackPath({ id: "ChIJ/id?secret=1" }), loc: "Orlando, FL", build: "smoke",

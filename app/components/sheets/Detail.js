@@ -24,6 +24,7 @@ import { fallShareLine } from "../../../lib/fallSkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
+import { nearestOwnedCityName } from "../../../lib/locationHonesty.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -55,6 +56,13 @@ import { isOwnerPick } from "../../../lib/ownerBump";
 import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
 import PlacePhotoContribution from "../PlacePhotoContribution";
+
+// An internal redirect can still be an affiliate handoff; origin is not the
+// sponsorship signal. Free operator offers retain ordinary link semantics.
+export function offerLinkRel(offer, href) {
+  return offer?.commerce || offer?.affiliate_url || isEarningGoHref(href)
+    ? "noreferrer sponsored nofollow" : "noreferrer";
+}
 
 // This rail brings the full shared place card with it. Keep that code outside
 // the homepage's eager detail bundle and request it only for plausible hotel
@@ -892,6 +900,12 @@ export default function DetailSheet({ ctx }) {
               {detail.address && (
                 <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{detail.address}</a>
               )}
+              {/* #1690: owned inventory carries no street address, and the paid
+                  details proxy can be budget-closed — but a chain still has to
+                  be tellable apart. Fall back to the nearest owned city. */}
+              {!detail.address && !detail._event && (() => { const cityLine = detail.city || nearestOwnedCityName(detail.lat, detail.lng); return cityLine ? (
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{cityLine}</a>
+              ) : null; })()}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
                 <PlaceScoreChip p={detail} size={13} />
@@ -1578,7 +1592,7 @@ export default function DetailSheet({ ctx }) {
                     </div>
                     <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{cpn.title}</div>
                     {cpn.details && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{cpn.details}</div>}
-                    {cpn.url && <a href={cpn.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("offer_redeem", detail, { offer_id: cpn.id, source: "curated" }); } catch (e) {} }} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{cpn.code ? "Show code" : "View deal ↗"}</a>}
+                    {cpn.url && <a href={cpn.url} target="_blank" rel={offerLinkRel(cpn, cpn.url)} onClick={() => { try { logEvent("offer_redeem", detail, { offer_id: cpn.id, source: "curated" }); } catch (e) {} }} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{cpn.code ? "Show code" : "View deal ↗"}</a>}
                     {cpn.code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.light, marginTop: 8, letterSpacing: "0.5px" }}>Code: {cpn.code}</div>}
                   </div>
                 );
@@ -1597,7 +1611,7 @@ export default function DetailSheet({ ctx }) {
                     {o.offer_description && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{o.offer_description}</div>}
                     {o.terms && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{o.terms}</div>}
                     {o.expiration_date && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Through {o.expiration_date}</div>}
-                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel="noreferrer" onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
+                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel={offerLinkRel(o0, o.affiliate_url || o.direct_url)} onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
                     {o.coupon_code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.light, marginTop: 8, letterSpacing: "0.5px" }}>Code: {o.coupon_code}</div>}
                     <div onClick={() => { logEvent("offer_report", detail, { offer_id: o.id }); showToast("Thanks, we will take a look"); }} style={{ textAlign: "center", fontSize: 11, color: C.muted, marginTop: 10, cursor: "pointer", textDecoration: "underline" }}>Report an issue</div>
                   </div>

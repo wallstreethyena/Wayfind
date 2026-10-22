@@ -25,7 +25,8 @@ function recoveryEvidence(place) {
 
 // Only this mounted Apple map owns the results. No storage, API writes, or
 // Google fallback. Origin changes invalidate the old distance/score context.
-export default function useAppleMapRecovery({ places, existing, bounds, origin, category, sub, mapkit, enabled, ready }) {
+// `minScore` null = list-scoped map (no hidden floor); omitted = the area map's floor.
+export default function useAppleMapRecovery({ places, existing, bounds, origin, category, sub, mapkit, enabled, ready, minScore }) {
   const engine = useRef(null);
   const [resolved, setResolved] = useState({ origin: "", places: [] });
   const [progress, setProgress] = useState({ key: "", status: "idle", stats: null });
@@ -36,11 +37,12 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
   for (const p of alreadyRecovered) existingIds.add(p.id);
   const candidates = (places || []).filter((p) => !existingIds.has(p.id));
   const identityContext = [...(places || []), ...(existing || [])];
-  const planned = planAppleMapRecovery({ places: candidates, identityContext, bounds, category, sub });
+  const floor = minScore === null ? { minScore: null } : {};
+  const planned = planAppleMapRecovery({ places: candidates, identityContext, bounds, category, sub, ...floor });
   // Evidence changes, rather than array identity or a progressive accepted pin,
   // define a new search. Do not restart a batch when its first result arrives.
   const evidenceKey = JSON.stringify([(places || []).map(recoveryEvidence), (existing || []).map(recoveryEvidence)]);
-  const scopeKey = JSON.stringify([originKey, category, sub, bounds]);
+  const scopeKey = JSON.stringify([originKey, category, sub, bounds, minScore === null]);
   const key = `${scopeKey}|${evidenceKey}`;
   useEffect(() => {
     if (!mapkit) return undefined;
@@ -55,7 +57,7 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
     const controller = new AbortController();
     let live = true;
     setProgress({ key, status: "loading", stats: null });
-    engine.current.recover({ places: candidates, identityContext, bounds, origin, category, sub, scope: originKey, signal: controller.signal,
+    engine.current.recover({ places: candidates, identityContext, bounds, origin, category, sub, scope: originKey + (minScore === null ? "|list" : ""), ...floor, signal: controller.signal,
       onPlace: (place) => {
         if (!live || controller.signal.aborted) return;
         setResolved((previous) => ({ origin: originKey, places: [...(previous.origin === originKey ? previous.places.filter((entry) => entry.place.id !== place.id) : []), { place, evidence: evidence.get(place.id) }] }));

@@ -3,6 +3,7 @@
 // with recorded reasons, honest conditions (no water-quality until sourced),
 // OG card from the curated best picture.
 import { readFileSync } from "fs";
+import { stay22AreaSearchUrl } from "../lib/hotelRedirect.js";
 import { BEACH_METROS, BEACH_SHARE_PHOTO, rankBeaches, beachWhy } from "../lib/beaches.js";
 
 let n = 0, failn = 0;
@@ -137,7 +138,18 @@ ok(!/["'`][^"'`]*\.(png|jpe?g|webp)["'`]/.test(og), "no static file may stand in
 // v6.55b Stay lane: the house hotel pattern, honestly.
 {
   const src = readFileSync(new URL("../app/best-beaches/[metro]/page.js", import.meta.url), "utf8");
-  ok(src.includes("booking.com/searchresults.html?ss="), "the stay lane lost the plain-Booking pattern Stay22 LinkSwap monetizes");
+  ok(src.includes('href={stay22AreaSearchUrl(beaches[0].name + " Florida", "beaches-" + params.metro)}'), "stay lane uses the attributed area-search builder before any client script runs");
+  for (const [metro, beach] of Object.entries({ tampa: "Ben T Davis Beach", orlando: "Cocoa Beach", "manatee-sarasota": "Siesta Beach" })) {
+    const link = new URL(stay22AreaSearchUrl(beach + " Florida", "beaches-" + metro));
+    ok(link.origin === "https://www.stay22.com" && link.pathname === "/allez/booking", metro + ": initial link reaches Stay22, without relying on JavaScript");
+    ok(link.searchParams.get("aid") === "wayfindllc" && link.searchParams.get("campaign") === "beaches-" + metro, metro + ": existing affiliate account and truthful page campaign");
+    const booking = new URL(link.searchParams.get("link"));
+    ok(booking.origin === "https://www.booking.com" && booking.searchParams.get("ss") === beach + " Florida", metro + ": keeps the exact beach area search");
+    ok(!booking.searchParams.has("dest_type"), metro + ": makes no exact-property booking claim");
+  }
+  for (const [query, campaign] of [["", "beaches-tampa"], ["x".repeat(501), "beaches-tampa"], ["Cocoa Beach", ""]]) {
+    ok(stay22AreaSearchUrl(query, campaign) === null, "invalid area search fails closed");
+  }
   ok(src.includes("Stay near {beaches[0].name}"), "the stay card must anchor on the REAL #1 beach, never an invented hotel claim");
   ok(!/best hotel|top hotel/i.test(src), "no invented hotel superlatives on this page");
 }

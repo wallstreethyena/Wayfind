@@ -947,6 +947,7 @@ node scripts/check-mobile-poster-fit.mjs
 # an outbound tap runs no React cleanup.
 node scripts/check-position-memory.mjs
 node scripts/test-document-position.mjs
+node scripts/test-map-router-return.mjs
 # v8.26 — the shell scrolls .wf-scrollarea, not the document, so window.scrollTo
 # is a silent no-op inside it. This is the rule that broke "take me to the picks"
 # three times: the rail drop must land with scrollIntoView, and the existing
@@ -2166,6 +2167,9 @@ node scripts/test-apple-map-recovery.mjs
 node scripts/test-apple-map-recovery-hook.mjs
 # 2026-10-21 — free Apple pins: identity guards, the one daily Apple ceiling, Place-ID-only storage, list/map parity, no Google.
 node scripts/test-apple-free-pins.mjs
+# 2026-10-22 — map release: list-to-map with no hidden 9.2 floor, the nightly Apple Place ID backfill
+# (shared daily ceiling, both credential paths, clean stops), identity refusals; 25 mutations must go RED.
+node scripts/test-map-release-2026-10.mjs --red-prove
 node scripts/test-map-area-data.mjs
 node scripts/test-map-area-collation-paging.mjs --red-prove
 # 2026-10-20 — map admits exactly the rows the list admits (lib/servableRow.js); the live probe's
@@ -2336,3 +2340,7 @@ node scripts/test-creator-in-app-playback.mjs
 
 node scripts/test-event-source-corrections-20261021.mjs
 node scripts/test-guide-rays-game-day.mjs
+
+# Read-only list vs map reconciliation tool (pure join + expiry re-check + cluster accounting;
+# the browser capture is run by hand against the live site, never in CI).
+node scripts/test-reconcile-list-map-live.mjs

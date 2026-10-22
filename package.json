@@ -35,7 +35,8 @@
     "@playwright/test": "^1.61.1",
     "typescript": "5.4.5",
     "@electric-sql/pglite": "0.3.14",
-    "ical.js": "^2.2.1"
+    "ical.js": "^2.2.1",
+    "jsdom": "^26.1.0"
   },
   "dependencies": {
     "@capacitor/app": "^8.1.1",

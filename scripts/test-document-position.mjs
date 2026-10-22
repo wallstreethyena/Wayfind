@@ -54,6 +54,23 @@ function browser() {
  win.history.pushState({}, '', '/guides/detail'); win.document.referrer = 'https://external.example/'; assert.equal(canReturnToWayfind(win), false);
  win.document.referrer = 'https://gowayfind.com/guides'; assert.equal(canReturnToWayfind(win), true);
 }
+{
+ const {win} = browser();
+ const firstTree = ['home'];
+ win.history.replaceState({ __NA: true, __PRIVATE_NEXTJS_INTERNALS_TREE: firstTree, wf: 'old-surface' }, '', '/?go=map');
+ const cleanup = installDocumentPosition(win);
+ win.history.replaceState({ wf: 'screen' }, '', '/map');
+ assert.equal(win.history.state.__NA, true, 'early shell replace retains Next ownership before its wrapper is installed');
+ assert.equal(win.history.state.__PRIVATE_NEXTJS_INTERNALS_TREE, firstTree, 'early shell replace retains Next tree');
+ win.history.pushState({ detailOnly: true }, '');
+ assert.equal(win.history.state.__NA, true, 'early push also retains Next ownership');
+ assert.equal(win.history.state.__PRIVATE_NEXTJS_INTERNALS_TREE, firstTree);
+ assert.equal(win.history.state.wf, undefined, 'new entries do not inherit unrelated shell state');
+ const nextTree = ['next-route'];
+ win.history.replaceState({ __NA: true, __PRIVATE_NEXTJS_INTERNALS_TREE: nextTree }, '');
+ assert.equal(win.history.state.__PRIVATE_NEXTJS_INTERNALS_TREE, nextTree, 'explicit Next tree updates replace the old tree');
+ cleanup();
+}
 const back = readFileSync(new URL('../app/components/ReturnToWayfind.js', import.meta.url), 'utf8');
 assert.match(back, /event\.metaKey.*event\.ctrlKey.*event\.shiftKey.*event\.altKey/);
 assert.match(back, /href="\/"/); assert.match(back, /window\.history\.back\(\)/);
