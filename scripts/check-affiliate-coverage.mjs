@@ -323,9 +323,10 @@ for (const key of ["welcomepickups", "kiwitaxi", "radicalstorage", "bikesbooking
       ok(got && got.offerId === pick.offerId, `Wave 2: placePartnerPick("${alias}") returns ${pick.offerId} BY CALL (got ${got ? got.offerId : "null"})`);
     }
     const label = partnerTicketLabel(pick.merchant, { product: pick.product });
-    // Positive control for the absence below: the SAME regex must match a
-    // genuine ticket product, or "never Tickets" would pass vacuously.
-    ok(/Tickets/.test(partnerTicketLabel(pick.merchant, { product: "event-ticket" })), `Wave 2: control — an event-ticket label DOES read "Tickets", so the ${pick.product} absence below is a real test`);
+    // Positive control for the absence below: the SAME regex on the SAME
+    // variable must match a genuine ticket product, or "never Tickets"
+    // would pass vacuously.
+    { const label = partnerTicketLabel(pick.merchant, { product: "event-ticket" }); ok(/Tickets/.test(label), `Wave 2: control — an event-ticket label DOES read "Tickets", so the ${pick.product} absence below is a real test`); }
     ok(!/Tickets/.test(label), `Wave 2: ${pick.offerId} button copy never calls a ${pick.product} "Tickets" (got "${label}")`);
   }
 }
