@@ -60,6 +60,7 @@
     "web-vitals": "^5.3.0"
   },
   "overrides": {
+    "dompurify": "3.4.17",
     "postcss": "8.5.23",
     "xcode": {
       "uuid": "11.1.1"
