@@ -65,3 +65,9 @@ A full-run photo-credit assertion then observed an intermediate hydration commit
 Two earlier local build attempts were killed by shared-host memory exhaustion and are not counted as passes. The accepted build ran separately after the competing workload ended, with a 3GB Node heap limit and two static-generation workers; no product source, assertions or build checks were disabled.
 
 Hosted checks on the exact pushed head, the guarded database receipt, merged/deployed revision, and live screenshots remain release gates. The PR and final delivery record carry those later receipts; this audit records the package's pre-release evidence.
+
+## Hosted CI time allowance
+
+PR #1912 run `39868104588` passed its dependency audit, Chromium installation, required card/map browser gates, and all 963 guards plus the credentialed rerun (504.9 seconds). Its production build started at 23:13:09 UTC and was canceled at 23:13:30 when the job exceeded its 20-minute maximum. The public Actions summary explicitly reports that maximum-time error; no guard failed. Bundle verification did not run, so that attempt is not a complete CI pass.
+
+The job allowance is now 30 minutes to accommodate cold browser setup, the complete suite, build and bundle verification. All steps, assertions and failure behavior are unchanged. Independent Astra review accepted that bounded adjustment. Current main, including the Next.js patch and the unrelated `8b238011` applied-receipt record, is integrated without changes to the four-entry scope. The final head must complete every hosted gate before database application and release.

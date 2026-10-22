@@ -55,11 +55,12 @@ const EXPECTED = [
   "things-to-do/fort-myers", "restaurants/fort-myers",
   "things-to-do/jacksonville", "restaurants/jacksonville", "nightlife/jacksonville",
   "restaurants/st-augustine", "nightlife/st-augustine",
+  "things-to-do/clearwater", "things-to-do/crystal-river",
 ];
 const WITHHELD = ["beaches/naples", "beaches/fort-myers", "nightlife/fort-myers", "beaches/jacksonville", "things-to-do/st-augustine", "beaches/st-augustine"];
 const CATS = ["things-to-do", "restaurants", "beaches", "nightlife"];
-const TOWNS = ["st-petersburg", "naples", "fort-myers", "jacksonville", "st-augustine"];
-ok(EXPECTED.length === 14 && WITHHELD.length === 6, "fixture sanity: 14 expected + 6 withheld pairs");
+const TOWNS = ["st-petersburg", "naples", "fort-myers", "jacksonville", "st-augustine", "clearwater", "crystal-river"];
+ok(EXPECTED.length === 16 && WITHHELD.length === 6, "fixture sanity: 16 expected + 6 withheld pairs");
 
 // ── Hermetic rig: one fetch recorder for everything below ────────────────────
 const SB = "https://sb.evergreen-guard.invalid";
@@ -106,8 +107,8 @@ const { LANDING_CITIES } = await import("../lib/landingCities.js");
 // ── A. MEMBERSHIP ────────────────────────────────────────────────────────────
 {
   const pairs = ev.evergreenPairs().map(([c, s]) => `${c}/${s}`);
-  ok(pairs.length === 14, `evergreenPairs() has exactly 14 rows (got ${pairs.length})`);
-  ok(JSON.stringify([...pairs].sort()) === JSON.stringify([...EXPECTED].sort()), `evergreenPairs() is exactly the 14 qualifying pairs (got ${pairs.join(", ")})`);
+  ok(pairs.length === 16, `evergreenPairs() has exactly 16 rows (got ${pairs.length})`);
+  ok(JSON.stringify([...pairs].sort()) === JSON.stringify([...EXPECTED].sort()), `evergreenPairs() is exactly the 16 qualifying pairs (got ${pairs.join(", ")})`);
   const withheld = Object.entries(ev.EVERGREEN_WITHHELD).flatMap(([s, cs]) => cs.map((c) => `${c}/${s}`));
   ok(JSON.stringify(withheld.sort()) === JSON.stringify([...WITHHELD].sort()), "EVERGREEN_WITHHELD names exactly the 6 weak pairs");
   ok(TOWNS.every((t) => !Object.prototype.hasOwnProperty.call(LANDING_CITIES, t)), "no evergreen town is in LANDING_CITIES (that table feeds rails and photo-warm)");
@@ -128,8 +129,8 @@ const { LANDING_CITIES } = await import("../lib/landingCities.js");
     ok(lc.length === Object.keys(LANDING_CITIES).length, `CONTROL: app/${cat}/[city] still lists every LANDING_CITIES slug (${lc.length}/${Object.keys(LANDING_CITIES).length})`);
     ok(params.length === lc.length + evRows.length && new Set(params).size === params.length, `app/${cat}/[city] params are LANDING_CITIES + evergreen, no strays or duplicates`);
   }
-  ok(routeRows.length === 14 && JSON.stringify([...routeRows].sort()) === JSON.stringify([...EXPECTED].sort()),
-    `generateStaticParams across the 4 routes yields exactly the 14 evergreen pairs (got ${routeRows.length}: ${routeRows.join(", ")})`);
+  ok(routeRows.length === 16 && JSON.stringify([...routeRows].sort()) === JSON.stringify([...EXPECTED].sort()),
+    `generateStaticParams across the 4 routes yields exactly the 16 evergreen pairs (got ${routeRows.length}: ${routeRows.join(", ")})`);
   ok(WITHHELD.every((k) => !routeRows.includes(k)), "no withheld pair is prerendered");
 
   // The real sitemap, called.
@@ -137,8 +138,8 @@ const { LANDING_CITIES } = await import("../lib/landingCities.js");
   const urls = (await sm.default()).map((r) => r.url);
   const pathOf = (u) => u.replace(/^https?:\/\/[^/]+/, "");
   const evLanding = urls.map(pathOf).filter((p) => { const m = p.match(/^\/([a-z-]+)\/([a-z-]+)$/); return m && CATS.includes(m[1]) && TOWNS.includes(m[2]); });
-  ok(evLanding.length === 14 && JSON.stringify(evLanding.map((p) => p.slice(1)).sort()) === JSON.stringify([...EXPECTED].sort()),
-    `sitemap lists exactly the 14 evergreen landing URLs (got ${evLanding.length})`);
+  ok(evLanding.length === 16 && JSON.stringify(evLanding.map((p) => p.slice(1)).sort()) === JSON.stringify([...EXPECTED].sort()),
+    `sitemap lists exactly the 16 evergreen landing URLs (got ${evLanding.length})`);
   ok(WITHHELD.every((k) => !urls.map(pathOf).includes("/" + k)), "sitemap lists none of the 6 withheld pairs");
   const evEvents = urls.map(pathOf).filter((p) => TOWNS.some((t) => p.startsWith(`/events/${t}/`)));
   ok(evEvents.length === 0, `no evergreen /events window in the sitemap (got ${evEvents.length})`);
@@ -218,7 +219,7 @@ const render = async (c, s, city) => {
     for (const w of WITHHELD) ok(!html.includes(`href="/${w}"`), `${k}: page links nowhere withheld (/${w})`);
     ok(!TOWNS.some((t) => html.includes(`href="/events/${t}`)), `${k}: page links to no evergreen /events window`);
   }
-  ok(totalCards >= 14 * 8 && totalPhotoUrls >= totalCards, `sanity: ${totalCards} cards / ${totalPhotoUrls} photo URLs rendered across 14 pages`);
+  ok(totalCards >= 16 * 8 && totalPhotoUrls >= totalCards, `sanity: ${totalCards} cards / ${totalPhotoUrls} photo URLs rendered across 16 pages`);
   // CONTROL: same fixture, a LANDING_CITIES town — its cards are spend-capable.
   calls = [];
   const ctlHtml = await render("restaurants", "sarasota", LANDING_CITIES.sarasota);
@@ -239,7 +240,7 @@ const render = async (c, s, city) => {
   const { keepPhotoCredits } = await import("../lib/photoCredits.js");
   // 2026-10-08: the route asks the REAL UA rule whether the reader is automated.
   const { isAutomatedPhotoReader } = await import("../lib/crawler.js");
-  // 2026-10-14: the paid lane needs a page-originated request; REAL rule from lib/apiGuard.js.
+  // 2026-10-16: the paid lane needs a page-originated request; REAL rule from lib/apiGuard.js.
   const { creditedRequest } = await import("../lib/apiGuard.js");
   let googlePhotoFetches = 0;
   const deps = {
@@ -298,7 +299,7 @@ const render = async (c, s, city) => {
   ok(landingCardPhotoSrc(withoutRef) === "", "CONTROL: the non-evergreen ladder is unchanged (no ref, no url → \"\")");
   const hit = async (rel, headers = {}) => {
     calls = []; googlePhotoFetches = 0;
-    const res = await route.GET(new Request("https://www.gowayfind.com" + rel, { headers: { "sec-fetch-site": "same-origin", ...headers } })); // page-originated by default (2026-10-14): the zero-spend verdicts below must come from nospend/UA, not from the origin gate
+    const res = await route.GET(new Request("https://www.gowayfind.com" + rel, { headers: { "sec-fetch-site": "same-origin", ...headers } })); // page-originated by default (2026-10-16): the zero-spend verdicts below must come from nospend/UA, not from the origin gate
     return { res, ledger: calls.filter((c) => c.kind === "ledger").length, google: googlePhotoFetches + calls.filter((c) => c.kind === "google").length };
   };
   for (const u of [evRefUrl, evPlaceUrl]) {
@@ -446,5 +447,5 @@ if (failures) {
   console.error(`check-evergreen-landing-zero-spend: FAIL (${failures}/${asserts})`);
   process.exit(1);
 }
-console.log(`check-evergreen-landing-zero-spend: OK (${asserts} assertions — 14 pairs published, 6 withheld, 0 googleapis/ledger calls across 14 ranked + 14 rendered pages, positive controls reached)`);
+console.log(`check-evergreen-landing-zero-spend: OK (${asserts} assertions — 16 pairs published, 6 withheld, 0 googleapis/ledger calls across 16 ranked + 16 rendered pages, positive controls reached)`);
 process.exit(0);
