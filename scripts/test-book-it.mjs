@@ -35,7 +35,7 @@ ok(Mz.bookItTarget(attraction, {}) === null, "missing available → no target (d
 // Wave 1 is live; everything else must still be dark. Both directions asserted —
 // a check that only proves what is ON cannot catch a program lighting up early.
 ok(Tp.isTpProgramLive("tiqets") === true && Tp.isTpProgramLive("klook") === true, "Wave-1 tiqets + klook are LIVE");
-ok(Tp.isTpProgramLive("gocity") === true && Tp.isTpProgramLive("kiwitaxi") === false && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Go City is live; transfers and in-review programs stay DARK");
+ok(Tp.isTpProgramLive("gocity") === true && Tp.isTpProgramLive("kiwitaxi") === true && Tp.isTpProgramLive("tripadvisorexperiences") === false, "Go City and transfers live (IDs landed 2026-10-22); in-review program stays DARK");
 
 // ── When a VERIFIED program is supplied live, a bookable place resolves ──────
 // The probe place is an EVENT VENUE, not an attraction, because ticketnetwork is
@@ -115,7 +115,7 @@ ok(tu.searchParams.get("marker") === "750791", "Book-it's link carries the EARNI
 ok(tu.searchParams.get("trs") === "550160", "…and 550160 only as trs");
 ok(tu.searchParams.get("u") === t.url, "the resolved provider url is preserved intact inside the wrapper");
 // A dark program must still refuse, even with a perfectly good target.
-ok(Tp.tpDeepLink("kiwitaxi", t.url, "place123") === null, "a DARK program still returns null for the same target — ships-dark discipline intact");
+ok(Tp.tpDeepLink("tripadvisorexperiences", t.url, "place123") === null, "a DARK program still returns null for the same target — ships-dark discipline intact");
 
 if (fails) { console.error(`test-book-it: ${fails} failure(s)`); process.exit(1); }
 console.log("test-book-it: OK — Book-it renders only with an offer, resolves the right provider, emits tp.media/r with marker 750791, keeps Wave-2 dark, never duplicates Viator, never wraps non-bookable places");
