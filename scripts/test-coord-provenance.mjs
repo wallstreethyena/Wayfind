@@ -291,7 +291,9 @@ function checkParity(acc, prov) {
   assert.equal(loading.rows[0].status, "area-not-ready");
   // Map.js renders the accounting (visible note + diagnostic hook).
   const screen = readFileSync(path.join(ROOT, "app/components/screens/Map.js"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g, "");
-  assert.match(screen, /accountListOnMap\(\{\s*listPlaces:\s*contextualView/, "C: the map accounts for the on-screen list");
+  // Both scopes are accounted: the list-scoped map accounts the list it was
+  // opened from (with the server's fresh verdict), the area map the on-screen list.
+  assert.match(screen, /accountListOnMap\(\{\s*listPlaces:\s*\(explicitList \? listTruth : contextualView\)/, "C: the map accounts for the on-screen list");
   assert.match(screen, /window\.__wfMapList\s*=/, "C: the accounting is published for the synthetic monitor");
   assert.match(screen, /data-wf-map-unpinned=\{unpinnedForCoord\}/, "C: the unpinned count is rendered on screen");
   assert.match(screen, /!\(areaOffer && searchMapArea\) && <div role="note"/, "C: the unpinned note yields to the Search-this-area pill (same corner)");

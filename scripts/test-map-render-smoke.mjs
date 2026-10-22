@@ -38,6 +38,8 @@ const mod = await loadComponent(entry, REPO, { onGraph(graph) {
     [/const \[areaPlaces, setAreaPlaces\] = useState\(\[\]\);/g, 'const [areaPlaces, setAreaPlaces] = useState(ctx.__mapSmokePlaces);'],
     [/const \[areaStatus, setAreaStatus\] = useState\("loading"\);/g, 'const [areaStatus, setAreaStatus] = useState(ctx.__mapSmokeStatus);'],
     [/const \[areaOnly, setAreaOnly\] = useState\(false\);/g, 'const [areaOnly, setAreaOnly] = useState(ctx.__mapSmokeAreaOnly === true);'],
+    // A settled list-scoped read (/api/places/map/list): the SERVER's verified pins.
+    [/const \[listRead, setListRead\] = useState\(\{ key: "", status: "loading", places: \[\], appleIds: \{\} \}\);/g, 'const [listRead, setListRead] = useState(ctx.__mapSmokeListRead || { key: "", status: "loading", places: [], appleIds: {} });'],
     [/const \[failedRendererAttempt, setFailedRendererAttempt\] = useState\(null\);/g, 'const [failedRendererAttempt, setFailedRendererAttempt] = useState(ctx.__mapSmokeMapFailed === true ? rendererAttempt : null);'],
   ];
   for (const [pattern, replacement] of seeds) {
@@ -284,12 +286,23 @@ delete globalThis.__wfMapKitDeferred;
 // branches must frame it; default viewport discovery must not auto-fit, even
 // after an All/category choice leaves the old list stored in ctx.
 const remoteList = [P({ id: "remote-list-place", lat: 28.5383, lng: -81.3792 })];
+// LIST SCOPE (lib/mapListScope.js, owner 2026-10-22): pins are the server's
+// verified coordinates for the list's ids (an 8.0 proves no hidden 9.2 floor);
+// the list row's own lat/lng is never drawn, so before the read settles the
+// list map is empty, not guessed.
+const verifiedRemote = { key: "remote-list-place", status: "ready", places: [P({ id: "remote-list-place", lat: 28.5383, lng: -81.3792, wfScore: 80, governed_score: 80 })], appleIds: {} };
+const catList = [P({ id: "cat-list-a", governed_score: 85, wfScore: 85 }), P({ id: "cat-list-b", governed_score: 70, wfScore: 70 })];
+const catRead = { key: "cat-list-a,cat-list-b", status: "ready", places: [P({ id: "cat-list-a", governed_score: 85, wfScore: 85 })], appleIds: {} };
+const chosen = { categoryChosenRef: { current: true } };
 for (const map3D of [false, true]) {
   const renderer = map3D ? "MapLibre" : "Apple";
-  for (const [label, extra, expectedFit] of [
-    ["remote explicit list", { mapListOverride: remoteList }, true],
-    ["default discovery", {}, false],
-    ["area discovery after a list", { mapListOverride: remoteList, __mapSmokeAreaOnly: true }, false],
+  for (const [label, extra, expectedFit, expectedIds] of [
+    ["remote explicit list", { mapListOverride: remoteList, __mapSmokeListRead: verifiedRemote }, true, ["remote-list-place"]],
+    ["remote explicit list before its verified read", { mapListOverride: remoteList }, true, []],
+    ["category list (chosen this session), below 9.2 kept", { ...chosen, view: catList, __mapSmokeListRead: catRead }, true, ["cat-list-a"]],
+    ["default discovery", {}, false, null],
+    ["area discovery after a list", { mapListOverride: remoteList, __mapSmokeAreaOnly: true }, false, null],
+    ["All places after a category list keeps the 9.2 area map", { ...chosen, view: catList, __mapSmokeListRead: catRead, __mapSmokeAreaOnly: true }, false, null],
   ]) {
     let props = null, error = null;
     const capture = (value) => { props = value; };
@@ -303,7 +316,9 @@ for (const map3D of [false, true]) {
     finally { delete globalThis.__wfMapRenderProbe; }
     ok(!error, `${renderer} ${label}: real screen render does not throw`);
     ok(!!props && props.fit === expectedFit, `${renderer} ${label}: fit is ${expectedFit}`);
-    ok(!!props && props.places.some((p) => p.id === (expectedFit ? "remote-list-place" : "ChIJsmoke")),
+    if (expectedIds) ok(!!props && JSON.stringify(props.places.map((p) => p.id)) === JSON.stringify(expectedIds),
+      `${renderer} ${label}: the list map draws exactly the server-verified list ids ${JSON.stringify(expectedIds)}`);
+    else ok(!!props && props.places.some((p) => p.id === "ChIJsmoke") && props.places.every((p) => !String(p.id).startsWith("cat-list") && p.id !== "remote-list-place"),
       `${renderer} ${label}: the asserted framing flag belongs to the intended result pool`);
   }
 }
