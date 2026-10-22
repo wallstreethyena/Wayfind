@@ -594,9 +594,13 @@ export default function RailCard({
         <div className="wf-place-card-content" style={{ position: "relative" }}>
           <div className="wf-place-card-title-row" style={{ display: "flex", alignItems: "flex-start" }}>
             <div className="wf-place-card-heading">
-              {eyebrow ? (onEyebrow
-                ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{eyebrow} ›</button>
-                : <span className="wf-place-card-category">{eyebrow}</span>) : null}
+              {/* Bookable experiences are not places (no Group Vote, no place
+                  detail): say "Tour" in the existing eyebrow slot so a tour
+                  card is never mistaken for a place card. Text only — the
+                  slot, row, and card dimensions are unchanged. */}
+              {(() => { const shownEyebrow = (!place && actionItem && actionItem.type === "experience") ? (eyebrow ? `Tour · ${eyebrow}` : "Tour") : eyebrow; return shownEyebrow ? (onEyebrow
+                ? <button type="button" className="wf-place-card-category is-tappable" onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEyebrow(e); }}>{shownEyebrow} ›</button>
+                : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
               <div className="wf-place-card-name">{title}</div>
             </div>
