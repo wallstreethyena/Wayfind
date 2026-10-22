@@ -1232,6 +1232,7 @@ node scripts/check-fall-offering-freshness.mjs
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
 node scripts/check-event-ticket-fallback.mjs
+node scripts/check-event-deeplink.mjs
 node scripts/check-affiliate-coverage.mjs
 node scripts/check-no-product-review.mjs
 node scripts/check-redirect-host-classification.mjs
