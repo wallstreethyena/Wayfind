@@ -28,7 +28,6 @@ import {
 } from "../../../../lib/viatorIntegrity.js";
 
 export { sanitizeClientClickId };
-import { WAYFIND_VIATOR_PID } from "../../../../lib/viatorPid.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 
@@ -36,8 +35,6 @@ import { providerSpendAllow } from "../../../../lib/providerSpend.js";
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
 // lookup, so a value present in the runtime can never be baked out as "".
 const getKey = () => credential(process.env["VIATOR_API_KEY"]);
-// 2026-10-19: pinned to Wayfind's Viator account (lib/viatorPid.js), never env.
-const getPid = () => WAYFIND_VIATOR_PID;
 
 // Warm-instance memory cache: query -> { url, exp }. v2: the key is prefixed with
 // RESOLVER_VERSION so a resolver change (like this geo-whitelist) invalidates every
@@ -47,11 +44,27 @@ const RESOLVER_VERSION = "v2-geo-whitelist";
 const TTL = 3600 * 1000;
 
 function searchFallback(q) {
-  const t = encodeURIComponent(q);
-  const PID = getPid();
-  return PID
-    ? `https://www.viator.com/searchResults/all?text=${t}&pid=${encodeURIComponent(PID)}&mcid=42383&medium=link`
-    : `https://www.viator.com/searchResults/all?text=${t}`;
+  const u = new URL("https://www.viator.com/searchResults/all");
+  u.searchParams.set("text", String(q || ""));
+  // Shared builder, not a hand-built query string. pid, mcid, and medium
+  // live in withViatorTracking (lib/affiliates.js / lib/viatorPid.js).
+  return withViatorTracking(u.toString());
+}
+
+// Every viator.com Location this route returns — exact product, honest
+// search, and a resolved Partner API productUrl — goes through the shared
+// builder. Fail-closed Locations stay on our origin: the builder would tag
+// any valid URL, including the homepage.
+function partnerLocation(location) {
+  const loc = String(location || "");
+  try {
+    const u = new URL(loc);
+    const host = u.hostname.toLowerCase();
+    if (host === "viator.com" || host.endsWith(".viator.com")) {
+      return withViatorTracking(u.toString()) || u.toString();
+    }
+  } catch { /* relative or unparseable: caller uses siteLocation */ }
+  return loc;
 }
 
 // Response.redirect requires an absolute URL. Book fail-closed is our own
@@ -172,7 +185,8 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
     } catch (e) {}
     if (!offer || isDeniedViatorSku(offer.productCode || offer.productUrl) || isViatorSearchOrHomeUrl(offer.productUrl)) return null;
     await persistOffer(offer);
-    // productUrl from the affiliate API carries partner attribution already.
+    // The Partner API productUrl is not trusted to carry our pid. GET stamps
+    // every viator.com Location through partnerLocation → withViatorTracking.
     mem.set(ck, { url: offer.productUrl, exp: Date.now() + TTL });
     return offer.productUrl;
   } catch (e) {
@@ -297,7 +311,7 @@ export async function GET(req) {
         return new Response(null, {
           status: 302,
           headers: {
-            Location: chosen.location,
+            Location: partnerLocation(chosen.location),
             "Cache-Control": "public, s-maxage=3600, max-age=0",
             "Referrer-Policy": "no-referrer",
           },
@@ -324,7 +338,7 @@ export async function GET(req) {
       failure_reason: chosen.ok ? undefined : chosen.reason,
       resolver_path: chosen.resolver_path,
     });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+    return Response.redirect(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), 302);
   }
 
   // BOOK. Missing query or a failed resolve used to 302 to searchResults /
@@ -379,5 +393,5 @@ export async function GET(req) {
   });
 
   const cache = chosen.ok ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
-  return new Response(null, { status: 302, headers: { Location: chosen.ok ? chosen.location : siteLocation(req, chosen.location), "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
+  return new Response(null, { status: 302, headers: { Location: chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
 }
