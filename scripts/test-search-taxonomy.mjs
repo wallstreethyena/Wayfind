@@ -87,7 +87,16 @@ function place(fields) {
     category: fields.category,
     primary_type: fields.primaryType,
     tags: fields.tags || [],
-    signals: { rating: fields.rating, reviews: fields.reviews },
+    google_types: fields.types || [],
+    signals: {
+      rating: fields.rating,
+      reviews: fields.reviews,
+      ...(fields.priceNum != null ? { priceNum: fields.priceNum } : {}),
+      ...(fields.servesWine != null ? { servesWine: fields.servesWine } : {}),
+      ...(fields.servesCocktails != null ? { servesCocktails: fields.servesCocktails } : {}),
+      ...(fields.reservable != null ? { reservable: fields.reservable } : {}),
+      ...(fields.dineIn != null ? { dineIn: fields.dineIn } : {}),
+    },
     locality: fields.locality || "",
   };
 }
@@ -126,13 +135,16 @@ function names(cards) {
     events: [],
     places: [
       place({ id: "bistro", name: "Sarasota Bistro", lat: 27.34, lng: -82.53, category: "food", primaryType: "restaurant", tags: ["dinner"], rating: 4.5, reviews: 700 }),
-      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
+      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
+      place({ id: "sports", name: "Kickoff Sports Pub", lat: 27.33, lng: -82.53, category: "nightlife", primaryType: "sports_bar", tags: ["bars", "sports"], rating: 4.7, reviews: 3000 }),
       place({ id: "cafe", name: "Morning Coffee", lat: 27.34, lng: -82.53, category: "food", primaryType: "cafe", tags: ["cafes"], rating: 5, reviews: 4000 }),
       place({ id: "mall", name: "Sarasota Mall", lat: 27.34, lng: -82.52, category: "shopping", primaryType: "shopping_mall", rating: 4.4, reviews: 2000 }),
     ],
   });
   const got = names(result.cards);
-  assert.ok(got.includes("Sarasota Bistro") && got.includes("Gulf Date Bar"), `date night returns dinner and a bar, got ${got.join(" | ")}`);
+  assert.ok(got.includes("Sarasota Bistro") && got.includes("Gulf Date Bar"), `date night returns dinner and a wine bar, got ${got.join(" | ")}`);
+  assert.ok(got.indexOf("Gulf Date Bar") < got.indexOf("Sarasota Bistro"), "a wine bar outranks a generic restaurant");
+  assert.ok(!got.includes("Kickoff Sports Pub"), "date night does not return a sports bar");
   assert.ok(!got.includes("Morning Coffee"), "date night does not return a cafe");
   assert.ok(!got.includes("Sarasota Mall"), "date night does not return shopping");
 }
@@ -182,6 +194,56 @@ function names(cards) {
   });
   const got = names(result.cards);
   assert.deepEqual(got, ["Walt's Fish Market"], `a restaurant with no meal tag is dinner, got ${got.join(" | ")}`);
+}
+
+{
+  const appropriate = [
+    "Trattoria Bella Napoli",
+    "Bella Vita Italian Kitchen",
+    "Indigenous Restaurant",
+    "Antoine's Restaurant",
+    "Connors Steak & Seafood",
+    "Vino Bistro of Sarasota",
+  ];
+  const places = [
+    place({ id: "yoders", name: "Yoder's Restaurant", lat: 27.322544, lng: -82.5006296, category: "food", primaryType: "restaurant", types: ["restaurant"], priceNum: 2, rating: 4.6, reviews: 9488 }),
+    place({ id: "dutchman", name: "Der Dutchman", lat: 27.3233119, lng: -82.4947838, category: "food", primaryType: "family_restaurant", types: ["family_restaurant", "breakfast_restaurant"], tags: ["breakfast"], priceNum: 2, rating: 4.6, reviews: 12204 }),
+    place({ id: "buffet", name: "County Buffet", lat: 27.33, lng: -82.53, category: "food", primaryType: "buffet_restaurant", priceNum: 2, rating: 4.5, reviews: 4000 }),
+    place({ id: "cafe-teria", name: "Office Cafeteria", lat: 27.34, lng: -82.53, category: "food", primaryType: "cafeteria", priceNum: 1, rating: 4.2, reviews: 800 }),
+    place({ id: "chain", name: "McDonald's", lat: 27.3896495, lng: -82.5061259, category: "food", primaryType: "fast_food_restaurant", tags: ["breakfast", "quickbites"], priceNum: 1, rating: 3.4, reviews: 1787 }),
+    place({ id: "walt", name: "Walt's Fish Market Restaurant", lat: 27.2938381, lng: -82.5309263, category: "food", primaryType: "seafood_restaurant", types: ["seafood_restaurant", "bar"], priceNum: 2, rating: 4.6, reviews: 8147 }),
+    place({ id: "trattoria", name: "Trattoria Bella Napoli", lat: 27.3366751, lng: -82.5395992, category: "food", primaryType: "italian_restaurant", priceNum: 2, rating: 4.8, reviews: 988 }),
+    place({ id: "bella", name: "Bella Vita Italian Kitchen", lat: 27.3398057, lng: -82.4988726, category: "food", primaryType: "italian_restaurant", types: ["italian_restaurant", "pizza_restaurant"], rating: 4.9, reviews: 844 }),
+    place({ id: "indigenous", name: "Indigenous Restaurant", lat: 27.3343461, lng: -82.5329472, category: "food", primaryType: "american_restaurant", types: ["wine_bar", "seafood_restaurant", "american_restaurant"], priceNum: 3, rating: 4.6, reviews: 942 }),
+    place({ id: "antoine", name: "Antoine's Restaurant", lat: 27.3477165, lng: -82.512762, category: "food", primaryType: "fine_dining_restaurant", priceNum: 3, rating: 4.8, reviews: 383 }),
+    place({ id: "connors", name: "Connors Steak & Seafood", lat: 27.3017141, lng: -82.529644, category: "food", primaryType: "steak_house", types: ["steak_house", "wine_bar"], priceNum: 2, rating: 4.7, reviews: 4167 }),
+    place({ id: "vino", name: "Vino Bistro of Sarasota", lat: 27.3406598, lng: -82.5422136, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], priceNum: 2, rating: 4.8, reviews: 157 }),
+  ];
+  for (const query of ["date night", "romantic", "anniversary"]) {
+    const result = await searchResultCards({ query, ...SARASOTA, guides: [], events: [], places });
+    const got = names(result.cards);
+    const top = got.slice(0, 3);
+    assert.equal(top.length, 3, `${query} returns three cards, got ${got.join(" | ")}`);
+    assert.ok(!top.includes("Yoder's Restaurant"), `${query} top 3 omits Yoder's, got ${top.join(" | ")}`);
+    assert.ok(!top.includes("Der Dutchman"), `${query} top 3 omits Der Dutchman, got ${top.join(" | ")}`);
+    assert.ok(!got.includes("Der Dutchman") && !got.includes("County Buffet") && !got.includes("Office Cafeteria") && !got.includes("McDonald's"), `${query} drops family, buffet, cafeteria, and fast food, got ${got.join(" | ")}`);
+    for (const name of top) assert.ok(appropriate.includes(name), `${query} top result ${name} is date-appropriate, got ${top.join(" | ")}`);
+  }
+}
+
+{
+  const result = await searchResultCards({
+    query: "date night",
+    ...SARASOTA,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "yoders", name: "Yoder's Restaurant", lat: 27.322544, lng: -82.5006296, category: "food", primaryType: "restaurant", priceNum: 2, rating: 4.6, reviews: 9488 }),
+      place({ id: "wine-room", name: "Reservable Wine Room", lat: 27.35, lng: -82.52, category: "food", primaryType: "restaurant", priceNum: 2, servesWine: true, reservable: true, rating: 4.4, reviews: 220 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.equal(got[0], "Reservable Wine Room", `wine service and reservations outrank a generic room, got ${got.join(" | ")}`);
 }
 
 {
