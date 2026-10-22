@@ -74,7 +74,7 @@ ok(!/tp-em\.com/.test(SRC), "this module's CODE does not touch the tp-em.com ver
 ok(/tp-em\.com/.test(RAW), "…but the file still DOCUMENTS why 550160 is correct there — self-test: if this fails the comment was deleted and the next person will 'fix' layout.js again");
 
 // ── 6. everything else still ships dark ───────────────────────────────────
-for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "radicalstorage", "bikesbooking"]) {
+for (const key of ["tripadvisorexperiences"]) {
   ok(M.isTpProgramLive(key) === false, `${key} ships DARK`);
   ok(M.tpDeepLink(key, "https://example.com/x") === null, `${key} tpDeepLink returns null`);
   ok(M.tpBrandLink(key) === null, `${key} tpBrandLink returns null`);
@@ -111,11 +111,11 @@ for (const key of ["tripadvisorexperiences", "welcomepickups", "kiwitaxi", "radi
 const r = M.tpReadiness();
 ok(r.marker === "750791", `readiness marker 750791 (got ${r.marker})`);
 ok(r.trs === "550160", `readiness trs 550160 (got ${r.trs})`);
-ok(r.live === 5, `exactly 5 programs live (got ${r.live})`);
-ok(r.liveKeys.sort().join(",") === "gocity,klook,ticketnetwork,tiqets,wegotrip", `live keys are the five verified programs (got ${r.liveKeys.join(",")})`);
+ok(r.live === 9, `exactly 9 programs live (got ${r.live})`);
+ok(r.liveKeys.sort().join(",") === "bikesbooking,gocity,kiwitaxi,klook,radicalstorage,ticketnetwork,tiqets,wegotrip,welcomepickups", `live keys are the nine verified programs (got ${r.liveKeys.join(",")})`);
 ok(M.tpProgramsForCategory("attractions").length === 1, "attractions has 1 live program (tiqets)");
 ok(M.tpProgramsForCategory("passes").length === 1, "passes has 1 live program (Go City)");
-ok(M.tpProgramsForCategory("transfers").length === 0, "transfers still has 0 live (Wave 2 dark)");
+ok(M.tpProgramsForCategory("transfers").length === 2, "transfers has 2 live programs (Wave 2 lit 2026-10-22)");
 
 // ── 7. input guards ───────────────────────────────────────────────────────
 ok(M.tpDeepLink("tiqets", "javascript:alert(1)") === null, "javascript: destination rejected by the protocol guard");
@@ -130,4 +130,4 @@ ok(M.tpDeepLink("nonexistent", "https://x.com") === null, "unknown program rejec
 ok(M.tpDeepLink("tiqets", "") === null, "empty destination rejected");
 
 if (fails) { console.error(`test-travelpayouts: ${fails} failure(s)`); process.exit(1); }
-console.log("test-travelpayouts: OK — 5 programs live on the exact dashboard format (tp.media/r, param order locked), marker 750791 distinct from trs 550160, stale NEXT_PUBLIC_TP_MARKER cannot override, 5 programs still dark, protocol guard rejects javascript:/data:/ftp:/mailto:/file: and accepts http(s)");
+console.log("test-travelpayouts: OK — 9 programs live on the exact dashboard format (tp.media/r, param order locked), marker 750791 distinct from trs 550160, stale NEXT_PUBLIC_TP_MARKER cannot override, 1 program still dark, protocol guard rejects javascript:/data:/ftp:/mailto:/file: and accepts http(s)");
