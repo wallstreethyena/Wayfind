@@ -2354,3 +2354,4 @@ node scripts/test-reconcile-list-map-live.mjs
 # not applied here.
 node scripts/test-unified-search.mjs
 node scripts/check-search-understand.mjs
+node scripts/test-search-taxonomy.mjs
