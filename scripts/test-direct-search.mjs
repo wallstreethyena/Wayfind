@@ -159,7 +159,9 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
     query: "Cafe", ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: blankNameAddress,
     fetchImpl: fetchRows([row({ place_id: "ChIJblank", name: "Totally Different" })]),
   });
-  assert.equal(result.status, "empty", "an empty stored name cannot become a prefix match for arbitrary text");
+  // #1684: "Cafe" may still find this row as a CATEGORY match (its owned type
+  // is cafe) — but never as a name/exact match spoofed by the blank stored name.
+  assert(result.places.every((p) => p.matchKind === "category" && p.exactMatch === false), "an empty stored name cannot become a prefix or exact match for arbitrary text");
 }
 
 {
@@ -228,7 +230,10 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
     const qualified = await searchOwnedPlaces({ query: "pizza st pete", ...ORLANDO, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(pizzas) });
     assert.deepEqual(qualified.places.map((p) => p.id), ["ChIJtonyspizza", "ChIJpizzakitchen"], "St. Pete's pizza leads; Tampa's stays listed below");
     const control = await searchOwnedPlaces({ query: "pizza", lat: STP.lat, lng: STP.lng, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(pizzas) });
-    assert.equal(control.places[0].id, "ChIJpizzakitchen", "control: without a city qualifier the name-prefix match still leads");
+    // #1684 changed this control: for a category word the NEARER match leads
+    // (a 34 mi name-prefix once outranked a 9 mi "sushi"). Exact identity and
+    // the explicit-city tier still lead; match rank only breaks near-ties.
+    assert.equal(control.places[0].id, "ChIJtonyspizza", "control (#1684): without a city qualifier the nearer match leads");
   }
   for (const [query, cityLat] of [["400 W Garden St, Pensacola, FL", 30.4213], ["pizza st pete", 27.7676], ["tacos jax", 30.3322], ["pizza orlando", ORLANDO.lat]]) {
     const seen = [];
@@ -263,6 +268,41 @@ assert.equal(splitCityQualifier("Dolce & Bake, Orlando, FL").text, "dolce and ba
   assert.deepEqual(await routeResult.json(), {
     status: "unavailable", places: [], source: "owned-inventory", query: "Gastonia", reason: "unsupported_location",
   });
+}
+
+{
+  // #1684 — accented stored names must survive the database prefilter. The JS
+  // matcher folds accents; the generated query must also try the accented
+  // spelling and a short stem, or "The Dalí Museum" is never fetched.
+  const STP = { lat: 27.7676, lng: -82.6403 };
+  const museum = row({ place_id: "ChIJdali", name: "The Dalí Museum", lat: STP.lat, lng: STP.lng, primary_type: "museum", google_types: ["museum"] });
+  const capture = {};
+  const accented = await searchOwnedPlaces({ query: "Dalí", ...STP, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([museum], capture) });
+  assert.equal(accented.status, "ok");
+  assert.equal(accented.places[0].id, "ChIJdali", "accented query finds the accented museum");
+  const invOr = capture.calls.find((c) => c.url.pathname.endsWith("/wf_inventory")).url.searchParams.get("or");
+  assert(invOr.includes("dalí") || invOr.includes("dal%C3%AD") || /dal/i.test(decodeURIComponent(invOr)), "prefilter carries an accent-capable clause");
+  const plain = await searchOwnedPlaces({ query: "Dali", ...STP, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([museum]) });
+  assert.equal(plain.places[0].id, "ChIJdali", "unaccented query still matches the accented name in JS matching");
+}
+
+{
+  // #1684 — category words match owned type data, nearest first. "Masa"
+  // carries sushi only in cuisines/types; the far name-prefix must not lead.
+  const TPA = { lat: 27.9506, lng: -82.4572 };
+  const rows = [
+    row({ place_id: "ChIJfarSushi", name: "Sushi Ramen Anna Maria", lat: 28.35, lng: -82.75, primary_type: "sushi_restaurant", google_types: ["sushi_restaurant"], cuisines: ["sushi"] }),
+    row({ place_id: "ChIJmasa", name: "Masa", lat: TPA.lat + 0.05, lng: TPA.lng, primary_type: "sushi_restaurant", google_types: ["sushi_restaurant", "japanese_restaurant"], cuisines: ["japanese", "sushi"] }),
+    row({ place_id: "ChIJkanji", name: "Kanji Sushi & Ramen", lat: TPA.lat + 0.12, lng: TPA.lng, primary_type: "sushi_restaurant", google_types: ["sushi_restaurant"], cuisines: ["japanese", "sushi"] }),
+  ];
+  const result = await searchOwnedPlaces({ query: "sushi", ...TPA, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows(rows) });
+  assert.equal(result.status, "ok");
+  assert.equal(result.places[0].id, "ChIJmasa", "nearest sushi (category identity) leads, not the 30+ mi name-prefix");
+  assert.equal(result.places[0].matchKind, "category", "name-free sushi place is a category match, never exact");
+  assert(result.places.some((p) => p.id === "ChIJkanji"), "name-carrying sushi place still listed");
+  // A dish phrase with no owned signal stays honestly empty.
+  const dish = await searchOwnedPlaces({ query: "key lime pie", lat: 25.7617, lng: -80.1918, env: ENV, nowMs: NOW, addressIndex: [], fetchImpl: fetchRows([row({ place_id: "ChIJbakery", name: "Rosetta Bakery", primary_type: "bakery", google_types: ["bakery"], cuisines: ["pizza"] })]) });
+  assert.equal(dish.status, "empty", "key lime pie with no owned dish signal is an honest empty, never invented");
 }
 
 console.log("test-direct-search: OK — punctuation, city intent, stored addresses, 30-day freshness, empty, scope and failures");
