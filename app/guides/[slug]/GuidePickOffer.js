@@ -61,13 +61,16 @@ function OfferCard({ offer, slug, pickId }) {
     return () => io.disconnect();
   }, [offer, slug, pickId]);
   const alt = offer.role === "alternative";
+  const kicker = offer.kicker || (alt ? "A different venue" : "Book the guided version");
+  const fitLabel = offer.fitLabel || "Best for";
+  const opensOn = offer.opensOn || "Viator";
   return (
     <div ref={ref} className={"wf-guide-pick-offer" + (alt ? " wf-guide-pick-offer-alt" : "")} data-offer-id={offer.offerId} data-pick-id={pickId} data-offer-role={offer.role} style={{ ...box, ...(alt ? { borderStyle: "dashed" } : { borderColor: "#F97316" }) }}>
       <p style={{ margin: 0, fontSize: 11, fontWeight: 800, letterSpacing: ".9px", textTransform: "uppercase", color: alt ? "#94A3B8" : "#FDBA74" }}>
-        {alt ? "A different venue" : "Book the guided version"}
+        {kicker}
       </p>
       <p style={{ margin: "4px 0 0", fontSize: 17, fontWeight: 800, color: "#F4F6F8", lineHeight: 1.3 }}>{offer.title}</p>
-      <p style={line}><strong>Best for:</strong> {offer.whoFor}</p>
+      <p style={line}><strong>{fitLabel}:</strong> {offer.whoFor}</p>
       <p style={line}>{offer.detail}</p>
       {offer.meet ? <p style={line}><strong>Where:</strong> {offer.meet}</p> : null}
       {offer.objection ? <p style={line}>{offer.objection}</p> : null}
@@ -83,7 +86,7 @@ function OfferCard({ offer, slug, pickId }) {
       >
         {PICK_OFFER_CTA} ↗
       </a>
-      <GuideCommissionLine lead={"Opens the product page on Viator" + (offer.operator ? `; operated by ${offer.operator}` : "") + "."} />
+      <GuideCommissionLine lead={"Opens the product page on " + opensOn + (offer.operator ? `; operated by ${offer.operator}` : "") + "."} />
     </div>
   );
 }

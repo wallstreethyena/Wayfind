@@ -959,5 +959,13 @@
       "detail": "2026-10-19: until this date every Viator click carried a pid that is not on the owner's Viator account, so the account showed 0 visitors and 0 bookings for all time. A drift back would silently send all Viator traffic to someone else's account again."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-ws-game3-offer.mjs": {
+    "protects": "The TicketNetwork offer for 2026 World Series Game 3 at Tropicana Field: the registry destination is the content-checked event page, the click is the CJ raw-path wrap with reel sid reel-ws-g3, the offer stays live through 2026-10-26 ET and the same offer id falls back to the Tropicana Field venue page on 2026-10-27, the sports menu and Florida shows keep the venue row, the Trop place pin swaps only while live, and the trending-guide button plus the visible commission line show no price, rating, or seat count.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A wrong or untracked Game 3 link sends a World Series click to the venue page, to an unattributed TicketNetwork URL, or past the game date. The venue fallback and the ET expiry are what keep that click honest after October 26."
+    },
+    "owner": "Revenue QA"
   }
 }
