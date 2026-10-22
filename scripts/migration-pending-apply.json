@@ -73,7 +73,7 @@
     "file": "supabase/migrations/20261022120000_wf_heartbeat_expected_apple_place_match.sql",
     "sha256": "a5ee7b9a3d7533e7a144fbd99f05f1e47d525f69886d7b0d459a579875aee451",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1877 follow-up, map release 2026-10 (docs/runbooks/map-release-2026-10.md): nightly Apple Place ID backfill cron",
+    "tracking": "#1890",
     "reason": "Data only: one wf_heartbeat_expected row ('apple-place-match', 1800 min) so the new nightly cron /api/cron/apple-place-match pages if it silently stops firing. Insert-where-not-exists, idempotent, no schema/grant/RLS change. Apply after the cron merges and its first pulse lands (the cron pulses even when credentials or the ledger are missing). Written with read-only DB access. Rollback: delete from public.wf_heartbeat_expected where job='apple-place-match'. Not applied."
   }
 ]

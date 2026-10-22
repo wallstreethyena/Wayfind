@@ -310,12 +310,42 @@ async function groupC(L) {
   for (const bad of [503, "timeout"]) {
     w = world({ inventory: many, appleResponses: () => bad });
     s = await run(w);
-    ok(s.stop.startsWith("apple-errors") && w.log.apple === J.MAX_CONSECUTIVE_ERRORS && w.log.writes.length === 0, `C3 Apple ${bad} x${J.MAX_CONSECUTIVE_ERRORS} stops the run; errors store nothing (apple ${w.log.apple})`);
+    ok(s.stop.startsWith("apple-errors") && w.log.apple === J.MAX_CONSECUTIVE_ERRORS, `C3 Apple ${bad} x${J.MAX_CONSECUTIVE_ERRORS} stops the run (apple ${w.log.apple})`);
+    ok(w.log.writes.length === J.MAX_CONSECUTIVE_ERRORS && w.log.writes.every((r) => r.status === "refused" && r.reason === J.ERROR_PENDING && r.apple_place_id === null),
+      `C3 each errored row is recorded as a retryable '${J.ERROR_PENDING}' refusal (no Apple data stored)`);
   }
   // A single transient error does not stop the run, and its place is retried later.
   w = world({ inventory: many.slice(0, 3), appleResponses: (i) => (i === 0 ? 500 : appleHit(`Cafe ChIJstop0${i - 1 + 1}`)) });
   s = await run(w);
-  ok(s.errors === 1 && !w.log.writes.some((r) => r.place_id === "ChIJstop00"), "C3 one transient error is skipped (not stored), the run continues");
+  ok(s.errors === 1 && s.matched === 2 && w.log.writes.find((r) => r.place_id === "ChIJstop00")?.reason === J.ERROR_PENDING, "C3 one transient error is recorded as pending and the run continues");
+  // C6 HEAD-OF-QUEUE: errors never stall the queue (review of #1890).
+  const head = inv("ChIJhead00", { refreshed_at: iso(NOW - 400 * DAY) }); // always first in the backlog
+  const rest = many.slice(0, 4);
+  w = world({ inventory: [head, ...rest], appleResponses: (i, url) => (url.includes("ChIJhead00") ? 400 : { results: [] }) });
+  s = await run(w);
+  const headRow = w.log.writes.find((r) => r.place_id === "ChIJhead00");
+  ok(headRow && headRow.reason === "apple-error-400" && s.stop === "backlog-pass-done" && w.log.apple === 5, `C6 a deterministic 400 is stored at once as 'apple-error-400' and the run moves on (apple ${w.log.apple}, stop ${s.stop})`);
+  const stored400 = [{ place_id: "ChIJhead00", status: "refused", reason: "apple-error-400", matched_name: head.name, checked_at: iso(NOW - DAY) }];
+  w = world({ inventory: [head, ...rest], stored: stored400, appleResponses: (i, url) => (url.includes("ChIJhead00") ? 400 : { results: [] }) });
+  s = await run(w, { maxCalls: 1 });
+  ok(!w.log.urls.some((u) => u.includes("/v1/search") && u.includes("ChIJhead00")), "C6 the next run does not spend its batch on the stalled head row");
+  const later = await J.loadBacklog({ sb: SB, fetchImpl: world({ inventory: [head], stored: [{ ...stored400[0], checked_at: iso(NOW - 8 * DAY) }] }).fetchImpl, nowMs: NOW });
+  ok(later.todo.length === 1, "C6 an apple-error-4xx refusal is retried after 7 days");
+  // Transient: pending -> (next run) transient -> wait 7 days.
+  const pendingRow = [{ place_id: "ChIJhead00", status: "refused", reason: J.ERROR_PENDING, matched_name: head.name, checked_at: iso(NOW - 3600000) }];
+  const again = await J.loadBacklog({ sb: SB, fetchImpl: world({ inventory: [head], stored: pendingRow }).fetchImpl, nowMs: NOW });
+  ok(again.todo.length === 1, "C6 a pending error is retried on the very next run");
+  w = world({ inventory: [head], stored: pendingRow, appleResponses: () => 503 });
+  await run(w);
+  ok(w.log.writes[0] && w.log.writes[0].reason === J.ERROR_TRANSIENT, "C6 a row that errors in a second run becomes 'apple-error-transient'");
+  const transientRow = [{ ...pendingRow[0], reason: J.ERROR_TRANSIENT, checked_at: iso(NOW - DAY) }];
+  ok((await J.loadBacklog({ sb: SB, fetchImpl: world({ inventory: [head], stored: transientRow }).fetchImpl, nowMs: NOW })).todo.length === 0, "C6 a transient error waits (the queue moves past it)");
+  ok((await J.loadBacklog({ sb: SB, fetchImpl: world({ inventory: [head], stored: [{ ...transientRow[0], checked_at: iso(NOW - 8 * DAY) }] }).fetchImpl, nowMs: NOW })).todo.length === 1, "C6 ...and is retried after 7 days");
+  // A recheck error never overwrites a stored match.
+  const matchedOld = [{ place_id: "ChIJhead00", status: "matched", reason: null, matched_name: head.name, checked_at: iso(NOW - 100 * DAY) }];
+  w = world({ inventory: [head], stored: matchedOld, appleResponses: () => 400 });
+  await run(w);
+  ok(w.log.writes.length === 0, "C6 an error while rechecking a matched row keeps the stored Place ID");
   // Run-size and time budgets.
   w = world({ inventory: many, appleResponses: () => ({ results: [] }) });
   s = await run(w, { maxCalls: 5 });
@@ -345,7 +375,8 @@ async function groupD(L) {
   const envB = { APPLE_MAPS_TEAM_ID: "TEAMFIXTURE", APPLE_MAPS_KEY_ID: "KEYFIXTURE", APPLE_MAPS_PRIVATE_KEY: pem.replace(/\n/g, "\\n") };
   ok(J.appleCredentials({}) === null, "D1 no credentials -> null (controlled fallback)");
   ok(J.appleCredentials({ APPLE_MAPS_TEAM_ID: "T", APPLE_MAPS_KEY_ID: "K" }) === null, "D1 a partial path B is not a credential");
-  eq(J.appleCredentials({ ...envB, APPLE_MAPS_SERVER_TOKEN: "SERVER-TOKEN-FIXTURE" }), { kind: "server-token", token: "SERVER-TOKEN-FIXTURE" }, "D1 path A (server token) wins when both are set");
+  ok(J.appleCredentials({ ...envB, APPLE_MAPS_SERVER_TOKEN: "SERVER-TOKEN-FIXTURE" }).kind === "jwt", "D1 the documented path (Maps ID + .p8 key) wins when both are set");
+  eq(J.appleCredentials({ APPLE_MAPS_SERVER_TOKEN: "SERVER-TOKEN-FIXTURE" }), { kind: "server-token", token: "SERVER-TOKEN-FIXTURE" }, "D1 the unverified static-token fallback is used only alone");
   const b = J.appleCredentials(envB);
   ok(b.kind === "jwt" && b.pem === pem.trim(), "D2 a literal-\\n PEM is normalized to real newlines");
   ok(J.appleCredentials({ ...envB, APPLE_MAPS_PRIVATE_KEY: pem }).pem === pem.trim(), "D2 a real-newline PEM is accepted unchanged");
@@ -489,12 +520,16 @@ if (process.argv.includes("--red-prove")) {
     ["live headroom ignored", "job", "  if (!Number.isFinite(providerCalls) || providerCalls > providerStop) return", "  if (false) return"],
     ["429 does not stop", "job", "      if (res.quota) { stats.stop = \"apple-429\"; break; }", "      if (res.quota) { stats.errors++; continue; }"],
     ["error streak does not stop", "job", "        if (consecutiveErrors >= MAX_CONSECUTIVE_ERRORS) {", "        if (false) {"],
-    ["errors are stored as refusals", "job", "        stats.errors++; consecutiveErrors++;", "        stats.errors++; consecutiveErrors++; out.push({ place_id: row.place_id, status: \"refused\", reason: \"error\" });"],
+    ["errors not recorded (head-of-queue stall)", "job", "        if (!(prev && prev.status === \"matched\")) {\n          const st", "        if (false) {\n          const st"],
+    ["an error overwrites a stored match", "job", "        if (!(prev && prev.status === \"matched\")) {\n          const st", "        if (true) {\n          const st"],
+    ["a deterministic 4xx treated as transient", "job", "          const deterministic = Number.isInteger(st)", "          const deterministic = false && Number.isInteger(st)"],
+    ["pending never escalates", "job", "(prev.reason === ERROR_PENDING || prev.reason === ERROR_TRANSIENT) ? ERROR_TRANSIENT : ERROR_PENDING", "(prev.reason === ERROR_PENDING || prev.reason === ERROR_TRANSIENT) ? ERROR_PENDING : ERROR_PENDING"],
+    ["error refusals never retried", "job", "  return /^apple-error-\\d{3}$/.test(String(reason || \"\")) ? ERROR_RETRY_DAYS : undefined;", "  return undefined;"],
     ["cap refusal does not stop", "job", "      if (!grant.allowed) { stats.stop = `cap:${grant.reason}`; break; }", "      if (!grant.allowed) { stats.skipped++; }"],
     ["credentials checked after reserving", "job", "  if (typeof search.prepare === \"function\") {", "  if (false) {"],
     ["path B JWT without scope", "job", ", scope: \"server_api\" }));", " }));"],
     ["literal \\n PEM not normalized", "job", "  return String(pem || \"\").trim().replace(/^[\"']|[\"']$/g, \"\").replace(/\\\\r\\\\n|\\\\n/g, \"\\n\").replace(/\\r\\n/g, \"\\n\").trim();", "  return String(pem || \"\").trim();"],
-    ["path A ignored", "job", "  if (serverToken) return { kind: \"server-token\", token: serverToken };\n", ""],
+    ["static-token fallback ignored", "job", "  return serverToken ? { kind: \"server-token\", token: serverToken } : null;", "  return null;"],
     ["exhausted backlog still calls Apple", "job", "  if (!todo.length) { stats.stop = \"backlog-exhausted\"; return stats; }", "  if (!todo.length) { await search(\"probe\", { north: 1, south: 0, east: 1, west: 0 }); stats.stop = \"backlog-exhausted\"; return stats; }"],
     ["cursor guard removed", "job", "      if (!guard.admit(row && row.place_id)) throw new Error(`${table} pagination did not advance`);", "      guard.admit(row && row.place_id);"],
     ["renamed places not rechecked", "job", "  if (prev.matched_name !== row.name) return true;\n", ""],

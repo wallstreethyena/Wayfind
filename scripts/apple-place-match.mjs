@@ -10,9 +10,10 @@
 //   node scripts/apple-place-match.mjs --max 2000 --metro manatee-sarasota --write
 //
 // ENV (names only): NEXT_PUBLIC_SUPABASE_URL or SUPABASE_URL,
-// SUPABASE_SERVICE_ROLE_KEY, and EITHER APPLE_MAPS_SERVER_TOKEN (portal Maps
-// token, Token Type "Server API") OR APPLE_MAPS_TEAM_ID + APPLE_MAPS_KEY_ID +
-// APPLE_MAPS_PRIVATE_KEY (.p8 text). See docs/runbooks/map-release-2026-10.md.
+// SUPABASE_SERVICE_ROLE_KEY, and APPLE_MAPS_TEAM_ID + APPLE_MAPS_KEY_ID +
+// APPLE_MAPS_PRIVATE_KEY (Maps ID + .p8 key, the path Apple documents for the
+// Maps Server API). APPLE_MAPS_SERVER_TOKEN (static token) is an unverified
+// fallback used only when those are unset. See docs/runbooks/map-release-2026-10.md.
 import { PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { appleCredentials, createAppleSearch, ledgerProvisioned, runAppleMatch, pulseNote, CREDENTIALS_MISSING_NOTE, LEDGER_MISSING_NOTE } from "../lib/appleMatchJob.js";
 

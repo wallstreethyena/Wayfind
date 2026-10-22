@@ -116,22 +116,62 @@ pending entry; usually write a new migration instead.
 
 ## 2. Apple account setup
 
-_Placeholder: the orchestrator fills in the owner steps here._
+The code reads server only variables, never `NEXT_PUBLIC_`.
 
-Credential names the code reads (server only, never `NEXT_PUBLIC_`), in this order:
+### The documented path: a Maps ID and a private key (.p8)
 
-- **Path A (quick start):** `APPLE_MAPS_SERVER_TOKEN`, a Maps token made in the
-  Apple Developer portal with Token Type "Server API", Restriction "None". The job
-  sends it as `Authorization: Bearer` to `GET https://maps-api.apple.com/v1/token`
-  and uses the returned `accessToken` (30 minutes) for searches.
-- **Path B:** `APPLE_MAPS_TEAM_ID`, `APPLE_MAPS_KEY_ID`, `APPLE_MAPS_PRIVATE_KEY`
-  (the `.p8` text, real newlines or literal `\n` both work). The job signs an ES256
-  JWT (`{alg, kid, typ}` / `{iss, iat, exp, scope: "server_api"}`) per run and
-  exchanges it at the same endpoint.
-- Neither set: the job makes no Apple call and pulses
-  `apple credentials not configured; ...`.
+This is the path Apple documents for the Maps Server API ("Creating and using
+tokens with Maps Server API"). The job signs a short ES256 JWT with the key on
+every run (`{alg: ES256, kid, typ: JWT}` / `{iss: team id, iat, exp <= 1 h,
+scope: "server_api"}`, no origin) and exchanges it at
+`GET https://maps-api.apple.com/v1/token` for a 30 minute access token.
 
-Set them in Vercel (Production) and redeploy. No other variable changes.
+Owner steps in Apple (developer.apple.com/account):
+
+1. Certificates, Identifiers & Profiles → Identifiers → (+) → **Maps IDs** → Continue.
+2. Description: "Wayfind server". Identifier: `maps.com.wayfind.server` (any reverse
+   domain name you own works) → Continue → Register.
+3. Keys → (+) → Key name: "Wayfind Maps Server" → tick **MapKit JS** → Configure →
+   choose the Maps ID from step 2 → Save → Continue → Register.
+4. **Download** the `.p8` file. Apple lets you download it only once; keep it
+   somewhere safe. Note the **Key ID** shown on that page.
+5. Membership details (Account → Membership) → note the **Team ID**.
+
+Owner steps in Vercel (team wayfind2 → the Wayfind project → Settings →
+Environment Variables):
+
+1. `APPLE_MAPS_PRIVATE_KEY`: Type **Secret**, environment **Production** only. Paste
+   the full `.p8` text, including the `-----BEGIN PRIVATE KEY-----` and
+   `-----END PRIVATE KEY-----` lines. Real line breaks or literal `\n` both work.
+2. `APPLE_MAPS_KEY_ID`: the Key ID (Config, Production).
+3. `APPLE_MAPS_TEAM_ID`: the Team ID (Config, Production).
+4. Save → Deployments → the latest Production deployment → **Redeploy**.
+
+The next scheduled run (03:13 UTC) picks the key up. To test right away:
+`curl -H "Authorization: Bearer $CRON_SECRET" https://www.gowayfind.com/api/cron/apple-place-match`
+and check the newest `wf_job_pulse` row (section 3).
+
+### Fallback, not documented by Apple for this API: a static token
+
+`APPLE_MAPS_SERVER_TOKEN`, a static Maps token made in the portal. Apple documents
+static tokens for frameworks **other than** the Maps Server API, so this is
+unverified. The code only uses it when the three variables above are not all
+set. If `/v1/token` refuses it, the run stops before reserving or searching and
+pulses `apple credentials invalid or expired` (once per day). Prefer the
+documented path.
+
+Neither set: the job makes no Apple call and pulses `apple credentials not
+configured; ...`.
+
+### Cost
+
+The Apple Developer Program membership is $99 a year
+(https://developer.apple.com/support/enrollment/). That is a membership fee,
+not a per-call charge. Included usage is 25,000 service calls a day per team,
+shared between the Maps Server API and MapKit JS. Above that Apple answers HTTP
+429; Apple publishes no paid tier for more calls. This job keeps itself to
+6,000 a day and leaves at least 3,000 of Wayfind's 15,000 ledger ceiling for
+the live map.
 
 ---
 
@@ -150,8 +190,12 @@ Limits (all enforced per reserved unit through the atomic
 - Apple's own free allowance is 25,000 per day per team; over it Apple answers 429.
 
 Backlog: about 21,010 operational inventory rows today, so roughly 4 nights to
-finish. After that only new, renamed, stale (90 days) or retryable (`no-results`,
-7 days) rows are checked.
+finish. After that only new, renamed, stale (90 days) or retryable rows are
+checked: `no-results` after 7 days, `apple-error-<status>` (a 4xx other than
+401/403/429, stored at once) after 7 days, `apple-error-pending` (a 5xx, timeout
+or bad body, first time) on the next run, and `apple-error-transient` (the same
+row failing again in a later run) after 7 days. So a row Apple keeps failing on
+never blocks the front of the queue. An error never overwrites a stored match.
 
 ### Watching it
 
@@ -169,11 +213,21 @@ A normal progress note reads like
 | `backlog exhausted; no Apple calls` | Everything is matched or refused and fresh | None. The job stays idle until rows change |
 | `stop cap:backfill_daily_max` / `cap:live_headroom` / `cap:daily_ceiling_reached` | Today's limit reached | None; it resumes tomorrow |
 | `stop apple-429` | Apple says the team is over its allowance | Check other Apple usage; it resumes tomorrow |
-| `stop apple-errors:...` | 3 Apple errors or timeouts in a row | Transient; the places stay in the backlog |
+| `stop apple-errors:...` | 3 Apple errors or timeouts in a row | Usually transient. The rows are stored as retryable `apple-error-*` refusals, so the next run starts past them |
 
-None of these notes starts with `billing:`, `quota:` or `unavailable:`, so none pages
-by itself. A run that searched and stored nothing twice in a row pages through the
-usual job-watch streak. A missing Supabase key answers 503 (`jobCannotRun`).
+None of these notes starts with `billing:`, `quota:` or `unavailable:`, so no note
+pages by itself, and the four no-op notes (not configured, invalid, not
+provisioned, exhausted) are pulsed with `attempted = 0` and never page.
+
+**But a stopped run can page.** `wf_job_health` counts a run as dead when
+`attempted > 0` and `succeeded = 0`. The pulse records `attempted` = Apple searches
+made and `succeeded` = places checked. If a night's run stops on `apple-429` or on
+3 errors in a row before checking any place (for example its first call gets a
+429, or its first three get a 5xx), that run is dead. Two dead runs in a row
+reach the dead-run threshold (2) and job-watch pages. With six runs a night,
+an Apple outage or an exhausted Apple allowance will page that night. That is
+intended: it is a real failure to finish work. A missing Supabase key answers 503
+(`jobCannotRun`).
 
 Progress in the table:
 
