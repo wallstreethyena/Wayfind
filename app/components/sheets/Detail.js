@@ -24,6 +24,7 @@ import { fallShareLine } from "../../../lib/fallSkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
+import { nearestOwnedCityName } from "../../../lib/locationHonesty.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -899,6 +900,12 @@ export default function DetailSheet({ ctx }) {
               {detail.address && (
                 <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{detail.address}</a>
               )}
+              {/* #1690: owned inventory carries no street address, and the paid
+                  details proxy can be budget-closed — but a chain still has to
+                  be tellable apart. Fall back to the nearest owned city. */}
+              {!detail.address && !detail._event && (() => { const cityLine = detail.city || nearestOwnedCityName(detail.lat, detail.lng); return cityLine ? (
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{cityLine}</a>
+              ) : null; })()}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
                 <PlaceScoreChip p={detail} size={13} />

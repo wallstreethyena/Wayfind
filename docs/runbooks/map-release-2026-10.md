@@ -296,3 +296,108 @@ Sarasota 90 / 154 / 87; Tampa 82 / 144 / 79.
 So the list-scoped map draws about 3 to 7 times as many of the list's places as
 the 9.2 map did. The "All places" map still hides them by design this release.
 The remaining gap is coordinates, which the Apple backfill addresses.
+
+## 7. Every other pending migration (checked 2026-10-22)
+
+Re-hashed from `origin/main` today; each equals its pin in
+`scripts/migration-pending-apply.json`.
+
+| File | Purpose | This release? | State | Owner action |
+|---|---|---|---|---|
+| `20261021180000_wf_apple_place_ids.sql` | Apple Place ID table and budget row | Yes, Apple matching | Not applied | Apply (section 1) |
+| `20261022120000_wf_heartbeat_expected_apple_place_match.sql` | Pager for the nightly Apple job | Monitoring | Not applied | Apply after the first pulse (section 1) |
+| `20261021030000_wf_inventory_coords_independent_verified.sql` (38,318 bytes, sha256 `0596e477828eeb465cc845fb16c58fbfbf533ddf51b15cc69534e9302344d0ed`, md5 `f6cbf6768b1d19c6ba98b4e9b68ce6e7`) | 35 Google-free coordinates (19 Wikidata P625 + 16 Census geocodes of official addresses) on 27 places | Yes, more pins, independent of Apple | Not applied | Apply (7a) |
+| `20261015200000_wf_heartbeat_expected_sighting_renewal.sql` (sha256 `48352a3238539dd79035e848c70d380cd69504b2ffba4eb6017fadac0e3f7b27`) | Pager for the daily sighting-renewal job | Monitoring | Not applied | Apply (7b) |
+| `20261014120000_winter_haven_downtown_twin.sql` (md5 `8ca0d83d4def6e61a1931253ac5c7307`) | Retire the duplicate Downtown Winter Haven pin | No | Applied 2026-10-21 (ledger version `20261021031109`, statement md5 equals the file md5). Verified present: twin `ChIJr9OaGuES3YgRCkHnqB00tbo` EXCLUDED, `duplicate_of:ChIJ_wzoOQAT3YgR5o8e69WR3UU`, locked; keeper OPERATIONAL with 1 active photo | Do NOT re-apply (a replay raises). Only record the receipt and remove the pending entry (7c) |
+| `20261015180000_wf_inventory_wikidata_coords.sql` (192), `20261015180100_..._corroborated.sql` (55), `20261015180200_..._uncorroborated.sql` (97) | #1809 coordinate passes | Held | Not applied | Keep on hold (counsel / insufficient evidence) |
+| `20261015210000_wf_heartbeat_guide_visual_monitor.sql`, `20261020110650_wf_group_plan_optional_end.sql`, `20261020120000_wf_itineraries.sql` | Other lanes | No | Not applied | Not part of this release |
+
+Apply each with `node scripts/apply-migration.mjs supabase/migrations/<file>`
+from a fresh worktree, exactly as in section 1. One file per run.
+
+### 7a. The 35 independently verified coordinates
+
+Revalidated 2026-10-22: 35 of 35 ELIGIBLE. Each row was rechecked for the same
+business identity (a Wayfind-owned link, never a Google name), the official page
+still stating the address (HTTP 200), a second non-Google source agreeing, no
+conflicting non-Google entry, and no duplicate entry. Audit:
+`docs/audits/coords-independent-revalidation-2026-10-22.csv`. The migration
+appends to `independent_coords` only; `lat`, `lng` and `refreshed_at` are
+never touched, and the whole pass rolls back unless every row carries exactly one
+entry.
+
+    -- IDS: the 27 place_ids
+    -- array['ChIJ-6lKAInEwogRVnf5NBtjZss','ChIJ0UaxcHon5IgRtIDfdNZ5UsQ','ChIJ5UOOwKux5YgRAmO1YNbhTc0','ChIJ6_YRRRJAw4gRE5XF42pZOxo','ChIJ6y2dx9g_w4gRWoZIRhLk-JI','ChIJ7aIAgJd654gRjUN8WsPaaI4','ChIJ9RHZGx6H3YgRnWVYIWsHNPM','ChIJCXAq5_DEwogRjTPE2xlsZtE','ChIJKVDd7v_bkIgRv0FaG2bnP9g','ChIJM5duwu3h2ogRw33TpV_VYtI','ChIJM6cv59Pn2YgRdXaKYZKWWms','ChIJNwQxUnFDw4gRlEruVgcCmu0','ChIJQZRp15bDwogReY6sMTk-YWg','ChIJT8lyCbL07IgR7bBS2PG4XQI','ChIJVVUNg8JB24gRo5VjblNO_c8','ChIJX0UJnszx3ogRKqv856yKO_s','ChIJ_37IauQ_w4gRz03lc0QInIE','ChIJd9nFxyC02YgRVdtnh8Obwp8','ChIJheIoirLAkIgRPxCpsjJZlYs','ChIJlR-NjATIwogRoSE1MsVTpmA','ChIJlRUlG4nEwogRJOgu0Hf2n54','ChIJlcQil-Pj2ogRZXbB55ldZcQ','ChIJo2bql5B654gR_ITN9PGhBbU','ChIJu_e4BnTI2YgREAOg3GxMK8g','ChIJy6ESWITDwogReu72OLauRMM','ChIJy76z4HY9w4gROaX_C6lQu8g','ChIJz8e7TVLEwogRBeybvscHnD4']::text[]
+
+    -- A. before and after: lat/lng snapshot of the 27 (must be identical)
+    select count(*) n, md5(string_agg(place_id||'|'||coalesce(lat::text,'')||'|'||coalesce(lng::text,''), ';' order by place_id)) snap
+      from public.wf_inventory where place_id = any(<IDS>);
+    -- B. entries written (before: 0 / 0; after: 35 / 27)
+    select count(*) entries, count(distinct place_id) places
+      from public.wf_inventory, jsonb_array_elements(case when jsonb_typeof(independent_coords)='array' then independent_coords else '[]'::jsonb end) e
+     where e->>'method' in ('wikidata-p625-official-address-verified','census-geocoder-official-address-reverified');
+    -- C. ledger (expect 1 row after)
+    select version, name, array_length(statements,1) from supabase_migrations.schema_migrations where name='wf_inventory_coords_independent_verified';
+
+Live check after apply: rerun `node scripts/verify-map-list-parity-live.mjs --schema mapcoord4`;
+`mapBySource` should now include `wikidata` / `official_venue` where these places
+fall in a probed box. Rollback:
+`supabase/data-fixes/20261021030000_wf_inventory_coords_independent_verified_REVERSE.sql`
+(removes only these two methods from these rows), then query B returns 0 / 0.
+
+### 7b. Sighting-renewal heartbeat
+
+    -- after: 1 row, 1800
+    select job, max_staleness_minutes from public.wf_heartbeat_expected where job='sighting-renewal';
+
+Apply only on a day the job has pulsed (`select max(ran_at) from public.wf_job_pulse where job='sighting-renewal';`).
+Rollback: `delete from public.wf_heartbeat_expected where job='sighting-renewal';`
+
+### 7c. Winter Haven: record only, no apply
+
+Confirm again right before recording (nothing is re-run):
+
+    select place_id, status, excluded, exclusion_reason, locked from public.wf_inventory
+     where place_id in ('ChIJ_wzoOQAT3YgR5o8e69WR3UU','ChIJr9OaGuES3YgRCkHnqB00tbo') order by place_id;
+    -- keeper OPERATIONAL/false/null/false; twin EXCLUDED/true/duplicate_of:ChIJ_wzoOQAT3YgR5o8e69WR3UU/true
+    select version, name, md5(statements[1]) from supabase_migrations.schema_migrations where name='winter_haven_downtown_twin';
+    -- 20261021031109 / winter_haven_downtown_twin / 8ca0d83d4def6e61a1931253ac5c7307
+
+If both match, add one receipt line to `scripts/migration-apply-log.jsonl`
+(`status "applied"`, `version "20261021031109"`, the file's sha256 and bytes, a
+`reason` saying it was applied through the Supabase connector on 2026-10-21 and
+verified present on 2026-10-22) and remove its entry from
+`scripts/migration-pending-apply.json` in the same commit. If either does not
+match, leave it pending and investigate. Never record it just to clear the canary.
+
+## 8. Live results after deploy (2026-10-22, production `15ecfb61`)
+
+Read-only reconciliation (`scripts/reconcile-list-map-live.mjs`, same origins as
+the baseline in #1884, geolocation granted at the origin):
+
+| List | Viewport | In list | Verified coordinate | On map before | On map after | Apple live (session only) | Left off, reason |
+|---|---|---|---|---|---|---|---|
+| Parrish Food > Cafés | 390x844 | 37 | 19 | 5 | 25 | 6 | 12, no confirmed coordinate |
+| Parrish Food > Cafés | 1280x900 | 37 | 19 | 5 | 25 | 6 | 12, no confirmed coordinate |
+| Sarasota Food | 390x844 | 375 | 195 | 84 | 201 | 6 | 174, no confirmed coordinate |
+| Sarasota Food | 1280x900 | 375 | 195 | 84 | 202 | 7 | 173, no confirmed coordinate |
+| Tampa Food | 390x844 | 388 | 132 | 71 | 139 | 7 | 249, no confirmed coordinate |
+| Tampa Food | 1280x900 | 388 | 132 | 71 | 139 | 7 | 249, no confirmed coordinate |
+
+"On map" counts places, including those folded into clusters. No place is left
+off for the 9.2 floor any more. Ten-city parity (`verify-map-list-parity-live.mjs
+--schema mapcoord4`): 0 drawable places missing from the map and 0 undrawable
+places drawn, in all 10 metros. Synthetic monitor `--all`: 16 of 16 pass.
+Interaction checks (both viewports): pin tap selects that pin and opens its own
+place sheet, list distances equal the haversine distance from the device point
+(12 of 12, 0.0 mi difference), cluster tap zooms in, dragging the map keeps the
+pins, and with location denied (Florida IP fallback simulated) the list, map,
+clusters and pin taps still work, with distances hidden because the location is
+only approximate.
+
+The Parrish café that "disappeared" earlier is The Fox Mercantile
+(`ChIJfzpM43oRw4gR6ifHWRbjp9E`). Its coordinate is valid (Google sighting, until
+2026-11-11). It sits 17.76 mi from 27.5875,-82.4275, just outside the list's
+radius, but 16.55 mi from the monitor's origin, so the two runs disagreed only
+because they used different origins. With the same origin it is consistently
+outside the list, and `/api/places/map/list` returns it with its coordinate.
