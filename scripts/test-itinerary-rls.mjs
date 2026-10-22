@@ -6,8 +6,9 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
-import { addPlaceToTrips } from "../lib/trips.js";
-import { tripsToRecords } from "../lib/itineraryMigrate.js";
+import { addPlaceToTrips, setStopDate } from "../lib/trips.js";
+import { tripsToRecords, recordsToTrips, mergeTrips } from "../lib/itineraryMigrate.js";
+import { pushTrips, fetchRemoteTrips } from "../lib/itinerarySync.js";
 
 let count = 0;
 const ok = (value, label) => { assert.ok(value, label); count += 1; };
@@ -147,31 +148,150 @@ try {
   const after = await asUser(owner, "select count(*)::int as n from public.wf_itinerary_items");
   eq(after.rows[0].n, 0, "deleting an itinerary cascades its stops");
 
-  const mappedTrips = addPlaceToTrips({}, {
+  let mappedTrips = addPlaceToTrips({}, {
     id: "stop-map",
     name: "Pier",
     address: "1 Main St, Sarasota, FL 34236, USA",
     lat: 27.33,
     lng: -82.53,
   }, 1000);
+  mappedTrips = addPlaceToTrips(mappedTrips, {
+    id: "stop-beach",
+    name: "Siesta Key Beach",
+    address: "948 Beach Rd, Sarasota, FL 34242, USA",
+    lat: 27.26,
+    lng: -82.55,
+  }, 1100);
+  mappedTrips = setStopDate(mappedTrips, "fl_sarasota", "stop-map", "2026-10-24", 1200);
   const records = tripsToRecords(mappedTrips, owner);
   eq(records[0].itinerary.visibility, "private", "the sync mapper stores visibility private");
-  const mappedRow = records[0].itinerary;
-  const mapped = await asUser(
+  eq(records[0].items.map((it) => ({ id: it.local_item_id, scheduled_on: it.scheduled_on })), [
+    { id: "stop-map", scheduled_on: "2026-10-24" },
+    { id: "stop-beach", scheduled_on: null },
+  ], "tripsToRecords maps item.day to scheduled_on and leaves undated stops null");
+
+  // PGlite-backed Supabase client adapter for testing pushTrips + fetchRemoteTrips against real Postgres RLS
+  const makePgClient = (userId) => ({
+    from(table) {
+      return {
+        upsert(payload) {
+          const rows = Array.isArray(payload) ? payload : [payload];
+          const execUpsert = async () => {
+            try {
+              if (table === "wf_itineraries") {
+                const r = rows[0];
+                const res = await asUser(
+                  userId,
+                  `insert into public.wf_itineraries (user_id, local_key, title, city, state, start_date, end_date, visibility, share_code, updated_at)
+                   values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+                   on conflict (user_id, local_key) do update set
+                     title = excluded.title, city = excluded.city, state = excluded.state,
+                     start_date = excluded.start_date, end_date = excluded.end_date,
+                     visibility = excluded.visibility, updated_at = excluded.updated_at
+                   returning id, visibility`,
+                  [r.user_id, r.local_key, r.title, r.city, r.state, r.start_date, r.end_date, r.visibility, r.share_code, r.updated_at]
+                );
+                return { data: res.rows[0], error: null };
+              }
+              for (const it of rows) {
+                await asUser(
+                  userId,
+                  `insert into public.wf_itinerary_items (itinerary_id, user_id, local_item_id, kind, ref_id, day_index, nights, sort_key, locked, visited, note, place, added_via, scheduled_on)
+                   values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::jsonb, $13, $14)
+                   on conflict (itinerary_id, local_item_id) do update set
+                     sort_key = excluded.sort_key, visited = excluded.visited,
+                     note = excluded.note, place = excluded.place, scheduled_on = excluded.scheduled_on`,
+                  [it.itinerary_id, it.user_id, it.local_item_id, it.kind, it.ref_id, it.day_index, it.nights, it.sort_key, it.locked, it.visited, it.note, JSON.stringify(it.place), it.added_via, it.scheduled_on]
+                );
+              }
+              return { data: rows, error: null };
+            } catch (error) {
+              return { data: null, error };
+            }
+          };
+          const promise = execUpsert();
+          promise.select = () => ({ maybeSingle: () => promise });
+          return promise;
+        },
+        select() {
+          const filters = {};
+          const chain = {
+            eq(col, val) {
+              filters[col] = val;
+              return chain;
+            },
+            then(resolve, reject) {
+              (async () => {
+                if (table === "wf_itineraries") {
+                  const itins = await asUser(
+                    userId,
+                    "select id, local_key, title, city, state, start_date, end_date, visibility, share_code, created_at, updated_at from public.wf_itineraries where user_id = $1",
+                    [filters.user_id]
+                  );
+                  const out = [];
+                  for (const row of itins.rows) {
+                    const itemsRes = await asUser(
+                      userId,
+                      "select local_item_id, kind, ref_id, day_index, nights, sort_key, locked, visited, note, place, added_via, scheduled_on from public.wf_itinerary_items where itinerary_id = $1 and user_id = $2",
+                      [row.id, filters.user_id]
+                    );
+                    out.push({ ...row, wf_itinerary_items: itemsRes.rows });
+                  }
+                  return { data: out, error: null };
+                }
+                const itemsRes = await asUser(
+                  userId,
+                  "select id, local_item_id from public.wf_itinerary_items where itinerary_id = $1 and user_id = $2",
+                  [filters.itinerary_id, filters.user_id]
+                );
+                return { data: itemsRes.rows, error: null };
+              })().then(resolve, reject);
+            },
+          };
+          return chain;
+        },
+      };
+    },
+  });
+
+  const ownerClient = makePgClient(owner);
+  const pushed = await pushTrips(ownerClient, owner, mappedTrips, []);
+  eq(pushed, true, "pushTrips writes the itinerary and scheduled_on dates under owner RLS");
+
+  const storedDates = await asUser(
     owner,
-    "insert into public.wf_itineraries (user_id, local_key, title, city, state, visibility) values ($1, $2, $3, $4, $5, $6) returning id, visibility",
-    [owner, mappedRow.local_key, mappedRow.title, mappedRow.city, mappedRow.state, mappedRow.visibility]
+    "select local_item_id, scheduled_on::text as scheduled_on from public.wf_itinerary_items order by sort_key"
   );
-  eq(mapped.rows[0].visibility, "private", "a row built by the sync mapper inserts under the owner policy");
-  const mappedItem = records[0].items[0];
-  await asUser(
-    owner,
-    "insert into public.wf_itinerary_items (itinerary_id, user_id, local_item_id, kind, sort_key, visited, note, place) values ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)",
-    [mapped.rows[0].id, owner, mappedItem.local_item_id, mappedItem.kind, mappedItem.sort_key, mappedItem.visited, mappedItem.note, JSON.stringify(mappedItem.place)]
+  eq(storedDates.rows, [
+    { local_item_id: "stop-map", scheduled_on: "2026-10-24" },
+    { local_item_id: "stop-beach", scheduled_on: null },
+  ], "PostgreSQL stores scheduled_on = 2026-10-24 for the dated stop and null for the undated stop");
+
+  // Second device (empty local storage) fetches from Supabase via fetchRemoteTrips
+  const remoteOnDevice2 = await fetchRemoteTrips(ownerClient, owner);
+  const device2Trips = mergeTrips({}, remoteOnDevice2);
+  eq(
+    device2Trips.fl_sarasota.items.map((it) => ({ id: it.id, day: it.day })),
+    [
+      { id: "stop-map", day: "2026-10-24" },
+      { id: "stop-beach", day: null },
+    ],
+    "second device receives the scheduled date and unscheduled stop through fetchRemoteTrips + recordsToTrips"
+  );
+
+  // Same device reload merges localStorage with remote without shifting or losing the date
+  const reloadedOnDevice1 = mergeTrips(mappedTrips, remoteOnDevice2);
+  eq(
+    reloadedOnDevice1.fl_sarasota.items.map((it) => ({ id: it.id, day: it.day })),
+    [
+      { id: "stop-map", day: "2026-10-24" },
+      { id: "stop-beach", day: null },
+    ],
+    "reloading while signed in keeps item.day = 2026-10-24 without shifting"
   );
 
   const server = await asRole("service_role", "select local_key from public.wf_itineraries");
-  eq(server.rows.map((row) => row.local_key), [mappedRow.local_key], "service_role can read the owner's itinerary");
+  eq(server.rows.map((row) => row.local_key), [records[0].itinerary.local_key], "service_role can read the owner's itinerary");
 
   const third = randomUUID();
   await db.query("insert into auth.users(id) values ($1)", [third]);

@@ -7,6 +7,21 @@ import {
   haversineKm,
   nearestStopIndex,
   AUTO_ORDER_THRESHOLD_KM,
+  normalizeStopDate,
+  localDateYmd,
+  isPastStopDate,
+  addCalendarDays,
+  formatStopDate,
+  quickDateChoices,
+  groupItemsByDay,
+  tripDateSummary,
+  setStopDate,
+  moveItem,
+  MAX_ROUTE_STOPS,
+  dayRouteUrl,
+  dayRouteLegs,
+  dayRouteUrls,
+  routeUrl,
 } from "../lib/trips.js";
 import {
   mergeTrips,
@@ -304,6 +319,241 @@ function northOf(origin, km) {
   ok(remote === null, "a failed remote read returns null so the caller keeps localStorage");
   ok(await pushTrips(null, "user-1", {}, []) === false, "a push without a client does not pretend it saved");
   ok(await fetchRemoteTrips(down, "") === null, "a push or read without a user id does not run");
+}
+
+// ── Stop dates: timezone-safe parsing, grouping, reordering, and Route day ──
+{
+  // 1. Timezone-safe calendar dates never shift backward by a day.
+  // Red proof: parsing "2026-10-24" with `new Date("2026-10-24")` and formatting
+  // in America/New_York shifts to Friday Oct 23, whereas formatStopDate keeps Sat, Oct 24.
+  const naiveShift = new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York",
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  }).format(new Date("2026-10-24"));
+  ok(naiveShift === "Fri, Oct 23", "red proof: naive Date('YYYY-MM-DD') shifts backward a day in US Eastern (" + naiveShift + ")");
+  eq(formatStopDate("2026-10-24"), "Sat, Oct 24", "formatStopDate keeps the exact calendar day without timezone drift");
+  eq(formatStopDate("2026-10-24", { heading: true }), "Saturday, Oct 24", "heading format renders full weekday + month + day");
+  eq(formatStopDate("2026-10-24", { compact: true }), "Oct 24", "compact format renders month + day");
+  eq(normalizeStopDate("2026-02-29"), null, "invalid leap day is rejected");
+  eq(normalizeStopDate("not-a-date"), null, "arbitrary string is rejected");
+  eq(normalizeStopDate("2026-11-01"), "2026-11-01", "valid YYYY-MM-DD normalizes cleanly");
+
+  // DST fallback (Nov 1, 2026) and spring forward (Mar 8, 2026) never skip or repeat a day.
+  eq(addCalendarDays("2026-11-01", 1), "2026-11-02", "adding 1 day across DST fallback lands on Nov 2");
+  eq(addCalendarDays("2026-03-08", 1), "2026-03-09", "adding 1 day across DST spring-forward lands on Mar 9");
+
+  // Local calendar date at 11:30 PM local time stays on the local day (whereas toISOString flips to tomorrow in US zones).
+  const lateLocal = new Date(2026, 9, 20, 23, 30, 0); // Oct 20, 2026 23:30 local
+  eq(localDateYmd(lateLocal), "2026-10-20", "localDateYmd stays on the local date late at night");
+
+  // 2. Saving stays instant & undated by default; grouping activates once a date is set.
+  const p1 = place("s1", 27.3364, -82.5307, { name: "Owen's Fish Camp" });
+  const p2 = place("s2", 27.3412, -82.5411, { name: "Selby Gardens" });
+  const p3 = place("s3", 27.3185, -82.5772, { name: "St. Armands Circle" });
+  const p4 = place("s4", 27.2678, -82.5531, { name: "Siesta Key Beach" });
+
+  let trips = {};
+  trips = addPlaceToTrips(trips, p1, 100);
+  trips = addPlaceToTrips(trips, p2, 200);
+  trips = addPlaceToTrips(trips, p3, 300);
+  trips = addPlaceToTrips(trips, p4, 400);
+
+  const initialGroups = groupItemsByDay(trips.fl_sarasota, { today: "2026-10-22" });
+  ok(initialGroups.hasDates === false, "a trip with no dates set has hasDates=false");
+  eq(initialGroups.groups.length, 1, "undated trip stays a single flat group");
+  eq(initialGroups.groups[0].label, null, "undated trip group has null label (never 'Unscheduled')");
+  eq(tripDateSummary(trips.fl_sarasota), null, "undated trip has no date summary");
+
+  // 3. Assign dates to stops (out of chronological order) and verify day grouping + Unscheduled.
+  trips = setStopDate(trips, "fl_sarasota", "s3", "2026-10-25", 500);
+  trips = setStopDate(trips, "fl_sarasota", "s2", "2026-10-24", 600);
+  trips = setStopDate(trips, "fl_sarasota", "s4", "2026-10-24", 700);
+
+  const datedGroups = groupItemsByDay(trips.fl_sarasota, { today: "2026-10-22" });
+  ok(datedGroups.hasDates === true, "setting a date enables day grouping");
+  eq(
+    datedGroups.groups.map((g) => ({ key: g.key, label: g.label, ids: g.items.map((it) => it.id) })),
+    [
+      { key: "2026-10-24", label: "Saturday, Oct 24", ids: ["s2", "s4"] },
+      { key: "2026-10-25", label: "Sunday, Oct 25", ids: ["s3"] },
+      { key: "unscheduled", label: "Unscheduled", ids: ["s1"] },
+    ],
+    "stops group chronologically under clear day headings with undated stops under Unscheduled"
+  );
+  eq(tripDateSummary(trips.fl_sarasota), "Oct 24 – Oct 25", "tripDateSummary shows the planned date span");
+
+  // 4. Reordering within a day group moves stops inside that day and does not jump across days.
+  trips = moveItem(trips, "fl_sarasota", "s4", -1);
+  const reorderedGroups = groupItemsByDay(trips.fl_sarasota, { today: "2026-10-22" });
+  eq(reorderedGroups.groups[0].items.map((it) => it.id), ["s4", "s2"], "moving s4 up puts it first on Oct 24");
+  const blockedCrossDay = moveItem(trips, "fl_sarasota", "s2", 1);
+  eq(
+    groupItemsByDay(blockedCrossDay.fl_sarasota, { today: "2026-10-22" }).groups.map((g) => g.items.map((it) => it.id)),
+    [["s4", "s2"], ["s3"], ["s1"]],
+    "moving the last stop of Oct 24 down does not jump it into Oct 25"
+  );
+
+  // 5. Route day focuses only on that day's stops in their displayed order.
+  const oct24Url = dayRouteUrl(trips.fl_sarasota, "2026-10-24");
+  const fullUrl = routeUrl(trips.fl_sarasota);
+  ok(oct24Url !== fullUrl, "Route day URL is distinct from the full-trip route URL");
+  ok(
+    oct24Url.includes("destination=" + encodeURIComponent(p2.lat + "," + p2.lng)) &&
+    oct24Url.includes("waypoints=" + encodeURIComponent(p4.lat + "," + p4.lng)) &&
+    !oct24Url.includes(encodeURIComponent(p3.lat + "," + p3.lng)) &&
+    !oct24Url.includes(encodeURIComponent(p1.lat + "," + p1.lng)),
+    "Route day for Oct 24 routes s4 -> s2 in displayed order and excludes Oct 25 and Unscheduled stops"
+  );
+
+  // 5b. Route day with 10+ stops caps single URLs at MAX_ROUTE_STOPS (10 stops = 9 waypoints + 1 destination)
+  // and splits into continuous legs so Google Maps never breaks.
+  eq(MAX_ROUTE_STOPS, 10, "MAX_ROUTE_STOPS is 10 (9 waypoints + 1 destination)");
+  let manyStopsTrip = {};
+  for (let idx = 1; idx <= 12; idx += 1) {
+    manyStopsTrip = addPlaceToTrips(
+      manyStopsTrip,
+      place("m" + idx, 27.3 + idx * 0.01, -82.5 - idx * 0.01, { name: "Stop " + idx }),
+      idx * 10
+    );
+    manyStopsTrip = setStopDate(manyStopsTrip, "fl_sarasota", "m" + idx, "2026-10-24", idx * 10 + 5);
+  }
+  const cappedDayUrl = dayRouteUrl(manyStopsTrip.fl_sarasota, "2026-10-24");
+  const waypointParam = new URL(cappedDayUrl).searchParams.get("waypoints") || "";
+  eq(waypointParam.split("|").length, 9, "dayRouteUrl caps waypoints at 9 (10 stops total) when a day has 12 stops");
+  const legs12 = dayRouteLegs(manyStopsTrip.fl_sarasota, "2026-10-24");
+  eq(
+    legs12.map((l) => ({ startStop: l.startStop, endStop: l.endStop, count: l.count })),
+    [
+      { startStop: 1, endStop: 10, count: 10 },
+      { startStop: 10, endStop: 12, count: 3 },
+    ],
+    "dayRouteLegs splits 12 stops into two continuous legs (1-10 and 10-12)"
+  );
+  eq(dayRouteUrls(manyStopsTrip.fl_sarasota, "2026-10-24").length, 2, "dayRouteUrls returns 2 valid Google Maps URLs for 12 stops");
+
+  // 5c. Past dates sort after upcoming dates and are clearly labeled 'Past · ...'
+  ok(isPastStopDate("2026-10-18", "2026-10-22") === true, "a date before today is identified as past");
+  ok(isPastStopDate("2026-10-22", "2026-10-22") === false, "today is not past");
+  ok(isPastStopDate("2026-10-24", "2026-10-22") === false, "a future date is not past");
+  let mixedPastFuture = setStopDate(trips, "fl_sarasota", "s1", "2026-10-18", 750);
+  const pastFutureGroups = groupItemsByDay(mixedPastFuture.fl_sarasota, { today: "2026-10-22" });
+  eq(
+    pastFutureGroups.groups.map((g) => ({ key: g.key, isPast: g.isPast, label: g.label })),
+    [
+      { key: "2026-10-24", isPast: false, label: "Saturday, Oct 24" },
+      { key: "2026-10-25", isPast: false, label: "Sunday, Oct 25" },
+      { key: "2026-10-18", isPast: true, label: "Past · Sunday, Oct 18" },
+    ],
+    "past dates sort below upcoming dates and are clearly labeled 'Past · ...'"
+  );
+
+  // 6. Changing and clearing a date is easy and preserves notes, visited flags, and stop data.
+  trips = setStopDate(trips, "fl_sarasota", "s4", "2026-10-25", 800);
+  eq(
+    groupItemsByDay(trips.fl_sarasota, { today: "2026-10-22" }).groups.map((g) => ({ key: g.key, ids: g.items.map((it) => it.id) })),
+    [
+      { key: "2026-10-24", ids: ["s2"] },
+      { key: "2026-10-25", ids: ["s3", "s4"] },
+      { key: "unscheduled", ids: ["s1"] },
+    ],
+    "changing a stop's date moves it to the target day"
+  );
+  trips = setStopDate(trips, "fl_sarasota", "s2", null, 900);
+  eq(
+    groupItemsByDay(trips.fl_sarasota, { today: "2026-10-22" }).groups.map((g) => ({ key: g.key, ids: g.items.map((it) => it.id) })),
+    [
+      { key: "2026-10-25", ids: ["s3", "s4"] },
+      { key: "unscheduled", ids: ["s1", "s2"] },
+    ],
+    "clearing a stop's date returns it to Unscheduled"
+  );
+
+  // Clearing ALL dates on a trip returns it to a plain flat list with hasDates=false and no Unscheduled heading.
+  let fullyCleared = setStopDate(trips, "fl_sarasota", "s3", null, 910);
+  fullyCleared = setStopDate(fullyCleared, "fl_sarasota", "s4", null, 920);
+  const clearedGrouping = groupItemsByDay(fullyCleared.fl_sarasota, { today: "2026-10-22" });
+  ok(clearedGrouping.hasDates === false && clearedGrouping.groups.length === 1 && clearedGrouping.groups[0].label === null, "clearing all dates returns the trip to a plain list with no Unscheduled heading");
+
+  // 7. Signed-out localStorage reload + sign-in migration + share link roundtrip.
+  const signedOutStore = new Map([["wayfind_trips", JSON.stringify(trips)]]);
+  const mockLocalStorage = {
+    getItem: (k) => signedOutStore.get(k) || null,
+    setItem: (k, v) => signedOutStore.set(k, v),
+  };
+  const reloadedSignedOut = JSON.parse(mockLocalStorage.getItem("wayfind_trips"));
+  eq(
+    groupItemsByDay(reloadedSignedOut.fl_sarasota, { today: "2026-10-22" }).groups.map((g) => ({ key: g.key, label: g.label, ids: g.items.map((it) => it.id) })),
+    [
+      { key: "2026-10-25", label: "Sunday, Oct 25", ids: ["s3", "s4"] },
+      { key: "unscheduled", label: "Unscheduled", ids: ["s1", "s2"] },
+    ],
+    "dates and day groupings survive a signed-out localStorage reload without shifting"
+  );
+
+  // User signs in afterward: tripsForOwner claims the signed-out trips, mergeTrips merges with remote,
+  // and tripsToRecords -> recordsToTrips preserves every stop date without loss.
+  const claimedOnSignIn = tripsForOwner(mockLocalStorage, "user-signin-1");
+  const remoteBeforeSignIn = {
+    fl_sarasota: {
+      key: "fl_sarasota",
+      city: "Sarasota",
+      state: "FL",
+      createdTs: 50,
+      updatedTs: 150,
+      items: [{ id: "s1", place: p1, order: 0, visited: true, note: "remote note" }],
+    },
+  };
+  const mergedOnSignIn = mergeTrips(claimedOnSignIn, remoteBeforeSignIn);
+  const cloudRecords = tripsToRecords(mergedOnSignIn, "user-signin-1");
+  const hydratedOnSecondDevice = recordsToTrips(
+    cloudRecords.map((r) => ({
+      ...r.itinerary,
+      created_at: "2026-10-22T10:00:00.000Z",
+      updated_at: "2026-10-22T10:05:00.000Z",
+      wf_itinerary_items: r.items,
+    }))
+  );
+  eq(
+    hydratedOnSecondDevice.fl_sarasota.items.map((it) => ({ id: it.id, day: it.day })),
+    [
+      { id: "s3", day: "2026-10-25" },
+      { id: "s4", day: "2026-10-25" },
+      { id: "s1", day: null },
+      { id: "s2", day: null },
+    ],
+    "signing in after setting dates signed-out migrates every stop date through itineraryMigrate and into scheduled_on"
+  );
+
+  // Share link roundtrip (both dated and legacy undated links).
+  const shared = decodeItineraryShare(encodeItineraryShare(reloadedSignedOut.fl_sarasota));
+  eq(
+    shared.items.map((it) => ({ id: it.id, day: it.day || null })),
+    [
+      { id: "s3", day: "2026-10-25" },
+      { id: "s4", day: "2026-10-25" },
+      { id: "s1", day: null },
+      { id: "s2", day: null },
+    ],
+    "share link roundtrip preserves scheduled dates and undated stops"
+  );
+  const legacyUndatedShare = decodeItineraryShare(encodeItineraryShare(fullyCleared.fl_sarasota));
+  ok(
+    groupItemsByDay(legacyUndatedShare, { today: "2026-10-22" }).hasDates === false,
+    "an undated share link decodes cleanly with hasDates=false and no Unscheduled heading"
+  );
+
+  const choices = quickDateChoices(reloadedSignedOut.fl_sarasota, new Date(2026, 9, 20, 12, 0, 0));
+  ok(choices.some((c) => c.day === "2026-10-20") && choices.some((c) => c.day === "2026-10-25"), "quickDateChoices includes Today and existing trip dates");
+
+  // 8. UI source lock: Itinerary.js exposes Set date, Clear date, Unscheduled, Route day, and aria-expanded.
+  const itineraryUi = readFileSync(new URL("app/components/screens/Itinerary.js", ROOT), "utf8");
+  ok(itineraryUi.includes('"Set date"'), "Itinerary.js renders the per-stop Set date button");
+  ok(itineraryUi.includes("Clear date"), "Itinerary.js renders Clear date inside the picker");
+  ok(itineraryUi.includes("Route day ↗"), "Itinerary.js renders Route day on dated day headings");
+  ok(itineraryUi.includes("groupItemsByDay("), "Itinerary.js groups stops by day via Trips.groupItemsByDay");
+  ok(itineraryUi.includes("aria-expanded={dating}"), "Itinerary.js exposes aria-expanded on the date toggle button");
 }
 
 if (failures) {

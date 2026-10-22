@@ -1180,10 +1180,14 @@ function logEventAnon(action, place, extra) {
 
 // Compact a place down to what a shared list needs to render.
 function compactPlace(p) {
-  return { id: p.id, n: p.name, r: p.rating, c: p.reviews, pr: p.price, pn: p.priceNum, a: p.address, t: p.type, la: p.lat, lo: p.lng, ph: p.photo || null };
+  const out = { id: p.id, n: p.name, r: p.rating, c: p.reviews, pr: p.price, pn: p.priceNum, a: p.address, t: p.type, la: p.lat, lo: p.lng, ph: p.photo || null };
+  if (typeof p.day === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p.day)) out.d = p.day;
+  return out;
 }
 function expandPlace(o) {
-  return { id: o.id, name: o.n, rating: o.r, reviews: o.c || 0, price: o.pr || null, priceNum: o.pn == null ? null : o.pn, address: o.a || "", type: o.t || "", lat: o.la, lng: o.lo, photo: o.ph || null, photos: o.ph ? [o.ph] : [], labels: [], mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${o.id}` };
+  const out = { id: o.id, name: o.n, rating: o.r, reviews: o.c || 0, price: o.pr || null, priceNum: o.pn == null ? null : o.pn, address: o.a || "", type: o.t || "", lat: o.la, lng: o.lo, photo: o.ph || null, photos: o.ph ? [o.ph] : [], labels: [], mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${o.id}` };
+  if (typeof o.d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(o.d)) out.day = o.d;
+  return out;
 }
 function encodeList(places) {
   try {

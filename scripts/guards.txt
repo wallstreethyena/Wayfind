@@ -2332,6 +2332,7 @@ node scripts/test-rail-device-distance.mjs
 # Itinerary option B: proximity insert, date reflow that never drops a stop,
 # lossless merge, flags default off, private share payload, and RLS on the
 # unapplied wf_itineraries migration (PGlite only — production is not contacted).
+node scripts/test-itinerary-dates-render.mjs
 node scripts/test-itinerary-plan.mjs
 node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
