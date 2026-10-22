@@ -48,7 +48,7 @@ import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
 import { hasRealPlacePhoto, realPlacePhotoSrc, detailHeroLayout } from "../../../lib/detailHero";
 import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js";
-import { fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
+import { acquireDetailPhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
 import PhotoCredit from "../PhotoCredit";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
@@ -817,21 +817,18 @@ export default function DetailSheet({ ctx }) {
   }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
 
 
-  // Live credited photo: ONE fetch per place per page session (memoized in
-  // lib/livePhoto), only from this sheet. Owned non-proxy URLs + that photo.
+  // Shared credited answer, with bounded free-only recovery for a transient
+  // acquisition failure before an image has mounted.
   const liveId = detail && !detail._event ? (detail.placeId || detail.id) : null;
   useEffect(() => {
     if (!detail || !isLivePlaceId(liveId)) return undefined;
     if (detail._live || detail._liveDone) return undefined;
-    let off = false;
     const id = detail.id;
-    fetchLivePhoto(liveId).then((live) => {
-      if (off) return;
-      setDetail((d) => (d && d.id === id ? (live ? { ...d, _live: live, _liveDone: true } : { ...d, _liveDone: true }) : d));
+    return acquireDetailPhoto(liveId, (live) => {
+      setDetail((d) => (d && d.id === id && (d.placeId || d.id) === liveId ? (live ? { ...d, _live: live, _liveDone: true } : { ...d, _liveDone: true }) : d));
     });
-    return () => { off = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail && detail.id]);
+  }, [detail && detail.id, liveId]);
   const galleryPhotos = detailGalleryPhotos(detail);
   const showHero = galleryPhotos.length > 0 && (hasRealPlacePhoto(detail) || !!(detail && detail._live));
   const heroLayoutRef = useRef(null);
