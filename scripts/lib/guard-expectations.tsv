@@ -115,7 +115,7 @@ scripts/check-district-not-a-meal.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	2c3
 scripts/check-doc-ownership.mjs	1	CALL	blocks-ci-and-deploy	1	owner (Gabriel)	4	1	0	9ef6ffabeab0b543543f8fe68fd3e0f7f0a5eb8a9bc1f8023848ef511c8d107f
 scripts/check-drop-photo-window.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	33	1	0	1e47d104f6b3c5dea5a76510585f581a32a8f7a65b0ab1c6cc14291bc858ff28
 scripts/check-dupes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	d31ca083d0beff58efc7929c7c9e4b987c27e9225aeedb5a222d8414f5d563f9
-scripts/check-earning-integrations.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	20	0	0	0397c724c066ba274fc3bd7a89922d1167ab021b99e0dd0744eb8b55d8fb5239
+scripts/check-earning-integrations.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	23	0	0	b0d0e1f194112d8bad6a484da38019bb4c056a88b49b1245b07099bfba12e8fd
 scripts/check-editorial-coverage-pipeline.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	22150db8c08d542fd25f11db5cb84f020c1aa4427efe60785328bb3fc3707441
 scripts/check-editorial-everywhere.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	51	1	5	3a4038355408049a02c1c0c014f03dcd27a06164b68395b28c34ce4b0445536a
 scripts/check-editorial-publish-symmetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	d653008b40a9fef149e60546446189f95831c82cd747ad67402e0e0a42b10d60
@@ -181,9 +181,9 @@ scripts/check-guard-registry.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	ac69ccda
 scripts/check-guards-can-fail.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	7477dec496a8bb96ba48073c0dcb56bf26e0f429bfbd4f34904c1d0f6c18c8c8
 scripts/check-guards-emit-no-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8941f0a9b3385a4e1607abbdf404e1760d6334b529350303b3432f1dfb0116ea
 scripts/check-guide-card.mjs	0	RENDER	blocks-ci-and-deploy	1	-	60	0	0	76ba58e0fbd0bb64eb020fd3e3aacd305d758904afcb2d2059ea0f0af9438d1a
-scripts/check-guide-conversion.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	cdb752979a871f1ffb4610400ba08a723cd16b1b98259d7c3b66c027d42d1d12
+scripts/check-guide-conversion.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	e8282dd4709270de281dea120d16ddd248c85fba4b2ccbdf14d4c1896e8a6f98
 scripts/check-guide-cta-honesty.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	40	1	1	61654127038fd8dd127d2482b79736f8abf041f27691e0c56222b524148cbb0a
-scripts/check-guide-cta-single-capture.mjs	0	RENDER	blocks-ci-and-deploy	1	-	16	0	0	def03b381db8953e18c33d1fa16a0430245b9f67756c8cd8f4ea8a4f973c6ed8
+scripts/check-guide-cta-single-capture.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	3a758a72d232afb43eff578618db23c8ec36835e8834af8c2785f89cf2750d7f
 scripts/check-guide-deal-cards.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	05909dfad33e342c367c601bdd4975837e445d2cb5e6e752a2c3b0c7244d3dbc
 scripts/check-guide-dedicated-routes.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	5c90164b5b286ae09f7b1594f7d76a80d5c636b824175e7d82fec57842553b85
 scripts/check-guide-editorial.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	10bafd234698135469a5705a203c1dc342466f7a7d60e6dd113cd59b4bb69f5a
