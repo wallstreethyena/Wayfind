@@ -48,7 +48,7 @@ function DealCard({ d, onCardClick }) {
         href={d.url}
         data-deal-card={d.id}
         data-merchant={d.business}
-        rel={d.external ? "nofollow sponsored noopener" : undefined}
+        rel={d.commerce || d.external ? "nofollow sponsored noopener" : undefined}
         target={d.external ? "_blank" : undefined}
         onClick={() => onCardClick(d)}
       >

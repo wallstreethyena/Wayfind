@@ -492,7 +492,7 @@ scripts/test-beach-local-conditions.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	c
 scripts/test-beach-never-booking.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	36	0	0	d31cbbdc7790965e62507a59617de3a8d0e63f5a0fa5c9fbc8813e74caf73a8e
 scripts/test-beach-planning.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3920872cd9edaecfe01a8919747c3d5b56b1f428f524f41a3537292c13297593
 scripts/test-beach-water.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	71a161ea97da1b9768ec62296469f9e4e651c21c2e3ffd59ee6dd1eecc5be51a
-scripts/test-beaches-page.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	13d8d4a00ecd8b6b436a6e68783fd482c0c707e613962dbf69ec572f1eefd2f3
+scripts/test-beaches-page.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	2fbcc89b947d9724ae6e0e9f408491707360bb1dedf8b71df76453ffb0cd262a
 scripts/test-best-photo-selection.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	86168ff4475213a09ab65bc9419eceea71a70e1fac31802ce2a10f1be04fc760
 scripts/test-birthday-intent.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	338f764a922836fc5a210a1f29ec46ef63a8d55d47dcfa6252692651563de304
 scripts/test-birthday-nearby.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	f60ce3efb0532d56df79f5538d22a053f3a3b57d4e4d2c80b0c0858e3ee98c4a
@@ -592,7 +592,7 @@ scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	7
 scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	a0977e4d7aedf5b6e065c9e99623b655c571d0af13ccde73d8c3573e37f3e4af
 scripts/test-detail-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	e21f04368be475b7c99c4532e2f8bd12dc6980f564a1c45375ed988920637d66
 scripts/test-detail-open-once.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c3dbbe48126179cfdfa036db7d3066d8de302810c2e1ddaf291d4c0d8ff146df
-scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	18	0	0	4a2abf06e95005ba87262ee9d9e7d4fa3ba19fd3d78f5b949c4a5c351845ca19
+scripts/test-detail-render-smoke.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	02a0847700d58959fc7e3ff9e37769cc94cb4f244d5b3a67205387cd650ae8bd
 scripts/test-detail-take.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	8	1	0	3878d5702d144f1a4cc8dd882b2dbc7de557218336567b762f6dc622a7ea750e
 scripts/test-device-distance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	87daa2e91ce4f32b6924b8681f9769b95b19570e7bcf6859a5aa884567f72cff
 scripts/test-device-id.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	04cf44c3b8c36e3e9fb01312d7d1a9cf9a6f856606ebda509f5a76eb640b136e
@@ -692,7 +692,7 @@ scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	164	0	0	8bc
 scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a6b7662600b0037bd5cc4bb8b1a34ba7b70aecf2620e495ac48051a84367
 scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	194	0	0	8385835f396ec7061fe2c3a38766c00fed76e8fd55a1e01b160abcfbfedabb7c
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
-scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	29	0	0	fd17a788091d503dd99c2f5f45ac56d53805e1c0c90e3e02326445819d67e6bc
+scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	fa5b5652425a0349567726dff834cfb3a5633c94fa0afe53ef33971e315938d1
 scripts/test-guide-context-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	02b780e7560741e93995b5036f426e06a934a7dcd7b8bb26878ac73449368761
 scripts/test-guide-description-fills.mjs	0	RENDER	blocks-ci-and-deploy	1	-	71	0	0	ac791101b3112c20dfb0aff3c2565a69256c389871dbf0dfa9316818ae4ec52b
 scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9f5afb7dd50696a33d2cee909f3d6c652de22a63afc5ec9b27bcf5082c4
@@ -712,7 +712,7 @@ scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA
 scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c71ddcdd9e9c00d77ab5575d17842f71b14bba71973917741ecc1789
 scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	46587f8ab638155f703f51fe41c5ddc580078f64024d40361d20bfd3f26074b1
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
-scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	72	0	0	0180701b626fa3694dd5b139593fe9d1c306fc2f78ff1535d8fedaa8005de634
+scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	72dae7d6f783e0b3813f791460b67f95aedb1480bf396af420f57e51d0073fe7
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	9d6e675717fb69fa9849cf701fccea544b8e355f0243a1abc61277ec60def499
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
 scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	93323a189af5ccd3b41f436983795d77a21effb05ceb05d2c1a1e55417c7a464

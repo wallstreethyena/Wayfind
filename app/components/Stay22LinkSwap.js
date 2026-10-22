@@ -2,16 +2,15 @@ import Script from "next/script";
 
 // Stay22 LinkSwap — SCOPED (2026-09-22 click-hijack fix).
 //
-// Render this ONLY on a route that contains a genuine, PLAIN (unwrapped) OTA
-// search link for Stay22 to rewrite into a commission-earning one — today
-// that is exactly app/best-beaches/[metro]/page.js's "Stay near <beach>"
-// Booking.com search link (the "house hotel pattern": we emit a plain
-// booking.com URL and LinkSwap upgrades it to whichever partner pays most).
+// Render this ONLY on the reviewed beach stay route. Its "Stay near <beach>"
+// area-search href now already carries our Stay22 account in server HTML,
+// so delayed or blocked JavaScript cannot send an unattributed Booking click.
+// Keep this scoped integration for Stay22 optimization with popups disabled.
 // Every OTHER hotel/booking surface on Wayfind (BookingCTA, the place detail
 // sheet, /api/hotels/go) earns through the SERVER-side, integrity-gated path
 // in lib/affiliates.js + lib/hotelRedirect.js and needs no client script at
 // all — do not import this component "just in case" a page might benefit;
-// only import it where a raw partner href like the one above actually exists.
+// only import it for the reviewed stay lane.
 //
 // WHY THIS IS NOT IN app/layout.js ANYMORE: scripts.stay22.com/letmeallez.js
 // ships two products in one file — (a) the link rewriter this component
