@@ -242,13 +242,17 @@ await check("E1 no Apple-pin module can reach Google (positive control: lib/goog
   const RX = /googleapis\.com|maps\.google|places\.googleapis|google\.com\/maps|from\s+["'][./]*lib\/google(?:\.js)?["']|from\s+["']\.\/google(?:\.js)?["']|serverCache\.js["'][^;]*\b(?:placesSearch|googleSearch)/;
   assert.ok(RX.test(readFileSync(ROOT + "lib/inventoryRowClient.js", "utf8")), "probe finds a known Google import (lib/inventoryRowClient.js imports ./google)");
   assert.ok(RX.test("fetch('https://places.googleapis.com/v1/places:searchText')"), "probe catches a Google host");
-  const files = ["lib/applePlaceMatch.js", "lib/applePlaceIds.js", "lib/appleMapRecovery.js", "app/components/useAppleMapRecovery.js", "app/api/maps/apple-budget/route.js", "scripts/apple-place-match.mjs"];
+  // 2026-10-22: the matcher moved into lib/appleMatchJob.js, shared by the
+  // nightly cron route and the CLI; the list-to-map read joined the Apple path.
+  const files = ["lib/applePlaceMatch.js", "lib/applePlaceIds.js", "lib/appleMapRecovery.js", "app/components/useAppleMapRecovery.js", "app/api/maps/apple-budget/route.js", "scripts/apple-place-match.mjs",
+    "lib/appleMatchJob.js", "app/api/cron/apple-place-match/route.js", "app/api/places/map/list/route.js", "lib/mapListScope.js"];
   for (const f of files) {
     const src = readFileSync(ROOT + f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
     assert.ok(!RX.test(src), `${f} references Google`);
   }
-  const hosts = [...readFileSync(ROOT + "scripts/apple-place-match.mjs", "utf8").replace(/^\s*\/\/.*$/gm, "").matchAll(/https:\/\/([a-z0-9.-]+)/g)].map((m) => m[1]);
-  assert.deepEqual([...new Set(hosts)].sort(), ["maps-api.apple.com"], "the matcher talks only to Apple (and the configured Supabase URL)");
+  const matcherSrc = ["scripts/apple-place-match.mjs", "lib/appleMatchJob.js", "app/api/cron/apple-place-match/route.js"].map((f) => readFileSync(ROOT + f, "utf8").replace(/^\s*\/\/.*$/gm, "")).join("\n");
+  const hosts = [...matcherSrc.matchAll(/https:\/\/([a-z0-9.-]+)/g)].map((m) => m[1]);
+  assert.deepEqual([...new Set(hosts)].sort(), ["maps-api.apple.com"], "the matcher (lib, cron route, CLI) talks only to Apple (and the configured Supabase URL)");
 });
 
 console.log(`Apple free pins: ${n} checks passed (identity, quota, storage, parity, no-Google).`);

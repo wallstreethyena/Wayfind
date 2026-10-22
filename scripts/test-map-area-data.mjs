@@ -202,7 +202,9 @@ assert.match(screen, /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curato
 assert.match(screen, /view\.map\(\(p, i\)/);
 assert.match(screen, /readCompleteMapArea/);
 assert.match(screen, /controller\.abort\(\)/);
-assert.match(screen, /areaStatus === "error" \? "partial results"/);
+// List-scoped and area maps share one status label (lib/mapListScope.js).
+assert.match(screen, /mapStatus === "error" \? "partial results"/);
+assert.match(screen, /const mapStatus = explicitList \? listStatus : areaStatus;/);
 assert.doesNotMatch(screen, /slice\(0, (40|60)\)/);
 const root = fileURLToPath(new URL('../', import.meta.url));
 const route = await loadComponent(path.join(root, 'app/api/places/map/route.js'), root, { onGraph(graph) {
