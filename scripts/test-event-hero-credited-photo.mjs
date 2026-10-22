@@ -340,7 +340,9 @@ try {
     ok(await page.evaluate(() => document.getElementById("hyd").dataset.failed) === "true", "setup: the server-rendered <img> failed BEFORE hydration (onError can no longer fire)");
     ok(before.credit === true, "setup: the server HTML for an owned photo carries its caption (visible-by-default for owned srcs)");
     await page.evaluate((i) => window.__hydrate(i), id);
-    const s = await until(id, (x) => x.tile === "unavailable");
+    // The photo failure and provider notification settle in adjacent React commits.
+    // Observe both outcomes before checking each part of the finished state.
+    const s = await until(id, (x) => x.tile === "unavailable" && x.credit === false);
     ok(s.img === null && s.tile === "unavailable", `hydration notices the already-failed <img> and shows the tile (${JSON.stringify(s)})`);
     ok(s.credit === false, "and the caption goes with it (no credit under a broken photo)");
   }

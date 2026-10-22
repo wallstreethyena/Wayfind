@@ -78,9 +78,9 @@ await check("each new row is trusted, dated, live, image-backed and on its one p
   }
 });
 
-await check("the Crawl With US card names all five organizer-listed bars", () => {
+await check("the Crawl With US card names all seven organizer-listed bars", () => {
   const crawl = FALL_TAMPA_PICKS_2026_10_08.find((row) => row.event_id === "tampa-halloween-bar-crawl-2026");
-  for (const bar of ["MacDinton's", "Grove Soho", "Bulla Gastrobar", "LALA Tampa", "Tiny Tap Tavern"]) {
+  for (const bar of ["MacDinton's", "Grove Soho", "Bulla Gastrobar", "Corner Bar", "Good Luck Chuck's", "LALA Tampa", "Tiny Tap Tavern"]) {
     assert.ok(crawl.schedule_note.includes(bar), `schedule names ${bar}`);
   }
   assert.equal(crawl.minimum_age, 21);
