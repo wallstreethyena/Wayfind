@@ -21,6 +21,8 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { eventDetailTicketAction, eventOrganizerTicketUrl, eventOutboundUrl } from "../lib/curatedEvents.js";
+import { researchEvent } from "../lib/christmasResearch.js";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -43,6 +45,33 @@ ok(eventDetailTicketAction({ ...relics, link_ok: undefined })?.kind === "organiz
 ok(eventDetailTicketAction({ ...relics, is_free: undefined, price_min: null })?.kind === "organizer", "a ticket URL alone is evidence enough (ticketedFlag)");
 // url === event url: still shown, because the row is ticketed
 ok(eventDetailTicketAction({ ...relics, official_event_url: FH })?.href === FH, "ticket URL equal to event URL still gets the button when ticketed");
+
+// Pretracked research ticket: the original official source stays raw, while
+// the ticket follows the existing redirect and remains disclosed as affiliate.
+const research = JSON.parse(read("data/christmas-2026-research.json"));
+const researchRows = Array.isArray(research) ? research : research.events;
+const tomlin = researchRows.find((row) => row.id === "christmas-with-chris-tomlin-pensacola-2026");
+const tomlinRow = researchEvent(tomlin);
+const tracked = eventDetailTicketAction(tomlinRow);
+ok(tomlin.official_url === "https://www.livenation.com/event/G5viZ_on0-j6v/christmas-with-chris-tomlin", "Tomlin official evidence retains its original organizer URL");
+ok(tracked?.kind === "affiliate" && tracked.href === tomlinRow.official_ticket_url, "pretracked research ticket keeps affiliate disclosure and is never double wrapped");
+ok(eventDetailTicketAction({ ...relics, official_ticket_url: tomlin.ticket_url })?.kind === "organizer", "a raw database organizer ticket remains outside the research-only adapter change");
+const redirect = new URL(tracked.href, "https://www.gowayfind.com");
+ok(eventOutboundUrl(tomlinRow) === tracked.href, "the app-relative tracked research ticket survives the shared outbound URL filter");
+ok(tomlinRow.official_event_url === tomlin.official_url && tomlin.ticket_url === tomlin.official_url, "the adapter preserves raw official evidence and research ticket identity");
+ok(redirect.searchParams.get("url") === tomlin.official_url, "ticket redirect retains the exact verified event destination");
+for (const href of [redirect.href.replace("www.gowayfind.com", "external.example"), redirect.href.replace("/api/ticketmaster/go", "/unrelated"), redirect.href.replace("https://www.gowayfind.com", "http://www.gowayfind.com"), "https://www.gowayfind.com/api/ticketmaster/go?url=https%3A%2F%2Fexternal.example"])
+  ok(eventDetailTicketAction({ ...relics, official_ticket_url: href })?.kind === "organizer", "only the exact HTTPS first-party route with a Ticketmaster-family destination is recognized as pretracked");
+process.env.WF_SUPPRESS_ANALYTICS = "1";
+const { GET } = await loadComponent(path.join(ROOT, "app/api/ticketmaster/go/route.js"), ROOT);
+const result = await GET(new Request(redirect.href, { headers: { "user-agent": "Mozilla/5.0" } }));
+const hop = new URL(result.headers.get("location"));
+ok(result.status === 302 && hop.hostname === "ticketmaster.evyy.net" && hop.pathname === "/c/7475855/264167/4272" && hop.searchParams.get("u") === tomlin.official_url, "real redirect attributes the unchanged event through pinned Impact path");
+
+const relativeOrganizer = eventDetailTicketAction({ ...relics, official_ticket_url: "/tickets/local-event" });
+ok(relativeOrganizer?.kind === "organizer" && relativeOrganizer.href === "/tickets/local-event", "relative organizer ticket URL preserves the prior supported behavior without throwing");
+const relativeTracked = redirect.pathname + redirect.search;
+ok(eventDetailTicketAction({ ...relics, official_ticket_url: relativeTracked })?.kind === "affiliate", "relative first-party tracked URL receives the same truthful disclosure");
 
 // negative: affiliate
 const dealId = Object.keys(EVENT_TICKET_DEALS)[0];

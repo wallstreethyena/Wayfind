@@ -105,6 +105,20 @@ ok(rules.pid === "P00320881", "rules pid is the pinned Wayfind pid");
 ok(readFileSync(path.join(FIX, "viator-ok.js"), "utf8").includes("pid=" + rules.pid),
   "the passing fixture carries the same pid the rules require");
 
+// Only exact research fields for the Ticketmaster family are source/adapter
+// inputs. Same-looking data elsewhere and other fields remain outbounds.
+const tm = "https://www.livenation.com/event/verified-event";
+const researchFile = "data/christmas-2026-research.json";
+const sourceField = scanText(`  "official_url": "${tm}",`, researchFile, rules);
+ok(sourceField.official.length === 1 && sourceField.violations.length === 0, "exact research official_url is recorded as source evidence");
+const ticketField = scanText(`  "ticket_url": "${tm}",`, researchFile, rules);
+ok(ticketField.inputs.length === 1 && ticketField.inputs[0].via === "christmas-ticket-input", "exact research ticket_url is a runtime-probed adapter input");
+ok(scanText(`  "ticket_url": "${tm}",`, "data/other-research.json", rules).violations.length === 1, "other files cannot inherit the research adapter context");
+ok(scanText(`  "booking_url": "${tm}",`, researchFile, rules).violations.length === 1, "other fields retain bare-link violations");
+ok(scanText('  "ticket_url": "https://www.viator.com/tours/x/d1-1",', researchFile, rules).violations.length === 1, "other merchants cannot inherit the Ticketmaster adapter context");
+const mixedFields = scanText(`"official_url": "${tm}", "booking_url": "${tm}", "ticket_url": "${tm}"`, researchFile, rules);
+ok(mixedFields.official.length === 1 && mixedFields.inputs.length === 1 && mixedFields.violations.length === 1, "same-line repeated URL keeps each field's separate obligation");
+
 if (failures.length) {
   console.error("test-affiliate-tags: FAIL");
   for (const m of failures) console.error("  - " + m);
