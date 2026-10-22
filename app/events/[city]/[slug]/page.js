@@ -317,7 +317,7 @@ export default async function EventPage({ params }) {
             url={external}
             label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
             eventId={e.id}
-            provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
+            provider={isTicketmasterFamily(e.url) ? "ticketmaster" : "event_official"}
           />
         )}
             <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
