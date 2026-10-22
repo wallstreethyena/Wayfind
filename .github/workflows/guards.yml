@@ -35,9 +35,7 @@ jobs:
   guards:
     name: guards
     runs-on: ubuntu-latest
-    # Cold Chromium setup plus 963 guards used the old 20-minute budget before
-    # production build could finish. Keep every gate and allow its full run.
-    timeout-minutes: 30
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
         with:
