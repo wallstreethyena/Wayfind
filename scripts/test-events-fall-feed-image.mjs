@@ -77,7 +77,7 @@ check("/api/events shared cache key is versioned by the fall registry, so pre-me
   assert.doesNotMatch(src, /evK = "ev1\|"/);
   assert.match(FALL_FEED_CACHE_VERSION, /^[0-9a-z]{3,}$/);
   const lib = readFileSync("lib/curatedFallFeed.js", "utf8");
-  assert.match(lib, /FALL_FEED_CACHE_VERSION = fnv1a\(JSON\.stringify\(\[FALL_DISCOVERIES_2026, FALL_FEATURED_FESTIVALS_2026, FALL_GAP_FILL_2026_10_07, FALL_FOOD_GAP_2026_10_08, FALL_TAMPA_PICKS_2026_10_08, FALL_LIVE_AREA_2026_10_19, FALL_DB_SEED_VERSION\]\)\)/);
+  assert.match(lib, /FALL_FEED_CACHE_VERSION = fnv1a\(JSON\.stringify\(\[FALL_DISCOVERIES_2026, FALL_FEATURED_FESTIVALS_2026, FALL_GAP_FILL_2026_10_07, FALL_FOOD_GAP_2026_10_08, FALL_TAMPA_PICKS_2026_10_08, FALL_LIVE_AREA_2026_10_19, FALL_VISIT_FACTS_2026, FALL_DB_SEED_VERSION\]\)\)/);
 });
 
 // 2026-10-14: the unified feed (/api/events, home Events rail, /events/[city]/[slug])

@@ -33,7 +33,7 @@ assert.deepEqual(applyStoredStartCorrection(cake), { ...cake, venue: 'The BayCar
 // reaches validation/dedup/geo before the final cache-serving correction.
 const route = readFileSync(new URL('../app/api/events/route.js', import.meta.url), 'utf8');
 const seasonalRoute = readFileSync(new URL('../app/api/events/fall/route.js', import.meta.url), 'utf8');
-assert.match(seasonalRoute, /fall-intents:v39:/, 'seasonal snapshot retires the old paddle sessions');
+assert.match(seasonalRoute, /fall-intents:v40:/, 'seasonal snapshot retires the old paddle sessions');
 const start = route.indexOf('async function fromTicketmaster(');
 const end = route.indexOf('\nfunction seatgeekSegment(', start);
 assert(start > 0 && end > start);
