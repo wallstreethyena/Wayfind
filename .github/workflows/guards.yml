@@ -55,8 +55,29 @@ jobs:
         run: npm audit --audit-level=moderate
       # These guards measure real rendered cards. Without a browser they
       # explicitly skip, which is insufficient evidence for a merge review.
+      # Cache the Playwright browser download (~/.cache/ms-playwright on
+      # Linux runners); the key tracks package-lock.json, which pins the
+      # exact Playwright/Chromium build, so a version bump busts the cache.
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
+      # if: always() — the rendered checks below also run with if: always()
+      # so they produce evidence even when an earlier step (e.g. the audit)
+      # failed; skipping this install in that case made them fail with
+      # "no executable is available" instead of a real result.
       - name: Install Chromium for rendered guards
-        run: npx playwright install --with-deps chromium
+        if: always()
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
       # The regular suite remains runnable in browser-free deploy images. Merge
       # CI has installed Chromium above, so absence/launch failure is fatal here.
       # Run this first so layout failures always have reviewable evidence.
