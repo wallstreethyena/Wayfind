@@ -40,6 +40,10 @@ const consoleErrors = [];
 const realConsoleError = console.error;
 console.error = (...args) => { consoleErrors.push(args.map(String).join(" ").slice(0, 400)); };
 
+// act() is disabled under NODE_ENV=production, which is how Vercel runs the
+// guard suite (the 2026-10-23 production build of main failed exactly there);
+// pick the test runtime BEFORE React loads, as test-landing-offer-dedupe-runtime does.
+process.env.NODE_ENV = "test";
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const React = (await import("react")).default;
 const { createRoot } = await import("react-dom/client");
