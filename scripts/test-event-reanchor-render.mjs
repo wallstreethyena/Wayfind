@@ -40,6 +40,13 @@ const consoleErrors = [];
 const realConsoleError = console.error;
 console.error = (...args) => { consoleErrors.push(args.map(String).join(" ").slice(0, 400)); };
 
+// Vercel's production build runs prebuild with NODE_ENV=production, and
+// React's production build rejects act(). This is a fixture write, not a
+// read of the shell: the client scenarios below always mount on the test
+// build, which is what CI already uses. Server markup still uses
+// renderToStaticMarkup.
+process.env.NODE_ENV = "test";
+
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const React = (await import("react")).default;
 const { createRoot } = await import("react-dom/client");

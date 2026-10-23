@@ -301,4 +301,81 @@ function names(cards) {
   assert.equal(cardRankScore(strong, ctx), cardRankScore({ ...strong, sponsored: true }, ctx), "a commercial flag does not change the score");
 }
 
+{
+  const guideTitle = "Gulf Coast Brunch and Date Night: Two Tables, Not a List";
+  const ghostTitle = "Haunted Sarasota Ghost Tour";
+  const guide = GUIDES["gulf-coast-brunch-and-date-night"];
+  assert.equal(guide && guide.title, guideTitle, "the Gulf Coast guide is the live blog this search mixes in");
+  const result = await searchResultCards({
+    query: "date night",
+    ...SARASOTA,
+    events: [{
+      event_name: ghostTitle,
+      slug: "haunted-sarasota-trolley-tour-2026",
+      category: "halloween",
+      tags: ["fall", "halloween", "ghost-tour", "nightlife", "date-night", "local"],
+      city: "Sarasota",
+      lat: 27.3394584,
+      lng: -82.5338239,
+    }],
+    places: [
+      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
+      place({ id: "yoders", name: "Yoder's Restaurant", lat: 27.322544, lng: -82.5006296, category: "food", primaryType: "restaurant", types: ["restaurant"], priceNum: 2, rating: 4.6, reviews: 9488 }),
+      place({ id: "dutchman", name: "Der Dutchman", lat: 27.3233119, lng: -82.4947838, category: "food", primaryType: "family_restaurant", types: ["family_restaurant", "breakfast_restaurant"], tags: ["breakfast"], priceNum: 2, rating: 4.6, reviews: 12204 }),
+      place({ id: "unrated", name: "Unrated Room", lat: 27.34, lng: -82.53, category: "food", primaryType: "restaurant" }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes(guideTitle), `date night mixes in the Gulf Coast guide, got ${got.join(" | ")}`);
+  assert.ok(got.includes(ghostTitle), `date night mixes in the ghost tour, got ${got.join(" | ")}`);
+  assert.ok(got.includes("Gulf Date Bar"), `date night still returns the wine bar, got ${got.join(" | ")}`);
+  assert.ok(got.indexOf("Gulf Date Bar") < got.indexOf("Yoder's Restaurant"), `a favored room stays ahead of Yoder's, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Der Dutchman"), `date night still drops the family restaurant, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Unrated Room"), "an unrated restaurant is still not a card");
+  assert.ok(!got.includes("Siesta Key Drum Circle: Times, Parking, and What to Expect"), `an unrelated guide stays out, got ${got.join(" | ")}`);
+  const guideCard = result.cards.find((card) => card.name === guideTitle);
+  const ghostCard = result.cards.find((card) => card.name === ghostTitle);
+  assert.equal(guideCard.kind, "guide");
+  assert.equal(guideCard.href, "/guides/gulf-coast-brunch-and-date-night");
+  assert.equal(guideCard.rating, null, "the guide does not invent a rating");
+  assert.equal(ghostCard.kind, "event");
+  assert.equal(ghostCard.href, "/florida-events/haunted-sarasota-trolley-tour-2026");
+  assert.equal(ghostCard.rating, null, "the event does not invent a rating");
+  const nav = classifyGuide(guide);
+  const guideDoc = {
+    kind: "guide", title: guide.title, nav, category: nav.category,
+    keywords: [guide.keyword, guide.region, ...(guide.relatedKeywords || [])].filter(Boolean),
+    city_slug: "sarasota", rating: null, reviews: 0,
+  };
+  const ghostDoc = {
+    kind: "event", title: ghostTitle,
+    keywords: ["halloween", "fall", "halloween", "ghost-tour", "nightlife", "date-night", "local", ghostTitle],
+    nav: classifyEvent({ category: "halloween", tags: ["date-night", "nightlife"] }),
+    lat: 27.3394584, lng: -82.5338239, city_slug: "sarasota", rating: null, reviews: 0,
+  };
+  const ctx = { query: "date night", city: result.city, taxonomy: result.taxonomy };
+  assert.ok(cardRankScore(guideDoc, ctx) > 0 && cardRankScore(ghostDoc, ctx) > 0, "guide and event score on the same function");
+  assert.equal(cardRankScore(guideDoc, ctx), cardRankScore({ ...guideDoc, sponsored: true, offerId: "paid", commission: 12 }, ctx), "affiliate fields do not move a guide");
+  const ranked = [
+    [guideTitle, cardRankScore(guideDoc, ctx)],
+    [ghostTitle, cardRankScore(ghostDoc, ctx)],
+  ].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  assert.ok(got.indexOf(ranked[0][0]) < got.indexOf(ranked[1][0]), `cards follow cardRankScore, wanted ${ranked.map((row) => row[0]).join(" then ")} in ${got.join(" | ")}`);
+  assert.ok(got.indexOf(guideTitle) !== got.indexOf("Gulf Date Bar"), "the guide is not tied in place of the wine bar");
+}
+
+{
+  const result = await searchResultCards({
+    query: "brunch",
+    ...PARRISH,
+    events: [],
+    places: [
+      place({ id: "keke", name: "Keke's Breakfast Cafe", lat: 27.5, lng: -82.5, category: "food", primaryType: "breakfast_restaurant", tags: ["breakfast"], rating: 4.8, reviews: 3800 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes("Keke's Breakfast Cafe"), `brunch still returns the breakfast room, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Gulf Coast Brunch and Date Night: Two Tables, Not a List"), `Parrish brunch does not take the Sarasota guide, got ${got.join(" | ")}`);
+}
+
 console.log("test-search-taxonomy: OK");

@@ -11,7 +11,7 @@
 import { readFileSync } from "fs";
 import { createRequire } from "node:module";
 const ts = createRequire(import.meta.url)("typescript");
-import { cardComplete, hasScoreSignal } from "../lib/score.js";
+import { cardComplete, hasScoreSignal, searchEditorialCard } from "../lib/score.js";
 import { rankInventory } from "../lib/inventoryServe.js";
 
 let pass = 0;
@@ -50,6 +50,16 @@ ok(hasScoreSignal(null) === false, "null refused");
 // cardComplete must keep delegating, or the two tiers can drift apart again.
 ok(cardComplete({ id: "z", name: "Lean but named", }) === hasScoreSignal({ id: "z", name: "Lean but named" }),
   "cardComplete's signal half IS hasScoreSignal — no second copy of the rule");
+ok(searchEditorialCard({ id: "guide:gulf", name: "Gulf Coast Brunch and Date Night", kind: "guide", href: "/guides/gulf-coast-brunch-and-date-night" }) === true,
+  "a named guide with an internal href may render on the place card");
+ok(searchEditorialCard({ id: "event:ghost", name: "Haunted Sarasota Ghost Tour", kind: "event", href: "/florida-events/haunted-sarasota-trolley-tour-2026" }) === true,
+  "a named event with an internal href may render on the place card");
+ok(searchEditorialCard({ id: "yoders", name: "Yoder's Restaurant", kind: "place", href: "/guides/gulf-coast-brunch-and-date-night" }) === false,
+  "an unrated restaurant cannot borrow the guide exception");
+ok(cardComplete({ id: "yoders", name: "Yoder's Restaurant" }) === false, "that restaurant still fails cardComplete");
+ok(searchEditorialCard({ id: "event:ghost", name: "Haunted Sarasota Ghost Tour", kind: "event", href: "https://example.com/tour" }) === false,
+  "an external href is not an editorial card");
+ok(searchEditorialCard({ id: "guide:bare", name: "Bare Guide", kind: "guide" }) === false, "a guide with no href is not an editorial card");
 
 const route = readFileSync(new URL("../app/api/places/search/route.js", import.meta.url), "utf8");
 ok(/import \{ hasScoreSignal \} from "\.\.\/\.\.\/\.\.\/\.\.\/lib\/score"/.test(route),
@@ -145,8 +155,8 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
   ts.forEachChild(placeCard.body, walk);
   ok(returns.length > 0, "PlaceCard returns something");
   const first = returns[0].getText(src).replace(/\s+/g, " ");
-  ok(/^return null;?$/.test(first) && /if \(!cardComplete\(p\)\) return null;/.test(home.slice(Math.max(0, returns[0].getStart() - 40), returns[0].getEnd())),
-    "PlaceCard's completeness gate is its FIRST return — an incomplete card renders nothing, and nothing paints before that is decided (first return was: " + first + ")");
+  ok(/^return null;?$/.test(first) && /if \(!cardComplete\(p\) && !searchEditorialCard\(p\)\) return null;/.test(home.slice(Math.max(0, returns[0].getStart() - 80), returns[0].getEnd())),
+    "PlaceCard's completeness gate is its FIRST return — an incomplete place renders nothing, and a guide or event still needs a title and internal href (first return was: " + first + ")");
 }
 ok(/import \{[^}]*cardComplete[^}]*\} from "\.\.\/lib\/score"/.test(home), "home.js imports cardComplete from lib/score");
 // v8.48 — THE COUNT IS THE CARDS. `view` is the browse pool: it feeds the
