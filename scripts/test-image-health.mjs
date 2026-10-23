@@ -206,7 +206,9 @@ const CLASSES = [
   { name: "http-503", id: "ChIJHealthHttp503001", expect: "tile", calls: 2 },
   { name: "network-throw", id: "ChIJHealthNetThrow001", expect: "tile", calls: 2 },
   { name: "malformed-json", id: "ChIJHealthMalformed01", expect: "tile", calls: 2 },
-  { name: "image-decode-error", id: "ChIJHealthDecodeErr01", expect: "tile", calls: 1, decode: true },
+  // image-decode-error: 1 spend-capable ask for the whole page, then each surface makes
+  // exactly 2 FREE (nospend) recovery re-asks before settling: 1 + 3x2 = 7.
+  { name: "image-decode-error", id: "ChIJHealthDecodeErr01", expect: "tile", calls: 7, paidCalls: 1, decode: true },
 ];
 const NON_GOOGLE = ["evt-123", "florida-fall-festivals-2026", "fsq:4b5f0c2af964a520"];
 const modeOf = (id) => CLASSES.find((c) => c.id === id)?.name;
@@ -216,12 +218,12 @@ try {
   for (const width of [390, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const pageErrors = []; page.on("pageerror", (e) => pageErrors.push(e.message));
-    const calls = {}; let directImageCalls = 0, sinceAbort = 0;
+    const calls = {}, paid = {}; let directImageCalls = 0, sinceAbort = 0;
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
       if (u.pathname === "/api/photo") {
         if (u.searchParams.get("fmt") !== "json") { directImageCalls++; return route.fulfill({ status: 404, body: "no" }); }
-        const id = u.searchParams.get("place"); calls[id] = (calls[id] || 0) + 1;
+        const id = u.searchParams.get("place"); calls[id] = (calls[id] || 0) + 1; if (u.searchParams.get("nospend") !== "1") paid[id] = (paid[id] || 0) + 1;
         const m = modeOf(id), j = (obj, headers) => route.fulfill({ json: obj, headers });
         if (m === "ok-google-credit") return j({ src: "https://photo.test/" + id + ".jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/" + id, authors: [{ name: "Author of " + id, uri: "https://maps.google.com/contrib/x" }] } });
         if (m === "ok-owned") return j({ src: "/owned/" + id + ".jpg", source: "wayfind", credit: null });
@@ -272,6 +274,9 @@ try {
         const src = railPhotoSrc({ id: c.id });
         const errBefore = await page.evaluate(() => window.__errs.length);
         const cid = await page.evaluate(({ s, src }) => window.__mount(s, src), { s: surface, src });
+        // A broken image gets 2 free recovery reloads (CardPhoto IMAGE_RECOVERY_DELAYS_MS 1.5s, 5s)
+        // under the installed fake clock; drive them, then the card must settle on the tile.
+        if (c.decode) for (const d of [1500, 5000]) { await page.waitForTimeout(200); await page.clock.fastForward(d + 50); await page.waitForTimeout(200); }
         let r = await settle(cid, (x) => x.kind === (c.expect === "img" ? "img" : "tile") && !x.violations.length);
         const label = `[${width}px ${surface} / ${c.name}]`;
         eq(r.violations, [], `${label} achieved DOM violations: ${JSON.stringify(r)}`);
@@ -288,7 +293,7 @@ try {
         if (c.name === "ok-google-credit" && surface === "card") ok(await page.locator("#" + cid + " [data-card-photo-credit] a").count() === 1, `${label} Google credit label preserved on the card`);
         if (c.decode) {
           const errs = await page.evaluate((b) => window.__errs.slice(b), errBefore);
-          ok(errs.filter((s) => /broken-/.test(s)).length === 1, `${label} onError fired exactly ONCE for the broken image (got ${JSON.stringify(errs)})`);
+          ok(errs.filter((s) => /broken-/.test(s)).length === 3, `${label} onError fired exactly 3 times (first load + 2 bounded free recovery reloads), never a loop (got ${JSON.stringify(errs)})`);
           ok(r.kind === "tile" && (await page.locator("#" + cid + " img").count()) === 0, `${label} the broken <img> is gone, not left visible`);
         }
         await cleanup(cid); totalCases++;
@@ -297,6 +302,7 @@ try {
     }
     for (const c of CLASSES) {
       // 3 surfaces share one place id -> the session memo means the whole page made `calls` requests, not 3x
+      if (c.paidCalls != null) ok(paid[c.id] === c.paidCalls, `[${width}px] ${c.name}: ${paid[c.id]} spend-capable request(s) (expected ${c.paidCalls}); image recovery never asks the paid lane again`);
       ok(calls[c.id] === c.calls, `[${width}px] ${c.name}: the page made ${calls[c.id]} request(s) for 3 surfaces (expected ${c.calls}: 1/place/page + at most 1 delayed retry)`);
     }
     // non-Google ids: zero fetches, tile at once
