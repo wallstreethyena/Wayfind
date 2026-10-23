@@ -906,6 +906,7 @@ scripts/test-redirect-visitor-scope.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	f
 scripts/test-resolver-word-boundary.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	7	0	0	5a42f16bb1b72847758f21eef58dba011dcfa77ecdaa04f3eabe3088c3107fb1
 scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	7917041ebf9acc5edb73f65b7ea94cf57e1b109c29d446fd610f7d616fd63633
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
+scripts/test-runway-reel.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9fe1b6db8e3b6e541b38ac1f25a2410cebe7ae224c4cc4998199afa196e5e7e0
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
 scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40

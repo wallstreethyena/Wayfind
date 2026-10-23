@@ -62,3 +62,7 @@ scripts/festivals/logs/
 # scripts/lib/build-guard-registry.mjs on every guard-suite run. The reviewed,
 # committed expectation is scripts/lib/guard-expectations.tsv.
 scripts/lib/guard-registry.json
+
+# scripts/runway-place-reel.mjs — generated Runway reels + sidecars (local, not committed;
+# Runway output URLs expire, so the mp4s land here and get uploaded to social by hand)
+/out/runway-reels/

@@ -2371,3 +2371,8 @@ node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
 node scripts/test-unified-search.mjs
 node scripts/check-search-understand.mjs
 node scripts/test-search-taxonomy.mjs
+
+# Runway Dev place reels (operator-run, scripts/runway-place-reel.mjs): per-model
+# image_to_video contract, never spends without --confirm (fetch poisoned), SDK
+# kept out of shipped code.
+node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/test-runway-reel.mjs

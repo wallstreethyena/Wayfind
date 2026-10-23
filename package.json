@@ -26,13 +26,15 @@
     "events:verify": "node scripts/events-verify.mjs",
     "postbuild": "node scripts/check-bundle.mjs",
     "os:state": "node scripts/os-state.mjs --write --mirror",
-    "add-seasonal-venues": "node scripts/add-seasonal-venues-2026-10-19.mjs"
+    "add-seasonal-venues": "node scripts/add-seasonal-venues-2026-10-19.mjs",
+    "runway:reel": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/runway-place-reel.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.12.1",
     "@capacitor/cli": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
     "@playwright/test": "^1.61.1",
+    "@runwayml/sdk": "^4.22.0",
     "typescript": "5.4.5",
     "@electric-sql/pglite": "0.3.14",
     "ical.js": "^2.2.1",
