@@ -2351,3 +2351,6 @@ node scripts/test-guide-rays-game-day.mjs
 # Read-only list vs map reconciliation tool (pure join + expiry re-check + cluster accounting;
 # the browser capture is run by hand against the live site, never in CI).
 node scripts/test-reconcile-list-map-live.mjs
+
+# 2026-10-22 existing seasonal schedule/access refresh and hold protection.
+node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
