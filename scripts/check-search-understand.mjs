@@ -36,12 +36,18 @@ ok(/\b(affiliate|commission|sponsored|offerId|offer_id)\b/.test("sponsored offer
 ok(!/\b(affiliate|commission|sponsored|offerId|offer_id)\b/.test(rank), "search ranking code does not read a commercial field");
 
 const migration = read("supabase/migrations/20261022233000_wf_unified_search.sql");
+const migrationCode = migration.replace(/\/\*[\s\S]*?\*\//g, "").replace(/--.*$/gm, "");
 ok(/enable row level security/.test(migration), "the new tables enable RLS");
 ok(/tsvector/.test(migration), "the index stores a tsvector");
+ok(/generated always/.test("search_vector tsvector generated always as"),
+  "positive control: the generated-column probe matches a generated column");
+ok(!/search_vector tsvector generated always/.test(migrationCode), "search_vector is a plain column, not a generated expression");
+ok(/before insert or update on public\.wf_search_documents/i.test(migrationCode)
+  && /function public\.wf_search_documents_vector\(/.test(migrationCode),
+  "a before trigger writes the search vector");
 ok(/gin_trgm_ops/.test(migration), "the index has a trigram title index");
 ok(/function public\.wf_search_refresh\(/.test(migration), "refresh upserts the index");
 ok(/wf_search_events_sync/.test(migration), "event writes keep the index current");
-const migrationCode = migration.replace(/\/\*[\s\S]*?\*\//g, "").replace(/--.*$/gm, "");
 ok(!/\b(affiliate|commission|sponsored)\b/i.test(migrationCode), "the migration has no commercial ranking column");
 
 const home = read("app/home.js");
