@@ -361,23 +361,34 @@ function lineContext(line) {
   return "outbound";
 }
 
+// These are source fields in the one research JSON, not executable outbounds.
+// The required guard probes every ticket input through the real adapter and
+// redirect. No other file, field, or merchant receives this interpretation.
+function researchUrlContext(filename, line, hit, judged) {
+  if (filename !== "data/christmas-2026-research.json" || judged.partner !== "ticketmaster") return null;
+  const field = /"(official_url|ticket_url)"\s*:\s*"$/.exec(line.code.slice(0, hit.index))?.[1];
+  return field === "official_url" ? "christmas-official-source" : field === "ticket_url" ? "christmas-ticket-input" : null;
+}
+
 export function scanText(text, filename, rules) {
   const violations = [];
   const inputs = [];
   const official = [];
   const domainFlags = [];
   for (const line of codeLines(text)) {
-    const ctx = lineContext(line);
+    const baseContext = lineContext(line);
     const seen = new Set();
     for (const hit of line.code.matchAll(URL_RE)) {
       const token = cleanUrlToken(hit[0]);
-      if (seen.has(token)) continue;
-      seen.add(token);
       const judged = judgeUrl(token, rules);
       if (!judged || judged.outcome === "ok") continue;
+      const ctx = researchUrlContext(filename, line, hit, judged) || baseContext;
+      const signature = ctx + ":" + token;
+      if (seen.has(signature)) continue;
+      seen.add(signature);
       const rec = { file: filename, line: line.lineNo, url: token, partner: judged.partner, detail: judged.detail || judged.gap || "" };
-      if (ctx === "official") { official.push(rec); continue; }
-      if (ctx === "builder-arg" || ctx === "viator-input") { inputs.push({ ...rec, via: ctx }); continue; }
+      if (ctx === "official" || ctx === "christmas-official-source") { official.push({ ...rec, via: ctx }); continue; }
+      if (ctx === "builder-arg" || ctx === "viator-input" || ctx === "christmas-ticket-input") { inputs.push({ ...rec, via: ctx }); continue; }
       if (judged.outcome === "gap") { domainFlags.push(rec); continue; }
       violations.push(rec);
     }
@@ -416,7 +427,8 @@ export function contentFiles(root) {
   for (const rel of ["app/guides", "app/events", "app/florida-events", "app/culture"]) {
     walk(path.join(root, rel), files, text);
   }
-  walk(path.join(root, "data"), files, (p) => /guide|event/i.test(p) && text(p));
+  // Data coverage must depend on file type, never the checkout directory name.
+  walk(path.join(root, "data"), files, text);
   return files;
 }
 

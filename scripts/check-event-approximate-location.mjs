@@ -4,7 +4,7 @@
 // "Keep it out of misleading map placement ... add an appropriate
 // unresolved-location state ... make sure Wayfind does not pretend guessed
 // coordinates are verified." Code-only: lib/eventLocation.js
-// APPROXIMATE_LOCATION_EVENTS lists the 7 ids (no DB column). Not verification_confidence.
+// APPROXIMATE_LOCATION_EVENTS lists the reviewed ids (no DB column). Not verification_confidence.
 //
 // CALLED: isApproximateLocation, eventMapPoint, the real eventJsonLd and
 // appleDirectionsUrl. Syntactic (comments stripped): every event map surface and
@@ -26,7 +26,7 @@ const unassessed = base;
 
 // the list itself
 const ids = Object.keys(APPROXIMATE_LOCATION_EVENTS);
-ok(ids.length === 7, "exactly 7 approximate-location events are listed (got " + ids.length + ")");
+ok(ids.length === 8, "exactly 8 approximate-location events are listed (got " + ids.length + ")");
 ok(ids.every((k) => typeof APPROXIMATE_LOCATION_EVENTS[k] === "string" && APPROXIMATE_LOCATION_EVENTS[k].trim().length > 10), "every listed event carries a non-empty reason");
 ok(Object.isFrozen(APPROXIMATE_LOCATION_EVENTS), "the list is frozen");
 
@@ -36,6 +36,8 @@ ok(isApproximateLocation(exact) === false && isApproximateLocation(null) === fal
 ok(isApproximateLocation({ id: "wfc:" + LISTED }) === true && isApproximateLocation({ id: "wfc:x-unlisted-event" }) === false, "feed-card shaped row (id wfc:<event_id>) matches the list too");
 ok(ids.every((k) => isApproximateLocation({ event_id: k })), "every listed id is approximate");
 ok(eventMapPoint(approx) === null, "approximate row has NO map point");
+const vero = { ...base, event_id: "vero-monster-mash-on-main-2026", lat: 27.638368, lng: -80.400605 };
+ok(isApproximateLocation(vero) && eventMapPoint(vero) === null && vero.lat === 27.638368, "Vero's block anchor keeps distance ranking but never becomes an exact map point");
 const pt = eventMapPoint(exact);
 ok(pt && pt.lat === 29.18 && pt.lng === -82.14, "exact row keeps its point");
 const pn = eventMapPoint(unassessed);
@@ -81,4 +83,4 @@ if (fail.length) {
   console.error("check-event-approximate-location: FAIL\n - " + fail.join("\n - "));
   process.exit(1);
 }
-console.log(`check-event-approximate-location: OK - ${pass} assertions (7 listed ids with reasons, real eventJsonLd + appleDirectionsUrl, 6 consumers wired)`);
+console.log(`check-event-approximate-location: OK - ${pass} assertions (${ids.length} listed ids with reasons, real eventJsonLd + appleDirectionsUrl, 6 consumers wired)`);
