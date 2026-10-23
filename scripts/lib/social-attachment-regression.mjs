@@ -45,8 +45,9 @@ export function checkSocialAttachments(repo) {
   const unresolved = audit.retrievable_unresolved_sources || [];
   // 47 prior mapped sources + 14 verified current sources + 4 formerly
   // unresolved identities + 6 exact DFB sources + 3 recovered Instagram backlog originals.
-  ensure(audit.records.length === 74, `expected 74 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 74, "shortcodes must be unique");
+  // Plus the owner-submitted Rreal Tacos Tampa source reviewed 2026-10-22.
+  ensure(audit.records.length === 75, `expected 75 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 75, "shortcodes must be unique");
   ensure(unresolved.length === 0, `the four historical identities are now resolved; got ${unresolved.length} still marked unresolved`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
@@ -98,7 +99,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 74, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 75, "mapped source coverage drifted");
   ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
