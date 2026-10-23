@@ -111,7 +111,12 @@ export async function GET(req) {
     return pulseWrite;
   };
   const failed = async (reason) => {
-    await recordPulse(JOB, { attempted: context.attempted, succeeded: 0, failed: 1, note: reason });
+    // If the watchdog already aborted the sweep, this failure IS a watchdog
+    // cancellation, whichever pulse lands first — name it that way. Without
+    // this, a slow runner lets the read fail (and record its pulse) before
+    // the watchdog timer fires, and the recorded cause is timing luck.
+    const note = controller.signal.aborted ? `watchdog: sweep cancelled (${reason})` : reason;
+    await recordPulse(JOB, { attempted: context.attempted, succeeded: 0, failed: 1, note });
     return Response.json({ ok: false, job: JOB, error: reason, ranWork: true }, { status: 500, headers: { "cache-control": "no-store" } });
   };
   let timer, watchdogExpired = false;
