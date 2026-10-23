@@ -9041,11 +9041,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
 
   async function submitSearch(qOverride, opts) {
-    const [{ createSearchAttempt }, { resolveSearchIntent }] = await Promise.all([
+    const [searchExperience, searchIntent] = await Promise.all([
       loadSearchExperience(),
       loadSearchIntent(),
       ensureCuratedRows(),
     ]);
+    const createSearchAttempt = searchExperience.createSearchAttempt;
+    const resolveSearchIntent = searchIntent.resolveSearchIntent;
     const q = (typeof qOverride === "string" ? qOverride : query).trim();
     const options = opts && typeof opts === "object" ? opts : {};
     const submittedRequest = cancelMainSearch();
