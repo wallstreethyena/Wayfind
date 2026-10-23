@@ -34,6 +34,7 @@ const TESTS = [
   "check-spend-effective-cap.mjs",
   "check-promote-spend-gate.mjs",
   "check-spend-guard.mjs",
+  "test-seasonal-venue-spend.mjs",
   "check-cost-gate.mjs",
   "check-quota-reservation.mjs",
 ];
