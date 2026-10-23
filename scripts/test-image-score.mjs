@@ -72,7 +72,7 @@ ok(/import \{ useBestPhoto \} from "\.\.\/lib\/bestPhoto"/.test(home), "PlaceCar
 // enforced separately by scripts/check-hook-order.mjs.
 {
   const pick = home.indexOf("const cardPhoto = useBestPhoto(p && p.photo, p && p.photos);");
-  const gate = home.indexOf("if (!cardComplete(p)) return null;");
+  const gate = home.indexOf("if (!cardComplete(p) && !searchEditorialCard(p)) return null;");
   ok(pick !== -1, "PlaceCard calls useBestPhoto(p && p.photo, p && p.photos)");
   ok(gate !== -1, "PlaceCard still gates on cardComplete");
   ok(pick < gate, "the hook runs BEFORE the early return (rules of hooks)");

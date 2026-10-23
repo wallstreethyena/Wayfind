@@ -246,7 +246,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
-import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
+import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt, searchEditorialCard } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { restampGoverned, attachOfficialScoreReceipt } from "../lib/lawfulOrder.js";
 import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, beginCuratorToggle, noteOwnerReads } from "../lib/curatorPicks.js";
@@ -8697,16 +8697,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const matches = [...library.filter((row) => row.lead), ...places, ...library.filter((row) => !row.lead)].slice(0, 8);
     const cards = (Array.isArray(data.cards) ? data.cards : []).map((row) => {
       if (!row || !row.id || typeof row.name !== "string" || !row.name.trim()) return null;
-      const lat = Number(row.lat);
-      const lng = Number(row.lng);
-      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      const lat = row.lat == null || row.lat === "" ? null : Number(row.lat);
+      const lng = row.lng == null || row.lng === "" ? null : Number(row.lng);
+      const hasPoint = Number.isFinite(lat) && Number.isFinite(lng);
       const rating = Number(row.rating);
       const reviews = Number(row.reviews);
       const card = {
         id: String(row.id),
         name: row.name.trim(),
-        lat,
-        lng,
+        lat: hasPoint ? lat : null,
+        lng: hasPoint ? lng : null,
         rating: Number.isFinite(rating) && rating > 0 ? rating : null,
         reviews: Number.isFinite(reviews) && reviews > 0 ? reviews : 0,
         types: Array.isArray(row.types) ? row.types : [],
@@ -8718,7 +8718,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         kind: row.kind || "place",
         line: typeof row.line === "string" ? row.line : "",
       };
-      return cardComplete(card) ? card : null;
+      if (searchEditorialCard(card)) return card;
+      return hasPoint && cardComplete(card) ? card : null;
     }).filter(Boolean);
     if (data.status === "ok" && !matches.length && !cards.length) throw new Error("invalid_search_response");
     return { ...data, matches, cards };
@@ -12138,7 +12139,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // reads p.photo, which the heal effect above writes, so this gate genuinely
   // flips mid-life. A hook below it would change React's hook count on that
   // render and unmount the feed (2026-08-21; scripts/check-hook-order.mjs).
-  if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
+  if (!cardComplete(p) && !searchEditorialCard(p)) return null; // v6.39 GLOBAL guardrail: an incomplete place renders NOTHING. A guide or event page may render with the score hidden (scripts/test-card-gate.mjs)
   // v5.99 / v6.96: the "Creator video" badge is shown whenever a place HAS a
   // renderable creator video. Until v6.96 that was the same set as "got the
   // boost"; a quality floor now makes the boosted set a subset. The invariant
@@ -12222,9 +12223,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // killswitch restores the old layout.
   // v6.40: a rated card ALWAYS carries the Wayfind Score badge. Rows that
   // arrived from ANY source (inventory serve, skeleton index, imports) without
-  // a precomputed wfScore get it here from the same formula the ranking uses —
-  // cardComplete above already refused rows with no rating signals at all, so
-  // past this line a Score is always computable and always shown.
+  // a precomputed wfScore get it here from the same formula the ranking uses.
+  // A place with no rating never reaches this line. A guide or event page
+  // may: it has no rating, so this stays null and the badge stays hidden.
   if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
   // v7.00 — creator evidence is now VISIBLE on the card, not just in the sort.
   // displayedWfScore() inherits the 4.2*/30-review floor and the 15% cap and
