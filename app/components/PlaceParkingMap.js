@@ -13,7 +13,8 @@ export default function PlaceParkingMap({ place, nearby: suppliedNearby }) {
   const nearby = suppliedNearby || ownNearby;
   const point = eventMapPoint(place);
   if (!point || !hasParkingCoordinate(place) || place?.approximate) return null;
-  const venue = { ...place, id: place.id, name: place.name || place.venue || "This place", ...point };
+  // Owned coordinates: the Apple venue check must never move a Wayfind place.
+  const venue = { ...place, id: place.id, name: place.name || place.venue || "This place", ...point, locationTrust: "verified" };
   const picks = selectMapPlaces(nearby.places).map((pick) => ({ ...pick,
     href: `/p/${encodeURIComponent(pick.id)}`, cat: pick.category || pick.type,
     wfScore: pick.governed_score ?? pick.wfScore }));

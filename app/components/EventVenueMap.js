@@ -14,6 +14,7 @@ import { createAppleMapController, loadAppleMapKit } from "../../lib/appleMapsRu
 import { appleMapsTokenUsable } from "../../lib/appleMapsToken.js";
 import { EVENT_MAP_FAMILY, eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { hasParkingCoordinate } from "../../lib/appleParking.js";
+import { needsAppleVenueCheck, resolveAppleVenueLocation, applyVenueResolution } from "../../lib/appleVenueLocation.js";
 import { mapFailureReason, reportMapServiceIssue } from "../../lib/mapDiagnostics.js";
 
 const ACCENT = "#F97316";
@@ -45,7 +46,13 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   const [parkingAttempt, setParkingAttempt] = useState(0);
   const parkingCache = useRef(new Map());
   const parkingRequest = useRef(0);
-  const venueKey = JSON.stringify([venue?.id, venue?.name, venue?.lat, venue?.lng]);
+  // The venue the map, parking search and Walk link actually use. A provider
+  // point (Ticketmaster ZIP centroid) is swapped for Apple's verified point
+  // before the controller is built; everything else stays the venue as given.
+  const [mapVenue, setMapVenue] = useState(venue);
+  // The key stays on the provider venue (plus its trust), so the parking cache
+  // and the controller lifecycle are not re-keyed by the corrected point.
+  const venueKey = JSON.stringify([venue?.id, venue?.name, venue?.lat, venue?.lng, venue?.locationTrust]);
   const currentView = useRef({ active, venueKey });
   currentView.current = { active, venueKey };
   const canPark = parkingEnabled && hasParkingCoordinate(venue);
@@ -64,8 +71,9 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   const token = process.env.NEXT_PUBLIC_APPLE_MAPS_TOKEN;
 
   useEffect(() => {
-    setActive(null); setSel(null);
+    setActive(null); setSel(null); setMapVenue(venue);
     setParking(parkingCache.current.get(venueKey) || { status: "idle", places: [] });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [venueKey]);
 
   useEffect(() => { if (!canPark && active === "parking") setActive(null); }, [canPark, active]);
@@ -76,14 +84,25 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
     let controller = null;
     const watchdog = setTimeout(() => { if (!dead) setFailed(true); }, 12000);
     setReady(false); setFailed(false); setSel(null);
-    loadAppleMapKit(token).then((mapkit) => {
+    loadAppleMapKit(token).then(async (mapkit) => {
       if (dead || !hostRef.current) return;
+      // Provider-sourced venues only: ask Apple where the venue really is. The
+      // resolver never rejects (no match, timeout or an old SDK keep the
+      // provider point); the guard is for a contract break, which must not
+      // take the whole map down.
+      let resolution = null;
+      if (needsAppleVenueCheck(venue)) {
+        try { resolution = await resolveAppleVenueLocation({ mapkit, venue }); } catch { resolution = null; }
+      }
+      if (dead || !hostRef.current) return;
+      const resolvedVenue = resolution ? applyVenueResolution(venue, resolution) : venue;
       controller = createAppleMapController({
-        mapkit, container: hostRef.current, venue, picks: shown, venueKind,
+        mapkit, container: hostRef.current, venue: resolvedVenue, picks: shown, venueKind,
         onSelect: (id) => { if (!dead) setSel(id); },
       });
       if (dead) { controller.destroy(); return; }
       controllerRef.current = controller;
+      setMapVenue(resolvedVenue);
       clearTimeout(watchdog); setFailed(false); setReady(true); onMapReady?.(controller);
     }).catch(() => { if (!dead) { clearTimeout(watchdog); setFailed(true); } });
     return () => {
@@ -159,7 +178,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
         {canPark ? <button type="button" className="wfev-cat" aria-pressed={parkingMode} onClick={() => { if (!parkingMode) chooseCategory("parking"); }}><MapCategoryPin family="parking" /><span>Parking</span></button> : null}
         {groups.map((group) => <button key={group.family} type="button" className="wfev-cat" aria-pressed={active === group.family} onClick={() => chooseCategory(active === group.family ? null : group.family)}><MapCategoryPin family={group.family} /><span>{group.label}</span><b>{group.count}</b></button>)}
       </div>
-      <div className="wfev wfev-h" aria-label={`Apple map of ${venue.name}`}>
+      <div className="wfev wfev-h" aria-label={`Apple map of ${mapVenue.name}`}>
         <div ref={hostRef} className="wfev-canvas" />
         {ready && !parkingMode && shown.length > 0 && !selected ? <div className="wfev-legend" aria-hidden="true"><span><MapCategoryPin family={venueKind === "place" ? eventMapFamily(venue) : "event"} height={24} />{venueKind === "place" ? "Place" : "Event"}</span><span>{shown.length} {active ? (EVENT_MAP_FAMILY[active]?.label || "places") : "places"}</span></div> : null}
         {selected ? <div className="wfev-card" role="region" aria-label={selected.name}>
@@ -168,7 +187,7 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
         </div> : null}
         {failed || unavailable ? <div className="wfev-fb"><div style={{ width: 42, height: 42, borderRadius: 14, background: "rgba(148,163,184,.14)", border: "1px solid rgba(148,163,184,.38)", display: "grid", placeItems: "center", color: "#FB923C", fontSize: 20 }}>⌁</div><div style={{ fontSize: 14, fontWeight: 800, color: "#F8FAFC" }}>{venue.name}</div><div style={{ maxWidth: 280, color: "#94A3B8", fontSize: 12, lineHeight: 1.5 }}>The map preview is unavailable right now. The address and external navigation link are still available.</div>{!unavailable ? <button type="button" onClick={retry} style={{ marginTop: 4, padding: "9px 18px", borderRadius: 999, border: "1px solid rgba(249,115,22,.5)", background: "rgba(249,115,22,.14)", color: "#FB923C", fontSize: 13, fontWeight: 800, cursor: "pointer" }}>Try again</button> : null}</div> : null}
       </div>
-      {parkingMode ? <VenueParkingResults venue={venue} places={parking.places} status={failed || unavailable ? "error" : parking.status} message={failed || unavailable ? "The Apple map is unavailable, so parking cannot be loaded right now." : undefined} radiusMeters={parking.radiusMeters} selectedId={sel} onSelect={(id) => { setSel(id); controllerRef.current?.selectParking(id); }} onRetry={() => { if (failed && !unavailable) retry(); else setParkingAttempt((attempt) => attempt + 1); }} /> : null}
+      {parkingMode ? <VenueParkingResults venue={mapVenue} places={parking.places} status={failed || unavailable ? "error" : parking.status} message={failed || unavailable ? "The Apple map is unavailable, so parking cannot be loaded right now." : undefined} radiusMeters={parking.radiusMeters} selectedId={sel} onSelect={(id) => { setSel(id); controllerRef.current?.selectParking(id); }} onRetry={() => { if (failed && !unavailable) retry(); else setParkingAttempt((attempt) => attempt + 1); }} /> : null}
     </div>
   );
 }
