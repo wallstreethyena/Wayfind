@@ -31,6 +31,8 @@ ok(/ANTHROPIC_MONTHLY_REQUEST_CAP/.test(understand) || /paidAnthropicRequest/.te
 ok(/WAYFIND_SEARCH_UNDERSTAND/.test(understandCode), "the flag is read from WAYFIND_SEARCH_UNDERSTAND");
 
 const rank = codeOnly(read("lib/searchRank.js"));
+ok(/\b(affiliate|commission|sponsored|offerId|offer_id)\b/.test("sponsored offerId"),
+  "positive control: the commercial-field probe matches a commercial token");
 ok(!/\b(affiliate|commission|sponsored|offerId|offer_id)\b/.test(rank), "search ranking code does not read a commercial field");
 
 const migration = read("supabase/migrations/20261022233000_wf_unified_search.sql");
