@@ -127,7 +127,9 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     const run = (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed });
     // The rendered guards eval this file as a classic script and supply the module.
     if (typeof window !== "undefined" && window.__cardPhotoRecovery) { run(window.__cardPhotoRecovery); return; }
-    import("./cardPhotoRecovery.js").then(run);
+    // A harness that evals this file as a classic script and does not inject the
+    // module must still land on the unavailable tile, never an uncaught error.
+    import("./cardPhotoRecovery.js").then(run, () => setFailed(request));
   };
   if (!request) {
     // Ordinary owned/partner image. A caller that passes onError owns its own ladder
