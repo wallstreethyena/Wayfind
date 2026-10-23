@@ -75,6 +75,8 @@ node scripts/check-design.mjs
 node scripts/check-lunch-in-my-city.mjs
 node scripts/test-image-fallback.mjs
 node scripts/test-detail-hero.mjs
+node scripts/test-detail-photo-acquisition.mjs
+node scripts/test-place-detail-photo-surfaces.mjs
 node scripts/test-moment-contract.mjs
 node scripts/test-price.mjs
 node scripts/test-classification.mjs
@@ -2226,6 +2228,7 @@ node scripts/test-group-vote-organizer.mjs
 node scripts/test-group-vote-frame.mjs
 
 node scripts/test-place-share-metadata.mjs
+node scripts/test-cached-place-identity.mjs
 node scripts/test-events-fall-feed-image.mjs
 node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
