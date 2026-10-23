@@ -3,8 +3,8 @@
  * test-guide-rays-game-day — content lock for "Tampa Bay Rays Game Day at
  * Tropicana Field" (drafted 2026-10-21). Shared /guides/[slug] template.
  * Checks: every row carries a dated source or an explicit no-source notice,
- * the 2026 venue and World Series facts, no invented hangouts, no partner
- * booking fields, no ticket-price claims, and an exact-subject credited hero.
+ * the 2026 venue and World Series facts, no invented hangouts, exact game
+ * affiliate ticket destinations, no ticket-price claims, and an exact-subject credited hero.
  */
 import { readFileSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
@@ -12,7 +12,7 @@ import { guideHero } from "../lib/guideHero.js";
 import { guideIntent } from "../lib/guideCta.js";
 import { guideKinds } from "../lib/guideRailTopics.js";
 import { GUIDE_PLACE_RAILS } from "../lib/guidePlaceRails.js";
-import { RAYS_GAME_DAY_ROWS, RAYS_GAME_DAY_SOURCES } from "../lib/guidesRaysGameDay2026.js";
+import { RAYS_GAME_DAY_ROWS, RAYS_GAME_DAY_SOURCES, RAYS_WORLD_SERIES_GAMES } from "../lib/guidesRaysGameDay2026.js";
 
 const SLUG = "tampa-bay-rays-game-day-tropicana-field";
 let checks = 0;
@@ -27,14 +27,14 @@ ok(g && g.editorialMode !== true && !g.placeRail && !(SLUG in (GUIDE_PLACE_RAILS
 ok(guideIntent(g) === "none", "no invented Book/Tickets primary CTA");
 ok(guideKinds(SLUG).join() === "events", "classified as events");
 ok(!g?.picks?.some((p) => p.placeId || p.bookQuery || p.viatorUrl || p.hotel), "no place ids or partner booking fields");
-ok(g?.picks?.length === RAYS_GAME_DAY_ROWS.length && g.picks.length === 28, "28 rows (" + g?.picks?.length + ")");
+ok(g?.picks?.length === RAYS_GAME_DAY_ROWS.length + 7 && g.picks.length === 35, "7 games and 28 editorial rows (" + g?.picks?.length + ")");
 
 for (const [key, s] of Object.entries(RAYS_GAME_DAY_SOURCES)) {
   ok(/^https:\/\//.test(s.url) && s.date && s.label, "source " + key + " has url, label and date");
   ok(g.sources.some((x) => x.url === s.url), "source " + key + " is listed in the sources section");
 }
 RAYS_GAME_DAY_ROWS.forEach((row, i) => {
-  const blurb = g.picks[i].blurb;
+  const blurb = g.picks[i + 7].blurb;
   if (row.sources.length) {
     ok(row.sources.every((k) => RAYS_GAME_DAY_SOURCES[k] && blurb.includes(RAYS_GAME_DAY_SOURCES[k].url)), "row " + (i + 1) + " shows every source URL");
     ok(/\((read )?\d{4}|\(\w+ \d{4}\)|\(2026 season\)/.test(blurb), "row " + (i + 1) + " shows a source date");
@@ -43,6 +43,30 @@ RAYS_GAME_DAY_ROWS.forEach((row, i) => {
   }
 });
 
+// Independent published mapping: a wrong game ID/date or a generic artist page fails.
+const expectedGames = [
+  ["2026-10-23", "Z7r9jZ1AAZEj_"], ["2026-10-24", "Z7r9jZ1AAZEjO"],
+  ["2026-10-26", "Z7r9jZ1AAZsP9"], ["2026-10-27", "Z7r9jZ1AAZsPb"],
+  ["2026-10-28", "Z7r9jZ1AAZsP_"], ["2026-10-30", "Z7r9jZ1A7JpPs"],
+  ["2026-10-31", "Z7r9jZ1AAZEj-"],
+];
+const { guidePickTicket } = await import("../lib/guidePickTicket.js");
+const { ticketOutUrl } = await import("../lib/affiliates.js");
+expectedGames.forEach(([date, id], i) => {
+  const pick = g.picks[i];
+  const ticket = guidePickTicket(pick.ticket);
+  ok(!!ticket && ticket.affiliate, "game " + (i + 1) + " renders a shared affiliate ticket button");
+  const go = new URL(ticket.href, "https://www.gowayfind.com");
+  const dest = go.searchParams.get("url");
+  ok(go.pathname === "/api/ticketmaster/go" && dest === "https://www.ticketmaster.com/event/" + id, "game " + (i + 1) + " exact event destination");
+  ok(go.searchParams.get("offer") === "tm_" + id && go.searchParams.get("content").endsWith(":game-" + (i + 1)), "per-game funnel identity");
+  const impact = new URL(ticketOutUrl(dest, go.searchParams.get("surface")));
+  ok(impact.hostname === "ticketmaster.evyy.net" && impact.pathname === "/c/7475855/264167/4272" && impact.searchParams.get("u") === dest, "game " + (i + 1) + " retains Wayfind Impact attribution and exact destination");
+  ok(RAYS_WORLD_SERIES_GAMES[i].date === date, "verified date " + date);
+  ok((/if necessary/i.test(pick.name)) === (i >= 4), "only games 5–7 conditional");
+  ok(pick.eyebrow.includes(i >= 2 && i <= 4 ? "St. Petersburg, Florida" : "Milwaukee, Wisconsin"), "correct city, including away games");
+});
+ok(new Set(g.picks.slice(0, 7).map(p => p.ticket.href)).size === 7, "seven distinct game links");
 const all = JSON.stringify(g);
 ok(/April 6, 2026/.test(all) && /Steinbrenner Field/.test(all) && /2025/.test(all), "2026 venue: Trop reopened April 6, 2026 after 2025 at Steinbrenner");
 ok(/1998/.test(all) && /Devil Rays/.test(all) && /After the 2007 season/.test(all), "founding and name change");
