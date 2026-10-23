@@ -363,7 +363,8 @@ try {
     await page.evaluate((i) => window.__hydrate(i), id);
     await page.waitForFunction(() => window.__heldPassiveEffects.length > 0);
     ok(await page.evaluate(() => window.__flushPassiveWave()) > 0, "the browser host releases the first real passive-effect wave after owned hydration");
-    const s = await until(id, (x) => x.tile === "unavailable");
+    // Observe both outcomes before checking each part of the finished state.
+    const s = await until(id, (x) => x.tile === "unavailable" && x.credit === false);
     ok(s.img === null && s.tile === "unavailable", `hydration notices the already-failed <img> and shows the tile (${JSON.stringify(s)})`);
     const commits = await page.evaluate(() => window.__hydrationCommits);
     ok(commits.some((x) => x.tile === "unavailable"), `MutationObserver actually observed the fallback commit (${JSON.stringify(commits)})`);
