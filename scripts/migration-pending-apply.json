@@ -68,5 +68,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1890",
     "reason": "Data only: one wf_heartbeat_expected row ('apple-place-match', 1800 min) so the new nightly cron /api/cron/apple-place-match pages if it silently stops firing. Insert-where-not-exists, idempotent, no schema/grant/RLS change. Apply after the cron merges and its first pulse lands (the cron pulses even when credentials or the ledger are missing). Written with read-only DB access. Rollback: delete from public.wf_heartbeat_expected where job='apple-place-match'. Not applied."
+  },
+  {
+    "file": "supabase/migrations/20261022233000_wf_unified_search.sql",
+    "sha256": "9d0cc8e6b598f7796e66fe9101062b460559cbc309264248865f2282ee658ee3",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1915 unified search — Gabe approved apply after merge (7:49 PM ET, Oct 22)",
+    "reason": "NOT APPLIED. Additive only: new tables wf_search_documents and wf_search_understand_cache, their indexes, RLS, and search functions. The events trigger and refresh deletes touch only those new tables. Production currently has neither table, no search functions, and no sync trigger. Apply after #1915 merges, then record the receipt and remove this entry. Rollback is drop the trigger and the two new tables."
   }
 ]
