@@ -183,16 +183,17 @@ function fakeRefund() {
   return fn;
 }
 
-async function run(script, { authorizeSpend, breaker, refund, probe } = {}) {
+async function run(script, { authorizeSpend, breaker, refund, probe, photoStore } = {}) {
   const stub = googleStub(script);
   const b = breaker || fakeBreaker(false);
   const r = refund || fakeRefund();
   const auth = authorizeSpend || authorizer({ photos: 99, details_ids_only: 99 });
   const input = { ref: OLD_REF, w: 640, serverKey: "server-key-test", authorizeSpend: auth, now: FIXED_NOW, googleSurface: true };
   if (probe) input.probe = true;
+  if (photoStore) input.retainGoogle = true;
   const result = await resolvePlacePhoto(input, {
     inventoryGet: async () => null,
-    retryDelayMs: 0, fetchImpl: stub.fn, refund: r, breakerOpen: b.breakerOpen, tripBreaker: b.tripBreaker, now: FIXED_NOW,
+    retryDelayMs: 0, fetchImpl: stub.fn, refund: r, breakerOpen: b.breakerOpen, tripBreaker: b.tripBreaker, now: FIXED_NOW, photoStore,
   });
   return { calls: stub.calls, result, auth, breaker: b, refund: r };
 }
@@ -365,6 +366,55 @@ const missResults = [];
   eq(breaker.tripCalls.length, 0, "N7(probe): breaker not tripped");
   eq(auth.asked(), 0, "N7(probe): authorizeSpend never asked");
   eq(stub.calls.length, 0, "N7(probe): zero fetch calls");
+}
+
+// Fresh Details failures use the SAME refundable classification and quota breaker
+// as media failures. Only the bounded class survives; body/message/key never do.
+for (const [status, googleStatus, expected, refundable] of [
+  [429, "RESOURCE_EXHAUSTED", "quota", true],
+  [403, "RESOURCE_EXHAUSTED", "quota", true],
+  [403, "PERMISSION_DENIED", "key-denied", true],
+  [503, "UNAVAILABLE", "server", true],
+  [400, "INVALID_ARGUMENT", "client", false],
+  [404, "NOT_FOUND", "stale", false],
+]) {
+  const breaker = fakeBreaker(false);
+  const { calls, result, auth, refund } = await run({ details: [{ status, googleStatus }] }, { breaker });
+  eq(calls.join(","), "details", `Details ${status}/${expected}: one request, no media/follow/retry`);
+  eq(result.upstream, `place-lookup-failed:${expected}`, `Details ${status}/${expected}: failure class survives`);
+  eq(result.refunded, refundable ? 2 : 1, `Details ${status}/${expected}: refund unused media and only unbilled Details`);
+  eq(auth.granted("photos"), 1, `Details ${status}/${expected}: one media grant`);
+  eq(auth.granted("details_ids_only"), 1, `Details ${status}/${expected}: one Details grant`);
+  eq(refund.calls.filter(r => r.sku === "details_ids_only").length, refundable ? 1 : 0, `Details ${status}/${expected}: never refund billed Details`);
+  eq(breaker.tripCalls.length, expected === "quota" ? 1 : 0, `Details ${status}/${expected}: only quota trips breaker`);
+  ok(!JSON.stringify(result).includes("redacted-in-test"), `Details ${status}/${expected}: raw error message excluded`);
+  if (expected === "quota") {
+    const secondAuth = authorizer({ photos: 1, details_ids_only: 1 });
+    const next = await run({}, { breaker, authorizeSpend: secondAuth });
+    eq(next.result.reason, "quota-open", `Details ${status}: next request sees shared breaker`);
+    eq(next.calls.length, 0, `Details ${status}: next request makes zero upstream calls`);
+    eq(secondAuth.asked(), 0, `Details ${status}: next request asks for zero grants`);
+    eq(breaker.tripCalls[0]?.cooldownMs, quotaBreakerCooldownMs(FIXED_NOW), `Details ${status}: Pacific reset cooldown`);
+  }
+  missResults.push(result);
+}
+
+// The production retained-byte path must release its lease on lookup failure,
+// preserve diagnostics/refunds, and never call save without acquired media.
+{
+  const storageCalls = [];
+  const photoStore = {
+    read: async () => { storageCalls.push("read"); return null; },
+    claim: async () => { storageCalls.push("claim"); return { state: "claimed", token: "test-token" }; },
+    save: async () => { storageCalls.push("save"); throw new Error("no media was acquired"); },
+    fail: async () => { storageCalls.push("fail"); return true; },
+  };
+  const { result, calls, breaker } = await run({ details: [{ status: 429, googleStatus: "RESOURCE_EXHAUSTED" }] }, { photoStore });
+  eq(result.upstream, "place-lookup-failed:quota", "retained lookup: quota diagnosis survives claim/finally");
+  eq(storageCalls.join(","), "read,claim,fail", "retained lookup: failed acquisition releases exactly one lease and never saves");
+  eq(calls.join(","), "details", "retained lookup: no media acquisition after quota refusal");
+  eq(result.refunded, 2, "retained lookup: unbilled Details and unused media grants refunded once");
+  eq(breaker.tripCalls.length, 1, "retained lookup: quota still trips breaker");
 }
 
 /* ── 5. INVARIANTS ────────────────────────────────────────────────────────── */
