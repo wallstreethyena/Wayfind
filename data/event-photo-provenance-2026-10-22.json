@@ -11,10 +11,11 @@
       "image_alt": "Historic venue photo of the Wekiva Island sign, canoes and waterfront in Longwood",
       "photographer": "inazakira",
       "license": "CC BY-SA 2.0",
-      "source_page": "https://commons.wikimedia.org/wiki/File:Wekiva_Island_canoes.jpg",
       "photo_year": 2010,
       "hero_image_kind": "venue",
-      "context_note": "Historical photo of the named venue; not the 2026 event."
+      "context_note": "Historical photo of the named venue; not the 2026 event.",
+      "credit": "inazakira · CC BY-SA 2.0 · Cropped to fit",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Wekiva_Island_canoes.jpg"
     },
     {
       "event_id": "wekiva-halloween-costume-party-2026",
@@ -23,10 +24,11 @@
       "image_alt": "Historic venue photo of the Wekiva Island sign, canoes and waterfront in Longwood",
       "photographer": "inazakira",
       "license": "CC BY-SA 2.0",
-      "source_page": "https://commons.wikimedia.org/wiki/File:Wekiva_Island_canoes.jpg",
       "photo_year": 2010,
       "hero_image_kind": "venue",
-      "context_note": "Historical photo of the named venue; not the 2026 event."
+      "context_note": "Historical photo of the named venue; not the 2026 event.",
+      "credit": "inazakira · CC BY-SA 2.0 · Cropped to fit",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Wekiva_Island_canoes.jpg"
     },
     {
       "event_id": "elliott-monster-mash-2026",
@@ -35,10 +37,11 @@
       "image_alt": "The Elliott Museum's north facade in Stuart, photographed in 2015",
       "photographer": "Jennifer Esler",
       "license": "CC BY-SA 4.0",
-      "source_page": "https://commons.wikimedia.org/wiki/File:Elliott_Museum,_North_Facade.JPG",
       "photo_year": 2015,
       "hero_image_kind": "venue",
-      "context_note": "Historical photo of the named venue; not the 2026 event."
+      "context_note": "Historical photo of the named venue; not the 2026 event.",
+      "credit": "Jennifer Esler · CC BY-SA 4.0 · Cropped to fit",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Elliott_Museum,_North_Facade.JPG"
     },
     {
       "event_id": "vero-monster-mash-on-main-2026",
@@ -47,10 +50,11 @@
       "image_alt": "Historic 14th Avenue streetscape with Pueblo Arcade and Vero Theatre in downtown Vero Beach, photographed in 2010",
       "photographer": "Ebyabe",
       "license": "CC BY-SA 3.0",
-      "source_page": "https://commons.wikimedia.org/wiki/File:Vero_Beach_FL_Arcade_Theater_Cabaret01.jpg",
       "photo_year": 2010,
       "hero_image_kind": "venue",
-      "context_note": "14th Avenue block anchor at Vero Theatre (2036), near organizer locator (2046); not indoor event photography or an exact check-in pin."
+      "context_note": "14th Avenue block anchor at Vero Theatre (2036), near organizer locator (2046); not indoor event photography or an exact check-in pin.",
+      "credit": "Ebyabe · CC BY-SA 3.0 · Cropped to fit",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Vero_Beach_FL_Arcade_Theater_Cabaret01.jpg"
     }
   ]
 }

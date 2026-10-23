@@ -52,7 +52,7 @@ ok(g && g.label === "Google Maps", "a Google venue photo keeps its Google Maps c
 for (const [event_id, photo] of Object.entries(LICENSED_EVENT_VENUE_PHOTOS)) {
   const row = { event_id, hero_image: photo.image, hero_image_kind: "venue" };
   const credited = withLicensedEventPhotoCredit(row);
-  ok(credited.photoAttr === photo.credit && credited.photoAttrHref === photo.href, `${event_id}: exact asset carries its author/licence and source`);
+  ok(credited.photoAttr === photo.credit && credited.photoAttrHref === photo.creditHref, `${event_id}: exact asset carries its author/licence and source`);
   ok(eventPhotoCredit(credited, photo.image)?.label === photo.credit, `${event_id}: shared card credit resolves`);
   const changed = { ...row, hero_image: "https://example.org/replacement.jpg" };
   ok(withLicensedEventPhotoCredit(changed) === changed && !withLicensedEventPhotoCredit(changed).photoAttr, `${event_id}: replacement image cannot inherit the credit`);
@@ -97,7 +97,7 @@ for (const [event_id, photo] of Object.entries(LICENSED_EVENT_VENUE_PHOTOS)) {
   const hero = renderToStaticMarkup(React.createElement(EventHeroPhotoProvider, { src: row.hero_image }, React.createElement(EventHeroCredit, {
     eventName: row.event_name, isVenue: true, attr: detail?.photoAttr, attrHref: detail?.photoAttrHref,
   })));
-  ok(hero.includes(photo.credit) && hero.includes(photo.href) && hero.includes("is not pictured"), `${event_id}: real hero renders source, author, licence, crop notice and venue context`);
+  ok(hero.includes(photo.credit) && hero.includes(photo.creditHref) && hero.includes("is not pictured"), `${event_id}: real hero renders source, author, licence, crop notice and venue context`);
 }
 const licensed = withLicensedEventPhotoCredit({ event_id: "elliott-monster-mash-2026", hero_image: LICENSED_EVENT_VENUE_PHOTOS["elliott-monster-mash-2026"].image });
 const licensedCard = render({ photo: licensed.hero_image, visitFacts: licensed });
