@@ -40,6 +40,10 @@ const consoleErrors = [];
 const realConsoleError = console.error;
 console.error = (...args) => { consoleErrors.push(args.map(String).join(" ").slice(0, 400)); };
 
+// act() is disabled under NODE_ENV=production (how Vercel runs `npm run build`).
+// Select the test runtime before loading React, the same way
+// check-rail-paging-contract and test-landing-offer-dedupe-runtime do.
+process.env.NODE_ENV = "test";
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const React = (await import("react")).default;
 const { createRoot } = await import("react-dom/client");
