@@ -30,7 +30,7 @@ const ok = (condition, message) => { assert.ok(condition, message); pass++; };
 const eq = (actual, expected, message) => { assert.deepEqual(actual, expected, message); pass++; };
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: "https://www.gowayfind.com/events/st-petersburg/rays", pretendToBeVisual: true });
-for (const field of ["window", "document", "navigator", "HTMLElement", "Element", "Node", "MutationObserver", "Event", "CustomEvent", "getComputedStyle"]) {
+for (const field of ["window", "document", "localStorage", "sessionStorage", "navigator", "HTMLElement", "Element", "Node", "MutationObserver", "Event", "CustomEvent", "getComputedStyle"]) {
   Object.defineProperty(globalThis, field, { value: field === "window" ? dom.window : dom.window[field], configurable: true, writable: true });
 }
 globalThis.IS_REACT_ACT_ENVIRONMENT = true;
@@ -40,6 +40,8 @@ const consoleErrors = [];
 const realConsoleError = console.error;
 console.error = (...args) => { consoleErrors.push(args.map(String).join(" ").slice(0, 400)); };
 
+// Vercel invokes prebuild with NODE_ENV=production, where React disables act().
+process.env.NODE_ENV = "test";
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const React = (await import("react")).default;
 const { createRoot } = await import("react-dom/client");
