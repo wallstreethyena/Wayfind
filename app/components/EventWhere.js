@@ -91,9 +91,17 @@ export function eventNearbyPlaces(picks, hasPoint) {
  *   picks?: object[],              // lib/eventPairings rows + href
  *   sponsoredWebsite?: boolean,    // rel=sponsored when the link earns
  *   ticketLink?: boolean,          // mark the official-site hop for Crown outbound tracking
+ *   location?: {                   // where lat/lng came from; default { trust: "verified" }
+ *     trust: "provider" | "verified", // "provider" = a feed's own point (Ticketmaster ZIP centroids
+ *                                     // can sit kilometres off), so the browser map asks Apple for
+ *                                     // the venue's true point before pinning, searching parking
+ *                                     // or routing; "verified" = editorially/owner checked, never moved
+ *     street?: string, city?: string, state?: string, // address parts Apple matches the venue against
+ *     segment?: string,            // provider segment (e.g. "Sports"), a matching hint only
+ *   },
  * }} props
  */
-export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false, ticketLink = false }) {
+export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false, ticketLink = false, location = { trust: "verified" } }) {
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
@@ -133,7 +141,7 @@ export default function EventWhere({ venue, address, directionsHref, website, la
         </div>
         {hasPoint ? (
           <div className="wfw-map">
-            <EventVenueMapLoader key={`${venue || address}:${lat}:${lng}`} venue={{ name: venue || address, lat, lng }} picks={pins} directionsHref={directionsHref} parkingEnabled={!approximate} />
+            <EventVenueMapLoader key={`${venue || address}:${lat}:${lng}`} venue={{ name: venue || address, lat, lng, locationTrust: location.trust, street: location.street, city: location.city, state: location.state, segment: location.segment }} picks={pins} directionsHref={directionsHref} parkingEnabled={!approximate} />
           </div>
         ) : null}
         {hasPoint ? <div className="wfw-foot" aria-label="Map key"><span><b className="wfw-key-venue" aria-hidden="true">★</b> Event</span>{pins.length > 0 ? <span><b className="wfw-key-nearby" aria-hidden="true">●</b> Places</span> : null}</div> : null}
