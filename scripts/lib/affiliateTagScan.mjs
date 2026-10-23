@@ -59,8 +59,13 @@ export function loadRules(root) {
   const tmSid = must(/NEXT_PUBLIC_IMPACT_SID \|\| "(\d+)"/, affiliates, "Impact SID");
   const tmCampaign = must(/NEXT_PUBLIC_TM_IMPACT_CAMPAIGN \|\| "(\d+)"/, affiliates, "Impact campaign");
   const tmAd = must(/NEXT_PUBLIC_TM_IMPACT_AD \|\| "(\d+)"/, affiliates, "Impact ad");
-  if (!/partner_id=/.test(affiliates) || !/NEXT_PUBLIC_GYG_PID/.test(affiliates)) {
-    throw new Error("affiliate-tag rules: GetYourGuide partner_id shape changed — re-read affiliates.js before flagging the domain");
+  // GetYourGuide direct branch REMOVED 2026-10-22: it sat behind the pinned
+  // Viator pid in ticketsUrl/experienceSearchUrl and could never fire, so
+  // lib/affiliates.js must not construct a getyourguide URL at all. The gap
+  // rule below still flags the domain in content; do not re-add a builder
+  // without re-reading this file.
+  if (/getyourguide\.com\/s\//.test(affiliates)) {
+    throw new Error("affiliate-tag rules: a GetYourGuide search builder reappeared in affiliates.js — it was removed as unreachable dead code (2026-10-22)");
   }
   if (!WAYFIND_VIATOR_PID || !/^P\d+$/.test(WAYFIND_VIATOR_PID)) {
     throw new Error("affiliate-tag rules: WAYFIND_VIATOR_PID is missing");
@@ -82,7 +87,7 @@ export function loadRules(root) {
   gaps.push({
     id: "getyourguide",
     hosts: ["getyourguide.com"],
-    reason: "partner_id is appended only from credential(NEXT_PUBLIC_GYG_PID); the repo pins no publisher id. Flag the domain, do not invent one",
+    reason: "no GetYourGuide builder ships (the direct branch was unreachable behind the pinned Viator pid and was removed 2026-10-22); the repo pins no publisher id. Flag the domain, do not invent one",
   });
   gaps.push({
     id: "booking",
