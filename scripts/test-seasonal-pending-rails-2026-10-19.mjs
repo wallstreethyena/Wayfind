@@ -95,7 +95,7 @@ ok(inChristmasWindow(byId.get("K069")) === false && inChristmasWindow(byId.get("
 const empty = resolveSeasonalLiveArea([], { today: TODAY });
 ok(empty.christmas.length === 0 && empty.fall.length === 1 && empty.fall[0].event_id === "crystal-river-scarecrow-fest-2026", "empty inventory serves no card, and keeps the Scarecrow date correction");
 ok(empty.fall[0].place_id == null && empty.fall[0].start_date === "2026-10-31"
-  && empty.fall[0].start_time === "10:00:00" && empty.fall[0].end_time === "17:00:00", "the Scarecrow correction is Oct 31, 10:00 AM to 5:00 PM, with no place");
+  && empty.fall[0].start_time === "10:00:00" && empty.fall[0].end_time === "15:00:00", "the Scarecrow correction is Oct 31, 10:00 AM to 3:00 PM, with no place");
 ok(fallEventCardImageSrc(empty.fall[0], 640, null) === "", "the date correction has no image, so the poster filter cannot draw it");
 ok(isTrusted(empty.fall[0]) && isFallEvent(empty.fall[0]), "the date correction is a trusted fall row for the merge");
 
@@ -117,8 +117,8 @@ ok(!ready.fall.some((event) => event.event_id === "hernando-haunting-for-hunger-
 
 const scare = ready.fall.find((event) => event.event_id === "crystal-river-scarecrow-fest-2026");
 ok(scare.place_id === seen.get(venueKey(byId.get("K037"))).place_id
-  && scare.start_date === "2026-10-31" && scare.start_time === "10:00:00" && scare.end_time === "17:00:00"
-  && scare.is_free === true, "Scarecrow Fest resolves to Crystal River on Oct 31, 10:00 AM to 5:00 PM");
+  && scare.start_date === "2026-10-31" && scare.start_time === "10:00:00" && scare.end_time === "15:00:00"
+  && scare.is_free === true, "Scarecrow Fest resolves to Crystal River on Oct 31, 10:00 AM to 3:00 PM");
 const scareImage = fallEventCardImageSrc(scare, 640, seen.get(venueKey(byId.get("K037"))));
 ok(scareImage.startsWith("/api/photo?ref=places%2F") && scareImage.includes(scare.place_id) && !scareImage.includes("place="), "a resolved card uses the venue's stored photo ref");
 
@@ -188,7 +188,7 @@ const [overlaid] = mergeFallDiscoveryRows([{
   city: "Largo",
 }], empty.fall);
 ok(overlaid.start_date === "2026-10-31" && overlaid.end_date === "2026-10-31"
-  && overlaid.start_time === "10:00:00" && overlaid.end_time === "17:00:00"
+  && overlaid.start_time === "10:00:00" && overlaid.end_time === "15:00:00"
   && overlaid.place_id == null, "a lagging Oct 10 Scarecrow row is overwritten with Oct 31 and loses the Largo place");
 
 const ended = resolveSeasonalLiveArea(places, { today: "2026-12-21" });
@@ -241,7 +241,7 @@ ok(idsOn(fallNamesLater.rails, "festivals").includes(dale.event_id)
 
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const christmasRoute = readFileSync(new URL("../app/api/events/christmas/route.js", import.meta.url), "utf8");
-ok(fallRoute.includes("fall-intents:v37:") && fallRoute.includes("resolveSeasonalLiveArea") && fallRoute.includes("...resolved.fall"), "the Fall route bumps to v37 and merges resolved rows");
+ok(fallRoute.includes("fall-intents:v40:") && fallRoute.includes("resolveSeasonalLiveArea") && fallRoute.includes("...resolved.fall"), "the Fall route uses the v40 verified-event epoch and merges resolved rows");
 ok(christmasRoute.includes("christmas-intents:v10:") && christmasRoute.includes("resolveSeasonalLiveArea")
   && /mergeChristmasResearch\(rows \|\| \[\]\)\.concat\(resolved\.christmas\)/.test(christmasRoute), "the Christmas route bumps to v10 and appends resolved rows");
 ok(!/googleapis|maps\.google|places\.googleapis|fetch\(/.test(christmasRoute), "the Christmas route still makes no Google call and no fetch");

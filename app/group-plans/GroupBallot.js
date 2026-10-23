@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { LANDING_CITIES } from "../../lib/landingCities.js";
 import { C } from "../components/kit.js";
@@ -12,6 +12,7 @@ import { GroupFinal } from "./GroupOrganizer.js";
 export const GROUP_BALLOT_CSS=`
 .gb{font-family:var(--wf-sans),system-ui,sans-serif;max-width:640px;margin:0 auto}
 .gb h1{margin:0 0 8px}.gb-sub{margin:0 0 22px;font-size:16px;line-height:1.5;color:color-mix(in srgb,currentColor 70%,transparent)}
+.gb-journey{position:sticky;top:8px;z-index:3;border:1px solid var(--gp-border);background:var(--gp-panel);padding:12px 16px;border-radius:14px;margin:16px 0 22px;box-shadow:0 8px 24px rgba(0,0,0,.18)}.gb-journey-row{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:14px;font-weight:800}.gb-journey small{font-weight:400;color:var(--gp-muted)}.gb-journey .gp-progress{margin:10px 0 0}.gb-card.is-selected .gb-vote .gb-check{animation:gb-pop .3s ease-out}.gb-card.is-selected .gb-vote{box-shadow:0 3px 16px color-mix(in srgb,${C.accent} 20%,transparent)}
 .gb-step{margin:28px 0}.gb-step-head{display:flex;align-items:center;gap:12px;margin:0 0 14px}.gb-step-head h2{margin:0;font-size:20px;line-height:1.25}
 .gb-num{flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:${C.accent};color:#0d1117;font-weight:800;font-size:16px}
 .gb-options{display:flex;flex-direction:column;gap:16px}.gb-or{margin:6px 0 -2px;font-size:15px;font-weight:700;color:color-mix(in srgb,currentColor 75%,transparent)}
@@ -36,7 +37,10 @@ export const GROUP_BALLOT_CSS=`
 .gb-secondary{display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:center;margin-top:14px}
 .gb-link{min-height:44px;padding:8px 4px;border:0;background:none;color:inherit;font:inherit;font-size:15px;text-decoration:underline;cursor:pointer}
 .gb-note{margin:10px 0 0;font-size:13px;line-height:1.55;color:color-mix(in srgb,currentColor 65%,transparent);text-align:center}
-.gb-done{margin:22px 0 0;padding:14px 16px;border:2px solid ${C.green};border-radius:14px;font-weight:700;line-height:1.5;animation:gb-fade .3s ease-out}
+.gb-receipt-mark{position:relative;display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:50%;background:color-mix(in srgb,${C.green} 22%,transparent);color:${C.green}}.gb-receipt-mark.is-new{animation:gb-seal .45s ease-out}.gb-receipt-mark .gb-check{width:22px;height:22px}.gb-receipt-mark i{position:absolute;inset:14px;border-radius:2px;background:${C.accent};opacity:0;animation:gb-spark .45s ease-out both;--x:0px;--y:-42px}.gb-receipt-mark i:nth-of-type(2){--x:38px;--y:-20px;background:${C.green}}.gb-receipt-mark i:nth-of-type(3){--x:38px;--y:20px}.gb-receipt-mark i:nth-of-type(4){--x:0px;--y:42px;background:${C.green}}.gb-receipt-mark i:nth-of-type(5){--x:-38px;--y:20px}.gb-receipt-mark i:nth-of-type(6){--x:-38px;--y:-20px;background:${C.green}}
+@keyframes gb-seal{0%{transform:scale(.5) rotate(-25deg)}65%{transform:scale(1.15) rotate(5deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes gb-spark{0%{opacity:0;transform:translate(0,0) scale(.3)}25%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(.1) rotate(100deg)}}
+.gb-done{display:flex;align-items:center;gap:12px;margin:22px 0 0;padding:14px 16px;border:2px solid ${C.green};border-radius:14px;font-weight:700;line-height:1.5;animation:gb-fade .3s ease-out}
 @keyframes gb-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .gb-explore{margin:30px 0 0}.gb-explore h2{margin:0 0 12px;font-size:20px}
 .gb-explore ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -90,12 +94,20 @@ export function GroupBallot({plan,onCommand,busy}) {
   const [selected,setSelected]=useState(plan.invitee?.response?.placeId||plan.originalPlaceId||plan.places[0]?.id||"");
   const [available,setAvailable]=useState(plan.invitee?.response?.availableTimeIds||[]);
   const [error,setError]=useState("");
+  const [placeChosen,setPlaceChosen]=useState(!!plan.invitee?.response&&!plan.invitee.response.declined);
   const responseKey=JSON.stringify(plan.invitee?.response||null);
-  useEffect(()=>{setSelected(plan.invitee?.response?.placeId||plan.originalPlaceId||plan.places[0]?.id||"");setAvailable(plan.invitee?.response?.availableTimeIds||[]);setError("");},[responseKey]);
+  const previousResponse=useRef(responseKey);
+  const [celebrate,setCelebrate]=useState(false);
+  useEffect(()=>{setCelebrate(previousResponse.current!==responseKey&&!!plan.invitee?.response);previousResponse.current=responseKey;setSelected(plan.invitee?.response?.placeId||plan.originalPlaceId||plan.places[0]?.id||"");setAvailable(plan.invitee?.response?.availableTimeIds||[]);setError("");setPlaceChosen(!!plan.invitee?.response&&!plan.invitee.response.declined);},[responseKey]);
   const response=plan.invitee?.response;
+  const sameDays=response&&!response.declined&&JSON.stringify([...(response.availableTimeIds||[])].sort())===JSON.stringify([...available].sort());
+  const unchanged=!!response&&(response.declined?available.length===0&&!placeChosen:response.placeId===selected&&sameDays);
+  const saved=!!response&&unchanged;
+  const completed=saved?3:(placeChosen?1:0)+(available.length?1:0);
+  const progressText=saved?"Response saved":!available.length?(placeChosen?"Now pick your day":"Choose your place and times"):response?"Changes ready to send":"Ready to send your vote";
   const deadline=formatGroupTimeShort(plan.deadline,plan.timeZone);
   const chosen=plan.places.find((p)=>p.id===selected)||plan.places.find((p)=>p.id===plan.originalPlaceId)||plan.places[0];
-  const toggle=(id,on)=>{setError("");setAvailable(on?(available.includes(id)?available:[...available,id]):available.filter((x)=>x!==id));};
+  const toggle=(id,on)=>{setError("");setCelebrate(false);setAvailable(on?(available.includes(id)?available:[...available,id]):available.filter((x)=>x!==id));};
   const send=()=>{
     if(!available.length){setError("Tap at least one day in step 2 first");return;}
     setError("");
@@ -108,20 +120,21 @@ export function GroupBallot({plan,onCommand,busy}) {
       <section className="gp-panel"><h2>{plan.status==="finalized"?"The plan is ready":"Voting has closed"}</h2>{plan.status==="finalized"?<GroupFinal plan={plan}/>:<p>The organizer is choosing the final plan. Return to this link to see it.</p>}</section>
       <ExploreMore place={chosen}/>
     </>:<>
-      <p className="gb-sub">3 quick steps. Voting ends {deadline}</p>
+      <p className="gb-sub">3 quick steps. Voting ends {deadline}. No account needed.</p>
+      <div className="gb-journey" aria-live="polite"><div className="gb-journey-row"><span>{progressText}</span><small>{completed} of 3</small></div><div className="gp-progress" role="progressbar" aria-label="Voting progress" aria-valuemin={0} aria-valuemax={3} aria-valuenow={completed}><span style={{width:`${completed/3*100}%`}}/></div></div>
+      {saved&&<p key={responseKey} className="gb-done" role="status"><span className={`gb-receipt-mark${celebrate?" is-new":""}`} aria-hidden="true"><CheckIcon/>{celebrate&&Array.from({length:6},(_,i)=><i key={i}/>)}</span><span>{response.declined?`Got it, you can’t make it. You can change this until ${deadline}`:`Vote sent. You can change it until ${deadline}`}</span></p>}
       <section className="gb-step" aria-labelledby="gb-s1"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">1</span><h2 id="gb-s1">Vote for one place</h2></div>
-        <GroupPlaceOptions plan={plan} selected={selected} onSelect={setSelected}/></section>
+        <GroupPlaceOptions plan={plan} selected={selected} onSelect={(id)=>{setSelected(id);setPlaceChosen(true);setCelebrate(false);setError("");}}/></section>
       <section className="gb-step" aria-labelledby="gb-s2"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">2</span><h2 id="gb-s2">Tap every day that works</h2></div>
         <div className="gb-chips">{plan.times.map((t)=><label className="gb-chip" key={t.id}><input type="checkbox" checked={available.includes(t.id)} onChange={(e)=>toggle(t.id,e.target.checked)}/><span className="gb-chip-box"><CheckIcon/></span><span>{formatGroupTimeShort(t,plan.timeZone)}</span></label>)}</div>
         {chosen?.hoursStatus==="unverified"&&chosen.hoursNote&&<p className="gp-note">{chosen.hoursNote}</p>}
       </section>
       <section className="gb-step" aria-labelledby="gb-s3"><div className="gb-step-head"><span className="gb-num" aria-hidden="true">3</span><h2 id="gb-s3">Send it</h2></div>
-        <button type="button" className="gb-send" disabled={busy||!selected} onClick={send}>{response&&!response.declined?"Update my vote":"Send my vote"}</button>
+        <button type="button" className="gb-send" disabled={busy||!selected} onClick={send}>{busy?"Saving your vote…":response&&!response.declined?"Update my vote":"Send my vote"}</button>
         {error&&<p className="gb-error" role="alert">{error}</p>}
         <div className="gb-secondary"><button type="button" className="gb-link" disabled={busy} onClick={()=>onCommand({type:"respond",slotId:plan.invitee.id,placeId:null,availableTimeIds:[],declined:true})}>I can’t make it</button>{response&&<button type="button" className="gb-link" disabled={busy} onClick={()=>onCommand({type:"withdraw",slotId:plan.invitee.id})}>Withdraw my vote</button>}</div>
-        <p className="gb-note">Saved on Wayfind. No text message is sent. Only the organizer sees who has responded.</p>
+        <p className="gb-note">Your response is saved when you send it. No text message is sent. Only the organizer sees who has responded.</p>
       </section>
-      {response&&<p className="gb-done" role="status">{response.declined?`Got it, you can’t make it. You can change this until ${deadline}`:`Vote sent. You can change it until ${deadline}`}</p>}
       {response&&<ExploreMore place={chosen}/>}
     </>}
   </div>;

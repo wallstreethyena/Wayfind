@@ -451,9 +451,55 @@ function CITIES() {
 
 // ── 9. Server only ──────────────────────────────────────────────────────────
 {
-  const walk = (dir, out = []) => { for (const n of readdirSync(dir)) { const f = path.join(dir, n); const st = statSync(f); if (st.isDirectory()) { if (!/node_modules|\.next|\.wf-jsx/.test(f)) walk(f, out); } else if (/\.m?js$/.test(n)) out.push(f); } return out; };
+  // Source exclusions apply to directory names, not an absolute path that
+  // would exclude every descendant of a build rooted inside .next.
+  const walkSource = (dir, out = []) => { for (const n of readdirSync(dir)) { const f = path.join(dir, n); const st = statSync(f); if (st.isDirectory()) { if (!["node_modules", ".next", ".wf-jsx"].includes(n)) walkSource(f, out); } else if (/\.m?js$/.test(n)) out.push(f); } return out; };
+  const walkProductionJs = (dir, out = []) => { for (const n of readdirSync(dir)) { const f = path.join(dir, n); const st = statSync(f); if (st.isDirectory()) walkProductionJs(f, out); else if (/\.js$/.test(n)) out.push(f); } return out; };
+  const RESEARCH_IN_CLIENT = /weirsdale-cottom-farm-christmas-village-2026|evidence_quote|US Census 2023 Gazetteer/;
+  const EXPECTED_CLIENT_ROUTES = ["/page", "/christmas-in-florida/page"];
+  // Shared by real build verification and the fail proofs below. Route-owned
+  // entry chunks establish coverage independently of user-facing copy.
+  const productionResearchCheck = (manifest, sources) => {
+    const errors = [], expected = new Set();
+    if (!manifest || typeof manifest !== "object" || !manifest.pages || typeof manifest.pages !== "object" || !Object.keys(manifest.pages).length) errors.push("missing or empty app build manifest");
+    for (const route of EXPECTED_CLIENT_ROUTES) {
+      const entries = manifest?.pages?.[route];
+      if (!Array.isArray(entries) || !entries.length || entries.some((entry) => typeof entry !== "string")) {
+        errors.push(`missing or empty manifest route ${route}`);
+        continue;
+      }
+      const js = entries.filter((entry) => /\.js$/.test(entry));
+      const entryPrefix = `static/chunks/app${route.replace(/\/page$/, "/page-")}`;
+      if (!js.some((entry) => entry.startsWith(entryPrefix) && !entry.slice(entryPrefix.length).includes("/"))) errors.push(`missing nested entry for ${route}`);
+      for (const entry of js) {
+        if (!entry.startsWith("static/chunks/") || entry.split("/").some((part) => part === ".." || part === ".")) errors.push(`invalid manifest chunk ${entry}`);
+        expected.add(entry);
+        if (!sources.has(entry)) errors.push(`missing scanned manifest chunk ${entry}`);
+      }
+    }
+    if (sources.size <= 50) errors.push(`production corpus too small: ${sources.size}`);
+    const hits = [...sources].filter(([, source]) => RESEARCH_IN_CLIENT.test(source)).map(([name]) => name);
+    if (hits.length) errors.push("research data in production client chunks");
+    return { errors, hits, expectedCount: expected.size };
+  };
+  const homeEntry = "static/chunks/app/page-fixture.js", christmasEntry = "static/chunks/app/christmas-in-florida/page-fixture.js";
+  const fixtureManifest = { pages: { "/page": ["static/chunks/shared.js", homeEntry], "/christmas-in-florida/page": ["static/chunks/shared.js", christmasEntry] } };
+  const fixtureSources = new Map(Array.from({ length: 51 }, (_, i) => [`static/chunks/fixture-${i}.js`, "export{};"]));
+  for (const entry of ["static/chunks/shared.js", homeEntry, christmasEntry]) fixtureSources.set(entry, "export{};");
+  ok(productionResearchCheck(fixtureManifest, fixtureSources).errors.length === 0, "production corpus positive control has both manifest routes and nested entries");
+  for (const missing of [undefined, {}, { pages: {} }]) ok(productionResearchCheck(missing, fixtureSources).errors.includes("missing or empty app build manifest"), "missing or empty manifest fails the same production check");
+  ok(productionResearchCheck({ pages: { ...fixtureManifest.pages, "/christmas-in-florida/page": [] } }, fixtureSources).errors.includes("missing or empty manifest route /christmas-in-florida/page"), "an empty expected route fails the production check");
+  const omittedNested = new Map(fixtureSources); omittedNested.delete(christmasEntry);
+  ok(omittedNested.size > 50 && productionResearchCheck(fixtureManifest, omittedNested).errors.includes(`missing scanned manifest chunk ${christmasEntry}`), "omitting a nested manifest chunk fails even with more than 50 scanned chunks");
+  const leakedNested = new Map(fixtureSources); leakedNested.set(christmasEntry, 'const fixture = "evidence_quote";');
+  const nestedLeakResult = productionResearchCheck(fixtureManifest, leakedNested);
+  ok(nestedLeakResult.errors.includes("research data in production client chunks") && nestedLeakResult.hits.includes(christmasEntry), "research marker injected into a nested route chunk fails the same production check");
+  const leakedUnreferenced = new Map(fixtureSources); leakedUnreferenced.set("static/chunks/app/other/deep/page-fixture.js", 'const fixture = "US Census 2023 Gazetteer";');
+  const unreferencedLeakResult = productionResearchCheck(fixtureManifest, leakedUnreferenced);
+  ok(unreferencedLeakResult.errors.includes("research data in production client chunks") && unreferencedLeakResult.hits.includes("static/chunks/app/other/deep/page-fixture.js"), "nested chunks outside the expected route references also fail the same production check on leaks");
+  ok(productionResearchCheck(fixtureManifest, new Map([[homeEntry, "export{};"], [christmasEntry, "export{};"], ["static/chunks/shared.js", "export{};"]])).errors.some((error) => error.startsWith("production corpus too small:")), "manifest coverage cannot bypass the production corpus floor");
   const SERVER_ONLY = /christmasResearch|christmasBrowse|christmasCards|christmasEventPage|christmasDiscoveries2026|christmas-2026-research\.json/;
-  const clients = walk(path.join(ROOT, "app")).concat(walk(path.join(ROOT, "lib"))).filter((f) => /^\s*["']use client["']/.test(readFileSync(f, "utf8")));
+  const clients = walkSource(path.join(ROOT, "app")).concat(walkSource(path.join(ROOT, "lib"))).filter((f) => /^\s*["']use client["']/.test(readFileSync(f, "utf8")));
   const leaks = clients.filter((f) => SERVER_ONLY.test(readFileSync(f, "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "")));
   ok(clients.length > 20 && leaks.length === 0, `no client module imports the Christmas server data (${clients.length} client files scanned; leaks: ${leaks.map((f) => path.relative(ROOT, f)).join(", ")})`);
   ok(!/^\s*import/m.test(read("lib/christmasCardCopy.js")), "the client card copy imports nothing");
@@ -464,19 +510,21 @@ function CITIES() {
     ok(cfg.includes(JSON.stringify(route) + ': ["./data/christmas-2026-research.json"]'), `next.config.js traces the research data into ${route}`);
   }
   ok(/readFileSync\(path\.join\(process\.cwd\(\), CHRISTMAS_RESEARCH_FILE\)/.test(read("lib/christmasResearch.js")) && !/christmas-2026-research\.json" with/.test(read("lib/christmasResearch.js")), "the module reads the file with fs (jsxLoad safe), never a JSON import");
-  const importers = walk(path.join(ROOT, "app")).filter((f) => /from "[^"]*lib\/(?:christmasResearch|christmasBrowse|christmasCards|christmasEventPage)(?:\.js)?"/.test(readFileSync(f, "utf8"))).map((f) => path.relative(ROOT, f));
+  const importers = walkSource(path.join(ROOT, "app")).filter((f) => /from "[^"]*lib\/(?:christmasResearch|christmasBrowse|christmasCards|christmasEventPage)(?:\.js)?"/.test(readFileSync(f, "utf8"))).map((f) => path.relative(ROOT, f));
   const traced = { "app/api/events/christmas/route.js": 1, "app/api/christmas/browse/route.js": 1, "app/christmas-in-florida/page.js": 1, "app/florida-events/[slug]/page.js": 1, "app/sitemap.js": 1 };
   ok(importers.length >= 5 && importers.every((f) => traced[f]), `every app file that reaches the research data is a traced route (${importers.join(", ")})`);
   const chunks = path.join(ROOT, ".next/static/chunks");
   // Only a production build (.next/BUILD_ID) has production chunks; `next dev` output is skipped.
-  if (existsSync(chunks) && existsSync(path.join(ROOT, ".next/BUILD_ID"))) {
-    const files = walk(chunks).filter((f) => !/_app-pages-browser_|app-pages-internals|_ssr_/.test(f));
-    const hit = files.filter((f) => /weirsdale-cottom-farm-christmas-village-2026|evidence_quote|US Census 2023 Gazetteer/.test(readFileSync(f, "utf8")));
-    // Prove the sweep sees the real Christmas client module. Use its current
-    // label so an editorial rename cannot invalidate this server-data check.
+  if (existsSync(path.join(ROOT, ".next/BUILD_ID"))) {
+    const files = existsSync(chunks) ? walkProductionJs(chunks) : [];
+    const buildRoot = path.join(ROOT, ".next"), manifestPath = path.join(buildRoot, "app-build-manifest.json");
+    let manifest;
+    try { manifest = JSON.parse(readFileSync(manifestPath, "utf8")); } catch { /* Missing, empty or invalid manifests fail the shared coverage check. */ }
+    const sources = new Map(files.map((f) => [path.relative(buildRoot, f).split(path.sep).join("/"), readFileSync(f, "utf8")]));
+    const result = productionResearchCheck(manifest, sources);
     const controlLabel = CHRISTMAS_CARD_LABELS["popup-bars"];
-    const control = typeof controlLabel === "string" && controlLabel.length > 0 && files.some((f) => readFileSync(f, "utf8").includes(controlLabel));
-    ok(files.length > 50 && control && hit.length === 0, `no production client chunk carries the research data (${files.length} chunks swept, positive control found: ${control}; hits: ${hit.map((f) => path.basename(f)).join(", ")})`);
+    const control = typeof controlLabel === "string" && controlLabel.length > 0 && [...sources.values()].some((source) => source.includes(controlLabel));
+    ok(result.errors.length === 0 && control, `no production client chunk carries the research data (${files.length} chunks swept; ${result.expectedCount} manifest-referenced route chunks covered; positive client control: ${control}; errors: ${result.errors.join(", ")}; hits: ${result.hits.join(", ")})`);
   } else console.log("  note: no production .next build here, the production chunk sweep runs after next build");
 }
 

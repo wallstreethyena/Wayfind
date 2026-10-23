@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createAppleMapRecovery, createAppleMapSearch, planAppleMapRecovery } from "../../lib/appleMapRecovery.js";
+import { createAppleMapRecovery, createAppleMapSearch, createApplePlaceLookup, createAppleBudgetGrant, planAppleMapRecovery } from "../../lib/appleMapRecovery.js";
 
 // Cache validity and effect restarts must agree on the evidence that actually
 // governs recovery. Photo, editorial and calculation-receipt updates cannot
@@ -9,7 +9,7 @@ import { createAppleMapRecovery, createAppleMapSearch, planAppleMapRecovery } fr
 function recoveryEvidence(place) {
   const address = place.address;
   return JSON.stringify({
-    identity: [place.id, place.name, place.city, place.locality,
+    identity: [place.id, place.name, place.city, place.locality, place.applePlaceId,
       typeof address === "string" ? address : [address?.street, address?.locality],
       place.formattedAddress, place.formatted_address, place.subThoroughfare, place.thoroughfare,
       place.isChain, place.is_chain, place.chain, place.chainName, place.chain_name],
@@ -25,7 +25,8 @@ function recoveryEvidence(place) {
 
 // Only this mounted Apple map owns the results. No storage, API writes, or
 // Google fallback. Origin changes invalidate the old distance/score context.
-export default function useAppleMapRecovery({ places, existing, bounds, origin, category, sub, mapkit, enabled, ready }) {
+// `minScore` null = list-scoped map (no hidden floor); omitted = the area map's floor.
+export default function useAppleMapRecovery({ places, existing, bounds, origin, category, sub, mapkit, enabled, ready, minScore }) {
   const engine = useRef(null);
   const [resolved, setResolved] = useState({ origin: "", places: [] });
   const [progress, setProgress] = useState({ key: "", status: "idle", stats: null });
@@ -36,15 +37,18 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
   for (const p of alreadyRecovered) existingIds.add(p.id);
   const candidates = (places || []).filter((p) => !existingIds.has(p.id));
   const identityContext = [...(places || []), ...(existing || [])];
-  const planned = planAppleMapRecovery({ places: candidates, identityContext, bounds, category, sub });
+  const floor = minScore === null ? { minScore: null } : {};
+  const planned = planAppleMapRecovery({ places: candidates, identityContext, bounds, category, sub, ...floor });
   // Evidence changes, rather than array identity or a progressive accepted pin,
   // define a new search. Do not restart a batch when its first result arrives.
   const evidenceKey = JSON.stringify([(places || []).map(recoveryEvidence), (existing || []).map(recoveryEvidence)]);
-  const scopeKey = JSON.stringify([originKey, category, sub, bounds]);
+  const scopeKey = JSON.stringify([originKey, category, sub, bounds, minScore === null]);
   const key = `${scopeKey}|${evidenceKey}`;
   useEffect(() => {
     if (!mapkit) return undefined;
-    const instance = createAppleMapRecovery({ search: createAppleMapSearch(mapkit) });
+    // Stored Apple Place IDs resolve through PlaceLookup; every Apple call is
+    // reserved against the one daily free ceiling first (/api/maps/apple-budget).
+    const instance = createAppleMapRecovery({ search: createAppleMapSearch(mapkit), lookup: createApplePlaceLookup(mapkit), grant: createAppleBudgetGrant() });
     engine.current = instance;
     return () => { instance.destroy(); if (engine.current === instance) engine.current = null; };
   }, [mapkit]);
@@ -53,7 +57,7 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
     const controller = new AbortController();
     let live = true;
     setProgress({ key, status: "loading", stats: null });
-    engine.current.recover({ places: candidates, identityContext, bounds, origin, category, sub, scope: originKey, signal: controller.signal,
+    engine.current.recover({ places: candidates, identityContext, bounds, origin, category, sub, scope: originKey + (minScore === null ? "|list" : ""), ...floor, signal: controller.signal,
       onPlace: (place) => {
         if (!live || controller.signal.aborted) return;
         setResolved((previous) => ({ origin: originKey, places: [...(previous.origin === originKey ? previous.places.filter((entry) => entry.place.id !== place.id) : []), { place, evidence: evidence.get(place.id) }] }));
@@ -67,6 +71,7 @@ export default function useAppleMapRecovery({ places, existing, bounds, origin, 
           rejected: stats.rejected, errors: stats.errors, timedOut: stats.timedOut,
           batchLimited: stats.batchLimited, remainingCandidates: stats.remainingCandidates,
           budgetExhausted: stats.budgetExhausted, capacityLimited: stats.capacityLimited, aborted: stats.aborted,
+          lookups: stats.lookups || 0, ledger: stats.ledger === true, lookupGranted: stats.lookupGranted || 0, searchGranted: stats.searchGranted || 0, grantLimited: !!stats.grantLimited,
         }));
       } catch {}
       if (live) setProgress({ key, status: stats.errors || stats.timedOut || stats.capacityLimited ? "partial" : "ready", stats: { ...stats, places: undefined } });

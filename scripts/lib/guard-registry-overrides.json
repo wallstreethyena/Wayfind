@@ -232,6 +232,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/check-viator-go-location-pid.mjs": {
+    "protects": "Every viator.com Location a redirect route returns carries pid=P00320881, and /api/viator/go's bare ?q= resolve stamps an untagged Partner API productUrl through withViatorTracking.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-21: a bare /api/viator/go?q= with no product= and no intent=search 302'd to the Partner API productUrl with no pid, mcid, or medium. The click converted on Viator and never reached account P00320881."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-viator-redirect-layer.mjs": {
     "protects": "No monetized Viator link on /culture/[metro] reaches the DOM as a raw partner URL, and the exact-product passthrough can never become an open redirect.",
     "blastRadius": {
@@ -245,6 +253,14 @@
     "blastRadius": {
       "category": "trust",
       "detail": "A wrong or missing disclosure chip on a monetized card is an FTC disclosure gap, the same class of issue CLAUDE.md's 'assert the invariant, not the file path' section calls out for the booking CTA's rel attribute."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-affiliate-tags.mjs": {
+    "protects": "Fixture lock for the affiliate-tag guard: a Viator URL with no pid fails, a URL stamped pid=P00320881 mcid=42383 medium=link passes, a bare Tiqets URL fails, and an official non-affiliate link passes only with the same-line wf-affiliate-allow: official annotation.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A green fixture suite that no longer fails an untagged partner URL would let the known bare-viator.com regression (affiliate id dropped) ship again."
     },
     "owner": "Revenue QA"
   },
@@ -949,6 +965,14 @@
     "blastRadius": {
       "category": "revenue",
       "detail": "2026-10-19: until this date every Viator click carried a pid that is not on the owner's Viator account, so the account showed 0 visitors and 0 bookings for all time. A drift back would silently send all Viator traffic to someone else's account again."
+    },
+    "owner": "Revenue QA"
+  },
+  "scripts/test-guide-rays-game-day.mjs": {
+    "protects": "Each Rays World Series game has its own verified Ticketmaster destination, correct date and venue, conditional-game label, and server-side Wayfind Impact affiliate attribution.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A swapped game ID, generic ticket search, or missing Impact attribution sends a fan to the wrong game or loses commission credit. The guide test checks all seven event IDs through the shared ticket validator and affiliate builder; its wrong-game mutation was verified to fail."
     },
     "owner": "Revenue QA"
   }

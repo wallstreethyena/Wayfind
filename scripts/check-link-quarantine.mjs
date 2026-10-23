@@ -132,7 +132,10 @@ const curated = strip(read("lib/curatedEvents.js"));
 // the event (eventTicketHref — our own /api/commerce/go path, never a partner
 // URL) and otherwise eventOutboundUrl; officialUrl is always eventOutboundUrl.
 // Either way every OUTBOUND URL is composed by eventOutboundUrl.
-ok(/url: eventTicketHref\(row\.event_id, \{ surface: "events_feed" \}\) \|\| eventOutboundUrl\(row\),/.test(curated)
+// 2026-10-22: a TicketNetwork venue rung (tnHref, also a /api/commerce/go
+// href built from the verified venue registry) sits between the two; it is
+// the same own-path class, never a partner URL or a raw column.
+ok(/url: eventTicketHref\(row\.event_id, \{ surface: "events_feed" \}\) \|\| tnHref \|\| eventOutboundUrl\(row\),/.test(curated)
   && /officialUrl: eventOutboundUrl\(row\),/.test(curated)
   && (curated.match(/official_ticket_url \|\| (?:row|e)\.official_event_url/g) || []).length === 0,
   "lib/curatedEvents composes every published outbound URL via eventOutboundUrl — zero raw fallback chains remain (the commerce redirect is our own path)");

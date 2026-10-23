@@ -31,6 +31,8 @@
 // rail must lead with tonight, not the afternoon. scripts/check-one-clock.mjs
 // enforces this; scripts/test-dayparts.mjs proves the four bands never
 // contradict nowContext's three.
+import { useRaysWorldSeriesPoster } from "./useRaysWorldSeriesPoster.js";
+import { isRaysLivePoster } from "../../lib/raysWorldSeriesPoster.js";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import { browsePosition, restoreBrowsePosition } from "../../lib/restoreBrowsePosition";
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -472,7 +474,8 @@ export default function DaypartRail({
   // from their own location the moment geolocation resolves.
   initialRail = null,
 }) {
-  const siteDay = useSiteToday(); // re-renders at midnight Eastern: poster track filter + order (lib/siteDayClock.js)
+  const siteDay = useSiteToday(); // re-renders at midnight Eastern
+  const raysPoster = useRaysWorldSeriesPoster(siteDay);
   const [daypart, setDaypart] = useState(initialDaypart);
   // THE RAIL FOLLOWS THE READER. Server props are the flagship metro's ranking
   // — a real answer at first paint, and the WRONG one the moment we know the
@@ -616,9 +619,9 @@ export default function DaypartRail({
   // check-partner-collections.mjs, so it stays exactly as written; the live
   // event tiles layer in FRONT of it rather than rewriting it.
   const railById = useMemo(() => {
-    const withSponsor = sponsor ? [sponsor, ...rails] : rails;
+    const withSponsor = [...(raysPoster ? [raysPoster] : []), ...(sponsor ? [sponsor, ...rails] : rails)];
     return new Map([...(livePosters || []), ...withSponsor].map((r) => [r.id, r]));
-  }, [livePosters, sponsor, rails]);
+  }, [livePosters, sponsor, rails, raysPoster]);
   useEffect(() => {
     if (!["/", "/v8"].includes(window.location.pathname)) return undefined;
     const save = () => {
@@ -661,12 +664,14 @@ export default function DaypartRail({
   // and Concerts posters are posters IN this rail, at the same size as every
   // other poster.
   const allRails = useMemo(() => {
-    const withSponsor = sponsor ? [sponsor, ...rails] : rails;
+    const withSponsor = [...(raysPoster ? [raysPoster] : []), ...(sponsor ? [sponsor, ...rails] : rails)];
     return [...(livePosters || []), ...withSponsor];
-  }, [livePosters, sponsor, rails]);
+  }, [livePosters, sponsor, rails, raysPoster]);
   const order = useMemo(() => {
     const base = orderFor(daypart, rails.map((r) => r.id), siteDay);
-    const withSponsor = sponsor ? [sponsor.id, ...base] : base;
+    const withSponsor = [...(raysPoster ? [raysPoster.id] : []), ...(sponsor ? [sponsor.id, ...base] : base)];
+    // The owner-approved Rays campaign leads during the World Series.
+    // Other live posters retain their ordinary placement below.
     // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
     // NOT first:
     //
@@ -686,7 +691,7 @@ export default function DaypartRail({
     if (!live.length) return withSponsor;
     const AT = 3;
     return [...withSponsor.slice(0, AT), ...live, ...withSponsor.slice(AT)];
-  }, [daypart, rails, sponsor, livePosters, siteDay]);
+  }, [daypart, rails, sponsor, livePosters, siteDay, raysPoster]);
   const band = DAYPARTS[daypart] || DAYPARTS.afternoon;
 
   // Re-rank when the reader is meaningfully somewhere else. The threshold is
@@ -1104,7 +1109,7 @@ export default function DaypartRail({
 
   const share = useCallback((r) => {
     if (!r) return;
-    const intent = railShareIntent(r.id);
+    const intent = r.shareIntent || railShareIntent(r.id);
     if (!intent) return;
     logEvent("rail_share", {
       rail_id: r.id, rail_title: r.title, daypart,
@@ -1673,11 +1678,14 @@ export default function DaypartRail({
       </>
     );
   };
-  const near = (live && live.cityLabel) ? ` near ${live.cityLabel}` : "";
+  const resolvedCityLabel = honestCityLabel(locName)
+    ? ((live && live.cityLabel) || shown.cityLabel || locName)
+    : ((Number.isFinite(lat) && Number.isFinite(lng)) ? ((live && live.cityLabel) || shown.cityLabel || cityLabel || "") : "");
+  const near = resolvedCityLabel ? ` near ${resolvedCityLabel}` : "";
   // The town to NAME in an honest-empty sentence. The reader's own label first
   // (it is what the chrome is already showing them, so the copy matches the
   // page), then whatever the payload named, then nothing — and never "you".
-  const dropCity = honestCityLabel(locName) || (shown.cityLabel ? honestCityLabel(shown.cityLabel) : "") || "";
+  const dropCity = honestCityLabel(locName) || (resolvedCityLabel ? honestCityLabel(resolvedCityLabel) : "") || "";
 
   return (
     <GuideDiscoveryContext.Provider value={guides}>
@@ -1688,7 +1696,7 @@ export default function DaypartRail({
             <div className="wf8-track" data-wf-scroll-key="poster-track" ref={trackRef}>
               {order.filter((id) => {
                 const r = railById.get(id);
-                return railOnPosterTrack(r, siteDay);
+                return railOnPosterTrack(r, siteDay) && !(raysPoster && isRaysLivePoster(r));
               }).map((id, i) => {
                 const r = railById.get(id);
                 if (!r) return null;
@@ -1710,13 +1718,13 @@ export default function DaypartRail({
                 const href = intentDoorway || (id === "datenight" || id === "season" || id === "family"
                   ? dateNightIntentHref({
                     href: railDest || (id === "family" ? "/family" : id === "season" ? "/summer-picks" : "/date-night"),
-                    cityLabel: shown.cityLabel || cityLabel,
+                    cityLabel: resolvedCityLabel || cityLabel,
                     lat: (center && Number.isFinite(center.lat) ? center.lat : lat),
                     lng: (center && Number.isFinite(center.lng) ? center.lng : lng),
                   })
                   : railDest);
                 const eager = i < 2;
-                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}`;
+                const tileClass = `wf8-tile${selected === id ? " is-sel" : ""}${artReady[id] ? " is-art-ready" : ""}${id === raysPoster?.id ? " wf8-rays" : ""}`;
                 const artBox = railArtSize(id);
                 // A LIVE EVENT TILE carries a remote, per-reader poster image
                 // (a Ticketmaster event photo cropped to this exact box by
@@ -1838,7 +1846,7 @@ export default function DaypartRail({
               active
               places={nightOutPlaces}
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -1870,7 +1878,7 @@ export default function DaypartRail({
             <DateNightRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
@@ -1895,7 +1903,7 @@ export default function DaypartRail({
             <BirthdayRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -1917,7 +1925,7 @@ export default function DaypartRail({
             <FamilyDayPage
               embedded
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || cityLabel || ""}
+              city={resolvedCityLabel || cityLabel || ""}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1934,7 +1942,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "breakfast" && !composerWaiting ? (
             <BreakfastRails
               places={dropList}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               hasMore={selectedHasMore}
               loadingMore={railPageState[selectedPageScope] === "loading"}
               onLoadMore={loadSelectedRailPage}
@@ -1954,7 +1962,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "break" ? (
             <LunchBreakRails
               places={lunchBreakLive || lunchBreakPlaces}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -1971,7 +1979,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "eat" && !composerWaiting ? (
             <WorthEatingRails
               places={dropList}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               hasMore={selectedHasMore}
               loadingMore={railPageState[selectedPageScope] === "loading"}
               onLoadMore={loadSelectedRailPage}
@@ -1992,7 +2000,7 @@ export default function DaypartRail({
             <TodayDiscoveryRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
@@ -2011,7 +2019,7 @@ export default function DaypartRail({
           {selRail && selRail.id === "locals" ? (
             <CreatorPicksRails
               places={dropList}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               pageScope={selectedPageScope}
               hasMore={selectedHasMore}
               loadingMore={railPageState[selectedPageScope] === "loading"}
@@ -2036,7 +2044,7 @@ export default function DaypartRail({
               collection={selRail.id === "halloween" ? "halloween" : "fall"}
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -2055,7 +2063,7 @@ export default function DaypartRail({
             <ChristmasIntentRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
@@ -2074,7 +2082,7 @@ export default function DaypartRail({
             <SummerIntentRails
               active
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               eventsSlot={eventsSlot}
               onTrack={(name, props) => logEvent(name, props)}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
@@ -2086,7 +2094,7 @@ export default function DaypartRail({
               active
               hasRankedFallback={dropList.length > 0}
               center={center || (Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null)}
-              city={shown.cityLabel || ""}
+              city={resolvedCityLabel}
               onOpenPlace={(p) => { if (!p || !p.id) return; if (onOpenPlace) { onOpenPlace(p); return; } if (typeof window !== "undefined") window.location.assign("/p/" + encodeURIComponent(p.id)); }}
               isSaved={isSaved || undefined}
               liked={liked || undefined}
@@ -2317,7 +2325,7 @@ export default function DaypartRail({
                     // the card's sourced hook (the share audit's S2 — a card
                     // share was shipping with neither).
                     onShare={onShare ? (pl) => onShare(pl || p, {
-                      city: shown.cityLabel || "",
+                      city: resolvedCityLabel,
                       hook: isPaid ? (p.hook || "") : (toHookLine(hooks[p.id], p.name) || ""),
                     }) : null}
                     // v8.88 — read-only ONLY when there is nowhere to write.

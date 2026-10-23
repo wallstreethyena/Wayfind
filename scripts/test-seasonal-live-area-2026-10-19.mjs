@@ -29,6 +29,7 @@ const FALL_RAIL = {
   "storytime-with-mother-boo-2026": "family",
   "mosi-fright-light-2026": "family",
   "ami-mangrove-murders-paddle-2026": "haunts",
+  "ami-mangrove-murders-paddle-adults-2026": "haunts",
   "st-pete-pier-dog-parade-2026": "festivals",
   "cracker-country-tall-tales-2026": "festivals",
   "boyd-hill-terrors-in-the-trees-2026": "haunts",
@@ -46,6 +47,7 @@ const HALLOWEEN_RAIL = {
   "storytime-with-mother-boo-2026": "family",
   "mosi-fright-light-2026": "family",
   "ami-mangrove-murders-paddle-2026": "family",
+  "ami-mangrove-murders-paddle-adults-2026": "haunts",
   "st-pete-pier-dog-parade-2026": "festivals",
   "cracker-country-tall-tales-2026": "festivals",
   "boyd-hill-terrors-in-the-trees-2026": "haunts",
@@ -63,6 +65,7 @@ const PLACE = {
   "storytime-with-mother-boo-2026": "ChIJQZRp15bDwogReY6sMTk-YWg",
   "mosi-fright-light-2026": "ChIJVZ5IfwDHwogRPN9rxQyX_L4",
   "ami-mangrove-murders-paddle-2026": "ChIJSzFosAERw4gRdoKp0B-JmGY",
+  "ami-mangrove-murders-paddle-adults-2026": "ChIJSzFosAERw4gRdoKp0B-JmGY",
   "st-pete-pier-dog-parade-2026": "ChIJX-E766nhwogR8u_Re6nJTyk",
   "cracker-country-tall-tales-2026": "ChIJcewX6kvPwogR4hM5ObiHHFo",
   "boyd-hill-terrors-in-the-trees-2026": "ChIJDa6Sb_4dw4gRvC9L3jFeVfo",
@@ -80,7 +83,7 @@ const TAMPA_FALL = Object.keys(FALL_RAIL).filter((id) => id !== "sahib-shrine-tr
 const SARASOTA = { lat: 27.3364, lng: -82.5307 };
 
 check("live-area rows are trusted, pinned, photo-backed and still upcoming on Oct 19", () => {
-  assert.equal(FALL_LIVE_AREA_2026_10_19.length, 15);
+  assert.equal(FALL_LIVE_AREA_2026_10_19.length, 16);
   for (const row of FALL_LIVE_AREA_2026_10_19) {
     assert.equal(FALL_DISCOVERY_RAIL[row.event_id], FALL_RAIL[row.event_id], row.event_id);
     assert.equal(fallEventRail(row), FALL_RAIL[row.event_id], row.event_id);

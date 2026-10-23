@@ -6,21 +6,26 @@
 import { readFileSync } from "fs";
 import ts from "typescript";
 import { hasRealPlacePhoto, mergeHealedPlacePhotos, detailHeroLayout } from "../lib/detailHero.js";
+import { PLACE_DETAIL_PHOTO_STANDARD } from "../lib/placeDetailPhotoStandard.js";
 
 let failures = 0;
 const fail = (m) => { console.error("test-detail-hero: FAIL — " + m); failures++; };
 const ok = (c, m) => { if (!c) fail(m); };
 
 // Runtime state transition protection, wired through this existing build guard.
-// Photo success, miss and retry cannot change the geometry of an open place.
+// Late photos use the same large default as initially available photos.
 const compact = detailHeroLayout(null, "place-a", false);
 ok(compact.expanded === false, "a photoless arrival starts compact");
-ok(detailHeroLayout(compact, "place-a", true) === compact, "late photo keeps compact geometry");
+ok(detailHeroLayout(compact, "place-a", true).expanded === true, "late photo receives the full-width gallery");
 ok(detailHeroLayout(compact, "place-a", false) === compact, "failed photo keeps compact geometry");
 const gallery = detailHeroLayout(compact, "place-b", true);
 ok(gallery.expanded === true, "a different place with a photo starts with its full gallery");
-ok(detailHeroLayout(gallery, "place-b", false) === gallery, "same place retains its gallery layout decision");
+ok(detailHeroLayout(gallery, "place-b", false).expanded === false, "a genuine miss collapses the media frame");
 ok(detailHeroLayout(gallery, "place-c", false).expanded === false, "a different photoless place resets to compact");
+ok(detailHeroLayout(compact, "place-a", false, true).expanded === true, "pending acquisition reserves the same full-width frame");
+ok(PLACE_DETAIL_PHOTO_STANDARD.frame.width === "100%" && PLACE_DETAIL_PHOTO_STANDARD.frame.aspectRatio === "16 / 9", "shared place-detail frame is full width and16:9");
+ok(PLACE_DETAIL_PHOTO_STANDARD.frame.minHeight === 220 && PLACE_DETAIL_PHOTO_STANDARD.frame.maxHeight === 420, "shared media height is bounded220–420px");
+ok(PLACE_DETAIL_PHOTO_STANDARD.image.objectFit === "cover" && PLACE_DETAIL_PHOTO_STANDARD.image.objectPosition === "center", "shared place-detail image fills its frame from the center");
 
 const REAL_REF = "places/ChIJ1234567890abcdef/photos/AX1234567890abcdef";
 const REAL_PROXY = "/api/photo?ref=" + encodeURIComponent(REAL_REF) + "&w=640";
@@ -151,7 +156,7 @@ ok(/isSharedPlaceArrival\s*\?\s*\{\s*\.\.\.sheetBg,\s*background:\s*["']#050608[
   "shared place arrivals hide unrelated homepage posters behind an opaque neutral backdrop");
 
 // Execute the actual hero JSX, including each layout branch, in the build guard.
-// This catches removal of the contain opt-in even if FallbackImg itself is correct.
+// This catches regressions back to a thumbnail or letterboxed image.
 const ast = ts.createSourceFile('Detail.jsx', detailSrc, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
 let heroNode;
 function findHero(node) {
@@ -163,28 +168,46 @@ ok(!!heroNode, 'runtime hero fixture locates the shipped JSX');
 const heroJs = ts.transpileModule('const render = () => (' + heroNode.getText(ast) + ');', { compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2020 } }).outputText;
 const createElement = (type, props, ...children) => ({ type, props: props || {}, children });
 const walk = node => !node || typeof node !== 'object' ? [] : Array.isArray(node) ? node.flatMap(walk) : [node, ...node.children.flatMap(walk)];
-for (const [label, expandedHero, showHero, liveId, photos] of [
+for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
   ['existing gallery', true, true, 'ChIJfixture', ['portrait.jpg', 'wide.jpg']],
-  ['late photo', false, true, 'ChIJfixture', ['portrait.jpg']],
-  ['late owned photo', false, true, null, ['owned.jpg']],
-  ['pending photo', false, false, 'ChIJfixture', []],
+  ['last gallery photo', true, true, 'ChIJfixture', ['portrait.jpg', 'wide.jpg'], 1],
+  ['late photo', true, true, 'ChIJfixture', ['portrait.jpg']],
+  ['late owned photo', true, true, null, ['owned.jpg']],
+  ['pending photo', true, false, 'ChIJfixture', []],
+  ['terminal no-photo', false, false, 'ChIJfixture', []],
   ['no photo lookup', false, false, null, []],
 ]) {
-  const ctx = { expandedHero, showHero, liveId, galleryPhotos: photos, heroSrc: photos[0], galleryIdx: 0,
-    detail: { name: 'Fixture place' }, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
-    onGalleryScroll() {}, scrollGallery() {}, galleryBtn: () => ({}), setLightbox() {},
+  let openedPhoto, galleryDirection;
+  const ctx = { expandedHero, showHero, liveId, galleryPhotos: photos, heroSrc: photos[0], galleryIdx,
+    detail: { name: 'Fixture place' }, PLACE_DETAIL_PHOTO_STANDARD, C: {}, FallbackImg: 'fixture-image', galleryRef: null,
+    onGalleryScroll() {}, scrollGallery(direction) { galleryDirection = direction; }, galleryBtn: () => ({}), setLightbox(src) { openedPhoto = src; },
     primaryCategory: () => 'Food', isLivePlaceId: id => !!id };
   const render = new Function('React', ...Object.keys(ctx), heroJs + ';return render;')({ createElement, Fragment: 'fragment' }, ...Object.values(ctx));
   const nodes = walk(render());
   const images = nodes.filter(n => n.type === 'fixture-image');
   ok(images.length === photos.length, label + ': every available gallery photo renders');
-  ok(images.every(n => n.props.fit === 'contain'), label + ': every detail image requests full-photo fit');
-  const preview = nodes.find(n => 'data-detail-photo-preview' in n.props);
-  ok(!!preview === !expandedHero, label + ': preview space reserved before async success');
-  if (preview) ok(preview.props.style.width === 112 && preview.props.style.height === 112, label + ': stable preview bounds');
+  ok(images.every(n => n.props.fit === 'cover'), label + ': every detail image fills the frame without letterboxing');
+  ok(images.every(n => n.props.style.width === '100%' && n.props.style.height === '100%'), label + ': image fills full frame');
+  for (const image of images) { image.props.onClick(); ok(openedPhoto === image.props.src, label + ': tapping keeps the original photo source for its full-size viewer'); }
+  const media = nodes.find(n => 'data-detail-photo-media' in n.props);
+  ok(!!media === expandedHero, label + ': full media exists only for a real photo or pending acquisition');
+  if (media) for (const [key, value] of Object.entries(PLACE_DETAIL_PHOTO_STANDARD.frame)) ok(media.props.style[key] === value, label + ': media uses shared ' + key);
+  ok(!nodes.some(n => 'data-detail-photo-preview' in n.props), label + ': no square thumbnail preview');
   const title = nodes.find(n => n.children.includes('Fixture place'));
   ok(!!title && !nodes.some(n => n.props.style?.position === 'absolute' && walk(n).includes(title)), label + ': title is not painted over photo');
+  if (media) ok(nodes.indexOf(media) < nodes.indexOf(title) && !walk(media).includes(title), label + ': full-width photo is above a separate headline');
+  ok(nodes.some(n => n.props['aria-label'] === 'Back'), label + ': Back control remains available');
+  if (label === 'pending photo') ok(nodes.some(n => 'data-detail-photo-pending' in n.props), 'pending photo reserves the full frame without a fallback image');
+  if (!expandedHero) ok(nodes.some(n => 'data-detail-photo-unavailable' in n.props), label + ': compact truthful no-photo text');
+  if (photos.length > 1) {
+    const direction = galleryIdx > 0 ? -1 : 1;
+    const arrow = nodes.find(n => n.props['aria-label'] === (direction === -1 ? 'Previous photo' : 'Next photo'));
+    ok(!!arrow, label + ': gallery keeps its photo navigation control');
+    arrow?.props.onClick(); ok(galleryDirection === direction, label + ': gallery control keeps its direction');
+    ok(nodes.some(n => n.props['aria-hidden'] === 'true' && n.children.includes(galleryIdx + 1) && n.children.includes(photos.length)), label + ': gallery keeps its current-photo counter');
+    ok(nodes.some(n => n.props.onScroll === ctx.onGalleryScroll && n.props.style.scrollSnapType === 'x mandatory'), 'gallery keeps native swipe and snap');
+  }
 }
 
 if (failures) process.exit(1);
-console.log("test-detail-hero: OK — real photos[] / Google photoRef → hero; missing, empty, branded-fallback, and stock → compact; Detail no longer paints a 250px branded pin; heal-on-open asks for photos and fails closed");
+console.log("test-detail-hero: OK — shared full-width cover frame above headline for initial/late photos; same frame while pending; genuine misses compact; gallery/viewer controls preserved; heal-on-open stays truthful");

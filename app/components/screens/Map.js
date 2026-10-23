@@ -9,6 +9,7 @@ import { byGovernedScore } from "../../../lib/lawfulOrder.js";
 import { eventMapPoint } from "../../../lib/eventLocation.js";
 import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
 import { accountListOnMap } from "../../../lib/mapListAccounting.js";
+import { mapListSource, enteredMapFromList, mapListIdsOf, listScopeTruth, selectListMapPlaces, readMapList } from "../../../lib/mapListScope.js";
 import { NO_PERMITTED_COORDINATE, creditsForPins } from "../../../lib/coordProvenance.js";
 import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT } from "../../../lib/mapSafeArea.js";
 import AppleExplorerMap from "../AppleExplorerMap";
@@ -57,8 +58,22 @@ export default function MapScreen({ ctx }) {
   // via ctx.searchMapArea — the same manual-recenter path area search uses.
   const [areaOffer, setAreaOffer] = useState(null);
   const { searchMapArea, mapMode, setMapMode, mapBrowse, setMapBrowse, mapPool, mapListOverride, map3D, setMap3D, mapRetryKey, setMapRetryKey, cat, setCat, sub, setSub, setVibe, sortBy, center, deviceLoc, mapFocus, setMapFocus, setMapSearchOpen, events, eventsLoading, eventsUnavailable, mapDate, setMapDate, mapPreview, setMapPreview, mapDrawer, setMapDrawer, eventPreview, setEventPreview, suggested, places, liked, disliked, view: contextualView, featuredBoost, MapView, CategoryMenu, FallbackImg, iconForPlace, liveOpen, logEvent, loadEvents, openDetail, openVenue, ticketUrl, Hol, recenterToMe, isBeach, beachSignals, PlaceCard, isSaved, toggleLike, toggleDislike, quickSaveFavorite, addShared, giveawayMark, blurbs, openExperience, openCuisine, cityNow, mapDefaultAppliedRef, categoryChosenRef } = ctx;
+  const { searchMode } = ctx;
   const [areaOnly, setAreaOnly] = useState(false);
-  const explicitList = !areaOnly && Array.isArray(mapListOverride) && mapListOverride.length > 0;
+  // LIST SCOPE (lib/mapListScope.js): opened from a list, search, category or
+  // rail, the map draws THAT result set with no hidden 9.2 floor. Decided once
+  // per mount, before the first-open default below can touch the category.
+  const [enteredFromList] = useState(() => enteredMapFromList({ chosen: !!(categoryChosenRef && categoryChosenRef.current), searchMode, override: mapListOverride }));
+  const listSource = mapMode === "places" ? mapListSource({ areaOnly, override: mapListOverride, enteredFromList, list: contextualView }) : null;
+  const explicitList = !!listSource;
+  // The area map reads too, for the list places it cannot draw, so their
+  // stored Apple Place IDs arrive FRESH (never only via the list's day-long
+  // edge cache, which may predate tonight's backfill).
+  const listIds = useMemo(() => mapListIdsOf(listSource || (mapMode === "places" ? (contextualView || []).filter((p) => p && p.mapCoord && p.mapCoord.ok === false) : [])), [listSource, mapMode, contextualView]);
+  const listKey = listIds.join(",");
+  const [listRead, setListRead] = useState({ key: "", status: "loading", places: [], appleIds: {} });
+  const [listRetry, setListRetry] = useState(0);
+  const stableList = useRef({ k: null, pins: [] });
   const rankingLabel = explicitList ? "Selected list · Wayfind Score" : "Wayfind Score 9.2+";
   const [allCategories, setAllCategories] = useState(false);
   const mapCategory = allCategories ? "all" : cat;
@@ -98,13 +113,31 @@ export default function MapScreen({ ctx }) {
     }, 250);
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
   }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, explicitList]);
+  useEffect(() => {
+    if (!center || !listKey) return undefined;
+    const controller = new AbortController();
+    setListRead({ key: listKey, status: "loading", places: [], appleIds: {} });
+    readMapList({ ids: listIds, origin: center, signal: controller.signal })
+      .then((r) => { if (!controller.signal.aborted) setListRead({ key: listKey, status: "ready", places: r.places, appleIds: r.appleIds }); })
+      .catch(() => { if (!controller.signal.aborted) setListRead({ key: listKey, status: "error", places: [], appleIds: {} }); });
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listKey, center?.lat, center?.lng, listRetry]);
+  const listStatus = listRead.key === listKey ? listRead.status : "loading";
+  const listPins = listRead.key === listKey ? listRead.places : [];
+  const listTruth = useMemo(() => (explicitList ? listScopeTruth(listSource, listPins, listStatus, listRead.key === listKey ? listRead.appleIds : null) : null), [explicitList, listSource, listPins, listStatus, listRead, listKey]);
+  const mapStatus = explicitList ? listStatus : areaStatus;
   const contextPool = useMemo(() => [...(contextualView || []), ...(mapPool || []), ...(suggested || []), ...(places || [])], [contextualView, mapPool, suggested, places]);
   const inventoryAreaPlaces = useMemo(() => mergeMapAreaContext(areaPlaces, contextPool), [areaPlaces, contextPool]);
-  const recoveryCandidates = useMemo(() => applyCuratorPicks(contextualView || [], curatorSnap), [contextualView, curatorSnap]);
-  const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: inventoryAreaPlaces,
-    bounds: viewport, origin: center, category: mapCategory, sub: allCategories ? "all" : sub,
-    mapkit: appleSDK?.mapkit,
-    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && !explicitList && mapMode === "places", ready: areaStatus === "ready" && settledArea === areaReadKey });
+  const listInventory = useMemo(() => (explicitList ? mergeMapAreaContext(listPins, contextPool) : []), [explicitList, listPins, contextPool]);
+  const recoveryCandidates = useMemo(() => applyCuratorPicks((explicitList ? listTruth : listScopeTruth(contextualView, [], "area", listRead.key === listKey ? listRead.appleIds : null)) || [], curatorSnap), [explicitList, listTruth, contextualView, listRead, listKey, curatorSnap]);
+  // Apple recovery runs in BOTH scopes; a list-scoped map tries every list
+  // place with no permitted coordinate regardless of score (minScore null),
+  // inside the same per-batch, per-mount and daily-ledger budgets.
+  const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: explicitList ? listInventory : inventoryAreaPlaces,
+    bounds: viewport, origin: center, category: explicitList ? "all" : mapCategory, sub: explicitList || allCategories ? "all" : sub,
+    mapkit: appleSDK?.mapkit, minScore: explicitList ? null : undefined,
+    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && mapMode === "places", ready: explicitList ? listStatus === "ready" : areaStatus === "ready" && settledArea === areaReadKey });
   const liveAreaPlaces = useMemo(() => {
     const owned = new Set(inventoryAreaPlaces.map((p) => p.id));
     return [...inventoryAreaPlaces, ...appleRecovery.places.filter((p) => !owned.has(p.id))];
@@ -116,20 +149,28 @@ export default function MapScreen({ ctx }) {
   // Owner picks are applied before qualification and sorting. The shared
   // category/subcategory promises still apply; an All button is map-local.
   const view = useMemo(() => {
-    if (explicitList) return applyCuratorPicks(mapListOverride, curatorSnap).filter((p) => p && p.id && Number.isFinite(p.lat) && Number.isFinite(p.lng)).slice().sort(byGovernedScore);
+    if (explicitList) {
+      const owned = new Set(listInventory.map((p) => p.id));
+      const pins = selectListMapPlaces(listIds, applyCuratorPicks([...listInventory, ...appleRecovery.places.filter((p) => !owned.has(p.id))], curatorSnap));
+      // Same pins, same array: the list's parent re-renders must not re-fit the
+      // map under the reader's finger (fit re-runs on every places change).
+      const k = pins.map((p) => `${p.id}|${p.lat}|${p.lng}|${p.governed_score}`).join(";");
+      if (stableList.current.k !== k) stableList.current = { k, pins };
+      return stableList.current.pins;
+    }
     const selected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
     return mapMode === "fifa" ? selected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selected;
-  }, [liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, mapListOverride]);
+  }, [liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places]);
   // LIST/MAP ACCOUNTING (2026-10-14, lib/mapListAccounting.js): every card on
   // the list gets exactly one map status. A place the map may not pin (no
   // coordinate inside its source's permitted window, lib/coordProvenance.js)
   // is counted and said on screen, never silently missing.
-  const listAccounting = useMemo(() => (mapMode === "places" && !explicitList
-    ? accountListOnMap({ listPlaces: contextualView || [], pins: view, areaPlaces: liveAreaPlaces, areaStatus })
-    : null), [mapMode, explicitList, contextualView, view, liveAreaPlaces, areaStatus]);
+  const listAccounting = useMemo(() => (mapMode === "places"
+    ? accountListOnMap({ listPlaces: (explicitList ? listTruth : contextualView) || [], pins: view, areaPlaces: explicitList ? listInventory : liveAreaPlaces, areaStatus: mapStatus, appleOutcomes: appleRecovery.stats && appleRecovery.stats.outcomes })
+    : null), [mapMode, explicitList, listTruth, listInventory, mapStatus, contextualView, view, liveAreaPlaces, appleRecovery.stats]);
   const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
   const unpinnedNote = unpinnedForCoord > 0
-    ? `${unpinnedForCoord} of ${listAccounting.total} list places still need a confirmed map location.${appleRecovery.status === "loading" ? " Checking top picks with Apple Maps…" : ""}`
+    ? `${unpinnedForCoord} of ${listAccounting.total} list places still need a confirmed map location${explicitList ? ", so they stay in the list without a pin" : ""}.${appleRecovery.status === "loading" ? " Checking them with Apple Maps…" : ""}`
     : null;
   // Licence credit for any independently sourced pin on screen (OpenStreetMap's
   // ODbL requires the credit wherever its coordinates are shown).
@@ -139,7 +180,7 @@ export default function MapScreen({ ctx }) {
     try {
       if (typeof window === "undefined") return;
       window.__wfMapList = listAccounting
-        ? { listIds: listAccounting.rows.map((r) => r.id), pinned: listAccounting.rows.filter((r) => r.status === "pinned").map((r) => r.id), unmapped: listAccounting.unmapped, counts: listAccounting.counts, note: unpinnedNote, at: Date.now() }
+        ? { scope: explicitList ? "list" : "area", listIds: listAccounting.rows.map((r) => r.id), pinned: listAccounting.rows.filter((r) => r.status === "pinned").map((r) => r.id), unmapped: listAccounting.unmapped, counts: listAccounting.counts, apple: listAccounting.apple, note: unpinnedNote, at: Date.now() }
         : null;
       window.__wfAppleRecovery = { status: appleRecovery.status, ...appleRecovery.stats, recoveredIds: appleRecovery.places.map((p) => p.id) };
     } catch (e) {}
@@ -297,18 +338,18 @@ export default function MapScreen({ ctx }) {
                   </button>
                   {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings styleMode="3d" fit={explicitList} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", actionPlace(p), { rank: 1 + view.findIndex((x) => x.id === p.id) }); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                     : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", actionPlace(p), { rank: 1 + view.findIndex((x) => x.id === p.id) }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
-                  {mapMode === "places" && !explicitList && !appleMapFailed && (areaStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
-                    {areaStatus === "loading" ? "Finding every 9.2+ place in this area…" : appleRecovery.status === "loading" ? "Checking nearby top picks with Apple Maps…" : areaStatus === "error" ? "This area could not finish loading." : "No 9.2+ places match these filters here. Move the map or choose All places."}
-                    {areaStatus === "error" && <button type="button" onClick={() => setAreaRetry((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>Retry area</button>}
+                  {mapMode === "places" && !appleMapFailed && (mapStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
+                    {mapStatus === "loading" ? (explicitList ? "Placing every place in this list on the map…" : "Finding every 9.2+ place in this area…") : appleRecovery.status === "loading" ? "Checking places with Apple Maps…" : mapStatus === "error" ? (explicitList ? "This list could not finish loading on the map." : "This area could not finish loading.") : explicitList ? "None of these places has a confirmed map location yet. They stay in your list." : "No 9.2+ places match these filters here. Move the map or choose All places."}
+                    {mapStatus === "error" && <button type="button" onClick={() => (explicitList ? setListRetry : setAreaRetry)((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>{explicitList ? "Retry" : "Retry area"}</button>}
                     {unpinnedNote && <div data-wf-map-unpinned={unpinnedForCoord} style={{ marginTop: 6, color: C.muted, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   </div>}
                   {/* ONE column above Apple's logo/Legal band, positioned from lib/mapSafeArea.js:
                       the licence credit (ODbL) stacks directly above the unpinned note, and
                       sits alone at the same baseline when there is no note. Both clear the
                       collapsed results sheet (zIndex 18) and MapKit's attribution. */}
-                  {(mapCredits.length > 0 || (mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea))) && <div className="wf-map-note" data-wf-map-notes style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom, zIndex: 17, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, pointerEvents: "none" }}>
+                  {(mapCredits.length > 0 || (mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea))) && <div className="wf-map-note" data-wf-map-notes style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom, zIndex: 17, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, pointerEvents: "none" }}>
                     {mapCredits.length > 0 && <div data-wf-map-credit={mapCredits.join(" | ")} style={{ fontSize: 10, lineHeight: 1.3, color: "rgba(255,255,255,.92)", background: "rgba(15,23,35,.78)", borderRadius: 6, padding: "2px 6px", maxWidth: "100%" }}>{mapCredits.join(" · ")}</div>}
-                    {mapMode === "places" && !explicitList && !appleMapFailed && unpinnedNote && areaStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ alignSelf: "stretch", background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
+                    {mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ alignSelf: "stretch", background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
                   </div>}
                   {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
                       Cup out of season this container rendered as an EMPTY dark box
@@ -479,7 +520,7 @@ export default function MapScreen({ ctx }) {
                       <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
                         <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "8px auto 6px" }} />
                         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", padding: "0 20px 11px" }}>
-                          <span style={{ fontSize: 13.5, lineHeight: "18px", fontWeight: 800, letterSpacing: ".01em", color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{view.length}</span> place{view.length === 1 ? "" : "s"} · {explicitList ? rankingLabel : areaStatus === "ready" ? rankingLabel : areaStatus === "error" ? "partial results" : "loading area"}</span>
+                          <span style={{ fontSize: 13.5, lineHeight: "18px", fontWeight: 800, letterSpacing: ".01em", color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{view.length}</span> place{view.length === 1 ? "" : "s"} · {mapStatus === "ready" ? rankingLabel : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
                           <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
                         </div>
                       </button>

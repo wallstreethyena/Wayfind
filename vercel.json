@@ -134,6 +134,10 @@
       "schedule": "40 9 * * *"
     },
     {
+      "path": "/api/cron/apple-place-match",
+      "schedule": "13 3-8 * * *"
+    },
+    {
       "path": "/api/cron/sighting-renewal",
       "schedule": "20 5 * * *"
     },

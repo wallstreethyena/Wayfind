@@ -12,6 +12,7 @@ const db=new PGlite();
 try {
   await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;create schema auth;create table auth.users(id uuid primary key);`);
   await db.exec(await readFile(new URL('../supabase/migrations/20261004232233_wf_group_planning.sql',import.meta.url),'utf8'));
+  await db.exec(await readFile(new URL('../supabase/migrations/20261020110650_wf_group_plan_optional_end.sql',import.meta.url),'utf8'));
   count++;
   const owner=randomUUID(),other=randomUUID(),now=Date.parse((await db.query('select clock_timestamp() as now')).rows[0].now);
   await db.query('insert into auth.users values($1),($2)',[owner,other]);
@@ -23,6 +24,28 @@ try {
   const create=async(state,key=randomUUID())=>invoke('wf_group_plan_create',[JSON.stringify(state),'a'.repeat(64),key,false]);
   const commit=async(state,next,operation)=>invoke('wf_group_plan_commit',[state.id,state.revision,JSON.stringify(next),operation]);
   const asRole=async(role,sql,params=[])=>{await db.exec(`begin;set local role ${role};`);try{const result=await db.query(sql,params);await db.exec('commit');return result;}catch(e){await db.exec('rollback');throw e;}};
+  const noEnd=make();noEnd.times[0].endsAt=null;
+  const startOnly=await create(noEnd);eq(startOnly.state.times[0].endsAt,null,'SQL preserves unknown duration');
+  const omitted=make();delete omitted.times[0].endsAt;
+  ok((await create(omitted)).state.times[0].endsAt===undefined,'SQL accepts omitted end for compatible callers');
+  const tooFar=make();tooFar.times[0]={...tooFar.times[0],startsAt:new Date(now+91*86400000).toISOString(),endsAt:null};
+  eq((await create(tooFar)).error,'invalid_plan','null end must not bypass the authoritative ninety-day start bound');
+  const omittedFar=make();omittedFar.times[0]={id:omittedFar.times[0].id,startsAt:new Date(now+91*86400000).toISOString()};
+  eq((await create(omittedFar)).error,'invalid_plan','omitted end cannot bypass the ninety-day start bound');
+  const missingStart=make();delete missingStart.times[0].startsAt;missingStart.times[0].endsAt=null;
+  eq((await create(missingStart)).error,'invalid_plan','unknown end cannot hide a missing start');
+  const boundary=make();boundary.times[0]={...boundary.times[0],startsAt:new Date(now+90*86400000).toISOString(),endsAt:null};
+  eq((await create(boundary)).state.times[0].endsAt,null,'exact ninety-day start-only edge accepted');
+  const badEnd=make();badEnd.times[0].endsAt=badEnd.times[0].startsAt;
+  eq((await create(badEnd)).error,'invalid_plan','explicit end must still follow start');
+  const longEnd=make();longEnd.times[0].endsAt=new Date(now+91*86400000).toISOString();
+  eq((await create(longEnd)).error,'invalid_plan','explicit end must still stay within ninety days');
+  const beforeDeadline=make();beforeDeadline.times[0]={...beforeDeadline.times[0],startsAt:beforeDeadline.deadline,endsAt:null};
+  eq((await create(beforeDeadline)).error,'invalid_plan','unknown duration cannot bypass the deadline-before-start rule');
+  const duplicate=make();duplicate.times=[{...duplicate.times[0],endsAt:null},{...duplicate.times[0],id:randomUUID(),endsAt:null}];
+  eq((await create(duplicate)).error,'invalid_plan','direct SQL cannot create duplicate start-only times');
+  const overlap=make();overlap.times.push({id:randomUUID(),startsAt:new Date(Date.parse(overlap.times[0].startsAt)+1800000).toISOString(),endsAt:null});
+  eq((await create(overlap)).error,'invalid_plan','arrival inside a known interval is a proven conflict');
   const state=make(),key=randomUUID();
   const created=await create(state,key);eq(created.id,state.id,'actual SQL creates the right plan');eq(created.revision,1);eq(created.state.invitees.length,2);
   const retry=await create(make(),key);eq(retry.id,state.id,'same owner create key returns same plan');
@@ -51,6 +74,11 @@ try {
   const finalized=applyGroupPlanCommand(close,{id:randomUUID(),type:'finalize',placeId:'place-one',timeId:close.times[0].id},{now:new Date(now).toISOString()});
   eq((await commit(close,finalized,'finalize')).status,'finalized');
   eq((await db.query('select count(*)::int as n from public.wf_group_plan_notices where plan_id=$1',[state.id])).rows[0].n,2);
+  let unknownState=noEnd;
+  for(const command of [{id:randomUUID(),type:'start'},...noEnd.invitees.map((slot)=>({id:randomUUID(),type:'respond',slotId:slot.id,placeId:'place-one',availableTimeIds:[noEnd.times[0].id]})),{id:randomUUID(),type:'finalize',placeId:'place-one',timeId:noEnd.times[0].id,acknowledgeVenueHours:true}]) {
+    const next=applyGroupPlanCommand(unknownState,command,{now:new Date(now).toISOString()});
+    const committed=await commit(unknownState,next,command.type);eq(committed.state.times[0].endsAt,null,'SQL lifecycle never invents an end');unknownState=next;
+  }
   const late=make();await create(late);const lateOpen=applyGroupPlanCommand(late,{id:randomUUID(),type:'start'},{now:new Date(now).toISOString()});await commit(late,lateOpen,'start');
   const expired=new Date(now-1000).toISOString();await db.query(`update public.wf_group_plans set deadline=$2::text::timestamptz,state=jsonb_set(state,'{deadline}',to_jsonb($2::text)) where id=$1`,[late.id,expired]);
   const reply=applyGroupPlanCommand(lateOpen,{id:randomUUID(),type:'respond',slotId:lateOpen.invitees[0].id,placeId:'place-one',availableTimeIds:[]},{now:new Date(now).toISOString()});

@@ -20,7 +20,9 @@ assert.equal(mapInventoryPlace(row(0, { signals: { rating: 5, reviews: 4 } }), n
 assert.equal(mapInventoryPlace(row(0, { refreshed_at: new Date(now - 31 * 86400000).toISOString() }), now), null);
 assert.equal(mapInventoryPlace(row(0, { refreshed_at: null }), now), null);
 assert.equal(mapInventoryPlace(row(0, { excluded: true }), now), null);
-assert.equal(mapInventoryPlace(row(0, { needs_review: true }), now), null);
+// needs_review flags a category for a human; the list serves those rows, so the
+// map must too (lib/servableRow.js, scripts/check-map-list-row-gate.mjs).
+assert.ok(mapInventoryPlace(row(0, { needs_review: true }), now), 'a needs_review row the list serves is a map candidate');
 assert.equal(mapInventoryPlace(row(0, { status: 'CLOSED_PERMANENTLY' }), now), null);
 // The distance term belongs to the governed number, measured from the actual
 // search origin; moving the camera alone must not invent a new scoring origin.
@@ -143,7 +145,7 @@ assert.equal(combined.creator_video, true);
 assert.equal(combined._members.ownerPick, true);
 assert.equal(combined.governed_score, 99, 'creator, curator and disclosed trend retain the governed ceiling');
 for (const [label, patch] of [
-  ['excluded', { excluded: true }], ['needs review', { needs_review: true }],
+  ['excluded', { excluded: true }],
   ['closed', { status: 'CLOSED_PERMANENTLY' }], ['temporary closure', { status: 'CLOSED_TEMPORARILY' }],
   ['expired', { refreshed_at: new Date(now - 31 * 86400000).toISOString() }],
   ['future refresh', { refreshed_at: new Date(now + 86400000).toISOString() }],
@@ -200,7 +202,9 @@ assert.match(screen, /selectMapPlaces\(applyCuratorPicks\(liveAreaPlaces, curato
 assert.match(screen, /view\.map\(\(p, i\)/);
 assert.match(screen, /readCompleteMapArea/);
 assert.match(screen, /controller\.abort\(\)/);
-assert.match(screen, /areaStatus === "error" \? "partial results"/);
+// List-scoped and area maps share one status label (lib/mapListScope.js).
+assert.match(screen, /mapStatus === "error" \? "partial results"/);
+assert.match(screen, /const mapStatus = explicitList \? listStatus : areaStatus;/);
 assert.doesNotMatch(screen, /slice\(0, (40|60)\)/);
 const root = fileURLToPath(new URL('../', import.meta.url));
 const route = await loadComponent(path.join(root, 'app/api/places/map/route.js'), root, { onGraph(graph) {

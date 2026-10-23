@@ -216,6 +216,114 @@ ok(/removeEventListener\("pagehide"/.test(code), "the pagehide listener is never
     "mutation control did not reject the original window.scrollTo logo defect");
 }
 
+
+// Execute the real shell history effects: closing a detail must preserve the
+// mounted map's taxonomy and center even when its saved entry is older.
+{
+  const ts = (await import('typescript')).default;
+  const assert = (await import('node:assert/strict')).default;
+  const source = raw;
+function historyCode(text) {
+  const tree = ts.createSourceFile('home.js', text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+  const found = { functions: [], screen: [], detail: [] };
+  function visit(node) {
+    if (ts.isFunctionDeclaration(node) && ['positionEntryKey', 'applyPosition'].includes(node.name?.text)) found.functions.push(node.getText(tree));
+    if (ts.isCallExpression(node) && node.expression.getText(tree) === 'useEffect') {
+      const body = node.arguments[0]?.getText(tree) || '';
+      if (body.includes('const scr = PATH_SCREEN[p]')) found.screen.push(node.getText(tree));
+      if (body.includes('window.history.pushState({ wf: "detail" }')) found.detail.push(node.getText(tree));
+    }
+    ts.forEachChild(node, visit);
+  }
+  visit(tree);
+  assert.equal(found.functions.length, 2, 'real shell restoration functions found');
+  assert.equal(found.screen.length, 1, 'real screen popstate effect found');
+  assert.equal(found.detail.length, 1, 'real detail history effect found');
+  return { functions: found.functions.join('\n'), screen: found.screen[0], detail: found.detail[0] };
+}
+
+function browser(code, live, standalone = false) {
+  const listeners = new Set(), queue = [], storage = new Map(), cleanup = [];
+  const state = { ...live }, changes = [];
+  const entries = [
+    { key: 'feed', path: '/', wf: 'screen' },
+    { key: 'map', path: standalone ? '/p/venue' : '/map', wf: 'screen' },
+  ];
+  let index = 1;
+  const window = {
+    location: { pathname: entries[index].path },
+    dispatchEvent() {},
+    addEventListener(type, fn) { if (type === 'popstate') listeners.add(fn); },
+    removeEventListener(type, fn) { if (type === 'popstate') listeners.delete(fn); },
+    history: {
+      get state() { const entry = entries[index]; return { wf: entry.wf, __wfPositionKey: entry.key }; },
+      replaceState(value) { entries[index] = { ...entries[index], key: value.__wfPositionKey }; },
+      pushState(value) { entries.splice(index + 1); entries.push({ key: 'detail', path: window.location.pathname, wf: value.wf }); index++; },
+      back() { if (index) { index--; window.location.pathname = entries[index].path; queue.push(() => { for (const fn of [...listeners]) fn(); }); } },
+    },
+  };
+  const stale = { screen: 'map', cat: 'attractions', sub: 'all', center: { lat: 27.947, lng: -82.459 }, locName: 'Tampa', ts: Date.now() };
+  const feed = { screen: 'suggested', cat: 'shopping', sub: 'all', center: { lat: 28.54, lng: -81.38 }, locName: 'Orlando', ts: Date.now() };
+  storage.set('wf_pos_entry_map', JSON.stringify(stale));
+  storage.set('wf_pos_entry_feed', JSON.stringify(feed));
+  const context = {
+    window, sessionStorage: { getItem: (key) => storage.get(key) || null, setItem: (key, value) => storage.set(key, value), removeItem: (key) => storage.delete(key) },
+    CustomEvent: class { constructor(type, options) { this.type = type; this.detail = options?.detail; } },
+    useEffect(fn) { cleanup.push(fn()); },
+    activeEntryKey: { current: 'map' }, positionWriter: { current: () => {} },
+    detailReturnEntryRef: { current: null }, detail: { id: 'venue' },
+    placeRouteReturnRef: { current: standalone }, placeActionHomeRef: { current: false },
+    posRestore: { current: null }, browseReturn: { current: null }, manualRef: { current: false },
+    prevScreenRef: { current: 'map' }, PATH_SCREEN: { '/map': 'map', '/events': 'events' }, SCREEN_PATH: { map: '/map', events: '/events' },
+  };
+  for (const field of ['Screen', 'Cat', 'BrowseCat', 'Sub', 'Vibe', 'Center', 'LocName', 'LocResolved', 'Places', 'Query', 'Intent', 'SortBy', 'SearchRadius', 'QuickFilter', 'SearchMode', 'SearchLabel', 'VisibleCount', 'ActiveBadge', 'MoodPick', 'EventCat', 'EventDate', 'RestoreVersion', 'Detail']) {
+    const key = field[0].toLowerCase() + field.slice(1);
+    context['set' + field] = (value) => { changes.push(key); state[key] = typeof value === 'function' ? value(state[key]) : value; };
+  }
+  vm.createContext(context);
+  vm.runInContext(code.functions + '\n' + code.screen + ';\n' + code.detail, context);
+  function back() { window.history.back(); while (queue.length) queue.shift()(); }
+  return { state, changes, context, back, closeEffect: () => cleanup[1](), dispose: () => { for (const release of cleanup) release?.(); }, feed };
+}
+
+function assertReturn(code, live, clickedBack = false) {
+  const app = browser(code, live);
+  if (clickedBack) app.context.activeEntryKey.current = 'detail'; // capture-phase button click wrote the overlay entry
+  app.back();
+  assert.equal(app.state.detail, null, 'Back closes the detail overlay');
+  for (const key of ['screen', 'cat', 'sub', 'center', 'locName']) assert.deepEqual(app.state[key], live[key], 'detail Back preserves live ' + key);
+  assert.equal(app.changes.includes('restoreVersion'), false, 'detail Back never applies the stale destination snapshot');
+  assert.equal(app.context.activeEntryKey.current, 'map', 'subsequent screen traversal records the revealed map entry');
+  app.closeEffect();
+  assert.equal(app.context.detailReturnEntryRef.current, null, 'closing the sheet releases its parent-entry guard');
+  app.back();
+  for (const key of ['screen', 'cat', 'sub', 'locName']) assert.equal(app.state[key], app.feed[key], 'next screen Back restores saved ' + key);
+  assert.deepEqual(JSON.parse(JSON.stringify(app.state.center)), app.feed.center, 'next screen Back restores the saved city center');
+  app.dispose();
+}
+
+const code = historyCode(source);
+const parrish = { screen: 'map', cat: 'food', sub: 'cafe', center: { lat: 27.587, lng: -82.425 }, locName: 'Parrish' };
+assertReturn(code, parrish, true);
+assertReturn(code, { screen: 'map', cat: 'nightlife', sub: 'speakeasy', center: { lat: 27.95, lng: -82.46 }, locName: 'Tampa' });
+{
+  const app = browser(code, parrish, true);
+  app.back();
+  assert.equal(app.state.detail, null, 'standalone place Back closes the sheet');
+  assert.equal(app.state.screen, app.feed.screen, 'standalone place return still takes its second Back to the prior surface');
+  assert.equal(app.state.locName, 'Orlando', 'standalone return restores the actual prior location');
+  app.dispose();
+}
+// Both the sheet Back button and native browser/Safari Back call history.back.
+// Remove the repair from the actual handler: the stale Activities/All entry
+// must reproduce the original loss, so a passing test cannot hide the bug.
+const guard = 'if (detailReturnEntryRef.current && window.history.state?.__wfPositionKey === detailReturnEntryRef.current) {\n          activeEntryKey.current = detailReturnEntryRef.current;\n          return;\n        }';
+assert.equal(source.split(guard).length, 2, 'one narrowly scoped parent-entry guard');
+assert.throws(() => assertReturn(historyCode(source.replace(guard, '')), parrish), /detail Back preserves live cat/);
+console.log('Real shell history: map filters/location preserved on detail Back; screen and standalone returns restored; original-bug mutation rejected.');
+
+}
+
 if (fails.length) {
   console.error(`check-position-memory: FAIL — ${fails.length}/${n}`);
   for (const f of fails) console.error("  · " + f);

@@ -42,7 +42,7 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
   const sectionImages = sections.map((section) => guideContextPhoto(slug, { name: section.title }, sectionContext, { topic: sectionTopics[section.id], usedSrc }));
   const featureImage = feature ? guideContextPhoto(slug, { name: feature.heading }, hub, { topic: "fireworks", usedSrc }) : null;
   const shareUrl = SITE_URL + "/" + slug;
-  const links = [...new Map(sections.flatMap((section) => section.links).map((link) => [link.href, link])).values()];
+  const links = [...new Map(sections.flatMap((section) => section.links).filter((link) => !link.sponsored).map((link) => [link.href, link])).values()];
   const schema = {
     "@context": "https://schema.org", "@graph": [
       { "@type": "CollectionPage", "@id": shareUrl, url: shareUrl, name: hub.title, description: hub.description,
@@ -76,13 +76,13 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
         <div className={styles.sectionHead}><h2>{section.title}</h2></div>
         <GuideFigure role="pick" image={sectionImages[index]} />
         <p style={{ fontSize: 17, lineHeight: 1.75 }}>{section.text}</p>
-        {section.links.length ? <ul>{section.links.map((link) => <li key={link.href}><a href={link.href} style={{ color: hub.accent, display: "inline-flex", alignItems: "center", minHeight: 44 }}>{link.label}</a></li>)}</ul>
+        {section.links.length ? <ul>{section.links.map((link) => <li key={link.href}><a href={link.href} rel={link.sponsored ? "sponsored noopener" : undefined} data-commerce-surface={link.sponsored ? "seasonal_hub" : undefined} style={{ color: hub.accent, display: "inline-flex", alignItems: "center", minHeight: 44 }}>{link.label}</a></li>)}</ul>
           : <p>Check <a href="/florida-events" style={{ color: hub.accent }}>upcoming Florida events</a> for current announcements. Previous editions are in <a href="/guides/past" style={{ color: hub.accent }}>past guides</a>.</p>}
       </section>)}
       <section className={styles.section} aria-labelledby="before-you-go">
         <div className={styles.sectionHead}><h2 id="before-you-go">Before you go</h2></div>
         <ul>{hub.checklist.map((item) => <li key={item} style={{ marginBottom: 12 }}>{item}</li>)}</ul>
-        <p>Use each guide's organizer links to confirm dates, availability and admission details. Wayfind is an independent guide. Some links in our guides are affiliate links.</p>
+        <p>Use each guide's organizer links to confirm dates, availability and admission details. Wayfind is an independent guide. Some links on this page and in our guides are affiliate links: we may earn a commission when you buy through them. It never changes our rankings.</p>
       </section>
     </article>
   </div>;

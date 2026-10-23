@@ -9,6 +9,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { scrubGroupPlanTelemetry, isGroupPlanPath } from "../lib/groupPlanPrivacy.js";
+import { parseZonedDateTime } from "../lib/groupPlanTime.js";
 import { baseSentryOptions } from "../lib/sentryShared.js";
 import { createGroupPlan, applyGroupPlanCommand, organizerPlanView, participantPlanView, settleGroupPlan } from "../lib/groupPlan.js";
 
@@ -123,14 +124,55 @@ try {
    const css=UI.GROUP_PLAN_CSS;matches(css,/@media\(max-width:560px\)/);matches(css,/\.gp-time\{grid-template-columns:1fr\}/);matches(css,/min-height:46px/);matches(css,/minmax\(min\(100%,280px\),1fr\)/);absent(css,/\.wf-place-card[^}]*\{[^}]*\b(?:height|width|max-width|font-size)\s*:/);
    const frame=markup(UI.GroupFrame,{children:"Fixture"});matches(frame,/--wf-place-card/);matches(frame,/My group votes/);matches(frame,/alt="Wayfind"/);absent(frame,/>wayfind</);
  });
- await test("create form value, caps, explicit zone and unavailable email",()=>{
-   const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent yet/);matches(html,/voting deadline, not the outing date/);matches(html,/Repeated clock times/);matches(html,/type="checkbox" disabled=""/);matches(html,/Email updates are not available/);
+ await test("create form essentials, caps, quiet local zone and no unavailable email",()=>{
+   const html=markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}});matches(html,/Invite up to 10 people/);matches(html,/Pick up to 3 times/);matches(html,/Nothing is sent yet/);matches(html,/Times shown in your local time/);matches(html,/Add end time/);matches(html,/Reply deadline &amp; updates/);absent(html,/Timezone<select|Repeated clock times|Email updates are not available|type="checkbox"/);eq((html.match(/type="datetime-local"/g)||[]).length,2,"only start and optional details deadline, no end field");
    const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}},{effects:false});h.render();for(let i=1;i<10;i++){button(h.tree,"Add a friend").props.onClick();h.render();}eq(button(h.tree,"Add a friend"),undefined);eq(nodes(h.tree).filter(n=>n.type==="input"&&n.props.autoComplete==="off").length,10);h.dispose();
  });
  await test("create submission is UTC, stable retry identity and doubletap gated",async()=>{
    const pending=deferred(),calls=[],created=[];const props={placeId:"place-1",session:{access_token:"fixture-session-token"},onCreated:p=>created.push(p),request:(...args)=>{calls.push(args);return pending.promise;}};
-   const h=hooks(UI.GroupCreateForm,props,{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-05T18:00",[{start:"2026-10-10T18:00",end:"2026-10-10T20:00"}],"reject",false,false,""]});const tree=h.render();const event={preventDefault(){}};const first=tree.props.onSubmit(event),second=tree.props.onSubmit(event);
+   const h=hooks(UI.GroupCreateForm,props,{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-05T18:00",[{start:"2026-10-10T18:00",end:"2026-10-10T20:00"}],{},false,false,""]});const tree=h.render();const event={preventDefault(){}};const first=tree.props.onSubmit(event),second=tree.props.onSubmit(event);
    const seen=calls.length;pending.resolve({plan:{id:"created-plan"}});await Promise.all([first,second]);eq(seen,1,"two submissions in one event turn must issue one request");eq(created.length,1,"one creation acknowledgement navigates once");eq(calls[0][1].timeZone,"America/New_York");eq(calls[0][1].times[0],{startsAt:"2026-10-10T22:00:00.000Z",endsAt:"2026-10-11T00:00:00.000Z"});yes(calls[0][1].createKey);h.dispose();
+ });
+ await test("optional end is revealed, removable, and never invented in submission",async()=>{
+   const calls=[];const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{id:"created"}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-10-28T18:00",end:null}],{},false,false,""]});
+   h.render();eq(nodes(h.tree).filter(n=>n.type==="input"&&n.props.type==="datetime-local").length,2);
+   button(h.tree,"Add end time").props.onClick();h.render();eq(nodes(h.tree).filter(n=>n.type==="input"&&n.props.type==="datetime-local").length,3);
+   button(h.tree,"Remove end time").props.onClick();h.render();await h.tree.props.onSubmit({preventDefault(){}});eq(calls[0].times[0],{startsAt:"2026-10-28T22:00:00.000Z",endsAt:null});h.dispose();
+ });
+ await test("suggested deadline moves before earliest outing while explicit edits survive",()=>{
+   const now=Date.parse("2026-10-20T12:00:00Z"),zone="America/New_York";
+   for(const start of ["2026-10-20T10:00","2026-10-22T18:00","2026-12-15T18:00"]){const suggested=UI.suggestedGroupDeadline([{start,end:null}],zone,now);yes(suggested);const at=Date.parse(parseZonedDateTime(suggested,zone));yes(Number.isFinite(at));yes(at<Date.parse(parseZonedDateTime(start,zone)),"suggested deadline precedes outing instant");yes(at>now&&at<=now+14*86400000,"suggestion is future and within allowed 14 days");}
+   const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}},{effects:false,seeds:["Host",["Alice"],zone,"2026-10-25T18:00",[{start:"2026-10-28T18:00",end:null}],{},false,false,""]});h.render();const getField=label=>nodes(nodes(h.tree).find(n=>n.type==="label"&&text(n).startsWith(label))).find(n=>n.type==="input");
+   getField("Day & start time").props.onChange({target:{value:"2026-10-24T18:00"}});h.render();eq(getField("Reply by").props.value,"2026-10-25T18:00","an explicit invalidated deadline is preserved for correction, never silently moved");h.dispose();
+ });
+ await test("clearing an edited deadline remains explicit and reveals an actionable error",async()=>{
+   const calls=[];const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async()=>calls.push("request")},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-10-28T18:00",end:null}],{},false,false,""]});h.render();
+   const reply=()=>nodes(nodes(h.tree).find(n=>n.type==="label"&&text(n).startsWith("Reply by"))).find(n=>n.type==="input");reply().props.onChange({target:{value:""}});h.render();eq(reply().props.value,"");await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);eq(nodes(h.tree).find(n=>n.type==="details").props.open,true,"invalid deadline disclosure opens without hidden required-control browser errors");button(h.tree,"Use suggested deadline").props.onClick();h.render();yes(reply().props.value);h.dispose();
+ });
+ await test("email consent requires verified ready account and names exact destination",async()=>{
+   const session={user:{email:"organizer@example.test"}},base={placeId:"place-1",session,onCreated(){},emailAvailable:true,hasVerifiedEmail:true};
+   const html=markup(UI.GroupCreateForm,base);matches(html,/Sent to organizer@example\.test/);matches(html,/Email me when voting closes/);
+   matches(markup(UI.GroupCreateForm,{...base,emailAvailable:false}),/Email updates aren’t available right now/);matches(markup(UI.GroupCreateForm,{...base,hasVerifiedEmail:false}),/Verify your account email/);
+   for(const extra of [{emailAvailable:false},{hasVerifiedEmail:false},{session:{user:{}}}]){const hidden=markup(UI.GroupCreateForm,{...base,...extra});absent(hidden,/Email me when voting closes|type="checkbox"/);matches(hidden,/Review my plan/);}
+   const calls=[];const h=hooks(UI.GroupCreateForm,{...base,request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-10-28T18:00",end:null}],{},true,false,""]});h.render({...base,emailAvailable:false,request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}});await h.tree.props.onSubmit({preventDefault(){}});eq(calls[0].emailConsent,false,"lost email availability cannot submit stale consent");h.dispose();
+ });
+ await test("ambiguous time recovery is local to the failing field",async()=>{
+   const calls=[];const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-11-01T01:30",end:"2026-11-01T01:45"}],{},false,false,""]});h.render();
+   eq(nodes(h.tree).filter(n=>n.type==="select").length,0);await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);let select=nodes(h.tree).find(n=>n.type==="select");yes(select);matches(text(h.tree),/Option 1 start\s+happens twice/);select.props.onChange({target:{value:"earlier"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);matches(text(h.tree),/Option 1 end\s+happens twice/);select=nodes(h.tree).find(n=>n.type==="select");select.props.onChange({target:{value:"later"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});eq(calls[0].times[0],{startsAt:"2026-11-01T05:30:00.000Z",endsAt:"2026-11-01T06:45:00.000Z"});h.dispose();
+ });
+ await test("resolved start fold generates an automatic deadline and submits without manual editing",async()=>{
+   const priorNow=Date.now,now=Date.parse("2026-10-20T12:00:00Z");Date.now=()=>now;
+   const calls=[],h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","",[{start:"2026-11-01T01:30",end:null}],{},false,false,""]});
+   try{
+     h.render();await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);const select=nodes(h.tree).find(n=>n.type==="select");yes(select);select.props.onChange({target:{value:"later"}});h.render();
+     const reply=nodes(nodes(h.tree).find(n=>n.type==="label"&&text(n).startsWith("Reply by"))).find(n=>n.type==="input");yes(reply.props.value,"resolved start fold supplies a deadline automatically");
+     await h.tree.props.onSubmit({preventDefault(){}});eq(calls.length,1);eq(calls[0].times[0],{startsAt:"2026-11-01T06:30:00.000Z",endsAt:null});yes(Date.parse(calls[0].deadline)>now);yes(Date.parse(calls[0].deadline)<Date.parse(calls[0].times[0].startsAt));
+   }finally{Date.now=priorNow;h.dispose();}
+ });
+ await test("editing unrelated time fields preserves resolved folds and an explicit deadline",async()=>{
+   const calls=[],h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async(_path,payload)=>{calls.push(payload);return{plan:{}};}},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-11-01T01:30",end:null},{start:"2026-11-02T18:00",end:null}],{"start-0":"later"},false,false,""]});h.render();
+   button(h.tree,"Add end time").props.onClick();h.render();button(h.tree,"Remove end time").props.onClick();h.render();
+   const startLabels=nodes(h.tree).filter(n=>n.type==="label"&&text(n).startsWith("Day & start time"));nodes(startLabels[1]).find(n=>n.type==="input").props.onChange({target:{value:"2026-11-03T18:00"}});h.render();await h.tree.props.onSubmit({preventDefault(){}});eq(calls.length,1);eq(calls[0].times[0].startsAt,"2026-11-01T06:30:00.000Z");eq(calls[0].deadline,"2026-10-25T22:00:00.000Z");h.dispose();
  });
  await test("draft opening, composer and delivery are distinct",()=>{
    const calls=[];const h=hooks(UI.GroupOrganizer,{plan:view(draft),onCommand:c=>calls.push(c),busy:false});h.render();button(h.tree,"Start invitations").props.onClick();eq(calls,[{type:"start"}]);const html=markup(UI.GroupOrganizer,{plan:view(draft),onCommand(){},busy:false});matches(html,/does not send messages/);matches(html,/don’t mark a link delivered/);absent(html,/Link delivered|Sent successfully|Delivered successfully/);absent(html,/fixture-invite-secret/);h.dispose();
@@ -138,7 +180,7 @@ try {
  await test("latest closed revision refreshes organizer winner and time",()=>{
    const h=hooks(UI.GroupOrganizer,{plan:view(open),onCommand(){},busy:false});h.render();const tree=h.render({plan:view(unanimous),onCommand(){},busy:false});const selects=nodes(tree).filter(n=>n.type==="select");eq(selects.map(n=>n.props.value),["place-2","time-2"],"new closed state must use current winner/common-time defaults");eq(button(tree,"Confirm the plan").props.disabled,false);
    const chtml=markup(UI.GroupOrganizer,{plan:view(partial),onCommand(){},busy:false});matches(chtml,/· \d+ of 2 friends can make it/,"time option reads n of m friends can make it");absent(chtml,/invitee/i,"no invitee wording in organizer copy");matches(chtml,/No reply yet/);
-   matches(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/Skip the group text chaos/);absent(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/back-and-forth/);h.dispose();
+   matches(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/When could you go/);absent(markup(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){}}),/back-and-forth/);h.dispose();
  });
  await test("latest saved ballot refreshes response state",()=>{
    const props={plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false};const h=hooks(UI.GroupBallot,props);h.render();const tree=h.render({...props,plan:participantPlanView(first,"guest-1",{now:NOW})});const options=nodes(tree).find(n=>n.type===UI.GroupPlaceOptions);eq(options.props.selected,"place-2");const boxes=nodes(tree).filter(n=>n.type==="input"&&n.props.type==="checkbox");eq(boxes.map(n=>n.props.checked),[false,true]);h.dispose();
@@ -165,6 +207,12 @@ try {
  await test("participant cannot see another invitee or organizer capabilities",()=>{
    const html=markup(UI.GroupBallot,{plan:participantPlanView(first,"guest-1",{now:NOW}),onCommand(){},busy:false});matches(html,/Alice Private/);absent(html,/Bob Private|fixture-invite-secret|Confirm the plan|Cancel plan|Share invite/);matches(html,/No text message is sent/);matches(html,/Tap every day that works/);matches(html,/I can’t make it/);matches(html,/Update my vote/);absent(html,/I can’t join|Leave them all unchecked|Send my reply|Update my reply/);
    {const calls=[];const h=hooks(UI.GroupBallot,{plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand:c=>calls.push(c),busy:false});h.render();matches(markup(UI.GroupBallot,{plan:participantPlanView(open,"guest-1",{now:NOW}),onCommand(){},busy:false}),/Send my vote/);button(h.tree,"Send my vote").props.onClick();const blocked=h.render();eq(calls.length,0,"no day selected must not issue a command");eq(text(nodes(blocked).find(n=>n.props?.role==="alert")),"Tap at least one day in step 2 first");checkbox(blocked,"").props.onChange({target:{checked:true}});const cleared=h.render();eq(nodes(cleared).filter(n=>n.props?.role==="alert").length,0,"changing a day clears the validation error");button(cleared,"Send my vote").props.onClick();eq(calls.length,1);eq(calls[0].declined,false);yes(calls[0].availableTimeIds.length>0);button(cleared,"I can’t make it").props.onClick();eq(calls[1].declined,true);h.dispose();}
+ });
+ await test("verified-email capability cannot leak across organizer account changes",()=>{
+   const session={user:{id:"owner-B",email:"owner-b@example.test"},access_token:"fixture-session"};
+   for(const [identity,expected] of [["owner:owner-A",undefined],["owner:owner-B",true]]){
+     const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[session,null,null,"",false,{}, {identity,emailAvailable:true,hasVerifiedEmail:true}]});h.render();const form=nodes(h.tree).find(n=>n.type===UI.GroupCreateForm);yes(form);eq(form.props.hasVerifiedEmail,expected,"only the current identity's server capability reaches its form");h.dispose();
+   }
  });
  await test("signed-out resume keeps return path and signs in in the same tab",()=>{
    const h=hooks(UI.default,{enabled:true,mode:"new",placeId:"place-1"},{effects:false,seeds:[null,null,null,"",false,{},{}]});const tree=h.render();const sign=nodes(tree).find(n=>n.type==="a"&&text(n)==="Sign in to Wayfind");yes(sign);eq(sign.props.target,undefined);eq(sign.props.href,"/favorites?return="+encodeURIComponent("/group-plans/new?place=place-1"));matches(text(tree),/right back to this page/);h.dispose();
@@ -246,6 +294,18 @@ try {
    const gp={...plan.places[0],id:GID,photo:null,photoAttr:null,photoAttrHref:null};const ghtml=markup(UI.GroupPlaceOptions,{plan:{...plan,places:[gp,plan.places[1]]},readOnly:true});absent(ghtml,/nospend=1/,"no nospend=1 in Group Vote card markup");
    const card=nodes(tree).find(n=>n.props?.surface==="group_plan");eq(card.props.photoAttr,"Fixture photographer");eq(card.props.photoAttrHref,"https://example.test/source");
    const html=markup(UI.GroupPlaceOptions,{plan,readOnly:true});matches(html,/Fixture photographer/);matches(html,/https:\/\/example.test\/source/);
+ });
+ await test("venue conflicts and partially unverified hours stay visible outside research",()=>{
+   const base=view(open),place={...base.places[0],editorial:{status:"verified",text:"Fixture editorial research",sources:["https://example.test/research"]}},one={...base,places:[place]};
+   const outsideDetails=(html)=>html.replace(/<details\b[\s\S]*?<\/details>/g,"");
+   for(const readOnly of [true,false]){
+     const options={readOnly,selected:place.id,onSelect(){}};
+     const closed={...one,places:[{...place,closedTimeIds:["time-1"],openTimeIds:["time-2"],unverifiedTimeIds:[],hoursStatus:"verified"}]};
+     const html=markup(UI.GroupPlaceOptions,{plan:closed,...options});matches(html,/Fixture editorial research/);matches(html,/example\.test\/research/);const visible=outsideDetails(html);matches(visible,/Known hours conflict with at least one proposed time/);matches(visible,/data-hours-warning="closed"/);absent(visible,/example\.test\/research/,"source evidence is genuinely removed with its disclosure; the canonical card retains its editorial slot");
+     const mixed={...one,places:[{...place,closedTimeIds:[],openTimeIds:["time-1"],unverifiedTimeIds:["time-2"],hoursStatus:"partially_verified"}]};
+     const partialHtml=markup(UI.GroupPlaceOptions,{plan:mixed,...options});matches(outsideDetails(partialHtml),/Hours aren’t verified for every option/);absent(partialHtml,/Regular hours fit the checked times/,"one verified interval cannot imply a start-only option is verified");
+     const healthy=markup(UI.GroupPlaceOptions,{plan:one,...options});matches(outsideDetails(healthy),/Regular hours fit the checked times/);absent(healthy,/data-hours-warning=/,"fully verified positive control has no false warning");
+   }
  });
  await test("comparison fallback keeps sourced facts and separates unverified specialties",()=>{
    const plan=unknownHours(view(open));plan.places[1].comparisonReasons=["Higher current Wayfind Score: 8.8 vs 8.2","Same activity category","0.7 miles from your original idea"];

@@ -164,7 +164,7 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
 {
   const withheld = Object.entries(ev.EVERGREEN_WITHHELD).flatMap(([s, cs]) => cs.map((c) => `/${c}/${s}`));
   const published = Object.keys(landing.LANDING_CATS).flatMap((c) => ev.evergreenSlugsFor(c).map((s) => `/${c}/${s}`));
-  ok(withheld.includes("/things-to-do/st-augustine") && published.length === 14, `fixture sanity: 14 published, withheld includes things-to-do/st-augustine (${withheld.length})`);
+  ok(withheld.includes("/things-to-do/st-augustine") && published.length === 16 && published.includes("/things-to-do/clearwater") && published.includes("/things-to-do/crystal-river"), `fixture sanity: 16 published, including Clearwater and Crystal River things-to-do, withheld includes things-to-do/st-augustine (${withheld.length})`);
   const pages = [...published.map((p) => p.slice(1).split("/")), ["restaurants", "sarasota"], ["things-to-do", "orlando"], ["nightlife", "tampa"], ["beaches", "sarasota"]];
   for (const [c, s] of pages) {
     const city = landing.landingPair(c, s).city;
@@ -202,4 +202,4 @@ const cardsIn = (html) => (html.match(/class="wf-place-card-rank"/g) || []).leng
 
 ok(google === 0, `no Google request anywhere in this test (${google})`);
 if (failures) { console.error(`test-evergreen-eligibility: FAIL (${failures}/${asserts})`); process.exit(1); }
-console.log(`test-evergreen-eligibility: OK (${asserts} assertions — 7/8/9, duplicates, 16.9/17.0/17.1 mi, no-geo, wrong category, 404 vs throw, copy on 5 surfaces, links on ${14 + 4} pages, no-photo tile)`);
+console.log(`test-evergreen-eligibility: OK (${asserts} assertions — 7/8/9, duplicates, 16.9/17.0/17.1 mi, no-geo, wrong category, 404 vs throw, copy on 5 surfaces, links on ${16 + 4} pages, no-photo tile)`);

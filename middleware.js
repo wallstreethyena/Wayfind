@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { guardPaidRoute, isOperatorDiagnostic } from "./lib/apiGuard";
+import { guardPaidRoute, isOperatorDiagnostic, APPLE_BUDGET_RL } from "./lib/apiGuard";
 
 // Cost-leak fix (the $735 Google Places incident): these routes are public,
 // unauthenticated proxies to METERED third-party APIs — Google Places
@@ -29,11 +29,24 @@ export const config = {
   matcher: [
     // Free owned-library search: protect database reads from cross-site scraping.
     "/api/search",
+    // Event page re-anchor (2026-10-22): the nearby picks and stays around the
+    // point Apple verified for a provider venue. A free owned-inventory read from
+    // a same-origin XHR (app/components/EventNearbyReanchor.js), no metered
+    // upstream; same-origin + per-IP rate limit, exactly like /api/search.
+    "/api/events/venue-nearby",
     // In-app feedback and recommendations write to the existing review inbox.
     "/api/feedback",
     // Private group ballots use their own capability/owner authorization too.
     "/api/group-plans/:path*",
     "/api/places/search",
+    // Free Apple Maps pins: same-origin POST that reserves units against the
+    // one daily Apple service-call ceiling (lib/applePlaceIds.js). Not a cost
+    // gate (Apple's allowance is free); an abuse gate so a script cannot burn
+    // the day's allowance and blank everyone's pins.
+    "/api/maps/apple-budget",
+    // List-to-map: a same-origin POST fanning a list's ids out into owned
+    // inventory + stored Apple Place ID reads. DB-only; an anti-scraping gate.
+    "/api/places/map/list",
     // Search box autocomplete + suggestion-detail proxies (2026-07-25 audit):
     // these used to be direct client->Google calls via the Maps JS library —
     // the one metered Places surface that bypassed this guard entirely. See
@@ -189,5 +202,7 @@ export function middleware(req) {
   // measured 403-before-401 failure this repairs.
   const rateLimitOnly = NAV_302_ROUTES.has(path) || IMAGE_ROUTES.has(path)
     || isOperatorDiagnostic(path, req.nextUrl && req.nextUrl.searchParams);
-  return guardPaidRoute(req, { rateLimitOnly }) || NextResponse.next();
+  // Apple pin budget: its own 10/min per-IP window (lib/apiGuard.APPLE_BUDGET_RL).
+  const routeLimit = path === "/api/maps/apple-budget" ? APPLE_BUDGET_RL : undefined;
+  return guardPaidRoute(req, { rateLimitOnly, routeLimit }) || NextResponse.next();
 }

@@ -24,6 +24,7 @@ import { NextResponse } from "next/server";
 import { gateShut, spendAllow, spendAllowDetailsAtmosphere } from "../../../../lib/spendGate";
 import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
+import { getCachedPlaceIdentity } from "../../../../lib/cachedPlaceIdentity.js";
 
 export const dynamic = "force-dynamic";
 
@@ -70,6 +71,12 @@ export async function POST(req) {
   if (kind === "place") {
     const owned = await inventoryPlace(placeId);
     if (owned) return NextResponse.json({ place: owned, source: "inventory" });
+    // Reuse only a recorded, still-fresh identity. This cache-only read cannot
+    // buy enrichment, renew the record, or return a legacy photo resource.
+    try {
+      const cached = await getCachedPlaceIdentity(placeId);
+      if (cached) return NextResponse.json({ place: cached, source: "cached" });
+    } catch { /* a cache outage keeps the original guarded live path */ }
   }
   if (!serverKey) {
     const fallback = await inventoryPlace(placeId);

@@ -21,7 +21,7 @@ import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../l
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
 import { eventProviderCap, eventProviderSpendAllow } from "../../../lib/eventProviderSpend.js";
-import { applyFreshTicketmasterStarts, applyStoredStartCorrections, needsTicketmasterStartRefresh, ticketmasterStartFields, TICKETMASTER_START_REFRESH_TTL_MS } from "../../../lib/eventStartRefresh.js";
+import { applyStoredStartCorrection, applyFreshTicketmasterStarts, applyStoredStartCorrections, needsTicketmasterStartRefresh, ticketmasterStartFields, TICKETMASTER_START_REFRESH_TTL_MS } from "../../../lib/eventStartRefresh.js";
 
 function isoNowZ() {
   return new Date().toISOString().slice(0, 19) + "Z";
@@ -134,7 +134,7 @@ async function fromTicketmaster(lat, lng, radius, keyword, opts = {}) {
         const cur = pr.currency === "USD" ? "$" : (pr.currency ? pr.currency + " " : "");
         if (pr.min != null && pr.max != null) price = pr.min === pr.max ? `${cur}${Math.round(pr.min)}` : `${cur}${Math.round(pr.min)} to ${cur}${Math.round(pr.max)}`;
       }
-      return {
+      return applyStoredStartCorrection({
         id: "tm_" + e.id, name: e.name || "", date: dates.localDate || "", time: dates.localTime || "",
         subGenre,
         venue: venue ? venue.name || "" : "", city: venue && venue.city ? venue.city.name || "" : "",
@@ -152,7 +152,7 @@ async function fromTicketmaster(lat, lng, radius, keyword, opts = {}) {
         dateTBA: dates.dateTBA === true,
         dateTBD: dates.dateTBD === true,
         noSpecificTime: dates.noSpecificTime === true,
-      };
+      });
     });
     // A denied budget did not ask Ticketmaster, so it must not poison the
     // provider's warm cache and suppress a later ledger-authorized request.
@@ -774,7 +774,7 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // florida-v1 (2026-10-15): lib/floridaVenue.js — only Florida venues leave this
 // feed (the Columbus, OH poster). Cached payloads built before the rule may hold
 // out-of-state rows, so the key moves.
-const EVENTS_FEED_RULES = "florida-v1";
+const EVENTS_FEED_RULES = "florida-v2-verified-20261021";
 // One Discovery re-read per geo cell. Not the 21-day feed cache, and not a
 // place/photo TTL: those rules stay where they are.
 function ticketmasterStartKey(lat, lng, radius) {

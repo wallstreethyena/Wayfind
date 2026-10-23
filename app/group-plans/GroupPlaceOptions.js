@@ -26,11 +26,21 @@ export function staleFactsNote(place,timeZone) {
 }
 
 function PlaceResearch({place}) {
-  return <div className="gp-research">{place.editorial?.status==="verified"?<p>{place.editorial.text}</p>:<><p className="gp-muted">{place.comparisonReasons?.length?place.comparisonReasons.join(" · "):"We’re still checking what makes this place stand out."}</p>{place.comparisonReasons?.length?<p className="gp-note">What it’s known for is still being checked.</p>:null}</>}
-    {place.hoursStatus&&<p className="gp-note">{place.hoursStatus==="unverified"?place.hoursNote:place.closedTimeIds?.length?"Known hours conflict with at least one proposed time. Choose carefully before confirming.":"Regular hours fit the checked times. Special closures can still change them."}</p>}
+  return <details className="gp-research"><summary>Why this place & sources</summary><div>{place.editorial?.status==="verified"?<p>{place.editorial.text}</p>:<><p className="gp-muted">{place.comparisonReasons?.length?place.comparisonReasons.join(" · "):"We’re still checking what makes this place stand out."}</p>{place.comparisonReasons?.length?<p className="gp-note">What it’s known for is still being checked.</p>:null}</>}
+
     {place.editorial?.checkedAt&&<p className="gp-note">Sources checked {new Date(place.editorial.checkedAt).toLocaleDateString("en-US",{timeZone:"UTC"})}</p>}
     {!!place.editorial?.sources?.length&&<div className="gp-source-list">{place.editorial.sources.map((url,n)=><a key={url} href={url} target="_blank" rel="noopener noreferrer">Source {n+1}</a>)}</div>}
-  </div>;
+  </div></details>;
+}
+
+// Venue suitability affects the vote itself, so it stays visible while longer
+// editorial evidence and source links remain optional reading.
+function PlaceHoursNote({place}) {
+  const unknown=!!place.unverifiedTimeIds?.length||["unverified","partially_verified"].includes(place.hoursStatus);
+  const closed=!!place.closedTimeIds?.length;
+  if(closed)return <p className="gp-note" data-hours-warning="closed">Known hours conflict with at least one proposed time. Choose carefully before confirming.{unknown?" Hours for other options aren’t verified.":""}</p>;
+  if(unknown)return <p className="gp-note" data-hours-warning="unverified">{place.hoursStatus==="unverified"&&place.hoursNote?place.hoursNote:"Hours aren’t verified for every option. Check with the venue before confirming."}</p>;
+  return place.hoursStatus?<p className="gp-note">Regular hours fit the checked times. Special closures can still change them.</p>:null;
 }
 
 function CheckIcon() {
@@ -45,8 +55,9 @@ function VoteCard({place,label,selected,onSelect,timeZone}) {
     {label&&<p className="gb-label">{label}</p>}
     {PlaceCard({place})}
     {staleFactsNote(place,timeZone)}
-    {PlaceResearch({place})}
     <button type="button" className={`gb-vote${on?" is-on":""}`} aria-pressed={on} aria-label={`Vote for ${place.name}`} onClick={(e)=>{e.stopPropagation?.();onSelect(place.id);}}>{on?<><CheckIcon/><span>Your vote</span></>:<span>Vote for this place</span>}</button>
+    {PlaceHoursNote({place})}
+    {PlaceResearch({place})}
   </section>;
 }
 
@@ -57,6 +68,7 @@ export function GroupPlaceOptions({plan,selected,onSelect,readOnly=false}) {
     <p className="gp-tag">{place.id===plan.originalPlaceId?"Original idea":`Alternative ${i}`}</p>
     {PlaceCard({place})}
     {staleFactsNote(place,plan.timeZone)}
+    {PlaceHoursNote({place})}
     {PlaceResearch({place})}
   </section>)}</div>;
   const original=plan.places.find((p)=>p.id===plan.originalPlaceId)||plan.places[0];

@@ -166,6 +166,24 @@ try {
   const FixedGuideConversion = fixedMod.default;
   ok(typeof FixedGuideConversion === "function", "the fixed GuideConversion.js has a default export");
 
+  const vrboHtml = renderToStaticMarkup(createElement(FixedGuideConversion, {
+    ...BASE_PROPS,
+    cta: MONETIZED_CTA,
+    vacationRental: {
+      href: "/api/commerce/go?provider=vrbo&offer=vrbo-orlando&surface=guide_mk_hotels&content=best-hotels-near-magic-kingdom",
+      label: "Vacation rentals near Disney on Vrbo",
+    },
+  }));
+  ok(vrboHtml.includes("Vacation rentals near Disney on Vrbo"), "guide CTA block renders the Vrbo label");
+  ok(/rel="noreferrer sponsored"[^>]*data-guide-vrbo="orlando"/.test(vrboHtml) || /data-guide-vrbo="orlando"[^>]*rel="noreferrer sponsored"/.test(vrboHtml),
+    "the Vrbo anchor is rel=sponsored");
+  ok(vrboHtml.includes("provider=vrbo") && vrboHtml.includes("offer=vrbo-orlando") && vrboHtml.includes("surface=guide_mk_hotels"),
+    "the rendered href is the tracked Orlando Vrbo handoff");
+  ok(vrboHtml.includes("Check rates"), "the hotel primary CTA still renders beside the Vrbo link");
+  ok(vrboHtml.includes("Wayfind may earn a commission"), "the Vrbo link sits with the guide commission disclosure");
+  const without = renderToStaticMarkup(createElement(FixedGuideConversion, { ...BASE_PROPS, cta: MONETIZED_CTA }));
+  ok(!without.includes("Vacation rentals near Disney on Vrbo"), "guides that do not pass a vacation rental render no Vrbo link");
+
   const monetizedFixed = exerciseOneClick(FixedGuideConversion, MONETIZED_CTA, "fixed  / monetized CTA click");
   ok(monetizedFixed.ok, "fixed: monetized click must find and invoke a real onClick — " + (monetizedFixed.reason || ""));
   if (monetizedFixed.ok) {

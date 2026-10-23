@@ -1,7 +1,7 @@
 // Locks explicit time-zone roundtrips, including ambiguous and nonexistent times.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { parseZonedDateTime, formatGroupTime, assertGroupTimeZone, GroupPlanTimeError } from '../lib/groupPlanTime.js';
+import { parseZonedDateTime, formatGroupTime, formatGroupTimeShort, assertGroupTimeZone, GroupPlanTimeError } from '../lib/groupPlanTime.js';
 
 let count = 0;
 function eq(actual, expected, message) { assert.deepEqual(actual, expected, message); count++; }
@@ -33,6 +33,14 @@ const foldedLater = formatGroupTime('2026-11-01T06:30:00.000Z', 'America/New_Yor
 assert.match(foldedEarlier, /EDT/); assert.match(foldedLater, /EST/); count += 2;
 const interval = formatGroupTime({ startsAt: '2026-10-10T22:30:00.000Z', endsAt: '2026-10-11T00:30:00.000Z' }, 'America/New_York');
 assert.match(interval, /6:30/); assert.match(interval, /8:30/); count += 2;
+for (const format of [formatGroupTime, formatGroupTimeShort]) {
+  const startsAt = '2026-11-01T06:30:00.000Z';
+  eq(format({ startsAt }, 'America/New_York'), format(startsAt, 'America/New_York'), 'omitted end formats the precise start');
+  eq(format({ startsAt, endsAt: null }, 'America/New_York'), format(startsAt, 'America/New_York'), 'unknown end has no invented range');
+  rejects(() => format({ startsAt, endsAt: '' }, 'America/New_York'), 'INVALID_INSTANT');
+  rejects(() => format({ startsAt, endsAt: startsAt }, 'America/New_York'), 'INVALID_INTERVAL');
+  rejects(() => format({ startsAt: 'bad', endsAt: null }, 'America/New_York'), 'INVALID_INSTANT');
+}
 rejects(() => formatGroupTime('2026-10-10T18:30', 'UTC'), 'INVALID_INSTANT');
 rejects(() => formatGroupTime(new Date('invalid'), 'UTC'), 'INVALID_INSTANT');
 rejects(() => formatGroupTime('2026-02-30T12:00:00Z', 'UTC'), 'INVALID_INSTANT');

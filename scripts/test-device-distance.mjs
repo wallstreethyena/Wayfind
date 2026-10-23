@@ -42,6 +42,70 @@ function fakeEnvironment({ supported = true } = {}) {
 }
 
 const { normalizeCoordinates, distanceMiles, formatDistanceMiles } = distance;
+
+// Exercise the DEFAULT browser adapter, not just the injected test environment.
+// Window timers reject an arbitrary object as their receiver. Arrow-only fakes
+// used above cannot expose this browser brand check (Sentry WAYFIND-1A).
+const locationSource = readFileSync(path.resolve('lib/deviceLocationStore.js'), 'utf8');
+function exerciseBrowserTimers(source) {
+  const browser = fakeEnvironment();
+  browser.env.now = Date.now;
+  let scheduled = 0, cancelled = 0;
+  function setBrowserTimeout(callback, delay) {
+    assert.equal(this, undefined, 'browser timer must be called without the adapter as receiver');
+    scheduled++;
+    return browser.env.setTimeout(callback, delay);
+  }
+  function clearBrowserTimeout(id) {
+    assert.equal(this, undefined, 'browser timer cleanup must preserve its native receiver');
+    cancelled++;
+    return browser.env.clearTimeout(id);
+  }
+  const exports = {};
+  const compiled = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } }).outputText;
+  vm.runInNewContext(compiled, {
+    exports, require: spec => {
+      assert.equal(spec, './deviceDistance.js');
+      return distance;
+    },
+    window: { navigator: browser.env.navigator, document: browser.env.document },
+    setTimeout: setBrowserTimeout, clearTimeout: clearBrowserTimeout,
+  });
+  const store = exports.createDeviceLocationStore();
+  const unsubscribe = store.subscribe(() => {});
+  const fix = () => browser.fix({ latitude: 28, longitude: -81 }, Date.now());
+  assert.doesNotThrow(fix, 'a successful GPS callback must not throw Illegal invocation');
+  assert.equal(store.getSnapshot()?.lat, 28);
+  assert.equal(browser.timers.size, 1, 'a successful fix schedules freshness expiry');
+  assert.doesNotThrow(fix, 'a second GPS callback must safely replace the timer');
+  assert.equal(browser.timers.size, 1);
+  assert.doesNotThrow(() => browser.visibility('hidden'));
+  assert.equal(browser.watches.size, 0);
+  assert.equal(browser.timers.size, 0);
+  browser.visibility('visible');
+  fix();
+  browser.advance(DEVICE_LOCATION_MAX_AGE_MS);
+  assert.equal(browser.watches.size, 1, 'expiry renews the watch');
+  assert.equal(store.getSnapshot(), null);
+  assert.doesNotThrow(() => browser.error(3), 'transient GPS errors schedule a safe retry');
+  browser.advance(DEVICE_LOCATION_MAX_AGE_MS);
+  assert.equal(browser.watches.size, 1);
+  fix();
+  assert.doesNotThrow(() => browser.error(1), 'denial cancels the native timer');
+  assert.equal(browser.timers.size, 0);
+  unsubscribe();
+  assert.equal(browser.events.size, 0);
+  assert.ok(scheduled >= 5 && cancelled >= 3, 'both timer APIs were exercised');
+}
+exerciseBrowserTimers(locationSource);
+for (const [wrapper, original] of [
+  ['setTimeout: (callback, delay) => setTimeout(callback, delay)', 'setTimeout'],
+  ['clearTimeout: id => clearTimeout(id)', 'clearTimeout'],
+]) {
+  const mutated = locationSource.replace(wrapper, original);
+  assert.notEqual(mutated, locationSource, 'timer receiver mutation actually applied');
+  assert.throws(() => exerciseBrowserTimers(mutated), /browser timer/, 'reintroducing either timer bug must fail');
+}
 for (const bad of [null, undefined, {}, { lat: null, lng: 0 }, { lat: '', lng: 0 }, { lat: ' ', lng: 0 }, { lat: true, lng: 0 }, { lat: NaN, lng: 0 }, { lat: 0, lng: Infinity }, { lat: 91, lng: 0 }, { lat: 0, lng: -181 }, { lat: '0x10', lng: 0 }, { latitude: 0, longitude: null }]) {
   assert.equal(normalizeCoordinates(bad), null, `reject malformed coordinates: ${JSON.stringify(bad)}`);
   assert.equal(distanceMiles({ lat: 0, lng: 0 }, bad), null);

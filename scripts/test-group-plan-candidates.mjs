@@ -100,6 +100,19 @@ await test('venue-fit evidence is disjoint and separates unknown from closed', (
  const special=groupPlaceData.scheduledGroupTimeFit({...hours,specialHours:[{date:'2026-10-10',closed:true}]},times,NOW);eq(special.closedTimeIds,['time-1'],'evidenced special closure is known-closed');
  for(const result of [fit,unknown,expired,gap,special]){const all=[...result.openTimeIds,...result.closedTimeIds,...result.unverifiedTimeIds];eq(new Set(all).size,all.length,'no interval can be both open, closed or unknown');}
 });
+await test('start-only venue hours detect arrival conflicts without claiming a complete visit', () => {
+ const proposed=[{id:'arrival-open',startsAt:'2026-10-10T12:00:00Z',endsAt:null},{id:'arrival-closed',startsAt:'2026-10-10T13:00:00Z'}];
+ const fit=groupPlaceData.scheduledGroupTimeFit(hours,proposed,NOW);
+ eq(fit.openTimeIds,[],'an open arrival cannot verify the whole visit without an end');
+ eq(fit.closedTimeIds,['arrival-closed'],'closed-at-arrival excludes the option');
+ eq(fit.unverifiedTimeIds,['arrival-open'],'open arrival still requires organizer hours acknowledgment');
+ eq(fit.hoursStatus,'partially_verified','known closed and unknown duration remain distinct');
+ const special=groupPlaceData.scheduledGroupTimeFit({...hours,specialHours:[{date:'2026-10-10',closed:true}]},proposed,NOW);
+ eq(special.closedTimeIds,['arrival-open','arrival-closed'],'evidenced special closure also applies to start-only');
+ const stale=groupPlaceData.scheduledGroupTimeFit({...hours,hoursAsOf:'2026-09-01T00:00:00Z'},proposed,NOW);
+ eq(stale.closedTimeIds,[],'expired hours cannot prove a start-only closure');
+ eq(stale.unverifiedTimeIds,['arrival-open','arrival-closed'],'stale arrivals stay unverified');
+});
 function adapterFixture({age=1,cacheAge=1,cacheExpires=NOW+DAY,closed=false,pages,missing=false,ownerKnown=true,cacheHours=hours,photo=null}={}) {
  const calls=[];
  const rows=[{place_id:'original',name:'Current original provider name',lat:28,lng:-82,category:'food',primary_type:'restaurant',cuisines:['Mexican'],signals:{rating:4,reviews:200,priceNum:2},status:'OPERATIONAL',excluded:false,refreshed_at:new Date(NOW-age*DAY).toISOString()}, {place_id:'candidate',name:'Current alternative provider name',lat:28.01,lng:-82,category:'food',primary_type:'restaurant',cuisines:['Mexican'],signals:{rating:4.9,reviews:2000,priceNum:2},status:closed?'CLOSED_PERMANENTLY':'OPERATIONAL',excluded:false,refreshed_at:new Date(NOW-age*DAY).toISOString()}];

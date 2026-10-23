@@ -24,6 +24,7 @@ import { fallShareLine } from "../../../lib/fallSkin.js";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { couponForPlace, couponIsLive, couponEndsLabel } from "../../../lib/coupons";
 import { eventWhenLabel } from "../../../lib/eventTime";
+import { nearestOwnedCityName } from "../../../lib/locationHonesty.js";
 import * as Dining from "../../../lib/dining";
 import * as Ranking from "../../../lib/ranking";
 import * as Tags from "../../../lib/tags";
@@ -45,9 +46,10 @@ import { pairsWellWith } from "../../../lib/pairsWellWith";
 import { detailNearbyPool, detailDistanceMi, DETAIL_NEARBY_RADIUS_MI } from "../../../lib/detailNearby.js";
 import { askShareIntent } from "../shareIntentSheet";
 import { placeKinds } from "../../../lib/dateInvite";
-import { hasRealPlacePhoto, realPlacePhotoSrc, detailHeroLayout } from "../../../lib/detailHero";
+import { hasRealPlacePhoto, detailHeroLayout } from "../../../lib/detailHero";
+import { PLACE_DETAIL_PHOTO_STANDARD } from "../../../lib/placeDetailPhotoStandard.js";
 import { railPhotoSrc } from "../../../lib/cardPhotoRequest.js";
-import { fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
+import { acquireDetailPhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../../../lib/livePhoto";
 import PhotoCredit from "../PhotoCredit";
 import { editorialRequestQuery, carriedEditorial, hasSourcedEditorialFields } from "../../../lib/editorialLookup";
 import { whyWayfindPickedBody } from "../../../lib/insightWhy";
@@ -55,6 +57,13 @@ import { isOwnerPick } from "../../../lib/ownerBump";
 import { ATTRACTION_DISCOVERY_IDS } from "../../../lib/tripAttractions.js";
 import CommunityFooter from "../CommunityFooter";
 import PlacePhotoContribution from "../PlacePhotoContribution";
+
+// An internal redirect can still be an affiliate handoff; origin is not the
+// sponsorship signal. Free operator offers retain ordinary link semantics.
+export function offerLinkRel(offer, href) {
+  return offer?.commerce || offer?.affiliate_url || isEarningGoHref(href)
+    ? "noreferrer sponsored nofollow" : "noreferrer";
+}
 
 // This rail brings the full shared place card with it. Keep that code outside
 // the homepage's eager detail bundle and request it only for plausible hotel
@@ -809,27 +818,24 @@ export default function DetailSheet({ ctx }) {
   }, [detail && detail.id, primaryCta.type, primaryCta.monetized]);
 
 
-  // Live credited photo: ONE fetch per place per page session (memoized in
-  // lib/livePhoto), only from this sheet. Owned non-proxy URLs + that photo.
+  // Shared credited answer, with bounded free-only recovery for a transient
+  // acquisition failure before an image has mounted.
   const liveId = detail && !detail._event ? (detail.placeId || detail.id) : null;
   useEffect(() => {
     if (!detail || !isLivePlaceId(liveId)) return undefined;
     if (detail._live || detail._liveDone) return undefined;
-    let off = false;
     const id = detail.id;
-    fetchLivePhoto(liveId).then((live) => {
-      if (off) return;
-      setDetail((d) => (d && d.id === id ? (live ? { ...d, _live: live, _liveDone: true } : { ...d, _liveDone: true }) : d));
+    return acquireDetailPhoto(liveId, (live) => {
+      setDetail((d) => (d && d.id === id && (d.placeId || d.id) === liveId ? (live ? { ...d, _live: live, _liveDone: true } : { ...d, _liveDone: true }) : d));
     });
-    return () => { off = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [detail && detail.id]);
+  }, [detail && detail.id, liveId]);
   const galleryPhotos = detailGalleryPhotos(detail);
   const showHero = galleryPhotos.length > 0 && (hasRealPlacePhoto(detail) || !!(detail && detail._live));
+  const photoPending = !showHero && isLivePlaceId(liveId) && !detail._liveDone;
   const heroLayoutRef = useRef(null);
-  heroLayoutRef.current = detailHeroLayout(heroLayoutRef.current, detail.id, showHero);
+  heroLayoutRef.current = detailHeroLayout(heroLayoutRef.current, detail.id, showHero, photoPending);
   const expandedHero = heroLayoutRef.current.expanded;
-  const heroSrc = galleryPhotos[0] || null;
   const heroCredit = showHero ? liveCreditFor(detail, galleryPhotos[Math.min(galleryIdx, galleryPhotos.length - 1)]) : null;
 
   return (
@@ -838,14 +844,14 @@ export default function DetailSheet({ ctx }) {
             <Grabber />
             <div data-detail-hero style={{ position: "relative" }}>
               <button onClick={() => window.history.back()} aria-label="Back" style={{ position: "absolute", top: "max(8px, env(safe-area-inset-top))", left: 12, zIndex: 6, display: "inline-flex", alignItems: "center", justifyContent: "center", width: 44, height: 44, borderRadius: "50%", border: showHero ? "1px solid rgba(255,255,255,.28)" : `1px solid ${C.border}`, background: showHero ? "rgba(13,17,23,.55)" : C.card, backdropFilter: showHero ? "blur(6px)" : "none", color: showHero ? "#fff" : C.text, cursor: "pointer" }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg></button>
-              {expandedHero && showHero ? (
-                <>
-              {galleryPhotos.length > 0 ? (
-                <div style={{ position: "relative", paddingTop: "calc(52px + env(safe-area-inset-top))" }}>
-                  <div ref={galleryRef} onScroll={onGalleryScroll} style={{ display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+              {expandedHero ? (
+                <div data-detail-photo-gallery style={{ position: "relative", paddingTop: "calc(52px + env(safe-area-inset-top))" }}>
+                  <div data-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: C.bg }}>
+                    {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg fit="contain" alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: 250, background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                      <FallbackImg fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
+                    </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
                   </div>
                   {galleryPhotos.length > 1 && (
                     <>
@@ -859,28 +865,12 @@ export default function DetailSheet({ ctx }) {
                     </>
                   )}
                 </div>
-              ) : (
-                <FallbackImg fit="contain" alt={detail.name} src={heroSrc} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => heroSrc && setLightbox(heroSrc)} style={{ width: "100%", height: 250, background: C.bg, cursor: heroSrc ? "zoom-in" : "default" }} />
-              )}
-              <div style={{ padding: "14px 18px 0" }}>
-                {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5, textShadow: "0 1px 5px rgba(0,0,0,.9)" }}>{pc}</div> : null; })()}
-                <div style={{ fontSize: 27, fontWeight: 800, color: "#fff", lineHeight: 1.13, letterSpacing: "-0.5px", textShadow: "0 2px 12px rgba(0,0,0,.8)" }}>{detail.name}</div>
-              </div>
-                </>
-              ) : (
-                <div style={{ padding: "calc(52px + env(safe-area-inset-top)) 18px 0", display: "flex", alignItems: "center", gap: 12 }}>
-                  {/* Reserve a separate frame before a live photo arrives. It must
-                      never become a cropped background behind the title. */}
-                  <div data-detail-photo-preview style={{ width: 112, height: 112, flexShrink: 0, background: C.bg, borderRadius: 10, overflow: "hidden", display: "grid", placeItems: "center" }}>
-                    {showHero ? <FallbackImg fit="contain" alt={detail.name} src={heroSrc} category={primaryCategory(detail)} onClick={() => setLightbox(heroSrc)} style={{ width: "100%", height: "100%", cursor: "zoom-in" }} />
-                      : <span style={{ padding: 10, color: C.muted, fontSize: 12, textAlign: "center" }}>{detail._liveDone || !isLivePlaceId(liveId) ? "Photo unavailable" : "Loading photo…"}</span>}
-                  </div>
-                  <div style={{ minWidth: 0, overflowWrap: "anywhere" }}>
+              ) : null}
+              <div data-detail-headline style={{ padding: expandedHero ? "14px 18px 0" : "calc(52px + env(safe-area-inset-top)) 18px 0", minWidth: 0, overflowWrap: "anywhere" }}>
                   {(() => { const pc = primaryCategory(detail); return pc ? <div style={{ fontSize: 11, fontWeight: 800, color: C.light, textTransform: "uppercase", letterSpacing: "0.9px", marginBottom: 5 }}>{pc}</div> : null; })()}
                   <div style={{ fontSize: 27, fontWeight: 800, color: C.text, lineHeight: 1.13, letterSpacing: "-0.5px" }}>{detail.name}</div>
-                  </div>
-                </div>
-              )}
+                  {!expandedHero ? <div data-detail-photo-unavailable style={{ marginTop: 8, color: C.muted, fontSize: 12 }}>Photo unavailable</div> : null}
+              </div>
             </div>
             <div data-detail-body style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
               {/* Photo credit: plain text directly under the headline, never on the photo (owner rule 2026-10-13). */}
@@ -892,6 +882,12 @@ export default function DetailSheet({ ctx }) {
               {detail.address && (
                 <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{detail.address}</a>
               )}
+              {/* #1690: owned inventory carries no street address, and the paid
+                  details proxy can be budget-closed — but a chain still has to
+                  be tellable apart. Fall back to the nearest owned city. */}
+              {!detail.address && !detail._event && (() => { const cityLine = detail.city || nearestOwnedCityName(detail.lat, detail.lng); return cityLine ? (
+                <a href={detail.mapsUrl} target="_blank" rel="noreferrer" style={{ display: "block", fontSize: 12.5, color: C.muted, textDecoration: "none", marginBottom: 14, lineHeight: 1.4 }}>{cityLine}</a>
+              ) : null; })()}
               {/* Verdict: one consistent row of the things that decide whether to go */}
               <div style={{ display: "flex", alignItems: "center", gap: 9, flexWrap: "wrap", marginBottom: 14, fontSize: 13, fontWeight: 700 }}>
                 <PlaceScoreChip p={detail} size={13} />
@@ -1275,7 +1271,15 @@ export default function DetailSheet({ ctx }) {
               <div style={{ marginBottom: 16 }}>
               {!detail._event && nearbyTourListAllowed(detail, pinQ) && ["museum", "wildlife", "entertainment", "scenic", "beach", "nature", "landmark", "waterfront"].includes(placeKind(detail)) && (() => {
                 const _hasNoteUrl = (() => { const _n = wayfindNotes(detail.name); return !!(_n && _n.some((x) => x && typeof x === "object" && x.url)); })();
-                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl} placeId={detail.id} city={ctaCity} />;
+                // Affiliate leak closure (2026-10-22, The Ringling): a tickety
+                // place (museum/attraction) whose primary honestly cannot be
+                // a Book button — no verified product sells its admission —
+                // keeps its official-site/Directions links, but the tracked
+                // tickets CTA (BookingCTA's Search Viator fallback through
+                // /api/viator/go) must still render. The editorial-note
+                // suppression may not remove the only tracked outbound on a
+                // tickety sheet, so it applies only to non-tickety places.
+                return <BookingCTA variant="list" detail={detail} kind={placeKind(detail)} viaTours={viaTours} logEvent={logEvent} addReservation={addReservation} openExternal={openExternal} locName={locName} suppressFallback={_hasNoteUrl && !Aff.isTicketyPlace(detail)} placeId={detail.id} city={ctaCity} />;
               })()}
               {/* Travelpayouts "Book it" complement (ships dark; renders nothing until an owner sets program ids + NEXT_PUBLIC_BOOK_IT=on). Never duplicates the Viator CTA above. Scoped to non-events, which have their own ticket flow. */}
               {!detail._event && <BookItLink detail={detail} city={locName ? locName.split(",")[0] : ""} logEvent={logEvent} addReservation={addReservation} />}
@@ -1578,7 +1582,7 @@ export default function DetailSheet({ ctx }) {
                     </div>
                     <div style={{ fontSize: 15.5, fontWeight: 800, color: C.text }}>{cpn.title}</div>
                     {cpn.details && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{cpn.details}</div>}
-                    {cpn.url && <a href={cpn.url} target="_blank" rel="noreferrer" onClick={() => { try { logEvent("offer_redeem", detail, { offer_id: cpn.id, source: "curated" }); } catch (e) {} }} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{cpn.code ? "Show code" : "View deal ↗"}</a>}
+                    {cpn.url && <a href={cpn.url} target="_blank" rel={offerLinkRel(cpn, cpn.url)} onClick={() => { try { logEvent("offer_redeem", detail, { offer_id: cpn.id, source: "curated" }); } catch (e) {} }} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{cpn.code ? "Show code" : "View deal ↗"}</a>}
                     {cpn.code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.light, marginTop: 8, letterSpacing: "0.5px" }}>Code: {cpn.code}</div>}
                   </div>
                 );
@@ -1597,7 +1601,7 @@ export default function DetailSheet({ ctx }) {
                     {o.offer_description && <div style={{ fontSize: 13, color: C.light, lineHeight: 1.5, marginTop: 5 }}>{o.offer_description}</div>}
                     {o.terms && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 6, lineHeight: 1.4 }}>{o.terms}</div>}
                     {o.expiration_date && <div style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}>Through {o.expiration_date}</div>}
-                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel="noreferrer" onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
+                    {(o.affiliate_url || o.direct_url) && <a href={o.affiliate_url || o.direct_url} target="_blank" rel={offerLinkRel(o0, o.affiliate_url || o.direct_url)} onClick={() => logEvent("offer_redeem", detail, { offer_id: o.id, source: o.source })} style={{ display: "block", textAlign: "center", marginTop: 10, padding: 12, background: C.accent, borderRadius: 12, color: "#0D1117", fontSize: 14.5, fontWeight: 800, textDecoration: "none" }}>{o.coupon_code ? "Show code" : "View offer ↗"}</a>}
                     {o.coupon_code && <div style={{ textAlign: "center", fontSize: 13, fontWeight: 800, color: C.light, marginTop: 8, letterSpacing: "0.5px" }}>Code: {o.coupon_code}</div>}
                     <div onClick={() => { logEvent("offer_report", detail, { offer_id: o.id }); showToast("Thanks, we will take a look"); }} style={{ textAlign: "center", fontSize: 11, color: C.muted, marginTop: 10, cursor: "pointer", textDecoration: "underline" }}>Report an issue</div>
                   </div>

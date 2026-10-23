@@ -12,6 +12,7 @@ import { fallEventCardImageSrc, withFallVenueIdentity } from "../../../lib/fallE
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import styles from "./page.module.css";
+import { eventTicketCta } from "../../../lib/eventTicketDeals";
 import {
   FLORIDA_FALL_GUIDE_EVENTS_2026,
   FLORIDA_FALL_GUIDE_EVENT_COUNT,
@@ -624,9 +625,29 @@ function eventImage(event) {
   return googleCreditMissing(image, false) ? null : image;
 }
 
+// 2026-10-21 outbound-link gap: these cards linked to the organizer's site
+// with no attribution. Where lib/eventTicketDeals.js already maps the SAME
+// event to its exact ticket product (that registry's integrity rule), the
+// card's existing link slot points at the tracked /api/commerce/go redirect
+// instead. Cards that open a Wayfind event page are untouched: that page owns
+// its own TicketButton. Guide ids differ from registry ids, so this is an
+// explicit alias table, never a fuzzy match.
+const GUIDE_TICKET_EVENT_IDS = Object.freeze({
+  "howl-o-scream-seaworld-orlando-2026": "howl-o-scream-seaworld-2026",
+  "mickeys-not-so-scary-halloween-party-2026": "mnsshp-2026",
+  "epcot-food-wine-festival-2026": "epcot-food-wine-2026",
+});
+
+function guideTicketCta(event, href) {
+  if (!event || !href || String(href).startsWith("/")) return null;
+  const registryId = GUIDE_TICKET_EVENT_IDS[event.event_id];
+  return registryId ? eventTicketCta(registryId, { surface: "guide_fall_festivals" }) : null;
+}
+
 function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
   if (!event) return null;
   const href = fallGuideEventHref(event);
+  const ticket = guideTicketCta(event, href);
   const fallbackImage = visual ? guideContextPhoto("florida-fall-festivals-2026", { name: event.event_name, detail: event.detail }, { region: event.city || "Florida" }) : null;
   const image = visual ? eventImage(event) || fallbackImage : null;
   return (
@@ -652,7 +673,8 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
         <h3>{event.event_name}</h3>
         <p>{event.card_hook || event.editorial_summary || eventWhen(event)}</p>
         <small className={styles.whenLine}>{eventWhen(event)}</small>
-        {href ? <a href={href}>{String(href).startsWith("/") ? "Open on Wayfind" : "Official information"}</a> : null}
+        {ticket ? <a href={ticket.href} rel="sponsored noopener" data-commerce-surface="guide_fall_festivals">{"Tickets at " + ticket.via + " \u2197"}</a>
+          : href ? <a href={href}>{String(href).startsWith("/") ? "Open on Wayfind" : "Official information"}</a> : null}
       </div>
     </article>
   );

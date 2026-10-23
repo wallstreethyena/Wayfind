@@ -48,27 +48,33 @@ catch (e) {
   process.exit(0);
 }
 const compile = (file) => ts.transpileModule(readFileSync(new URL(file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
-const hostPolicy = compile("../lib/imageHostPolicy.js"), placePhoto = compile("../lib/placePhoto.js"), answers = compile("../lib/photoAnswers.js"), helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js"), creditLink = compile("../app/components/PhotoCreditLink.js"), tile = compile("../app/components/PhotoFallbackTile.js");
+const hostPolicy = compile("../lib/imageHostPolicy.js"), placePhoto = compile("../lib/placePhoto.js"), answers = compile("../lib/photoAnswers.js"), helper = compile("../lib/cardPhotoRequest.js"), component = compile("../app/components/CardPhoto.js"), recovery = compile("../app/components/cardPhotoRecovery.js"), creditLink = compile("../app/components/PhotoCreditLink.js"), tile = compile("../app/components/PhotoFallbackTile.js");
 try {
   for (const width of [390, 768, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    let photoCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set();
+    let photoCalls = 0, paidCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set(); const storedFailures = new Map(); let resavedVersion = "old";
     const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
       if (u.pathname === "/api/photo") {
         photoCalls++; lastPhotoRequest = u.href;
+        if (u.searchParams.get("nospend") !== "1") paidCalls++;
         assert.equal(u.searchParams.get("s"), "card");
         assert.equal(u.searchParams.get("fmt"), "json");
         if (responseMode === "miss") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "no-photo" } });
         if (responseMode === "denied-once" && !deniedSeen.has(u.searchParams.get("place"))) { deniedSeen.add(u.searchParams.get("place")); return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "spend-denied" } }); }
+        if (responseMode === "stored-blip") return route.fulfill({ json: { ...photo, src: "/api/photo/stored/" + u.searchParams.get("place") + "?v=blip" } });
+        if (responseMode === "resaved") return route.fulfill({ json: { ...photo, src: "/api/photo/stored/" + u.searchParams.get("place") + "?v=" + resavedVersion } });
         if (responseMode === "always-denied") return route.fulfill({ json: { src: null, source: "none", credit: null }, headers: { "x-wayfind-photo-result": "quota-open" } });
         const own = { ...photo, src: "https://photo.test/" + u.searchParams.get("place") + ".jpg", credit: { ...photo.credit, mapsUri: "https://maps.google.com/photo/" + u.searchParams.get("place"), authors: [{ name: "Author of " + u.searchParams.get("place"), uri: "https://maps.google.com/contrib/x" }] } };
         return route.fulfill({ json: responseMode === "retained" ? { ...photo, src: "/api/photo/stored/ChIJCardPhotoTest0001?v=hash" } : responseMode === "broken" ? { ...photo, src: "https://photo.test/broken.jpg" } : u.searchParams.get("place") === "ChIJCardPhotoTest0001" ? photo : own });
       }
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
+      // Saved-photo route: a scripted number of 404 blips per path, and a stale version after a re-save.
+      if (u.pathname.startsWith("/api/photo/stored/") && (storedFailures.get(u.pathname) || 0) > 0) { storedFailures.set(u.pathname, storedFailures.get(u.pathname) - 1); return route.fulfill({ status: 404, body: "" }); }
+      if (u.pathname.startsWith("/api/photo/stored/") && u.searchParams.get("v") === "old" && resavedVersion !== "old") return route.fulfill({ status: 404, body: "" });
       if (u.hostname === "photo.test" || u.pathname.startsWith("/api/photo/stored/")) return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
       return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card" style="position:relative"><button type="button" class="wf-place-card-open" aria-label="Open test venue" style="position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer;background:transparent"></button><div class="wf-place-card-layout" style="position:relative;z-index:1;pointer-events:none"><div class="wf-place-card-media"><div id="root" style="position:relative;overflow:hidden"></div></div><div id="card-content">Test venue</div></div></article>` });
     });
@@ -76,7 +82,7 @@ try {
     assert.equal(await page.evaluate(() => window.innerWidth), width, "achieved viewport matches the tested size");
     await page.addScriptTag({ path: new URL("../node_modules/react/umd/react.development.js", import.meta.url).pathname });
     await page.addScriptTag({ path: new URL("../node_modules/react-dom/umd/react-dom.development.js", import.meta.url).pathname });
-    await page.addScriptTag({ content: `window.hostPolicy={};(function(exports){${hostPolicy}})(hostPolicy);window.placePhotoMod={};(function(exports,require){${placePhoto}})(placePhotoMod,id=>hostPolicy);window.photoAnswers={};(function(exports,require){${answers}})(photoAnswers,id=>placePhotoMod);window.photoHelpers={};(function(exports,require){${helper}})(photoHelpers,id=>id.includes('placePhoto')?placePhotoMod:photoAnswers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.tileModule={};(function(exports,require){${tile}})(tileModule,id=>React);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:id==='./PhotoFallbackTile.js'?tileModule:id==='../../lib/photoAnswers.js'?photoAnswers:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
+    await page.addScriptTag({ content: `window.hostPolicy={};(function(exports){${hostPolicy}})(hostPolicy);window.placePhotoMod={};(function(exports,require){${placePhoto}})(placePhotoMod,id=>hostPolicy);window.photoAnswers={};(function(exports,require){${answers}})(photoAnswers,id=>placePhotoMod);window.photoHelpers={};(function(exports,require){${helper}})(photoHelpers,id=>id.includes('placePhoto')?placePhotoMod:photoAnswers);window.creditLinkModule={};(function(exports){${creditLink}})(creditLinkModule);window.tileModule={};(function(exports,require){${tile}})(tileModule,id=>React);window.photoModule={};(function(exports,require){${component}})(photoModule,id=>id==='react'?React:id==='react-dom'?ReactDOM:id==='./PhotoCreditLink.js'?creditLinkModule:id==='./PhotoFallbackTile.js'?tileModule:id==='../../lib/photoAnswers.js'?photoAnswers:photoHelpers);window.__cardPhotoRecovery={};(function(exports,require){${recovery}})(__cardPhotoRecovery,id=>id.indexOf('photoAnswers')>=0?photoAnswers:photoHelpers);window.root=ReactDOM.createRoot(document.getElementById('root'));root.render(React.createElement(photoModule.default,{src:${JSON.stringify(source)},alt:'Test venue',style:{width:'100%',height:'100%',objectFit:'cover'}}));` });
     await page.waitForTimeout(100);
     assert.equal(photoCalls, 0, "offscreen card makes no request");
     await page.locator("#root").scrollIntoViewIfNeeded();
@@ -196,12 +202,35 @@ try {
     await page.getByText("Photo unavailable", { exact: true }).waitFor();
     assert.equal(photoCalls, callsBeforeReturn, "a genuine no-photo place is not asked again");
     responseMode = "broken";
+    const paidBeforeBroken = paidCalls;
     await render("ChIJCardPhotoBroken03", "Broken photo");
-    await page.getByText("Photo unavailable", { exact: true }).waitFor();
+    await page.getByText("Photo unavailable", { exact: true }).waitFor({ timeout: 15000 });
     assert.equal(await page.locator("#root > img").count(), 0);
     assert.equal(await page.locator("[data-card-photo-credit]").count(), 0);
-    await page.waitForTimeout(100);
-    assert.equal(photoCalls, callsBeforeReturn + 1, "image failures never retry the paid photo request");
+    await page.waitForTimeout(7000);
+    assert.equal(paidCalls, paidBeforeBroken + 1, "image failures never retry the PAID photo request");
+    assert.equal(photoCalls, callsBeforeReturn + 3, "a persistently broken image: 1 request + exactly 2 free (nospend) recovery re-asks, then stop, no loop");
+    assert.match(lastPhotoRequest, /nospend=1/, "recovery re-asks are nospend (can never buy)");
+    // A saved photo whose image load blips once must recover on its own, never landing on "Photo unavailable".
+    responseMode = "stored-blip";
+    storedFailures.set("/api/photo/stored/ChIJCardPhotoBlip0007", 1);
+    const paidBeforeBlip = paidCalls;
+    await render("ChIJCardPhotoBlip0007", "Blip photo");
+    await page.locator('#root > img[alt="Blip photo"]').waitFor();
+    const blipSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0) return img.getAttribute("src"); if (document.body.innerText.includes("Photo unavailable")) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
+    assert.match(blipSeen, /^\/api\/photo\/stored\/ChIJCardPhotoBlip0007\?v=blip&retry=1$/, "the same saved photo reloads after a blip (got " + blipSeen + ")");
+    assert.equal(paidCalls, paidBeforeBlip + 1, "blip recovery took no paid request");
+    // A photo re-saved under a new version while the tab was open: the card picks up the new version.
+    responseMode = "resaved"; resavedVersion = "old";
+    await render("ChIJCardPhotoResave08", "Resaved photo");
+    await page.locator('#root > img[alt="Resaved photo"]').waitFor();
+    await page.evaluate(async () => { for (let i = 0; i < 50; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0) return; await new Promise((r) => setTimeout(r, 100)); } });
+    resavedVersion = "new";
+    await render("ChIJCardPhotoBlip0007", "Blip photo again");
+    await page.locator('#root > img[alt="Blip photo again"]').waitFor();
+    await render("ChIJCardPhotoResave08", "Resaved photo again"); // remount: the kept answer still says v=old
+    const resavedSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0 && img.getAttribute("src").includes("v=new")) return img.getAttribute("src"); if (document.body.innerText.includes("Photo unavailable")) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
+    assert.equal(resavedSeen, "/api/photo/stored/ChIJCardPhotoResave08?v=new", "a re-saved photo is picked up instead of 'Photo unavailable'");
     // Temporary refusal (budget/quota): one delayed retry recovers; a persistent refusal stops after exactly 2 requests.
     await page.clock.install();
     responseMode = "denied-once";
