@@ -5,21 +5,7 @@ import { createPortal } from "react-dom";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import PhotoFallbackTile from "./PhotoFallbackTile.js";
 import { cardPhotoRequest, fetchCardPhoto } from "../../lib/cardPhotoRequest.js";
-import { MAX_ATTEMPTS, RETRY_DELAY_MS, forgetPlacePhoto, getPlacePhoto } from "../../lib/photoAnswers.js";
-
-// IMAGE-LOAD RECOVERY (owner report 2026-10-22: saved photos showing "Photo
-// unavailable"). The JSON answer can be fine while the <img> load itself
-// fails: the saved-photo route answers 404 for any storage blip, and for a
-// photo re-saved under a new version while this tab was open. Before this, ONE
-// such failure pinned the card on "Photo unavailable" for the whole visit.
-// Now the card re-asks with nospend=1 (free: it can only return an already
-// saved/cached photo, never buy one) and reloads, at most this many times,
-// showing the quiet loading tile meanwhile. Never a loop, never a purchase.
-const IMAGE_RECOVERY_DELAYS_MS = [1500, 5000];
-const placeOf = (request) => { try { return new URL(request, "https://www.gowayfind.com").searchParams.get("place"); } catch { return null; } };
-// Same-origin URLs get a harmless retry marker so the browser truly refetches;
-// third-party image URLs are never altered.
-const withRetryMark = (src, n) => typeof src === "string" && src.startsWith("/") && !src.startsWith("//") ? src + (src.includes("?") ? "&" : "?") + "retry=" + n : src;
+import { MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
 
 const control = { background: "#101820", color: "#fff", border: "1px solid #64748b", borderRadius: 6, cursor: "pointer", pointerEvents: "auto" };
 const safe = (href) => typeof href === "string" && /^https:\/\//.test(href) ? href : undefined;
@@ -138,25 +124,10 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
   const recovery = useRef({ request: null, tries: 0, timer: null });
   useEffect(() => () => { clearTimeout(recovery.current.timer); recovery.current = { request: null, tries: 0, timer: null }; }, [request]);
   const onImageError = () => {
-    const r = recovery.current.request === request ? recovery.current : { request, tries: 0, timer: null };
-    const id = placeOf(request);
-    if (!id || r.tries >= IMAGE_RECOVERY_DELAYS_MS.length) { setFailed(request); return; }
-    const tries = r.tries + 1, failedSrc = photo?.src;
-    setAnswer({ request, photo: null });            // quiet loading tile, not "Photo unavailable"
-    recovery.current = { request, tries, timer: setTimeout(() => {
-      forgetPlacePhoto(id);
-      getPlacePhoto(id, { surface: "card", nospend: true }).then((next) => {
-        if (recovery.current.request !== request) return; // place changed meanwhile
-        const usable = next && !(inLink && next.source === "google" && !next.src?.startsWith("/api/photo/stored/")) ? next : null;
-        if (!usable) { setFailed(request); return; }
-        // Same photo as the one that failed -> reload it with a retry marker;
-        // a newer saved version (re-saved photo) is used as-is.
-        const base = (s) => String(s || "").split(/[?&]retry=/)[0];
-        const retried = base(usable.src) === base(failedSrc) ? { ...usable, src: withRetryMark(base(usable.src), tries) } : usable;
-        setFailed(null);
-        setAnswer({ request, photo: retried });
-      });
-    }, IMAGE_RECOVERY_DELAYS_MS[tries - 1]) };
+    const run = (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed });
+    // The rendered guards eval this file as a classic script and supply the module.
+    if (typeof window !== "undefined" && window.__cardPhotoRecovery) { run(window.__cardPhotoRecovery); return; }
+    import("./cardPhotoRecovery.js").then(run);
   };
   if (!request) {
     // Ordinary owned/partner image. A caller that passes onError owns its own ladder
