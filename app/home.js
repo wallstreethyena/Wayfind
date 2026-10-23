@@ -212,7 +212,7 @@ const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlace
 // link on a client-rendered card, nothing SEO reads it, and it must never be
 // crawled as our own content.
 const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
-import * as Trips from "../lib/trips";
+import { addPlaceToTrips, nearestStopIndex, tripMetaForPlace } from "../lib/trips";
 import { EMPTY_ITINERARY_FLAGS, readItineraryFlags } from "../lib/itineraryFlags";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
@@ -9191,14 +9191,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     });
     if (wasAdd) {
       try {
-        const meta = Trips.tripMetaForPlace(target);
+        const meta = tripMetaForPlace(target);
         const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === target.id);
         if (!already) {
           if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
           logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
         }
       } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "list_save" }));
+      setTrips((prev) => addPlaceToTrips(prev, target, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "list_save" }));
     }
     setSaveTarget(null);
   }
@@ -9213,7 +9213,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   function isOnTrip(p) {
     if (!p || !p.id) return false;
     try {
-      const meta = Trips.tripMetaForPlace(p);
+      const meta = tripMetaForPlace(p);
       const t = trips[meta.key];
       return !!(t && t.items && t.items.some((it) => it.id === p.id));
     } catch (e) { return false; }
@@ -9223,16 +9223,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
     let insertion = "manual";
     try {
-      const meta = Trips.tripMetaForPlace(p);
+      const meta = tripMetaForPlace(p);
       const existing = (trips[meta.key] && trips[meta.key].items) || [];
-      const plan = itineraryFlags.autoOrder ? Trips.nearestStopIndex(existing, p) : { auto: false };
+      const plan = itineraryFlags.autoOrder ? nearestStopIndex(existing, p) : { auto: false };
       insertion = itineraryFlags.autoOrder && plan.auto ? "auto" : "manual";
       if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
       try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary", insertion }); } catch (e) {}
       try { logEvent("itinerary_item_added", p, { source: "card_itinerary", insertion, key: meta.key }); } catch (e) {}
     } catch (e) {}
     const before = trips;
-    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "card_itinerary" }));
+    setTrips((prev) => addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "card_itinerary" }));
     if (insertion === "auto") showToast("Added next to a nearby stop", { label: "Undo", run: () => setTrips(before) });
     else showToast("🗓️ Added to your itinerary");
   }
@@ -9254,14 +9254,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
       try {
-        const meta = Trips.tripMetaForPlace(p);
+        const meta = tripMetaForPlace(p);
         const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === p.id);
         if (!already) {
           if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
           logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
         }
       } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "quick_save" }));
+      setTrips((prev) => addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "quick_save" }));
     }
     if (supabase && user) {
       if (has) {

@@ -4,7 +4,9 @@
 import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
-import * as Trips from "../../../lib/trips";
+import * as TripCore from "../../../lib/trips";
+import * as TripDays from "../../../lib/tripDays";
+const Trips = { ...TripCore, ...TripDays };
 
 export default function ItineraryScreen({ ctx }) {
   const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, itineraryFlags, shareTrip, requireAuth } = ctx;

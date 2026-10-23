@@ -6,7 +6,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { PGlite } from "@electric-sql/pglite";
-import { addPlaceToTrips, setStopDate } from "../lib/trips.js";
+import { addPlaceToTrips } from "../lib/trips.js";
+import { setStopDate } from "../lib/tripDays.js";
 import { tripsToRecords, recordsToTrips, mergeTrips } from "../lib/itineraryMigrate.js";
 import { pushTrips, fetchRemoteTrips } from "../lib/itinerarySync.js";
 

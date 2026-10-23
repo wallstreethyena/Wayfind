@@ -7,6 +7,8 @@ import {
   haversineKm,
   nearestStopIndex,
   AUTO_ORDER_THRESHOLD_KM,
+} from "../lib/trips.js";
+import {
   normalizeStopDate,
   localDateYmd,
   isPastStopDate,
@@ -22,7 +24,7 @@ import {
   dayRouteLegs,
   dayRouteUrls,
   routeUrl,
-} from "../lib/trips.js";
+} from "../lib/tripDays.js";
 import {
   mergeTrips,
   reflowTripDates,

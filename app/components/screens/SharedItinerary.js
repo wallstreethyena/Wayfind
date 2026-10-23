@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
-import { sortedItems, groupItemsByDay, tripDateSummary, dayRouteLegs } from "../../../lib/trips";
+import { sortedItems, groupItemsByDay, tripDateSummary, dayRouteLegs } from "../../../lib/tripDays";
 
 export default function SharedItineraryScreen({ ctx }) {
   const { sharedItinerary, setSharedItinerary, setScreen, itineraryFlags } = ctx;

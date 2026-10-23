@@ -16,7 +16,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import React, { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { addPlaceToTrips, setStopDate } from "../lib/trips.js";
+import { addPlaceToTrips } from "../lib/trips.js";
+import { setStopDate } from "../lib/tripDays.js";
 
 let assertions = 0;
 let failures = 0;

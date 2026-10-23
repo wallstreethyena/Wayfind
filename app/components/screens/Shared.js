@@ -3,7 +3,9 @@
 // home.js only renders this when screen === "shared" && sharedList.
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
-import * as Trips from "../../../lib/trips";
+import * as TripCore from "../../../lib/trips";
+import * as TripDays from "../../../lib/tripDays";
+const Trips = { ...TripCore, ...TripDays };
 
 export default function SharedScreen({ ctx }) {
   const { sharedList, setSharedList, setScreen, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, openExperience, openCuisine, PlaceCard } = ctx;
