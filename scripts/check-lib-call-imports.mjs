@@ -101,6 +101,21 @@ ok(exportedBy.size > 30, `collected lib export names (got ${exportedBy.size}) �
 ok(exportedBy.has("hasVerifiedTours"),
   "hasVerifiedTours is exported from lib/ — it was a non-exported local when it crashed production, and every <BookingCTA> render threw");
 
+// Destructured parameter shapes the scope model recognizes, proven on known
+// shapes (positive AND negative controls) before the model judges the tree.
+// The closing `)` must open a function body (`=>` or `{`): an object literal
+// passed as a later call argument — `track("open", { eventStays })` — is NOT a
+// parameter and must not put `eventStays` in scope (reviewer, 2026-10-22).
+const DESTRUCTURED_PARAM_RX = /(?:function\s*[\w$]*\s*\(|\(\s*|,\s*)\{([^{}]*)\}\s*(?:=\s*\{\s*\}\s*)?(?:\)\s*(?:=>|\{)|,)/g;
+const paramNames = (text) => [...text.matchAll(DESTRUCTURED_PARAM_RX)].flatMap((m) => m[1].split(",").map((piece) => piece.trim().split(":").pop().split("=")[0].replace(/^\.\.\./, "").trim()).filter((nm) => /^[A-Za-z_$][\w$]*$/.test(nm)));
+ok(paramNames("function C({ openExternal, logEvent }) {}").join() === "openExternal,logEvent", "positive control: first-parameter destructuring is in scope");
+ok(paramNames("const f = ({ a, b = 1 }) => a;").join() === "a,b", "positive control: arrow destructuring with a default is in scope");
+ok(paramNames("export async function anchorEventVenue(event, { read = readInventoryByName, cache, now = Date.now() } = {}) {}").join() === "read,cache,now", "positive control: a destructured SECOND parameter with a `= {}` default is in scope");
+ok(paramNames("const x = read(forms);").length === 0, "negative control: a bare call declares nothing");
+ok(paramNames("const { read } = deps;").length === 0, "negative control: a destructured LOCAL is not a parameter (its own rule handles it)");
+ok(paramNames('track("open", { eventStays }); eventStays();').length === 0, "negative control: an object literal passed as a later call argument is not a parameter");
+ok(paramNames("useMemo(() => ({ picks, stays }), [picks]);").length === 0, "negative control: a returned object literal is not a parameter");
+
 /* ── the scan ─────────────────────────────────────────────────────────────── */
 const sources = [...walk(path.resolve("app")), ...libFiles];
 ok(sources.length > 40, `found source files to scan (got ${sources.length})`);
@@ -130,12 +145,11 @@ for (const f of sources) {
   // a name in scope, and omitting them made this guard fire on correct code.
   // A guard that fires on correct code gets switched off, which is worse than no
   // guard, so the scope set has to model real scoping, not a convenient subset.
-  for (const m of src.matchAll(/(?:function\s*[\w$]*\s*\(|\(\s*)\{([^{}]*)\}\s*(?:\)|,)/g)) {
-    for (const piece of m[1].split(",")) {
-      const nm = piece.trim().split(":").pop().split("=")[0].replace(/^\.\.\./, "").trim();
-      if (/^[A-Za-z_$][\w$]*$/.test(nm)) inScope.add(nm);
-    }
-  }
+  // 2026-10-22: a destructured SECOND parameter and a `= {}` default are the
+  // same scope — `anchorEventVenue(event, { read = readInventoryByName } = {})`
+  // declares `read`. The earlier shape (`{` right after `(`, `}` right before
+  // `)` or `,`) missed both and fired on correct code (lib/venueAnchor.js).
+  for (const nm of paramNames(src)) inScope.add(nm);
   for (const m of src.matchAll(/(?:^|\s)(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/g)) inScope.add(m[1]);
   for (const m of src.matchAll(/(?:^|\s)(?:export\s+)?(?:const|let|var)\s+([A-Za-z_$][\w$]*)/g)) inScope.add(m[1]);
   // Destructured locals, e.g. `const { hasVerifiedTours } = deps`.

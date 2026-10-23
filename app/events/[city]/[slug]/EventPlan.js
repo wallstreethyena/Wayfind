@@ -6,6 +6,15 @@ import { WF_PLACE_CARD_CSS } from "../../../components/css";
 import { cardImageSrc } from "../../../../lib/placePhoto";
 import { orderPlaceRecommendations, placeRecommendationDisplayScore } from "../../../../lib/placeRecommendationOrder.js";
 import { fetchJsonWithDeadline } from "../../../../lib/clientJson";
+import { useResolvedVenuePoint } from "../../../components/useResolvedVenuePoint.js";
+
+// How long a provider-venue plan waits for the map's Apple answer before it
+// requests its rails from the provider point anyway. The rails behind
+// /api/places/search are METERED (Google Text Search through the spend gate):
+// one request from the best point beats one from the centroid plus a second
+// from the corrected point. The map resolves well inside this on a normal
+// load; a reader who never scrolls near the map still gets the plan.
+export const EVENT_PLAN_VENUE_WAIT_MS = 8000;
 
 const EVENT_PLAN_RAILS = [
   { kind: "food", title: "Eat nearby", deck: "Great meals that fit before showtime.", benefit: "A strong meal before the event" },
@@ -55,11 +64,31 @@ function detailHref(place) {
   return place && place.id ? `/p/${encodeURIComponent(place.id)}` : null;
 }
 
-export default function EventPlan({ lat, lng, city, venue, time }) {
+// `anchorName` is the venue label the map was given (EventWhere), which is how
+// the browser's Apple answer for this venue is found; it falls back to `venue`.
+// `awaitVenue` (the live event page passes it for provider points): hold the
+// metered rail requests until the map's Apple answer lands or the bounded wait
+// runs out, so they are made ONCE from the best point. `venueWaitMs` exists for
+// the guards only.
+export default function EventPlan({ lat, lng, city, venue, time, anchorName, awaitVenue = false, venueWaitMs = EVENT_PLAN_VENUE_WAIT_MS }) {
   const [rails, setRails] = useState(null);
+  // The provider point until the map's Apple check corrects it by more than
+  // 300 m for THIS venue, then Apple's point: the rails below are requested
+  // from it. Nothing else about the effect changes.
+  const { point, resolved } = useResolvedVenuePoint({ name: anchorName || venue, lat, lng });
+  const originLat = point.lat;
+  const originLng = point.lng;
+  const [waited, setWaited] = useState(false);
+  const ready = !awaitVenue || resolved || waited;
+  useEffect(() => {
+    if (ready) return undefined;
+    const timer = setTimeout(() => setWaited(true), Math.max(0, Number(venueWaitMs) || 0));
+    return () => clearTimeout(timer);
+  }, [ready, venueWaitMs]);
 
   useEffect(() => {
-    const origin = { lat: Number(lat), lng: Number(lng) };
+    if (!ready) return undefined;
+    const origin = { lat: originLat, lng: originLng };
     if (!isFinite(origin.lat) || !isFinite(origin.lng)) return;
     let dead = false;
     setRails(EVENT_PLAN_RAILS.map((rail) => ({ ...rail, places: null })));
@@ -102,7 +131,7 @@ export default function EventPlan({ lat, lng, city, venue, time }) {
       publish("stay", stay);
     })();
     return () => { dead = true; };
-  }, [lat, lng, city, venue, time]);
+  }, [ready, originLat, originLng, city, venue, time]);
 
   if (!rails) return null;
   return (

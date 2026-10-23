@@ -2331,7 +2331,17 @@ node scripts/test-apple-parking.mjs
 # 2026-10-22: a provider venue point (Ticketmaster ZIP centroid) is replaced by
 # Apple's point only when Apple is sure; parking/pins/walk links follow it.
 node scripts/test-apple-venue-location.mjs
+# 2026-10-22: a Ticketmaster event is anchored on Wayfind's own venue row (strict
+# name, 30 km, unique) before picks/stays/plan are ranked; unsure keeps the row.
+node scripts/test-venue-anchor.mjs
 node scripts/test-venue-parking-ui.mjs
+# 2026-10-22: when the browser's Apple check moves a provider venue by more than
+# 300 m, the nearby picks, stays, map pins and the plan re-anchor on the corrected
+# point: the store, the free same-origin API (no paid provider), and the real
+# components in jsdom.
+node scripts/test-venue-resolution-store.mjs
+node scripts/test-event-venue-nearby-api.mjs
+node scripts/test-event-reanchor-render.mjs
 # Display distance uses one fresh device watch, never an API/search-center distance.
 node scripts/test-device-distance.mjs
 node scripts/test-rail-device-distance.mjs

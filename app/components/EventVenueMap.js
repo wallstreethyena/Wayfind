@@ -16,6 +16,7 @@ import { EVENT_MAP_FAMILY, eventMapFamily } from "../../lib/eventMapPlaces.js";
 import { hasParkingCoordinate } from "../../lib/appleParking.js";
 import { needsAppleVenueCheck, resolveAppleVenueLocation, applyVenueResolution } from "../../lib/appleVenueLocation.js";
 import { mapFailureReason, reportMapServiceIssue } from "../../lib/mapDiagnostics.js";
+import { publishVenueResolution } from "../../lib/venueResolutionStore.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -103,8 +104,18 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
       if (dead) { controller.destroy(); return; }
       controllerRef.current = controller;
       setMapVenue(resolvedVenue);
+      // Share Apple's answer with the surfaces that rank things near this venue
+      // (nearby picks, stays, the plan). The store keys it by the PROVIDER point
+      // and decides whether the move is big enough to re-anchor them.
+      if (resolution) publishVenueResolution(venue, resolution);
       clearTimeout(watchdog); setFailed(false); setReady(true); onMapReady?.(controller);
-    }).catch(() => { if (!dead) { clearTimeout(watchdog); setFailed(true); } });
+    }).catch(() => {
+      if (dead) return;
+      clearTimeout(watchdog); setFailed(true);
+      // No map, no Apple answer: tell the surfaces waiting on one (EventPlan
+      // holds its metered rails for it) that the provider point is all there is.
+      if (needsAppleVenueCheck(venue)) publishVenueResolution(venue, { status: "kept", point: { lat: Number(venue.lat), lng: Number(venue.lng) }, source: "provider", driftMeters: 0, reason: "map-unavailable" });
+    });
     return () => {
       dead = true; clearTimeout(watchdog);
       if (controller) controller.destroy();
