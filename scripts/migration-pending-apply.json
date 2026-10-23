@@ -49,13 +49,6 @@
     "reason": "NOT APPLIED. Owner explicitly authorized push, merge, deploy, and the proposed database update on 2026-10-20. Replaces only the server-only group create RPC to validate start-only choices, bound starts independently of nullable ends, retain explicit-end constraints, and reject duplicate or proven overlapping times. Existing schema-v1 rows need no data rewrite. Canonical application through scripts/apply-migration.mjs is pending secure SUPABASE_ACCESS_TOKEN configuration; no connector SQL substitution or receipt has been used."
   },
   {
-    "file": "supabase/migrations/20261020120000_wf_itineraries.sql",
-    "sha256": "f2596598fd49234d6f25979469c1ade95137ef2bb7d16a19f82d02e1d9f9dfb6",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#1851 itinerary option B — Gabe approved the product scope; do not apply until this PR is reviewed",
-    "reason": "Additive wf_itineraries and wf_itinerary_items with owner-only RLS. Not applied to production project gbhtoehdxkzjsmmkisgu. Feature flags default off, so the browser writes stay idle until an owner applies this file with scripts/apply-migration.mjs and turns the flags on. Rollback is drop table public.wf_itinerary_items, drop table public.wf_itineraries."
-  },
-  {
     "file": "supabase/migrations/20261021180000_wf_apple_place_ids.sql",
     "sha256": "e48800727ae58370478ded154224fce8fbd394aa3ab30b19715a65e47aef908d",
     "decision_owner": "wallstreethyena",
