@@ -53,6 +53,8 @@ import { PARTNER_OFFER_REGISTRY, partnerOfferById } from "../lib/partnerOfferReg
 import { PLACE_PARTNER_PICKS, placePartnerPick } from "../lib/placePartnerPicks.js";
 import { TP_PROGRAMS, isTpProgramLive } from "../lib/travelpayouts.js";
 import { partnerTicketLabel } from "../lib/partnerCopy.js";
+import { venueOfferFor } from "../lib/venueOffers.js";
+import { bookItTarget } from "../lib/monetize.js";
 import { AFFILIATE_MERCHANTS, MERCHANT_HOSTS, affiliateMerchantForUrl, eventAffiliateCoverage, unmappedSellableEvents, COVERAGE } from "../lib/affiliateLibrary.js";
 import { coveragePulseRow, tallyCoverage } from "../app/api/cron/affiliate-coverage/route.js";
 
@@ -330,6 +332,40 @@ for (const key of ["welcomepickups", "kiwitaxi", "radicalstorage", "bikesbooking
     ok(!/Tickets/.test(label), `Wave 2: ${pick.offerId} button copy never calls a ${pick.product} "Tickets" (got "${label}")`);
   }
 }
+// ── 8b. Wave 2 DETAIL-SHEET path (2026-10-23) ─────────────────────────────
+// The card picks above earn nothing today — verified live 2026-10-23, no
+// home-rail card carries these exact names — so the detail sheet is the
+// surface that can actually be tapped: bookItTarget → BookItLink renders on
+// every non-event sheet when NEXT_PUBLIC_BOOK_IT=on and the provider is
+// live. Each offer must ALSO resolve by name+market through
+// venueOfferFor, or the detail path silently drops it while every card
+// assertion above stays green.
+const WAVE2_DETAIL_CASES = [
+  ["Sarasota-Bradenton International Airport", "Sarasota", "srq-transfer-welcomepickups", "welcomepickups", "transfer", "Welcome Pickups"],
+  ["Sarasota-Bradenton International Airport (SRQ)", "Bradenton", "srq-transfer-welcomepickups", "welcomepickups", "transfer", "Welcome Pickups"],
+  ["Tampa International Airport", "Tampa", "tpa-transfer-kiwitaxi", "kiwitaxi", "transfer", "Kiwitaxi"],
+  ["Tampa International Airport (TPA)", "Tampa", "tpa-transfer-kiwitaxi", "kiwitaxi", "transfer", "Kiwitaxi"],
+  ["Siesta Key", "Sarasota", "sarasota-storage-radicalstorage", "radicalstorage", "storage", "Radical Storage"],
+  ["Siesta Key", "Siesta Key", "sarasota-storage-radicalstorage", "radicalstorage", "storage", "Radical Storage"],
+];
+const liveKeys = Object.keys(TP_PROGRAMS).filter(isTpProgramLive);
+for (const [name, city, offerId, provider, product, merchant] of WAVE2_DETAIL_CASES) {
+  const v = venueOfferFor(name, city);
+  ok(v && v.offerId === offerId && v.provider === provider, `Wave 2 detail: venueOfferFor("${name}", "${city}") → ${offerId} by name+market (got ${v ? v.offerId : "null"})`);
+  ok(v && v.product === product, `Wave 2 detail: venueOfferFor("${name}", "${city}") names product "${product}" (got ${v ? v.product : "null"})`);
+  const t = bookItTarget({ name, types: [] }, { available: liveKeys, city });
+  ok(t && t.kind === "offer" && t.offerId === offerId && t.provider === provider, `Wave 2 detail: bookItTarget("${name}", "${city}") → kind "offer" ${offerId} (got ${t ? `${t.kind}/${t.offerId || ""}` : "null"})`);
+  const label = partnerTicketLabel(merchant, { product });
+  ok(!/Tickets/.test(label) && label.includes(merchant), `Wave 2 detail: BookItLink copy for ${offerId} names the ${product} and ${merchant}, never "Tickets" (got "${label}")`);
+}
+// Geo gate on the detail path: right name, wrong market → nothing.
+ok(venueOfferFor("Tampa International Airport", "Sarasota") === null, "Wave 2 detail: Tampa International Airport in Sarasota resolves to NOTHING (geo gate)");
+ok(venueOfferFor("Sarasota-Bradenton International Airport", "Tampa") === null, "Wave 2 detail: Sarasota-Bradenton International Airport in Tampa resolves to NOTHING (geo gate)");
+ok(venueOfferFor("Siesta Key", "Tampa") === null, "Wave 2 detail: Siesta Key in Tampa resolves to NOTHING (geo gate)");
+// BookItLink wires the honest copy: non-ticket products render through partnerCopy.
+const bookItSrc = read("app/components/BookItLink.js");
+ok(/partnerTicketLabel/.test(bookItSrc) && /offer\.product/.test(bookItSrc), "Wave 2 detail: BookItLink renders non-ticket offers through partnerTicketLabel(offer.product) — the honest-copy mechanism is wired, not just available");
+
 // TripAdvisor Experiences stays DARK: in review, no ids, no pick, no provider path.
 ok(isTpProgramLive("tripadvisorexperiences") === false, "Wave 2: TripAdvisor Experiences stays DARK (isTpProgramLive false)");
 ok(PLACE_PARTNER_PICKS.every((r) => r.provider !== "tripadvisorexperiences"), "Wave 2: no partner pick emits TripAdvisor Experiences");
