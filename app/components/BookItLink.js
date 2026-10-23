@@ -18,6 +18,7 @@ import { bookItTarget, SPONSOR_LABEL } from "../../lib/monetize";
 import { TP_PROGRAMS, isTpProgramLive } from "../../lib/travelpayouts";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { withClickId, isEarningGoHref } from "../../lib/hubConversion";
+import { partnerTicketLabel } from "../../lib/partnerCopy";
 
 // Inlined at build time (NEXT_PUBLIC_*). Unset → dark; owner sets "on" to enable.
 const BOOK_IT_ON = process.env.NEXT_PUBLIC_BOOK_IT === "on";
@@ -54,6 +55,15 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
   const provider = offer ? offer.provider : null;
   const href = earning ? (hydrated ? withClickId(earning, clickId.current) : earning) : null;
   const brand = offer ? ((TP_PROGRAMS[offer.provider] || {}).brand || offer.provider) : "";
+  // Honest product copy (Wave 2, 2026-10-23): a transfer or luggage-storage
+  // offer must never render as a generic ticket button. Non-ticket products
+  // name what is sold and who sells it through lib/partnerCopy.js (the same
+  // mechanism the detail primary CTA uses); ticket offers keep "Book it".
+  const title = offer
+    ? (offer.product && offer.product !== "ticket"
+        ? partnerTicketLabel(brand, { product: offer.product, arrow: false })
+        : `${SPONSOR_LABEL.text} · ${brand}`)
+    : "";
   useEffect(() => {
     const el = ref.current;
     if (!el || !earning || typeof IntersectionObserver === "undefined") return undefined;
@@ -100,7 +110,7 @@ export default function BookItLink({ detail, city, logEvent, addReservation }) {
       style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, textDecoration: "none", background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "12px 14px", marginBottom: 14 }}
     >
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{SPONSOR_LABEL.text} · {brand} ↗</div>
+        <div style={{ fontSize: 14, fontWeight: 800, color: C.text }}>{title} ↗</div>
         <div style={{ fontSize: 10.5, color: C.muted, marginTop: 2 }}>{SPONSOR_LABEL.sub}</div>
       </div>
     </a>
