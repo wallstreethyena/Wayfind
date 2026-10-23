@@ -143,7 +143,7 @@ scripts/check-event-price-language.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	03
 scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	63d382c301f64eddbbf565aaf7f6fb225b828078c5e6cf9207e3ca56f44ed11e
 scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	69	0	0	32d0e50a70ba0353708118afdfc841b401e460472caa3c277b5450117e991440
 scripts/check-event-ticket-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	749e38d5446ce1d5df49ba6f0ee00325632bf1e0b7ecbdc5aee0d31640864e5e
-scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	bd62f7314e95f534f8864d4845f6b7dbf0bfe1acb1d81f85470abe7044a08cd4
+scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	77	0	0	5b6ebfc1909a2c983c7bda82fdb913a9782d04e8edcccc6bd65100312d5f030d
 scripts/check-events-feed-upcoming.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	04de6037d7c7cce9fbe1f87b20236752cec16ebfc3c65e7deb22f24216df389a
 scripts/check-events-paged-list.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0	ee0241378e7b9db35ee7a4c44fc7eedccae185cf95a237d5c79b9dd83487347d
 scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	f65a588601579de8281a5e396f6a3e675ade8f840f69b32baa8ca116dfdbd097
@@ -466,6 +466,7 @@ scripts/test-apple-free-pins.mjs	0	CALL	blocks-ci-and-deploy	1	-	107	0	0	ad4f03a
 scripts/test-apple-map-recovery-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	574319297f2c469099d8e2e74464b0164a11bbce0d40023dd5faf8d88790041e
 scripts/test-apple-map-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	134	0	0	75fae08edc9da757bf5cc8a4f8c057dd31d50bfcfad9b4190d1ddd27b58b9dc9
 scripts/test-apple-parking.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	be2af2ae6a096577f98c1e582ed70a414c73d6279043509f1769c0cd7f5086e2
+scripts/test-apple-venue-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	0e981050a84b64e758d70efa2b80db32392e59b06d82df7d995b4e3ebe0f4870
 scripts/test-area-twins.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	a28fec657ae20e8cf44ffe04b2bdac9c9a520eea709183687b878fc2bee0eacc
 scripts/test-atlas-build.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	1	5	b75cad4e9770aeae6a39a471ebe29d46c803a0eed925fe59e927ea0b61dcd94d
 scripts/test-atlas-card-hooks.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	71d1560b678291583ab1a05b4e7864cd781edffa4a9f65581df0106b4f7a4545
@@ -968,7 +969,7 @@ scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794c
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
 scripts/test-unified-share-flow.mjs	0	RENDER	blocks-ci-and-deploy	1	-	80	0	0	62302e3a776f8d0a4cbf70991ab10ee7525699bdb4f43269378c92d718f794cb
 scripts/test-venue-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	05ceee98375e4faad48616730652c086627d8c3659ee1bf51bcd156de0750841
-scripts/test-venue-parking-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	4956ed67cf85bca16b076a50480ac9b186e6da0a9b0965dfaca34793992ecfda
+scripts/test-venue-parking-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	50	0	0	abbdf6094c69ca2364115220cef73fe5de0a15f47f99c01b189e205fbd2feafa
 scripts/test-viator-campaign.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	37	0	0	77a8cd2adcfe7a64b361c83e01bcb32af49561c846d7433fcd7f00b410ec10bb
 scripts/test-viator-fanout.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	6	1	0	e52a4ace80737075628558bb99888d8f2a60013d403bb4a521c170ae9172ac62
 scripts/test-viator-integrity-lock.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	73	0	0	b65083aace56a9bc63e3d55f053cfbbfa9910b672b94c3ac6f76fd587e4f09c4
