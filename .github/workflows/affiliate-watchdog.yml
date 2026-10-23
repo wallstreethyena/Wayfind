@@ -1,0 +1,82 @@
+# .github/workflows/affiliate-watchdog.yml — WEEKLY PRODUCTION EARNINGS
+# WATCHDOG, on a clock.
+#
+# WHY THIS FILE EXISTS. Wayfind earns only when an outbound click carries
+# the partner tracking that attributes the booking to us (Impact for
+# Ticketmaster, pid for Viator, aid for Stay22, tp.media campaign/promo
+# IDs for Travelpayouts). That attribution can break with NO code change
+# on our side — a partner rotates a campaign, a redirector changes its
+# gate, an env value drifts — and every guard in scripts/guards.txt reads
+# the repo, so none of them can see it. scripts/watchdog-affiliate-links.mjs
+# is the instrument that can: it follows the real production redirect
+# chains with a real phone user-agent and asserts the tracking is still
+# on them. This workflow is what makes it run without a human remembering
+# to — the failure mode .github/workflows/photo-monitor.yml's header
+# already documents for the photo monitor (a correct instrument,
+# scheduled nowhere).
+#
+# WHY WEEKLY, TUESDAY 06:23 UTC. Earnings attribution rots slowly, not
+# hourly, and each probe is a real (unbilled, GET-only) partner redirect;
+# weekly is the cadence that catches rot before a month of clicks is
+# lost without hammering the redirectors. 06:23 UTC is a quiet hour and
+# deliberately off :00, clear of the :30 synthetic-monitor and :50
+# photo-monitor crons.
+#
+# READ-ONLY AGAINST PRODUCTION. The watchdog GETs only and writes
+# nothing to the site. The single write in this workflow is the GitHub
+# issue opened on failure (issues: write below) — that issue IS the
+# alarm, so a red run always means "attribution broke or the instrument
+# could not run", never silence.
+#
+# LABELS. Checked 2026-10-23: the repo carries only the default GitHub
+# labels (bug, documentation, duplicate, enhancement, good first issue,
+# help wanted, invalid, question, wontfix) — none fits an earnings
+# alarm, and this workflow does not invent one. Failures are filed
+# without a label under a [watchdog] title prefix, which is searchable.
+name: affiliate-watchdog
+on:
+  schedule:
+    - cron: "23 6 * * 2"   # weekly, Tuesdays 06:23 UTC
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: write
+concurrency:
+  group: affiliate-watchdog
+  cancel-in-progress: false   # a run is four probes; let it finish and file rather than vanish
+
+jobs:
+  watchdog:
+    name: production affiliate earnings watchdog
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - name: Probe production affiliate redirect chains
+        id: probe
+        run: |
+          set +e
+          node scripts/watchdog-affiliate-links.mjs 2>&1 | tee watchdog-output.txt
+          exit "${PIPESTATUS[0]}"
+      # Runs only when the probe failed — the failure output IS the
+      # report, filed verbatim so the issue shows exactly which check
+      # broke and what the chain returned instead.
+      - name: Open watchdog issue on failure
+        if: failure() && steps.probe.outcome == 'failure'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          {
+            echo "The weekly affiliate earnings watchdog failed against production."
+            echo ""
+            echo "Workflow run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            echo ""
+            echo '```'
+            cat watchdog-output.txt
+            echo '```'
+          } > watchdog-issue.md
+          gh issue create \
+            --title "[watchdog] affiliate earnings check failed ($(date -u +%Y-%m-%d))" \
+            --body-file watchdog-issue.md
