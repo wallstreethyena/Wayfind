@@ -94,7 +94,7 @@ const dupNames = (src) => duplicateNames(src).map((d) => d.name);
   const { readFileSync } = await import("node:fs");
   const home = readFileSync("app/home.js", "utf8");
   ok(dupNames(home).length === 0, `app/home.js has no duplicate top-level declaration (got ${JSON.stringify(dupNames(home))})`);
-  ok(/^import ViatorRail from/m.test(home), "…and it still imports the extracted ViatorRail — the fix kept the module, it did not delete the rail");
+  ok(/^import ViatorRail from/m.test(home) || /^const ViatorRail = nextDynamic\(\(\) => import\("\.\/components\/ViatorRail"\)/m.test(home), "…and it still loads the extracted ViatorRail (static import, or on demand since 2026-10-23 for the bundle ratchet) — the fix kept the module, it did not delete the rail");
   ok(!/^function ViatorRail\b/m.test(home), "…with no local function of that name");
 }
 
