@@ -2,14 +2,22 @@
 // Extracted from app/home.js (G1, July 2026 decomposition). Render-only; the
 // two original sibling branches (trip list, open trip) keep their conditions.
 import { useEffect, useState } from "react";
-import { C } from "../kit";
+import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
-import * as Trips from "../../../lib/trips";
+import * as TripCore from "../../../lib/trips";
+import * as TripDays from "../../../lib/tripDays";
+const Trips = { ...TripCore, ...TripDays };
 
 export default function ItineraryScreen({ ctx }) {
   const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, itineraryFlags, shareTrip, requireAuth } = ctx;
   const mapOn = !!(itineraryFlags && itineraryFlags.map);
   const [RouteMap, setRouteMap] = useState(null);
+  const [dateEditFor, setDateEditFor] = useState(null);
+  const [dateDraft, setDateDraft] = useState("");
+  useEffect(() => {
+    setDateEditFor(null);
+    setDateDraft("");
+  }, [activeTrip]);
   useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
     let cancelled = false;
@@ -36,7 +44,7 @@ export default function ItineraryScreen({ ctx }) {
                 <div style={{ fontSize: 18, fontWeight: 700, color: C.text }}>Your trips</div>
                 {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
               </div>
-              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Reorder your stops, mark what you have hit, and route the whole trip in Google Maps.</div>
+              <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Group stops by day, reorder them, mark what you have hit, and route each day or the whole trip in Google Maps.</div>
               {itineraryFlags && itineraryFlags.sync ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: -10, marginBottom: 16 }}>Your trips sync across your devices.</div> : null}
               {reservations.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
@@ -67,12 +75,13 @@ export default function ItineraryScreen({ ctx }) {
               ) : (
                 list.map((t) => {
                   const st = Trips.tripStats(t);
+                  const dateSum = Trips.tripDateSummary(t);
                   return (
                     <div key={t.key} onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
                       <StateBadge code={t.state} />
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
-                        <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
+                        <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                       </div>
                       <span style={{ color: C.muted, fontSize: 20 }}>›</span>
                     </div>
@@ -85,18 +94,67 @@ export default function ItineraryScreen({ ctx }) {
         {activeTrip && trips[activeTrip] && (() => {
           const t = trips[activeTrip];
           const items = Trips.sortedItems(t);
+          const grouped = Trips.groupItemsByDay(t);
+          const dateSum = Trips.tripDateSummary(t);
+          const quickChoices = Trips.quickDateChoices(t);
           const st = Trips.tripStats(t);
           const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
-          const tripCtl = { width: 34, height: 30, borderRadius: 8, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
-          const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 18, cursor: "pointer" };
+          const tripCtl = { width: 44, height: 44, minWidth: 44, minHeight: 44, borderRadius: 10, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
+          const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "8px 12px", minHeight: 44, borderRadius: 22, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 };
+          const focusDateToggle = (stopId) => {
+            if (typeof document === "undefined" || !stopId) return;
+            setTimeout(() => {
+              try {
+                const btn = document.getElementById("wf-date-btn-" + stopId);
+                if (btn && typeof btn.focus === "function") btn.focus();
+              } catch (e) {}
+            }, 0);
+          };
+          const openDatePicker = (stopId, currentDay) => {
+            setDateEditFor(stopId);
+            setDateDraft(currentDay || "");
+            setTripNoteEdit(null);
+            setTripMoveFor(null);
+            if (typeof document !== "undefined") {
+              setTimeout(() => {
+                try {
+                  const box = document.getElementById("wf-date-picker-" + stopId);
+                  if (!box) return;
+                  const firstTarget = box.querySelector('button[data-wf-quick-date], input[type="date"]');
+                  if (firstTarget && typeof firstTarget.focus === "function") firstTarget.focus();
+                } catch (e) {}
+              }, 0);
+            }
+          };
+          const closeDatePicker = (stopId) => {
+            setDateEditFor(null);
+            setDateDraft("");
+            focusDateToggle(stopId);
+          };
           const doRoute = () => { const u = Trips.routeUrl(t); if (u) { openExternal(u); try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
+          const doRouteDay = (group, legUrl) => {
+            const u = legUrl || Trips.dayRouteUrl(t, group.day);
+            if (u) {
+              openExternal(u);
+              try { logEvent("trip_route_day", null, { key: t.key, day: group.day, n: group.items.length }); } catch {}
+            }
+          };
+          const applyStopDate = (place, nextDate) => {
+            const clean = nextDate == null || nextDate === "" ? null : Trips.normalizeStopDate(nextDate);
+            if (nextDate != null && nextDate !== "" && !clean) return;
+            try { logEvent("stop_date", place, { key: t.key, day: clean }); } catch (e) {}
+            setTrips((prev) => Trips.setStopDate(prev, t.key, place.id, clean));
+            setDateEditFor(null);
+            setDateDraft("");
+            focusDateToggle(place.id);
+          };
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, cursor: "pointer" }}>‹</button>
+                <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
-                  <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
+                  <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
                 {items.length > 0 && shareList && <button onClick={() => { try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
                 {itineraryFlags && itineraryFlags.share && items.length > 0 && <button onClick={() => { if (!requireAuth("Sign up free to share a private link to this trip.")) return; if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
@@ -105,50 +163,291 @@ export default function ItineraryScreen({ ctx }) {
               {RouteMap ? <RouteMap items={items} /> : null}
               {items.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
-              ) : items.map((it, i) => {
-                const p = it.place;
-                const editing = tripNoteEdit === p.id;
-                const moving = tripMoveFor === p.id;
+              ) : grouped.groups.map((group, gi) => {
+                const routeLegs = group.day ? Trips.dayRouteLegs(t, group.day) : [];
                 return (
-                  <div key={p.id} style={{ marginBottom: 12 }}>
-                    <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
-                      <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
-                      {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
-                    </div>
-                    {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
-                    {editing && (
-                      <div style={{ marginTop: 6 }}>
-                        <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
-                        <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                          <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Save note</button>
-                          <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", borderRadius: 18, cursor: "pointer" }}>Cancel</button>
+                  <div key={group.key} data-wf-day-group={grouped.hasDates ? (group.day || "unscheduled") : "plain"} style={{ marginBottom: grouped.hasDates ? 18 : 0 }}>
+                    {grouped.hasDates && (
+                      <div
+                        data-wf-day-heading={group.day || "unscheduled"}
+                        data-wf-day-past={group.isPast ? "true" : "false"}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "space-between",
+                          flexWrap: "wrap",
+                          gap: 10,
+                          padding: "10px 0 8px",
+                          marginTop: gi === 0 ? 0 : 8,
+                          marginBottom: 10,
+                          borderBottom: "1px solid " + C.border,
+                        }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0, flexWrap: "wrap" }}>
+                          {group.day ? <Icon name="calendar" size={16} color={group.isPast ? C.muted : C.light} /> : null}
+                          <span style={{ fontSize: 15, fontWeight: 700, color: group.day && !group.isPast ? C.text : C.muted }}>
+                            {group.label}
+                          </span>
+                          <span style={{ fontSize: 12.5, color: C.muted }}>
+                            · {group.items.length} stop{group.items.length !== 1 ? "s" : ""}
+                          </span>
                         </div>
-                      </div>
-                    )}
-                    {moving && (
-                      <div style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 8 }}>
-                        <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, padding: "0 2px" }}>Move to…</div>
-                        {others.length === 0 ? (
-                          <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
-                        ) : others.map((o) => (
-                          <div key={o.key} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, p.id)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", borderRadius: 8, cursor: "pointer" }}>
-                            <StateBadge code={o.state} size={28} />
-                            <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
+                        {group.day && routeLegs.length > 0 && (
+                          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              aria-label={routeLegs.length > 1 ? `Route ${group.label} stops 1 to ${routeLegs[0].endStop} in Google Maps` : `Route ${group.label} in Google Maps`}
+                              onClick={() => doRouteDay(group, routeLegs[0].url)}
+                              style={{
+                                background: C.card,
+                                border: "1px solid " + C.border,
+                                color: C.text,
+                                fontSize: 12.5,
+                                fontWeight: 700,
+                                padding: "8px 14px",
+                                minHeight: 44,
+                                borderRadius: 22,
+                                cursor: "pointer",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              Route day ↗
+                            </button>
+                            {routeLegs.slice(1).map((leg, li) => (
+                              <button
+                                key={li}
+                                type="button"
+                                data-wf-route-leg={li + 2}
+                                aria-label={`Route ${group.label} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
+                                onClick={() => doRouteDay(group, leg.url)}
+                                style={{
+                                  background: C.card,
+                                  border: "1px solid " + C.border,
+                                  color: C.light,
+                                  fontSize: 12,
+                                  fontWeight: 700,
+                                  padding: "8px 12px",
+                                  minHeight: 44,
+                                  borderRadius: 22,
+                                  cursor: "pointer",
+                                  whiteSpace: "nowrap",
+                                }}
+                              >
+                                Stops {leg.startStop}–{leg.endStop} ↗
+                              </button>
+                            ))}
                           </div>
-                        ))}
-                        <button onClick={() => setTripMoveFor(null)} style={{ marginTop: 4, background: "transparent", border: "none", color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "4px 2px", cursor: "pointer" }}>Cancel</button>
+                        )}
                       </div>
                     )}
-                    {!editing && !moving && (
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
-                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1)); }} disabled={i === items.length - 1} style={{ ...tripCtl, opacity: i === items.length - 1 ? 0.35 : 1 }}>↓</button>
-                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
-                        <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(p.id); setTripMoveFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
-                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(p.id); setTripNoteEdit(null); }} style={tripChip}>Move</button>
-                        <button onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
-                      </div>
-                    )}
+                    {group.items.map((it, i) => {
+                      const p = it.place;
+                      const stopDay = Trips.itemDayOf(it);
+                      const stopIsPast = stopDay ? Trips.isPastStopDate(stopDay) : false;
+                      const stopDateLabel = stopDay
+                        ? (stopIsPast ? `Past · ${Trips.formatStopDate(stopDay)}` : Trips.formatStopDate(stopDay))
+                        : "Set date";
+                      const editing = tripNoteEdit === p.id;
+                      const moving = tripMoveFor === p.id;
+                      const dating = dateEditFor === p.id;
+                      return (
+                        <div key={p.id} data-wf-stop-id={p.id} style={{ marginBottom: 12 }}>
+                          <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
+                            <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
+                            {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
+                          </div>
+                          {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
+                          {editing && (
+                            <div style={{ marginTop: 6 }}>
+                              <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
+                              <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
+                                <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Save note</button>
+                                <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Cancel</button>
+                              </div>
+                            </div>
+                          )}
+                          {moving && (
+                            <div style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 8 }}>
+                              <div style={{ fontSize: 12, color: C.muted, marginBottom: 6, padding: "0 2px" }}>Move to…</div>
+                              {others.length === 0 ? (
+                                <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
+                              ) : others.map((o) => (
+                                <div key={o.key} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, p.id)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", minHeight: 44, borderRadius: 8, cursor: "pointer" }}>
+                                  <StateBadge code={o.state} size={28} />
+                                  <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
+                                </div>
+                              ))}
+                              <button onClick={() => setTripMoveFor(null)} style={{ marginTop: 4, background: "transparent", border: "none", color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "8px 6px", minHeight: 44, cursor: "pointer" }}>Cancel</button>
+                            </div>
+                          )}
+                          {!editing && !moving && (
+                            <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                              <button
+                                id={"wf-date-btn-" + p.id}
+                                type="button"
+                                aria-expanded={dating}
+                                aria-controls={"wf-date-picker-" + p.id}
+                                aria-label={stopDay ? `Change date for ${p.name || "stop"} (${stopIsPast ? "Past, " : ""}${Trips.formatStopDate(stopDay, { heading: true })})` : `Set date for ${p.name || "stop"}`}
+                                onClick={() => {
+                                  if (dating) {
+                                    closeDatePicker(p.id);
+                                  } else {
+                                    openDatePicker(p.id, stopDay);
+                                  }
+                                }}
+                                style={{
+                                  ...tripChip,
+                                  ...(stopDay
+                                    ? (stopIsPast
+                                      ? { background: C.card, borderColor: C.border, color: C.muted }
+                                      : { background: C.adim, borderColor: C.accent, color: C.light })
+                                    : {}),
+                                }}
+                              >
+                                <Icon name="calendar" size={13} color={stopDay && !stopIsPast ? C.light : C.muted} />
+                                <span>{stopDateLabel}</span>
+                              </button>
+                              <button type="button" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
+                              <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(p.id); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(p.id); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
+                            </div>
+                          )}
+                          {dating && (
+                            <div
+                              id={"wf-date-picker-" + p.id}
+                              data-wf-date-picker={p.id}
+                              role="region"
+                              aria-labelledby={"wf-date-picker-label-" + p.id}
+                              onKeyDown={(e) => {
+                                if (e.key === "Escape") {
+                                  e.stopPropagation();
+                                  closeDatePicker(p.id);
+                                }
+                              }}
+                              style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 10 }}
+                            >
+                              <div id={"wf-date-picker-label-" + p.id} style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
+                                Pick a day for {p.name || "this stop"}
+                              </div>
+                              {quickChoices.length > 0 && (
+                                <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}>
+                                  {quickChoices.map((ch) => {
+                                    const active = stopDay === ch.day;
+                                    return (
+                                      <button
+                                        key={ch.day}
+                                        type="button"
+                                        data-wf-quick-date={ch.day}
+                                        aria-pressed={active}
+                                        aria-label={`Set date for ${p.name || "stop"} to ${ch.label}`}
+                                        onClick={() => applyStopDate(p, ch.day)}
+                                        style={{
+                                          ...tripChip,
+                                          ...(active ? { background: C.adim, borderColor: C.accent, color: C.light } : { color: C.text }),
+                                        }}
+                                      >
+                                        {ch.label}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                                <input
+                                  id={"wf-date-input-" + p.id}
+                                  type="date"
+                                  aria-label={`Choose date for ${p.name || "stop"}`}
+                                  value={dateDraft}
+                                  onChange={(e) => setDateDraft(e.target.value)}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      const clean = Trips.normalizeStopDate(dateDraft);
+                                      if (clean) {
+                                        e.preventDefault();
+                                        applyStopDate(p, clean);
+                                      }
+                                    }
+                                  }}
+                                  style={{
+                                    background: C.bg,
+                                    border: "1px solid " + C.border,
+                                    borderRadius: 10,
+                                    padding: "8px 10px",
+                                    minHeight: 44,
+                                    boxSizing: "border-box",
+                                    color: C.text,
+                                    fontSize: 14,
+                                    colorScheme: "dark",
+                                    outline: "none",
+                                  }}
+                                />
+                                <button
+                                  type="button"
+                                  aria-label={`Save date for ${p.name || "stop"}`}
+                                  onClick={() => { const clean = Trips.normalizeStopDate(dateDraft); if (clean) applyStopDate(p, clean); }}
+                                  disabled={!Trips.normalizeStopDate(dateDraft)}
+                                  style={{
+                                    background: C.accent,
+                                    border: "none",
+                                    color: "#0D1117",
+                                    fontSize: 12.5,
+                                    fontWeight: 800,
+                                    padding: "8px 14px",
+                                    minHeight: 44,
+                                    borderRadius: 22,
+                                    cursor: Trips.normalizeStopDate(dateDraft) ? "pointer" : "default",
+                                    opacity: Trips.normalizeStopDate(dateDraft) ? 1 : 0.45,
+                                  }}
+                                >
+                                  Save date
+                                </button>
+                                {stopDay && (
+                                  <button
+                                    type="button"
+                                    aria-label={`Clear date for ${p.name || "stop"}`}
+                                    onClick={() => applyStopDate(p, null)}
+                                    style={{
+                                      background: "transparent",
+                                      border: "1px solid " + C.border,
+                                      color: C.light,
+                                      fontSize: 12.5,
+                                      fontWeight: 700,
+                                      padding: "8px 12px",
+                                      minHeight: 44,
+                                      borderRadius: 22,
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Clear date
+                                  </button>
+                                )}
+                                <button
+                                  type="button"
+                                  aria-label={`Cancel date selection for ${p.name || "stop"}`}
+                                  onClick={() => closeDatePicker(p.id)}
+                                  style={{
+                                    background: "transparent",
+                                    border: "1px solid " + C.border,
+                                    color: C.muted,
+                                    fontSize: 12.5,
+                                    fontWeight: 700,
+                                    padding: "8px 12px",
+                                    minHeight: 44,
+                                    borderRadius: 22,
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
