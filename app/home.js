@@ -11,6 +11,7 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
+import { resolveSearchIntent } from "../lib/searchIntent.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -5718,6 +5719,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [user, savedCoupons, supabaseReady]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
+  const [searchFeed, setSearchFeed] = useState(null);
+  const [searchFeedQuery, setSearchFeedQuery] = useState("");
   const [searchLabel, setSearchLabel] = useState("");
   const galleryRef = useRef(null);
   function scrollGallery(dir) {
@@ -8667,6 +8670,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
   }
 
+  function isSafeSearchHref(href) {
+    return typeof href === "string" && href.charAt(0) === "/" && href.charAt(1) !== "/" && !href.includes("\\") && href.length <= 240;
+  }
+
   async function ownedSearch(q, searchCenter) {
     const params = new URLSearchParams({ q });
     if (searchCenter && Number.isFinite(searchCenter.lat) && Number.isFinite(searchCenter.lng)) {
@@ -8675,14 +8682,46 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     const data = await mainSearchJson("/api/search?" + params.toString());
     if (!data || !["ok", "empty", "unavailable"].includes(data.status) || !Array.isArray(data.places)) throw new Error("invalid_search_response");
-    const matches = data.places.map((row) => {
+    const places = data.places.map((row) => {
       const place = normalizeSearchPlace(row);
       if (!place) return null;
       const distance = Number.isFinite(place._searchDistanceMi) ? `${place._searchDistanceMi.toFixed(1)} mi from search area` : "Place in Wayfind";
       return { kind: "place", placeId: place.id, text: place.name, secondary: place.address || distance, place, exactMatch: row.exactMatch === true };
     }).filter(Boolean);
-    if (data.status === "ok" && !matches.length) throw new Error("invalid_search_response");
-    return { ...data, matches };
+    const library = (Array.isArray(data.results) ? data.results : []).map((row) => {
+      if (!row || !isSafeSearchHref(row.href) || !["event", "guide", "page", "coupon"].includes(row.kind)) return null;
+      const text = String(row.title || "").trim();
+      if (!text) return null;
+      return { kind: row.kind, text, secondary: String(row.secondary || row.kind), href: row.href, lead: row.lead === true };
+    }).filter(Boolean);
+    const matches = [...library.filter((row) => row.lead), ...places, ...library.filter((row) => !row.lead)].slice(0, 8);
+    const cards = (Array.isArray(data.cards) ? data.cards : []).map((row) => {
+      if (!row || !row.id || typeof row.name !== "string" || !row.name.trim()) return null;
+      const lat = Number(row.lat);
+      const lng = Number(row.lng);
+      if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null;
+      const rating = Number(row.rating);
+      const reviews = Number(row.reviews);
+      const card = {
+        id: String(row.id),
+        name: row.name.trim(),
+        lat,
+        lng,
+        rating: Number.isFinite(rating) && rating > 0 ? rating : null,
+        reviews: Number.isFinite(reviews) && reviews > 0 ? reviews : 0,
+        types: Array.isArray(row.types) ? row.types : [],
+        primaryType: row.primaryType || null,
+        tags: Array.isArray(row.tags) ? row.tags : [],
+        distMi: Number.isFinite(Number(row.distMi)) ? Number(row.distMi) : null,
+        address: typeof row.address === "string" ? row.address : "",
+        href: isSafeSearchHref(row.href) ? row.href : null,
+        kind: row.kind || "place",
+        line: typeof row.line === "string" ? row.line : "",
+      };
+      return cardComplete(card) ? card : null;
+    }).filter(Boolean);
+    if (data.status === "ok" && !matches.length && !cards.length) throw new Error("invalid_search_response");
+    return { ...data, matches, cards };
   }
 
   function searchFailureMessage(result) {
@@ -8694,24 +8733,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   async function fetchSuggestions(q) {
     const request = ++suggestionRequestRef.current;
     const cities = localCitySuggestions(q);
-    setSearchBusy(true);
-    try {
-      const result = await ownedSearch(q, center);
-      if (request !== suggestionRequestRef.current) return;
-      setSuggestions([...cities, ...result.matches].slice(0, 8));
-      setSugIdx(-1);
-      setSearchFeedback(result.status === "ok" || cities.length ? "" : searchFailureMessage(result));
-      setSearchRecovery(result.status !== "ok" && !cities.length);
-      setSearchMissing(result.status === "empty" && !cities.length);
-    } catch {
-      if (request !== suggestionRequestRef.current) return;
-      setSuggestions(cities);
-      setSearchFeedback(cities.length ? "" : searchFailureMessage(null));
-      setSearchRecovery(!cities.length);
-      setSearchMissing(false);
-    } finally {
-      if (request === suggestionRequestRef.current) setSearchBusy(false);
-    }
+    if (request !== suggestionRequestRef.current) return;
+    // Cities stay in the dropdown so a reader can pick Parrish or Sarasota.
+    // Place, event, and guide hits render as cards on the page from submitSearch.
+    setSuggestions(cities.slice(0, 8));
+    setSugIdx(-1);
+    setSearchFeedback("");
+    setSearchRecovery(false);
+    setSearchMissing(false);
+    setSearchBusy(false);
   }
 
   // A photo entry is either { name: "places/.../photos/..." } from the guarded
@@ -8754,6 +8784,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
     setSearchMode(false);
     setSearchLabel("");
+    setSearchFeed(null);
+    setSearchFeedQuery("");
     setQuery("");
     setSuggestions([]);
     setSearchFeedback("");
@@ -8795,6 +8827,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       if (item.kind === "area" && item.city) goToSearchCity(item.city, attempt);
       else if (item.kind === "place" && item.place) openSearchPlace(item.place, attempt, item.context || "search");
+      else if ((item.kind === "event" || item.kind === "guide" || item.kind === "page" || item.kind === "coupon") && isSafeSearchHref(item.href)) {
+        setQuery("");
+        setSuggestions([]);
+        setSearchFeedback("");
+        setSearchRecovery(false);
+        setSearchMissing(false);
+        setSearchMode(false);
+        attempt.finish("page_opened", { status: "ok", count: 1, kind: item.kind, result_source: "owned-library" });
+        window.location.assign(item.href);
+      }
       else throw new Error("invalid_search_selection");
     } catch {
       setSearchFeedback("Could not open that result. Please search again.");
@@ -9021,12 +9063,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           attempt.finish("category_opened", { status: "opened", category });
           return;
         }
+        // A recognized search phrase ("date night", "brunch") renders cards.
+        // The experience poster and the mood shortcut stay for everything else.
+        const recognizedSearch = resolveSearchIntent(q, {}).recognized === true;
         const expHit = Object.keys(EXPERIENCES).find((k) => {
           const e = EXPERIENCES[k];
           const lab = (e.label || "").toLowerCase();
           return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase() === ql);
         });
-        if (expHit) {
+        if (expHit && !recognizedSearch) {
           closeSearchLayers();
           setQuery("");
           openExperience(expHit);
@@ -9035,8 +9080,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         }
         // Only explicit mood language is a shortcut. Venue names such as
         // Rainforest Cafe must not be swallowed by the old /rain/ substring.
-        const moodQuery = /^(?:i(?:['’]m| am| have|['’]ve)|with (?:my |the )?kids|on a date|showing (?:someone|visitors|friends) around)\b/.test(ql)
-          || /^(?:bored|nothing to do|relax|unwind|chill|need a break|peaceful|quiet time|family day|family time|family fun|date night|rain|rainy|raining|too hot|indoor day|indoor ideas|unforgettable|somewhere new|locals only|visitors in town|tourist for a day)$/.test(ql);
+        const moodQuery = recognizedSearch ? false : (/^(?:i(?:['’]m| am| have|['’]ve)|with (?:my |the )?kids|on a date|showing (?:someone|visitors|friends) around)\b/.test(ql)
+          || /^(?:bored|nothing to do|relax|unwind|chill|need a break|peaceful|quiet time|family day|family time|family fun|rain|rainy|raining|too hot|indoor day|indoor ideas|unforgettable|somewhere new|locals only|visitors in town|tourist for a day)$/.test(ql));
         const feel = moodQuery ? feelingToMoment(ql) : null;
         if (feel) {
           closeSearchLayers();
@@ -9091,6 +9136,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!current()) return;
       const result = await ownedSearch(q, nearGeo || searchCenter);
       if (!current()) return;
+      if (result.cards && result.cards.length && !(result.status === "ok" && result.matches.length === 1 && result.matches.filter((item) => item.exactMatch).length === 1)) {
+        closeSearchLayers();
+        setSearchFeed(result.cards);
+        setSearchFeedQuery(q);
+        setSuggestions([]);
+        setSearchFeedback("");
+        setSearchRecovery(false);
+        setSearchMissing(false);
+        setScreen("suggested");
+        attempt.finish("results_shown", { status: "ok", count: result.cards.length, result_source: "owned-library" });
+        return;
+      }
       // Exact identity, not merely one fuzzy result, grants automatic opening.
       const exact = result.matches.filter((item) => item.exactMatch);
       if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
@@ -9098,7 +9155,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches].slice(0, 8);
+      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
       if (choices.length) {
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
@@ -10468,7 +10525,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : "Explore this city"}</div>
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : (s.secondary || "Explore this city")}</div>
                     </div>
                   </li>
                 ))}
@@ -10621,6 +10678,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             deliberate placement; it simply has no render site on "/" — the
             same treatment HomeAside and BestNearby received. */}
         {screen === "suggested" && (() => {
+          if (searchFeed && searchFeed.length) {
+            return (
+              <div className="wf-cols">
+                <div className="wf-col-main">
+                  <div style={{ padding: "10px 2px 6px" }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.3px" }}>{searchFeedQuery}</div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+                      <div style={{ fontSize: 12.5, color: C.muted }}>{searchFeed.length} result{searchFeed.length === 1 ? "" : "s"} · <span style={{ color: C.accent, fontWeight: 700 }}>ranked by fit</span></div>
+                      <button type="button" onClick={() => { setSearchFeed(null); setSearchFeedQuery(""); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
+                    </div>
+                  </div>
+                  <div className="wf-place-card-list" data-search-feed="1">
+                    {searchFeed.map((p, i) => (
+                      <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => { if (p.href && isSafeSearchHref(p.href)) { window.location.assign(p.href); return; } openDetail(p); }} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={p.line || blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          }
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           // Phase 2: fold the DURABLE per-user taste vector into the category

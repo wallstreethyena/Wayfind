@@ -2355,3 +2355,9 @@ node scripts/test-reconcile-list-map-live.mjs
 
 # 2026-10-22 existing seasonal schedule/access refresh and hold protection.
 node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
+# Unified search draft: phrase pages, catalog rank, event fallback, and the
+# Claude filter (off unless WAYFIND_SEARCH_UNDERSTAND=on). The migration is
+# not applied here.
+node scripts/test-unified-search.mjs
+node scripts/check-search-understand.mjs
+node scripts/test-search-taxonomy.mjs

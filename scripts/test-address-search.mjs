@@ -7,6 +7,8 @@ import { localityFromFormattedAddress, centerAgreesWithLabel } from '../lib/loca
 import { themeParkIntent } from '../lib/themeParks.js';
 import { attachOfficialScoreReceipt } from '../lib/lawfulOrder.js';
 import { readableScoreReceipt } from '../lib/scoreExplanation.js';
+import { resolveSearchIntent } from '../lib/searchIntent.js';
+import { cardComplete } from '../lib/score.js';
 
 // Run the actual UI handlers. React setters, the network and sheet rendering
 // are the only boundaries mocked here; no copied search algorithm.
@@ -28,6 +30,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
     searchInputRef:{current:{focus(){state.inputFocused=true;}}}, mainSearchAbortRef:{current:null}, mainSearchAttemptRef:{current:null}, detailOpenRequestRef:{current:0},
     localCitySuggestions, createSearchAttempt, themeParkIntent, localityFromFormattedAddress, centerAgreesWithLabel, attachOfficialScoreReceipt,
     geocodeCity: async q => knownCityGeocode(q), feelingToMoment:()=>null,
+    resolveSearchIntent, cardComplete,
     EXPERIENCES:{ pizza:{label:'Pizza',keyword:'pizza'}, coffee:{label:'Coffee',keyword:'coffee shop'}, citytrap:{label:'Best of Sarasota',keyword:'Sarasota highlights'} },
     C:{accent:'#ff7a12'},
     logEvent:(name,place,extra)=>state.events.push({name,place,...extra}),
