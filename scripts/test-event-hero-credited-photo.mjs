@@ -220,7 +220,7 @@ const compile = (file) => ts.transpileModule(readFileSync(path.join(REPO, file),
 const MODULES = {
   imageHostPolicy: "lib/imageHostPolicy.js", placePhoto: "lib/placePhoto.js", photoAnswers: "lib/photoAnswers.js", cardPhotoRequest: "lib/cardPhotoRequest.js", livePhoto: "lib/livePhoto.js",
   PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js",
-  EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js",
+  EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js", cardPhotoRecovery: "app/components/cardPhotoRecovery.js",
 };
 const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.stringify(k) + ":function(exports,module,require){" + compile(f) + "\n}").join(",") + "};"
   // Model the legal browser observation window between passive-effect waves.
@@ -234,7 +234,7 @@ const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.s
         var entry={cancelled:false,cleanup:null,run:function(){if(!entry.cancelled)entry.cleanup=effect();}};
         window.__heldPassiveEffects.push(entry);return function(){entry.cancelled=true;if(entry.cleanup)entry.cleanup();};
       },deps);}});`
-  + "window.__cache={};window.__req=function(id){if(id==='react')return window.__fixtureReact;if(id==='react-dom')return ReactDOM;var b=id.split('/').pop().replace(/\\.js$/,'');if(!__src[b])throw new Error('harness: unresolved '+id);if(__cache[b])return __cache[b].exports;var m={exports:{}};__cache[b]=m;__src[b](m.exports,m,__req);return m.exports;};"
+  + "window.__cache={};window.__req=function(id){if(id==='react')return window.__fixtureReact;if(id==='react-dom')return ReactDOM;var b=id.split('/').pop().replace(/\\.js$/,'');if(!__src[b])throw new Error('harness: unresolved '+id);if(__cache[b])return __cache[b].exports;var m={exports:{}};__cache[b]=m;__src[b](m.exports,m,__req);return m.exports;};window.__cardPhotoRecovery=__req('cardPhotoRecovery');"
   + `window.__tree=function(src,name,extra){var C=__req('EventHeroPhotoContext'),P=__req('EventPlacePhoto').default,h=React.createElement;
       return h(C.EventHeroPhotoProvider,{src:src},h('section',null,
         h('div',{className:'rail'},h('div',{className:'wf-event-photo',style:{position:'relative',width:300,height:200,overflow:'hidden'}},h(P,Object.assign({hero:true,priority:true,src:src,name:name},extra||{})))),

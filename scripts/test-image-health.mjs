@@ -150,7 +150,7 @@ catch (e) {
 const compile = (file) => ts.transpileModule(readFileSync(path.join(REPO, file), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
 const MODULES = {
   imageHostPolicy: "lib/imageHostPolicy.js", placePhoto: "lib/placePhoto.js", photoAnswers: "lib/photoAnswers.js", cardPhotoRequest: "lib/cardPhotoRequest.js",
-  PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js", CardPhoto: "app/components/CardPhoto.js", SafeImg: "app/components/SafeImg.js",
+  PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js", CardPhoto: "app/components/CardPhoto.js", cardPhotoRecovery: "app/components/cardPhotoRecovery.js", SafeImg: "app/components/SafeImg.js",
 };
 const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.stringify(k) + ":function(exports,module,require){" + compile(f) + "\n}").join(",") + "};"
   + "window.__cache={};window.__req=function(id){if(id==='react')return React;if(id==='react-dom')return ReactDOM;var b=id.split('/').pop().replace(/\\.js$/,'');if(!__src[b])throw new Error('harness: unresolved '+id);if(__cache[b])return __cache[b].exports;var m={exports:{}};__cache[b]=m;__src[b](m.exports,m,__req);return m.exports;};";
@@ -167,7 +167,7 @@ const harness = bundle
   + "var PhotoFallbackTile=__req('PhotoFallbackTile').default;"
   + "var BrandedImageFallback=(function(PhotoFallbackTile){" + brandedJs + ";return BrandedImageFallback;})(PhotoFallbackTile);"
   + "var FallbackImg=(function(React,useState,useRef,useEffect,imageDisplayState,BrandedImageFallback,cardPhotoRequest,CardPhoto){" + fallbackImgJs + ";return FallbackImg;})(React,React.useState,React.useRef,React.useEffect,__is.imageDisplayState,BrandedImageFallback,__req('cardPhotoRequest').cardPhotoRequest,__req('CardPhoto').default);"
-  + "window.H={CardPhoto:__req('CardPhoto').default,SafeImg:__req('SafeImg').default,FallbackImg:FallbackImg,railPhotoSrc:__req('cardPhotoRequest').railPhotoSrc,answers:__req('photoAnswers'),Tile:PhotoFallbackTile};"
+  + "window.__cardPhotoRecovery=__req('cardPhotoRecovery');window.H={CardPhoto:__req('CardPhoto').default,SafeImg:__req('SafeImg').default,FallbackImg:FallbackImg,railPhotoSrc:__req('cardPhotoRequest').railPhotoSrc,answers:__req('photoAnswers'),Tile:PhotoFallbackTile};"
   + `window.__errs=[];window.addEventListener('error',function(e){if(e.target&&e.target.tagName==='IMG')__errs.push(e.target.getAttribute('src'));},true);`
   + `window.__seq=0;window.__mount=function(surface,src,id){
       var h=H,c=document.createElement('div');c.id='case'+(++__seq);document.getElementById('root').appendChild(c);
