@@ -7,6 +7,7 @@ import ts from "typescript";
 import { acquireDetailPhoto, fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto.js";
 import { getPlacePhoto, resetPhotoAnswers, RETRY_DELAY_MS, MAX_ATTEMPTS } from "../lib/photoAnswers.js";
 import { hasRealPlacePhoto, detailHeroLayout } from "../lib/detailHero.js";
+import { PLACE_DETAIL_PHOTO_STANDARD } from "../lib/placeDetailPhotoStandard.js";
 
 const source = readFileSync(process.argv[2] || new URL("../app/components/sheets/Detail.js", import.meta.url), "utf8");
 const ast = ts.createSourceFile("Detail.jsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
@@ -46,7 +47,7 @@ function host(initial) {
   const useEffect = (fn, deps) => { const i = cursor++, old = hooks[i]; if (!old || deps.some((x,j) => !Object.is(x, old.deps[j]))) pending.push(() => { old?.cleanup?.(); hooks[i] = { deps, cleanup: fn() }; }); };
   const useRef = value => { const i = cursor++; return hooks[i] ||= { current: value }; };
   const ctx = { React: { createElement: (type, props, ...children) => ({ type, props: props || {}, children }), Fragment: "fragment" },
-    useEffect, useRef, acquireDetailPhoto, fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor, hasRealPlacePhoto, detailHeroLayout,
+    useEffect, useRef, acquireDetailPhoto, fetchLivePhoto, isLivePlaceId, detailGalleryPhotos, liveCreditFor, hasRealPlacePhoto, detailHeroLayout, PLACE_DETAIL_PHOTO_STANDARD,
     setDetail(update) { detail = update(detail); dirty = true; }, C: {}, FallbackImg: "fixture-image", PhotoCredit: "fixture-credit",
     galleryIdx: 0, galleryRef: null, onGalleryScroll() {}, scrollGallery() {}, galleryBtn: () => ({}), setLightbox() {}, primaryCategory: () => "Food" };
   const run = new Function(...Object.keys(ctx), "detail", compiled + ";return render();");
@@ -73,7 +74,7 @@ function samePlaceAndFreeRecovery(id, expected) {
     assert.equal(init.headers["x-wayfind-photo-surface"], "detail");
   });
 }
-function preview(h) { return h.nodes().find(n => "data-detail-photo-preview" in n.props); }
+function media(h) { return h.nodes().find(n => "data-detail-photo-media" in n.props); }
 try {
   // Both HTTP errors and a budget/quota-shaped null are transient acquisition
   // misses, so the real Detail must eventually mount its image and matching credit.
@@ -82,7 +83,9 @@ try {
     const h = host(place(A)); await settle(h);
     assert.equal(h.detail()._liveDone, undefined, "transient miss leaves acquisition pending");
     assert.equal(h.nodes().filter(n => n.type === "fixture-image").length, 0, "no image can emit onError yet");
-    assert.ok(preview(h), "compact preview exists before answer");
+    assert.ok(media(h), "full-width pending frame exists before answer");
+    const pendingFrame = media(h).props.style;
+    assert.ok(h.nodes().some(n => "data-detail-photo-pending" in n.props), "pending state reserves media without a fake venue image");
     await advance(h, RETRY_DELAY_MS - 1); assert.equal(calls.length, 1, "no recovery before shared delay");
     await advance(h, 2);
     samePlaceAndFreeRecovery(A, 2);
@@ -93,9 +96,13 @@ try {
     assert.equal(image.props.src, photo(A).src, "recovered exact stored version enters actual hero");
     assert.equal(attribution.props.credit.name, "Recovered author", "hero credit comes from same recovered answer");
     assert.equal(attribution.props.credit.source, "google");
-    assert.equal(image.props.fit, "contain");
-    assert.equal(preview(h).props.style.width, 112, "late success keeps compact width");
-    assert.equal(preview(h).props.style.height, 112, "late success keeps compact height");
+    assert.equal(image.props.fit, "cover", "late photo fills the same default frame");
+    assert.equal(media(h).props.style.width, "100%", "late success uses full sheet width");
+    assert.equal(media(h).props.style.aspectRatio, "16 / 9", "late success uses shared landscape aspect");
+    assert.equal(media(h).props.style.minHeight, 220);
+    assert.equal(media(h).props.style.maxHeight, 420);
+    assert.deepEqual(media(h).props.style, pendingFrame, "pending and late-success frame geometry is identical");
+    assert.ok(!h.nodes().some(n => "data-detail-photo-preview" in n.props), "late photo never falls back to a square preview");
     await advance(h, RETRY_DELAY_MS * 20); assert.equal(calls.length, 2, "success clears all retry work");
     h.unmount(); assert.equal(timers.size, 0);
   }
@@ -105,6 +112,7 @@ try {
     samePlaceAndFreeRecovery(A, 1);
     assert.equal(h.detail()._liveDone, true, reason + " is terminal");
     assert.equal(h.nodes().filter(n => n.type === "fixture-image").length, 0);
+    assert.equal(media(h), undefined, "genuine no-photo removes the reserved media frame");
     assert.ok(h.nodes().some(n => n.children.includes("Photo unavailable")));
     assert.equal(timers.size, 0); h.unmount();
   }
@@ -114,6 +122,7 @@ try {
     samePlaceAndFreeRecovery(A, 2);
     assert.equal(h.detail()._liveDone, true, "definitive free-lane answer ends recovery");
     assert.equal(h.detail()._live, undefined);
+    assert.equal(media(h), undefined, "free-lane no-photo/removal collapses the pending frame");
     assert.equal(h.nodes().filter(n => n.type === "fixture-credit").length, 0);
     assert.equal(timers.size, 0); h.unmount();
   }

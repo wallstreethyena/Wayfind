@@ -5,6 +5,7 @@ import PlaceDistance from "./PlaceDistance.js";
 // Attribution and the existing analytics event names intentionally stay intact.
 import { useEffect, useMemo, useState } from "react";
 import CardPhoto from "./CardPhoto.js";
+import PlaceDetailPhotoHeader from "./PlaceDetailPhotoHeader.js";
 import { wayfindScore, governedWayfindScore } from "../../lib/wayfindScore.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { placeDecision, openStateBonus } from "../../lib/placePolicy.js";
@@ -82,6 +83,13 @@ const CURATED_CARD_PHOTOS = {
   "harry p leu gardens": "/brand/card-harry-p-leu-gardens.jpg",
   "the great escape room orlando": "/brand/card-great-escape-room.jpg",
 };
+
+// Preserve only these exact supplied venue images in the detail dialog.
+// Generic scene-setting card fallbacks never become a named-place hero.
+function curatedDetailPhoto(place) {
+  const src = CURATED_CARD_PHOTOS[String(place?.name || "").trim().toLowerCase()];
+  return src && place?.id ? { placeId: place.id, subjectName: place.name, src, source: "wayfind", credit: null } : null;
+}
 
 // Venue-specific editorial is deliberately hand-curated from primary sources.
 // Unknown places keep the quantitative fallback in whyLine; we never fabricate
@@ -173,13 +181,13 @@ const css = `
   .planDock{position:fixed;z-index:20;left:50%;bottom:18px;transform:translateX(-50%);width:min(760px,calc(100% - 28px));background:rgba(14,25,39,.94);border:1px solid rgba(255,255,255,.18);box-shadow:0 18px 70px rgba(0,0,0,.5);backdrop-filter:blur(18px);border-radius:18px;padding:12px 14px;display:flex;align-items:center;gap:13px}
   .planCount{width:39px;height:39px;display:grid;place-items:center;border-radius:12px;background:var(--wf-orange);color:#111722;font-weight:900}.planCopy{min-width:0;flex:1}.planCopy b{display:block;font-size:13px}.planCopy span{display:block;color:#91a0b3;font-size:10px;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.planDock a{min-height:42px;border-radius:11px;padding:0 16px;background:#f5efe5;color:#101724;text-decoration:none;font-size:11px;font-weight:850;display:flex;align-items:center}
   .drawerShade{position:fixed;z-index:30;inset:0;background:rgba(2,7,13,.72);backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px}
-  .drawer{width:min(900px,100%);max-height:min(720px,calc(100dvh - 40px));overflow:auto;background:#f5efe5;color:#101724;border-radius:28px;display:grid;grid-template-columns:.82fr 1.18fr;box-shadow:0 35px 120px rgba(0,0,0,.65);position:relative}
-  .drawerPhoto{min-height:520px;background:#12233a}.drawerPhoto img{width:100%;height:100%;object-fit:cover;display:block}.drawerCopy{padding:48px;display:flex;flex-direction:column}.close{position:absolute;right:18px;top:18px;border:1px solid rgba(16,23,36,.18);background:rgba(245,239,229,.9);width:42px;height:42px;border-radius:50%;font-size:22px;cursor:pointer}.drawer h2{font-family:Georgia,serif;font-size:42px;line-height:1.02;font-weight:500;letter-spacing:-.04em;margin:14px 0}.drawer .meta{color:#667185}.drawer .why{color:#384456;font-size:15px;margin-top:28px}.drawerActions{display:flex;gap:9px;margin-top:auto;padding-top:28px}.drawerActions a,.drawerActions button{min-height:52px;border-radius:999px;padding:0 20px;text-decoration:none;font-size:13px;font-weight:850;display:flex;align-items:center;justify-content:center}.drawerActions a{background:var(--wf-orange);color:#101724;flex:1}.drawerActions button{border:1px solid rgba(16,23,36,.2);background:transparent;color:#101724}
+  .drawer{width:min(900px,100%);max-height:min(720px,calc(100dvh - 40px));overflow:auto;background:#f5efe5;color:#101724;border-radius:28px;display:grid;grid-template-columns:1fr;box-shadow:0 35px 120px rgba(0,0,0,.65);position:relative}
+  .drawerHeader [data-place-detail-text]{padding:30px 48px 0}.drawerHeader [data-photo-credit]{color:#667185}.drawerCopy{padding:18px 48px 48px;display:flex;flex-direction:column}.close{position:absolute;z-index:2;right:18px;top:18px;border:1px solid rgba(16,23,36,.18);background:rgba(245,239,229,.9);width:42px;height:42px;border-radius:50%;font-size:22px;cursor:pointer}.drawer h2{font-family:Georgia,serif;font-size:42px;line-height:1.02;font-weight:500;letter-spacing:-.04em;margin:14px 0}.drawer .meta{color:#667185}.drawer .why{color:#384456;font-size:15px;margin-top:28px}.drawerActions{display:flex;gap:9px;margin-top:auto;padding-top:28px}.drawerActions a,.drawerActions button{min-height:52px;border-radius:999px;padding:0 20px;text-decoration:none;font-size:13px;font-weight:850;display:flex;align-items:center;justify-content:center}.drawerActions a{background:var(--wf-orange);color:#101724;flex:1}.drawerActions button{border:1px solid rgba(16,23,36,.2);background:transparent;color:#101724}
   @media(max-width:900px){
-    .shell{width:min(100% - 24px,680px);padding-top:15px}.brandbar{margin:0 4px 12px}.hero{grid-template-columns:1fr;min-height:0;border-radius:24px}.heroCopy{padding:34px 24px 27px}.hero h1{font-size:46px;max-width:500px}.lede{font-size:15px;margin-bottom:23px}.visual{min-height:280px;order:-1}.matches{grid-template-columns:1fr 1fr}.match.best{grid-column:1/3}.results{padding-top:68px}.resultsHead{align-items:flex-start;flex-direction:column;gap:12px}.trust{grid-template-columns:1fr;gap:12px}.drawer{grid-template-columns:1fr}.drawerPhoto{min-height:230px;height:230px}.drawerCopy{padding:30px 25px}.drawer h2{font-size:34px}
+    .shell{width:min(100% - 24px,680px);padding-top:15px}.brandbar{margin:0 4px 12px}.hero{grid-template-columns:1fr;min-height:0;border-radius:24px}.heroCopy{padding:34px 24px 27px}.hero h1{font-size:46px;max-width:500px}.lede{font-size:15px;margin-bottom:23px}.visual{min-height:280px;order:-1}.matches{grid-template-columns:1fr 1fr}.match.best{grid-column:1/3}.results{padding-top:68px}.resultsHead{align-items:flex-start;flex-direction:column;gap:12px}.trust{grid-template-columns:1fr;gap:12px}.drawer{grid-template-columns:1fr}.drawerHeader [data-place-detail-text]{padding:26px 25px 0}.drawerCopy{padding:16px 25px 30px}.drawer h2{font-size:34px}
   }
   @media(max-width:560px){
-    .shell{width:100%;padding:0 0 86px}.brandbar{padding:14px 18px 11px;margin:0}.brandLogo{width:118px}.hero{border-radius:0;border-left:0;border-right:0;box-shadow:none}.visual{min-height:250px}.visualControls{right:16px;bottom:16px}.heroCopy{padding:27px 20px 24px}.eyebrow{font-size:9px;margin-bottom:15px}.hero h1{font-size:42px}.lede{font-size:14px;line-height:1.45}.intent{grid-template-columns:31px 1fr 14px;min-height:74px;padding-right:4px;gap:7px}.intent:nth-child(odd){margin-right:10px}.intent:nth-child(even){padding-left:10px}.intentIcon{width:29px;height:29px}.intent b{font-size:13px}.intent small{font-size:9px}.primary{min-height:54px;margin-top:21px}.underCta{flex-direction:column;gap:5px}.results{padding:58px 15px 20px}.results h2{font-size:35px}.resultsHead p{font-size:12px}.matches{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 1px 16px;gap:12px}.match,.match.best{min-width:88%;scroll-snap-align:center}.photo,.best .photo{height:225px}.best h3{font-size:27px}.trust{margin:42px 15px 0;padding:25px 4px}.planDock{bottom:10px}.planDock a{padding:0 12px}.drawerShade{align-items:end;padding:0}.drawer{border-radius:24px 24px 0 0;max-height:92dvh}.drawerPhoto{height:210px;min-height:210px}.drawerCopy{padding:25px 21px 30px}.drawerActions{flex-direction:column}.locale{font-size:10px}
+    .shell{width:100%;padding:0 0 86px}.brandbar{padding:14px 18px 11px;margin:0}.brandLogo{width:118px}.hero{border-radius:0;border-left:0;border-right:0;box-shadow:none}.visual{min-height:250px}.visualControls{right:16px;bottom:16px}.heroCopy{padding:27px 20px 24px}.eyebrow{font-size:9px;margin-bottom:15px}.hero h1{font-size:42px}.lede{font-size:14px;line-height:1.45}.intent{grid-template-columns:31px 1fr 14px;min-height:74px;padding-right:4px;gap:7px}.intent:nth-child(odd){margin-right:10px}.intent:nth-child(even){padding-left:10px}.intentIcon{width:29px;height:29px}.intent b{font-size:13px}.intent small{font-size:9px}.primary{min-height:54px;margin-top:21px}.underCta{flex-direction:column;gap:5px}.results{padding:58px 15px 20px}.results h2{font-size:35px}.resultsHead p{font-size:12px}.matches{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 1px 16px;gap:12px}.match,.match.best{min-width:88%;scroll-snap-align:center}.photo,.best .photo{height:225px}.best h3{font-size:27px}.trust{margin:42px 15px 0;padding:25px 4px}.planDock{bottom:10px}.planDock a{padding:0 12px}.drawerShade{align-items:end;padding:0}.drawer{border-radius:24px 24px 0 0;max-height:92dvh}.drawerHeader [data-place-detail-text]{padding:24px 21px 0}.drawerCopy{padding:16px 21px 30px}.drawerActions{flex-direction:column}.locale{font-size:10px}
   }
   @media(prefers-reduced-motion:reduce){.intent,.primary,.photo img,.visualSlide,.visualDot{transition:none}}
 `;
@@ -471,10 +479,8 @@ export default function PaidLanding({ city, places }) {
         <div className="drawerShade" role="presentation" onMouseDown={(e) => { if (e.target === e.currentTarget) setActive(null); }}>
           <section className="drawer" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
             <button className="close" onClick={() => setActive(null)} aria-label="Close">×</button>
-            <div className="drawerPhoto"><Photo place={active} eager /></div>
+            <PlaceDetailPhotoHeader className="drawerHeader" placeId={active.id} name={active.name} initialPhoto={curatedDetailPhoto(active)} titleAs="h2" titleId="drawer-title" eyebrow={<span className="category">{categoryOf(active)}</span>} />
             <div className="drawerCopy">
-              <span className="category">{categoryOf(active)}</span>
-              <h2 id="drawer-title">{active.name}</h2>
               <Meta place={active} />
               <p className="why"><b>{t.why}</b>{whyLine(active, intent || "must", language)}</p>
               <div className="drawerActions">

@@ -76,6 +76,7 @@ node scripts/check-lunch-in-my-city.mjs
 node scripts/test-image-fallback.mjs
 node scripts/test-detail-hero.mjs
 node scripts/test-detail-photo-acquisition.mjs
+node scripts/test-place-detail-photo-surfaces.mjs
 node scripts/test-moment-contract.mjs
 node scripts/test-price.mjs
 node scripts/test-classification.mjs
