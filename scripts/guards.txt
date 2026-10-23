@@ -2325,6 +2325,9 @@ node scripts/test-halloween-crown.mjs
 # drum circle about an hour before sunset.
 node scripts/test-site-fixes-20261019.mjs
 node scripts/test-apple-parking.mjs
+# 2026-10-22: a provider venue point (Ticketmaster ZIP centroid) is replaced by
+# Apple's point only when Apple is sure; parking/pins/walk links follow it.
+node scripts/test-apple-venue-location.mjs
 node scripts/test-venue-parking-ui.mjs
 # Display distance uses one fresh device watch, never an API/search-center distance.
 node scripts/test-device-distance.mjs
