@@ -169,6 +169,48 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "October 21, 2026 pass: no reuse-cleared photograph of this exact subject was verified for this row. No photo is shown for it; the hero is a credited CC BY 4.0 photo of Tropicana Field itself."
+    },
+    "World Series Game 1": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
+    },
+    "World Series Game 2": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
+    },
+    "World Series Game 3": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
+    },
+    "World Series Game 4": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
+    },
+    "World Series Game 5 — if necessary": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
+    },
+    "World Series Game 6 — if necessary": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
+    },
+    "World Series Game 7 — if necessary": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": "MLB / Ticketmaster",
+      "note": "October 22, 2026: this game has not been played. The verified Ticketmaster listing establishes its matchup, date and venue, but no reuse-cleared photograph of this exact game is available. The shared guide ticket entry displays no photograph; a future licensed game photo or cleared official event artwork would unblock it."
     }
   }
 }
