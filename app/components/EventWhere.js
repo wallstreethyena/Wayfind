@@ -24,11 +24,12 @@ import EventRouteJump from "./EventRouteJump.js";
 import EventNearbyCards from "./EventNearbyCards.js";
 import EventStays from "./EventStays.js";
 import EventMapPlaces from "./EventMapPlaces.js";
+import EventNearbyReanchor from "./EventNearbyReanchor.js";
 import { WF_PLACE_CARD_CSS } from "./css.js";
 import { websiteHost } from "../../lib/placeWhere.js";
 import { APPROXIMATE_LOCATION_LINE } from "../../lib/eventLocation.js";
 import { Suspense } from "react";
-import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
+import { eventNearbyPlaces } from "../../lib/eventNearbyPlaces.js";
 
 const ACCENT = "#F97316";
 const PICK = "#2EC9A6";
@@ -54,6 +55,7 @@ const CSS = `
 .wfw-official small{display:block;max-width:100%;font-weight:700;color:#94A3B8;font-size:12px;line-height:1.35;overflow-wrap:anywhere}
 .wfw-map{padding:0 10px 10px}
 .wfw-nearcard{margin:18px 14px 0;min-width:0}
+.wfw-nearcard:has(.wfw-near:empty){display:none}
 .wfw-near{padding:0}
 
 .wf-event-nearby-rail{margin:0;padding-block:4px 12px}
@@ -61,25 +63,9 @@ const CSS = `
 @media (max-width:560px){.wfw-head{align-items:stretch;padding:16px 14px 12px}.wfw-acts{width:100%;flex:1 1 100%;display:grid;grid-template-columns:minmax(0,1fr)}.wfw-btn{width:100%}.wfw-map{padding:0 6px 6px}.wfw-near{padding:0}}
 `;
 
-// One admission boundary feeds both children. If a row cannot produce a real
-// scored place card or a truthful map pin, it belongs in neither. Keeping this
-// as one ordered array makes card rank N and map pin N the same place by
-// construction, including after malformed provider rows are removed.
-export function eventNearbyPlaces(picks, hasPoint) {
-  if (!hasPoint || !Array.isArray(picks)) return [];
-  return orderPlaceRecommendations(picks.filter((place) => place
-    && place.id
-    && place.name
-    && typeof place.href === "string"
-    && place.href.length > 0
-    && Number.isFinite(place.lat)
-    && Number.isFinite(place.lng)
-    && Number.isFinite(place.distMi)
-    && place.distMi >= 0
-    && Number.isFinite(place.wfScore)
-    && place.wfScore > 0
-    && place.wfScore <= 100));
-}
+// The admission rule (one ordered array feeds both the cards and the map pins)
+// lives in lib/eventNearbyPlaces.js so the browser re-anchor runs the same one.
+export { eventNearbyPlaces };
 
 /**
  * @param {{
@@ -99,9 +85,13 @@ export function eventNearbyPlaces(picks, hasPoint) {
  *     street?: string, city?: string, state?: string, // address parts Apple matches the venue against
  *     segment?: string,            // provider segment (e.g. "Sports"), a matching hint only
  *   },
+ *   nearbyQuery?: {                // the event's own facts, sent with the corrected point when the browser's
+ *     name?: string, date?: string, time?: string, segment?: string, genre?: string, placeId?: string,
+ *     city?: string,               // Apple check moves a "provider" point (app/components/EventNearbyReanchor.js)
+ *   },
  * }} props
  */
-export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false, ticketLink = false, location = { trust: "verified" } }) {
+export default function EventWhere({ venue, address, directionsHref, website, lat, lng, picks = [], sponsoredWebsite = false, approximate = false, ticketLink = false, location = { trust: "verified" }, nearbyQuery = {} }) {
   const hasPoint = Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180 && !(lat === 0 && lng === 0);
   if (!venue && !address) return null;
   const host = website ? websiteHost(website) : "";
@@ -157,6 +147,11 @@ export default function EventWhere({ venue, address, directionsHref, website, la
             </div>
           </section>
         ) : null}
+        {/* A "provider" point can be a ZIP centroid. When the map's Apple check
+            moves it by more than 300 m, this re-ranks the picks above, the stays
+            below and the map pins from the corrected point. Verified points
+            (curated rows, staples, place pages) never mount it. */}
+        {location.trust === "provider" && hasPoint ? <EventNearbyReanchor venue={{ name: venue || address, lat, lng }} city={nearbyQuery.city || location.city} name={nearbyQuery.name} date={nearbyQuery.date} time={nearbyQuery.time} segment={nearbyQuery.segment || location.segment} genre={nearbyQuery.genre} placeId={nearbyQuery.placeId} hasNearby={pins.length > 0} /> : null}
         {hasPoint ? <Suspense fallback={null}><EventStays lat={lat} lng={lng} venue={venue} /></Suspense> : null}
       </div></EventMapPlaces>
     </section>

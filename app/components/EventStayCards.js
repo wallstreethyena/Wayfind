@@ -9,8 +9,15 @@ import BookingCTA from "./BookingCTA";
 import EventPlaceRail from "./EventPlaceRail";
 
 export default function EventStayCards({ places, title = "Stay near this event", description = "Top stays within 12 miles.", label = "Hotels near the event", surface = "event_stays", headingAction = null }) {
-  const orderedPlaces = useMemo(() => orderPlaceRecommendations(places), [places]);
-  const setStays = useEventMapPlaces()?.setStays;
+  // After the browser's Apple check moves a provider venue point, the stays
+  // ranked from the CORRECTED point (EventNearbyReanchor) replace the server's
+  // list. The map pins are published below from whatever this rail displays,
+  // so a stale list can never overwrite the re-anchored one.
+  const eventPlaces = useEventMapPlaces();
+  const setStays = eventPlaces?.setStays;
+  const reanchoredStays = eventPlaces?.reanchoredStays;
+  const shown = Array.isArray(reanchoredStays) ? reanchoredStays : places;
+  const orderedPlaces = useMemo(() => orderPlaceRecommendations(shown), [shown]);
   useEffect(() => {
     setStays?.(eventStayMapPins(orderedPlaces));
     return () => setStays?.([]);

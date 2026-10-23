@@ -147,8 +147,8 @@ clearAppleVenueLocationCacheForTests();
 kit = fakeMapkit({ places: [apple("A1", "Tropicana Field", centroid.lat + 0.0004, centroid.lng, { pointOfInterestCategory: "Stadium" })] });
 result = await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop });
 check.equal(result.status, "confirmed", "a close Apple point confirms");
-check.deepEqual(result.point, centroid, "and the provider point stays");
-check.equal(result.source, "provider", "confirmed keeps the provider as the source");
+check.deepEqual(result.point, { lat: centroid.lat + 0.0004, lng: centroid.lng }, "and the map draws Apple's point (the start may be a Google/inventory coordinate with no verdict of its own)");
+check.equal(result.source, "apple-place", "confirmed names Apple as the source");
 
 // 3. Name refused, address echoes: corrected by the address rung.
 clearAppleVenueLocationCacheForTests();
@@ -165,7 +165,8 @@ clearAppleVenueLocationCacheForTests();
 kit = fakeMapkit({ places: [], geocode: [geo("1", "Tropicana Dr", centroid.lat + 0.001, centroid.lng)] });
 result = await resolveAppleVenueLocation({ mapkit: kit.mapkit, venue: trop });
 check.equal(result.status, "confirmed", `an address within ${VENUE_ADDRESS_MOVE_METERS} m confirms`);
-check.deepEqual(result.point, centroid, "the provider point stays");
+check.deepEqual(result.point, { lat: centroid.lat + 0.001, lng: centroid.lng }, "and the map draws Apple's geocoded point");
+check.equal(result.source, "apple-address", "confirmed by the address rung names it");
 
 // 5. Nothing sure anywhere: kept, provider point, reasons visible.
 clearAppleVenueLocationCacheForTests();
