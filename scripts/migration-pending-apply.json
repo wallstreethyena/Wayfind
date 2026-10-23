@@ -68,12 +68,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1890",
     "reason": "Data only: one wf_heartbeat_expected row ('apple-place-match', 1800 min) so the new nightly cron /api/cron/apple-place-match pages if it silently stops firing. Insert-where-not-exists, idempotent, no schema/grant/RLS change. Apply after the cron merges and its first pulse lands (the cron pulses even when credentials or the ledger are missing). Written with read-only DB access. Rollback: delete from public.wf_heartbeat_expected where job='apple-place-match'. Not applied."
-  },
-  {
-    "file": "supabase/migrations/20261022233000_wf_unified_search.sql",
-    "sha256": "4c92461aca251b64a41bb5b31645569edbb5a4ca6b03d3bafde7318f121315ae",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#1915 unified search — Gabe approved the vector fix (9:59 PM ET, Oct 22)",
-    "reason": "NOT APPLIED. search_vector is a plain column maintained by BEFORE INSERT OR UPDATE trigger wf_search_documents_vector, then backfilled by wf_search_refresh(). The generated column using array_to_string failed on production Postgres 17 (42P17, not immutable) and rolled back with no objects left behind. Additive only: new tables wf_search_documents and wf_search_understand_cache. Does not drop or rewrite wf_inventory or wf_events. Tested on local Postgres 17. Apply after this fix merges, then record the receipt and remove this entry."
   }
 ]
