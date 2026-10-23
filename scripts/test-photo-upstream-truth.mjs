@@ -291,12 +291,12 @@ for (const status of [500, 502, 503]) {
   eq(auth.granted("details_ids_only"), 1, "H(ok): one Details grant");
 }
 
-// I. Details returns a name that is not a Google photo resource name — treated as no photo.
+// I. A malformed photo name is a failed source response, never proof of no photo.
 {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ details: [{ status: 200, body: { photos: [{ name: "not-a-photo-name" }] } }] }, auth);
   eq(calls.join(","), "details", "I(bad-name): no media request for an unusable name");
-  eq(result.upstream, "fresh-nophoto", "I(bad-name): classified fresh-nophoto");
+  eq(result.upstream, "place-lookup-failed:unowned", "I(bad-name): an invalid source name is not no-photo");
   missResults.push(result);
 }
 
@@ -314,7 +314,7 @@ for (const status of [500, 502, 503]) {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ details: [{ status: 500 }] }, auth);
   eq(calls.join(","), "details", "K(details-http): Details answered non-2xx, no media request");
-  eq(result.upstream, "place-lookup-failed", "K(details-http): classified place-lookup-failed");
+  eq(result.upstream, "place-lookup-failed:server", "K(details-http): preserve the server failure");
   missResults.push(result);
 }
 
@@ -323,7 +323,25 @@ for (const status of [500, 502, 503]) {
   const auth = authorizer({ photos: 99, details_ids_only: 99 });
   const { calls, result } = await run({ details: [{ status: 429 }] }, auth);
   eq(calls.join(","), "details", "L(details-429): no media request after a Details refusal");
-  eq(result.upstream, "place-lookup-failed", "L(details-429): classified place-lookup-failed");
+  eq(result.upstream, "place-lookup-failed:quota", "L(details-429): preserve the quota failure");
+  missResults.push(result);
+}
+
+// Details transport/body/source defects must remain distinct from a photo-less success.
+for (const [label, step, expected] of [
+  ["network", { throw: true }, "network"],
+  ["badjson", { status: 200, badjson: true }, "badjson"],
+  ["null-json", { status: 200, body: null }, "badjson"],
+  ["bad-photos-shape", { status: 200, body: { photos: {} } }, "badjson"],
+  ["wrong-place", { status: 200, body: { photos: [{ name: "places/ChIJOtherPlace000001/photos/OTHER" }] } }, "unowned"],
+]) {
+  const auth = authorizer({ photos: 1, details_ids_only: 1 });
+  const { calls, result } = await run({ details: [step] }, auth);
+  eq(calls.join(","), "details", `lookup ${label}: one granted Details call, no media or retry`);
+  eq(result.upstream, `place-lookup-failed:${expected}`, `lookup ${label}: bounded diagnostic class survives`);
+  eq(result.retried, false, `lookup ${label}: no repeat request under one Details grant`);
+  eq(result.refunded, 1, `lookup ${label}: only unused media grant refunded; uncertain/billed Details stays counted`);
+  ok(!JSON.stringify(result).includes("server-key-test"), `lookup ${label}: no key in result`);
   missResults.push(result);
 }
 
