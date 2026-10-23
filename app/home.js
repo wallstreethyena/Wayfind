@@ -178,8 +178,9 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // on a lazy chunk + then its own /api/theme-parks fetch: first card 4.2s vs
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
+const loadTrips = () => import("../lib/trips");
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
+const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -212,7 +213,6 @@ const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlace
 // link on a client-rendered card, nothing SEO reads it, and it must never be
 // crawled as our own content.
 const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
-import { addPlaceToTrips, nearestStopIndex, tripMetaForPlace } from "../lib/trips";
 import { EMPTY_ITINERARY_FLAGS, readItineraryFlags } from "../lib/itineraryFlags";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
@@ -1180,32 +1180,6 @@ function logEventAnon(action, place, extra) {
   } catch (e) {}
 }
 
-// Compact a place down to what a shared list needs to render.
-function compactPlace(p) {
-  const out = { id: p.id, n: p.name, r: p.rating, c: p.reviews, pr: p.price, pn: p.priceNum, a: p.address, t: p.type, la: p.lat, lo: p.lng, ph: p.photo || null };
-  if (typeof p.day === "string" && /^\d{4}-\d{2}-\d{2}$/.test(p.day)) out.d = p.day;
-  return out;
-}
-function expandPlace(o) {
-  const out = { id: o.id, name: o.n, rating: o.r, reviews: o.c || 0, price: o.pr || null, priceNum: o.pn == null ? null : o.pn, address: o.a || "", type: o.t || "", lat: o.la, lng: o.lo, photo: o.ph || null, photos: o.ph ? [o.ph] : [], labels: [], mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${o.id}` };
-  if (typeof o.d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(o.d)) out.day = o.d;
-  return out;
-}
-function encodeList(places) {
-  try {
-    const json = JSON.stringify(places.slice(0, 25).map(compactPlace));
-    const b64 = btoa(unescape(encodeURIComponent(json)));
-    return b64.split("+").join("-").split("/").join("_").split("=").join("");
-  } catch { return ""; }
-}
-function decodeList(str) {
-  try {
-    const b = str.split("-").join("+").split("_").join("/");
-    const json = decodeURIComponent(escape(atob(b)));
-    const arr = JSON.parse(json);
-    return Array.isArray(arr) ? arr.map(expandPlace) : null;
-  } catch { return null; }
-}
 // Share a link via the OS share sheet, falling back to copy. Passing url as a
 // distinct field (not buried in text) is what lets iMessage/Facebook unfurl a
 // rich preview card instead of showing the raw link as plain text.
@@ -7183,20 +7157,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
       } catch (e) {}
     }
-    if (listStr && listStr.indexOf("wftrip1.") === 0) {
-      import("../lib/itineraryShare.js").then(({ decodeItineraryShare }) => {
-        const trip = decodeItineraryShare(listStr);
-        if (trip && trip.items && trip.items.length) {
-          setSharedItinerary(trip);
-          setSharedList(null);
-          setScreen("shared");
-          logEvent("share_open", null, { kind: "itinerary", n: trip.items.length });
-          markShareOpen();
+    if (listStr) {
+      import("../lib/itineraryShare.js").then((m) => {
+        if (listStr.indexOf("wftrip1.") === 0) {
+          const trip = m.decodeItineraryShare(listStr);
+          if (trip && trip.items && trip.items.length) {
+            setSharedItinerary(trip);
+            setSharedList(null);
+            setScreen("shared");
+            logEvent("share_open", null, { kind: "itinerary", n: trip.items.length });
+            markShareOpen();
+          }
+          return;
         }
+        const pl = m.decodeList(listStr);
+        if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
       }).catch(() => {});
-    } else if (listStr) {
-      const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
     } else if (placeId) {
       logEvent("share_open", null, { kind: "place", place_id: placeId });
       markShareOpen();
@@ -7288,36 +7264,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => {
     if (!itineraryFlags.sync || !user || !supabase) return undefined;
     let cancelled = false;
-    (async () => {
-      let local = {};
-      const { tripsForOwner } = await import("../lib/itinerarySync.js");
-      if (cancelled) return;
-      try { local = tripsForOwner(localStorage, user.id); } catch (e) { return; }
-      setTrips(local);
-      const [syncMod, migrateMod] = await Promise.all([
-        import("../lib/itinerarySync.js"),
-        import("../lib/itineraryMigrate.js"),
-      ]);
-      if (cancelled) return;
-      const remote = await syncMod.fetchRemoteTrips(supabase, user.id);
-      if (cancelled || remote == null) return;
-      // Re-read after the network wait. A stop added while the fetch was in
-      // flight is already in localStorage; merging the earlier snapshot would
-      // drop it.
-      let latest = local;
-      try { latest = JSON.parse(localStorage.getItem("wayfind_trips") || "{}") || local; } catch (e) {}
-      const merged = migrateMod.mergeTrips(latest, remote);
-      const removedDuring = Object.keys(local).filter((key) => !latest[key]);
-      const migrated = Object.keys(local).filter((k) => local[k] && local[k].items && local[k].items.length && !remote[k]);
-      itinerarySkipPush.current = true;
-      itinerarySyncKeys.current = Object.keys(merged);
-      itinerarySyncReady.current = true;
-      setTrips(merged);
-      const pushed = await syncMod.pushTrips(supabase, user.id, merged, removedDuring);
-      if (cancelled) return;
-      if (pushed && migrated.length) { try { logEvent("itinerary_migrated_local", null, { trips: migrated.length }); } catch (e) {} }
-      if (pushed) { try { logEvent("itinerary_synced", null, { trips: Object.keys(merged).length }); } catch (e) {} }
-    })();
+    import("../lib/itinerarySync.js").then((m) => m.syncOwnerTrips({
+      supabase, userId: user.id, storage: localStorage, isCancelled: () => cancelled,
+      setTrips, syncReadyRef: itinerarySyncReady, syncKeysRef: itinerarySyncKeys, skipPushRef: itinerarySkipPush, logEvent,
+    })).catch(() => {});
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user && user.id, itineraryFlags.sync, !!supabase]);
@@ -9191,15 +9141,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       return { ...prev, [listId]: { ...l, places: has ? l.places.filter((p) => p.id !== target.id) : [...l.places, target] } };
     });
     if (wasAdd) {
-      try {
-        const meta = tripMetaForPlace(target);
-        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === target.id);
-        if (!already) {
-          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
-          logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
-        }
-      } catch (e) {}
-      setTrips((prev) => addPlaceToTrips(prev, target, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "list_save" }));
+      loadTrips().then((m) => m.filePlaceIntoTrips({ p: target, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "list_save", logEvent })).catch(() => {});
     }
     setSaveTarget(null);
   }
@@ -9213,29 +9155,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // same reason unsaving does not remove a stop.
   function isOnTrip(p) {
     if (!p || !p.id) return false;
-    try {
-      const meta = tripMetaForPlace(p);
-      const t = trips[meta.key];
-      return !!(t && t.items && t.items.some((it) => it.id === p.id));
-    } catch (e) { return false; }
+    for (const k in trips) {
+      const items = trips[k] && trips[k].items;
+      if (items && items.some((it) => it.id === p.id)) return true;
+    }
+    return false;
   }
   function addToItinerary(p) {
     if (!p || !p.id) return;
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
-    let insertion = "manual";
-    try {
-      const meta = tripMetaForPlace(p);
-      const existing = (trips[meta.key] && trips[meta.key].items) || [];
-      const plan = itineraryFlags.autoOrder ? nearestStopIndex(existing, p) : { auto: false };
-      insertion = itineraryFlags.autoOrder && plan.auto ? "auto" : "manual";
-      if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
-      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary", insertion }); } catch (e) {}
-      try { logEvent("itinerary_item_added", p, { source: "card_itinerary", insertion, key: meta.key }); } catch (e) {}
-    } catch (e) {}
-    const before = trips;
-    setTrips((prev) => addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "card_itinerary" }));
-    if (insertion === "auto") showToast("Added next to a nearby stop", { label: "Undo", run: () => setTrips(before) });
-    else showToast("🗓️ Added to your itinerary");
+    loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "card_itinerary", isCardItinerary: true, logEvent, showToast })).catch(() => {});
   }
 
   // One-tap save straight to Favorites from a card heart.
@@ -9254,15 +9183,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
-      try {
-        const meta = tripMetaForPlace(p);
-        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === p.id);
-        if (!already) {
-          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
-          logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
-        }
-      } catch (e) {}
-      setTrips((prev) => addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "quick_save" }));
+      loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "quick_save", logEvent })).catch(() => {});
     }
     if (supabase && user) {
       if (has) {
@@ -9437,7 +9358,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // code, so the URL is clean and unfurls into a rich preview. Without it we
   // fall back to the long self-contained link.
   async function buildListShareUrl(places, title) {
-    const payload = encodeList(places);
+    const shareMod = await import("../lib/itineraryShare.js");
+    const payload = shareMod.encodeList(places);
     const n = (places || []).length;
     const names = (places || []).map((p) => p && p.name).filter(Boolean);
     const sub = names.slice(0, 2).join(", ") + (names.length > 2 ? " and " + (names.length - 2) + " more" : "");
