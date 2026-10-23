@@ -8,8 +8,8 @@
 # For an intentional guard change, review its diff and use --suggest <path> to update its row.
 # "-" is only for unavailable numeric metadata or absent ownership; critical guards require owners.
 # registry-meta-sha256: a3df4dac554232de3e0786b6c81554c3eb1a072a25592a97d6f92e6d70a841c2
-path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
+path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	76	0	0	3fcac29c4dde5b30f400481e996cf01c06b1303258a0ddf705b4e1b918c82f33
 scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	5e4e758b63777c1c64b4651e06c06741f0169f1352d3af3ba919801a778b194e
 scripts/check-anchor-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	74550830f3d6a6c95ab886c34a35c2deb66b4afde9839a700f9f2628d625f412
@@ -515,6 +515,7 @@ scripts/test-bump-within-eligible.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	f63
 scripts/test-business-status.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	9bcfa09adfd2f39b408a1dda700a0883f97d0ac3261b54a34054ef67d240f68e
 scripts/test-buzz.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	c74f2e07a5f1cfdffa8823a68163a70597401709352d02743c64f629cf0be230
 scripts/test-cache-refresh.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	1bea1ba9eb8a83cd7565d87a6dd65720c9dfa2d7a9c861ac3a65dc7cc4c90515
+scripts/test-cached-place-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	fd15306989de31ee5547b1a22d2dcf4b7a809704a131d1c6047d9ce6c592b668
 scripts/test-cafe-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	fd8c10f231431c8302c9202e716f88ed547138f950cc676d1da17d8fff5b65f2
 scripts/test-card-a11y.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	22	1	0	a77d7f5222a07735f8ee301caeb98796016fb15bdf5134ace7698da221302aae
 scripts/test-card-action-row.mjs	0	RENDER	blocks-ci-and-deploy	1	-	8	0	0	90695f2bcb19a8ff34c031999d31df2109a08fa68a65e20b3902f2feaea23ed5
@@ -617,7 +618,7 @@ scripts/test-event-apple-maps.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	dc886c9
 scripts/test-event-category-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	ff1c72c1fd4c33c33d27f5d61c9e3b5bda68bde4c308866c704d96129bbce03a
 scripts/test-event-driving-route.mjs	0	RENDER	blocks-ci-and-deploy	1	-	10	0	0	bc84c6949752d1c61dc6290009a5daf12783c1bd8e8bfebf5c87f2618be88558
 scripts/test-event-experience.mjs	0	RENDER	blocks-ci-and-deploy	1	-	64	0	0	5022d560d3532b16fc13ecf365b8b68290cc9d305f632437f888f43ac0f5b2ca
-scripts/test-event-hero-credited-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	b77b35b22d990c96065c77418ef5a9ecf4462595569eb98ff7b4ae2bb7a1962f
+scripts/test-event-hero-credited-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	78	0	0	366a26f543f156d59c3e070ded3d128edaa14ecab644dc58d7443c4d84e3b1f9
 scripts/test-event-hero-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	b331c0bbdb5e0259a55e8f2ed6a693d0dd4fafb5fea59aaf53b69d2a24c39289
 scripts/test-event-mobile-repair.mjs	0	CALL	blocks-ci-and-deploy	1	-	29	0	0	f135c76c61c0bef452e306a6b37e5318bc387478fc36b5d476b3932dab1f5808
 scripts/test-event-nearby-cards.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	4ad4928c8d0332bcdf8a64a9591dc12061995530f76ad8dc8b2fd8be5d07fa30

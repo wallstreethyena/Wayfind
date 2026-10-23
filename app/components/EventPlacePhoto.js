@@ -1,11 +1,15 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import PhotoFallbackTile from "./PhotoFallbackTile.js";
 import { useEventHeroPhoto } from "./EventHeroPhotoContext.js";
 import { isApiPhotoSrc, photoPlaceIdFromSrc } from "../../lib/cardPhotoRequest.js";
 import { fetchLivePhoto } from "../../lib/livePhoto.js";
 import { getPlacePhoto, MAX_ATTEMPTS, RETRY_DELAY_MS } from "../../lib/photoAnswers.js";
+
+// Preserve SSR's initial credit markup; in the browser publish the outcome
+// before paint so a fallback tile cannot retain the previous photo's credit.
+const usePhotoLayoutEffect = typeof window === "undefined" ? useEffect : useLayoutEffect;
 
 // Keep the photo's geometry when a provider fails. Never substitute another venue.
 //
@@ -61,7 +65,7 @@ export default function EventPlacePhoto({ src, name = "Place", priority = false,
   }, [imgSrc]);
 
   const status = visible ? "ready" : pending ? "pending" : "failed";
-  useEffect(() => {
+  usePhotoLayoutEffect(() => {
     if (report) report({ status, photo: visible ? photo : null });
   }, [report, status, visible, photo]);
 
