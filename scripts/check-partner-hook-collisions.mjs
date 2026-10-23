@@ -111,7 +111,11 @@ for (const row of PLACE_PARTNER_PICKS) {
        `alias "${alias}" is claimed by BOTH ${prior} and ${row.offerId} — placePartnerPick has no market gate, so the second row silently wins for every city and one of these venues sells the other's ticket`);
     aliasOwner.set(key, row.offerId);
 
-    const got = placePartnerPick({ name: alias });
+    // Freeze a day after every current dated overlay. World Series Game 3
+    // rewrites the Trop pin's offer id through 2026-10-26 ET and then puts
+    // the stored venue id back. Alias ownership is the stored row. The dated
+    // swap is locked in scripts/test-ws-game3-offer.mjs, including the revert.
+    const got = placePartnerPick({ name: alias }, undefined, "2099-01-01");
     // A bare beach name is refused by the beach rule (placePartnerPick never
     // serves a beach card); every OTHER alias must still resolve to its row.
     if (isBeachName(alias)) { ok(got === null, `beach alias "${alias}" resolves to null (the beach rule), never to ${row.offerId}`); continue; }
