@@ -95,7 +95,11 @@ check.deepEqual(single, [], "an empty result is an empty list");
 check.ok(decodeURIComponent(calls[1]).includes('or=(name.ilike."O\'Malley\'s \\"Pub\\"")'), "a single name still goes through the logic tree so quoting applies; quotes inside a name are escaped, not injected");
 check.deepEqual(await readInventoryByName(["Tropicana Field"], { env, fetchImpl: async () => ({ ok: false }) }), [], "a failed read fails closed");
 check.deepEqual(await readInventoryByName(["Tropicana Field"], { env, fetchImpl: async () => { throw new Error("boom"); } }), [], "a thrown read fails closed");
-check.deepEqual(await readInventoryByName(["Tropicana Field"], { env: null, fetchImpl: fakeFetch([TROP_ROW]) }), [], "no Supabase env: no read, nothing invented");
+// Hermetic: an explicit null env never falls through to the host's real env
+// (Vercel has SUPABASE_URL; the first version of this line failed there).
+const envProbe = []; const envFetch = async (url) => { envProbe.push(url); return { ok: true, json: async () => [TROP_ROW] }; };
+check.deepEqual(await readInventoryByName(["Tropicana Field"], { env: null, fetchImpl: envFetch }), [], "no Supabase env: no read, nothing invented");
+check.equal(envProbe.length, 0, "and no request was made at all, whatever the host's own env holds");
 check.deepEqual(await readInventoryByName([], { env, fetchImpl: fakeFetch([TROP_ROW]) }), [], "no names, no request");
 
 // ---- anchorEventVenue: ladder, caching, fail-closed -----------------------
