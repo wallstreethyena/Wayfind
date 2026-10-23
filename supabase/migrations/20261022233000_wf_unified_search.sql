@@ -7,6 +7,10 @@
 -- candidate cutoff. No affiliate, sponsor, offer, or commission column exists,
 -- so none can affect order.
 --
+-- search_vector is a plain column. array_to_string is stable on Postgres 17,
+-- so it cannot sit in a generated expression. A BEFORE INSERT OR UPDATE
+-- trigger writes the vector from title, body, and keywords.
+--
 -- Events stay current: wf_search_refresh() backfills, and a row trigger
 -- upserts or deletes the event document on every wf_events write.
 -- Place rows are identity only (name, category, coords) and are dropped when
@@ -36,11 +40,7 @@ create table public.wf_search_documents (
   source_table text,
   source_id text,
   updated_at timestamptz not null default pg_catalog.now(),
-  search_vector tsvector generated always as (
-    pg_catalog.setweight(pg_catalog.to_tsvector('english', coalesce(title, '')), 'A')
-    || pg_catalog.setweight(pg_catalog.to_tsvector('english', coalesce(body, '')), 'B')
-    || pg_catalog.setweight(pg_catalog.to_tsvector('english', coalesce(pg_catalog.array_to_string(keywords, ' '), '')), 'A')
-  ) stored,
+  search_vector tsvector,
   check (lat is null or (lat >= -90 and lat <= 90)),
   check (lng is null or (lng >= -180 and lng <= 180))
 );
@@ -55,6 +55,25 @@ grant select, insert, update, delete on table public.wf_search_documents to serv
 
 comment on table public.wf_search_documents is
   'Server-only unified search documents. Candidate retrieval is tsvector + trigram. Display order is applied in application code. No commercial ranking column.';
+
+create or replace function public.wf_search_documents_vector()
+returns trigger
+language plpgsql
+set search_path = pg_catalog, public, extensions
+as $$
+begin
+  new.search_vector :=
+    pg_catalog.setweight(pg_catalog.to_tsvector('english', coalesce(new.title, '')), 'A')
+    || pg_catalog.setweight(pg_catalog.to_tsvector('english', coalesce(new.body, '')), 'B')
+    || pg_catalog.setweight(pg_catalog.to_tsvector('english', coalesce(pg_catalog.array_to_string(coalesce(new.keywords, array[]::text[]), ' '), '')), 'A');
+  return new;
+end
+$$;
+
+drop trigger if exists wf_search_documents_vector on public.wf_search_documents;
+create trigger wf_search_documents_vector
+  before insert or update on public.wf_search_documents
+  for each row execute function public.wf_search_documents_vector();
 
 create table public.wf_search_understand_cache (
   cache_key text primary key check (char_length(cache_key) between 1 and 220),
@@ -329,6 +348,8 @@ revoke all on function public.wf_search_events_sync() from public, anon, authent
 revoke all on function public.wf_search_refresh() from public, anon, authenticated;
 revoke all on function public.wf_search_replace_documents(text, jsonb) from public, anon, authenticated;
 revoke all on function public.wf_search_documents_query(text, integer) from public, anon, authenticated;
+revoke all on function public.wf_search_documents_vector() from public, anon, authenticated;
+grant execute on function public.wf_search_documents_vector() to service_role;
 grant execute on function public.wf_search_upsert_event(text) to service_role;
 grant execute on function public.wf_search_refresh() to service_role;
 grant execute on function public.wf_search_replace_documents(text, jsonb) to service_role;

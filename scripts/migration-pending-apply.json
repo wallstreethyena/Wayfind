@@ -71,9 +71,9 @@
   },
   {
     "file": "supabase/migrations/20261022233000_wf_unified_search.sql",
-    "sha256": "9d0cc8e6b598f7796e66fe9101062b460559cbc309264248865f2282ee658ee3",
+    "sha256": "4c92461aca251b64a41bb5b31645569edbb5a4ca6b03d3bafde7318f121315ae",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1915 unified search — Gabe approved apply after merge (7:49 PM ET, Oct 22)",
-    "reason": "NOT APPLIED. Additive only: new tables wf_search_documents and wf_search_understand_cache, their indexes, RLS, and search functions. The events trigger and refresh deletes touch only those new tables. Production currently has neither table, no search functions, and no sync trigger. Apply after #1915 merges, then record the receipt and remove this entry. Rollback is drop the trigger and the two new tables."
+    "tracking": "#1915 unified search — Gabe approved the vector fix (9:59 PM ET, Oct 22)",
+    "reason": "NOT APPLIED. search_vector is a plain column maintained by BEFORE INSERT OR UPDATE trigger wf_search_documents_vector, then backfilled by wf_search_refresh(). The generated column using array_to_string failed on production Postgres 17 (42P17, not immutable) and rolled back with no objects left behind. Additive only: new tables wf_search_documents and wf_search_understand_cache. Does not drop or rewrite wf_inventory or wf_events. Tested on local Postgres 17. Apply after this fix merges, then record the receipt and remove this entry."
   }
 ]
