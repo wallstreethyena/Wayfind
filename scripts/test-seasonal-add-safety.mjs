@@ -10,10 +10,18 @@ const start = source.indexOf("  async function grant(sku)");
 const end = source.indexOf("  async function expectedPoint", start);
 assert.ok(start >= 0 && end > start, "actual grant and fetch wrapper exist");
 let checks = 0;
-async function exercise({ allowed = false, billed = 0, sku = "text_pro" } = {}) {
+async function exercise({ allowed = false, billed = 0, sku = "text_pro", october = true } = {}) {
   const calls = [];
   const context = vm.createContext({ billed, BILL_CAP: 130, stoppedForCap: false,
     monthCap: 432, scrub: String, billedStatus: (status) => status === 200,
+    seasonalVenueOctoberCap: (value) => {
+      calls.push(["october", value]);
+      if (!october) return null;
+      if (value === "text_pro") return 4930;
+      if (value === "details_pro" || value === "details_enterprise") return 1;
+      return null;
+    },
+    spendAllowSeasonalVenue: async (value) => { calls.push(["seasonal", value]); return allowed; },
     spendAllow: async (value) => { calls.push(["ledger", value]); return allowed; },
     spendAllowCapped: async (value, cap) => { calls.push(["ledger", value, cap]); return allowed; },
     refundToLedger: async () => {},
@@ -26,12 +34,17 @@ async function exercise({ allowed = false, billed = 0, sku = "text_pro" } = {}) 
 for (const sku of ["text_pro", "details_pro", "details_enterprise"]) {
   const denied = await exercise({ sku });
   assert.match(denied.result.blocked, /monthly spend cap/);
-  assert.equal(denied.calls.length, 1);
-  assert.equal(denied.calls[0][0], "ledger"); checks += 3;
+  assert.deepEqual(denied.calls, [["october", sku], ["seasonal", sku]]);
+  assert.equal(denied.result.blocked.includes("google"), false); checks += 3;
   const granted = await exercise({ sku, allowed: true });
-  assert.equal(granted.calls[0][0], "ledger");
-  assert.equal(granted.calls[1][0], "google");
+  assert.equal(granted.calls[1][0], "seasonal");
+  assert.equal(granted.calls[2][0], "google");
   assert.equal(granted.billed, 1); checks += 3;
+  const later = await exercise({ sku, october: false, allowed: true });
+  assert.equal(later.calls[0][0], "october");
+  if (sku === "text_pro") assert.deepEqual(later.calls[1], ["ledger", "text_pro"]);
+  else assert.deepEqual(later.calls[1], ["ledger", sku, 432]);
+  assert.equal(later.calls[2][0], "google"); checks += 3;
 }
 const capped = await exercise({ billed: 130, allowed: true });
 assert.match(capped.result.blocked, /130 billed-call cap/);
