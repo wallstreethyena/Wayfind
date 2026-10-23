@@ -22,6 +22,7 @@ import SentryClient from "./components/SentryClient";
 import VersionWatch from "./components/VersionWatch";
 import GoogleTags from "./components/GoogleTags";
 import FooterVeil from "./components/FooterVeil";
+import PoweredByStrip from "./components/PoweredByStrip";
 import NativeShellInit from "./components/NativeShellInit";
 import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
 
@@ -401,6 +402,7 @@ export default function RootLayout({ children }) {
               </div>
             </nav>
             <p style={{ fontSize: 13, color: "#C5D0DC", lineHeight: 1.45, margin: "20px 0 0" }}>Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings. Operated by WAYFIND LLC.</p>
+            <PoweredByStrip />
           </div>
         </footer>
         </FooterVeil>

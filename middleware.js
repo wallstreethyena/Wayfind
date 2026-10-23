@@ -29,6 +29,11 @@ export const config = {
   matcher: [
     // Free owned-library search: protect database reads from cross-site scraping.
     "/api/search",
+    // Event page re-anchor (2026-10-22): the nearby picks and stays around the
+    // point Apple verified for a provider venue. A free owned-inventory read from
+    // a same-origin XHR (app/components/EventNearbyReanchor.js), no metered
+    // upstream; same-origin + per-IP rate limit, exactly like /api/search.
+    "/api/events/venue-nearby",
     // In-app feedback and recommendations write to the existing review inbox.
     "/api/feedback",
     // Private group ballots use their own capability/owner authorization too.

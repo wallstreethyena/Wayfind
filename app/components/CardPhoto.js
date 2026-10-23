@@ -119,6 +119,18 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     if (observer) observer.observe(anchor.current); else load();
     return () => { disposed = true; observer?.disconnect(); if (retry) clearTimeout(retry); };
   }, [request]);
+  // Image-load recovery state, scoped to THIS request: a place change resets it
+  // and cancels any pending recovery (no stale photo can land on a new place).
+  const recovery = useRef({ request: null, tries: 0, timer: null });
+  useEffect(() => () => { clearTimeout(recovery.current.timer); recovery.current = { request: null, tries: 0, timer: null }; }, [request]);
+  const onImageError = () => {
+    const run = (mod) => mod.recoverCardImage({ request, photo, inLink, recovery, setAnswer, setFailed });
+    // The rendered guards eval this file as a classic script and supply the module.
+    if (typeof window !== "undefined" && window.__cardPhotoRecovery) { run(window.__cardPhotoRecovery); return; }
+    // A harness that evals this file as a classic script and does not inject the
+    // module must still land on the unavailable tile, never an uncaught error.
+    import("./cardPhotoRecovery.js").then(run, () => setFailed(request));
+  };
   if (!request) {
     // Ordinary owned/partner image. A caller that passes onError owns its own ladder
     // (RailCard swaps src in the handler) so the <img> must stay mounted for it. With
@@ -142,7 +154,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
     onKeyDown: (e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); },
   } : { onClick };
   return <>
-    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit && !inLink ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={() => setFailed(request)} />
+    {visible ? <img {...props} {...viewerProps} ref={anchor} src={photo.src} alt={alt} style={{ ...style, ...(photo.credit && !inLink ? { cursor: "zoom-in", outlineOffset: -3, pointerEvents: "auto" } : {}) }} onLoad={onLoad} onError={onImageError} />
       : <span ref={anchor} data-card-photo-request={request} style={{ display: "block", width: "100%", height: "100%", minHeight: compact ? 40 : 60, overflow: "hidden", ...style, borderRadius: style?.borderRadius ?? "inherit" }}>
           <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />
         </span>}

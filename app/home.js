@@ -11,6 +11,7 @@ import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
 import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
+import { resolveSearchIntent } from "../lib/searchIntent.js";
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -125,6 +126,7 @@ import nextDynamic from "next/dynamic";
 // The community tools sit below the entire discovery feed. Keep their form
 // state and submission code out of the first screen bundle.
 const CommunityFooter = nextDynamic(() => import("./components/CommunityFooter"), { ssr: false });
+const PoweredByStrip = nextDynamic(() => import("./components/PoweredByStrip"), { ssr: false });
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map…</span></div> });
@@ -176,8 +178,9 @@ const TripConnections = nextDynamic(() => import("./components/TripConnections")
 // on a lazy chunk + then its own /api/theme-parks fetch: first card 4.2s vs
 // 2.7s (median of 5, same Vercel preview infra, 390px).
 import ThemeParkRail from "./components/ThemeParkRail";
+const loadTrips = () => import("../lib/trips");
 const SHEET_LOADERS = [loadHookDetail, loadAccount, loadMenu, loadAuth, loadDetail, loadIntro, loadSocialFind];
-const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, ...SHEET_LOADERS];
+const SCREEN_LOADERS = [loadSurprise, loadCoupons, loadSaved, loadItinerary, loadShared, loadEventsScreen, loadMap, loadExperience, loadThingsToDo, loadTrips, ...SHEET_LOADERS];
 const SurpriseScreen = nextDynamic(loadSurprise, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const CouponsScreen = nextDynamic(loadCoupons, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
 const SavedScreen = nextDynamic(loadSaved, { ssr: false, loading: () => <Loader label="Loading" pad="16px 2px" /> });
@@ -210,7 +213,6 @@ const SponsoredPlaceCard = nextDynamic(() => import("./components/SponsoredPlace
 // link on a client-rendered card, nothing SEO reads it, and it must never be
 // crawled as our own content.
 const BookingCTA = nextDynamic(() => import("./components/BookingCTA"), { ssr: false, loading: () => null });
-import * as Trips from "../lib/trips";
 import { EMPTY_ITINERARY_FLAGS, readItineraryFlags } from "../lib/itineraryFlags";
 import * as Ranking from "../lib/ranking";
 // v6.72: ViatorRail EXTRACTED to app/components/ViatorRail.js so the nine
@@ -244,7 +246,7 @@ import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/e
 // eager shared kit so extracted screens/sheets can import them without home.js.
 import { C, SHEET_EASE, sheetBg, sheet, EMOJIS, GlowPin, Grabber, KB_CLICK, useDialogFocus, offerLabel, scoreLabel, WayfindScoreBadge, PlaceScoreChip, priceGlyphs, stars, moonPhase, weatherFromCode, hourIcon, Icon, NavIcon, imageDisplayState, BrandedImageFallback, TYPE, RADII, MOTION, TARGET, SHADOW } from "./components/kit";
 import { sponsorRailNear, partnerCollectionById, hydratePartnerCollection } from "../lib/partnerCollections";
-import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt } from "../lib/score";
+import { toDisplayScore, pickEligibleByScore, cardComplete, displayableAt, searchEditorialCard } from "../lib/score";
 import { stampOwnerPick } from "../lib/ownerBump.js";
 import { restampGoverned, attachOfficialScoreReceipt } from "../lib/lawfulOrder.js";
 import { applyCuratorPicks, getCuratorPicks, useCuratorPicks, noteSessionOwner, beginCuratorToggle, noteOwnerReads } from "../lib/curatorPicks.js";
@@ -380,7 +382,7 @@ const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
 function ticketUrl(url, opts = {}) {
   const s = safeUrl(url);
   if (!s) return null;
-  if (Aff.isTicketmasterFamily(s)) return Aff.ticketmasterGoUrl(s, { surface: opts.surface || "event_card", contentId: opts.contentId });
+  if (Aff.isTicketmasterFamily(s)) return Aff.ticketmasterGoUrl(s, { surface: opts.surface || "event_card", contentId: opts.contentId, offerId: opts.offerId });
   return s;
 }
 const LOGO_PIN = { left: "58%", top: -4, size: 11 }; // nudge left/top/size from a screenshot if the dot sits off
@@ -1178,28 +1180,6 @@ function logEventAnon(action, place, extra) {
   } catch (e) {}
 }
 
-// Compact a place down to what a shared list needs to render.
-function compactPlace(p) {
-  return { id: p.id, n: p.name, r: p.rating, c: p.reviews, pr: p.price, pn: p.priceNum, a: p.address, t: p.type, la: p.lat, lo: p.lng, ph: p.photo || null };
-}
-function expandPlace(o) {
-  return { id: o.id, name: o.n, rating: o.r, reviews: o.c || 0, price: o.pr || null, priceNum: o.pn == null ? null : o.pn, address: o.a || "", type: o.t || "", lat: o.la, lng: o.lo, photo: o.ph || null, photos: o.ph ? [o.ph] : [], labels: [], mapsUrl: `https://www.google.com/maps/search/?api=1&query_place_id=${o.id}` };
-}
-function encodeList(places) {
-  try {
-    const json = JSON.stringify(places.slice(0, 25).map(compactPlace));
-    const b64 = btoa(unescape(encodeURIComponent(json)));
-    return b64.split("+").join("-").split("/").join("_").split("=").join("");
-  } catch { return ""; }
-}
-function decodeList(str) {
-  try {
-    const b = str.split("-").join("+").split("_").join("/");
-    const json = decodeURIComponent(escape(atob(b)));
-    const arr = JSON.parse(json);
-    return Array.isArray(arr) ? arr.map(expandPlace) : null;
-  } catch { return null; }
-}
 // Share a link via the OS share sheet, falling back to copy. Passing url as a
 // distinct field (not buried in text) is what lets iMessage/Facebook unfurl a
 // rich preview card instead of showing the raw link as plain text.
@@ -5713,6 +5693,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }, [user, savedCoupons, supabaseReady]);
   const [communityVotes, setCommunityVotes] = useState({});
   const [searchMode, setSearchMode] = useState(false);
+  const [searchFeed, setSearchFeed] = useState(null);
+  const [searchFeedQuery, setSearchFeedQuery] = useState("");
   const [searchLabel, setSearchLabel] = useState("");
   const galleryRef = useRef(null);
   function scrollGallery(dir) {
@@ -7175,20 +7157,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         window.history.replaceState({}, "", window.location.pathname + (_qs ? "?" + _qs : ""));
       } catch (e) {}
     }
-    if (listStr && listStr.indexOf("wftrip1.") === 0) {
-      import("../lib/itineraryShare.js").then(({ decodeItineraryShare }) => {
-        const trip = decodeItineraryShare(listStr);
-        if (trip && trip.items && trip.items.length) {
-          setSharedItinerary(trip);
-          setSharedList(null);
-          setScreen("shared");
-          logEvent("share_open", null, { kind: "itinerary", n: trip.items.length });
-          markShareOpen();
+    if (listStr) {
+      import("../lib/itineraryShare.js").then((m) => {
+        if (listStr.indexOf("wftrip1.") === 0) {
+          const trip = m.decodeItineraryShare(listStr);
+          if (trip && trip.items && trip.items.length) {
+            setSharedItinerary(trip);
+            setSharedList(null);
+            setScreen("shared");
+            logEvent("share_open", null, { kind: "itinerary", n: trip.items.length });
+            markShareOpen();
+          }
+          return;
         }
+        const pl = m.decodeList(listStr);
+        if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
       }).catch(() => {});
-    } else if (listStr) {
-      const pl = decodeList(listStr);
-      if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
     } else if (placeId) {
       logEvent("share_open", null, { kind: "place", place_id: placeId });
       markShareOpen();
@@ -7280,36 +7264,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => {
     if (!itineraryFlags.sync || !user || !supabase) return undefined;
     let cancelled = false;
-    (async () => {
-      let local = {};
-      const { tripsForOwner } = await import("../lib/itinerarySync.js");
-      if (cancelled) return;
-      try { local = tripsForOwner(localStorage, user.id); } catch (e) { return; }
-      setTrips(local);
-      const [syncMod, migrateMod] = await Promise.all([
-        import("../lib/itinerarySync.js"),
-        import("../lib/itineraryMigrate.js"),
-      ]);
-      if (cancelled) return;
-      const remote = await syncMod.fetchRemoteTrips(supabase, user.id);
-      if (cancelled || remote == null) return;
-      // Re-read after the network wait. A stop added while the fetch was in
-      // flight is already in localStorage; merging the earlier snapshot would
-      // drop it.
-      let latest = local;
-      try { latest = JSON.parse(localStorage.getItem("wayfind_trips") || "{}") || local; } catch (e) {}
-      const merged = migrateMod.mergeTrips(latest, remote);
-      const removedDuring = Object.keys(local).filter((key) => !latest[key]);
-      const migrated = Object.keys(local).filter((k) => local[k] && local[k].items && local[k].items.length && !remote[k]);
-      itinerarySkipPush.current = true;
-      itinerarySyncKeys.current = Object.keys(merged);
-      itinerarySyncReady.current = true;
-      setTrips(merged);
-      const pushed = await syncMod.pushTrips(supabase, user.id, merged, removedDuring);
-      if (cancelled) return;
-      if (pushed && migrated.length) { try { logEvent("itinerary_migrated_local", null, { trips: migrated.length }); } catch (e) {} }
-      if (pushed) { try { logEvent("itinerary_synced", null, { trips: Object.keys(merged).length }); } catch (e) {} }
-    })();
+    import("../lib/itinerarySync.js").then((m) => m.syncOwnerTrips({
+      supabase, userId: user.id, storage: localStorage, isCancelled: () => cancelled,
+      setTrips, syncReadyRef: itinerarySyncReady, syncKeysRef: itinerarySyncKeys, skipPushRef: itinerarySkipPush, logEvent,
+    })).catch(() => {});
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user && user.id, itineraryFlags.sync, !!supabase]);
@@ -8662,6 +8620,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
   }
 
+  function isSafeSearchHref(href) {
+    return typeof href === "string" && href.charAt(0) === "/" && href.charAt(1) !== "/" && !href.includes("\\") && href.length <= 240;
+  }
+
   async function ownedSearch(q, searchCenter) {
     const params = new URLSearchParams({ q });
     if (searchCenter && Number.isFinite(searchCenter.lat) && Number.isFinite(searchCenter.lng)) {
@@ -8670,14 +8632,47 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     const data = await mainSearchJson("/api/search?" + params.toString());
     if (!data || !["ok", "empty", "unavailable"].includes(data.status) || !Array.isArray(data.places)) throw new Error("invalid_search_response");
-    const matches = data.places.map((row) => {
+    const places = data.places.map((row) => {
       const place = normalizeSearchPlace(row);
       if (!place) return null;
       const distance = Number.isFinite(place._searchDistanceMi) ? `${place._searchDistanceMi.toFixed(1)} mi from search area` : "Place in Wayfind";
       return { kind: "place", placeId: place.id, text: place.name, secondary: place.address || distance, place, exactMatch: row.exactMatch === true };
     }).filter(Boolean);
-    if (data.status === "ok" && !matches.length) throw new Error("invalid_search_response");
-    return { ...data, matches };
+    const library = (Array.isArray(data.results) ? data.results : []).map((row) => {
+      if (!row || !isSafeSearchHref(row.href) || !["event", "guide", "page", "coupon"].includes(row.kind)) return null;
+      const text = String(row.title || "").trim();
+      if (!text) return null;
+      return { kind: row.kind, text, secondary: String(row.secondary || row.kind), href: row.href, lead: row.lead === true };
+    }).filter(Boolean);
+    const matches = [...library.filter((row) => row.lead), ...places, ...library.filter((row) => !row.lead)].slice(0, 8);
+    const cards = (Array.isArray(data.cards) ? data.cards : []).map((row) => {
+      if (!row || !row.id || typeof row.name !== "string" || !row.name.trim()) return null;
+      const lat = row.lat == null || row.lat === "" ? null : Number(row.lat);
+      const lng = row.lng == null || row.lng === "" ? null : Number(row.lng);
+      const hasPoint = Number.isFinite(lat) && Number.isFinite(lng);
+      const rating = Number(row.rating);
+      const reviews = Number(row.reviews);
+      const card = {
+        id: String(row.id),
+        name: row.name.trim(),
+        lat: hasPoint ? lat : null,
+        lng: hasPoint ? lng : null,
+        rating: Number.isFinite(rating) && rating > 0 ? rating : null,
+        reviews: Number.isFinite(reviews) && reviews > 0 ? reviews : 0,
+        types: Array.isArray(row.types) ? row.types : [],
+        primaryType: row.primaryType || null,
+        tags: Array.isArray(row.tags) ? row.tags : [],
+        distMi: Number.isFinite(Number(row.distMi)) ? Number(row.distMi) : null,
+        address: typeof row.address === "string" ? row.address : "",
+        href: isSafeSearchHref(row.href) ? row.href : null,
+        kind: row.kind || "place",
+        line: typeof row.line === "string" ? row.line : "",
+      };
+      if (searchEditorialCard(card)) return card;
+      return hasPoint && cardComplete(card) ? card : null;
+    }).filter(Boolean);
+    if (data.status === "ok" && !matches.length && !cards.length) throw new Error("invalid_search_response");
+    return { ...data, matches, cards };
   }
 
   function searchFailureMessage(result) {
@@ -8689,24 +8684,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   async function fetchSuggestions(q) {
     const request = ++suggestionRequestRef.current;
     const cities = localCitySuggestions(q);
-    setSearchBusy(true);
-    try {
-      const result = await ownedSearch(q, center);
-      if (request !== suggestionRequestRef.current) return;
-      setSuggestions([...cities, ...result.matches].slice(0, 8));
-      setSugIdx(-1);
-      setSearchFeedback(result.status === "ok" || cities.length ? "" : searchFailureMessage(result));
-      setSearchRecovery(result.status !== "ok" && !cities.length);
-      setSearchMissing(result.status === "empty" && !cities.length);
-    } catch {
-      if (request !== suggestionRequestRef.current) return;
-      setSuggestions(cities);
-      setSearchFeedback(cities.length ? "" : searchFailureMessage(null));
-      setSearchRecovery(!cities.length);
-      setSearchMissing(false);
-    } finally {
-      if (request === suggestionRequestRef.current) setSearchBusy(false);
-    }
+    if (request !== suggestionRequestRef.current) return;
+    // Cities stay in the dropdown so a reader can pick Parrish or Sarasota.
+    // Place, event, and guide hits render as cards on the page from submitSearch.
+    setSuggestions(cities.slice(0, 8));
+    setSugIdx(-1);
+    setSearchFeedback("");
+    setSearchRecovery(false);
+    setSearchMissing(false);
+    setSearchBusy(false);
   }
 
   // A photo entry is either { name: "places/.../photos/..." } from the guarded
@@ -8749,6 +8735,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setMapFocus({ lat: g.lat, lng: g.lng, ts: Date.now() });
     setSearchMode(false);
     setSearchLabel("");
+    setSearchFeed(null);
+    setSearchFeedQuery("");
     setQuery("");
     setSuggestions([]);
     setSearchFeedback("");
@@ -8790,6 +8778,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       if (item.kind === "area" && item.city) goToSearchCity(item.city, attempt);
       else if (item.kind === "place" && item.place) openSearchPlace(item.place, attempt, item.context || "search");
+      else if ((item.kind === "event" || item.kind === "guide" || item.kind === "page" || item.kind === "coupon") && isSafeSearchHref(item.href)) {
+        setQuery("");
+        setSuggestions([]);
+        setSearchFeedback("");
+        setSearchRecovery(false);
+        setSearchMissing(false);
+        setSearchMode(false);
+        attempt.finish("page_opened", { status: "ok", count: 1, kind: item.kind, result_source: "owned-library" });
+        window.location.assign(item.href);
+      }
       else throw new Error("invalid_search_selection");
     } catch {
       setSearchFeedback("Could not open that result. Please search again.");
@@ -9016,12 +9014,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           attempt.finish("category_opened", { status: "opened", category });
           return;
         }
+        // A recognized search phrase ("date night", "brunch") renders cards.
+        // The experience poster and the mood shortcut stay for everything else.
+        const recognizedSearch = resolveSearchIntent(q, {}).recognized === true;
         const expHit = Object.keys(EXPERIENCES).find((k) => {
           const e = EXPERIENCES[k];
           const lab = (e.label || "").toLowerCase();
           return k === ql || lab === ql || (e.keyword && e.keyword.toLowerCase() === ql);
         });
-        if (expHit) {
+        if (expHit && !recognizedSearch) {
           closeSearchLayers();
           setQuery("");
           openExperience(expHit);
@@ -9030,8 +9031,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         }
         // Only explicit mood language is a shortcut. Venue names such as
         // Rainforest Cafe must not be swallowed by the old /rain/ substring.
-        const moodQuery = /^(?:i(?:['’]m| am| have|['’]ve)|with (?:my |the )?kids|on a date|showing (?:someone|visitors|friends) around)\b/.test(ql)
-          || /^(?:bored|nothing to do|relax|unwind|chill|need a break|peaceful|quiet time|family day|family time|family fun|date night|rain|rainy|raining|too hot|indoor day|indoor ideas|unforgettable|somewhere new|locals only|visitors in town|tourist for a day)$/.test(ql);
+        const moodQuery = recognizedSearch ? false : (/^(?:i(?:['’]m| am| have|['’]ve)|with (?:my |the )?kids|on a date|showing (?:someone|visitors|friends) around)\b/.test(ql)
+          || /^(?:bored|nothing to do|relax|unwind|chill|need a break|peaceful|quiet time|family day|family time|family fun|rain|rainy|raining|too hot|indoor day|indoor ideas|unforgettable|somewhere new|locals only|visitors in town|tourist for a day)$/.test(ql));
         const feel = moodQuery ? feelingToMoment(ql) : null;
         if (feel) {
           closeSearchLayers();
@@ -9086,6 +9087,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!current()) return;
       const result = await ownedSearch(q, nearGeo || searchCenter);
       if (!current()) return;
+      if (result.cards && result.cards.length && !(result.status === "ok" && result.matches.length === 1 && result.matches.filter((item) => item.exactMatch).length === 1)) {
+        closeSearchLayers();
+        setSearchFeed(result.cards);
+        setSearchFeedQuery(q);
+        setSuggestions([]);
+        setSearchFeedback("");
+        setSearchRecovery(false);
+        setSearchMissing(false);
+        setScreen("suggested");
+        attempt.finish("results_shown", { status: "ok", count: result.cards.length, result_source: "owned-library" });
+        return;
+      }
       // Exact identity, not merely one fuzzy result, grants automatic opening.
       const exact = result.matches.filter((item) => item.exactMatch);
       if (result.status === "ok" && result.matches.length === 1 && exact.length === 1) {
@@ -9093,7 +9106,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches].slice(0, 8);
+      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
       if (choices.length) {
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
@@ -9128,15 +9141,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       return { ...prev, [listId]: { ...l, places: has ? l.places.filter((p) => p.id !== target.id) : [...l.places, target] } };
     });
     if (wasAdd) {
-      try {
-        const meta = Trips.tripMetaForPlace(target);
-        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === target.id);
-        if (!already) {
-          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
-          logEvent("stop_add", target, { key: meta.key, city: meta.city, state: meta.state, src: "list_save" });
-        }
-      } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, target, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "list_save" }));
+      loadTrips().then((m) => m.filePlaceIntoTrips({ p: target, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "list_save", logEvent })).catch(() => {});
     }
     setSaveTarget(null);
   }
@@ -9150,29 +9155,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // same reason unsaving does not remove a stop.
   function isOnTrip(p) {
     if (!p || !p.id) return false;
-    try {
-      const meta = Trips.tripMetaForPlace(p);
-      const t = trips[meta.key];
-      return !!(t && t.items && t.items.some((it) => it.id === p.id));
-    } catch (e) { return false; }
+    for (const k in trips) {
+      const items = trips[k] && trips[k].items;
+      if (items && items.some((it) => it.id === p.id)) return true;
+    }
+    return false;
   }
   function addToItinerary(p) {
     if (!p || !p.id) return;
     if (isOnTrip(p)) { showToast("Already on your itinerary"); return; }
-    let insertion = "manual";
-    try {
-      const meta = Trips.tripMetaForPlace(p);
-      const existing = (trips[meta.key] && trips[meta.key].items) || [];
-      const plan = itineraryFlags.autoOrder ? Trips.nearestStopIndex(existing, p) : { auto: false };
-      insertion = itineraryFlags.autoOrder && plan.auto ? "auto" : "manual";
-      if (!trips[meta.key]) { try { logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state }); } catch (e) {} }
-      try { logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "card_itinerary", insertion }); } catch (e) {}
-      try { logEvent("itinerary_item_added", p, { source: "card_itinerary", insertion, key: meta.key }); } catch (e) {}
-    } catch (e) {}
-    const before = trips;
-    setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "card_itinerary" }));
-    if (insertion === "auto") showToast("Added next to a nearby stop", { label: "Undo", run: () => setTrips(before) });
-    else showToast("🗓️ Added to your itinerary");
+    loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "card_itinerary", isCardItinerary: true, logEvent, showToast })).catch(() => {});
   }
 
   // One-tap save straight to Favorites from a card heart.
@@ -9191,15 +9183,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
-      try {
-        const meta = Trips.tripMetaForPlace(p);
-        const already = trips[meta.key] && trips[meta.key].items.some((it) => it.id === p.id);
-        if (!already) {
-          if (!trips[meta.key]) logEvent("trip_create", null, { key: meta.key, city: meta.city, state: meta.state });
-          logEvent("stop_add", p, { key: meta.key, city: meta.city, state: meta.state, src: "quick_save" });
-        }
-      } catch (e) {}
-      setTrips((prev) => Trips.addPlaceToTrips(prev, p, Date.now(), { autoOrder: itineraryFlags.autoOrder, addedVia: "quick_save" }));
+      loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "quick_save", logEvent })).catch(() => {});
     }
     if (supabase && user) {
       if (has) {
@@ -9374,7 +9358,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // code, so the URL is clean and unfurls into a rich preview. Without it we
   // fall back to the long self-contained link.
   async function buildListShareUrl(places, title) {
-    const payload = encodeList(places);
+    const shareMod = await import("../lib/itineraryShare.js");
+    const payload = shareMod.encodeList(places);
     const n = (places || []).length;
     const names = (places || []).map((p) => p && p.name).filter(Boolean);
     const sub = names.slice(0, 2).join(", ") + (names.length > 2 ? " and " + (names.length - 2) + " more" : "");
@@ -10463,7 +10448,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <span style={{ color: s.kind === "place" ? C.accent : C.muted, fontSize: 16 }}>{s.kind === "place" ? iconForPlace({ name: s.text, types: s.types || [] }) : "📍"}</span>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{s.text}</div>
-                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : "Explore this city"}</div>
+                      <div style={{ fontSize: 11, color: C.muted, marginTop: 2, lineHeight: 1.4 }}>{s.kind === "place" ? s.secondary : (s.secondary || "Explore this city")}</div>
                     </div>
                   </li>
                 ))}
@@ -10616,6 +10601,26 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             deliberate placement; it simply has no render site on "/" — the
             same treatment HomeAside and BestNearby received. */}
         {screen === "suggested" && (() => {
+          if (searchFeed && searchFeed.length) {
+            return (
+              <div className="wf-cols">
+                <div className="wf-col-main">
+                  <div style={{ padding: "10px 2px 6px" }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: C.text, letterSpacing: "-0.3px" }}>{searchFeedQuery}</div>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 2 }}>
+                      <div style={{ fontSize: 12.5, color: C.muted }}>{searchFeed.length} result{searchFeed.length === 1 ? "" : "s"} · <span style={{ color: C.accent, fontWeight: 700 }}>ranked by fit</span></div>
+                      <button type="button" onClick={() => { setSearchFeed(null); setSearchFeedQuery(""); }} style={{ fontSize: 11.5, fontWeight: 700, color: C.muted, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, padding: "3px 10px", cursor: "pointer" }}>Clear ×</button>
+                    </div>
+                  </div>
+                  <div className="wf-place-card-list" data-search-feed="1">
+                    {searchFeed.map((p, i) => (
+                      <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => { if (p.href && isSafeSearchHref(p.href)) { window.location.assign(p.href); return; } openDetail(p); }} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={p.line || blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            );
+          }
           const list = suggested || [];
           const affinities = computeAffinities(signals);
           // Phase 2: fold the DURABLE per-user taste vector into the category
@@ -11347,7 +11352,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   <a href="/terms" style={{ fontSize: 12, fontWeight: 700, color: C.muted, textDecoration: "none" }}>Terms</a>
                 </div>
                 <div style={{ fontSize: 13, color: "#E6EDF3", lineHeight: 1.45, maxWidth: 420, margin: "0 auto" }}>Some links on this page are affiliate links. We may earn a commission if you book through them. It never changes our rankings.</div>
-                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 11, color: C.muted, opacity: 0.6, marginTop: 10, textAlign: "center", cursor: "pointer" }}>Wayfind · {BUILD_ID}</div>
+                <PoweredByStrip compact />
+                <div onClick={() => { try { window.__wfv = (window.__wfv || 0) + 1; clearTimeout(window.__wfvT); window.__wfvT = setTimeout(() => { window.__wfv = 0; }, 2200); if (window.__wfv >= 5) { window.__wfv = 0; wfShowDiag(); } } catch (e) {} }} style={{ fontSize: 11, color: C.muted, opacity: 0.6, marginTop: 12, textAlign: "center", cursor: "pointer" }}>Wayfind · {BUILD_ID}</div>
               </div>
               <div style={{ height: 20 }} />
               </div>
@@ -12055,7 +12061,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // reads p.photo, which the heal effect above writes, so this gate genuinely
   // flips mid-life. A hook below it would change React's hook count on that
   // render and unmount the feed (2026-08-21; scripts/check-hook-order.mjs).
-  if (!cardComplete(p)) return null; // v6.39 GLOBAL guardrail: an incomplete card renders NOTHING (scripts/test-card-gate.mjs)
+  if (!cardComplete(p) && !searchEditorialCard(p)) return null; // v6.39 GLOBAL guardrail: an incomplete place renders NOTHING. A guide or event page may render with the score hidden (scripts/test-card-gate.mjs)
   // v5.99 / v6.96: the "Creator video" badge is shown whenever a place HAS a
   // renderable creator video. Until v6.96 that was the same set as "got the
   // boost"; a quality floor now makes the boosted set a subset. The invariant
@@ -12139,9 +12145,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   // killswitch restores the old layout.
   // v6.40: a rated card ALWAYS carries the Wayfind Score badge. Rows that
   // arrived from ANY source (inventory serve, skeleton index, imports) without
-  // a precomputed wfScore get it here from the same formula the ranking uses —
-  // cardComplete above already refused rows with no rating signals at all, so
-  // past this line a Score is always computable and always shown.
+  // a precomputed wfScore get it here from the same formula the ranking uses.
+  // A place with no rating never reaches this line. A guide or event page
+  // may: it has no rating, so this stays null and the badge stays hidden.
   if (p.wfScore == null && Number(p.rating) > 0) p.wfScore = wayfindScore(Number(p.rating), Number(p.reviews != null ? p.reviews : p.userRatingCount) || 0);
   // v7.00 — creator evidence is now VISIBLE on the card, not just in the sort.
   // displayedWfScore() inherits the 4.2*/30-review floor and the 15% cap and

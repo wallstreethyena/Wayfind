@@ -320,8 +320,8 @@ ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching 
 // guard is FOR is the disclosure contract, not the punctuation: a visible
 // label that says Tickets and names the merchant, the full partner
 // disclosure in aria-label and title, and rel="sponsored". Pinned to those.
-ok(/aria-label=\{`Partner \$\{partner\.product === \"tour\" \? \"tours\" : \"tickets\"\} for \$\{place\.name\} via \$\{partner\.merchant\}`\}/.test(placeClientSrc)
-  && /\{partner\.product === "tour" \? "Tours" : "Tickets"\}/.test(placeClientSrc)
+ok(/aria-label=\{`Partner \$\{partner\.product === \"tour\" \? \"tours\" : partner\.product === \"transfer\" \? \"transfers\" : partner\.product === \"storage\" \? \"luggage storage\" : \"tickets\"\} for \$\{place\.name\} via \$\{partner\.merchant\}`\}/.test(placeClientSrc)
+  && /\{partner\.product === "tour" \? "Tours" : partner\.product === "transfer" \? "Transfers" : partner\.product === "storage" \? "Storage" : "Tickets"\}/.test(placeClientSrc)
   && /\{partner\.merchant\}/.test(placeClientSrc)
   && /Wayfind may earn a commission; rankings never change\./.test(placeClientSrc)
   && /rel="sponsored noopener"/.test(placeClientSrc),

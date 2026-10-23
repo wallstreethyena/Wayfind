@@ -21,6 +21,7 @@ import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
 import { addressLine, appleDirectionsUrl, websiteUrl } from "../../../../lib/placeWhere.js";
 import { eventPairings, pairingHref } from "../../../../lib/eventPairings.js";
+import { anchorEventVenue } from "../../../../lib/venueAnchor.js";
 import EventWhere from "../../../components/EventWhere.js";
 import EventStory from "./EventStory.js";
 import EventPlan from "./EventPlan.js";
@@ -83,7 +84,15 @@ async function getEvent(params) {
   // correction still applies when that feed's clock is the placeholder.
   // The helper may replace the clock and title. A null result is not a
   // missing event: notFound() stays reserved for an id that did not resolve.
-  return applyStoredStartCorrection(e) || e;
+  //
+  // 2026-10-22 — a Ticketmaster venue point is a ZIP/city centroid often
+  // enough (Tropicana Field 3.5 km off) that everything this page ranks from
+  // it was wrong. When Wayfind owns the venue's row, anchor the event on it
+  // BEFORE picks, stays and the plan are computed (lib/venueAnchor.js: strict
+  // name, 30 km, unique; fails closed to the row as resolved). It lives here,
+  // not in the resolver, so the resolver's provider-authority contract (one
+  // read, never a stale fallback) stays exactly as locked.
+  return anchorEventVenue(applyStoredStartCorrection(e) || e);
 }
 
 export async function generateMetadata({ params }) {
@@ -235,6 +244,20 @@ async function EventListPage({ params }) {
   );
 }
 
+// 2026-10-22 — WHERE THE POINT CAME FROM decides whether the browser map may
+// move it. Ticketmaster venue records often carry a ZIP/city centroid
+// (Tropicana Field sat 3.5 km south of the stadium; 51 of 146 live Florida
+// venues are over 150 m off), so their point is a "provider" hint that
+// lib/appleVenueLocation.js verifies against Apple before the pin, the
+// parking search and the walk/drive links are drawn. Staples (ls_*) carry
+// owner-set coordinates and stay "verified": never queried, never moved.
+function eventLocationTrust(e) {
+  // No venue name, or a placeholder ("TBA"), gives Apple nothing to match:
+  // the page would otherwise search the CITY name as a venue.
+  if (!e || e.source !== "Ticketmaster" || !String(e.venue || "").trim() || /^(tba|tbd|to be announced|to be determined)\b/i.test(String(e.venue).trim())) return { trust: "verified" };
+  return { trust: "provider", street: e.address || "", city: e.city || "", state: e.stateCode || e.state || "", segment: e.segment || "" };
+}
+
 export default async function EventPage({ params }) {
   if (isEventWindow(params.slug)) return EventListPage({ params });
   const e = await getEvent(params);
@@ -317,7 +340,7 @@ export default async function EventPage({ params }) {
             url={external}
             label={e.ticketed ? "Get tickets ↗" : "Official site ↗"}
             eventId={e.id}
-            provider={isTicketmasterFamily(external) ? "ticketmaster" : "event_official"}
+            provider={isTicketmasterFamily(e.url) ? "ticketmaster" : "event_official"}
           />
         )}
             <EventActions event={{ ...e, url: `${CANON}/events/${params.city}/${params.slug}` }} />
@@ -338,6 +361,8 @@ export default async function EventPage({ params }) {
             lat={lat}
             lng={lng}
             picks={picks}
+            location={eventLocationTrust(e)}
+            nearbyQuery={{ city: e.city, name: e.name, date: e.date, time: e.time, segment: e.segment, genre: e.genre, placeId: e.place_id || e.placeId }}
           />
         )}
         {e.description && (
@@ -346,7 +371,7 @@ export default async function EventPage({ params }) {
             <p style={{ fontSize: 13, lineHeight: 1.6, color: "#94A3B8", margin: "9px 0 0" }}>{String(e.description).slice(0, 600)}</p>
           </details>
         )}
-        {!cancelled && <EventPlan lat={e.lat} lng={e.lng} city={e.city} venue={e.venue} time={e.time} />}
+        {!cancelled && <EventPlan lat={e.lat} lng={e.lng} city={e.city} venue={e.venue} time={e.time} anchorName={e.venue || e.city || "Event venue"} awaitVenue={eventLocationTrust(e).trust === "provider" && !(e.venueAnchor && e.venueAnchor.source === "wayfind-inventory")} />}
         <div style={{ marginTop: 16, fontSize: 11.5, color: "#64748B" }}>
           Listing from {e.source}. Times and availability can change — confirm on the {e.ticketed ? "ticket page" : "official site"} before you go.
         </div>

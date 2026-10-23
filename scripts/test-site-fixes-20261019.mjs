@@ -83,7 +83,9 @@ ok(/startsOnly: true/.test(route), "the re-read is one existing Discovery query"
 ok(/cset\(evK, events, 21 \* DAY\)/.test(route), "the 21-day event-feed cache rule is unchanged");
 ok(!/mlbGameTimes|statsapi\.mlb\.com|reconcileMlbGames/.test(route + refreshLib + read("app/events/[city]/[slug]/page.js")), "the MLB stats API is not called");
 const slugPage = read("app/events/[city]/[slug]/page.js");
-ok(/return applyStoredStartCorrection\(e\)/.test(slugPage), "the event detail page applies the same stored start correction");
+// 2026-10-22: the return now also anchors the venue (lib/venueAnchor.js); the
+// stored start correction is still applied on the same return path.
+ok(/return (?:anchorEventVenue\()?applyStoredStartCorrection\(e\)/.test(slugPage), "the event detail page applies the same stored start correction");
 ok(/value: fmtClock\(e\.time\) \|\| "All day"/.test(slugPage) && !/e\.time\.slice\(0, 5\) : "All day"/.test(slugPage), "list cards print 12-hour time, not the raw 24-hour feed value");
 
 // ── 3. beaches only ───────────────────────────────────────────────────────

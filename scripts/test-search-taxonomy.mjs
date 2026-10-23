@@ -1,0 +1,381 @@
+// Category coverage and search-card relevance.
+// Places and events are the operational census measured 2026-10-22 (category
+// counts only — no place names). Guides are the live currentGuides() set.
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { CATEGORY_TILES } from "../lib/categories.js";
+import { GUIDES } from "../lib/guides.js";
+import { currentGuides } from "../lib/guideLifecycle.js";
+import { cardRankScore } from "../lib/searchRank.js";
+import { searchResultCards } from "../lib/searchCards.js";
+import { NAV_CATEGORY_IDS, NAV_SUBCATEGORY_IDS, classifyPlace, classifyEvent, classifyGuide, coverageOf } from "../lib/searchTaxonomy.js";
+
+const PARRISH = { lat: 27.5859, lng: -82.4254 };
+const SARASOTA = { lat: 27.3364, lng: -82.5307 };
+
+assert.deepEqual(NAV_CATEGORY_IDS, CATEGORY_TILES.map((tile) => tile.id), "search categories are the nav tiles");
+const subfilterSource = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");
+const subfilterStart = subfilterSource.indexOf("export const SUBFILTERS = {");
+const subfilterEnd = subfilterSource.indexOf("export function queryFor");
+assert.ok(subfilterStart > 0 && subfilterEnd > subfilterStart, "SUBFILTERS is readable");
+const subfilterBody = subfilterSource.slice(subfilterStart, subfilterEnd);
+const liveSubs = {};
+let currentCat = null;
+for (const line of subfilterBody.split("\n")) {
+  const cat = line.match(/^  ([a-z]+): \[/);
+  if (cat) currentCat = cat[1];
+  const id = line.match(/\{\s*id:\s*"([^"]+)"/);
+  if (currentCat && id) {
+    if (!liveSubs[currentCat]) liveSubs[currentCat] = [];
+    liveSubs[currentCat].push(id[1]);
+  }
+  if (currentCat && /^  \],/.test(line)) currentCat = null;
+}
+for (const [cat, ids] of Object.entries(NAV_SUBCATEGORY_IDS)) {
+  assert.deepEqual(ids, liveSubs[cat], `${cat} subcategories match the nav chips`);
+}
+
+// Operational, non-excluded wf_inventory rows by stored category.
+const PLACE_CENSUS = [
+  { category: "food", n: 10490 },
+  { category: "attractions", n: 6057 },
+  { category: "nightlife", n: 2488 },
+  { category: "shopping", n: 1403 },
+  { category: "hotels", n: 706 },
+  { category: "beach", n: 212 },
+  { category: "Food", n: 3 },
+  { category: "Activities", n: 2 },
+];
+// Scheduled or sold-out wf_events rows by their own category.
+const EVENT_CENSUS = [
+  { category: "halloween", n: 189 },
+  { category: "food", n: 144 },
+  { category: "festival", n: 121 },
+  { category: "holiday", n: 119 },
+  { category: "nightlife", n: 118 },
+  { category: "seasonal", n: 96 },
+  { category: "arts", n: 69 },
+  { category: "music", n: 63 },
+  { category: "community", n: 31 },
+  { category: "sports", n: 7 },
+  { category: "tour", n: 7 },
+  { category: "boating", n: 2 },
+  { category: "motorsports", n: 2 },
+  { category: "aviation", n: 1 },
+  { category: "film", n: 1 },
+];
+
+const places = coverageOf(PLACE_CENSUS, classifyPlace);
+const events = coverageOf(EVENT_CENSUS, classifyEvent);
+const guideRows = Object.values(currentGuides(GUIDES)).filter((guide) => guide && guide.title);
+const guides = coverageOf(guideRows, classifyGuide);
+console.log(`category coverage: places ${places.categorized}/${places.total} = ${places.percent}% ${JSON.stringify(places.by)}`);
+console.log(`category coverage: events ${events.categorized}/${events.total} = ${events.percent}% ${JSON.stringify(events.by)}`);
+console.log(`category coverage: guides ${guides.categorized}/${guides.total} = ${guides.percent}% via ${JSON.stringify(guides.via)} by ${JSON.stringify(guides.by)}`);
+assert.equal(places.percent, 100, "every operational place category maps onto the nav taxonomy");
+assert.equal(events.percent, 100, "every scheduled event category maps onto the nav taxonomy");
+assert.equal(guides.percent, 100, "every current guide maps onto the nav taxonomy");
+assert.ok(guides.via.guide > 0, "guide coverage is not only the attractions default");
+for (const id of ["food", "nightlife", "attractions", "hotels", "shopping"]) assert.ok(places.by[id] > 0, `places include ${id}`);
+
+function place(fields) {
+  return {
+    place_id: fields.id,
+    name: fields.name,
+    lat: fields.lat,
+    lng: fields.lng,
+    category: fields.category,
+    primary_type: fields.primaryType,
+    tags: fields.tags || [],
+    google_types: fields.types || [],
+    signals: {
+      rating: fields.rating,
+      reviews: fields.reviews,
+      ...(fields.priceNum != null ? { priceNum: fields.priceNum } : {}),
+      ...(fields.servesWine != null ? { servesWine: fields.servesWine } : {}),
+      ...(fields.servesCocktails != null ? { servesCocktails: fields.servesCocktails } : {}),
+      ...(fields.reservable != null ? { reservable: fields.reservable } : {}),
+      ...(fields.dineIn != null ? { dineIn: fields.dineIn } : {}),
+    },
+    locality: fields.locality || "",
+  };
+}
+
+function names(cards) {
+  return cards.map((card) => card.name);
+}
+
+{
+  const result = await searchResultCards({
+    query: "things to do",
+    ...PARRISH,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "museum", name: "Florida Railroad Museum", lat: 27.60, lng: -82.43, category: "attractions", primaryType: "museum", rating: 4.6, reviews: 900 }),
+      place({ id: "hotel", name: "Parrish Inn", lat: 27.58, lng: -82.43, category: "hotels", primaryType: "hotel", rating: 4.9, reviews: 3000 }),
+      place({ id: "miami", name: "Miami Science Museum", lat: 25.78, lng: -80.21, category: "attractions", primaryType: "museum", rating: 4.8, reviews: 5000 }),
+      place({ id: "beach", name: "Palma Sola Beach", lat: 27.48, lng: -82.62, category: "beach", primaryType: "beach", rating: 4.7, reviews: 600 }),
+      place({ id: "far-park", name: "Farther County Park", lat: 27.85, lng: -82.30, category: "attractions", primaryType: "park", rating: 4.6, reviews: 900 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes("Florida Railroad Museum"), `things to do includes the nearby museum, got ${got.join(" | ")}`);
+  assert.ok(got.includes("Palma Sola Beach"), `things to do includes a nearby beach, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Parrish Inn"), "things to do does not return a hotel");
+  assert.ok(!got.includes("Miami Science Museum"), "things to do stays inside the city radius");
+  assert.ok(got.indexOf("Florida Railroad Museum") < got.indexOf("Farther County Park"), "a nearer equal-quality activity ranks first");
+}
+
+{
+  const result = await searchResultCards({
+    query: "date night",
+    ...SARASOTA,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "bistro", name: "Sarasota Bistro", lat: 27.34, lng: -82.53, category: "food", primaryType: "restaurant", tags: ["dinner"], rating: 4.5, reviews: 700 }),
+      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
+      place({ id: "sports", name: "Kickoff Sports Pub", lat: 27.33, lng: -82.53, category: "nightlife", primaryType: "sports_bar", tags: ["bars", "sports"], rating: 4.7, reviews: 3000 }),
+      place({ id: "cafe", name: "Morning Coffee", lat: 27.34, lng: -82.53, category: "food", primaryType: "cafe", tags: ["cafes"], rating: 5, reviews: 4000 }),
+      place({ id: "mall", name: "Sarasota Mall", lat: 27.34, lng: -82.52, category: "shopping", primaryType: "shopping_mall", rating: 4.4, reviews: 2000 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes("Sarasota Bistro") && got.includes("Gulf Date Bar"), `date night returns dinner and a wine bar, got ${got.join(" | ")}`);
+  assert.ok(got.indexOf("Gulf Date Bar") < got.indexOf("Sarasota Bistro"), "a wine bar outranks a generic restaurant");
+  assert.ok(!got.includes("Kickoff Sports Pub"), "date night does not return a sports bar");
+  assert.ok(!got.includes("Morning Coffee"), "date night does not return a cafe");
+  assert.ok(!got.includes("Sarasota Mall"), "date night does not return shopping");
+}
+
+{
+  const result = await searchResultCards({
+    query: "brunch",
+    ...SARASOTA,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "brunch", name: "Sunday Brunch House", lat: 27.34, lng: -82.53, category: "food", primaryType: "brunch_restaurant", tags: ["breakfast"], rating: 4.4, reviews: 320 }),
+      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "bar", rating: 4.8, reviews: 900 }),
+      place({ id: "steak", name: "Steak House", lat: 27.34, lng: -82.53, category: "food", primaryType: "steak_house", tags: ["dinner"], rating: 4.7, reviews: 1500 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.deepEqual(got, ["Sunday Brunch House"], `brunch is the breakfast shelf, got ${got.join(" | ")}`);
+}
+
+{
+  const result = await searchResultCards({
+    query: "brunch",
+    ...PARRISH,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "chain", name: "McDonald's", lat: 27.6, lng: -82.45, category: "food", primaryType: "fast_food_restaurant", tags: ["breakfast", "quickbites"], rating: 3.4, reviews: 4000 }),
+      place({ id: "keke", name: "Keke's Breakfast Cafe", lat: 27.5, lng: -82.5, category: "food", primaryType: "breakfast_restaurant", tags: ["breakfast"], rating: 4.8, reviews: 3800 }),
+      place({ id: "seafood", name: "Walt's Fish Market", lat: 27.33, lng: -82.53, category: "food", primaryType: "seafood_restaurant", rating: 4.6, reviews: 8000 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.deepEqual(got, ["Keke's Breakfast Cafe"], `brunch uses the breakfast identity, got ${got.join(" | ")}`);
+}
+
+{
+  const result = await searchResultCards({
+    query: "date night",
+    ...SARASOTA,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "fish", name: "Walt's Fish Market", lat: 27.29, lng: -82.53, category: "food", primaryType: "seafood_restaurant", rating: 4.6, reviews: 8000 }),
+      place({ id: "chain", name: "McDonald's", lat: 27.34, lng: -82.53, category: "food", primaryType: "fast_food_restaurant", tags: ["breakfast", "quickbites"], rating: 3.4, reviews: 4000 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.deepEqual(got, ["Walt's Fish Market"], `a restaurant with no meal tag is dinner, got ${got.join(" | ")}`);
+}
+
+{
+  const appropriate = [
+    "Trattoria Bella Napoli",
+    "Bella Vita Italian Kitchen",
+    "Indigenous Restaurant",
+    "Antoine's Restaurant",
+    "Connors Steak & Seafood",
+    "Vino Bistro of Sarasota",
+  ];
+  const places = [
+    place({ id: "yoders", name: "Yoder's Restaurant", lat: 27.322544, lng: -82.5006296, category: "food", primaryType: "restaurant", types: ["restaurant"], priceNum: 2, rating: 4.6, reviews: 9488 }),
+    place({ id: "dutchman", name: "Der Dutchman", lat: 27.3233119, lng: -82.4947838, category: "food", primaryType: "family_restaurant", types: ["family_restaurant", "breakfast_restaurant"], tags: ["breakfast"], priceNum: 2, rating: 4.6, reviews: 12204 }),
+    place({ id: "buffet", name: "County Buffet", lat: 27.33, lng: -82.53, category: "food", primaryType: "buffet_restaurant", priceNum: 2, rating: 4.5, reviews: 4000 }),
+    place({ id: "cafe-teria", name: "Office Cafeteria", lat: 27.34, lng: -82.53, category: "food", primaryType: "cafeteria", priceNum: 1, rating: 4.2, reviews: 800 }),
+    place({ id: "chain", name: "McDonald's", lat: 27.3896495, lng: -82.5061259, category: "food", primaryType: "fast_food_restaurant", tags: ["breakfast", "quickbites"], priceNum: 1, rating: 3.4, reviews: 1787 }),
+    place({ id: "walt", name: "Walt's Fish Market Restaurant", lat: 27.2938381, lng: -82.5309263, category: "food", primaryType: "seafood_restaurant", types: ["seafood_restaurant", "bar"], priceNum: 2, rating: 4.6, reviews: 8147 }),
+    place({ id: "trattoria", name: "Trattoria Bella Napoli", lat: 27.3366751, lng: -82.5395992, category: "food", primaryType: "italian_restaurant", priceNum: 2, rating: 4.8, reviews: 988 }),
+    place({ id: "bella", name: "Bella Vita Italian Kitchen", lat: 27.3398057, lng: -82.4988726, category: "food", primaryType: "italian_restaurant", types: ["italian_restaurant", "pizza_restaurant"], rating: 4.9, reviews: 844 }),
+    place({ id: "indigenous", name: "Indigenous Restaurant", lat: 27.3343461, lng: -82.5329472, category: "food", primaryType: "american_restaurant", types: ["wine_bar", "seafood_restaurant", "american_restaurant"], priceNum: 3, rating: 4.6, reviews: 942 }),
+    place({ id: "antoine", name: "Antoine's Restaurant", lat: 27.3477165, lng: -82.512762, category: "food", primaryType: "fine_dining_restaurant", priceNum: 3, rating: 4.8, reviews: 383 }),
+    place({ id: "connors", name: "Connors Steak & Seafood", lat: 27.3017141, lng: -82.529644, category: "food", primaryType: "steak_house", types: ["steak_house", "wine_bar"], priceNum: 2, rating: 4.7, reviews: 4167 }),
+    place({ id: "vino", name: "Vino Bistro of Sarasota", lat: 27.3406598, lng: -82.5422136, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], priceNum: 2, rating: 4.8, reviews: 157 }),
+  ];
+  for (const query of ["date night", "romantic", "anniversary"]) {
+    const result = await searchResultCards({ query, ...SARASOTA, guides: [], events: [], places });
+    const got = names(result.cards);
+    const top = got.slice(0, 3);
+    assert.equal(top.length, 3, `${query} returns three cards, got ${got.join(" | ")}`);
+    assert.ok(!top.includes("Yoder's Restaurant"), `${query} top 3 omits Yoder's, got ${top.join(" | ")}`);
+    assert.ok(!top.includes("Der Dutchman"), `${query} top 3 omits Der Dutchman, got ${top.join(" | ")}`);
+    assert.ok(!got.includes("Der Dutchman") && !got.includes("County Buffet") && !got.includes("Office Cafeteria") && !got.includes("McDonald's"), `${query} drops family, buffet, cafeteria, and fast food, got ${got.join(" | ")}`);
+    for (const name of top) assert.ok(appropriate.includes(name), `${query} top result ${name} is date-appropriate, got ${top.join(" | ")}`);
+  }
+}
+
+{
+  const result = await searchResultCards({
+    query: "date night",
+    ...SARASOTA,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "yoders", name: "Yoder's Restaurant", lat: 27.322544, lng: -82.5006296, category: "food", primaryType: "restaurant", priceNum: 2, rating: 4.6, reviews: 9488 }),
+      place({ id: "wine-room", name: "Reservable Wine Room", lat: 27.35, lng: -82.52, category: "food", primaryType: "restaurant", priceNum: 2, servesWine: true, reservable: true, rating: 4.4, reviews: 220 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.equal(got[0], "Reservable Wine Room", `wine service and reservations outrank a generic room, got ${got.join(" | ")}`);
+}
+
+{
+  const result = await searchResultCards({
+    query: "halloween",
+    ...PARRISH,
+    guides: [],
+    places: [
+      place({ id: "beach", name: "Palma Sola Beach", lat: 27.48, lng: -82.62, category: "beach", primaryType: "beach", rating: 4.9, reviews: 2000 }),
+    ],
+    events: [{
+      event_name: "Halloween on the River",
+      slug: "halloween-on-the-river",
+      category: "halloween",
+      subcategory: "haunted-house",
+      place_id: "venue-1",
+      venue_name: "River Park",
+      rating: 4.6,
+      reviews: 400,
+      lat: 27.57,
+      lng: -82.44,
+      primary_type: "park",
+      city: "Parrish",
+    }],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes("River Park"), `halloween returns the venue card, got ${got.join(" | ")}`);
+  assert.equal(result.cards.find((card) => card.name === "River Park").line, "Halloween on the River");
+  assert.ok(!got.includes("Palma Sola Beach"), "halloween does not return an unrelated beach");
+}
+
+{
+  const result = await searchResultCards({
+    query: "manetees",
+    ...PARRISH,
+    guides: [],
+    events: [],
+    places: [
+      place({ id: "manatee", name: "Crystal River Manatee Center", lat: 28.90, lng: -82.60, category: "attractions", primaryType: "tourist_attraction", rating: 4.7, reviews: 2200, locality: "Crystal River" }),
+      place({ id: "cafe", name: "Parrish Coffee", lat: 27.57, lng: -82.44, category: "food", primaryType: "cafe", rating: 4.9, reviews: 800 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.deepEqual(got, ["Crystal River Manatee Center"], `the manatee typo returns the manatee place, got ${got.join(" | ")}`);
+}
+
+{
+  const near = { title: "County Museum", nav: { category: "attractions", sub: "museums" }, category: "attractions", lat: 27.59, lng: -82.43, rating: 4.6, reviews: 900, keywords: [] };
+  const weak = { ...near, title: "County Museum", rating: 3.6, reviews: 12 };
+  const strong = { ...near, title: "County Museum", rating: 4.8, reviews: 2500 };
+  const ctx = { query: "things to do", city: { lat: PARRISH.lat, lng: PARRISH.lng, slug: "parrish" }, taxonomy: { mode: "category", categories: ["attractions"], subs: [], allowGeneral: [], keywords: [], radiusMi: 40 } };
+  assert.ok(cardRankScore(strong, ctx) > cardRankScore(weak, ctx), "higher Wayfind quality ranks above a thin rating at the same distance");
+  const far = { ...strong, lat: 27.95, lng: -82.10 };
+  assert.ok(cardRankScore(strong, ctx) > cardRankScore(far, ctx), "the same quality ranks nearer first");
+  assert.equal(cardRankScore(strong, ctx), cardRankScore({ ...strong, sponsored: true }, ctx), "a commercial flag does not change the score");
+}
+
+{
+  const guideTitle = "Gulf Coast Brunch and Date Night: Two Tables, Not a List";
+  const ghostTitle = "Haunted Sarasota Ghost Tour";
+  const guide = GUIDES["gulf-coast-brunch-and-date-night"];
+  assert.equal(guide && guide.title, guideTitle, "the Gulf Coast guide is the live blog this search mixes in");
+  const result = await searchResultCards({
+    query: "date night",
+    ...SARASOTA,
+    events: [{
+      event_name: ghostTitle,
+      slug: "haunted-sarasota-trolley-tour-2026",
+      category: "halloween",
+      tags: ["fall", "halloween", "ghost-tour", "nightlife", "date-night", "local"],
+      city: "Sarasota",
+      lat: 27.3394584,
+      lng: -82.5338239,
+    }],
+    places: [
+      place({ id: "bar", name: "Gulf Date Bar", lat: 27.33, lng: -82.54, category: "nightlife", primaryType: "wine_bar", tags: ["bars"], rating: 4.6, reviews: 500 }),
+      place({ id: "yoders", name: "Yoder's Restaurant", lat: 27.322544, lng: -82.5006296, category: "food", primaryType: "restaurant", types: ["restaurant"], priceNum: 2, rating: 4.6, reviews: 9488 }),
+      place({ id: "dutchman", name: "Der Dutchman", lat: 27.3233119, lng: -82.4947838, category: "food", primaryType: "family_restaurant", types: ["family_restaurant", "breakfast_restaurant"], tags: ["breakfast"], priceNum: 2, rating: 4.6, reviews: 12204 }),
+      place({ id: "unrated", name: "Unrated Room", lat: 27.34, lng: -82.53, category: "food", primaryType: "restaurant" }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes(guideTitle), `date night mixes in the Gulf Coast guide, got ${got.join(" | ")}`);
+  assert.ok(got.includes(ghostTitle), `date night mixes in the ghost tour, got ${got.join(" | ")}`);
+  assert.ok(got.includes("Gulf Date Bar"), `date night still returns the wine bar, got ${got.join(" | ")}`);
+  assert.ok(got.indexOf("Gulf Date Bar") < got.indexOf("Yoder's Restaurant"), `a favored room stays ahead of Yoder's, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Der Dutchman"), `date night still drops the family restaurant, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Unrated Room"), "an unrated restaurant is still not a card");
+  assert.ok(!got.includes("Siesta Key Drum Circle: Times, Parking, and What to Expect"), `an unrelated guide stays out, got ${got.join(" | ")}`);
+  const guideCard = result.cards.find((card) => card.name === guideTitle);
+  const ghostCard = result.cards.find((card) => card.name === ghostTitle);
+  assert.equal(guideCard.kind, "guide");
+  assert.equal(guideCard.href, "/guides/gulf-coast-brunch-and-date-night");
+  assert.equal(guideCard.rating, null, "the guide does not invent a rating");
+  assert.equal(ghostCard.kind, "event");
+  assert.equal(ghostCard.href, "/florida-events/haunted-sarasota-trolley-tour-2026");
+  assert.equal(ghostCard.rating, null, "the event does not invent a rating");
+  const nav = classifyGuide(guide);
+  const guideDoc = {
+    kind: "guide", title: guide.title, nav, category: nav.category,
+    keywords: [guide.keyword, guide.region, ...(guide.relatedKeywords || [])].filter(Boolean),
+    city_slug: "sarasota", rating: null, reviews: 0,
+  };
+  const ghostDoc = {
+    kind: "event", title: ghostTitle,
+    keywords: ["halloween", "fall", "halloween", "ghost-tour", "nightlife", "date-night", "local", ghostTitle],
+    nav: classifyEvent({ category: "halloween", tags: ["date-night", "nightlife"] }),
+    lat: 27.3394584, lng: -82.5338239, city_slug: "sarasota", rating: null, reviews: 0,
+  };
+  const ctx = { query: "date night", city: result.city, taxonomy: result.taxonomy };
+  assert.ok(cardRankScore(guideDoc, ctx) > 0 && cardRankScore(ghostDoc, ctx) > 0, "guide and event score on the same function");
+  assert.equal(cardRankScore(guideDoc, ctx), cardRankScore({ ...guideDoc, sponsored: true, offerId: "paid", commission: 12 }, ctx), "affiliate fields do not move a guide");
+  const ranked = [
+    [guideTitle, cardRankScore(guideDoc, ctx)],
+    [ghostTitle, cardRankScore(ghostDoc, ctx)],
+  ].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  assert.ok(got.indexOf(ranked[0][0]) < got.indexOf(ranked[1][0]), `cards follow cardRankScore, wanted ${ranked.map((row) => row[0]).join(" then ")} in ${got.join(" | ")}`);
+  assert.ok(got.indexOf(guideTitle) !== got.indexOf("Gulf Date Bar"), "the guide is not tied in place of the wine bar");
+}
+
+{
+  const result = await searchResultCards({
+    query: "brunch",
+    ...PARRISH,
+    events: [],
+    places: [
+      place({ id: "keke", name: "Keke's Breakfast Cafe", lat: 27.5, lng: -82.5, category: "food", primaryType: "breakfast_restaurant", tags: ["breakfast"], rating: 4.8, reviews: 3800 }),
+    ],
+  });
+  const got = names(result.cards);
+  assert.ok(got.includes("Keke's Breakfast Cafe"), `brunch still returns the breakfast room, got ${got.join(" | ")}`);
+  assert.ok(!got.includes("Gulf Coast Brunch and Date Night: Two Tables, Not a List"), `Parrish brunch does not take the Sarasota guide, got ${got.join(" | ")}`);
+}
+
+console.log("test-search-taxonomy: OK");

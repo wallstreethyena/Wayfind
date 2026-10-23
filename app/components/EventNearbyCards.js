@@ -3,6 +3,7 @@
 import IconicPlaceCard from "./IconicPlaceCard.js";
 import EventPlaceRail from "./EventPlaceRail.js";
 import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
+import { useEventMapPlaces } from "./EventMapPlaces.js";
 
 // The map's nearby results use the house place card unchanged. IconicPlaceCard
 // owns the shared Save / Like / Dislike / Share behavior; this wrapper owns
@@ -16,8 +17,14 @@ import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js
 // otherwise-plain data rows; this file does not import lib/eventOuting.js
 // itself. Legacy rows without `outing` (a stale cache entry, or a caller
 // this pass missed) fall back to the old copy rather than rendering "undefined".
+//
+// v3 (2026-10-22): when the browser's Apple check moves a provider venue point,
+// EventNearbyReanchor publishes the picks ranked from the CORRECTED point to the
+// event's EventMapPlaces context. Those replace the server's list here and in
+// the map pins (same array), so card rank N and pin N stay the same place.
 export default function EventNearbyCards({ places = [] }) {
-  const orderedPlaces = orderPlaceRecommendations(places);
+  const reanchored = useEventMapPlaces()?.picks;
+  const orderedPlaces = orderPlaceRecommendations(Array.isArray(reanchored) ? reanchored : places);
   if (!orderedPlaces.length) return null;
   const outing = orderedPlaces[0] && orderedPlaces[0].outing;
   const title = (outing && outing.railTitle) || "Nearby places";

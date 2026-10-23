@@ -75,6 +75,8 @@ node scripts/check-design.mjs
 node scripts/check-lunch-in-my-city.mjs
 node scripts/test-image-fallback.mjs
 node scripts/test-detail-hero.mjs
+node scripts/test-detail-photo-acquisition.mjs
+node scripts/test-place-detail-photo-surfaces.mjs
 node scripts/test-moment-contract.mjs
 node scripts/test-price.mjs
 node scripts/test-classification.mjs
@@ -1976,6 +1978,7 @@ node scripts/test-photo-warm.mjs
 node scripts/test-owned-hotel-identity.mjs
 node scripts/test-event-poster.mjs
 node scripts/check-live-event-poster-laws.mjs
+node scripts/test-rays-world-series-poster.mjs
 node scripts/test-live-event-posters-location.mjs
 
 # /go/florida (paid Florida Google Ads landing): noindex, no dash in visible
@@ -2226,6 +2229,7 @@ node scripts/test-group-vote-organizer.mjs
 node scripts/test-group-vote-frame.mjs
 
 node scripts/test-place-share-metadata.mjs
+node scripts/test-cached-place-identity.mjs
 node scripts/test-events-fall-feed-image.mjs
 node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
@@ -2325,7 +2329,20 @@ node scripts/test-halloween-crown.mjs
 # drum circle about an hour before sunset.
 node scripts/test-site-fixes-20261019.mjs
 node scripts/test-apple-parking.mjs
+# 2026-10-22: a provider venue point (Ticketmaster ZIP centroid) is replaced by
+# Apple's point only when Apple is sure; parking/pins/walk links follow it.
+node scripts/test-apple-venue-location.mjs
+# 2026-10-22: a Ticketmaster event is anchored on Wayfind's own venue row (strict
+# name, 30 km, unique) before picks/stays/plan are ranked; unsure keeps the row.
+node scripts/test-venue-anchor.mjs
 node scripts/test-venue-parking-ui.mjs
+# 2026-10-22: when the browser's Apple check moves a provider venue by more than
+# 300 m, the nearby picks, stays, map pins and the plan re-anchor on the corrected
+# point: the store, the free same-origin API (no paid provider), and the real
+# components in jsdom.
+node scripts/test-venue-resolution-store.mjs
+node scripts/test-event-venue-nearby-api.mjs
+node scripts/test-event-reanchor-render.mjs
 # Display distance uses one fresh device watch, never an API/search-center distance.
 node scripts/test-device-distance.mjs
 node scripts/test-rail-device-distance.mjs
@@ -2333,6 +2350,7 @@ node scripts/test-rail-device-distance.mjs
 # Itinerary option B: proximity insert, date reflow that never drops a stop,
 # lossless merge, flags default off, private share payload, and RLS on the
 # unapplied wf_itineraries migration (PGlite only — production is not contacted).
+node scripts/test-itinerary-dates-render.mjs
 node scripts/test-itinerary-plan.mjs
 node scripts/test-itinerary-rls.mjs
 node scripts/test-guide-email.mjs
@@ -2345,3 +2363,12 @@ node scripts/test-guide-rays-game-day.mjs
 # Read-only list vs map reconciliation tool (pure join + expiry re-check + cluster accounting;
 # the browser capture is run by hand against the live site, never in CI).
 node scripts/test-reconcile-list-map-live.mjs
+
+# 2026-10-22 existing seasonal schedule/access refresh and hold protection.
+node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
+# Unified search draft: phrase pages, catalog rank, event fallback, and the
+# Claude filter (off unless WAYFIND_SEARCH_UNDERSTAND=on). The migration is
+# not applied here.
+node scripts/test-unified-search.mjs
+node scripts/check-search-understand.mjs
+node scripts/test-search-taxonomy.mjs

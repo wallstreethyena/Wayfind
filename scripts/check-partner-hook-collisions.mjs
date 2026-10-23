@@ -166,7 +166,7 @@ for (const [key, ids] of multiMarket) {
 
 // ── 4. EVERY hook on BOTH surfaces resolves to a real, tracked destination ─
 // An id that resolves to nothing renders a live money link that dead-ends.
-const HOST_OK = /^https:\/\/(www\.)?(tiqets|klook|gocity|ticketnetwork|viator)\.com\//;
+const HOST_OK = /^https:\/\/(www\.)?(tiqets|klook|gocity|ticketnetwork|viator|welcomepickups|kiwitaxi|radicalstorage|bikesbooking)\.com\//;
 // A code the 2026-09-09 catalogue audit proved ABSENT from wf_experiences is no
 // longer "live-verified", so it is dropped from this record before the
 // assertion below reads it — otherwise re-pinning a dead SKU would pass.

@@ -220,10 +220,21 @@ const compile = (file) => ts.transpileModule(readFileSync(path.join(REPO, file),
 const MODULES = {
   imageHostPolicy: "lib/imageHostPolicy.js", placePhoto: "lib/placePhoto.js", photoAnswers: "lib/photoAnswers.js", cardPhotoRequest: "lib/cardPhotoRequest.js", livePhoto: "lib/livePhoto.js",
   PhotoCreditLink: "app/components/PhotoCreditLink.js", PhotoFallbackTile: "app/components/PhotoFallbackTile.js",
-  EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js",
+  EventHeroPhotoContext: "app/components/EventHeroPhotoContext.js", EventPlacePhoto: "app/components/EventPlacePhoto.js", CardPhoto: "app/components/CardPhoto.js", cardPhotoRecovery: "app/components/cardPhotoRecovery.js",
 };
 const bundle = "window.__src={" + Object.entries(MODULES).map(([k, f]) => JSON.stringify(k) + ":function(exports,module,require){" + compile(f) + "\n}").join(",") + "};"
-  + "window.__cache={};window.__req=function(id){if(id==='react')return React;if(id==='react-dom')return ReactDOM;var b=id.split('/').pop().replace(/\\.js$/,'');if(!__src[b])throw new Error('harness: unresolved '+id);if(__cache[b])return __cache[b].exports;var m={exports:{}};__cache[b]=m;__src[b](m.exports,m,__req);return m.exports;};"
+  // Model the legal browser observation window between passive-effect waves.
+  // Every useEffect keeps React's real dependency/cleanup registration; only
+  // when enabled does the host release effect bodies in ordered batches.
+  // No component/effect identity or chosen dependency vector is special-cased.
+  + `window.__heldPassiveEffects=[];window.__deferPassiveEffects=false;
+      window.__flushPassiveWave=function(){var wave=window.__heldPassiveEffects.splice(0);wave.forEach(function(entry){entry.run();});return wave.length;};
+      window.__fixtureReact=Object.assign({},React,{useEffect:function(effect,deps){return React.useEffect(function(){
+        if(!window.__deferPassiveEffects)return effect();
+        var entry={cancelled:false,cleanup:null,run:function(){if(!entry.cancelled)entry.cleanup=effect();}};
+        window.__heldPassiveEffects.push(entry);return function(){entry.cancelled=true;if(entry.cleanup)entry.cleanup();};
+      },deps);}});`
+  + "window.__cache={};window.__req=function(id){if(id==='react')return window.__fixtureReact;if(id==='react-dom')return ReactDOM;var b=id.split('/').pop().replace(/\\.js$/,'');if(!__src[b])throw new Error('harness: unresolved '+id);if(__cache[b])return __cache[b].exports;var m={exports:{}};__cache[b]=m;__src[b](m.exports,m,__req);return m.exports;};window.__cardPhotoRecovery=__req('cardPhotoRecovery');"
   + `window.__tree=function(src,name,extra){var C=__req('EventHeroPhotoContext'),P=__req('EventPlacePhoto').default,h=React.createElement;
       return h(C.EventHeroPhotoProvider,{src:src},h('section',null,
         h('div',{className:'rail'},h('div',{className:'wf-event-photo',style:{position:'relative',width:300,height:200,overflow:'hidden'}},h(P,Object.assign({hero:true,priority:true,src:src,name:name},extra||{})))),
@@ -339,10 +350,31 @@ try {
     const before = await page.evaluate(snapshot(id));
     ok(await page.evaluate(() => document.getElementById("hyd").dataset.failed) === "true", "setup: the server-rendered <img> failed BEFORE hydration (onError can no longer fire)");
     ok(before.credit === true, "setup: the server HTML for an owned photo carries its caption (visible-by-default for owned srcs)");
+    await page.evaluate((i) => {
+      const c = document.getElementById(i);
+      window.__deferPassiveEffects = true;
+      window.__hydrationCommits = [];
+      window.__hydrationObserver = new MutationObserver(() => {
+        const tile = c.querySelector("[data-photo-fallback]");
+        window.__hydrationCommits.push({ tile: tile?.getAttribute("data-photo-fallback") || null, credit: !!c.querySelector("[data-event-hero-credit]"), img: !!c.querySelector("img") });
+      });
+      window.__hydrationObserver.observe(c, { childList: true, subtree: true });
+    }, id);
     await page.evaluate((i) => window.__hydrate(i), id);
-    const s = await until(id, (x) => x.tile === "unavailable");
+    await page.waitForFunction(() => window.__heldPassiveEffects.length > 0);
+    ok(await page.evaluate(() => window.__flushPassiveWave()) > 0, "the browser host releases the first real passive-effect wave after owned hydration");
+    // Observe both outcomes before checking each part of the finished state.
+    const s = await until(id, (x) => x.tile === "unavailable" && x.credit === false);
     ok(s.img === null && s.tile === "unavailable", `hydration notices the already-failed <img> and shows the tile (${JSON.stringify(s)})`);
+    const commits = await page.evaluate(() => window.__hydrationCommits);
+    ok(commits.some((x) => x.tile === "unavailable"), `MutationObserver actually observed the fallback commit (${JSON.stringify(commits)})`);
+    eq(commits.filter((x) => x.tile === "unavailable" && x.credit), [], `NO observable fallback commit retains the old photo credit (${JSON.stringify(commits)})`);
     ok(s.credit === false, "and the caption goes with it (no credit under a broken photo)");
+    await page.evaluate(() => {
+      window.__hydrationObserver.disconnect();
+      window.__deferPassiveEffects = false;
+      window.__flushPassiveWave();
+    });
   }
   // 6. inLink inside a commerce <a>: the parent's click wins, no viewer, no nested <a>, nospend lane only
   {

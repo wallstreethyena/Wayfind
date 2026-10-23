@@ -1,7 +1,7 @@
 // Behavior test for lib/photoAnswers.js — the single per-page answer for a place's photo.
 // Executes the real module with scripted fetches (no network, no spend).
 import assert from "node:assert/strict";
-import { getPlacePhoto, resetPhotoAnswers, photoAnswerStats, normalizePhotoAnswer, mapsLinkForPlace, MAX_ATTEMPTS, RETRY_DELAY_MS } from "../lib/photoAnswers.js";
+import { forgetPlacePhoto, getPlacePhoto, resetPhotoAnswers, photoAnswerStats, normalizePhotoAnswer, mapsLinkForPlace, MAX_ATTEMPTS, RETRY_DELAY_MS } from "../lib/photoAnswers.js";
 import { cardPhotoRequest, fetchCardPhoto, railPhotoSrc } from "../lib/cardPhotoRequest.js";
 import { fetchLivePhoto } from "../lib/livePhoto.js";
 
@@ -56,6 +56,19 @@ ok(!normalizePhotoAnswer(A, { src: "http://insecure/x.jpg", source: "google", cr
 ok(!normalizePhotoAnswer(A, { src: "//evil.example/x.jpg", source: "wayfind" }).photo, "protocol-relative src rejected");
 eq(normalizePhotoAnswer(A, { src: "/images/own.jpg", source: "wayfind", credit: null }).photo.src, "/images/own.jpg", "owned photo passes with no Google label");
 ok(normalizePhotoAnswer(A, { src: "https://lh3.example/x.jpg", source: "google", credit: { mapsUri: "javascript:alert(1)" } }).photo.credit.mapsUri.startsWith("https://www.google.com/maps/"), "non-https mapsUri never used");
+
+// 4b. forgetPlacePhoto drops ONLY that place's kept answer (both keys), so an
+//     image-load recovery re-asks the server; other places stay kept.
+resetPhotoAnswers();
+const fg = scripted((url) => jsonRes(google(new URL(url, "https://x").searchParams.get("place"))));
+await getPlacePhoto(A, { surface: "card", fetchImpl: fg }); await getPlacePhoto(A, { surface: "card", nospend: true, fetchImpl: fg }); await getPlacePhoto(B, { surface: "card", fetchImpl: fg });
+eq(fg.calls.length, 3, "three distinct keys asked once each");
+forgetPlacePhoto(A); forgetPlacePhoto("not-a-place-id");
+await getPlacePhoto(A, { surface: "card", nospend: true, fetchImpl: fg }); await getPlacePhoto(B, { surface: "card", fetchImpl: fg });
+eq(fg.calls.length, 4, "forgotten place is asked again; the other place is still reused");
+await getPlacePhoto(A, { surface: "card", fetchImpl: fg });
+eq(fg.calls.length, 4, "the spend-capable answer is KEPT: an image error can never cause a second purchase");
+ok(/nospend=1/.test(fg.calls[3]), "the recovery re-ask carries nospend=1");
 
 // 5. Temporary failure recovery: one delayed retry, then success is kept.
 resetPhotoAnswers();

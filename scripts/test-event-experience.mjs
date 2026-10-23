@@ -14,6 +14,7 @@ import { eventDatesLabel } from '../lib/eventOccurrences.js';
 import { FALL_EVENT_IMAGE_HOLDS } from '../lib/fallEventImage.js';
 import { FALL_DISCOVERIES_2026 } from '../lib/fallDiscoveries2026.js';
 import { orderPlaceRecommendations } from '../lib/placeRecommendationOrder.js';
+import { eventNearbyPlaces } from '../lib/eventNearbyPlaces.js';
 import * as eventVisitFacts from '../lib/eventVisitFacts.js';
 import * as eventTimeReal from '../lib/eventTime.js';
 import * as crownCampaign from '../lib/crownCampaign.js';
@@ -36,6 +37,8 @@ function page(file) {
  const stubs={
   notFound:()=>{throw new Error('NOT_FOUND');},headers:()=>({get:()=>null}),
   resolveEventById:async()=>event,idFromSlug:()=> 'fixture',isEventWindow:()=>false,
+  // lib/venueAnchor.js (2026-10-22): the page anchors a resolved Ticketmaster row on an owned venue row; pass-through here.
+  anchorEventVenue:async(row)=>row,
   fetchCuratedEventBySlug:async()=>curated,fetchCuratedEvents:async()=>[],
   // Christmas v4 layer (lib/christmasEventPage.js): a non Christmas row passes through unchanged.
   christmasEventPageRow:(row)=>row,
@@ -60,6 +63,7 @@ function page(file) {
   if(spec.includes('eventVisitFacts'))return eventVisitFacts;
   if(spec.endsWith('lib/eventTime.js'))return eventTimeReal;
   if(spec.includes('placeRecommendationOrder'))return {orderPlaceRecommendations};
+  if(spec.includes('lib/eventNearbyPlaces'))return {eventNearbyPlaces};
   if(spec.includes('CreatorPlaybackDetails'))return {default:p=>React.createElement(React.Fragment,null,p.children,React.createElement('button',null,'Details'),React.createElement('div',null,p.details)),usePlaybackDetails:()=>null};
   if(spec.includes('CreatorVideoRail'))return {default:page('app/components/CreatorVideoRail.js')};
   if(spec.includes('VideoFacade'))return {default:page('app/components/VideoFacade.js')};

@@ -375,7 +375,7 @@ async function singleflightScenario(resolveFn) {
     const r = await resolvePlacePhoto({ ref: REF, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...base, fetchImpl: stub.fn });
     eq(stub.calls.join(","), "details", "7c: a failed lookup does NOT fall back to the stored name");
     eq(r.type, "miss", "7c: honest miss");
-    eq(r.upstream, "place-lookup-failed", "7c: classified place-lookup-failed");
+    eq(r.upstream, "place-lookup-failed:server", "7c: classified place-lookup-failed");
     eq(stub.urls.some((u) => u.includes("STOREDOLDNAME")), false, "7c: the stored name never reaches Google");
   }
   // 7d: fresh media call hits the daily quota -> classified and the breaker trips
@@ -442,7 +442,7 @@ async function singleflightScenario(resolveFn) {
     const stub = googleStub({ details: [{ status: 503 }] });
     const r = await resolvePlacePhoto({ place: PLACE, w: 640, serverKey: "k", authorizeSpend: auth, ...VIA }, { ...noInv, fetchImpl: stub.fn, refund: async (sku, n) => { refunds.push(sku + ":" + n); return true; } });
     eq(stub.calls.join(","), "details", "8d: a failed lookup never sends the discovery pseudo-name to the media endpoint");
-    eq(r.upstream, "place-lookup-failed", "8d: classified place-lookup-failed (transient)");
+    eq(r.upstream, "place-lookup-failed:server", "8d: classified place-lookup-failed (transient)");
     ok(refunds.includes("photos:1"), "8d: the unused photos grant is refunded");
     eq(stub.urls.some((u) => u.includes("wfplacediscovery")), false, "8d: the pseudo segment never appears in an outbound URL");
   }

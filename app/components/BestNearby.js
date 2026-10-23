@@ -1117,7 +1117,7 @@ export default function BestNearby({
                     award={topPickAward({ category: coarseCat(tagged) || prettyType(p.primary_type), rank: i + 1 })}
                     chips={chips}
                     cta={partner ? {
-                      label: partnerTicketLabel(partner.merchant, { card: true }),
+                      label: partnerTicketLabel(partner.merchant, { card: true, product: partner.product }),
                       href: commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "top40_rail", contentId: p.place_id }),
                       external: true,
                       onClick: (e) => {
