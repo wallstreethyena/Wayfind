@@ -228,7 +228,7 @@ const vj = JSON.parse(readFileSync(path.join(ROOT, "vercel.json"), "utf8"));
 const sched = vj.crons.filter((c) => c.path === "/api/cron/seasonal-revalidate").map((c) => c.schedule).sort();
 eq(sched, ["1 4,5 * * *"], "vercel.json schedules the revalidate cron once, at 04:01 and 05:01 UTC");
 const dr = read("app/components/DaypartRail.js");
-ok(count(dr, /const siteDay = useSiteToday\(\)/g) === 1 && count(dr, /railOnPosterTrack\(r, siteDay\)/g) === 1 && count(dr, /orderFor\(daypart, rails\.map\(\(r\) => r\.id\), siteDay\)/g) === 1 && /\[daypart, rails, sponsor, livePosters, siteDay\]/.test(dr), "DaypartRail: filter, order and the order memo deps all use siteDay");
+ok(count(dr, /const siteDay = useSiteToday\(\)/g) === 1 && count(dr, /railOnPosterTrack\(r, siteDay\)/g) === 1 && count(dr, /orderFor\(daypart, rails\.map\(\(r\) => r\.id\), siteDay\)/g) === 1 && /\[daypart, rails, sponsor, livePosters, siteDay, raysPoster\]/.test(dr), "DaypartRail: filter, order and the order memo deps all use siteDay");
 ok(!/railOnPosterTrack\(r, siteTodayStr/.test(dr), "DaypartRail no longer reads the date un-reactively for the track");
 for (const [f, n] of [["app/components/IconicPlaceCard.js", 1], ["app/components/RailCard.js", 1], ["app/components/FallIntentRails.js", 1], ["app/components/ThingsToDoList.js", 1]]) ok(count(read(f), /useSiteToday\(\)/g) === n, `${f}: useSiteToday() called ${n} time`);
 const hm = read("app/home.js");
