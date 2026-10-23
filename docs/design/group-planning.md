@@ -65,6 +65,7 @@ Closing and finalizing write one durable organizer notice transactionally. Deadl
 
 - Production Vercel metadata lists ANTHROPIC_API_KEY, ANTHROPIC_MONTHLY_REQUEST_CAP, RESEND_API_KEY, WF_ALERT_FROM and WF_OWNER_USER_ID. Values were not decrypted. Presence is not a live-success test.
 - The live October Anthropic ledger is 2,000/2,000 requests, last updated October 3. No paid probe or cap increase was performed.
+- 2026-10-23: founder Gabe approved raising the shared Claude request cap from 2,000 to 10,000 requests/month (`ANTHROPIC_MONTHLY_REQUEST_CAP=10000` on Vercel production). The ceiling is $20/month. Search is expected at about $1 per 1,000 uncached searches. The cap is shared across all Claude features. The October 4 reading above stays the pre-raise record.
 - There are 87 insight-cache rows from the last 30 days (latest October 2). Their presence does not establish a successful provider response today.
 - The detail cache holds 32,681 pd1 rows, only 40 fresh at inspection. None pairs structured hours with an IANA zone; 39 fresh rows have weekday-text hours and none has a recorded offset. No speculative text parser or paid refresh was added. Eligible alternatives remain offered with unverified hours.
 - The separate share-photo task was reread through its authorized thread. Latest report says universal photo coverage is unfinished and local-only; its executor path is absent here. No remote share branch was found representing that recent local result.
