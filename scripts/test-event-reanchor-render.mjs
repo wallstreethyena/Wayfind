@@ -40,6 +40,12 @@ const consoleErrors = [];
 const realConsoleError = console.error;
 console.error = (...args) => { consoleErrors.push(args.map(String).join(" ").slice(0, 400)); };
 
+// Vercel's production build runs this guard with NODE_ENV=production, and
+// React's production build rejects act(). CI and a local prebuild already
+// load the development build. Switch before React is imported so the client
+// scenarios below can mount. Server markup still uses renderToStaticMarkup.
+if (process.env.NODE_ENV === "production") process.env.NODE_ENV = "test";
+
 const { loadComponent } = await import("./lib/jsxLoad.mjs");
 const React = (await import("react")).default;
 const { createRoot } = await import("react-dom/client");
