@@ -48,6 +48,7 @@ try{
  reset(()=>response(photo(A)));
  const ready=host({placeId:A,name:'Place A'});
  const pendingStyle=media(ready).props.style;
+  eq(ready.tree().props.style?.minWidth,0,'header grid item must shrink below aspect-ratio-derived intrinsic minimum on narrow phones');
  ok(ready.nodes().some(n=>'data-place-detail-photo-pending'in n.props),'pending reserves full media frame');
  ok(ready.nodes().some(n=>n.type==='h1'&&n.children[0]==='Place A'),'headline renders before photo answer');
  eq(credit(ready),undefined,'pending has no false credit');

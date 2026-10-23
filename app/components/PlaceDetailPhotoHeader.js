@@ -88,7 +88,7 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ti
   };
   const Title = titleAs === "h2" ? "h2" : "h1";
   return (
-    <header className={className} data-place-detail-photo-header>
+    <header className={className} data-place-detail-photo-header style={{ minWidth: 0 }}>
       {(pending || photo) ? <div data-place-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: "#101820" }}>
         {photo ? <button type="button" onClick={() => visible && setViewer(photo)} aria-label={"View full photo of " + name} disabled={!visible} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, background: "transparent", cursor: visible ? "zoom-in" : "default" }}>
           <img ref={photoRef} src={photo.src} alt={name} onLoad={() => setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo ? { ...previous, loaded: true } : previous)} onError={fail} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
