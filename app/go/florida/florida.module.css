@@ -68,6 +68,7 @@
 .cardBlurb { font-size:12px; color:var(--fl-muted); margin:0 0 20px; }
 .cardActionRow { margin-top:auto; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding-top:14px; border-top:1px solid var(--fl-line); }
 .cardAction { font-size:12px; font-weight:650; color:var(--fl-ink); min-height:44px; display:inline-flex; align-items:center; }
+.offerDisclosure { display:block; font-size:13px; line-height:1.45; margin:8px 0 0; color:#E6EDF3; max-width:36em; }
 .seller { font-size:10px; color:var(--fl-muted); }
 .stay { display:grid; grid-template-columns:1fr 1fr; gap:56px; }
 .stayGuide { padding-left:32px; border-left:1px solid var(--fl-line); }

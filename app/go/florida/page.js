@@ -47,6 +47,9 @@ import {
 import { eventTicketCta } from "../../../lib/eventTicketDeals";
 import { experienceGoUrl } from "../../../lib/affiliates";
 import { providerLabel } from "../../../lib/providerLabels";
+import { siteTodayStr } from "../../../lib/siteTime";
+import { GUIDE_OFFER_COMMISSION_LINE } from "../../../lib/affiliateDisclosure";
+import { WS_GAME3_CTA, WS_GAME3_OFFER_ID, dropExpiredOffers } from "../../../lib/wsGame3Offer";
 import { isHotlinkRefusedImage } from "../../../lib/imageHostPolicy";
 import {
   SURFACE,
@@ -226,6 +229,8 @@ function OfferImage({ offer, caption }) {
 function OfferCard({ offer, ctaLabel, contentPrefix }) {
   const href = commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: contentPrefix + "-" + offer.offerId });
   if (!href) return null;
+  const game3 = offer.offerId === WS_GAME3_OFFER_ID;
+  const label = game3 ? WS_GAME3_CTA : ctaLabel;
   return <article className={styles.offerCard}>
     <OfferImage offer={offer} />
     <div className={styles.cardBody}>
@@ -233,9 +238,10 @@ function OfferCard({ offer, ctaLabel, contentPrefix }) {
       <h3>{offer.title}</h3>
       <p className={styles.cardBlurb}>{offerContext(offer)}</p>
       <div className={styles.cardActionRow}>
-        <a className={styles.cardAction} href={href} rel="sponsored noopener" target="_blank">{ctaLabel}<span className={styles.srOnly}> for {offer.title}, opens a new tab</span></a>
+        <a className={styles.cardAction} href={href} rel="sponsored noopener" target="_blank">{label}<span className={styles.srOnly}> for {offer.title}, opens a new tab</span></a>
         <span className={styles.seller}>via {providerLabel(offer.provider)}</span>
       </div>
+      {game3 ? <p className={styles.offerDisclosure}>{GUIDE_OFFER_COMMISSION_LINE}</p> : null}
     </div>
   </article>;
 }
@@ -335,9 +341,10 @@ function NatureSection() {
 }
 
 function ShowsSection() {
+  const shows = dropExpiredOffers(SHOW_OFFERS, siteTodayStr());
   return <section id="shows" className={styles.section}>
     <SectionHead eyebrow="After the sun goes down" title={SHOWS_HEADING} intro={SHOWS_INTRO} />
-    <Collection label="venues">{SHOW_OFFERS.map((o) => <OfferCard key={o.offerId} offer={o} ctaLabel={TICKET_CTA_LABEL} contentPrefix="florida-shows" />)}</Collection>
+    <Collection label="venues">{shows.map((o) => <OfferCard key={o.offerId} offer={o} ctaLabel={TICKET_CTA_LABEL} contentPrefix="florida-shows" />)}</Collection>
   </section>;
 }
 

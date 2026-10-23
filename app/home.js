@@ -219,7 +219,10 @@ import * as Ranking from "../lib/ranking";
 // standalone intent pages can render the bookable rail too — it was a local
 // function here, which is why block 2 of the composition existed only in the
 // in-app sheets. logEvent/openExternal are passed as props at the call sites.
-import ViatorRail from "./components/ViatorRail";
+// 2026-10-23: loaded on demand. It renders only inside the Events and
+// Experience screens, never on the first homepage view, and the homepage
+// route sat 0.1KB under the 498KB ratchet locally (over it on Vercel).
+const ViatorRail = nextDynamic(() => import("./components/ViatorRail"), { ssr: false, loading: () => null });
 // v6.72 TIME AWARENESS — the ONE source. Before this, home.js alone held 21
 // independent new Date().getHours() reads, several of which bucketed the day
 // differently from each other on the same screen (11/15/21 for food,

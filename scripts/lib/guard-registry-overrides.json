@@ -968,6 +968,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-ws-game3-offer.mjs": {
+    "protects": "The TicketNetwork offer for 2026 World Series Game 3 at Tropicana Field: the registry destination is the content-checked event page, the click is the CJ raw-path wrap with reel sid reel-ws-g3, the offer stays live through 2026-10-26 ET and the same offer id falls back to the Tropicana Field venue page on 2026-10-27, the sports menu and Florida shows keep the venue row, the Trop place pin swaps only while live, and the trending-guide button plus the visible commission line show no price, rating, or seat count.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A wrong or untracked Game 3 link sends a World Series click to the venue page, to an unattributed TicketNetwork URL, or past the game date. The venue fallback and the ET expiry are what keep that click honest after October 26."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-guide-rays-game-day.mjs": {
     "protects": "Each Rays World Series game has its own verified Ticketmaster destination, correct date and venue, conditional-game label, and server-side Wayfind Impact affiliate attribution.",
     "blastRadius": {
