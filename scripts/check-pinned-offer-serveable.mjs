@@ -112,9 +112,13 @@ ok(pinServeability({ provider: "viator", offerId: LIVE_PIN.offerId }).serveable 
 // Pinned into a REAL copy of the module, so this exercises the shipped
 // matching + gate, not a re-implementation of them.
 const tmp = mkdtempSync(join(tmpdir(), "wf-pin-serve-"));
-// The module's one relative import travels with the copy, so the mutant
+// The module's relative imports travel with the copy, so the mutant
 // resolves exactly what the shipped module resolves.
-copyFileSync(new URL("../lib/beachName.js", import.meta.url), join(tmp, "beachName.js"));
+// Relative imports the mutant resolves from this temp dir. siteTime.js is
+// the ET clock the dated Trop overlay reads; it pulls intlCache.js.
+for (const name of ["beachName.js", "siteTime.js", "intlCache.js", "wsGame3Offer.js"]) {
+  copyFileSync(new URL("../lib/" + name, import.meta.url), join(tmp, name));
+}
 // A mutation that silently fails to apply is indistinguishable from a guard
 // that correctly passed (CLAUDE.md, 2026-07-29). So the mutation is WATCHED:
 // if the source did not change, that is recorded as a failure — either the
