@@ -203,7 +203,8 @@ ok(/primaryType:\s*x\.primaryType/.test(HOME) || /primaryType:\s*x\.primaryType/
 const FETCH = HOME.slice(HOME.indexOf("const _fetchAt"), HOME.indexOf("const _startM"));
 ok(FETCH.includes("SUB_ALLOW["),
   "_fetchAt itself (not some other helper) is where the inventory widen lives");
-ok(!/return await searchPlaces\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0]),
+ok(!/return await (?:\(await loadSearchPlaces\(\)\)\()?searchPlaces\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0])
+  && !/return await \(await loadSearchPlaces\(\)\)\(cat, sub/.test(FETCH.split("SUB_ALLOW[")[0]),
   "the searchPlaces-only return must sit AFTER the inventory widen, not be the only path");
 
 // ── 6. serveFromInventory still filters before rank (edit the ORDER, fail) ──
