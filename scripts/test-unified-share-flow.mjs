@@ -54,7 +54,7 @@ try {
   for (const url of ["/guides/a-guide", "/florida-events/a-festival", "/places", "/p/", "bad:"]) check(() => assert.equal(sharePlaceId({ url }), ""));
   for (const id of [null, "", " ", "../x", "https://x", "a?b", "a b", "a\\b"]) check(() => assert.equal(concreteSharePlaceId(id), ""));
   check(() => assert.equal(groupPlanHref("ChIJfixture", "Ulele", false), null));
-  check(() => assert.equal(groupPlanHref("", "Ulele", true), null));
+  check(() => assert.equal(groupPlanHref("", "Ulele", true), "/group-plans/new?pick=1"));
   check(() => assert.equal(new URL(groupPlanHref("ChIJfixture", "Ulele", true), location.origin).searchParams.get("place"), "ChIJfixture"));
   const preview = new URL(placeSharePreview("ChIJfixture", "Ulele", "Tampa"), location.origin);
   check(() => assert.equal(preview.pathname, "/api/og/hero"));
@@ -75,7 +75,7 @@ try {
   doc.key("Escape");
   process.env.NEXT_PUBLIC_GROUP_PLANS_ENABLED = "1";
   openShareFlow({ ...payload, url: "/guides/uleles-guide" });
-  check(() => assert.equal(find("Group Vote"), undefined, "a title/content ID alone is not concrete place identity"));
+  check(() => assert.ok(find("Group Vote"), "Group Vote shows even without concrete place identity (pick-first flow)"));
   doc.key("Escape");
   openShareFlow(payload);
   const menu = document.getElementById("wf-share-intent");
