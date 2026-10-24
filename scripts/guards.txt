@@ -2386,3 +2386,5 @@ node scripts/test-search-nearby-first.mjs
 # restores (q + intent + near, capped like their consumers), noindex with
 # canonical to the homepage, never sitemapped, /api/search untouched.
 node scripts/test-shareable-search-url.mjs
+# 2026-10-24 food word search: cuisine synonyms, whole-word names, distance-band order, food places only.
+node scripts/test-search-food-synonyms.mjs

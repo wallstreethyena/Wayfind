@@ -772,7 +772,7 @@ scripts/test-ledger-failure-classes.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA
 scripts/test-ledger-month.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	d1711bd14395d993a38e53a448dff3dc2c23c70d4256b169ab7a4653dc0cf269
 scripts/test-lightbox-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	ede6a1c5b5619d2cd37a2de2d981f1a1afa942228323d25e6238025bc98ed641
 scripts/test-like-rerank.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	f8fd10262c35357d95ef3b2872fc43e2268f6ae2390bae22c1072323b0044d0f
-scripts/test-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	d65d1b686971bb88b19c9c5abbe8d4e917c4d12018abf8187d439a7446239964
+scripts/test-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	5bebabaa108a409ab4da4fad018823bf7e6a2f7d04785e9f9bf13988bfc2ce9c
 scripts/test-list-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	15f0edb013448410a21aa2bd3728441caa67cc310194dc9bbe4511082047486d
 scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	0f191afd45dd23ec4ab756c9ee94d739037b027c6f3f9ee7761f58a54af91e39
 scripts/test-live-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	340f34680f78e5459596756b98d49f3704e302b1fd754d3c196dd2adcab0fe15
@@ -914,6 +914,7 @@ scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c
 scripts/test-score-explanation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	110	0	0	b342e8073d61c4fefb4db75aa77acba78cbf2591e842385e917bd9434bbab2f8
 scripts/test-scorelabel.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	92e863d7488094fdf364c2b31765e021f113c73250d7ead5d16eadb630704a2a
 scripts/test-search-experience.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	0d6d5e54edd0be869bf542e1cd49c97edfed0e09c985ea5999d753144f0e9fb2
+scripts/test-search-food-synonyms.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	967771bb770d0d7b411dad3c6daae1d988cf80bba302343a29d36d28687d9e05
 scripts/test-search-nearby-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	0ab81c88235eef4b6e8bb480f45e5a8ce3ef24e686762dc07fc8ea68f55d610e
 scripts/test-search-sku-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	19b998eb08ec428ea56f3137cd0f00dedce5308bb7df386a17c1e42e54f258e5
 scripts/test-search-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	31c37188991c025604ca60799d88a4b9de9e5ed9f0b755e3c6737c37582761ac
