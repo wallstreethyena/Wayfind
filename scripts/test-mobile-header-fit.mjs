@@ -86,7 +86,13 @@ if (!options) {
 } else {
   const dir = mkdtempSync(path.join(ROOT, ".wf-hdr-"));
   const file = path.join(dir, "fixture.html");
-  writeFileSync(file, `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{box-sizing:border-box}body{margin:0;padding:0 14px;background:#05080f;color:#fff;font-family:Inter,system-ui,sans-serif}${WF_LAYOUT_CSS}${WF_PLACE_CARD_CSS}</style><body>${tabsHtml}${destsHtml}<div style="height:12px"></div>${cardsHtml}`);
+  // Production text is Inter (app/fonts.js). A fixture that falls back to whatever the
+  // machine has measures a different font on every box (CI has no Inter and is wider), so
+  // the same three Inter weights the header uses are embedded from scripts/fixtures/fonts.
+  const fontUrl = (f) => "file://" + path.join(ROOT, "scripts/fixtures/fonts", f);
+  const faces = [[400, "Inter-Regular-ascii.woff"], [600, "Inter-SemiBold-ascii.woff"], [800, "Inter-ExtraBold-ascii.woff"]]
+    .map(([w, f]) => `@font-face{font-family:WfFixtureInter;font-weight:${w === 800 ? "700 900" : w === 600 ? "500 699" : "100 499"};src:url("${fontUrl(f)}") format("woff")}`).join("");
+  writeFileSync(file, `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1"><style>${faces}*{box-sizing:border-box}body{margin:0;padding:0 14px;background:#05080f;color:#fff;font-family:WfFixtureInter,sans-serif}button,input{font-family:inherit}${WF_LAYOUT_CSS}${WF_PLACE_CARD_CSS}</style><body>${tabsHtml}${destsHtml}<div style="height:12px"></div>${cardsHtml}`);
   const browser = await chromium.launch(options);
   measured = true;
   const fnSrc = edgeFadeState.toString();
@@ -95,6 +101,9 @@ if (!options) {
       const ctx = await browser.newContext({ viewport: { width, height: 900 } });
       const page = await ctx.newPage();
       await page.goto("file://" + file);
+      await page.evaluate(() => document.fonts.ready);
+      const fontsOk = await page.evaluate(() => ["400", "600", "800"].every((w) => document.fonts.check(w + " 13px WfFixtureInter")) && [...document.fonts].filter((f) => f.status === "loaded").length >= 3);
+      ok(fontsOk, `${width}px: the embedded Inter weights loaded (otherwise every width below is measured in a fallback font)`);
       const m = await page.evaluate((src) => {
         const edgeFadeState = new Function("return (" + src + ")")();
         const fully = (row, sel, atEnd) => {
