@@ -2374,3 +2374,6 @@ node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
 node scripts/test-unified-search.mjs
 node scripts/check-search-understand.mjs
 node scripts/test-search-taxonomy.mjs
+
+# 2026-10-23 word search ("tacos") surfaces nearby places and ranks them above far ones.
+node scripts/test-search-nearby-first.mjs
