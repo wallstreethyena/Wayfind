@@ -890,6 +890,10 @@ node scripts/check-invisible-text.mjs
 # v8.22 — the card layout CONTRACT, measured on real Chromium boxes at 390px
 # with card CSS alone (the embed condition where box-sizing broke /guides/*)
 node scripts/test-place-card-layout.mjs
+# 2026-10-23 — the phone header must never clip a word: category row, quick bar and
+# event-card facts measured at 360/390/430 (owner screenshot: "Stays" icon-only,
+# "Event", "Check ad..."). Fails on the clipped layout.
+node scripts/test-mobile-header-fit.mjs
 # v8.81 — A PRESS MUST BE VISIBLE. The fall skin's blanket `button` rule
 # outranked every .is-active rule, so a liked card on that skin was painted
 # identically to an unliked one: the tap registered, the toast fired, and the
