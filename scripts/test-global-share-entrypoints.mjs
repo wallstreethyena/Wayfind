@@ -29,7 +29,7 @@ check(() => assert.match(itin, /Share ↗/, "itinerary trip shows a Share action
 
 // Executed behavior: the shared gate itself, not just its source text.
 check(() => assert.equal(groupPlanHref("ChIJfixture", "Ulele", false), null));
-check(() => assert.equal(groupPlanHref("", "Ulele", true), null));
+check(() => assert.equal(groupPlanHref("", "Ulele", true), "/group-plans/new?pick=1"));
 check(() => assert.match(groupPlanHref("ChIJfixture", "Ulele", true), /^\/group-plans\/new\?place=ChIJfixture/));
 check(() => assert.equal(concreteSharePlaceId("a/b"), ""));
 check(() => assert.equal(concreteSharePlaceId(" ChIJfixture "), "ChIJfixture"));

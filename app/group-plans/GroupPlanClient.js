@@ -33,6 +33,44 @@ async function groupRequest(path,body,session) {
   return result;
 }
 export function signInBlock(returnPath) {return <section className="gp-panel"><h2>Keep your group together</h2><p>Organizers sign in to manage invites and share the final plan. Friends vote from their link without an account.</p><a className="gp-button primary" href={signInUrlWithReturn(returnPath)}>Sign in to Wayfind</a><p className="gp-note">After you sign in, we bring you right back to this page.</p></section>;}
+
+export function GroupPlacePicker() {
+  const [query,setQuery]=useState("");const [results,setResults]=useState(null);const [busy,setBusy]=useState(false);const [error,setError]=useState("");
+  const search=async(event)=>{
+    event.preventDefault();
+    const q=query.trim();
+    if(!q||busy)return;
+    setBusy(true);setError("");
+    try {
+      const point=await new Promise((resolve)=>{
+        try {
+          if(!navigator.geolocation)return resolve(null);
+          const timer=setTimeout(()=>resolve(null),2500);
+          navigator.geolocation.getCurrentPosition((pos)=>{clearTimeout(timer);resolve({lat:pos.coords.latitude,lng:pos.coords.longitude});},()=>{clearTimeout(timer);resolve(null);},{timeout:2500});
+        } catch {resolve(null);}
+      });
+      const params=new URLSearchParams({q});
+      if(point){params.set("lat",String(point.lat));params.set("lng",String(point.lng));}
+      const response=await fetch("/api/search?"+params.toString(),{headers:{accept:"application/json"}});
+      const data=await response.json().catch(()=>null);
+      const places=Array.isArray(data?.places)?data.places.slice(0,8):[];
+      setResults(places);
+      if(!places.length)setError("No places found for that search yet. Try a place name or a food, like sushi.");
+    } catch {setError("Search did not answer. Try again.");}
+    finally {setBusy(false);}
+  };
+  const choose=(place)=>{
+    const name=place?.displayName?.text||place?.name||"";
+    const qs=new URLSearchParams({place:String(place.id)});
+    if(name)qs.set("name",String(name).slice(0,60));
+    window.location.assign("/group-plans/new?"+qs.toString());
+  };
+  return <section className="gp-panel"><div className="gp-step">First · Pick the place</div><h2>Which place should your group vote on?</h2><p className="gp-muted">You shared something that is not one single place, so pick the spot here. Friends will vote on it and a few similar options nearby.</p>
+    <form onSubmit={search} className="gp-field"><label className="gp-field">Search places<input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Try a restaurant, park, or museum" autoComplete="off"/></label><button type="submit" className="gp-button primary" disabled={busy||!query.trim()}>{busy?"Searching…":"Search"}</button></form>
+    <ErrorNotice message={error}/>
+    {results?.length?<div className="gp-people">{results.map((place)=>{const name=place?.displayName?.text||place?.name||"Place";return <button type="button" key={place.id} className="gp-button" onClick={()=>choose(place)}>{name}</button>;})}</div>:null}
+  </section>;
+}
 function returnPathFor(mode,planId,placeId) {return mode==="new"?`/group-plans/new?place=${encodeURIComponent(placeId||"")}`:mode==="list"?"/group-plans":planId?`/group-plans/${encodeURIComponent(planId)}`:"/group-plans";}
 function localDefault(days,hour) {
   const date=new Date();date.setDate(date.getDate()+days);date.setHours(hour,0,0,0);
@@ -121,7 +159,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,enabled=fals
   return <GroupFrame>
     {mode!=="view"&&<><h1>{mode==="new"?"Start a Group Vote":"Your group votes"}</h1><p className="gp-lede gp-muted">Bring your people. Pick the place. Find your time.</p></>}
     <ErrorNotice message={error}/>
-    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId)):mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
+    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId)):mode==="new"&&!placeId?<GroupPlacePicker/>:mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
       {list?.notices?.length>0&&<section className="gp-panel"><h2>Updates for you</h2>{list.notices.map((notice)=><p key={notice.id}><a className="gp-button" href={`/group-plans/${notice.plan_id}`}>{notice.event_type==="voting_closed"?"Voting has finished":notice.event_type==="plan_finalized"?"Your plan is ready":"Plan cancelled"}</a>{notice.email_status==="pending_configuration"&&<span className="gp-note"> Email update pending setup.</span>}{["failed","suppressed"].includes(notice.email_status)&&<span className="gp-note"> Email was not confirmed. Your result is saved here.{notice.next_attempt_at?" We’ll retry the email automatically.":""}</span>}</p>)}</section>}
       <section className="gp-panel"><h2>Pick up where you left off</h2>{list?.plans?.length?list.plans.map((item)=><div className="gp-row" key={item.id}><span>{item.status==="draft"?"Invites not started":item.status==="open"?"Waiting for replies":item.status==="closed"?"Ready for your decision":item.status==="finalized"?"Final plan":"Cancelled"}<small className="gp-note" style={{display:"block"}}>Created {new Date(item.created_at).toLocaleDateString()}</small></span><a className="gp-button" href={`/group-plans/${item.id}`}>Open plan</a></div>):<p className="gp-muted">Find a place you like, tap Share, then Group Vote.</p>}</section>
     </>:plan?<>{plan.role==="organizer"?<GroupOrganizer key={plan.id} plan={plan} onCommand={command} busy={busy}/>:plan.role==="final"?<><h1>Here’s the plan</h1><GroupFinal plan={plan}/></>:<GroupBallot key={plan.id} plan={plan} onCommand={command} busy={busy}/>}<button className="gp-button" disabled={busy} onClick={load}>Refresh replies</button></>:!error?<p role="status">Loading your invitation…</p>:<button className="gp-button" onClick={load}>Try again</button>}
