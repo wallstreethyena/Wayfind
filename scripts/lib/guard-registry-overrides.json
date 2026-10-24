@@ -8,6 +8,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-redirect-guard.mjs": {
+    "protects": "Every partner /go route runs the shared request gate (lib/redirectGuard.js): self-identified bots, HEAD and prefetch requests, and (only with WF_REDIRECT_GUARD_MODE=refuse) header-signal suspects never receive a partner Location and emit provider_redirect_refused instead of provider_redirect_started, while a normal browser click and our own synthetic monitor still reach the partner.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-22: provider_redirect_started read 2,402 vs 56 commerce_cta_clicked for Oct 13-22; 60% came from three cloud /16s with browser-shaped UAs. Automated partner clicks with 0% conversion are what affiliate networks flag as click fraud (account risk), and a refusal that leaked a human click would cost real bookings."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-env.mjs": {
     "protects": "Every revenue- or feature-critical env var (Viator PID, Supabase keys, provider keys) is present and not a placeholder, at build time, with a printed advisory.",
     "blastRadius": {

@@ -18,9 +18,16 @@
  * the incident — the synthetic monitor must get a REAL redirect (never be
  * refused) but must never be counted as a human visitor either.
  *
+ * 2026-10-22: the gate moved into ONE shared module, lib/redirectGuard.js
+ * (assessRedirectRequest), which calls isCrawler() first and also refuses HEAD
+ * and prefetch. A refusal now emits provider_redirect_refused (never _failed:
+ * CLAUDE.md revenue rule 3, "_failed means unattributable, nothing else").
+ * The assertions follow the code; none is dropped.
+ *
  * TWO STATIC ASSERTIONS PER ROUTE (source, not behavior):
- *   1. it imports isCrawler from lib/crawler.js
- *   2. the CALL isCrawler(...) — not the import — appears in the source
+ *   1. it imports assessRedirectRequest from lib/redirectGuard.js (and that
+ *      module imports AND calls isCrawler — asserted below)
+ *   2. the CALL assessRedirectRequest(...) — not the import — appears in the source
  *      BEFORE any literal fetch( or providerSpendAllow( call in that same
  *      file. Comments are stripped first (CLAUDE.md: a raw-source guard must
  *      not fail, or in this case pass, on its own comment).
@@ -28,7 +35,9 @@
  * THREE DYNAMIC ASSERTIONS, CALLED — never read off a string:
  *   3. a self-identified bot UA is refused with failure_reason
  *      "crawler-refused", proven by intercepting the real PostHog capture
- *      call the route makes (same technique as check-provider-redirects.mjs).
+ *      call the route makes (same technique as check-provider-redirects.mjs),
+ *      as provider_redirect_refused with refuse_reason "crawler-refused" and
+ *      with NO provider_redirect_started / _failed beside it.
  *      Three of four fixtures use OTHERWISE-VALID params — a request that
  *      would succeed if the gate were absent — so refusal is proof the gate
  *      fired, not proof the request was going to fail anyway.
@@ -103,7 +112,18 @@ ok(missingFixture.length === 0,
 
 /* ── 1 & 2: STATIC — import present, call precedes fetch/spend ───────────── */
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
-const IMPORT_RE = /import\s*\{[^}]*\bisCrawler\b[^}]*\}\s*from\s*["'][^"']*lib\/crawler(?:\.js)?["']/;
+const IMPORT_RE = /import\s*\{[^}]*\bassessRedirectRequest\b[^}]*\}\s*from\s*["'][^"']*lib\/redirectGuard(?:\.js)?["']/;
+
+// The shared gate itself must import isCrawler and CALL it inside
+// assessRedirectRequest — otherwise every route "calls the gate" and no gate
+// checks the UA. (Behavior is also proven dynamically below.)
+{
+  const gsrc = strip(readFileSync(REPO + "lib/redirectGuard.js", "utf8"));
+  ok(/import\s*\{[^}]*\bisCrawler\b[^}]*\}\s*from\s*["']\.\/crawler(?:\.js)?["']/.test(gsrc), "lib/redirectGuard.js imports isCrawler from ./crawler.js");
+  const at = gsrc.search(/export\s+function\s+assessRedirectRequest\s*\(/);
+  const body = at >= 0 ? gsrc.slice(at, gsrc.indexOf("\nexport ", at + 10)) : "";
+  ok(/\bisCrawler\s*\(/.test(body), "lib/redirectGuard.js assessRedirectRequest() calls isCrawler(...)");
+}
 
 // Resolve ONE level of call indirection. /api/viator/go's fetch() and
 // providerSpendAllow() calls live inside resolveProduct(), a helper defined
@@ -135,7 +155,7 @@ function topLevelFunctionSpans(src) {
 for (const rel of DISCOVERED) {
   const raw = readFileSync(REPO + rel, "utf8");
   const src = strip(raw);
-  ok(IMPORT_RE.test(src), `${rel}: imports isCrawler from lib/crawler.js`);
+  ok(IMPORT_RE.test(src), `${rel}: imports assessRedirectRequest from lib/redirectGuard.js`);
 
   const spans = topLevelFunctionSpans(src);
   const getSpan = spans.find((s) => s.name === "GET");
@@ -146,8 +166,8 @@ for (const rel of DISCOVERED) {
   // The CALL, not the import — an import regex alone would pass even if the
   // gate were declared and never invoked (CLAUDE.md: assert the syntactic
   // position, not the substring). Position is relative to getBody.
-  const callAt = getBody.search(/\bisCrawler\s*\(/);
-  ok(callAt >= 0, `${rel}: calls isCrawler(...) inside the GET handler`);
+  const callAt = getBody.search(/\bassessRedirectRequest\s*\(/);
+  ok(callAt >= 0, `${rel}: calls assessRedirectRequest(...) inside the GET handler`);
 
   // Danger positions, ALL measured relative to getBody:
   //   (a) a literal fetch(/providerSpendAllow( written directly in GET's body
@@ -174,7 +194,7 @@ for (const rel of DISCOVERED) {
   if (dangerPositions.length) {
     const earliest = Math.min(...dangerPositions);
     ok(callAt >= 0 && callAt < earliest,
-      `${rel}: isCrawler() runs BEFORE the first reachable fetch/providerSpendAllow call from GET (danger at ${earliest}, gate at ${callAt})`);
+      `${rel}: the request gate runs BEFORE the first reachable fetch/providerSpendAllow call from GET (danger at ${earliest}, gate at ${callAt})`);
   }
 }
 // Positive control: viator/go is KNOWN to contain both a fetch( and a
@@ -278,10 +298,12 @@ ok(analytics.isKnownBot(SYNTHETIC_UA) === true, "browserAnalytics.isKnownBot() c
       // Bot UA: refused, and refused SPECIFICALLY as a crawler.
       const bot = await call(rel, BOT_UA);
       ok(bot.res.status >= 300 && bot.res.status < 400, `${rel} (bot UA) still returns a redirect (never a hang/500)`);
-      const botEvent = bot.events.find((e) => e.event === "provider_redirect_failed");
-      ok(!!botEvent, `${rel} (bot UA) emits provider_redirect_failed (got: ${bot.events.map((e) => e.event).join(", ") || "none"})`);
-      ok(botEvent && botEvent.properties && botEvent.properties.failure_reason === "crawler-refused",
-        `${rel} (bot UA) failure_reason is "crawler-refused" (got: ${botEvent && botEvent.properties && botEvent.properties.failure_reason})`);
+      const botEvent = bot.events.find((e) => e.event === "provider_redirect_refused");
+      ok(!!botEvent, `${rel} (bot UA) emits provider_redirect_refused (got: ${bot.events.map((e) => e.event).join(", ") || "none"})`);
+      ok(botEvent && botEvent.properties && botEvent.properties.refuse_reason === "crawler-refused",
+        `${rel} (bot UA) refuse_reason is "crawler-refused" (got: ${botEvent && botEvent.properties && botEvent.properties.refuse_reason})`);
+      ok(!bot.events.some((e) => e.event === "provider_redirect_started" || e.event === "provider_redirect_failed"),
+        `${rel} (bot UA) emits NO provider_redirect_started/_failed beside the refusal (got: ${bot.events.map((e) => e.event).join(", ")})`);
       if (fx.successHostSubstr) {
         const loc = bot.res.headers && (bot.res.headers.get ? bot.res.headers.get("location") : bot.res.headers.location);
         ok(!loc || !loc.includes(fx.successHostSubstr),
@@ -310,4 +332,4 @@ if (fail.length) {
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`check-go-routes-crawler-gate: OK — ${pass} assertions across ${DISCOVERED.length} discovered go routes (${DISCOVERED.join(", ")}); bot UA refused before spend/fetch, synthetic monitor UA gets a real redirect and zero captures`);
+console.log(`check-go-routes-crawler-gate: OK — ${pass} assertions across ${DISCOVERED.length} discovered go routes (${DISCOVERED.join(", ")}); shared gate (lib/redirectGuard.js) refuses bot UA before spend/fetch as provider_redirect_refused, synthetic monitor UA gets a real redirect and zero captures`);

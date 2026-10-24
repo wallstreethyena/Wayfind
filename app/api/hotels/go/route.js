@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
-import { isCrawler } from "../../../../lib/crawler.js";
+import { assessRedirectRequest, refusedResponse, ROBOTS_HEADER } from "../../../../lib/redirectGuard.js";
 import { isHotelBookingVerified } from "../../../../lib/hotelBookingVerification.js";
 import {
   HOTEL_REDIRECT_FALLBACK,
@@ -55,6 +55,7 @@ export async function GET(req) {
       Location: location,
       "Cache-Control": "no-store, max-age=0",
       "Referrer-Policy": "no-referrer",
+      ...ROBOTS_HEADER,
     },
   });
 
@@ -63,7 +64,16 @@ export async function GET(req) {
     return redirect(new URL(HOTEL_REDIRECT_FALLBACK, req.url).toString());
   };
 
-  if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
+  // THE REQUEST GATE (lib/redirectGuard.js) runs BEFORE resolving anything:
+  // self-identified bots, HEAD and prefetch are always refused; header-signal
+  // suspects are refused only when WF_REDIRECT_GUARD_MODE=refuse. A refused
+  // request emits provider_redirect_refused and never sees a partner Location.
+  const guard = assessRedirectRequest(req, { clickId: sanitizeClientClickId(params.get("click_id")) });
+  Object.assign(base, guard.eventProps);
+  if (guard.refuse) {
+    try { emit("provider_redirect_refused", { refuse_reason: guard.refuseReason }); } catch {}
+    return refusedResponse(req, guard, HOTEL_REDIRECT_FALLBACK);
+  }
   if (!hotel) return fail("invalid-hotel-location");
   // 2026-09-23: the button is gated in lib/affiliates.hotelGoUrl, but this URL
   // is shareable and guessable, so the same fail-closed rule is enforced here
@@ -77,4 +87,10 @@ export async function GET(req) {
 
   emit("provider_redirect_started", { resolver_path: "stay22-allez-booking-search" });
   return redirect(destination);
+}
+
+// HEAD is never a click. Exported explicitly so it reaches the gate with its
+// real method (refused: 204, no Location, no provider_redirect_started).
+export async function HEAD(req) {
+  return GET(req);
 }
