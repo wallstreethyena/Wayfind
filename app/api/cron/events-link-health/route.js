@@ -25,6 +25,7 @@ import { probeAndClassify } from "../../../../lib/linkProbe.js";
 import { hostOfUrl, isBadVerdict, dedupeVerdictRows } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
+import { eventRowLinkDepth } from "../../../../lib/eventDeepLink.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -163,13 +164,30 @@ export async function GET(req) {
     });
     if (!r.ok) err = err || `verdicts-${r.status}`;
   }
+  // 2026-10-22 owner directive: every live event's button must land on THAT
+  // event. A front-page or calendar link is never darkened (a shallow link
+  // beats none), but it is counted and named here every night so job-watch
+  // surfaces it instead of it shipping unseen. Read-only; one light select.
+  const shallow = [];
+  try {
+    const all = await fetch(`${s.url}/rest/v1/wf_events?select=event_id,official_ticket_url,official_event_url,event_page_url`
+      + `&event_status=in.(scheduled,unannounced,postponed)&or=(end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}))&limit=5000`,
+      { headers: h, cache: "no-store" });
+    if (all.ok) {
+      for (const r of await all.json()) {
+        const d = eventRowLinkDepth(r);
+        if (d !== "deep") shallow.push({ event: r.event_id, depth: d });
+      }
+    }
+  } catch (e) {}
+
   try {
     await recordPulse(JOB, {
       attempted: rows.length,
       succeeded: counts.alive + counts.bad + counts.strike,
       failed: counts.unknown,
-      note: err ? `persistence error: ${err}`.slice(0, 200) : ([counts.bad ? `${counts.bad} event link(s) darkened` : null, counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null].filter(Boolean).join('; ') || null),
+      note: err ? `persistence error: ${err}`.slice(0, 200) : ([counts.bad ? `${counts.bad} event link(s) darkened` : null, counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null, shallow.length ? `${shallow.length} live event(s) not deep-linked (e.g. ${shallow.slice(0, 3).map((x) => x.event).join(", ")})` : null].filter(Boolean).join('; ') || null),
     });
   } catch (e) {}
-  return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, flagged }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, flagged, notDeepLinked: shallow }, { headers: { "Cache-Control": "no-store" } });
 }
