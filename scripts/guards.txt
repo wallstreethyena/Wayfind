@@ -360,6 +360,7 @@ node scripts/check-area-seasonal-context.mjs
 node scripts/check-one-price-source.mjs
 node scripts/check-price-badge.mjs
 node scripts/check-cache-epoch.mjs
+node scripts/check-inventory-select-columns.mjs
 node scripts/test-editorial-rollout.mjs
 node scripts/check-parity-formula-lock.mjs
 node scripts/check-floor-derivation.mjs
@@ -2377,3 +2378,6 @@ node scripts/test-seasonal-existing-refresh-2026-10-22.mjs
 node scripts/test-unified-search.mjs
 node scripts/check-search-understand.mjs
 node scripts/test-search-taxonomy.mjs
+
+# 2026-10-23 word search ("tacos") surfaces nearby places and ranks them above far ones.
+node scripts/test-search-nearby-first.mjs
