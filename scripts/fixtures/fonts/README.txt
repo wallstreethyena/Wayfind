@@ -1,0 +1,1 @@
+Latin subsets of Inter (SIL Open Font License 1.1, https://rsms.me/inter/) used only by scripts/test-mobile-header-fit.mjs so its width measurements do not depend on which fonts the machine has installed. Production loads Inter through next/font (app/fonts.js).

@@ -1,6 +1,7 @@
 "use client";
 import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
 import { Component, useEffect, useMemo, useRef, useState } from "react";
+import { useEdgeFade } from "./components/EdgeFade";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
 import PhotoCredit from "./components/PhotoCredit";
@@ -529,6 +530,10 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   const subs = showSubs && activeCat ? (SUBFILTERS[activeCat] || []) : [];
   // Hooks run BEFORE the compact early-return below — a conditional hook here
   // would break the map screen the moment a sub-filter opened.
+  const navTabsRef = useRef(null);
+  useEdgeFade(navTabsRef);
+  const catRowRef = useRef(null);
+  useEdgeFade(catRowRef);
   const [coach, setCoach] = useState(false);
   useEffect(() => {
     let seen = true;
@@ -648,7 +653,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
     const navSubs = navOpenCat ? (SUBFILTERS[navOpenCat] || []) : [];
     return (
       <>
-      <div className="wf-navtabs" role="group" aria-label="Browse categories">
+      <div className="wf-navtabs" ref={navTabsRef} role="group" aria-label="Browse categories">
         {Cats.CATEGORY_TILES.map((m) => {
           const on = activeCat === m.id || navOpenCat === m.id;
           // railHref resolves the missing city segment through the SAME map the
@@ -780,7 +785,7 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
           REGION, not to six buttons, permanent motion on the first screen reads
           as an alert, and reduced-motion users would see nothing — so the glow
           stays where it earns its keep: on the tile you actually press. */}
-      <div className="wf-catrow" role="group" aria-label="Browse categories" style={{ display: "flex", gap: 7, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "2px 0 6px" }}>
+      <div className="wf-catrow" ref={catRowRef} role="group" aria-label="Browse categories" style={{ display: "flex", gap: 7, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x proximity", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", padding: "2px 0 6px" }}>
         {/* v6.90 — owner review of the category row asked for "anything you can
             do" to make it feel less flat. Two additive, guard-safe touches:
             (a) a soft circular halo behind the active icon (background only,
@@ -3878,6 +3883,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // is the SAME <DiscoveryMenu> that used to sit in the feed; the nav item
   // just decides whether it is on screen.
   const [navShortcuts, setNavShortcuts] = useState(false);
+  const destsRef = useRef(null);
+  useEdgeFade(destsRef);
   // The search scope. It selects the BROWSE CATEGORY the page is showing —
   // the same state the six tabs beside it write — so the control does exactly
   // what the tabs do, in the compact shape a phone can hold. It is not given a
@@ -10497,7 +10504,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             Shortcuts stays anchored at the right edge on every viewport. */}
         {screen !== "map" && (
           <div className="wf-dest-row" style={suggestions.length ? { pointerEvents: "none" } : undefined}>
-            <nav className="wf-dests" {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations">
+            <nav className="wf-dests" ref={destsRef} {...(suggestions.length ? { className: "wf-dests is-covered" } : null)} aria-label="Destinations">
               {WF_DESTINATIONS.map((d) => {
                 const active = d.id === screen;
                 return (
