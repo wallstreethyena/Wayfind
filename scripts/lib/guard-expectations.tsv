@@ -393,7 +393,7 @@ scripts/check-scout-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	d385f315b661b
 scripts/check-search-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	7b07ace798eeef53088ff0f2f3fb7f67da7fd057d1781cf77884a95fc821d8f0
 scripts/check-search-understand.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	a0ecccf47c9bd23e36a51dc754743b1b9f0c39ac829cb2493938ae0f82c44097
 scripts/check-seasonal-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	59a309686bb11026850a13eada3550dc8d8fd7d636fa0509e63114952b16b7c0
-scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	62	1	0	b450c4c3e993bea2cee712f9ae68c947d0c10aed37ce3407feef608667b411ae
+scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	63	1	0	b23fd93b05f825d0254f15ac6d1cf09b1a04578c3336c94410e5116939a5bebc
 scripts/check-share-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	9236820711658a41523c578ca14987d68d3219ccb18ae185b6e36df01153974c
 scripts/check-shell-decomposition.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	bf98fac42ecfff2c7d1f1adce7f523d961372ca9c39876cf526b9592e55590e0
 scripts/check-shell-routes.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	31c5df471508cd83960219c4624c3c2fd73821aded46a620b403026a0fde048d
@@ -933,6 +933,7 @@ scripts/test-sentry-lazy.mjs	0	CALL	blocks-ci-and-deploy	1	-	35	1	4	addd3fe9f754
 scripts/test-session-map-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	a36511cafb73ba6a31abf5983ddac2df07a17ef57d391695c6b292814fabca4e
 scripts/test-share-metrics.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	94908e8066fae716fd7c9fcddb5f8e569ecb4cc5ba7655c74ad93a4f672cd7a9
 scripts/test-share-out-chooser.mjs	0	RENDER	blocks-ci-and-deploy	1	-	54	0	0	94d5d3ae41c817d476a819339149c1a810a145d8fa232df312cd729bbbff7c60
+scripts/test-shareable-search-url.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	3c4cb279b9f56d8f0d7e43abd9bc0cd8d2639c76ead7fc6c7afae002298121d5
 scripts/test-shared-google-photo-serving.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	22	0	0	55800b1f443cfbcd484711986e5b86356995fb7bf594ec50d1eda6b2adc9cf39
 scripts/test-shared-photo-lifecycle.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	7b0252f3aa64901b8d3564d717c1a38d85ea59191d8ce2a78f94d4278cc93b02
 scripts/test-sheet-booking.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Revenue QA	15	2	2	eb44f447073981b945f2adc5c6f4ab71603b273111b9ccad524caa327f47e26c

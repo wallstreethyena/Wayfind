@@ -128,6 +128,7 @@ const EXEMPT = {
   "app/events/[city]/page.js": { kind: "handoff", why: "only ever redirects to /events/[city]/this-weekend" },
   "app/coupons/page.js": { kind: "handoff", why: "route shim: opens the shell's coupons screen" },
   "app/events/page.js": { kind: "handoff", why: "route shim: opens the shell's events screen" },
+  "app/search/page.js": { kind: "handoff", why: "shareable search bridge: hands the query to the shell, whose cards and sheets carry Share and Group Vote" },
   "app/map/page.js": { kind: "handoff", why: "route shim: opens the shell's map" },
   "app/favorites/page.js": { kind: "handoff", why: "route shim: a person's own saved places, not a page to send" },
   "app/itinerary/page.js": { kind: "handoff", why: "route shim: a person's own plan, shared from inside the shell" },
