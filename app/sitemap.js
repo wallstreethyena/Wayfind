@@ -16,7 +16,9 @@ import { trendingCitySlugs } from "../lib/trending";
 import { creatorSlugs } from "../lib/creatorPages";
 import { sponsorSlugs } from "../lib/sponsoredPlaces";
 import { listIndexedIds } from "../lib/placeIndex";
-import { fetchCuratedEvents, floridaEventSitemapRows } from "../lib/curatedEvents";
+import { floridaEventSitemapRows } from "../lib/curatedEvents";
+import { cachedCuratedEventList } from "../lib/curatedEventsCache";
+import { unstable_cache } from "next/cache";
 import { christmasResearchSitemapRows, withoutChristmasWatchlistTwins } from "../lib/christmasResearch";
 import { siteTodayStr } from "../lib/siteTime";
 
@@ -24,6 +26,23 @@ import { siteTodayStr } from "../lib/siteTime";
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
 // so a build-time-only sitemap would list zero events forever.
 export const revalidate = 3600;
+// Never prerendered at build: the build-phase events read is a deliberate
+// skip (returns []), so a prerendered sitemap would be missing the whole
+// events layer until its first hourly revalidation. Generation stays at
+// request time, as this route always intended; the expensive reads inside
+// are what got cached (below), not the document.
+export const dynamic = "force-dynamic";
+
+// The two database reads below used to run live on EVERY request: the place
+// read's `cache: "no-store"` fetches opted this route out of ISR entirely
+// (production answered every /sitemap.xml with x-vercel-cache: MISS and a
+// 3.4-4.4s TTFB). Both reads now go through the hourly data cache — the exact
+// freshness this route already declares — using the same packed reader as
+// /florida-events for events (raw rows are ~2MB, over the cache-entry limit)
+// and a plain cached read for the place-id list (a few dozen KB). Freshness
+// is unchanged: data is at most one hour old, as `revalidate` always promised.
+const getSitemapEvents = cachedCuratedEventList("sitemapEvents", ["sitemap-curated-events-v1"]);
+const getSitemapPlaceIds = unstable_cache(() => listIndexedIds(500), ["sitemap-place-ids-v1"], { revalidate: 3600 });
 
 export default async function sitemap() {
   // /events /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
@@ -66,9 +85,16 @@ export default async function sitemap() {
   // sitemap"). Only upcoming, trusted Florida rows, the same gate the hub and
   // the single-event page apply. A failed read drops the events, never the
   // whole sitemap.
+  // Started now, awaited at the /places assembly below, so a cold (hourly)
+  // regeneration runs the place read concurrently with the events read
+  // instead of serially after it. The noop catch only keeps an early
+  // rejection from surfacing as unhandled before the await; the await
+  // itself still throws exactly as a direct call would.
+  const placeIdsPromise = getSitemapPlaceIds();
+  placeIdsPromise.catch(() => {});
   let events = [];
   let eventRows = [];
-  try { events = floridaEventSitemapRows(await fetchCuratedEvents().then((rows) => (eventRows = rows)), SITE_URL); } catch { events = []; eventRows = []; }
+  try { events = floridaEventSitemapRows(await getSitemapEvents().then((rows) => (eventRows = rows)), SITE_URL); } catch { events = []; eventRows = []; }
   // Christmas v4 (2026-10-13): the research-only Christmas listings have event
   // pages through the /florida-events/[slug] fallback; list the current ones.
   // A research slug that a different wf_events event already owns gets the
@@ -83,7 +109,7 @@ export default async function sitemap() {
   // fall-festivals guide has no GUIDES entry, so the loop above never listed
   // it; a slug that IS in GUIDES is already listed and is skipped here.
   const dedicatedGuides = ["florida-fall-festivals-2026"].filter((slug) => !GUIDES[slug]).map((slug) => ({ url: `${SITE_URL}/guides/${slug}` }));
-  const placeIds = await listIndexedIds(500);
+  const placeIds = await placeIdsPromise;
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
   const seasonal = SEASONAL_SEARCH_HUBS.map(({ slug }) => ({ url: `${SITE_URL}/${slug}` }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];

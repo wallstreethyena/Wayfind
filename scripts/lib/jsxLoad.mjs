@@ -51,6 +51,7 @@ export async function loadComponent(entryAbs, repoRoot, { onGraph } = {}) {
     "next/cache": [
       "export function revalidatePath(path, type) { (globalThis.__wfRevalidated || (globalThis.__wfRevalidated = [])).push(type ? [path, type] : path); }",
       "export function revalidateTag() {}",
+      "export function unstable_cache(fn) { return fn; }",
     ].join("\n"),
     "next/dynamic": 'export default function dynamic() { return function DynamicStub() { return null; }; }\n',
     // next/font/google — 2026-10-01. A font loader call is compiled away by
