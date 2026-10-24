@@ -233,6 +233,7 @@ scripts/check-intro-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	f6da25e1a46c
 scripts/check-intro-instrumentation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1	0	438db7921dc5d57fd88865af8b0d4828fb893bd0053ce58dc8cce39b4205409f
 scripts/check-inventory-integrity.mjs	0	CALL	scheduled-monitoring-only	0	-	16	0	0	b1a998c666f0fdcd6373762ad9738e032e3c7040e9488d1b4c4f4131dcfc29fb
 scripts/check-inventory-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	fc96aafdce3014ea52c8208bded0a982c7ac400e0fc0538af41a83e7f7c3d6ff
+scripts/check-inventory-select-columns.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	0	0	46fe4ed7b1feeec62dd73fa29675a312cc83ee8fbc4a7ea2bf380603cdfc21c0
 scripts/check-inventory-serve-complete-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	c1719ef8a6276f6123ddc4846e4802cc8354ec05445a8053aaed52e0df459343
 scripts/check-invisible-text.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	88fd6a135aeba3d1cfafc16b6e2f538371b0764258e2e8dd70c356a6bd908a68
 scripts/check-ios-device-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	c94e822eca61710ad62b7b3ba64de63893a150ddeab7b681858b0ecc8f40d3b4
