@@ -88,7 +88,7 @@ export async function generateMetadata({ params }) {
   return {
     title: title + " | Wayfind",
     description: desc.slice(0, 155),
-    openGraph: { title, description: desc.slice(0, 155), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: title }] },
+    openGraph: { type: "article", title, description: desc.slice(0, 155), url: `${SITE_URL}/florida-events/${e.slug}`, siteName: "Wayfind", images: [{ url: og, width: 1200, height: 630, type: "image/jpeg", alt: title }] },
     twitter: { card: "summary_large_image", title, images: [og] },
     alternates: { canonical: `${SITE_URL}/florida-events/${e.slug}` },
   };
