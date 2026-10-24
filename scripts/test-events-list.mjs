@@ -2,7 +2,8 @@
 // The date math for this-weekend/tonight/this-month must be correct and
 // inclusive so a shared /events/[city]/this-weekend URL always shows the
 // right window.
-import { EVENT_WINDOWS, isEventWindow, windowRange, eventInWindow, filterByWindow } from "../lib/eventsList.js";
+import { EVENT_WINDOWS, isEventWindow, windowRange, eventInWindow, filterByWindow, spreadAcrossDays } from "../lib/eventsList.js";
+import { readFileSync } from "node:fs";
 
 let failures = 0;
 const fail = (m) => { console.error("test-events-list: FAIL — " + m); failures++; };
@@ -57,5 +58,43 @@ if (Object.keys(EVENT_WINDOWS).length !== 3) fail("expected exactly 3 windows");
   if (kept.length !== 1 || kept[0].date !== "2026-07-18") fail(`filterByWindow kept wrong set: ${JSON.stringify(kept)}`);
 }
 
+// 7. spreadAcrossDays (2026-10-23): a date-ordered feed capped at 60 must not
+// collapse "this-month" onto its first weekend. 31 days x 20 events each:
+// every day appears, no day gets more than ceil(60/31)=2, order is by date,
+// and within a day the feed's ranking is kept.
+{
+  const feed = [];
+  for (let d = 0; d < 31; d++) {
+    const day = new Date(Date.UTC(2026, 9, 23 + d)).toISOString().slice(0, 10);
+    for (let k = 0; k < 20; k++) feed.push({ id: `${day}#${k}`, date: day, rank: k });
+  }
+  const out = spreadAcrossDays(feed, 60);
+  const days = new Map(); out.forEach((e) => days.set(e.date, (days.get(e.date) || 0) + 1));
+  if (out.length !== 60) fail(`spreadAcrossDays should keep 60, kept ${out.length}`);
+  if (days.size !== 31) fail(`every one of 31 days should appear, got ${days.size}`);
+  if (Math.max(...days.values()) > 2) fail("no day may hold more than 2 of 60 slots across 31 days");
+  for (let i = 1; i < out.length; i++) {
+    const a = out[i - 1], b = out[i];
+    if (a.date > b.date) { fail("output must be in date order"); break; }
+    if (a.date === b.date && a.rank > b.rank) { fail("within a day the feed ranking must be kept"); break; }
+  }
+  if (out[0].rank !== 0) fail("each day's top-ranked event must be its first pick");
+  // Negative control: the old slice(0,60) really did collapse onto 3 days.
+  const old = new Set(feed.slice(0, 60).map((e) => e.date));
+  if (old.size !== 3) fail(`control: slice(0,60) should cover 3 days, covered ${old.size}`);
+  // Under the cap nothing is dropped or reordered; bad cap yields [].
+  const small = feed.slice(0, 10);
+  if (JSON.stringify(spreadAcrossDays(small, 60)) !== JSON.stringify(small)) fail("under the cap the list must pass through unchanged");
+  if (spreadAcrossDays(feed, 0).length !== 0 || spreadAcrossDays(null, 60).length !== 0) fail("cap 0 / null input must yield []");
+}
+
+// 8. The window page actually uses it (code, comments stripped) and no longer
+// hard-slices the filtered feed.
+{
+  const src = readFileSync("app/events/[city]/[slug]/page.js", "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  if (!/const\s+events\s*=\s*spreadAcrossDays\(\s*filterByWindow\(/.test(src)) fail("EventListPage must build events with spreadAcrossDays(filterByWindow(...), N)");
+  if (/filterByWindow\([^)]*\)\s*\.slice\(/.test(src)) fail("EventListPage still slices the date-ordered feed directly");
+}
+
 if (failures) process.exit(1);
-console.log("test-events-list: OK — window date math is correct and inclusive; detail slugs aren't mistaken for windows");
+console.log("test-events-list: OK — window date math is correct and inclusive; detail slugs aren't mistaken for windows; capped lists spread across every day");

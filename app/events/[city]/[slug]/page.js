@@ -16,7 +16,7 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { resolveEventById, idFromSlug } from "../../../../lib/eventResolve.js";
 import { isTicketmasterFamily } from "../../../../lib/affiliates.js";
-import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow } from "../../../../lib/eventsList.js";
+import { isEventWindow, EVENT_WINDOWS, windowRange, filterByWindow, spreadAcrossDays } from "../../../../lib/eventsList.js";
 import { LANDING_CITIES } from "../../../../lib/landing.js";
 import TicketButton from "./TicketButton.js";
 import { addressLine, appleDirectionsUrl, websiteUrl } from "../../../../lib/placeWhere.js";
@@ -160,7 +160,9 @@ async function EventListPage({ params }) {
   if (!res) notFound();
   const { city } = res;
   const range = windowRange(params.slug);
-  const events = filterByWindow(res.events, params.slug).slice(0, 60);
+  // Every day in the window gets a slot before any day gets a second one
+  // (a plain slice(0, 60) of the date-ordered feed made this-month == this-weekend).
+  const events = spreadAcrossDays(filterByWindow(res.events, params.slug), 60);
   const A = "#2EC9A6";
   const canonBase = `${CANON}/events/${params.city}/${params.slug}`;
   // ItemList + per-item Event schema (Phase 5). Only real, validated events.
