@@ -117,6 +117,7 @@ function baseCtx(overrides = {}) {
     itineraryFlags: { v2: true, share: true, sync: true, map: false },
     shareTrip() {},
     requireAuth: () => true,
+    __today: "2026-10-22",
     ...overrides,
   };
 }
@@ -145,61 +146,83 @@ function baseCtx(overrides = {}) {
   trips = addPlaceToTrips(trips, makePlace("s2", "Selby Gardens", 27.32, -82.53), 200);
   trips = addPlaceToTrips(trips, makePlace("s3", "Siesta Key Beach", 27.26, -82.55), 300);
   trips = setStopDate(trips, "fl_sarasota", "s1", "2020-05-10", 400); // past date
-  trips = setStopDate(trips, "fl_sarasota", "s2", "2099-10-24", 500); // upcoming date
+  trips = setStopDate(trips, "fl_sarasota", "s2", "2026-10-22", 500); // deterministic Today
 
   const html = renderToStaticMarkup(createElement(ItineraryScreen, { ctx: baseCtx({ trips }) }));
-  const upcomingIdx = html.indexOf('data-wf-day-heading="2099-10-24"');
+  const upcomingIdx = html.indexOf('data-wf-day-heading="2026-10-22"');
   const pastIdx = html.indexOf('data-wf-day-heading="2020-05-10"');
   const unscheduledIdx = html.indexOf('data-wf-day-heading="unscheduled"');
   ok(upcomingIdx > 0 && pastIdx > upcomingIdx && unscheduledIdx > pastIdx, "upcoming day renders first, past day second, and Unscheduled last");
+  ok(html.includes("Today · Thursday, Oct 22"), "deterministic __today renders 'Today · Thursday, Oct 22'");
   ok(html.includes("Past · Sunday, May 10"), "past day heading is clearly labeled 'Past · ...'");
   ok(html.includes('data-wf-day-past="true"'), "past day heading marks data-wf-day-past='true'");
   ok(html.includes("Route day ↗"), "dated day headings render Route day ↗");
 }
 
-// ── 3. 10+ stops on one day renders split route leg button ──────────────────
+// ── 3. 10+ stops on one day renders split route leg buttons (desktop & mobile) ──
 {
   let trips = {};
   for (let i = 1; i <= 12; i += 1) {
     trips = addPlaceToTrips(trips, makePlace("m" + i, "Stop " + i, 27.3 + i * 0.01, -82.5 - i * 0.01), i * 10);
-    trips = setStopDate(trips, "fl_sarasota", "m" + i, "2099-10-24", i * 10 + 5);
+    trips = setStopDate(trips, "fl_sarasota", "m" + i, "2026-10-24", i * 10 + 5);
   }
-  const html = renderToStaticMarkup(createElement(ItineraryScreen, { ctx: baseCtx({ trips }) }));
-  ok(html.includes("Route day ↗"), "12-stop day still renders primary Route day ↗ button");
-  ok(html.includes("Stops 10–12 ↗") && html.includes('data-wf-route-leg="2"'), "12-stop day renders second leg button 'Stops 10–12 ↗'");
+  const desktopHtml = renderToStaticMarkup(createElement(ItineraryScreen, { ctx: baseCtx({ trips, __mobile: false }) }));
+  ok(desktopHtml.includes("Route day ↗"), "12-stop day still renders primary Route day ↗ button on desktop");
+  ok(desktopHtml.includes("Stops 10–12 ↗") && desktopHtml.includes('data-wf-route-leg="2"'), "12-stop day renders second leg button 'Stops 10–12 ↗' on desktop");
+  ok(desktopHtml.includes('data-wf-trip-route-leg="2"'), "12-stop trip header also renders continuation leg button for whole-trip Route in Maps");
+
+  const mobileHtml = renderToStaticMarkup(createElement(ItineraryScreen, { ctx: baseCtx({ trips, __mobile: true }) }));
+  ok(
+    mobileHtml.includes("Stops 5–9 ↗") && mobileHtml.includes("Stops 9–12 ↗") && mobileHtml.includes('data-wf-route-leg="3"'),
+    "on mobile (__mobile=true), 12-stop day splits into 5-stop legs (1-5, 5-9, 9-12) per Google Maps 3-waypoint mobile limit"
+  );
 }
 
 // ── 4. Open inline picker accessibility & 44px tap targets ──────────────────
 {
   let trips = {};
   trips = addPlaceToTrips(trips, makePlace("s1", "Owen's Fish Camp", 27.33, -82.54), 100);
-  trips = setStopDate(trips, "fl_sarasota", "s1", "2099-10-24", 200);
+  trips = setStopDate(trips, "fl_sarasota", "s1", "2026-10-24", 200);
 
   const html = renderToStaticMarkup(
     createElement(ItineraryScreen, {
       ctx: baseCtx({
         trips,
         __seedDateEditFor: "s1",
-        __seedDateDraft: "2099-10-24",
+        __seedDateDraft: "2026-10-24",
       }),
     })
   );
   ok(html.includes('id="wf-date-btn-s1"') && html.includes('aria-expanded="true"') && html.includes('aria-controls="wf-date-picker-s1"'), "open toggle button has aria-expanded='true' and aria-controls");
   ok(html.includes('id="wf-date-picker-s1"') && html.includes('role="region"') && html.includes('aria-labelledby="wf-date-picker-label-s1"'), "inline date picker exposes role='region' and aria-labelledby");
   ok(html.includes('type="date"') && html.includes("Save date") && html.includes("Clear date") && html.includes("Cancel"), "open picker renders date input, Save date, Clear date, and Cancel");
+  ok(html.includes("Today · Oct 22") && html.includes("Tomorrow · Oct 23"), "quick-date chips use deterministic __today (Oct 22 / Oct 23)");
   ok((html.match(/min-height:44px/g) || []).length >= 6, "date toggle, picker controls, and route buttons enforce >=44px tap target minHeight");
 }
 
-// ── 5. SharedScreen & SharedItineraryScreen with and without dates ──────────
+// ── 5. SharedScreen & SharedItineraryScreen whole-trip save & day grouping ──
 {
   const datedSharedList = [
-    { ...makePlace("s1", "Owen's Fish Camp", 27.33, -82.54), day: "2099-10-24" },
+    { ...makePlace("s1", "Owen's Fish Camp", 27.33, -82.54), day: "2026-10-24" },
     { ...makePlace("s2", "Selby Gardens", 27.32, -82.53) },
   ];
   const datedSharedHtml = renderToStaticMarkup(
     createElement(SharedScreen, { ctx: baseCtx({ sharedList: datedSharedList, setSharedList() {}, setScreen() {} }) })
   );
-  ok(datedSharedHtml.includes('data-wf-day-heading="2099-10-24"') && datedSharedHtml.includes('data-wf-day-heading="unscheduled"'), "SharedScreen groups shared stops by day when dates are present");
+  ok(datedSharedHtml.includes('data-wf-day-heading="2026-10-24"') && datedSharedHtml.includes('data-wf-day-heading="unscheduled"'), "SharedScreen groups shared stops by day when dates are present");
+  ok(datedSharedHtml.includes('data-wf-save-shared-trip="list"') && datedSharedHtml.includes("Save this trip to my Itinerary"), "SharedScreen renders primary 'Save this trip to my Itinerary' button");
+
+  // When already saved in `trips`, SharedScreen renders "✓ Saved to your Itinerary" and "Open in Itinerary ›"
+  let recipientTrips = addPlaceToTrips({}, datedSharedList[0], 100);
+  recipientTrips = setStopDate(recipientTrips, "fl_sarasota", "s1", "2026-10-24", 110);
+  recipientTrips = addPlaceToTrips(recipientTrips, datedSharedList[1], 120);
+  const alreadySavedListHtml = renderToStaticMarkup(
+    createElement(SharedScreen, { ctx: baseCtx({ trips: recipientTrips, sharedList: datedSharedList, setSharedList() {}, setScreen() {} }) })
+  );
+  ok(
+    alreadySavedListHtml.includes("✓ Saved to your Itinerary") && alreadySavedListHtml.includes('data-wf-open-saved-trip="list"'),
+    "SharedScreen shows '✓ Saved to your Itinerary' and 'Open in Itinerary ›' once saved"
+  );
 
   const undatedSharedList = [
     makePlace("s1", "Owen's Fish Camp", 27.33, -82.54),
@@ -210,23 +233,46 @@ function baseCtx(overrides = {}) {
   );
   ok(!undatedSharedHtml.includes("data-wf-day-heading") && !undatedSharedHtml.includes("Unscheduled"), "SharedScreen renders an old undated share link as a plain list with no Unscheduled heading");
 
+  const sharedItinObj = {
+    title: "Sarasota Birthday Weekend",
+    city: "Sarasota",
+    state: "FL",
+    truncatedCount: 5,
+    skippedCount: 1,
+    invalidDateCount: 1,
+    items: [
+      { id: "s1", order: 0, day: "2026-10-24", note: "Dinner", place: makePlace("s1", "Owen's Fish Camp", 27.33, -82.54) },
+      { id: "s2", order: 1, day: null, note: "", place: makePlace("s2", "Selby Gardens", 27.32, -82.53) },
+    ],
+  };
   const datedSharedItinHtml = renderToStaticMarkup(
     createElement(SharedItineraryScreen, {
       ctx: baseCtx({
-        sharedItinerary: {
-          title: "Sarasota, FL",
-          city: "Sarasota",
-          items: [
-            { id: "s1", order: 0, day: "2099-10-24", note: "Dinner", place: makePlace("s1", "Owen's Fish Camp", 27.33, -82.54) },
-            { id: "s2", order: 1, day: null, note: "", place: makePlace("s2", "Selby Gardens", 27.32, -82.53) },
-          ],
-        },
+        sharedItinerary: sharedItinObj,
         setSharedItinerary() {},
         setScreen() {},
       }),
     })
   );
-  ok(datedSharedItinHtml.includes('data-wf-day-heading="2099-10-24"') && datedSharedItinHtml.includes('data-wf-day-heading="unscheduled"'), "SharedItineraryScreen groups shared trip stops by day when dates are present");
+  ok(datedSharedItinHtml.includes('data-wf-day-heading="2026-10-24"') && datedSharedItinHtml.includes('data-wf-day-heading="unscheduled"'), "SharedItineraryScreen groups shared trip stops by day when dates are present");
+  ok(datedSharedItinHtml.includes('data-wf-save-shared-trip="itinerary"') && datedSharedItinHtml.includes("Save this trip to my Itinerary"), "SharedItineraryScreen renders primary 'Save this trip to my Itinerary' button");
+  ok(datedSharedItinHtml.includes('data-wf-share-limit-notice="itinerary"') && datedSharedItinHtml.includes("40 stops"), "SharedItineraryScreen explains the 40-stop limit before saving when truncatedCount > 0");
+  ok(datedSharedItinHtml.includes('data-wf-share-sanitized-notice="itinerary"'), "SharedItineraryScreen surfaces a notice when malformed stops or invalid dates were cleaned");
+
+  const alreadySavedItinHtml = renderToStaticMarkup(
+    createElement(SharedItineraryScreen, {
+      ctx: baseCtx({
+        trips: recipientTrips,
+        sharedItinerary: sharedItinObj,
+        setSharedItinerary() {},
+        setScreen() {},
+      }),
+    })
+  );
+  ok(
+    alreadySavedItinHtml.includes("✓ Saved to your Itinerary") && alreadySavedItinHtml.includes('data-wf-open-saved-trip="itinerary"'),
+    "SharedItineraryScreen shows '✓ Saved to your Itinerary' and 'Open in Itinerary ›' once saved"
+  );
 
   const undatedSharedItinHtml = renderToStaticMarkup(
     createElement(SharedItineraryScreen, {

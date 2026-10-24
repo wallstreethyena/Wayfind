@@ -10,6 +10,12 @@ import { addPlaceToTrips } from "../lib/trips.js";
 import { setStopDate } from "../lib/tripDays.js";
 import { tripsToRecords, recordsToTrips, mergeTrips } from "../lib/itineraryMigrate.js";
 import { pushTrips, fetchRemoteTrips } from "../lib/itinerarySync.js";
+import {
+  encodeItineraryShare,
+  decodeItineraryShare,
+  importSharedTripToTrips,
+  isSharedTripSaved,
+} from "../lib/itineraryShare.js";
 
 let count = 0;
 const ok = (value, label) => { assert.ok(value, label); count += 1; };
@@ -300,6 +306,80 @@ try {
   await db.query("delete from auth.users where id = $1", [third]);
   const gone = await db.query("select count(*)::int as n from public.wf_itineraries where user_id = $1", [third]);
   eq(gone.rows[0].n, 0, "deleting the auth user cascades their itineraries");
+
+  // Whole-trip shared import ("Save this trip to my Itinerary") roundtrip through PostgreSQL RLS:
+  // A recipient saves a shared trip (signed-out or signed-in), pushes to wf_itineraries + wf_itinerary_items,
+  // and hydrates on a second device with title, stop order, scheduled_on dates, undated stops, notes, and place details intact.
+  const recipientId = randomUUID();
+  await db.query("insert into auth.users(id) values ($1)", [recipientId]);
+  const recipientClient = makePgClient(recipientId);
+  const sharedPayload = encodeItineraryShare({
+    key: "fl_sarasota",
+    city: "Sarasota",
+    state: "FL",
+    title: "Sarasota Birthday Weekend",
+    items: [
+      {
+        id: "sh-1",
+        order: 0,
+        day: "2026-10-24",
+        note: "Patio table",
+        place: {
+          id: "sh-1",
+          name: "Owen's Fish Camp",
+          address: "516 Burns Ct, Sarasota, FL 34236, USA",
+          lat: 27.331,
+          lng: -82.539,
+          rating: 4.8,
+          reviews: 1200,
+          price: "$$",
+          type: "Seafood",
+        },
+      },
+      {
+        id: "sh-2",
+        order: 1,
+        day: null,
+        note: "",
+        place: {
+          id: "sh-2",
+          name: "Marie Selby Botanical Gardens",
+          address: "1534 Mound St, Sarasota, FL 34236, USA",
+          lat: 27.327,
+          lng: -82.539,
+          rating: 4.9,
+          reviews: 3100,
+          price: "$$",
+          type: "Garden",
+        },
+      },
+    ],
+  });
+  const decodedShared = decodeItineraryShare(sharedPayload);
+  const imported = importSharedTripToTrips({}, decodedShared, 2000);
+  const recipientPushed = await pushTrips(recipientClient, recipientId, imported.trips, []);
+  eq(recipientPushed, true, "recipient pushes imported shared trip to PostgreSQL under recipient RLS");
+  const recipientRemoteOnDevice2 = await fetchRemoteTrips(recipientClient, recipientId);
+  const recipientDevice2Trips = mergeTrips({}, recipientRemoteOnDevice2);
+  eq(recipientDevice2Trips.fl_sarasota.title, "Sarasota Birthday Weekend", "recipient Device 2 preserves the shared trip title from wf_itineraries.title");
+  eq(
+    recipientDevice2Trips.fl_sarasota.items.map((it) => ({
+      id: it.id,
+      order: it.order,
+      day: it.day,
+      note: it.note,
+      rating: it.place.rating,
+    })),
+    [
+      { id: "sh-1", order: 0, day: "2026-10-24", note: "Patio table", rating: 4.8 },
+      { id: "sh-2", order: 1, day: null, note: "", rating: 4.9 },
+    ],
+    "recipient Device 2 receives the full imported shared trip (order, scheduled_on date, undated stop, note, and place rating)"
+  );
+  ok(
+    isSharedTripSaved(recipientDevice2Trips, decodedShared).saved === true,
+    "reopening the shared link on recipient Device 2 recognizes the trip as already saved without duplicating"
+  );
 
   const flags = await db.query(`
     select relname, relrowsecurity

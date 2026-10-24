@@ -4,36 +4,257 @@
 import { useEffect, useState } from "react";
 import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
-import { sortedItems, groupItemsByDay, tripDateSummary, dayRouteLegs } from "../../../lib/tripDays";
+import {
+  sortedItems,
+  groupItemsByDay,
+  tripDateSummary,
+  dayRouteLegs,
+  tripRouteLegs,
+} from "../../../lib/tripDays";
+import {
+  isSharedTripSaved,
+  saveSharedTripToStore,
+  MAX_SHARED_ITINERARY_STOPS,
+} from "../../../lib/itineraryShare";
 
 export default function SharedItineraryScreen({ ctx }) {
-  const { sharedItinerary, setSharedItinerary, setScreen, itineraryFlags } = ctx;
+  const {
+    sharedItinerary,
+    setSharedItinerary,
+    setScreen,
+    trips,
+    setTrips,
+    setActiveTrip,
+    user,
+    requireAuth,
+    showToast,
+    logEvent,
+    isDesktop,
+    itineraryFlags,
+  } = ctx;
   const trip = sharedItinerary;
   const mapOn = !!(itineraryFlags && itineraryFlags.map);
   const [RouteMap, setRouteMap] = useState(null);
+  const [importFeedback, setImportFeedback] = useState(null);
+
+  useEffect(() => {
+    setImportFeedback(null);
+  }, [sharedItinerary]);
+
   useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
     let cancelled = false;
     import("../ItineraryRouteMap").then((mod) => { if (!cancelled) setRouteMap(() => mod.default); }).catch(() => {});
     return () => { cancelled = true; };
   }, [mapOn]);
+
   if (!trip) return null;
-  const items = sortedItems(trip);
-  const grouped = groupItemsByDay(trip);
-  const dateSum = tripDateSummary(trip);
+  const todayOpt = ctx.__today ? { today: ctx.__today } : {};
+  const isMobile =
+    ctx.__mobile !== undefined
+      ? Boolean(ctx.__mobile)
+      : isDesktop !== undefined
+        ? isDesktop === false
+        : (typeof window !== "undefined" && typeof window.innerWidth === "number" ? window.innerWidth < 768 : false);
+  const routeOpts = { ...todayOpt, mobile: isMobile };
+
+  const items = sortedItems(trip, todayOpt);
+  const grouped = groupItemsByDay(trip, todayOpt);
+  const dateSum = tripDateSummary(trip, todayOpt);
+  const fullTripLegs = tripRouteLegs(trip, routeOpts);
+  const savedCheck = isSharedTripSaved(trips, trip, { kind: "itinerary", title: trip.title });
+  const norm = savedCheck.norm;
+  const isSavedTrip = Boolean(savedCheck.saved);
+  const savedTripKey = (importFeedback && importFeedback.tripKey) || savedCheck.tripKey;
+  const atTripCap = Boolean(
+    norm && (norm.truncatedCount > 0 || norm.totalStops >= MAX_SHARED_ITINERARY_STOPS)
+  );
+  const displayTitle = trip.title || (trip.city + (trip.state ? ", " + trip.state : ""));
+
+  const handleSaveTrip = () => {
+    const res = saveSharedTripToStore({
+      trips,
+      setTrips,
+      storage: ctx.__storage,
+      sharedInput: trip,
+      kind: "itinerary",
+      title: displayTitle,
+      logEvent,
+      showToast,
+    });
+    setImportFeedback(res);
+  };
+
+  const handleOpenSavedTrip = () => {
+    if (!user && requireAuth && !requireAuth("Sign up free to open and edit your saved trip in Itinerary, and sync it across devices.")) {
+      return;
+    }
+    if (savedTripKey && setActiveTrip) setActiveTrip(savedTripKey);
+    setSharedItinerary(null);
+    setScreen("itinerary");
+  };
+
   return (
     <div>
-      <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{trip.title || trip.city}</div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4, flexWrap: "wrap" }}>
+        <div style={{ flex: 1, minWidth: 180 }}>
+          <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{displayTitle}</div>
           <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Private link · {items.length} stop{items.length === 1 ? "" : "s"}{dateSum ? " · " + dateSum : ""}</div>
         </div>
-        <button onClick={() => { setSharedItinerary(null); setScreen("explore"); }} style={{ background: C.accent, border: "none", color: "#fff", fontSize: 13, fontWeight: 700, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer" }}>Explore ›</button>
+        {fullTripLegs.length > 0 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+            <button
+              type="button"
+              aria-label={fullTripLegs.length > 1 ? `Route ${displayTitle} stops 1 to ${fullTripLegs[0].endStop} in Google Maps` : `Route ${displayTitle} in Google Maps`}
+              onClick={() => { if (fullTripLegs[0].url) openExternal(fullTripLegs[0].url); }}
+              style={{ background: C.card, border: "1px solid " + C.border, color: C.text, fontSize: 12.5, fontWeight: 700, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
+            >
+              Route in Maps ↗
+            </button>
+            {fullTripLegs.slice(1).map((leg, li) => (
+              <button
+                key={li}
+                type="button"
+                data-wf-trip-route-leg={li + 2}
+                aria-label={`Route ${displayTitle} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
+                onClick={() => { if (leg.url) openExternal(leg.url); }}
+                style={{ background: C.card, border: "1px solid " + C.border, color: C.light, fontSize: 12, fontWeight: 700, padding: "8px 12px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
+              >
+                Stops {leg.startStop}–{leg.endStop} ↗
+              </button>
+            ))}
+          </div>
+        )}
+        <button type="button" onClick={() => { setSharedItinerary(null); setScreen("explore"); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer" }}>Explore ›</button>
       </div>
+
+      {norm && norm.totalStops > 0 && (
+        <div
+          data-wf-save-shared-trip="itinerary"
+          style={{
+            background: C.card,
+            border: "1px solid " + C.border,
+            borderRadius: 14,
+            padding: "12px 14px",
+            marginBottom: 16,
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 200 }}>
+              <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>
+                Keep this trip in your Itinerary
+              </div>
+              <div
+                data-wf-share-limit-notice={atTripCap ? "itinerary" : undefined}
+                style={{ fontSize: 12, color: C.muted, marginTop: 2, lineHeight: 1.4 }}
+              >
+                {atTripCap
+                  ? `Private trip links include up to ${MAX_SHARED_ITINERARY_STOPS} stops (first ${MAX_SHARED_ITINERARY_STOPS} shown). Saving copies these ${norm.totalStops} stops${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes into your own editable Itinerary.`
+                  : `Saves your own editable copy (${displayTitle}) with all ${norm.totalStops} stop${norm.totalStops === 1 ? "" : "s"}${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes.`}
+              </div>
+              {(norm.skippedCount > 0 || norm.invalidDateCount > 0) && (
+                <div data-wf-share-sanitized-notice="itinerary" style={{ fontSize: 11.5, color: C.light, marginTop: 4 }}>
+                  {norm.skippedCount > 0 && norm.invalidDateCount > 0
+                    ? `Skipped ${norm.skippedCount} invalid stop${norm.skippedCount === 1 ? "" : "s"} and cleared ${norm.invalidDateCount} invalid date${norm.invalidDateCount === 1 ? "" : "s"} from this link.`
+                    : norm.skippedCount > 0
+                      ? `Skipped ${norm.skippedCount} invalid stop${norm.skippedCount === 1 ? "" : "s"} from this link.`
+                      : `Cleared ${norm.invalidDateCount} invalid date${norm.invalidDateCount === 1 ? "" : "s"} (kept as unscheduled).`}
+                </div>
+              )}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <button
+                id="wf-save-shared-itinerary-btn"
+                type="button"
+                data-wf-save-trip-btn="itinerary"
+                aria-label={isSavedTrip ? `Saved ${displayTitle} to your Itinerary` : `Save this trip (${displayTitle}) to my Itinerary`}
+                onClick={handleSaveTrip}
+                style={{
+                  background: isSavedTrip ? C.adim : C.accent,
+                  border: isSavedTrip ? "1px solid " + C.accent : "none",
+                  color: isSavedTrip ? C.light : "#0D1117",
+                  fontSize: 13,
+                  fontWeight: 800,
+                  padding: "9px 16px",
+                  minHeight: 44,
+                  borderRadius: 22,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {isSavedTrip ? "✓ Saved to your Itinerary" : "Save this trip to my Itinerary"}
+              </button>
+              {isSavedTrip && (
+                <button
+                  type="button"
+                  data-wf-open-saved-trip="itinerary"
+                  aria-label={`Open ${displayTitle} in your Itinerary`}
+                  onClick={handleOpenSavedTrip}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid " + C.border,
+                    color: C.text,
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    padding: "8px 14px",
+                    minHeight: 44,
+                    borderRadius: 22,
+                    cursor: "pointer",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  Open in Itinerary ›
+                </button>
+              )}
+            </div>
+          </div>
+
+          {importFeedback && importFeedback.status === "storage_error" && (
+            <div
+              role="alert"
+              data-wf-save-trip-error="itinerary"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 10, paddingTop: 8, borderTop: "1px solid " + C.border }}
+            >
+              <span style={{ fontSize: 12, color: C.red }}>{importFeedback.message}</span>
+              <button
+                type="button"
+                data-wf-retry-save-trip="itinerary"
+                onClick={handleSaveTrip}
+                style={{
+                  background: C.card,
+                  border: "1px solid " + C.red,
+                  color: C.text,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "6px 12px",
+                  minHeight: 44,
+                  borderRadius: 20,
+                  cursor: "pointer",
+                }}
+              >
+                Retry save
+              </button>
+            </div>
+          )}
+
+          {importFeedback && importFeedback.ok && importFeedback.message && (
+            <div
+              role="status"
+              aria-live="polite"
+              data-wf-save-trip-status={importFeedback.status}
+              style={{ fontSize: 12, color: C.light, marginTop: 8 }}
+            >
+              {importFeedback.message}
+              {!user && importFeedback.status === "saved" ? " Saved on this device — sign in anytime to sync across devices." : ""}
+            </div>
+          )}
+        </div>
+      )}
+
       {RouteMap ? <RouteMap items={items} /> : null}
       {grouped.hasDates ? (
         grouped.groups.map((group, gi) => {
-          const routeLegs = group.day ? dayRouteLegs(trip, group.day) : [];
+          const routeLegs = group.day ? dayRouteLegs(trip, group.day, routeOpts) : [];
           return (
             <div key={group.key} data-wf-day-group={group.day || "unscheduled"} style={{ marginBottom: 18 }}>
               <div
@@ -61,25 +282,50 @@ export default function SharedItineraryScreen({ ctx }) {
                   </span>
                 </div>
                 {group.day && routeLegs.length > 0 && (
-                  <button
-                    type="button"
-                    aria-label={`Route ${group.label} in Google Maps`}
-                    onClick={() => { if (routeLegs[0].url) openExternal(routeLegs[0].url); }}
-                    style={{
-                      background: C.card,
-                      border: "1px solid " + C.border,
-                      color: C.text,
-                      fontSize: 12.5,
-                      fontWeight: 700,
-                      padding: "8px 14px",
-                      minHeight: 44,
-                      borderRadius: 22,
-                      cursor: "pointer",
-                      whiteSpace: "nowrap",
-                    }}
-                  >
-                    Route day ↗
-                  </button>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      aria-label={routeLegs.length > 1 ? `Route ${group.label} stops 1 to ${routeLegs[0].endStop} in Google Maps` : `Route ${group.label} in Google Maps`}
+                      onClick={() => { if (routeLegs[0].url) openExternal(routeLegs[0].url); }}
+                      style={{
+                        background: C.card,
+                        border: "1px solid " + C.border,
+                        color: C.text,
+                        fontSize: 12.5,
+                        fontWeight: 700,
+                        padding: "8px 14px",
+                        minHeight: 44,
+                        borderRadius: 22,
+                        cursor: "pointer",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      Route day ↗
+                    </button>
+                    {routeLegs.slice(1).map((leg, li) => (
+                      <button
+                        key={li}
+                        type="button"
+                        data-wf-route-leg={li + 2}
+                        aria-label={`Route ${group.label} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
+                        onClick={() => { if (leg.url) openExternal(leg.url); }}
+                        style={{
+                          background: C.card,
+                          border: "1px solid " + C.border,
+                          color: C.light,
+                          fontSize: 12,
+                          fontWeight: 700,
+                          padding: "8px 12px",
+                          minHeight: 44,
+                          borderRadius: 22,
+                          cursor: "pointer",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        Stops {leg.startStop}–{leg.endStop} ↗
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
               {group.items.map((it, idx) => (
