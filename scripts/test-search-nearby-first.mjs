@@ -22,7 +22,7 @@ const INVENTORY = [
   row("near-bell", "Taco Bell", 27.80, -82.66, { primary_type: "fast_food_restaurant" }),
   row("near-talkin", "Talkin' Tacos Clearwater", 27.97, -82.76, { primary_type: "taco_restaurant" }),
   row("near-bar", "bartaco", 27.94, -82.46, { primary_type: "taco_restaurant" }),
-  row("near-cuisine", "Green Lemon", 27.95, -82.50, { primary_type: "restaurant", cuisines: ["taco"] }),
+  row("near-cuisine", "Green Lemon", 27.95, -82.50, { primary_type: "restaurant", cuisines: ["mexican"] }),
   row("far-rocco", "Rocco's Tacos & Tequila Bar", 27.384, -82.457),
   row("far-smash", "Smash Burgers & Tacos", 27.389, -82.505),
   row("near-sushi", "Nearby Sushi", 27.78, -82.64, { cuisines: ["sushi"] }),
@@ -42,10 +42,10 @@ function fakeFetch(calls) {
     const minLat = Number(lat[0].slice(4)), maxLat = Number(lat[1].slice(4));
     const minLng = Number(lng[0].slice(4)), maxLng = Number(lng[1].slice(4));
     const or = u.searchParams.get("or") || "";
-    const m = or.match(/name\.ilike\.\*([a-z0-9]+)\*/);
-    const word = m ? m[1] : "";
+    const names = [...or.matchAll(/(?:name|primary_type)\.ilike\.\*([a-z0-9]+)\*/g)].map((m) => m[1]);
+    const cs = [...or.matchAll(/cuisines\.cs\.\{([a-z0-9-]+)\}/g)].map((m) => m[1]);
     const hit = INVENTORY.filter((r) => r.lat >= minLat && r.lat <= maxLat && r.lng >= minLng && r.lng <= maxLng
-      && (r.name.toLowerCase().includes(word) || String(r.primary_type).includes(word) || (r.cuisines || []).includes(word)));
+      && (names.some((w) => r.name.toLowerCase().includes(w) || String(r.primary_type).includes(w)) || cs.some((c) => (r.cuisines || []).includes(c))));
     return { ok: true, json: async () => hit };
   };
 }
