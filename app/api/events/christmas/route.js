@@ -30,7 +30,7 @@ import { resolveSeasonalLiveArea } from "../../../../lib/seasonalLiveAreaResolve
 import { readSeasonalPendingInventory } from "../../../../lib/seasonalLiveAreaInventory.js";
 
 const CHRISTMAS_DB_DEADLINE_MS = 3500;
-const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,photo_url,status,excluded";
+const PLACE_COLUMNS = "place_id,name,lat,lng,metro,category,primary_type,google_types,signals,editorial,photo_ref,status,excluded";
 
 function json(body, status = 200, cache = "public, s-maxage=900, stale-while-revalidate=86400") {
   return Response.json(body, { status, headers: { "cache-control": cache } });
