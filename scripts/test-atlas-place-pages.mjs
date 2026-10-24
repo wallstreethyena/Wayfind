@@ -35,6 +35,7 @@ import {
 } from "../lib/atlasPlaceAllowlist.js";
 import { atlasCardFor, indexAtlasCards, missingAtlasEditorial, parseAtlas590 } from "../lib/atlasCards.js";
 import { knownForLine } from "../lib/knownFor.js";
+import { PLACE_PILOT_IDS, isPlacePilot } from "../lib/placePilot.js";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 const read = (rel) => readFileSync(join(root, rel), "utf8");
@@ -326,6 +327,30 @@ for (const rel of [
   const src = read(rel);
   ok(!/\.css['"]/.test(src) && !/home\.js/.test(src), `${rel} imported CSS or app/home.js`);
 }
+
+// ── 6. place pilot: cohort-gated bestFor / watchOut (lib/placePilot.js) ──
+ok(PLACE_PILOT_IDS.size > 0 && PLACE_PILOT_IDS.size <= 10,
+  `pilot cohort must be 1..10 places (got ${PLACE_PILOT_IDS.size})`);
+for (const id of PLACE_PILOT_IDS) {
+  const place = atlasPlaceFor(id);
+  ok(!!place, `pilot place ${id} has no publish-ready Atlas card`);
+  ok(place && !!place.bestFor && !!place.watchOut,
+    `pilot place ${id} lacks verified bestFor/watchOut on its card — it does not qualify`);
+  const merged = mergePlacePage(id, { skel: null, details: null, atlas: place });
+  ok(merged && merged.bestFor === place.bestFor && merged.watchOut === place.watchOut,
+    `pilot place ${id} did not surface its card bestFor/watchOut through mergePlacePage`);
+}
+ok(isPlacePilot(BEER) && !isPlacePilot(LIDO), "pilot gate misclassifies Beer Can Island (in) / Lido (out)");
+{
+  const offCohort = mergePlacePage(LIDO, { skel: null, details: null, atlas: atlasPlaceFor(LIDO) });
+  ok(offCohort && offCohort.bestFor == null && offCohort.watchOut == null,
+    "off-cohort place gained pilot fields — non-cohort pages must render exactly as before");
+  const lidoPlace = atlasPlaceFor(LIDO);
+  ok(lidoPlace && !("insiderMove" in lidoPlace),
+    "atlasPlaceFields carries insiderMove — internal research notes must never reach the page");
+}
+ok(!/insiderMove/.test(read("lib/placePage.js")),
+  "lib/placePage.js renders insiderMove — that field holds internal research notes, not visitor copy");
 
 if (bad) {
   console.error(`\ntest-atlas-place-pages: FAIL — ${bad}/${n} assertions`);

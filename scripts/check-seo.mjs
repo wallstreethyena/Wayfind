@@ -119,7 +119,11 @@ if (!page.includes('get("go")')) fail("go-param handoff missing");
 
 // 4. indexing rules per route class.
 for (const r of ["favorites", "itinerary"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " must be noindex (private)"); }
-for (const r of ["events", "coupons", "map"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " is indexable but renders no crawlable inventory — noindex it or render real listings"); }
+for (const r of ["events", "coupons", "map", "search"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " is indexable but renders no crawlable inventory — noindex it or render real listings"); }
+// /search canonicalizes to the homepage: the search is homepage app state
+// (home.js restores /?q=), never a self-canonical hub an arbitrary query
+// combination could inherit.
+{ const s = readFileSync(join(root, "app", "search", "page.js"), "utf8"); if (!s.includes('canonical: "/"')) fail("/search lost its canonical to the homepage — query combinations must not read as their own hub"); }
 for (const r of [["l", "[key]"], ["w"], ["s", "[code]"], ["p", "[id]"]]) { const s = readFileSync(join(root, "app", ...r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r[0] + " share/app-state pages must be noindexed (infinite query space)"); }
 
 // 5. sitemap lists only index-worthy routes.

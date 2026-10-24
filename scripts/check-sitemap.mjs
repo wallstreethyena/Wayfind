@@ -100,7 +100,7 @@ console.log(`check-sitemap: OK — ${pass} assertions (factual lastmod; durable 
 {
   const smCode = sm.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
   ok(/export const revalidate\s*=\s*\d+/.test(smCode), "sitemap exports a numeric revalidate, so the curated events (a skipped read at build) are read at request time");
-  ok(/floridaEventSitemapRows\(\s*await fetchCuratedEvents\(\)/.test(smCode), "sitemap CALLS floridaEventSitemapRows on the live curated read");
+  ok(/floridaEventSitemapRows\(\s*await (?:fetchCuratedEvents|getSitemapEvents)\(\)/.test(smCode), "sitemap CALLS floridaEventSitemapRows on the curated read (direct, or the hourly cached reader at the same revalidate freshness)");
   ok(/try\s*\{[^}]*floridaEventSitemapRows[^}]*\}\s*catch/.test(smCode), "a failed events read is caught, so it drops the events and never the whole sitemap");
   ok(/\.\.\.floridaEvents\b/.test(smCode) && /\.\.\.dedicatedGuides\b/.test(smCode), "events + dedicated guides are spread into the returned sitemap array");
   ok(/`\$\{SITE_URL\}\/florida-events`/.test(smCode), "/florida-events hub is listed");
