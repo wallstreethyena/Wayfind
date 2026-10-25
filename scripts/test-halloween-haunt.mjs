@@ -147,7 +147,7 @@ for (const entry of schema.itemListElement) {
 const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(html.includes("<svg"), "Boo is an SVG sprite");
-ok(html.includes(">TOUR<") && html.includes(">GO<"), "Boo holds the TOUR flag and points GO");
+ok(html.includes(">TOUR<") && html.includes("GO →"), "Boo holds the TOUR flag and points GO");
 ok(html.includes("BOO&#x27;S VIP TOUR") || html.includes("BOO'S VIP TOUR"), "VIP tour badge");
 ok(html.includes('data-boo-fly=""'), "flying companion is in the page");
 ok(html.includes('href="/"'), "home links render");
