@@ -119,7 +119,7 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
             card.hospitalityEvidence && card.sourceUrl ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
           ].filter(Boolean) : [];
           const openEventVenue = isEvent && card.place_id && onOpenPlace
-            ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
+            ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook, ...(Array.isArray(card.venuePhotos) ? { photos: card.venuePhotos } : {}) })
             : null;
           const eventBodyHref = isEvent ? (card.detailHref || (!openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
