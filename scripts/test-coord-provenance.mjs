@@ -226,46 +226,55 @@ async function checkNoBump({ patchMod, placeDetailsMutate = (s) => s, cronMutate
     delete process.env.GOOGLE_MAPS_SERVER_KEY; // fixture only; each guard is its own process
   }
 
-  // Execute the cron route with stubbed DB + details.
-  globalThis.__cron = { updates: [], dated: {}, filters: [], limit: null };
+  // Execute the cron route with stubbed DB + Google (2026-10-25 free-tier rewrite).
+  globalThis.__cron = { updates: [], google: {}, filters: [], orders: [], limit: null };
   const cron = await sourceModule("app/api/cron/inventory-refresh/route.js", `
     import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "${fileUrl("lib/inventoryRefreshPatch.js")}";
-    const gateShut = () => false; const gateFree = () => false;
-    const recordPulse = async () => {};
+    import { planCheck, planEnterprise, tierOrder, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "${fileUrl("lib/inventoryGoogleCheck.js")}";
+    const gateShut = () => false;
+    const spendAllowRefresh = async () => true; const refundToLedger = async () => true; const refreshCounterSku = (s) => "refresh_" + s;
+    const recordPulse = async () => {}; const budgetGateNote = () => "gate"; const budgetLimitNote = () => "limit";
     const jobCannotRun = (j, m) => Response.json({ cannot: m }, { status: 503 });
     const jobFailed = (j, m) => Response.json({ failed: m }, { status: 500 });
-    const getPlaceDetailsDated = async (id) => globalThis.__cron.dated[id];
+    const normalizeDetails = (p) => ({ id: p.id, name: "x", lat: p.location.latitude, lng: p.location.longitude, types: ["cafe"], businessStatus: p.businessStatus || null, photoRef: null });
+    const PLACE_DETAILS_FIELDS = "id,rating"; const PLACE_DETAILS_CACHE_MS = 1; const cset = async () => {};
+    const classifyProviderFailure = () => null; const breakerOpen = async () => null; const tripBreaker = async () => {};
+    const fetchGoogleCheck = async (id) => globalThis.__cron.google[id];
     const createClient = () => ({ from: () => {
-      const q = { select: () => q, lt: () => q, order: () => q,
+      const q = { select: () => q, lt: () => q,
+        order: (c) => { globalThis.__cron.orders.push(c); return q; },
         or: (f) => { globalThis.__cron.filters.push(f); return q; },
         limit: async (n) => { globalThis.__cron.limit = n; return { data: [
-          { place_id: "undated1", refreshed_at: "2026-08-01T00:00:00Z" },
-          { place_id: "cached2", refreshed_at: "2026-08-01T00:00:00Z" },
-          { place_id: "live1", refreshed_at: "2026-08-01T00:00:00Z" }], error: null }; },
-        update: (patch) => ({ eq: async (col, id) => { globalThis.__cron.updates.push({ id, patch }); return { error: null }; } }) };
+          { place_id: "live1", refreshed_at: "2026-08-01T00:00:00Z", lat: 27.5, lng: -82.4, signals: { reviews: 90 } },
+          { place_id: "locked1", locked: true, refreshed_at: "2026-08-01T00:00:00Z", lat: 27.5, lng: -82.4, signals: { reviews: 50 } },
+          { place_id: "gone1", refreshed_at: "2026-08-01T00:00:00Z", lat: 27.5, lng: -82.4, signals: null }], error: null }; },
+        update: (patch) => { const w = { id: null, patch };
+          const c = { eq: (col, v) => { if (col === "place_id") w.id = v; return c; }, is: () => c, select: async () => { globalThis.__cron.updates.push(w); return { data: [{ place_id: w.id }], error: null }; } };
+          return c; } };
       return q; } });
   `, cronMutate);
-  const liveAt = new Date(Date.now() - 1000).toISOString();
-  const cachedAt = new Date(Date.now() - 3 * DAY).toISOString();
-  globalThis.__cron.dated = {
-    undated1: { details: { ...details, id: "undated1" }, live: false, fetchedAt: null },
-    cached2: { details: { ...details, id: "cached2" }, live: false, fetchedAt: cachedAt },
-    live1: { details: { ...details, id: "live1" }, live: true, fetchedAt: liveAt },
+  const loc = { latitude: details.lat, longitude: details.lng };
+  globalThis.__cron.google = {
+    live1: { kind: "ok", billed: true, place: { id: "live1", location: loc } },
+    locked1: { kind: "ok", billed: true, place: { id: "locked1", location: { latitude: 27.9, longitude: -82.9 } } },
+    gone1: { kind: "not_found", billed: true },
   };
   try {
-    process.env.CRON_SECRET = "fixture"; process.env.NEXT_PUBLIC_SUPABASE_URL = "https://db.example.test"; process.env.SUPABASE_SERVICE_ROLE_KEY = "fixture";
+    process.env.CRON_SECRET = "fixture"; process.env.NEXT_PUBLIC_SUPABASE_URL = "https://db.example.test"; process.env.SUPABASE_SERVICE_ROLE_KEY = "fixture"; process.env.GOOGLE_MAPS_SERVER_KEY = "fixture-not-a-key";
     const res = await cron.GET(new Request("https://fixture.test/api/cron/inventory-refresh?limit=40", { headers: { authorization: "Bearer fixture" } }));
     assert.equal(res.status, 200);
     const byId = Object.fromEntries(globalThis.__cron.updates.map((u) => [u.id, u.patch]));
-    assert.deepEqual(Object.keys(byId).sort(), ["cached2", "live1"], "B: the cron re-dates only honestly dated content (undated cache copy left alone)");
-    assert.equal(byId.live1.refreshed_at, liveAt, "B: live content is dated by the fetch");
-    assert.equal(byId.cached2.refreshed_at, cachedAt, "B: a cached copy is dated by its write time, never by 'now'");
-    assert.equal(byId.live1.lat, details.lat, "B: the cron writes the dated coordinate");
+    assert.deepEqual(Object.keys(byId).sort(), ["gone1", "live1", "locked1"], "B: every checked row is written (nothing dropped)");
+    assert.ok(Math.abs(Date.parse(byId.live1.refreshed_at) - Date.now()) < 10000, "B: live enterprise content is dated by the fetch instant");
+    assert.equal(byId.live1.lat, details.lat, "B: the cron writes the fetched coordinate with the live content");
+    assert.ok(!("refreshed_at" in byId.locked1) && !("lat" in byId.locked1) && !("independent_coords" in byId.locked1), "B: a locked row gets flags only, never a coordinate or a date");
+    assert.ok(!("refreshed_at" in byId.gone1) && !("excluded" in byId.gone1) && byId.gone1.signals.google_not_found_at, "B: NOT_FOUND only flags the row (no date, no exclusion)");
     assert.equal(globalThis.__cron.limit, 40 * REFRESH_WINDOW_SLOTS, "B: the cron reads the stalest WINDOW, then slices it");
     assert.ok(globalThis.__cron.filters.some((f) => /excluded\.eq\.false/.test(f)), "B: excluded rows never enter the queue");
-    assert.ok(globalThis.__cron.filters.some((f) => /locked\.eq\.false/.test(f)), "B: locked (owner-verified) rows are never overwritten by a Google patch");
+    assert.ok(globalThis.__cron.filters.some((f) => /google_checked_at/.test(f)), "B: a row checked inside the window leaves the queue (no wedge)");
+    assert.equal(globalThis.__cron.orders[0], "anchor", "B: anchors are served first");
   } finally {
-    for (const k of ["CRON_SECRET", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) delete process.env[k]; // fixture only
+    for (const k of ["CRON_SECRET", "NEXT_PUBLIC_SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "GOOGLE_MAPS_SERVER_KEY"]) delete process.env[k]; // fixture only
   }
 }
 
@@ -403,9 +412,9 @@ async function main() {
         .replace(/^import[^;]+;\n/m, 'const placeDiscoveryRef = (id) => "places/" + id + "/photos/wfplacediscovery";\n');
       await checkNoBump({ patchMod: await import("data:text/javascript," + encodeURIComponent(src)) });
     });
-    await expectRed("cron reverts to stamping now after any details read", async () => {
+    await expectRed("cron lets already-checked rows back into the queue (wedge)", async () => {
       await checkNoBump({ patchMod: m.patchMod, cronMutate: (s) => {
-        const out = s.replace("const patch = inventoryRefreshPatch(row.place_id, dated, Date.now(), row.refreshed_at);", "const patch = dated && dated.details ? { refreshed_at: new Date().toISOString(), last_verified_at: new Date().toISOString() } : null;");
+        const out = s.replace('    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff)\n', "");
         assert.notEqual(out, s, "cron mutation applied"); return out; } });
     });
     await expectRed("a cached copy is dated now", async () => {
@@ -418,9 +427,9 @@ async function main() {
         const out = s.replace("c && c.wroteKnown === true && Number.isFinite(c.ageMs)", "c && Number.isFinite(c.ageMs)");
         assert.notEqual(out, s, "placeDetails mutation applied"); return out; } });
     });
-    await expectRed("cron reads locked rows", async () => {
+    await expectRed("cron reads excluded rows", async () => {
       await checkNoBump({ patchMod: m.patchMod, cronMutate: (s) => {
-        const out = s.replace('    .or("locked.is.null,locked.eq.false")\n', "");
+        const out = s.replace('    .or("excluded.is.null,excluded.eq.false")\n', "");
         assert.notEqual(out, s, "cron mutation applied"); return out; } });
     });
     await expectRed("accounting drops unjudged places into not-in-map-area", async () => {
@@ -434,11 +443,11 @@ async function main() {
       checkParity(await import("data:text/javascript," + encodeURIComponent(src)), m.prov);
     });
     await expectRed("sighting method check removed (Google re-enters as independent)", async () => {
-      const src = provSrc("if (c.source === INVENTORY_COORD_SOURCE) { if (c.method === SIGHTING_METHOD) sightings.push(c); }", "if (c.source === INVENTORY_COORD_SOURCE) { sightings.push(c); }");
+      const src = provSrc("if (c.source === INVENTORY_COORD_SOURCE) { if (RECORDED_GOOGLE_METHODS.includes(c.method)) sightings.push(c); }", "if (c.source === INVENTORY_COORD_SOURCE) { sightings.push(c); }");
       await checkSightings(await import("data:text/javascript," + encodeURIComponent(src)), m.mapData);
     });
     await expectRed("sightings ignored (main behaviour)", async () => {
-      const src = provSrc("if (c.source === INVENTORY_COORD_SOURCE) { if (c.method === SIGHTING_METHOD) sightings.push(c); }", "if (c.source === INVENTORY_COORD_SOURCE) { /* dropped */ }");
+      const src = provSrc("if (c.source === INVENTORY_COORD_SOURCE) { if (RECORDED_GOOGLE_METHODS.includes(c.method)) sightings.push(c); }", "if (c.source === INVENTORY_COORD_SOURCE) { /* dropped */ }");
       await checkSightings(await import("data:text/javascript," + encodeURIComponent(src)), m.mapData);
     });
     console.log(`test-coord-provenance: red-prove OK — ${reds.length}/13 mutations went RED`);

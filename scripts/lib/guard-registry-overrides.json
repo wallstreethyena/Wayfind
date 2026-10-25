@@ -983,5 +983,13 @@
       "detail": "A swapped game ID, generic ticket search, or missing Impact attribution sends a fan to the wrong game or loses commission credit. The guide test checks all seven event IDs through the shared ticket validator and affiliate builder; its wrong-game mutation was verified to fail."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-inventory-refresh-free-tier.mjs": {
+    "protects": "The free-mode inventory refresh route: the shut gate precedes every Google call, its only ledger entry point is spendAllowRefresh (free line, sub-capped, never a paid grant), and its only write is a compare-and-swap update that never deletes, excludes or blanks.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A regression could let the hourly refresh buy Google Place Details past the free monthly lines (paid at $5 to $20 per 1,000) or delete or blank inventory rows. Every clause is red-proved against a mutated copy of the route."
+    },
+    "owner": "Revenue QA"
   }
 }

@@ -2392,3 +2392,5 @@ node scripts/test-search-food-synonyms.mjs
 
 # Invite fields and panels fit the mobile visual viewport.
 node scripts/test-share-intent-fit.mjs
+node scripts/check-inventory-refresh-free-tier.mjs
+node scripts/test-inventory-free-refresh.mjs
