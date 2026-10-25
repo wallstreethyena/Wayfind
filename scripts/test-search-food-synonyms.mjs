@@ -71,6 +71,19 @@ const run = (query, extra = {}) => searchResultCards({ query, ...PT, ownedPlaces
 }
 
 {
+  // 2026-10-24 live regression: production's Claude understand step hands
+  // searchResultCards filters.keywords = ["tacos"]. A literal keyword filter
+  // kept only names containing "tacos" (dropping Pepe's and even Taco Bell),
+  // so live St. Pete "tacos" began at 10.7 mi. A food word must ignore that list.
+  const out = await run("tacos", { filters: { keywords: ["tacos"] } });
+  const got = out.cards.map((c) => c.name);
+  assert.deepEqual(got.slice(0, 5), ["Pepe's Cantina St. Petersburg", "Taco Bell", "Chinelos Taqueria", "Grand Hacienda", "TACOS TIO LEO"], `with the live keyword filter, nearest band still leads, got ${got.join(" | ")}`);
+  // Control: a non-food search still honours the keyword filter.
+  const kept = await run("Vinoy Park", { filters: { keywords: ["vinoy"] } });
+  assert.ok(kept.cards.some((c) => c.name === "Vinoy Park"), "a non-food search with a matching keyword keeps the park");
+}
+
+{
   const out = await run("pizza");
   const got = out.cards.map((c) => c.name);
   assert.equal(got[0], "Rocco Pizza", `pizza leads with the pizza place, got ${got.join(" | ")}`);
@@ -90,4 +103,4 @@ const run = (query, extra = {}) => searchResultCards({ query, ...PT, ownedPlaces
   assert.ok(named.cards.some((c) => c.name === "Vinoy Park"), "a place-name search still finds the park");
 }
 
-console.log("test-search-food-synonyms: OK - tacos from St. Pete: Pepe's and Chinelos lead, no park, no Spartaco's, nearest band first; pizza and place-name searches intact");
+console.log("test-search-food-synonyms: OK - tacos from St. Pete: Pepe's and Chinelos lead, no park, no Spartaco's, nearest band first; pizza and place-name searches intact; the live keyword filter cannot drop food matches");
