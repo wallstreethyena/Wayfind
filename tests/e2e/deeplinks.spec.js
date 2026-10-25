@@ -91,6 +91,40 @@ const GUIDE_CTAS = [
   ["/guides/st-armands-circle-restaurants", null], // pick name read from the page
 ];
 
+test("/search?q=<query> lands on the app with that search running (the shareable URL)", async ({ page }) => {
+  // A fresh session with a known center: the saved wf_center is how the
+  // shell resolves "near" on a returning device (GPS/IP do it otherwise),
+  // and the pending ?q= search waits for that center before it runs.
+  await page.addInitScript(() => {
+    try {
+      localStorage.setItem("wf_center", JSON.stringify({ lat: 27.586, lng: -82.425, loc: "Parrish, FL", manual: true, ts: Date.now() }));
+    } catch (e) {}
+  });
+  // The owned search is the deterministic signal: submitSearch runs it for
+  // every non-city query, whatever the inventory answers.
+  const ownedFired = page.waitForRequest(
+    (req) => req.url().includes("/api/search?") && new URL(req.url()).searchParams.get("q") === "bluebird",
+    { timeout: 20_000 }
+  );
+  await page.goto("/search?q=bluebird");
+  await page.waitForURL((u) => u.pathname === "/", { timeout: 15_000 });
+  await ownedFired;
+  // The param is consumed (same contract as /?q=): refresh does not replay it.
+  await page.waitForURL((u) => !u.search.includes("q="), { timeout: 10_000 });
+});
+
+test("/search serves noindex + canonical-to-home and never reflects a distinct page per query", async ({ request }) => {
+  const html = await (await request.get("/search?q=coffee")).text();
+  expect(html).toContain("noindex");
+  expect(html).toContain('rel="canonical" href="https://www.gowayfind.com"');
+  expect(html).not.toContain("/search?q=");
+});
+
+test("/search with no query is the homepage, not an empty search", async ({ page }) => {
+  await page.goto("/search");
+  await page.waitForURL((u) => u.pathname === "/", { timeout: 15_000 });
+});
+
 test("guide CTA (Sarasota) hands off to a real search for the promised place", async ({
   page,
 }) => {

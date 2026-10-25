@@ -273,6 +273,7 @@ export async function GET(request) {
         // destination. The helper also rejects legacy DB rows that were seeded
         // with that poster and derives this venue's own photo from place_id.
         image: image || null,
+        ...(Array.isArray(inventory?.signals?.photos) && inventory.signals.photos.length ? { venuePhotos: inventory.signals.photos } : {}),
         imageIsVenue: eventImageIsVenue(e, image),
         photoAttr: e.photoAttr || null,
         photoAttrHref: e.photoAttrHref || null,
@@ -338,6 +339,8 @@ export async function GET(request) {
             take: row.editorial_summary || row.card_hook || null,
             hook: row.card_hook || null,
             image: inventory?.photo_ref ? fallEventCardImageSrc({ ...row, hero_image: null }, 640, inventory) : null,
+            ...(Array.isArray(signals.photos) && signals.photos.length ? { photos: signals.photos } : {}),
+            ...(Array.isArray(signals.photo_gallery) && signals.photo_gallery.length ? { photoGallery: signals.photo_gallery } : {}),
             fallRail: FALL_DISCOVERY_RAIL[row.event_id],
             sourceUrl: row.source_url || null,
             // Keep source dates on a permanent-business card for ordering.
@@ -385,6 +388,8 @@ export async function GET(request) {
           seasonalStart: FALL_OFFERING_SOURCES[p.place_id]?.starts || null,
           seasonalThrough: FALL_OFFERING_SOURCES[p.place_id]?.until || FALL_OFFERING_SOURCES[p.place_id]?.ends || null,
           image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, photo_url: p.photo_url, signals: p.signals }, 640),
+          ...(Array.isArray(p.signals?.photos) && p.signals.photos.length ? { photos: p.signals.photos } : {}),
+          ...(Array.isArray(p.signals?.photo_gallery) && p.signals.photo_gallery.length ? { photoGallery: p.signals.photo_gallery } : {}),
           // The corner credit badge RailCard/IconicPlaceCard already render
           // for a licensed photo (photoAttr/photoAttrHref) — the same slot,
           // for the same reason: a business-approved photo carries a credit.
@@ -412,6 +417,8 @@ export async function GET(request) {
           rating, reviews: source.signals?.reviews || 0,
           wfScore: rating > 0 ? wayfindScore(rating, source.signals?.reviews || 0) : null,
           image: cardImageSrc({ place_id: source.place_id, photo_ref: source.photo_ref, photo_url: source.photo_url, signals: source.signals }, 640),
+          ...(Array.isArray(source.signals?.photos) && source.signals.photos.length ? { photos: source.signals.photos } : {}),
+          ...(Array.isArray(source.signals?.photo_gallery) && source.signals.photo_gallery.length ? { photoGallery: source.signals.photo_gallery } : {}),
           photoAttr: owned?.credit || null, photoAttrHref: owned?.creditUrl || null,
           fallPhotoDestinationRank: spot.rank,
           seasonalStart: spot.startsOn || null, seasonalThrough: spot.endsOn || null,

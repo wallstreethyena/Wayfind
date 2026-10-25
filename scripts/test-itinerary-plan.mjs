@@ -4,12 +4,15 @@
 import { readFileSync } from "node:fs";
 import {
   addPlaceToTrips,
+  toggleVisited,
+  setNote,
   haversineKm,
   nearestStopIndex,
   AUTO_ORDER_THRESHOLD_KM,
 } from "../lib/trips.js";
 import {
   normalizeStopDate,
+  siteTodayYmd,
   localDateYmd,
   isPastStopDate,
   addCalendarDays,
@@ -19,7 +22,13 @@ import {
   tripDateSummary,
   setStopDate,
   moveItem,
+  removePlaceFromTrip,
+  MAX_MOBILE_WAYPOINTS,
+  MAX_DESKTOP_WAYPOINTS,
+  MAX_MOBILE_ROUTE_STOPS,
   MAX_ROUTE_STOPS,
+  reconstructRoutedStopIds,
+  tripRouteLegs,
   dayRouteUrl,
   dayRouteLegs,
   dayRouteUrls,
@@ -38,8 +47,16 @@ import { addStopToStoredTrips } from "../lib/itineraryAdd.js";
 import {
   encodeItineraryShare,
   decodeItineraryShare,
+  encodeList,
+  decodeList,
   isItinerarySharePayload,
   ITINERARY_SHARE_PREFIX,
+  MAX_SHARED_ITINERARY_STOPS,
+  MAX_SHARED_LIST_PLACES,
+  normalizeSharedTripInput,
+  isSharedTripSaved,
+  importSharedTripToTrips,
+  saveSharedTripToStore,
 } from "../lib/itineraryShare.js";
 import { fetchRemoteTrips, pushTrips, tripsForOwner } from "../lib/itinerarySync.js";
 
@@ -397,33 +414,42 @@ function northOf(origin, km) {
     "moving the last stop of Oct 24 down does not jump it into Oct 25"
   );
 
-  // 5. Route day focuses only on that day's stops in their displayed order.
+  // 5. Route day focuses only on that day's stops in their displayed order, setting origin to the first stop.
   const oct24Url = dayRouteUrl(trips.fl_sarasota, "2026-10-24");
   const fullUrl = routeUrl(trips.fl_sarasota);
   ok(oct24Url !== fullUrl, "Route day URL is distinct from the full-trip route URL");
   ok(
+    oct24Url.includes("origin=" + encodeURIComponent(p4.lat + "," + p4.lng)) &&
     oct24Url.includes("destination=" + encodeURIComponent(p2.lat + "," + p2.lng)) &&
-    oct24Url.includes("waypoints=" + encodeURIComponent(p4.lat + "," + p4.lng)) &&
     !oct24Url.includes(encodeURIComponent(p3.lat + "," + p3.lng)) &&
     !oct24Url.includes(encodeURIComponent(p1.lat + "," + p1.lng)),
-    "Route day for Oct 24 routes s4 -> s2 in displayed order and excludes Oct 25 and Unscheduled stops"
+    "Route day for Oct 24 routes origin s4 -> destination s2 in displayed order and excludes Oct 25 and Unscheduled stops"
   );
 
-  // 5b. Route day with 10+ stops caps single URLs at MAX_ROUTE_STOPS (10 stops = 9 waypoints + 1 destination)
-  // and splits into continuous legs so Google Maps never breaks.
-  eq(MAX_ROUTE_STOPS, 10, "MAX_ROUTE_STOPS is 10 (9 waypoints + 1 destination)");
+  // 5b. Official Google Maps URL limits across mobile (max 3 waypoints / 5 stops per leg)
+  // and desktop (max 9 waypoints / 10 stops per leg = 1 origin + 8 waypoints + 1 destination).
+  eq(MAX_MOBILE_WAYPOINTS, 3, "MAX_MOBILE_WAYPOINTS is 3 per Google Maps URLs spec");
+  eq(MAX_DESKTOP_WAYPOINTS, 9, "MAX_DESKTOP_WAYPOINTS is 9 per Google Maps URLs spec");
+  eq(MAX_MOBILE_ROUTE_STOPS, 5, "MAX_MOBILE_ROUTE_STOPS is 5 (1 origin + 3 waypoints + 1 destination)");
+  eq(MAX_ROUTE_STOPS, 10, "MAX_ROUTE_STOPS is 10 (1 origin + 8 waypoints + 1 destination)");
   let manyStopsTrip = {};
+  const expected12Ids = [];
   for (let idx = 1; idx <= 12; idx += 1) {
+    const id = "m" + idx;
+    expected12Ids.push(id);
     manyStopsTrip = addPlaceToTrips(
       manyStopsTrip,
-      place("m" + idx, 27.3 + idx * 0.01, -82.5 - idx * 0.01, { name: "Stop " + idx }),
+      place(id, Number((27.3 + idx * 0.01).toFixed(2)), Number((-82.5 - idx * 0.01).toFixed(2)), { name: "Stop " + idx }),
       idx * 10
     );
-    manyStopsTrip = setStopDate(manyStopsTrip, "fl_sarasota", "m" + idx, "2026-10-24", idx * 10 + 5);
+    manyStopsTrip = setStopDate(manyStopsTrip, "fl_sarasota", id, "2026-10-24", idx * 10 + 5);
   }
   const cappedDayUrl = dayRouteUrl(manyStopsTrip.fl_sarasota, "2026-10-24");
-  const waypointParam = new URL(cappedDayUrl).searchParams.get("waypoints") || "";
-  eq(waypointParam.split("|").length, 9, "dayRouteUrl caps waypoints at 9 (10 stops total) when a day has 12 stops");
+  const parsedLeg1 = new URL(cappedDayUrl);
+  ok(parsedLeg1.searchParams.get("origin") === "27.31,-82.51", "leg 1 origin is stop 1 (m1)");
+  ok(parsedLeg1.searchParams.get("destination") === "27.4,-82.6", "leg 1 destination is stop 10 (m10)");
+  const waypointParam = parsedLeg1.searchParams.get("waypoints") || "";
+  eq(waypointParam.split("|").length, 8, "desktop leg 1 has 8 intermediate waypoints (stops 2..9) between origin (stop 1) and destination (stop 10)");
   const legs12 = dayRouteLegs(manyStopsTrip.fl_sarasota, "2026-10-24");
   eq(
     legs12.map((l) => ({ startStop: l.startStop, endStop: l.endStop, count: l.count })),
@@ -431,9 +457,35 @@ function northOf(origin, km) {
       { startStop: 1, endStop: 10, count: 10 },
       { startStop: 10, endStop: 12, count: 3 },
     ],
-    "dayRouteLegs splits 12 stops into two continuous legs (1-10 and 10-12)"
+    "dayRouteLegs splits 12 stops into two continuous legs (1-10 and 10-12) on desktop"
   );
+  eq(legs12[0].destination.id, "m10", "desktop leg 1 ends at m10");
+  eq(legs12[1].origin.id, "m10", "desktop leg 2 starts at m10 (overlapping boundary stop)");
+  eq(legs12[1].waypoints.map((w) => w.id), ["m11"], "desktop leg 2 has intermediate waypoint m11");
+  eq(legs12[1].destination.id, "m12", "desktop leg 2 ends at m12");
+  eq(reconstructRoutedStopIds(legs12), expected12Ids, "every stop 1..12 appears in exact order across desktop legs with zero truncation");
   eq(dayRouteUrls(manyStopsTrip.fl_sarasota, "2026-10-24").length, 2, "dayRouteUrls returns 2 valid Google Maps URLs for 12 stops");
+
+  // Mobile browser legs (max 3 intermediate waypoints = 5 stops per leg)
+  const mobileLegs12 = dayRouteLegs(manyStopsTrip.fl_sarasota, "2026-10-24", { mobile: true });
+  eq(
+    mobileLegs12.map((l) => ({ startStop: l.startStop, endStop: l.endStop, waypoints: l.waypoints.length })),
+    [
+      { startStop: 1, endStop: 5, waypoints: 3 },
+      { startStop: 5, endStop: 9, waypoints: 3 },
+      { startStop: 9, endStop: 12, waypoints: 2 },
+    ],
+    "mobile dayRouteLegs caps every leg at <=3 intermediate waypoints (5 stops per leg)"
+  );
+  ok(
+    mobileLegs12.every((l) => l.waypoints.length <= MAX_MOBILE_WAYPOINTS),
+    "no mobile leg ever exceeds Google Maps' 3-waypoint mobile browser limit"
+  );
+  eq(reconstructRoutedStopIds(mobileLegs12), expected12Ids, "every stop 1..12 appears in exact order across mobile legs with zero truncation");
+
+  // Whole-trip multi-leg routing (tripRouteLegs)
+  const wholeTripLegs = tripRouteLegs(manyStopsTrip.fl_sarasota);
+  eq(reconstructRoutedStopIds(wholeTripLegs), expected12Ids, "tripRouteLegs routes all 12 stops across legs without silent truncation");
 
   // 5c. Past dates sort after upcoming dates and are clearly labeled 'Past · ...'
   ok(isPastStopDate("2026-10-18", "2026-10-22") === true, "a date before today is identified as past");
@@ -449,6 +501,35 @@ function northOf(origin, km) {
       { key: "2026-10-18", isPast: true, label: "Past · Sunday, Oct 18" },
     ],
     "past dates sort below upcoming dates and are clearly labeled 'Past · ...'"
+  );
+
+  // 5d. Venue-local timezone (America/New_York) cutoff & deterministic Today/Tomorrow labels
+  // At 2026-10-24T02:30:00Z, UTC is already Oct 24, but America/New_York is 10:30 PM EDT on Fri Oct 23.
+  eq(
+    siteTodayYmd(new Date("2026-10-24T02:30:00Z"), "America/New_York"),
+    "2026-10-23",
+    "siteTodayYmd stays on Friday Oct 23 at 10:30 PM EDT instead of rolling over at 8 PM EDT"
+  );
+  const friChoices = quickDateChoices({ items: [] }, "2026-10-23");
+  eq(
+    friChoices.map((c) => ({ day: c.day, label: c.label })),
+    [
+      { day: "2026-10-23", label: "Today · Oct 23" },
+      { day: "2026-10-24", label: "Tomorrow · Oct 24" },
+      { day: "2026-10-25", label: "Sun, Oct 25" },
+    ],
+    "on Friday Oct 23, quickDateChoices offers Today (Oct 23), Tomorrow (Sat Oct 24), and Sun, Oct 25"
+  );
+  const satChoices = quickDateChoices({ items: [] }, "2026-10-24");
+  eq(
+    satChoices.slice(0, 4).map((c) => ({ day: c.day, label: c.label })),
+    [
+      { day: "2026-10-24", label: "Today · Oct 24" },
+      { day: "2026-10-25", label: "Tomorrow · Oct 25" },
+      { day: "2026-10-31", label: "Sat, Oct 31" },
+      { day: "2026-11-01", label: "Sun, Nov 1" },
+    ],
+    "on Saturday Oct 24, quickDateChoices offers Today (Sat Oct 24), Tomorrow (Sun Oct 25), and next weekend"
   );
 
   // 6. Changing and clearing a date is easy and preserves notes, visited flags, and stop data.
@@ -549,13 +630,295 @@ function northOf(origin, km) {
   const choices = quickDateChoices(reloadedSignedOut.fl_sarasota, new Date(2026, 9, 20, 12, 0, 0));
   ok(choices.some((c) => c.day === "2026-10-20") && choices.some((c) => c.day === "2026-10-25"), "quickDateChoices includes Today and existing trip dates");
 
-  // 8. UI source lock: Itinerary.js exposes Set date, Clear date, Unscheduled, Route day, and aria-expanded.
+  // 8. Whole-trip saving ("Save this trip to my Itinerary") across both formats,
+  //    idempotency, recipient edit independence, untrusted input validation, and 25/40 limits.
+  {
+    eq(MAX_SHARED_LIST_PLACES, 25, "shared list limit is 25 places");
+    eq(MAX_SHARED_ITINERARY_STOPS, 40, "shared itinerary limit is 40 stops");
+
+    // 8a. Saving a private shared itinerary (`wftrip1.`) preserves title, stop order,
+    //     valid dates, undated stops, notes, and place details without mutating the sender's trip.
+    const senderTrip = {
+      key: "fl_sarasota",
+      city: "Sarasota",
+      state: "FL",
+      title: "Sarasota Birthday Weekend",
+      items: [
+        {
+          id: "s1",
+          order: 0,
+          day: "2026-10-24",
+          note: "Ask for patio table",
+          place: {
+            ...p1,
+            rating: 4.8,
+            reviews: 1240,
+            price: "$$",
+            priceNum: 2,
+            type: "Seafood",
+            photo: "https://example.com/owens.jpg",
+          },
+        },
+        {
+          id: "s2",
+          order: 1,
+          day: "2026-10-25",
+          note: "Morning stroll",
+          place: {
+            ...p2,
+            rating: 4.9,
+            reviews: 3100,
+            price: "$$",
+            priceNum: 2,
+            type: "Botanical Garden",
+          },
+        },
+        {
+          id: "s3",
+          order: 2,
+          day: null,
+          note: "",
+          place: {
+            ...p3,
+            rating: 4.7,
+            reviews: 890,
+            price: "$$$",
+            priceNum: 3,
+            type: "Shopping",
+          },
+        },
+      ],
+    };
+    const senderSnapshotBefore = JSON.stringify(senderTrip);
+    const encodedItin = encodeItineraryShare(senderTrip);
+    const decodedItin = decodeItineraryShare(encodedItin);
+    ok(decodedItin.title === "Sarasota Birthday Weekend", "decodeItineraryShare preserves custom trip title");
+    ok(decodedItin.items[0].place.rating === 4.8 && decodedItin.items[0].place.type === "Seafood", "decodeItineraryShare preserves supported place details");
+
+    const firstImport = importSharedTripToTrips({}, decodedItin, 5000);
+    ok(firstImport.ok === true && firstImport.status === "saved", "first whole-trip import succeeds with status='saved'");
+    eq(firstImport.tripKey, "fl_sarasota", "imported Sarasota trip uses canonical fl_sarasota key when unoccupied");
+    eq(firstImport.addedCount, 3, "first import adds all 3 stops");
+    eq(firstImport.datedStops, 2, "first import counts 2 dated stops");
+    eq(firstImport.trip.title, "Sarasota Birthday Weekend", "recipient trip preserves the shared title");
+    eq(
+      firstImport.trip.items.map((it) => ({ id: it.id, order: it.order, day: it.day, note: it.note, rating: it.place.rating })),
+      [
+        { id: "s1", order: 0, day: "2026-10-24", note: "Ask for patio table", rating: 4.8 },
+        { id: "s2", order: 1, day: "2026-10-25", note: "Morning stroll", rating: 4.9 },
+        { id: "s3", order: 2, day: null, note: "", rating: 4.7 },
+      ],
+      "recipient copy preserves stop order, valid dates, undated stops, notes, and place details"
+    );
+
+    // Mutating the recipient's copy never mutates the sender's trip or decoded payload.
+    let recipientTrips = firstImport.trips;
+    recipientTrips = setStopDate(recipientTrips, "fl_sarasota", "s3", "2026-10-26", 5100);
+    recipientTrips = toggleVisited(recipientTrips, "fl_sarasota", "s1");
+    recipientTrips = setNote(recipientTrips, "fl_sarasota", "s1", "Recipient personal note");
+    eq(JSON.stringify(senderTrip), senderSnapshotBefore, "editing the recipient copy never mutates the sender trip");
+    ok(decodedItin.items[2].day === undefined && decodedItin.items[0].note === "Ask for patio table", "editing recipient copy never mutates decoded shared payload");
+
+    // Repeated taps, retries, and reopening the same link do not create duplicates or overwrite recipient edits.
+    const secondImport = importSharedTripToTrips(recipientTrips, decodedItin, 5200);
+    ok(secondImport.ok === true && secondImport.status === "already_saved", "second tap returns status='already_saved'");
+    ok(secondImport.trips === recipientTrips, "second tap returns the exact same trips object reference");
+    eq(Object.keys(secondImport.trips), ["fl_sarasota"], "repeated taps do not create a duplicate trip");
+    eq(secondImport.trips.fl_sarasota.items.length, 3, "repeated taps do not duplicate stops");
+    eq(secondImport.trips.fl_sarasota.items.find((it) => it.id === "s3").day, "2026-10-26", "re-importing does not overwrite recipient's newer date edit");
+    eq(secondImport.trips.fl_sarasota.items.find((it) => it.id === "s1").visited, true, "re-importing preserves recipient's visited flag");
+    eq(secondImport.trips.fl_sarasota.items.find((it) => it.id === "s1").note, "Recipient personal note", "re-importing preserves recipient's edited note");
+    ok(isSharedTripSaved(recipientTrips, decodedItin).saved === true, "isSharedTripSaved recognizes the imported trip");
+
+    // 8b. If the recipient already has an unrelated Sarasota trip, importing a shared Sarasota trip
+    //     creates a separate trip under deterministic shareKey without clobbering the existing trip.
+    const existingUnrelated = addPlaceToTrips(
+      {},
+      place("own-1", 27.35, -82.55, { name: "My Own Spot" }),
+      1000
+    );
+    const alongsideImport = importSharedTripToTrips(existingUnrelated, decodedItin, 6000);
+    ok(alongsideImport.ok === true && alongsideImport.status === "saved", "import alongside an existing unrelated trip succeeds");
+    ok(alongsideImport.tripKey !== "fl_sarasota" && alongsideImport.tripKey.startsWith("fl_sarasota_shared_"), "shared trip gets a deterministic shareKey when baseKey has unrelated stops");
+    eq(alongsideImport.trips.fl_sarasota.items.map((it) => it.id), ["own-1"], "recipient's pre-existing fl_sarasota trip is untouched");
+    eq(alongsideImport.trips[alongsideImport.tripKey].items.map((it) => it.id), ["s1", "s2", "s3"], "imported shared trip keeps its exact 3 stops in order");
+    const alongsideRepeat = importSharedTripToTrips(alongsideImport.trips, decodedItin, 6100);
+    ok(alongsideRepeat.status === "already_saved" && alongsideRepeat.trips === alongsideImport.trips, "re-tapping save on the alongside shared trip is idempotent");
+
+    // 8c. Shared list format (`/s/<code>` via encodeList / decodeList) whole-trip save + signed-out -> sign-in migration.
+    const sharedListPlaces = [
+      { ...p1, day: "2026-10-24", rating: 4.8, reviews: 500, price: "$$", type: "Seafood" },
+      { ...p4, day: "2026-10-24", rating: 4.9, reviews: 900, price: "$", type: "Beach" },
+      { ...p3, rating: 4.6, reviews: 300, price: "$$$", type: "Shopping" },
+    ];
+    const encodedList = encodeList(sharedListPlaces);
+    const decodedList = decodeList(encodedList);
+    const anonStorageMap = new Map();
+    const anonStorage = {
+      getItem: (k) => anonStorageMap.get(k) || null,
+      setItem: (k, v) => anonStorageMap.set(k, v),
+    };
+    const loggedEvents = [];
+    let anonTripsState = {};
+    const savedListRes = saveSharedTripToStore({
+      trips: anonTripsState,
+      setTrips: (next) => { anonTripsState = next; },
+      storage: anonStorage,
+      sharedInput: decodedList,
+      kind: "list",
+      logEvent: (name, item, props) => loggedEvents.push({ name, item, props }),
+      now: 7000,
+    });
+    ok(savedListRes.ok === true && savedListRes.status === "saved", "saving a shared list signed-out succeeds");
+    ok(anonStorage.getItem("wayfind_trips") !== null, "signed-out save writes wayfind_trips to localStorage immediately");
+    eq(loggedEvents, [
+      {
+        name: "shared_trip_import",
+        item: null,
+        props: { kind: "list", status: "saved", stops: 3, added: 3, dated_stops: 2 },
+      },
+    ], "shared_trip_import analytics event records counts and status with zero private titles or coordinates");
+
+    // Signed-out reload + sign-in migration + second device hydration
+    const afterAnonReload = JSON.parse(anonStorage.getItem("wayfind_trips"));
+    ok(isSharedTripSaved(afterAnonReload, decodedList, { kind: "list" }).saved === true, "after signed-out reload, shared list is still recognized as saved");
+    const claimedByNewUser = tripsForOwner(anonStorage, "user-recipient-99");
+    const mergedWithEmptyCloud = mergeTrips(claimedByNewUser, {});
+    const recipientRecords = tripsToRecords(mergedWithEmptyCloud, "user-recipient-99");
+    const recipientDevice2 = recordsToTrips(
+      recipientRecords.map((r) => ({
+        ...r.itinerary,
+        created_at: "2026-10-24T12:00:00.000Z",
+        updated_at: "2026-10-24T12:01:00.000Z",
+        wf_itinerary_items: r.items,
+      }))
+    );
+    eq(
+      recipientDevice2.fl_sarasota.items.map((it) => ({ id: it.id, day: it.day })),
+      [
+        { id: "s1", day: "2026-10-24" },
+        { id: "s4", day: "2026-10-24" },
+        { id: "s3", day: null },
+      ],
+      "signed-out saved shared list survives reload, sign-in migration, and second-device hydration without losing dates or duplicating stops"
+    );
+    ok(
+      isSharedTripSaved(recipientDevice2, decodedList, { kind: "list" }).saved === true,
+      "second device also recognizes the shared list as already saved so reopening the link on Device 2 does not duplicate"
+    );
+
+    // 8d. Storage failure and retry feedback
+    let shouldFailWrite = true;
+    const flakyStorage = {
+      getItem: () => null,
+      setItem: (k, v) => {
+        if (shouldFailWrite) throw new Error("QuotaExceededError");
+        anonStorageMap.set(k, v);
+      },
+    };
+    let retryTrips = {};
+    const failedSave = saveSharedTripToStore({
+      trips: retryTrips,
+      setTrips: (next) => { retryTrips = next; },
+      storage: flakyStorage,
+      sharedInput: decodedItin,
+      kind: "itinerary",
+      now: 8000,
+    });
+    ok(failedSave.ok === false && failedSave.status === "storage_error", "storage write failure reports status='storage_error' truthfully");
+    eq(Object.keys(retryTrips), [], "failed storage write does not corrupt in-memory trips");
+    shouldFailWrite = false;
+    const retriedSave = saveSharedTripToStore({
+      trips: retryTrips,
+      setTrips: (next) => { retryTrips = next; },
+      storage: flakyStorage,
+      sharedInput: decodedItin,
+      kind: "itinerary",
+      now: 8100,
+    });
+    ok(retriedSave.ok === true && retriedSave.status === "saved" && retryTrips.fl_sarasota.items.length === 3, "retrying after storage recovery saves cleanly without duplicates");
+
+    // 8e. Untrusted input validation & format limits (25-place list cap, 40-stop itinerary cap)
+    ok(decodeList("x".repeat(30000)) === null, "oversized untrusted list payload is rejected");
+    ok(decodeItineraryShare(ITINERARY_SHARE_PREFIX + "x".repeat(30000)) === null, "oversized untrusted itinerary payload is rejected");
+    const untrustedMixed = normalizeSharedTripInput({
+      kind: "itinerary",
+      city: "Sarasota\u0000",
+      state: "INVALID_STATE",
+      visibility: "public",
+      user_id: "attacker-uuid",
+      share_code: "stolen-code",
+      items: [
+        null,
+        { id: "", name: "Missing ID" },
+        {
+          id: "valid-1",
+          day: "2026-02-30", // invalid Feb 30 date
+          note: "n".repeat(400),
+          place: {
+            id: "valid-1",
+            name: "Safe Cafe",
+            address: "100 Main St, Sarasota, FL 34236, USA",
+            lat: 999, // invalid latitude
+            lng: -82.5,
+            photo: "javascript:alert(1)", // unsafe URL scheme
+            rating: 99, // out-of-range rating
+          },
+        },
+        {
+          id: "valid-1", // duplicate stop ID in untrusted payload
+          day: "2026-10-28",
+        },
+      ],
+    });
+    ok(untrustedMixed !== null && untrustedMixed.totalStops === 1, "untrusted payload keeps valid stop, drops invalid entries, and deduplicates repeated IDs");
+    eq(untrustedMixed.skippedCount, 2, "untrusted payload reports 2 skipped malformed items");
+    eq(untrustedMixed.invalidDateCount, 1, "untrusted payload reports 1 invalid date ('2026-02-30')");
+    eq(untrustedMixed.items[0].day, "2026-10-28", "valid date from duplicate stop entry is recovered cleanly");
+    eq(untrustedMixed.items[0].note.length, 140, "overlong note is capped at NOTE_MAX (140)");
+    eq(untrustedMixed.items[0].place.lat, null, "out-of-range latitude (999) is sanitized to null");
+    eq(untrustedMixed.items[0].place.photo, null, "javascript: photo URL is stripped");
+    eq(untrustedMixed.items[0].place.rating, null, "out-of-range rating (99) is sanitized to null");
+    eq(untrustedMixed.state, "FL", "invalid state falls back to parsed address state (FL)");
+
+    // 45-stop trip encoded via encodeItineraryShare caps at 40 and records totalStops=45, truncatedCount=5
+    const big45 = {
+      key: "fl_sarasota",
+      city: "Sarasota",
+      state: "FL",
+      items: Array.from({ length: 45 }, (_, i) => ({
+        id: "b" + (i + 1),
+        order: i,
+        place: place("b" + (i + 1), 27.3 + i * 0.001, -82.5 - i * 0.001),
+      })),
+    };
+    const dec45 = decodeItineraryShare(encodeItineraryShare(big45));
+    eq(dec45.items.length, 40, "encodeItineraryShare caps items at 40 stops");
+    eq(dec45.totalStops, 45, "decoded 45-stop share reports totalStops=45");
+    eq(dec45.truncatedCount, 5, "decoded 45-stop share reports truncatedCount=5");
+
+    // 30-place list passed to normalizeSharedTripInput caps at 25 and reports truncatedCount=5
+    const big30List = Array.from({ length: 30 }, (_, i) => place("l" + (i + 1), 27.3 + i * 0.001, -82.5 - i * 0.001));
+    const norm30 = normalizeSharedTripInput(big30List, { kind: "list" });
+    eq(norm30.totalStops, 25, "shared list normalization caps at 25 places");
+    eq(norm30.truncatedCount, 5, "shared list normalization reports truncatedCount=5 for 30 places");
+  }
+
+  // 9. UI source lock: Itinerary.js, Shared.js, and SharedItinerary.js expose date controls and whole-trip save actions.
   const itineraryUi = readFileSync(new URL("app/components/screens/Itinerary.js", ROOT), "utf8");
   ok(itineraryUi.includes('"Set date"'), "Itinerary.js renders the per-stop Set date button");
   ok(itineraryUi.includes("Clear date"), "Itinerary.js renders Clear date inside the picker");
   ok(itineraryUi.includes("Route day ↗"), "Itinerary.js renders Route day on dated day headings");
   ok(itineraryUi.includes("groupItemsByDay("), "Itinerary.js groups stops by day via Trips.groupItemsByDay");
   ok(itineraryUi.includes("aria-expanded={dating}"), "Itinerary.js exposes aria-expanded on the date toggle button");
+
+  const sharedUi = readFileSync(new URL("app/components/screens/Shared.js", ROOT), "utf8");
+  ok(sharedUi.includes("Save this trip to my Itinerary"), "Shared.js offers 'Save this trip to my Itinerary'");
+  ok(sharedUi.includes("saveSharedTripToStore("), "Shared.js saves via saveSharedTripToStore");
+
+  const sharedItinUi = readFileSync(new URL("app/components/screens/SharedItinerary.js", ROOT), "utf8");
+  ok(sharedItinUi.includes("Save this trip to my Itinerary"), "SharedItinerary.js offers 'Save this trip to my Itinerary'");
+  ok(sharedItinUi.includes("saveSharedTripToStore("), "SharedItinerary.js saves via saveSharedTripToStore");
 }
 
 if (failures) {

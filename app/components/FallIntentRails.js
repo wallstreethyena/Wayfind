@@ -136,7 +136,7 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
           ].filter(Boolean);
           const cta = isEvent ? eventCta(card, onTrack) : null;
           const openEventVenue = isEvent && card.place_id && onOpenPlace
-            ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook })
+            ? () => onOpenPlace({ id: card.place_id, name: card.venue || card.name, lat: card.lat, lng: card.lng, types: [], hook: card.hook, ...(Array.isArray(card.venuePhotos) ? { photos: card.venuePhotos } : {}) })
             : null;
           const eventBodyHref = isEvent ? (card.detailHref || (card.officialOnly || !openEventVenue ? card.url || null : null)) : null;
           const eventBodyExternal = isEvent && !card.detailHref;
