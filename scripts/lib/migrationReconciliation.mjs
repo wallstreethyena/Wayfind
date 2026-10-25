@@ -100,7 +100,7 @@ export function reconcile(file, ledgerRows, objectSet, canonicalHash = null) {
 // the whole canonical filename stem as `name`; that spelling is accepted only
 // with exact statement-array hash proof. Historical exceptions remain exact
 // version/name/hash pins.
-export function reconcileProduction(files, ledger, exceptions, canonicalHashes = new Map()) {
+export function reconcileProduction(files, ledger, exceptions, canonicalHashes = new Map(), objectSet = null) {
   const errors = [], canonical = new Map(), stems = new Map(), pins = new Map(), seen = new Set(), names = new Map(), claimedFiles = new Map();
   for (const file of files) {
     const parsed = parseFileName(file);
@@ -115,8 +115,9 @@ export function reconcileProduction(files, ledger, exceptions, canonicalHashes =
   if (!Array.isArray(exceptions)) return {errors: [...errors, 'invalid historical exception manifest']};
   if (!(canonicalHashes instanceof Map)) return {errors: [...errors, 'invalid canonical migration hash map']};
   for (const pin of exceptions) {
+    const probesOk = pin?.probes === undefined || (Array.isArray(pin.probes) && pin.probes.length > 0 && pin.probes.every((p) => p && typeof p.kind === 'string' && p.kind.trim() && typeof p.name === 'string' && p.name.trim()));
     if (!pin || typeof pin.version !== 'string' || !/^\d{8,14}$/.test(pin.version) || typeof pin.name !== 'string' || !pin.name ||
-        !/^[a-f0-9]{64}$/.test(pin.statements_sha256) || typeof pin.reason !== 'string' || !pin.reason.trim() || typeof pin.reviewed_by !== 'string' || !pin.reviewed_by.trim()) {
+        !/^[a-f0-9]{64}$/.test(pin.statements_sha256) || typeof pin.reason !== 'string' || !pin.reason.trim() || typeof pin.reviewed_by !== 'string' || !pin.reviewed_by.trim() || !probesOk) {
       errors.push('malformed historical exception'); continue;
     }
     if (pins.has(pin.version)) errors.push(`duplicate historical exception: ${pin.version}`);
@@ -139,6 +140,11 @@ export function reconcileProduction(files, ledger, exceptions, canonicalHashes =
     const pin = pins.get(row.version);
     if (pin) {
       if (pin.name !== row.name || pin.statements_sha256 !== row.statements_sha256) errors.push(`historical exception mismatch: ${row.version} / ${row.name}`);
+      if (Array.isArray(pin.probes) && objectSet instanceof Set && objectSet.size > 0) {
+        for (const p of pin.probes) {
+          if (!objectSet.has(`${p.kind}:${p.name}`)) errors.push(`historical exception live-schema probe missing: ${row.version} (${p.kind}:${p.name})`);
+        }
+      }
       if (pin.canonical_file !== undefined) {
         if (typeof pin.canonical_file !== 'string' || !parseFileName(pin.canonical_file) || !files.includes(pin.canonical_file))
           errors.push(`historical mapping canonical file missing or invalid: ${row.version}`);

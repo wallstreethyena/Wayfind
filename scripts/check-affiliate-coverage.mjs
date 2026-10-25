@@ -195,6 +195,8 @@ ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEAL
 ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 5 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays uses the verified Disney admission path");
 ok(EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.deal === 6 && EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.product === "park-admission", "Universal Holidays uses the verified Universal admission path");
 ok(EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"]?.deal === 6 && EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"]?.product === "park-admission", "Sideshow Obscura uses Universal Studios admission rather than a false HHN-only ticket");
+ok(EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.deal === 18 && EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.product === "park-admission",
+  "Peppa's Halloween Party (organizer-confirmed 'Included in General Admission' on peppapigthemepark.com) maps to Peppa Pig Theme Park's UT admission row (deal 18)");
 ok(EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.provider === "tiqets" && EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.offerId === "miami-hook-zoo-miami",
   "Zoo Boo — the first Tiqets-only merchant's included-with-admission event — is mapped to Tiqets' Zoo Miami offer, THE library's admission row for zoo-miami");
 

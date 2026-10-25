@@ -6,6 +6,7 @@ import { posterSeasonLive } from "../../../lib/posterSeasons.js";
 import { snapRailCoord } from "./fixtures.mjs";
 import { LIVE_POSTER_TYPE_CONFIG } from "../../../lib/liveEventPosterTypes.js";
 import { PARTNER_COLLECTIONS } from "../../../lib/partnerCollections.js";
+import { RAYS_POSTER, raysCampaignLive } from "../../../lib/raysWorldSeriesPoster.js";
 
 // Some RAILS records never reach the homepage menu:
 // `events` is retired into Night Out (`retiredInto`), `lunchcity` / `drive`
@@ -40,14 +41,17 @@ export const EXPECTED_VISIBLE_POSTER_IDS = Object.freeze([
 
 // Optional synthetic tiles are product-owned too, but their presence depends
 // on live context: sports appears only when a qualifying nearby event
-// exists, and sponsor tiles appear only inside an approved partner geo gate.
+// exists, sponsor tiles appear only inside an approved partner geo gate, and
+// the Rays World Series poster (lib/raysWorldSeriesPoster.js, #1834) renders
+// while its campaign is live and /api/rays-world-series reports incomplete.
 // Derive ONLY this optional allowlist from the product registries so adding a
-// new live-event type or partner collection cannot make the monitor reject an
-// intentionally-rendered tile. Static RAILS above stay explicit so a hidden
-// core poster still red-proves immediately.
+// new live-event type, partner collection, or campaign poster cannot make the
+// monitor reject an intentionally-rendered tile. Static RAILS above stay
+// explicit so a hidden core poster still red-proves immediately.
 export const OPTIONAL_VISIBLE_POSTER_IDS = Object.freeze([
   ...Object.keys(LIVE_POSTER_TYPE_CONFIG).map((type) => `live-${type}`),
   ...PARTNER_COLLECTIONS.map((collection) => `sponsor-${collection.id}`),
+  RAYS_POSTER.id,
 ]);
 
 const asId = (value) => value == null ? "" : String(value);
@@ -88,16 +92,17 @@ export function posterMenuDiff(visibleIds, today = siteTodayStr()) {
   // table the homepage track filter reads (owner, 2026-10-14), so the monitor and the
   // product cannot disagree and no year-specific date lives here.
   const expected = EXPECTED_VISIBLE_POSTER_IDS.filter((id) => posterSeasonLive(id, today));
+  const optional = OPTIONAL_VISIBLE_POSTER_IDS.filter((id) => id !== RAYS_POSTER.id || raysCampaignLive(today));
   const actual = Array.isArray(visibleIds) ? visibleIds.map(asId).filter(Boolean) : [];
   const actualSet = new Set(actual);
-  const approvedSet = new Set([...expected, ...OPTIONAL_VISIBLE_POSTER_IDS]);
+  const approvedSet = new Set([...expected, ...optional]);
   return {
     expected: [...expected],
-    optional: [...OPTIONAL_VISIBLE_POSTER_IDS],
+    optional: [...optional],
     returned: actual,
     duplicateIds: actual.filter((id, index) => actual.indexOf(id) !== index),
     missingIds: expected.filter((id) => !actualSet.has(id)),
-    optionalPresentIds: OPTIONAL_VISIBLE_POSTER_IDS.filter((id) => actualSet.has(id)),
+    optionalPresentIds: optional.filter((id) => actualSet.has(id)),
     extraIds: actual.filter((id) => !approvedSet.has(id)),
   };
 }

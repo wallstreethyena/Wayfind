@@ -627,7 +627,7 @@ async function runBrowserLevel() {
         // "Browse categories" on the home page, and it is .wf-navtabs. Both
         // class pairs are tried so this script keeps working if that ever
         // changes back or the other call site is what's under test.
-        const catBtn = page.getByRole("group", { name: "Browse categories" }).getByRole("button", { name: ui.catLabel, exact: true });
+        const catBtn = page.getByRole("group", { name: "Browse categories" }).locator(".wf-navtab, .wf-cattile", { hasText: ui.catLabel }).first();
         await catBtn.click({ timeout: 15000 }).catch(async () => {
           await page.locator(".wf-cattile, .wf-navtab", { hasText: ui.catLabel }).first().click({ timeout: 15000 });
         });
