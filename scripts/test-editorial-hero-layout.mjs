@@ -1,4 +1,4 @@
-// The existing required CI suite installs Chromium before this registered test.
+// The existing required rendered UI gate invokes this with --require-browser.
 // Render the real shared header and fully decode its assets. PNG dimensions
 // alone cannot detect the partial corruption that broke the Date Night page.
 import assert from 'node:assert/strict';
@@ -47,7 +47,7 @@ for(const prefix of ['wf-beach-premium','wf-eat-premium','wf-experience-editoria
 const executablePath=process.argv.find(a=>a.startsWith('--browser='))?.slice(10);
 const browser=executablePath?await (await resolvePlaywright()).launch({executablePath,args:['--no-sandbox']}):await launchChromium({args:['--no-sandbox']});
 if(!browser){
- assert.ok(!(process.argv.includes('--require-browser') || process.env.GITHUB_ACTIONS === 'true'),'Editorial geometry requires Chromium in merge CI');
+ assert.ok(!process.argv.includes('--require-browser'),'Editorial geometry requires Chromium');
  console.log(`test-editorial-hero-layout: ${images.length} images fully decoded; BROWSER CHECK NOT RUN — required CI must measure geometry`);process.exit(0);
 }
 const page=await browser.newPage({viewport:{width:390,height:844}});
