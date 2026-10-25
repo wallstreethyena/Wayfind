@@ -4,6 +4,7 @@ import IconicPlaceCard from "./IconicPlaceCard.js";
 import EventPlaceRail from "./EventPlaceRail.js";
 import { orderPlaceRecommendations } from "../../lib/placeRecommendationOrder.js";
 import { useEventMapPlaces } from "./EventMapPlaces.js";
+import useEditorialHooks from "./useEditorialHooks.js";
 
 // The map's nearby results use the house place card unchanged. IconicPlaceCard
 // owns the shared Save / Like / Dislike / Share behavior; this wrapper owns
@@ -25,6 +26,7 @@ import { useEventMapPlaces } from "./EventMapPlaces.js";
 export default function EventNearbyCards({ places = [] }) {
   const reanchored = useEventMapPlaces()?.picks;
   const orderedPlaces = orderPlaceRecommendations(Array.isArray(reanchored) ? reanchored : places);
+  const hooks = useEditorialHooks(orderedPlaces);
   if (!orderedPlaces.length) return null;
   const outing = orderedPlaces[0] && orderedPlaces[0].outing;
   const title = (outing && outing.railTitle) || "Nearby places";
@@ -37,8 +39,8 @@ export default function EventNearbyCards({ places = [] }) {
           place={place}
           rank={index + 1}
           href={place.href}
-          editorial={place.editorial || null}
-          editorialTier="known"
+          editorial={hooks[place.id] || place.editorial || null}
+          editorialTier={(hooks.tiers && hooks.tiers[place.id]) || "known"}
           surface="event_nearby"
           eagerMedia
           rankingNote={place.rankingNote ? place.rankingNote.replace(/ · [0-9.]+ mi from the venue\b/, "") : "Nearby place"}

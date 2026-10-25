@@ -240,6 +240,16 @@ function WayfindTakeRail({ editorial, alreadyShown = null }) {
           {items.map((it, i) => (<span key={i} title={it.label} style={{ width: i === active ? 20 : 5, height: 5, borderRadius: 999, background: i === active ? C.accent : "rgba(255,255,255,.2)", transition: "width .2s ease, background .2s ease" }} />))}
         </div>
       ) : null}
+      {multi ? (
+        <div style={{ marginTop: 12, padding: "12px 14px", borderRadius: 14, background: "rgba(13,17,23,.55)", border: "1px solid rgba(255,255,255,.08)", display: "grid", gap: 9 }}>
+          {items.slice(1).map((it) => (
+            <div key={it.label} style={{ fontSize: 13, lineHeight: 1.5, color: "#CBD5E1" }}>
+              <span style={{ fontSize: 10, fontWeight: 900, letterSpacing: "1px", textTransform: "uppercase", color: it.color, marginRight: 7 }}>{it.icon} {it.label}:</span>
+              <span>{it.body}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }
