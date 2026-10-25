@@ -233,6 +233,7 @@ scripts/check-intro-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	f6da25e1a46c
 scripts/check-intro-instrumentation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1	0	438db7921dc5d57fd88865af8b0d4828fb893bd0053ce58dc8cce39b4205409f
 scripts/check-inventory-integrity.mjs	0	CALL	scheduled-monitoring-only	0	-	16	0	0	b1a998c666f0fdcd6373762ad9738e032e3c7040e9488d1b4c4f4131dcfc29fb
 scripts/check-inventory-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	fc96aafdce3014ea52c8208bded0a982c7ac400e0fc0538af41a83e7f7c3d6ff
+scripts/check-inventory-refresh-free-tier.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	23	0	0	567092db3ed77b33bf0c0a46557e8fe3941e86be8563bd5062a7d0846411a462
 scripts/check-inventory-select-columns.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	0	0	46fe4ed7b1feeec62dd73fa29675a312cc83ee8fbc4a7ea2bf380603cdfc21c0
 scripts/check-inventory-serve-complete-read.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	c1719ef8a6276f6123ddc4846e4802cc8354ec05445a8053aaed52e0df459343
 scripts/check-invisible-text.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	88fd6a135aeba3d1cfafc16b6e2f538371b0764258e2e8dd70c356a6bd908a68
@@ -559,7 +560,7 @@ scripts/test-commons-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	145	0	0	642075b6
 scripts/test-community-feedback.mjs	0	RENDER	blocks-ci-and-deploy	1	-	33	0	0	a668c8aa2e845d120b11a445106160739f0451fcd6336343d3952ec57e080532
 scripts/test-composition-render.mjs	1	RENDER	blocks-ci-and-deploy	1	Qwen (Engineering)	41	0	0	8f246bcf131f8ed8032dacb9816c4f68503012dc4747945e8af11b1fe07d428f
 scripts/test-containment.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	bc739fcab0a3ca6dc0d12b73110640258a4f1a13cd32d92d2bfccfa13650593f
-scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	128	0	0	55fb465a33889e369c1eecf721010d789d460994d260892e073fe2873bab9b7b
+scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	1d3057e8a25c0c20cc687f2483f65a4afdc4005fd9761314ab62e2ceac97d46e
 scripts/test-coords-independent-verified.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	d15edc8d3044c115a3d72aace64ee0f920825eb134db6fd206c085e924403679
 scripts/test-coupon-audit-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	38b5cf90b8cd22c51d4fe2d03edd844f5310a7db90da29f627b86046fd462b3a
 scripts/test-coupon-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	3a4bd79945467751dc2436ce722759ad9f9f4b6ab5cb601d592418f2cf7bb690
@@ -747,6 +748,7 @@ scripts/test-intent-pages.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	a72e2345722
 scripts/test-intl-cache.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	5b0a244c74a2e9162785d1741a6dd23a55c785e8f583e2b625bed49940ed6824
 scripts/test-inventory-all-adult.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	6ae755d3b086a2e1cc272ebf28abf6c5515585029a9b8d78ac34ac7f43b31f0b
 scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	5e792872c76b8f69c8ad369827096f677f320acd4c494f65304d0d29f9efb356
+scripts/test-inventory-free-refresh.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	0	0	33ebde3592a805b40067a3d8f4d407ca030d29684682147cc0e23cd62f3e601f
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
