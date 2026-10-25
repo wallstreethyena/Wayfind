@@ -7,6 +7,7 @@ import { cardImageSrc } from "../../../../lib/placePhoto";
 import { orderPlaceRecommendations, placeRecommendationDisplayScore } from "../../../../lib/placeRecommendationOrder.js";
 import { fetchJsonWithDeadline } from "../../../../lib/clientJson";
 import { useResolvedVenuePoint } from "../../../components/useResolvedVenuePoint.js";
+import { priceLabel } from "../../../../lib/price.js";
 
 // How long a provider-venue plan waits for the map's Apple answer before it
 // requests its rails from the provider point anyway. The rails behind
@@ -159,7 +160,7 @@ export default function EventPlan({ lat, lng, city, venue, time, anchorName, awa
                   eyebrow={title}
                   rank={index + 1}
                   score={score}
-                  facts={[rating(place) ? `${rating(place).toFixed(1)}★` : null, reviews(place) ? `${reviews(place).toLocaleString()} reviews` : null, place._miles != null ? (place._miles < .2 ? "Steps away" : `${place._miles.toFixed(1)} mi`) : null].filter(Boolean)}
+                  facts={[rating(place) ? `${rating(place).toFixed(1)}★` : null, reviews(place) ? `${reviews(place).toLocaleString()} reviews` : null, priceLabel(place.priceLevel ?? place.priceNum), place._miles != null ? (place._miles < .2 ? "Steps away" : `${place._miles.toFixed(1)} mi`) : null].filter(Boolean)}
                   href={href}
                   ariaLabel={`Open ${place._name}`}
                   eagerMedia={index < 3}
