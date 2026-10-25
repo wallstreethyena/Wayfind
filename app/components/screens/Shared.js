@@ -9,8 +9,10 @@ import * as TripDays from "../../../lib/tripDays";
 import {
   isSharedTripSaved,
   saveSharedTripToStore,
+  retrySharedTripAccountSync,
   MAX_SHARED_LIST_PLACES,
 } from "../../../lib/itineraryShare";
+import { ensureSignedOutTripIsolation, syncTripsToAccount } from "../../../lib/itinerarySync";
 const Trips = { ...TripCore, ...TripDays };
 
 export default function SharedScreen({ ctx }) {
@@ -45,6 +47,19 @@ export default function SharedScreen({ ctx }) {
     setImportFeedback(null);
   }, [sharedList]);
 
+  useEffect(() => {
+    if (user) return;
+    const targetStorage =
+      ctx.__storage !== undefined
+        ? ctx.__storage
+        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+    if (!targetStorage) return;
+    const isolated = ensureSignedOutTripIsolation(targetStorage);
+    if (isolated !== null && setTrips) {
+      setTrips(isolated);
+    }
+  }, [user, ctx.__storage, setTrips]);
+
   const todayOpt = ctx.__today ? { today: ctx.__today } : {};
   const isMobile =
     ctx.__mobile !== undefined
@@ -56,7 +71,7 @@ export default function SharedScreen({ ctx }) {
 
   const pseudoTrip = {
     items: (sharedList || []).map((p, i) => ({
-      id: p && p.id ? p.id : String(i),
+      id: p && (p.stopId || p.id) ? (p.stopId || p.id) : String(i),
       order: i,
       day: p && p.day ? Trips.normalizeStopDate(p.day) : null,
       place: p,
@@ -66,11 +81,27 @@ export default function SharedScreen({ ctx }) {
   const dateSum = Trips.tripDateSummary(pseudoTrip, todayOpt);
   const savedCheck = isSharedTripSaved(trips, sharedList, { kind: "list" });
   const norm = savedCheck.norm;
-  const isSavedTrip = Boolean(savedCheck.saved);
+  const isSavedTrip = Boolean(savedCheck.saved || (importFeedback && importFeedback.ok));
   const savedTripKey = (importFeedback && importFeedback.tripKey) || savedCheck.tripKey;
   const atListCap = Boolean(
     norm && (norm.truncatedCount > 0 || norm.totalStops >= MAX_SHARED_LIST_PLACES)
   );
+
+  const resolveSyncFn = () => {
+    if (typeof ctx.__syncTrips === "function") return ctx.__syncTrips;
+    if (ctx.__supabase) return null;
+    if (!user || !user.id) return null;
+    return async ({ userId, trips: nextTrips, storage }) => {
+      try {
+        const mod = await import("../../../lib/lazySupabase");
+        const client = mod && typeof mod.getSupabase === "function" ? await mod.getSupabase() : null;
+        if (!client) return { ok: false, status: "sync_error", reason: "cloud_write_failed" };
+        return syncTripsToAccount({ supabase: client, userId, trips: nextTrips, storage, logEvent });
+      } catch {
+        return { ok: false, status: "sync_error", reason: "cloud_write_failed" };
+      }
+    };
+  };
 
   const handleSaveTrip = () => {
     const res = saveSharedTripToStore({
@@ -79,27 +110,70 @@ export default function SharedScreen({ ctx }) {
       storage: ctx.__storage,
       sharedInput: sharedList,
       kind: "list",
+      user,
+      supabase: ctx.__supabase,
+      syncFn: resolveSyncFn(),
+      onSyncResult: (syncedRes) => setImportFeedback(syncedRes),
       logEvent,
       showToast,
     });
     setImportFeedback(res);
   };
 
+  const handleRetrySync = async () => {
+    if (!norm) return;
+    const latestTrips = (importFeedback && importFeedback.trips) || trips;
+    setImportFeedback((prev) => (prev ? { ...prev, status: "syncing", syncStatus: "syncing", message: "Retrying account sync…" } : prev));
+    const res = await retrySharedTripAccountSync({
+      supabase: ctx.__supabase,
+      syncFn: resolveSyncFn(),
+      user,
+      trips: latestTrips,
+      storage: ctx.__storage,
+      tripKey: savedTripKey || norm.baseKey,
+      totalStops: norm.totalStops,
+      datedStops: norm.datedCount,
+      destLabel: norm.title,
+      kind: "list",
+      logEvent,
+      showToast,
+    });
+    setImportFeedback((prev) => ({ ...(prev || {}), ...res, trips: latestTrips }));
+  };
+
   const handleOpenSavedTrip = () => {
     if (!user && requireAuth && !requireAuth("Sign up free to open and edit your saved trip in Itinerary, and sync it across devices.")) {
       return;
     }
+    try {
+      if (logEvent && norm) {
+        logEvent("shared_trip_open_itinerary", null, {
+          kind: "list",
+          stops: norm.totalStops,
+          dated_stops: norm.datedCount,
+          signed_in: Boolean(user && user.id),
+        });
+      }
+    } catch {}
     if (savedTripKey && setActiveTrip) setActiveTrip(savedTripKey);
     setSharedList(null);
     setScreen("itinerary");
   };
+
+  const syncBadgeState = !isSavedTrip
+    ? null
+    : !user
+      ? "local"
+      : importFeedback && importFeedback.syncStatus
+        ? importFeedback.syncStatus
+        : "synced";
 
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: `1px solid ${C.border}`, marginBottom: 14, paddingTop: 4, flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: 180 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>📩 Shared with you</div>
-          <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{sharedList.length} place{sharedList.length !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""} someone wanted you to see</div>
+          <div data-wf-share-access-note="unlisted" style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{sharedList.length} place{sharedList.length !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""} · Shared link (anyone with this link can view a copy)</div>
         </div>
         <button type="button" onClick={() => { setSharedList(null); setScreen("explore"); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer" }}>Explore ›</button>
       </div>
@@ -213,15 +287,48 @@ export default function SharedScreen({ ctx }) {
             </div>
           )}
 
-          {importFeedback && importFeedback.ok && importFeedback.message && (
+          {importFeedback && importFeedback.status === "sync_error" && (
+            <div
+              role="alert"
+              data-wf-save-trip-error="list"
+              data-wf-save-sync-error="list"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 10, paddingTop: 8, borderTop: `1px solid ${C.border}` }}
+            >
+              <span style={{ fontSize: 12, color: C.red }}>{importFeedback.message}</span>
+              <button
+                type="button"
+                data-wf-retry-sync-trip="list"
+                onClick={handleRetrySync}
+                style={{
+                  background: C.card,
+                  border: `1px solid ${C.red}`,
+                  color: C.text,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "6px 12px",
+                  minHeight: 44,
+                  borderRadius: 20,
+                  cursor: "pointer",
+                }}
+              >
+                Retry account sync
+              </button>
+            </div>
+          )}
+
+          {((importFeedback && importFeedback.ok && importFeedback.status !== "sync_error" && importFeedback.message) || (isSavedTrip && !importFeedback)) && (
             <div
               role="status"
               aria-live="polite"
-              data-wf-save-trip-status={importFeedback.status}
+              data-wf-save-trip-status={(importFeedback && importFeedback.status) || (user ? "synced" : "saved_local")}
+              data-wf-save-sync-badge={syncBadgeState || undefined}
               style={{ fontSize: 12, color: C.light, marginTop: 8 }}
             >
-              {importFeedback.message}
-              {!user && importFeedback.status === "saved" ? " Saved on this device — sign in anytime to sync across devices." : ""}
+              {importFeedback && importFeedback.message
+                ? importFeedback.message
+                : (!user
+                  ? "Saved on this device — sign in anytime to sync this trip to your account."
+                  : "Saved in your Itinerary · Synced to your account.")}
             </div>
           )}
         </div>

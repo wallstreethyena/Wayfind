@@ -29,7 +29,7 @@
 // fetches /api/editorial and paints WayfindTakeRail when a sourced field
 // exists. That path lives in sheets/Detail.js, not here.
 import { useEffect, useRef, useState } from "react";
-import { hookTextOf } from "../../lib/editorialHook";
+import { hookTextOf } from "../../lib/editorialHook.js";
 
 // /api/known-for caps at 40 ids per request (MAX_IDS in its route) and drops
 // the rest without saying so. So we CHUNK rather than truncate: BestNearby

@@ -33,8 +33,8 @@ ok(guideKinds(SLUG).join() === "events", "the guide is an events rail kind");
 ok(GUIDE_CONTEXT_LINKS[SLUG]?.includes("things-to-do-in-tampa-florida"), "a Tampa guide is linked for the rest of the day");
 
 const hero = guideHero(SLUG);
-ok(hero?.src === "/guides/unsplash/tampa-waterfront-kody-cheyne.webp", "hero reuses the reviewed Tampa skyline");
-ok(/not Tropicana Field/i.test(hero?.reviewNotes || ""), "the hero note says the photo is not the ballpark");
+ok(hero?.src === "/guides/verified/tropicana-field-rays-alwc-hero.webp", "hero uses the reviewed Tropicana Field postseason game photograph");
+ok(/Tropicana Field/i.test(hero?.reviewNotes || ""), "the hero note identifies the Tropicana Field postseason game photograph");
 ok(/reuseReason/.test(JSON.stringify(hero)) && hero.reuseReason, "the shared photo has a reuse reason");
 
 const text = JSON.stringify(guide);

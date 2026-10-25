@@ -124,7 +124,7 @@ ok(/gowayfind\.com\/florida-events\/halloween-on-central-st-pete-2026/.test(tren
 ok(forbids(published, "egman"), "the unconfirmed egman search is not published");
 
 const art = guideHero(SLUG);
-ok(art?.src === "/guides/unsplash/tampa-waterfront-kody-cheyne.webp" && art.kind === "documentary", "hero reuses the reviewed Tampa skyline");
+ok(art?.src === "/guides/verified/tropicana-field-rays-alwc-hero.webp" && art.kind === "documentary", "hero uses the reviewed Tropicana Field postseason game photograph");
 ok(Array.isArray(GUIDE_CONTEXT_LINKS[SLUG]) && GUIDE_CONTEXT_LINKS[SLUG].length === 2, "related guides follow the lovebug context-link shape");
 
 const moduleSrc = readFileSync(new URL("../lib/guidesFloridaTrending2026.js", import.meta.url), "utf8");

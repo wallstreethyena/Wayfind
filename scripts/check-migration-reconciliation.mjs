@@ -163,7 +163,7 @@ for (const file of files) {
 }
 
 const exceptions = JSON.parse(readFileSync(path.join(REPO, "scripts/migration-historical-exceptions.json"), "utf8"));
-const reverse = reconcileProduction(files, ledgerResult.rows, exceptions, canonicalHashes);
+const reverse = reconcileProduction(files, ledgerResult.rows, exceptions, canonicalHashes, objectSet);
 for (const error of reverse.errors) console.error(`check-migration-reconciliation: FAIL — ${error}`);
 let bad = reverse.errors.length, applied = 0;
 

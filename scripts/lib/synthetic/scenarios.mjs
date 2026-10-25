@@ -731,13 +731,6 @@ export const SCENARIOS = [
       const origin = PARRISH;
       const page = await ctx.openPage({ viewport: { width: 390, height: 844 }, origin });
 
-      // Register before navigation — same reasoning as menu-poster-integrity
-      // above: a cache hit can answer before a post-goto listener attaches.
-      const invResponsePromise = page.waitForResponse((response) => {
-        try { return invRequestMatchesOrigin(response.url(), origin, "food", "cafes"); }
-        catch { return false; }
-      }, { timeout: 20000 }).catch(() => null);
-
       const url = ctx.baseUrl + "/";
       await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
       ctx.setUrl(url);
@@ -746,9 +739,15 @@ export const SCENARIOS = [
       // Exactly the click sequence scripts/surface-parity-audit.mjs's browser
       // level uses (confirmed live 2026-09-23 DOM dump): the home page's
       // `.wf-navtabs` "Browse categories" group, category then sub-chip.
-      const catBtn = page.getByRole("group", { name: "Browse categories" }).getByRole("button", { name: "Food", exact: true });
+      // 2026-10-25: `.wf-navtab` on the home page is an `<a href="/.../restaurants">`,
+      // not a `<button>`. Querying `getByRole("button", { name: "Food" })` waited the
+      // full 15s timeout before falling back to `.wf-navtab`. Select the exact visible
+      // "Food" control uniquely inside "Browse categories", and register the response
+      // wait immediately before clicking the "Cafés" sub-chip that triggers the
+      // `cat=food&inv=1&sub=cafes` inventory request.
+      const catBtn = page.getByRole("group", { name: "Browse categories" }).locator(".wf-navtab, .wf-cattile").filter({ hasText: /^Food$/ }).first();
       const subBtn = page.locator(".wf-subchip, .wf-navsub", { hasText: "Cafés" }).first();
-      // The Food button is server-rendered, so on a slow runner it can be tapped
+      // The Food tab is server-rendered, so on a slow runner it can be tapped
       // before React hydrates and that tap opens nothing (it underlines the tab
       // and stops; seen ~1 run in 3 on 2026-09-29 with no product change — a
       // second tap after hydration opens it every time). A reader whose first
@@ -757,12 +756,14 @@ export const SCENARIOS = [
       // (a second tap on an open category would close it).
       let opened = false;
       for (let attempt = 0; attempt < 3 && !opened; attempt++) {
-        await catBtn.click({ timeout: 15000 }).catch(async () => {
-          await page.locator(".wf-cattile, .wf-navtab", { hasText: "Food" }).first().click({ timeout: 15000 });
-        });
+        await catBtn.click({ timeout: 15000 });
         opened = await subBtn.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false);
       }
       await page.waitForTimeout(1200); // let the category-open fetch land before the sub-chip click, or the wrong response can be captured
+      const invResponsePromise = page.waitForResponse((response) => {
+        try { return invRequestMatchesOrigin(response.url(), origin, "food", "cafes"); }
+        catch { return false; }
+      }, { timeout: 20000 }).catch(() => null);
       await subBtn.click({ timeout: 15000 });
 
       const invResponse = await invResponsePromise;

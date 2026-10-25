@@ -26,7 +26,9 @@ import {
   MAX_MOBILE_WAYPOINTS,
   MAX_DESKTOP_WAYPOINTS,
   MAX_MOBILE_ROUTE_STOPS,
+  MAX_DESKTOP_ROUTE_STOPS_SPEC,
   MAX_ROUTE_STOPS,
+  MAX_MAPS_URL_CHARS,
   reconstructRoutedStopIds,
   tripRouteLegs,
   dayRouteUrl,
@@ -47,18 +49,29 @@ import { addStopToStoredTrips } from "../lib/itineraryAdd.js";
 import {
   encodeItineraryShare,
   decodeItineraryShare,
+  measureItineraryShare,
   encodeList,
   decodeList,
+  measureListShare,
   isItinerarySharePayload,
   ITINERARY_SHARE_PREFIX,
   MAX_SHARED_ITINERARY_STOPS,
   MAX_SHARED_LIST_PLACES,
+  URL_SAFE_MAX_CHARS,
   normalizeSharedTripInput,
   isSharedTripSaved,
   importSharedTripToTrips,
   saveSharedTripToStore,
+  retrySharedTripAccountSync,
 } from "../lib/itineraryShare.js";
-import { fetchRemoteTrips, pushTrips, tripsForOwner } from "../lib/itinerarySync.js";
+import {
+  fetchRemoteTrips,
+  pushTrips,
+  tripsForOwner,
+  ensureSignedOutTripIsolation,
+  syncTripsToAccount,
+  syncOwnerTrips,
+} from "../lib/itinerarySync.js";
 
 const ROOT = new URL("..", import.meta.url);
 let failures = 0;
@@ -902,6 +915,309 @@ function northOf(origin, km) {
     const norm30 = normalizeSharedTripInput(big30List, { kind: "list" });
     eq(norm30.totalStops, 25, "shared list normalization caps at 25 places");
     eq(norm30.truncatedCount, 5, "shared list normalization reports truncatedCount=5 for 30 places");
+
+    // 8f. Reconcile 9-intermediate-waypoint (11-location) Google Maps spec vs 10-stop default cap,
+    //     2,048-char URL cap, and intentional repeat visits across legs and days.
+    eq(MAX_DESKTOP_WAYPOINTS, 9, "Google Maps desktop spec allows 9 intermediate waypoints");
+    eq(MAX_DESKTOP_ROUTE_STOPS_SPEC, 11, "Google Maps desktop spec ceiling is 11 locations (1 origin + 9 waypoints + 1 destination)");
+    eq(MAX_ROUTE_STOPS, 10, "Wayfind default desktop leg cap is 10 stops (1 origin + 8 waypoints + 1 destination)");
+    eq(MAX_MAPS_URL_CHARS, 2048, "Google Maps URL character limit is 2,048 chars");
+
+    // Verify 11 stops with explicit maxStops=11 (spec ceiling: 1 origin + 9 waypoints + 1 destination)
+    const elevenPts = Array.from({ length: 11 }, (_, i) => ({
+      id: "spec" + (i + 1),
+      order: i,
+      day: "2026-10-24",
+      place: place("spec" + (i + 1), 27.3 + i * 0.001, -82.5 - i * 0.001),
+    }));
+    const spec11Legs = tripRouteLegs({ items: elevenPts }, { maxStops: MAX_DESKTOP_ROUTE_STOPS_SPEC });
+    eq(spec11Legs.length, 1, "11 stops fit in 1 leg when using MAX_DESKTOP_ROUTE_STOPS_SPEC (9 waypoints)");
+    eq(spec11Legs[0].waypoints.length, 9, "11-stop spec leg has 9 intermediate waypoints");
+    ok(spec11Legs[0].urlLength <= MAX_MAPS_URL_CHARS, "11-stop spec leg URL is well under the 2,048-char Google Maps limit");
+
+    // Verify 2,048-char URL budget splitting when maxUrlChars is constrained
+    const tightBudgetLegs = tripRouteLegs({ items: elevenPts }, { maxStops: 10, maxUrlChars: 240 });
+    ok(tightBudgetLegs.length > 1, "route legs split automatically when URL length would exceed maxUrlChars budget");
+    ok(tightBudgetLegs.every((leg) => leg.url.length <= 240), "every split leg stays within the configured maxUrlChars budget");
+    eq(
+      reconstructRoutedStopIds(tightBudgetLegs),
+      elevenPts.map((x) => x.id),
+      "URL-budget-split legs chain continuously without dropping any stop"
+    );
+
+    // Intentional repeat visits within a single day route (e.g. starting and ending at the hotel)
+    const repeatRouteItems = [
+      { id: "hotel", order: 0, day: "2026-10-24", place: place("hotel", 27.33, -82.54) },
+      { id: "cafe", order: 1, day: "2026-10-24", place: place("cafe", 27.34, -82.55) },
+      { id: "museum", order: 2, day: "2026-10-24", place: place("museum", 27.35, -82.56) },
+      { id: "hotel", order: 3, day: "2026-10-24", place: place("hotel", 27.33, -82.54) },
+      { id: "dinner", order: 4, day: "2026-10-24", place: place("dinner", 27.36, -82.57) },
+      { id: "bar", order: 5, day: "2026-10-24", place: place("bar", 27.37, -82.58) },
+      { id: "hotel", order: 6, day: "2026-10-24", place: place("hotel", 27.33, -82.54) },
+    ];
+    const repeatMobileLegs = tripRouteLegs(repeatRouteItems, { mobile: true });
+    eq(
+      reconstructRoutedStopIds(repeatMobileLegs),
+      ["hotel", "cafe", "museum", "hotel", "dinner", "bar", "hotel"],
+      "intentional repeat visits to the same venue within a route are preserved across overlapping mobile legs"
+    );
+
+    // Intentional repeat visits across different days in a shared itinerary
+    const multiDayRepeatShare = encodeItineraryShare({
+      key: "fl_sarasota",
+      city: "Sarasota",
+      state: "FL",
+      title: "Sarasota Multi-Day",
+      items: [
+        { id: "hotel-1", order: 0, day: "2026-10-24", note: "Check in", place: place("hotel-1", 27.33, -82.54) },
+        { id: "cafe-1", order: 1, day: "2026-10-24", note: "Lunch", place: place("cafe-1", 27.34, -82.55) },
+        { id: "hotel-1", order: 2, day: "2026-10-25", note: "Checkout brunch", place: place("hotel-1", 27.33, -82.54) },
+      ],
+    });
+    const decodedRepeatShare = decodeItineraryShare(multiDayRepeatShare);
+    eq(decodedRepeatShare.items.length, 3, "intentional repeat visit to the same place on a different day is preserved in decodeItineraryShare");
+    const importedRepeat = importSharedTripToTrips({}, decodedRepeatShare, 8200);
+    eq(importedRepeat.trip.items.length, 3, "importSharedTripToTrips preserves both day visits to the same venue");
+    eq(
+      importedRepeat.trip.items.map((it) => ({ placeId: it.place.id, day: it.day, note: it.note })),
+      [
+        { placeId: "hotel-1", day: "2026-10-24", note: "Check in" },
+        { placeId: "cafe-1", day: "2026-10-24", note: "Lunch" },
+        { placeId: "hotel-1", day: "2026-10-25", note: "Checkout brunch" },
+      ],
+      "repeat visits on different days retain their distinct dates, notes, and underlying place.id"
+    );
+
+    // 8g. Measure Wayfind shared-trip URL lengths at representative and maximum permitted payloads
+    const maxList25 = Array.from({ length: 25 }, (_, i) => ({
+      ...place("ml" + (i + 1), 27.331234 + i * 0.001, -82.541234 - i * 0.001),
+      name: `Venue ${i + 1} — ` + "A".repeat(80),
+      address: `${100 + i} Bayfront Dr, Sarasota, FL 34236, USA`,
+      photo: `https://images.gowayfind.com/photos/venue-${i + 1}.jpg`,
+      day: i % 2 === 0 ? "2026-10-24" : "2026-10-25",
+    }));
+    const listMeasure25 = measureListShare(maxList25);
+    ok(listMeasure25.ok === true && listMeasure25.includedPlaces === 25 && listMeasure25.truncatedPlaces === 0, "25-place max list encodes all 25 places");
+    ok(listMeasure25.payloadLength > 0 && listMeasure25.payloadLength <= 12000, "25-place encoded list fits within PAYLOAD_MAX");
+    const listMeasure30 = measureListShare([...maxList25, ...maxList25.slice(0, 5)]);
+    eq(listMeasure30.truncatedPlaces, 5, "measureListShare detects 5 truncated places when given 30 places");
+    ok(typeof listMeasure30.warning === "string" && listMeasure30.warning.includes("first 25 of 30"), "measureListShare produces an honest pre-share warning before truncating");
+
+    const maxTrip40 = {
+      key: "fl_sarasota",
+      city: "Sarasota",
+      state: "FL",
+      title: "Maximum 40-Stop Coastal Expedition",
+      items: Array.from({ length: 40 }, (_, i) => ({
+        id: "mt" + (i + 1),
+        order: i,
+        day: i < 20 ? "2026-10-24" : "2026-10-25",
+        note: `Stop ${i + 1} note: ` + "N".repeat(120),
+        place: {
+          ...place("mt" + (i + 1), 27.331234 + i * 0.001, -82.541234 - i * 0.001),
+          name: `Stop ${i + 1} — ` + "B".repeat(90),
+          address: `${200 + i} Gulfstream Ave, Sarasota, FL 34236, USA`,
+          photo: `https://images.gowayfind.com/photos/stop-${i + 1}-${"p".repeat(120)}.jpg`,
+        },
+      })),
+    };
+    const itinMeasure40 = measureItineraryShare(maxTrip40);
+    ok(itinMeasure40.ok === true && itinMeasure40.includedStops === 40, "40-stop max trip encodes all 40 stops via automatic compaction tiers");
+    ok(itinMeasure40.payloadLength <= 12000, "40-stop max trip stays within PAYLOAD_MAX (12,000 chars)");
+    ok(itinMeasure40.photosDropped === true, "40-stop max trip with long photos drops photos first to preserve notes and dates");
+    const roundTrip40 = decodeItineraryShare(itinMeasure40.payload);
+    eq(roundTrip40.items.length, 40, "all 40 stops decode intact from the compacted share payload");
+    eq(roundTrip40.items.filter((it) => it.day === "2026-10-24").length, 20, "all 20 day-1 dates survive 40-stop compaction");
+    eq(roundTrip40.items.filter((it) => it.day === "2026-10-25").length, 20, "all 20 day-2 dates survive 40-stop compaction");
+
+    // 8h. Midnight ET and US DST boundaries (2026-03-08 spring-forward, 2026-11-01 fall-back)
+    //     + stored stop order invariance across midnight
+    eq(siteTodayYmd("2026-03-08T04:59:00.000Z"), "2026-03-07", "before midnight EST on spring-forward weekend (11:59 PM EST) stays 2026-03-07");
+    eq(siteTodayYmd("2026-03-08T05:01:00.000Z"), "2026-03-08", "after midnight EST on spring-forward day (12:01 AM EST) advances to 2026-03-08");
+    eq(addCalendarDays("2026-03-08", 1), "2026-03-09", "addCalendarDays across 23-hour spring-forward DST day advances cleanly to 2026-03-09");
+    eq(siteTodayYmd("2026-11-01T03:59:00.000Z"), "2026-10-31", "before midnight EDT on fall-back weekend (11:59 PM EDT) stays 2026-10-31");
+    eq(siteTodayYmd("2026-11-01T04:01:00.000Z"), "2026-11-01", "after midnight EDT on fall-back day (12:01 AM EDT) advances to 2026-11-01");
+    eq(addCalendarDays("2026-11-01", 1), "2026-11-02", "addCalendarDays across 25-hour fall-back DST day advances cleanly to 2026-11-02");
+
+    // Verify stored stop order does not flip when the clock crosses midnight so 2026-10-24 becomes a past date
+    let midnightTrips = addPlaceToTrips({}, place("m1", 27.33, -82.54), 100);
+    midnightTrips = addPlaceToTrips(midnightTrips, place("m2", 27.34, -82.55), 200);
+    midnightTrips = setStopDate(midnightTrips, "fl_sarasota", "m1", "2026-10-24", 300);
+    midnightTrips = setStopDate(midnightTrips, "fl_sarasota", "m2", "2026-10-25", 400);
+    eq(
+      midnightTrips.fl_sarasota.items.map((it) => ({ id: it.id, order: it.order, day: it.day })),
+      [
+        { id: "m1", order: 0, day: "2026-10-24" },
+        { id: "m2", order: 1, day: "2026-10-25" },
+      ],
+      "setStopDate stores canonical chronological order (2026-10-24 before 2026-10-25) regardless of wall-clock today"
+    );
+    const mergedAcrossMidnight = mergeTrips(midnightTrips, {});
+    eq(
+      mergedAcrossMidnight.fl_sarasota.items.map((it) => it.id),
+      ["m1", "m2"],
+      "mergeTrips preserves canonical chronological stop order across midnight"
+    );
+    // Display grouping on 2026-10-25 still shows Today (2026-10-25) first and Past (2026-10-24) below it!
+    const groupedOnOct25 = groupItemsByDay(midnightTrips.fl_sarasota, { today: "2026-10-25" });
+    eq(
+      groupedOnOct25.groups.map((g) => ({ day: g.day, isToday: g.isToday, isPast: g.isPast })),
+      [
+        { day: "2026-10-25", isToday: true, isPast: false },
+        { day: "2026-10-24", isToday: false, isPast: true },
+      ],
+      "groupItemsByDay on 2026-10-25 displays Today (2026-10-25) first and Past (2026-10-24) below without mutating stored order"
+    );
+
+    // 8i. Truthful local save vs account sync status, cloud sync failure, expired session, and safe retry without analytics inflation
+    const syncStorageMap = new Map();
+    const syncStorage = {
+      getItem: (k) => (syncStorageMap.has(k) ? syncStorageMap.get(k) : null),
+      setItem: (k, v) => syncStorageMap.set(k, String(v)),
+      removeItem: (k) => syncStorageMap.delete(k),
+    };
+    const syncEvents = [];
+    let signedInTrips = {};
+    let cloudShouldFail = true;
+    let finalSyncCallbackResult = null;
+    const mockSyncFn = async ({ trips: nextTrips }) => {
+      if (cloudShouldFail) {
+        return { ok: false, status: "sync_error", reason: "session_expired" };
+      }
+      return { ok: Boolean(nextTrips && nextTrips.fl_sarasota), status: "synced", reason: null };
+    };
+    const initialSignedInSave = saveSharedTripToStore({
+      trips: signedInTrips,
+      setTrips: (next) => { signedInTrips = next; },
+      storage: syncStorage,
+      sharedInput: decodedItin,
+      kind: "itinerary",
+      user: { id: "user-sync-1" },
+      syncFn: mockSyncFn,
+      onSyncResult: (r) => { finalSyncCallbackResult = r; },
+      logEvent: (name, item, props) => syncEvents.push({ name, item, props }),
+      now: 9000,
+    });
+    eq(initialSignedInSave.syncStatus, "syncing", "signed-in save starts in 'syncing' state while writing local copy immediately");
+    ok(syncStorage.getItem("wayfind_trips") !== null, "local copy is persisted in localStorage before cloud sync finishes");
+    const syncFailResult = await initialSignedInSave.syncPromise;
+    eq(syncFailResult.status, "sync_error", "when cloud write or session fails, syncPromise resolves to status='sync_error'");
+    eq(syncFailResult.reason, "session_expired", "expired session reason is reported truthfully");
+    ok(syncFailResult.message.includes("Saved on this device") && syncFailResult.message.includes("Retry account sync"), "sync failure message reassures user that local copy is safe and offers Retry account sync");
+    eq(finalSyncCallbackResult && finalSyncCallbackResult.status, "sync_error", "onSyncResult callback receives the sync_error state for UI rendering");
+    eq(JSON.parse(syncStorage.getItem("wayfind_trips")).fl_sarasota.items.length, 3, "recoverable local copy remains intact in localStorage when cloud sync fails");
+
+    // Now recover cloud connection/session and tap Retry account sync
+    cloudShouldFail = false;
+    const retriedCloudSync = await retrySharedTripAccountSync({
+      syncFn: mockSyncFn,
+      user: { id: "user-sync-1" },
+      trips: signedInTrips,
+      storage: syncStorage,
+      tripKey: "fl_sarasota",
+      totalStops: 3,
+      datedStops: 2,
+      destLabel: "Sarasota Weekend",
+      kind: "itinerary",
+      logEvent: (name, item, props) => syncEvents.push({ name, item, props }),
+    });
+    eq(retriedCloudSync.status, "synced", "Retry account sync succeeds once cloud/session recovers");
+    ok(retriedCloudSync.message.includes("Saved and synced 3 stops (2 dated)"), "Retry account sync confirms account sync completion");
+
+    // Tap Save again repeatedly: must NOT fire a second shared_trip_import status='saved' event!
+    saveSharedTripToStore({
+      trips: signedInTrips,
+      setTrips: (next) => { signedInTrips = next; },
+      storage: syncStorage,
+      sharedInput: decodedItin,
+      kind: "itinerary",
+      user: { id: "user-sync-1" },
+      logEvent: (name, item, props) => syncEvents.push({ name, item, props }),
+      now: 9100,
+    });
+    const savedImportEvents = syncEvents.filter((e) => e.name === "shared_trip_import" && e.props && e.props.status === "saved");
+    eq(savedImportEvents.length, 1, "shared_trip_import with status='saved' fires exactly once per unique shareId across retries and repeated taps");
+
+    // 8j. Reopening the same shared link after the recipient edits the imported copy (including removing a stop)
+    let editedRecipientTrips = removePlaceFromTrip(signedInTrips, "fl_sarasota", "s3");
+    editedRecipientTrips = setStopDate(editedRecipientTrips, "fl_sarasota", "s1", "2026-10-29", 9200);
+    editedRecipientTrips = setNote(editedRecipientTrips, "fl_sarasota", "s1", "Recipient custom note");
+    ok(isSharedTripSaved(editedRecipientTrips, decodedItin).saved === true, "shared trip is still recognized as saved after recipient removes a stop and edits dates/notes");
+    const reopenAfterEdit = importSharedTripToTrips(editedRecipientTrips, decodedItin, 9300);
+    eq(reopenAfterEdit.status, "already_saved", "reopening the shared link after recipient edits returns already_saved");
+    eq(reopenAfterEdit.trips, editedRecipientTrips, "reopening the shared link never resurrects a stop the recipient removed or overwrites recipient date/note edits");
+    eq(reopenAfterEdit.trips.fl_sarasota.items.length, 2, "recipient's 2-stop edited trip stays at 2 stops");
+
+    // 8k. Account switching & page reload mid-migration isolation
+    const switchMap = new Map();
+    const switchStorage = {
+      getItem: (k) => (switchMap.has(k) ? switchMap.get(k) : null),
+      setItem: (k, v) => switchMap.set(k, String(v)),
+      removeItem: (k) => switchMap.delete(k),
+    };
+    // Account A was signed in and had a private Tampa trip
+    const userATrips = addPlaceToTrips({}, {
+      id: "tampa-1",
+      name: "Bern's Steak House",
+      address: "1208 S Howard Ave, Tampa, FL 33606, USA",
+      lat: 27.93,
+      lng: -82.48,
+    }, 1000);
+    switchStorage.setItem("wayfind_trips", JSON.stringify(userATrips));
+    switchStorage.setItem("wayfind_trips_owner", "user-A");
+
+    // Now browser is signed out (`!user`) and someone saves a shared Sarasota trip on this browser
+    let anonBrowserTrips = userATrips;
+    const anonSaveAfterSignOut = saveSharedTripToStore({
+      trips: anonBrowserTrips,
+      setTrips: (next) => { anonBrowserTrips = next; },
+      storage: switchStorage,
+      sharedInput: decodedItin,
+      kind: "itinerary",
+      user: null,
+      now: 2000,
+    });
+    eq(anonSaveAfterSignOut.syncStatus, "saved_local", "signed-out save after Account A sign-out reports syncStatus='saved_local'");
+    eq(Object.keys(anonBrowserTrips), ["fl_sarasota"], "signed-out save isolates Account A's private Tampa trip out of active trips");
+    eq(Object.keys(JSON.parse(switchStorage.getItem("wayfind_trips_user:user-A"))), ["fl_tampa"], "Account A's private Tampa trip is safely archived under wayfind_trips_user:user-A");
+    eq(switchStorage.getItem("wayfind_trips_owner"), null, "wayfind_trips_owner is cleared for the signed-out session");
+
+    // Now Account B signs in on this browser and syncOwnerTrips runs, but the page reloads before pushTrips finishes
+    const mockSupabaseForB = {
+      from() {
+        return {
+          select() {
+            return {
+              eq: async () => ({ data: [], error: null }),
+            };
+          },
+          upsert() {
+            return {
+              select() {
+                return {
+                  maybeSingle: async () => ({ data: null, error: new Error("Simulated reload / network abort during pushTrips") }),
+                };
+              },
+            };
+          },
+        };
+      },
+    };
+    let userBTripsState = {};
+    const midReloadSync = await syncOwnerTrips({
+      supabase: mockSupabaseForB,
+      userId: "user-B",
+      storage: switchStorage,
+      setTrips: (next) => { userBTripsState = next; },
+    });
+    eq(midReloadSync.status, "sync_error", "interrupted pushTrips during syncOwnerTrips reports sync_error");
+    eq(Object.keys(userBTripsState), ["fl_sarasota"], "Account B receives the unclaimed signed-out Sarasota trip without Account A's Tampa trip");
+    eq(Object.keys(JSON.parse(switchStorage.getItem("wayfind_trips"))), ["fl_sarasota"], "merged trips are persisted to localStorage BEFORE pushTrips completes so a mid-sync reload loses nothing");
+
+    // Finally, if Account A signs back in on this browser, Account A gets only their Tampa trip back
+    const restoredA = tripsForOwner(switchStorage, "user-A");
+    eq(Object.keys(restoredA), ["fl_tampa"], "Account A signing back in restores only Account A's Tampa trip");
+    eq(Object.keys(JSON.parse(switchStorage.getItem("wayfind_trips_user:user-B"))), ["fl_sarasota"], "Account B's Sarasota trip remains archived under wayfind_trips_user:user-B");
   }
 
   // 9. UI source lock: Itinerary.js, Shared.js, and SharedItinerary.js expose date controls and whole-trip save actions.
@@ -915,10 +1231,13 @@ function northOf(origin, km) {
   const sharedUi = readFileSync(new URL("app/components/screens/Shared.js", ROOT), "utf8");
   ok(sharedUi.includes("Save this trip to my Itinerary"), "Shared.js offers 'Save this trip to my Itinerary'");
   ok(sharedUi.includes("saveSharedTripToStore("), "Shared.js saves via saveSharedTripToStore");
+  ok(sharedUi.includes("Retry account sync"), "Shared.js offers 'Retry account sync' when cloud sync fails");
 
   const sharedItinUi = readFileSync(new URL("app/components/screens/SharedItinerary.js", ROOT), "utf8");
   ok(sharedItinUi.includes("Save this trip to my Itinerary"), "SharedItinerary.js offers 'Save this trip to my Itinerary'");
   ok(sharedItinUi.includes("saveSharedTripToStore("), "SharedItinerary.js saves via saveSharedTripToStore");
+  ok(sharedItinUi.includes("Retry account sync"), "SharedItinerary.js offers 'Retry account sync' when cloud sync fails");
+  ok(sharedItinUi.includes("Anyone with this link can view a copy"), "SharedItinerary.js explains link-access model honestly");
 }
 
 if (failures) {
