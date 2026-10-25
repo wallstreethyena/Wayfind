@@ -749,9 +749,9 @@ scripts/test-inventory-batch-concurrency.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	
 scripts/test-inventory-row-card-fields.mjs	0	RENDER	blocks-ci-and-deploy	1	-	25	0	0	358a8d386b62c0c8abb658d0d3be9088c3c10670ba4d02c08bf9fd93b84452e8
 scripts/test-inventory-serve.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	aa21f75f53d5223eb9334a6d755172239f1ae348d4da4e994b128846bea5310f
 scripts/test-inverse-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	69b2842b1e6984e7515c77c884a4b3806816a49af40b65168337598e45577bdb
-scripts/test-itinerary-dates-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	21	0	0	efe5252ed5e5e235cead70d3070ea2d5c560e6b50b6e7582fda26875d4e297cd
-scripts/test-itinerary-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	117	0	0	8fafee8046f7cc209eb1a9bf0f1a17a9c92b9c5d1c736fac08e94c0f30665274
-scripts/test-itinerary-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	8fc696e857545d6aa206e7d9a30e7dcac00442ae5d0192fd7ec8089933b090e8
+scripts/test-itinerary-dates-render.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	bdeda9da0d34c5470e074ce2c8ce078bc163edda9728a5f327d0ff06fdadd1f1
+scripts/test-itinerary-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	188	0	0	343b3452745012b57ae3190688ffca0af7f5b23c115a86256d770a58f744251b
+scripts/test-itinerary-rls.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	d991cbb7d6aa6e730b9496b5cb7330f6011eaa792a632c8279d3080dc0d6414c
 scripts/test-jev-mcp.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	92b552a17c1ffe5ea593b0296922d167adf48e497cf0d6f736dff321b8786477
 scripts/test-job-pulse.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b81158f224bb3bd309b31a39a9a1de2cca6bd4f42f5e44ef816fdfe7a65a438b
 scripts/test-job-watch-delivery.mjs	0	CALL	blocks-ci-and-deploy	1	-	59	0	0	589239d187908c9313845e2772ea0cef01bdbcba7445b9e49d50530ca8819f31

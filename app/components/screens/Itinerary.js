@@ -75,12 +75,13 @@ export default function ItineraryScreen({ ctx }) {
               ) : (
                 list.map((t) => {
                   const st = Trips.tripStats(t);
-                  const dateSum = Trips.tripDateSummary(t);
+                  const dateSum = Trips.tripDateSummary(t, ctx.__today ? { today: ctx.__today } : {});
+                  const listTitle = t.title || (t.city + (t.state ? ", " + t.state : ""));
                   return (
                     <div key={t.key} onClick={() => { setActiveTrip(t.key); try { window.scrollTo(0, 0); } catch {} }} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: `1px solid ${C.border}`, cursor: "pointer" }}>
                       <StateBadge code={t.state} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
+                        <div style={{ fontSize: 15.5, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{listTitle}</div>
                         <div style={{ fontSize: 13, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                       </div>
                       <span style={{ color: C.muted, fontSize: 20 }}>›</span>
@@ -93,11 +94,21 @@ export default function ItineraryScreen({ ctx }) {
         })()}
         {activeTrip && trips[activeTrip] && (() => {
           const t = trips[activeTrip];
-          const items = Trips.sortedItems(t);
-          const grouped = Trips.groupItemsByDay(t);
-          const dateSum = Trips.tripDateSummary(t);
-          const quickChoices = Trips.quickDateChoices(t);
+          const todayOpt = ctx.__today ? { today: ctx.__today } : {};
+          const isMobile =
+            ctx.__mobile !== undefined
+              ? Boolean(ctx.__mobile)
+              : ctx.isDesktop !== undefined
+                ? ctx.isDesktop === false
+                : (typeof window !== "undefined" && typeof window.innerWidth === "number" ? window.innerWidth < 768 : false);
+          const routeOpts = { ...todayOpt, mobile: isMobile };
+          const items = Trips.sortedItems(t, todayOpt);
+          const grouped = Trips.groupItemsByDay(t, todayOpt);
+          const dateSum = Trips.tripDateSummary(t, todayOpt);
+          const quickChoices = Trips.quickDateChoices(t, ctx.__today || undefined);
+          const fullTripLegs = Trips.tripRouteLegs(t, routeOpts);
           const st = Trips.tripStats(t);
+          const tripTitle = t.title || (t.city + (t.state ? ", " + t.state : ""));
           const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
           const tripCtl = { width: 44, height: 44, minWidth: 44, minHeight: 44, borderRadius: 10, border: "1px solid " + C.border, background: C.card, color: C.text, fontSize: 15, fontWeight: 700, cursor: "pointer", display: "inline-flex", alignItems: "center", justifyContent: "center" };
           const tripChip = { border: "1px solid " + C.border, background: C.card, color: C.muted, fontSize: 12, fontWeight: 700, padding: "8px 12px", minHeight: 44, borderRadius: 22, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 6 };
@@ -131,9 +142,15 @@ export default function ItineraryScreen({ ctx }) {
             setDateDraft("");
             focusDateToggle(stopId);
           };
-          const doRoute = () => { const u = Trips.routeUrl(t); if (u) { openExternal(u); try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {} } };
+          const doRoute = (legUrl) => {
+            const u = legUrl || Trips.routeUrl(t, routeOpts);
+            if (u) {
+              openExternal(u);
+              try { logEvent("trip_route", null, { key: t.key, n: items.length }); } catch {}
+            }
+          };
           const doRouteDay = (group, legUrl) => {
-            const u = legUrl || Trips.dayRouteUrl(t, group.day);
+            const u = legUrl || Trips.dayRouteUrl(t, group.day, routeOpts);
             if (u) {
               openExternal(u);
               try { logEvent("trip_route_day", null, { key: t.key, day: group.day, n: group.items.length }); } catch {}
@@ -153,18 +170,48 @@ export default function ItineraryScreen({ ctx }) {
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
                 <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{t.city}{t.state ? ", " + t.state : ""}</div>
+                  <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tripTitle}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
                 {items.length > 0 && shareList && <button onClick={() => { try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
                 {itineraryFlags && itineraryFlags.share && items.length > 0 && <button onClick={() => { if (!requireAuth("Sign up free to share a private link to this trip.")) return; if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
-                {items.length > 0 && <button onClick={doRoute} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Route it ↗</button>}
+                {items.length > 0 && (
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      aria-label={fullTripLegs.length > 1 ? `Route ${tripTitle} stops 1 to ${fullTripLegs[0].endStop} in Google Maps` : `Route ${tripTitle} in Google Maps`}
+                      onClick={() => doRoute(fullTripLegs[0] && fullTripLegs[0].url)}
+                      style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
+                    >
+                      Route it ↗
+                    </button>
+                    {fullTripLegs.slice(1).map((leg, li) => (
+                      <button
+                        key={li}
+                        type="button"
+                        data-wf-trip-route-leg={li + 2}
+                        aria-label={`Route ${tripTitle} stops ${leg.startStop} to ${leg.endStop} in Google Maps`}
+                        onClick={() => doRoute(leg.url)}
+                        style={{ background: C.card, border: "1px solid " + C.border, color: C.light, fontSize: 12, fontWeight: 700, padding: "8px 12px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
+                      >
+                        Stops {leg.startStop}–{leg.endStop} ↗
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
+              {items.length > 25 && (
+                <div data-wf-share-limit-note="true" style={{ fontSize: 12, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>
+                  {items.length > 40
+                    ? "Share ↗ includes the first 25 places. Share privately includes the first 40 stops."
+                    : "Share ↗ includes the first 25 places. Use Share privately to include all " + items.length + " stops (up to 40)."}
+                </div>
+              )}
               {RouteMap ? <RouteMap items={items} /> : null}
               {items.length === 0 ? (
                 <div style={{ textAlign: "center", padding: "40px", color: C.muted }}>This trip is empty.</div>
               ) : grouped.groups.map((group, gi) => {
-                const routeLegs = group.day ? Trips.dayRouteLegs(t, group.day) : [];
+                const routeLegs = group.day ? Trips.dayRouteLegs(t, group.day, routeOpts) : [];
                 return (
                   <div key={group.key} data-wf-day-group={grouped.hasDates ? (group.day || "unscheduled") : "plain"} style={{ marginBottom: grouped.hasDates ? 18 : 0 }}>
                     {grouped.hasDates && (
@@ -243,7 +290,7 @@ export default function ItineraryScreen({ ctx }) {
                     {group.items.map((it, i) => {
                       const p = it.place;
                       const stopDay = Trips.itemDayOf(it);
-                      const stopIsPast = stopDay ? Trips.isPastStopDate(stopDay) : false;
+                      const stopIsPast = stopDay ? Trips.isPastStopDate(stopDay, ctx.__today || undefined) : false;
                       const stopDateLabel = stopDay
                         ? (stopIsPast ? `Past · ${Trips.formatStopDate(stopDay)}` : Trips.formatStopDate(stopDay))
                         : "Set date";
