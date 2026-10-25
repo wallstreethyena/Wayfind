@@ -44,7 +44,7 @@ export default function PoweredByStrip({ compact = false } = {}) {
         style={{
           width: "100%",
           overflowX: "auto",
-          overscrollBehaviorInline: "contain",
+          overscrollBehaviorX: "contain",
           scrollbarWidth: "none",
           msOverflowStyle: "none",
         }}

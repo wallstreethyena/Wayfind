@@ -1241,7 +1241,12 @@ export default function DaypartRail({
     const el = ref.current;
     if (!el) return;
     const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollBy({ left: dir * (el.clientWidth - 70), behavior: reduced ? "auto" : "smooth" });
+    const tile = el.querySelector ? el.querySelector(".wf8-tile") : null;
+    const stride = tile && tile.offsetWidth > 0 ? tile.offsetWidth + 14 : 0;
+    const step = stride > 0
+      ? Math.max(stride, Math.floor((el.clientWidth - 24) / stride) * stride)
+      : el.clientWidth - 70;
+    el.scrollBy({ left: dir * step, behavior: reduced ? "auto" : "smooth" });
   };
 
   // v8.92 — DATE NIGHT OWNS THIS DROP AGAIN (owner, 2026-08-30: "the date night
