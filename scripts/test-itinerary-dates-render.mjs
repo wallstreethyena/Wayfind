@@ -258,10 +258,12 @@ function baseCtx(overrides = {}) {
   ok(datedSharedItinHtml.includes('data-wf-save-shared-trip="itinerary"') && datedSharedItinHtml.includes("Save this trip to my Itinerary"), "SharedItineraryScreen renders primary 'Save this trip to my Itinerary' button");
   ok(datedSharedItinHtml.includes('data-wf-share-limit-notice="itinerary"') && datedSharedItinHtml.includes("40 stops"), "SharedItineraryScreen explains the 40-stop limit before saving when truncatedCount > 0");
   ok(datedSharedItinHtml.includes('data-wf-share-sanitized-notice="itinerary"'), "SharedItineraryScreen surfaces a notice when malformed stops or invalid dates were cleaned");
+  ok(datedSharedItinHtml.includes('data-wf-share-access-note="unlisted"') && datedSharedItinHtml.includes("Anyone with this link can view a copy") && !datedSharedItinHtml.includes("Private link"), "SharedItineraryScreen replaces misleading 'Private link' wording with honest link-access copy");
 
   const alreadySavedItinHtml = renderToStaticMarkup(
     createElement(SharedItineraryScreen, {
       ctx: baseCtx({
+        user: null,
         trips: recipientTrips,
         sharedItinerary: sharedItinObj,
         setSharedItinerary() {},
@@ -272,6 +274,26 @@ function baseCtx(overrides = {}) {
   ok(
     alreadySavedItinHtml.includes("✓ Saved to your Itinerary") && alreadySavedItinHtml.includes('data-wf-open-saved-trip="itinerary"'),
     "SharedItineraryScreen shows '✓ Saved to your Itinerary' and 'Open in Itinerary ›' once saved"
+  );
+  ok(
+    alreadySavedItinHtml.includes('data-wf-save-sync-badge="local"') && alreadySavedItinHtml.includes("Saved on this device"),
+    "SharedItineraryScreen distinguishes a signed-out local save ('Saved on this device') from an account sync"
+  );
+
+  const signedInSavedItinHtml = renderToStaticMarkup(
+    createElement(SharedItineraryScreen, {
+      ctx: baseCtx({
+        user: { id: "user-123" },
+        trips: recipientTrips,
+        sharedItinerary: sharedItinObj,
+        setSharedItinerary() {},
+        setScreen() {},
+      }),
+    })
+  );
+  ok(
+    signedInSavedItinHtml.includes('data-wf-save-sync-badge="synced"') && signedInSavedItinHtml.includes("Synced to your account"),
+    "SharedItineraryScreen shows 'Synced to your account' badge when signed in and synced"
   );
 
   const undatedSharedItinHtml = renderToStaticMarkup(

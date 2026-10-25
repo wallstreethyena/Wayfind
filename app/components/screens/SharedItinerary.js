@@ -14,8 +14,10 @@ import {
 import {
   isSharedTripSaved,
   saveSharedTripToStore,
+  retrySharedTripAccountSync,
   MAX_SHARED_ITINERARY_STOPS,
 } from "../../../lib/itineraryShare";
+import { ensureSignedOutTripIsolation, syncTripsToAccount } from "../../../lib/itinerarySync";
 
 export default function SharedItineraryScreen({ ctx }) {
   const {
@@ -42,6 +44,19 @@ export default function SharedItineraryScreen({ ctx }) {
   }, [sharedItinerary]);
 
   useEffect(() => {
+    if (user) return;
+    const targetStorage =
+      ctx.__storage !== undefined
+        ? ctx.__storage
+        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+    if (!targetStorage) return;
+    const isolated = ensureSignedOutTripIsolation(targetStorage);
+    if (isolated !== null && setTrips) {
+      setTrips(isolated);
+    }
+  }, [user, ctx.__storage, setTrips]);
+
+  useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
     let cancelled = false;
     import("../ItineraryRouteMap").then((mod) => { if (!cancelled) setRouteMap(() => mod.default); }).catch(() => {});
@@ -64,12 +79,28 @@ export default function SharedItineraryScreen({ ctx }) {
   const fullTripLegs = tripRouteLegs(trip, routeOpts);
   const savedCheck = isSharedTripSaved(trips, trip, { kind: "itinerary", title: trip.title });
   const norm = savedCheck.norm;
-  const isSavedTrip = Boolean(savedCheck.saved);
+  const isSavedTrip = Boolean(savedCheck.saved || (importFeedback && importFeedback.ok));
   const savedTripKey = (importFeedback && importFeedback.tripKey) || savedCheck.tripKey;
   const atTripCap = Boolean(
     norm && (norm.truncatedCount > 0 || norm.totalStops >= MAX_SHARED_ITINERARY_STOPS)
   );
   const displayTitle = trip.title || (trip.city + (trip.state ? ", " + trip.state : ""));
+
+  const resolveSyncFn = () => {
+    if (typeof ctx.__syncTrips === "function") return ctx.__syncTrips;
+    if (ctx.__supabase) return null;
+    if (!user || !user.id) return null;
+    return async ({ userId, trips: nextTrips, storage }) => {
+      try {
+        const mod = await import("../../../lib/lazySupabase");
+        const client = mod && typeof mod.getSupabase === "function" ? await mod.getSupabase() : null;
+        if (!client) return { ok: false, status: "sync_error", reason: "cloud_write_failed" };
+        return syncTripsToAccount({ supabase: client, userId, trips: nextTrips, storage, logEvent });
+      } catch {
+        return { ok: false, status: "sync_error", reason: "cloud_write_failed" };
+      }
+    };
+  };
 
   const handleSaveTrip = () => {
     const res = saveSharedTripToStore({
@@ -79,27 +110,70 @@ export default function SharedItineraryScreen({ ctx }) {
       sharedInput: trip,
       kind: "itinerary",
       title: displayTitle,
+      user,
+      supabase: ctx.__supabase,
+      syncFn: resolveSyncFn(),
+      onSyncResult: (syncedRes) => setImportFeedback(syncedRes),
       logEvent,
       showToast,
     });
     setImportFeedback(res);
   };
 
+  const handleRetrySync = async () => {
+    if (!norm) return;
+    const latestTrips = (importFeedback && importFeedback.trips) || trips;
+    setImportFeedback((prev) => (prev ? { ...prev, status: "syncing", syncStatus: "syncing", message: "Retrying account sync…" } : prev));
+    const res = await retrySharedTripAccountSync({
+      supabase: ctx.__supabase,
+      syncFn: resolveSyncFn(),
+      user,
+      trips: latestTrips,
+      storage: ctx.__storage,
+      tripKey: savedTripKey || norm.baseKey,
+      totalStops: norm.totalStops,
+      datedStops: norm.datedCount,
+      destLabel: displayTitle,
+      kind: "itinerary",
+      logEvent,
+      showToast,
+    });
+    setImportFeedback((prev) => ({ ...(prev || {}), ...res, trips: latestTrips }));
+  };
+
   const handleOpenSavedTrip = () => {
     if (!user && requireAuth && !requireAuth("Sign up free to open and edit your saved trip in Itinerary, and sync it across devices.")) {
       return;
     }
+    try {
+      if (logEvent && norm) {
+        logEvent("shared_trip_open_itinerary", null, {
+          kind: "itinerary",
+          stops: norm.totalStops,
+          dated_stops: norm.datedCount,
+          signed_in: Boolean(user && user.id),
+        });
+      }
+    } catch {}
     if (savedTripKey && setActiveTrip) setActiveTrip(savedTripKey);
     setSharedItinerary(null);
     setScreen("itinerary");
   };
+
+  const syncBadgeState = !isSavedTrip
+    ? null
+    : !user
+      ? "local"
+      : importFeedback && importFeedback.syncStatus
+        ? importFeedback.syncStatus
+        : "synced";
 
   return (
     <div>
       <div style={{ display: "flex", alignItems: "center", gap: 12, paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4, flexWrap: "wrap" }}>
         <div style={{ flex: 1, minWidth: 180 }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: C.text }}>{displayTitle}</div>
-          <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Private link · {items.length} stop{items.length === 1 ? "" : "s"}{dateSum ? " · " + dateSum : ""}</div>
+          <div data-wf-share-access-note="unlisted" style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>Shared trip link · {items.length} stop{items.length === 1 ? "" : "s"}{dateSum ? " · " + dateSum : ""} · Anyone with this link can view a copy</div>
         </div>
         {fullTripLegs.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
@@ -149,8 +223,8 @@ export default function SharedItineraryScreen({ ctx }) {
                 style={{ fontSize: 12, color: C.muted, marginTop: 2, lineHeight: 1.4 }}
               >
                 {atTripCap
-                  ? `Private trip links include up to ${MAX_SHARED_ITINERARY_STOPS} stops (first ${MAX_SHARED_ITINERARY_STOPS} shown). Saving copies these ${norm.totalStops} stops${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes into your own editable Itinerary.`
-                  : `Saves your own editable copy (${displayTitle}) with all ${norm.totalStops} stop${norm.totalStops === 1 ? "" : "s"}${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes.`}
+                  ? `Shared trip links include up to ${MAX_SHARED_ITINERARY_STOPS} stops (first ${MAX_SHARED_ITINERARY_STOPS} shown). Saving copies these ${norm.totalStops} stops${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes into your own private editable Itinerary.`
+                  : `Saves your own private editable copy (${displayTitle}) with all ${norm.totalStops} stop${norm.totalStops === 1 ? "" : "s"}${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes.`}
               </div>
               {(norm.skippedCount > 0 || norm.invalidDateCount > 0) && (
                 <div data-wf-share-sanitized-notice="itinerary" style={{ fontSize: 11.5, color: C.light, marginTop: 4 }}>
@@ -237,15 +311,48 @@ export default function SharedItineraryScreen({ ctx }) {
             </div>
           )}
 
-          {importFeedback && importFeedback.ok && importFeedback.message && (
+          {importFeedback && importFeedback.status === "sync_error" && (
+            <div
+              role="alert"
+              data-wf-save-trip-error="itinerary"
+              data-wf-save-sync-error="itinerary"
+              style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 10, paddingTop: 8, borderTop: "1px solid " + C.border }}
+            >
+              <span style={{ fontSize: 12, color: C.red }}>{importFeedback.message}</span>
+              <button
+                type="button"
+                data-wf-retry-sync-trip="itinerary"
+                onClick={handleRetrySync}
+                style={{
+                  background: C.card,
+                  border: "1px solid " + C.red,
+                  color: C.text,
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: "6px 12px",
+                  minHeight: 44,
+                  borderRadius: 20,
+                  cursor: "pointer",
+                }}
+              >
+                Retry account sync
+              </button>
+            </div>
+          )}
+
+          {((importFeedback && importFeedback.ok && importFeedback.status !== "sync_error" && importFeedback.message) || (isSavedTrip && !importFeedback)) && (
             <div
               role="status"
               aria-live="polite"
-              data-wf-save-trip-status={importFeedback.status}
+              data-wf-save-trip-status={(importFeedback && importFeedback.status) || (user ? "synced" : "saved_local")}
+              data-wf-save-sync-badge={syncBadgeState || undefined}
               style={{ fontSize: 12, color: C.light, marginTop: 8 }}
             >
-              {importFeedback.message}
-              {!user && importFeedback.status === "saved" ? " Saved on this device — sign in anytime to sync across devices." : ""}
+              {importFeedback && importFeedback.message
+                ? importFeedback.message
+                : (!user
+                  ? "Saved on this device — sign in anytime to sync this trip to your account."
+                  : "Saved in your Itinerary · Synced to your account.")}
             </div>
           )}
         </div>

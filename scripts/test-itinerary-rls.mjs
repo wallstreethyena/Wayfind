@@ -337,8 +337,25 @@ try {
         },
       },
       {
-        id: "sh-2",
+        id: "sh-1__day_2026-10-25",
         order: 1,
+        day: "2026-10-25",
+        note: "Encore dinner",
+        place: {
+          id: "sh-1",
+          name: "Owen's Fish Camp",
+          address: "516 Burns Ct, Sarasota, FL 34236, USA",
+          lat: 27.331,
+          lng: -82.539,
+          rating: 4.8,
+          reviews: 1200,
+          price: "$$",
+          type: "Seafood",
+        },
+      },
+      {
+        id: "sh-2",
+        order: 2,
         day: null,
         note: "",
         place: {
@@ -358,23 +375,25 @@ try {
   const decodedShared = decodeItineraryShare(sharedPayload);
   const imported = importSharedTripToTrips({}, decodedShared, 2000);
   const recipientPushed = await pushTrips(recipientClient, recipientId, imported.trips, []);
-  eq(recipientPushed, true, "recipient pushes imported shared trip to PostgreSQL under recipient RLS");
+  eq(recipientPushed, true, "recipient pushes imported shared trip (including intentional repeat visit on a second day) to PostgreSQL under recipient RLS");
   const recipientRemoteOnDevice2 = await fetchRemoteTrips(recipientClient, recipientId);
   const recipientDevice2Trips = mergeTrips({}, recipientRemoteOnDevice2);
   eq(recipientDevice2Trips.fl_sarasota.title, "Sarasota Birthday Weekend", "recipient Device 2 preserves the shared trip title from wf_itineraries.title");
   eq(
     recipientDevice2Trips.fl_sarasota.items.map((it) => ({
       id: it.id,
+      placeId: it.place.id,
       order: it.order,
       day: it.day,
       note: it.note,
       rating: it.place.rating,
     })),
     [
-      { id: "sh-1", order: 0, day: "2026-10-24", note: "Patio table", rating: 4.8 },
-      { id: "sh-2", order: 1, day: null, note: "", rating: 4.9 },
+      { id: "sh-1", placeId: "sh-1", order: 0, day: "2026-10-24", note: "Patio table", rating: 4.8 },
+      { id: "sh-1__day_2026-10-25", placeId: "sh-1", order: 1, day: "2026-10-25", note: "Encore dinner", rating: 4.8 },
+      { id: "sh-2", placeId: "sh-2", order: 2, day: null, note: "", rating: 4.9 },
     ],
-    "recipient Device 2 receives the full imported shared trip (order, scheduled_on date, undated stop, note, and place rating)"
+    "recipient Device 2 receives the full imported shared trip including intentional repeat visit on day 2 without colliding on (itinerary_id, place_id)"
   );
   ok(
     isSharedTripSaved(recipientDevice2Trips, decodedShared).saved === true,
