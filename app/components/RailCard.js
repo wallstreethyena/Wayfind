@@ -488,8 +488,8 @@ export default function RailCard({
   // to, so no surface can ship a thumb that does nothing.
   const useFb = canFallback && fb.hydrated;
   const doSave = onSave || (useFb ? () => fallbackSave(place, { surface: "rail_card" }) : content.toggleSave);
-  const doLike = onLike || (useFb ? () => fallbackLike(place, { surface: "rail_card" }) : content.toggleLike);
-  const doDislike = onDislike || (useFb ? () => fallbackDislike(place, { surface: "rail_card" }) : content.toggleDislike);
+  const doLike = onLike || (useFb ? () => fallbackLike(place, { surface: "rail_card", position: rank }) : content.toggleLike);
+  const doDislike = onDislike || (useFb ? () => fallbackDislike(place, { surface: "rail_card", position: rank }) : content.toggleDislike);
   const doShare = onShare || (useFb ? () => fallbackShare(place, { surface: "rail_card" }) : content.share);
   const isSavedNow = onSave ? !!saved : useFb ? !!fb.saved[place.id] : contentSubject ? content.saved : !!saved;
   const isLikedNow = onLike ? !!liked : useFb ? !!fb.liked[place.id] : contentSubject ? content.liked : !!liked;

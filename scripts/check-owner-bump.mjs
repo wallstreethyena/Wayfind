@@ -116,7 +116,12 @@ ok(isOwnerPick(null) === false && isOwnerPick({}) === false, "total over garbage
     "applyCuratorPicks stamps through stampOwnerPick — the store never restates the arithmetic");
   const tog = home.match(/function toggleLike\([\s\S]{0,2200}?function /);
   ok(!!tog, "positive control: toggleLike is still found under its known shape");
-  ok(!!tog && /refreshOwnerPick\(p\.id, supabase\.from\("likes"\)\.upsert\(/.test(tog[0]) && /refreshOwnerPick\(p\.id, supabase\.from\("likes"\)\.delete\(\)/.test(tog[0]),
+  // Both write builders are handed to the sequenced reconcile — inline, or
+  // via a named const (GLOBAL LIKE RULE 2026-10-25: the same builders are
+  // also watched for rollback, so toggleLike names them first).
+  ok(!!tog && /supabase\.from\("likes"\)\.upsert\(/.test(tog[0]) && /supabase\.from\("likes"\)\.delete\(\)/.test(tog[0])
+    && /refreshOwnerPick\(p\.id, (?:supabase\.from\("likes"\)\.(?:upsert|delete)\(|\w+), true, false\)/.test(tog[0])
+    && /refreshOwnerPick\(p\.id, (?:supabase\.from\("likes"\)\.(?:upsert|delete)\(|\w+), false, true\)/.test(tog[0]),
     "toggleLike hands BOTH the like and the unlike write to the sequenced reconcile");
   ok(/function refreshOwnerPick\([^)]*\) \{[\s\S]{0,400}trackCuratorWrite\(/.test(home),
     "refreshOwnerPick reconciles through the store's trackCuratorWrite");
