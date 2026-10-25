@@ -488,7 +488,7 @@ ok(nightOrder.includes("datenight"), "Date Night still exists in the night order
 // Poster art is not this PR
 {
   const intent = readFileSync(join(ROOT, "lib/intentPages.js"), "utf8");
-  ok(/art: "\/cards\/date-night-owner\.png"/.test(intent), "date-night landing art stays the owner poster — this PR does not encode rail images");
+  ok(/art: "\/cards-v8\/datenight-760\.webp"/.test(intent), "date-night landing art stays the owner poster — this PR does not encode rail images");
 }
 
 if (fail) {

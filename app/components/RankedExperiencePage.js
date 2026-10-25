@@ -80,6 +80,8 @@ export default function RankedExperiencePage({
   titleBottom,
   subtitle,
   heroImg,
+  heroPresentation = "photo",
+  heroBackground = null,
   children,
   footNote,
   footerSlot = null,
@@ -99,6 +101,8 @@ export default function RankedExperiencePage({
         prefix="wf-intent-editorial"
         backControl={topLeft}
         heroImg={heroImg}
+        heroPresentation={heroPresentation}
+        heroBackground={heroBackground}
         imageKicker={imageKicker}
         imageTitle={imageTitle}
         toplineLeft={eyebrow}

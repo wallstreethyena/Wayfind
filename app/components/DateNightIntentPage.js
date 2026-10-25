@@ -83,6 +83,8 @@ export default function DateNightIntentPage() {
       titleTop={header.title}
       subtitle={header.deck}
       heroImg={def.art}
+      heroPresentation="poster"
+      heroBackground="#f6bcc2"
       location={loc.city}
       imageKicker={header.imageKicker}
       imageTitle={header.imageTitle}

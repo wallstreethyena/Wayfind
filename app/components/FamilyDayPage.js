@@ -386,9 +386,6 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
         .wf-family-embedded{padding:4px 0 18px}
         .wf-family-embedded-title{margin:2px 0 14px;color:${COLORS.text};font:500 27px/1.1 Georgia,'Times New Roman',serif;letter-spacing:-.025em}
         .wf-family-embedded-title span{display:block;margin-top:6px;color:${COLORS.muted};font:500 12.5px/1.45 system-ui,sans-serif;letter-spacing:0}
-        .wf-intent-editorial-hero .wf-intent-editorial-media>img{object-fit:contain}
-        .wf-intent-editorial-hero .wf-intent-editorial-media{background:#075cb4}
-        .wf-intent-editorial-hero .wf-intent-editorial-media:after,.wf-intent-editorial-hero .wf-intent-editorial-image-copy{display:none}
         .wf-family-share{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 20px;border-radius:14px;border:1px solid rgba(17,24,36,.12);background:#22C55E;color:#07130B;font-size:12.5px;font-weight:850;cursor:pointer;white-space:nowrap}
         .wf-family-filters{padding:17px;border:1px solid ${COLORS.border};border-radius:18px;background:${COLORS.panel};box-shadow:0 14px 36px rgba(0,0,0,.2)}
         .wf-family-distance{display:flex;align-items:center;justify-content:space-between;gap:12px}.wf-family-distance strong{font-size:13px}.wf-family-distance div{display:flex;gap:6px}.wf-family-distance button,.wf-family-message button,.wf-family-clear{border:1px solid rgba(255,255,255,.16);border-radius:999px;background:#131D2B;color:${COLORS.text};padding:7px 11px;font:inherit;font-size:12px;font-weight:800;cursor:pointer}.wf-family-distance button.is-on{background:${COLORS.accent};border-color:${COLORS.accent};color:#07130B}
@@ -420,6 +417,8 @@ export default function FamilyDayPage({ embedded = false, center = null, city = 
       titleTop="Family day, solved"
       subtitle={loc.city ? `${FAMILY_DAY_RAILS.length} ways to plan a family day around ${loc.city}, ranked from real place evidence.` : `${FAMILY_DAY_RAILS.length} ways to plan a family day, ranked from real place evidence.`}
       heroImg="/cards/family-day-solved-v2.webp"
+      heroPresentation="poster"
+      heroBackground="#075cb4"
       location={loc.city || undefined}
       imageKicker="THE WAYFIND FAMILY EDITION"
       imageTitle="A day everyone wants to repeat."
