@@ -48,6 +48,8 @@ const ok = (c, m) => { if (c) pass++; else fails.push(m); };
 // Every exemption names a file and argues for itself. An exemption that stops
 // being true is itself a failure below, so this list cannot quietly rot.
 const EXEMPT = {
+  "test-share-intent-fit.mjs":
+    "GITHUB_ACTIONS selects browser availability strictness only: the merge workflow installs Chromium, so a missing browser there must fail; browser-free Vercel prebuilds explicitly report NOT VERIFIED. This never changes any geometry assertion or accepts bad layout: whenever a browser exists, the same 175 assertions run, and --require-browser also makes absence fatal locally. The original 32px overflow fails the rendered test; the no-browser path was checked with GITHUB_ACTIONS=true and fails closed.",
   "test-credited-photo-warm.mjs":
     "Hermetic by construction: its env() helper DELETES every variable the verdict depends on (gate, VERCEL_ENV, the warm cap, Google and Supabase keys) and then sets exactly the values each case needs, so the ambient shell never reaches an assertion; it also restores the original environment at exit. It has to write process.env because blockedReason() and the cap parser read it at call time, and that is the behaviour under test.",
   "check-owner-approval-pr.mjs":
