@@ -6,6 +6,7 @@ import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
 import * as TripCore from "../../../lib/trips";
 import * as TripDays from "../../../lib/tripDays";
+import { measureItineraryShare } from "../../../lib/itineraryShare";
 const Trips = { ...TripCore, ...TripDays };
 
 export default function ItineraryScreen({ ctx }) {
@@ -107,6 +108,7 @@ export default function ItineraryScreen({ ctx }) {
           const dateSum = Trips.tripDateSummary(t, todayOpt);
           const quickChoices = Trips.quickDateChoices(t, ctx.__today || undefined);
           const fullTripLegs = Trips.tripRouteLegs(t, routeOpts);
+          const itinShareMeasure = measureItineraryShare(t);
           const st = Trips.tripStats(t);
           const tripTitle = t.title || (t.city + (t.state ? ", " + t.state : ""));
           const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
@@ -156,14 +158,15 @@ export default function ItineraryScreen({ ctx }) {
               try { logEvent("trip_route_day", null, { key: t.key, day: group.day, n: group.items.length }); } catch {}
             }
           };
-          const applyStopDate = (place, nextDate) => {
+          const applyStopDate = (place, nextDate, stopIdOverride) => {
             const clean = nextDate == null || nextDate === "" ? null : Trips.normalizeStopDate(nextDate);
             if (nextDate != null && nextDate !== "" && !clean) return;
+            const targetId = stopIdOverride || place.id;
             try { logEvent("stop_date", place, { key: t.key, day: clean }); } catch (e) {}
-            setTrips((prev) => Trips.setStopDate(prev, t.key, place.id, clean));
+            setTrips((prev) => Trips.setStopDate(prev, t.key, targetId, clean));
             setDateEditFor(null);
             setDateDraft("");
-            focusDateToggle(place.id);
+            focusDateToggle(targetId);
           };
           return (
             <div>
@@ -174,7 +177,7 @@ export default function ItineraryScreen({ ctx }) {
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
                 {items.length > 0 && shareList && <button onClick={() => { try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
-                {itineraryFlags && itineraryFlags.share && items.length > 0 && <button onClick={() => { if (!requireAuth("Sign up free to share a private link to this trip.")) return; if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
+                {itineraryFlags && itineraryFlags.share && items.length > 0 && <button aria-label={`Share an unlisted snapshot link for ${tripTitle}`} onClick={() => { if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
                 {items.length > 0 && (
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                     <button
@@ -200,11 +203,15 @@ export default function ItineraryScreen({ ctx }) {
                   </div>
                 )}
               </div>
-              {items.length > 25 && (
+              {(items.length > 25 || (itinShareMeasure && itinShareMeasure.notesDropped) || (itinShareMeasure && !itinShareMeasure.ok && items.length > 0)) && (
                 <div data-wf-share-limit-note="true" style={{ fontSize: 12, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>
                   {items.length > 40
-                    ? "Share ↗ includes the first 25 places. Share privately includes the first 40 stops."
-                    : "Share ↗ includes the first 25 places. Use Share privately to include all " + items.length + " stops (up to 40)."}
+                    ? "Share ↗ includes the first 25 places. Share privately creates an unlisted link with the first 40 stops (anyone with the link can view and save a copy; your original trip stays unchanged)."
+                    : items.length > 25
+                      ? "Share ↗ includes the first 25 places. Use Share privately to create an unlisted link with all " + items.length + " stops (up to 40; anyone with the link can view and save a copy)."
+                      : itinShareMeasure && !itinShareMeasure.ok
+                        ? itinShareMeasure.warning
+                        : "Stop notes will be compacted in share links to stay within URL length limits (your original trip notes stay intact)."}
                 </div>
               )}
               {RouteMap ? <RouteMap items={items} /> : null}
@@ -289,16 +296,17 @@ export default function ItineraryScreen({ ctx }) {
                     )}
                     {group.items.map((it, i) => {
                       const p = it.place;
+                      const stopKey = it.id || p.id;
                       const stopDay = Trips.itemDayOf(it);
                       const stopIsPast = stopDay ? Trips.isPastStopDate(stopDay, ctx.__today || undefined) : false;
                       const stopDateLabel = stopDay
                         ? (stopIsPast ? `Past · ${Trips.formatStopDate(stopDay)}` : Trips.formatStopDate(stopDay))
                         : "Set date";
-                      const editing = tripNoteEdit === p.id;
-                      const moving = tripMoveFor === p.id;
-                      const dating = dateEditFor === p.id;
+                      const editing = tripNoteEdit === stopKey;
+                      const moving = tripMoveFor === stopKey;
+                      const dating = dateEditFor === stopKey;
                       return (
-                        <div key={p.id} data-wf-stop-id={p.id} style={{ marginBottom: 12 }}>
+                        <div key={stopKey} data-wf-stop-id={stopKey} style={{ marginBottom: 12 }}>
                           <div style={{ position: "relative", opacity: it.visited ? 0.62 : 1 }}>
                             <PlaceCard p={p} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} />
                             {it.visited && <div style={{ position: "absolute", top: 8, left: 8, background: C.accent, color: "#0D1117", fontSize: 11, fontWeight: 800, padding: "3px 8px", borderRadius: 20, zIndex: 2 }}>✓ Visited</div>}
@@ -306,9 +314,9 @@ export default function ItineraryScreen({ ctx }) {
                           {it.note && !editing && <div style={{ fontSize: 12.5, color: C.light, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: "8px 10px", marginTop: 6 }}>📝 {it.note}</div>}
                           {editing && (
                             <div style={{ marginTop: 6 }}>
-                              <textarea autoFocus defaultValue={it.note} id={"note_" + p.id} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
+                              <textarea autoFocus defaultValue={it.note} id={"note_" + stopKey} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
                               <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                                <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + p.id); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, p.id, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Save note</button>
+                                <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + stopKey); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, stopKey, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Save note</button>
                                 <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Cancel</button>
                               </div>
                             </div>
@@ -319,7 +327,7 @@ export default function ItineraryScreen({ ctx }) {
                               {others.length === 0 ? (
                                 <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
                               ) : others.map((o) => (
-                                <div key={o.key} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, p.id)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", minHeight: 44, borderRadius: 8, cursor: "pointer" }}>
+                                <div key={o.key} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, stopKey)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", minHeight: 44, borderRadius: 8, cursor: "pointer" }}>
                                   <StateBadge code={o.state} size={28} />
                                   <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
                                 </div>
@@ -330,16 +338,16 @@ export default function ItineraryScreen({ ctx }) {
                           {!editing && !moving && (
                             <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
                               <button
-                                id={"wf-date-btn-" + p.id}
+                                id={"wf-date-btn-" + stopKey}
                                 type="button"
                                 aria-expanded={dating}
-                                aria-controls={"wf-date-picker-" + p.id}
+                                aria-controls={"wf-date-picker-" + stopKey}
                                 aria-label={stopDay ? `Change date for ${p.name || "stop"} (${stopIsPast ? "Past, " : ""}${Trips.formatStopDate(stopDay, { heading: true })})` : `Set date for ${p.name || "stop"}`}
                                 onClick={() => {
                                   if (dating) {
-                                    closeDatePicker(p.id);
+                                    closeDatePicker(stopKey);
                                   } else {
-                                    openDatePicker(p.id, stopDay);
+                                    openDatePicker(stopKey, stopDay);
                                   }
                                 }}
                                 style={{
@@ -354,29 +362,29 @@ export default function ItineraryScreen({ ctx }) {
                                 <Icon name="calendar" size={13} color={stopDay && !stopIsPast ? C.light : C.muted} />
                                 <span>{stopDateLabel}</span>
                               </button>
-                              <button type="button" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, p.id, -1)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
-                              <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, p.id, 1)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, p.id)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(p.id); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(p.id); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, p.id)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
+                              <button type="button" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, -1, todayOpt)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
+                              <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, 1, todayOpt)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, stopKey)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(stopKey); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(stopKey); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
+                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, stopKey)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
                             </div>
                           )}
                           {dating && (
                             <div
-                              id={"wf-date-picker-" + p.id}
-                              data-wf-date-picker={p.id}
+                              id={"wf-date-picker-" + stopKey}
+                              data-wf-date-picker={stopKey}
                               role="region"
-                              aria-labelledby={"wf-date-picker-label-" + p.id}
+                              aria-labelledby={"wf-date-picker-label-" + stopKey}
                               onKeyDown={(e) => {
                                 if (e.key === "Escape") {
                                   e.stopPropagation();
-                                  closeDatePicker(p.id);
+                                  closeDatePicker(stopKey);
                                 }
                               }}
                               style={{ marginTop: 6, background: C.card, border: "1px solid " + C.border, borderRadius: 10, padding: 10 }}
                             >
-                              <div id={"wf-date-picker-label-" + p.id} style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
+                              <div id={"wf-date-picker-label-" + stopKey} style={{ fontSize: 12, color: C.muted, marginBottom: 8 }}>
                                 Pick a day for {p.name || "this stop"}
                               </div>
                               {quickChoices.length > 0 && (
@@ -390,7 +398,7 @@ export default function ItineraryScreen({ ctx }) {
                                         data-wf-quick-date={ch.day}
                                         aria-pressed={active}
                                         aria-label={`Set date for ${p.name || "stop"} to ${ch.label}`}
-                                        onClick={() => applyStopDate(p, ch.day)}
+                                        onClick={() => applyStopDate(p, ch.day, stopKey)}
                                         style={{
                                           ...tripChip,
                                           ...(active ? { background: C.adim, borderColor: C.accent, color: C.light } : { color: C.text }),
@@ -404,7 +412,7 @@ export default function ItineraryScreen({ ctx }) {
                               )}
                               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                                 <input
-                                  id={"wf-date-input-" + p.id}
+                                  id={"wf-date-input-" + stopKey}
                                   type="date"
                                   aria-label={`Choose date for ${p.name || "stop"}`}
                                   value={dateDraft}
@@ -414,7 +422,7 @@ export default function ItineraryScreen({ ctx }) {
                                       const clean = Trips.normalizeStopDate(dateDraft);
                                       if (clean) {
                                         e.preventDefault();
-                                        applyStopDate(p, clean);
+                                        applyStopDate(p, clean, stopKey);
                                       }
                                     }
                                   }}
@@ -434,7 +442,7 @@ export default function ItineraryScreen({ ctx }) {
                                 <button
                                   type="button"
                                   aria-label={`Save date for ${p.name || "stop"}`}
-                                  onClick={() => { const clean = Trips.normalizeStopDate(dateDraft); if (clean) applyStopDate(p, clean); }}
+                                  onClick={() => { const clean = Trips.normalizeStopDate(dateDraft); if (clean) applyStopDate(p, clean, stopKey); }}
                                   disabled={!Trips.normalizeStopDate(dateDraft)}
                                   style={{
                                     background: C.accent,
@@ -455,7 +463,7 @@ export default function ItineraryScreen({ ctx }) {
                                   <button
                                     type="button"
                                     aria-label={`Clear date for ${p.name || "stop"}`}
-                                    onClick={() => applyStopDate(p, null)}
+                                    onClick={() => applyStopDate(p, null, stopKey)}
                                     style={{
                                       background: "transparent",
                                       border: "1px solid " + C.border,
@@ -474,7 +482,7 @@ export default function ItineraryScreen({ ctx }) {
                                 <button
                                   type="button"
                                   aria-label={`Cancel date selection for ${p.name || "stop"}`}
-                                  onClick={() => closeDatePicker(p.id)}
+                                  onClick={() => closeDatePicker(stopKey)}
                                   style={{
                                     background: "transparent",
                                     border: "1px solid " + C.border,
