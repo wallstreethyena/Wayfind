@@ -33,7 +33,8 @@ let activeIntentClose = null;
 
 function el(tag, style, text) {
   const n = document.createElement(tag);
-  if (style) n.setAttribute("style", style);
+  // The sheet mounts outside page-scoped resets; padding belongs inside widths.
+  if (style) n.setAttribute("style", "box-sizing:border-box;" + style);
   if (text != null) n.textContent = text;
   return n;
 }
@@ -93,9 +94,21 @@ export function askShareIntent(o) {
 
   const scrim = el("div", "position:absolute;inset:0;background:rgba(3,6,10,.62);animation:wfSiFade .18s ease-out");
   const card = el("div",
-    "position:relative;width:100%;max-width:520px;background:#0D1218;border-top:1px solid #30363D;" +
+    "position:relative;width:100%;min-width:0;max-width:520px;background:#0D1218;border-top:1px solid #30363D;" +
     "border-radius:16px 16px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));" +
-    "box-shadow:0 -18px 48px rgba(0,0,0,.55);animation:wfSiUp .22s cubic-bezier(.22,.61,.36,1);max-height:90dvh;overflow-y:auto;box-sizing:border-box");
+    "box-shadow:0 -18px 48px rgba(0,0,0,.55);animation:wfSiUp .22s cubic-bezier(.22,.61,.36,1);max-height:min(90dvh,100%);overflow-y:auto;overscroll-behavior:contain;overflow-wrap:anywhere");
+
+  // Follow the visible window during keyboard resizing and Safari panning.
+  // Bounding the overlay also keeps tall content scrollable above the keyboard.
+  const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+  const fitViewport = () => {
+    if (!viewport) return;
+    Object.assign(wrap.style, {
+      top: viewport.offsetTop + "px", left: viewport.offsetLeft + "px",
+      width: viewport.width + "px", height: viewport.height + "px",
+      right: "auto", bottom: "auto",
+    });
+  };
 
   const preview = placeSharePreview(opt.id, name, opt.city);
   if (preview) {
@@ -112,6 +125,8 @@ export function askShareIntent(o) {
   card.appendChild(el("div", "font-size:13px;color:#8B98A9;margin-bottom:14px", "Who is this for?"));
 
   const close = () => {
+    viewport?.removeEventListener("resize", fitViewport);
+    viewport?.removeEventListener("scroll", fitViewport);
     try { wrap.dispatchEvent(new Event("wf-si-close")); } catch (e) {}
     try { wrap.remove(); } catch (e) {}
     document.removeEventListener("keydown", onKey);
@@ -185,7 +200,7 @@ export function askShareIntent(o) {
       "Just a first name. It goes on their invite, and it comes back with their answer."));
 
     const input = el("input",
-      "display:block;width:100%;padding:13px 15px;margin-bottom:10px;border-radius:12px;" +
+      "display:block;width:100%;min-width:0;max-width:100%;padding:13px 15px;margin-bottom:10px;border-radius:12px;" +
       "background:rgba(255,255,255,.045);border:1px solid #30363D;color:#E6EDF3;" +
       "font-size:16px;font-weight:700;outline:none");
     input.setAttribute("type", "text");
@@ -257,34 +272,10 @@ export function askShareIntent(o) {
       e.preventDefault();
       try { send(input.value); } catch (err) {}
     });
-    // preventScroll:true was the bug. It tells the browser NOT to bring the
-    // focused element into view — which is right for a panel that is already on
-    // screen and wrong the moment iOS raises the keyboard over the bottom of
-    // the viewport, because the field it just focused is now underneath it. The
-    // caret blinks somewhere the person cannot see, and the sheet reads as
-    // dead.
-    //
-    // visualViewport is the only thing that knows how tall the keyboard is:
-    // window.innerHeight does not change when it opens. We lift the sheet by
-    // the difference so the field lands above it, and put it back on close.
-    const lift = () => {
-      try {
-        const vv = window.visualViewport;
-        if (!vv) return;
-        const under = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
-        card.style.transform = under > 24 ? "translateY(-" + Math.round(under) + "px)" : "";
-      } catch (e) {}
-    };
+    // Keep keyboard focus in the user gesture; viewport events contain the panel.
     try {
       input.focus();
-      if (window.visualViewport) {
-        window.visualViewport.addEventListener("resize", lift);
-        wrap.addEventListener("wf-si-close", () => {
-          try { window.visualViewport.removeEventListener("resize", lift); } catch (e) {}
-        });
-      }
-      // One frame later, because the keyboard has not started animating yet.
-      window.requestAnimationFrame(() => { lift(); try { card.scrollIntoView({ block: "end" }); } catch (e) {} });
+      window.requestAnimationFrame(() => { if (activeIntentClose === close) fitViewport(); });
     } catch (e) {}
   };
 
@@ -307,5 +298,8 @@ export function askShareIntent(o) {
   document.body.appendChild(wrap);
   document.addEventListener("keydown", onKey);
   activeIntentClose = close;
+  viewport?.addEventListener("resize", fitViewport);
+  viewport?.addEventListener("scroll", fitViewport);
+  fitViewport();
   try { card.querySelector("button").focus({ preventScroll: true }); } catch (e) {}
 }

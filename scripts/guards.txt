@@ -2388,3 +2388,6 @@ node scripts/test-search-nearby-first.mjs
 node scripts/test-shareable-search-url.mjs
 # 2026-10-24 food word search: cuisine synonyms, whole-word names, distance-band order, food places only.
 node scripts/test-search-food-synonyms.mjs
+
+# Invite fields and panels fit the mobile visual viewport.
+node scripts/test-share-intent-fit.mjs
