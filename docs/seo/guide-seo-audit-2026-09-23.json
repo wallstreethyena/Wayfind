@@ -1678,15 +1678,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/ybor-city-ikuna.webp; 796x1200; Ikuna; Unsplash License."
+          "evidence": "/guides/verified/ybor-city-teco-streetcar-hero.webp; 1280x853; Pokemonprime; CC BY 4.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Reviewed source image is 796x1200; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -1759,7 +1759,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-riverfront-paws-and-prints.webp; 1600x1066; paws and prints; Unsplash License."
+          "evidence": "/guides/verified/tampa-riverwalk-plant-museum-hero.webp; 1280x853; Ken Lund; CC BY-SA 2.0."
         },
         "representative_image": {
           "status": "pass",
@@ -1767,7 +1767,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1066 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2164,7 +2164,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-riverfront-paws-and-prints.webp; 1600x1066; paws and prints; Unsplash License."
+          "evidence": "/guides/verified/columbia-restaurant-tilework-hero.webp; 1280x853; LittleT889; CC BY 4.0."
         },
         "representative_image": {
           "status": "pass",
@@ -2172,7 +2172,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1066 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2569,7 +2569,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-waterfront-kody-cheyne.webp; 1600x1067; Kody Cheyne; Unsplash License."
+          "evidence": "/guides/verified/tropicana-field-rays-alwc-hero.webp; 1280x853; Yamasztuka; CC BY-SA 4.0."
         },
         "representative_image": {
           "status": "pass",
@@ -2577,7 +2577,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2650,7 +2650,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-waterfront-kody-cheyne.webp; 1600x1067; Kody Cheyne; Unsplash License."
+          "evidence": "/guides/verified/tropicana-field-rays-alwc-hero.webp; 1280x853; Yamasztuka; CC BY-SA 4.0."
         },
         "representative_image": {
           "status": "pass",
@@ -2658,7 +2658,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -2974,7 +2974,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-riverfront-paws-and-prints.webp; 1600x1066; paws and prints; Unsplash License."
+          "evidence": "/guides/verified/busch-gardens-sheikra-splash-hero.webp; 1280x853; Jeremy Thompson; CC BY 2.0."
         },
         "representative_image": {
           "status": "pass",
@@ -2982,7 +2982,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1066 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -3784,7 +3784,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-waterfront-kody-cheyne.webp; 1600x1067; Kody Cheyne; Unsplash License."
+          "evidence": "/guides/verified/tampa-riverwalk-plant-museum-hero.webp; 1280x853; Ken Lund; CC BY-SA 2.0."
         },
         "representative_image": {
           "status": "pass",
@@ -3792,7 +3792,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "pass",
@@ -4108,7 +4108,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/theme-park-florida-theme-park-christmas-2026.webp; 1600x1067; Jedi94; CC BY-SA 4.0."
+          "evidence": "/guides/verified/cinderella-castle-christmas-lights-hero.webp; 1280x853; Figment3009; CC BY-SA 3.0."
         },
         "representative_image": {
           "status": "pass",
@@ -4116,7 +4116,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -4189,7 +4189,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/garden-florida-holiday-nights-out-2026.webp; 1600x1067; Daderot; CC0 1.0 Universal."
+          "evidence": "/guides/verified/selby-gardens-holiday-lights-hero.webp; 1280x853; knight725; CC BY 2.0."
         },
         "representative_image": {
           "status": "pass",
@@ -4197,7 +4197,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -4351,7 +4351,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/city-florida-christmas-boat-parades-2026.webp; 1600x1067; Tamanoeconomico; CC BY-SA 4.0."
+          "evidence": "/guides/verified/johns-pass-boat-parade-lights-hero.webp; 1280x853; Richard Mc Neil; CC BY 3.0."
         },
         "representative_image": {
           "status": "pass",
@@ -4359,7 +4359,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -4513,7 +4513,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/unsplash/tampa-waterfront-kody-cheyne.webp; 1600x1067; Kody Cheyne; Unsplash License."
+          "evidence": "/guides/verified/tampa-theatre-auditorium-hero.webp; 1280x853; Cromemco; CC0 1.0 Universal."
         },
         "representative_image": {
           "status": "pass",
@@ -4521,7 +4521,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -5080,7 +5080,7 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/city-lakewood-pond.webp; 1600x1067; Lucas Liberman; Unsplash License."
+          "evidence": "/guides/verified/nathan-benderson-finish-tower-hero.webp; 1280x853; Architecttype; CC BY-SA 4.0."
         },
         "representative_image": {
           "status": "pass",
@@ -5088,7 +5088,7 @@
         },
         "large_image_candidate": {
           "status": "pass",
-          "evidence": "Reviewed source image is 1600x1067 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
@@ -5161,15 +5161,15 @@
         },
         "image_record": {
           "status": "pass",
-          "evidence": "/guides/verified/food-sarasota-half-price-dining.webp; 1067x1600; An Nhien; Unsplash License."
+          "evidence": "/guides/verified/cortez-sunset-seawall-hero.webp; 1280x853; Fred Hsu; CC BY-SA 3.0."
         },
         "representative_image": {
           "status": "pass",
           "evidence": "The route and metadata use the same per-slug reviewed image."
         },
         "large_image_candidate": {
-          "status": "unknown",
-          "evidence": "Reviewed source image is 1067x1600; it is not claimed as a 1200px-wide Discover candidate."
+          "status": "pass",
+          "evidence": "Reviewed source image is 1280x853 and the delivered og:image is a rendered 1200x630 card built from it; production eligibility and crop performance are not established."
         },
         "contextual_guide_links": {
           "status": "unknown",
