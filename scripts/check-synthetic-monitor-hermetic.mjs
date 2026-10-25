@@ -245,11 +245,24 @@ for (const s of SCENARIOS) {
     "menu-poster contract includes the sports live poster and no concert live poster (removed 2026-10-06)");
   ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("sponsor-coconut-grove"),
     "menu-poster contract includes the product-owned geo-gated Coconut Grove sponsor tile");
-  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove"], "2026-10-31");
+  ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("rays-world-series-2026"),
+    "menu-poster contract includes the product-owned Rays World Series 2026 campaign poster (#1834)");
+  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove", "rays-world-series-2026"], "2026-10-31");
   ok(withOptional.missingIds.length === 0 && withOptional.extraIds.length === 0
       && withOptional.optionalPresentIds.includes("live-sports")
-      && withOptional.optionalPresentIds.includes("sponsor-coconut-grove"),
-    "menu-poster positive control: approved contextual posters can appear without becoming false extras");
+      && withOptional.optionalPresentIds.includes("sponsor-coconut-grove")
+      && withOptional.optionalPresentIds.includes("rays-world-series-2026"),
+    "menu-poster positive control: approved contextual posters (including Rays World Series 2026 inside its campaign window) can appear without becoming false extras");
+  const raysBeforeLaunch = posterMenuDiff(
+    [...EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "christmas"), "rays-world-series-2026"],
+    "2026-10-12",
+  );
+  const raysAfterExpiry = posterMenuDiff(
+    [...EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "halloween" && id !== "augtober" && id !== "christmas"), "rays-world-series-2026"],
+    "2027-01-02",
+  );
+  ok(raysBeforeLaunch.extraIds.includes("rays-world-series-2026") && raysAfterExpiry.extraIds.includes("rays-world-series-2026"),
+    "menu-poster MUTATION RED: Rays World Series 2026 poster is rejected as an extra tile before its 2026-10-22 launch and after its 2027-01-01 campaign end");
 
   // Mutation red: remove the historical Breakfast tile from an otherwise
   // healthy menu. If this predicate stopped checking the required set, this
@@ -705,6 +718,20 @@ if (workflowSrc) {
   ok(bStart > 0 && bBody.length > 200, "book-links scenario body located");
   ok((bBody.match(/waitForBookCtaHrefs\(page,/g) || []).length === 2, "book-links waits for CTAs on BOTH the home page and the events fallback (exactly 2 waitForBookCtaHrefs calls)");
   ok(!/waitForTimeout\(\s*\d+\s*\)/.test(bBody), "book-links has no fixed waitForTimeout sample before reading CTAs");
+
+  // 2026-10-25: surface-parity-parrish-cafes must click `.wf-navtab, .wf-cattile`
+  // with exact `^Food$` text inside "Browse categories", never `getByRole("button", { name: "Food" })`,
+  // and must register `invResponsePromise` right before `subBtn.click` (after `catBtn.click`).
+  const spStart = scn.indexOf('id: "surface-parity-parrish-cafes"');
+  const spBody = scn.slice(spStart, scn.indexOf('id: "place-detail"', spStart));
+  ok(spStart > 0 && spBody.length > 200, "surface-parity-parrish-cafes scenario body located");
+  ok(/getByRole\("group",\s*\{\s*name:\s*"Browse categories"\s*\}\)\.locator\("\.wf-navtab,\s*\.wf-cattile"\)\.filter\(\{\s*hasText:\s*\/\^Food\$\/\s*\}\)\.first\(\)/.test(spBody),
+    "surface-parity-parrish-cafes selects the exact Food category uniquely inside Browse categories");
+  ok(!/getByRole\("button",\s*\{\s*name:\s*"Food"/.test(spBody),
+    "surface-parity-parrish-cafes never waits 15s on getByRole(\"button\", { name: \"Food\" }) for the <a class=\"wf-navtab\"> category tab");
+  ok(spBody.indexOf("catBtn.click") < spBody.indexOf("const invResponsePromise = page.waitForResponse")
+    && spBody.indexOf("const invResponsePromise = page.waitForResponse") < spBody.indexOf("subBtn.click"),
+    "surface-parity-parrish-cafes registers invResponsePromise after category open and immediately before subBtn.click");
 }
 
 // The runner itself must not be swept into the (network-touching-forbidden)

@@ -933,5 +933,18 @@
     "statements_sha256": "d21113fc74e340fbfcc4c79d6b0ac7db86bb5bee1a5d7ce5c0ba31542a4460f5",
     "reason": "Production-only record applied 2026-09-10 15:13Z with no repo file; canary check-migration-reconciliation has flagged it as unreviewed since. Reviewed 2026-09-15 against live schema (wf_schema_objects + PostgREST definitions): creates public.wf_blog_daily_runs \u2014 the run ledger for the daily guide-post + Facebook distribution routine (pk run_date; article_mode/fb_status text with check constraints, both default 'pending'; slug, metro, category, intent, item_count, fb_scheduled_for, fb_window, fb_time_reason, caption, hook_type, tracked_url, fb_post_url, retries default 0, metrics jsonb, notes, created_at/updated_at default now()). No code in this repository reads or writes it; the writer is the cloud scheduled 'daily guide post' task. Table held 0 rows at review time, which is itself the evidence that the routine has never completed a run. Kept, not dropped: dropping a ledger is destructive and owner-only.",
     "reviewed_by": "Claude, Wayfind audit 2026-09-15 (owner-requested full audit)"
+  },
+  {
+    "version": "20261024194018",
+    "name": "official_intake_discovery_contract_20261024",
+    "statements_sha256": "c7d0d0e1e702f3c2bbac682c0c0455bcdcf9610c83083456792bfaddd6ab9601",
+    "probes": [
+      {
+        "kind": "constraint",
+        "name": "wf_official_intake_discovery_contract"
+      }
+    ],
+    "reason": "Production-only record applied 2026-10-24 19:40:18Z during the official-source intake pass with no repo file; canary check-migration-reconciliation flagged it as unreviewed on subsequent runs. Reviewed 2026-10-25 against live schema (wf_schema_objects + wf_migration_ledger_hashes + public.wf_inventory): creates CHECK constraint wf_official_intake_discovery_contract on public.wf_inventory governing source='owner_verified_official_source' (wfadd_*) intake rows (requiring Wayfind-owned wfadd_* place_id, OPERATIONAL status, coordinates, locality/county/metro, and signals JSONB with identity_method, identity_source, and official_address; 4 live rows verified: wfadd_kings_landing_apopka, wfadd_nueva_cantina_st_pete, wfadd_nueva_cantina_brandon, wfadd_rreal_tacos_downtown_tampa). Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses), pin the exact ledger hash and verify live constraint presence via probes on every canary run without replaying.",
+    "reviewed_by": "Claude, Wayfind incident fix 2026-10-25 (owner-requested metered job repair)"
   }
 ]

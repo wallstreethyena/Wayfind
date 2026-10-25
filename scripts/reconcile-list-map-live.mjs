@@ -240,7 +240,7 @@ async function captureOne({ chromium, args, vp, shotPath }) {
     await page.goto(args.baseUrl + "/", { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.waitForTimeout(1500);
     const catLabel = CATEGORY_LABELS[args.cat] || args.cat;
-    const catBtn = page.getByRole("group", { name: "Browse categories" }).getByRole("button", { name: catLabel, exact: true });
+    const catBtn = page.getByRole("group", { name: "Browse categories" }).locator(".wf-navtab, .wf-cattile", { hasText: catLabel }).first();
     const subBtn = page.locator(".wf-subchip, .wf-navsub", { hasText: args.subLabel || "\u0000none" }).first();
     let opened = false;
     for (let i = 0; i < 3 && !opened; i++) {
