@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { posterSeasonLive, posterSeasonWindow, railOnPosterTrack, POSTER_SEASONS } from "../lib/posterSeasons.js";
-import { DAYPARTS, DAYPART_IDS, orderFor } from "../lib/dayparts.js";
+import { DAYPARTS, DAYPART_IDS, orderFor, halloweenLeads } from "../lib/dayparts.js";
 import { RAILS } from "../lib/rails.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,6 +41,15 @@ for (const y of [2026, 2027, 2028]) {
   ok(posterSeasonLive("christmas", `${y}-12-25`) && !posterSeasonLive("christmas", `${y}-06-15`), `${y}: christmas live Dec 25, not in June`);
   ok(!posterSeasonLive("christmas", `${y}-01-02`) && posterSeasonLive("christmas", `${y}-01-01`), `${y}: the previous season's Jan 1 is live and Jan 2 is not`);
   ok(posterSeasonLive("breakfast", `${y}-03-03`) && posterSeasonLive("tonight", `${y}-07-04`), `${y}: non-seasonal rails are always live`);
+  ok(!halloweenLeads(`${y}-10-24`) && halloweenLeads(`${y}-10-25`) && halloweenLeads(`${y}-10-31`) && !halloweenLeads(`${y}-11-01`), `${y}: halloweenLeads is active Oct 25..Oct 31 every year`);
+  for (const band of DAYPART_IDS) {
+    const t24 = track(band, `${y}-10-24`);
+    const t25 = track(band, `${y}-10-25`);
+    const t31 = track(band, `${y}-10-31`);
+    ok(t24[0] === "augtober" && t24[1] === "halloween", `${y} ${band} Oct 24: Fall leads before Oct 25`);
+    ok(t25[0] === "halloween" && t25[1] === "augtober", `${y} ${band} Oct 25: Halloween leads and Fall in Florida is right of Halloween`);
+    ok(t31[0] === "halloween" && t31[1] === "augtober", `${y} ${band} Oct 31: Halloween still leads and Fall in Florida is right of Halloween`);
+  }
 }
 ok(posterSeasonLive("augtober", "garbage") && posterSeasonLive("halloween", ""), "a malformed date fails open (never blanks the track)");
 ok(Object.keys(POSTER_SEASONS).sort().join() === "augtober,christmas,halloween", "the window table holds exactly the three seasonal posters");
@@ -72,6 +81,7 @@ for (const band of DAYPART_IDS) {
   // A mutated band list cannot break the Halloween adjacency
 }
 ok((() => { const o = orderFor("morning", ["a", "halloween", "b", "augtober", "c"]); return o.indexOf("halloween") === o.indexOf("augtober") + 1; })(), "orderFor re-seats halloween next to augtober even if a band list is edited wrongly");
+ok((() => { const o = orderFor("morning", ["a", "augtober", "b", "halloween", "c"], "2027-10-25"); return o.indexOf("augtober") === o.indexOf("halloween") + 1; })(), "orderFor seats halloween immediately ahead of augtober on Oct 25-31 even if a band list is edited wrongly");
 
 // ── Static wiring (not a render; DaypartRail cannot load under plain node) ──
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:\\])\/\/.*$/gm, "$1");

@@ -17,7 +17,7 @@ import { fileURLToPath } from "node:url";
 import { FALL_SEASON_START_MD, FALL_EVIDENCE_START_MD, FALL_CARD_IDS, fallSkinLive, fallCardClass, fallShareLine, fallSeasonEnd } from "../lib/fallSkin.js";
 import { spookySkinLive, SPOOKY_SKIN_START_MD, spookyOverFall, fallSpookyCardClass, SPOOKY_PLACE_IDS } from "../lib/spookySkin.js";
 import { POSTER_SEASONS, posterSeasonLive, posterSeasonWindow, railOnPosterTrack } from "../lib/posterSeasons.js";
-import { orderFor, DAYPART_IDS, christmasLeads } from "../lib/dayparts.js";
+import { orderFor, DAYPART_IDS, christmasLeads, halloweenLeads, HALLOWEEN_LEADS_START_MD } from "../lib/dayparts.js";
 import { RAILS } from "../lib/rails.js";
 import { addDays, isSeasonBoundaryDay, seasonBoundaryDays, runSeasonalRevalidate, SEASONAL_ISR_PATHS } from "../lib/seasonBoundaries.js";
 import { siteTodayStr } from "../lib/siteTime.js";
@@ -81,10 +81,15 @@ for (const y of [2026, 2027, 2028]) {
   // ── TASK 3: posters, windows, order, overlaps ──
   for (const band of DAYPART_IDS) {
     for (const d of [`${y}-10-10`, `${y}-10-11`, `${y}-10-12`]) eq(seasonal(band, d), ["augtober", "halloween"], `${band} ${d}: Fall then Halloween`);
-    for (const d of [`${y}-10-13`, `${y}-10-20`, `${y}-10-31`]) {
+    for (const d of [`${y}-10-13`, `${y}-10-20`, `${y}-10-24`]) {
       const t = track(band, d);
       eq(seasonal(band, d).slice().sort(), ["augtober", "christmas", "halloween"], `${band} ${d}: all three`);
-      ok(t[0] === "augtober" && t[1] === "halloween", `${band} ${d}: Halloween right after Fall (got ${t.slice(0, 3)})`);
+      ok(t[0] === "augtober" && t[1] === "halloween" && !halloweenLeads(d), `${band} ${d}: Halloween right after Fall before Oct 25 (got ${t.slice(0, 3)})`);
+    }
+    for (const d of [`${y}-10-25`, `${y}-10-28`, `${y}-10-31`]) {
+      const t = track(band, d);
+      eq(seasonal(band, d).slice().sort(), ["augtober", "christmas", "halloween"], `${band} ${d}: all three`);
+      ok(t[0] === "halloween" && t[1] === "augtober" && halloweenLeads(d), `${band} ${d}: Halloween leads and Fall in Florida sits immediately right of Halloween on Oct 25-31 every year (got ${t.slice(0, 3)})`);
     }
     for (const d of [`${y}-11-01`, `${y}-11-10`, T]) {
       const s = seasonal(band, d);
@@ -112,17 +117,17 @@ for (const y of [2026, 2027, 2028]) {
 
   // ── boundary days, exact ──
   const EXPECT = {
-    2026: ["2026-01-02", "2026-08-15", "2026-08-26", "2026-10-10", "2026-10-13", "2026-11-01", "2026-11-02", "2026-11-27"],
-    2027: ["2027-01-02", "2027-08-15", "2027-08-26", "2027-10-10", "2027-10-13", "2027-11-01", "2027-11-02", "2027-11-26"],
-    2028: ["2028-01-02", "2028-08-15", "2028-08-26", "2028-10-10", "2028-10-13", "2028-11-01", "2028-11-02", "2028-11-24"],
+    2026: ["2026-01-02", "2026-08-15", "2026-08-26", "2026-10-10", "2026-10-13", "2026-10-25", "2026-11-01", "2026-11-02", "2026-11-27"],
+    2027: ["2027-01-02", "2027-08-15", "2027-08-26", "2027-10-10", "2027-10-13", "2027-10-25", "2027-11-01", "2027-11-02", "2027-11-26"],
+    2028: ["2028-01-02", "2028-08-15", "2028-08-26", "2028-10-10", "2028-10-13", "2028-10-25", "2028-11-01", "2028-11-02", "2028-11-24"],
   }[y];
   eq(seasonBoundaryDays(y), EXPECT, `${y}: boundary days`);
   // independent derivation from the window table + skin windows, so the signature approach cannot agree with itself by accident
   const derived = new Set();
   for (const id of Object.keys(POSTER_SEASONS)) for (const sy of [y - 1, y]) { const w = posterSeasonWindow(id, sy); for (const dte of [w.start, addDays(w.end, 1)]) if (dte.startsWith(String(y))) derived.add(dte); }
-  derived.add(`${y}-${SPOOKY_SKIN_START_MD}`); derived.add(`${y}-11-02`); derived.add(addDays(T, 1));
+  derived.add(`${y}-${SPOOKY_SKIN_START_MD}`); derived.add(`${y}-${HALLOWEEN_LEADS_START_MD}`); derived.add(`${y}-11-02`); derived.add(addDays(T, 1));
   eq([...derived].sort(), EXPECT, `${y}: boundary days re-derived from the window table`);
-  for (const d of [`${y}-08-14`, `${y}-08-16`, `${y}-10-31`, T, `${y}-12-25`, `${y}-12-31`, `${y}-06-15`]) ok(!isSeasonBoundaryDay(d), `${y}: ${d} is NOT a boundary day (negative control)`);
+  for (const d of [`${y}-08-14`, `${y}-08-16`, `${y}-10-24`, `${y}-10-31`, T, `${y}-12-25`, `${y}-12-31`, `${y}-06-15`]) ok(!isSeasonBoundaryDay(d), `${y}: ${d} is NOT a boundary day (negative control)`);
 }
 ok(!isSeasonBoundaryDay("garbage") && !isSeasonBoundaryDay(null) && !isSeasonBoundaryDay("2027-8-15"), "malformed dates are never boundary days");
 eq([...SEASONAL_ISR_PATHS], ["/", "/v8"], "the ISR routes that render the seasonal surfaces");
@@ -168,6 +173,24 @@ h = await hit("2027-01-02T05:01:00Z", "s3cret");
 ok(h.body.skipped === false, "route: Jan 2 (Christmas poster ends) revalidates");
 h = await hit("2026-10-10T04:01:00Z", "s3cret");
 ok(h.body.skipped === false && h.body.today === "2026-10-10", "route: Oct 10 2026 (Halloween starts) revalidates");
+for (const y of [2026, 2027, 2028]) {
+  // Immediately before and after Oct 25 midnight Eastern (EDT = UTC-4)
+  const preOct25 = siteTodayStr(new RealDate(`${y}-10-25T03:59:59Z`));
+  const postOct25 = siteTodayStr(new RealDate(`${y}-10-25T04:00:00Z`));
+  ok(preOct25 === `${y}-10-24` && !halloweenLeads(preOct25) && track("morning", preOct25)[0] === "augtober", `${y}: 1s before Oct 25 midnight EDT is ${preOct25} with Fall leading`);
+  ok(postOct25 === `${y}-10-25` && halloweenLeads(postOct25) && track("morning", postOct25)[0] === "halloween" && track("morning", postOct25)[1] === "augtober", `${y}: at Oct 25 midnight EDT is ${postOct25} with Halloween leading ahead of Fall`);
+  h = await hit(`${y}-10-25T03:59:00Z`, "s3cret");
+  ok(h.body.skipped === true && h.body.today === `${y}-10-24` && h.calls.length === 0, `${y}: 23:59 EDT Oct 24 is not a boundary day`);
+  h = await hit(`${y}-10-25T04:01:00Z`, "s3cret");
+  ok(h.body.skipped === false && h.body.today === `${y}-10-25` && JSON.stringify(h.calls) === JSON.stringify(["/", "/v8"]), `${y}: 00:01 EDT Oct 25 revalidates / and /v8`);
+  // Immediately before and after Nov 1 midnight Eastern (EDT = UTC-4; DST fallback occurs at 02:00 EDT)
+  const preNov1 = siteTodayStr(new RealDate(`${y}-11-01T03:59:59Z`));
+  const postNov1 = siteTodayStr(new RealDate(`${y}-11-01T04:00:00Z`));
+  ok(preNov1 === `${y}-10-31` && halloweenLeads(preNov1) && track("morning", preNov1)[0] === "halloween", `${y}: 1s before Nov 1 midnight EDT is ${preNov1} with Halloween still leading`);
+  ok(postNov1 === `${y}-11-01` && !halloweenLeads(postNov1) && !track("morning", postNov1).includes("halloween") && track("morning", postNov1)[0] === "augtober", `${y}: at Nov 1 midnight EDT is ${postNov1} with Halloween gone and Fall leading`);
+  h = await hit(`${y}-11-01T04:01:00Z`, "s3cret");
+  ok(h.body.skipped === false && h.body.today === `${y}-11-01` && JSON.stringify(h.calls) === JSON.stringify(["/", "/v8"]), `${y}: 00:01 EDT Nov 1 revalidates / and /v8`);
+}
 
 // ── the midnight timer fixture (lib/siteDayClock.js) ──
 const clock = await import("../lib/siteDayClock.js");
