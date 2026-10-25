@@ -859,7 +859,7 @@ export default function DetailSheet({ ctx }) {
                   <div data-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: C.bg }}>
                     {showHero ? <div ref={galleryRef} onScroll={onGalleryScroll} style={{ position: "absolute", inset: 0, display: "flex", gap: 6, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
                     {galleryPhotos.map((src, i) => (
-                      <FallbackImg fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
+                      <FallbackImg fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
                   </div>
