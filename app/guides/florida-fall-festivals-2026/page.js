@@ -648,7 +648,7 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
   if (!event) return null;
   const href = fallGuideEventHref(event);
   const ticket = guideTicketCta(event, href);
-  const fallbackImage = visual ? guideContextPhoto("florida-fall-festivals-2026", { name: event.event_name, detail: event.detail }, { region: event.city || "Florida" }) : null;
+  const fallbackImage = visual ? guideContextPhoto("florida-fall-festivals-2026", { name: event.event_name, detail: [event.detail, event.card_hook, event.editorial_summary, event.schedule_note, event.guide_kind].filter(Boolean).join(" ") }, { region: event.city || "Florida" }) : null;
   const image = visual ? eventImage(event) || fallbackImage : null;
   return (
     <article className={compact ? styles.miniCardCompact : styles.miniCard}>

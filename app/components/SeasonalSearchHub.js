@@ -29,18 +29,29 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
   const feature = hub.feature && hub.feature.endsOn >= today ? hub.feature : null;
   const usedSrc = new Set();
   const hubTopic = slug === "new-years-in-florida" ? "fireworks"
-    : slug === "christmas-in-florida" ? "holiday-lights" : "farm";
+    : slug === "christmas-in-florida" ? "holiday-lights"
+    : slug === "halloween-in-florida" ? "halloween" : "farm";
   const hero = guideContextPhoto(slug, { name: hub.title }, hub, { topic: hubTopic, usedSrc });
   const sectionTopics = {
-    lights: "holiday-lights", "boat-parades": "boat-parade", parks: "theme-park", "new-year": "fireworks",
-    families: "family", "night-out": "cocktails", fireworks: "fireworks", "new-years-day": "brunch",
-    pumpkins: "farm", festivals: "farm", "after-dark": "cocktails", haunts: "farm", food: "dining",
+    lights: "holiday-lights",
+    "boat-parades": "boat-parade",
+    parks: "theme-park-christmas",
+    "new-year": "fireworks",
+    families: slug === "halloween-in-florida" ? "halloween-family" : "family",
+    "night-out": "cocktails",
+    fireworks: "fireworks",
+    "new-years-day": "brunch",
+    pumpkins: "farm",
+    festivals: "fall-festival",
+    "after-dark": "cocktails",
+    haunts: "haunts",
+    food: slug === "halloween-in-florida" ? "halloween-food" : "dining",
   };
   // These statewide overviews can illustrate a format with a named Florida
   // setting; the photo alt still identifies that setting, never a 2026 edition.
   const sectionContext = { ...hub, contextLocations: ["Orlando", "Sarasota", "Fort Lauderdale"] };
   const sectionImages = sections.map((section) => guideContextPhoto(slug, { name: section.title }, sectionContext, { topic: sectionTopics[section.id], usedSrc }));
-  const featureImage = feature ? guideContextPhoto(slug, { name: feature.heading }, hub, { topic: "fireworks", usedSrc }) : null;
+  const featureImage = feature ? guideContextPhoto(slug, { name: feature.heading }, sectionContext, { topic: "fireworks", usedSrc }) : null;
   const shareUrl = SITE_URL + "/" + slug;
   const links = [...new Map(sections.flatMap((section) => section.links).filter((link) => !link.sponsored).map((link) => [link.href, link])).values()];
   const schema = {
