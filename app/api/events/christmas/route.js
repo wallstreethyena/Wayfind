@@ -134,6 +134,8 @@ export async function GET(request) {
             wfScore: rating && rating > 0 ? wayfindScore(rating, p.signals.reviews || 0) : null,
             take: CHRISTMAS_PLACE_TAKES[p.place_id] || null,
             image: cardImageSrc({ place_id: p.place_id, photo_ref: p.photo_ref, photo_url: p.photo_url, signals: p.signals }, 640),
+            ...(Array.isArray(p.signals?.photos) && p.signals.photos.length ? { photos: p.signals.photos } : {}),
+            ...(Array.isArray(p.signals?.photo_gallery) && p.signals.photo_gallery.length ? { photoGallery: p.signals.photo_gallery } : {}),
             christmasRail: CHRISTMAS_PLACE_RAIL[p.place_id],
           };
         })
