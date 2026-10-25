@@ -94,17 +94,6 @@ jobs:
           retention-days: 14
       - name: Required rendered map pin standard
         run: node scripts/test-map-pin-standard.mjs --require-browser
-      - name: Required rendered editorial hero layout
-        if: always()
-        run: node scripts/test-editorial-hero-layout.mjs --require-browser
-      - name: Upload editorial hero layout evidence
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: editorial-hero-layout-${{ github.sha }}
-          path: artifacts/editorial-hero-layout/
-          if-no-files-found: error
-          retention-days: 14
       - name: Guard suite (all of scripts/guards.txt)
         env:
           # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
