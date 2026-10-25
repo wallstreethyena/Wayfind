@@ -6571,6 +6571,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // re-applies the pick through stampOwnerPick (curation effect), and each
   // surface re-ranks from its own active sort. The client cannot mint: the
   // verdict is the server's owner map.
+  // GLOBAL LIKE RULE 2c (docs/proposals/global-like-rule.md): a failed
+  // signed-in save rolls the thumbs back to exactly how they were and says
+  // so — never a silent failure. `prior` = the four maps before the tap.
+  function watchLikeWrite(writePromise, prior) {
+    if (!writePromise) return;
+    Promise.resolve(writePromise).then((res) => {
+      if (!res || !res.error) return;
+      setLiked(prior.liked); setDisliked(prior.disliked);
+      setLikedItems(prior.likedItems); setDislikedItems(prior.dislikedItems);
+      try { setLocal("wf_liked", JSON.stringify(prior.liked)); setLocal("wf_disliked", JSON.stringify(prior.disliked)); setLocal("wf_liked_items", JSON.stringify(prior.likedItems)); setLocal("wf_disliked_items", JSON.stringify(prior.dislikedItems)); } catch {}
+      showToast("Couldn't save that — check your connection and try again.");
+    }, () => {});
+  }
   function refreshOwnerPick(placeId, writePromise, on, prior) {
     if (!placeId || !writePromise) return;
     // Optimistic pick in THIS turn; the reconcile path loads on first tap.
@@ -6590,16 +6603,25 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       recordSignal(p, "like");
       logEvent("like", p);
     }
+    // Toggle-off fires the SAME PostHog event name with on:false (GLOBAL
+    // LIKE RULE: every like/unlike/dislike/undislike is measured; no second
+    // event name is invented). place=null keeps the taste bump out of it.
+    if (wasLiked) { try { logEvent("like", null, { place_id: p.id, on: false }); } catch {} }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
     // The store stamps the optimistic pick in the same turn for a session the
     // server marked as the owner, then reconciles after the write settles.
     if (supabase && user) {
+      const priorMaps = { liked, disliked, likedItems, dislikedItems };
       if (wasLiked) {
-        refreshOwnerPick(p.id, supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id), false, true);
+        const w = supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id);
+        refreshOwnerPick(p.id, w, false, true);
+        watchLikeWrite(w, priorMaps);
       } else {
-        refreshOwnerPick(p.id, supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" }), true, false);
+        const w = supabase.from("likes").upsert({ user_id: user.id, place_id: p.id, place: p }, { onConflict: "user_id,place_id" });
+        refreshOwnerPick(p.id, w, true, false);
+        watchLikeWrite(w, priorMaps);
         svFolderDelete("Disliked", p.id);
       }
     }
@@ -6616,11 +6638,12 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
       recordSignal(p, "dislike"); logEvent("dislike", p);
       svFolderUpsert("Disliked", p);
-      if (supabase && user) refreshOwnerPick(p.id, supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id), false, !!liked[p.id]);
+      if (supabase && user) { const w = supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id); refreshOwnerPick(p.id, w, false, !!liked[p.id]); watchLikeWrite(w, { liked, disliked, likedItems, dislikedItems }); }
     }
     setLiked(nextLiked); setDisliked(nextDis);
     setLikedItems(nextLikedItems); setDislikedItems(nextDisItems);
     try { setLocal("wf_liked", JSON.stringify(nextLiked)); setLocal("wf_disliked", JSON.stringify(nextDis)); setLocal("wf_liked_items", JSON.stringify(nextLikedItems)); setLocal("wf_disliked_items", JSON.stringify(nextDisItems)); } catch {}
+    if (wasDis) { try { logEvent("dislike", null, { place_id: p.id, on: false }); } catch {} }
     if (!wasDis) showToast("Got it — fewer places like this");
   }
   function toggleHookLike(hookId) {

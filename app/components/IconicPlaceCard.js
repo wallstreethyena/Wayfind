@@ -509,8 +509,8 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // mismatch. Net effect: the anchor exists only while the page cannot run the
   // handler anyway, and a tap after hydration can never be a navigation.
   const doSave = onSave || (cardActionsReadOnly ? content.toggleSave : fb.hydrated ? (e, p) => fallbackSave(p, { surface }) : null);
-  const doLike = onLike || (cardActionsReadOnly ? content.toggleLike : fb.hydrated ? (e, p) => fallbackLike(p, { surface }) : null);
-  const doDislike = onDislike || (cardActionsReadOnly ? content.toggleDislike : fb.hydrated ? (e, p) => fallbackDislike(p, { surface }) : null);
+  const doLike = onLike || (cardActionsReadOnly ? content.toggleLike : fb.hydrated ? (e, p) => fallbackLike(p, { surface, position: rank }) : null);
+  const doDislike = onDislike || (cardActionsReadOnly ? content.toggleDislike : fb.hydrated ? (e, p) => fallbackDislike(p, { surface, position: rank }) : null);
   // v8.30.1 — share joins the other three. It is the only action in this row
   // that took the raw prop, so it was the only one a caller could leave dead —
   // and <DaypartRail> did exactly that on every rail drop. The card's share

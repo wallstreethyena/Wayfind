@@ -251,6 +251,7 @@ scripts/check-lands-on-results.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	37	1	0	
 scripts/check-legal.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	b82e9e560a2802eb129d6ff50a46ba799964e4de0a3453e74e9abdcf2ea2ab5d
 scripts/check-lib-call-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	fbe9ce6f43f46cf5d17ac3c69589d5c2ce0a72b86a7232174c98112243f9972b
 scripts/check-libs.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cf06f31f56a53f8174c2acacb2d6d8ae96db8fd6b42ed1e6b3b11877974ade44
+scripts/check-like-global.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	aacd9f78df135dae598a803128e0c307587c3a412ec5f998df5719d8133a6fb4
 scripts/check-like-store-writes.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	271f4fbf1c3d37c6f85b0ecac7b8bab27ff9195a52a93a80b51f0c2436a029d8
 scripts/check-link-quarantine.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	e09eecb3899848eeafd488faec3dbd7bfd8cbd3d767cb2aef7ae21fe79ab2dd1
 scripts/check-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	b3d7b31b487be6c72b9e6a8ddc0751b2bdcbe2f41c12904cbe0198871dd822a6
@@ -774,6 +775,7 @@ scripts/test-layout-shift.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	ee84e4446
 scripts/test-ledger-failure-classes.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	b93be7f5a10c4ae6366a458d8396d37a79fc50609b7557a954e816b20d6d6719
 scripts/test-ledger-month.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	d1711bd14395d993a38e53a448dff3dc2c23c70d4256b169ab7a4653dc0cf269
 scripts/test-lightbox-paging.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	ede6a1c5b5619d2cd37a2de2d981f1a1afa942228323d25e6238025bc98ed641
+scripts/test-like-global-sync.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	1a59ca851f0f25b8e6173f66dd36e12ac7b8c3f8f3763eea437336d2000ea391
 scripts/test-like-rerank.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	f8fd10262c35357d95ef3b2872fc43e2268f6ae2390bae22c1072323b0044d0f
 scripts/test-links.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	5bebabaa108a409ab4da4fad018823bf7e6a2f7d04785e9f9bf13988bfc2ce9c
 scripts/test-list-engine.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	15f0edb013448410a21aa2bd3728441caa67cc310194dc9bbe4511082047486d
