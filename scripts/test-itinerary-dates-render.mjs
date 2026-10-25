@@ -311,7 +311,64 @@ function baseCtx(overrides = {}) {
       }),
     })
   );
-  ok(!undatedSharedItinHtml.includes("data-wf-day-heading") && !undatedSharedItinHtml.includes("Unscheduled"), "SharedItineraryScreen renders an undated wftrip1 link with no Unscheduled heading");
+  const minimalNoNotesItinHtml = renderToStaticMarkup(
+    createElement(SharedItineraryScreen, {
+      ctx: baseCtx({
+        sharedItinerary: {
+          title: "Maximum 40-Stop Coastal Expedition",
+          city: "Sarasota",
+          state: "FL",
+          notesOmitted: true,
+          notesOmittedCount: 40,
+          items: [
+            { id: "s1", order: 0, day: "2026-10-24", note: "", place: makePlace("s1", "Owen's Fish Camp", 27.33, -82.54) },
+          ],
+        },
+        setSharedItinerary() {},
+        setScreen() {},
+      }),
+    })
+  );
+  const maxTrip40ForRender = {
+    fl_sarasota: {
+      key: "fl_sarasota",
+      city: "Sarasota",
+      state: "FL",
+      title: "Maximum 40-Stop Coastal Expedition",
+      items: Array.from({ length: 40 }, (_, i) => ({
+        id: "mt" + (i + 1),
+        order: i,
+        day: i < 20 ? "2026-10-24" : "2026-10-25",
+        note: `Stop ${i + 1} note: ` + "N".repeat(120),
+        place: {
+          ...makePlace("mt" + (i + 1), `Stop ${i + 1} — ` + "B".repeat(90), 27.33 + i * 0.001, -82.54 - i * 0.001),
+          address: `${200 + i} Gulfstream Ave, Sarasota, FL 34236, USA`,
+          photo: `https://images.gowayfind.com/photos/stop-${i + 1}-${"p".repeat(120)}.jpg`,
+        },
+      })),
+    },
+  };
+  const maxTripSenderHtml = renderToStaticMarkup(
+    createElement(ItineraryScreen, {
+      ctx: baseCtx({
+        activeTrip: "fl_sarasota",
+        trips: maxTrip40ForRender,
+        shareList() {},
+        shareTrip() {},
+      }),
+    })
+  );
+  ok(
+    !undatedSharedItinHtml.includes("data-wf-day-heading") &&
+      !undatedSharedItinHtml.includes("Unscheduled") &&
+      minimalNoNotesItinHtml.includes('data-wf-share-notes-omitted="itinerary"') &&
+      minimalNoNotesItinHtml.includes("Stop notes (40) were omitted from this shared copy") &&
+      !minimalNoNotesItinHtml.includes("and notes.") &&
+      maxTripSenderHtml.includes('data-wf-share-limit-note="true"') &&
+      maxTripSenderHtml.includes("All 40 stop notes will be omitted from the shared copy") &&
+      maxTripSenderHtml.includes("8,000-character safer-sharing threshold"),
+    "SharedItineraryScreen renders undated wftrip1 with no Unscheduled heading, never presents minimal_no_notes as note-preserving, and ItineraryScreen surfaces both note-omission and 8,000-char safer-sharing warnings"
+  );
 }
 
 if (failures > 0) {

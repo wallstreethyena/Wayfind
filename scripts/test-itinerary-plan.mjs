@@ -998,7 +998,17 @@ function northOf(origin, km) {
     }));
     const listMeasure25 = measureListShare(maxList25);
     ok(listMeasure25.ok === true && listMeasure25.includedPlaces === 25 && listMeasure25.truncatedPlaces === 0, "25-place max list encodes all 25 places");
-    ok(listMeasure25.payloadLength > 0 && listMeasure25.payloadLength <= 12000, "25-place encoded list fits within PAYLOAD_MAX");
+    ok(
+      listMeasure25.payloadLength > 0 &&
+        listMeasure25.payloadLength <= 12000 &&
+        listMeasure25.withinPayloadBudget === true &&
+        listMeasure25.finalUrlLength > listMeasure25.payloadLength &&
+        listMeasure25.withinSafeUrlBudget === false &&
+        typeof listMeasure25.warning === "string" &&
+        listMeasure25.warning.includes("8,000-character safer-sharing threshold") &&
+        listMeasure25.warning.includes("12,000-character payload limit"),
+      "25-place encoded list fits within PAYLOAD_MAX (12,000 chars), measures final URL length, and warns when exceeding the 8,000-char safer-sharing threshold"
+    );
     const listMeasure30 = measureListShare([...maxList25, ...maxList25.slice(0, 5)]);
     eq(listMeasure30.truncatedPlaces, 5, "measureListShare detects 5 truncated places when given 30 places");
     ok(typeof listMeasure30.warning === "string" && listMeasure30.warning.includes("first 25 of 30"), "measureListShare produces an honest pre-share warning before truncating");
@@ -1023,10 +1033,34 @@ function northOf(origin, km) {
     };
     const itinMeasure40 = measureItineraryShare(maxTrip40);
     ok(itinMeasure40.ok === true && itinMeasure40.includedStops === 40, "40-stop max trip encodes all 40 stops via automatic compaction tiers");
-    ok(itinMeasure40.payloadLength <= 12000, "40-stop max trip stays within PAYLOAD_MAX (12,000 chars)");
-    ok(itinMeasure40.photosDropped === true, "40-stop max trip with long photos drops photos first to preserve notes and dates");
+    ok(
+      itinMeasure40.payloadLength <= 12000 &&
+        itinMeasure40.withinPayloadBudget === true &&
+        itinMeasure40.finalUrlLength > itinMeasure40.payloadLength &&
+        itinMeasure40.withinSafeUrlBudget === false,
+      "40-stop max trip stays within PAYLOAD_MAX (12,000 chars) and measures the final URL against the 8,000-char safer-sharing threshold"
+    );
+    ok(
+      itinMeasure40.photosDropped === true &&
+        itinMeasure40.tier === "minimal_no_notes" &&
+        itinMeasure40.notesDropped === true &&
+        itinMeasure40.notesPreserved === false &&
+        itinMeasure40.isCompleteNotePreservingShare === false &&
+        itinMeasure40.requiresConfirm === true &&
+        typeof itinMeasure40.warning === "string" &&
+        itinMeasure40.warning.includes("All 40 stop notes will be omitted") &&
+        itinMeasure40.warning.includes("8,000-character safer-sharing threshold"),
+      "40-stop max trip with long photos and notes marks minimal_no_notes with notesPreserved=false, isCompleteNotePreservingShare=false, requiresConfirm=true, and explicit note-omission + 8,000-char warnings"
+    );
     const roundTrip40 = decodeItineraryShare(itinMeasure40.payload);
-    eq(roundTrip40.items.length, 40, "all 40 stops decode intact from the compacted share payload");
+    eq(
+      roundTrip40.items.length === 40 &&
+        roundTrip40.notesOmitted === true &&
+        roundTrip40.notesOmittedCount === 40 &&
+        roundTrip40.notesPreserved === false,
+      true,
+      "all 40 stops decode intact from the compacted share payload with notesOmitted=true, notesOmittedCount=40, and notesPreserved=false"
+    );
     eq(roundTrip40.items.filter((it) => it.day === "2026-10-24").length, 20, "all 20 day-1 dates survive 40-stop compaction");
     eq(roundTrip40.items.filter((it) => it.day === "2026-10-25").length, 20, "all 20 day-2 dates survive 40-stop compaction");
 

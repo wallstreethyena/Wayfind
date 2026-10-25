@@ -223,9 +223,19 @@ export default function SharedItineraryScreen({ ctx }) {
                 style={{ fontSize: 12, color: C.muted, marginTop: 2, lineHeight: 1.4 }}
               >
                 {atTripCap
-                  ? `Shared trip links include up to ${MAX_SHARED_ITINERARY_STOPS} stops (first ${MAX_SHARED_ITINERARY_STOPS} shown). Saving copies these ${norm.totalStops} stops${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes into your own private editable Itinerary.`
-                  : `Saves your own private editable copy (${displayTitle}) with all ${norm.totalStops} stop${norm.totalStops === 1 ? "" : "s"}${norm.datedCount ? `, ${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"},` : ""} and notes.`}
+                  ? `Shared trip links include up to ${MAX_SHARED_ITINERARY_STOPS} stops (first ${MAX_SHARED_ITINERARY_STOPS} shown). Saving copies these ${norm.totalStops} stops${norm.datedCount ? `${norm.notesOmitted ? " and " : ", "}${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"}${norm.notesOmitted ? "" : ","}` : ""}${norm.notesOmitted ? " (stop notes were omitted to fit the 12,000-character payload limit)" : " and notes"} into your own private editable Itinerary.`
+                  : `Saves your own private editable copy (${displayTitle}) with all ${norm.totalStops} stop${norm.totalStops === 1 ? "" : "s"}${norm.datedCount ? `${norm.notesOmitted ? " and " : ", "}${norm.datedCount} scheduled date${norm.datedCount === 1 ? "" : "s"}${norm.notesOmitted ? "" : ","}` : ""}${norm.notesOmitted ? " (stop notes were omitted to fit the 12,000-character payload limit)." : " and notes."}`}
               </div>
+              {norm.notesOmitted && (
+                <div data-wf-share-notes-omitted="itinerary" style={{ fontSize: 11.5, color: C.light, marginTop: 4 }}>
+                  {`Stop notes (${norm.notesOmittedCount}) were omitted from this shared copy to fit the 12,000-character payload limit.`}
+                </div>
+              )}
+              {!norm.notesOmitted && norm.notesCompacted && (
+                <div data-wf-share-notes-compacted="itinerary" style={{ fontSize: 11.5, color: C.light, marginTop: 4 }}>
+                  {`${norm.notesCompactedCount} long stop note${norm.notesCompactedCount === 1 ? " was" : "s were"} shortened to 56 characters in this shared copy to fit the 12,000-character payload limit.`}
+                </div>
+              )}
               {(norm.skippedCount > 0 || norm.invalidDateCount > 0) && (
                 <div data-wf-share-sanitized-notice="itinerary" style={{ fontSize: 11.5, color: C.light, marginTop: 4 }}>
                   {norm.skippedCount > 0 && norm.invalidDateCount > 0
