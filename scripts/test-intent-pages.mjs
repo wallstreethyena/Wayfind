@@ -60,13 +60,13 @@ ok(ranked.find((r) => r.id === "b").deduction >= 0.4, "the deduction is still ca
 // a dropped bust cannot pass as "the file is right".
 {
   const art = String(INTENT_PAGES["date-night"].art || "");
-  ok(art.split("?")[0] === "/cards/date-night-owner.png", `date-night landing page matches the owner Date Night poster (got ${art})`);
-  ok(art === "/cards/date-night-owner.png?v=" + RAIL_ART_V,
+  ok(art.split("?")[0] === "/cards-v8/datenight-760.webp", `date-night landing page matches the owner Date Night poster (got ${art})`);
+  ok(art === "/cards-v8/datenight-760.webp?v=" + RAIL_ART_V,
     "…and it carries the RAIL_ART_V bust, so a new poster is not hidden behind the 30-day CDN copy");
-  ok(String(INTENT_PAGES["date-night"].card.art || "") === "/cards/date-night-owner.png",
+  ok(String(INTENT_PAGES["date-night"].card.art || "") === "/cards-v8/datenight-760.webp",
     "…while the SHARE card stays unversioned — that route is Cache-Control: immutable and must be the same bytes on every deploy");
 }
-ok(INTENT_PAGES["date-night"].card.art === "/cards/date-night-owner.png", "date-night share card uses the same owner poster");
+ok(INTENT_PAGES["date-night"].card.art === "/cards-v8/datenight-760.webp", "date-night share card uses the same owner poster");
 ok(INTENT_PAGES.family.art === "/cards/family-day-solved-v2.webp", "family landing page uses the owner's polished family poster");
 const ic = readFileSync(new URL("../app/components/IntentPageClient.js", import.meta.url), "utf8");
 ok(ic.includes("ranked lower for the drive"), "penalized rows explain themselves");

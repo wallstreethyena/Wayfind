@@ -226,12 +226,13 @@ ok(/preserveFrame\s*\?\s*"fill"\s*:\s*"cover"/.test(make),
 const intent = strip(read("lib/intentPages.js"));
 const dnArt = [...intent.matchAll(/art:\s*"([^"]+)"/g)]
   .map((m) => m[1])
-  .filter((p) => /date-night/.test(p));
-ok(dnArt.length >= 1 && dnArt.every((p) => p.split("?")[0] === "/cards/date-night-owner.png"),
-  `/date-night hero uses date-night-owner.png (the locked poster), not the AdobeStock jpeg (got ${JSON.stringify(dnArt)})`);
+  .filter((p) => /date-?night/.test(p));
+ok(dnArt.length >= 1 && dnArt.every((p) => p.split("?")[0] === "/cards-v8/datenight-760.webp"),
+  `/date-night hero uses the intact optimized copy of the locked poster, not the AdobeStock jpeg (got ${JSON.stringify(dnArt)})`);
 ok(!/date-night-adobestock-190984224/.test(intent),
   "/date-night does not point at the old AdobeStock jpeg");
 
+let layoutMeasured = false;
 // Layout: inject the shipped CSS and measure the boxes the browser computes.
 // Formula equality above is the always-on lock. This is the same question
 // asked of getBoundingClientRect at the 390px phone the founder used.
@@ -274,6 +275,7 @@ ok(!/date-night-adobestock-190984224/.test(intent),
       await page.goto("file://" + pagePath, { waitUntil: "load" });
       const innerWidth = await page.evaluate(() => window.innerWidth);
       ok(innerWidth === 390, `PROBE: measured viewport is 390px, not a clamped request (got ${innerWidth})`);
+      layoutMeasured = true;
       const measured = await page.evaluate(() => {
         const box = (el) => {
           if (!el) return null;
@@ -319,4 +321,4 @@ if (fail) {
   console.error(`check-datenight-rail-uncropped: FAIL — ${fail} assertion(s), ${pass} passed`);
   process.exit(1);
 }
-console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked ${locked.width}\u00d7${locked.height} executed + byte-identical to rail source and hero; 760.jpg keeps the source aspect; the poster is ${ON_RATIO ? "ON" : "OFF"}-ratio so the required fit is ${ON_RATIO ? "cover with no per-tile override" : "contain"}, asserted statically AND measured in a real 390px viewport; TILE BOX computed equal to Tonight/Drive; RAIL_ART_V ${RAIL_ART_V})`);
+console.log(`check-datenight-rail-uncropped: OK — ${pass} assertions (locked ${locked.width}\u00d7${locked.height} executed + byte-identical to rail source and hero; 760.jpg keeps the source aspect; the poster is ${ON_RATIO ? "ON" : "OFF"}-ratio so the required fit is ${ON_RATIO ? "cover with no per-tile override" : "contain"}, asserted statically; ${layoutMeasured ? "measured in a real 390px viewport" : "BROWSER CHECK NOT RUN"}; TILE BOX computed equal to Tonight/Drive; RAIL_ART_V ${RAIL_ART_V})`);

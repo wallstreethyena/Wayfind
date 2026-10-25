@@ -4,7 +4,7 @@
 // Run with --require-browser in merge CI. A local machine without Chromium may
 // run the structural half, but it must never describe that result as rendered.
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -756,6 +756,18 @@ if (!MUTATION) {
   ok(child.status !== 0, `MUTATION CONTROL: injected 340px wrapper override makes this same guard exit nonzero (got ${child.status})`);
   ok(childOutput.includes("EventPlaceRail.js") && childOutput.includes("sets --wf-card-h") && childOutput.includes("sets font-size"), "MUTATION CONTROL: the same structural scanner names both actual injected source overrides");
   if (REQUIRE_BROWSER) ok(childOutput.includes("RENDER mutation caught"), "MUTATION CONTROL: rendered evaluator also catches the computed 340px event card");
+}
+
+// The existing mandatory rendered UI gate also verifies the shared editorial
+// headers above these cards. Forward explicit CLI strictness, never ambient
+// configuration; browserless deployment builds keep the standalone image checks.
+if (REQUIRE_BROWSER && !MUTATION) {
+  const hero = spawnSync(process.execPath, [path.join(ROOT, "scripts/test-editorial-hero-layout.mjs"), "--require-browser"], { cwd: ROOT, encoding: "utf8", env: { ...process.env } });
+  process.stdout.write(hero.stdout || "");
+  process.stderr.write(hero.stderr || "");
+  ok(hero.status === 0, "Required editorial header geometry and full image decoding pass");
+  const heroEvidence = path.join(ROOT, "artifacts/editorial-hero-layout");
+  if (existsSync(heroEvidence)) cpSync(heroEvidence, path.join(ARTIFACT_DIR, "editorial-hero-layout"), { recursive: true });
 }
 
 if (REQUIRE_BROWSER && !MUTATION) {

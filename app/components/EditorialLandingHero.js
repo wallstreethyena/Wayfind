@@ -32,8 +32,9 @@ import SafeImg from "./SafeImg";
 export function editorialHeroCss(prefix = "wf-beach-premium") {
   const P = prefix;
   return `
-.${P}-wrap{padding:22px 22px 8px}
+.${P}-wrap{box-sizing:border-box;min-width:0;padding:22px 22px 8px}
 .${P}-hero{
+  box-sizing:border-box;
   position:relative;
   display:grid;
   grid-template-columns:minmax(0,.92fr) minmax(500px,1.08fr);
@@ -46,7 +47,7 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
   background:#F5EFE5;
   box-shadow:0 32px 90px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.7);
 }
-.${P}-media{position:relative;min-height:620px;overflow:hidden;background:#101923}
+.${P}-media{position:relative;min-width:0;min-height:620px;overflow:hidden;background:#101923}
 /* v8.29.5 — 620px IS A PROMISE ABOUT CONTENT THAT IS NOT ALWAYS KEPT. The hero
    holds that height for the quick-answer grid, and the intent pages
    (/worth-the-drive, /hidden-gems, /date-night…) have no server data for it —
@@ -55,9 +56,15 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
    When the grid is genuinely absent the whole hero tightens instead of holding
    the gap open. :has() is already used elsewhere in this codebase's CSS and
    degrades to the old height on anything that lacks it. */
-.${P}-hero:not(:has(.${P}-picks)){min-height:462px}
-.${P}-hero:not(:has(.${P}-picks)) .${P}-media{min-height:462px}
-.${P}-media>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Keep this higher-specificity desktop minimum out of the mobile cascade. */
+@media(min-width:861px){
+  .${P}-hero:not(:has(.${P}-picks)){min-height:462px}
+  .${P}-hero:not(:has(.${P}-picks)) .${P}-media{min-height:462px}
+}
+.${P}-media>img,.${P}-media>.${P}-image{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+/* Authored posters contain their typography; show the complete artwork. */
+.${P}-media[data-presentation="poster"]>img{object-fit:contain}
+.${P}-media[data-presentation="poster"]:after,.${P}-media[data-presentation="poster"] .${P}-image-copy{display:none}
 .${P}-media:after{
   content:"";
   position:absolute;
@@ -93,8 +100,9 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
 .${P}-image-kicker:before{content:"";width:28px;height:1px;background:#F97316}
 .${P}-image-title{max-width:430px;margin:13px 0 0;color:#FFF;font-family:Georgia,'Times New Roman',serif;font-size:45px;font-weight:400;letter-spacing:-.035em;line-height:.98;text-wrap:balance;text-shadow:0 3px 18px rgba(0,0,0,.52)}
 .${P}-panel{display:flex;min-width:0;flex-direction:column;padding:54px 58px 38px;color:#111824;background:radial-gradient(circle at 100% 0,rgba(249,115,22,.07),transparent 33%),linear-gradient(145deg,#FBF7EF,#F3EBDD)}
-.${P}-topline{display:flex;align-items:center;justify-content:space-between;gap:16px;color:#5D6878;font-size:9.5px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
-.${P}-location{display:inline-flex;align-items:center;gap:7px;color:#B84E0D;letter-spacing:.12em;white-space:nowrap}
+.${P}-topline{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:16px;color:#5D6878;font-size:9.5px;font-weight:850;letter-spacing:.18em;text-transform:uppercase}
+.${P}-topline>span{min-width:0;max-width:100%;overflow-wrap:anywhere}
+.${P}-location{display:inline-flex;align-items:center;gap:7px;color:#B84E0D;letter-spacing:.12em}
 .${P}-location:before{content:"";width:7px;height:7px;border-radius:50%;background:#F97316;box-shadow:0 0 0 4px rgba(249,115,22,.12)}
 .${P}-panel h1{max-width:620px;margin:28px 0 14px;color:#111824;font-family:Georgia,'Times New Roman',serif;font-size:47px;font-weight:400;letter-spacing:-.045em;line-height:1.01;text-wrap:balance}
 .${P}-dek{max-width:590px;margin:0;color:#596476;font-size:14.5px;font-weight:520;line-height:1.52}
@@ -112,7 +120,7 @@ export function editorialHeroCss(prefix = "wf-beach-premium") {
 .${P}-hero .wf-back-control{position:absolute!important;z-index:5!important;top:18px!important;left:18px!important;margin:0!important;background:rgba(4,8,16,.54)!important;box-shadow:0 8px 24px rgba(0,0,0,.24)}
 @media(max-width:860px){
   .${P}-wrap{padding:12px 12px 4px}
-  .${P}-hero{grid-template-columns:1fr;min-height:0;border-radius:24px}
+  .${P}-hero{grid-template-columns:minmax(0,1fr);min-height:0;border-radius:24px}
   .${P}-media{min-height:330px}
   .${P}-image-copy{left:24px;right:24px;bottom:26px}
   .${P}-image-title{max-width:360px;font-size:38px}
@@ -167,6 +175,8 @@ export default function EditorialLandingHero({
   prefix = "wf-beach-premium",
   backControl = null,
   heroImg = null,
+  heroPresentation = "photo",
+  heroBackground = null,
   brandHref = "/",
   // Where "back" goes. Defaults to the app root so a surface that forgets to
   // pass one still has a way out — a dead end is the bug being fixed.
@@ -210,8 +220,8 @@ export default function EditorialLandingHero({
         </a>
       </div>
       <section className={`${P}-hero`} aria-labelledby={headlineId}>
-        <div className={`${P}-media`}>
-          {heroImg && <SafeImg src={heroImg} alt="" fallbackStyle={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />}
+        <div className={`${P}-media`} data-presentation={heroPresentation} style={heroBackground ? { background: heroBackground } : undefined}>
+          {heroImg && <SafeImg src={heroImg} alt="" className={`${P}-image`} fallbackStyle={{ position: "absolute", inset: 0, width: "100%", height: "100%" }} />}
           <div className={`${P}-image-copy`}>
             <div className={`${P}-image-kicker`}>{imageKicker}</div>
             <div className={`${P}-image-title`}>{imageTitle}</div>

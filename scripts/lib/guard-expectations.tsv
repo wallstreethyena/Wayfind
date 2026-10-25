@@ -335,7 +335,7 @@ scripts/check-pintos-farm-guide.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	aa6cd
 scripts/check-place-card-css-contract.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	98736f7abb7347679c4506e488f2bef8dd1b9f938cb508ca882f3bc8f3e21cb9
 scripts/check-place-card-navigation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	875fd158c88addd7d6c406b210b8d94624318c1a88073377b8afc6371b0e23ab
 scripts/check-place-card-no-directions.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0	e6ed4eae6860d9404c893a77fc232e3fea714a5f80f768fc4619b44d523eed47
-scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	103	0	0	d7b1800dd5c4f9e174bb9364e6801a5df7fbbd36434752cd0412a1bb5ea2a6ff
+scripts/check-place-card-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	104	0	0	88989f5ae0d02525f08909f8d4a489132235015464be66a9c9cf243844b42841
 scripts/check-place-classification.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	22f374da4912b35b0827396bc59e106eafa5376e7bd04991932d2c16e2109adc
 scripts/check-place-detail-honest.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	1	0	c3abfda36f27e96a3c25e4d526a7b7f055d35cd1b4e7c1a78aecd6be251cbb61
 scripts/check-place-featured-in.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a2a0ffc66e9428b724d0d974c9d0c2aac6881ca1407d49a32996c119e361bba6
@@ -612,6 +612,7 @@ scripts/test-eat-ssg-failsoft.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	1	4	bd9692c
 scripts/test-editorial-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	9bd91fe203edc62985e4df9de90162f786f2748127fcb5004c60a5d9f1896a75
 scripts/test-editorial-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4d512a78914c813f1b53f0b8e03637a9776260faaa46e450511a957bb0c939ff
 scripts/test-editorial-endpoint-servable.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	37abc1306230c239ace44dbcb89e01d7d3b966bd0d258a1985435f0c508c8544
+scripts/test-editorial-hero-layout.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	8c6680da5e95d003b6b1b7decbc2cfe3cc6c54d7a961cc6d2aec4f6dc58aa0b2
 scripts/test-editorial-retry-content.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	e2254e7625836025557d03c88de440683a28869f91e19c40459a9b8aa049ebd8
 scripts/test-editorial-rollout.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	6229b47288a87f19a4b13f2009a325a1b2ce2e98ffcb98400cb3629773402088
 scripts/test-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	571aa9be7594ce94c3da678d1729483ea211c1f48d5b93140ff7e94dea14968f
