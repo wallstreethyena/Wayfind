@@ -1,0 +1,160 @@
+{
+  "version": 1,
+  "updated": "2026-10-14",
+  "criteria": "TEST FIXTURE ONLY. Not the real anchor list.",
+  "anchors": [
+    {
+      "anchor_id": "fx-gasparilla",
+      "name": "Gasparilla Pirate Festival",
+      "region": "tampa-bay",
+      "city": "Tampa",
+      "venue": "Bayshore Boulevard",
+      "official_domain": "gasparillapiratefest.example",
+      "category": "festival",
+      "tags": [
+        "parade"
+      ],
+      "typical_window": {
+        "start_month": 1,
+        "end_month": 1
+      },
+      "rails": [
+        "events"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "confirmed_dated",
+        "event_id": "fx-gasparilla-2027",
+        "last_checked": "2026-10-01",
+        "source_url": "https://gasparillapiratefest.example/"
+      }
+    },
+    {
+      "anchor_id": "fx-sandcastle",
+      "name": "Siesta Key Crystal Classic",
+      "region": "manatee-sarasota",
+      "city": "Sarasota",
+      "venue": "Siesta Key Beach",
+      "official_domain": "crystalclassic.example",
+      "category": "festival",
+      "tags": [
+        "sand"
+      ],
+      "typical_window": {
+        "start_month": 11,
+        "end_month": 11
+      },
+      "rails": [
+        "events"
+      ],
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": "fx-crystal-2026",
+        "last_checked": "2026-10-01",
+        "source_url": "https://crystalclassic.example/"
+      }
+    },
+    {
+      "anchor_id": "fx-seafood",
+      "name": "Cortez Commercial Fishing Festival",
+      "region": "manatee-sarasota",
+      "city": "Cortez",
+      "venue": "Cortez Village",
+      "official_domain": "cortezfest.example",
+      "category": "festival",
+      "tags": [
+        "food"
+      ],
+      "typical_window": {
+        "start_month": 3,
+        "end_month": 3
+      },
+      "rails": [
+        "events"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-01",
+        "source_url": "https://cortezfest.example/"
+      }
+    },
+    {
+      "anchor_id": "fx-cancelled",
+      "name": "Old Mill Jazz Fest",
+      "region": "tampa-bay",
+      "city": "Tampa",
+      "venue": "Old Mill",
+      "official_domain": "oldmill.example",
+      "category": "music",
+      "tags": [
+        "jazz"
+      ],
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "rails": [
+        "events"
+      ],
+      "expected_edition": {
+        "year": 2027,
+        "state": "cancelled",
+        "event_id": null,
+        "last_checked": "2026-10-01",
+        "source_url": null
+      }
+    },
+    {
+      "region": "orlando",
+      "city": "Orlando",
+      "venue": "v",
+      "category": "festival",
+      "tags": [],
+      "rails": [
+        "events"
+      ],
+      "anchor_id": "fx-disney",
+      "name": "Epcot Festival of the Arts",
+      "official_domain": "disneyworld.disney.go.com",
+      "typical_window": {
+        "start_month": 6,
+        "end_month": 6
+      },
+      "expected_edition": {
+        "year": 2027,
+        "state": "expected_undated",
+        "event_id": null,
+        "last_checked": "2026-10-01",
+        "source_url": "https://disneyworld.disney.go.com/events-tours/epcot/festival/"
+      }
+    },
+    {
+      "region": "orlando",
+      "city": "Orlando",
+      "venue": "v",
+      "category": "festival",
+      "tags": [],
+      "rails": [
+        "events"
+      ],
+      "anchor_id": "fx-series-anchor",
+      "name": "Winter Lights Series",
+      "official_domain": "seriesfest.example",
+      "typical_window": {
+        "start_month": 12,
+        "end_month": 12
+      },
+      "expected_edition": {
+        "year": 2026,
+        "state": "confirmed_dated",
+        "event_id": null,
+        "event_series_id": "series-xyz",
+        "last_checked": "2026-10-01",
+        "source_url": null
+      }
+    }
+  ]
+}

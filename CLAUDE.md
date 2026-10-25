@@ -164,6 +164,16 @@ one production chunk was swept.
 - **Paid API proxies** are guarded in `middleware.js` (`lib/apiGuard.js`); add any new
   metered/scrape proxy to the matcher. `/api/eats/go` is GET-302 → `rateLimitOnly`.
 
+## Rail layout — guides ride inside rails (owner, 2026-10-08)
+
+- **Guides go INSIDE the rail they belong to, as its third card.** Never render a guide
+  card (or anything else) between rails; the rails are the centerpiece. A rail with fewer
+  than two cards gets the guide last. Insert only through `lib/railGuideSlot.js`
+  (`insertGuideAt` / `guideSlotIndex`), via `app/components/RailGuideSlot.js` for rail
+  collections and `guideForPlaceRail` for the homepage drop. The guide carries no rank, is
+  never counted as a place (ranks and counters skip it), appears once even after "load
+  more", and is never duplicated across rails. Locked by `scripts/check-guide-in-rail.mjs`.
+
 ## Housekeeping
 
 - The July 2026 "AI Operating System" block lives in `docs/history/AI_OPERATING_SYSTEM_2026-07.md`.

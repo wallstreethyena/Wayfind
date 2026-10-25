@@ -43,7 +43,7 @@
     { "url": "https://mortemmanor.com/", "type": "official_site", "note": "seeded 2026-09-23: the operator's own homepage is live and real, but its literal text ('haunted house', 'scares', 'creepiest') never uses a lib/fallEvidence.FALL_TERMS word (no 'Halloween', 'spooky', etc.) — flagged for the orchestrator, not auto-resolved." }
   ],
   "ChIJUS9EYpll54gR63QOjYM4vDw": [
-    { "url": "https://usghostadventures.com/orlando/", "type": "official_site", "note": "seeded 2026-09-23: confirms 'spooky history of Orlando' in a live review excerpt on the operator's own page." }
+    { "url": "https://usghostadventures.com/orlando/", "type": "official_site", "note": "wf-affiliate-allow: official; research evidence, not a booking CTA. seeded 2026-09-23: confirms 'spooky history of Orlando' in a live review excerpt on the operator's own page." }
   ],
   "ChIJ2Z9gE5eNk4gRz-Ey8y0ahfM": [
     { "url": "https://pcbattractions.com/haunted-house/", "type": "official_site", "note": "seeded 2026-09-23: confirms 'It's Halloween everyday at fear at the pier!' on the operator's own page." }

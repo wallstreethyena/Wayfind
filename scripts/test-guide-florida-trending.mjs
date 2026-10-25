@@ -110,6 +110,10 @@ ok(/Tampa–St\. Pete \(Sarasota\) DMA/.test(guide?.intro || ""), "the intro nam
 ok(/relative/i.test(guide?.intro || "") && /no absolute search volume/i.test(guide?.intro || ""), "the intro says Google Trends values are relative and claims no absolute volume");
 ok(/background levels/i.test(JSON.stringify(guide)), "red tide is worded as background levels");
 ok(/AL pennant/.test(JSON.stringify(guide)) && /Brewers/.test(JSON.stringify(guide)) && /October 26, at 8 PM ET/.test(JSON.stringify(guide)) && /October 23/.test(JSON.stringify(guide)), "Rays copy is the AL pennant and the World Series vs the Brewers: G1 Oct 23, first Trop game Oct 26 8 PM ET");
+ok(/Wayfind affiliate link/.test(trending[1]?.blurb || ""), "Rays home-game tickets are disclosed as a Wayfind affiliate link");
+ok(!/plain link, not an affiliate link/.test(JSON.stringify(guide)), "the Rays ticket line no longer claims the link is untracked");
+ok(typeof trending[1]?.ticketCta?.href === "string" && trending[1].ticketCta.href.startsWith("/api/ticketmaster/go?"), "Rays home-game tickets leave through /api/ticketmaster/go");
+ok(trending[1]?.ticketCta?.label === "Rays home games on Ticketmaster", "the Rays ticket anchor names Ticketmaster");
 
 // Primary venue pages distinguish doors/showtime and separate location calendars.
 ok(/Date: 2026-10-22 6:30 PM/.test(trending[17]?.blurb || "") && /5:30 PM doors/.test(trending[17]?.blurb || ""), "Jake Owen uses the venue showtime and retains doors separately");

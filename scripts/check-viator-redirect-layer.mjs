@@ -149,7 +149,13 @@ ok(loc.startsWith("https://www.viator.com/"), `Location must be the viator produ
 ok(loc.includes("/tours/Orlando/Airboat/d827-1234P5"),
   "the EXACT destination must be preserved, not replaced by a search fallback");
 ok(!/\bclick_id=/.test(loc) && !/\bcid=/.test(loc), "our internal click_id must not be forwarded to the partner");
-ok((good.headers.get("Cache-Control") || "").includes("s-maxage"), "the product redirect must set a cache policy");
+// 2026-10-22: the policy is now explicitly NO-STORE (was public s-maxage=3600).
+// A CDN-cached 302 is answered without running the request gate
+// (lib/redirectGuard.js) or emitting provider_redirect_started, and since every
+// human click carries a unique click_id the only requests that could ever hit
+// that cache were repeat, click_id-less URLs — i.e. crawlers. Still asserted as
+// an explicit policy; a missing header fails exactly as before.
+ok(/\bno-store\b/.test(good.headers.get("Cache-Control") || ""), `the product redirect must set an explicit no-store cache policy (got ${good.headers.get("Cache-Control") || "MISSING"})`);
 
 // A refused product must NOT redirect to the attacker's URL.
 const EVIL = "https://www.viator.com@evil.tld/x";

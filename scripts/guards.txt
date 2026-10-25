@@ -545,6 +545,7 @@ node scripts/check-guards-can-fail.mjs
 node scripts/check-provider-redirects.mjs
 node scripts/test-redirect-integrity.mjs
 node scripts/check-direct-affiliate-urls.mjs
+node scripts/check-ticketmaster-static-ctas.mjs
 
 # 2026-09-22 click-hijack fix: no site-wide third-party auto-linker script in
 # app/layout.js (Stay22 LinkSwap route-scoped, Travelpayouts Drive removed).
@@ -598,6 +599,10 @@ node scripts/check-atlas-retry-cron.mjs
 node scripts/check-atlas-paid-lane.mjs
 # 2026-10-07 Atlas paid lane web path: zero Google calls, identity gate, dry never writes (fixtures only).
 node scripts/test-atlas-web-lane.mjs
+# 2026-10-08 Atlas dollar budget: ceiling/reserve/settle invariant, exact micro-USD pricing, fail-closed (not wired into the cron yet).
+node scripts/test-atlas-budget.mjs
+# 2026-10-08 Atlas pilot runner + 5.5 sampling-param fix: mocked fetch only, host allow-list, budget stop, blind packet.
+node scripts/test-atlas-pilot.mjs
 # 2026-10-07 Owner rule: once a verified editorial line is written it stays. No wf_editorial deletes; reconcile restores reopened places.
 node scripts/check-editorial-stays.mjs
 node scripts/check-guide-cta-honesty.mjs
@@ -784,7 +789,10 @@ node scripts/check-event-price-fact.mjs
 # Events without their own photo show a designed category tile, never stock;
 # venue photos carry a Venue mark.
 node scripts/check-event-photo-honesty.mjs
+node scripts/test-photo-json-cors.mjs
+node scripts/test-photo-json-cors.mjs --red-prove
 node scripts/check-event-approximate-location.mjs
+node scripts/check-event-null-coords.mjs
 # The Events list mounts a page at a time; every event stays reachable.
 node scripts/check-events-paged-list.mjs
 
@@ -1241,6 +1249,7 @@ node scripts/check-fall-offering-freshness.mjs
 # routed through /api/commerce/go on the fall rail, the Events feed and the event page.
 node scripts/check-event-ticket-deals.mjs
 node scripts/check-event-ticket-fallback.mjs
+node scripts/check-event-deeplink.mjs
 node scripts/check-affiliate-coverage.mjs
 node scripts/check-no-product-review.mjs
 node scripts/check-redirect-host-classification.mjs
@@ -1341,6 +1350,7 @@ node scripts/check-community-footer.mjs
 # that every render site (RailCard, Detail, fall endpoint, single-event page)
 # routes through those calls — each red-proved by an applied mutation.
 node scripts/check-link-quarantine.mjs
+node scripts/check-events-link-health-pulse.mjs
 # 2026-09-02: the promotion drain idled 23h on Vercel (gate=free) while every
 # release note read "month_cap 7500 reached" — the real line was the free-tier
 # 4,800. effectiveCap() is now what both the cron and the worker print.
@@ -2063,6 +2073,9 @@ node scripts/check-surface-parity-hermetic.mjs
 # from bots on 09-15), and our own synthetic monitor's UA keeps getting a
 # real redirect while never counting as a human in the money funnel.
 node scripts/check-go-routes-crawler-gate.mjs
+# 2026-10-22: shared /go request gate (lib/redirectGuard.js) — refused classes
+# never get a partner Location; normal click + synthetic monitor still do.
+node scripts/test-redirect-guard.mjs
 
 # 2026-09-23 (fix/gogate, audit follow-up) — the synthetic monitor's own
 # "book-links" scenario can never select or trigger the one /api/viator/go
@@ -2255,6 +2268,13 @@ node scripts/test-google-photo-prefetch-pause.mjs
 # deterministic, cap 4, highest value first.
 node scripts/test-inventory-row-card-fields.mjs
 node scripts/test-card-chips-deterministic.mjs
+# 2026-10-08 shared/saved commercial cards: never origin + partner path, never raw partner params.
+node scripts/test-share-url-no-partner-leak.mjs
+# 2026-10-08 unknown price never renders as $/Inexpensive or Free; free sorts first, unknown last.
+node scripts/test-unknown-price.mjs
+# 2026-10-08 trust fix: operator notes ("Verified ...; refresh before display") and stale general-hours
+# clauses never reach customers. CALL level on every real Atlas card.
+node scripts/test-editorial-staff-notes.mjs
 node scripts/check-creator-independence.mjs
 
 node scripts/test-seasonal-search.mjs
@@ -2389,6 +2409,16 @@ node scripts/test-search-nearby-first.mjs
 node scripts/test-shareable-search-url.mjs
 # 2026-10-24 food word search: cuisine synonyms, whole-word names, distance-band order, food places only.
 node scripts/test-search-food-synonyms.mjs
+# 2026-10-14 anchor watch: daily Florida anchor-event watcher; each finding kind has a positive and a negative control (403 = unknown, never cancelled).
+node scripts/test-anchor-watch.mjs
+node scripts/test-anchor-workflow-gate.mjs
+# 2026-10-14 anchor fix path: reviewed edits only (allowlist, https source, FL bbox); refusals make no request; dry run never PATCHes.
+node scripts/test-anchor-apply.mjs
+# 2026-10-14 anchor-watch alarm: runs the REAL SQL staleness evaluator (throwaway Postgres, parsed tolerance) and the real job-watch classifier on a real watch.mjs failure pulse. --sql-optional: Vercel's build container has no Postgres server; CI does.
+node scripts/test-anchor-watch-heartbeat.mjs --sql-optional
+
+# 2026-10-14 Florida events hub "Major Florida events by month": real majorEventsByMonth() on fixtures (grouping, dedupe, series, ended) + page import/call/gating/position, red-proved.
+node scripts/test-hub-major-events.mjs
 
 # Invite fields and panels fit the mobile visual viewport.
 node scripts/test-share-intent-fit.mjs

@@ -14,6 +14,10 @@
 //
 //   node scripts/guard-affiliate-tags.mjs
 //   node scripts/guard-affiliate-tags.mjs --scan path --no-builders
+import { researchEvent } from "../lib/christmasResearch.js";
+import { isTicketmasterFamily } from "../lib/affiliates.js";
+import { eventDetailTicketAction } from "../lib/curatedEvents.js";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { spawnSync } from "node:child_process";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -72,6 +76,34 @@ if (!scanOnly.length) {
 
   const stray = strayDestinationCalls(ROOT);
   for (const hit of stray) fail(hit);
+}
+
+// A raw research ticket is a builder input ONLY while its actual consumer
+// produces our validated affiliate route. This executed proof is mandatory in
+// the required guard, including targeted scans that encounter such an input.
+const researchInputs = totals.inputs.filter((row) => row.via === "christmas-ticket-input");
+if (!scanOnly.length || researchInputs.length) {
+  try {
+    const rows = JSON.parse(readFileSync(path.join(ROOT, "data/christmas-2026-research.json"), "utf8"));
+    const family = rows.filter((row) => isTicketmasterFamily(row.ticket_url));
+    if (!family.length || family.length !== researchInputs.length) fail("Christmas ticket input census does not match the runtime probe");
+    process.env.WF_SUPPRESS_ANALYTICS = "1";
+    const { GET } = await loadComponent(path.join(ROOT, "app/api/ticketmaster/go/route.js"), ROOT);
+    for (const row of family) {
+      const normalized = researchEvent(row);
+      const url = new URL(normalized?.official_ticket_url, "https://www.gowayfind.com");
+      if (normalized?.official_event_url !== row.official_url || url.origin !== "https://www.gowayfind.com" || url.pathname !== "/api/ticketmaster/go" || url.searchParams.get("url") !== row.ticket_url) {
+        fail(`Christmas research ticket ${row.id} is not attributed to its unchanged event destination`);
+        continue;
+      }
+      const action = eventDetailTicketAction(normalized);
+      if (action?.kind !== "affiliate" || action.href !== normalized.official_ticket_url) fail(`Christmas research ticket ${row.id} lost its affiliate disclosure`);
+      const result = await GET(new Request(url, { headers: { "user-agent": "Mozilla/5.0" } }));
+      const hop = new URL(result.headers.get("location"));
+      if (result.status !== 302 || hop.hostname !== "ticketmaster.evyy.net" || hop.pathname !== "/c/7475855/264167/4272" || hop.searchParams.get("u") !== row.ticket_url || judgeUrl(hop.href, rules)?.outcome !== "ok") fail(`Christmas research ticket ${row.id} lost the pinned Impact attribution or exact destination`);
+    }
+    console.log(`guard-affiliate-tags: Christmas runtime probe executed for ${family.length} ticket input(s)`);
+  } catch (error) { fail("Christmas research ticket runtime probe failed: " + error.message); }
 }
 
 for (const v of totals.violations) {

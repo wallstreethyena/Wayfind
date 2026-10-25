@@ -53,6 +53,11 @@ export const OWNER_ONLY = Object.freeze([
   // later. A workflow can report a check under any name and can read repository
   // secrets, so adding or editing one is an owner decision (2026-09-24).
   /^\.github\//i,
+  // Production data writes (2026-10-14, owner): the reviewed fixes files the
+  // anchor-watch apply-fixes job writes to wf_events, and the tool that writes
+  // them. A change plan for production records is an owner decision.
+  /^scripts\/anchor-events\/fixes\//i,
+  /^scripts\/anchor-events\/apply\.mjs$/i,
 ]);
 
 export const APPROVAL_COMMAND = "/owner-approve";

@@ -60,8 +60,8 @@ ok(HOLDS.some((h) => /Neon|Blacklight/i.test(h.name)) &&
    HOLDS.some((h) => /Actually Worth Eating/i.test(h.name)),
   "unnamed-venue HOLDs, earlier-batch leftovers, #1025 list, and the Actually Worth Eating intent are named");
 
-ok(listPublishReadyAtlasIds().length === 464,
-  "Atlas publish-ready lock is 464 (owner-approved 2026-09-29 Atlas-590 additive merge 459, +5 Best Breakfast 2026 winners 2026-10-03) — this batch minted none; 2026-08-29e added the official NRB ChIJ");
+ok(listPublishReadyAtlasIds().length === 470,
+  "Atlas publish-ready lock is 470 (owner-approved 2026-09-29 Atlas-590 additive merge 459, +5 Best Breakfast 2026 winners 2026-10-03, +6 Best Cafés 2026 winners 2026-10-20) — this batch minted none; 2026-08-29e added the official NRB ChIJ");
 
 for (const p of HOLD_GOOGLE) {
   ok(p.placeId == null, `${p.name}: invented a Google id — HOLD the id, do not mint a ChIJ`);

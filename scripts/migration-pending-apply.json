@@ -52,7 +52,7 @@
     "file": "supabase/migrations/20261021180000_wf_apple_place_ids.sql",
     "sha256": "e48800727ae58370478ded154224fce8fbd394aa3ab30b19715a65e47aef908d",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) — do not apply until the PR is reviewed",
+    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) \u2014 do not apply until the PR is reviewed",
     "reason": "Additive wf_apple_place_ids (Apple Place IDs only; exempt from DPLA Attachment 6 section 2.5) with RLS on and no anon/authenticated grants, plus the apple_maps row in wf_source_registry (15,000 calls/day ceiling under Apple's free 25,000). Not applied to production project gbhtoehdxkzjsmmkisgu. Until applied, the list ships no Place IDs and the map makes no Place ID lookups. Rollback: delete the apple_maps registry row (after its usage rows), drop table public.wf_apple_place_ids."
   },
   {
@@ -61,5 +61,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1890",
     "reason": "Data only: one wf_heartbeat_expected row ('apple-place-match', 1800 min) so the new nightly cron /api/cron/apple-place-match pages if it silently stops firing. Insert-where-not-exists, idempotent, no schema/grant/RLS change. Apply after the cron merges and its first pulse lands (the cron pulses even when credentials or the ledger are missing). Written with read-only DB access. Rollback: delete from public.wf_heartbeat_expected where job='apple-place-match'. Not applied."
+  },
+  {
+    "file": "supabase/migrations/20261014120000_wf_heartbeat_anchor_watch.sql",
+    "sha256": "d4be30686a0ac1236bba8f16010a7541e5c29802ee813a4d03c2d71a62d66c87",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#1752",
+    "reason": "One wf_heartbeat_expected row (anchor-watch, 48h) so heartbeat-watch pages if the daily anchor watcher goes silent. Insert-only, no schema change. Apply only after #1752 merges and the workflow is approved; applying earlier would page on a job that cannot run yet."
   }
 ]

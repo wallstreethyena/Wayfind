@@ -735,8 +735,10 @@ async function fromCuratedEvents(lat, lng) {
     // from this feed (2026-10-08). See upcomingFilter in lib/curatedEvents.js.
     const rows = await fetchCuratedEvents({ fresh: true, upcomingFrom: today() });
     if (!rows.length) return { configured: true, events: [] };
+    // A row with no coordinates is not "far": it is unplaced. It passes through
+    // here and lib/eventsPipeline.js keeps it only on a city-name match.
     const near = curatedFeedEventsWithFall(rows).filter((e) =>
-      e.lat != null && e.lng != null && haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
+      e.lat == null || e.lng == null || haversineMiLocal(lat, lng, e.lat, e.lng) <= CURATED_REACH_MI);
     if (!near.length) return { configured: true, events: [] };
     // A row without its own image is never dropped: the card shows the
     // designed placeholder. The image is an upgrade, never a gate.

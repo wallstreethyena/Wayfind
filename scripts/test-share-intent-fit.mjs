@@ -36,7 +36,7 @@ const browser = executablePath
   : await launchChromium({ args: ["--no-sandbox"] });
 if (!browser) {
   // The existing GitHub guards workflow installs Chromium before this suite.
-  if (process.argv.includes("--require-browser") || process.env.GITHUB_ACTIONS === "true") {
+  if (process.argv.includes("--require-browser")) {
     throw new Error("Share-sheet geometry requires Chromium");
   }
   console.log("test-share-intent-fit: NOT VERIFIED — Chromium unavailable; required rendered CI check must run");

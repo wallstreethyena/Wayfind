@@ -94,6 +94,9 @@ jobs:
           retention-days: 14
       - name: Required rendered map pin standard
         run: node scripts/test-map-pin-standard.mjs --require-browser
+      - name: Required rendered invite viewport fit
+        if: always()
+        run: node scripts/test-share-intent-fit.mjs --require-browser
       - name: Guard suite (all of scripts/guards.txt)
         env:
           # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).

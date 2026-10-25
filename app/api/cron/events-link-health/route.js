@@ -25,6 +25,8 @@ import { probeAndClassify } from "../../../../lib/linkProbe.js";
 import { hostOfUrl, isBadVerdict, dedupeVerdictRows } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
+import { eventRowLinkDepth } from "../../../../lib/eventDeepLink.js";
+import { summarizeLinkHealthPulse, unknownSince, daysBetween, STUCK_DAYS } from "../../../../lib/eventLinkPulse.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -118,6 +120,7 @@ export async function GET(req) {
 
   const nowIso = new Date().toISOString();
   const counts = { alive: 0, bad: 0, strike: 0, unknown: 0 };
+  let stuck = 0;
   const patch = async (eventId, body) => {
     const r = await fetch(`${s.url}/rest/v1/wf_events?event_id=eq.${encodeURIComponent(eventId)}`, {
       method: "PATCH", headers: { ...h, Prefer: "return=minimal" }, body: JSON.stringify(body), cache: "no-store",
@@ -133,7 +136,17 @@ export async function GET(req) {
       if (p.verdict === "unknown") continue;
       verdictRows.push({ url: p.url, host: hostOfUrl(p.url) || "", verdict: p.verdict, reason: p.reason, title: p.title || null, final_url: p.finalUrl || null, expected: [row.event_name, row.venue].filter(Boolean).join(" | "), checked_at: nowIso });
     }
-    if (worst.verdict === "unknown") { counts.unknown++; err = err || await patch(row.event_id, { link_checked_at: nowIso }); continue; }
+    if (worst.verdict === "unknown") {
+      // Inconclusive is a skip, never a verdict. Track HOW LONG a row has been
+      // unreadable ("unknown:YYYY-MM-DD" = first seen) so a permanent wall is
+      // escalated instead of hiding. A bad/strike state is never overwritten.
+      counts.unknown++;
+      const held = row.link_ok === false || (row.link_verdict || "").startsWith("strike:");
+      const since = unknownSince(row.link_verdict) || today;
+      if (daysBetween(since, today) > STUCK_DAYS) stuck++;
+      err = err || await patch(row.event_id, held ? { link_checked_at: nowIso } : { link_verdict: `unknown:${since}`, link_checked_at: nowIso });
+      continue;
+    }
     if (!isBadVerdict(worst.verdict)) {
       counts.alive++;
       err = err || await patch(row.event_id, { link_ok: true, link_verdict: "alive", link_checked_at: nowIso, link_final_url: worst.finalUrl || null });
@@ -163,13 +176,26 @@ export async function GET(req) {
     });
     if (!r.ok) err = err || `verdicts-${r.status}`;
   }
+  // 2026-10-22 owner directive: every live event's button must land on THAT
+  // event. A front-page or calendar link is never darkened (a shallow link
+  // beats none), but it is counted and named here every night so job-watch
+  // surfaces it instead of it shipping unseen. Read-only; one light select.
+  const shallow = [];
   try {
-    await recordPulse(JOB, {
-      attempted: rows.length,
-      succeeded: counts.alive + counts.bad + counts.strike,
-      failed: counts.unknown,
-      note: err ? `persistence error: ${err}`.slice(0, 200) : ([counts.bad ? `${counts.bad} event link(s) darkened` : null, counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null].filter(Boolean).join('; ') || null),
-    });
+    const all = await fetch(`${s.url}/rest/v1/wf_events?select=event_id,official_ticket_url,official_event_url,event_page_url`
+      + `&event_status=in.(scheduled,unannounced,postponed)&or=(end_date.gte.${today},and(end_date.is.null,start_date.gte.${today}))&limit=5000`,
+      { headers: h, cache: "no-store" });
+    if (all.ok) {
+      for (const r of await all.json()) {
+        const d = eventRowLinkDepth(r);
+        if (d !== "deep") shallow.push({ event: r.event_id, depth: d });
+      }
+    }
   } catch (e) {}
-  return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, flagged }, { headers: { "Cache-Control": "no-store" } });
+
+  try {
+    const pulse = summarizeLinkHealthPulse({ rows: rows.length, ...counts, stuck, err });
+    await recordPulse(JOB, { attempted: pulse.attempted, succeeded: pulse.succeeded, failed: pulse.failed, note: [pulse.note, shallow.length ? `${shallow.length} live event(s) not deep-linked (e.g. ${shallow.slice(0, 3).map((x) => x.event).join(", ")})` : null].filter(Boolean).join("; ") || null });
+  } catch (e) {}
+  return Response.json({ ok: !err, error: err, checked: rows.length, ...counts, stuck, flagged, notDeepLinked: shallow }, { headers: { "Cache-Control": "no-store" } });
 }
