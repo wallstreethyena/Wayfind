@@ -58,7 +58,7 @@ const strip = (src) => src
 // a renderer module serves several pages (the button must be in THAT function).
 const STANDARD = {
   "app/fall-in-florida/page.js": "app/components/SeasonalSearchHub.js",
-  "app/halloween-in-florida/page.js": "app/components/SeasonalSearchHub.js",
+  "app/halloween-in-florida/page.js": "app/halloween-in-florida/page.js",
   "app/sarasota-halloween-crown/page.js": "app/sarasota-halloween-crown/page.js",
   "app/christmas-in-florida/page.js": "app/components/SeasonalSearchHub.js",
   "app/new-years-in-florida/page.js": "app/components/SeasonalSearchHub.js",
@@ -134,6 +134,8 @@ const EXEMPT = {
   "app/itinerary/page.js": { kind: "handoff", why: "route shim: a person's own plan, shared from inside the shell" },
   "app/go/[city]/page.js": { kind: "paid", why: "paid-ad landing: one conversion action, and a share would forward the ad click's attribution" },
   "app/go/florida/page.js": { kind: "paid", why: "paid-ad landing (Google Ads): same reason" },
+  "app/halloween-tickets/page.js": { kind: "handoff", why: "social shortlink: permanent redirect to /halloween-in-florida, not a second destination" },
+  "app/go/halloween-tickets/page.js": { kind: "handoff", why: "social shortlink: permanent redirect to /halloween-in-florida, not a second destination" },
   "app/ask/page.js": { kind: "invite", why: "invite reply page: its primary action already IS a native share of the reply" },
   "app/about/page.js": { kind: "policy", why: "company page, not a destination" },
   "app/privacy/page.js": { kind: "policy", why: "legal page (privacy policy), not a destination" },

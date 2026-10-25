@@ -91,6 +91,10 @@ export const config = {
     // gate — no metered upstream — an abuse gate.
     "/api/outbound/verdict",
     "/api/hooks",
+    // Bo's Halloween ticket chat: a same-origin POST into the shared Anthropic
+    // gate (lib/paidAi.js). Full same-origin + per-IP guard, like the other
+    // model routes. A missing key returns the grounded fallback and spends nothing.
+    "/api/bo-haunt",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
