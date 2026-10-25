@@ -92,7 +92,7 @@ for (const p of REBUY_PATHS_OFF_IN_FREE_MODE) {
   ok(handler >= 0 && gate > handler && (firstPaid < 0 || gate < firstPaid) && /if \(gateShut\(\) \|\| gateFree\(\)\) \{?/.test(body),
     `${p}: the handler must consult gateFree() before ANY paid provider call (Google Places / Anthropic / a spendAllow ledger take) — a scheduled re-buy cannot happen in free mode`);
 }
-ok(REBUY_PATHS_OFF_IN_FREE_MODE.length === 3, "the law names exactly the three re-buy paths (refresh-ahead worker, inventory-refresh, atlas-build)");
+ok(REBUY_PATHS_OFF_IN_FREE_MODE.length === 2, "the law names exactly the two re-buy paths (refresh-ahead worker, atlas-build); inventory-refresh is the owner-approved free-tier exception (2026-10-25), locked by check-inventory-refresh-free-tier");
 
 // ── 5. Red-proves: each structural clause fails on the sabotage it exists for ─
 { const m = search.replace(/if \(freeMode && places\.length\) await enrichFromInventory\(places\);/, "");
@@ -117,4 +117,4 @@ ok(/# The owned library never re-buys/.test(proposal) && /lib\/ownedLibrary\.js/
   ok(r.status === 0 && r.stdout.trim() === "1", "lib/ownedLibrary imports cleanly with an EMPTY environment (no env, no network, no Supabase)"); }
 
 if (fail.length) { console.error("check-owned-library-no-rebuy: FAIL"); for (const m of fail) console.error("  - " + m); process.exit(1); }
-console.log(`check-owned-library-no-rebuy: OK — ${pass} assertions; the library never ages out, owned signals fill lean results, the rich cache answers before the ledger, and all three scheduled re-buy paths stay off in free mode`);
+console.log(`check-owned-library-no-rebuy: OK — ${pass} assertions; the library never ages out, owned signals fill lean results, the rich cache answers before the ledger, and both scheduled re-buy paths stay off in free mode`);
