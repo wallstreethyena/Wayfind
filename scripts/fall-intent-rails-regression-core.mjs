@@ -560,9 +560,9 @@ ok(nextFallOccurrence(event({ start_date: "2026-09-01", end_date: null }), "2026
 ok(!hasUpcomingFallOccurrence({ occurrence_dates: ["2026-10-10"], end_date: "2026-10-25" }, "2026-10-12"),
   "an exhausted explicit calendar cannot linger because of a wider envelope");
 const chronology = composeFallIntentRails([
-  event({ id: "later-high-score", event_id: "later-high-score", event_name: "Later Festival", category: "festival", start_date: "2026-10-20", end_date: "2026-10-20", editorial_score: 10 }),
-  event({ id: "sooner-low-score", event_id: "sooner-low-score", event_name: "Sooner Festival", category: "festival", start_date: "2026-10-01", end_date: "2026-10-01", editorial_score: 1 }),
-  event({ id: "unknown-calendar", event_id: "unknown-calendar", event_name: "Unknown Festival", category: "festival", select_nights: true, editorial_score: 10 }),
+  event({ id: "later-high-score", event_id: "later-high-score", event_name: "Later Festival", title: "Later Festival", category: "festival", start_date: "2026-10-20", end_date: "2026-10-20", editorial_score: 10 }),
+  event({ id: "sooner-low-score", event_id: "sooner-low-score", event_name: "Sooner Festival", title: "Sooner Festival", category: "festival", start_date: "2026-10-01", end_date: "2026-10-01", editorial_score: 1 }),
+  event({ id: "unknown-calendar", event_id: "unknown-calendar", event_name: "Unknown Festival", title: "Unknown Festival", category: "festival", select_nights: true, editorial_score: 10 }),
 ], [], { lat: 27.95, lng: -82.46, today: "2026-09-25", now });
 ok(chronology.rails.find((rail) => rail.id === "festivals").cards.map((card) => card.id).join("|") === "sooner-low-score|later-high-score|unknown-calendar",
   "date wins over editorial score and confirmed dates precede uncertain schedules");
