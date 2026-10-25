@@ -62,5 +62,32 @@ try {
     assert.equal(tiles[1]?.dataset.id, 'halloween', `${initialDaypart}: Halloween second from left after Rays on Oct 25`);
     assert.equal(tiles[2]?.dataset.id, 'augtober', `${initialDaypart}: Fall in Florida to the right of Halloween on Oct 25`);
   }
+  for (const year of [2027, 2028]) {
+    globalThis.Date = class extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : [`${year}-10-25T16:00:00Z`])); }
+      static now() { return new NativeDate(`${year}-10-25T16:00:00Z`).getTime(); }
+    };
+    for (const initialDaypart of ['morning', 'lunch', 'afternoon', 'night']) {
+      const html = renderToStaticMarkup(createElement(DaypartRail, {
+        initialDaypart, rails: RAILS, places: {}, thin: [],
+      }));
+      const doc = new JSDOM(html).window.document;
+      const ids = [...doc.querySelectorAll('.wf8-track > .wf8-tile')].map((t) => t.dataset.id);
+      assert.equal(ids.includes(RAYS_POSTER.id), false, `${year} ${initialDaypart}: expired 2026 Rays promotion never revives`);
+      assert.equal(ids[0], 'halloween', `${year} ${initialDaypart}: Halloween leads when Rays promotion is absent`);
+      assert.equal(ids[1], 'augtober', `${year} ${initialDaypart}: Fall in Florida sits immediately right of Halloween`);
+      assert.equal(new Set(ids).size, ids.length, `${year} ${initialDaypart}: no duplicate cards`);
+    }
+    globalThis.Date = class extends NativeDate {
+      constructor(...args) { super(...(args.length ? args : [`${year}-11-01T16:00:00Z`])); }
+      static now() { return new NativeDate(`${year}-11-01T16:00:00Z`).getTime(); }
+    };
+    const novHtml = renderToStaticMarkup(createElement(DaypartRail, {
+      initialDaypart: 'morning', rails: RAILS, places: {}, thin: [],
+    }));
+    const novIds = [...new JSDOM(novHtml).window.document.querySelectorAll('.wf8-track > .wf8-tile')].map((t) => t.dataset.id);
+    assert.equal(novIds.includes('halloween'), false, `${year} Nov 1: Halloween gone after Oct 31`);
+    assert.equal(novIds[0], 'augtober', `${year} Nov 1: Fall in Florida restored to first`);
+  }
 } finally { globalThis.Date = NativeDate; }
 console.log('Rays campaign: status positive/negative controls, date boundaries, real 4-band render, duplicate suppression, first-load artwork and guide link passed');

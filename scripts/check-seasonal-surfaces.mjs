@@ -173,6 +173,24 @@ h = await hit("2027-01-02T05:01:00Z", "s3cret");
 ok(h.body.skipped === false, "route: Jan 2 (Christmas poster ends) revalidates");
 h = await hit("2026-10-10T04:01:00Z", "s3cret");
 ok(h.body.skipped === false && h.body.today === "2026-10-10", "route: Oct 10 2026 (Halloween starts) revalidates");
+for (const y of [2026, 2027, 2028]) {
+  // Immediately before and after Oct 25 midnight Eastern (EDT = UTC-4)
+  const preOct25 = siteTodayStr(new RealDate(`${y}-10-25T03:59:59Z`));
+  const postOct25 = siteTodayStr(new RealDate(`${y}-10-25T04:00:00Z`));
+  ok(preOct25 === `${y}-10-24` && !halloweenLeads(preOct25) && track("morning", preOct25)[0] === "augtober", `${y}: 1s before Oct 25 midnight EDT is ${preOct25} with Fall leading`);
+  ok(postOct25 === `${y}-10-25` && halloweenLeads(postOct25) && track("morning", postOct25)[0] === "halloween" && track("morning", postOct25)[1] === "augtober", `${y}: at Oct 25 midnight EDT is ${postOct25} with Halloween leading ahead of Fall`);
+  h = await hit(`${y}-10-25T03:59:00Z`, "s3cret");
+  ok(h.body.skipped === true && h.body.today === `${y}-10-24` && h.calls.length === 0, `${y}: 23:59 EDT Oct 24 is not a boundary day`);
+  h = await hit(`${y}-10-25T04:01:00Z`, "s3cret");
+  ok(h.body.skipped === false && h.body.today === `${y}-10-25` && JSON.stringify(h.calls) === JSON.stringify(["/", "/v8"]), `${y}: 00:01 EDT Oct 25 revalidates / and /v8`);
+  // Immediately before and after Nov 1 midnight Eastern (EDT = UTC-4; DST fallback occurs at 02:00 EDT)
+  const preNov1 = siteTodayStr(new RealDate(`${y}-11-01T03:59:59Z`));
+  const postNov1 = siteTodayStr(new RealDate(`${y}-11-01T04:00:00Z`));
+  ok(preNov1 === `${y}-10-31` && halloweenLeads(preNov1) && track("morning", preNov1)[0] === "halloween", `${y}: 1s before Nov 1 midnight EDT is ${preNov1} with Halloween still leading`);
+  ok(postNov1 === `${y}-11-01` && !halloweenLeads(postNov1) && !track("morning", postNov1).includes("halloween") && track("morning", postNov1)[0] === "augtober", `${y}: at Nov 1 midnight EDT is ${postNov1} with Halloween gone and Fall leading`);
+  h = await hit(`${y}-11-01T04:01:00Z`, "s3cret");
+  ok(h.body.skipped === false && h.body.today === `${y}-11-01` && JSON.stringify(h.calls) === JSON.stringify(["/", "/v8"]), `${y}: 00:01 EDT Nov 1 revalidates / and /v8`);
+}
 
 // ── the midnight timer fixture (lib/siteDayClock.js) ──
 const clock = await import("../lib/siteDayClock.js");

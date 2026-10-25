@@ -1240,13 +1240,39 @@ export default function DaypartRail({
   const scrollBy = (ref, dir) => {
     const el = ref.current;
     if (!el) return;
-    const reduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const tile = el.querySelector ? el.querySelector(".wf8-tile") : null;
-    const stride = tile && tile.offsetWidth > 0 ? tile.offsetWidth + 14 : 0;
-    const step = stride > 0
-      ? Math.max(stride, Math.floor((el.clientWidth - 24) / stride) * stride)
-      : el.clientWidth - 70;
-    el.scrollBy({ left: dir * step, behavior: reduced ? "auto" : "smooth" });
+    const reduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const tiles = el.querySelectorAll ? el.querySelectorAll(":scope > .wf8-tile") : [];
+    const maxLeft = Math.max(0, el.scrollWidth - el.clientWidth);
+    let targetLeft;
+    if (tiles.length > 0) {
+      const baseLeft = tiles[0].offsetLeft;
+      const origins = Array.from(tiles, (t) => t.offsetLeft - baseLeft);
+      const gap = typeof getComputedStyle === "function" ? (parseFloat(getComputedStyle(el).columnGap || getComputedStyle(el).gap) || 14) : 14;
+      const stride = origins.length > 1 ? origins[1] - origins[0] : tiles[0].offsetWidth + gap;
+      const perPage = stride > 0 ? Math.max(1, Math.floor((el.clientWidth - 24) / stride)) : 1;
+      const cur = el.scrollLeft;
+      if (dir > 0) {
+        let nextIdx = origins.findIndex((x) => x > cur + 4);
+        if (nextIdx < 0) nextIdx = origins.length - 1;
+        const destIdx = Math.min(origins.length - 1, nextIdx + perPage - 1);
+        targetLeft = Math.min(maxLeft, origins[destIdx]);
+      } else {
+        let prevIdx = -1;
+        for (let i = origins.length - 1; i >= 0; i--) {
+          if (origins[i] < cur - 4) { prevIdx = i; break; }
+        }
+        if (prevIdx < 0) prevIdx = 0;
+        const destIdx = Math.max(0, prevIdx - (perPage - 1));
+        targetLeft = Math.max(0, origins[destIdx]);
+      }
+    } else {
+      targetLeft = Math.max(0, Math.min(maxLeft, el.scrollLeft + dir * (el.clientWidth - 70)));
+    }
+    if (reduced) {
+      el.scrollLeft = targetLeft;
+    } else {
+      try { el.scrollTo({ left: targetLeft, behavior: "smooth" }); } catch (e) { el.scrollLeft = targetLeft; }
+    }
   };
 
   // v8.92 — DATE NIGHT OWNS THIS DROP AGAIN (owner, 2026-08-30: "the date night
@@ -1315,8 +1341,12 @@ export default function DaypartRail({
     const tile = track.querySelector(".wf8-tile.is-sel");
     if (!tile) return;
     const reduced = typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const left = tile.offsetLeft - (track.clientWidth - tile.clientWidth) / 2;
-    try { track.scrollTo({ left: Math.max(0, left), behavior: reduced ? "auto" : "smooth" }); } catch (e) { track.scrollLeft = Math.max(0, left); }
+    const left = Math.max(0, tile.offsetLeft - (track.clientWidth - tile.clientWidth) / 2);
+    if (reduced) {
+      track.scrollLeft = left;
+    } else {
+      try { track.scrollTo({ left, behavior: "smooth" }); } catch (e) { track.scrollLeft = left; }
+    }
   }, [selected]);
   // v8.27 — STABLE IDENTITY. A fresh [] on every render made every consumer
   // that depends on this list think the list had changed: useEditorialHooks
