@@ -38,6 +38,8 @@ import { nowContext } from "../../lib/nowContext";
 import { track } from "../../lib/track";
 import { supabase } from "../../lib/supabase";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
+import { useReactionServerSync, rollbackReactionOnError } from "../../lib/useReactionSync";
+import { useCallback } from "react";
 import { wayfindScore } from "../../lib/google";
 import { governedScoreOf } from "../../lib/lawfulOrder";
 import { useCuratedRows } from "../../lib/curatorPicks";
@@ -97,6 +99,18 @@ export default function IntentPageClient({ intent }) {
   // erase whatever the user had liked/disliked from elsewhere).
   const [likedItems, setLikedItems] = useState({});
   const [dislikedItems, setDislikedItems] = useState({});
+  // GLOBAL LIKE RULE: this page's maps converge with the shared store —
+  // server likes load on sign-in, shared-store deltas fold in, failed
+  // writes roll back (lib/useReactionSync.js).
+  const reactionMapsRef = useRef({ liked, disliked, likedItems, dislikedItems });
+  reactionMapsRef.current = { liked, disliked, likedItems, dislikedItems };
+  const applyReactionMaps = useCallback((mapsOrFn) => {
+    const next = typeof mapsOrFn === "function" ? mapsOrFn(reactionMapsRef.current) : mapsOrFn;
+    if (!next) return;
+    reactionMapsRef.current = next;
+    setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+  }, []);
+  useReactionServerSync({ supabase, user, apply: applyReactionMaps });
   // Performance clocks are intentionally client-local and contain no user id.
   // They let PostHog answer the Birthday-vs-intent-page question with the same
   // event shape in every market: mount -> usable ranked rows -> committed DOM.
@@ -120,18 +134,22 @@ export default function IntentPageClient({ intent }) {
   function toggleLike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
     const wasLiked = !!liked[p.id];
+    const priorMaps = { liked, disliked, likedItems, dislikedItems };
     const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
+    rollbackReactionOnError(next.write, priorMaps, applyReactionMaps);
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
     if (next.write) import("../../lib/curatorPicksWrite").then((m) => m.trackCuratorWrite(p.id, !wasLiked, next.write, getCuratorHeaders, wasLiked)).catch(() => {});
-    if (!wasLiked) { try { track("like", { place_id: p.id, intent }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} }
+    if (!wasLiked) { try { track("like", { ...{ place_id: p.id, intent }, on: true }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} } else { try { track("like", { ...{ place_id: p.id, intent }, on: false }); } catch (er) {} }
   }
   function toggleDislike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
     const wasDis = !!disliked[p.id];
+    const priorMaps = { liked, disliked, likedItems, dislikedItems };
     const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
+    rollbackReactionOnError(next.write, priorMaps, applyReactionMaps);
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
     if (next.write && liked[p.id]) import("../../lib/curatorPicksWrite").then((m) => m.trackCuratorWrite(p.id, false, next.write, getCuratorHeaders, true)).catch(() => {});
-    if (!wasDis) { try { track("dislike", { place_id: p.id, intent }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
+    if (!wasDis) { try { track("dislike", { ...{ place_id: p.id, intent }, on: true }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} } else { try { track("dislike", { ...{ place_id: p.id, intent }, on: false }); } catch (er) {} }
   }
   function toggleSave(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); e && e.preventDefault && e.preventDefault(); } catch (er) {}

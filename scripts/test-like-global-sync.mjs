@@ -22,7 +22,7 @@ globalThis.localStorage = {
 globalThis.window = new EventTarget();
 globalThis.window.localStorage = globalThis.localStorage;
 
-const { syncReactionsWithServer, persistLike, persistDislike } = await import(pathToFileURL(path.join(ROOT, "lib/likeSignal.js")).href);
+const { syncReactionsWithServer, persistLike, persistDislike, recordCommerceClick } = await import(pathToFileURL(path.join(ROOT, "lib/likeSignal.js")).href);
 const { reconcileIdsSafe } = await import(pathToFileURL(path.join(ROOT, "lib/syncReconcile.js")).href);
 
 // Fake supabase: in-memory tables, chainable builder.
@@ -124,6 +124,14 @@ const P = (id) => ({ id, name: "Place " + id });
   await r.write;
   ok(!r.liked.H && r.disliked.H === true, "dislike clears like in the maps");
   ok(!tables.likes.some((x) => x.place_id === "H"), "dislike deletes any likes row");
+}
+// 7. Commerce mirror: one events row, same name as PostHog, no PII fields.
+{
+  const inserted = [];
+  const sb = { from: () => ({ insert: (row) => { inserted.push(row); return Promise.resolve({}); } }) };
+  recordCommerceClick({ place_id: "ChIJX", provider: "viator", merchant: "Viator", offer_id: "108117P1", surface: "detail_primary", content_id: "ChIJX" }, { supabase: sb, user: null });
+  ok(inserted.length === 1 && inserted[0].action === "commerce_cta_clicked", "commerce click mirrors one commerce_cta_clicked events row");
+  ok(inserted[0].place_id === "ChIJX" && inserted[0].meta.provider === "viator" && inserted[0].place_name === null, "mirror carries place/provider/surface only, no personal data");
 }
 console.log(`test-like-global-sync: ${pass} passed, ${fail} failed`);
 if (fail) process.exit(1);

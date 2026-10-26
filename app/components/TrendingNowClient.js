@@ -7,7 +7,7 @@ import { shareOut } from "../../lib/shareOut.js";
 // written by the built-in LLM in the Wayfind voice (/api/buzz/why, shared
 // 1-day pool). Same /best-beaches standard shell, same honest gating: it
 // shows only places carrying real popularity signals.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import RankedExperiencePage from "./RankedExperiencePage";
 import IconicPlaceCard from "./IconicPlaceCard";
@@ -25,6 +25,8 @@ import { nowContext } from "../../lib/nowContext.js";
 import { canonicalShareUrl } from "../../lib/site";
 import { track } from "../../lib/track";
 import { readLocalLikeState, readLocalSavedState, persistLike, persistDislike, persistSave, recordLikeEvent, recordTasteSignal } from "../../lib/likeSignal";
+import { useReactionServerSync, rollbackReactionOnError } from "../../lib/useReactionSync";
+import { useCallback } from "react";
 import { askShareIntent } from "./shareIntentSheet";
 import { placeKinds } from "../../lib/dateInvite";
 import { settleLoad } from "../../lib/loadState.js";
@@ -65,6 +67,18 @@ export default function TrendingNowClient() {
   const [disliked, setDisliked] = useState({});
   const [likedItems, setLikedItems] = useState({});
   const [dislikedItems, setDislikedItems] = useState({});
+  // GLOBAL LIKE RULE: this page's maps converge with the shared store —
+  // server likes load on sign-in, shared-store deltas fold in, failed
+  // writes roll back (lib/useReactionSync.js).
+  const reactionMapsRef = useRef({ liked, disliked, likedItems, dislikedItems });
+  reactionMapsRef.current = { liked, disliked, likedItems, dislikedItems };
+  const applyReactionMaps = useCallback((mapsOrFn) => {
+    const next = typeof mapsOrFn === "function" ? mapsOrFn(reactionMapsRef.current) : mapsOrFn;
+    if (!next) return;
+    reactionMapsRef.current = next;
+    setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
+  }, []);
+  useReactionServerSync({ supabase, user, apply: applyReactionMaps });
   useEffect(() => {
     try { const s = readLocalLikeState(); setLiked(s.liked); setDisliked(s.disliked); setLikedItems(s.likedItems); setDislikedItems(s.dislikedItems); } catch (e) {}
     try { const s = readLocalSavedState(); setSaved(s.saved); setSavedLists(s.lists); } catch (e) {}
@@ -83,18 +97,22 @@ export default function TrendingNowClient() {
   function toggleLike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
     const wasLiked = !!liked[p.id];
+    const priorMaps = { liked, disliked, likedItems, dislikedItems };
     const next = persistLike({ supabase, user, place: p, wasLiked, liked, disliked, likedItems, dislikedItems });
+    rollbackReactionOnError(next.write, priorMaps, applyReactionMaps);
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
     if (next.write) import("../../lib/curatorPicksWrite").then((m) => m.trackCuratorWrite(p.id, !wasLiked, next.write, getCuratorHeaders, wasLiked)).catch(() => {});
-    if (!wasLiked) { try { track("like", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} }
+    if (!wasLiked) { try { track("like", { ...{ place_id: p.id, surface: "trending_now" }, on: true }); } catch (er) {} try { recordLikeEvent("like", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("like", p, { supabase, user }); } catch (er) {} } else { try { track("like", { ...{ place_id: p.id, surface: "trending_now" }, on: false }); } catch (er) {} }
   }
   function toggleDislike(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); } catch (er) {}
     const wasDis = !!disliked[p.id];
+    const priorMaps = { liked, disliked, likedItems, dislikedItems };
     const next = persistDislike({ supabase, user, place: p, wasDisliked: wasDis, liked, disliked, likedItems, dislikedItems });
+    rollbackReactionOnError(next.write, priorMaps, applyReactionMaps);
     setLiked(next.liked); setDisliked(next.disliked); setLikedItems(next.likedItems); setDislikedItems(next.dislikedItems);
     if (next.write && liked[p.id]) import("../../lib/curatorPicksWrite").then((m) => m.trackCuratorWrite(p.id, false, next.write, getCuratorHeaders, true)).catch(() => {});
-    if (!wasDis) { try { track("dislike", { place_id: p.id, surface: "trending_now" }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} }
+    if (!wasDis) { try { track("dislike", { ...{ place_id: p.id, surface: "trending_now" }, on: true }); } catch (er) {} try { recordLikeEvent("dislike", p, { supabase, user }); } catch (er) {} try { recordTasteSignal("dislike", p, { supabase, user }); } catch (er) {} } else { try { track("dislike", { ...{ place_id: p.id, surface: "trending_now" }, on: false }); } catch (er) {} }
   }
   function toggleSave(e, p) {
     try { e && e.stopPropagation && e.stopPropagation(); e && e.preventDefault && e.preventDefault(); } catch (er) {}
