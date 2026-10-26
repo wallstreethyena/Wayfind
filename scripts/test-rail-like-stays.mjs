@@ -216,10 +216,15 @@ ok(/onDislike=\{\(e, p\) => \{ try \{ toggleDislike\(e, p\)/.test(home),
   "home.js passes toggleDislike into DaypartRail");
 
 const guide = read("app/components/GuidePlaceCard.js");
-ok(/persistLike/.test(guide) && /persistDislike/.test(guide),
-  "GuidePlaceCard records like/dislike through likeSignal — same keys as home.js");
-ok(/onLike=\{onLike\}/.test(guide) && /onDislike=\{onDislike\}/.test(guide),
-  "GuidePlaceCard passes onLike/onDislike into IconicPlaceCard");
+// GLOBAL LIKE RULE (2026-10-26): guide thumbs belong to the shared store.
+// GuidePlaceCard's old private handlers persisted with supabase:null — the
+// like never reached the database. It now wires NO like handlers, so
+// IconicPlaceCard's doLike/doDislike resolve to lib/cardActions (which
+// records through likeSignal + the likes table, same keys as home.js).
+ok(!/persistLike|persistDislike/.test(guide) && !/onLike=|onDislike=/.test(guide),
+  "GuidePlaceCard wires no private like handlers — the shared card store owns guide thumbs");
+ok(/doLike = onLike \|\|/.test(read("app/components/IconicPlaceCard.js")) && /toggleLike as fallbackLike/.test(read("app/components/IconicPlaceCard.js")),
+  "IconicPlaceCard resolves an unwired Like to the shared card store");
 
 const iconicSrc = read("app/components/IconicPlaceCard.js");
 // v8.29.6 — RE-POINTED, NOT RELAXED. These pinned `stayOnRailReaction(e, onLike,

@@ -1,7 +1,11 @@
-# Proposal: The Global Like Rule
+# The Global Like Rule
 
-Status: proposed for owner adoption, 2026-10-25. Implemented on
-`fix/global-like-buttons` the same day.
+Status: **ADOPTED**, 2026-10-26 (owner-directed close-out of #1957).
+Implemented in #1957 (`fix/global-like-buttons`) and completed the same
+week by the like-everywhere convergence: guide cards, intent pages, and
+Trending Now now run the same store/rules (this file is the standing
+engineering guidance for place thumbs; `scripts/check-like-global.mjs`
+enforces it in CI).
 
 ## The rule
 
@@ -56,8 +60,15 @@ an early tap could race the lazy sign-in load and never reach the database.
 ## Enforcement
 
 - `scripts/check-like-global.mjs` fails the build if a new file renders a
-  place thumb without the shared store, or if the server sync / rollback
-  wiring is removed.
+  place thumb without the shared store, if a `persistLike`/`persistDislike`
+  caller outside the store skips the convergence (server sync + shared
+  deltas + rollback), if guide cards rewire their own like handlers, or if
+  the sync/rollback wiring is removed.
+- Wired surfaces that keep React state (`IntentPageClient`,
+  `TrendingNowClient`) converge through `lib/useReactionSync.js`
+  (`useReactionServerSync` + `rollbackReactionOnError`). Guide cards
+  (`GuidePlaceCard`) wire no like handlers at all — the shared store in
+  `IconicPlaceCard` owns their thumbs.
 - `scripts/test-like-global-sync.mjs` exercises the reconcile: remote likes
   arrive, local likes push up, removals delete remotely, empty local wipes
   nothing, failed writes surface for rollback.

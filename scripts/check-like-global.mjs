@@ -78,5 +78,32 @@ if (ctrl1.deleteRemote.length || ctrl1.keep.join() !== "A") fail("executed contr
 const ctrl2 = reconcileIdsSafe([], ["B"], []);
 if (ctrl2.pushUp.join() !== "B") fail("executed control: reconcileIdsSafe lost a local-only push-up");
 
+// 4. Every persistLike/persistDislike caller outside the shared store must
+// be a registered "wired" surface that converged: server sync on sign-in,
+// shared-store deltas, rollback on failure. An unregistered caller is a
+// private like implementation — the exact way guide cards drifted (their
+// persist ran with supabase:null and never reached the database).
+const WIRED = {
+  "app/components/IntentPageClient.js": [/useReactionServerSync\(/, /rollbackReactionOnError\(/],
+  "app/components/TrendingNowClient.js": [/useReactionServerSync\(/, /rollbackReactionOnError\(/],
+};
+const persistCallers = [];
+for (const f of walk("app")) {
+  const src = strip(read(f));
+  if (/\bpersist(?:Like|Dislike)\s*\(/.test(src)) persistCallers.push(f);
+}
+for (const f of persistCallers) {
+  const marks = WIRED[f];
+  if (!marks) fail(f + " calls persistLike/persistDislike but is not a registered wired surface — route thumbs through lib/cardActions.js, or converge via lib/useReactionSync.js and register here");
+  else for (const m of marks) if (!m.test(strip(read(f)))) fail(f + " is registered wired but lost " + m + " (GLOBAL LIKE RULE convergence)");
+}
+if (!WIRED["app/components/IntentPageClient.js"]) fail("registry control: IntentPageClient registration missing");
+// GuidePlaceCard must stay handler-free for likes (shared store fallback).
+if (/\bpersist(?:Like|Dislike)\s*\(|onLike=|onDislike=/.test(strip(read("app/components/GuidePlaceCard.js")))) fail("GuidePlaceCard wires its own like handlers again — guide thumbs must use the shared card store");
+// The commerce mirror stays wired (funnel measurability).
+const commerce = strip(read("lib/commerce.js"));
+if (!/recordCommerceClick\(/.test(commerce)) fail("lib/commerce.js lost the commerce_cta_clicked events mirror");
+if (!/export function recordCommerceClick/.test(likeSignal)) fail("lib/likeSignal.js lost recordCommerceClick");
+
 if (failures) { console.error(`check-like-global: FAIL — ${failures} problem(s)`); process.exit(1); }
 console.log(`check-like-global: OK — ${thumbFiles} thumb-rendering files, all proven shared renderers; server sync + rollback wired in card store, persist layer and home shell`);
