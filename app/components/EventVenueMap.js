@@ -172,6 +172,12 @@ export default function EventVenueMap({ venue, picks = [], onSelect, onMapReady,
   }, [parkingMode, ready, venueKey, parkingAttempt]);
 
   useEffect(() => { if (onSelect) onSelect(parkingMode ? null : sel); }, [sel, parkingMode, onSelect]);
+  useEffect(() => {
+    if (!sel || typeof window === "undefined") return undefined;
+    const onKey = (e) => { if (e.key === "Escape") setSel(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [sel]);
   const chooseCategory = (next) => {
     // Invalidate synchronously so a completed request cannot win the click race.
     currentView.current = { active: next, venueKey };
