@@ -6,7 +6,7 @@ import { C, Icon } from "../kit";
 import { openExternal } from "../../../lib/links";
 import * as TripCore from "../../../lib/trips";
 import * as TripDays from "../../../lib/tripDays";
-import { measureItineraryShare } from "../../../lib/itineraryShare";
+import { measureItineraryShare, measureListShare } from "../../../lib/itineraryShare";
 const Trips = { ...TripCore, ...TripDays };
 
 export default function ItineraryScreen({ ctx }) {
@@ -15,9 +15,11 @@ export default function ItineraryScreen({ ctx }) {
   const [RouteMap, setRouteMap] = useState(null);
   const [dateEditFor, setDateEditFor] = useState(null);
   const [dateDraft, setDateDraft] = useState("");
+  const [shareConfirmPending, setShareConfirmPending] = useState(null);
   useEffect(() => {
     setDateEditFor(null);
     setDateDraft("");
+    setShareConfirmPending(null);
   }, [activeTrip]);
   useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
@@ -109,6 +111,7 @@ export default function ItineraryScreen({ ctx }) {
           const quickChoices = Trips.quickDateChoices(t, ctx.__today || undefined);
           const fullTripLegs = Trips.tripRouteLegs(t, routeOpts);
           const itinShareMeasure = measureItineraryShare(t);
+          const listShareMeasure = measureListShare(items.map((it) => ({ ...it.place, ...(it.day ? { day: it.day } : {}) })), undefined, (t.city || "My") + " trip");
           const st = Trips.tripStats(t);
           const tripTitle = t.title || (t.city + (t.state ? ", " + t.state : ""));
           const others = Trips.tripList(trips).filter((x) => x.key !== t.key);
@@ -168,16 +171,29 @@ export default function ItineraryScreen({ ctx }) {
             setDateDraft("");
             focusDateToggle(targetId);
           };
+          const preShareNotices = [];
+          if (items.length > 40) {
+            preShareNotices.push("Share ↗ includes the first 25 places. Share privately creates an unlisted link with the first 40 stops (anyone with the link can view and save a copy; your original trip stays unchanged).");
+          } else if (items.length > 25) {
+            preShareNotices.push("Share ↗ includes the first 25 places. Use Share privately to create an unlisted link with all " + items.length + " stops (up to 40; anyone with the link can view and save a copy).");
+          }
+          if (itinShareMeasure && itinShareMeasure.warning) {
+            preShareNotices.push(itinShareMeasure.warning);
+          } else if (listShareMeasure && !listShareMeasure.withinSafeUrlBudget && listShareMeasure.warning) {
+            preShareNotices.push(listShareMeasure.warning);
+          }
+          const listNeedsConfirm = Boolean(listShareMeasure && (listShareMeasure.requiresConfirm || (itinShareMeasure && itinShareMeasure.notesCount > 0)));
+          const itinNeedsConfirm = Boolean(itinShareMeasure && itinShareMeasure.requiresConfirm);
           return (
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap", paddingBottom: 14, borderBottom: "1px solid " + C.border, marginBottom: 14, paddingTop: 4 }}>
-                <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
+                <button type="button" aria-label="Back to all trips" onClick={() => { setActiveTrip(null); setTripNoteEdit(null); setTripMoveFor(null); setDateEditFor(null); setDateDraft(""); setShareConfirmPending(null); }} style={{ background: "none", border: "none", color: C.light, fontSize: 22, minWidth: 44, minHeight: 44, display: "inline-flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}>‹</button>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 17, fontWeight: 700, color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{tripTitle}</div>
                   <div style={{ fontSize: 12.5, color: C.muted }}>{st.total} place{st.total !== 1 ? "s" : ""}{dateSum ? " · " + dateSum : ""}{st.visited > 0 ? " · " + st.visited + " visited" : ""}</div>
                 </div>
-                {items.length > 0 && shareList && <button onClick={() => { try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
-                {itineraryFlags && itineraryFlags.share && items.length > 0 && <button aria-label={`Share an unlisted snapshot link for ${tripTitle}`} onClick={() => { if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
+                {items.length > 0 && shareList && <button onClick={() => { if (listNeedsConfirm) { setShareConfirmPending("list"); return; } try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {} }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share ↗</button>}
+                {itineraryFlags && itineraryFlags.share && items.length > 0 && <button aria-label={`Share an unlisted snapshot link for ${tripTitle}`} onClick={() => { if (!requireAuth("Sign up free to share an unlisted snapshot link to this trip.")) return; if (itinNeedsConfirm) { setShareConfirmPending("itinerary"); return; } if (shareTrip) shareTrip(t); }} style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 13, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}>Share privately</button>}
                 {items.length > 0 && (
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                     <button
@@ -203,15 +219,50 @@ export default function ItineraryScreen({ ctx }) {
                   </div>
                 )}
               </div>
-              {(items.length > 25 || (itinShareMeasure && itinShareMeasure.notesDropped) || (itinShareMeasure && !itinShareMeasure.ok && items.length > 0)) && (
+              {preShareNotices.length > 0 && (
                 <div data-wf-share-limit-note="true" style={{ fontSize: 12, color: C.muted, marginBottom: 12, lineHeight: 1.4 }}>
-                  {items.length > 40
-                    ? "Share ↗ includes the first 25 places. Share privately creates an unlisted link with the first 40 stops (anyone with the link can view and save a copy; your original trip stays unchanged)."
-                    : items.length > 25
-                      ? "Share ↗ includes the first 25 places. Use Share privately to create an unlisted link with all " + items.length + " stops (up to 40; anyone with the link can view and save a copy)."
-                      : itinShareMeasure && !itinShareMeasure.ok
-                        ? itinShareMeasure.warning
-                        : "Stop notes will be compacted in share links to stay within URL length limits (your original trip notes stay intact)."}
+                  {preShareNotices.join(" ")}
+                </div>
+              )}
+              {shareConfirmPending && (
+                <div
+                  role="alert"
+                  data-wf-share-confirm-prompt={shareConfirmPending}
+                  style={{ background: C.card, border: "1px solid " + C.border, borderRadius: 12, padding: "12px 14px", marginBottom: 14, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}
+                >
+                  <div style={{ flex: 1, minWidth: 200, fontSize: 12.5, color: C.text, lineHeight: 1.45 }}>
+                    {shareConfirmPending === "list"
+                      ? `${listShareMeasure && listShareMeasure.warning ? listShareMeasure.warning + " " : ""}${itinShareMeasure && itinShareMeasure.notesCount > 0 ? `Share ↗ shares a place list without your ${itinShareMeasure.notesCount} stop note${itinShareMeasure.notesCount === 1 ? "" : "s"} (use Share privately to include notes). ` : ""}Your original saved trip stays unchanged.`
+                      : `${(itinShareMeasure && itinShareMeasure.warning) || "This share link uses compaction to fit URL limits."} Your original saved trip stays unchanged.`}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                    {((shareConfirmPending === "list" && listShareMeasure && listShareMeasure.ok) || (shareConfirmPending === "itinerary" && itinShareMeasure && itinShareMeasure.ok)) && (
+                      <button
+                        type="button"
+                        data-wf-confirm-share={shareConfirmPending}
+                        onClick={() => {
+                          const mode = shareConfirmPending;
+                          setShareConfirmPending(null);
+                          if (mode === "list") {
+                            try { shareList(items.map((it) => it.place), (t.city || "My") + " trip"); } catch (e) {}
+                          } else if (shareTrip) {
+                            shareTrip(t);
+                          }
+                        }}
+                        style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
+                      >
+                        Share copy anyway
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      data-wf-cancel-share={shareConfirmPending}
+                      onClick={() => setShareConfirmPending(null)}
+                      style={{ background: "transparent", border: "1px solid " + C.border, color: C.text, fontSize: 12.5, fontWeight: 700, padding: "8px 14px", minHeight: 44, borderRadius: 20, cursor: "pointer", whiteSpace: "nowrap" }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               )}
               {RouteMap ? <RouteMap items={items} /> : null}
