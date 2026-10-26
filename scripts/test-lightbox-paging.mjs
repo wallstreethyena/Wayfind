@@ -88,6 +88,15 @@ ok(/const galleryPhotos = detailGalleryPhotos\(detail\);/.test(detail) && /galle
     "detailGalleryPhotos must return owned photos (deduped, proxy URLs dropped) then the live photo; got " + JSON.stringify(list));
   ok(detailGalleryPhotos({ photos: [], photo: "/api/photo?x=1" }).length === 0 && detailGalleryPhotos(null).length === 0,
     "no owned photo and no live photo -> an empty list (no dead-end viewer of a proxy URL)");
+  const unwrapped = detailGalleryPhotos({
+    image: "https://cdn.wayfind.test/hero.jpg",
+    photos: [{ _directUri: "https://cdn.wayfind.test/hero.jpg" }, { _directUri: "https://cdn.wayfind.test/b.jpg" }, { _directUri: "/api/photo?place=x" }],
+    signals: { photos: ["https://cdn.wayfind.test/c.jpg"] },
+    photoGallery: ["https://cdn.wayfind.test/b.jpg"],
+    owned_photos: ["https://cdn.wayfind.test/d.jpg"],
+  });
+  ok(JSON.stringify(unwrapped) === JSON.stringify(["https://cdn.wayfind.test/hero.jpg", "https://cdn.wayfind.test/b.jpg", "https://cdn.wayfind.test/c.jpg", "https://cdn.wayfind.test/d.jpg"]),
+    "detailGalleryPhotos unwraps {_directUri}, leads with the hero, and keeps every owned photo once; got " + JSON.stringify(unwrapped));
 }
 
 // ─── 7. attribution is per-photo, not per-place ──────────────────────────────

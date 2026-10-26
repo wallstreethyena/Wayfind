@@ -36,6 +36,7 @@ const REAL_HTTPS = "https://lh3.googleusercontent.com/p/AF1QipRealPlacePhoto=w64
 ok(hasRealPlacePhoto({ photos: [REAL_PROXY] }) === true, "photos[] with a Google photo proxy → hero");
 ok(hasRealPlacePhoto({ photos: [REAL_HTTPS] }) === true, "photos[] with a real https image → hero");
 ok(hasRealPlacePhoto({ photos: [{ name: REAL_REF }] }) === true, "photos[] of Google photo objects → hero");
+ok(hasRealPlacePhoto({ photos: [{ _directUri: REAL_HTTPS }] }) === true, "photos[] of {_directUri} https objects → hero");
 
 // photoRef / photo that is a real Google photo → hero
 ok(hasRealPlacePhoto({ photoRef: REAL_REF }) === true, "photoRef Google resource name → hero");
@@ -187,7 +188,8 @@ for (const [label, expandedHero, showHero, liveId, photos, galleryIdx = 0] of [
   const images = nodes.filter(n => n.type === 'fixture-image');
   ok(images.length === photos.length, label + ': every available gallery photo renders');
   ok(images.every(n => n.props.fit === 'cover'), label + ': every detail image fills the frame without letterboxing');
-  ok(images.every(n => n.props.style.width === '100%' && n.props.style.height === '100%'), label + ': image fills full frame');
+  const slideWidth = photos.length > 1 ? '78%' : '100%';
+  ok(images.every(n => n.props.style.width === slideWidth && n.props.style.height === '100%'), label + ': ' + (photos.length > 1 ? 'each photo peeks the next at 78% and still fills its slide' : 'a single photo fills the frame'));
   for (const image of images) { image.props.onClick(); ok(openedPhoto === image.props.src, label + ': tapping keeps the original photo source for its full-size viewer'); }
   const media = nodes.find(n => 'data-detail-photo-media' in n.props);
   ok(!!media === expandedHero, label + ': full media exists only for a real photo or pending acquisition');
