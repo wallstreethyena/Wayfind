@@ -210,6 +210,8 @@ const prompt = boPrompt(model, "Scariest haunt in Tampa?");
 ok(prompt.model === "claude-haiku-4-5" && prompt.system.includes("BOO'S VIP TOUR") && prompt.user.includes("howlTampa"), "Claude prompt is Boo plus the grounded catalog");
 ok(!prompt.user.includes("/api/commerce/go"), "the prompt does not hand Claude a redirect URL to paste");
 
+// Save, clear, and restore. The production build has these set, and the
+// missing-key assertion has to run with them absent or it calls Claude.
 const savedAnthropicKey = process.env.ANTHROPIC_API_KEY;
 const savedLlmKey = process.env.LLM_API_KEY;
 const savedPaidAi = process.env.WF_PAID_AI_ENABLED;
