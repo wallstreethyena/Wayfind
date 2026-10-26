@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { getPlacePhoto } from "../../lib/photoAnswers.js";
-import { isGooglePlaceId } from "../../lib/placePhoto.js";
+import { isGooglePlaceId, isPlaceOwnedPhotoUrl } from "../../lib/placePhoto.js";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../../lib/placeDetailPhotoStandard.js";
 import PhotoCredit from "./PhotoCredit.js";
 
@@ -30,6 +30,17 @@ function usableInitial(photo, placeId, name) {
     !/^\/(?:api|cards)\//.test(photo.src) ? photo : null;
 }
 
+function railPhotos(photos) {
+  if (!Array.isArray(photos) || photos.length < 2) return [];
+  const out = [];
+  for (const item of photos) {
+    const raw = typeof item === "string" ? item : (item && (item._directUri || item.url || item.src || item.photo_url || item.photoUrl));
+    const src = typeof raw === "string" ? raw.trim() : "";
+    if (src && isPlaceOwnedPhotoUrl(src) && out.indexOf(src) === -1) out.push(src);
+  }
+  return out.length > 1 ? out : [];
+}
+
 function FullPhoto({ photo, name, close, fail }) {
   const dialog = useRef(null);
   useEffect(() => {
@@ -49,7 +60,9 @@ function FullPhoto({ photo, name, close, fail }) {
   );
 }
 
-export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, titleAs = "h1", titleId, titleStyle, className, eyebrow }) {
+export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, photos, titleAs = "h1", titleId, titleStyle, className, eyebrow }) {
+  const gallery = railPhotos(photos);
+  const multi = gallery.length > 1;
   const [answer, setAnswer] = useState(null);
   const [viewer, setViewer] = useState(null);
   const photoRef = useRef(null);
@@ -59,11 +72,15 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ti
   const requestKey = placeId + "|" + initialKey;
   const current = answer?.requestKey === requestKey ? answer : initial ? { photo: initial, pending: false, loaded: false } : null;
   const photo = current?.photo || null;
-  const pending = eligible && (!current || current.pending);
+  const pending = !multi && eligible && (!current || current.pending);
   const visible = !!photo && current.loaded;
   useEffect(() => {
     let disposed = false;
     setViewer(null);
+    if (multi) {
+      setAnswer({ requestKey, placeId, photo: null, pending: false, loaded: true });
+      return undefined;
+    }
     if (initial) {
       // Catch both successful loads and failures that happened before hydration.
       const image = photoRef.current;
@@ -80,7 +97,7 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ti
       });
     }
     return () => { disposed = true; };
-  }, [placeId, eligible, initialKey]);
+  }, [placeId, eligible, initialKey, multi, requestKey]);
   const fail = () => {
     setViewer(previous => previous === photo ? null : previous);
     setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo
@@ -89,8 +106,14 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ti
   const Title = titleAs === "h2" ? "h2" : "h1";
   return (
     <header className={className} data-place-detail-photo-header style={{ minWidth: 0 }}>
-      {(pending || photo) ? <div data-place-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: "#101820" }}>
-        {photo ? <button type="button" onClick={() => visible && setViewer(photo)} aria-label={"View full photo of " + name} disabled={!visible} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, background: "transparent", cursor: visible ? "zoom-in" : "default" }}>
+      {(multi || pending || photo) ? <div data-place-detail-photo-media style={{ ...PLACE_DETAIL_PHOTO_STANDARD.frame, position: "relative", overflow: "hidden", background: "#101820" }}>
+        {multi ? <div data-place-detail-photo-rail style={{ position: "absolute", inset: 0, display: "flex", gap: 8, overflowX: "auto", overscrollBehaviorX: "contain", scrollSnapType: "x mandatory", WebkitOverflowScrolling: "touch" }}>
+          {gallery.map((src) => (
+            <button key={src} type="button" onClick={() => setViewer({ src, source: "wayfind", credit: null, placeId })} aria-label={"View full photo of " + name} style={{ flex: "0 0 78%", height: "100%", padding: 0, border: 0, scrollSnapAlign: "start", background: "transparent", cursor: "zoom-in" }}>
+              <img src={src} alt={name} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
+            </button>
+          ))}
+        </div> : photo ? <button type="button" onClick={() => visible && setViewer(photo)} aria-label={"View full photo of " + name} disabled={!visible} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", padding: 0, border: 0, background: "transparent", cursor: visible ? "zoom-in" : "default" }}>
           <img ref={photoRef} src={photo.src} alt={name} onLoad={() => setAnswer(previous => previous?.requestKey === requestKey && previous.photo === photo ? { ...previous, loaded: true } : previous)} onError={fail} style={{ ...PLACE_DETAIL_PHOTO_STANDARD.image, width: "100%", height: "100%", display: "block" }} />
         </button> : <div data-place-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", fontSize: 12, color: "#94A3B8" }}>Loading photo…</div>}
       </div> : null}
@@ -99,7 +122,8 @@ export default function PlaceDetailPhotoHeader({ placeId, name, initialPhoto, ti
         <Title id={titleId} style={titleStyle}>{name}</Title>
         {visible && photo.credit ? <PhotoCredit credit={{ ...photo.credit, source: photo.source }} /> : null}
       </div>
-      {viewer && viewer === photo && visible ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={fail} /> : null}
+      {!multi && viewer && viewer === photo && visible ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={fail} /> : null}
+      {multi && viewer ? <FullPhoto photo={viewer} name={name} close={() => setViewer(null)} fail={() => setViewer(null)} /> : null}
     </header>
   );
 }

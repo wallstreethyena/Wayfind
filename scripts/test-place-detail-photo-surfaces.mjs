@@ -8,7 +8,7 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { loadComponent } from './lib/jsxLoad.mjs';
 import { getPlacePhoto, resetPhotoAnswers } from '../lib/photoAnswers.js';
-import { isGooglePlaceId } from '../lib/placePhoto.js';
+import { isGooglePlaceId, isPlaceOwnedPhotoUrl } from '../lib/placePhoto.js';
 import { PLACE_DETAIL_PHOTO_STANDARD } from '../lib/placeDetailPhotoStandard.js';
 let count = 0;
 const eq=(a,b,m)=>{assert.deepEqual(a,b,m);count++;};
@@ -29,7 +29,7 @@ function host(props,source=file('app/components/PlaceDetailPhotoHeader.js'),imag
  const useState=initial=>{const i=cursor++;if(!(i in hooks))hooks[i]=initial;return[hooks[i],next=>{hooks[i]=typeof next==='function'?next(hooks[i]):next;dirty=true;}];};
  const useRef=initial=>{const i=cursor++;return hooks[i]||=( {current:imageState || initial} );};
  const useEffect=(fn,deps)=>{const i=cursor++,old=hooks[i];if(!old||deps.some((v,j)=>!Object.is(v,old.deps[j])))pending.push(()=>{old?.cleanup?.();hooks[i]={deps,cleanup:fn()};});};
- const context={React,useState,useEffect,useRef,getPlacePhoto,isGooglePlaceId,PLACE_DETAIL_PHOTO_STANDARD,PhotoCredit:'credit',createPortal:x=>x};
+ const context={React,useState,useEffect,useRef,getPlacePhoto,isGooglePlaceId,isPlaceOwnedPhotoUrl,PLACE_DETAIL_PHOTO_STANDARD,PhotoCredit:'credit',createPortal:x=>x};
  const component=new Function(...Object.keys(context),compile(strip(source))+';return PlaceDetailPhotoHeader;')(...Object.values(context));
  const render=()=>{if(unmounted)return;let attempts=0;do{ok(++attempts<12,'header state settles');cursor=0;pending=[];dirty=false;tree=component(props);pending.forEach(fn=>fn());}while(dirty);};
  render();
@@ -137,5 +137,12 @@ try{
  reset(()=>response({src:null,source:'none'}));const withoutOwned=host({placeId:A,name:'Lake Eola Park'});await settle(withoutOwned);eq(media(withoutOwned),undefined,'red proof: omitting curated input reproduces lost venue image');withoutOwned.unmount();
  // Applied regression: dropping no-spend produces a request missing its guard.
  reset(()=>response(photo(A)));const mutant=host({placeId:A,name:'Mutation'},file('app/components/PlaceDetailPhotoHeader.js').replace('nospend: true','nospend: false'));await settle(mutant);eq(new URL(calls[0].url,'https://fixture.test').searchParams.get('nospend'),null,'red proof detects actual paid-default regression');mutant.unmount();
+ reset(()=>{throw new Error('a stored photo rail must not fetch');});
+ const rail=host({placeId:A,name:'Rail Place',photos:['https://cdn.wayfind.test/a.jpg','https://cdn.wayfind.test/b.jpg']});
+ await settle(rail);
+ eq(calls.length,0,'multiple owned photos render without a photo request');
+ eq(rail.nodes().filter(n=>n.type==='img').length,2,'the detail header shows both owned photos at once');
+ ok(rail.nodes().some(n=>Object.prototype.hasOwnProperty.call(n.props,'data-place-detail-photo-rail')),'multiple photos sit in a horizontal rail');
+ rail.unmount();
  console.log(`test-place-detail-photo-surfaces: OK — ${count} runtime assertions; durable/paid actual compositions, shared geometry, free-only exact source/credit, decode/miss/cancellation behavior and applied no-spend mutation`);
 }finally{globalThis.fetch=originalFetch;resetPhotoAnswers();}

@@ -28,7 +28,7 @@
 // identical gate mealGate would apply. If this module is ever pointed at a
 // key where that identity does NOT hold, mealGate would need its own reason
 // here — left as a documented gap, not silently assumed away.
-import { normName, dedupePlaces } from "../../../lib/placeDedupe.js";
+import { brandKey, dedupePlaces } from "../../../lib/placeDedupe.js";
 import { cardComplete } from "../../../lib/score.js";
 import { wayfindScore } from "../../../lib/wayfindScore.js";
 import { priceLevelOf } from "../../../lib/price.js";
@@ -103,7 +103,7 @@ export function classifyClientOmissions(groundPlaces, { originLat, originLng, sl
   const winnerIds = new Set(afterDedupe.map((w) => w.id));
   const winnerIdByNorm = new Map();
   for (const w of afterDedupe) {
-    const k = normName(w.name);
+    const k = brandKey(w);
     if (k && !winnerIdByNorm.has(k)) winnerIdByNorm.set(k, w.id);
   }
 
@@ -114,15 +114,15 @@ export function classifyClientOmissions(groundPlaces, { originLat, originLng, sl
       continue;
     }
     if (!winnerIds.has(c.id)) {
-      const k = normName(c.name);
+      const k = brandKey(c);
       const winnerId = k ? winnerIdByNorm.get(k) : null;
       if (winnerId && winnerId !== c.id) {
         out.set(c.id, { reason: `brand_collapse:${winnerId}`, distMi: c.distMi, winnerId, cardIncomplete: false });
         continue;
       }
       // Passed the distance cut, absent from dedupe's winners, but its
-      // normName does not map to a DIFFERENT winner -- dedupePlaces can only
-      // ever drop a candidate by collapsing it into a same-normName winner,
+      // brandKey does not map to a DIFFERENT winner -- dedupePlaces can only
+      // ever drop a candidate by collapsing it into a same-brand winner,
       // so this branch should be unreachable; leave unexplained rather than
       // guessing.
       out.set(c.id, { reason: null, distMi: c.distMi, winnerId: null, cardIncomplete: false });

@@ -189,6 +189,7 @@ node scripts/test-cc-stale-cache-shape.mjs
 node scripts/test-vitals-attribution.mjs
 node scripts/test-layout-shift.mjs
 node scripts/test-lightbox-paging.mjs
+node scripts/test-brand-rail-dedupe.mjs
 node scripts/test-first-screen.mjs
 node scripts/check-place-card-navigation.mjs
 node scripts/test-home-first-paint.mjs
@@ -2260,6 +2261,7 @@ node scripts/test-card-chips-deterministic.mjs
 node scripts/check-creator-independence.mjs
 
 node scripts/test-seasonal-search.mjs
+node scripts/test-halloween-haunt.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
