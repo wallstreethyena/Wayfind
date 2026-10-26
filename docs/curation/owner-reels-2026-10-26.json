@@ -1,0 +1,31 @@
+{
+  "reviewed_on": "2026-10-26",
+  "authorization": "Owner requested adding all shown venues if absent and linking these five supplied Instagram reels.",
+  "native_links_only": true,
+  "media_rehosted": false,
+  "records": [
+    {"shortcode":"DexeyZ1hoKc","creator":"miriaminspired","place_keys":["casa-del-despecho-orlando"],"evidence":"Public native reel caption tags casadeldespecho_; supplied IMG_2826.jpeg shows dinner and stage performances."},
+    {"shortcode":"DeeNHH0xYbx","creator":"briantreks","place_keys":["raglan-road-disney-springs"],"evidence":"Public native caption identifies Raglan Road, 1640 Buena Vista Drive, and Halloween menu. Explicitly discloses venue hosting; excluded from independent-creator corroboration."},
+    {"shortcode":"De7JDTcpp0-","creator":"amandrewww","place_keys":["dead-coconut-club-citywalk-orlando"],"evidence":"Public native caption identifies Dead Coconut Club Harvest in CityWalk. Universal's Red Coconut Club page independently confirms this is its seasonal overlay, not a separate venue.","official_source":"https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club?intsrch=new"},
+    {"shortcode":"DdO4jWFTBJT","creator":"adaniel.zoga","place_keys":["aphrodisiaco-orlando","casa-mezcal-orlando"],"evidence":"Native page identifies adaniel.zoga but requires sign-in due to age restriction. Owner-supplied IMG_2823.jpeg supplies the caption: Aphrodisiaco first look, 8267 International Drive, with Casa Mezcal and Casa del Despecho named as the other two concepts. This is a shared first-look source, not proof that every concept was open on its publication date.","playback_limitation":"Instagram may require sign-in and age verification; playback was not verified."},
+    {"shortcode":"De8D7NhtMqk","creator":"neverboredinorlando","place_keys":["taza-cafe-fort-myers"],"evidence":"Public native caption identifies Taza Cafe, tazacafefm, 4458 Cleveland Avenue, Fort Myers, and Halloween brunch. Venue's own site confirms the same name and address.","official_source":"https://tazacafefortmyers.com/"}
+  ],
+  "new_inventory": [
+    {"place_id":"ChIJ3bfH5t5_54gRmRUyXxTp3ls","name":"Casa Del Despecho","booking_source":"https://www.opentable.com/r/casa-del-despecho-orlando","identity_evidence":"Google Maps feature 0x88e77fdee6c7b7dd:0x5bdee9145f321599, standard binary place-id encoding, independently reopened using query_place_id and confirmed as Casa Del Despecho at 8267 International Drive.","maps_verification_url":"https://www.google.com/maps/search/?api=1&query=Casa+Del+Despecho&query_place_id=ChIJ3bfH5t5_54gRmRUyXxTp3ls"},
+    {"place_id":"ChIJK0c85eB_54gRkNYkYGyCWCw","name":"Casa Mezcal","booking_source":"https://www.opentable.com/restaurant/profile/1541011","identity_evidence":"Google Maps feature 0x88e77fe0e53c472b:0x2c58826c6024d690, standard binary place-id encoding, independently reopened using query_place_id and confirmed as Casa Mezcal at 8267 International Drive.","maps_verification_url":"https://www.google.com/maps/search/?api=1&query=Casa+Mezcal&query_place_id=ChIJK0c85eB_54gRkNYkYGyCWCw"},
+    {"place_id":"wfadd_aphrodisiaco_orlando","name":"Aphrodisiaco","booking_source":"https://www.opentable.com/r/aphrodisiaco-orlando","identity_evidence":"Owner screenshot and the business-supplied OpenTable listing independently confirm name and address. Uses the existing Wayfind-owned wfadd namespace; no Google Place ID is claimed. Coordinates are the shared street-address entrance confirmed on Google Maps, not an independently surveyed interior location."}
+  ],
+  "existing_inventory": [
+    {"place_id":"ChIJOcKapod_3YgR90H_S_UKiMA","name":"Raglan Road Irish Pub"},
+    {"place_id":"ChIJwZ_GK-d-54gRm5Ahg7PZYeY","name":"Red Coconut Club"},
+    {"place_id":"ChIJ67hmTotB24gRqyZaJDviGIE","name":"Taza Cafe"},
+    {"place_id":"wfadd_rreal_tacos_downtown_tampa","name":"Rreal Tacos - Downtown Tampa","note":"Earlier thread; already present. Owner's reel Deu6nrApxUc was not among this five-link intake."},
+    {"place_id":"ChIJPTvxtmpAw4gReToYD5mTNwE","name":"Marie Selby Botanical Gardens Downtown Sarasota","note":"Earlier thread; already present. Do not attach Halloween footage here without confirming whether it depicts Historic Spanish Point instead."}
+  ],
+  "constraints": [
+    "All three new concepts share the confirmed 8267 International Drive address but remain separate inventory rows.",
+    "Google-sourced coordinates keep the existing 30-day clock from refreshed_at. No Google data is relabeled as permanent independent evidence.",
+    "No seasonal closing dates, live prices, follower counts, reach, ratings, or photo consent are invented.",
+    "Existing venue videos are preserved. No Dead Coconut Club duplicate is created."
+  ]
+}
