@@ -210,13 +210,30 @@ const prompt = boPrompt(model, "Scariest haunt in Tampa?");
 ok(prompt.model === "claude-haiku-4-5" && prompt.system.includes("BOO'S VIP TOUR") && prompt.user.includes("howlTampa"), "Claude prompt is Boo plus the grounded catalog");
 ok(!prompt.user.includes("/api/commerce/go"), "the prompt does not hand Claude a redirect URL to paste");
 
-const { POST } = await loadComponent(path.join(root, "app/api/bo-haunt/route.js"), root);
-const live = await POST(new Request("https://wayfind.test/api/bo-haunt", {
-  method: "POST",
-  headers: { "content-type": "application/json" },
-  body: JSON.stringify({ message: "Where can I take kids?" }),
-}));
-const payload = await live.json();
-ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
+// Save, clear, and restore. The production build has these set, and the
+// missing-key assertion has to run with them absent or it calls Claude.
+const savedAnthropicKey = process.env.ANTHROPIC_API_KEY;
+const savedLlmKey = process.env.LLM_API_KEY;
+const savedPaidAi = process.env.WF_PAID_AI_ENABLED;
+delete process.env.ANTHROPIC_API_KEY;
+delete process.env.LLM_API_KEY;
+delete process.env.WF_PAID_AI_ENABLED;
+try {
+  const { POST } = await loadComponent(path.join(root, "app/api/bo-haunt/route.js"), root);
+  const live = await POST(new Request("https://wayfind.test/api/bo-haunt", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: "Where can I take kids?" }),
+  }));
+  const payload = await live.json();
+  ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
+} finally {
+  if (savedAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY;
+  else process.env.ANTHROPIC_API_KEY = savedAnthropicKey;
+  if (savedLlmKey === undefined) delete process.env.LLM_API_KEY;
+  else process.env.LLM_API_KEY = savedLlmKey;
+  if (savedPaidAi === undefined) delete process.env.WF_PAID_AI_ENABLED;
+  else process.env.WF_PAID_AI_ENABLED = savedPaidAi;
+}
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");
