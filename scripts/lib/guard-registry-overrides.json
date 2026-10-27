@@ -904,6 +904,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-guide-commerce-exit.mjs": {
+    "protects": "The real guide commerce measurement guard executes its assertions and exits naturally with configured or unconfigured hosted account settings, without external requests or a forced successful exit.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A fake-browser measurement guard imported a real auth client under production settings and printed success without terminating, blocking every later guard and preventing production releases. The child-process regression detects the original timeout even when all measurement assertions printed success."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-guide-commerce-measurement.mjs": {
     "protects": "Guide deal cards are measurable: every visible affiliate card emits exactly one commerce_impression on the truthful guide_deals surface (free cards emit none), one activation emits exactly one commerce_cta_clicked (a 142 ms double-click counts once, a genuine later click still counts), Undercover Tourist ends_at is read as its America/New_York date, and the lapsed partner coupons stay purged.",
     "blastRadius": {
