@@ -8,10 +8,16 @@ import { breakerOpen, tripBreaker, classifyProviderFailure } from "../../../lib/
 import { halloweenHauntModel } from "../../../lib/halloweenHauntVault.js";
 import {
   BO_MAX_INPUT_CHARS,
+  BO_WRAP_TURN,
+  boCards,
   boHauntFallback,
+  boPageKind,
   boPrompt,
+  boWrapReply,
   normalizeBoQuery,
   parseBoReply,
+  sanitizeBoTurn,
+  sanitizePageContext,
 } from "../../../lib/boHauntChat.js";
 
 export const dynamic = "force-dynamic";
@@ -76,16 +82,35 @@ function answer(body) {
 export async function POST(req) {
   const model = halloweenHauntModel();
   let message = "";
+  let page = null;
+  let turn = 1;
   try {
     const body = await req.json();
     message = String(body && body.message || "").trim().slice(0, BO_MAX_INPUT_CHARS);
+    page = sanitizePageContext(body && body.page);
+    turn = sanitizeBoTurn(body && body.turn);
   } catch { message = ""; }
   const fallback = () => answer({ ...boHauntFallback(message, model), source: "fallback" });
+
+  // Wrap turn: deterministic goodbye that pushes the ticket buttons. No model
+  // call, no ledger grant, no rate bucket: it costs nothing.
+  if (turn >= BO_WRAP_TURN) {
+    const picks = boHauntFallback(message, model).recommendedIds;
+    return answer({
+      reply: boWrapReply(turn),
+      recommendedIds: picks,
+      cards: boCards(picks, model),
+      wrap: true,
+      source: "wrap",
+    });
+  }
+
   if (!message) return fallback();
 
   const norm = normalizeBoQuery(message);
   if (!norm) return fallback();
-  const cacheKey = (model.catalogVersion || "v1") + ":" + norm;
+  // Coarse page kind only (halloween page vs other), never the full path.
+  const cacheKey = (model.catalogVersion || "v1") + ":" + boPageKind(page) + ":" + norm;
   const cached = readCachedReply(cacheKey);
   if (cached) {
     return answer({ ...cached, source: "claude", cached: true });
@@ -101,7 +126,7 @@ export async function POST(req) {
     if (await breakerOpen("anthropic")) return fallback();
   } catch { return fallback(); }
 
-  const prompt = boPrompt(model, message);
+  const prompt = boPrompt(model, message, { page, turn });
   let res;
   try {
     res = await paidAnthropicRequest({
@@ -134,6 +159,7 @@ export async function POST(req) {
   const parsed = parseBoReply(text, model, message);
   if (!parsed) return fallback();
 
-  writeCachedReply(cacheKey, parsed);
-  return answer({ ...parsed, source: "claude" });
+  const out = { ...parsed, cards: boCards(parsed.recommendedIds, model), wrap: false };
+  writeCachedReply(cacheKey, out);
+  return answer({ ...out, source: "claude" });
 }
