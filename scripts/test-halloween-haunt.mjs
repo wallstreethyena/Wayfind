@@ -9,6 +9,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { eventTicketHref } from "../lib/eventTicketDeals.js";
+import { railHref } from "../lib/dayparts.js";
 import { RESERVED_GO_SLUGS, resolveGoSlug } from "../lib/goShortlinks.js";
 import { seasonalSearchHub } from "../lib/seasonalSearch.js";
 import {
@@ -170,7 +171,16 @@ const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(html.includes("<svg") && html.includes("boo-bulb"), "string lights render");
 ok(html.includes("/images/boo/boo_v1_hype_guide.png"), "Boo art sits in the hero");
 ok(html.includes('data-analytics-page="halloween_haunts"'), "surface id stays on the page");
-ok(html.includes('href="/"') && html.includes("Wayfind Home"), "home link renders");
+ok(html.includes('href="/"') && /<a class="boo-goto" href="\/">Go to Wayfind/.test(html), "Go to Wayfind pill links to the main site");
+ok(/<a class="wf-wordmark" href="\/"/.test(html), "wordmark links home");
+for (const href of [railHref({ href: "/restaurants" }, "fl", "tampa"), railHref({ href: "/nightlife" }, "fl", "tampa"), railHref({ href: "/things-to-do" }, "fl", "tampa"), "/family"]) {
+  ok(html.includes('class="wf-navtab" href="' + href + '"'), "category tab links to the real home route " + href);
+}
+ok(html.includes('class="wf-navtab" href="/?q=hotels"') && html.includes('class="wf-navtab" href="/?q=shopping"'), "Stays and Shopping open the home search");
+for (const label of ["Food", "Night out", "Activities", "Family", "Stays", "Shopping", "Favorites", "Itinerary", "Events", "Coupons", "Shortcuts"]) ok(html.includes("<span>" + label + "</span>"), "header replica shows " + label);
+ok(/<form class="wf-search-row has-scope" action="\/" method="get"/.test(html) && html.includes('name="q"') && html.includes('type="submit"'), "search is a real form that submits to /?q=");
+ok(html.includes('class="wf-scope-city">Florida<'), "city chip reads Florida");
+ok(html.includes('href="/favorites"') && html.includes('href="/itinerary"') && html.includes('href="/events"') && html.includes('href="/coupons"'), "destination row links");
 ok(!html.includes('data-boo-fly=""') && !html.includes("Hide Boo") && !html.includes("Open Boo Chat"), "no floating Boo card or in page chat (site wide companion owns it)");
 for (const gone of ["Next Gag", "Roast This Price", "Spin a Spooky Deal", "Let Boo Haunt My Scroll", "GHOST BUDGET", "VIP Guide", "Night Pirate", "Reel Tour", "Verified Catalog", "OFFICIAL HAUNT TICKET VAULT", "TALK TO BOO", "Official details"]) {
   ok(!html.includes(gone), "removed: " + gone);
@@ -184,7 +194,13 @@ ok(html.includes("Wayfind may earn a commission when you book through partner li
 ok((html.match(/Wayfind may earn a commission/g) || []).length === 1, "disclosure appears once on the page");
 for (const row of model.haunts) {
   ok(html.includes(row.name.replace(/'/g, "&#x27;")) || html.includes(row.name), "renders " + row.name);
-  ok(html.includes(row.priceLabel), "renders " + row.priceLabel);
+  const kind = row.price && row.price.kind;
+  if (kind === "from") ok(html.includes(row.priceLabel) && html.includes(">from<") && html.includes(row.priceLabel.match(/\$[\d,]+(?:\.\d+)?/)[0]), "renders from + price for " + row.id);
+  else if (kind === "range") ok(html.includes(row.priceLabel), "renders " + row.priceLabel);
+  else ok(html.includes(row.admissionNote), "no numeric price shows the admission note for " + row.id);
+  ok(html.includes('data-haunt-id="' + row.id + '"'), "card renders for " + row.id + " even without a photo");
+  ok(row.photo === null || (row.photo.src && row.photo.alt && !DASH.test(row.photo.alt)), row.id + " photo is a real mapped source or null");
+  if (row.photo && row.photo.credit) ok(html.includes(row.photo.credit), row.id + " photo credit renders under the headline");
   ok(html.includes(row.timing), "renders " + row.timing);
   const href = row.cta.href.replace(/&/g, "&amp;");
   ok(html.includes('href="' + href + '"'), "renders href " + row.id);
@@ -209,9 +225,9 @@ const dashHit = visible.match(/[^\n]{0,40}[-\u2013\u2014][^\n]{0,40}/);
 ok(!DASH.test(visible), "rendered visible copy has no dash" + (dashHit ? ": " + dashHit[0] : ""));
 
 const componentSource = readFileSync("app/components/BoHalloweenHaunt.js", "utf8");
-ok(!/purple|violet|rebeccapurple|#d8b4fe|#a855f7|#7c3aed|#6d28d9|#8b5cf6/i.test(componentSource), "companion CSS has no purple");
-ok(/#07060B/.test(componentSource) && /#110E19/.test(componentSource) && /#F97316/.test(componentSource) && /#C4B5FD/.test(componentSource) && /#F5EFE6/.test(componentSource) && /#9A94A8/.test(componentSource), "premium palette tokens are in the page");
-ok(!/gradient\([^)]*(?:00F5D4|FF2A85|FFD166)/i.test(componentSource) && !/00F5D4|FF2A85|FFD166/i.test(componentSource), "no cyan, pink or gold left");
+ok(/#040810/.test(componentSource) && /#1C2230/.test(componentSource) && /#2D3748/.test(componentSource) && /#F97316/.test(componentSource) && /#C4B5FD/.test(componentSource) && /#F5EFE6/.test(componentSource), "home palette tokens are in the page");
+ok(/prefers-reduced-motion:reduce/.test(componentSource) && /boo-cycle/.test(componentSource) && /boo-flick/.test(componentSource), "festival lights cycle, flicker and respect reduced motion");
+ok(!/00F5D4|FF2A85|FFD166/i.test(componentSource), "no cyan or hot pink left");
 ok(/var\(--wf-sans\)/.test(componentSource), "page uses the site font variable");
 ok(!/\bBo\b/.test(visible), "visible copy says Boo, not Bo");
 ok(!/ANTHROPIC_API_KEY|LLM_API_KEY|api\.anthropic\.com/.test(componentSource), "the page does not hold the model key or the provider host");
