@@ -1873,7 +1873,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     if (typeof IntersectionObserver === "undefined") return undefined;
     const nodes = document.querySelectorAll("[data-haunt-id]");
     const io = new IntersectionObserver((entries) => {
-      if (typeof window !== "undefined" && window.scrollY < 360) return;
+      if (heroVisible) return;
       if (Date.now() < emoteLock.current) return;
       if (chatOpen || pending || chatReply) return;
       const best = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
@@ -1889,7 +1889,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     }, { threshold: [0.6] });
     nodes.forEach((node) => io.observe(node));
     return () => io.disconnect();
-  }, [filter, regionFilter, dateFilter, audienceFilter, scareFilter, budgetFilter, haunts, chatOpen, pending, chatReply]);
+  }, [filter, regionFilter, dateFilter, audienceFilter, scareFilter, budgetFilter, haunts, chatOpen, pending, chatReply, heroVisible]);
 
   // Read-only AI recommendation handler: NEVER scrolls the page, NEVER changes active filters,
   // NEVER steals focus, and NEVER re-opens Boo if the visitor dismissed or minimized Boo.
