@@ -69,7 +69,7 @@ const FLAGS = { partial: "Not everyone replied", tie: "It’s a tie", unavailabl
 
 await test("title and plain description",() => {
  const html = markup(Org,org(view(open2)));
- matches(html,/<h1>Group Vote<\/h1>/); matches(html,/Your people\. A few great options\. One plan together/);
+ matches(html,/<h1>Who’s in &amp; when\?<\/h1>/); matches(html,/Your people\. A few great options\. One plan together/);
 });
 await test("draft review, people, dates and invitation action precede place research",()=>{
  const html=markup(Org,org(view(make(two))));

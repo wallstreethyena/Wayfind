@@ -3,8 +3,8 @@ import { WF_PLACE_CARD_CSS } from "../components/css.js";
 import { C } from "../components/kit.js";
 import { activeSeasonalMark, NORMAL_MARK } from "../../lib/seasonalBrand.js";
 
-// Tokens come from kit.js `C` (dark, the app default). Light is an override of
-// the same variables; place cards keep their own dark look in both.
+// The group-vote treatment is scoped to this frame. Canonical place cards
+// continue to use WF_PLACE_CARD_CSS without local geometry overrides.
 export const GROUP_PLAN_CSS=`
 .gp-shell{--gp-bg:${C.bg};--gp-panel:${C.panel};--gp-card:${C.card};--gp-border:${C.border};--gp-text:${C.text};--gp-muted:${C.muted};--gp-light:${C.light};--gp-accent:${C.accent};--gp-accent-ink:${C.bg};--gp-gold:${C.gold};--gp-red:#FCA5A5;--gp-green:#86EFAC;--gp-field:${C.bg};--gp-track:${C.border};color-scheme:dark;box-sizing:border-box;min-height:100vh;min-height:100dvh;background:var(--gp-bg);color:var(--gp-text);padding:16px 16px 80px;font-family:var(--wf-sans),system-ui,sans-serif;overflow-x:clip;-webkit-text-size-adjust:100%}
 
@@ -25,8 +25,21 @@ export const GROUP_PLAN_CSS=`
 .gp-note{font-size:13px;line-height:1.55;color:var(--gp-muted)}.gp-shell details{margin:16px 0}.gp-shell summary{cursor:pointer;font-weight:700}.gp-shell code{overflow-wrap:anywhere}.gp-empty{padding:28px 16px;border:1px dashed var(--gp-border);border-radius:16px}.gp-source-list{display:flex;gap:12px;flex-wrap:wrap}.gp-checkbox-list{display:grid;gap:6px}
 @media(min-width:561px){.gp-shell{padding:24px 24px 80px}.gp-panel{padding:24px}.gp-nav{margin-bottom:32px}}
 @media(max-width:560px){.gp-time{grid-template-columns:1fr}.gp-row{align-items:flex-start;gap:8px;flex-wrap:wrap}.gp-row .gp-button{width:100%}.gp-actions .gp-button{flex:1}}
+.gp-shell{--gp-bg:#130b23;--gp-panel:#211333;--gp-card:#2b1b40;--gp-border:#66507e;--gp-text:#faf6ff;--gp-muted:#c4b4d9;--gp-light:#e0d2f0;--gp-accent:#ff8917;--gp-accent-ink:#1b0b00;--gp-field:#180e29;--gp-track:#49365e;--gp-teal:#00e3ca;--gp-lavender:#cfb2ff;background:radial-gradient(ellipse at 14% 0,rgba(142,76,208,.2),transparent 48%),radial-gradient(ellipse at 94% 24%,rgba(0,227,202,.06),transparent 34%),var(--gp-bg)}
+.gp-shell h1{color:var(--gp-lavender);font-size:clamp(34px,6vw,62px);font-weight:900;letter-spacing:-1.8px;line-height:1.04;overflow-wrap:anywhere}
+.gp-panel{border-radius:24px;background:linear-gradient(145deg,#28163f,var(--gp-panel));box-shadow:0 16px 40px rgba(0,0,0,.15)}
+.gp-step{color:var(--gp-teal);font-size:12px;letter-spacing:1px;line-height:1.5}
+.gp-button{border-radius:999px}.gp-button.primary{box-shadow:0 5px 22px rgba(255,137,23,.18)}
+.gp-progress span{background:var(--gp-teal)}
+.gp-vote-intro{position:relative;margin:8px 0 28px;padding:10px 0 22px;border-bottom:1px solid var(--gp-border)}
+.gp-vote-intro::after{content:"";position:absolute;bottom:-2px;left:0;width:80px;height:3px;border-radius:3px;background:var(--gp-teal)}
+.gp-vote-intro .gp-step{margin:0 0 12px}.gp-vote-intro .gp-lede{margin:12px 0 0}
 @media (prefers-reduced-motion:reduce){.gp-shell *,.gp-shell *::before,.gp-shell *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 `;
+
+export function GroupVoteIntro({title="Who’s in & when?",children}) {
+  return <header className="gp-vote-intro"><p className="gp-step">Wayfind · Group Vote</p><h1>{title}</h1>{children||<p className="gp-lede">Bring your people. Pick the spot. Find your day.</p>}</header>;
+}
 
 export function GroupFrame({children}) {
   const mark=activeSeasonalMark()||NORMAL_MARK;
