@@ -8,6 +8,7 @@ import * as TripCore from "../../../lib/trips";
 import * as TripDays from "../../../lib/tripDays";
 import {
   isSharedTripSaved,
+  resolveOpenableSavedTripKey,
   saveSharedTripToStore,
   retrySharedTripAccountSync,
   MAX_SHARED_LIST_PLACES,
@@ -24,7 +25,7 @@ export default function SharedScreen({ ctx }) {
     setTrips,
     setActiveTrip,
     user,
-    requireAuth,
+    authReady,
     showToast,
     logEvent,
     isDesktop,
@@ -48,17 +49,17 @@ export default function SharedScreen({ ctx }) {
   }, [sharedList]);
 
   useEffect(() => {
-    if (user) return;
+    if (user || authReady === false) return;
     const targetStorage =
       ctx.__storage !== undefined
         ? ctx.__storage
         : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
     if (!targetStorage) return;
-    const isolated = ensureSignedOutTripIsolation(targetStorage);
+    const isolated = ensureSignedOutTripIsolation(targetStorage, { authReady });
     if (isolated !== null && setTrips) {
       setTrips(isolated);
     }
-  }, [user, ctx.__storage, setTrips]);
+  }, [user, authReady, ctx.__storage, setTrips]);
 
   const todayOpt = ctx.__today ? { today: ctx.__today } : {};
   const isMobile =
@@ -111,6 +112,7 @@ export default function SharedScreen({ ctx }) {
       sharedInput: sharedList,
       kind: "list",
       user,
+      authReady,
       supabase: ctx.__supabase,
       syncFn: resolveSyncFn(),
       onSyncResult: (syncedRes) => setImportFeedback(syncedRes),
@@ -142,9 +144,34 @@ export default function SharedScreen({ ctx }) {
   };
 
   const handleOpenSavedTrip = () => {
-    if (!user && requireAuth && !requireAuth("Sign up free to open and edit your saved trip in Itinerary, and sync it across devices.")) {
+    const targetStorage =
+      ctx.__storage !== undefined
+        ? ctx.__storage
+        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+    let candidateTrips =
+      (importFeedback && importFeedback.trips && Object.keys(importFeedback.trips).length ? importFeedback.trips : null) ||
+      trips;
+    let openKey = resolveOpenableSavedTripKey(candidateTrips, savedTripKey, sharedList, { kind: "list" });
+    if (!openKey && targetStorage && typeof targetStorage.getItem === "function") {
+      try {
+        const stored = JSON.parse(targetStorage.getItem("wayfind_trips") || "{}") || {};
+        const storedKey = resolveOpenableSavedTripKey(stored, savedTripKey, sharedList, { kind: "list" });
+        if (storedKey) {
+          candidateTrips = stored;
+          openKey = storedKey;
+        }
+      } catch {}
+    }
+    if (!openKey) {
+      if (showToast) showToast("Save this trip first to open it in your Itinerary.");
       return;
     }
+    if (candidateTrips && (!trips || !trips[openKey]) && setTrips) {
+      setTrips(candidateTrips);
+    }
+    if (setActiveTrip) setActiveTrip(openKey);
+    setSharedList(null);
+    setScreen("itinerary");
     try {
       if (logEvent && norm) {
         logEvent("shared_trip_open_itinerary", null, {
@@ -155,9 +182,6 @@ export default function SharedScreen({ ctx }) {
         });
       }
     } catch {}
-    if (savedTripKey && setActiveTrip) setActiveTrip(savedTripKey);
-    setSharedList(null);
-    setScreen("itinerary");
   };
 
   const syncBadgeState = !isSavedTrip

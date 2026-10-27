@@ -5234,8 +5234,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (active && !(data && data.session && data.session.user)) {
         retryTimer = setTimeout(() => {
           if (!active) return;
-          supabase.auth.getSession().then(({ data: d2 }) => {
-            if (active && d2 && d2.session && d2.session.user) setUser(d2.session.user);
+          supabase.auth.getSession().then(({ data: d2, error: d2Err }) => {
+            if (!active) return;
+            if (d2 && d2.session && d2.session.user) {
+              setUser(d2.session.user);
+            } else if (!d2Err) {
+              import("../lib/itinerarySync.js").then((m) => {
+                if (!active) return;
+                const isolated = m.ensureSignedOutTripIsolation(localStorage, { authReady: true });
+                if (isolated !== null) {
+                  setTrips(isolated);
+                  setActiveTrip(null);
+                }
+              }).catch(() => {});
+            }
           }).catch(() => {});
         }, 1200);
       }
@@ -5341,13 +5353,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   // v5.61 (audit P0): landing on a personal screen (Favorites/Itinerary) while
   // signed out — via nav tap, deep link (?go=favorites), or restore — pops the
-  // sign-in dialog. The screen content is already withheld (AuthWall renders
-  // instead); this makes the required next action immediate. Fires once auth
-  // has resolved, so a returning signed-in user is never prompted.
+  // sign-in dialog unless the visitor has a locally saved guest trip in
+  // Itinerary (`hasLocalGuestTrip`), which stays usable on-device with a calm
+  // voluntary sign-in action.
+  const hasLocalGuestTrip = !user && Boolean(
+    (activeTrip && trips && trips[activeTrip] && Array.isArray(trips[activeTrip].items) && trips[activeTrip].items.length > 0) ||
+    Object.values(trips || {}).some((t) => t && Array.isArray(t.items) && t.items.length > 0)
+  );
   useEffect(() => {
-    if (authReady && !user && AUTH_SCREENS.has(screen)) setAuthOpen(true);
+    if (authReady && !user && AUTH_SCREENS.has(screen) && !(screen === "itinerary" && hasLocalGuestTrip)) setAuthOpen(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screen, authReady, user]);
+  }, [screen, authReady, user, hasLocalGuestTrip]);
 
   // One-tap social sign-in. No email, no rate limits. Needs the provider enabled
   // in Supabase. Redirects out to Google/Apple and back to the app.
@@ -5501,6 +5517,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   async function signOutUser() {
     if (!supabase) return;
     try { await supabase.auth.signOut(); } catch {}
+    try {
+      const { ensureSignedOutTripIsolation } = await import("../lib/itinerarySync.js");
+      const isolated = ensureSignedOutTripIsolation(localStorage, { authReady: true });
+      if (isolated !== null) {
+        setTrips(isolated);
+        setActiveTrip(null);
+      }
+    } catch {}
     setUser(null);
     showToast("Signed out");
   }
@@ -7273,7 +7297,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // Cloud sync is a second writer behind itinerary_v2 + itinerary_sync. With
   // the flags off this stays the browser store it has always been.
   useEffect(() => {
-    try { const raw = localStorage.getItem("wayfind_trips"); if (raw) setTrips(JSON.parse(raw) || {}); } catch {}
+    try {
+      if (localStorage.getItem("wayfind_trips_owner")) return;
+      const raw = localStorage.getItem("wayfind_trips");
+      if (raw) setTrips(JSON.parse(raw) || {});
+    } catch {}
   }, []);
   const tripsHydrated = useRef(false);
   useEffect(() => {
@@ -7293,7 +7321,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const itinerarySyncReady = useRef(false);
   const itinerarySyncKeys = useRef([]);
   const itinerarySkipPush = useRef(false);
-  useEffect(() => { itinerarySyncReady.current = false; itinerarySyncKeys.current = []; }, [user && user.id]);
+  useEffect(() => {
+    itinerarySyncReady.current = false;
+    itinerarySyncKeys.current = [];
+    if (user && user.id) {
+      try {
+        const owner = localStorage.getItem("wayfind_trips_owner");
+        if (!owner || owner === String(user.id)) {
+          const raw = localStorage.getItem("wayfind_trips");
+          if (raw) setTrips(JSON.parse(raw) || {});
+        }
+      } catch {}
+    }
+  }, [user && user.id]);
   useEffect(() => {
     if (!itineraryFlags.sync || !user || !supabase) return undefined;
     let cancelled = false;
@@ -11404,7 +11444,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}

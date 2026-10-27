@@ -369,6 +369,60 @@ function baseCtx(overrides = {}) {
       maxTripSenderHtml.includes("8,000-character safer-sharing threshold"),
     "SharedItineraryScreen renders undated wftrip1 with no Unscheduled heading, never presents minimal_no_notes as note-preserving, and ItineraryScreen surfaces both note-omission and 8,000-char safer-sharing warnings"
   );
+
+  // Shared stop detail controls vs note-only / unavailable stops, plus guest sync banner in ItineraryScreen
+  const mixedStopsSharedHtml = renderToStaticMarkup(
+    createElement(SharedItineraryScreen, {
+      ctx: baseCtx({
+        sharedItinerary: {
+          title: "Sarasota Mixed Stops",
+          city: "Sarasota",
+          state: "FL",
+          items: [
+            { id: "s1", order: 0, day: "2026-10-24", note: "Lunch", place: makePlace("s1", "Owen's Fish Camp", 27.33, -82.54) },
+            { id: "n1", order: 1, day: "2026-10-24", kind: "note", note: "Bring beach towels", place: { id: "n1", name: "Pack reminder", kind: "note" } },
+            { id: "u1", order: 2, day: null, note: "Private dock", place: { id: "u1", name: "Custom Pin", detailsUnavailable: true } },
+          ],
+        },
+        setSharedItinerary() {},
+        setScreen() {},
+      }),
+    })
+  );
+  ok(
+    mixedStopsSharedHtml.includes('data-wf-shared-stop-detail="s1"') &&
+      mixedStopsSharedHtml.includes('aria-label="View details for Owen&#x27;s Fish Camp"') &&
+      mixedStopsSharedHtml.includes('data-wf-shared-stop-unavailable="note"') &&
+      mixedStopsSharedHtml.includes('data-wf-shared-stop-unavailable="unavailable"') &&
+      (mixedStopsSharedHtml.match(/data-wf-shared-stop-detail=/g) || []).length === 1,
+    "SharedItineraryScreen renders an accessible 44px detail button for supported stops and static honest rows for note-only or unavailable-detail stops"
+  );
+
+  const guestItinHtml = renderToStaticMarkup(
+    createElement(ItineraryScreen, {
+      ctx: baseCtx({
+        user: null,
+        activeTrip: "fl_sarasota",
+        trips: recipientTrips,
+      }),
+    })
+  );
+  const signedInItinHtml = renderToStaticMarkup(
+    createElement(ItineraryScreen, {
+      ctx: baseCtx({
+        user: { id: "user-123" },
+        activeTrip: "fl_sarasota",
+        trips: recipientTrips,
+      }),
+    })
+  );
+  ok(
+    guestItinHtml.includes('data-wf-guest-sync-banner="itinerary"') &&
+      guestItinHtml.includes("Saved on this device. Sign in to sync across devices.") &&
+      guestItinHtml.includes('data-wf-guest-signin-btn="itinerary"') &&
+      !signedInItinHtml.includes('data-wf-guest-sync-banner="itinerary"'),
+    "ItineraryScreen renders 'Saved on this device. Sign in to sync across devices.' with one voluntary Sign in button when signed out, and hides it when signed in"
+  );
 }
 
 if (failures > 0) {
