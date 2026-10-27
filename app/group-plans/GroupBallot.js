@@ -5,6 +5,7 @@ import { LANDING_CITIES } from "../../lib/landingCities.js";
 import { C } from "../components/kit.js";
 import { GroupPlaceOptions } from "./GroupPlaceOptions.js";
 import { GroupFinal } from "./GroupOrganizer.js";
+import { GroupVoteIntro } from "./GroupFrame.js";
 
 // Component-scoped styles. Text and borders follow currentColor so the ballot
 // reads in dark and light frames; only the accent is fixed. Every animation is
@@ -46,7 +47,13 @@ export const GROUP_BALLOT_CSS=`
 .gb-explore ul{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .gb-explore a{display:flex;align-items:center;justify-content:center;min-height:56px;padding:10px 12px;border:2px solid color-mix(in srgb,currentColor 22%,transparent);border-radius:14px;color:inherit;font-weight:800;text-align:center;text-decoration:none;transition:border-color .2s ease}
 .gb-explore a:hover{border-color:${C.accent}}
-@media(max-width:380px){.gb-explore ul{gap:8px}.gb-explore a{font-size:14px}}
+.gb{max-width:680px}.gb .gp-vote-intro{margin-bottom:20px}.gb .gp-vote-intro h1{font-size:clamp(32px,6vw,48px)}.gb .gp-step{color:var(--gp-teal)}
+.gb-journey{border-color:#a88acb;border-radius:20px;background:#241538}.gb-journey small{white-space:nowrap}.gb-journey .gp-progress span{background:var(--gp-teal)}
+.gb-step{padding:20px 16px;border:1px solid var(--gp-border);border-radius:24px;background:linear-gradient(135deg,#28173e,#1e1230)}.gb-step-head{margin-bottom:18px}.gb-step-head h2{color:var(--gp-lavender)}.gb-num{background:var(--gp-teal);color:#071d1b}
+.gb-card{background:#1a102b;border-color:var(--gp-border)}.gb-label{color:var(--gp-teal)}.gb-vote{border-radius:99px}.gb-send{border-radius:99px;background:var(--gp-accent);border-color:var(--gp-accent);color:var(--gp-accent-ink);box-shadow:0 5px 24px rgba(255,137,23,.2)}
+.gb-chip{background:#2b1d3c;border-color:var(--gp-border);border-radius:18px}.gb-chip:has(input:checked){background:rgba(0,227,202,.1);border-color:var(--gp-teal)}.gb-chip input:checked + .gb-chip-box{background:var(--gp-teal);border-color:var(--gp-teal)}.gb-chip:focus-within{outline-color:var(--gp-teal)}.gb-chip-box{border-color:var(--gp-lavender)}
+.gb-done{border-color:var(--gp-teal);background:rgba(0,227,202,.08)}.gb-receipt-mark{color:var(--gp-teal);background:rgba(0,227,202,.15)}
+@media(max-width:380px){.gb-explore ul{gap:8px}.gb-explore a{font-size:14px}.gb-step{padding:18px 12px}}
 @media (prefers-reduced-motion: reduce){.gb *,.gb *::before,.gb *::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 `;
 
@@ -114,8 +121,7 @@ export function GroupBallot({plan,onCommand,busy}) {
     onCommand({type:"respond",slotId:plan.invitee.id,placeId:selected,availableTimeIds:available,declined:false});
   };
   return <div className="gb"><style dangerouslySetInnerHTML={{__html:GROUP_BALLOT_CSS}}/>
-    <p className="gp-step">An invitation for {plan.invitee?.name}</p>
-    <h1>{firstName(plan.organizerName)} started a group vote</h1>
+    <GroupVoteIntro title={`${firstName(plan.organizerName)} started a group vote`}><p className="gp-lede">An invitation for {plan.invitee?.name}</p></GroupVoteIntro>
     {plan.status!=="open"?<>
       <section className="gp-panel"><h2>{plan.status==="finalized"?"The plan is ready":"Voting has closed"}</h2>{plan.status==="finalized"?<GroupFinal plan={plan}/>:<p>The organizer is choosing the final plan. Return to this link to see it.</p>}</section>
       <ExploreMore place={chosen}/>

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "../../lib/supabase.js";
 import { parseZonedDateTime, formatGroupTimeShort } from "../../lib/groupPlanTime.js";
 import { signInUrlWithReturn } from "../../lib/authReturn.js";
-import { GroupFrame } from "./GroupFrame.js";
+import { GroupFrame, GroupVoteIntro } from "./GroupFrame.js";
 import { GroupOrganizer, GroupFinal } from "./GroupOrganizer.js";
 import { GroupBallot } from "./GroupBallot.js";
 
@@ -157,7 +157,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,enabled=fals
   if(!enabled)return <GroupFrame><h1>Group Vote</h1><p className="gp-lede gp-muted">Invite your friends, compare a few places, and find a time together.</p><p className="gp-status">Group planning is being prepared and is not available yet.</p><a className="gp-button" href="/">Explore Wayfind</a></GroupFrame>;
   const guest=credentials?.token||credentials?.finalToken;
   return <GroupFrame>
-    {mode!=="view"&&<><h1>{mode==="new"?"Start a Group Vote":"Your group votes"}</h1><p className="gp-lede gp-muted">Bring your people. Pick the place. Find your time.</p></>}
+    {mode!=="view"&&<GroupVoteIntro title={mode==="new"?"Who’s in & when?":"Your group votes"}><p className="gp-lede">{mode==="new"?"Start a group vote. Bring your people. Make a plan.":"Good plans start with your people. Pick up where you left off."}</p></GroupVoteIntro>}
     <ErrorNotice message={error}/>
     {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId)):mode==="new"&&!placeId?<GroupPlacePicker/>:mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
       {list?.notices?.length>0&&<section className="gp-panel"><h2>Updates for you</h2>{list.notices.map((notice)=><p key={notice.id}><a className="gp-button" href={`/group-plans/${notice.plan_id}`}>{notice.event_type==="voting_closed"?"Voting has finished":notice.event_type==="plan_finalized"?"Your plan is ready":"Plan cancelled"}</a>{notice.email_status==="pending_configuration"&&<span className="gp-note"> Email update pending setup.</span>}{["failed","suppressed"].includes(notice.email_status)&&<span className="gp-note"> Email was not confirmed. Your result is saved here.{notice.next_attempt_at?" We’ll retry the email automatically.":""}</span>}</p>)}</section>}
