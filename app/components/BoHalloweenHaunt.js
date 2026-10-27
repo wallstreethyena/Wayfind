@@ -77,7 +77,7 @@ const CSS = `
   content:"";position:absolute;inset:-12px;border-radius:50%;
   background:radial-gradient(circle,rgba(249,115,22,.22) 0%,rgba(249,115,22,0) 68%);
 }
-.boo-art img{position:relative;width:96px;height:96px;object-fit:contain;display:block}
+.boo-art svg{position:relative;width:96px;height:96px;display:block}
 .boo-bubble{
   flex:1;min-width:0;margin:0;
   background:var(--surface);border:1px solid var(--line);border-radius:12px;
@@ -207,7 +207,9 @@ export default function BoHalloweenHaunt({ model, share = null }) {
           <p className="boo-legal">{chrome.disclosure}</p>
           <div className="boo-boo-row">
             <div className="boo-art">
-              <img src={BOO_ART} width="96" height="96" alt={chrome.videoLabel} decoding="async" />
+              <svg viewBox="0 0 96 96" role="img" aria-label={chrome.videoLabel}>
+                <image href={BOO_ART} x="0" y="0" width="96" height="96" preserveAspectRatio="xMidYMid meet" />
+              </svg>
             </div>
             <p className="boo-bubble">Not sure where to go? Ask me and I will point you to a night.</p>
           </div>
