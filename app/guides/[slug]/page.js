@@ -613,9 +613,9 @@ export default async function GuidePage({ params }) {
   // The first pick keeps its resolved venue photo; later duplicates retain
   // their own curated images, prose and place links without repeating it.
   // Explicit pick.placeId always takes precedence; conflicting IDs fail closed.
-  const pickPlaceIds = g.picks.map((pick, i) => {
-    const resolved = resolveGuidePickPlaceId(pick, pickPlaces[i]);
-    if (!resolved && pickPlaces[i]) pickPlaces[i] = null;
+  const pickPlaceIds = g.picks.map((p, idx) => {
+    const resolved = resolveGuidePickPlaceId(p, pickPlaces[idx]);
+    if (!resolved && pickPlaces[idx]) pickPlaces[idx] = null;
     return resolved;
   });
   {
@@ -637,7 +637,7 @@ export default async function GuidePage({ params }) {
   const fallbackPickImages = [];
   const editorialImages = new Map();
   const missingPickPhotos = g.picks
-    .map((pick, i) => (!curatedPickImages[i] && pickPlaceIds[i]) ? (pickPlaces[i] || { id: pickPlaceIds[i], name: pick.name }) : null)
+    .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
     editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
