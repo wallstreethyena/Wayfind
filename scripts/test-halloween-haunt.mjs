@@ -44,13 +44,24 @@ const required = [
 for (const line of required) ok(model.lines.includes(line), "required Bo line: " + line.slice(0, 42));
 ok(hauntCopyProblems(model).length === 0, "the live model is dash free and phrase safe");
 
-ok(model.haunts.length === 14, "fourteen haunts");
-ok(hauntsForFilter(model, "all").length === 14, "All Haunts is the full vault");
+ok(model.haunts.length === 31, "31 verified statewide Florida Halloween experiences");
+ok(hauntsForFilter(model, "all").length === 31, "All Haunts is the full statewide vault");
 const major = hauntsForFilter(model, "major").map((row) => row.id);
-ok(major.includes("howlTampa") && major.includes("howlOrlando") && major.includes("hhn") && !major.includes("peppa"), "major scream parks are the three big nights");
+ok(major.includes("howlTampa") && major.includes("howlOrlando") && major.includes("hhn") && !major.includes("peppa"), "major scream parks include the big nights");
 ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon Horror Park"), "local trails include Scream A Geddon");
 ok(hauntsForFilter(model, "family").some((row) => row.id === "mickey"), "family friendly includes Mickey");
 ok(model.filters.map((item) => item.label).join("|") === "All Haunts|Major Scream Parks|Local Haunted Trails|Family Friendly", "filter labels");
+
+const expectedCategories = ["theme-parks", "haunts", "ghost-tours", "family", "parties", "patches", "free"];
+for (const catId of expectedCategories) {
+  ok(model.categories.some((c) => c.id === catId), "category exists: " + catId);
+  ok(hauntsForFilter(model, catId).length >= 2, "at least 2 experiences in category: " + catId);
+}
+const expectedRegions = ["orlando", "tampa", "sarasota", "northeast", "south", "southwest", "keys", "panhandle"];
+for (const regId of expectedRegions) {
+  ok(model.regions.some((r) => r.id === regId), "region exists: " + regId);
+  ok(model.haunts.some((h) => h.region === regId), "at least 1 experience in region: " + regId);
+}
 
 const expectedHref = {
   howlTampa: "/api/commerce/go?provider=undercover_tourist&offer=20&surface=halloween_haunts&content=howl-o-scream-tampa-2026",
@@ -62,6 +73,11 @@ const expectedHref = {
   brick: "/api/commerce/go?provider=undercover_tourist&offer=16&surface=halloween_haunts&content=brick-or-treat-2026",
   peppa: "/api/commerce/go?provider=undercover_tourist&offer=18&surface=halloween_haunts&content=peppas-halloween-party-2026",
   spookquarium: "/api/commerce/go?provider=tiqets&offer=tampa-drive-clearwater-aquarium&surface=halloween_haunts&content=hw26-halloween-spookquarium-clearwater-2026",
+  gatorland: "/api/commerce/go?provider=undercover_tourist&offer=13&surface=halloween_haunts&content=gatorland-ghosts-goblins-2026",
+  zooMiami: "/api/commerce/go?provider=tiqets&offer=miami-hook-zoo-miami&surface=halloween_haunts&content=zoo-boo-zoo-miami-2026",
+  stAugGhost: "/api/commerce/go?provider=awin_usghostadventures&offer=staug-ghost-usghostadventures&surface=halloween_haunts&content=staug-ghost-tour",
+  keyWestGhost: "/api/commerce/go?provider=awin_usghostadventures&offer=keywest-ghost-usghostadventures&surface=halloween_haunts&content=keywest-ghost-tour",
+  tampaGhost: "/api/commerce/go?provider=awin_usghostadventures&offer=tampa-ghost-usghostadventures&surface=halloween_haunts&content=tampa-ghost-tour",
 };
 const expectedEvent = {
   howlTampa: "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
@@ -86,23 +102,50 @@ const organizerHref = {
   undead: "https://www.undeadinthewater.com/",
   frightfest: "https://www.sarasotafrightfest.com/",
 };
-const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium"]);
+const parkAdmission = new Set([
+  "spooktacular",
+  "brick",
+  "peppa",
+  "spookquarium",
+  "gatorland",
+  "zooMiami",
+]);
+const ghostTourAffiliate = new Set(["stAugGhost", "keyWestGhost", "tampaGhost"]);
 
+const seenImageUrls = new Set();
 for (const row of model.haunts) {
-  ok(expectedEvent[row.id] === row.eventHref, row.id + " event page");
+  if (expectedEvent[row.id]) {
+    ok(expectedEvent[row.id] === row.eventHref, row.id + " event page");
+  }
   ok(!DASH.test(row.name + row.where + row.priceLabel + row.timing + row.tip + row.roast), row.id + " card copy is dash free");
+  ok(Boolean(row.imageUrl && row.imageAlt && row.imageKind && row.category && row.region && row.daypart), row.id + " has image and facet metadata");
+  ok(!seenImageUrls.has(row.imageUrl), row.id + " has a unique local photograph");
+  seenImageUrls.add(row.imageUrl);
+  const localImgPath = path.join(root, "public", row.imageUrl.replace(/^\//, ""));
+  ok(existsSync(localImgPath) && statSync(localImgPath).size > 1000, row.id + " local photo file exists");
+
   if (expectedHref[row.id]) {
-    const built = eventTicketHref(row.eventId, { surface: "halloween_haunts" });
-    ok(row.cta.href === built && row.cta.href === expectedHref[row.id], row.id + " affiliate href");
-    ok(row.cta.kind === "affiliate" && row.cta.rel === "sponsored nofollow noopener", row.id + " sponsored rel");
-    if (parkAdmission.has(row.id)) {
-      ok(row.cta.label === "Book Now & Save" && row.cta.via.startsWith("Park tickets at "), row.id + " is park admission");
+    if (ghostTourAffiliate.has(row.id)) {
+      ok(row.cta.href === expectedHref[row.id], row.id + " ghost tour affiliate href");
+      ok(row.cta.kind === "affiliate" && row.cta.rel === "sponsored nofollow noopener", row.id + " sponsored rel");
+      ok(row.cta.label === "Book Tour" && row.cta.via.startsWith("Walking tour at "), row.id + " is a ghost walking tour");
     } else {
-      ok(row.cta.label === "Get Tickets" && row.cta.via.startsWith("Event tickets at "), row.id + " is an event ticket");
+      const built = eventTicketHref(row.eventId, { surface: "halloween_haunts" });
+      ok(row.cta.href === built && row.cta.href === expectedHref[row.id], row.id + " affiliate href");
+      ok(row.cta.kind === "affiliate" && row.cta.rel === "sponsored nofollow noopener", row.id + " sponsored rel");
+      if (parkAdmission.has(row.id)) {
+        ok(row.cta.label === "Book Now & Save" && row.cta.via.startsWith("Park tickets at "), row.id + " is park admission");
+      } else {
+        ok(row.cta.label === "Get Tickets" && row.cta.via.startsWith("Event tickets at "), row.id + " is an event ticket");
+      }
     }
+  } else if (row.cta.kind === "free") {
+    ok(row.cta.label === "Free Plan Details" && !/sponsored/.test(row.cta.rel), row.id + " free community plan");
   } else {
-    ok(row.cta.kind === "organizer" && row.cta.href === organizerHref[row.id], row.id + " organizer href");
-    ok(row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
+    if (organizerHref[row.id]) {
+      ok(row.cta.href === organizerHref[row.id], row.id + " organizer href");
+    }
+    ok(row.cta.kind === "organizer" && row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
   }
 }
 
@@ -136,12 +179,12 @@ for (const section of hub.sections) {
 for (const text of hubStrings) ok(!DASH.test(text), "hub copy is dash free: " + text.slice(0, 60));
 
 const schema = halloweenHauntSchema(model);
-ok(schema.numberOfItems === 14 && schema.itemListElement.length === 14, "schema lists 14 events");
+ok(schema.numberOfItems === 31 && schema.itemListElement.length === 31, "schema lists 31 events");
 const schemaBlob = JSON.stringify(schema);
 ok(!schemaBlob.includes("/api/commerce/go"), "schema does not embed the redirect");
 for (const entry of schema.itemListElement) {
   ok(!DASH.test(entry.item.name + " " + entry.item.description), "schema copy dash free: " + entry.item.name);
-  ok(entry.item.url.startsWith("https://www.gowayfind.com/florida-events/"), "schema url is the event page");
+  ok(/^https:\/\/www\.gowayfind\.com\/(?:florida-events|guides)\//.test(entry.item.url), "schema url is the event or guide page");
 }
 
 const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
@@ -149,22 +192,23 @@ const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(html.includes("<svg"), "Boo is an SVG sprite");
 ok(html.includes(">TOUR<") && html.includes("GO →"), "Boo holds the TOUR flag and points GO");
 ok(html.includes("BOO&#x27;S VIP TOUR") || html.includes("BOO'S VIP TOUR"), "VIP tour badge");
-ok(html.includes('data-boo-fly=""'), "flying companion is in the page");
+ok(html.includes('data-boo-fly=""') && html.includes('data-boo-decorative="true"'), "floating companion dock and non-blocking decorative wrapper are in the page");
 ok(html.includes('href="/"'), "home links render");
 ok(html.includes("Wayfind Home") && html.includes("Explore Wayfind Main Page"), "home labels");
 ok(html.includes("Ask Boo which haunt to book..."), "live chat prompt");
 ok(html.includes("Scariest haunt in Tampa?") && html.includes("Where can I take kids?"), "prompt chips");
-ok(html.includes("Let Boo Pick Your Scare") && html.includes("Tampa Bay Tonight") && html.includes("Value Scream Park"), "scare picker");
-for (const label of ["Next Gag", "Roast This Price", "Spin a Spooky Deal", "Let Boo Haunt My Scroll", "Ask Boo", "Hide Boo", "All Haunts", "Major Scream Parks", "Local Haunted Trails", "Family Friendly", "Book Now &amp; Save"]) {
+ok(html.includes("Find Your Kind of Fright.") && html.includes("Florida Halloween nights, ghost tours, family adventures, and tickets in one place."), "destination hero promise and subtitle");
+ok(html.includes("I&#x27;m Boo. You pick the plans. I&#x27;ll bring the spooky suggestions.") || html.includes("I'm Boo. You pick the plans. I'll bring the spooky suggestions."), "non-intrusive Boo greeting");
+for (const label of ["Next Tip", "Ticket &amp; Fee Guide", "Pick My Fright", "Explore All Haunts", "Ask Boo", "Minimize", "Pause motion", "Hide Boo", "All Haunts", "Major Scream Parks", "Local Haunted Trails", "Family Friendly", "Book Now &amp; Save", "Florida Halloween Planning Guide"]) {
   ok(html.includes(label), "renders " + label);
 }
 ok(html.includes("Wayfind may earn a commission when you book through partner links."), "affiliate disclosure");
 ok(html.includes("Rankings are never for sale."), "rankings line");
 ok(html.includes("on merit"), "merit line");
 for (const row of model.haunts) {
-  ok(html.includes(row.name.replace(/'/g, "&#x27;")) || html.includes(row.name), "renders " + row.name);
-  ok(html.includes(row.priceLabel), "renders " + row.priceLabel);
-  ok(html.includes(row.timing), "renders " + row.timing);
+  ok(html.includes(row.name.replace(/&/g, "&amp;").replace(/'/g, "&#x27;")) || html.includes(row.name), "renders " + row.name);
+  ok(html.includes(row.priceLabel.replace(/&/g, "&amp;")) || html.includes(row.priceLabel), "renders " + row.priceLabel);
+  ok(html.includes(row.timing.replace(/&/g, "&amp;")) || html.includes(row.timing), "renders " + row.timing);
   const href = row.cta.href.replace(/&/g, "&amp;");
   ok(html.includes('href="' + href + '"'), "renders href " + row.id);
   if (row.cta.kind === "affiliate") ok(html.includes('rel="sponsored nofollow noopener"'), row.id + " rel in markup");
@@ -194,6 +238,7 @@ ok(!/\bBo\b/.test(visible), "visible copy says Boo, not Bo");
 ok(!/ANTHROPIC_API_KEY|LLM_API_KEY|api\.anthropic\.com/.test(componentSource), "the companion does not hold the model key or the provider host");
 ok(componentSource.includes('fetch("/api/bo-haunt"'), "chat posts to the Boo route");
 ok(!/useEffect\([\s\S]{0,400}fetch\("\/api\/bo-haunt"/.test(componentSource), "the model is not called while the page renders");
+ok(!componentSource.includes("scrollIntoView(") && !componentSource.includes("Play Boo's Interactive Reel Tour") && !componentSource.includes("Let Boo Haunt My Scroll"), "Boo never forces page scroll or takes control of the screen");
 
 const dashedReply = stripBoDashes("Howl-O-Scream – gate price — $45.99");
 ok(!DASH.test(dashedReply) && dashedReply.includes("Howl O Scream"), "red-prove: dashes are scrubbed out of a Boo reply");

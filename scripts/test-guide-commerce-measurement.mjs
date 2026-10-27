@@ -25,6 +25,8 @@ import { guideDealCommerce, GUIDE_DEALS_SURFACE } from "../lib/guideDeals.js";
 import { etDate, collectPartnerOffers } from "../lib/partnerPathInventory.js";
 import { evaluatePartnerPaths } from "../lib/partnerPathHealth.js";
 
+process.env.WF_SUPPRESS_ANALYTICS = "1";
+
 const fail = (m) => { console.error("test-guide-commerce-measurement: FAIL - " + m); process.exit(1); };
 let passed = 0;
 const ok = (c, m) => { if (!c) fail(m); passed++; };

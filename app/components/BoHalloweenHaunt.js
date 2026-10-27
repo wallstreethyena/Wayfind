@@ -5,11 +5,11 @@ import { captureOrQueue } from "../../lib/browserAnalytics.js";
 
 // Inter via --wf-sans. Visible copy comes from the server model and stays dash free.
 const BULBS = ["pink", "gold", "cyan", "orange", "pink", "cyan", "gold", "orange", "pink", "gold", "cyan", "orange"];
-const REEL_IDS = ["howlTampa", "howlOrlando", "hhn", "zooTampa", "mickey", "brick", "peppa", "spookquarium"];
+const SESSION_KEY = "wf_boo_session_v2";
 const KICKERS = [
-  { pill: "GHOST BUDGET", line: "Floated up 40ft. 0 steps taken! Leg day skipped." },
-  { pill: "SKEPTIC VERDICT", line: "See for yourself. The gate price is the real scare." },
-  { pill: "INSTANT MOBILE ENTRY", line: "Don't ghost me! Tap Get Tickets and lock the night." },
+  { pill: "FRIENDLY COMPANION", line: "I'm Boo. You pick the plans. I'll bring the spooky suggestions." },
+  { pill: "TICKET & FEE GUIDE", line: "Compare separate nighttime event tickets against daytime included admission." },
+  { pill: "STATEWIDE VAULT", line: "Filter by Florida region, date window, scare intensity, group, and budget." },
 ];
 
 const STICKER_MAP = {
@@ -23,30 +23,30 @@ const STICKER_MAP = {
 };
 
 const COSTUME_TABS = [
-  { id: "hype", label: "VIP Guide", emote: "wink", kicker: "BOO'S VIP TOUR", line: "I'm Boo, your ghost host! I died so I could haunt these Florida scares and save your wallet from gate prices." },
-  { id: "pirate", label: "Night Pirate", emote: "shades", kicker: "AFTER DARK CONTRABAND", line: "Sunglasses on, gate prices off! Universal Horror Nights and Busch Gardens Howl O Scream are waiting." },
-  { id: "springs", label: "Splash Diver", emote: "shock", kicker: "COASTAL SCARE ALERT", line: "SeaWorld Howl O Scream Orlando starts at $45.99 online. Even the sharks know walk up prices bite!" },
-  { id: "explorer", label: "Trail Scout", emote: "tongue", kicker: "0 STEPS TAKEN", line: "Floated up 40ft. 0 steps taken! Leg day skipped, and your gate markup skipped too when you book online." },
-  { id: "maracas", label: "Fiesta Vibe", emote: "squint", kicker: "CARNIVAL AFTER DARK", line: "Brick or Treat and Fright Fest bring the music, rides, and late night thrills without the box office markup." },
-  { id: "navigator", label: "Route Scout", emote: "wink", kicker: "I4 HAUNT COMPASS", line: "Point my compass at Plant City or Altamonte Springs! Sir Henry's Haunted Trail and A Petrified Forest are pure local gold." },
-  { id: "flamingo", label: "Family VIP", emote: "stars", kicker: "FAMILY TREAT PASS", line: "Bringing the crew? Mickey's Not So Scary and ZooTampa Creatures of the Night deliver the treats without the tears." },
+  { id: "hype", label: "VIP Guide", emote: "wink", kicker: "BOO COMPANION", line: "I'm Boo. You pick the plans. I'll bring the spooky suggestions." },
+  { id: "pirate", label: "Night Pirate", emote: "shades", kicker: "EXTREME NIGHTS", line: "Looking for studio houses or dark coasters? Universal Horror Nights and Busch Gardens Howl O Scream lead the pack." },
+  { id: "springs", label: "Splash Diver", emote: "shock", kicker: "COASTAL & WATERFRONT", line: "SeaWorld Howl O Scream Orlando starts at $45.99 online, while Spooktacular is included with daytime park admission." },
+  { id: "explorer", label: "Trail Scout", emote: "tongue", kicker: "OUTDOOR WOODS & FARMS", line: "From Dade City woods trails to Sarasota pumpkin patches, check whether advance timed entry is required." },
+  { id: "maracas", label: "Fiesta Vibe", emote: "squint", kicker: "FESTIVALS & PARTIES", line: "LEGOLAND Brick or Treat for kids by day, or 21+ rooftop Halloween bashes in Sarasota and West Palm Beach at night." },
+  { id: "navigator", label: "Route Scout", emote: "wink", kicker: "HISTORIC GHOST WALKS", line: "Walking ghost tours in St. Augustine, Key West, and downtown Tampa depart at 8:00 PM for haunted history fans." },
+  { id: "flamingo", label: "Family VIP", emote: "stars", kicker: "FAMILY & KIDS", line: "Bringing little monsters? Peppa Pig, ZooTampa, Zoo Miami, and Clearwater Spookquarium keep scares gentle." },
 ];
 
 function poseFor(id) {
-  if (id === "hhn" || id === "screamageddon" || id === "sirHenry") return "shades";
-  if (id === "mickey" || id === "peppa" || id === "brick" || id === "spooktacular") return "squint";
-  if (id === "zooTampa" || id === "spookquarium") return "stars";
-  if (id === "undead" || id === "frightfest" || id === "petrified") return "tongue";
+  if (id === "hhn" || id === "screamageddon" || id === "sirHenry" || id === "terrorTally") return "shades";
+  if (id === "mickey" || id === "peppa" || id === "brick" || id === "spooktacular" || id === "crayolaHaunt") return "squint";
+  if (id === "zooTampa" || id === "spookquarium" || id === "zooMiami" || id === "naplesBoo") return "stars";
+  if (id === "undead" || id === "frightfest" || id === "petrified" || id === "keyWestGhost") return "tongue";
   return "wink";
 }
 
 function costumeFor(id) {
-  if (id === "hhn" || id === "undead" || id === "screamageddon") return "pirate";
+  if (id === "hhn" || id === "undead" || id === "screamageddon" || id === "keyWestGhost" || id === "spookyEmpire") return "pirate";
   if (id === "howlOrlando" || id === "spooktacular" || id === "spookquarium") return "springs";
-  if (id === "zooTampa" || id === "petrified") return "explorer";
-  if (id === "brick" || id === "frightfest") return "maracas";
-  if (id === "sirHenry") return "navigator";
-  if (id === "mickey" || id === "peppa") return "flamingo";
+  if (id === "zooTampa" || id === "petrified" || id === "gatorland" || id === "fruitvilleGrove" || id === "sweetfields" || id === "farmerMikes") return "explorer";
+  if (id === "brick" || id === "frightfest" || id === "sarasotaTrolley" || id === "keelFarms") return "maracas";
+  if (id === "sirHenry" || id === "stAugGhost" || id === "tampaGhost") return "navigator";
+  if (id === "mickey" || id === "peppa" || id === "zooMiami" || id === "crayolaHaunt" || id === "tallySymphony" || id === "naplesBoo") return "flamingo";
   return "hype";
 }
 
@@ -67,58 +67,58 @@ const CSS = `
   min-height:100dvh;
   overflow-x:clip;
   background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%,rgba(249,115,22,.16),transparent 65%),
-    radial-gradient(ellipse 60% 45% at 85% 20%,rgba(0,245,212,.08),transparent 60%),
-    radial-gradient(ellipse 60% 45% at 15% 35%,rgba(255,42,133,.08),transparent 60%),
+    radial-gradient(ellipse 80% 45% at 50% -8%,rgba(249,115,22,.15),transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 18%,rgba(16,185,129,.08),transparent 60%),
+    radial-gradient(ellipse 55% 40% at 12% 32%,rgba(0,245,212,.06),transparent 60%),
     linear-gradient(180deg,#0A0A0B 0%,#121216 45%,#0A0A0B 100%);
 }
-.boo-page,.boo-page button,.boo-page a,.boo-page input{font-family:var(--wf-sans),sans-serif;box-sizing:border-box}
-.boo-inner{max-width:1140px;margin:0 auto}
+.boo-page,.boo-page button,.boo-page a,.boo-page input,.boo-page select{font-family:var(--wf-sans),sans-serif;box-sizing:border-box}
+.boo-inner{max-width:1180px;margin:0 auto}
 
-/* Festoon Lights */
-.boo-lights{position:relative;height:68px;margin:0 -16px 8px;overflow:hidden;pointer-events:none}
-.boo-lights::after{content:"";position:absolute;left:0;right:0;top:36px;height:32px;background:linear-gradient(180deg,rgba(249,115,22,.12),rgba(0,245,212,.04),transparent)}
-.boo-wire{position:absolute;left:0;right:0;top:0;width:100%;height:56px;opacity:.75}
-.boo-bulb{position:absolute;top:16px;width:14px;height:20px;border-radius:8px 8px 10px 10px;animation:boo-flicker 2.8s infinite}
-.boo-bulb::before{content:"";position:absolute;left:50%;top:50%;width:22px;height:22px;transform:translate(-50%,-50%);background:currentColor;clip-path:polygon(50% 0,58% 42%,100% 50%,58% 58%,50% 100%,42% 58%,0 50%,42% 42%);opacity:.85}
-.boo-bulb::after{content:"";position:absolute;left:4px;top:-7px;width:6px;height:7px;background:#FFD166;border-radius:2px}
-.boo-flare{position:absolute;inset:-12px;border-radius:50%;opacity:.75}
-.boo-charm{position:absolute;left:3px;top:24px;width:8px;height:8px;background:#FFD166;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%)}
-.boo-bulb.is-pink{background:#FF2A85;color:#FF2A85;box-shadow:0 0 16px #FF2A85}
-.boo-bulb.is-pink .boo-flare{background:radial-gradient(circle,#FF2A85,transparent 70%)}
-.boo-bulb.is-gold{background:#FFD166;color:#FFD166;box-shadow:0 0 16px #FFD166}
-.boo-bulb.is-gold .boo-flare{background:radial-gradient(circle,#FFD166,transparent 70%)}
-.boo-bulb.is-orange{background:#FF921C;color:#FF921C;box-shadow:0 0 16px #FF921C}
-.boo-bulb.is-orange .boo-flare{background:radial-gradient(circle,#FF921C,transparent 70%)}
-.boo-bulb.is-cyan{background:#00F5D4;color:#00F5D4;box-shadow:0 0 16px #00F5D4}
-.boo-bulb.is-cyan .boo-flare{background:radial-gradient(circle,#00F5D4,transparent 70%)}
-.boo-bulb:nth-child(2){left:2%;top:10px;animation-duration:1.9s}
-.boo-bulb:nth-child(3){left:10%;top:24px;animation-duration:2.8s;animation-delay:.3s}
-.boo-bulb:nth-child(4){left:18%;top:11px;animation-duration:2.2s;animation-delay:.15s}
-.boo-bulb:nth-child(5){left:26%;top:25px;animation-duration:3.1s;animation-delay:.6s}
-.boo-bulb:nth-child(6){left:34%;top:10px;animation-duration:2.0s;animation-delay:.2s}
-.boo-bulb:nth-child(7){left:42%;top:24px;animation-duration:2.7s;animation-delay:.5s}
-.boo-bulb:nth-child(8){left:50%;top:10px;animation-duration:1.8s;animation-delay:.25s}
-.boo-bulb:nth-child(9){left:58%;top:25px;animation-duration:3.3s;animation-delay:.7s}
-.boo-bulb:nth-child(10){left:66%;top:11px;animation-duration:2.3s;animation-delay:.2s}
-.boo-bulb:nth-child(11){left:74%;top:23px;animation-duration:2.1s;animation-delay:.55s}
-.boo-bulb:nth-child(12){left:82%;top:10px;animation-duration:2.9s;animation-delay:.35s}
-.boo-bulb:nth-child(13){left:91%;top:22px;animation-duration:2.4s;animation-delay:.45s}
+/* Subtle Festoon String Lights */
+.boo-lights{position:relative;height:52px;margin:0 -16px 8px;overflow:hidden;pointer-events:none}
+.boo-lights::after{content:"";position:absolute;left:0;right:0;top:28px;height:24px;background:linear-gradient(180deg,rgba(249,115,22,.09),rgba(16,185,129,.03),transparent)}
+.boo-wire{position:absolute;left:0;right:0;top:0;width:100%;height:46px;opacity:.65}
+.boo-bulb{position:absolute;top:14px;width:12px;height:17px;border-radius:7px 7px 9px 9px;animation:boo-flicker 3.6s infinite}
+.boo-bulb::after{content:"";position:absolute;left:3px;top:-5px;width:6px;height:5px;background:#FFD166;border-radius:2px}
+.boo-flare{position:absolute;inset:-9px;border-radius:50%;opacity:.55}
+.boo-charm{display:none}
+.boo-bulb.is-pink{background:#FF6B35;color:#FF6B35;box-shadow:0 0 12px rgba(255,107,53,.7)}
+.boo-bulb.is-pink .boo-flare{background:radial-gradient(circle,rgba(255,107,53,.65),transparent 70%)}
+.boo-bulb.is-gold{background:#FFD166;color:#FFD166;box-shadow:0 0 12px rgba(255,209,102,.7)}
+.boo-bulb.is-gold .boo-flare{background:radial-gradient(circle,rgba(255,209,102,.65),transparent 70%)}
+.boo-bulb.is-orange{background:#F97316;color:#F97316;box-shadow:0 0 12px rgba(249,115,22,.7)}
+.boo-bulb.is-orange .boo-flare{background:radial-gradient(circle,rgba(249,115,22,.65),transparent 70%)}
+.boo-bulb.is-cyan{background:#10B981;color:#10B981;box-shadow:0 0 12px rgba(16,185,129,.7)}
+.boo-bulb.is-cyan .boo-flare{background:radial-gradient(circle,rgba(16,185,129,.65),transparent 70%)}
+.boo-bulb:nth-child(2){left:3%;top:9px}
+.boo-bulb:nth-child(3){left:11%;top:20px;animation-delay:.3s}
+.boo-bulb:nth-child(4){left:19%;top:10px;animation-delay:.15s}
+.boo-bulb:nth-child(5){left:27%;top:21px;animation-delay:.6s}
+.boo-bulb:nth-child(6){left:35%;top:9px;animation-delay:.2s}
+.boo-bulb:nth-child(7){left:43%;top:20px;animation-delay:.5s}
+.boo-bulb:nth-child(8){left:51%;top:9px;animation-delay:.25s}
+.boo-bulb:nth-child(9){left:59%;top:21px;animation-delay:.7s}
+.boo-bulb:nth-child(10){left:67%;top:10px;animation-delay:.2s}
+.boo-bulb:nth-child(11){left:75%;top:19px;animation-delay:.55s}
+.boo-bulb:nth-child(12){left:83%;top:9px;animation-delay:.35s}
+.boo-bulb:nth-child(13){left:91%;top:18px;animation-delay:.45s}
 
 /* Top Navigation Bar */
 .boo-top{
   display:flex;
   align-items:center;
   justify-content:space-between;
+  flex-wrap:wrap;
   gap:12px;
-  padding:10px 14px;
-  margin-bottom:20px;
-  background:rgba(18,18,22,.82);
+  padding:10px 16px;
+  margin-bottom:18px;
+  background:rgba(18,18,22,.86);
   backdrop-filter:blur(16px);
-  border:1px solid rgba(255,255,255,.09);
+  border:1px solid rgba(255,255,255,.1);
   border-radius:999px;
 }
-.boo-top-right{display:flex;align-items:center;gap:10px}
+.boo-top-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 .boo-home{
   border:1px solid rgba(255,255,255,.16);
   background:#121216;
@@ -133,7 +133,7 @@ const CSS = `
   display:inline-flex;
   align-items:center;
   gap:6px;
-  transition:all .18s ease;
+  transition:border-color .18s ease,background .18s ease;
 }
 .boo-home:hover{border-color:#F97316;background:#191920}
 .boo-home.is-fill{background:#F97316;color:#0A0A0B;border-color:#F97316;font-weight:800}
@@ -141,12 +141,12 @@ const CSS = `
 
 /* Hero Layout */
 #boo-hero{
-  background:linear-gradient(145deg,rgba(22,22,29,.95) 0%,rgba(14,14,19,.98) 100%);
-  border:1px solid rgba(255,255,255,.1);
+  background:linear-gradient(145deg,rgba(20,20,27,.96) 0%,rgba(12,12,17,.99) 100%);
+  border:1px solid rgba(255,255,255,.11);
   border-radius:28px;
-  padding:20px;
-  box-shadow:0 24px 64px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);
-  margin-bottom:24px;
+  padding:22px;
+  box-shadow:0 22px 58px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);
+  margin-bottom:20px;
 }
 .boo-hero-grid{
   display:grid;
@@ -156,11 +156,11 @@ const CSS = `
 }
 .boo-hero-grid>*{min-width:0}
 @media(max-width:560px){
-  #boo-hero{padding:14px;border-radius:22px}
+  #boo-hero{padding:16px;border-radius:22px}
 }
-@media(min-width:920px){
-  #boo-hero{padding:32px}
-  .boo-hero-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,0.95fr);gap:32px}
+@media(min-width:960px){
+  #boo-hero{padding:30px}
+  .boo-hero-grid{grid-template-columns:minmax(0,1.12fr) minmax(0,0.88fr);gap:28px}
 }
 
 .boo-pill-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:12px}
@@ -182,9 +182,9 @@ const CSS = `
   display:inline-flex;
   align-items:center;
   gap:6px;
-  background:rgba(0,245,212,.1);
-  color:#00F5D4;
-  border:1px solid rgba(0,245,212,.35);
+  background:rgba(16,185,129,.12);
+  color:#10B981;
+  border:1px solid rgba(16,185,129,.38);
   border-radius:999px;
   padding:5px 12px;
   font-size:11px;
@@ -193,19 +193,26 @@ const CSS = `
   text-transform:uppercase;
 }
 .boo-page h1{
-  margin:0 0 12px;
-  font-size:clamp(30px,5vw,46px);
+  margin:0 0 8px;
+  font-size:clamp(32px,5vw,48px);
   font-weight:850;
   letter-spacing:-.035em;
-  line-height:1.06;
+  line-height:1.05;
   color:#FFFFFF;
+}
+.boo-hero-sub{
+  margin:0 0 10px;
+  font-size:clamp(17px,2.2vw,21px);
+  font-weight:750;
+  color:#FFD166;
+  line-height:1.35;
 }
 .boo-lede{
   margin:0 0 14px;
   color:#D4D4D8;
-  font-size:16px;
+  font-size:15px;
   line-height:1.55;
-  max-width:62ch;
+  max-width:64ch;
 }
 .boo-trust-strip{
   display:flex;
@@ -213,9 +220,9 @@ const CSS = `
   gap:8px 16px;
   padding:10px 14px;
   background:rgba(255,255,255,.03);
-  border:1px solid rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.08);
   border-radius:14px;
-  margin-bottom:18px;
+  margin-bottom:16px;
 }
 .boo-note{
   margin:0;
@@ -224,53 +231,52 @@ const CSS = `
   line-height:1.4;
 }
 
-/* Quick Matcher ("Who Are You Bringing Tonight?") */
+/* Quick Curated Shortlists */
 .boo-matcher-box{
-  background:rgba(10,10,11,.65);
-  border:1px solid rgba(255,255,255,.08);
+  background:rgba(10,10,11,.68);
+  border:1px solid rgba(255,255,255,.09);
   border-radius:20px;
-  padding:16px;
-  margin-top:14px;
+  padding:15px;
+  margin-top:12px;
 }
 .boo-who{
   margin:0 0 4px;
-  font-size:12px;
+  font-size:11.5px;
   font-weight:800;
   color:#F97316;
   text-transform:uppercase;
   letter-spacing:.1em;
 }
 .boo-matcher-sub{
-  margin:0 0 12px;
+  margin:0 0 10px;
   color:#FFFFFF;
-  font-size:16px;
+  font-size:15.5px;
   font-weight:750;
 }
 .boo-picks{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(165px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
   gap:8px;
 }
 .boo-picks button{
-  border:1px solid rgba(255,255,255,.12);
+  border:1px solid rgba(255,255,255,.13);
   background:#121216;
   color:#FFFFFF;
   border-radius:14px;
-  padding:10px 13px;
-  font-size:13.5px;
+  padding:9px 12px;
+  font-size:13px;
   font-weight:750;
   cursor:pointer;
-  min-height:46px;
+  min-height:44px;
   display:flex;
   align-items:center;
   justify-content:space-between;
   text-align:left;
-  transition:all .16s ease;
+  transition:border-color .16s ease,background .16s ease;
 }
 .boo-picks button:hover,.boo-picks button[aria-pressed="true"]{
   border-color:#F97316;
-  background:rgba(249,115,22,.15);
-  transform:translateY(-1px);
+  background:rgba(249,115,22,.16);
 }
 .boo-picks button::after{
   content:"→";
@@ -279,14 +285,14 @@ const CSS = `
   margin-left:8px;
 }
 
-/* Shortlist-First Panel */
+/* Shortlist Panel */
 .boo-shortlist{
   background:linear-gradient(155deg,rgba(24,20,16,.96) 0%,rgba(14,14,19,.98) 100%);
   border:1.5px solid #F97316;
   border-radius:24px;
   padding:18px;
-  margin-bottom:24px;
-  box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 24px rgba(249,115,22,.14);
+  margin-bottom:22px;
+  box-shadow:0 18px 44px rgba(0,0,0,.55);
 }
 .boo-shortlist-head{
   display:flex;
@@ -316,7 +322,7 @@ const CSS = `
   padding:6px 14px;
   font-size:12.5px;
   font-weight:750;
-  min-height:36px;
+  min-height:38px;
   cursor:pointer;
 }
 .boo-shortlist-clear:hover{border-color:#00F5D4;color:#00F5D4}
@@ -386,14 +392,14 @@ const CSS = `
   cursor:pointer;
 }
 
-/* Boo Interactive Concierge Stage */
+/* Boo Non-Intrusive Companion Stage in Hero */
 .boo-concierge-card{
-  background:radial-gradient(circle at 30% 20%,rgba(255,42,133,.12),transparent 55%),radial-gradient(circle at 80% 10%,rgba(0,245,212,.12),transparent 50%),#0E0E13;
-  border:1.5px solid rgba(249,115,22,.45);
+  background:radial-gradient(circle at 25% 18%,rgba(249,115,22,.12),transparent 55%),radial-gradient(circle at 82% 12%,rgba(16,185,129,.1),transparent 50%),#0E0E13;
+  border:1.5px solid rgba(249,115,22,.42);
   border-radius:24px;
   padding:18px;
   min-width:0;
-  box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 28px rgba(249,115,22,.1);
+  box-shadow:0 16px 40px rgba(0,0,0,.5);
 }
 @media(max-width:560px){
   .boo-concierge-card{padding:14px;border-radius:20px}
@@ -404,7 +410,7 @@ const CSS = `
   align-items:center;
   justify-content:space-between;
   gap:8px;
-  margin-bottom:10px;
+  margin-bottom:8px;
 }
 .boo-badge{
   margin:0;
@@ -424,9 +430,9 @@ const CSS = `
   display:inline-flex;
   align-items:center;
   gap:6px;
-  background:rgba(0,245,212,.12);
-  color:#00F5D4;
-  border:1px solid rgba(0,245,212,.35);
+  background:rgba(16,185,129,.12);
+  color:#10B981;
+  border:1px solid rgba(16,185,129,.35);
   border-radius:999px;
   padding:4px 10px;
   font-size:11px;
@@ -437,31 +443,49 @@ const CSS = `
   width:7px;
   height:7px;
   border-radius:50%;
-  background:#00F5D4;
-  box-shadow:0 0 8px #00F5D4;
+  background:#10B981;
+  box-shadow:0 0 8px #10B981;
+}
+.boo-greeting-box{
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;
+  padding:10px 12px;
+  margin-bottom:10px;
+}
+.boo-greeting-line{
+  margin:0;
+  font-size:13.5px;
+  font-weight:800;
+  color:#FFFFFF;
+}
+.boo-helper-line{
+  margin:3px 0 0;
+  font-size:12.5px;
+  color:#D4D4D8;
 }
 
 .boo-stage{
   display:grid;
-  grid-template-columns:165px minmax(0,1fr);
-  gap:14px;
+  grid-template-columns:138px minmax(0,1fr);
+  gap:12px;
   align-items:center;
 }
 @media(max-width:560px){
-  .boo-stage{grid-template-columns:118px minmax(0,1fr);gap:10px}
+  .boo-stage{grid-template-columns:104px minmax(0,1fr);gap:10px}
 }
 .boo-hero-sprite{
   position:relative;
   background:radial-gradient(circle,rgba(255,255,255,.06) 0%,transparent 70%);
   border-radius:20px;
   padding:4px;
-  cursor:pointer;
+  pointer-events:none;
 }
 .boo-costume-bar{
   display:flex;
   flex-wrap:wrap;
   gap:6px;
-  margin:10px 0 12px;
+  margin:10px 0;
 }
 .boo-costume-btn{
   border:1px solid rgba(255,255,255,.12);
@@ -473,7 +497,7 @@ const CSS = `
   font-weight:750;
   cursor:pointer;
   min-height:30px;
-  transition:all .15s ease;
+  transition:border-color .15s ease,background .15s ease;
 }
 .boo-costume-btn.is-on,.boo-costume-btn:hover{
   background:rgba(0,245,212,.14);
@@ -481,7 +505,7 @@ const CSS = `
   border-color:#00F5D4;
 }
 
-.boo-copy{display:flex;flex-direction:column;gap:8px;min-width:0}
+.boo-copy{display:flex;flex-direction:column;gap:6px;min-width:0}
 .boo-kicker{
   margin:0;
   color:#FFD166;
@@ -494,10 +518,10 @@ const CSS = `
   margin:0;
   background:#121216;
   border:1.5px solid #F97316;
-  border-radius:18px;
-  padding:14px;
+  border-radius:16px;
+  padding:12px;
   color:#FFFFFF;
-  font-size:15px;
+  font-size:14px;
   font-weight:650;
   line-height:1.45;
   box-shadow:0 8px 24px rgba(0,0,0,.35);
@@ -508,22 +532,22 @@ const CSS = `
   display:flex;
   flex-wrap:wrap;
   gap:8px;
-  margin-top:12px;
+  margin-top:10px;
 }
 .boo-actions button{
   border:1px solid rgba(255,255,255,.16);
   background:#16161D;
   color:#FFFFFF;
   border-radius:999px;
-  padding:8px 13px;
-  font-size:13px;
+  padding:7px 12px;
+  font-size:12.5px;
   font-weight:750;
   cursor:pointer;
-  min-height:40px;
+  min-height:38px;
   display:inline-flex;
   align-items:center;
   gap:6px;
-  transition:all .15s ease;
+  transition:border-color .15s ease,background .15s ease;
 }
 .boo-actions button:hover{border-color:#F97316;background:#1E1E28}
 .boo-actions button.is-fill{
@@ -534,39 +558,13 @@ const CSS = `
 }
 .boo-actions button.is-fill:hover{background:#FF921C}
 
-/* Reel Scrubber */
-.boo-reel-bar{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-top:12px;
-  padding-top:12px;
-  border-top:1px solid rgba(255,255,255,.08);
-}
-.boo-reel{display:flex;gap:5px;flex:1}
-.boo-reel button{
-  flex:1;
-  height:7px;
-  border:0;
-  border-radius:99px;
-  background:rgba(255,255,255,.18);
-  padding:0;
-  min-height:7px;
-  cursor:pointer;
-  transition:all .2s ease;
-}
-.boo-reel button.is-on,.boo-reel button:hover{
-  background:#00F5D4;
-  box-shadow:0 0 10px #00F5D4;
-}
-
 /* Claude AI Chat Box */
 .boo-chat{
-  margin-top:14px;
-  background:rgba(18,18,22,.92);
-  border:1px solid rgba(255,255,255,.12);
+  margin-top:12px;
+  background:rgba(18,18,22,.95);
+  border:1px solid rgba(255,255,255,.13);
   border-radius:18px;
-  padding:14px;
+  padding:13px;
 }
 .boo-chat-head{
   display:flex;
@@ -586,12 +584,12 @@ const CSS = `
   background:rgba(249,115,22,.08);
   color:#FFFFFF;
   border-radius:999px;
-  padding:6px 12px;
-  font-size:12.5px;
+  padding:6px 11px;
+  font-size:12px;
   font-weight:700;
   cursor:pointer;
-  min-height:36px;
-  transition:all .15s ease;
+  min-height:34px;
+  transition:background .15s ease,color .15s ease;
 }
 .boo-chips button:hover{
   background:#F97316;
@@ -601,13 +599,13 @@ const CSS = `
 .boo-chat input{
   flex:1;
   min-width:0;
-  min-height:44px;
+  min-height:42px;
   border-radius:12px;
   border:1px solid rgba(255,255,255,.2);
   background:#0A0A0B;
   color:#FFFFFF;
   padding:8px 12px;
-  font-size:15px;
+  font-size:14.5px;
 }
 .boo-chat input:focus{border-color:#F97316;outline:none}
 .boo-send{
@@ -615,22 +613,22 @@ const CSS = `
   background:#F97316;
   color:#0A0A0B;
   border-radius:12px;
-  padding:8px 16px;
-  font-size:14px;
+  padding:8px 14px;
+  font-size:13.5px;
   font-weight:800;
   cursor:pointer;
-  min-height:44px;
+  min-height:42px;
   white-space:nowrap;
 }
 .boo-send:hover{background:#FF921C}
 .boo-reply{
   margin:8px 0 10px;
   padding:10px 12px;
-  background:rgba(0,245,212,.07);
-  border-left:3px solid #00F5D4;
+  background:rgba(16,185,129,.09);
+  border-left:3px solid #10B981;
   border-radius:8px;
   color:#FFFFFF;
-  font-size:14.5px;
+  font-size:14px;
   line-height:1.45;
 }
 .boo-rec{
@@ -647,12 +645,12 @@ const CSS = `
   background:rgba(255,255,255,.04);
   border:1px solid rgba(249,115,22,.4);
   border-radius:14px;
-  padding:10px 12px;
+  padding:9px 11px;
 }
 .boo-rec-info{min-width:0;flex:1}
 .boo-rec-name{
   margin:0;
-  font-size:14px;
+  font-size:13.5px;
   font-weight:800;
   color:#FFFFFF;
   white-space:nowrap;
@@ -661,27 +659,34 @@ const CSS = `
 }
 .boo-rec-meta{
   margin:2px 0 0;
-  font-size:12px;
+  font-size:11.5px;
   color:#FFD166;
   font-weight:700;
 }
 .boo-rec-item .boo-buy{
   flex:none;
-  min-height:38px;
-  padding:6px 14px;
-  font-size:13px;
+  min-height:36px;
+  padding:6px 12px;
+  font-size:12.5px;
   border-radius:10px;
 }
 
-/* Vault Section & Filters */
-#boo-vault{margin-top:8px}
-.boo-vault-header{
+/* Discovery Controls Hub (#boo-discovery-controls) */
+.boo-discovery-box{
+  background:rgba(16,16,22,.94);
+  border:1px solid rgba(255,255,255,.11);
+  border-radius:24px;
+  padding:18px 20px;
+  margin-bottom:22px;
+  box-shadow:0 14px 36px rgba(0,0,0,.4);
+}
+.boo-discovery-head{
   display:flex;
   flex-wrap:wrap;
   align-items:center;
   justify-content:space-between;
-  gap:12px;
-  margin-bottom:18px;
+  gap:10px;
+  margin-bottom:12px;
 }
 .boo-vault-title{
   margin:0;
@@ -689,22 +694,29 @@ const CSS = `
   font-weight:850;
   letter-spacing:-.02em;
 }
+.boo-vault-count{
+  margin:0;
+  font-size:13px;
+  font-weight:750;
+  color:#10B981;
+}
 .boo-filters{
   display:flex;
   flex-wrap:wrap;
-  gap:8px;
+  gap:7px;
+  margin-bottom:14px;
 }
 .boo-filters button{
   border:1px solid rgba(255,255,255,.14);
   background:#121216;
   color:#D4D4D8;
   border-radius:999px;
-  padding:9px 16px;
-  font-size:14px;
+  padding:8px 14px;
+  font-size:13px;
   font-weight:750;
   cursor:pointer;
-  min-height:42px;
-  transition:all .16s ease;
+  min-height:40px;
+  transition:border-color .16s ease,background .16s ease;
 }
 .boo-filters button:hover{border-color:#F97316;color:#FFFFFF}
 .boo-filters button[aria-pressed="true"]{
@@ -712,10 +724,85 @@ const CSS = `
   color:#0A0A0B;
   border-color:#F97316;
   font-weight:850;
-  box-shadow:0 4px 16px rgba(249,115,22,.35);
 }
 
-/* Haunt Ticket Cards + Festival Animatronics */
+/* Multi-Facet Selectors Grid */
+.boo-facet-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(175px,1fr));
+  gap:10px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.boo-facet-field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.boo-facet-label{
+  font-size:11px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.07em;
+  color:#A1A1AA;
+}
+.boo-facet-select{
+  width:100%;
+  min-height:40px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.16);
+  background:#0A0A0B;
+  color:#FFFFFF;
+  padding:7px 10px;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.boo-facet-select:focus{border-color:#F97316;outline:none}
+
+/* Active Filter Bar */
+.boo-active-bar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:12px;
+  padding-top:12px;
+  border-top:1px solid rgba(255,255,255,.08);
+}
+.boo-active-pills{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+}
+.boo-active-chip{
+  border:1px solid rgba(249,115,22,.45);
+  background:rgba(249,115,22,.14);
+  color:#FFD166;
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:12px;
+  font-weight:750;
+  cursor:pointer;
+  min-height:30px;
+}
+.boo-clear-btn{
+  border:1px solid rgba(0,245,212,.45);
+  background:rgba(0,245,212,.1);
+  color:#00F5D4;
+  border-radius:999px;
+  padding:6px 14px;
+  font-size:12.5px;
+  font-weight:800;
+  cursor:pointer;
+  min-height:34px;
+}
+.boo-clear-btn:hover{background:#00F5D4;color:#0A0A0B}
+
+/* Vault Section & Cards */
+#boo-vault{margin-top:8px}
 .boo-vault-grid{
   display:grid;
   grid-template-columns:1fr;
@@ -731,45 +818,76 @@ const CSS = `
   display:flex;
   flex-direction:column;
   background:
-    radial-gradient(circle at 92% 10%,rgba(249,115,22,.14),transparent 42%),
-    radial-gradient(circle at 8% 92%,rgba(0,245,212,.08),transparent 42%),
+    radial-gradient(circle at 92% 10%,rgba(249,115,22,.1),transparent 42%),
+    radial-gradient(circle at 8% 92%,rgba(16,185,129,.06),transparent 42%),
     linear-gradient(165deg,#171720 0%,#101015 100%);
   border:1.5px solid rgba(255,255,255,.12);
   border-radius:24px;
-  padding:20px;
+  padding:18px;
   margin:0;
-  scroll-margin:24px 0 220px;
   box-shadow:0 12px 32px rgba(0,0,0,.45);
-  transition:border-color .2s ease,transform .2s ease,box-shadow .2s ease;
-}
-.boo-card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:24px;
-  padding:1.5px;
-  background:linear-gradient(135deg,rgba(249,115,22,.45),rgba(255,42,133,.2),rgba(0,245,212,.35));
-  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  pointer-events:none;
-  opacity:.55;
+  transition:border-color .2s ease,box-shadow .2s ease;
 }
 .boo-card:hover{
-  border-color:rgba(249,115,22,.6);
-  transform:translateY(-2px);
+  border-color:rgba(249,115,22,.58);
 }
-.boo-card:hover::before,.boo-card.is-active::before{opacity:1}
 .boo-card.is-active{
   border-color:#FFD166;
-  box-shadow:0 14px 36px rgba(0,0,0,.55),0 0 0 1px rgba(255,209,102,.35);
+  box-shadow:0 14px 36px rgba(0,0,0,.55),0 0 0 1px rgba(255,209,102,.32);
 }
 .boo-card.is-hot{
   border-color:#F97316;
-  box-shadow:0 0 0 2px #F97316,0 16px 40px rgba(249,115,22,.28);
+  box-shadow:0 0 0 2px #F97316,0 16px 40px rgba(249,115,22,.24);
 }
 
-/* Card Festival Animatronic Stage */
+/* Card Photography Header */
+.boo-card-media{
+  position:relative;
+  height:176px;
+  margin:-18px -18px 14px;
+  overflow:hidden;
+  background:#0E0E13;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.boo-card-img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.boo-card-media-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(180deg,rgba(10,10,11,.2) 0%,transparent 45%,rgba(16,16,21,.92) 100%);
+  pointer-events:none;
+}
+.boo-region-pill{
+  position:absolute;
+  left:12px;
+  top:12px;
+  background:rgba(10,10,11,.82);
+  backdrop-filter:blur(8px);
+  color:#FFFFFF;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:11px;
+  font-weight:800;
+}
+.boo-photo-badge{
+  position:absolute;
+  right:12px;
+  bottom:10px;
+  background:rgba(10,10,11,.78);
+  color:#D4D4D8;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  padding:3px 9px;
+  font-size:10.5px;
+  font-weight:700;
+}
+
+/* Card Badges & Animatronic Stage */
 .boo-card-top{
   display:flex;
   flex-wrap:wrap;
@@ -789,40 +907,39 @@ const CSS = `
   font-weight:800;
   letter-spacing:.05em;
 }
-.boo-stop{background:#FF2A85;color:#FFFFFF}
-.boo-cat{background:rgba(0,245,212,.1);color:#00F5D4;border:1px solid rgba(0,245,212,.35)}
+.boo-stop{background:rgba(249,115,22,.2);color:#FF921C;border:1px solid rgba(249,115,22,.4)}
+.boo-cat{background:rgba(16,185,129,.12);color:#10B981;border:1px solid rgba(16,185,129,.35)}
 .boo-scare{background:rgba(255,209,102,.12);color:#FFD166;border:1px solid rgba(255,209,102,.3)}
 
 .boo-card-head-row{
   display:grid;
-  grid-template-columns:minmax(0,1fr) 74px;
+  grid-template-columns:minmax(0,1fr) 68px;
   gap:12px;
   align-items:center;
   margin-bottom:12px;
 }
 .boo-anim-box{
-  width:74px;
-  height:74px;
-  border-radius:18px;
-  background:radial-gradient(circle at 50% 50%,rgba(249,115,22,.22),rgba(10,10,11,.85) 72%);
-  border:1px solid rgba(249,115,22,.35);
+  width:68px;
+  height:68px;
+  border-radius:16px;
+  background:radial-gradient(circle at 50% 50%,rgba(249,115,22,.18),rgba(10,10,11,.85) 72%);
+  border:1px solid rgba(249,115,22,.32);
   display:flex;
   align-items:center;
   justify-content:center;
   pointer-events:none;
-  box-shadow:inset 0 0 14px rgba(255,42,133,.15);
 }
-.boo-anim-svg{width:64px;height:64px;overflow:visible;display:block}
-.boo-anim-swing{transform-box:fill-box;transform-origin:50% 8%;animation:boo-pendulum 2.4s ease-in-out infinite}
-.boo-anim-gear{transform-box:fill-box;transform-origin:center;animation:boo-spin 6s linear infinite}
-.boo-anim-chomp{transform-box:fill-box;transform-origin:center;animation:boo-chomp 1.4s ease-in-out infinite}
-.boo-anim-float{transform-box:fill-box;transform-origin:center;animation:boo-mini-bob 2s ease-in-out infinite}
-.boo-anim-clap{transform-box:fill-box;transform-origin:15% 85%;animation:boo-clap 1.8s ease-in-out infinite}
-.boo-anim-glow{animation:boo-eye-pulse 1.6s ease-in-out infinite}
+.boo-anim-svg{width:58px;height:58px;overflow:visible;display:block}
+.boo-anim-swing{transform-box:fill-box;transform-origin:50% 8%;animation:boo-pendulum 3.2s ease-in-out infinite}
+.boo-anim-gear{transform-box:fill-box;transform-origin:center;animation:boo-spin 8s linear infinite}
+.boo-anim-chomp{transform-box:fill-box;transform-origin:center;animation:boo-chomp 2s ease-in-out infinite}
+.boo-anim-float{transform-box:fill-box;transform-origin:center;animation:boo-mini-bob 2.6s ease-in-out infinite}
+.boo-anim-clap{transform-box:fill-box;transform-origin:15% 85%;animation:boo-clap 2.4s ease-in-out infinite}
+.boo-anim-glow{animation:boo-eye-pulse 2.2s ease-in-out infinite}
 
 .boo-card h2{
   margin:0;
-  font-size:21px;
+  font-size:20px;
   font-weight:850;
   line-height:1.22;
   letter-spacing:-.02em;
@@ -833,7 +950,7 @@ const CSS = `
   flex-wrap:wrap;
   align-items:center;
   gap:8px;
-  margin:6px 0 0;
+  margin:5px 0 0;
 }
 .boo-where{
   margin:0;
@@ -874,7 +991,7 @@ const CSS = `
 .boo-price{
   margin:0;
   color:#F97316;
-  font-size:20px;
+  font-size:19px;
   font-weight:850;
   line-height:1.2;
 }
@@ -894,8 +1011,8 @@ const CSS = `
 
 /* Boo Verdict Box inside Card */
 .boo-verdict-box{
-  background:rgba(249,115,22,.07);
-  border:1px solid rgba(249,115,22,.28);
+  background:rgba(249,115,22,.06);
+  border:1px solid rgba(249,115,22,.24);
   border-radius:14px;
   padding:11px 13px;
   margin-bottom:14px;
@@ -928,7 +1045,7 @@ const CSS = `
   font-size:11.5px;
 }
 
-/* Carnival Ticket Marquee CTA Frame */
+/* Ticket Marquee CTA Frame */
 .boo-buyrow{
   position:relative;
   display:flex;
@@ -940,8 +1057,8 @@ const CSS = `
   background:
     radial-gradient(circle at 0% 50%,rgba(10,10,11,.95) 6px,transparent 7px),
     radial-gradient(circle at 100% 50%,rgba(10,10,11,.95) 6px,transparent 7px),
-    linear-gradient(90deg,rgba(249,115,22,.16),rgba(255,42,133,.14),rgba(0,245,212,.14));
-  border:1px dashed rgba(255,209,102,.45);
+    linear-gradient(90deg,rgba(249,115,22,.14),rgba(16,185,129,.12));
+  border:1px solid rgba(255,209,102,.35);
 }
 .boo-buy-marquee{
   display:flex;
@@ -964,31 +1081,29 @@ const CSS = `
   height:6px;
   border-radius:50%;
   background:#FF921C;
-  box-shadow:0 0 6px #FF921C;
-  animation:boo-flicker 1.8s infinite;
+  box-shadow:0 0 5px #FF921C;
 }
-.boo-marquee-dots i:nth-child(2){background:#00F5D4;box-shadow:0 0 6px #00F5D4;animation-delay:.3s}
-.boo-marquee-dots i:nth-child(3){background:#FF2A85;box-shadow:0 0 6px #FF2A85;animation-delay:.6s}
+.boo-marquee-dots i:nth-child(2){background:#10B981;box-shadow:0 0 5px #10B981}
+.boo-marquee-dots i:nth-child(3){background:#FFD166;box-shadow:0 0 5px #FFD166}
 
 .boo-buy{
   display:flex;
   align-items:center;
   justify-content:center;
-  min-height:48px;
+  min-height:46px;
   border-radius:14px;
   background:linear-gradient(135deg,#F97316 0%,#FF921C 100%);
   color:#0A0A0B;
-  font-size:16px;
+  font-size:15.5px;
   font-weight:850;
   text-decoration:none;
   text-align:center;
   padding:10px 16px;
-  box-shadow:0 6px 20px rgba(249,115,22,.3);
-  transition:transform .15s ease,box-shadow .15s ease;
+  box-shadow:0 6px 18px rgba(249,115,22,.28);
+  transition:box-shadow .15s ease;
 }
 .boo-buy:hover{
-  transform:translateY(-1px);
-  box-shadow:0 10px 26px rgba(249,115,22,.45);
+  box-shadow:0 10px 24px rgba(249,115,22,.42);
 }
 .boo-card-foot{
   display:flex;
@@ -1032,145 +1147,224 @@ const CSS = `
   font-weight:800;
   cursor:pointer;
   min-height:36px;
-  transition:all .15s ease;
 }
 .boo-links button:hover{
   background:#00F5D4;
   color:#0A0A0B;
 }
+
+/* Empty State Box */
+.boo-empty-box{
+  background:rgba(18,18,24,.94);
+  border:1.5px solid rgba(249,115,22,.4);
+  border-radius:22px;
+  padding:24px;
+  text-align:center;
+  margin:16px 0;
+}
+.boo-empty-box h3{margin:0 0 8px;font-size:19px;font-weight:850}
+.boo-empty-box p{margin:0 0 14px;color:#D4D4D8;font-size:14px}
+.boo-empty-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
+
+/* Practical Planning Guide Section */
+.boo-planning{
+  margin-top:32px;
+  padding:22px;
+  background:rgba(16,16,22,.92);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:24px;
+}
+.boo-planning h2{margin:0 0 6px;font-size:21px;font-weight:850}
+.boo-planning-sub{margin:0 0 16px;color:#A1A1AA;font-size:14px}
+.boo-planning-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(235px,1fr));
+  gap:14px;
+}
+.boo-planning-card{
+  background:rgba(10,10,11,.75);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:16px;
+  padding:14px;
+}
+.boo-planning-card h3{margin:0 0 6px;font-size:15px;font-weight:800;color:#FFD166}
+.boo-planning-card p{margin:0;font-size:13px;color:#D4D4D8;line-height:1.48}
 .boo-bottom-home{margin-top:24px}
 
-/* Floating Boo Companion Dock */
+/* Non-Intrusive Floating Boo Companion Dock */
 .boo-fly{
   position:fixed;
   z-index:40;
-  left:0;
-  top:0;
-  width:min(300px,calc(100vw - 20px));
-  pointer-events:none;
-  transform:translate3d(14px,calc(100vh - 210px),0);
-  transition:opacity .28s ease;
+  right:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom));
+  width:min(330px,calc(100vw - 24px));
+  pointer-events:none !important;
+  transition:opacity .24s ease;
 }
-.boo-fly.is-docked{
-  opacity:0;
+.boo-fly.is-minimized,
+.boo-fly.is-hero-docked{
+  width:auto;
+  max-width:calc(100vw - 24px);
+}
+.boo-fly.is-keyboard{
+  opacity:.4;
+}
+.boo-fly-mascot{
+  width:56px;
+  height:56px;
+  flex:none;
+  pointer-events:none !important;
+  user-select:none;
+}
+.boo-fly-mascot *{
   pointer-events:none !important;
 }
-.boo-fly.is-docked *{
-  pointer-events:none !important;
+.boo-fly.is-minimized .boo-fly-mascot,
+.boo-fly.is-hero-docked .boo-fly-mascot{
+  width:38px;
+  height:38px;
+  opacity:.82;
 }
-.boo-fly.is-chat{width:min(350px,calc(100vw - 20px))}
-.boo-fly>*{pointer-events:auto}
+.boo-fly.is-minimized .boo-fly-mascot{
+  opacity:.45;
+}
+.boo-fly.is-hero-docked .boo-float-bubble{
+  display:none;
+}
+@media(max-width:640px){
+  .boo-fly:not(.is-chat){
+    width:auto;
+    max-width:calc(100vw - 20px);
+  }
+  .boo-fly:not(.is-chat) .boo-fly-mascot{
+    width:38px;
+    height:38px;
+  }
+  .boo-fly:not(.is-chat) .boo-float-bubble{
+    display:none;
+  }
+}
 .boo-fly-card{
   background:rgba(14,14,19,.94);
   backdrop-filter:blur(16px);
-  border:1.5px solid rgba(249,115,22,.55);
-  border-radius:22px;
-  padding:10px 12px;
-  box-shadow:0 16px 40px rgba(0,0,0,.65);
+  border:1.5px solid rgba(249,115,22,.5);
+  border-radius:20px;
+  padding:8px 11px;
+  box-shadow:0 14px 36px rgba(0,0,0,.6);
+  pointer-events:none !important;
 }
-.boo-fly.is-flying .boo-drag{
-  filter:drop-shadow(-12px 6px 0 rgba(249,115,22,.5)) drop-shadow(-24px 12px 0 rgba(0,245,212,.25));
+.boo-fly-col{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  pointer-events:none !important;
 }
-.boo-fly-col{display:flex;align-items:center;gap:10px}
-.boo-drag{
-  width:72px;
-  flex:none;
-  padding:0;
-  border:0;
-  background:transparent;
-  cursor:grab;
-  touch-action:none;
+.boo-fly-copy{
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+  min-width:0;
+  flex:1;
+  pointer-events:none !important;
 }
-.boo-drag:active{cursor:grabbing}
-.boo-fly-copy{display:flex;flex-direction:column;gap:5px;min-width:0;flex:1}
 .boo-float-bubble{
-  border:1px solid rgba(255,255,255,.14);
+  border:1px solid rgba(255,255,255,.12);
   background:#16161E;
   color:#FFFFFF;
-  border-radius:14px;
-  padding:7px 10px;
+  border-radius:12px;
+  padding:6px 9px;
   text-align:left;
   font-size:12px;
   font-weight:650;
-  line-height:1.34;
-  cursor:pointer;
+  line-height:1.35;
+  margin:0;
+  pointer-events:none !important;
   display:-webkit-box;
-  -webkit-line-clamp:3;
+  -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
-.boo-float-bubble:hover{border-color:#F97316}
-.boo-fly-btns{display:flex;align-items:center;gap:6px}
-.boo-hide,.boo-open{
+.boo-fly-btns{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:5px;
+  pointer-events:auto !important;
+}
+.boo-hide,.boo-open,.boo-min{
   border:1px solid rgba(255,255,255,.18);
   background:#121216;
   color:#FFFFFF;
   border-radius:999px;
-  min-height:30px;
-  padding:4px 10px;
+  min-height:28px;
+  padding:4px 9px;
   font-size:11px;
   font-weight:750;
   cursor:pointer;
+  pointer-events:auto !important;
 }
 .boo-open{background:#F97316;color:#0A0A0B;border-color:#F97316;font-weight:800}
-@media(max-width:560px){
-  .boo-fly-card{padding:8px 10px;border-radius:18px}
-  .boo-drag{width:54px}
-  .boo-float-bubble{font-size:11.5px;padding:6px 8px;-webkit-line-clamp:2}
+.boo-fly-chat{
+  margin-top:8px;
+  max-height:42vh;
+  overflow:auto;
+  pointer-events:auto !important;
 }
 .boo-show{
   position:fixed;
-  left:14px;
-  bottom:calc(14px + env(safe-area-inset-bottom));
+  right:16px;
+  bottom:calc(16px + env(safe-area-inset-bottom));
   z-index:40;
   border:1.5px solid #F97316;
   background:#121216;
   color:#FFFFFF;
   border-radius:999px;
-  padding:10px 16px;
-  font-size:14px;
+  padding:8px 14px;
+  font-size:13px;
   font-weight:800;
   cursor:pointer;
   box-shadow:0 10px 28px rgba(0,0,0,.55);
 }
-.boo-fly-chat{margin-top:8px;max-height:44vh;overflow:auto}
 
 /* Boo Vector Sprite & Festival Animatronic Keyframes */
-.boo-sprite{width:100%;height:auto;display:block;overflow:visible;animation:boo-bob 2.2s ease-in-out infinite}
+.boo-sprite{width:100%;height:auto;display:block;overflow:visible;animation:boo-bob 2.8s ease-in-out infinite;pointer-events:none}
 .boo-hem{transform-box:fill-box;transform-origin:center}
-.boo-flag{transform-box:fill-box;transform-origin:20% 90%;animation:boo-wave 1.8s ease-in-out infinite}
-.boo-bubble,.boo-float-bubble{animation:boo-pop .32s cubic-bezier(.2,1.5,.3,1)}
-.boo-trail{position:absolute;left:8px;top:24px;width:90px;height:70px;pointer-events:none}
-.boo-trail i{position:absolute;width:12px;height:12px;background:#00F5D4;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:boo-spark .6s linear infinite}
-.boo-trail i:nth-child(2){left:22px;top:16px;background:#FF2A85;animation-delay:.1s}
-.boo-trail i:nth-child(3){left:40px;top:4px;background:#FFD166;animation-delay:.2s}
-.boo-trail i:nth-child(4){left:58px;top:22px;background:#00F5D4;animation-delay:.3s}
+.boo-flag{transform-box:fill-box;transform-origin:20% 90%;animation:boo-wave 2.4s ease-in-out infinite}
 .boo-squint{opacity:0}
-.boo-sprite[data-face="wink"] .boo-squint{animation:boo-blink-on 2.6s linear infinite}
-.boo-sprite[data-face="wink"] .boo-awake{animation:boo-blink-off 2.6s linear infinite}
-@keyframes boo-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes boo-mini-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes boo-wave{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(8deg)}}
-@keyframes boo-pop{0%{transform:scale(.96)}50%{transform:scale(1.03)}100%{transform:scale(1)}}
-@keyframes boo-flicker{0%,18%,22%,53%,57%,100%{opacity:1}20%,55%{opacity:.4}70%{opacity:.85}}
-@keyframes boo-spark{0%{transform:translate(0,0) scale(1);opacity:1}100%{transform:translate(-18px,14px) scale(.4);opacity:0}}
+.boo-sprite[data-face="wink"] .boo-squint{animation:boo-blink-on 3.2s linear infinite}
+.boo-sprite[data-face="wink"] .boo-awake{animation:boo-blink-off 3.2s linear infinite}
+@keyframes boo-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes boo-mini-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes boo-wave{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(6deg)}}
+@keyframes boo-flicker{0%,18%,22%,53%,57%,100%{opacity:1}20%,55%{opacity:.55}70%{opacity:.88}}
 @keyframes boo-blink-off{0%,93%{opacity:1}94%,100%{opacity:0}}
 @keyframes boo-blink-on{0%,93%{opacity:0}94%,100%{opacity:1}}
-@keyframes boo-pendulum{0%,100%{transform:rotate(-9deg)}50%{transform:rotate(9deg)}}
+@keyframes boo-pendulum{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 @keyframes boo-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-@keyframes boo-chomp{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.14) translateY(-2px)}}
-@keyframes boo-clap{0%,100%{transform:rotate(0deg)}45%{transform:rotate(-18deg)}55%{transform:rotate(0deg)}}
-@keyframes boo-eye-pulse{0%,100%{opacity:.55;transform:scale(.95)}50%{opacity:1;transform:scale(1.08)}}
+@keyframes boo-chomp{0%,100%{transform:scaleY(1)}50%{transform:scaleY(1.1) translateY(-1px)}}
+@keyframes boo-clap{0%,100%{transform:rotate(0deg)}45%{transform:rotate(-14deg)}55%{transform:rotate(0deg)}}
+@keyframes boo-eye-pulse{0%,100%{opacity:.6;transform:scale(.96)}50%{opacity:1;transform:scale(1.05)}}
+.boo-page.is-motion-paused .boo-sprite,
+.boo-page.is-motion-paused .boo-flag,
+.boo-page.is-motion-paused .boo-bulb,
+.boo-page.is-motion-paused .boo-squint,
+.boo-page.is-motion-paused .boo-awake,
+.boo-page.is-motion-paused .boo-anim-swing,
+.boo-page.is-motion-paused .boo-anim-gear,
+.boo-page.is-motion-paused .boo-anim-chomp,
+.boo-page.is-motion-paused .boo-anim-float,
+.boo-page.is-motion-paused .boo-anim-clap,
+.boo-page.is-motion-paused .boo-anim-glow{animation:none !important}
 @media(prefers-reduced-motion:reduce){
-  .boo-sprite,.boo-flag,.boo-bubble,.boo-float-bubble,.boo-bulb,.boo-trail i,.boo-squint,.boo-awake,
-  .boo-anim-swing,.boo-anim-gear,.boo-anim-chomp,.boo-anim-float,.boo-anim-clap,.boo-anim-glow,.boo-marquee-dots i{animation:none !important}
+  .boo-sprite,.boo-flag,.boo-bulb,.boo-squint,.boo-awake,
+  .boo-anim-swing,.boo-anim-gear,.boo-anim-chomp,.boo-anim-float,.boo-anim-clap,.boo-anim-glow{animation:none !important}
 }
-@media(max-width:520px){
-  .boo-page{padding-bottom:220px}
-  .boo-fly{width:min(270px,calc(100vw - 16px))}
-  .boo-fly.is-chat{width:min(330px,calc(100vw - 16px))}
-  .boo-drag{width:74px}
-  .boo-float-bubble{font-size:12px;max-height:68px;overflow:hidden}
+@media(max-width:560px){
+  .boo-page{padding-bottom:160px}
+  .boo-fly{right:10px;bottom:calc(10px + env(safe-area-inset-bottom));width:min(300px,calc(100vw - 20px))}
+}
+@media(max-height:460px){
+  .boo-fly-mascot,.boo-float-bubble{display:none}
 }
 `;
 
@@ -1198,19 +1392,16 @@ function HauntAnimatronic({ type = "lantern" }) {
     return (
       <div className="boo-anim-box" aria-hidden="true">
         <svg className="boo-anim-svg" viewBox="0 0 64 64" aria-hidden="true">
-          {/* Spinning Coaster Gear */}
           <g className="boo-anim-gear">
             <circle cx="46" cy="18" r="9" fill="none" stroke="#00F5D4" strokeWidth="2.5" strokeDasharray="4 3" />
             <circle cx="46" cy="18" r="3.5" fill="#FFD166" />
           </g>
-          {/* Coaster Track Arc */}
-          <path d="M 6 52 Q 32 24 58 52" fill="none" stroke="#FF2A85" strokeWidth="3" strokeLinecap="round" />
-          {/* Chomping Jack O Lantern Coaster Car */}
+          <path d="M 6 52 Q 32 24 58 52" fill="none" stroke="#F97316" strokeWidth="3" strokeLinecap="round" />
           <g className="boo-anim-chomp">
-            <ellipse cx="30" cy="34" rx="16" ry="13" fill="#F97316" stroke="#23143B" strokeWidth="3" />
+            <ellipse cx="30" cy="34" rx="16" ry="13" fill="#F97316" stroke="#18181B" strokeWidth="3" />
             <polygon points="22,29 26,29 24,24" fill="#FFD166" className="boo-anim-glow" />
             <polygon points="34,29 38,29 36,24" fill="#FFD166" className="boo-anim-glow" />
-            <path d="M 20 38 L 24 41 L 28 38 L 32 41 L 36 38 L 40 41" fill="none" stroke="#23143B" strokeWidth="2.5" strokeLinecap="round" />
+            <path d="M 20 38 L 24 41 L 28 38 L 32 41 L 36 38 L 40 41" fill="none" stroke="#18181B" strokeWidth="2.5" strokeLinecap="round" />
           </g>
         </svg>
       </div>
@@ -1220,19 +1411,16 @@ function HauntAnimatronic({ type = "lantern" }) {
     return (
       <div className="boo-anim-box" aria-hidden="true">
         <svg className="boo-anim-svg" viewBox="0 0 64 64" aria-hidden="true">
-          {/* Floating Neon Bat */}
           <g className="boo-anim-float">
-            <path d="M 16 18 Q 24 10 32 18 Q 40 10 48 18 Q 38 22 32 26 Q 26 22 16 18 Z" fill="#FF2A85" />
+            <path d="M 16 18 Q 24 10 32 18 Q 40 10 48 18 Q 38 22 32 26 Q 26 22 16 18 Z" fill="#F97316" />
             <circle cx="30" cy="19" r="1.5" fill="#FFD166" />
             <circle cx="34" cy="19" r="1.5" fill="#FFD166" />
           </g>
-          {/* Director Clapperboard Base */}
           <rect x="14" y="34" width="36" height="22" rx="4" fill="#16161E" stroke="#FFD166" strokeWidth="2.5" />
           <line x1="20" y1="42" x2="44" y2="42" stroke="#00F5D4" strokeWidth="2" />
           <line x1="20" y1="48" x2="36" y2="48" stroke="#F97316" strokeWidth="2" />
-          {/* Animated Clapper Top Bar */}
           <g className="boo-anim-clap">
-            <rect x="14" y="27" width="36" height="6" rx="2" fill="#F97316" stroke="#23143B" strokeWidth="2" />
+            <rect x="14" y="27" width="36" height="6" rx="2" fill="#F97316" stroke="#18181B" strokeWidth="2" />
           </g>
         </svg>
       </div>
@@ -1242,15 +1430,12 @@ function HauntAnimatronic({ type = "lantern" }) {
     return (
       <div className="boo-anim-box" aria-hidden="true">
         <svg className="boo-anim-svg" viewBox="0 0 64 64" aria-hidden="true">
-          {/* Rising Candy Bubbles & Stars */}
           <g className="boo-anim-float">
             <circle cx="24" cy="18" r="3.5" fill="#00F5D4" />
-            <circle cx="38" cy="14" r="4" fill="#FF2A85" />
+            <circle cx="38" cy="14" r="4" fill="#10B981" />
             <Star cx="31" cy="22" size="5" fill="#FFD166" />
           </g>
-          {/* Bubbling Rim */}
-          <ellipse cx="32" cy="31" rx="16" ry="5" fill="#00F5D4" stroke="#23143B" strokeWidth="2.5" />
-          {/* Cauldron Body */}
+          <ellipse cx="32" cy="31" rx="16" ry="5" fill="#00F5D4" stroke="#18181B" strokeWidth="2.5" />
           <path d="M 15 32 C 13 50 22 56 32 56 C 42 56 51 50 49 32 Z" fill="#1E1E28" stroke="#F97316" strokeWidth="2.8" />
           <path d="M 22 42 Q 32 48 42 42" fill="none" stroke="#FFD166" strokeWidth="2.2" strokeLinecap="round" />
         </svg>
@@ -1261,16 +1446,13 @@ function HauntAnimatronic({ type = "lantern" }) {
     return (
       <div className="boo-anim-box" aria-hidden="true">
         <svg className="boo-anim-svg" viewBox="0 0 64 64" aria-hidden="true">
-          {/* Full Harvest Moon */}
           <circle cx="44" cy="18" r="10" fill="#FFD166" opacity="0.85" />
-          {/* Swinging Haunted Trail Sign / Tombstone */}
           <g className="boo-anim-chomp">
             <path d="M 16 54 V 30 C 16 20 38 20 38 30 V 54 Z" fill="#1A1A22" stroke="#00F5D4" strokeWidth="2.5" />
-            <circle cx="23" cy="34" r="2.6" fill="#FF2A85" className="boo-anim-glow" />
-            <circle cx="31" cy="34" r="2.6" fill="#FF2A85" className="boo-anim-glow" />
+            <circle cx="23" cy="34" r="2.6" fill="#F97316" className="boo-anim-glow" />
+            <circle cx="31" cy="34" r="2.6" fill="#F97316" className="boo-anim-glow" />
             <path d="M 21 43 H 33" stroke="#FFD166" strokeWidth="2" strokeLinecap="round" />
           </g>
-          {/* Gnarled Woods Branch */}
           <path d="M 8 54 L 56 54" stroke="#F97316" strokeWidth="3" strokeLinecap="round" />
         </svg>
       </div>
@@ -1280,27 +1462,24 @@ function HauntAnimatronic({ type = "lantern" }) {
     return (
       <div className="boo-anim-box" aria-hidden="true">
         <svg className="boo-anim-svg" viewBox="0 0 64 64" aria-hidden="true">
-          {/* Spinning Ghost Ship Wheel / Helm */}
           <g className="boo-anim-gear">
             <circle cx="32" cy="30" r="14" fill="none" stroke="#FFD166" strokeWidth="3" />
-            <circle cx="32" cy="30" r="4" fill="#FF2A85" />
+            <circle cx="32" cy="30" r="4" fill="#F97316" />
             <line x1="32" y1="11" x2="32" y2="49" stroke="#FFD166" strokeWidth="2.5" strokeLinecap="round" />
             <line x1="13" y1="30" x2="51" y2="30" stroke="#FFD166" strokeWidth="2.5" strokeLinecap="round" />
           </g>
-          {/* Glowing Sea Waves */}
           <path d="M 10 51 Q 21 45 32 51 T 54 51" fill="none" stroke="#00F5D4" strokeWidth="3" strokeLinecap="round" className="boo-anim-float" />
         </svg>
       </div>
     );
   }
-  // Default: Swinging Festival Jack O Lantern
   return (
     <div className="boo-anim-box" aria-hidden="true">
       <svg className="boo-anim-svg" viewBox="0 0 64 64" aria-hidden="true">
         <g className="boo-anim-swing">
           <line x1="32" y1="4" x2="32" y2="17" stroke="#FFD166" strokeWidth="2.5" />
           <rect x="27" y="15" width="10" height="5" rx="2" fill="#00F5D4" />
-          <ellipse cx="32" cy="35" rx="16" ry="14" fill="#F97316" stroke="#23143B" strokeWidth="2.8" />
+          <ellipse cx="32" cy="35" rx="16" ry="14" fill="#F97316" stroke="#18181B" strokeWidth="2.8" />
           <polygon points="24,31 28,31 26,26" fill="#FFD166" className="boo-anim-glow" />
           <polygon points="36,31 40,31 38,26" fill="#FFD166" className="boo-anim-glow" />
           <path d="M 23 40 Q 32 46 41 40" fill="none" stroke="#FFD166" strokeWidth="2.8" strokeLinecap="round" />
@@ -1331,32 +1510,30 @@ function BooGhostSvg({ label, face, costume = "hype" }) {
       <defs>
         <linearGradient id={sheet} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#FFFFFF" />
-          <stop offset="60%" stopColor="#F5F0FF" />
-          <stop offset="100%" stopColor="#D5C2FF" />
+          <stop offset="60%" stopColor="#FFF7ED" />
+          <stop offset="100%" stopColor="#FFEDD5" />
         </linearGradient>
         <radialGradient id={glow} cx="50%" cy="52%" r="48%">
-          <stop offset="0%" stopColor="#FF2A85" stopOpacity="0.28" />
+          <stop offset="0%" stopColor="#F97316" stopOpacity="0.28" />
           <stop offset="65%" stopColor="#00F5D4" stopOpacity="0.1" />
           <stop offset="100%" stopColor="#000000" stopOpacity="0" />
         </radialGradient>
       </defs>
 
-      {/* Soft Mascot Aura */}
       <circle cx="128" cy="136" r="114" fill={"url(#" + glow + ")"} />
 
-      {/* Vector Fallback Geometry (Preserved for SVG DOM Integrity) */}
       <g opacity="0" aria-hidden="true">
         <path
           d="M 60 144 C 38 134 30 112 42 104 C 50 98 58 110 62 126 Z"
           fill={"url(#" + sheet + ")"}
-          stroke="#23143B"
+          stroke="#18181B"
           strokeWidth="7.5"
           strokeLinejoin="round"
         />
         <path
           d="M 194 144 C 216 136 232 134 234 143 C 236 152 218 160 194 158 Z"
           fill={"url(#" + sheet + ")"}
-          stroke="#23143B"
+          stroke="#18181B"
           strokeWidth="7.5"
           strokeLinejoin="round"
         />
@@ -1364,7 +1541,7 @@ function BooGhostSvg({ label, face, costume = "hype" }) {
           <path
             d="M 128 38 C 178 38 196 74 198 124 L 200 192 C 200 208 184 214 174 202 C 164 190 154 190 144 204 C 134 218 120 218 110 204 C 100 190 90 190 80 202 C 70 214 56 208 56 192 L 58 124 C 60 74 78 38 128 38 Z"
             fill={"url(#" + sheet + ")"}
-            stroke="#23143B"
+            stroke="#18181B"
             strokeWidth="8"
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -1374,11 +1551,11 @@ function BooGhostSvg({ label, face, costume = "hype" }) {
           <Star cx="156" cy="119" size="10.5" fill="#FFD166" />
         </g>
         <g className="boo-squint">
-          <path d="M 88 126 Q 102 109 116 126" fill="none" stroke="#23143B" strokeWidth="6.8" strokeLinecap="round" />
+          <path d="M 88 126 Q 102 109 116 126" fill="none" stroke="#18181B" strokeWidth="6.8" strokeLinecap="round" />
         </g>
         <g transform={shadesDown ? "translate(0 38) rotate(-5 128 82)" : "rotate(-6 128 76)"}>
-          <rect x="82" y="61" width="42" height="29" rx="8.5" fill="#160F24" stroke="#FF2A85" strokeWidth="4.2" />
-          <rect x="134" y="61" width="42" height="29" rx="8.5" fill="#160F24" stroke="#00F5D4" strokeWidth="4.2" />
+          <rect x="82" y="61" width="42" height="29" rx="8.5" fill="#121216" stroke="#F97316" strokeWidth="4.2" />
+          <rect x="134" y="61" width="42" height="29" rx="8.5" fill="#121216" stroke="#00F5D4" strokeWidth="4.2" />
         </g>
         <g className="boo-flag">
           <text
@@ -1393,7 +1570,7 @@ function BooGhostSvg({ label, face, costume = "hype" }) {
           </text>
         </g>
         <g transform="translate(192, 96)">
-          <rect x="0" y="0" width="62" height="26" rx="13" fill="#FF2A85" stroke="#FFFFFF" strokeWidth="3" />
+          <rect x="0" y="0" width="62" height="26" rx="13" fill="#F97316" stroke="#FFFFFF" strokeWidth="3" />
           <text
             x="11"
             y="17"
@@ -1407,7 +1584,6 @@ function BooGhostSvg({ label, face, costume = "hype" }) {
         </g>
       </g>
 
-      {/* Official Studio Mascot Bible Sticker Artwork (512x512 Transparent PNG) */}
       <image
         href={stickerHref}
         x="2"
@@ -1425,15 +1601,40 @@ function cleanReply(text) {
 }
 
 export default function BoHalloweenHaunt({ model, share = null }) {
-  const { chrome, lines, filters, haunts, picks, prompts } = model;
+  const {
+    chrome,
+    lines,
+    filters,
+    categories = [],
+    regions = [],
+    audiences = [],
+    scareBands = [],
+    budgetBands = [],
+    haunts,
+    picks,
+    prompts,
+  } = model;
+
   const [filter, setFilter] = useState("all");
+  const [regionFilter, setRegionFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState("all");
+  const [audienceFilter, setAudienceFilter] = useState("all");
+  const [scareFilter, setScareFilter] = useState("all");
+  const [budgetFilter, setBudgetFilter] = useState("all");
   const [selectedPickId, setSelectedPickId] = useState(null);
-  const [bubble, setBubble] = useState(lines[0]);
+
+  const [bubble, setBubble] = useState(chrome.greeting || lines[0]);
   const [gagIndex, setGagIndex] = useState(0);
   const [activeId, setActiveId] = useState("howlOrlando");
   const [hotId, setHotId] = useState(null);
-  const [spinNonce, setSpinNonce] = useState(0);
+
+  // Visitor-controlled Boo visibility & motion preferences persisted per session
   const [dismissed, setDismissed] = useState(false);
+  const [minimized, setMinimized] = useState(false);
+  const [motionPaused, setMotionPaused] = useState(false);
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+  const [heroVisible, setHeroVisible] = useState(true);
+
   const [quipAt, setQuipAt] = useState({});
   const [draft, setDraft] = useState("");
   const [pending, setPending] = useState(false);
@@ -1441,25 +1642,17 @@ export default function BoHalloweenHaunt({ model, share = null }) {
   const [chatReply, setChatReply] = useState("");
   const [chatIds, setChatIds] = useState(["howlOrlando", "howlTampa"]);
   const [cardPitches, setCardPitches] = useState({});
-  const [flying, setFlying] = useState(false);
   const [emote, setEmote] = useState("wink");
   const [costume, setCostume] = useState("hype");
-  const [reelOn, setReelOn] = useState(false);
-  const [reelIndex, setReelIndex] = useState(0);
   const [kicker, setKicker] = useState(KICKERS[0].pill);
   const [aiSource, setAiSource] = useState("catalog");
-  const [heroVisible, setHeroVisible] = useState(true);
   const [pop, setPop] = useState(0);
 
-  const reelRows = REEL_IDS.map((id) => haunts.find((row) => row.id === id)).filter(Boolean);
   const holdUntil = useRef(0);
   const emoteLock = useRef(0);
   const lastSeen = useRef(null);
   const flyRef = useRef(null);
-  const sideRef = useRef("left");
   const activeRef = useRef(activeId);
-  const dragHold = useRef(false);
-  const poseRef = useRef(null);
   const reqSeqRef = useRef(0);
   const abortRef = useRef(null);
   const inFlightKeyRef = useRef("");
@@ -1467,6 +1660,64 @@ export default function BoHalloweenHaunt({ model, share = null }) {
   const inspectedSetRef = useRef(new Set());
 
   useEffect(() => { activeRef.current = activeId; }, [activeId]);
+
+  // Restore sessionStorage preferences on mount (dismissed, minimized, motionPaused)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.sessionStorage.getItem(SESSION_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (typeof parsed.dismissed === "boolean") setDismissed(parsed.dismissed);
+        if (typeof parsed.minimized === "boolean") setMinimized(parsed.minimized);
+        if (typeof parsed.motionPaused === "boolean") setMotionPaused(parsed.motionPaused);
+      }
+      if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        setMotionPaused(true);
+      }
+    } catch { /* ignore */ }
+  }, []);
+
+  const persistSessionPref = (patch) => {
+    if (typeof window === "undefined") return;
+    try {
+      const prevRaw = window.sessionStorage.getItem(SESSION_KEY);
+      const prev = prevRaw ? JSON.parse(prevRaw) : {};
+      const next = {
+        dismissed,
+        minimized,
+        motionPaused,
+        ...prev,
+        ...patch,
+      };
+      window.sessionStorage.setItem(SESSION_KEY, JSON.stringify(next));
+    } catch { /* ignore */ }
+  };
+
+  // Detect mobile software keyboard via visualViewport so Boo automatically yields space
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.visualViewport) return undefined;
+    const vv = window.visualViewport;
+    const onResize = () => {
+      const isKb = window.innerHeight - vv.height > 140;
+      setKeyboardOpen(isKb);
+    };
+    vv.addEventListener("resize", onResize);
+    return () => vv.removeEventListener("resize", onResize);
+  }, []);
+
+  // Track whether #boo-hero is in view so the floating dock stays compact while hero Boo is visible
+  useEffect(() => {
+    if (typeof IntersectionObserver === "undefined") return undefined;
+    const heroNode = document.getElementById("boo-hero");
+    if (!heroNode) return undefined;
+    const io = new IntersectionObserver((entries) => {
+      const entry = entries[0];
+      if (entry) setHeroVisible(entry.isIntersecting && entry.intersectionRatio > 0.25);
+    }, { threshold: [0, 0.25, 0.6] });
+    io.observe(heroNode);
+    return () => io.disconnect();
+  }, []);
 
   const cancelPendingRequest = () => {
     reqSeqRef.current += 1;
@@ -1478,7 +1729,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     setPending(false);
   };
 
-  // Reel-to-recommendation URL continuity (?haunt=howlTampa, ?pick=kids, ?filter=family)
+  // URL query continuity (?haunt=howlTampa, ?pick=kids, ?filter=family, ?region=tampa, ?date=2026-10-31)
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
@@ -1486,6 +1737,18 @@ export default function BoHalloweenHaunt({ model, share = null }) {
       const hauntParam = params.get("haunt");
       const pickParam = params.get("pick");
       const filterParam = params.get("filter");
+      const regionParam = params.get("region");
+      const dateParam = params.get("date");
+      const audienceParam = params.get("audience");
+      const scareParam = params.get("scare");
+      const budgetParam = params.get("budget");
+
+      if (regionParam && regions.some((r) => r.id === regionParam)) setRegionFilter(regionParam);
+      if (dateParam) setDateFilter(dateParam);
+      if (audienceParam && audiences.some((a) => a.id === audienceParam)) setAudienceFilter(audienceParam);
+      if (scareParam && scareBands.some((s) => s.id === scareParam)) setScareFilter(scareParam);
+      if (budgetParam && budgetBands.some((b) => b.id === budgetParam)) setBudgetFilter(budgetParam);
+
       if (pickParam) {
         const matchedPick = picks.find((p) => p.id === pickParam);
         if (matchedPick) {
@@ -1511,45 +1774,37 @@ export default function BoHalloweenHaunt({ model, share = null }) {
           return;
         }
       }
-      if (filterParam && filters.some((f) => f.id === filterParam)) {
+      if (
+        filterParam &&
+        (filters.some((f) => f.id === filterParam) || categories.some((c) => c.id === filterParam))
+      ) {
         setFilter(filterParam);
       }
     } catch { /* ignore */ }
-  }, [filters, haunts, picks]);
+  }, [audiences, budgetBands, categories, filters, haunts, picks, regions, scareBands]);
 
+  // Sync active filters cleanly to URL search params without scrolling or reloading
   useEffect(() => {
-    if (typeof IntersectionObserver === "undefined") return undefined;
-    const heroNode = document.getElementById("boo-hero");
-    if (!heroNode) return undefined;
-    const io = new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (entry) setHeroVisible(entry.isIntersecting && entry.intersectionRatio > 0.25);
-    }, { threshold: [0, 0.25, 0.6] });
-    io.observe(heroNode);
-    return () => io.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!reelOn) return undefined;
-    const timer = setInterval(() => setReelIndex((n) => n + 1), 4200);
-    return () => clearInterval(timer);
-  }, [reelOn]);
-
-  useEffect(() => {
-    if (!reelOn || !reelRows.length) return undefined;
-    const row = reelRows[reelIndex % reelRows.length];
-    const kick = KICKERS[reelIndex % KICKERS.length];
-    setFilter("all");
-    setActiveId(row.id);
-    setHotId(row.id);
-    setSpinNonce((n) => n + 1);
-    emoteLock.current = Date.now() + 7000;
-    setEmote(poseFor(row.id));
-    setCostume(costumeFor(row.id));
-    setKicker(kick.pill);
-    speak(kick.line, 7000);
-    return undefined;
-  }, [reelOn, reelIndex]);
+    if (typeof window === "undefined" || !window.history || typeof window.history.replaceState !== "function") return;
+    try {
+      const params = new URLSearchParams(window.location.search || "");
+      const setOrDelete = (key, val) => {
+        if (val && val !== "all") params.set(key, val);
+        else params.delete(key);
+      };
+      setOrDelete("filter", filter);
+      setOrDelete("region", regionFilter);
+      setOrDelete("date", dateFilter);
+      setOrDelete("audience", audienceFilter);
+      setOrDelete("scare", scareFilter);
+      setOrDelete("budget", budgetFilter);
+      if (selectedPickId) params.set("pick", selectedPickId);
+      else params.delete("pick");
+      const qs = params.toString();
+      const nextUrl = window.location.pathname + (qs ? "?" + qs : "") + (window.location.hash || "");
+      window.history.replaceState(null, "", nextUrl);
+    } catch { /* ignore */ }
+  }, [filter, regionFilter, dateFilter, audienceFilter, scareFilter, budgetFilter, selectedPickId]);
 
   const speak = (text, holdMs) => {
     holdUntil.current = Date.now() + holdMs;
@@ -1557,17 +1812,70 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     setPop((n) => n + 1);
   };
 
-  const shown = filter === "all" ? haunts : haunts.filter((row) => row.filters.includes(filter));
+  // Multi-facet filter evaluation across all 31 statewide Florida experiences
+  const shown = haunts.filter((row) => {
+    if (filter !== "all") {
+      const matchesFilter =
+        (Array.isArray(row.filters) && row.filters.includes(filter)) ||
+        row.category === filter;
+      if (!matchesFilter) return false;
+    }
+    if (regionFilter !== "all" && row.region !== regionFilter) return false;
+    if (dateFilter !== "all") {
+      if (dateFilter === "daytime") {
+        if (row.daypart !== "daytime" && row.daypart !== "both") return false;
+      } else if (dateFilter === "nighttime") {
+        if (row.daypart !== "nighttime" && row.daypart !== "both") return false;
+      } else if (Array.isArray(row.operatingDates) && !row.operatingDates.includes(dateFilter)) {
+        return false;
+      }
+    }
+    if (audienceFilter !== "all") {
+      const aud = row.audience;
+      const matchesAud = Array.isArray(aud)
+        ? aud.includes(audienceFilter)
+        : aud === audienceFilter || (audienceFilter === "families" && aud === "kids");
+      if (!matchesAud) return false;
+    }
+    if (scareFilter !== "all" && row.scareBand !== scareFilter) return false;
+    if (budgetFilter !== "all" && row.budgetBand !== budgetFilter) return false;
+    return true;
+  });
+
+  const hasActiveFilters =
+    filter !== "all" ||
+    regionFilter !== "all" ||
+    dateFilter !== "all" ||
+    audienceFilter !== "all" ||
+    scareFilter !== "all" ||
+    budgetFilter !== "all" ||
+    Boolean(selectedPickId);
+
+  const clearAllFilters = () => {
+    cancelPendingRequest();
+    setFilter("all");
+    setRegionFilter("all");
+    setDateFilter("all");
+    setAudienceFilter("all");
+    setScareFilter("all");
+    setBudgetFilter("all");
+    setSelectedPickId(null);
+  };
+
   const selectedPick = picks.find((p) => p.id === selectedPickId) || null;
   const shortlistHaunts = selectedPick
     ? (selectedPick.shortlistIds || [selectedPick.hauntId]).map((id) => haunts.find((h) => h.id === id)).filter(Boolean)
     : [];
 
+  // Passive scroll observation: updates Boo's cosmetic outfit & subtle tip ONLY when scrolled into the vault,
+  // and NEVER scrolls the page, changes filters, or overwrites an active chat reply.
   useEffect(() => {
     if (typeof IntersectionObserver === "undefined") return undefined;
     const nodes = document.querySelectorAll("[data-haunt-id]");
     const io = new IntersectionObserver((entries) => {
+      if (typeof window !== "undefined" && window.scrollY < 360) return;
       if (Date.now() < emoteLock.current) return;
+      if (chatOpen || pending || chatReply) return;
       const best = entries.filter((entry) => entry.isIntersecting).sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
       if (!best) return;
       const id = best.target.getAttribute("data-haunt-id");
@@ -1578,85 +1886,14 @@ export default function BoHalloweenHaunt({ model, share = null }) {
       setCostume(costumeFor(id));
       const row = haunts.find((item) => item.id === id);
       if (row && Date.now() >= holdUntil.current) setBubble(row.tip);
-    }, { threshold: [0.55, 0.75] });
+    }, { threshold: [0.6] });
     nodes.forEach((node) => io.observe(node));
     return () => io.disconnect();
-  }, [filter, haunts]);
+  }, [filter, regionFilter, dateFilter, audienceFilter, scareFilter, budgetFilter, haunts, chatOpen, pending, chatReply]);
 
-  useEffect(() => {
-    if (!hotId) return undefined;
-    const node = document.getElementById("haunt-" + hotId);
-    if (node && typeof node.scrollIntoView === "function") node.scrollIntoView({ behavior: "smooth", block: "center" });
-    return undefined;
-  }, [hotId, spinNonce, filter]);
-
-  useEffect(() => {
-    const node = flyRef.current;
-    if (!node || dismissed) return undefined;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const pose = { x: 14, y: Math.max(80, window.innerHeight - 210), vx: 0, vy: 0, targetX: 14, targetY: Math.max(80, window.innerHeight - 210) };
-    poseRef.current = pose;
-    let wasFlying = false;
-    let landedAt = 0;
-    let stopped = false;
-    let raf = 0;
-    const paint = (isFly, tilt) => {
-      node.style.transform = "translate3d(" + pose.x + "px," + pose.y + "px,0) rotate(" + tilt + "deg)";
-    };
-    const place = () => {
-      if (dragHold.current) return;
-      const w = window.innerWidth;
-      const h = window.innerHeight;
-      const chat = node.classList.contains("is-chat");
-      const narrow = w < 520;
-      const width = chat ? Math.min(340, w - 20) : (narrow ? 260 : Math.min(300, w - 20));
-      const edge = sideRef.current === "right" ? Math.max(10, w - width - 10) : 10;
-      pose.targetX = Math.max(10, Math.min(w - width - 10, edge));
-      pose.targetY = Math.max(76, h - (chat ? 420 : 190));
-    };
-    const step = () => {
-      if (stopped) return;
-      place();
-      if (reduce) {
-        pose.x = pose.targetX;
-        pose.y = pose.targetY;
-        pose.vx = 0;
-        pose.vy = 0;
-        paint(0, 0);
-        if (wasFlying) setFlying(false);
-        wasFlying = false;
-        return;
-      }
-      pose.vx = (pose.vx + (pose.targetX - pose.x) * 0.06) * 0.76;
-      pose.vy = (pose.vy + (pose.targetY - pose.y) * 0.06) * 0.76;
-      pose.x += pose.vx;
-      pose.y += pose.vy;
-      const speed = Math.hypot(pose.vx, pose.vy);
-      const isFly = speed > 0.85;
-      const tilt = isFly ? Math.max(-12, Math.min(12, pose.vx * 0.25 + pose.vy * 0.05)) : 0;
-      paint(isFly, tilt);
-      if (isFly !== wasFlying) setFlying(isFly);
-      if (wasFlying && !isFly && Date.now() > landedAt && Date.now() >= holdUntil.current) {
-        landedAt = Date.now() + 2200;
-        const row = haunts.find((item) => item.id === activeRef.current);
-        if (row) setBubble(row.nudge || row.tip);
-      }
-      wasFlying = isFly;
-      raf = requestAnimationFrame(step);
-    };
-    place();
-    step();
-    const onScroll = () => { if (reduce) step(); };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    if (!reduce) raf = requestAnimationFrame(step);
-    return () => {
-      stopped = true;
-      cancelAnimationFrame(raf);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [dismissed, haunts]);
-
-  const showRecommendation = (data, focusFirst = false) => {
+  // Read-only AI recommendation handler: NEVER scrolls the page, NEVER changes active filters,
+  // NEVER steals focus, and NEVER re-opens Boo if the visitor dismissed or minimized Boo.
+  const showRecommendation = (data) => {
     const reply = cleanReply(data && data.reply) || lines[1];
     const ids = (data && data.recommendedIds || []).filter((id) => haunts.some((row) => row.id === id));
     const validIds = ids.length ? ids : ["howlOrlando"];
@@ -1666,11 +1903,6 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     const first = haunts.find((row) => row.id === validIds[0]);
     if (first) {
       setActiveId(first.id);
-      if (focusFirst) {
-        setHotId(first.id);
-        setSpinNonce((n) => n + 1);
-      }
-      setReelOn(false);
       emoteLock.current = Date.now() + 12000;
       setEmote("stars");
       setCostume(costumeFor(first.id));
@@ -1687,14 +1919,24 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     cancelPendingRequest();
     const seq = reqSeqRef.current;
     setDraft("");
-    setReelOn(false);
-    if (options.openFloatChat) setChatOpen(true);
-    setDismissed(false);
+    if (options.openFloatChat) {
+      setChatOpen(true);
+      setMinimized(false);
+    }
+
+    const activeContext = {
+      region: regionFilter !== "all" ? regionFilter : undefined,
+      category: filter !== "all" ? filter : undefined,
+      scareBand: scareFilter !== "all" ? scareFilter : undefined,
+      audience: audienceFilter !== "all" ? audienceFilter : undefined,
+      budgetBand: budgetFilter !== "all" ? budgetFilter : undefined,
+      dateWindow: dateFilter !== "all" ? dateFilter : undefined,
+    };
 
     if (clientCacheRef.current.has(normKey)) {
       const cached = clientCacheRef.current.get(normKey);
       setKicker(cached.source === "claude" ? "BOO AI · VERIFIED CATALOG" : "VERIFIED CATALOG MATCH");
-      showRecommendation(cached, false);
+      showRecommendation(cached);
       trackHauntEvent("boo_ai_request", { source: cached.source, cache_hit: true, recommended_count: (cached.recommendedIds || []).length });
       return;
     }
@@ -1713,14 +1955,14 @@ export default function BoHalloweenHaunt({ model, share = null }) {
       const res = await fetch("/api/bo-haunt", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ message, context: activeContext }),
         signal: controller ? controller.signal : undefined,
       });
       const data = await res.json();
       if (seq !== reqSeqRef.current) return;
       clientCacheRef.current.set(normKey, data);
       setKicker(data && data.source === "claude" ? "BOO AI · VERIFIED CATALOG" : "VERIFIED CATALOG MATCH");
-      showRecommendation(data, false);
+      showRecommendation(data);
       trackHauntEvent("boo_ai_request", {
         source: data && data.source ? data.source : "fallback",
         cache_hit: Boolean(data && data.cached),
@@ -1731,7 +1973,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
       if (err && err.name === "AbortError") return;
       if (seq !== reqSeqRef.current) return;
       setKicker("VERIFIED CATALOG MATCH");
-      showRecommendation({ reply: lines[1], recommendedIds: ["howlOrlando", "howlTampa"], source: "fallback" }, false);
+      showRecommendation({ reply: lines[1], recommendedIds: ["howlOrlando", "howlTampa"], source: "fallback" });
     } finally {
       if (seq === reqSeqRef.current) {
         inFlightKeyRef.current = "";
@@ -1743,7 +1985,6 @@ export default function BoHalloweenHaunt({ model, share = null }) {
 
   const focusHaunt = (row, lock) => {
     if (!lock && Date.now() < emoteLock.current) return;
-    if (lock) setReelOn(false);
     setActiveId(row.id);
     if (lock) {
       emoteLock.current = Date.now() + 8000;
@@ -1757,7 +1998,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     if (Date.now() >= holdUntil.current) setBubble(cardPitches[row.id] || row.tip);
   };
 
-  // Pure local state: zero network calls.
+  // Pure local state: zero network calls, zero scroll side effects.
   const nextGag = () => {
     const next = (gagIndex + 1) % lines.length;
     setGagIndex(next);
@@ -1768,28 +2009,31 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     speak(lines[next], 8000);
   };
 
-  // Deterministic catalog price & date explanation: zero network calls.
+  // Deterministic catalog ticket & fee explanation: zero network calls, zero scroll side effects.
   const roastPrice = () => {
     cancelPendingRequest();
     const pool = shown.length ? shown : haunts;
     const current = pool.find((row) => row.id === activeId) || pool[0];
     if (!current) return;
     setActiveId(current.id);
-    setReelOn(false);
     emoteLock.current = Date.now() + 9000;
     setEmote("tongue");
     setCostume(costumeFor(current.id));
-    setKicker("VERIFIED PRICE BREAKDOWN");
+    setKicker("TICKET & FEE GUIDE");
     setAiSource("catalog");
-    setDismissed(false);
     const note = current.priceNote ? " " + current.priceNote : "";
     speak(cleanReply(current.roast + note), 9000);
   };
 
-  // Constraint-respecting deterministic haunt selector: zero network calls.
+  // Constraint-respecting deterministic suggestion: zero network calls, zero forced page jumps.
   const spinDeal = () => {
     cancelPendingRequest();
-    const familyConstrained = filter === "family" || selectedPickId === "kids";
+    const familyConstrained =
+      filter === "family" ||
+      selectedPickId === "kids" ||
+      audienceFilter === "kids" ||
+      audienceFilter === "families" ||
+      scareFilter === "no-scare";
     const candidatePool = familyConstrained
       ? haunts.filter((row) => row.filters.includes("family"))
       : (shown.length ? shown : haunts);
@@ -1798,18 +2042,16 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     const pick = pool[Math.floor(Math.random() * pool.length)] || haunts[0];
     setActiveId(pick.id);
     setHotId(pick.id);
-    setSpinNonce((n) => n + 1);
-    setReelOn(false);
+    setChatIds([pick.id]);
     emoteLock.current = Date.now() + 9000;
     setEmote(poseFor(pick.id));
     setCostume(costumeFor(pick.id));
-    setKicker("SURPRISE HAUNT PICK");
+    setKicker("BOO SUGGESTION · " + pick.city.toUpperCase());
     setAiSource("catalog");
-    setDismissed(false);
-    speak(cleanReply(pick.name + ": " + pick.priceLabel + ". " + pick.timing + ". " + (pick.admissionNote || "")), 9000);
+    speak(cleanReply(pick.name + " in " + pick.city + ": " + pick.priceLabel + ". " + pick.timing + ". " + (pick.admissionNote || "")), 9000);
   };
 
-  // Instant deterministic shortlist: zero network calls.
+  // Instant deterministic shortlist: zero network calls, zero forced page scroll.
   const pickScare = (item) => {
     cancelPendingRequest();
     const row = haunts.find((haunt) => haunt.id === item.hauntId);
@@ -1817,75 +2059,35 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     setSelectedPickId(item.id);
     if (item.filterId) setFilter(item.filterId);
     setActiveId(row.id);
-    setReelOn(false);
     emoteLock.current = Date.now() + 10000;
     setEmote(item.id === "terrify" ? "shades" : poseFor(row.id));
     setCostume(costumeFor(row.id));
     setKicker("SHORTLIST · " + item.label.toUpperCase());
     setAiSource("catalog");
-    setDismissed(false);
     speak(item.pitch, 10000);
     trackHauntEvent("boo_preference_applied", {
       pick_id: item.id,
       filter_id: item.filterId || "all",
       shortlist_count: (item.shortlistIds || []).length,
     });
-    const shortlistNode = document.getElementById("boo-shortlist");
-    if (shortlistNode && typeof shortlistNode.scrollIntoView === "function") {
-      shortlistNode.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
   };
 
-  // Instant deterministic card insider verdict: zero network calls.
+  // Instant deterministic card insider verdict: zero network calls, zero scroll side effects.
   const askBoo = (row) => {
     cancelPendingRequest();
     const at = quipAt[row.id] || 0;
     setQuipAt({ ...quipAt, [row.id]: at + 1 });
     setActiveId(row.id);
-    setReelOn(false);
     emoteLock.current = Date.now() + 10000;
     setEmote(poseFor(row.id));
     setCostume(costumeFor(row.id));
     setKicker("BOO'S VERIFIED TAKE");
     setAiSource("catalog");
-    setDismissed(false);
     const quip = row.quips[at % row.quips.length];
     const detail = cleanReply(quip + (row.admissionNote ? " " + row.admissionNote + "." : ""));
     setCardPitches((prev) => ({ ...prev, [row.id]: detail }));
     speak(detail, 10000);
     trackHauntEvent("boo_haunt_inspected", { haunt_id: row.id, trigger: "ask_boo_button" });
-  };
-
-  const onDragDown = (event) => {
-    const pose = poseRef.current;
-    if (!pose) return;
-    dragHold.current = true;
-    event.currentTarget.setPointerCapture(event.pointerId);
-    poseRef.current.drag = { id: event.pointerId, x: event.clientX, y: event.clientY, ox: pose.x, oy: pose.y, moved: false };
-  };
-  const onDragMove = (event) => {
-    const pose = poseRef.current;
-    const drag = pose && pose.drag;
-    if (!drag || drag.id !== event.pointerId) return;
-    const dx = event.clientX - drag.x;
-    const dy = event.clientY - drag.y;
-    if (Math.hypot(dx, dy) > 8) drag.moved = true;
-    pose.x = drag.ox + dx;
-    pose.y = drag.oy + dy;
-    pose.targetX = pose.x;
-    pose.targetY = pose.y;
-    pose.vx = 0;
-    pose.vy = 0;
-  };
-  const onDragUp = (event) => {
-    const pose = poseRef.current;
-    const drag = pose && pose.drag;
-    dragHold.current = false;
-    if (!pose) return;
-    pose.drag = null;
-    if (!drag || drag.id !== event.pointerId) return;
-    if (!drag.moved) sideRef.current = sideRef.current === "left" ? "right" : "left";
-    else sideRef.current = event.clientX > window.innerWidth / 2 ? "right" : "left";
   };
 
   const statusLabel = pending
@@ -1894,7 +2096,12 @@ export default function BoHalloweenHaunt({ model, share = null }) {
       ? "Boo AI · Verified Catalog"
       : aiSource === "fallback"
         ? "Verified Catalog Match"
-        : "Verified Catalog · 14 Haunts";
+        : "Verified Catalog · " + haunts.length + " Experiences";
+
+  const categoryTabs = [
+    ...filters,
+    ...categories.filter((c) => !filters.some((f) => f.id === c.id)),
+  ];
 
   const chatBox = (compact) => (
     <div className={"boo-chat" + (compact ? " boo-fly-chat" : "")} data-boo-chat={compact ? "float" : "hero"}>
@@ -1939,11 +2146,15 @@ export default function BoHalloweenHaunt({ model, share = null }) {
   );
 
   return (
-    <section className="boo-page" aria-labelledby="boo-title" data-analytics-page="halloween_haunts">
+    <section
+      className={"boo-page" + (motionPaused ? " is-motion-paused" : "")}
+      aria-labelledby="boo-title"
+      data-analytics-page="halloween_haunts"
+    >
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="boo-lights" aria-hidden="true">
         <svg className="boo-wire" viewBox="0 0 1200 80" preserveAspectRatio="none">
-          <path d="M0 18 C40 18 70 52 110 52 C150 52 170 16 230 16 C290 16 310 56 370 56 C430 56 450 14 510 14 C570 14 590 58 650 58 C710 58 730 16 800 16 C860 16 880 54 950 54 C1010 54 1040 20 1200 28" fill="none" stroke="#FFD166" strokeWidth="3" />
+          <path d="M0 18 C40 18 70 52 110 52 C150 52 170 16 230 16 C290 16 310 56 370 56 C430 56 450 14 510 14 C570 14 590 58 650 58 C710 58 730 16 800 16 C860 16 880 54 950 54 C1010 54 1040 20 1200 28" fill="none" stroke="#FFD166" strokeWidth="2.5" />
         </svg>
         {BULBS.map((tone, index) => (
           <span key={tone + index} className={"boo-bulb is-" + tone}>
@@ -1957,20 +2168,34 @@ export default function BoHalloweenHaunt({ model, share = null }) {
         <div className="boo-top">
           <a className="boo-home" href="/">{chrome.home}</a>
           <div className="boo-top-right">
+            <button
+              type="button"
+              className="boo-home"
+              aria-pressed={motionPaused}
+              onClick={() => {
+                setMotionPaused((prev) => {
+                  const next = !prev;
+                  persistSessionPref({ motionPaused: next });
+                  return next;
+                });
+              }}
+            >
+              {motionPaused ? chrome.resumeMotion : chrome.pauseMotion}
+            </button>
             {share}
           </div>
         </div>
 
+        {/* 1. Hero & Immediate Discovery Controls */}
         <div id="boo-hero">
           <div className="boo-hero-grid">
-            {/* Left Column: Editorial Headline + Instant Shortlist Matcher */}
             <div>
               <div className="boo-pill-row">
-                <p className="boo-sheet-pill">OFFICIAL HAUNT TICKET VAULT · GOWAYFIND.COM</p>
+                <p className="boo-sheet-pill">FLORIDA HALLOWEEN DESTINATION · GOWAYFIND.COM</p>
                 <p className="boo-eyebrow">{chrome.vip}</p>
               </div>
-              <h1 id="boo-title">{chrome.title}</h1>
-              <p className="boo-lede">{chrome.host}. {chrome.lede}</p>
+              <h1 id="boo-title">{chrome.heroPromise || chrome.title}</h1>
+              <p className="boo-lede">{chrome.heroSubtitle} {chrome.lede}</p>
               <div className="boo-trust-strip">
                 <p className="boo-note">{chrome.disclosure}</p>
                 <p className="boo-note">{chrome.merit}</p>
@@ -1978,7 +2203,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
 
               <div className="boo-matcher-box">
                 <p className="boo-who">{chrome.pick}</p>
-                <p className="boo-matcher-sub">{chrome.who}</p>
+                <p className="boo-matcher-sub">{chrome.helper || chrome.who}</p>
                 <div className="boo-picks" role="toolbar" aria-label={chrome.pick}>
                   {picks.map((item) => (
                     <button
@@ -1994,7 +2219,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
               </div>
             </div>
 
-            {/* Right Column: Boo's Interactive Concierge Stage */}
+            {/* Right Column: Boo's Friendly Host Card */}
             <div className="boo-concierge-card">
               <div className="boo-stage-top">
                 <p className="boo-badge">{chrome.vip}</p>
@@ -2005,7 +2230,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
               </div>
 
               <div className="boo-stage">
-                <div className="boo-hero-sprite" onClick={nextGag} title="Tap Boo for a new gag and outfit">
+                <div className="boo-hero-sprite" onClick={nextGag} title="Tap Boo for a new tip and outfit">
                   <BooGhostSvg label={chrome.videoLabel} face={pending ? "shock" : emote} costume={costume} />
                 </div>
                 <div className="boo-copy">
@@ -2014,7 +2239,6 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                 </div>
               </div>
 
-              {/* Costume & Personality Switcher (Cosmetic only, never overrides visitor preferences) */}
               <div className="boo-costume-bar" role="group" aria-label="Boo costume poses">
                 {COSTUME_TABS.map((tab) => (
                   <button
@@ -2022,7 +2246,6 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                     key={tab.id}
                     className={"boo-costume-btn" + (costume === tab.id ? " is-on" : "")}
                     onClick={() => {
-                      setReelOn(false);
                       setCostume(tab.id);
                       setEmote(tab.emote);
                       setKicker(tab.kicker);
@@ -2038,47 +2261,9 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                 <button type="button" onClick={nextGag}>{chrome.nextGag}</button>
                 <button type="button" onClick={roastPrice}>{chrome.roast}</button>
                 <button type="button" onClick={spinDeal}>{chrome.spin}</button>
-                <button
-                  type="button"
-                  className="is-fill"
-                  onClick={() => {
-                    setDismissed(false);
-                    setHeroVisible(false);
-                    const vault = document.getElementById("boo-vault");
-                    if (vault && vault.scrollIntoView) vault.scrollIntoView({ behavior: "smooth", block: "start" });
-                  }}
-                >
+                <a className="is-fill" href="#boo-vault">
                   {chrome.hauntScroll}
-                </button>
-              </div>
-
-              <div className="boo-reel-bar">
-                <div className="boo-reel" role="tablist" aria-label="Boo reel stops">
-                  {reelRows.map((row, index) => (
-                    <button
-                      type="button"
-                      key={row.id}
-                      className={index === (reelIndex % reelRows.length) && reelOn ? "is-on" : ""}
-                      aria-label={"Show stop " + (index + 1)}
-                      onClick={() => {
-                        setReelOn(false);
-                        setReelIndex(index);
-                        setHotId(row.id);
-                        setActiveId(row.id);
-                        setSpinNonce((n) => n + 1);
-                        emoteLock.current = Date.now() + 8000;
-                        setEmote(poseFor(row.id));
-                        setCostume(costumeFor(row.id));
-                        speak(row.nudge, 8000);
-                      }}
-                    />
-                  ))}
-                </div>
-                <div className="boo-actions" style={{ marginTop: 0 }}>
-                  <button type="button" className="is-fill" onClick={() => { setReelOn((on) => !on); setDismissed(false); }}>
-                    {reelOn ? "Pause The Reel" : "Play Boo's Interactive Reel Tour"}
-                  </button>
-                </div>
+                </a>
               </div>
 
               {chatBox(false)}
@@ -2086,7 +2271,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
           </div>
         </div>
 
-        {/* Shortlist-First Panel when Visitor Selects a Preference */}
+        {/* 2. Relevant Recommendations (Shortlist Panel when Visitor Selects a Preference) */}
         {selectedPick && shortlistHaunts.length ? (
           <div id="boo-shortlist" className="boo-shortlist" data-boo-shortlist={selectedPick.id}>
             <div className="boo-shortlist-head">
@@ -2097,12 +2282,9 @@ export default function BoHalloweenHaunt({ model, share = null }) {
               <button
                 type="button"
                 className="boo-shortlist-clear"
-                onClick={() => {
-                  setSelectedPickId(null);
-                  setFilter("all");
-                }}
+                onClick={clearAllFilters}
               >
-                Show All 14 Haunts
+                Show All {haunts.length} Experiences
               </button>
             </div>
             <div className="boo-shortlist-grid">
@@ -2127,10 +2309,9 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                         setFilter("all");
                         setActiveId(row.id);
                         setHotId(row.id);
-                        setSpinNonce((n) => n + 1);
                       }}
                     >
-                      Details
+                      Highlight Card
                     </button>
                   </div>
                 </div>
@@ -2139,19 +2320,18 @@ export default function BoHalloweenHaunt({ model, share = null }) {
           </div>
         ) : null}
 
-        {/* Haunt Ticket Vault */}
-        <div id="boo-vault" data-haunt-vault="">
-          <div className="boo-vault-header">
-            <p className="boo-vault-title">14 Verified Florida Haunts</p>
+        {/* 3. Browsable Categories, Regions & Multi-Facet Discovery Controls */}
+        <div id="boo-discovery-controls" className="boo-discovery-bar" aria-label="Florida Halloween discovery filters">
+          <div className="boo-vault-header" style={{ marginBottom: 12 }}>
+            <p className="boo-vault-title">Browse by Category, Florida Region & Date</p>
             <div className="boo-filters" role="toolbar" aria-label={chrome.eyebrow}>
-              {filters.map((item) => (
+              {categoryTabs.map((item) => (
                 <button
                   type="button"
                   key={item.id}
                   aria-pressed={filter === item.id}
                   onClick={() => {
                     cancelPendingRequest();
-                    setReelOn(false);
                     setFilter(item.id);
                     trackHauntEvent("boo_preference_applied", { filter_id: item.id, pick_id: selectedPickId || "none" });
                   }}
@@ -2162,25 +2342,145 @@ export default function BoHalloweenHaunt({ model, share = null }) {
             </div>
           </div>
 
+          <div className="boo-facet-grid">
+            <label className="boo-facet-group">
+              <span className="boo-facet-label">Florida Region</span>
+              <select
+                className="boo-facet-select"
+                aria-label="Filter by Florida region"
+                value={regionFilter}
+                onChange={(e) => setRegionFilter(e.target.value)}
+              >
+                {regions.map((r) => (
+                  <option key={r.id} value={r.id}>{r.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="boo-facet-group">
+              <span className="boo-facet-label">Date or Window</span>
+              <select
+                className="boo-facet-select"
+                aria-label="Filter by date or time window"
+                value={dateFilter}
+                onChange={(e) => setDateFilter(e.target.value)}
+              >
+                <option value="all">Any Date or Window</option>
+                <option value="2026-10-29">Thu Oct 29, 2026</option>
+                <option value="2026-10-30">Fri Oct 30, 2026</option>
+                <option value="2026-10-31">Halloween Night · Sat Oct 31</option>
+                <option value="2026-11-01">Sun Nov 1, 2026</option>
+                <option value="daytime">Daytime Plans Only</option>
+                <option value="nighttime">After Dark Plans Only</option>
+              </select>
+            </label>
+
+            <label className="boo-facet-group">
+              <span className="boo-facet-label">Who Is Going</span>
+              <select
+                className="boo-facet-select"
+                aria-label="Filter by group suitability"
+                value={audienceFilter}
+                onChange={(e) => setAudienceFilter(e.target.value)}
+              >
+                {audiences.map((a) => (
+                  <option key={a.id} value={a.id}>{a.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="boo-facet-group">
+              <span className="boo-facet-label">Scare Intensity</span>
+              <select
+                className="boo-facet-select"
+                aria-label="Filter by scare intensity"
+                value={scareFilter}
+                onChange={(e) => setScareFilter(e.target.value)}
+              >
+                {scareBands.map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </label>
+
+            <label className="boo-facet-group">
+              <span className="boo-facet-label">Budget</span>
+              <select
+                className="boo-facet-select"
+                aria-label="Filter by budget"
+                value={budgetFilter}
+                onChange={(e) => setBudgetFilter(e.target.value)}
+              >
+                {budgetBands.map((b) => (
+                  <option key={b.id} value={b.id}>{b.label}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          {hasActiveFilters ? (
+            <div className="boo-active-filters" aria-live="polite">
+              <span>Showing {shown.length} of {haunts.length} verified Florida experiences</span>
+              {filter !== "all" ? <span className="boo-active-chip">Category: {filter}</span> : null}
+              {regionFilter !== "all" ? <span className="boo-active-chip">Region: {regionFilter}</span> : null}
+              {dateFilter !== "all" ? <span className="boo-active-chip">Window: {dateFilter}</span> : null}
+              {audienceFilter !== "all" ? <span className="boo-active-chip">Group: {audienceFilter}</span> : null}
+              {scareFilter !== "all" ? <span className="boo-active-chip">Scare: {scareFilter}</span> : null}
+              {budgetFilter !== "all" ? <span className="boo-active-chip">Budget: {budgetFilter}</span> : null}
+              <button type="button" className="boo-clear-btn" onClick={clearAllFilters}>
+                Clear All Filters
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {/* 4. Event Details & Ticket Choices */}
+        <div id="boo-vault" data-haunt-vault="">
+          <div className="boo-vault-header">
+            <p className="boo-vault-title">
+              {shown.length === haunts.length
+                ? haunts.length + " Verified Florida Halloween Experiences"
+                : shown.length + " Matching Florida Halloween Experiences"}
+            </p>
+          </div>
+
           {shown.length ? (
             <div className="boo-vault-grid">
               {shown.map((row) => {
-                const catLabel = row.filters.includes("family")
-                  ? "Family Friendly"
-                  : row.filters.includes("major")
-                    ? "Major Scream Parks"
-                    : "Local Haunted Trails";
+                const catObj = categories.find((c) => c.id === row.category);
+                const catLabel = catObj
+                  ? catObj.label
+                  : row.filters.includes("family")
+                    ? "Family Friendly"
+                    : row.filters.includes("major")
+                      ? "Major Scream Parks"
+                      : "Local Haunted Trails";
                 return (
                   <article
                     key={row.id}
                     id={"haunt-" + row.id}
                     data-haunt-id={row.id}
                     data-place-id={row.eventId || row.id}
+                    data-region={row.region}
+                    data-category={row.category}
                     className={"boo-card" + (activeId === row.id ? " is-active" : "") + (hotId === row.id ? " is-hot" : "")}
                     onMouseEnter={() => focusHaunt(row)}
                     onFocus={() => focusHaunt(row)}
                     onClick={() => focusHaunt(row, true)}
                   >
+                    {row.imageUrl ? (
+                      <div className="boo-card-media">
+                        <img
+                          className="boo-card-img"
+                          src={row.imageUrl}
+                          alt={row.imageAlt || row.name}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        {(row.imageBadge || row.imageKind) ? <span className="boo-photo-badge">{row.imageBadge || row.imageKind}</span> : null}
+                      </div>
+                    ) : null}
+
                     <div className="boo-card-top">
                       <div className="boo-card-badges">
                         <span className="boo-stop">{"STOP " + (haunts.indexOf(row) + 1)}</span>
@@ -2257,40 +2557,162 @@ export default function BoHalloweenHaunt({ model, share = null }) {
               })}
             </div>
           ) : (
-            <p>{chrome.empty}</p>
+            <div className="boo-empty-box" data-boo-empty="">
+              <h3>No exact matches for that combination</h3>
+              <p>{chrome.empty}</p>
+              <div className="boo-empty-actions">
+                {regionFilter !== "all" ? (
+                  <button type="button" className="boo-clear-btn" onClick={() => setRegionFilter("all")}>
+                    Broaden Region to All Florida
+                  </button>
+                ) : null}
+                {dateFilter !== "all" ? (
+                  <button type="button" className="boo-clear-btn" onClick={() => setDateFilter("all")}>
+                    Include All Dates
+                  </button>
+                ) : null}
+                {scareFilter !== "all" ? (
+                  <button type="button" className="boo-clear-btn" onClick={() => setScareFilter("all")}>
+                    Include All Scare Levels
+                  </button>
+                ) : null}
+                <button type="button" className="boo-clear-btn" onClick={clearAllFilters}>
+                  Reset All Filters ({haunts.length} Experiences)
+                </button>
+              </div>
+            </div>
           )}
-          <a className="boo-home is-fill boo-bottom-home" href="/">{chrome.homeBottom}</a>
         </div>
+
+        {/* 5. Practical Florida Halloween Planning Information */}
+        <section id="boo-planning-guide" className="boo-planning" aria-label="Practical Florida Halloween planning guide">
+          <h2>Florida Halloween Planning Guide</h2>
+          <p className="boo-planning-sub">
+            Honest logistics on separate nighttime tickets vs. daytime park admission, age suitability, and weather.
+          </p>
+          <div className="boo-planning-grid">
+            <div className="boo-planning-card">
+              <h3>1. Separate Ticket vs. Included Admission</h3>
+              <p>
+                Major nighttime haunts (Universal Horror Nights, Disney Not So Scary, Busch Gardens and SeaWorld Howl O Scream) require a separate evening ticket. Daytime fall events (SeaWorld Spooktacular, LEGOLAND Brick or Treat, Peppa Pig, ZooTampa, Zoo Miami, Clearwater Marine Aquarium) are included with regular admission.
+              </p>
+            </div>
+            <div className="boo-planning-card">
+              <h3>2. Age Guidance & Scare Intensity</h3>
+              <p>
+                Extreme haunts use intense fog, strobes, and startle actors and are recommended for ages 13 and up. Families with younger kids should filter by Kid Friendly (No Scares) or Mild Spooky Fun for trick or treat trails and costume parades.
+              </p>
+            </div>
+            <div className="boo-planning-card">
+              <h3>3. Timed Entry, Parking & Weather</h3>
+              <p>
+                Popular October nights sell out online ahead of the gate. Theme park parking runs $30 to $35 in Orlando and Tampa, while local trails like Sir Henry's and Scream A Geddon include free lot parking. Walking ghost tours run rain or shine.
+              </p>
+            </div>
+            <div className="boo-planning-card">
+              <h3>4. How Wayfind Ticket Links Work</h3>
+              <p>
+                When a verified partner (Undercover Tourist, Tiqets, or US Ghost Adventures) offers the exact admission type required, we link directly to that partner offer. When no partner carries the event, we link straight to the official venue box office or free community guide.
+              </p>
+            </div>
+          </div>
+          <a className="boo-home is-fill boo-bottom-home" href="/">{chrome.homeBottom}</a>
+        </section>
       </div>
 
-      {/* Floating Boo Companion */}
+      {/* Non-Intrusive Floating Boo Companion Dock */}
       {dismissed ? (
-        <button type="button" className="boo-show" onClick={() => setDismissed(false)}>{chrome.show}</button>
+        <button
+          type="button"
+          className="boo-show"
+          onClick={() => {
+            setDismissed(false);
+            persistSessionPref({ dismissed: false });
+          }}
+        >
+          {chrome.show}
+        </button>
       ) : (
-        <aside ref={flyRef} className={"boo-fly" + (flying ? " is-flying" : "") + (chatOpen ? " is-chat" : "") + (heroVisible && !chatOpen ? " is-docked" : "")} data-boo-fly="" aria-label={chrome.floatLabel}>
-          {flying ? <span className="boo-trail" aria-hidden="true"><i /><i /><i /><i /></span> : null}
+        <aside
+          ref={flyRef}
+          className={
+            "boo-fly" +
+            (chatOpen ? " is-chat" : "") +
+            (minimized ? " is-minimized" : "") +
+            (heroVisible && !chatOpen ? " is-hero-docked" : "") +
+            (keyboardOpen ? " is-keyboard" : "")
+          }
+          data-boo-fly=""
+          aria-label={chrome.floatLabel}
+        >
           <div className="boo-fly-card">
             <div className="boo-fly-col">
-              <button
-                type="button"
-                className="boo-drag"
-                aria-label={chrome.videoLabel}
-                onPointerDown={onDragDown}
-                onPointerMove={onDragMove}
-                onPointerUp={onDragUp}
-              >
+              {/* Decorative mascot artwork: pointer-events: none so underlying page links remain clickable */}
+              <div className="boo-fly-mascot" data-boo-decorative="true" aria-hidden="true">
                 <BooGhostSvg label="" face={pending ? "shock" : emote} costume={costume} />
-              </button>
+              </div>
               <div className="boo-fly-copy">
-                <p className="boo-kicker">{kicker}</p>
-                <button type="button" className="boo-float-bubble" data-boo-bubble="float" onClick={nextGag}>{bubble}</button>
+                {!minimized && !keyboardOpen ? (
+                  <p className="boo-float-bubble" data-boo-bubble="float">{bubble}</p>
+                ) : null}
                 <div className="boo-fly-btns">
-                  <button type="button" className="boo-open" onClick={() => setChatOpen((open) => !open)}>{chrome.openChat}</button>
-                  <button type="button" className="boo-hide" onClick={() => setDismissed(true)}>{chrome.hide}</button>
+                  <button
+                    type="button"
+                    className="boo-open"
+                    onClick={() => {
+                      setChatOpen((open) => {
+                        const next = !open;
+                        if (next) setMinimized(false);
+                        return next;
+                      });
+                    }}
+                  >
+                    {chatOpen ? "Close Chat" : chrome.openChat}
+                  </button>
+                  <button
+                    type="button"
+                    className="boo-min"
+                    aria-pressed={minimized}
+                    onClick={() => {
+                      setMinimized((prev) => {
+                        const next = !prev;
+                        if (next) setChatOpen(false);
+                        persistSessionPref({ minimized: next });
+                        return next;
+                      });
+                    }}
+                  >
+                    {minimized ? chrome.expand : chrome.minimize}
+                  </button>
+                  <button
+                    type="button"
+                    className="boo-min"
+                    aria-pressed={motionPaused}
+                    onClick={() => {
+                      setMotionPaused((prev) => {
+                        const next = !prev;
+                        persistSessionPref({ motionPaused: next });
+                        return next;
+                      });
+                    }}
+                  >
+                    {motionPaused ? chrome.resumeMotion : chrome.pauseMotion}
+                  </button>
+                  <button
+                    type="button"
+                    className="boo-hide"
+                    onClick={() => {
+                      setChatOpen(false);
+                      setDismissed(true);
+                      persistSessionPref({ dismissed: true });
+                    }}
+                  >
+                    {chrome.hide}
+                  </button>
                 </div>
               </div>
             </div>
-            {chatOpen ? chatBox(true) : null}
+            {chatOpen && !minimized ? chatBox(true) : null}
           </div>
         </aside>
       )}
