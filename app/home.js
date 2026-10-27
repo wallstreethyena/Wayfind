@@ -126,8 +126,23 @@ import { useBestPhoto } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
 // The community tools sit below the entire discovery feed. Keep their form
 // state and submission code out of the first screen bundle.
-const CommunityFooter = nextDynamic(() => import("./components/CommunityFooter"), { ssr: false });
-const PoweredByStrip = nextDynamic(() => import("./components/PoweredByStrip"), { ssr: false });
+// OPTIONAL CHROME NEVER TAKES THE SCREEN DOWN (2026-10-27). When one of these
+// chunks fails to load, next/dynamic throws inside the tree and the root
+// ErrorBoundary below replaced the ENTIRE home page with "That took a wrong
+// turn" — for a footer. On 2026-10-24 the CommunityFooter chunk timed out on
+// datacenter Chrome sessions (Azure IPs, 1920px, Chrome 141/142) and that
+// paged the owner as "Build v8.63.0 is crashing for real users". So: retry the
+// import once (a stale deploy or a slow link usually clears on the second
+// try), then render nothing and record `chunk_load_failed` — a delivery
+// problem, not a crash, and the Command Center counts it separately
+// (lib/commandCenter/alerts.js, chunk_failures). The reload-once recovery in
+// lib/chunkRecovery stays for the chunks the page cannot work without.
+const optionalChunk = (load, name) => nextDynamic(() => load().catch(() => load()).catch((e) => {
+  try { if (typeof window !== "undefined") captureOrQueue(window, "chunk_load_failed", { chunk: name, message: String((e && e.message) || "").slice(0, 200), build: BUILD_ID }); } catch (_) { /* best-effort */ }
+  return { default: () => null };
+}), { ssr: false });
+const CommunityFooter = optionalChunk(() => import("./components/CommunityFooter"), "CommunityFooter");
+const PoweredByStrip = optionalChunk(() => import("./components/PoweredByStrip"), "PoweredByStrip");
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map…</span></div> });
@@ -2773,7 +2788,19 @@ class MapErrorBoundary extends Component {
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hit: false, err: "" }; }
   static getDerivedStateFromError(e) { return { hit: true, err: String((e && e.message) || e || "").slice(0, 160) }; }
-  componentDidCatch(error) { try { if (typeof window !== "undefined") captureOrQueue(window, "app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
+  // Same two things app/components/RecoveryScreen.js does: hand a chunk
+  // failure to the layout's reload-once rule (lib/chunkRecovery, through
+  // window.__wfChunkRecover) and tag the event `chunk`, so the Command Center
+  // can tell "a script did not arrive" from "we shipped a crash" (2026-10-27:
+  // this boundary sent untagged events, so chunk timeouts paged as crashes).
+  componentDidCatch(error) {
+    try {
+      if (typeof window === "undefined") return;
+      let chunk = false;
+      try { if (typeof window.__wfChunkRecover === "function") chunk = !!window.__wfChunkRecover(error); } catch (e) { /* best-effort */ }
+      captureOrQueue(window, "app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID, chunk });
+    } catch (e) { /* best-effort */ }
+  }
   render() {
     if (this.state.hit) {
       return (
