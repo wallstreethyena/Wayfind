@@ -184,13 +184,12 @@ const CSS = `
 .boo-city{display:flex;align-items:center;gap:6px;margin:0;font-size:14px;color:var(--muted)}
 .boo-city svg{flex:0 0 auto;width:14px;height:14px}
 .boo-card h2{margin:0;font-size:19px;line-height:1.3;font-weight:700;color:var(--cream);overflow-wrap:anywhere}
-.boo-credit{margin:0;font-size:12px;line-height:1.4;color:var(--muted)}
+.boo-credit{margin:0;font-size:11px;line-height:1.4;color:var(--muted);opacity:.8}
 .boo-when{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
 .boo-pricerow{display:flex;align-items:baseline;gap:6px;margin:4px 0 0;min-width:0}
 .boo-from{font-size:14px;color:var(--muted)}
 .boo-amt{font-size:24px;line-height:1.2;font-weight:700;color:var(--cream)}
 .boo-note{margin:4px 0 0;font-size:15px;line-height:1.4;color:var(--cream)}
-.boo-tip{margin:0;font-size:14px;line-height:1.5;color:var(--cream)}
 .boo-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:4px;background:var(--orange);color:#0D1117;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;text-align:center}
 .boo-via{margin:0;font-size:12px;line-height:1.4;color:var(--muted);text-align:center}
 .boo-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:var(--lav);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
@@ -432,7 +431,6 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                         </p>
                       );
                     })()}
-                    <p className="boo-tip">{row.tip}</p>
                     <a className="boo-buy" href={row.cta.href} rel={row.cta.rel}>{row.cta.label}</a>
                     <p className="boo-via">{row.cta.via}</p>
                     <a className="boo-event" href={row.eventHref}>{chrome.eventPage}</a>

@@ -126,15 +126,15 @@ const CSS = `
 .boo-m.u{align-self:flex-end;background:#F97316;color:#1A0E05;font-weight:600;border-bottom-right-radius:5px}
 .boo-m.t{color:#9A94A8;font-style:italic}
 .boo-m a{color:#C4B5FD}
-.boo-cards{display:flex;flex-direction:column;gap:8px}
-.boo-card{background:#14111D;border:1px solid rgba(196,181,253,.16);border-radius:16px;padding:12px}
-.boo-card h4{margin:0;font-size:15px;font-weight:700;line-height:1.25}
-.boo-card p{margin:3px 0 0;font-size:12.5px;color:#9A94A8}
-.boo-card a{display:block;margin-top:10px;text-align:center;background:#F97316;color:#1A0E05;font-weight:800;font-size:15px;padding:13px 14px;border-radius:12px;text-decoration:none;min-height:44px;box-sizing:border-box}
-.boo-card a:focus-visible{outline:2px solid #F5EFE6;outline-offset:2px}
-.boo-chips{display:flex;flex-wrap:wrap;gap:7px;padding-top:2px}
-.boo-chip{all:unset;box-sizing:border-box;cursor:pointer;font-size:13px;font-weight:600;color:#C4B5FD;border:1px solid rgba(196,181,253,.3);padding:8px 12px;border-radius:999px}
-.boo-chip:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.boo-s-cards{display:flex;flex-direction:column;gap:8px}
+.boo-s-card{background:#14111D;border:1px solid rgba(196,181,253,.16);border-radius:16px;padding:12px}
+.boo-s-card h4{margin:0;font-size:15px;font-weight:700;line-height:1.25}
+.boo-s-card p{margin:3px 0 0;font-size:12.5px;color:#9A94A8}
+.boo-s-card a{display:block;margin-top:10px;text-align:center;background:#F97316;color:#1A0E05;font-weight:800;font-size:15px;padding:13px 14px;border-radius:12px;text-decoration:none;min-height:44px;box-sizing:border-box}
+.boo-s-card a:focus-visible{outline:2px solid #F5EFE6;outline-offset:2px}
+.boo-s-chips{display:flex;flex-wrap:wrap;gap:7px;padding-top:2px}
+.boo-s-chip{all:unset;box-sizing:border-box;cursor:pointer;font-size:13px;font-weight:600;color:#C4B5FD;border:1px solid rgba(196,181,253,.3);padding:8px 12px;border-radius:999px}
+.boo-s-chip:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-wrap{display:block;text-align:center;color:#1A0E05;background:#F5EFE6;font-weight:800;font-size:14px;padding:12px;border-radius:12px;text-decoration:none}
 .boo-s-foot{flex:none;display:flex;gap:8px;padding:8px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(196,181,253,.12)}
 .boo-in{flex:1;min-width:0;box-sizing:border-box;background:#07060B;color:#F5EFE6;border:1px solid rgba(196,181,253,.25);border-radius:12px;padding:0 12px;height:44px;font:500 16px var(--wf-sans),system-ui,sans-serif}
@@ -579,9 +579,9 @@ export default function BooCompanion() {
               ))}
               {pending ? <div className="boo-m b t">Boo is rattling the chains...</div> : null}
               {cards.length ? (
-                <div className="boo-cards">
+                <div className="boo-s-cards">
                   {cards.map((c, i) => (
-                    <div className="boo-card" key={(c.id || "c") + i}>
+                    <div className="boo-s-card" key={(c.id || "c") + i}>
                       <h4>{c.name}</h4>
                       <p>{[c.city, c.priceLabel, c.timing].filter(Boolean).join(" · ")}</p>
                       <a
@@ -598,8 +598,8 @@ export default function BooCompanion() {
               ) : null}
               {wrapped ? <a className="boo-wrap" href={HAUNT_PATH}>Open the full haunt list</a> : null}
               {!wrapped && !hasUser && !pending ? (
-                <div className="boo-chips">
-                  {chips.map((c) => (<button type="button" key={c} className="boo-chip" onClick={() => send(c, "chip")}>{c}</button>))}
+                <div className="boo-s-chips">
+                  {chips.map((c) => (<button type="button" key={c} className="boo-s-chip" onClick={() => send(c, "chip")}>{c}</button>))}
                 </div>
               ) : null}
             </div>
