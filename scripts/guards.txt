@@ -2399,3 +2399,4 @@ node scripts/test-search-food-synonyms.mjs
 node scripts/test-share-intent-fit.mjs
 node scripts/check-inventory-refresh-free-tier.mjs
 node scripts/test-inventory-free-refresh.mjs
+node scripts/test-richness-loading-path.mjs
