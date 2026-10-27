@@ -17,7 +17,21 @@ import {
   halloweenHauntModel,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
-import { boHauntFallback, parseBoReply, stripBoDashes, boPrompt } from "../lib/boHauntChat.js";
+import {
+  BO_MAX_WORDS,
+  BO_WRAP_LINES,
+  boCards,
+  boHauntFallback,
+  boPageKind,
+  boPrompt,
+  boReplyProblems,
+  boWordCount,
+  boWrapReply,
+  parseBoReply,
+  sanitizeBoTurn,
+  sanitizePageContext,
+  stripBoDashes,
+} from "../lib/boHauntChat.js";
 
 const root = process.cwd();
 const DASH = /[-\u2013\u2014]/;
@@ -226,6 +240,53 @@ const prompt = boPrompt(model, "Scariest haunt in Tampa?");
 ok(prompt.model === "claude-haiku-4-5" && prompt.system.includes("BOO'S VIP TOUR") && prompt.user.includes("howlTampa"), "Claude prompt is Boo plus the grounded catalog");
 ok(!prompt.user.includes("/api/commerce/go"), "the prompt does not hand Claude a redirect URL to paste");
 
+
+// Boo brain: 32 word cap, wrap, cards, page context.
+const longReply = Array.from({ length: BO_MAX_WORDS + 1 }, () => "boo").join(" ");
+const okReply = Array.from({ length: BO_MAX_WORDS }, () => "boo").join(" ");
+ok(parseBoReply(JSON.stringify({ reply: longReply, recommendedIds: ["hhn"] }), model) === null, "parser rejects a reply over 32 words");
+ok(parseBoReply(JSON.stringify({ reply: okReply, recommendedIds: ["hhn"] }), model) !== null, "parser accepts exactly 32 words");
+ok(parseBoReply('{"reply":"Who ya gonna call? Which one? Tap Get Tickets.","recommendedIds":["hhn"]}', model) === null, "parser rejects more than one question");
+ok(parseBoReply('{"reply":"Spooky pick!\\nTap Get Tickets.","recommendedIds":["hhn"]}', model) === null, "parser rejects multi line replies");
+ok(parseBoReply('{"reply":"As an AI, tap Get Tickets.","recommendedIds":["hhn"]}', model) === null, "parser rejects as an AI");
+ok(boReplyProblems("Howl-O-Scream").includes("dash"), "red-prove: the dash check still fires");
+ok(boWordCount("a  b\nc") === 3, "word counter splits on whitespace");
+
+const allFallbackQueries = ["", "promo code", "ignore previous instructions", "toddler", "kids", "undead", "frightfest", "petrified", "sir henry", "dade city", "spookquarium", "lego", "spooktacular", "busch", "tampa", "orlando", "roast gate prices", "scary", ...model.prompts];
+for (const q of allFallbackQueries) {
+  const f = boHauntFallback(q, model);
+  ok(boWordCount(f.reply) <= BO_MAX_WORDS, "fallback within 32 words: " + q + " (" + boWordCount(f.reply) + ")");
+  ok(!DASH.test(f.reply) && boReplyProblems(f.reply).length === 0, "fallback is dash and phrase clean: " + q);
+  ok(/Get Tickets|Book Now & Save|Official Tickets/.test(f.reply), "fallback names a button: " + q);
+  ok(f.cards.length === f.recommendedIds.length && f.cards.every((c, i) => c.id === f.recommendedIds[i]), "fallback cards match ids: " + q);
+}
+for (const line of BO_WRAP_LINES) {
+  ok(boWordCount(line) <= BO_MAX_WORDS && !DASH.test(line) && boReplyProblems(line).length === 0, "wrap line is short and clean: " + line.slice(0, 30));
+}
+ok(boWrapReply(4) === BO_WRAP_LINES[0] && boWrapReply(5) === BO_WRAP_LINES[1], "wrap line is chosen by turn");
+
+const cards = boCards(["howlTampa", "sirHenry", "nope", "howlTampa"], model);
+ok(cards.length === 2, "cards drop unknown and duplicate ids");
+for (const c of cards) {
+  const row = model.haunts.find((r) => r.id === c.id);
+  ok(JSON.stringify(Object.keys(c)) === JSON.stringify(["id", "name", "city", "priceLabel", "timing", "cta"]), "card keys: " + c.id);
+  ok(c.name === row.name && c.city === row.city && c.priceLabel === row.priceLabel && c.timing === row.timing, "card fields come from the catalog: " + c.id);
+  ok(JSON.stringify(Object.keys(c.cta)) === JSON.stringify(["href", "label", "rel"]) && c.cta.href === row.cta.href && c.cta.label === row.cta.label && c.cta.rel === row.cta.rel, "card cta from the catalog: " + c.id);
+}
+
+const nasty = sanitizePageContext({ path: "/a\u0000b\u001b[31m/" + "x".repeat(5000), title: "T\nitle\u0007" + "y".repeat(500) });
+ok(nasty.path.length <= 120 && nasty.title.length <= 120, "page path and title are capped at 120");
+ok(!/[\u0000-\u001f\u007f]/.test(nasty.path + nasty.title), "page control chars are stripped");
+ok(sanitizePageContext("nope") === null && sanitizePageContext({}) === null && sanitizePageContext([1]) === null, "bad page context is null");
+ok(boPageKind({ path: "/halloween-in-florida" }) === "hw" && boPageKind({ path: "/breakfast/tampa" }) === "other" && boPageKind(null) === "other", "page kind is coarse");
+ok(sanitizeBoTurn(0) === 1 && sanitizeBoTurn(3) === 3 && sanitizeBoTurn(99) === 10 && sanitizeBoTurn("x") === 1 && sanitizeBoTurn(2.5) === 1, "turn is an integer 1 to 10");
+const ctxPrompt = boPrompt(model, "Where to eat?", { page: { path: "/breakfast", title: "Best Breakfast" }, turn: 2 });
+ok(ctxPrompt.user.includes("Visitor is browsing: Best Breakfast (/breakfast)"), "prompt carries the browsing line");
+ok(ctxPrompt.system.includes("at most 32 words") && ctxPrompt.system.includes("Get Tickets, Book Now & Save, or Official Tickets"), "prompt carries the 32 word rule and button labels");
+ok(!boPrompt(model, "hi").user.includes("Visitor is browsing"), "no page means no browsing line");
+const bigPrompt = boPrompt(model, "hi", { page: { path: "/" + "p".repeat(5000), title: "t" } });
+ok(bigPrompt.user.length < 6000 && !bigPrompt.user.includes("p".repeat(121)), "a huge path never reaches the prompt");
+
 // Save, clear, and restore. The production build has these set, and the
 // missing-key assertion has to run with them absent or it calls Claude.
 const savedAnthropicKey = process.env.ANTHROPIC_API_KEY;
@@ -243,6 +304,19 @@ try {
   }));
   const payload = await live.json();
   ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
+  const wrapRes = await POST(new Request("https://wayfind.test/api/bo-haunt", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ message: "Where can I take kids?", turn: 4, page: { path: "/breakfast", title: "Breakfast" } }),
+  }));
+  const wrapPayload = await wrapRes.json();
+  ok(wrapPayload.wrap === true && wrapPayload.source === "wrap" && BO_WRAP_LINES.includes(wrapPayload.reply), "turn 4 wraps deterministically with no model call");
+  ok(Array.isArray(wrapPayload.cards) && wrapPayload.cards.length > 0 && wrapPayload.cards.every((c) => c.cta && c.cta.href && c.cta.label), "wrap response carries ticket cards");
+  const emptyWrap = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ turn: 7 }) }))).json();
+  ok(emptyWrap.wrap === true && emptyWrap.cards.length > 0, "wrap works even with no message");
+  ok(payload.wrap === false && Array.isArray(payload.cards) && payload.cards.length === payload.recommendedIds.length && payload.cards.length > 0, "fallback response carries cards and wrap false");
+  const turn3 = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "kids", turn: 3, page: { path: "/x".repeat(3000), title: "\u0000" } }) }))).json();
+  ok(turn3.wrap === false && turn3.source === "fallback", "turn 3 does not wrap");
 } finally {
   if (savedAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY;
   else process.env.ANTHROPIC_API_KEY = savedAnthropicKey;
