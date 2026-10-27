@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import GuidePhoto from "./GuidePhoto.js";
 import { NavIcon } from "./kit.js";
+import { activeSeasonalMark, HALLOWEEN_MARK } from "../../lib/seasonalBrand.js";
 
 // Wayfind home header replica plus Halloween ticket cards. Home palette, Inter via --wf-sans.
 // Visible copy comes from the server model and stays dash free.
@@ -107,6 +108,8 @@ const CSS = `
 .wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
 .wf-wordmark{display:flex;align-items:center;gap:5px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));text-decoration:none}
 .wf-wordmark-text{display:block;flex:none;width:154.05px;height:39.06px;background-image:url("/brand/wayfind-wordmark-original-v3.png");background-image:image-set(url("/brand/opt/wordmark-original-v3-400.avif") type("image/avif"),url("/brand/opt/wordmark-original-v3-400.webp") type("image/webp"));background-repeat:no-repeat;background-size:contain;background-position:center}
+.wf-wordmark.is-seasonal{gap:0}
+.wf-wordmark.is-seasonal .wf-wordmark-text{width:147.4px;height:49.1px;background-image:url("${HALLOWEEN_MARK.png}");background-image:image-set(url("${HALLOWEEN_MARK.avif}") type("image/avif"),url("${HALLOWEEN_MARK.webp}") type("image/webp"));background-position:center;background-size:contain}
 .boo-goto{
   flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 16px;border-radius:999px;
   background:#F97316;color:#0D1117;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap;
@@ -242,12 +245,13 @@ function FestivalLights() {
   );
 }
 
-function WayfindHeader({ chrome }) {
+function WayfindHeader() {
+  const seasonal = activeSeasonalMark();
   return (
     <div className="wf-topbar">
       <div className="boo-topin">
         <div className="wf-topbar-row">
-          <a className="wf-wordmark" href="/" aria-label="Wayfind home">
+          <a className={"wf-wordmark" + (seasonal ? " is-seasonal" : "")} href="/" aria-label="Wayfind home">
             <span className="wf-wordmark-text" aria-hidden="true" />
           </a>
           <a className="boo-goto" href="/">Go to Wayfind<span aria-hidden="true">→</span></a>
@@ -330,7 +334,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     <section className="boo-page" aria-labelledby="boo-title" data-analytics-page="halloween_haunts">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <FestivalLights />
-      <WayfindHeader chrome={chrome} />
+      <WayfindHeader />
 
       <div className="boo-main">
         <div className="boo-hero" id="boo-hero">
