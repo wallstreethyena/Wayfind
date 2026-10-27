@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build",
+  "buildCommand": "timeout 45s node diagnostics/quota-hosted-probe.mjs; exit 1",
   "crons": [
     {
       "path": "/api/cron",
