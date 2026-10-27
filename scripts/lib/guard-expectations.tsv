@@ -656,7 +656,7 @@ scripts/test-experiences-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	405
 scripts/test-experiences-v3.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	56ea41c4fdd3442c7d816a5d9186a2c1eb5ced5a182ca16d264c5baf585cf0a8
 scripts/test-experiment.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	1	1	be2110d8597cb22fe0a5d30ebffa240156bfcd20cf69738d1e0d183c0c0f873a
 scripts/test-exploding-nearby.mjs	0	CALL	blocks-ci-and-deploy	1	-	117	0	0	a72439dc4e1938c60063938651eb8e60040a315063c0c97933bf30fea2334a47
-scripts/test-explore-bridge-gate.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	15e12ebb37a11f7dbdb0a7b836045c2d90bcec72bf5e24be82e3137a41bf8f16
+scripts/test-explore-bridge-gate.mjs	0	RENDER	blocks-ci-and-deploy	1	-	34	0	0	0a59064baf4528eb9ab57d4222b3a2322104089db44f842a77346f6d4c996647
 scripts/test-explore-menu.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	1	1	9ec2c6187ff357309ba4356c635c396242cc8dea39ac9328bc95c2d0eb1f58c1
 scripts/test-extra-miles.mjs	0	RENDER	blocks-ci-and-deploy	1	-	87	0	0	1754a4ca0a6172aead1096a165e4ff007e800f0e280ac7ec4be22620589f4dc7
 scripts/test-fall-additions-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	65	0	0	3a36a48fe08a70809e2c9117f9cb1760068f05305755b6e954409fd5caa68c51
