@@ -18,7 +18,14 @@ import {
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
 import {
+  BO_ANTICS,
+  BO_GAG_MAX_WORDS,
+  BO_GAG_POOL,
   BO_MAX_WORDS,
+  boGagFallback,
+  boGagPrompt,
+  parseBoGag,
+  sanitizeAntic,
   BO_WRAP_LINES,
   boCards,
   boHauntFallback,
@@ -287,6 +294,27 @@ ok(!boPrompt(model, "hi").user.includes("Visitor is browsing"), "no page means n
 const bigPrompt = boPrompt(model, "hi", { page: { path: "/" + "p".repeat(5000), title: "t" } });
 ok(bigPrompt.user.length < 6000 && !bigPrompt.user.includes("p".repeat(121)), "a huge path never reaches the prompt");
 
+const ANTICS_EXPECTED = ["wave", "spin", "peekaboo", "shiver", "zoomies", "nap", "bow", "juggle"];
+ok(JSON.stringify(BO_ANTICS) === JSON.stringify(ANTICS_EXPECTED), "antic list is exactly the eight contract values");
+ok(sanitizeAntic("spin") === "spin" && sanitizeAntic("SPIN") === "spin" && sanitizeAntic("backflip") === "wave" && sanitizeAntic(undefined) === "wave" && sanitizeAntic({}) === "wave", "antic validates and defaults to wave");
+ok(parseBoReply('{"reply":"Spooky pick! Tap Get Tickets.","recommendedIds":["hhn"],"antic":"juggle"}', model).antic === "juggle", "parser keeps a valid antic");
+ok(parseBoReply('{"reply":"Spooky pick! Tap Get Tickets.","recommendedIds":["hhn"],"antic":"explode"}', model).antic === "wave", "parser defaults an invalid antic to wave");
+ok(parseBoReply('{"reply":"Spooky pick! Tap Get Tickets.","recommendedIds":["hhn"]}', model).antic === "wave", "parser defaults a missing antic to wave");
+for (const q of allFallbackQueries) ok(ANTICS_EXPECTED.includes(boHauntFallback(q, model).antic), "fallback has a valid antic: " + q);
+ok(boPrompt(model, "hi").system.includes("antic is exactly one of: wave, spin"), "prompt asks for an antic");
+
+ok(parseBoGag('{"gag":"Witch way to the candy?","antic":"zoomies"}').antic === "zoomies", "gag parser keeps antic");
+ok(parseBoGag('{"gag":"Witch way to the candy?","antic":"zzz"}').antic === "wave", "gag parser defaults antic");
+ok(parseBoGag(JSON.stringify({ gag: Array.from({ length: BO_GAG_MAX_WORDS + 1 }, () => "boo").join(" ") })) === null, "gag parser rejects over 11 words");
+ok(parseBoGag('{"gag":"Boo-tiful day, ghoul."}').gag === "Boo tiful day, ghoul.", "gag parser strips dashes");
+ok(parseBoGag('{"gag":"Visit https://x.com now"}') === null && parseBoGag('{"gag":"The best ghost right now"}') === null, "gag parser rejects urls and banned phrases");
+ok(boGagPrompt({ path: "/b", title: "Breakfast" }).maxTokens <= 60 && boGagPrompt(null).user.length > 0, "gag prompt is tiny");
+ok(BO_GAG_POOL.length >= 8, "local pun pool exists");
+for (let i = 0; i < BO_GAG_POOL.length + 2; i++) {
+  const g = boGagFallback(null, i);
+  ok(boWordCount(g.gag) <= BO_GAG_MAX_WORDS && !DASH.test(g.gag) && boReplyProblems(g.gag).length === 0 && ANTICS_EXPECTED.includes(g.antic), "pool gag " + i + " is short, clean, valid antic");
+}
+
 // Save, clear, and restore. The production build has these set, and the
 // missing-key assertion has to run with them absent or it calls Claude.
 const savedAnthropicKey = process.env.ANTHROPIC_API_KEY;
@@ -315,6 +343,9 @@ try {
   const emptyWrap = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ turn: 7 }) }))).json();
   ok(emptyWrap.wrap === true && emptyWrap.cards.length > 0, "wrap works even with no message");
   ok(payload.wrap === false && Array.isArray(payload.cards) && payload.cards.length === payload.recommendedIds.length && payload.cards.length > 0, "fallback response carries cards and wrap false");
+  const gagRes = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ mode: "gag", page: { path: "/breakfast", title: "Breakfast" } }) }))).json();
+  ok(typeof gagRes.gag === "string" && boWordCount(gagRes.gag) <= BO_GAG_MAX_WORDS && !DASH.test(gagRes.gag) && ANTICS_EXPECTED.includes(gagRes.antic) && gagRes.source === "fallback", "gag mode without a key returns a pool gag with antic");
+  ok(ANTICS_EXPECTED.includes(payload.antic) && ANTICS_EXPECTED.includes(wrapPayload.antic), "route responses carry a valid antic");
   const turn3 = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "kids", turn: 3, page: { path: "/x".repeat(3000), title: "\u0000" } }) }))).json();
   ok(turn3.wrap === false && turn3.source === "fallback", "turn 3 does not wrap");
 } finally {
