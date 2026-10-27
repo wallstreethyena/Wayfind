@@ -182,6 +182,38 @@ try {
     measured[label] = r;
     await ctx.close();
   }
+  // The shared bridge must fit the article's reading column, including its
+  // no-city/no-picks state (the owner's mobile screenshot) and long city names.
+  for (const width of [320, 375, 390, 768, 1280]) {
+    const ctx = await browser.newContext({ viewport: { width, height: 900 } });
+    const page = await ctx.newPage();
+    for (const city of [null, { ...CITY, name: "St. Petersburg and the Gulf Beaches" }]) {
+      const markup = renderToStaticMarkup(React.createElement(Gate, { city, picks: city ? PICKS : [], entryPage: "/guides/fixture", pageType: "guide" }));
+      await page.setContent(`<!doctype html><html data-wf-bridge="treatment"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="margin:0;padding:16px;background:#040810;font:16px sans-serif"><article style="max-width:780px;margin:auto">${markup}</article></body></html>`);
+      // No hydration/analytics in this isolated render; release its links in
+      // the same way as the existing first-paint contract above.
+      const geometry = await page.evaluate(() => {
+        const aside = document.querySelector('[data-explore-bridge]');
+        aside.removeAttribute('inert');
+        aside.setAttribute('data-ready', '');
+        const r = aside.getBoundingClientRect();
+        const links = [...aside.querySelectorAll('.wf-bridge-intent,.wf-bridge-primary')].map((a) => {
+          const box = a.getBoundingClientRect();
+          const range = document.createRange();
+          range.selectNodeContents(a);
+          const text = range.getBoundingClientRect();
+          return { height: box.height, left: box.left, right: box.right, textLeft: text.left, textRight: text.right };
+        });
+        return { width: innerWidth, height: r.height, left: r.left, right: r.right, overflow: document.documentElement.scrollWidth > innerWidth, bg: getComputedStyle(aside).backgroundColor, links };
+      });
+      const label = `${width}px / ${city ? 'long city with picks' : 'no city or picks'}`;
+      ok(geometry.width === width && !geometry.overflow, `${label}: achieved viewport, no horizontal page overflow`);
+      ok(geometry.bg === 'rgb(14, 21, 32)', `${label}: shared dark panel, no cream override`);
+      ok(geometry.links.length === 5 && geometry.links.every((a) => a.height >= 44 && a.left >= geometry.left && a.right <= geometry.right && a.textLeft >= a.left && a.textRight <= a.right + 1), `${label}: all five controls and labels fit, minimum 44px targets`);
+      if (!city && width === 390) ok(geometry.height <= 230, `390px empty state stays compact (${geometry.height}px)`);
+    }
+    await ctx.close();
+  }
 } finally { await browser.close(); }
 const { treatment: T, control: C, automation: X } = measured;
 ok(T.innerWidth === 390 && C.innerWidth === 390, "measured at a real 390px viewport");

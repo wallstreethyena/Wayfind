@@ -845,7 +845,7 @@ export default async function GuidePage({ params }) {
       <style dangerouslySetInnerHTML={{ __html: `
         .wf-guide-article{max-width:860px;margin:0 auto}
         .wf-guide-intro{max-width:760px;font-family:Georgia,"Times New Roman",serif;font-size:21px;line-height:1.55;color:#F1F5F9}
-        .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#CBD5E1;margin:12px 4px 28px;padding:0 0 12px;border-bottom:1px solid #2D3748}
+        .wf-guide-disclosure{font-size:13px;line-height:1.5;color:#94A3B8;margin:12px 0 20px;padding:0}
         /* RIGHT NOW block — server-rendered, so it is in the indexed HTML. */
         .wf-guide-now{margin:26px 0 8px;padding:18px 20px;border-radius:14px;background:rgba(249,115,22,.07);border:1px solid rgba(249,115,22,.30)}
         .wf-guide-now-head{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#FDBA74;margin-bottom:6px}

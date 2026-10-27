@@ -56,18 +56,29 @@ import CardPhoto from "./CardPhoto.js";
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 const S = {
-  wrap: { margin: "17px 0 24px", padding: "16px 19px", background: "#F6EFE5", borderTop: "3px solid #D66320", borderRadius: 4, boxShadow: "0 16px 42px rgba(0,0,0,.15)" },
-  q: { fontFamily: "var(--wf-display)", fontSize: 22, fontWeight: 500, color: "#111B29", margin: 0, letterSpacing: "-0.35px" },
-  chips: { display: "flex", gap: 7, overflowX: "auto", overscrollBehaviorX: "contain", padding: "0 0 3px", WebkitOverflowScrolling: "touch" },
-  chip: { flex: "0 0 auto", display: "inline-flex", alignItems: "center", gap: 5, background: "transparent", borderBottom: "1px solid #CFC4B6", padding: "7px 5px", color: "#263448", textDecoration: "none", fontSize: 12.5, fontWeight: 800, minHeight: 36 },
-  pickHead: { fontSize: 10.5, fontWeight: 900, letterSpacing: "1.3px", textTransform: "uppercase", color: "#C85E1D", margin: "14px 0 7px" },
-  card: { display: "flex", gap: 10, alignItems: "stretch", background: "rgba(255,255,255,.5)", border: "1px solid #DDD4C9", borderRadius: 13, overflow: "hidden", textDecoration: "none", color: "#111B29", marginBottom: 7 },
+  wrap: { margin: "16px 0 20px", padding: 16, background: "#0E1520", border: "1px solid #29313C", borderRadius: 14, minWidth: 0, boxSizing: "border-box", fontFamily: "var(--wf-sans)", color: "#F1F5F9" },
+  q: { fontFamily: "var(--wf-display)", fontSize: 22, lineHeight: 1.3, fontWeight: 500, color: "#F1F5F9", margin: "0 0 16px", letterSpacing: "-0.35px", overflowWrap: "anywhere" },
+  chips: { display: "grid", gridTemplateColumns: "repeat(4,minmax(0,1fr))", gap: 6 },
+  chip: { display: "inline-flex", justifyContent: "center", alignItems: "center", gap: 4, background: "#161B22", border: "1px solid #2D3748", borderRadius: 12, padding: "8px 4px", boxSizing: "border-box", color: "#E2E8F0", textDecoration: "none", fontSize: 12, lineHeight: 1.3, fontWeight: 600, minHeight: 44, minWidth: 0, whiteSpace: "nowrap" },
+  pickHead: { fontSize: 11, fontWeight: 700, letterSpacing: "1.2px", textTransform: "uppercase", color: "#FDBA74", margin: "18px 0 8px" },
+  card: { display: "flex", gap: 10, alignItems: "stretch", background: "#161B22", border: "1px solid #2D3748", borderRadius: 13, overflow: "hidden", textDecoration: "none", color: "#F1F5F9", marginBottom: 7 },
   body: { padding: "8px 10px 8px 0", flex: 1, minWidth: 0 },
   name: { fontSize: 14.5, fontWeight: 800, lineHeight: 1.25, marginBottom: 2, display: "-webkit-box", WebkitLineClamp: 1, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  meta: { display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", fontSize: 12, color: "#627086" },
-  reason: { fontSize: 11.5, color: "#657287", marginTop: 3, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
-  all: { display: "inline-flex", alignItems: "center", justifyContent: "center", marginTop: 9, background: "#F67822", color: "#101720", fontWeight: 900, fontSize: 12.5, padding: "9px 15px", borderRadius: 999, textDecoration: "none", minHeight: 38 },
+  meta: { display: "flex", alignItems: "center", gap: 7, flexWrap: "wrap", fontSize: 12, color: "#94A3B8" },
+  reason: { fontSize: 12, color: "#CBD5E1", marginTop: 3, lineHeight: 1.4, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" },
+  all: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginTop: 12, background: "#F97316", color: "#101720", fontWeight: 700, fontSize: 14, lineHeight: 1.4, padding: "12px 16px", borderRadius: 12, textDecoration: "none", minHeight: 46, boxSizing: "border-box", overflowWrap: "anywhere" },
 };
+
+// Consistent line icons keep the navigation legible across browser platforms.
+function IntentIcon({ kind }) {
+  const paths = {
+    tonight: "M20.9 13.1A9 9 0 0 1 10.9 3.1 9 9 0 1 0 20.9 13.1Z",
+    free: "M4 5h16v4a3 3 0 0 0 0 6v4H4v-4a3 3 0 0 0 0-6V5Zm8 0v3m0 3v2m0 3v3",
+    family: "M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2m20 0v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8M13 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
+    near: "M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0ZM15 10a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  };
+  return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false" style={{ flexShrink: 0 }}><path d={paths[kind]} /></svg>;
+}
 
 export default function ExploreBridge({ city, picks, entryPage, pageType }) {
   // Under a PhotoPolicyProvider (guides) these 82px thumbnails show no Google
@@ -122,27 +133,29 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
   if (resolved && variant !== "treatment") return null;
 
   const intents = [
-    { k: "tonight", icon: "🌙", label: "Tonight", href: "/?go=events" },
-    { k: "free", icon: "🎟️", label: "Free", href: "/?q=" + encodeURIComponent("free things to do" + (where ? " in " + where : "")) },
-    { k: "family", icon: "👨‍👩‍👧", label: "Family", href: "/?q=" + encodeURIComponent("family friendly things to do" + (where ? " in " + where : "")) },
-    { k: "near", icon: "📍", label: "Near me", href: "/" },
+    { k: "tonight", label: "Tonight", href: "/?go=events" },
+    { k: "free", label: "Free", href: "/?q=" + encodeURIComponent("free things to do" + (where ? " in " + where : "")) },
+    { k: "family", label: "Family", href: "/?q=" + encodeURIComponent("family friendly things to do" + (where ? " in " + where : "")) },
+    { k: "near", label: "Near me", href: "/" },
   ];
 
   return (
     <aside data-explore-bridge="" data-ready={resolved ? "" : undefined} inert={resolved ? undefined : "inert"} style={S.wrap} aria-label={"Find something to do" + (where ? " in " + where : "")}>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 18, flexWrap: "wrap" }}>
-        <div>
-          <div style={{ color: "#C85E1D", fontSize: 9.5, fontWeight: 900, letterSpacing: "1.7px", textTransform: "uppercase", marginBottom: 4 }}>Choose your lens</div>
-          <p style={S.q}>What are you looking for{where ? " in " + where : ""}?</p>
-        </div>
-        <div style={S.chips}>
-          {intents.map((i) => (
-            <a key={i.k} href={dh(i.href)} onClick={() => go("intent_chip", { kind: i.k, city: where || null })} style={S.chip}>
-              <span aria-hidden="true">{i.icon}</span>{i.label}
-            </a>
-          ))}
-        </div>
-      </div>
+      <style dangerouslySetInnerHTML={{ __html: `
+        [data-explore-bridge] a:focus-visible{outline:2px solid #FDBA74;outline-offset:3px}
+        [data-explore-bridge] .wf-bridge-intent:hover{border-color:#F97316!important;color:#FDBA74!important}
+        [data-explore-bridge] .wf-bridge-primary:hover{background:#FB923C!important}
+        @media(max-width:380px){[data-explore-bridge] .wf-bridge-intents{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+      ` }} />
+      <div style={{ color: "#FDBA74", fontSize: 10, fontWeight: 700, letterSpacing: "1.4px", textTransform: "uppercase", marginBottom: 6 }}>Find your next stop</div>
+      <p style={S.q}>What are you looking for{where ? " in " + where : ""}?</p>
+      <nav className="wf-bridge-intents" style={S.chips} aria-label="Explore by interest">
+        {intents.map((i) => (
+          <a className="wf-bridge-intent" key={i.k} href={dh(i.href)} onClick={() => go("intent_chip", { kind: i.k, city: where || null })} style={S.chip}>
+            <IntentIcon kind={i.k} />{i.label}
+          </a>
+        ))}
+      </nav>
 
       {list.length ? (
         <>
@@ -174,8 +187,8 @@ export default function ExploreBridge({ city, picks, entryPage, pageType }) {
         </>
       ) : null}
 
-      <a href={dh("/")} onClick={() => go("cta_open_app", { kind: "bridge_primary", city: where || null })} style={S.all}>
-        {where ? "See everything open in " + where : "See everything open near you"} →
+      <a className="wf-bridge-primary" href={dh("/")} onClick={() => go("cta_open_app", { kind: "bridge_primary", city: where || null })} style={S.all}>
+        <span>{where ? "Explore " + where : "Explore nearby"}</span><span aria-hidden="true">→</span>
       </a>
     </aside>
   );

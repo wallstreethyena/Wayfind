@@ -64,8 +64,8 @@ export const GUIDE_EDITORIAL_CSS = `
 .wf-guide-editorial .wf-guide-article{max-width:780px;padding-top:30px}
 .wf-guide-editorial .wf-guide-intro{font:400 23px/1.65 var(--wf-display),Georgia,serif!important;color:#eef0ed!important;margin:24px 0!important}
 .wf-guide-editorial .wf-guide-teaser{color:#f9c39a!important;font-weight:500!important;border-left:2px solid #f67822;padding-left:18px}
-.wf-guide-outline{margin:28px 0}.wf-guide-outline summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#e9edf3;font-weight:700}.wf-guide-outline summary::after{content:"+";font-size:22px;color:#f6a36c}.wf-guide-outline[open] summary::after{content:"−"}.wf-guide-outline summary span{margin-left:auto;font-size:12px;color:#a4afbd;font-weight:400}.wf-guide-outline summary:focus-visible{outline:2px solid #ffc394;outline-offset:4px}
-.wf-guide-contents{margin:28px 0 34px;padding:24px;border:1px solid #29313c;border-radius:16px;background:#0c131e}
+.wf-guide-outline{margin:16px 0;padding:4px 14px;border:1px solid #29313c;border-radius:12px;background:#0e1520}.wf-guide-outline summary{cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;color:#e9edf3;font-size:14px;font-weight:600;list-style:none}.wf-guide-outline summary::-webkit-details-marker{display:none}.wf-guide-outline summary::after{content:"+";font-size:20px;line-height:1;color:#f6a36c}.wf-guide-outline[open] summary::after{content:"−"}.wf-guide-outline summary span{margin-left:auto;font-size:12px;color:#a4afbd;font-weight:400;white-space:nowrap}.wf-guide-outline summary:focus-visible{outline:2px solid #ffc394;outline-offset:4px}
+.wf-guide-contents{margin:4px 0 8px;padding:8px 0 0;border-top:1px solid #29313c}
 .wf-guide-contents-label{color:#a4afbd;text-transform:uppercase;font-size:11px;letter-spacing:2px;font-weight:700}
 .wf-guide-contents ol{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 24px;list-style:none;padding:0;margin:14px 0 0}
 .wf-guide-contents a{display:flex;align-items:baseline;gap:12px;padding:10px 0;color:#e9edf3;text-decoration:none;font-size:14px;line-height:1.5}
@@ -83,7 +83,7 @@ export const GUIDE_EDITORIAL_CSS = `
 .wf-guide-editorial .wf-guide-faq{margin-top:36px;padding:26px 0;border-top:1px solid #29313c}
 .wf-guide-editorial .wf-guide-faq>div{padding:16px 0;border-bottom:1px solid #202c39}
 .wf-guide-editorial .wf-guide-faq p{line-height:1.7}
-.wf-guide-facts{margin:6px 0 22px;padding:16px 16px 14px;border:1px solid #c2410c;border-radius:12px;background:#08090c;color:#fff;overflow-x:hidden}
+.wf-guide-facts{margin:6px 0 16px;padding:16px;border:1px solid #29313c;border-radius:14px;background:#0e1520;color:#fff;overflow-x:hidden}
 .wf-guide-facts h2{margin:0 0 12px;font-size:12px;letter-spacing:1.6px;font-weight:800;color:#fff;text-transform:uppercase}
 .wf-guide-facts dl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 14px;margin:0}
 .wf-guide-facts > dl > div{min-width:0}
@@ -106,7 +106,7 @@ export const GUIDE_EDITORIAL_CSS = `
 @media(max-width:760px){
  .wf-guide-editorial .wf-guide-article{padding-top:24px}
  .wf-guide-editorial .wf-guide-intro{font-size:20px!important;line-height:1.65!important}
- .wf-guide-contents{padding:20px;margin:24px 0}
+ .wf-guide-contents{padding:8px 0 0;margin:4px 0 8px}
  .wf-guide-contents ol{grid-template-columns:minmax(0,1fr);gap:0}
  .wf-guide-contents a{min-height:44px;box-sizing:border-box}
  .wf-guide-editorial .wf-guide-pick{grid-template-columns:minmax(0,1fr);gap:8px;padding:28px 0!important}
