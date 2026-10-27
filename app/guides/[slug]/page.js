@@ -267,6 +267,7 @@ async function inventoryPlace(pick, near) {
         }
       } catch (e) {}
     }
+    return null;
   }
   // A verified place ID is the strongest identity and always runs first.
   // Whole-name aliases are the safe fallback for older inventory snapshots
@@ -385,7 +386,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
-import { guidePickMayResolvePlaceCard } from "../../../lib/guidePlaceIdentity.js";
+import { guidePickMayResolvePlaceCard, resolveGuidePickPlaceId } from "../../../lib/guidePlaceIdentity.js";
 // Separate interactive map discovery still uses the shared place-card CSS.
 import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
@@ -611,13 +612,23 @@ export default async function GuidePage({ params }) {
   // same place (De Soto's trail + living-history picks are both the memorial).
   // The first pick keeps its resolved venue photo; later duplicates retain
   // their own curated images, prose and place links without repeating it.
+  // Explicit pick.placeId always takes precedence; conflicting IDs fail closed.
+  const pickPlaceIds = g.picks.map((pick, i) => {
+    const resolved = resolveGuidePickPlaceId(pick, pickPlaces[i]);
+    if (!resolved && pickPlaces[i]) pickPlaces[i] = null;
+    return resolved;
+  });
   {
     const rendered = new Set();
-    for (let i = 0; i < pickPlaces.length; i++) {
-      const rp = pickPlaces[i];
-      if (!rp || !rp.id) continue;
-      if (rendered.has(rp.id)) pickPlaces[i] = null;
-      else rendered.add(rp.id);
+    for (let i = 0; i < pickPlaceIds.length; i++) {
+      const pid = pickPlaceIds[i];
+      if (!pid) continue;
+      if (rendered.has(pid)) {
+        pickPlaces[i] = null;
+        pickPlaceIds[i] = null;
+      } else {
+        rendered.add(pid);
+      }
     }
   }
   // Curated media needs no lookup. Resolve the remaining venues once using
@@ -625,28 +636,37 @@ export default async function GuidePage({ params }) {
   const curatedPickImages = g.picks.map((pick) => guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name));
   const fallbackPickImages = [];
   const editorialImages = new Map();
-  const missingPickPhotos = pickPlaces.filter((place, i) => place && !curatedPickImages[i]);
+  const missingPickPhotos = g.picks
+    .map((pick, i) => (!curatedPickImages[i] && pickPlaceIds[i]) ? (pickPlaces[i] || { id: pickPlaceIds[i], name: pick.name }) : null)
+    .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
     editorialImages.set(place.id, await guidePlaceFigureImage(place, { findFreePhoto, findSamePlaceCachedPhoto }));
   }));
   // Reuse an already licensed photo of this exact place before asking the
   // browser for another answer. The hero and other picks keep their own images.
   {
-    const usedSrc = new Set(curatedPickImages.filter(Boolean).map((im) => typeof im === "object" ? im.src : im));
-    for (const im of editorialImages.values()) if (im?.src) usedSrc.add(im.src);
-    const heroSrc = guideHero(params.slug)?.src;
-    if (heroSrc) usedSrc.add(heroSrc);
+    const usedSrc = new Set();
+    const rememberMedia = (im) => {
+      if (!im) return;
+      if (typeof im === "string") { usedSrc.add(im); return; }
+      if (im.src) usedSrc.add(im.src);
+      const ref = im.creditHref || im.source;
+      if (ref && ref !== "https://pintofarm.com") usedSrc.add(ref);
+    };
+    for (const im of curatedPickImages) rememberMedia(im);
+    for (const im of editorialImages.values()) rememberMedia(im);
+    rememberMedia(guideHero(params.slug));
     g.picks.forEach((pick, i) => {
-      if (curatedPickImages[i] || editorialImages.get(pickPlaces[i]?.id)) return;
-      const reused = guidePhotoForPlace(pick.placeId || pickPlaces[i]?.id, { avoidSrc: usedSrc });
-      if (reused) { curatedPickImages[i] = reused; usedSrc.add(reused.src); }
+      if (curatedPickImages[i] || editorialImages.get(pickPlaceIds[i])) return;
+      const reused = guidePhotoForPlace(pickPlaceIds[i], { avoidSrc: usedSrc });
+      if (reused) { curatedPickImages[i] = reused; rememberMedia(reused); }
     });
     // Owner, 2026-10-15: photographs for every guide recommendation. Only
     // after the exact place's licensed media is exhausted do we illustrate
     // its topic, visibly labelled and credited under the shared figure.
     g.picks.forEach((pick, i) => {
       fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc });
-      if (!curatedPickImages[i] && !editorialImages.get(pickPlaces[i]?.id)) {
+      if (!curatedPickImages[i] && !editorialImages.get(pickPlaceIds[i])) {
         curatedPickImages[i] = fallbackPickImages[i];
       }
     });
@@ -1112,7 +1132,7 @@ export default async function GuidePage({ params }) {
         const ticket = guidePickTicket(pick.ticket);
         // One editorial photograph per recommendation. Curated images win;
         // otherwise use the same venue-owned source as discovery cards.
-        const pickImage = curatedPickImages[i] || editorialImages.get(resolved?.id);
+        const pickImage = curatedPickImages[i] || editorialImages.get(pickPlaceIds[i]);
         return (
           <section key={i} id={"pick-" + (i + 1)} className="wf-guide-pick">
             <div className="wf-guide-number">{String(i + 1).padStart(2, "0")}</div>
