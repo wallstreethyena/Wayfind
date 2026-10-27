@@ -8,10 +8,20 @@ import { breakerOpen, tripBreaker, classifyProviderFailure } from "../../../lib/
 import { halloweenHauntModel } from "../../../lib/halloweenHauntVault.js";
 import {
   BO_MAX_INPUT_CHARS,
+  BO_WRAP_TURN,
+  boCards,
+  boGagFallback,
+  boGagPrompt,
   boHauntFallback,
+  boPageKind,
   boPrompt,
+  boWrapReply,
   normalizeBoQuery,
+  parseBoGag,
   parseBoReply,
+  sanitizeAntic,
+  sanitizeBoTurn,
+  sanitizePageContext,
 } from "../../../lib/boHauntChat.js";
 
 export const dynamic = "force-dynamic";
@@ -73,19 +83,85 @@ function answer(body) {
   return Response.json(body, { headers: { "cache-control": "no-store" } });
 }
 
+let gagSeed = 0;
+async function gagResponse(page, req) {
+  const kind = boPageKind(page);
+  const model = halloweenHauntModel();
+  const localGag = () => answer({ ...boGagFallback(page, gagSeed++), source: "fallback" });
+  const cacheKey = "gag:" + (model.catalogVersion || "v1") + ":" + kind;
+  const cached = readCachedReply(cacheKey);
+  if (cached) return answer({ ...cached, source: "claude", cached: true });
+  const key = aiKey();
+  if (!key) return localGag();
+  if (isRateLimited(clientIp(req))) return localGag();
+  try {
+    if (await breakerOpen("anthropic")) return localGag();
+  } catch { return localGag(); }
+  const prompt = boGagPrompt(page);
+  let res;
+  try {
+    res = await paidAnthropicRequest({
+      method: "POST",
+      headers: { "x-api-key": key, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+      body: JSON.stringify({
+        model: prompt.model,
+        max_tokens: prompt.maxTokens,
+        system: prompt.system,
+        messages: [{ role: "user", content: prompt.user }],
+      }),
+    });
+  } catch { return localGag(); }
+  if (!res || !res.ok) {
+    let errText = "";
+    try { errText = await res.text(); } catch { errText = ""; }
+    const failKind = classifyProviderFailure(res ? res.status : 0, errText);
+    if (failKind) { try { await tripBreaker("anthropic", failKind, errText); } catch { /* fail soft */ } }
+    return localGag();
+  }
+  let data = {};
+  try { data = await res.json(); } catch { return localGag(); }
+  const parsed = parseBoGag((data.content || [])[0]?.text || "");
+  if (!parsed) return localGag();
+  writeCachedReply(cacheKey, parsed);
+  return answer({ ...parsed, source: "claude" });
+}
+
 export async function POST(req) {
   const model = halloweenHauntModel();
   let message = "";
+  let page = null;
+  let turn = 1;
+  let mode = "";
   try {
     const body = await req.json();
     message = String(body && body.message || "").trim().slice(0, BO_MAX_INPUT_CHARS);
+    page = sanitizePageContext(body && body.page);
+    turn = sanitizeBoTurn(body && body.turn);
+    mode = body && body.mode === "gag" ? "gag" : "";
   } catch { message = ""; }
+  if (mode === "gag" && !message) return gagResponse(page, req);
   const fallback = () => answer({ ...boHauntFallback(message, model), source: "fallback" });
+
+  // Wrap turn: deterministic goodbye that pushes the ticket buttons. No model
+  // call, no ledger grant, no rate bucket: it costs nothing.
+  if (turn >= BO_WRAP_TURN) {
+    const picks = boHauntFallback(message, model).recommendedIds;
+    return answer({
+      reply: boWrapReply(turn),
+      recommendedIds: picks,
+      cards: boCards(picks, model),
+      wrap: true,
+      antic: "bow",
+      source: "wrap",
+    });
+  }
+
   if (!message) return fallback();
 
   const norm = normalizeBoQuery(message);
   if (!norm) return fallback();
-  const cacheKey = (model.catalogVersion || "v1") + ":" + norm;
+  // Coarse page kind only (halloween page vs other), never the full path.
+  const cacheKey = (model.catalogVersion || "v1") + ":" + boPageKind(page) + ":" + norm;
   const cached = readCachedReply(cacheKey);
   if (cached) {
     return answer({ ...cached, source: "claude", cached: true });
@@ -101,7 +177,7 @@ export async function POST(req) {
     if (await breakerOpen("anthropic")) return fallback();
   } catch { return fallback(); }
 
-  const prompt = boPrompt(model, message);
+  const prompt = boPrompt(model, message, { page, turn });
   let res;
   try {
     res = await paidAnthropicRequest({
@@ -134,6 +210,7 @@ export async function POST(req) {
   const parsed = parseBoReply(text, model, message);
   if (!parsed) return fallback();
 
-  writeCachedReply(cacheKey, parsed);
-  return answer({ ...parsed, source: "claude" });
+  const out = { ...parsed, antic: sanitizeAntic(parsed.antic), cards: boCards(parsed.recommendedIds, model), wrap: false };
+  writeCachedReply(cacheKey, out);
+  return answer({ ...out, source: "claude" });
 }
