@@ -2314,6 +2314,7 @@ node scripts/check-anchor-events.mjs
 node scripts/test-guide-stays.mjs
 # 2026-10-15 guide deal cards are measurable: one commerce_impression per affiliate card (surface guide_deals), one commerce_cta_clicked per activation (142ms double-click), UT ends_at read as ET date, dead partner coupons purged. Red-proven by mutation.
 node scripts/test-guide-commerce-measurement.mjs
+node scripts/test-guide-commerce-exit.mjs
 # 2026-10-15 Google daily photo-quota pacing: photos_quota_pacing warns at 70/85 percent and goes critical at 95 percent of the 1000/day quota (Pacific day, per-band dedupe), photos_purchase_spike at 150/h, googleQuota in /api/health/photos; fail-soft, breaker-open suppression, no request ever leaves Supabase. Red-proven by mutation.
 node scripts/test-photo-quota-pacing.mjs
 # 2026-10-15 DB paging cursors are Postgres en_US order, never JS order: readSocialPages / readAcquisitionInventory prove progress by a never-seen key (lib/dbCursor.js), not row <= cursor (7449 of 20989 adjacent place_ids invert bytewise). en_US fake DB + static sweep of lib/app/scripts. Red-proven by mutation.

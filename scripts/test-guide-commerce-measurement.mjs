@@ -32,6 +32,13 @@ const ok = (c, m) => { if (!c) fail(m); passed++; };
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const TODAY = "2026-09-27"; // pinned like check-guide-deal-cards: a lapsing fuse must not break unrelated builds
 
+// This fixture measures analytics under a fake browser and frozen clock.
+// A real browser auth client starts background work with hosted credentials,
+// keeping Node alive after all assertions pass. Accounts are outside this
+// fixture; pin their configuration before compiling the UI dependency graph.
+process.env.NEXT_PUBLIC_SUPABASE_URL = "";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
+
 const captured = [];
 let nowMs = 1_000_000;
 Date.now = () => nowMs;
