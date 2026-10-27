@@ -2400,3 +2400,6 @@ node scripts/test-share-intent-fit.mjs
 node scripts/check-inventory-refresh-free-tier.mjs
 node scripts/test-inventory-free-refresh.mjs
 node scripts/test-richness-loading-path.mjs
+
+# 2026-10-27: Boo, the site wide Halloween companion (own dynamic chunk, season gate by siteTodayStr, reserved paths, session hide key, dash free gags).
+node scripts/check-boo-companion.mjs
