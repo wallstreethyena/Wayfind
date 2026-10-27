@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Locks the /halloween-in-florida ticket vault: dash-free visible copy,
 // registry-built affiliate hrefs, organizer links for local haunts, and the
-// Bo companion markup (video, speech, filters, Ask Bo, floating haunt).
+// premium page markup (string lights, Boo hero, picks, filters, buy buttons).
 import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
@@ -146,21 +146,21 @@ for (const entry of schema.itemListElement) {
 
 const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
-ok(html.includes("<svg"), "Boo is an SVG sprite");
-ok(html.includes(">TOUR<") && html.includes("GO →"), "Boo holds the TOUR flag and points GO");
-ok(html.includes("BOO&#x27;S VIP TOUR") || html.includes("BOO'S VIP TOUR"), "VIP tour badge");
-ok(html.includes('data-boo-fly=""'), "flying companion is in the page");
-ok(html.includes('href="/"'), "home links render");
-ok(html.includes("Wayfind Home") && html.includes("Explore Wayfind Main Page"), "home labels");
-ok(html.includes("Ask Boo which haunt to book..."), "live chat prompt");
-ok(html.includes("Scariest haunt in Tampa?") && html.includes("Where can I take kids?"), "prompt chips");
-ok(html.includes("Let Boo Pick Your Scare") && html.includes("Tampa Bay Tonight") && html.includes("Value Scream Park"), "scare picker");
-for (const label of ["Next Gag", "Roast This Price", "Spin a Spooky Deal", "Let Boo Haunt My Scroll", "Ask Boo", "Hide Boo", "All Haunts", "Major Scream Parks", "Local Haunted Trails", "Family Friendly", "Book Now &amp; Save"]) {
+ok(html.includes("<svg") && html.includes("boo-bulb"), "string lights render");
+ok(html.includes("/images/boo/boo_v1_hype_guide.png"), "Boo art sits in the hero");
+ok(html.includes('data-analytics-page="halloween_haunts"'), "surface id stays on the page");
+ok(html.includes('href="/"') && html.includes("Wayfind Home"), "home link renders");
+ok(!html.includes('data-boo-fly=""') && !html.includes("Hide Boo") && !html.includes("Open Boo Chat"), "no floating Boo card or in page chat (site wide companion owns it)");
+for (const gone of ["Next Gag", "Roast This Price", "Spin a Spooky Deal", "Let Boo Haunt My Scroll", "GHOST BUDGET", "VIP Guide", "Night Pirate", "Reel Tour", "Verified Catalog", "OFFICIAL HAUNT TICKET VAULT", "TALK TO BOO", "Official details"]) {
+  ok(!html.includes(gone), "removed: " + gone);
+}
+ok(html.includes("Let Boo Pick Your Scare") && html.includes("Tampa Bay Tonight") && html.includes("Value Scream Park") && html.includes("Orlando Tonight") && html.includes("Scares With Kids"), "pick toolbar (aria label and buttons)");
+ok((html.match(/class="boo-ask"/g) || []).length === 1, "exactly one Ask Boo button");
+for (const label of ["Ask Boo", "All Haunts", "Major Scream Parks", "Local Haunted Trails", "Family Friendly", "Book Now &amp; Save", "Get Tickets", "Official Tickets", "Full event page"]) {
   ok(html.includes(label), "renders " + label);
 }
 ok(html.includes("Wayfind may earn a commission when you book through partner links."), "affiliate disclosure");
-ok(html.includes("Rankings are never for sale."), "rankings line");
-ok(html.includes("on merit"), "merit line");
+ok((html.match(/Wayfind may earn a commission/g) || []).length === 1, "disclosure appears once on the page");
 for (const row of model.haunts) {
   ok(html.includes(row.name.replace(/'/g, "&#x27;")) || html.includes(row.name), "renders " + row.name);
   ok(html.includes(row.priceLabel), "renders " + row.priceLabel);
@@ -168,8 +168,9 @@ for (const row of model.haunts) {
   const href = row.cta.href.replace(/&/g, "&amp;");
   ok(html.includes('href="' + href + '"'), "renders href " + row.id);
   if (row.cta.kind === "affiliate") ok(html.includes('rel="sponsored nofollow noopener"'), row.id + " rel in markup");
+  ok(html.includes(row.cta.label.replace(/&/g, "&amp;") + "</a>") && html.includes(row.cta.via), row.id + " buy button label and seller line");
 }
-ok(html.includes('data-boo-bubble="hero"') && html.includes('data-boo-bubble="float"'), "hero and float speech bubbles");
+ok((html.match(/class="boo-buy"/g) || []).length === model.haunts.length, "every haunt card has a buy button");
 ok(!html.includes("wf-place-card"), "ticket rows are not place cards");
 
 function visibleText(markup) {
@@ -188,12 +189,16 @@ ok(!DASH.test(visible), "rendered visible copy has no dash" + (dashHit ? ": " + 
 
 const componentSource = readFileSync("app/components/BoHalloweenHaunt.js", "utf8");
 ok(!/purple|violet|rebeccapurple|#d8b4fe|#a855f7|#7c3aed|#6d28d9|#8b5cf6/i.test(componentSource), "companion CSS has no purple");
-ok(/#0A0A0B/.test(componentSource) && /#121216/.test(componentSource) && /#F97316/.test(componentSource) && /#FFFFFF/.test(componentSource), "brand colors are in the companion");
-ok(/var\(--wf-sans\)/.test(componentSource), "companion uses the Inter font variable");
+ok(/#07060B/.test(componentSource) && /#110E19/.test(componentSource) && /#F97316/.test(componentSource) && /#C4B5FD/.test(componentSource) && /#F5EFE6/.test(componentSource) && /#9A94A8/.test(componentSource), "premium palette tokens are in the page");
+ok(!/gradient\([^)]*(?:00F5D4|FF2A85|FFD166)/i.test(componentSource) && !/00F5D4|FF2A85|FFD166/i.test(componentSource), "no cyan, pink or gold left");
+ok(/var\(--wf-sans\)/.test(componentSource), "page uses the site font variable");
 ok(!/\bBo\b/.test(visible), "visible copy says Boo, not Bo");
-ok(!/ANTHROPIC_API_KEY|LLM_API_KEY|api\.anthropic\.com/.test(componentSource), "the companion does not hold the model key or the provider host");
-ok(componentSource.includes('fetch("/api/bo-haunt"'), "chat posts to the Boo route");
-ok(!/useEffect\([\s\S]{0,400}fetch\("\/api\/bo-haunt"/.test(componentSource), "the model is not called while the page renders");
+ok(!/ANTHROPIC_API_KEY|LLM_API_KEY|api\.anthropic\.com/.test(componentSource), "the page does not hold the model key or the provider host");
+ok(!componentSource.includes("/api/bo-haunt"), "page does not call the Boo route (site wide companion owns chat)");
+ok(/new CustomEvent\("wf:boo-open"\)/.test(componentSource) && /dispatchEvent/.test(componentSource), "Ask Boo opens the site wide companion");
+ok(/grid-template-columns:repeat\(2,minmax\(0,1fr\)\)/.test(componentSource), "pick buttons are a real two column grid");
+ok(!/askLive|setChatOpen|boo-fly|HauntAnimatronic|COSTUME_TABS/.test(componentSource), "removed toys are gone from the source");
+ok(/aria-pressed=\{selectedPickId === item\.id\}/.test(componentSource) && /scrollIntoView/.test(componentSource), "picks select a shortlist and scroll to the cards");
 
 const dashedReply = stripBoDashes("Howl-O-Scream – gate price — $45.99");
 ok(!DASH.test(dashedReply) && dashedReply.includes("Howl O Scream"), "red-prove: dashes are scrubbed out of a Boo reply");
@@ -219,8 +224,6 @@ ok(injectFallback.recommendedIds.length > 0 && !DASH.test(injectFallback.reply),
 for (const row of model.haunts) {
   ok(Boolean(row.admissionNote && row.priceNote && row.ageNote && row.shortlistReason && row.animatronic), row.id + " has verified admissionNote, priceNote, ageNote, shortlistReason, and animatronic");
 }
-ok(html.includes('class="boo-anim-box"') && html.includes("Halloween Festival Pass"), "ticket cards render festival animatronics and marquee frame");
-ok(!/const\s+(?:roastPrice|spinDeal|pickScare|askBoo)\s*=[\s\S]{0,650}askLive\(/.test(componentSource), "deterministic controls do not trigger live AI calls");
 
 const prompt = boPrompt(model, "Scariest haunt in Tampa?");
 ok(prompt.model === "claude-haiku-4-5" && prompt.system.includes("BOO'S VIP TOUR") && prompt.user.includes("howlTampa"), "Claude prompt is Boo plus the grounded catalog");

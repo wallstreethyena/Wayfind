@@ -68,8 +68,7 @@ const CSS = `
 
 /* Hero */
 .boo-hero{padding:12px 0 8px}
-.boo-hero h1{margin:0;font-size:32px;line-height:1.15;font-weight:700;color:var(--cream);letter-spacing:-.01em}
-.boo-rule{width:48px;height:2px;background:var(--orange);margin:14px 0 12px;border:0}
+.boo-hero h1{margin:0 0 12px;font-size:32px;line-height:1.15;font-weight:700;color:var(--cream);letter-spacing:-.01em}
 .boo-lede{margin:0;font-size:16px;line-height:1.5;color:var(--cream)}
 .boo-legal{margin:10px 0 0;font-size:12px;line-height:1.5;color:var(--muted)}
 .boo-boo-row{display:flex;align-items:center;gap:12px;margin-top:22px}
@@ -91,7 +90,6 @@ const CSS = `
 
 /* Picks */
 .boo-picks-wrap{margin-top:28px}
-.boo-label{margin:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--lav)}
 .boo-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
 .boo-picks button{
   display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -127,17 +125,11 @@ const CSS = `
   background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px;
   scroll-margin-top:12px;
 }
-.boo-card-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.boo-city{margin:0;font-size:13px;color:var(--muted)}
-.boo-chip{
-  flex:0 0 auto;padding:4px 10px;border-radius:999px;border:1px solid var(--line);
-  color:var(--lav);font-size:12px;font-weight:600;
-}
+.boo-city{margin:0 0 -4px;font-size:13px;color:var(--muted)}
 .boo-card h2{margin:0;font-size:20px;line-height:1.25;font-weight:700;color:var(--cream);overflow-wrap:anywhere}
 .boo-price{margin:0;font-size:18px;font-weight:700;color:var(--cream)}
 .boo-when{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
 .boo-tip{margin:0;font-size:14px;line-height:1.5;color:var(--cream)}
-.boo-tip span{display:block;margin-bottom:2px;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--lav)}
 .boo-buy{
   display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:4px;
   background:var(--orange);color:var(--bg);border-radius:12px;
@@ -211,9 +203,8 @@ export default function BoHalloweenHaunt({ model, share = null }) {
 
         <div className="boo-hero" id="boo-hero">
           <h1 id="boo-title">{chrome.title}</h1>
-          <hr className="boo-rule" />
           <p className="boo-lede">{"Prices, dates and hours for " + haunts.length + " Florida haunts."}</p>
-          <p className="boo-legal">{chrome.disclosure} {chrome.merit}</p>
+          <p className="boo-legal">{chrome.disclosure}</p>
           <div className="boo-boo-row">
             <div className="boo-art">
               <img src={BOO_ART} width="96" height="96" alt={chrome.videoLabel} decoding="async" />
@@ -224,7 +215,6 @@ export default function BoHalloweenHaunt({ model, share = null }) {
         </div>
 
         <div className="boo-picks-wrap">
-          <p className="boo-label">{chrome.pick}</p>
           <div className="boo-picks" role="toolbar" aria-label={chrome.pick}>
             {picks.map((item) => (
               <button
@@ -271,14 +261,11 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                   data-place-id={row.eventId || row.id}
                   className="boo-card"
                 >
-                  <div className="boo-card-top">
-                    <p className="boo-city">{row.city}</p>
-                    {row.scareLevel ? <span className="boo-chip">{row.scareLevel}</span> : null}
-                  </div>
+                  <p className="boo-city">{row.city}</p>
                   <h2>{row.name}</h2>
                   <p className="boo-price">{row.priceLabel}</p>
                   <p className="boo-when">{row.timing}</p>
-                  <p className="boo-tip"><span>{chrome.boSays}</span>{row.tip}</p>
+                  <p className="boo-tip">{row.tip}</p>
                   <a className="boo-buy" href={row.cta.href} rel={row.cta.rel}>{row.cta.label}</a>
                   <p className="boo-via">{row.cta.via}</p>
                   <a className="boo-event" href={row.eventHref}>{chrome.eventPage}</a>
