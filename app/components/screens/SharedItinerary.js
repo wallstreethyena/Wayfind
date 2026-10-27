@@ -13,6 +13,8 @@ import {
 } from "../../../lib/tripDays";
 import {
   isSharedTripSaved,
+  isInspectableSharedStop,
+  resolveOpenableSavedTripKey,
   saveSharedTripToStore,
   retrySharedTripAccountSync,
   MAX_SHARED_ITINERARY_STOPS,
@@ -28,7 +30,8 @@ export default function SharedItineraryScreen({ ctx }) {
     setTrips,
     setActiveTrip,
     user,
-    requireAuth,
+    authReady,
+    openDetail,
     showToast,
     logEvent,
     isDesktop,
@@ -44,17 +47,17 @@ export default function SharedItineraryScreen({ ctx }) {
   }, [sharedItinerary]);
 
   useEffect(() => {
-    if (user) return;
+    if (user || authReady === false) return;
     const targetStorage =
       ctx.__storage !== undefined
         ? ctx.__storage
         : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
     if (!targetStorage) return;
-    const isolated = ensureSignedOutTripIsolation(targetStorage);
+    const isolated = ensureSignedOutTripIsolation(targetStorage, { authReady });
     if (isolated !== null && setTrips) {
       setTrips(isolated);
     }
-  }, [user, ctx.__storage, setTrips]);
+  }, [user, authReady, ctx.__storage, setTrips]);
 
   useEffect(() => {
     if (!mapOn) { setRouteMap(null); return undefined; }
@@ -111,6 +114,7 @@ export default function SharedItineraryScreen({ ctx }) {
       kind: "itinerary",
       title: displayTitle,
       user,
+      authReady,
       supabase: ctx.__supabase,
       syncFn: resolveSyncFn(),
       onSyncResult: (syncedRes) => setImportFeedback(syncedRes),
@@ -142,9 +146,34 @@ export default function SharedItineraryScreen({ ctx }) {
   };
 
   const handleOpenSavedTrip = () => {
-    if (!user && requireAuth && !requireAuth("Sign up free to open and edit your saved trip in Itinerary, and sync it across devices.")) {
+    const targetStorage =
+      ctx.__storage !== undefined
+        ? ctx.__storage
+        : (typeof window !== "undefined" && window.localStorage ? window.localStorage : null);
+    let candidateTrips =
+      (importFeedback && importFeedback.trips && Object.keys(importFeedback.trips).length ? importFeedback.trips : null) ||
+      trips;
+    let openKey = resolveOpenableSavedTripKey(candidateTrips, savedTripKey, trip, { kind: "itinerary", title: displayTitle });
+    if (!openKey && targetStorage && typeof targetStorage.getItem === "function") {
+      try {
+        const stored = JSON.parse(targetStorage.getItem("wayfind_trips") || "{}") || {};
+        const storedKey = resolveOpenableSavedTripKey(stored, savedTripKey, trip, { kind: "itinerary", title: displayTitle });
+        if (storedKey) {
+          candidateTrips = stored;
+          openKey = storedKey;
+        }
+      } catch {}
+    }
+    if (!openKey) {
+      if (showToast) showToast("Save this trip first to open it in your Itinerary.");
       return;
     }
+    if (candidateTrips && (!trips || !trips[openKey]) && setTrips) {
+      setTrips(candidateTrips);
+    }
+    if (setActiveTrip) setActiveTrip(openKey);
+    setSharedItinerary(null);
+    setScreen("itinerary");
     try {
       if (logEvent && norm) {
         logEvent("shared_trip_open_itinerary", null, {
@@ -155,9 +184,6 @@ export default function SharedItineraryScreen({ ctx }) {
         });
       }
     } catch {}
-    if (savedTripKey && setActiveTrip) setActiveTrip(savedTripKey);
-    setSharedItinerary(null);
-    setScreen("itinerary");
   };
 
   const syncBadgeState = !isSavedTrip
@@ -167,6 +193,98 @@ export default function SharedItineraryScreen({ ctx }) {
       : importFeedback && importFeedback.syncStatus
         ? importFeedback.syncStatus
         : "synced";
+
+  const renderStopRow = (it, stopNumber) => {
+    const inspectable = isInspectableSharedStop(it);
+    const canOpen = inspectable && typeof openDetail === "function";
+    const isNoteOnly = Boolean(
+      it && (it.kind === "note" || (it.place && (it.place.kind === "note" || it.place.itemType === "note")))
+    );
+    const stopName = (it && it.place && it.place.name) || (it && it.title) || (isNoteOnly ? "Note" : "Stop");
+    const stopAddress = it && it.place && it.place.address ? it.place.address : null;
+    const stopNote = it && it.note ? it.note : null;
+
+    if (canOpen) {
+      return (
+        <button
+          key={it.id}
+          type="button"
+          className="wf-shared-stop-btn"
+          data-wf-shared-stop-detail={it.id}
+          aria-label={`View details for ${stopName}`}
+          onClick={() => openDetail(it.place, "shared_itinerary")}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            width: "100%",
+            minHeight: 44,
+            padding: "10px 8px",
+            margin: "0 -8px",
+            background: "transparent",
+            border: "none",
+            borderBottom: "1px solid " + C.border,
+            borderRadius: 8,
+            color: C.text,
+            textAlign: "left",
+            cursor: "pointer",
+            font: "inherit",
+          }}
+        >
+          <span style={{ display: "block", flex: 1, minWidth: 0 }}>
+            <span style={{ display: "block", fontSize: 14.5, fontWeight: 700, color: C.text }}>
+              {stopNumber + ". " + stopName}
+            </span>
+            {stopAddress ? (
+              <span style={{ display: "block", fontSize: 12.5, color: C.muted, marginTop: 2 }}>
+                {stopAddress}
+              </span>
+            ) : null}
+            {stopNote ? (
+              <span style={{ display: "block", fontSize: 12.5, color: C.light, marginTop: 4 }}>
+                {stopNote}
+              </span>
+            ) : null}
+          </span>
+          <span
+            aria-hidden="true"
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: C.light,
+              whiteSpace: "nowrap",
+              flexShrink: 0,
+            }}
+          >
+            Details ›
+          </span>
+        </button>
+      );
+    }
+
+    return (
+      <div
+        key={it && it.id ? it.id : stopNumber}
+        data-wf-shared-stop-static={(it && it.id) || String(stopNumber)}
+        style={{ padding: "10px 0", borderBottom: "1px solid " + C.border }}
+      >
+        <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text }}>
+          {stopNumber + ". " + stopName}
+        </div>
+        {stopAddress ? <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{stopAddress}</div> : null}
+        {stopNote ? <div style={{ fontSize: 12.5, color: C.light, marginTop: 4 }}>{stopNote}</div> : null}
+        {!inspectable && (
+          <div
+            data-wf-shared-stop-unavailable={isNoteOnly ? "note" : "unavailable"}
+            style={{ fontSize: 11.5, color: C.muted, marginTop: 4 }}
+          >
+            {isNoteOnly ? "Note only" : "Place details unavailable for this stop"}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div>
@@ -445,25 +563,14 @@ export default function SharedItineraryScreen({ ctx }) {
                   </div>
                 )}
               </div>
-              {group.items.map((it, idx) => (
-                <div key={it.id} style={{ padding: "10px 0", borderBottom: "1px solid " + C.border }}>
-                  <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text }}>{(idx + 1) + ". " + ((it.place && it.place.name) || "Stop")}</div>
-                  {it.place && it.place.address ? <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{it.place.address}</div> : null}
-                  {it.note ? <div style={{ fontSize: 12.5, color: C.light, marginTop: 4 }}>{it.note}</div> : null}
-                </div>
-              ))}
+              {group.items.map((it, idx) => renderStopRow(it, idx + 1))}
             </div>
           );
         })
       ) : (
-        items.map((it) => (
-          <div key={it.id} style={{ padding: "10px 0", borderBottom: "1px solid " + C.border }}>
-            <div style={{ fontSize: 14.5, fontWeight: 700, color: C.text }}>{(it.order + 1) + ". " + ((it.place && it.place.name) || "Stop")}</div>
-            {it.place && it.place.address ? <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{it.place.address}</div> : null}
-            {it.note ? <div style={{ fontSize: 12.5, color: C.light, marginTop: 4 }}>{it.note}</div> : null}
-          </div>
-        ))
+        items.map((it) => renderStopRow(it, it.order + 1))
       )}
+      <style dangerouslySetInnerHTML={{ __html: `.wf-shared-stop-btn:focus-visible{outline:2px solid ${C.accent};outline-offset:2px}` }} />
     </div>
   );
 }

@@ -60,6 +60,8 @@ import {
   URL_SAFE_MAX_CHARS,
   normalizeSharedTripInput,
   isSharedTripSaved,
+  isInspectableSharedStop,
+  resolveOpenableSavedTripKey,
   importSharedTripToTrips,
   saveSharedTripToStore,
   retrySharedTripAccountSync,
@@ -1252,6 +1254,85 @@ function northOf(origin, km) {
     const restoredA = tripsForOwner(switchStorage, "user-A");
     eq(Object.keys(restoredA), ["fl_tampa"], "Account A signing back in restores only Account A's Tampa trip");
     eq(Object.keys(JSON.parse(switchStorage.getItem("wayfind_trips_user:user-B"))), ["fl_sarasota"], "Account B's Sarasota trip remains archived under wayfind_trips_user:user-B");
+
+    // 8l. Shared-trip usability boundaries:
+    //     - Supported place stops are inspectable; note-only, unsupported, or unavailable stops are not.
+    //     - Opening a saved trip resolves the exact imported trip key (even alongside another trip in the same city).
+    //     - Uninitialized auth (`authReady: false`) or temporary session lookup failure (`sessionLookupFailed: true`)
+    //       never falsely triggers signed-out isolation.
+    ok(
+      isInspectableSharedStop(decodedItin.items[0]) === true,
+      "supported shared itinerary place stop is inspectable"
+    );
+    ok(
+      isInspectableSharedStop({ id: "note-1", kind: "note", note: "Pack sunscreen", place: { id: "note-1", name: "Note" } }) === false,
+      "note-only shared stop is not inspectable as a place detail"
+    );
+    ok(
+      isInspectableSharedStop({ id: "u-1", kind: "unsupported", place: { id: "u-1", name: "Custom pin" } }) === false,
+      "unsupported shared stop kind is not inspectable as a place detail"
+    );
+    ok(
+      isInspectableSharedStop({ id: "unavail-1", place: { id: "unavail-1", name: "Closed spot", detailsUnavailable: true } }) === false,
+      "shared stop with detailsUnavailable=true is not inspectable"
+    );
+    ok(
+      isInspectableSharedStop({ id: "bare-1", place: { id: "bare-1", name: "Stop" } }) === false,
+      "bare placeholder stop without address, coords, rating, or type is not inspectable"
+    );
+
+    // Exact saved trip key resolution when a guest has multiple local trips in the same city
+    eq(
+      resolveOpenableSavedTripKey(alongsideImport.trips, null, decodedItin, { kind: "itinerary" }),
+      alongsideImport.tripKey,
+      "resolveOpenableSavedTripKey selects the exact imported shared trip key rather than the first trip in the same city (fl_sarasota)"
+    );
+    eq(
+      resolveOpenableSavedTripKey(alongsideImport.trips, "fl_sarasota", decodedItin, { kind: "itinerary" }),
+      alongsideImport.tripKey,
+      "resolveOpenableSavedTripKey overrides a mismatched same-city preferredKey with the exact imported tripKey"
+    );
+    eq(
+      resolveOpenableSavedTripKey(editedRecipientTrips, "fl_sarasota", decodedItin, { kind: "itinerary" }),
+      "fl_sarasota",
+      "resolveOpenableSavedTripKey still resolves the recipient's imported trip after the recipient edits dates, notes, and removes a stop"
+    );
+    eq(
+      resolveOpenableSavedTripKey({}, "fl_sarasota", decodedItin, { kind: "itinerary" }),
+      null,
+      "resolveOpenableSavedTripKey returns null when the shared trip has not been saved yet"
+    );
+
+    // Uninitialized auth or transient session lookup failure must not trigger signed-out isolation
+    const pendingAuthMap = new Map([
+      ["wayfind_trips", JSON.stringify(userATrips)],
+      ["wayfind_trips_owner", "user-A"],
+    ]);
+    const pendingAuthStorage = {
+      getItem: (k) => (pendingAuthMap.has(k) ? pendingAuthMap.get(k) : null),
+      setItem: (k, v) => pendingAuthMap.set(k, String(v)),
+      removeItem: (k) => pendingAuthMap.delete(k),
+    };
+    eq(
+      ensureSignedOutTripIsolation(pendingAuthStorage, { authReady: false }),
+      null,
+      "ensureSignedOutTripIsolation returns null while authReady === false"
+    );
+    eq(
+      pendingAuthStorage.getItem("wayfind_trips_owner"),
+      "user-A",
+      "wayfind_trips_owner is preserved while auth is still initializing"
+    );
+    eq(
+      ensureSignedOutTripIsolation(pendingAuthStorage, { authReady: true, sessionLookupFailed: true }),
+      null,
+      "ensureSignedOutTripIsolation returns null when sessionLookupFailed === true"
+    );
+    eq(
+      pendingAuthStorage.getItem("wayfind_trips_owner"),
+      "user-A",
+      "wayfind_trips_owner is preserved during a transient session lookup failure"
+    );
   }
 
   // 9. UI source lock: Itinerary.js, Shared.js, and SharedItinerary.js expose date controls and whole-trip save actions.
@@ -1261,17 +1342,22 @@ function northOf(origin, km) {
   ok(itineraryUi.includes("Route day ↗"), "Itinerary.js renders Route day on dated day headings");
   ok(itineraryUi.includes("groupItemsByDay("), "Itinerary.js groups stops by day via Trips.groupItemsByDay");
   ok(itineraryUi.includes("aria-expanded={dating}"), "Itinerary.js exposes aria-expanded on the date toggle button");
+  ok(itineraryUi.includes("Saved on this device. Sign in to sync across devices."), "Itinerary.js renders calm guest sync copy when signed out");
+  ok(itineraryUi.includes('data-wf-guest-signin-btn="itinerary"'), "Itinerary.js offers one voluntary sign-in button when signed out");
 
   const sharedUi = readFileSync(new URL("app/components/screens/Shared.js", ROOT), "utf8");
   ok(sharedUi.includes("Save this trip to my Itinerary"), "Shared.js offers 'Save this trip to my Itinerary'");
   ok(sharedUi.includes("saveSharedTripToStore("), "Shared.js saves via saveSharedTripToStore");
   ok(sharedUi.includes("Retry account sync"), "Shared.js offers 'Retry account sync' when cloud sync fails");
+  ok(sharedUi.includes("resolveOpenableSavedTripKey("), "Shared.js resolves the exact saved trip key without a compulsory sign-in prompt");
 
   const sharedItinUi = readFileSync(new URL("app/components/screens/SharedItinerary.js", ROOT), "utf8");
   ok(sharedItinUi.includes("Save this trip to my Itinerary"), "SharedItinerary.js offers 'Save this trip to my Itinerary'");
   ok(sharedItinUi.includes("saveSharedTripToStore("), "SharedItinerary.js saves via saveSharedTripToStore");
   ok(sharedItinUi.includes("Retry account sync"), "SharedItinerary.js offers 'Retry account sync' when cloud sync fails");
   ok(sharedItinUi.includes("Anyone with this link can view a copy"), "SharedItinerary.js explains link-access model honestly");
+  ok(sharedItinUi.includes('openDetail(it.place, "shared_itinerary")'), "SharedItinerary.js opens place details via the existing public place-detail flow");
+  ok(sharedItinUi.includes("resolveOpenableSavedTripKey("), "SharedItinerary.js resolves the exact saved trip key without a compulsory sign-in prompt");
 }
 
 if (failures) {

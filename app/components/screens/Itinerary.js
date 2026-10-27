@@ -10,7 +10,7 @@ import { measureItineraryShare, measureListShare } from "../../../lib/itineraryS
 const Trips = { ...TripCore, ...TripDays };
 
 export default function ItineraryScreen({ ctx }) {
-  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, itineraryFlags, shareTrip, requireAuth } = ctx;
+  const { activeTrip, setActiveTrip, trips, setTrips, tripNoteEdit, setTripNoteEdit, tripMoveFor, setTripMoveFor, sub, logEvent, openBrowse, reservations, removeRes, saveResConf, isSaved, liked, disliked, openDetail, quickSaveFavorite, toggleLike, toggleDislike, addShared, giveawayMark, blurbs, openExperience, openCuisine, PlaceCard, CategoryMenu, StateBadge, shareList, itineraryFlags, shareTrip, user, setAuthOpen, requireAuth } = ctx;
   const mapOn = !!(itineraryFlags && itineraryFlags.map);
   const [RouteMap, setRouteMap] = useState(null);
   const [dateEditFor, setDateEditFor] = useState(null);
@@ -29,6 +29,50 @@ export default function ItineraryScreen({ ctx }) {
   }, [mapOn]);
   return (
     <>
+        {!user && (
+          <div
+            role="status"
+            data-wf-guest-sync-banner="itinerary"
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 10,
+              flexWrap: "wrap",
+              background: C.card,
+              border: "1px solid " + C.border,
+              borderRadius: 12,
+              padding: "10px 14px",
+              marginBottom: 14,
+            }}
+          >
+            <span style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4 }}>
+              Saved on this device. Sign in to sync across devices.
+            </span>
+            <button
+              type="button"
+              data-wf-guest-signin-btn="itinerary"
+              onClick={() => {
+                if (setAuthOpen) setAuthOpen(true);
+                else if (requireAuth) requireAuth("Sign in to sync your trips across devices.");
+              }}
+              style={{
+                background: "transparent",
+                border: "1px solid " + C.accent,
+                color: C.light,
+                fontSize: 12.5,
+                fontWeight: 700,
+                padding: "8px 14px",
+                minHeight: 44,
+                borderRadius: 20,
+                cursor: "pointer",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Sign in
+            </button>
+          </div>
+        )}
         {!activeTrip && (() => {
           const list = Trips.tripList(trips);
           return (
@@ -48,7 +92,7 @@ export default function ItineraryScreen({ ctx }) {
                 {list.length > 0 && <span style={{ fontSize: 13, color: C.muted }}>{list.length} destination{list.length !== 1 ? "s" : ""}</span>}
               </div>
               <div style={{ fontSize: 12.5, color: C.muted, lineHeight: 1.4, marginBottom: 16 }}>Save a place and it lands here under its city. Group stops by day, reorder them, mark what you have hit, and route each day or the whole trip in Google Maps.</div>
-              {itineraryFlags && itineraryFlags.sync ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: -10, marginBottom: 16 }}>Your trips sync across your devices.</div> : null}
+              {user && itineraryFlags && itineraryFlags.sync ? <div style={{ fontSize: 12.5, color: C.light, lineHeight: 1.4, marginTop: -10, marginBottom: 16 }}>Your trips sync across your devices.</div> : null}
               {reservations.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -97,6 +141,7 @@ export default function ItineraryScreen({ ctx }) {
         })()}
         {activeTrip && trips[activeTrip] && (() => {
           const t = trips[activeTrip];
+          const hasLocalTrip = Boolean(t && Array.isArray(t.items) && t.items.length > 0);
           const todayOpt = ctx.__today ? { today: ctx.__today } : {};
           const isMobile =
             ctx.__mobile !== undefined
@@ -367,7 +412,7 @@ export default function ItineraryScreen({ ctx }) {
                             <div style={{ marginTop: 6 }}>
                               <textarea autoFocus defaultValue={it.note} id={"note_" + stopKey} placeholder="Reservation time, what to order, who to ask for…" style={{ width: "100%", boxSizing: "border-box", minHeight: 60, background: C.card, border: "1px solid " + C.accent, borderRadius: 10, padding: "8px 10px", color: C.text, fontSize: 16, resize: "vertical" }} />
                               <div style={{ display: "flex", gap: 8, marginTop: 6 }}>
-                                <button onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + stopKey); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, stopKey, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Save note</button>
+                                <button onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; const el = document.getElementById("note_" + stopKey); const v = el ? el.value : ""; setTrips((prev) => Trips.setNote(prev, t.key, stopKey, (v || "").trim())); setTripNoteEdit(null); }} style={{ background: C.accent, border: "none", color: "#0D1117", fontSize: 12.5, fontWeight: 800, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Save note</button>
                                 <button onClick={() => setTripNoteEdit(null)} style={{ background: "transparent", border: "1px solid " + C.border, color: C.muted, fontSize: 12.5, fontWeight: 700, padding: "7px 14px", minHeight: 44, borderRadius: 22, cursor: "pointer" }}>Cancel</button>
                               </div>
                             </div>
@@ -378,7 +423,7 @@ export default function ItineraryScreen({ ctx }) {
                               {others.length === 0 ? (
                                 <div style={{ fontSize: 12.5, color: C.muted, padding: "4px 2px" }}>No other trips yet.</div>
                               ) : others.map((o) => (
-                                <div key={o.key} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, stopKey)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", minHeight: 44, borderRadius: 8, cursor: "pointer" }}>
+                                <div key={o.key} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_move_trip", p, { from_key: t.key, to_key: o.key, to_city: o.city, to_state: o.state }); } catch (e) {} setTrips((prev) => Trips.movePlaceToTrip(prev, t.key, o.key, stopKey)); setTripMoveFor(null); }} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 6px", minHeight: 44, borderRadius: 8, cursor: "pointer" }}>
                                   <StateBadge code={o.state} size={28} />
                                   <span style={{ fontSize: 13.5, color: C.text }}>{o.city}{o.state ? ", " + o.state : ""}</span>
                                 </div>
@@ -413,12 +458,12 @@ export default function ItineraryScreen({ ctx }) {
                                 <Icon name="calendar" size={13} color={stopDay && !stopIsPast ? C.light : C.muted} />
                                 <span>{stopDateLabel}</span>
                               </button>
-                              <button type="button" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, -1, todayOpt)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
-                              <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, 1, todayOpt)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, stopKey)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(stopKey); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(stopKey); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
-                              <button type="button" onClick={() => { if (!requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, stopKey)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
+                              <button type="button" aria-label={`Move ${p.name || "stop"} earlier`} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i - 1, dir: -1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, -1, todayOpt)); }} disabled={i === 0} style={{ ...tripCtl, opacity: i === 0 ? 0.35 : 1 }}>↑</button>
+                              <button type="button" aria-label={`Move ${p.name || "stop"} later`} onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_reorder", p, { key: t.key, from: i, to: i + 1, dir: 1 }); } catch (e) {} setTrips((prev) => Trips.moveItem(prev, t.key, stopKey, 1, todayOpt)); }} disabled={i === group.items.length - 1} style={{ ...tripCtl, opacity: i === group.items.length - 1 ? 0.35 : 1 }}>↓</button>
+                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; try { logEvent("stop_visited", p, { key: t.key, visited: !it.visited }); } catch (e) {} setTrips((prev) => Trips.toggleVisited(prev, t.key, stopKey)); }} style={{ ...tripChip, ...(it.visited ? { background: C.adim, borderColor: C.accent, color: C.light } : {}) }}>{it.visited ? "✓ Visited" : "Mark visited"}</button>
+                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to jot trip notes that travel with you.")) return; setTripNoteEdit(stopKey); setTripMoveFor(null); setDateEditFor(null); }} style={tripChip}>{it.note ? "Edit note" : "Add note"}</button>
+                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; setTripMoveFor(stopKey); setTripNoteEdit(null); setDateEditFor(null); }} style={tripChip}>Move</button>
+                              <button type="button" onClick={() => { if (!hasLocalTrip && !requireAuth("Sign up free to plan your trip and pick up right where you left off, anywhere.")) return; if (typeof window !== "undefined" && window.confirm("Remove this place from the trip? It stays in your Favorites.")) { try { logEvent("stop_remove", p, { key: t.key, remaining: items.length - 1 }); } catch (e) {} setTrips((prev) => Trips.removePlaceFromTrip(prev, t.key, stopKey)); } }} style={{ ...tripChip, color: C.red }}>Remove</button>
                             </div>
                           )}
                           {dating && (
