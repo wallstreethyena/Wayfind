@@ -811,6 +811,114 @@
     "lng": -81.9618928
    },
    "target": "research"
+  },
+  {
+   "research_id": "ripleys-christmas-park-hialeah-2026",
+   "place_id": "ChIJOx8kLAiw2YgRgaWJcTwN1l8",
+   "rail": "theme-parks",
+   "city": "Hialeah",
+   "venue": "Amelia Earhart Park, 401 E 65th St (enter on Palm Avenue)",
+   "point": {
+    "lat": 25.8855187,
+    "lng": -80.274241
+   },
+   "inventory": {
+    "name": "Amelia Earhart Park",
+    "locality": null,
+    "lat": 25.8855187,
+    "lng": -80.274241
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "candlelight-christmas-pop-classics-tampa-2026",
+   "place_id": "ChIJo-8jH13EwogRuKIb6MNc2aA",
+   "rail": "shows-outings",
+   "city": "Tampa",
+   "venue": "Centro Asturiano de Tampa, 1913 N Nebraska Ave",
+   "point": {
+    "lat": 27.9620682,
+    "lng": -82.4511057
+   },
+   "inventory": {
+    "name": "Centro Asturiano de Tampa",
+    "locality": null,
+    "lat": 27.9620682,
+    "lng": -82.4511057
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "christmas-in-the-country-cracker-country-2026",
+   "place_id": "ChIJcewX6kvPwogR4hM5ObiHHFo",
+   "rail": "shows-outings",
+   "city": "Tampa",
+   "venue": "Cracker Country, Florida State Fairgrounds, 4800 US Hwy 301 N",
+   "point": {
+    "lat": 27.9883373,
+    "lng": -82.3618245
+   },
+   "inventory": {
+    "name": "Cracker Country",
+    "locality": null,
+    "lat": 27.9883373,
+    "lng": -82.3618245
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "cracker-christmas-fort-christmas-2026",
+   "place_id": "ChIJK7dezdJa54gReRv7JoUKocA",
+   "rail": "shows-outings",
+   "city": "Christmas",
+   "venue": "Fort Christmas Historical Park, 1300 Fort Christmas Rd",
+   "point": {
+    "lat": 28.5641955,
+    "lng": -81.021765
+   },
+   "inventory": {
+    "name": "Fort Christmas Historical Park",
+    "locality": null,
+    "lat": 28.5641955,
+    "lng": -81.021765
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "galuppis-christmas-character-brunch-2026",
+   "place_id": "ChIJxT5RpqEC2YgRAZR8LkMhskI",
+   "rail": "parties",
+   "city": "Pompano Beach",
+   "venue": "Galuppi's, 1103 N Federal Hwy",
+   "point": {
+    "lat": 26.2457987,
+    "lng": -80.1032376
+   },
+   "inventory": {
+    "name": "Galuppi's",
+    "locality": null,
+    "lat": 26.2457987,
+    "lng": -80.1032376
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "jacksonville-zoolights-2026",
+   "place_id": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
+   "rail": "lights",
+   "city": "Jacksonville",
+   "venue": "Jacksonville Zoo and Gardens",
+   "point": {
+    "lat": 30.4040262,
+    "lng": -81.6436476
+   },
+   "inventory": {
+    "name": "Jacksonville Zoo and Botanical Gardens",
+    "locality": null,
+    "lat": 30.4040262,
+    "lng": -81.6436476
+   },
+   "target": "research"
   }
  ]
 }

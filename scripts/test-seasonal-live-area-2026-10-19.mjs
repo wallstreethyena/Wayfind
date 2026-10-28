@@ -148,7 +148,7 @@ function xmasRails(today) {
 }
 
 check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backed", () => {
-  assert.equal(RAW.length, 812); // 770 researched 2026-10-13 plus the 29 first-100 rows added 2026-10-28
+  assert.equal(RAW.length, 844); // 770 researched 2026-10-13 plus the 29 first-100 rows added 2026-10-28
   for (const [id, expect] of Object.entries(XMAS)) {
     const raw = RAW.find((row) => row.id === id);
     assert.ok(raw, id);
