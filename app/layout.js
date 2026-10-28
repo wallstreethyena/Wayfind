@@ -21,6 +21,7 @@ import PostHogProvider from "./components/PostHogProvider";
 import SentryClient from "./components/SentryClient";
 import VersionWatch from "./components/VersionWatch";
 import GoogleTags from "./components/GoogleTags";
+import MetaPixel from "./components/MetaPixel";
 import FooterVeil from "./components/FooterVeil";
 import PoweredByStrip from "./components/PoweredByStrip";
 import NativeShellInit from "./components/NativeShellInit";
@@ -165,6 +166,10 @@ export default function RootLayout({ children }) {
             received v6.44, so its height:100% is the pre-fix form and this
             branch's minHeight:100dvh is kept. */}
         <GoogleTags />
+        {/* Meta pixel (dataset "Wayfind Website", 1424559705968711) for the
+            Facebook / Instagram campaigns. Same shape as GoogleTags: native
+            shell and group-plan pages render nothing. See lib/metaPixel.js. */}
+        <MetaPixel />
         {/* #219 events primer: start the home events fetch BEFORE hydration.
             Reads the SAME wf_center the app uses (fallback = DEFAULT_CENTER in
             app/home.js — the lock test pins the coords in sync). Coords ride on
