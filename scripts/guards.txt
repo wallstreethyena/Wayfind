@@ -2423,3 +2423,6 @@ node scripts/test-photo-queue-close-condition.mjs
 # 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
 node scripts/test-run-guards.mjs
 node scripts/test-run-guards.mjs --red-prove
+# 2026-10-28 event safety without the LLM task: deterministic rollover of ended
+# events + data-level verification freshness pulse that pages via job-watch.
+node scripts/test-event-safety.mjs
