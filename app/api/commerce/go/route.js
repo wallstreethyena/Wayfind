@@ -41,6 +41,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler } from "../../../../lib/crawler.js";
+import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 
@@ -81,10 +82,12 @@ export async function GET(req) {
     click_id: clickId, rank_bucket: rankBucket(rank),
   };
 
+  // "human" until a gate below says otherwise; stamped on every redirect event.
+  let trafficClass = "human";
   const emit = (event, extra) => {
     // commercePayload enforces the field whitelist, so nothing outside the
     // schema can leave here even if a caller passes it.
-    const props = commercePayload(event, { ...base, ...(extra || {}) });
+    const props = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
     // Deliberately NOT awaited: a slow analytics POST must not delay the user's
     // redirect. Errors are swallowed inside captureServer.
     // Visitor UA/IP attach inside captureServer (after the whitelist). Passing
@@ -111,7 +114,16 @@ export async function GET(req) {
 
   // Refuse crawlers BEFORE resolving anything: no partner URL is even looked up,
   // so there is no path from an automated request to a CJ click.
-  if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
+  if (isCrawler(req.headers.get("user-agent"))) { trafficClass = "crawler"; return fail("crawler-refused"); }
+
+  // Prefetch / QA opt-in / burst (lib/redirectTrafficClass.js): decided BEFORE
+  // any partner URL is resolved. Humans fall straight through, unchanged.
+  const traffic = await gateRedirectTraffic(req, {
+    offerKey: provider + ":" + offerId,
+    siteLocation: new URL(FALLBACK, req.url).toString(),
+    emitRefused: (extra) => emit("provider_redirect_refused", extra),
+  });
+  if (traffic.response) return traffic.response;
 
   if (!provider || !offerId) return fail("missing-provider-or-offer");
   if (!PROVIDERS[provider]) return fail("unknown-provider");
