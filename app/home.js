@@ -1,6 +1,6 @@
 "use client";
 import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
-import { Component, useEffect, useMemo, useRef, useState } from "react";
+import { Component, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useEdgeFade } from "./components/EdgeFade";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
@@ -8664,7 +8664,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSearchRecoveryNear("");
     setCityTransition(null);
     setQuery(v);
-    setSuggestions(localCitySuggestions(v));
+    // INP 2026-10-27: the typed text paints first (setQuery above); the suggestion
+    // list is derived work, so it renders as a transition and never blocks a keystroke.
+    startTransition(() => { setSuggestions(localCitySuggestions(v)); });
     if (!v || v.trim().length < 2) return;
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
   }
@@ -8760,7 +8762,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (request !== suggestionRequestRef.current) return;
     // Cities stay in the dropdown so a reader can pick Parrish or Sarasota.
     // Place, event, and guide hits render as cards on the page from submitSearch.
-    setSuggestions(cities.slice(0, 8));
+    // INP 2026-10-27: debounced suggestion result lands as a transition so it
+    // cannot interrupt typing.
+    startTransition(() => { setSuggestions(cities.slice(0, 8)); });
     setSugIdx(-1);
     setSearchFeedback("");
     setSearchRecovery(false);
@@ -10328,13 +10332,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // Only when a category is OPENED. Closing the tray (id === null)
               // leaves the feed exactly as it is, so there is nothing to land on
               // and moving the page would be a lie about what just happened.
-              openBrowse(id);
+              // INP 2026-10-27: setNavOpenCat above is the cheap state that paints
+              // the tapped tab; the feed swap behind openBrowse is the expensive
+              // render, so it runs as a transition and cannot hold up that paint.
+              startTransition(() => { openBrowse(id); });
               try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
             }}
             onNavSub={(catId, subId, subLabel) => {
               // v8.22 — same screen-pop as onNavOpen above: a sub-filter tap
               // from Coupons/Events/Saved must land the reader on the place
               // cards it just filtered, not leave them on the old screen.
+              // INP 2026-10-27: the whole sub-filter state change re-renders the
+              // feed, so it runs as one transition (same updates, same batch,
+              // just interruptible) and the tap paints without waiting on it.
+              startTransition(() => {
               if (screen !== "suggested") {
                 setScreen("suggested");
                 try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
@@ -10345,6 +10356,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               categoryChosenRef.current = true;
               if (browseCat !== catId) pickBrowse(catId);
               setSub(subId);
+              });
               // v8.10 (owner, 2026-08-18: "the submenu also goes away — i want
               // the submenu to remain open"). The tray STAYS: the pick
               // highlights in place (aria-pressed) and the reader can hop
