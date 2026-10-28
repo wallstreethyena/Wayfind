@@ -143,6 +143,12 @@ import nextDynamic from "next/dynamic";
 // lib/chunkRecovery stays for the chunks the page cannot work without.
 const optionalChunk = (load, name) => nextDynamic(() => load().catch(() => load()).catch((e) => {
   try { if (typeof window !== "undefined") captureOrQueue(window, "chunk_load_failed", { chunk: name, message: String((e && e.message) || "").slice(0, 200), build: BUILD_ID }); } catch (_) { /* best-effort */ }
+  // The pre-React layer (lib/chunkRecovery) paints #wf-chunk-bar when its one
+  // reload is spent and a chunk fails again. Measured on production 2026-10-27
+  // with this chunk blocked: the page is fully usable without the footer, so a
+  // persistent "didn't finish loading — Reload" bar is a prompt for nothing.
+  // One prompt at a time, and none when nothing is broken.
+  try { const bar = typeof document !== "undefined" && document.getElementById("wf-chunk-bar"); if (bar) bar.remove(); } catch (_) { /* best-effort */ }
   return { default: () => null };
 }), { ssr: false });
 const CommunityFooter = optionalChunk(() => import("./components/CommunityFooter"), "CommunityFooter");
