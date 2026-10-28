@@ -7,9 +7,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
+import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { openerFor } from "./booOpeners.js";
+import { pickLine, routeLine, timeLines } from "./booReactions.js";
 
 const HIDE_KEY = "wf_boo_hidden";
 const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share"];
@@ -126,8 +128,41 @@ function PoseImg({ pose, small }) {
   );
   return <>{layers.prev ? one(layers.prev, "out") : null}{one(layers.cur, "in")}</>;
 }
-const TOUCH_SEL = ".boo-bulb,.boo-buy,.boo-ask,.boo-goto,.boo-picks button,.boo-photo,.wf-wordmark-text,input[type=search],input[placeholder^=Search]";
+
+// Types a line out a letter at a time, like he is talking. The untyped rest is
+// rendered transparent so the bubble is full size from the first frame and
+// never jumps; with reduced motion the whole line shows at once.
+function TypeLine({ text, instant }) {
+  const [n, setN] = useState(instant ? text.length : 0);
+  useEffect(() => {
+    if (instant) { setN(text.length); return undefined; }
+    setN(0);
+    let i = 0;
+    const id = window.setInterval(() => { i += 1; setN(i); if (i >= text.length) clearInterval(id); }, TYPE_MS);
+    return () => clearInterval(id);
+  }, [text, instant]);
+  return <>{text.slice(0, n)}<span className="boo-ty" aria-hidden="true">{text.slice(n)}</span></>;
+}
+const TOUCH_SEL = ".boo-bulb,.boo-buy,.boo-ask,.boo-goto,.boo-picks button,.boo-photo,.wf-wordmark-text,input[type=search],input[placeholder^=Search],nav[aria-label='Destinations'] a,[aria-label='Browse categories'] button,a[href*='/api/commerce/go']";
+// Page targets the stylesheet already knows; anything else gets the generic ring.
+const KNOWN_TOUCH = ".boo-bulb,.boo-buy,.boo-ask,.boo-goto,.boo-picks button,.boo-photo,.wf-wordmark-text,input";
+// Only things nobody taps get him perched on top; buttons, links, photos and
+// the search box get him right beside them so a tap always reaches the page.
+const PERCH_SEL = ".boo-bulb,.wf-wordmark-text";
 const TOUCH_MS = 1200;
+// Visitor reactions: what he notices, how often he may speak up about it.
+const TICKET_SEL = ".boo-buy,a[href*='/api/commerce/go'],a[href*='/api/viator/go'],a[href*='/api/ticketmaster/go']";
+const PLACE_SEL = "a[href^='/p/'],.boo-photo,a[href^='/guides/']";
+const SEARCH_SEL = "input[type=search],input[placeholder^=Search],input[role=combobox]";
+const REACT_GAP = 9000; // quiet time after anything he says before a reaction
+const DIRECT_GAP = 2500; // shorter for a direct answer to a tap (tickets, save, like, share)
+const DIRECT = { ticket: 1, save: 1, like: 1, nope: 1, share: 1 };
+const REACT_MAX = 8; // reactions per page view, on top of the timed gags
+const REACT_LIMIT = { scrollFast: 1, bottom: 1, backTop: 1, hoverTicket: 2, hoverPlace: 2, peekTicket: 2, ticket: 2, save: 2, like: 1, nope: 1, share: 1, search: 1, idle: 2, welcomeBack: 1, copy: 1, cursor: 1 };
+const IDLE_MS = 28000;
+const HOVER_MS = 700;
+const TYPE_MS = 24;
+const VISITS_KEY = "wf_boo_visits";
 const SPOOKY_PLACEHOLDER = "Search a haunt or city...";
 function splitKicker(t) {
   const m = /^([A-Z][A-Z0-9 '&]{2,24}):\s+([\s\S]+)$/.exec(t || "");
@@ -160,6 +195,41 @@ function clean(t) {
   return String(t || "").replace(/[–—]/g, " ").replace(/\s{2,}/g, " ").trim();
 }
 function rand(a, b) { return a + Math.random() * (b - a); }
+// Where he hovers to "touch" an element: perched on its top edge, or just
+// under it when there is no room above.
+function aimAt(r) {
+  return [r.left + r.width / 2 - SIZE / 2, r.top - SIZE + 18 >= 0 ? r.top - SIZE + 18 : r.bottom - 18];
+}
+// For real page links and cards he parks right beside the element, so he
+// never sits on top of a button the visitor is about to press.
+function aimBeside(r, vw) {
+  const y = r.top + Math.min(r.height, 120) / 2 - SIZE / 2;
+  if (r.right + 2 + SIZE <= vw - SIDE) return [r.right + 2, y];
+  if (r.left - SIZE - 2 >= SIDE) return [r.left - SIZE - 2, y];
+  // Full width on a phone: float just above it, or just below at the top.
+  const x = r.left + r.width / 2 - SIZE / 2;
+  return r.top - SIZE - 2 >= 0 ? [x, r.top - SIZE - 2] : [x, r.bottom + 2];
+}
+// The glow for any other page element: a separate ring laid over it, so the
+// page's own styles and animations are never touched.
+function ringAround(el, st) {
+  const r = el.getBoundingClientRect();
+  if (r.width < 4 || r.height < 4 || !document.body) return;
+  const d = document.createElement("i");
+  d.className = "boo-ring";
+  d.setAttribute("aria-hidden", "true");
+  let rad = "12px";
+  try { rad = getComputedStyle(el).borderRadius || rad; } catch { /* ignore */ }
+  d.style.cssText = "left:" + r.left + "px;top:" + r.top + "px;width:" + r.width + "px;height:" + r.height + "px;border-radius:" + rad;
+  document.body.appendChild(d);
+  st.rings.add(d);
+  st.timers.push(window.setTimeout(() => { d.remove(); st.rings.delete(d); }, TOUCH_MS));
+}
+// Rough reading time for a bubble, typing included.
+function readMs(text) {
+  const n = String(text || "").length;
+  return Math.min(7000, Math.max(4200, 2400 + n * (TYPE_MS + 45)));
+}
 
 const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
@@ -291,7 +361,10 @@ const CSS = `
 .wf-wordmark-text[data-boo-touch]{animation:boo-t-word 1.2s ease-out both}
 @keyframes boo-t-word{0%,100%{filter:none}30%{filter:drop-shadow(0 0 10px rgba(196,181,253,.95)) drop-shadow(0 0 4px rgba(249,115,22,.7))}}
 input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
-@media (prefers-reduced-motion:reduce){.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
+.boo-ring{position:fixed;z-index:939;pointer-events:none;box-sizing:border-box;animation:boo-t-ring 1.2s ease-out both}
+@keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
+.boo-ty{color:transparent}
+@media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
 export default function BooCompanion() {
@@ -338,10 +411,20 @@ export default function BooCompanion() {
   const tappedRef = useRef(false);
   const openerRef = useRef("");
   const openerSpoken = useRef(false);
-  const touchSt = useRef({ els: new Set(), timers: [] });
+  const touchSt = useRef({ els: new Set(), rings: new Set(), timers: [] });
   const openRef = useRef(false);
   const eligibleRef = useRef(false);
   const pathRef = useRef(pathname);
+  const bubbleT = useRef(0);
+  const lastSay = useRef(0);
+  const reactN = useRef(0);
+  const reactKinds = useRef({});
+  const usedLines = useRef(new Set());
+  const pageN = useRef(0);
+  const returning = useRef(false);
+  const holdUntil = useRef(0);
+  const driftRef = useRef(false);
+  const gagBump = useRef(() => {});
   pathRef.current = pathname;
   openRef.current = open;
   reducedRef.current = reduced;
@@ -383,6 +466,19 @@ export default function BooCompanion() {
   }, []);
 
   useEffect(() => { if (eligible) { prefetch("idle"); prefetch("greet"); } }, [eligible]);
+
+  // Return visitors: count sessions in localStorage (once per tab session).
+  useEffect(() => {
+    try {
+      let n = Number(localStorage.getItem(VISITS_KEY)) || 0;
+      if (sessionStorage.getItem(VISITS_KEY) !== "1") {
+        n += 1;
+        localStorage.setItem(VISITS_KEY, String(n));
+        sessionStorage.setItem(VISITS_KEY, "1");
+      }
+      returning.current = n >= 2;
+    } catch { /* ignore */ }
+  }, []);
   useEffect(() => { if (eligible) track("boo_companion_shown", { path: pathname }); }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const place = useCallback((x, y) => {
@@ -420,6 +516,7 @@ export default function BooCompanion() {
       const on = (t, delay) => {
         st.timers.push(window.setTimeout(() => {
           try {
+            if (!t.matches(KNOWN_TOUCH)) { ringAround(t, st); return; }
             if (t.classList.contains("boo-bulb")) t.style.setProperty("--bc", getComputedStyle(t).backgroundColor);
             t.setAttribute("data-boo-touch", "1");
             st.els.add(t);
@@ -448,6 +545,7 @@ export default function BooCompanion() {
       // the search bar is swiping, and the Go to Wayfind button is eureka.
       const cl = el.classList;
       if (cl.contains("boo-bulb")) { zapRef.current(); return; }
+      if (el.matches(TICKET_SEL) && Math.random() < 0.35) st.timers.push(window.setTimeout(() => reactRef.current("peekTicket", { pose: "sales" }), 350));
       const first = cl.contains("boo-photo") ? "orb" : isInput ? "swipe" : cl.contains("boo-goto") ? "up" : "poke";
       setPose(first);
       if (first === "poke") st.timers.push(window.setTimeout(() => setPose("cheer"), 450));
@@ -455,6 +553,7 @@ export default function BooCompanion() {
     } catch { /* ignore */ }
   }, []);
   const zapRef = useRef(() => {});
+  const reactRef = useRef(() => false);
   const touchRef = useRef(touchTarget);
   touchRef.current = touchTarget;
   useEffect(() => () => {
@@ -463,6 +562,8 @@ export default function BooCompanion() {
     st.timers = [];
     st.els.forEach((t) => { try { t.removeAttribute("data-boo-touch"); } catch { /* ignore */ } });
     st.els.clear();
+    st.rings.forEach((d) => { try { d.remove(); } catch { /* ignore */ } });
+    st.rings.clear();
   }, []);
 
   // Roaming: hop between random waypoints anywhere in the safe box with eased
@@ -477,9 +578,7 @@ export default function BooCompanion() {
       if (hit) {
         target = hit.el; free = true;
         prefetch("poke"); prefetch("cheer"); prefetch("orb"); prefetch("swipe"); prefetch("up");
-        const r = hit.r;
-        tx = r.left + r.width / 2 - SIZE / 2;
-        ty = r.top - SIZE + 18 >= 0 ? r.top - SIZE + 18 : r.bottom - 18;
+        [tx, ty] = hit.el.matches(PERCH_SEL) ? aimAt(hit.r) : aimBeside(hit.r, b.vw);
         speed = rand(80, 160);
       }
     }
@@ -517,6 +616,82 @@ export default function BooCompanion() {
   }, []);
 
   const drifting = eligible && !reduced && !open && !bubble && !antic;
+  driftRef.current = drifting;
+
+  // One place that puts a line in the bubble: picks the side with room, owns
+  // the hide timer, and records when he last spoke so reactions keep a gap.
+  const showBubble = useCallback((text, ms) => {
+    const cur = reducedRef.current ? corner() : posRef.current;
+    const b = bounds();
+    const v = cur.y < 150 ? "below" : "above";
+    const h = cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right";
+    clearTimeout(bubbleT.current);
+    lastSay.current = Date.now();
+    setBubble({ text, v, h, key: lastSay.current });
+    bubbleT.current = window.setTimeout(() => { bubbleT.current = 0; setBubble(null); setPose(restPose()); }, ms || readMs(text));
+  }, [corner]); // eslint-disable-line react-hooks/exhaustive-deps
+  const sayRef = useRef(() => {});
+  sayRef.current = (text, p, delay) => {
+    const go = () => {
+      if (openRef.current || !eligibleRef.current) return;
+      if (p) { prefetch(p); setPose(p); }
+      showBubble(text);
+    };
+    if (delay) window.setTimeout(go, delay); else go();
+  };
+  useEffect(() => () => clearTimeout(bubbleT.current), []);
+
+  // Reactions: he notices what the visitor does. Every kind has a per page
+  // limit, all of them share a cap and a quiet gap, nothing fires while the
+  // sheet is open, the tab is hidden or the visitor is typing, and with
+  // reduced motion he speaks from his corner without flying anywhere.
+  const react = useCallback((kind, opts) => {
+    const o = opts || {};
+    if (!eligibleRef.current || openRef.current || typeof document === "undefined" || document.hidden) return false;
+    if (zapT.current.length || pendingRef.current) return false;
+    if (Date.now() - lastSay.current < (DIRECT[kind] ? DIRECT_GAP : REACT_GAP) || reactN.current >= REACT_MAX) return false;
+    if ((reactKinds.current[kind] || 0) >= (REACT_LIMIT[kind] || 1)) return false;
+    const ae = document.activeElement;
+    if (kind !== "search" && ae && (ae.tagName === "TEXTAREA" || (ae.tagName === "INPUT" && ae.type !== "checkbox" && ae.type !== "radio"))) return false;
+    const text = pickLine(kind, usedLines.current);
+    if (!text) return false;
+    reactKinds.current[kind] = (reactKinds.current[kind] || 0) + 1;
+    reactN.current += 1;
+    lastSay.current = Date.now();
+    gagBump.current();
+    track("boo_companion_react", { kind, path: pathRef.current });
+    const el = o.el;
+    if (el && el.isConnected && !reducedRef.current && driftRef.current) {
+      // Whoosh over to it, light it up, then say the line.
+      const r = el.getBoundingClientRect();
+      const vh = window.innerHeight;
+      if (r.bottom > 0 && r.top < vh) {
+        const b = bounds();
+        const from = posRef.current;
+        // Beside it, never on it: the visitor's finger or cursor is right there.
+        let [tx, ty] = aimBeside(r, b.vw);
+        tx = Math.min(b.maxX, Math.max(b.minX, tx));
+        ty = Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, ty));
+        const dir = tx - from.x;
+        if (Math.abs(dir) > 20 && flipRef.current) {
+          facing.current = dir > 0 ? 1 : -1;
+          flipRef.current.style.transform = facing.current > 0 ? "scaleX(1)" : "scaleX(-1)";
+        }
+        const dist = Math.max(1, Math.hypot(tx - from.x, ty - from.y));
+        const darting = dist > 160;
+        if (elRef.current) { elRef.current.dataset.dart = darting ? "1" : ""; elRef.current.style.setProperty("--tdir", String(facing.current)); }
+        seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: Math.min(0.9, dist / 420), pause: 0, target: el, free: true, say: { text, pose: o.pose } };
+        return true;
+      }
+    }
+    if (o.antic) {
+      const wait = playAntic(o.antic);
+      const travel = o.antic === "peekaboo" || o.antic === "zoomies";
+      sayRef.current(text, o.pose, travel ? wait : 0);
+    } else sayRef.current(text, o.pose, 0);
+    return true;
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  reactRef.current = react;
 
   // The rAF loop only runs while he is actually drifting and the tab is visible.
   useEffect(() => {
@@ -533,7 +708,10 @@ export default function BooCompanion() {
       lastTs.current = ts;
       let g = seg.current;
       if (!g) { nextLeg(); g = seg.current; }
-      if (g.pause > 0) {
+      if (holdUntil.current > Date.now() && !g.say) {
+        // A desktop cursor is close: hold still so he is easy to click.
+        setLean(0);
+      } else if (g.pause > 0) {
         setLean(0);
         g.pause -= dt;
         if (g.pause <= 0) nextLeg();
@@ -551,6 +729,7 @@ export default function BooCompanion() {
         if (u >= 1) {
           if (elRef.current) elRef.current.dataset.dart = "";
           if (g.target) { touchRef.current(g.target); g.target = null; g.pause = 1.5; }
+          if (g.say) { const s = g.say; g.say = null; sayRef.current(s.text, s.pose, 280); }
           else g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
         }
       }
@@ -613,14 +792,17 @@ export default function BooCompanion() {
     const b = bounds(), cur = posRef.current;
     const v = cur.y < 150 ? "below" : "above";
     const h = cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right";
-    const text = ZAP_LINES[Math.floor(Math.random() * ZAP_LINES.length)];
+    const fresh = ZAP_LINES.filter((z) => !usedLines.current.has(z));
+    const pool = fresh.length ? fresh : ZAP_LINES;
+    const text = pool[Math.floor(Math.random() * pool.length)];
+    usedLines.current.add(text);
     prefetch("panic"); prefetch("nap");
     setAntic({ name: "zap", key: Date.now() });
     setZap("jolt");
     setPose("panic");
     const at = (ms, fn) => zapT.current.push(window.setTimeout(fn, ms));
-    at(500, () => { setZap("settle"); setPose("nap"); setBubble({ text, v, h }); });
-    at(ZAP_MS, () => { setBubble(null); setAntic(null); setZap(null); setPose(restPose()); });
+    at(500, () => { setZap("settle"); setPose("nap"); clearTimeout(bubbleT.current); lastSay.current = Date.now(); setBubble({ text, v, h, key: lastSay.current }); });
+    at(ZAP_MS, () => { zapT.current = []; setBubble(null); setAntic(null); setZap(null); setPose(restPose()); });
     track("boo_companion_zap", { path: pathRef.current });
   }, [stopZap]);
   zapRef.current = zapBoo;
@@ -660,10 +842,19 @@ export default function BooCompanion() {
     if (!eligible) return;
     gagCount.current = 0;
     shownGags.current = new Set();
-    let timer = 0, hideTimer = 0, showTimer = 0, dead = false;
-    const schedule = (ms) => { timer = window.setTimeout(fire, ms); };
+    reactN.current = 0;
+    reactKinds.current = {};
+    usedLines.current = new Set();
+    pageN.current += 1;
+    const page = pageN.current;
+    let timer = 0, showTimer = 0, dead = false;
+    const schedule = (ms) => { clearTimeout(timer); timer = window.setTimeout(fire, ms); };
+    // A reaction just spoke: push the next timed gag back so they never stack.
+    gagBump.current = () => { if (!dead && gagCount.current > 0 && gagCount.current < 6) schedule(rand(25000, 40000)); };
     const localGag = () => {
-      const pool = gagPoolFor(pathRef.current).filter((g) => !shownGags.current.has(g));
+      let hour = 12;
+      try { hour = Math.floor(siteHourFloat()); } catch { /* ignore */ }
+      const pool = gagPoolFor(pathRef.current).concat(timeLines(hour)).filter((g) => !shownGags.current.has(g));
       if (!pool.length) return null;
       const text = pool[Math.floor(Math.random() * pool.length)];
       shownGags.current.add(text);
@@ -671,29 +862,28 @@ export default function BooCompanion() {
     };
     const present = (text, name, src) => {
       if (dead || openRef.current) return;
-      const cur = reducedRef.current ? corner() : posRef.current;
-      const b = bounds();
-      const v = cur.y < 150 ? "below" : "above";
-      const h = cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right";
       const wait = playAntic(name);
       const travel = name === "peekaboo" || name === "zoomies";
       const delay = travel ? wait : 0;
       showTimer = window.setTimeout(() => {
         if (dead || openRef.current) return;
-        setBubble({ text, v, h });
-        if (src !== "opener" && !travel && Math.random() < 0.4) { prefetch("sassy"); setPose("sassy"); }
+        showBubble(text);
+        if (src !== "opener" && src !== "route" && !travel && Math.random() < 0.4) { prefetch("sassy"); setPose("sassy"); }
         track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
-        hideTimer = window.setTimeout(() => { setBubble(null); setPose(restPose()); }, 5000);
       }, delay);
     };
     const fire = async () => {
       if (dead) return;
       if (gagCount.current >= 6) return;
       if (openRef.current || document.hidden) { schedule(rand(8000, 15000)); return; }
+      if (Date.now() - lastSay.current < 6000) { schedule(rand(6000, 9000)); return; }
       gagCount.current += 1;
       const n = gagCount.current;
       let text = null, name = ANTICS[Math.floor(Math.random() * ANTICS.length)], src = "local";
+      const back = n === 2 && returning.current ? pickLine("returning", usedLines.current) : null;
       if (n === 1 && !openerSpoken.current) { openerSpoken.current = true; text = getOpener(); name = "wave"; src = "opener"; }
+      else if (n === 1 && page > 1 && routeLine(pathRef.current)) { text = routeLine(pathRef.current); name = "wave"; src = "route"; }
+      else if (back) { returning.current = false; text = back; name = "wave"; src = "returning"; }
       else if (n >= 3 && n % 3 === 0) {
         try {
           const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
@@ -719,9 +909,143 @@ export default function BooCompanion() {
       present(text, name, src);
       schedule(rand(40000, 70000));
     };
-    schedule(6000);
-    return () => { dead = true; clearTimeout(timer); clearTimeout(hideTimer); clearTimeout(showTimer); setBubble(null); setPose(restPose()); };
-  }, [eligible, pathname, corner, playAntic]); // eslint-disable-line react-hooks/exhaustive-deps
+    schedule(page > 1 ? 2500 : 6000);
+    return () => { dead = true; gagBump.current = () => {}; clearTimeout(timer); clearTimeout(showTimer); clearTimeout(bubbleT.current); setBubble(null); setPose(restPose()); };
+  }, [eligible, pathname, corner, playAntic, showBubble]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Listeners for what the visitor does. All passive, scroll work is done once
+  // per animation frame, hover only on a real mouse, nothing is ever blocked.
+  useEffect(() => {
+    if (!eligible) return undefined;
+    const fine = (() => { try { return window.matchMedia("(hover: hover) and (pointer: fine)").matches; } catch { return false; } })();
+    let lastAct = Date.now(), lastSc = null, lastY = 0, lastT = 0, fast = 0, deep = false, ticking = false, pendSc = null;
+    let hiddenAt = 0, hoverEl = null, hoverT = 0, moveT = 0, holdT = 0;
+    const activity = () => { lastAct = Date.now(); };
+    // The app shell scrolls its own box (.wf-scrollarea), other pages scroll the
+    // document, so listen in the capture phase and read whichever box moved.
+    // Small boxes (photo strips, sideways rails) are ignored.
+    const onScroll = (e) => {
+      activity();
+      const tg = e.target;
+      const sc = !tg || tg === document || tg === document.documentElement || tg === document.body ? document.scrollingElement || document.documentElement : tg;
+      if (!sc || sc.clientHeight < window.innerHeight * 0.5) return;
+      pendSc = sc;
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        ticking = false;
+        const box = pendSc;
+        if (!box) return;
+        const y = box.scrollTop, t = performance.now(), vh = box.clientHeight;
+        const docH = box.scrollHeight;
+        if (box !== lastSc) { lastSc = box; lastY = y; lastT = t; deep = false; return; }
+        const v = Math.abs(y - lastY) / Math.max(16, t - lastT) * 1000;
+        lastY = y; lastT = t;
+        fast = v > 3800 ? fast + 1 : 0;
+        if (fast >= 4) { fast = 0; reactRef.current("scrollFast", { antic: "shiver", pose: "panic" }); }
+        if (y > vh * 1.5) deep = true;
+        if (docH > vh * 2.2 && y + vh >= docH - 160) reactRef.current("bottom", { pose: "peek" });
+        else if (deep && y < 80) { deep = false; reactRef.current("backTop", { pose: "up" }); }
+      });
+    };
+    // Clicks on the things that matter. Never inside Boo or his chat.
+    const onClick = (e) => {
+      activity();
+      const t = e.target && e.target.closest ? e.target : null;
+      if (!t || t.closest(".boo-c,.boo-s-back")) return;
+      const ticket = t.closest(TICKET_SEL);
+      if (ticket) { reactRef.current("ticket", { pose: "cheer" }); return; }
+      const btn = t.closest("button[aria-label]");
+      const label = btn ? btn.getAttribute("aria-label") || "" : "";
+      if (/^Save\s/.test(label)) reactRef.current("save", { pose: "cheer" });
+      else if (/^Like\s/.test(label)) reactRef.current("like", { pose: "cheer" });
+      else if (/^Not for me/.test(label)) reactRef.current("nope", { pose: "talk" });
+      else if (/^Share\s/.test(label)) reactRef.current("share", { pose: "mega" });
+    };
+    const onFocus = (e) => {
+      const t = e.target;
+      if (fine && t && t.matches && t.matches(SEARCH_SEL)) reactRef.current("search", { pose: "swipe" });
+    };
+    // Mouse only: hover a ticket or a place for a beat and he flies over to it.
+    const onOver = (e) => {
+      if (!fine) return;
+      const t = e.target && e.target.closest ? e.target : null;
+      if (!t || t.closest(".boo-c,.boo-s-back")) return;
+      const el = t.closest(TICKET_SEL) || t.closest(PLACE_SEL);
+      if (el === hoverEl) return;
+      clearTimeout(hoverT);
+      hoverEl = el;
+      if (!el) return;
+      const kind = el.matches(TICKET_SEL) ? "hoverTicket" : "hoverPlace";
+      hoverT = window.setTimeout(() => {
+        if (hoverEl !== el) return;
+        const card = kind === "hoverPlace" ? el.closest("li,article") || el : el;
+        const r = card.getBoundingClientRect();
+        const big = r.width * r.height > window.innerWidth * window.innerHeight * 0.45;
+        reactRef.current(kind, { el: big ? el : card, pose: kind === "hoverTicket" ? "sales" : "orb" });
+      }, HOVER_MS);
+    };
+    // Mouse only: when the cursor comes close he stops, turns to it and waves,
+    // so he is easy to click instead of a moving target.
+    const onMove = (e) => {
+      activity();
+      if (!fine || openRef.current) return;
+      const now = Date.now();
+      if (now - moveT < 90) return;
+      moveT = now;
+      const p = posRef.current;
+      const cx = p.x + SIZE / 2, cy = p.y + SIZE / 2;
+      if (Math.hypot(e.clientX - cx, e.clientY - cy) > 110) return;
+      const wasHeld = holdUntil.current > now;
+      holdUntil.current = now + 1400;
+      if (!wasHeld) {
+        const f = e.clientX >= cx ? 1 : -1;
+        if (f !== facing.current && flipRef.current) { facing.current = f; flipRef.current.style.transform = f > 0 ? "scaleX(1)" : "scaleX(-1)"; }
+        if (!reactRef.current("cursor", { pose: "greet" }) && driftRef.current) { prefetch("greet"); setPose("greet"); }
+      }
+      clearTimeout(holdT);
+      holdT = window.setTimeout(() => { if (driftRef.current) setPose(restPose()); }, 1500);
+    };
+    const onCopy = () => { reactRef.current("copy", { pose: "sassy" }); };
+    const onVis = () => {
+      if (document.hidden) { hiddenAt = Date.now(); return; }
+      if (hiddenAt && Date.now() - hiddenAt > 10000) window.setTimeout(() => reactRef.current("welcomeBack", { antic: "wave", pose: "cheer" }), 700);
+      hiddenAt = 0;
+      activity();
+    };
+    // Gone quiet: he comes in for a peek. At most twice a page.
+    const idle = window.setInterval(() => {
+      if (document.hidden || openRef.current) { activity(); return; }
+      if (Date.now() - lastAct > IDLE_MS && driftRef.current) {
+        activity();
+        reactRef.current("idle", { antic: "peekaboo", pose: "peek" });
+      }
+    }, 4000);
+    const opt = { passive: true };
+    const optCap = { passive: true, capture: true };
+    document.addEventListener("scroll", onScroll, optCap);
+    document.addEventListener("click", onClick, true);
+    document.addEventListener("focusin", onFocus);
+    document.addEventListener("pointerover", onOver, opt);
+    document.addEventListener("pointermove", onMove, opt);
+    document.addEventListener("pointerdown", activity, opt);
+    document.addEventListener("keydown", activity, opt);
+    document.addEventListener("copy", onCopy);
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      clearInterval(idle); clearTimeout(hoverT); clearTimeout(holdT);
+      holdUntil.current = 0;
+      document.removeEventListener("scroll", onScroll, optCap);
+      document.removeEventListener("click", onClick, true);
+      document.removeEventListener("focusin", onFocus);
+      document.removeEventListener("pointerover", onOver, opt);
+      document.removeEventListener("pointermove", onMove, opt);
+      document.removeEventListener("pointerdown", activity, opt);
+      document.removeEventListener("keydown", activity, opt);
+      document.removeEventListener("copy", onCopy);
+      document.removeEventListener("visibilitychange", onVis);
+    };
+  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const openSheet = useCallback((src) => {
     tappedRef.current = true;
@@ -747,6 +1071,7 @@ export default function BooCompanion() {
     holdRef.current = null;
     setPose("idle");
     setOpen(false);
+    setMsgs((m) => (m.some((x) => x.fresh) ? m.map((x) => (x.fresh ? { ...x, fresh: false } : x)) : m));
     try { if (lastFocus.current && lastFocus.current.focus) lastFocus.current.focus(); } catch { /* ignore */ }
   }, []);
 
@@ -771,7 +1096,7 @@ export default function BooCompanion() {
       if (!res.ok || !data || !data.reply) throw new Error("bad");
       source2 = data.source === "claude" ? "claude" : "fallback";
       wrap = !!data.wrap;
-      setMsgs((m) => m.concat([{ role: "boo", text: clean(data.reply) }]));
+      setMsgs((m) => m.concat([{ role: "boo", text: clean(data.reply), fresh: true }]));
       playAntic(data.antic);
       setCards(Array.isArray(data.cards) ? data.cards.filter((c) => c && c.cta && c.cta.href).slice(0, 4) : []);
       if (wrap) { wrapRef.current = true; setWrapped(true); }
@@ -810,7 +1135,7 @@ export default function BooCompanion() {
   // Opening line, focus, scroll lock, Escape and focus trap.
   useEffect(() => {
     if (!open) return;
-    setMsgs((m) => (m.length ? m : [{ role: "boo", text: getOpener() || GREETING }]));
+    setMsgs((m) => (m.length ? m : [{ role: "boo", text: getOpener() || GREETING, fresh: true }]));
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const f = window.setTimeout(() => { try { (inputRef.current || sheetRef.current).focus({ preventScroll: true }); } catch { /* ignore */ } }, 60);
@@ -865,7 +1190,14 @@ export default function BooCompanion() {
     <>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
-        <button type="button" className="boo-c-btn" aria-label="Chat with Boo, Wayfind's ghost guide" onClick={onTap}>
+        <button
+          type="button"
+          className="boo-c-btn"
+          aria-label="Chat with Boo, Wayfind's ghost guide"
+          onClick={onTap}
+          onPointerEnter={(e) => { if (e.pointerType === "mouse") holdUntil.current = Number.MAX_SAFE_INTEGER; }}
+          onPointerLeave={(e) => { if (e.pointerType === "mouse") holdUntil.current = Date.now() + 600; }}
+        >
           <span className="boo-c-glow" aria-hidden="true" />
           <span className={"boo-c-act" + (antic ? " boo-a-" + antic.name : "")} data-ph={zap || undefined} key={antic ? antic.key : "idle"}>
             <span className={"boo-c-look" + (look ? " boo-l-" + look : "")}>
@@ -888,8 +1220,8 @@ export default function BooCompanion() {
         </button>
         <i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" />
         {bubble && !open ? (
-          <button type="button" className="boo-c-bubble" data-v={bubble.v} data-h={bubble.h} onClick={() => openSheet("bubble")}>
-            {bubble.text}
+          <button type="button" className="boo-c-bubble" data-v={bubble.v} data-h={bubble.h} aria-label={bubble.text} onClick={() => openSheet("bubble")}>
+            <TypeLine key={bubble.key || bubble.text} text={bubble.text} instant={reduced} />
           </button>
         ) : null}
       </div>
@@ -907,7 +1239,7 @@ export default function BooCompanion() {
               {msgs.map((m, i) => (
                 <div key={i} className={"boo-m " + (m.role === "user" ? "u" : "b")}>
                   {m.role === "boo" && splitKicker(m.text)[0] ? <span className="boo-k">{splitKicker(m.text)[0]}</span> : null}
-                  {m.role === "boo" ? splitKicker(m.text)[1] : m.text}
+                  {m.role === "boo" ? (m.fresh && i === msgs.length - 1 && !reduced ? <TypeLine text={splitKicker(m.text)[1]} /> : splitKicker(m.text)[1]) : m.text}
                   {m.link ? <> <a href={HAUNT_PATH}>See the haunt list</a></> : null}
                 </div>
               ))}
