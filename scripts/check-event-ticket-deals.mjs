@@ -65,8 +65,8 @@ for (const [eventId, raw] of entries) {
     ok(reg, `${eventId}: offer "${norm.offerId}" resolves in PARTNER_OFFER_REGISTRY under provider "${norm.provider}"`);
     const discoveryRow = FALL_DISCOVERIES_2026.find((r) => r.event_id === eventId);
     // wf_events rows that are not in the fall discovery file: organizer URL read
-    // from the live table 2026-10-13 (official_ticket_url || official_event_url).
-    const LIVE_ORGANIZER_URLS = { "hw26-halloween-spookquarium-clearwater-2026": "https://www.cmaquarium.org/event/halloween-spookquarium-2026/", "zootampa-creatures-2026": "https://zootampa.org/events/creatures-of-the-night/" };
+    // from the live table 2026-10-13 / 2026-10-28 (official_ticket_url || official_event_url).
+    const LIVE_ORGANIZER_URLS = { "hw26-halloween-spookquarium-clearwater-2026": "https://www.cmaquarium.org/event/halloween-spookquarium-2026/", "zootampa-creatures-2026": "https://zootampa.org/events/creatures-of-the-night/", "hw26-pirates-of-the-haunted-seas-at-sea-life-orlando-2026": "https://www.visitsealife.com/orlando/whats-inside/events-experiences/pirates-of-the-haunted-seas/", "hw26-the-great-wax-heist-at-madame-tussauds-orlando-2026": "https://www.madametussauds.com/orlando/whats-inside/events-experiences/the-great-wax-heist/" };
     const organizerUrl = (discoveryRow && (discoveryRow.official_ticket_url || discoveryRow.official_event_url)) || LIVE_ORGANIZER_URLS[eventId];
     ok(organizerUrl, `${eventId}: a discovery row names the organizer URL this mapping is checked against`);
     const merchant = organizerUrl ? affiliateMerchantForUrl(organizerUrl) : null;
