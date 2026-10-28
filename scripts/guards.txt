@@ -2411,3 +2411,5 @@ node scripts/check-redirect-traffic-class.mjs
 
 # 2026-10-27: one tap on /p/{id}?action=save|like|dislike replays ONE action (deep-link effect re-ran on supabaseReady and doubled PostHog `save`, and un-saved the place).
 node scripts/test-save-single-emitter.mjs
+# 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
+node scripts/test-auth-journey.mjs

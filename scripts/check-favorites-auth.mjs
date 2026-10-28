@@ -27,7 +27,7 @@ if (!/function requireAuth\(/.test(shell)) fail("requireAuth() gate is missing f
   const body = shell.slice(start, start + 400);
   if (!/if \(user\) return true;/.test(body)) fail("requireAuth() no longer checks `user` first");
   if (!/authReady/.test(body)) fail("requireAuth() no longer waits on authReady — a returning signed-in user could be wrongly prompted to sign in before their session resolves");
-  if (!/setAuthOpen\(true\)/.test(body)) fail("requireAuth() no longer opens the sign-in modal (setAuthOpen(true))");
+  if (!/setAuthOpen\(true(?:,\s*"[a-z_]+")?\)/.test(body)) fail("requireAuth() no longer opens the sign-in modal (setAuthOpen(true, src))");
 }
 
 // 2a. These actions are deliberately local-first. They must never regress to

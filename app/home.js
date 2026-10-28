@@ -77,6 +77,10 @@ import { attributionParams } from "../lib/attribution";
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
 import { noteExplodingSignup } from "../lib/explodingExperiment";
+// lib/authJourney is loaded on demand (a sign-in moment, never first paint): the
+// homepage bundle sits 0.4KB under its 501KB ratchet and this code is not needed
+// until someone signs in. See check-bundle.mjs.
+const loadAuthJourney = () => import("../lib/authJourney");
 // Experiment slice, so an in-app detail_open can be attributed back to the
 // static entry page that assigned the visitor. Empty when never exposed.
 import { experimentProps } from "../lib/experiment";
@@ -5094,11 +5098,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // control could otherwise land in the window before `user` is populated
   // and get wrongly told to sign in. requireAuth() below waits on this.
   const [authReady, setAuthReady] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
+  const [authOpen, setAuthOpenRaw] = useState(false);
+  // Every open/close of the sign-in sheet goes through this one wrapper so the
+  // journey events (auth_opened / auth_dismissed) cannot be missed by a call
+  // site. src names the door ("header", "save_offer", "require_auth", ...).
+  // "success" and "recovery" closes are not dismissals.
+  const authOpenRef = useRef(false);
+  const userRef = useRef(null);
+  const logEventRef = useRef(null);
+  function setAuthOpen(v, src) {
+    try {
+      if (v && !authOpenRef.current) logEvent("auth_opened", null, { src: src || "other" });
+      else if (!v && authOpenRef.current && src !== "success" && src !== "recovery" && !userRef.current) logEvent("auth_dismissed", null, { mode: authMode });
+    } catch (e) {}
+    authOpenRef.current = !!v;
+    setAuthOpenRaw(v);
+  }
   const [authEmail, setAuthEmail] = useState("");
   const [authSending, setAuthSending] = useState(false);
   const [authPassword, setAuthPassword] = useState("");
   const [authMode, setAuthMode] = useState("signin"); // signin | signup
+  userRef.current = user;
+  logEventRef.current = logEvent;
   // v4.57: Reservations folder. Outbound booking taps auto-log a stub the
   // user can complete with a confirmation number when they return. Affiliate
   // partners never send booking data back, so this is the honest capture.
@@ -5287,7 +5308,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       // v4.56 PROTECTED (check-auth.mjs): a reset-password email link lands the
       // user here with a recovery session. Open the set-new-password sheet.
-      if (_event === "PASSWORD_RECOVERY") { try { setRecoveryOpen(true); setAuthOpen(false); } catch (e) {} }
+      if (_event === "PASSWORD_RECOVERY") { try { setRecoveryOpen(true); setAuthOpen(false, "recovery"); } catch (e) {} }
       // ONLY AN EXPLICIT SIGN-OUT SIGNS THE UI OUT (owner-reported, 2026-08-07:
       // "I keep getting logged out while browsing"). This line used to hand
       // setUser a null whenever the event carried no session — which treats
@@ -5308,6 +5329,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION")) { const _ret = consumeAuthReturn(window.sessionStorage); if (_ret) window.location.assign(_ret); } } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
       try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
+      // THE ONLY place signup_completed / login_completed are emitted (lib/authJourney.js).
+      // Web Google OAuth is a full-page redirect, so no click handler survives to
+      // log it; the auth state change is the one moment every method passes through.
+      // logEventRef: this closure is created once, logEvent must be the latest render's.
+      try {
+        if (typeof window !== "undefined") {
+          loadAuthJourney().then((aj) => {
+            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: window.localStorage, sess: window.sessionStorage, log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
+            if (_done && _done.indexOf("signup") === 0) { try { noteExplodingSignup((...a) => logEventRef.current && logEventRef.current(...a)); } catch (e) {} }
+          }).catch(() => {});
+        }
+      } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
       try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
     });
@@ -5347,7 +5380,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   function requireAuth(msg) {
     if (user) return true;
     if (!authReady) return false;
-    setAuthOpen(true);
+    setAuthOpen(true, "require_auth");
     showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
   }
@@ -5368,7 +5401,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // Let the save's own confirmation toast land first; then the offer.
       setTimeout(() => {
         try { logEvent("signup_offer_shown", null, { src }); } catch (e) {}
-        setAuthOpen(true);
+        setAuthOpen(true, "save_offer");
         showToast("Saved on this device — sign up free and it follows you to every device.");
       }, 1200);
     } catch (e) {}
@@ -5392,7 +5425,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     Object.values(trips || {}).some((t) => t && Array.isArray(t.items) && t.items.length > 0)
   );
   useEffect(() => {
-    if (authReady && !user && AUTH_SCREENS.has(screen) && !(screen === "itinerary" && hasLocalGuestTrip)) setAuthOpen(true);
+    if (authReady && !user && AUTH_SCREENS.has(screen) && !(screen === "itinerary" && hasLocalGuestTrip)) setAuthOpen(true, "screen_gate");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, authReady, user, hasLocalGuestTrip]);
 
@@ -5400,6 +5433,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // in Supabase. Redirects out to Google/Apple and back to the app.
   async function signInWithProvider(provider) {
     if (!supabase) return;
+    try { logEvent("auth_method_clicked", null, { method: provider, mode: authMode }); } catch (e) {}
+    try { (await loadAuthJourney()).markAuthAttempt(window.sessionStorage, provider); } catch (e) {}
     try {
       if (provider === "apple" && isNative()) {
         const credential = await nativeAppleCredential();
@@ -5421,18 +5456,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           await supabase.auth.updateUser({ data: { full_name: fullName, given_name: givenName || null, family_name: familyName || null } });
         }
         if (data && data.session) {
-          try { logEvent("login_completed", null, { method: "apple_native" }); } catch (e) {}
           showToast("Signed in with Apple");
-          setAuthOpen(false);
+          setAuthOpen(false, "success");
         }
         return;
       }
       if (provider === "google" && isNative()) {
         const session = await nativeOAuthSignIn(supabase, "google");
         if (session) {
-          try { logEvent("login_completed", null, { method: "google_native" }); } catch (e) {}
           showToast("Signed in with Google");
-          setAuthOpen(false);
+          setAuthOpen(false, "success");
         }
         return;
       }
@@ -5466,6 +5499,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const fixed = fixEmailTypos(authEmail);
     if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email \u2014 check it and tap again."); return; }
     setAuthSending(true);
+    try { logEvent("auth_method_clicked", null, { method: "password", mode: authMode }); } catch (e) {}
+    try { (await loadAuthJourney()).markAuthAttempt(window.sessionStorage, "password"); } catch (e) {}
     // Intent, not conversion. signup_started is analytics-only in GA4 and is
     // deliberately NOT an Ads conversion — submitting a form is not an account.
     if (authMode === "signup") { try { logEvent("signup_started"); } catch (e) {} }
@@ -5491,12 +5526,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // A session is the proof that Supabase completed the authentication flow.
       // Only then is a signup counted as a completed conversion.
       else if (res.data && res.data.session) {
-        try {
-          logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" });
-          if (authMode === "signup") noteExplodingSignup(logEvent);
-        } catch (e) {}
+        // signup_completed / login_completed fire from onAuthStateChange, once, for every method.
         showToast("Signed in");
-        setAuthOpen(false);
+        setAuthOpen(false, "success");
         setAuthEmail("");
         setAuthPassword("");
       }
@@ -10297,7 +10329,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
-              <button className="wf-signin-button" onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
+              <button className="wf-signin-button" onClick={() => setAuthOpen(true, "header")} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
           </div>
         </div>
@@ -11350,7 +11382,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                         const gwArrow = (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>);
                         let gwCta;
                         if (!giveawayLive()) gwCta = { label: "Opens July 4", disabled: true };
-                        else if (!user) gwCta = { label: gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter", go: () => { gwPopClose("cta"); setAuthOpen(true); try { logEvent("giveaway_pop_signin"); } catch (e) {} } };
+                        else if (!user) gwCta = { label: gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter", go: () => { gwPopClose("cta"); setAuthOpen(true, "giveaway"); try { logEvent("giveaway_pop_signin"); } catch (e) {} } };
                         else if (gwDone) gwCta = { label: "Keep exploring", go: () => gwPopClose("entered") };
                         else gwCta = { label: gwShared > 0 ? "Share " + (3 - gwShared) + " more to enter" : "Find a place to share", go: () => { gwPopClose("browse"); openBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} } };
                         return (
@@ -11491,7 +11523,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}
