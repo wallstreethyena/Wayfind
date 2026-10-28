@@ -231,6 +231,8 @@ ok(!OWN_DOCUMENT.test(routeHtml), "3: app/error.js renders INSIDE the root layou
   const optional = (/const optionalChunk = [\s\S]*?\{ ssr: false \}\);/.exec(home) || [""])[0];
   ok(/\.catch\(\(\) => load\(\)\)/.test(optional) && /default: \(\) => null/.test(optional) && /"chunk_load_failed"/.test(optional),
     "4: optionalChunk retries the import once, then renders nothing and records chunk_load_failed (never throws into the boundary)");
+  ok(/getElementById\("wf-chunk-bar"\)[\s\S]*?\.remove\(\)/.test(optional),
+    "4: optionalChunk removes a #wf-chunk-bar painted for its own failure — the page works without optional chrome, so no prompt stays up (production, 2026-10-27)");
   for (const name of ["CommunityFooter", "PoweredByStrip"]) {
     ok(new RegExp(`const ${name} = optionalChunk\\(`).test(home), `4: ${name} (optional chrome) is loaded through optionalChunk`);
   }

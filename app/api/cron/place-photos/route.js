@@ -68,7 +68,7 @@ const WORK_BUDGET_MS = 255_000;
 // as a fresh candidate, so it cannot meaningfully eat into WORK_BUDGET_MS.
 const REVAULT_LIMIT = 10;
 
-import { runBackfill, describeAtRisk, describeReplay } from "../../../../lib/placePhotoBackfill";
+import { runBackfill, describeAtRisk, describeReplay, describeRepair } from "../../../../lib/placePhotoBackfill";
 import { recordPulse, isDeterministicFailureNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -117,7 +117,7 @@ export async function GET(req) {
     ? `place-photos: table unavailable (${result.tableStatus != null ? result.tableStatus : "error"})`
     : result.note
       ? (isDeterministicFailureNote(result.note) ? result.note : `place-photos: ${result.note}`)
-      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (repair ${result.repairTaken || 0}/${result.repairScanned || 0}, ${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
+      : `place-photos: ${result.active} active (${result.vaulted || 0} vaulted), ${result.rejected} rejected, ${result.failed} failed, ${result.deferred || 0} deferred${result.partial ? ` — PARTIAL: stopped on its own ${Math.round(WORK_BUDGET_MS / 1000)}s budget with ${result.deadlineStopped} candidate(s) unstarted` : ""} (${describeRepair(result)}, ${describeAtRisk({ ...result, source })}, ${describeReplay({ ...result, source })}, general scanned ${result.scanned}, ${result.alreadyCovered} already covered, revault ${result.revaulted || 0}/${result.revaultAttempted || 0})`;
 
   if (!result.tableUnavailable && result.attempted > 0 && result.failed === result.attempted) {
     return jobFailed("place-photos", note, { attempted: result.attempted, succeeded: 0 });
