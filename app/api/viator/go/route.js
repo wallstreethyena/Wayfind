@@ -21,6 +21,7 @@ import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isSyntheticMonitor } from "../../../../lib/crawler.js";
+import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -255,9 +256,10 @@ export async function GET(req) {
     click_id: clickId,
   };
 
+  let trafficClass = "human";
   const emit = (event, extra) => {
     try {
-      const props = commercePayload(event, { ...baseProps, ...(extra || {}) });
+      const props = commercePayload(event, { ...baseProps, traffic_class: trafficClass, ...(extra || {}) });
       captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
@@ -274,10 +276,19 @@ export async function GET(req) {
   // in one hour, 106 IPs, desktop Chrome/Mac UAs, `q:`-prefixed offer ids —
   // this route was the only /go route with no isCrawler gate.)
   if (isCrawler(req.headers.get("user-agent"))) {
+    trafficClass = "crawler";
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "crawler-refused", resolver_path: chosen.resolver_path });
     return Response.redirect(siteLocation(req, chosen.location), 302);
   }
+
+  // Prefetch / QA opt-in / burst: refused before any search or product handoff.
+  const traffic = await gateRedirectTraffic(req, {
+    offerKey: "viator:" + (rawProduct || placeId || q || "unknown"),
+    siteLocation: siteLocation(req, FALLBACK),
+    emitRefused: (extra) => emit("provider_redirect_refused", extra),
+  });
+  if (traffic.response) return traffic.response;
 
   // The provider-health probe used to be public and made a real metered
   // Partner API request. Operator health checks belong in authenticated

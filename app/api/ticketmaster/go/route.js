@@ -22,6 +22,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isCrawler } from "../../../../lib/crawler.js";
+import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 
 const FALLBACK = "/events";
 
@@ -49,9 +50,10 @@ export async function GET(req) {
     rank_bucket: rankBucket(rank),
   };
 
+  let trafficClass = "human";
   const emit = (event, extra) => {
     try {
-      const props = commercePayload(event, { ...base, ...(extra || {}) });
+      const props = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
       captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
@@ -68,7 +70,13 @@ export async function GET(req) {
     });
   };
 
-  if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
+  if (isCrawler(req.headers.get("user-agent"))) { trafficClass = "crawler"; return fail("crawler-refused"); }
+  const traffic = await gateRedirectTraffic(req, {
+    offerKey: "ticketmaster:" + (rawUrl || "unknown"),
+    siteLocation: new URL(FALLBACK, req.url).toString(),
+    emitRefused: (extra) => emit("provider_redirect_refused", extra),
+  });
+  if (traffic.response) return traffic.response;
   if (!rawUrl) return fail("missing-url");
   if (!isTicketmasterFamily(rawUrl)) return fail("url-not-ticketmaster-family");
 

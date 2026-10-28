@@ -3,6 +3,7 @@ export const runtime = "nodejs";
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isCrawler } from "../../../../lib/crawler.js";
+import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 import { isHotelBookingVerified } from "../../../../lib/hotelBookingVerification.js";
 import {
   HOTEL_REDIRECT_FALLBACK,
@@ -42,9 +43,10 @@ export async function GET(req) {
     click_id: clickId,
   };
 
+  let trafficClass = "human";
   const emit = (event, extra) => {
     try {
-      const properties = commercePayload(event, { ...base, ...(extra || {}) });
+      const properties = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
       captureServer(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
@@ -63,7 +65,13 @@ export async function GET(req) {
     return redirect(new URL(HOTEL_REDIRECT_FALLBACK, req.url).toString());
   };
 
-  if (isCrawler(req.headers.get("user-agent"))) return fail("crawler-refused");
+  if (isCrawler(req.headers.get("user-agent"))) { trafficClass = "crawler"; return fail("crawler-refused"); }
+  const traffic = await gateRedirectTraffic(req, {
+    offerKey: "stay22:" + (contentId || params.get("name") || "hotel-search"),
+    siteLocation: new URL(HOTEL_REDIRECT_FALLBACK, req.url).toString(),
+    emitRefused: (extra) => emit("provider_redirect_refused", extra),
+  });
+  if (traffic.response) return traffic.response;
   if (!hotel) return fail("invalid-hotel-location");
   // 2026-09-23: the button is gated in lib/affiliates.hotelGoUrl, but this URL
   // is shareable and guessable, so the same fail-closed rule is enforced here
