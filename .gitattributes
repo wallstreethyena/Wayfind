@@ -12,6 +12,10 @@
 # runner de-duplicates and order is not load-bearing between guards.
 scripts/guards.txt merge=union
 
+# The serial list is the same shape (one exact guard line per entry, comments carry the
+# reason), so concurrent additions union-merge for the same reason.
+scripts/guards-serial.txt merge=union
+
 # One guard per line, sorted by path, no aggregate counters: two PRs adding
 # different guards touch different lines. Deliberately NOT merge=union — a
 # same-guard edit on two branches must surface as a conflict for a human,
