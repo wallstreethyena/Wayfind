@@ -157,5 +157,50 @@ for (const g of zs) ok(!DASH.test(g), 'zap line contains a dash: "' + g + '"');
 ok(/\.boo-zb,\.boo-sm,\.boo-sp\{display:none/.test(comp) && /\.boo-c-look,\.boo-c-sway\{animation:none/.test(comp), "reduced motion must switch off sparks, smoke and charm");
 ok(/if \(openRef\.current \|\| reducedRef\.current\) return false;/.test(comp), "charm must never run while the sheet is open or with reduced motion");
 
+// 11. Reactions: call the module. Every line dash free and short, every kind
+// has a per page limit, the route lines resolve, and the companion gates every
+// reaction on the sheet, a quiet gap, a page cap and reduced motion.
+const R = await import("../app/components/booReactions.js");
+const kinds = Object.keys(R.REACT_LINES);
+ok(kinds.length >= 15, "expected at least 15 reaction kinds, found " + kinds.length);
+let nLines = 0;
+const allLines = [...kinds.flatMap((k) => R.REACT_LINES[k]), ...Object.values(R.TIME_LINES).flat(), ...R.ROUTE_LINES.map((x) => x[1])];
+for (const k of kinds) ok(Array.isArray(R.REACT_LINES[k]) && R.REACT_LINES[k].length >= 2, "reaction kind " + k + " needs at least 2 lines");
+for (const t of allLines) {
+  nLines++;
+  ok(typeof t === "string" && t.trim().length > 0, "empty reaction line");
+  ok(!DASH.test(t), 'reaction line has a dash: "' + t + '"');
+  ok(t.trim().split(/\s+/).length <= 12, 'reaction line over 12 words: "' + t + '"');
+}
+ok(nLines >= 60, "expected at least 60 reaction, time and route lines, parsed " + nLines);
+ok(R.routeLine("/halloween-in-florida") === R.ROUTE_LINES.find((x) => x[0] === "/halloween")[1], "Halloween page gets the haunt route line");
+ok(R.routeLine("/p/ChIJabc") === R.ROUTE_LINES.find((x) => x[0] === "/p/")[1] && R.routeLine("/partners") === null, "place pages match /p/ only");
+ok(R.routeLine("/") === R.ROUTE_LINES.find((x) => x[0] === "/")[1] && R.routeLine("/nowhere-at-all") === null, "home matches only exactly, unknown paths say nothing");
+ok(R.timeLines(1) === R.TIME_LINES.late && R.timeLines(7) === R.TIME_LINES.morning && R.timeLines(20) === R.TIME_LINES.evening && R.timeLines(14).length === 0, "time of day pools by hour");
+const used = new Set();
+const first = R.pickLine("save", used, () => 0), second = R.pickLine("save", used, () => 0);
+ok(first && second && first !== second && R.pickLine("save", used) === null, "pickLine never repeats a line within a page and runs dry");
+const lim = comp.match(/const\s+REACT_LIMIT\s*=\s*\{([^}]*)\}/);
+ok(!!lim, "BooCompanion must declare const REACT_LIMIT = {...}");
+if (lim) for (const k of kinds.filter((k) => k !== "returning")) ok(new RegExp("\\b" + k + "\\s*:\\s*[1-3]\\b").test(lim[1]), "REACT_LIMIT must cap " + k + " at 1 to 3 per page");
+const gap = comp.match(/const\s+REACT_GAP\s*=\s*(\d+)/), cap = comp.match(/const\s+REACT_MAX\s*=\s*(\d+)/);
+ok(!!gap && Number(gap[1]) >= 8000, "REACT_GAP must be at least 8s");
+ok(!!cap && Number(cap[1]) <= 10, "REACT_MAX must be 10 or fewer per page");
+const reactBody = comp.match(/const\s+react\s*=\s*useCallback\(\s*\(kind,\s*opts\)\s*=>\s*\{([\s\S]*?)\n  \}, \[\]\)/);
+ok(!!reactBody, "BooCompanion must declare const react = useCallback((kind, opts) => {...}, [])");
+if (reactBody) {
+  ok(/openRef\.current/.test(reactBody[1]) && /document\.hidden/.test(reactBody[1]), "react must stay quiet while the sheet is open or the tab is hidden");
+  ok(/Date\.now\(\)\s*-\s*lastSay\.current\s*<\s*REACT_GAP/.test(reactBody[1]) && /reactN\.current\s*>=\s*REACT_MAX/.test(reactBody[1]), "react must honour the quiet gap and the page cap");
+  ok(/!reducedRef\.current\s*&&\s*driftRef\.current/.test(reactBody[1]), "react must never fly with reduced motion");
+  ok(/ae\.tagName\s*===\s*"INPUT"/.test(reactBody[1]), "react must stay quiet while the visitor is typing");
+}
+ok(/document\.addEventListener\("scroll",\s*onScroll,\s*optCap\)/.test(comp) && /const\s+optCap\s*=\s*\{\s*passive:\s*true,\s*capture:\s*true\s*\}/.test(comp), "scroll listener must be passive and in the capture phase, so the shell's own scroll box is heard");
+ok(!/window\.scroll(?:X|Y|To|By|\b)/.test(comp), "BooCompanion never reads or steers window scroll (the shell scrolls .wf-scrollarea)");
+ok(/\(hover: hover\) and \(pointer: fine\)/.test(comp), "hover and cursor reactions are mouse only");
+ok(/\.boo-ring\{position:fixed;z-index:939;pointer-events:none/.test(comp) && /\.boo-ring\{display:none !important\}/.test(comp), "generic touch ring is a separate click through overlay, off under reduced motion");
+ok(/function\s+ringAround\s*\(/.test(comp) && /if\s*\(!t\.matches\(KNOWN_TOUCH\)\)\s*\{\s*ringAround\(t,\s*st\)/.test(comp), "page elements outside the Halloween set get the overlay ring, never a style change");
+ok(/function\s+TypeLine\s*\(/.test(comp) && /\.boo-ty\{color:transparent\}/.test(comp) && /aria-label=\{bubble\.text\}/.test(comp), "bubble types out with a stable size and a full aria label");
+ok(/<TypeLine[^>]*instant=\{reduced\}/.test(comp), "typing is instant under reduced motion");
+
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
-console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key, zap + charm verified");
+console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key, zap + charm verified; " + nLines + " reaction lines checked");
