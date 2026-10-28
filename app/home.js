@@ -9032,6 +9032,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return;
       d.handled = true;
       jumpToAreaRef.current({ name: d.name, lat, lng });
+      setSearchFeedback("");
+      setSearchRecovery(false);
+      setSearchMissing(false);
       setScreen("suggested");
       try { logEvent("boo_city_jump", null, { city: d.name }); } catch (e2) {}
     };
