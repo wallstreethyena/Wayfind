@@ -115,7 +115,15 @@ export async function GET(req) {
     // cancellation, whichever pulse lands first — name it that way. Without
     // this, a slow runner lets the read fail (and record its pulse) before
     // the watchdog timer fires, and the recorded cause is timing luck.
-    const note = controller.signal.aborted ? `watchdog: sweep cancelled (${reason})` : reason;
+    // "Already aborted" is judged by the CLOCK as well as the signal: a
+    // budget armed from startedAt (the worklist read: min(6000, workDeadlineAt
+    // - now)) shares the watchdog's deadline but is armed LATER than the
+    // watchdog timer, so on a loaded runner it can fire first while the signal
+    // is still un-aborted. That race failed Vercel production builds #1912
+    // (10-21) and #1962 (10-24) in check-experiences-link-health, and
+    // reproduced locally 2/48 runs under 16-way parallel load.
+    const pastWatchdog = controller.signal.aborted || Date.now() >= startedAt + watchdogMs;
+    const note = pastWatchdog ? `watchdog: sweep cancelled (${reason})` : reason;
     await recordPulse(JOB, { attempted: context.attempted, succeeded: 0, failed: 1, note });
     return Response.json({ ok: false, job: JOB, error: reason, ranWork: true }, { status: 500, headers: { "cache-control": "no-store" } });
   };

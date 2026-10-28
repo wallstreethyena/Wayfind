@@ -397,6 +397,13 @@ async function runSweep({ selectHangs = false, bodyHangs = false, providerHangs 
   }
   const lateRead = await runSweep({ selected: [{ product_code: "LATE" }], selectDelayMs: 60, selectStatus: 500, watchdogMs: 15, realReadTimeout: true, settleMs: 90 });
   ok(lateRead.response.status === 500 && lateRead.pulses.length === 1 && /watchdog/.test(lateRead.pulses[0].note), "a read failing after the watchdog cannot emit a second pulse");
+  // Deterministic form of the race that failed production builds #1912/#1962: the read
+  // budget fires AT the watchdog deadline before the watchdog timer has aborted the signal.
+  // Judged by the clock, the failure is still named a watchdog cancellation.
+  const pastDeadline = await runSweep({ selected: [{ product_code: "LATE" }], selectStatus: 500, readAdvanceMs: 6000, watchdogMs: 5000 });
+  ok(pastDeadline.pulses.length === 1 && /^watchdog: sweep cancelled/.test(pastDeadline.pulses[0].note || ""), "a read failing past the watchdog deadline (signal not yet aborted) is named a watchdog cancellation");
+  const inTime = await runSweep({ selected: [{ product_code: "EARLY" }], selectStatus: 500, readAdvanceMs: 10, watchdogMs: 5000 });
+  ok(inTime.pulses.length === 1 && !/watchdog/.test(inTime.pulses[0].note || ""), "control: a read failing well inside the watchdog keeps its own reason");
   ok(lateRead.signals[0]?.aborted && lateRead.providerRequests.length === 0 && lateRead.patches.length === 0, "watchdog cancellation prevents all later provider work and writes");
   const lateSuccess = await runSweep({ selected: [{ product_code: "LATE" }], selectDelayMs: 60, watchdogMs: 15, realReadTimeout: true, settleMs: 90 });
   ok(lateSuccess.pulses.length === 1 && lateSuccess.providerRequests.length === 0 && lateSuccess.patches.length === 0, "a successful late read also cannot restart the cancelled sweep");
