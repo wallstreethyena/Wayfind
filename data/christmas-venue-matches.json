@@ -775,6 +775,42 @@
     "lng": -82.4699672
    },
    "target": "research"
+  },
+  {
+   "research_id": "festival-of-giving-childrens-museum-treasure-coast-2026",
+   "place_id": "ChIJWTX7kWvn3ogRRjQhNzC11RQ",
+   "rail": "shows-outings",
+   "city": "Jensen Beach",
+   "venue": "Children's Museum of the Treasure Coast, 1707 NE Indian River Drive",
+   "point": {
+    "lat": 27.2255462,
+    "lng": -80.2124299
+   },
+   "inventory": {
+    "name": "Children's Museum of the Treasure Coast",
+    "locality": null,
+    "lat": 27.2255462,
+    "lng": -80.2124299
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "cape-coral-holiday-boat-a-long-2026",
+   "place_id": "ChIJnWEkD68424gRND0vXzL0gxU",
+   "rail": "boat-parades",
+   "city": "Cape Coral",
+   "venue": "Four Freedoms Park, Bimini Basin",
+   "point": {
+    "lat": 26.5618019,
+    "lng": -81.9618928
+   },
+   "inventory": {
+    "name": "Four Freedoms Park",
+    "locality": null,
+    "lat": 26.5618019,
+    "lng": -81.9618928
+   },
+   "target": "research"
   }
  ]
 }
