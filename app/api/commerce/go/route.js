@@ -41,7 +41,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse } from "../../../../lib/redirectTrafficClass.js";
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 
@@ -197,4 +197,9 @@ export async function GET(req) {
       "Referrer-Policy": "no-referrer",
     },
   });
+}
+
+// HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
+export async function HEAD() {
+  return headResponse();
 }

@@ -21,7 +21,7 @@ import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isSyntheticMonitor } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse } from "../../../../lib/redirectTrafficClass.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -405,4 +405,9 @@ export async function GET(req) {
 
   const cache = chosen.ok ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
   return new Response(null, { status: 302, headers: { Location: chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
+}
+
+// HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
+export async function HEAD() {
+  return headResponse();
 }

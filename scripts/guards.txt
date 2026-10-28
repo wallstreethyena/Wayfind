@@ -2408,3 +2408,4 @@ node scripts/check-boo-companion.mjs
 # partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
 # still do. Drives all four go handlers with the PostHog capture intercepted.
 node scripts/check-redirect-traffic-class.mjs
+node scripts/check-redirect-suspect-gate.mjs

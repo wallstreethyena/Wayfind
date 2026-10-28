@@ -1,5 +1,13 @@
 {
   "_comment": "Hand-authored fields for CRITICAL guards (scripts/lib/build-guard-registry.mjs computes the critical set mechanically \u2014 top-20-audit citation + money-keyword match \u2014 and refuses to generate the registry if any critical guard is missing an entry here). Keyed by the guard's repo-relative path. protects = one plain sentence naming the invariant. blastRadius.category is one of revenue|trust|correctness|cosmetic. owner follows CLAUDE.md's 'AI Team Structure' (Qwen=Engineering, Llama=Editorial, Revenue QA=affiliate/monetization integrity) or 'owner (Gabriel)' where the call is a business/product decision rather than a technical one.",
+  "scripts/check-redirect-suspect-gate.mjs": {
+    "protects": "On top of #1989's redirect classifier: a client claiming modern Chrome/Firefox with no Sec-Fetch-Site/Dest (the 2026-10-21 spoofed sweep) gets a noindex Continue page and never a partner 302 or a human provider_redirect_started; HEAD and Next prefetch get 204 with no event; Meta ads agents and named crawlers/unfurlers never reach a partner; real people including Instagram/Facebook/Pinterest in-app browsers still do; and the weekly affiliate watchdog validates attribution from the first Wayfind-issued hop without contacting a partner or emitting an event.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "2026-10-21 12:08-12:10Z: 401 provider_redirect_started in 90 s from 121 AWS us-east-1 IPs with one spoofed desktop-Chrome UA, cookieless, no client JS (466 US redirects vs 0 US CTA clicks). #1989's burst gate that could catch it ships OFF. Automated partner clicks at 0% conversion read as click fraud to networks and corrupt the money funnel."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-viator-monitor-spend-skip.mjs": {
     "protects": "Our own scheduled synthetic monitor (WayfindSyntheticMonitor/1.0, every 30 minutes from CI) can never spend the metered provider_viator freetext-search ledger, by construction: the monitor's own book-links scenario never selects a spend-capable /api/viator/go?q= link, and the route itself refuses to spend for that exact UA as a backstop \u2014 while a real human's identical request is proven to still reach the ledger.",
     "blastRadius": {
