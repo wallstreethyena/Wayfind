@@ -15,6 +15,41 @@ const ensure = (condition, message) => {
 };
 
 export function checkSocialAttachments(repo) {
+  // Exact owner intake stays executable in the existing mandatory guard.
+  // Two unidentified clips must remain unattached rather than borrow a name.
+  const intake = JSON.parse(readFileSync(path.join(repo, "docs/curation/owner-seven-instagram-2026-10-28.json"), "utf8"));
+  ensure(intake.sources.length === 7, "owner seven-link intake must retain every submitted source");
+  ensure(new Set(intake.sources.map((source) => source.shortcode)).size === 7, "owner intake shortcodes must be distinct");
+  const verified = intake.sources.filter((source) => source.status === "verified");
+  const held = intake.sources.filter((source) => source.status === "held_identity");
+  ensure(verified.length === 5 && held.length === 2, "five sourced posts and two explicit identity holds must remain accountable");
+  ensure(verified.flatMap((source) => source.places).length === 8, "the four-destination beach roundup must retain all four associations");
+  for (const source of verified) for (const place of source.places) {
+    const videos = creatorVideosFor({ id: place.place_id, name: place.name, city: place.city }, place.city);
+    const matches = videos.filter((video) => video.url === source.native_url);
+    ensure(matches.length === 1 && matches[0].creator === source.creator, `${source.shortcode} must reach ${place.name} once with its creator credit`);
+    const caption = captionFor(matches[0]);
+    ensure(caption.length > 40, `${place.key} needs its original editorial caption`);
+    if (source.kind === "multi_place_roundup") ensure(/roundup/i.test(caption), `${place.key} must disclose the shared roundup`);
+    ensure(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} must retain its native embed path`);
+    const wrong = creatorVideosFor({ id: "ChIJdifferentVerifiedVenue123", name: place.name, city: place.city }, place.city);
+    ensure(!wrong.some((video) => video.url === source.native_url), `${place.key} cannot transfer its video to a same-name different Google ID`);
+    for (const other of verified.flatMap((candidate) => candidate.places)) {
+      if (source.places.some((candidate) => candidate.place_id === other.place_id)) continue;
+      ensure(!creatorVideosFor({ id: other.place_id }).some((video) => video.url === source.native_url), `${source.shortcode} cannot appear on unrelated ${other.name}`);
+    }
+  }
+  for (const source of held) {
+    ensure(source.places.length === 0 && source.needed, `${source.shortcode} must explain its missing venue identity`);
+    ensure(!CURATED.some((entry) => entry.videos.some((video) => video.url === source.native_url)), `${source.shortcode} must stay unpublished until the exact venue is sourced`);
+  }
+  for (const twin of ["ChIJPbX5AxsTw4gROkfgzEmV-5M", "ChIJV7hk7dQTw4gRNDR1PONlwis", "ChIJ4azy4NsTw4gRggI1e2ak_Rs", "ChIJX34pbZ0Pw4gR0NCoG6ZZVzA", "ChIJ-Y2aKDjLwogRtoPAwILap6k"]) {
+    ensure(!creatorVideosFor({ id: twin }).some((video) => intake.sources.some((source) => source.native_url === video.url)), `owner intake cannot attach to excluded/access/wedding twin ${twin}`);
+  }
+  for (const key of ["treasure-island-beach", "ever-after-farms-upick-flowers-seffner", "coquina-beach-bradenton-beach", "bradenton-beach-destination", "holmes-beach-destination", "bean-point-beach-anna-maria", "guanabanas-jupiter"]) {
+    const entry = CURATED.find((candidate) => candidate.key === key);
+    ensure(entry && creatorCountFor({ id: entry.placeId }) === 0, `${key} displays credited business/guide content without inventing independent corroboration`);
+  }
   const audit = JSON.parse(readFileSync(path.join(repo, "social-attachment-audit.json"), "utf8"));
   const curatedByKey = new Map(CURATED.map((entry) => [entry.key, entry]));
   const placeLinks = new Map();
