@@ -7273,7 +7273,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             if (sig) opened = withMemberSignal([p], sig)[0] || p;
           } catch (e) {}
           if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {
-            if (placeAction === "save") quickSaveFavorite(opened);
+            // A "save this place" link ADDS. quickSaveFavorite is a toggle, so an
+            // already-saved place must be left alone, never un-saved by its own link.
+            if (placeAction === "save") { if (!isSaved(opened.id)) quickSaveFavorite(opened); }
             else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
             else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
           }

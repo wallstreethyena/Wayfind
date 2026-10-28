@@ -40,18 +40,21 @@ if (m) {
   const toggleLike = (e, p) => posthog.capture("like", { place_id: p.id });
   const toggleDislike = (e, p) => posthog.capture("dislike", { place_id: p.id });
   const gateRef = { current: createPlaceActionGate() };
-  const replay = new Function("placeActionGateRef", "quickSaveFavorite", "toggleLike", "toggleDislike", "placeAction", "opened",
+  const replay = new Function("placeActionGateRef", "quickSaveFavorite", "toggleLike", "toggleDislike", "isSaved", "placeAction", "opened",
     "if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {" + m[1] + "\n}");
   for (const action of ["save", "like", "dislike"]) {
     caps.length = 0;
     const g = { current: createPlaceActionGate() };
-    for (let run = 0; run < 3; run++) replay(g, quickSaveFavorite, toggleLike, toggleDislike, action, { id: "P1" });
+    for (let run = 0; run < 3; run++) replay(g, quickSaveFavorite, toggleLike, toggleDislike, () => false, action, { id: "P1" });
     ok(caps.length === 1 && caps[0][0] === action, "3 effect runs for ?action=" + action + " must capture exactly 1 " + action + " (got " + caps.length + ")");
   }
   caps.length = 0;
-  replay(gateRef, quickSaveFavorite, toggleLike, toggleDislike, "save", { id: "P1" });
-  replay(gateRef, quickSaveFavorite, toggleLike, toggleDislike, "save", { id: "P2" });
+  replay(gateRef, quickSaveFavorite, toggleLike, toggleDislike, () => false, "save", { id: "P1" });
+  replay(gateRef, quickSaveFavorite, toggleLike, toggleDislike, () => false, "save", { id: "P2" });
   ok(caps.length === 2, "a different place is a different tap");
+  caps.length = 0;
+  replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => true, "save", { id: "P3" });
+  ok(caps.length === 0, "?action=save on an already-saved place adds nothing and never un-saves it (idempotent add)");
 }
 
 // (c) syntactic roles. Every call to quickSaveFavorite(opened) lives inside that gate.

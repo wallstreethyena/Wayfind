@@ -921,7 +921,7 @@ scripts/test-revenue-heartbeat.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	791704
 scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0b678c1ae6a5ca8dd778a212c5c51ea2db88d85266cebea6d2103da1c4f61e01
 scripts/test-richness-loading-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	2d3c98ec02cfdf9f6b6078b93ffb42f43519ab2d9ce14a6e4c6a6adca6d1452b
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
-scripts/test-save-single-emitter.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	6b5f40db79bd5b591d57c4f3830bc7bfb25addebe157ad5da8a6945ea1d1fa1a
+scripts/test-save-single-emitter.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	a1520d665fbc144beb2b56fb0da7db15ad4053c53a16e5ff54ae6fc903b22e1a
 scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40
 scripts/test-score-explanation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	110	0	0	b342e8073d61c4fefb4db75aa77acba78cbf2591e842385e917bd9434bbab2f8
