@@ -98,7 +98,7 @@ ok(/const\s+TOUCH_SEL\s*=\s*"[^"]*\.boo-bulb[^"]*\.boo-photo[^"]*"/.test(comp), 
 ok(/setAttribute\(\s*"data-boo-touch"/.test(comp) && /removeAttribute\(\s*"data-boo-touch"/.test(comp), "touch must set and remove data-boo-touch");
 ok(/const\s+TOUCH_MS\s*=\s*1200/.test(comp), "TOUCH_MS must be 1200");
 ok((comp.match(/querySelectorAll\(\s*TOUCH_SEL\s*\)/g) || []).length === 1, "exactly one querySelectorAll(TOUCH_SEL) per hop");
-ok(/!openRef\.current\s*&&\s*!reducedRef\.current\s*&&\s*Math\.random\(\)\s*<\s*0\.45/.test(comp), "touch legs must be gated on sheet closed and no reduced motion");
+ok(/!openRef\.current\s*&&\s*!reducedRef\.current\s*&&\s*\(legRef\.current\s*<\s*2\s*\|\|\s*Math\.random\(\)\s*<\s*0\.7\)/.test(comp), "touch legs must be gated on sheet closed and no reduced motion (first two legs always touch, then 70%)");
 ok(/Search a haunt or city\.\.\./.test(comp), "spooky search placeholder must exist");
 
 // 7. Openers: call the module. 12 city lines + 6 generic, dash free, max 14 words.

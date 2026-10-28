@@ -284,6 +284,7 @@ export default function BooCompanion() {
   const rafRef = useRef(0);
   const lastTs = useRef(0);
   const posRef = useRef({ x: 0, y: 0 });
+  const legRef = useRef(0);
   const facing = useRef(1);
   const turnRef = useRef(0);
   const wrapRef = useRef(false);
@@ -356,7 +357,7 @@ export default function BooCompanion() {
     const list = document.querySelectorAll(TOUCH_SEL);
     if (!list.length) return null;
     const vw = window.innerWidth, vh = window.innerHeight, ae = document.activeElement;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 12; i++) {
       const el = list[Math.floor(Math.random() * list.length)];
       if (el === ae || (el.tagName === "INPUT" && ae && ae.tagName === "INPUT")) continue;
       const r = el.getBoundingClientRect();
@@ -420,10 +421,11 @@ export default function BooCompanion() {
   // Roaming: hop between random waypoints anywhere in the safe box with eased
   // legs, varying speed, pauses, and now and then a dart to the far corner.
   const nextLeg = useCallback(() => {
+    legRef.current += 1;
     const b = bounds();
     const from = posRef.current;
     let tx, ty, speed, target = null, free = false;
-    if (!openRef.current && !reducedRef.current && Math.random() < 0.45) {
+    if (!openRef.current && !reducedRef.current && (legRef.current < 2 || Math.random() < 0.7)) {
       const hit = pickTarget();
       if (hit) {
         target = hit.el; free = true;

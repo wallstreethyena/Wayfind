@@ -48,7 +48,7 @@ function trackHauntEvent(event, props) {
 function photoChip(row) {
   if (row.filters.includes("family")) return "Family friendly";
   if (row.scareLevel === "Extreme Scare") return "Extreme scares";
-  return "";
+  return row.scareLevel || "Haunt";
 }
 
 // "from" + big price when the row has a numeric price, else the admission note.
@@ -82,20 +82,20 @@ const CSS = `
 .boo-lights{position:relative;height:28px;pointer-events:none;overflow-x:clip;z-index:30}
 .boo-wire{position:absolute;inset:0;width:100%;height:100%}
 .boo-bulb{
-  position:absolute;top:13px;width:9px;height:13px;margin-left:-4.5px;
+  position:absolute;top:12px;width:11px;height:15px;margin-left:-5.5px;
   border-radius:50% 50% 55% 55%;background:#F97316;
   box-shadow:0 0 8px 2px rgba(249,115,22,.55),0 0 18px 6px rgba(249,115,22,.2);
   transition:transform .35s ease,filter .35s ease;
-  animation:boo-cycle 14s linear var(--d,0s) infinite,boo-flick var(--f,4s) ease-in-out var(--fd,0s) infinite;
+  animation:boo-cycle 9s linear var(--d,0s) infinite,boo-flick var(--f,2.4s) steps(1,end) var(--fd,0s) infinite;
 }
-.boo-bulb.is-pop{transform:scale(1.4);filter:brightness(1.4)}
+.boo-bulb.is-pop{transform:scale(1.5);filter:brightness(1.6);opacity:1 !important}
 @keyframes boo-cycle{
   0%,100%{background:#F97316;box-shadow:0 0 8px 2px rgba(249,115,22,.55),0 0 18px 6px rgba(249,115,22,.2)}
   25%{background:#9D5CFF;box-shadow:0 0 8px 2px rgba(157,92,255,.55),0 0 18px 6px rgba(157,92,255,.2)}
   50%{background:#C4B5FD;box-shadow:0 0 8px 2px rgba(196,181,253,.5),0 0 18px 6px rgba(196,181,253,.18)}
   75%{background:#F5A524;box-shadow:0 0 8px 2px rgba(245,165,36,.55),0 0 18px 6px rgba(245,165,36,.2)}
 }
-@keyframes boo-flick{0%,100%{opacity:1}18%{opacity:.88}34%{opacity:1}52%{opacity:.8}70%{opacity:.97}}
+@keyframes boo-flick{0%,100%{opacity:1}22%{opacity:.25}30%{opacity:1}55%{opacity:.35}62%{opacity:1}80%{opacity:.6}86%{opacity:1}}
 @media(prefers-reduced-motion:reduce){
   .boo-bulb{animation:none;transition:none}
   .boo-bulb:nth-child(even){background:#F5A524;box-shadow:0 0 8px 2px rgba(245,165,36,.5),0 0 16px 5px rgba(245,165,36,.18)}
@@ -187,12 +187,14 @@ const CSS = `
 .boo-dots i.is-on{background:#F5EFE6}
 .boo-body{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px 12px 12px 12px}
 .boo-chip{align-self:flex-start;max-width:100%;padding:3px 9px;border-radius:999px;background:rgba(196,181,253,.16);color:var(--lav);font-size:12px;font-weight:600;line-height:1.4}
-.boo-card h2{margin:0;font-size:16px;line-height:1.3;font-weight:700;color:var(--cream);overflow-wrap:anywhere}
-.boo-credit{margin:0;font-size:11px;line-height:1.35;color:#9A94A8;overflow-wrap:anywhere}
+.boo-card h2{margin:0;font-size:16px;line-height:1.3;min-height:calc(1.3em * 2);font-weight:700;color:var(--cream);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.boo-credit{margin:0;font-size:11px;line-height:1.35;height:calc(1.35em);color:#9A94A8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .boo-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
 .boo-line{display:flex;align-items:flex-start;gap:7px;margin:0;font-size:13px;line-height:1.4;color:#9A94A8;min-width:0;overflow-wrap:anywhere}
+.boo-line .boo-when{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.4em * 2)}
 .boo-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
 .boo-bottom{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px}
+.boo-pricerow,.boo-note{min-height:calc(1.2em + 12px * 1.2 + 2px)}
 .boo-pricerow{display:flex;flex-direction:column;align-items:flex-end;margin:0;min-width:0}
 .boo-from{font-size:12px;line-height:1.2;color:#9A94A8}
 .boo-amt{text-align:right;font-size:22px;line-height:1.2;font-weight:800;color:var(--cream)}
@@ -214,7 +216,7 @@ function FestivalLights() {
     const bulbs = Array.from(root.querySelectorAll(".boo-bulb"));
     bulbs.forEach((bulb) => {
       bulb.style.setProperty("--d", (-Math.random() * 14).toFixed(2) + "s");
-      bulb.style.setProperty("--f", (3 + Math.random() * 4).toFixed(2) + "s");
+      bulb.style.setProperty("--f", (1.6 + Math.random() * 2.2).toFixed(2) + "s");
       bulb.style.setProperty("--fd", (-Math.random() * 6).toFixed(2) + "s");
     });
     let timer = null;
@@ -225,7 +227,7 @@ function FestivalLights() {
         bulb.classList.add("is-pop");
         off = setTimeout(() => bulb.classList.remove("is-pop"), 800);
       }
-      timer = setTimeout(pop, 3500 + Math.random() * 4500);
+      timer = setTimeout(pop, 1200 + Math.random() * 2000);
     };
     timer = setTimeout(pop, 2500);
     return () => { clearTimeout(timer); clearTimeout(off); };
@@ -340,7 +342,7 @@ function PhotoStrip({ photos, priority }) {
 function PhotoCredit({ photos }) {
   const seen = new Set();
   const lines = (photos || []).filter((p) => p && p.credit && !seen.has(p.credit) && seen.add(p.credit));
-  if (!lines.length) return null;
+  if (!lines.length) return <p className="boo-credit" aria-hidden="true">&nbsp;</p>;
   return (
     <p className="boo-credit">
       {lines.map((photo, i) => {
@@ -464,7 +466,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                 >
                   <PhotoStrip photos={row.photos || (row.photo ? [row.photo] : [])} priority={shown.indexOf(row) < 2} />
                   <div className="boo-body">
-                    {photoChip(row) ? <span className="boo-chip">{photoChip(row)}</span> : null}
+                    <span className="boo-chip">{photoChip(row)}</span>
                     <h2>{row.name}</h2>
                     <PhotoCredit photos={row.photos || (row.photo ? [row.photo] : [])} />
                     <p className="boo-line">
