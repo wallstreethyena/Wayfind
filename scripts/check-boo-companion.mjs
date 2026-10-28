@@ -9,11 +9,7 @@
 //      arrays are parsed from source and every string is checked.
 // Positive control: the dash probe must flag a known bad string, and at least
 // 20 gag strings must be found, so an empty parse can never read as clean.
-<<<<<<< HEAD
 import { existsSync, readFileSync, statSync } from "node:fs";
-=======
-import { readFileSync } from "node:fs";
->>>>>>> origin/main
 
 let fails = 0;
 const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
@@ -90,7 +86,6 @@ for (const m of arrays) {
 }
 ok(total >= 25, "expected at least 25 gag strings, parsed " + total);
 
-<<<<<<< HEAD
 // 6. Touch reactions: the CSS for every target lives in BooCompanion's style
 // block as data-boo-touch attribute selectors, and the hop code sets the
 // attribute for TOUCH_MS and never touches the page components.
@@ -142,7 +137,5 @@ ok(/<BooGhostSvg\s+face="wink"\s*\/>/.test(comp) && /\.boo-pi\.in\{animation:boo
 for (const need of ["sales", "talk", "bye", "err", "kids", "price"]) ok(new RegExp('"' + need + '"').test(comp), "pose state used: " + need);
 ok(/boo-blink\s+2\.2s/.test(comp) && /92\.3%/.test(comp), "blink cadence: 2.2s with 170ms closed");
 
-=======
->>>>>>> origin/main
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
 console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key verified");

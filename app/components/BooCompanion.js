@@ -9,10 +9,7 @@ import { usePathname } from "next/navigation";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
-<<<<<<< HEAD
 import { openerFor } from "./booOpeners.js";
-=======
->>>>>>> origin/main
 
 const HIDE_KEY = "wf_boo_hidden";
 const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share"];
@@ -44,13 +41,10 @@ const GAGS_GENERAL = [
   "I have been ghosting since before it was cool.",
   "Ask me where the real screams are tonight.",
   "Candy is great. Candy plus a haunt is better.",
-<<<<<<< HEAD
   "Floated up 40ft. Zero steps taken. Leg day skipped.",
   "Tourist trap? I only haunt the hidden gems.",
   "Sea for yourself. Swipe a little, scare a lot.",
   "Don't ghost me, tap and plan a night.",
-=======
->>>>>>> origin/main
   "Haunted houses are just open houses with better lighting.",
   "Bring a friend. Someone has to hold the screaming.",
 ];
@@ -80,7 +74,6 @@ function gagPoolFor(path) {
 const CHIPS_HALLOWEEN = ["Scariest in Tampa?", "Kid friendly tonight?", "Cheapest Orlando haunt?"];
 const CHIPS_OTHER = ["What's haunting Florida this week?", "Scares with kids?", "Best deal under $50?"];
 const GREETING = "Boo! Need a fright tonight or just a bite? Ask me anything, I float fast.";
-<<<<<<< HEAD
 const CENTER_KEY = "wf_center";
 // Official pose illustrations (public/boo/poses, 256px plus a 128px variant for
 // the chat avatar). Each companion state maps to one pose.
@@ -140,17 +133,11 @@ function splitKicker(t) {
   const m = /^([A-Z][A-Z0-9 '&]{2,24}):\s+([\s\S]+)$/.exec(t || "");
   return m ? [m[1], m[2]] : [null, t];
 }
-=======
->>>>>>> origin/main
 const FALLBACK_LINE = "My chains got tangled. The full haunt list is one tap away.";
 
 const ANTICS = ["wave", "spin", "peekaboo", "shiver", "zoomies", "nap", "bow", "juggle"];
 const ANTIC_MS = { wave: 1800, spin: 1500, peekaboo: 2600, shiver: 1500, zoomies: 2800, nap: 3200, bow: 1600, juggle: 2800 };
-<<<<<<< HEAD
 const SIZE = 88;
-=======
-const SIZE = 64;
->>>>>>> origin/main
 const TOP = 70, BOTTOM = 96, SIDE = 12;
 
 function track(event, props) {
@@ -168,15 +155,9 @@ const CSS = `
 .boo-c-btn:focus-visible{outline:2px solid #F97316;outline-offset:3px}
 .boo-c-glow{position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(closest-side,rgba(249,115,22,.26),rgba(249,115,22,0));pointer-events:none}
 .boo-c-flip{position:absolute;inset:0;transition:transform .35s ease}
-<<<<<<< HEAD
 .boo-c-bob{position:absolute;inset:0;animation:boo-c-bob .87s cubic-bezier(.37,0,.63,1) infinite}
 @keyframes boo-c-bob{0%,100%{transform:translateY(0)}25%{transform:translateY(-9px)}75%{transform:translateY(9px)}}
 .boo-c-bubble{all:unset;box-sizing:border-box;position:absolute;width:max-content;max-width:210px;padding:9px 12px;background:#F5EFE6;color:#1A1420;font:600 14px/1.3 var(--wf-sans),system-ui,sans-serif;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer;animation:boo-c-pop .35s cubic-bezier(.2,.8,.3,1) both}
-=======
-.boo-c-bob{position:absolute;inset:0;animation:boo-c-bob 2s ease-in-out infinite}
-@keyframes boo-c-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.boo-c-bubble{all:unset;box-sizing:border-box;position:absolute;width:max-content;max-width:210px;padding:9px 12px;background:#F5EFE6;color:#1A1420;font:600 14px/1.3 var(--wf-sans),system-ui,sans-serif;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer;animation:boo-c-pop .22s ease-out both}
->>>>>>> origin/main
 .boo-c-bubble:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-c-bubble:after{content:"";position:absolute;width:10px;height:10px;background:#F5EFE6;transform:rotate(45deg);border-radius:2px}
 .boo-c-bubble[data-v="above"]{bottom:${SIZE - 2}px}
@@ -187,17 +168,10 @@ const CSS = `
 .boo-c-bubble[data-h="right"]:after{left:18px}
 .boo-c-bubble[data-h="left"]{right:${SIZE / 2 - 18}px}
 .boo-c-bubble[data-h="left"]:after{right:18px}
-<<<<<<< HEAD
 @keyframes boo-c-pop{0%{opacity:0;transform:translateY(6px) scale(.6)}60%{opacity:1;transform:scale(1.08)}100%{opacity:1;transform:none}}
 .boo-s-back{position:fixed;inset:0;z-index:99000;background:rgba(3,2,8,.62);display:flex;align-items:flex-end;justify-content:center;animation:boo-s-fade .2s ease-out both}
 @keyframes boo-s-fade{from{opacity:0}to{opacity:1}}
 .boo-s{box-sizing:border-box;width:100%;max-width:520px;max-height:70vh;max-height:70dvh;display:flex;flex-direction:column;background:#07060B;border:1px solid rgba(196,181,253,.2);border-bottom:0;border-radius:22px 22px 0 0;color:#F5EFE6;font-family:var(--wf-sans),system-ui,sans-serif;animation:boo-s-up .26s cubic-bezier(.2,.85,.3,1) both;will-change:transform}
-=======
-@keyframes boo-c-pop{from{opacity:0;transform:translateY(4px) scale(.96)}to{opacity:1;transform:none}}
-.boo-s-back{position:fixed;inset:0;z-index:99000;background:rgba(3,2,8,.62);display:flex;align-items:flex-end;justify-content:center;animation:boo-s-fade .2s ease-out both}
-@keyframes boo-s-fade{from{opacity:0}to{opacity:1}}
-.boo-s{box-sizing:border-box;width:100%;max-width:520px;max-height:70vh;max-height:70dvh;display:flex;flex-direction:column;background:#0D0B14;border:1px solid rgba(196,181,253,.2);border-bottom:0;border-radius:22px 22px 0 0;color:#F5EFE6;font-family:var(--wf-sans),system-ui,sans-serif;animation:boo-s-up .26s cubic-bezier(.2,.85,.3,1) both;will-change:transform}
->>>>>>> origin/main
 @keyframes boo-s-up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
 .boo-s:focus{outline:none}
 .boo-s-grab{flex:none;padding:8px 0 2px;touch-action:none;cursor:grab}
@@ -212,12 +186,8 @@ const CSS = `
 .boo-s-hide:focus-visible,.boo-s-x:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-s-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:4px 14px 10px;display:flex;flex-direction:column;gap:8px}
 .boo-m{max-width:86%;padding:9px 12px;border-radius:16px;font-size:14.5px;line-height:1.42;word-wrap:break-word;overflow-wrap:anywhere}
-<<<<<<< HEAD
 .boo-m.b{align-self:flex-start;background:#17131F;border:1px solid rgba(196,181,253,.16);box-shadow:0 2px 10px rgba(0,0,0,.35);border-bottom-left-radius:5px}
 .boo-k{display:inline-block;font:800 11px/1 var(--wf-sans),system-ui,sans-serif;letter-spacing:.07em;background:#00F5D4;color:#07060B;padding:4px 8px;border-radius:999px;margin-right:7px;vertical-align:1px}
-=======
-.boo-m.b{align-self:flex-start;background:#1A1626;border:1px solid rgba(196,181,253,.14);border-bottom-left-radius:5px}
->>>>>>> origin/main
 .boo-m.u{align-self:flex-end;background:#F97316;color:#1A0E05;font-weight:600;border-bottom-right-radius:5px}
 .boo-m.t{color:#9A94A8;font-style:italic}
 .boo-m a{color:#C4B5FD}
@@ -231,21 +201,12 @@ const CSS = `
 .boo-s-chip{all:unset;box-sizing:border-box;cursor:pointer;font-size:13px;font-weight:600;color:#C4B5FD;border:1px solid rgba(196,181,253,.3);padding:8px 12px;border-radius:999px}
 .boo-s-chip:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-wrap{display:block;text-align:center;color:#1A0E05;background:#F5EFE6;font-weight:800;font-size:14px;padding:12px;border-radius:12px;text-decoration:none}
-<<<<<<< HEAD
 .boo-s-foot{flex:none;display:flex;gap:10px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));background:#07060B;border-top:1px solid rgba(245,239,230,.28)}
 .boo-in{flex:1;min-width:0;box-sizing:border-box;background:#110E19;color:#F5EFE6;border:1.5px solid rgba(245,239,230,.6);border-radius:14px;padding:0 14px;height:52px;font:500 16px var(--wf-sans),system-ui,sans-serif;-webkit-text-size-adjust:100%}
 .boo-in::placeholder{color:#B8B2C6;opacity:1}
 .boo-in:disabled{opacity:.5}
 .boo-send{all:unset;box-sizing:border-box;flex:none;height:52px;padding:0 20px;border-radius:14px;background:#F97316;color:#1A0E05;font-weight:800;font-size:16px;cursor:pointer;display:grid;place-items:center}
 .boo-send:disabled{opacity:.85;cursor:default}
-=======
-.boo-s-foot{flex:none;display:flex;gap:8px;padding:8px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid rgba(196,181,253,.12)}
-.boo-in{flex:1;min-width:0;box-sizing:border-box;background:#07060B;color:#F5EFE6;border:1px solid rgba(196,181,253,.25);border-radius:12px;padding:0 12px;height:44px;font:500 16px var(--wf-sans),system-ui,sans-serif}
-.boo-in::placeholder{color:#9A94A8}
-.boo-in:disabled{opacity:.5}
-.boo-send{all:unset;box-sizing:border-box;flex:none;height:44px;padding:0 16px;border-radius:12px;background:#F97316;color:#1A0E05;font-weight:800;font-size:15px;cursor:pointer;display:grid;place-items:center}
-.boo-send:disabled{opacity:.4;cursor:default}
->>>>>>> origin/main
 .boo-send:focus-visible,.boo-in:focus-visible{outline:2px solid #F5EFE6;outline-offset:2px}
 .boo-c-act{position:absolute;inset:0;transform-origin:50% 60%}
 .boo-a-wave{animation:boo-k-wave 1.8s ease-in-out both;transform-origin:85% 65%}
@@ -269,7 +230,6 @@ const CSS = `
 .boo-pk:before{content:"";position:absolute;left:5px;top:-3px;width:3px;height:4px;background:#8FBF6A;border-radius:1px}
 .boo-pk:nth-child(2){animation-delay:.25s}.boo-pk:nth-child(3){animation-delay:.5s}
 @keyframes boo-k-pk{0%{opacity:0;transform:translate(-22px,10px)}10%{opacity:1}25%{transform:translate(0,-26px)}50%{transform:translate(22px,10px)}75%{transform:translate(0,-26px)}90%{opacity:1}100%{opacity:0;transform:translate(-22px,10px)}}
-<<<<<<< HEAD
 .boo-c-flip,.boo-s-av{contain:layout}
 .boo-pi{position:absolute;left:0;top:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none}
 .boo-pi.in{animation:boo-pi-in .15s ease-out both}
@@ -295,9 +255,6 @@ const CSS = `
 @keyframes boo-t-word{0%,100%{filter:none}30%{filter:drop-shadow(0 0 10px rgba(196,181,253,.95)) drop-shadow(0 0 4px rgba(249,115,22,.7))}}
 input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 @media (prefers-reduced-motion:reduce){.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
-=======
-@media (prefers-reduced-motion:reduce){.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
->>>>>>> origin/main
 `;
 
 export default function BooCompanion() {
@@ -306,12 +263,8 @@ export default function BooCompanion() {
   const [reduced, setReduced] = useState(false);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }
-<<<<<<< HEAD
   const [pose, setPose] = useState("idle");
   const holdRef = useRef(null);
-=======
-  const [face, setFace] = useState("wink");
->>>>>>> origin/main
   const [antic, setAntic] = useState(null); // { name, key }
   const [msgs, setMsgs] = useState([]);
   const [cards, setCards] = useState([]);
@@ -331,10 +284,7 @@ export default function BooCompanion() {
   const rafRef = useRef(0);
   const lastTs = useRef(0);
   const posRef = useRef({ x: 0, y: 0 });
-<<<<<<< HEAD
   const legRef = useRef(0);
-=======
->>>>>>> origin/main
   const facing = useRef(1);
   const turnRef = useRef(0);
   const wrapRef = useRef(false);
@@ -342,12 +292,9 @@ export default function BooCompanion() {
   const gagCount = useRef(0);
   const shownGags = useRef(new Set());
   const tappedRef = useRef(false);
-<<<<<<< HEAD
   const openerRef = useRef("");
   const openerSpoken = useRef(false);
   const touchSt = useRef({ els: new Set(), timers: [] });
-=======
->>>>>>> origin/main
   const openRef = useRef(false);
   const eligibleRef = useRef(false);
   const pathRef = useRef(pathname);
@@ -356,7 +303,6 @@ export default function BooCompanion() {
   reducedRef.current = reduced;
   eligibleRef.current = eligible;
 
-<<<<<<< HEAD
   // Resting pose: idle while roaming, the sheet's current reply pose while open.
   const restPose = () => (openRef.current && holdRef.current) || "idle";
 
@@ -371,8 +317,6 @@ export default function BooCompanion() {
     return openerRef.current;
   };
 
-=======
->>>>>>> origin/main
   // Mount gate: season, reserved paths, session hide.
   useEffect(() => {
     let ok = false;
@@ -394,10 +338,7 @@ export default function BooCompanion() {
     } catch { /* ignore */ }
   }, []);
 
-<<<<<<< HEAD
   useEffect(() => { if (eligible) { prefetch("idle"); prefetch("greet"); } }, [eligible]);
-=======
->>>>>>> origin/main
   useEffect(() => { if (eligible) track("boo_companion_shown", { path: pathname }); }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const place = useCallback((x, y) => {
@@ -410,7 +351,6 @@ export default function BooCompanion() {
     return { minX: SIDE, maxX: Math.max(SIDE, vw - SIDE - SIZE), minY: TOP, maxY: Math.max(TOP, vh - BOTTOM - SIZE), vw, vh };
   };
 
-<<<<<<< HEAD
   // Touch targets: one querySelectorAll per hop, a few random probes for one that
   // is fully on screen. Never an input the visitor is in, never inside the sheet.
   const pickTarget = () => {
@@ -498,15 +438,6 @@ export default function BooCompanion() {
     }
     if (target) { /* chosen above */ }
     else if (Math.random() < 0.18) {
-=======
-  // Roaming: hop between random waypoints anywhere in the safe box with eased
-  // legs, varying speed, pauses, and now and then a dart to the far corner.
-  const nextLeg = useCallback(() => {
-    const b = bounds();
-    const from = posRef.current;
-    let tx, ty, speed;
-    if (Math.random() < 0.18) {
->>>>>>> origin/main
       tx = from.x + SIZE / 2 < b.vw / 2 ? b.maxX : b.minX;
       ty = from.y + SIZE / 2 < (b.minY + b.maxY) / 2 ? b.maxY : b.minY;
       tx += rand(-30, 30); ty += rand(-30, 30);
@@ -519,25 +450,17 @@ export default function BooCompanion() {
       speed = rand(35, 115);
     }
     tx = Math.min(b.maxX, Math.max(b.minX, tx));
-<<<<<<< HEAD
     ty = free ? Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, ty)) : Math.min(b.maxY, Math.max(b.minY, ty));
-=======
-    ty = Math.min(b.maxY, Math.max(b.minY, ty));
->>>>>>> origin/main
     const dist = Math.max(1, Math.hypot(tx - from.x, ty - from.y));
     const dir = tx - from.x;
     if (Math.abs(dir) > 20) {
       const f = dir > 0 ? 1 : -1;
       if (f !== facing.current && flipRef.current) { facing.current = f; flipRef.current.style.transform = f > 0 ? "scaleX(1)" : "scaleX(-1)"; }
     }
-<<<<<<< HEAD
     const darting = speed > 200;
     const el = elRef.current;
     if (el) { el.dataset.dart = darting ? "1" : ""; el.style.setProperty("--tdir", String(facing.current)); }
     seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: dist / speed, pause: 0, target, free };
-=======
-    seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: dist / speed, pause: 0 };
->>>>>>> origin/main
   }, []);
 
   // Corner spot for reduced motion.
@@ -572,7 +495,6 @@ export default function BooCompanion() {
         const e = u * u * (3 - 2 * u);
         const b = bounds();
         const x = Math.min(b.maxX, Math.max(b.minX, g.x0 + (g.x1 - g.x0) * e));
-<<<<<<< HEAD
         const yy = g.y0 + (g.y1 - g.y0) * e;
         const y = g.free ? Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, yy)) : Math.min(b.maxY, Math.max(b.minY, yy));
         posRef.current = { x, y };
@@ -582,12 +504,6 @@ export default function BooCompanion() {
           if (g.target) { touchRef.current(g.target); g.target = null; g.pause = 1.5; }
           else g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
         }
-=======
-        const y = Math.min(b.maxY, Math.max(b.minY, g.y0 + (g.y1 - g.y0) * e));
-        posRef.current = { x, y };
-        place(x, y);
-        if (u >= 1) { g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6); }
->>>>>>> origin/main
       }
       rafRef.current = requestAnimationFrame(frame);
     };
@@ -603,11 +519,7 @@ export default function BooCompanion() {
     const vis = () => (document.hidden ? stop() : start());
     document.addEventListener("visibilitychange", vis);
     start();
-<<<<<<< HEAD
     return () => { alive = false; stop(); document.removeEventListener("visibilitychange", vis); if (elRef.current) elRef.current.dataset.dart = ""; };
-=======
-    return () => { alive = false; stop(); document.removeEventListener("visibilitychange", vis); };
->>>>>>> origin/main
   }, [eligible, drifting, reduced, place, nextLeg, corner]);
 
   // Keep the reduced motion spot in the corner on resize.
@@ -631,15 +543,10 @@ export default function BooCompanion() {
     }
     clearTimeout(anticTimer.current);
     setAntic({ name: n, key: Date.now() });
-<<<<<<< HEAD
     const ap = ANTIC_POSE[n] || "idle";
     prefetch(ap);
     setPose(ap);
     anticTimer.current = window.setTimeout(() => { setAntic(null); setPose(restPose()); }, ANTIC_MS[n]);
-=======
-    if (n === "nap") setFace("sleep");
-    anticTimer.current = window.setTimeout(() => { setAntic(null); setFace("wink"); }, ANTIC_MS[n]);
->>>>>>> origin/main
     return ANTIC_MS[n];
   }, []);
   useEffect(() => () => clearTimeout(anticTimer.current), []);
@@ -672,15 +579,9 @@ export default function BooCompanion() {
       showTimer = window.setTimeout(() => {
         if (dead || openRef.current) return;
         setBubble({ text, v, h });
-<<<<<<< HEAD
         if (src !== "opener" && !travel && Math.random() < 0.4) { prefetch("sassy"); setPose("sassy"); }
         track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
         hideTimer = window.setTimeout(() => { setBubble(null); setPose(restPose()); }, 5000);
-=======
-        if (!reducedRef.current) setFace(Math.random() < 0.5 ? "grin" : "shock");
-        track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
-        hideTimer = window.setTimeout(() => { setBubble(null); setFace("wink"); }, 5000);
->>>>>>> origin/main
       }, delay);
     };
     const fire = async () => {
@@ -690,12 +591,8 @@ export default function BooCompanion() {
       gagCount.current += 1;
       const n = gagCount.current;
       let text = null, name = ANTICS[Math.floor(Math.random() * ANTICS.length)], src = "local";
-<<<<<<< HEAD
       if (n === 1 && !openerSpoken.current) { openerSpoken.current = true; text = getOpener(); name = "wave"; src = "opener"; }
       else if (n >= 3 && n % 3 === 0) {
-=======
-      if (n >= 3 && n % 3 === 0) {
->>>>>>> origin/main
         try {
           const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
           const to = window.setTimeout(() => ctl && ctl.abort(), 4000);
@@ -721,34 +618,23 @@ export default function BooCompanion() {
       schedule(rand(40000, 70000));
     };
     schedule(6000);
-<<<<<<< HEAD
     return () => { dead = true; clearTimeout(timer); clearTimeout(hideTimer); clearTimeout(showTimer); setBubble(null); setPose(restPose()); };
   }, [eligible, pathname, corner, playAntic]); // eslint-disable-line react-hooks/exhaustive-deps
-=======
-    return () => { dead = true; clearTimeout(timer); clearTimeout(hideTimer); clearTimeout(showTimer); setBubble(null); setFace("wink"); };
-  }, [eligible, pathname, corner, playAntic]);
->>>>>>> origin/main
 
   const openSheet = useCallback((src) => {
     tappedRef.current = true;
     lastFocus.current = typeof document !== "undefined" ? document.activeElement : null;
     setBubble(null);
-<<<<<<< HEAD
     holdRef.current = "greet";
     prefetch("greet", true);
     setPose("greet");
-=======
->>>>>>> origin/main
     setOpen(true);
     track("boo_companion_open", { source: src || "tap", path: pathRef.current });
   }, []);
 
   const closeSheet = useCallback(() => {
-<<<<<<< HEAD
     holdRef.current = null;
     setPose("idle");
-=======
->>>>>>> origin/main
     setOpen(false);
     try { if (lastFocus.current && lastFocus.current.focus) lastFocus.current.focus(); } catch { /* ignore */ }
   }, []);
@@ -778,7 +664,6 @@ export default function BooCompanion() {
       playAntic(data.antic);
       setCards(Array.isArray(data.cards) ? data.cards.filter((c) => c && c.cta && c.cta.href).slice(0, 4) : []);
       if (wrap) { wrapRef.current = true; setWrapped(true); }
-<<<<<<< HEAD
       const nCards = Array.isArray(data.cards) ? data.cards.length : 0;
       const rp = wrap ? "bye" : data.smallTalk ? "talk" : !nCards ? "greet" : KID_RX.test(message) ? "kids" : PRICE_RX.test(message) ? "price" : "sales";
       holdRef.current = rp; prefetch(rp, true); setPose(rp);
@@ -786,11 +671,6 @@ export default function BooCompanion() {
       setMsgs((m) => m.concat([{ role: "boo", text: FALLBACK_LINE, link: true }]));
       playAntic();
       holdRef.current = "err"; prefetch("err", true); setPose("err");
-=======
-    } catch {
-      setMsgs((m) => m.concat([{ role: "boo", text: FALLBACK_LINE, link: true }]));
-      playAntic();
->>>>>>> origin/main
       setCards([]);
     } finally {
       pendingRef.current = false;
@@ -819,11 +699,7 @@ export default function BooCompanion() {
   // Opening line, focus, scroll lock, Escape and focus trap.
   useEffect(() => {
     if (!open) return;
-<<<<<<< HEAD
     setMsgs((m) => (m.length ? m : [{ role: "boo", text: getOpener() || GREETING }]));
-=======
-    setMsgs((m) => (m.length ? m : [{ role: "boo", text: GREETING }]));
->>>>>>> origin/main
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const f = window.setTimeout(() => { try { (inputRef.current || sheetRef.current).focus({ preventScroll: true }); } catch { /* ignore */ } }, 60);
@@ -838,11 +714,7 @@ export default function BooCompanion() {
     };
     document.addEventListener("keydown", onKey, true);
     return () => { clearTimeout(f); document.body.style.overflow = prevOverflow; document.removeEventListener("keydown", onKey, true); };
-<<<<<<< HEAD
   }, [open, closeSheet]); // eslint-disable-line react-hooks/exhaustive-deps
-=======
-  }, [open, closeSheet]);
->>>>>>> origin/main
 
   useEffect(() => {
     if (open && bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
@@ -867,10 +739,7 @@ export default function BooCompanion() {
   const hideBoo = () => {
     try { sessionStorage.setItem(HIDE_KEY, "1"); } catch { /* ignore */ }
     track("boo_companion_hidden", { path: pathRef.current });
-<<<<<<< HEAD
     holdRef.current = null;
-=======
->>>>>>> origin/main
     setOpen(false);
     setEligible(false);
   };
@@ -889,20 +758,13 @@ export default function BooCompanion() {
           <span className="boo-c-glow" aria-hidden="true" />
           <span className={"boo-c-act" + (antic ? " boo-a-" + antic.name : "")} key={antic ? antic.key : "idle"}>
             <span className="boo-c-flip" ref={flipRef}>
-<<<<<<< HEAD
               <span className="boo-c-bob"><PoseImg pose={pose} /></span>
-=======
-              <span className="boo-c-bob"><BooGhostSvg face={face} /></span>
->>>>>>> origin/main
             </span>
             {antic && antic.name === "nap" ? (<><span className="boo-z" aria-hidden="true">z</span><span className="boo-z" aria-hidden="true">z</span></>) : null}
             {antic && antic.name === "juggle" ? (<><span className="boo-pk" aria-hidden="true" /><span className="boo-pk" aria-hidden="true" /><span className="boo-pk" aria-hidden="true" /></>) : null}
           </span>
         </button>
-<<<<<<< HEAD
         <i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" />
-=======
->>>>>>> origin/main
         {bubble && !open ? (
           <button type="button" className="boo-c-bubble" data-v={bubble.v} data-h={bubble.h} onClick={() => openSheet("bubble")}>
             {bubble.text}
@@ -914,11 +776,7 @@ export default function BooCompanion() {
           <div className="boo-s" ref={sheetRef} role="dialog" aria-modal="true" aria-label="Chat with Boo" tabIndex={-1}>
             <div className="boo-s-grab" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}><i /></div>
             <div className="boo-s-head" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-<<<<<<< HEAD
               <div className={"boo-s-av" + (antic && ["wave", "spin", "shiver", "bow"].indexOf(antic.name) >= 0 ? " boo-a-" + antic.name : "")} key={antic ? antic.key : "i"}><PoseImg pose={pending ? "panic" : pose} small /></div>
-=======
-              <div className={"boo-s-av" + (antic && ["wave", "spin", "shiver", "bow"].indexOf(antic.name) >= 0 ? " boo-a-" + antic.name : "")} key={antic ? antic.key : "i"}><BooGhostSvg face={pending ? "shock" : "wink"} /></div>
->>>>>>> origin/main
               <div className="boo-s-name"><b>Boo</b><span>Wayfind's ghost guide</span></div>
               <button type="button" className="boo-s-hide" onClick={hideBoo}>Hide Boo</button>
               <button type="button" className="boo-s-x" aria-label="Close chat" onClick={closeSheet}>{"×"}</button>
@@ -926,12 +784,8 @@ export default function BooCompanion() {
             <div className="boo-s-body" ref={bodyRef} aria-live="polite">
               {msgs.map((m, i) => (
                 <div key={i} className={"boo-m " + (m.role === "user" ? "u" : "b")}>
-<<<<<<< HEAD
                   {m.role === "boo" && splitKicker(m.text)[0] ? <span className="boo-k">{splitKicker(m.text)[0]}</span> : null}
                   {m.role === "boo" ? splitKicker(m.text)[1] : m.text}
-=======
-                  {m.text}
->>>>>>> origin/main
                   {m.link ? <> <a href={HAUNT_PATH}>See the haunt list</a></> : null}
                 </div>
               ))}
