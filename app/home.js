@@ -43,7 +43,7 @@ import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalyt
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
-import { wcRotation } from "../lib/shareCards";
+import { wcRotation } from "../lib/wcRotations.js";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
 import { businessStatus, isOpenNow } from "../lib/businessStatus";
