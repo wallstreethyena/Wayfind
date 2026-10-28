@@ -346,7 +346,7 @@ function PhotoCredit({ photos }) {
   return (
     <p className="boo-credit">
       {lines.map((photo, i) => {
-        const href = photo.source === "google" ? (photo.authorUri || photo.mapsUri) : null;
+        const href = (photo.source === "google" || photo.source === "vault") ? (photo.authorUri || photo.mapsUri) : null;
         return (
           <span key={photo.credit}>
             {i ? " \u00b7 " : ""}
