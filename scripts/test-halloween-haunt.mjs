@@ -16,6 +16,7 @@ import {
   hauntCopyProblems,
   hauntsForFilter,
   halloweenHauntModel,
+  halloweenHauntProductSchema,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
 import {
@@ -157,7 +158,21 @@ for (const section of hub.sections) {
 }
 for (const text of hubStrings) ok(!DASH.test(text), "hub copy is dash free: " + text.slice(0, 60));
 
+const productSchema = halloweenHauntProductSchema(model);
+ok(productSchema["@type"] === "Product" && productSchema.sku === "wfFlHalloween2026", "product schema is a Product with dash free sku");
+ok(!DASH.test(productSchema.name + " " + productSchema.description + " " + productSchema.sku + " " + productSchema.brand.name), "product schema copy is dash free");
+ok(productSchema.offers && productSchema.offers["@type"] === "Offer" && productSchema.offers.price === "27.00" && productSchema.offers.priceCurrency === "USD" && productSchema.offers.availability === "https://schema.org/InStock", "product schema offer carries InStock USD price");
+ok(page.includes("halloweenHauntProductSchema(model)") && page.includes('"og:type": "product"') && page.includes('"product:price:amount": "27.00"'), "page renders Product JSON LD and Open Graph product meta tags");
+ok(productSchema.mpn === "wfFlHalloween2026" && productSchema.brand["@type"] === "Brand" && productSchema.brand.name === "Wayfind", "product schema brand and mpn");
+ok(Array.isArray(productSchema.image) && productSchema.image[0] === "https://www.gowayfind.com/images/bo-halloween-poster.jpg", "product schema image is the absolute poster");
+ok(productSchema.offers.url === "https://www.gowayfind.com/halloween-in-florida" && productSchema.offers.itemCondition === "https://schema.org/NewCondition", "product schema offer url and condition");
+ok(page.includes('property="og:type" content="product"') && page.includes('property="product:price:amount" content="27.00"') && page.includes('property="product:price:currency" content="USD"') && page.includes('property="product:availability" content="in stock"') && page.includes('property="product:condition" content="new"') && page.includes('property="product:retailer_item_id" content="wfFlHalloween2026"') && page.includes('property="product:brand" content="Wayfind"') && page.includes('property="og:price:amount" content="27.00"') && page.includes('property="og:price:currency" content="USD"') && page.includes('property="og:availability" content="instock"'), "page hoists product property meta tags");
+ok(!page.includes('type: "website"'), "page openGraph does not declare website type");
+const nextConfig = readFileSync("next.config.js", "utf8");
+ok(nextConfig.includes('source: "/products/halloween-in-florida"') && nextConfig.includes('source: "/product/halloween-in-florida"') && nextConfig.includes('destination: "/halloween-in-florida"'), "product paths rewrite internally to the haunt page");
+
 const schema = halloweenHauntSchema(model);
+ok(schema["@type"] === "ItemList", "event list schema stays an ItemList");
 ok(schema.numberOfItems === 14 && schema.itemListElement.length === 14, "schema lists 14 events");
 const schemaBlob = JSON.stringify(schema);
 ok(!schemaBlob.includes("/api/commerce/go"), "schema does not embed the redirect");
