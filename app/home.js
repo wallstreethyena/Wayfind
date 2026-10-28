@@ -349,6 +349,7 @@ const askShareIntent = (o) => {
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
+import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
@@ -4224,6 +4225,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // for one opening (deep-link effect re-runs on supabaseReady). Reset on close.
   const detailOpenGateRef = useRef(null);
   if (!detailOpenGateRef.current) detailOpenGateRef.current = createDetailOpenGate();
+  // One replay of a /p/{id}?action=save|like|dislike deep link, however many times the deep-link effect runs (lib/placeActionOnce.js).
+  const placeActionGateRef = useRef(null);
+  if (!placeActionGateRef.current) placeActionGateRef.current = createPlaceActionGate();
   useEffect(() => { if (!detail) { detailOpenRequestRef.current++; detailOpenGateRef.current.close(); } }, [detail]);
   useEffect(() => {
     // The app changes screens inside one route. Sync after the DOM surface
@@ -7268,9 +7272,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             const sig = await fetchMemberSignals(supabase, [p]);
             if (sig) opened = withMemberSignal([p], sig)[0] || p;
           } catch (e) {}
-          if (placeAction === "save") quickSaveFavorite(opened);
-          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
-          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+          if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {
+            // A "save this place" link ADDS. quickSaveFavorite is a toggle, so an
+            // already-saved place must be left alone, never un-saved by its own link.
+            if (placeAction === "save") { if (!isSaved(opened.id)) quickSaveFavorite(opened); }
+            else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
+            else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+          }
           openDetail(opened);
         }
       })();
