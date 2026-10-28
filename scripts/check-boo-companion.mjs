@@ -203,6 +203,9 @@ ok(/\.boo-ring\{position:fixed;z-index:939;pointer-events:none/.test(comp) && /\
 ok(/function\s+ringAround\s*\(/.test(comp) && /if\s*\(!t\.matches\(KNOWN_TOUCH\)\)\s*\{\s*ringAround\(t,\s*st\)/.test(comp), "page elements outside the Halloween set get the overlay ring, never a style change");
 ok(/function\s+TypeLine\s*\(/.test(comp) && /\.boo-ty\{color:transparent\}/.test(comp) && /aria-label=\{bubble\.text\}/.test(comp), "bubble types out with a stable size and a full aria label");
 ok(/<TypeLine[^>]*instant=\{reduced\}/.test(comp), "typing is instant under reduced motion");
+const rposes = comp.match(/const\s+REACT_POSES\s*=\s*\[([^\]]*)\]/);
+ok(!!rposes && ["poke", "cheer", "sales", "orb"].every((k) => rposes[1].includes('"' + k + '"')), "REACT_POSES must warm the poses reactions show first");
+ok(!!reactBody && /prefetch\("poke"\);\s*prefetch\("cheer"\);/.test(reactBody[1]), "react must prefetch its poses before he flies, so he never flashes invisible");
 const perch = comp.match(/const\s+PERCH_SEL\s*=\s*"([^"]*)"/);
 ok(!!perch && !/boo-buy|boo-ask|boo-goto|boo-picks|commerce|input|\ba\b/.test(perch[1]), "Boo may only perch on top of things nobody taps (bulbs, wordmark), never a ticket button, link or input");
 ok(/hit\.el\.matches\(PERCH_SEL\)\s*\?\s*aimAt\(hit\.r\)\s*:\s*aimBeside\(hit\.r,\s*b\.vw\)/.test(comp), "roaming touches park beside anything tappable");
