@@ -146,12 +146,17 @@ function TypeLine({ text, instant }) {
 const TOUCH_SEL = ".boo-bulb,.boo-buy,.boo-ask,.boo-goto,.boo-picks button,.boo-photo,.wf-wordmark-text,input[type=search],input[placeholder^=Search],nav[aria-label='Destinations'] a,[aria-label='Browse categories'] button,a[href*='/api/commerce/go']";
 // Page targets the stylesheet already knows; anything else gets the generic ring.
 const KNOWN_TOUCH = ".boo-bulb,.boo-buy,.boo-ask,.boo-goto,.boo-picks button,.boo-photo,.wf-wordmark-text,input";
+// Only things nobody taps get him perched on top; buttons, links, photos and
+// the search box get him right beside them so a tap always reaches the page.
+const PERCH_SEL = ".boo-bulb,.wf-wordmark-text";
 const TOUCH_MS = 1200;
 // Visitor reactions: what he notices, how often he may speak up about it.
 const TICKET_SEL = ".boo-buy,a[href*='/api/commerce/go'],a[href*='/api/viator/go'],a[href*='/api/ticketmaster/go']";
 const PLACE_SEL = "a[href^='/p/'],.boo-photo,a[href^='/guides/']";
 const SEARCH_SEL = "input[type=search],input[placeholder^=Search],input[role=combobox]";
 const REACT_GAP = 9000; // quiet time after anything he says before a reaction
+const DIRECT_GAP = 2500; // shorter for a direct answer to a tap (tickets, save, like, share)
+const DIRECT = { ticket: 1, save: 1, like: 1, nope: 1, share: 1 };
 const REACT_MAX = 8; // reactions per page view, on top of the timed gags
 const REACT_LIMIT = { scrollFast: 1, bottom: 1, backTop: 1, hoverTicket: 2, hoverPlace: 2, peekTicket: 2, ticket: 2, save: 2, like: 1, nope: 1, share: 1, search: 1, idle: 2, welcomeBack: 1, copy: 1, cursor: 1 };
 const IDLE_MS = 28000;
@@ -195,11 +200,15 @@ function rand(a, b) { return a + Math.random() * (b - a); }
 function aimAt(r) {
   return [r.left + r.width / 2 - SIZE / 2, r.top - SIZE + 18 >= 0 ? r.top - SIZE + 18 : r.bottom - 18];
 }
-// For real page links and cards he parks beside the element, just touching its
-// edge, so he never sits on top of a button the visitor is about to press.
+// For real page links and cards he parks right beside the element, so he
+// never sits on top of a button the visitor is about to press.
 function aimBeside(r, vw) {
   const y = r.top + Math.min(r.height, 120) / 2 - SIZE / 2;
-  return r.right - 10 + SIZE <= vw - SIDE ? [r.right - 10, y] : [r.left - SIZE + 10, y];
+  if (r.right + 2 + SIZE <= vw - SIDE) return [r.right + 2, y];
+  if (r.left - SIZE - 2 >= SIDE) return [r.left - SIZE - 2, y];
+  // Full width on a phone: float just above it, or just below at the top.
+  const x = r.left + r.width / 2 - SIZE / 2;
+  return r.top - SIZE - 2 >= 0 ? [x, r.top - SIZE - 2] : [x, r.bottom + 2];
 }
 // The glow for any other page element: a separate ring laid over it, so the
 // page's own styles and animations are never touched.
@@ -569,7 +578,7 @@ export default function BooCompanion() {
       if (hit) {
         target = hit.el; free = true;
         prefetch("poke"); prefetch("cheer"); prefetch("orb"); prefetch("swipe"); prefetch("up");
-        [tx, ty] = hit.el.matches(KNOWN_TOUCH) ? aimAt(hit.r) : aimBeside(hit.r, b.vw);
+        [tx, ty] = hit.el.matches(PERCH_SEL) ? aimAt(hit.r) : aimBeside(hit.r, b.vw);
         speed = rand(80, 160);
       }
     }
@@ -640,7 +649,7 @@ export default function BooCompanion() {
     const o = opts || {};
     if (!eligibleRef.current || openRef.current || typeof document === "undefined" || document.hidden) return false;
     if (zapT.current.length || pendingRef.current) return false;
-    if (Date.now() - lastSay.current < REACT_GAP || reactN.current >= REACT_MAX) return false;
+    if (Date.now() - lastSay.current < (DIRECT[kind] ? DIRECT_GAP : REACT_GAP) || reactN.current >= REACT_MAX) return false;
     if ((reactKinds.current[kind] || 0) >= (REACT_LIMIT[kind] || 1)) return false;
     const ae = document.activeElement;
     if (kind !== "search" && ae && (ae.tagName === "TEXTAREA" || (ae.tagName === "INPUT" && ae.type !== "checkbox" && ae.type !== "radio"))) return false;
@@ -659,7 +668,8 @@ export default function BooCompanion() {
       if (r.bottom > 0 && r.top < vh) {
         const b = bounds();
         const from = posRef.current;
-        let [tx, ty] = el.matches(KNOWN_TOUCH) ? aimAt(r) : aimBeside(r, b.vw);
+        // Beside it, never on it: the visitor's finger or cursor is right there.
+        let [tx, ty] = aimBeside(r, b.vw);
         tx = Math.min(b.maxX, Math.max(b.minX, tx));
         ty = Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, ty));
         const dir = tx - from.x;
@@ -782,14 +792,17 @@ export default function BooCompanion() {
     const b = bounds(), cur = posRef.current;
     const v = cur.y < 150 ? "below" : "above";
     const h = cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right";
-    const text = ZAP_LINES[Math.floor(Math.random() * ZAP_LINES.length)];
+    const fresh = ZAP_LINES.filter((z) => !usedLines.current.has(z));
+    const pool = fresh.length ? fresh : ZAP_LINES;
+    const text = pool[Math.floor(Math.random() * pool.length)];
+    usedLines.current.add(text);
     prefetch("panic"); prefetch("nap");
     setAntic({ name: "zap", key: Date.now() });
     setZap("jolt");
     setPose("panic");
     const at = (ms, fn) => zapT.current.push(window.setTimeout(fn, ms));
     at(500, () => { setZap("settle"); setPose("nap"); clearTimeout(bubbleT.current); lastSay.current = Date.now(); setBubble({ text, v, h, key: lastSay.current }); });
-    at(ZAP_MS, () => { setBubble(null); setAntic(null); setZap(null); setPose(restPose()); });
+    at(ZAP_MS, () => { zapT.current = []; setBubble(null); setAntic(null); setZap(null); setPose(restPose()); });
     track("boo_companion_zap", { path: pathRef.current });
   }, [stopZap]);
   zapRef.current = zapBoo;

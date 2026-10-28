@@ -186,11 +186,13 @@ if (lim) for (const k of kinds.filter((k) => k !== "returning")) ok(new RegExp("
 const gap = comp.match(/const\s+REACT_GAP\s*=\s*(\d+)/), cap = comp.match(/const\s+REACT_MAX\s*=\s*(\d+)/);
 ok(!!gap && Number(gap[1]) >= 8000, "REACT_GAP must be at least 8s");
 ok(!!cap && Number(cap[1]) <= 10, "REACT_MAX must be 10 or fewer per page");
+const dg = comp.match(/const\s+DIRECT_GAP\s*=\s*(\d+)/);
+ok(!!dg && Number(dg[1]) >= 2000, "DIRECT_GAP (answer to a tap) must be at least 2s");
 const reactBody = comp.match(/const\s+react\s*=\s*useCallback\(\s*\(kind,\s*opts\)\s*=>\s*\{([\s\S]*?)\n  \}, \[\]\)/);
 ok(!!reactBody, "BooCompanion must declare const react = useCallback((kind, opts) => {...}, [])");
 if (reactBody) {
   ok(/openRef\.current/.test(reactBody[1]) && /document\.hidden/.test(reactBody[1]), "react must stay quiet while the sheet is open or the tab is hidden");
-  ok(/Date\.now\(\)\s*-\s*lastSay\.current\s*<\s*REACT_GAP/.test(reactBody[1]) && /reactN\.current\s*>=\s*REACT_MAX/.test(reactBody[1]), "react must honour the quiet gap and the page cap");
+  ok(/Date\.now\(\)\s*-\s*lastSay\.current\s*<\s*\(DIRECT\[kind\]\s*\?\s*DIRECT_GAP\s*:\s*REACT_GAP\)/.test(reactBody[1]) && /reactN\.current\s*>=\s*REACT_MAX/.test(reactBody[1]), "react must honour the quiet gap and the page cap");
   ok(/!reducedRef\.current\s*&&\s*driftRef\.current/.test(reactBody[1]), "react must never fly with reduced motion");
   ok(/ae\.tagName\s*===\s*"INPUT"/.test(reactBody[1]), "react must stay quiet while the visitor is typing");
 }
@@ -201,6 +203,9 @@ ok(/\.boo-ring\{position:fixed;z-index:939;pointer-events:none/.test(comp) && /\
 ok(/function\s+ringAround\s*\(/.test(comp) && /if\s*\(!t\.matches\(KNOWN_TOUCH\)\)\s*\{\s*ringAround\(t,\s*st\)/.test(comp), "page elements outside the Halloween set get the overlay ring, never a style change");
 ok(/function\s+TypeLine\s*\(/.test(comp) && /\.boo-ty\{color:transparent\}/.test(comp) && /aria-label=\{bubble\.text\}/.test(comp), "bubble types out with a stable size and a full aria label");
 ok(/<TypeLine[^>]*instant=\{reduced\}/.test(comp), "typing is instant under reduced motion");
+const perch = comp.match(/const\s+PERCH_SEL\s*=\s*"([^"]*)"/);
+ok(!!perch && !/boo-buy|boo-ask|boo-goto|boo-picks|commerce|input|\ba\b/.test(perch[1]), "Boo may only perch on top of things nobody taps (bulbs, wordmark), never a ticket button, link or input");
+ok(/hit\.el\.matches\(PERCH_SEL\)\s*\?\s*aimAt\(hit\.r\)\s*:\s*aimBeside\(hit\.r,\s*b\.vw\)/.test(comp), "roaming touches park beside anything tappable");
 
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
 console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key, zap + charm verified; " + nLines + " reaction lines checked");
