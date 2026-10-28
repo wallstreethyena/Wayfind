@@ -2270,6 +2270,7 @@ node scripts/check-creator-independence.mjs
 
 node scripts/test-seasonal-search.mjs
 node scripts/test-halloween-haunt.mjs
+node scripts/test-halloween-tours.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs

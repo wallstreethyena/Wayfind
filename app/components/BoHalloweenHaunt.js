@@ -203,6 +203,14 @@ const CSS = `
 .boo-via{margin:0;font-size:11px;line-height:1.35;color:#9A94A8;text-align:center}
 .boo-event{display:flex;align-items:center;justify-content:center;min-height:36px;color:var(--lav);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .boo-empty{margin:16px 0 0;color:var(--muted);font-size:14px}
+.boo-jump{display:inline-flex;align-items:center;gap:6px;margin-top:10px;min-height:40px;color:var(--lav);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+#boo-tours{margin-top:40px;scroll-margin-top:12px}
+#boo-tours h2.boo-sec{margin:0 0 6px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream);min-height:0;display:block;-webkit-line-clamp:unset}
+.boo-sec-lede{margin:0 0 14px;font-size:14px;line-height:1.5;color:var(--muted)}
+.boo-rating{margin:0;font-size:13px;line-height:1.4;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.boo-rating b{color:#F5A524;font-weight:700}
+.boo-tour-photo{position:relative;min-width:0;min-height:200px;height:100%;background:var(--surface);overflow:hidden}
+.boo-tour-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 `;
 
 function FestivalLights() {
@@ -358,8 +366,66 @@ function PhotoCredit({ photos }) {
   );
 }
 
+function TourSection({ chrome, tours, regions }) {
+  const [region, setRegion] = useState("all");
+  const shown = region === "all" ? tours : tours.filter((t) => t.region === region);
+  const counts = new Map(regions.map((r) => [r.id, r.id === "all" ? tours.length : tours.filter((t) => t.region === r.id).length]));
+  const pick = (id) => {
+    setRegion(id);
+    trackHauntEvent("boo_tour_region_applied", { region_id: id });
+  };
+  return (
+    <div id="boo-tours" data-haunt-tours="">
+      <h2 className="boo-sec">{chrome.toursTitle}</h2>
+      <p className="boo-sec-lede">{chrome.toursLede}</p>
+      <div className="boo-filters" role="toolbar" aria-label={chrome.toursTitle}>
+        {regions.filter((r) => counts.get(r.id) > 0).map((r) => (
+          <button type="button" key={r.id} aria-pressed={region === r.id} onClick={() => pick(r.id)}>{r.label}</button>
+        ))}
+      </div>
+      <div className="boo-vault-grid">
+        {shown.map((t, i) => (
+          <article key={t.id} id={"tour-" + t.id} data-tour-id={t.id} className="boo-card">
+            <div className="boo-tour-photo" data-tour-photo="">
+              <GuidePhoto
+                src={t.photo.src}
+                alt={t.photo.alt}
+                width={t.photo.width}
+                height={t.photo.height}
+                sizes="(min-width: 720px) 190px, 40vw"
+                loading={i < 2 ? "eager" : "lazy"}
+                fallbackClassName="boo-ph"
+                fallbackText=""
+              />
+            </div>
+            <div className="boo-body">
+              {t.duration ? <span className="boo-chip">{t.duration}</span> : null}
+              <h2>{t.name}</h2>
+              {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : <p className="boo-rating" aria-hidden="true">&nbsp;</p>}
+              <p className="boo-line boo-city">
+                <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
+                <span>{t.place}</span>
+              </p>
+              <div className="boo-bottom">
+                <p className="boo-pricerow" aria-label={t.priceLabel}>
+                  <span className="boo-from">from</span>
+                  <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
+                </p>
+                <a className="boo-buy" href={t.cta.href} rel={t.cta.rel}>{t.cta.label}</a>
+                <p className="boo-via">{t.cta.via}</p>
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function BoHalloweenHaunt({ model, share = null }) {
   const { chrome, filters, haunts, picks } = model;
+  const tours = Array.isArray(model.tours) ? model.tours : [];
+  const tourRegions = Array.isArray(model.tourRegions) ? model.tourRegions : [];
   const [filter, setFilter] = useState("all");
   const [selectedPickId, setSelectedPickId] = useState(null);
 
@@ -403,7 +469,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
       <div className="boo-main">
         <div className="boo-hero" id="boo-hero">
           <h1 id="boo-title">{chrome.title}</h1>
-          <p className="boo-lede">{"Prices, dates and hours for " + haunts.length + " Florida haunts."}</p>
+          <p className="boo-lede">{"Prices, dates and hours for " + haunts.length + " Florida haunts" + (tours.length ? " and " + tours.length + " ghost tours." : ".")}</p>
           <p className="boo-legal">{chrome.disclosure}</p>
           <div className="boo-boo-row">
             <div className="boo-art">
@@ -415,6 +481,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
           </div>
           <button type="button" className="boo-ask" onClick={openBoo}>{chrome.ask}</button>
           {share ? <div className="boo-share">{share}</div> : null}
+          {tours.length ? <a className="boo-jump" href="#boo-tours">{chrome.toursJump}<span aria-hidden="true">↓</span></a> : null}
         </div>
 
         <div className="boo-picks-wrap">
@@ -501,6 +568,8 @@ export default function BoHalloweenHaunt({ model, share = null }) {
             <p className="boo-empty">{chrome.empty}</p>
           )}
         </div>
+
+        {tours.length && tourRegions.length ? <TourSection chrome={chrome} tours={tours} regions={tourRegions} /> : null}
       </div>
     </section>
   );
