@@ -160,6 +160,7 @@ const DIRECT = { ticket: 1, save: 1, like: 1, nope: 1, share: 1 };
 const REACT_MAX = 8; // reactions per page view, on top of the timed gags
 const REACT_LIMIT = { scrollFast: 1, bottom: 1, backTop: 1, hoverTicket: 2, hoverPlace: 2, peekTicket: 2, ticket: 2, save: 2, like: 1, nope: 1, share: 1, search: 1, idle: 2, welcomeBack: 1, copy: 1, cursor: 1 };
 const IDLE_MS = 28000;
+const REACT_POSES = ["poke", "cheer", "sales", "orb", "swipe", "up", "peek", "panic", "talk", "mega", "sassy"];
 const HOVER_MS = 700;
 const TYPE_MS = 24;
 const VISITS_KEY = "wf_boo_visits";
@@ -466,6 +467,12 @@ export default function BooCompanion() {
   }, []);
 
   useEffect(() => { if (eligible) { prefetch("idle"); prefetch("greet"); } }, [eligible]);
+  // Warm the reaction poses a few seconds in, once the page itself has loaded.
+  useEffect(() => {
+    if (!eligible) return undefined;
+    const t = window.setTimeout(() => { REACT_POSES.forEach((k) => prefetch(k)); }, 5000);
+    return () => clearTimeout(t);
+  }, [eligible]);
 
   // Return visitors: count sessions in localStorage (once per tab session).
   useEffect(() => {
@@ -660,6 +667,10 @@ export default function BooCompanion() {
     lastSay.current = Date.now();
     gagBump.current();
     track("boo_companion_react", { kind, path: pathRef.current });
+    // Load the poses this reaction shows before he needs them, or he flashes
+    // invisible while a pose image is still downloading.
+    prefetch("poke"); prefetch("cheer");
+    if (o.pose) prefetch(o.pose);
     const el = o.el;
     if (el && el.isConnected && !reducedRef.current && driftRef.current) {
       // Whoosh over to it, light it up, then say the line.
