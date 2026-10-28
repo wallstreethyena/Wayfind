@@ -544,7 +544,7 @@ scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8
 scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
-scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	76	0	0	ec765d8a36fa159b7851f39bca4700fde5b872f66f94b28bc7e2414e391e8be7
+scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
 scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	964b0a958014d38059e7c12277c73bd25765d5dbaa51098530d845d74ff9de8c
 scripts/test-city-gate.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	20	1	0	912ef8bc336c6f85e2660ca914636023ed167c3386ca4e193e9b38393dcac6c0
 scripts/test-city-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	69348535de48f62f4383204c91a2351eaf6b32663a41738831c97e7cbd692afe
