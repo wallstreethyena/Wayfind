@@ -30,7 +30,7 @@ import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
 import { useCommerceImpression } from "../useCommerceImpression";
 import {
   dealTiers, dealSeal, dealEndsLabel, dealProofPoint, dealDisclosure,
-  dealScope, coveredMetros, metroLabel, auditHiddenOffers,
+  dealScope, coveredMetros, metroLabel, auditHiddenOffers, areaStateFor, AREA_PATIENCE_MS,
 } from "../../../lib/dealSheet";
 import { nearestMetro } from "../../../lib/orderInFeatured";
 
@@ -291,6 +291,16 @@ export default function CouponsScreen({ ctx }) {
   const { cpnOffers, center, savedCoupons, walletOpen, setWalletOpen, couponHandoff, user, setAuthOpen } = ctx;
   const [pickerOpen, setPickerOpen] = useState(false);
   const [askedLoc, setAskedLoc] = useState(false);
+  // Patience: once the screen has waited AREA_PATIENCE_MS with no center, an
+  // unresolved location is treated as unknown so the picker appears (a visitor
+  // who denied location while the IP lookup failed otherwise never leaves
+  // "Finding your area"). See areaStateFor in lib/dealSheet.js.
+  const [waitedMs, setWaitedMs] = useState(0);
+  useEffect(() => {
+    if (center || ctx.locResolved) return undefined;
+    const t = setTimeout(() => setWaitedMs(AREA_PATIENCE_MS), AREA_PATIENCE_MS);
+    return () => clearTimeout(t);
+  }, [center, ctx.locResolved]);
   const today = siteTodayStr();
   const all = [...new Map([...COUPONS, ...(Array.isArray(cpnOffers) ? cpnOffers : [])].map((c) => [c.id, c])).values()];
   const { featured, ledger } = dealTiers(all, today, center);
@@ -309,7 +319,7 @@ export default function CouponsScreen({ ctx }) {
   const centerKnown = !!(center && isFinite(center.lat) && isFinite(center.lng));
   const metroKey = centerKnown ? nearestMetro(center.lat, center.lng) : null;
   const metroName = metroLabel(metroKey);
-  const areaState = metroKey ? "known" : centerKnown ? "outside" : ctx.locResolved ? "unknown" : "loading";
+  const areaState = areaStateFor({ metroKey, centerKnown, locResolved: ctx.locResolved, waitedMs });
   const offersLoading = ctx.cpnOffersStatus === "loading";
   const partnerHidden = ctx.cpnOffersStatus === "failed" || auditHiddenOffers(all, today, metroKey).length > 0;
   const where = metroName ? " in " + metroName : "";

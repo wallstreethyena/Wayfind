@@ -16,7 +16,7 @@ import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { COUPONS } from "../lib/coupons.js";
-import { dealTiers, dealScope, coveredMetros, auditHiddenOffers } from "../lib/dealSheet.js";
+import { dealTiers, dealScope, coveredMetros, auditHiddenOffers, areaStateFor, AREA_PATIENCE_MS } from "../lib/dealSheet.js";
 import { METROS } from "../lib/orderInFeatured.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 
@@ -134,6 +134,20 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
   ok(fn && /manualRef\.current = true/.test(fn[0]) && /setCenter\(/.test(fn[0]) && /setLocName\(/.test(fn[0]) && /setLocResolved\(true\)/.test(fn[0]), "pickCouponCenter sets center + label + resolved through the manual-pin path (persisted by the wf_center writer, which stamps ts)");
   ok(/pickCouponCenter, recenterToMe/.test(home), "ctx hands pickCouponCenter and recenterToMe to the Coupons screen");
   ok(Object.keys(METROS).length === coveredMetros().length, "picker metro list is the nearestMetro registry, not a second list");
+}
+
+// Patience gate (pure): an unresolved location becomes "unknown" once the screen has
+// waited AREA_PATIENCE_MS, so a visitor who denied location while the IP lookup failed
+// still gets the picker. Known/outside/resolved states are never affected by waiting.
+ok(areaStateFor({ metroKey: null, centerKnown: false, locResolved: false, waitedMs: 0 }) === "loading", "patience: fresh mount with no center is loading");
+ok(areaStateFor({ metroKey: null, centerKnown: false, locResolved: false, waitedMs: AREA_PATIENCE_MS - 1 }) === "loading", "patience: still loading just under the window");
+ok(areaStateFor({ metroKey: null, centerKnown: false, locResolved: false, waitedMs: AREA_PATIENCE_MS }) === "unknown", "patience: unresolved location becomes unknown at the window so the picker appears");
+ok(areaStateFor({ metroKey: null, centerKnown: false, locResolved: true, waitedMs: 0 }) === "unknown", "patience: a resolved-to-nothing location is unknown immediately");
+ok(areaStateFor({ metroKey: "tampa", centerKnown: true, locResolved: true, waitedMs: 0 }) === "known" && areaStateFor({ metroKey: null, centerKnown: true, locResolved: true, waitedMs: 0 }) === "outside", "patience: known and outside never depend on waiting");
+ok(AREA_PATIENCE_MS >= 3000 && AREA_PATIENCE_MS <= 15000, "patience window is a few seconds, not instant and not forever");
+{
+  const src = readFileSync(new URL("../app/components/screens/Coupons.js", import.meta.url), "utf8");
+  ok(/const areaState = areaStateFor\(\{/.test(src) && /setTimeout\(\(\) => setWaitedMs\(AREA_PATIENCE_MS\), AREA_PATIENCE_MS\)/.test(src), "Coupons.js derives areaState through areaStateFor and arms the patience timer");
 }
 
 if (fails.length) { for (const f of fails) console.error("FAIL:", f); console.error(`test-coupon-location-state: FAIL (${fails.length}/${n})`); process.exit(1); }
