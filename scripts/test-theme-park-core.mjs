@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { THEME_PARKS, THEME_PARK_PLACE_IDS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
+import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
+import { THEME_PARK_PLACE_IDS } from "../lib/themeParksServer.js";
 import { themeParkRows, loadThemeParks } from "../lib/themeParksServer.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 
