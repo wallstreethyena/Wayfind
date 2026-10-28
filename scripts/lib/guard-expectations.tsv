@@ -489,6 +489,7 @@ scripts/test-attraction-discovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	2f7
 scripts/test-audit-candidate-starvation.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	0f0c6d161bbe2d6e661acaa1cb99cc986dd6a518380f5c0880757349ccb6e55c
 scripts/test-audit-trust-20261018.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	17	0	0	c4332a30883c720dace4b19989056e4bd79c8d3f6102d4fc19cfeabf21ca5ecf
 scripts/test-auth-admin-tombstones.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	7ca0ff9d466ca8b6a423420cd35ab3db291ba725f00023816d2a10b57d7df79d
+scripts/test-auth-journey.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	4f33fec9f4d338c4c9e15cd183ea85b6bc2e97d407fa57f4ea1902455175bde1
 scripts/test-autocomplete-proxy.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	31	0	0	2fe0cdcb81ea98cb8b0b9f9dcf9cb098e0a2dcb8c15eebd1b8547cd368b0f7db
 scripts/test-batch-completeness.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	222d43e2d14ca3641c4d64cb62a7d2cd7cc1c53b9d5b2e2e8c14ed43b5d12858
 scripts/test-beach-alert-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	7f134d1c582bd8941809d9612a8e64f3a8d34fe03e79fb525d1b18ad0d8f4701
