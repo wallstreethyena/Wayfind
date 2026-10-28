@@ -5,6 +5,7 @@ import { pageShareUrl } from "../../lib/pageShareUrl";
 import BoHalloweenHaunt from "../components/BoHalloweenHaunt";
 import { halloweenHauntModel, halloweenHauntProductSchema, halloweenHauntSchema } from "../../lib/halloweenHauntVault";
 import { withHauntPhotos } from "../../lib/halloweenHauntPhotos";
+import { halloweenToursSchema, withHalloweenTours } from "../../lib/halloweenTours";
 
 export const revalidate = 3600;
 
@@ -44,9 +45,10 @@ export const metadata = {
 };
 
 export default async function Page() {
-  const model = await withHauntPhotos(halloweenHauntModel());
+  const model = await withHalloweenTours(await withHauntPhotos(halloweenHauntModel()));
   const productSchema = halloweenHauntProductSchema(model);
   const schema = halloweenHauntSchema(model);
+  const toursSchema = halloweenToursSchema(model.tours, SITE_URL + "/halloween-in-florida");
   return (
     <>
       <meta property="og:type" content="product" />
@@ -61,6 +63,7 @@ export default async function Page() {
       <meta property="og:availability" content="instock" />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema).replace(/</g, "\\u003c") }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
+      {model.tours.length ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(toursSchema).replace(/</g, "\\u003c") }} /> : null}
       <BoHalloweenHaunt
         model={model}
         share={<ShareButton url={pageShareUrl("/halloween-in-florida")} title={title} text={description} tone="dark" label="Share" />}

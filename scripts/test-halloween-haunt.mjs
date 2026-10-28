@@ -63,15 +63,15 @@ const model = halloweenHauntModel();
 ok(model.lines.length >= 10, "Bo has at least 10 lines");
 const required = [
   "I'm Boo, your ghost host! I died so I could haunt these Florida scares and save your wallet from gate prices.",
-  "14 haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.",
+  "17 haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.",
   "Sunglasses on, sunscreen energy, gate prices off. Howl O Scream starts at $45.99 when you book ahead.",
   "Paying box office prices is the real horror story here. Tap a haunt below and keep your soul and your cash.",
 ];
 for (const line of required) ok(model.lines.includes(line), "required Bo line: " + line.slice(0, 42));
 ok(hauntCopyProblems(model).length === 0, "the live model is dash free and phrase safe");
 
-ok(model.haunts.length === 14, "fourteen haunts");
-ok(hauntsForFilter(model, "all").length === 14, "All Haunts is the full vault");
+ok(model.haunts.length === 17, "seventeen haunts");
+ok(hauntsForFilter(model, "all").length === 17, "All Haunts is the full vault");
 const major = hauntsForFilter(model, "major").map((row) => row.id);
 ok(major.includes("howlTampa") && major.includes("howlOrlando") && major.includes("hhn") && !major.includes("peppa"), "major scream parks are the three big nights");
 ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon Horror Park"), "local trails include Scream A Geddon");
@@ -88,6 +88,9 @@ const expectedHref = {
   brick: "/api/commerce/go?provider=undercover_tourist&offer=16&surface=halloween_haunts&content=brick-or-treat-2026",
   peppa: "/api/commerce/go?provider=undercover_tourist&offer=18&surface=halloween_haunts&content=peppas-halloween-party-2026",
   spookquarium: "/api/commerce/go?provider=tiqets&offer=tampa-drive-clearwater-aquarium&surface=halloween_haunts&content=hw26-halloween-spookquarium-clearwater-2026",
+  seaLifePirates: "/api/commerce/go?provider=tiqets&offer=orlando-tonight-sealife&surface=halloween_haunts&content=hw26-pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
+  waxHeist: "/api/commerce/go?provider=tiqets&offer=orlando-hook-madame-tussauds&surface=halloween_haunts&content=hw26-the-great-wax-heist-at-madame-tussauds-orlando-2026",
+  sideshowObscura: "/api/commerce/go?provider=undercover_tourist&offer=6&surface=halloween_haunts&content=sideshow-obscura-hhn35-2026",
 };
 const expectedEvent = {
   howlTampa: "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
@@ -104,6 +107,9 @@ const expectedEvent = {
   petrified: "/florida-events/a-petrified-forest-scream-park-2026-altamonte-springs-2026",
   undead: "/florida-events/undead-in-the-water-tampa-2026",
   frightfest: "/florida-events/sarasota-frightfest-2026",
+  seaLifePirates: "/florida-events/pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
+  waxHeist: "/florida-events/the-great-wax-heist-at-madame-tussauds-orlando-2026",
+  sideshowObscura: "/florida-events/sideshow-obscura-hhn35-2026",
 };
 const organizerHref = {
   screamageddon: "https://screamageddon.com/tickets/",
@@ -112,7 +118,7 @@ const organizerHref = {
   undead: "https://www.undeadinthewater.com/",
   frightfest: "https://www.sarasotafrightfest.com/",
 };
-const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium"]);
+const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist", "sideshowObscura"]);
 
 for (const row of model.haunts) {
   ok(expectedEvent[row.id] === row.eventHref, row.id + " event page");
@@ -176,7 +182,7 @@ ok(nextConfig.includes('source: "/products/halloween-in-florida"') && nextConfig
 
 const schema = halloweenHauntSchema(model);
 ok(schema["@type"] === "ItemList", "event list schema stays an ItemList");
-ok(schema.numberOfItems === 14 && schema.itemListElement.length === 14, "schema lists 14 events");
+ok(schema.numberOfItems === 17 && schema.itemListElement.length === 17, "schema lists 17 events");
 const schemaBlob = JSON.stringify(schema);
 ok(!schemaBlob.includes("/api/commerce/go"), "schema does not embed the redirect");
 for (const entry of schema.itemListElement) {
