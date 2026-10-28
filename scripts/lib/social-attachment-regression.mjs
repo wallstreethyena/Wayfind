@@ -1,6 +1,8 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { __CURATED_FOR_CODEGEN__ as CURATED, allCreators, creatorVideosFor, creatorCountFor, hasCreatorPage } from "../../lib/creatorVideos.js";
+import { archetypeFor, draftArchetypeFor } from "../../lib/creatorArchetypes.js";
+import { creatorCountFor as leanCreatorCountFor } from "../../lib/creatorSignals.js";
 import { captionFor } from "../../lib/creatorCaptions.js";
 import {
   __EVENT_SOCIAL_FOR_GUARDS__ as EVENT_SOCIAL,
@@ -15,6 +17,55 @@ const ensure = (condition, message) => {
 };
 
 export function checkSocialAttachments(repo) {
+  const six = JSON.parse(readFileSync(path.join(repo, "docs/curation/six-reels-2026-10-28.json"), "utf8"));
+  const expectedSix = [
+    ["DfCjYFPxx21", "katrin_pfitzenreiter", "verified", ["ChIJlZM-TTdZ3ogRwPix4hq8hww"]],
+    ["DfCzWVwRQlz", "ilovetheburg", "verified", ["ChIJ-6hlLADhwogRNUZF-kQBGAI", "ChIJKSOkH3XhwogROw34kxu5slM"]],
+    ["DfCfX3whXW1", "stufftodointampabay", "pending_existing_pr", ["ChIJYQCTNOCxwogR77eUWAEbqwQ"]],
+    ["De-JcqFISOV", "jennabenna_s", "pending_existing_pr", ["ChIJ6cPIn0fiwogRklWu_EbSja0"]],
+    ["DemzosJpwBp", "valeriajubes", "already_merged", ["ChIJMTpK3B-q2YgRsI58IHDJFHo"]],
+    ["DfAakBaSwNM", "techtravelrentals", "already_merged", ["ChIJOxaHOSX9wogRT6_58s6LWOY"]],
+  ];
+  ensure(six.sources.length === 6 && new Set(six.sources.map((source) => source.shortcode)).size === 6, "six-reel intake must account for all six distinct submitted sources");
+  for (const [code, creator, status, ids] of expectedSix) {
+    const source = six.sources.find((candidate) => candidate.shortcode === code);
+    const url = `https://www.instagram.com/reel/${code}/`;
+    ensure(source && source.creator === creator && source.status === status && source.native_url === url, `${code} retains its native URL, credited author and publication state`);
+    ensure(JSON.stringify(source.places.map((place) => place.place_id)) === JSON.stringify(ids), `${code} retains its exact reviewed Google identities`);
+    if (status === "pending_existing_pr") {
+      ensure(source.pr === 2003, `${code} must identify its existing implementation PR`);
+      // Do not require absence: these may arrive independently when #2003 merges.
+      continue;
+    }
+    if (status === "already_merged") ensure(source.pr === 2004, `${code} must retain its merged provenance`);
+    for (const place of source.places) {
+      const entries = CURATED.filter((entry) => entry.placeId === place.place_id);
+      ensure(entries.length === 1 && entries[0].key === place.key, `${code} has one exact curated place association for ${place.name}`);
+      ensure(entries[0].address === place.address && entries[0].match.city === place.city, `${place.key} retains its reviewed address and city`);
+      const matches = creatorVideosFor({ id: place.place_id }).filter((video) => video.url === url);
+      ensure(matches.length === 1 && matches[0].creator === creator, `${code} reaches ${place.name} once with original creator credit`);
+      ensure(captionFor(matches[0]).length > 40, `${place.key} retains a substantive caption`);
+      ensure(embedSrc("instagram", url) === url + "embed/", `${code} preserves the native Instagram embed`);
+      ensure(!creatorVideosFor({ id: "ChIJdifferentVerifiedVenue123", name: place.name, city: place.city }, place.city).some((video) => video.url === url), `${code} cannot transfer to a same-name different Google ID`);
+      for (const other of six.sources.flatMap((candidate) => candidate.places)) {
+        if (ids.includes(other.place_id)) continue;
+        ensure(!creatorVideosFor({ id: other.place_id }).some((video) => video.url === url), `${code} cannot attach to unrelated ${other.name}`);
+      }
+      if (status === "verified") {
+        ensure(creatorCountFor({ id: place.place_id }) === 0 && leanCreatorCountFor({ id: place.place_id }) === 0, `${place.key} displays its source without independent corroboration in either resolver`);
+        ensure(draftArchetypeFor(creator)?.provisional === true && archetypeFor(creator) === null, `${creator} remains publicly unassigned and provisional`);
+      }
+    }
+    const actualIds = CURATED.filter((entry) => entry.videos.some((video) => video.url === url)).map((entry) => entry.placeId).sort();
+    ensure(JSON.stringify(actualIds) === JSON.stringify([...ids].sort()), `${code} has only its reviewed place associations`);
+  }
+  const ball = six.sources.find((source) => source.shortcode === "DfCzWVwRQlz");
+  ensure(ball.collaborators.length === 1 && ball.collaborators[0] === "thatssotampa" && ball.organizer_place_id === "ChIJ-6hlLADhwogRNUZF-kQBGAI" && ball.filming_place_id === "ChIJKSOkH3XhwogROw34kxu5slM", "the shared ball reel separates collaborator, organizer and filming venue");
+  for (const id of [ball.organizer_place_id, ball.filming_place_id]) {
+    const caption = captionFor(creatorVideosFor({ id }).find((video) => video.url === ball.native_url));
+    ensure(/filmed at The Floridian Social/.test(caption) && /The Book Lounge/.test(caption) && /organiz/i.test(caption) && /@thatssotampa/.test(caption), "both ball captions name the filming venue, organizer and collaborator");
+    ensure(!/ACOTAR|court of|next|upcoming|\b20\d{2}\b|filmed at The Book Lounge/i.test(caption), "ball captions cannot invent a bookstore visit, book-title assertion or future date");
+  }
   // Exact owner intake stays executable in the existing mandatory guard.
   // Two unidentified clips must remain unattached rather than borrow a name.
   const intake = JSON.parse(readFileSync(path.join(repo, "docs/curation/owner-seven-instagram-2026-10-28.json"), "utf8"));
