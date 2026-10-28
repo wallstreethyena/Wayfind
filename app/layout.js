@@ -25,6 +25,9 @@ import FooterVeil from "./components/FooterVeil";
 import PoweredByStrip from "./components/PoweredByStrip";
 import NativeShellInit from "./components/NativeShellInit";
 import NativeOfflineOverlay from "./components/NativeOfflineOverlay";
+// Boo, the Halloween companion (Oct 1 to Nov 1). The loader is a client component
+// holding the next/dynamic ssr:false boundary (scripts/check-boo-companion.mjs).
+import BooCompanionLoader from "./components/BooCompanionLoader";
 
 // Origin of the Supabase photo vault, for the preconnect hint below. Server-only
 // read (never a NEXT_PUBLIC_* template href); an invalid/missing URL renders no hint.
@@ -341,6 +344,7 @@ export default function RootLayout({ children }) {
             takes that opt-in. */}
         <div id="wf-scroll">
         <main id="wf-main" style={{ minHeight: "100dvh" }}>{children}</main>
+        <BooCompanionLoader />
         {/* v4.55 PROTECTED (check-seo.mjs): server-rendered SEO layer. A real
             H1, description, and crawlable links to guides, cities, and legal
             pages, rendered below the app so the visual design is untouched. */}
