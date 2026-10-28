@@ -119,6 +119,7 @@ node scripts/check-cron-failclosed.mjs
 # promoting 24 places once. Found 8 more call sites with the same latent bug.
 node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
+node scripts/test-sentry-meta-iab.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
@@ -288,6 +289,7 @@ node scripts/test-dynamic-daily.mjs
 node scripts/test-place-products.mjs
 node scripts/test-city-viator.mjs
 node scripts/test-analytics.mjs
+node scripts/test-meta-pixel.mjs
 node scripts/test-paid-landing.mjs
 node scripts/test-landing-inventory-ssg.mjs
 # 2026-09-29 owner decision: exact-place_id not-public registry (Le Mans Kitchen) - excluded from landing pool + inventory, /places stays noindex
@@ -2423,3 +2425,6 @@ node scripts/test-photo-queue-close-condition.mjs
 # 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
 node scripts/test-run-guards.mjs
 node scripts/test-run-guards.mjs --red-prove
+# 2026-10-28 event safety without the LLM task: deterministic rollover of ended
+# events + data-level verification freshness pulse that pages via job-watch.
+node scripts/test-event-safety.mjs

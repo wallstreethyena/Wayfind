@@ -71,6 +71,7 @@ import { INV_LIST_SCHEMA } from "../lib/coordProvenance.js";
 // park's card instead of as peer rows. Ranking is untouched — presentation only.
 import { consolidateDestinations } from "../lib/venueContainment";
 import { forwardToGoogle } from "../lib/analytics";
+import { forwardToMeta } from "../lib/metaPixel";
 import { attributionParams } from "../lib/attribution";
 // Primary metric: activated sessions. See lib/activation.js for why page depth
 // is a diagnostic and not the target (Wayfind is SPA-like; ?place=, filters and
@@ -143,6 +144,12 @@ import nextDynamic from "next/dynamic";
 // lib/chunkRecovery stays for the chunks the page cannot work without.
 const optionalChunk = (load, name) => nextDynamic(() => load().catch(() => load()).catch((e) => {
   try { if (typeof window !== "undefined") captureOrQueue(window, "chunk_load_failed", { chunk: name, message: String((e && e.message) || "").slice(0, 200), build: BUILD_ID }); } catch (_) { /* best-effort */ }
+  // The pre-React layer (lib/chunkRecovery) paints #wf-chunk-bar when its one
+  // reload is spent and a chunk fails again. Measured on production 2026-10-27
+  // with this chunk blocked: the page is fully usable without the footer, so a
+  // persistent "didn't finish loading — Reload" bar is a prompt for nothing.
+  // One prompt at a time, and none when nothing is broken.
+  try { const bar = typeof document !== "undefined" && document.getElementById("wf-chunk-bar"); if (bar) bar.remove(); } catch (_) { /* best-effort */ }
   return { default: () => null };
 }), { ssr: false });
 const CommunityFooter = optionalChunk(() => import("./components/CommunityFooter"), "CommunityFooter");
@@ -6631,6 +6638,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         place_name: (place && place.name) || null,
       }, extra || {}, attributionParams(), _exp));
     } catch (e1) {}
+    // Mirror to the Meta pixel (Lead / ViewContent / AddToWishlist /
+    // CompleteRegistration); forwardToMeta maps, dedupes and skips the rest.
+    try {
+      forwardToMeta(action, Object.assign({
+        place_id: (place && place.id) || (extra && extra.place_id) || null,
+        place_name: (place && place.name) || null,
+      }, extra || {}, _exp));
+    } catch (e1b) {}
     // Session-scoped milestones — the PRIMARY metric (activated sessions).
     // Fires at most one first_intent and one session_activated per session.
     // Strictly additive: no existing event name, payload, or history changes.

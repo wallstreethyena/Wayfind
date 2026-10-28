@@ -75,11 +75,12 @@ ok(occurrenceDatesFor({ event_id: "no-such-event" }) === null, "unregistered cal
 ok(JSON.stringify(occurrenceDatesFor({ event_id: legendsId, occurrence_dates: ["2026-10-24"] })) === '["2026-10-24"]', "explicit row dates retain calendar precedence");
 const raw = JSON.parse(readFileSync("data/christmas-2026-research.json", "utf8"));
 const zoo = raw.find((row) => row.id === "zootampa-christmas-in-the-wild-2026");
-ok(zoo.state === "recurring_unconfirmed" && zoo.start_date === null && zoo.end_date === null, "ZooTampa remains held with no public dates");
-ok(/November 27.*members-only/.test(zoo.missing) && !/[^\x00-\x7F]/.test(zoo.missing), "ZooTampa hold explains the members-only preview in plain ASCII");
+// 2026-10-28: zootampa.org now states the 2026 run (Nov 27 to Dec 30), so the hold is lifted; Nov 27 stays flagged as members only.
+ok(zoo.state === "confirmed_dated" && zoo.start_date === "2026-11-27" && zoo.end_date === "2026-12-30", "ZooTampa is published with the organizer's stated 2026 run");
+ok(/November 27.*members-only/.test(zoo.missing) && !/[^\x00-\x7F]/.test(zoo.missing), "ZooTampa still explains the members-only preview in plain ASCII");
 const zooRows = mergeChristmasResearch([{ event_id: zoo.id, event_name: zoo.event_name, start_date: "2026-11-27", end_date: "2026-12-30", lat: 28.014, lng: -82.469, tags: ["christmas"], category: "seasonal" }]);
-ok(zooRows.find((row) => row.event_id === zoo.id).christmas_excluded === true, "research hold excludes even a dated stale ZooTampa database row");
-ok(!composeChristmasIntentRails(zooRows, [], { lat: 28.014, lng: -82.469, today: "2026-11-27" }).rails.flatMap((rail) => rail.cards).some((row) => row.event_id === zoo.id), "real Christmas compose never promotes the member preview");
+ok(zooRows.find((row) => row.event_id === zoo.id).christmas_excluded !== true, "a published research row no longer excludes the dated ZooTampa database row");
+ok(composeChristmasIntentRails(zooRows, [], { lat: 28.014, lng: -82.469, today: "2026-11-27" }).rails.flatMap((rail) => rail.cards).some((row) => row.event_id === zoo.id), "real Christmas compose now carries ZooTampa");
 if (!mutation) {
   const child = spawnSync(process.execPath, [process.argv[1], "--mutation-child"], { cwd: process.cwd(), encoding: "utf8" });
   ok(child.status === 1 && (child.stderr + child.stdout).includes("crawl opens at 3pm"), "negative control: restoring real registry's stale 4pm opening makes the guard process exit 1");

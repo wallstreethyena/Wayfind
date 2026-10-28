@@ -58,6 +58,10 @@
       "schedule": "45 * * * *"
     },
     {
+      "path": "/api/cron/event-safety",
+      "schedule": "20 * * * *"
+    },
+    {
       "path": "/api/cron/spend-pacing",
       "schedule": "42 12 * * *"
     },

@@ -42,6 +42,25 @@ ok(run("2026-10-13", [{ id: "x", label: "x", expires: "soon" }, null]).length ==
 const real = run("2099-01-01", COUPON_AUDIT_FUSES);
 ok(real.length === COUPON_AUDIT_FUSES.length && COUPON_AUDIT_FUSES.length >= 2, "every real fuse alerts when lapsed");
 
+// Family facts use their own registry and fail to unknown, rather than hiding
+// coupons or changing guide attribution. Exercise both notification paths.
+const familyFuse = COUPON_AUDIT_FUSES.find((f) => f.id === "family_day_evidence");
+ok(!!familyFuse, "the real family-day audit fuse exists");
+const familyNotice = (daysAfter) => {
+  const day = new Date(Date.parse(familyFuse.expires + "T12:00:00Z") + daysAfter * 86400000).toISOString().slice(0, 10);
+  return run(day, [familyFuse])[0];
+};
+for (const daysAfter of [-2, 1]) {
+  const notice = familyNotice(daysAfter);
+  ok(notice && notice.id === "audit_fuse_family_day_evidence" && notice.severity === "warn", `family notice keeps its cooldown identity and severity (${daysAfter})`);
+  ok(notice && /lib\/familyDayEvidence\.js/.test(notice.detail) && /verifiedAt/.test(notice.detail) && /expiresAt/.test(notice.detail), `family notice names the actual evidence fields to renew (${daysAfter})`);
+  ok(notice && /unknown/.test(notice.detail) && /filters/.test(notice.detail), `family notice explains the actual filter degradation (${daysAfter})`);
+  ok(notice && !/lib\/coupons\.js|cards.*hid|cards.*hide|untracked|guide CTA/.test(notice.detail), `family notice does not claim coupon or attribution effects (${daysAfter})`);
+  ok(notice && notice.baseline === "re-audited monthly", `family notice uses the evidence's monthly cadence (${daysAfter})`);
+}
+ok(run("2026-10-28", [familyFuse]).length === 0, "renewed family evidence does not produce the screenshot's stale lapse alert");
+ok(/lib\/coupons\.js/.test(lapsed[0].detail) && /untracked/.test(lapsed[0].detail), "the Clipp notice retains its coupon and attribution repair instructions");
+
 // Wiring: the report builder must carry couponAudit through to computeAlerts (a rule nobody feeds is decoration).
 const stub = { source: { name: "s", connected: false }, data: null };
 const rep = buildAlertsReport({ fractionOfDay: 0.5, todayKey: "2099-01-01", asOf: new Date("2099-01-01T15:00:00Z"),
