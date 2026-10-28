@@ -137,6 +137,18 @@ const FALLBACK_LINE = "My chains got tangled. The full haunt list is one tap awa
 
 const ANTICS = ["wave", "spin", "peekaboo", "shiver", "zoomies", "nap", "bow", "juggle"];
 const ANTIC_MS = { wave: 1800, spin: 1500, peekaboo: 2600, shiver: 1500, zoomies: 2800, nap: 3200, bow: 1600, juggle: 2800 };
+// Zap pool for a bulb shock: dash free, short.
+const ZAP_LINES = [
+  "Zapped! Still cute though.",
+  "Note to self: bulbs bite.",
+  "Ouch. Worth it for the glow.",
+  "Okay, that one had a kick.",
+  "Tingly. Do not try this at home.",
+  "My sheet is standing on end.",
+];
+const ZAP_MS = 3300;
+const LOOK_MS = { hop: 360, spin: 500, wiggle: 400, nod: 150 };
+const BOLT_SPOTS = [["2px", "-6px", "#00F5D4", "0s"], ["62px", "-2px", "#FFD166", ".08s"], ["-8px", "20px", "#FFD166", ".16s"], ["68px", "26px", "#00F5D4", ".24s"]];
 const SIZE = 88;
 const TOP = 70, BOTTOM = 96, SIDE = 12;
 
@@ -156,7 +168,32 @@ const CSS = `
 .boo-c-glow{position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(closest-side,rgba(249,115,22,.26),rgba(249,115,22,0));pointer-events:none}
 .boo-c-flip{position:absolute;inset:0;transition:transform .35s ease}
 .boo-c-bob{position:absolute;inset:0;animation:boo-c-bob .87s cubic-bezier(.37,0,.63,1) infinite}
-@keyframes boo-c-bob{0%,100%{transform:translateY(0)}25%{transform:translateY(-9px)}75%{transform:translateY(9px)}}
+.boo-c-bob{transform-origin:50% 75%}
+@keyframes boo-c-bob{0%,100%{transform:translateY(0) scaleY(1)}25%{transform:translateY(-9px) scaleY(1.03)}75%{transform:translateY(9px) scaleY(.96)}}
+.boo-c-look,.boo-c-sway{position:absolute;inset:0}
+.boo-c-sway{transform-origin:50% 90%;transform:rotate(var(--lean,0deg));transition:transform .25s ease-out}
+.boo-l-hop{animation:boo-l-hop .36s ease-out both}
+.boo-l-spin{animation:boo-l-spin .5s ease-in-out both}
+.boo-l-wiggle{animation:boo-l-wig .4s ease-in-out both;transform-origin:50% 80%}
+.boo-l-nod{animation:boo-l-nod .15s ease-out both;transform-origin:50% 80%}
+@keyframes boo-l-hop{0%,50%,100%{transform:translateY(0)}25%,75%{transform:translateY(-6px)}}
+@keyframes boo-l-spin{from{transform:perspective(300px) rotateY(0)}to{transform:perspective(300px) rotateY(360deg)}}
+@keyframes boo-l-wig{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-4deg)}80%{transform:rotate(4deg)}}
+@keyframes boo-l-nod{0%,100%{transform:rotate(0)}50%{transform:rotate(6deg)}}
+.boo-sp{position:absolute;width:10px;height:10px;background:#FFD166;pointer-events:none;opacity:0;clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:boo-k-sp .5s ease-out both}
+.boo-sp:nth-of-type(2){animation-delay:.12s}
+@keyframes boo-k-sp{0%{opacity:0;transform:scale(.2) rotate(0)}40%{opacity:1;transform:scale(1.3) rotate(40deg)}100%{opacity:0;transform:scale(.4) rotate(90deg)}}
+.boo-a-zap[data-ph="jolt"]{animation:boo-k-zj .06s steps(1,end) 8 both,boo-k-zf .12s steps(1,end) 4 both}
+.boo-a-zap[data-ph="settle"]{animation:boo-k-zs .3s ease-out both}
+@keyframes boo-k-zj{0%{transform:translate(2px,-2px)}25%{transform:translate(-3px,1px)}50%{transform:translate(3px,2px)}75%{transform:translate(-2px,-3px)}100%{transform:translate(0,0)}}
+@keyframes boo-k-zf{0%{filter:brightness(2.2) drop-shadow(0 0 5px rgba(170,230,255,.95))}50%{filter:brightness(1) drop-shadow(0 0 3px rgba(170,230,255,.6))}100%{filter:brightness(1.5) drop-shadow(0 0 4px rgba(170,230,255,.8))}}
+@keyframes boo-k-zs{0%{transform:scale(1.06,.92)}60%{transform:scale(.98,1.03)}100%{transform:none}}
+.boo-zb{position:absolute;width:16px;height:18px;pointer-events:none;opacity:0;animation:boo-k-zb .5s steps(5,end) both;animation-delay:var(--zd,0s)}
+.boo-zb svg{display:block;width:100%;height:100%}
+@keyframes boo-k-zb{0%{opacity:0;transform:scale(.3)}20%{opacity:1;transform:scale(1.2)}60%{opacity:1;transform:scale(.9) rotate(8deg)}100%{opacity:0;transform:scale(.5)}}
+.boo-sm{position:absolute;left:30px;top:-4px;width:22px;height:22px;border-radius:50%;background:rgba(222,222,232,.9);filter:blur(1.5px);pointer-events:none;opacity:0;animation:boo-k-sm .75s ease-out both}
+.boo-sm:nth-of-type(2){left:48px;top:2px;width:15px;height:15px;animation-delay:.15s}
+@keyframes boo-k-sm{0%{opacity:0;transform:translateY(6px) scale(.5)}30%{opacity:.95}100%{opacity:0;transform:translateY(-24px) scale(1.5)}}
 .boo-c-bubble{all:unset;box-sizing:border-box;position:absolute;width:max-content;max-width:210px;padding:9px 12px;background:#F5EFE6;color:#1A1420;font:600 14px/1.3 var(--wf-sans),system-ui,sans-serif;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer;animation:boo-c-pop .35s cubic-bezier(.2,.8,.3,1) both}
 .boo-c-bubble:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-c-bubble:after{content:"";position:absolute;width:10px;height:10px;background:#F5EFE6;transform:rotate(45deg);border-radius:2px}
@@ -245,8 +282,8 @@ const CSS = `
 .boo-c[data-dart="1"] .boo-tr{animation:boo-tr .55s linear infinite}
 .boo-tr:nth-child(2){animation-delay:.14s !important}.boo-tr:nth-child(3){animation-delay:.28s !important}.boo-tr:nth-child(4){animation-delay:.41s !important}
 @keyframes boo-tr{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(calc(var(--tdir,1) * -38px),10px) scale(.3)}}
-[data-boo-touch].boo-bulb{animation:boo-t-bulb 1.2s ease-out both !important}
-@keyframes boo-t-bulb{0%{filter:brightness(1)}20%{transform:scale(1.8);filter:brightness(2.4) saturate(1.5);box-shadow:0 0 22px 10px rgba(255,214,102,.95)}100%{transform:scale(1);filter:brightness(1)}}
+[data-boo-touch].boo-bulb{animation:boo-cycle 9s linear var(--d,0s) infinite,boo-t-bulb 1.2s ease-out both !important;opacity:1 !important}
+@keyframes boo-t-bulb{0%{filter:brightness(1)}3%{transform:scale(1.5);filter:brightness(3.4) saturate(.1)}7%{transform:scale(1.8);filter:brightness(1.9) saturate(1.3) drop-shadow(0 0 7px var(--bc,currentColor)) drop-shadow(0 0 14px var(--bc,currentColor))}35%{transform:scale(1.5);filter:brightness(1.9) saturate(1.3) drop-shadow(0 0 7px var(--bc,currentColor))}100%{transform:scale(1);filter:brightness(1)}}
 .boo-buy[data-boo-touch],.boo-ask[data-boo-touch],.boo-goto[data-boo-touch],.boo-picks button[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 @keyframes boo-t-glow{0%{box-shadow:0 0 0 0 rgba(249,115,22,0);transform:scale(1)}30%{box-shadow:0 0 26px 8px rgba(249,115,22,.6);transform:scale(1.035)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0);transform:scale(1)}}
 .boo-photo[data-boo-touch]:after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 0 3px #C4B5FD,inset 0 0 34px rgba(196,181,253,.6);animation:boo-t-rim 1.2s ease-out both}
@@ -254,7 +291,7 @@ const CSS = `
 .wf-wordmark-text[data-boo-touch]{animation:boo-t-word 1.2s ease-out both}
 @keyframes boo-t-word{0%,100%{filter:none}30%{filter:drop-shadow(0 0 10px rgba(196,181,253,.95)) drop-shadow(0 0 4px rgba(249,115,22,.7))}}
 input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
-@media (prefers-reduced-motion:reduce){.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
+@media (prefers-reduced-motion:reduce){.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
 export default function BooCompanion() {
@@ -271,9 +308,16 @@ export default function BooCompanion() {
   const [pending, setPending] = useState(false);
   const [wrapped, setWrapped] = useState(false);
   const [draft, setDraft] = useState("");
+  const [zap, setZap] = useState(null); // null | "jolt" | "settle"
+  const [look, setLook] = useState(null); // hop | spin | wiggle | nod
 
   const elRef = useRef(null);
   const flipRef = useRef(null);
+  const swayRef = useRef(null);
+  const leanRef = useRef(0);
+  const zapT = useRef([]);
+  const lookT = useRef(0);
+  const wigT = useRef(0);
   const sheetRef = useRef(null);
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
@@ -376,6 +420,7 @@ export default function BooCompanion() {
       const on = (t, delay) => {
         st.timers.push(window.setTimeout(() => {
           try {
+            if (t.classList.contains("boo-bulb")) t.style.setProperty("--bc", getComputedStyle(t).backgroundColor);
             t.setAttribute("data-boo-touch", "1");
             st.els.add(t);
             st.timers.push(window.setTimeout(() => { t.removeAttribute("data-boo-touch"); st.els.delete(t); }, TOUCH_MS));
@@ -402,12 +447,14 @@ export default function BooCompanion() {
       // Poke first, then the happy cheer. Hovering a photo is the orb pose,
       // the search bar is swiping, and the Go to Wayfind button is eureka.
       const cl = el.classList;
+      if (cl.contains("boo-bulb")) { zapRef.current(); return; }
       const first = cl.contains("boo-photo") ? "orb" : isInput ? "swipe" : cl.contains("boo-goto") ? "up" : "poke";
       setPose(first);
       if (first === "poke") st.timers.push(window.setTimeout(() => setPose("cheer"), 450));
       st.timers.push(window.setTimeout(() => setPose(restPose()), TOUCH_MS + 200));
     } catch { /* ignore */ }
   }, []);
+  const zapRef = useRef(() => {});
   const touchRef = useRef(touchTarget);
   touchRef.current = touchTarget;
   useEffect(() => () => {
@@ -487,6 +534,7 @@ export default function BooCompanion() {
       let g = seg.current;
       if (!g) { nextLeg(); g = seg.current; }
       if (g.pause > 0) {
+        setLean(0);
         g.pause -= dt;
         if (g.pause <= 0) nextLeg();
       } else {
@@ -497,6 +545,7 @@ export default function BooCompanion() {
         const x = Math.min(b.maxX, Math.max(b.minX, g.x0 + (g.x1 - g.x0) * e));
         const yy = g.y0 + (g.y1 - g.y0) * e;
         const y = g.free ? Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, yy)) : Math.min(b.maxY, Math.max(b.minY, yy));
+        setLean(dt > 0 ? Math.max(-3, Math.min(3, ((x - posRef.current.x) / dt) / 45)) : leanRef.current);
         posRef.current = { x, y };
         place(x, y);
         if (u >= 1) {
@@ -519,7 +568,7 @@ export default function BooCompanion() {
     const vis = () => (document.hidden ? stop() : start());
     document.addEventListener("visibilitychange", vis);
     start();
-    return () => { alive = false; stop(); document.removeEventListener("visibilitychange", vis); if (elRef.current) elRef.current.dataset.dart = ""; };
+    return () => { alive = false; stop(); document.removeEventListener("visibilitychange", vis); if (elRef.current) elRef.current.dataset.dart = ""; setLean(0); };
   }, [eligible, drifting, reduced, place, nextLeg, corner]);
 
   // Keep the reduced motion spot in the corner on resize.
@@ -550,6 +599,59 @@ export default function BooCompanion() {
     return ANTIC_MS[n];
   }, []);
   useEffect(() => () => clearTimeout(anticTimer.current), []);
+
+  // Zap: a bulb touch shocks him. 500ms jolt in the panic pose with sparks, then
+  // smoke, a 300ms settle into the sheepish grin and a one liner, then he roams on.
+  const stopZap = useCallback(() => {
+    zapT.current.forEach(clearTimeout);
+    zapT.current = [];
+  }, []);
+  const zapBoo = useCallback(() => {
+    if (openRef.current) return;
+    stopZap();
+    clearTimeout(anticTimer.current);
+    const b = bounds(), cur = posRef.current;
+    const v = cur.y < 150 ? "below" : "above";
+    const h = cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right";
+    const text = ZAP_LINES[Math.floor(Math.random() * ZAP_LINES.length)];
+    prefetch("panic"); prefetch("nap");
+    setAntic({ name: "zap", key: Date.now() });
+    setZap("jolt");
+    setPose("panic");
+    const at = (ms, fn) => zapT.current.push(window.setTimeout(fn, ms));
+    at(500, () => { setZap("settle"); setPose("nap"); setBubble({ text, v, h }); });
+    at(ZAP_MS, () => { setBubble(null); setAntic(null); setZap(null); setPose(restPose()); });
+    track("boo_companion_zap", { path: pathRef.current });
+  }, [stopZap]);
+  zapRef.current = zapBoo;
+  useEffect(() => () => { stopZap(); clearTimeout(lookT.current); clearTimeout(wigT.current); }, [stopZap]);
+
+  // Idle charm: short transform only bits on a wrapper, never while the sheet is
+  // open and never with reduced motion.
+  const playLook = useCallback((name, force) => {
+    if (openRef.current || reducedRef.current) return false;
+    if (lookT.current && !force) return false;
+    clearTimeout(lookT.current);
+    setLook(name);
+    lookT.current = window.setTimeout(() => { lookT.current = 0; setLook(null); }, LOOK_MS[name]);
+    return true;
+  }, []);
+  const setLean = (deg) => {
+    if (Math.abs(deg - leanRef.current) < 0.25 && !(deg === 0 && leanRef.current !== 0)) return;
+    leanRef.current = deg;
+    if (swayRef.current) swayRef.current.style.setProperty("--lean", deg.toFixed(1) + "deg");
+  };
+
+  // Curious look every 8 to 14s while he is idle roaming: double hop or a spin.
+  useEffect(() => {
+    if (!drifting) return;
+    let t = 0;
+    const go = () => { playLook(Math.random() < 0.5 ? "hop" : "spin"); t = window.setTimeout(go, rand(8000, 14000)); };
+    t = window.setTimeout(go, rand(8000, 14000));
+    return () => clearTimeout(t);
+  }, [drifting, playLook]);
+  // A little nod when a bubble appears.
+  useEffect(() => { if (bubble && !open) playLook("nod"); }, [bubble]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Gags: first after 6s, then every 40 to 70s; at most 6 per page view. The
   // first two are local (free), then every third calls gag mode, always with a
@@ -623,6 +725,8 @@ export default function BooCompanion() {
 
   const openSheet = useCallback((src) => {
     tappedRef.current = true;
+    if (zapT.current.length) { stopZap(); setZap(null); setAntic(null); }
+    clearTimeout(lookT.current); lookT.current = 0; setLook(null);
     lastFocus.current = typeof document !== "undefined" ? document.activeElement : null;
     setBubble(null);
     holdRef.current = "greet";
@@ -630,7 +734,14 @@ export default function BooCompanion() {
     setPose("greet");
     setOpen(true);
     track("boo_companion_open", { source: src || "tap", path: pathRef.current });
-  }, []);
+  }, [stopZap]);
+
+  // Tap: a happy wiggle first, then the sheet.
+  const onTap = () => {
+    if (reducedRef.current || openRef.current || wigT.current) { openSheet("tap"); return; }
+    playLook("wiggle", true);
+    wigT.current = window.setTimeout(() => { wigT.current = 0; openSheet("tap"); }, 400);
+  };
 
   const closeSheet = useCallback(() => {
     holdRef.current = null;
@@ -754,15 +865,26 @@ export default function BooCompanion() {
     <>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
-        <button type="button" className="boo-c-btn" aria-label="Chat with Boo, Wayfind's ghost guide" onClick={() => openSheet("tap")}>
+        <button type="button" className="boo-c-btn" aria-label="Chat with Boo, Wayfind's ghost guide" onClick={onTap}>
           <span className="boo-c-glow" aria-hidden="true" />
-          <span className={"boo-c-act" + (antic ? " boo-a-" + antic.name : "")} key={antic ? antic.key : "idle"}>
-            <span className="boo-c-flip" ref={flipRef}>
-              <span className="boo-c-bob"><PoseImg pose={pose} /></span>
+          <span className={"boo-c-act" + (antic ? " boo-a-" + antic.name : "")} data-ph={zap || undefined} key={antic ? antic.key : "idle"}>
+            <span className={"boo-c-look" + (look ? " boo-l-" + look : "")}>
+              <span className="boo-c-sway" ref={swayRef}>
+                <span className="boo-c-flip" ref={flipRef}>
+                  <span className="boo-c-bob"><PoseImg pose={pose} /></span>
+                </span>
+              </span>
             </span>
             {antic && antic.name === "nap" ? (<><span className="boo-z" aria-hidden="true">z</span><span className="boo-z" aria-hidden="true">z</span></>) : null}
             {antic && antic.name === "juggle" ? (<><span className="boo-pk" aria-hidden="true" /><span className="boo-pk" aria-hidden="true" /><span className="boo-pk" aria-hidden="true" /></>) : null}
           </span>
+          {zap === "jolt" ? BOLT_SPOTS.map((sp, i) => (
+            <span key={i} className="boo-zb" aria-hidden="true" style={{ left: sp[0], top: sp[1], "--zd": sp[3] }}>
+              <svg viewBox="0 0 16 18"><polygon points="9,0 2,10 7,10 5,18 14,7 9,7" fill={sp[2]} /></svg>
+            </span>
+          )) : null}
+          {zap === "settle" ? (<><i className="boo-sm" aria-hidden="true" /><i className="boo-sm" aria-hidden="true" /></>) : null}
+          {look === "hop" || look === "spin" ? (<><i className="boo-sp" aria-hidden="true" style={{ left: 66, top: 4 }} /><i className="boo-sp" aria-hidden="true" style={{ left: 8, top: 14 }} /></>) : null}
         </button>
         <i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" />
         {bubble && !open ? (
