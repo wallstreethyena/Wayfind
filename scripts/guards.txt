@@ -540,6 +540,7 @@ node scripts/check-lib-call-imports.mjs
 node scripts/check-unbound-refs.mjs
 node scripts/check-cuisine-shortlist.mjs
 node scripts/check-boundary-alert.mjs
+node scripts/test-posthog-timeout-retry.mjs
 node scripts/check-ut-crawler-clicks.mjs
 node scripts/check-hero-chrome.mjs
 node scripts/check-money-funnel.mjs
@@ -2403,3 +2404,13 @@ node scripts/test-richness-loading-path.mjs
 
 # 2026-10-27: Boo, the site wide Halloween companion (own dynamic chunk, season gate by siteTodayStr, reserved paths, session hide key, dash free gags).
 node scripts/check-boo-companion.mjs
+# 2026-10-27 (fix-affiliate-synthetic-traffic) - prefetch, QA opt-in and burst traffic never follow a
+# partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
+# still do. Drives all four go handlers with the PostHog capture intercepted.
+node scripts/check-redirect-traffic-class.mjs
+
+# 2026-10-27: one tap on /p/{id}?action=save|like|dislike replays ONE action (deep-link effect re-ran on supabaseReady and doubled PostHog `save`, and un-saved the place).
+node scripts/test-save-single-emitter.mjs
+# 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
+node scripts/test-auth-journey.mjs
+node scripts/test-photo-queue-close-condition.mjs

@@ -9,7 +9,9 @@ import { dateNightIntentHref } from "../lib/dayparts.js";
 // (lib/familyDayEvidence.js: expiresAt vs Date.now(), covered by test-family-evidence-expiry.mjs), so
 // the clock is anchored inside the evidence window and keeps ADVANCING (timers/deadlines stay real).
 // Without this the test failed on the day the evidence expired (2026-10-10) on unchanged code.
-const REF_MS = Date.parse("2026-09-20T16:00:00Z");
+// The anchor must sit INSIDE the current audit window (after every verifiedAt, before the earliest
+// expiresAt of the live batch), so it moves with each re-audit; 2026-10-27 batch: 10-27 to 11-27.
+const REF_MS = Date.parse("2026-11-05T16:00:00Z");
 const PERF0 = performance.now();
 Date.now = () => REF_MS + (performance.now() - PERF0);
 

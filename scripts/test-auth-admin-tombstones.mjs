@@ -58,7 +58,11 @@ ok(/supabase\.auth\.signUp\(\{\s*\.\.\.creds,\s*options:\s*\{\s*emailRedirectTo:
 ok(/supabase\.auth\.resend\(\{\s*type:\s*["']signup["']/.test(home), "unconfirmed sign-in uses Supabase resend");
 const sessionBranch = home.indexOf("else if (res.data && res.data.session)");
 const completion = home.indexOf('"signup_completed"');
-ok(sessionBranch >= 0 && completion > sessionBranch, "signup completion analytics occurs only after a real session");
+// 2026-10-27: completion analytics moved to lib/authJourney.js, called from onAuthStateChange
+// with a real SIGNED_IN session (scripts/test-auth-journey.mjs). home.js must not emit it
+// itself, so the only remaining emission site is gated on a session by construction.
+const journeySrc = readFileSync(new URL("../lib/authJourney.js", import.meta.url), "utf8");
+ok(sessionBranch >= 0 && completion === -1 && /runAuthTransition\(/.test(home) && /event !== "SIGNED_IN"/.test(journeySrc) && /!user \|\| !user\.id/.test(journeySrc), "signup completion analytics occurs only after a real session");
 
 if (failures) process.exit(1);
 console.log("test-auth-admin-tombstones: OK — public Admin auth removed; Supabase confirmation flow retained");
