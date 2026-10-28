@@ -4,6 +4,7 @@ import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import BoHalloweenHaunt from "../components/BoHalloweenHaunt";
 import { halloweenHauntModel, halloweenHauntSchema } from "../../lib/halloweenHauntVault";
+import { withHauntPhotos } from "../../lib/halloweenHauntPhotos";
 
 export const revalidate = 3600;
 
@@ -27,8 +28,8 @@ export const metadata = {
   twitter: { ...seasonal.twitter, title, description, images: seasonal.twitter.images },
 };
 
-export default function Page() {
-  const model = halloweenHauntModel();
+export default async function Page() {
+  const model = await withHauntPhotos(halloweenHauntModel());
   const schema = halloweenHauntSchema(model);
   return (
     <>

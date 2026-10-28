@@ -173,26 +173,33 @@ const CSS = `
 .boo-picked button{min-height:44px;padding:0 4px;background:none;border:0;cursor:pointer;color:var(--lav);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .boo-vault-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:16px}
 @media(min-width:720px){.boo-main{max-width:960px}.boo-vault-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.boo-card{display:flex;flex-direction:column;min-width:0;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:12px;scroll-margin-top:12px}
-.boo-photo{position:relative;width:100%;aspect-ratio:16 / 10;background:var(--surface);overflow:hidden}
-.boo-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.boo-card{display:grid;grid-template-columns:40% minmax(0,1fr);min-width:0;overflow:hidden;background:var(--surface);border:1px solid var(--line);border-radius:12px;scroll-margin-top:12px}
+.boo-photo{position:relative;min-width:0;min-height:230px;height:100%;background:var(--surface);overflow:hidden}
+.boo-strip{position:absolute;inset:0;display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.boo-strip::-webkit-scrollbar{display:none}
+.boo-slide{position:relative;flex:0 0 100%;min-width:0;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
+.boo-slide img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .boo-ph{position:absolute;inset:0;background:linear-gradient(180deg,#1C2230 0%,#040810 100%)}
 .boo-ph span{display:none}
 .boo-ph::after{content:"";position:absolute;left:50%;top:50%;width:34%;aspect-ratio:1 / 1;transform:translate(-50%,-50%);background:url("/images/boo/boo_v8_clean_avatar.png") center / contain no-repeat;opacity:.1;filter:grayscale(1)}
-.boo-photo-chip{position:absolute;left:10px;top:10px;z-index:1;padding:5px 10px;border-radius:999px;background:rgba(4,8,16,.78);border:1px solid var(--line);color:var(--lav);font-size:12px;font-weight:600}
-.boo-body{display:flex;flex-direction:column;gap:8px;padding:16px}
-.boo-city{display:flex;align-items:center;gap:6px;margin:0;font-size:14px;color:var(--muted)}
-.boo-city svg{flex:0 0 auto;width:14px;height:14px}
-.boo-card h2{margin:0;font-size:19px;line-height:1.3;font-weight:700;color:var(--cream);overflow-wrap:anywhere}
-.boo-credit{margin:0;font-size:11px;line-height:1.4;color:var(--muted);opacity:.8}
-.boo-when{margin:0;font-size:14px;line-height:1.45;color:var(--muted)}
-.boo-pricerow{display:flex;align-items:baseline;gap:6px;margin:4px 0 0;min-width:0}
-.boo-from{font-size:14px;color:var(--muted)}
-.boo-amt{font-size:24px;line-height:1.2;font-weight:700;color:var(--cream)}
-.boo-note{margin:4px 0 0;font-size:15px;line-height:1.4;color:var(--cream)}
-.boo-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;margin-top:4px;background:var(--orange);color:#0D1117;border-radius:12px;font-size:16px;font-weight:700;text-decoration:none;text-align:center}
-.boo-via{margin:0;font-size:12px;line-height:1.4;color:var(--muted);text-align:center}
-.boo-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:var(--lav);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.boo-dots{position:absolute;left:0;right:0;bottom:8px;z-index:1;display:flex;justify-content:center;gap:5px;pointer-events:none}
+.boo-dots i{width:6px;height:6px;border-radius:50%;background:rgba(245,239,230,.45)}
+.boo-dots i.is-on{background:#F5EFE6}
+.boo-body{display:flex;flex-direction:column;gap:6px;min-width:0;padding:12px 12px 12px 12px}
+.boo-chip{align-self:flex-start;max-width:100%;padding:3px 9px;border-radius:999px;background:rgba(196,181,253,.16);color:var(--lav);font-size:12px;font-weight:600;line-height:1.4}
+.boo-card h2{margin:0;font-size:16px;line-height:1.3;font-weight:700;color:var(--cream);overflow-wrap:anywhere}
+.boo-credit{margin:0;font-size:11px;line-height:1.35;color:#9A94A8;overflow-wrap:anywhere}
+.boo-credit a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+.boo-line{display:flex;align-items:flex-start;gap:7px;margin:0;font-size:13px;line-height:1.4;color:#9A94A8;min-width:0;overflow-wrap:anywhere}
+.boo-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
+.boo-bottom{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px}
+.boo-pricerow{display:flex;flex-direction:column;align-items:flex-end;margin:0;min-width:0}
+.boo-from{font-size:12px;line-height:1.2;color:#9A94A8}
+.boo-amt{text-align:right;font-size:22px;line-height:1.2;font-weight:800;color:var(--cream)}
+.boo-note{margin:0;font-size:13px;line-height:1.35;color:var(--cream);text-align:right;overflow-wrap:anywhere}
+.boo-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:var(--orange);color:#0D1117;border:2px solid var(--orange);border-radius:12px;font-size:15px;font-weight:700;line-height:1.2;text-decoration:none;text-align:center}
+.boo-via{margin:0;font-size:11px;line-height:1.35;color:#9A94A8;text-align:center}
+.boo-event{display:flex;align-items:center;justify-content:center;min-height:36px;color:var(--lav);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .boo-empty{margin:16px 0 0;color:var(--muted);font-size:14px}
 `;
 
@@ -290,6 +297,62 @@ function WayfindHeader() {
         </div>
       </div>
     </div>
+  );
+}
+
+const ICON = { fill: "none", stroke: "#9A94A8", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
+
+function PhotoStrip({ photos, priority }) {
+  const [active, setActive] = useState(0);
+  const onScroll = (event) => {
+    const el = event.currentTarget;
+    if (!el.clientWidth) return;
+    setActive(Math.max(0, Math.min(photos.length - 1, Math.round(el.scrollLeft / el.clientWidth))));
+  };
+  const list = photos.length ? photos : [null];
+  return (
+    <div className="boo-photo" data-photo-strip="" data-photo-count={photos.length}>
+      <div className="boo-strip" onScroll={onScroll} role="group" aria-label="Venue photos" tabIndex={photos.length > 1 ? 0 : undefined}>
+        {list.map((photo, i) => (
+          <div className="boo-slide" key={photo ? photo.src : "empty"}>
+            <GuidePhoto
+              src={photo ? photo.src : ""}
+              alt={photo ? photo.alt : ""}
+              width={photo ? photo.width : undefined}
+              height={photo ? photo.height : undefined}
+              sizes="(min-width: 720px) 190px, 40vw"
+              loading={i === 0 && priority ? "eager" : "lazy"}
+              fallbackClassName="boo-ph"
+              fallbackText=""
+            />
+          </div>
+        ))}
+      </div>
+      {photos.length > 1 ? (
+        <div className="boo-dots" aria-hidden="true">
+          {photos.map((photo, i) => <i key={photo.src} className={i === active ? "is-on" : ""} />)}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PhotoCredit({ photos }) {
+  const seen = new Set();
+  const lines = (photos || []).filter((p) => p && p.credit && !seen.has(p.credit) && seen.add(p.credit));
+  if (!lines.length) return null;
+  return (
+    <p className="boo-credit">
+      {lines.map((photo, i) => {
+        const href = photo.source === "google" ? (photo.authorUri || photo.mapsUri) : null;
+        return (
+          <span key={photo.credit}>
+            {i ? " \u00b7 " : ""}
+            {href ? <a href={href} target="_blank" rel="noopener nofollow">{photo.credit}</a> : photo.credit}
+          </span>
+        );
+      })}
+    </p>
   );
 }
 
@@ -399,27 +462,20 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                   data-place-id={row.eventId || row.id}
                   className="boo-card"
                 >
-                  <div className="boo-photo">
-                    <GuidePhoto
-                      src={row.photo ? row.photo.src : ""}
-                      alt={row.photo ? row.photo.alt : ""}
-                      width={row.photo ? row.photo.width : undefined}
-                      height={row.photo ? row.photo.height : undefined}
-                      sizes="(min-width: 720px) 480px, 100vw"
-                      loading="lazy"
-                      fallbackClassName="boo-ph"
-                      fallbackText=""
-                    />
-                    {photoChip(row) ? <span className="boo-photo-chip">{photoChip(row)}</span> : null}
-                  </div>
+                  <PhotoStrip photos={row.photos || (row.photo ? [row.photo] : [])} priority={shown.indexOf(row) < 2} />
                   <div className="boo-body">
-                    <p className="boo-city">
-                      <svg viewBox="0 0 16 16" aria-hidden="true" fill="none" stroke="#9A94A8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
-                      {row.city}
-                    </p>
+                    {photoChip(row) ? <span className="boo-chip">{photoChip(row)}</span> : null}
                     <h2>{row.name}</h2>
-                    {row.photo && row.photo.credit ? <p className="boo-credit">{(row.photo.caption ? row.photo.caption + " \u00b7 " : "") + row.photo.credit}</p> : null}
-                    <p className="boo-when">{row.timing}</p>
+                    <PhotoCredit photos={row.photos || (row.photo ? [row.photo] : [])} />
+                    <p className="boo-line">
+                      <svg viewBox="0 0 16 16" {...ICON}><circle cx="8" cy="8" r="6.2" /><path d="M8 4.6V8l2.3 1.5" /></svg>
+                      <span className="boo-when">{row.timing}</span>
+                    </p>
+                    <p className="boo-line boo-city">
+                      <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
+                      <span>{row.city}</span>
+                    </p>
+                    <div className="boo-bottom">
                     {(() => {
                       const price = priceParts(row);
                       return price.note ? (
@@ -434,6 +490,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                     <a className="boo-buy" href={row.cta.href} rel={row.cta.rel}>{row.cta.label}</a>
                     <p className="boo-via">{row.cta.via}</p>
                     <a className="boo-event" href={row.eventHref}>{chrome.eventPage}</a>
+                    </div>
                   </div>
                 </article>
               ))}
