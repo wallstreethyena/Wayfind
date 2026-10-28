@@ -40,8 +40,9 @@ if (m) {
   const toggleLike = (e, p) => posthog.capture("like", { place_id: p.id });
   const toggleDislike = (e, p) => posthog.capture("dislike", { place_id: p.id });
   const gateRef = { current: createPlaceActionGate() };
-  const replay = new Function("placeActionGateRef", "quickSaveFavorite", "toggleLike", "toggleDislike", "isSaved", "placeAction", "opened",
+  const replayRaw = new Function("placeActionGateRef", "quickSaveFavorite", "toggleLike", "toggleDislike", "isSavedNow", "placeAction", "opened", "isLikedNow", "isDislikedNow",
     "if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {" + m[1] + "\n}");
+  const replay = (g, qs, tl, td, saved, action, opened, liked = () => false, disliked = () => false) => replayRaw(g, qs, tl, td, saved, action, opened, liked, disliked);
   for (const action of ["save", "like", "dislike"]) {
     caps.length = 0;
     const g = { current: createPlaceActionGate() };
@@ -55,7 +56,44 @@ if (m) {
   caps.length = 0;
   replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => true, "save", { id: "P3" });
   ok(caps.length === 0, "?action=save on an already-saved place adds nothing and never un-saves it (idempotent add)");
+  // 2026-10-28 delta: like/dislike links SET, never toggle off an already-set reaction.
+  for (const action of ["like", "dislike"]) {
+    caps.length = 0;
+    replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => false, action, { id: "P4" }, () => action === "like", () => action === "dislike");
+    ok(caps.length === 0, "?action=" + action + " on a place already " + action + "d never toggles it off");
+    caps.length = 0;
+    replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => false, action, { id: "P5" }, () => false, () => false);
+    ok(caps.length === 1, "control: ?action=" + action + " on an un-reacted place applies once");
+  }
 }
+
+// (b2) 2026-10-28 delta. The replay reads CURRENT state (refs), not the first render's closure.
+ok(/if \(!isSavedNow\(opened\.id\)\) quickSaveFavorite\(opened\)/.test(home), "deep-link save is judged on current state (isSavedNow), not the first render's stale lists");
+ok(/const isSavedNow = \(id\) => Object\.values\(listsRef\.current/.test(home) && /listsRef\.current = lists;/.test(home), "isSavedNow reads listsRef, which tracks every render");
+ok(/const isLikedNow = \(id\) => !!\(likedRef\.current/.test(home) && /likedRef\.current = liked;/.test(home) && /dislikedRef\.current = disliked;/.test(home), "like/dislike state refs track every render");
+// share_open: one landing, claimed once through the same gate.
+ok(/if \(placeActionGateRef\.current\.claim\(placeId, "share_open"\)\) \{\s*logEvent\("share_open", null, \{ kind: "place"/.test(home), "place share_open is claimed once through placeActionGateRef");
+const shareRx = /logEvent\("share_open", null, \{ kind: "place"/g;
+ok(('logEvent("share_open", null, { kind: "place", place_id: x })'.match(shareRx) || []).length === 1, "positive control: the share_open probe matches a literal emitter");
+ok((home.match(shareRx) || []).length === 1, "exactly one place share_open emitter");
+{
+  // Replay the gate exactly as the effect does across two runs.
+  const g = createPlaceActionGate(); let n = 0;
+  for (let run = 0; run < 2; run++) if (g.claim("PX", "share_open")) n++;
+  ok(n === 1, "two effect runs emit share_open once");
+}
+// Heart-save auto-file: EXECUTE lib/trips.filePlaceIntoTrips.
+{
+  const { filePlaceIntoTrips } = await import("../lib/trips.js");
+  const place = { id: "T1", name: "Cafe", city: "Orlando", state: "FL", lat: 28.5, lng: -81.4 };
+  const run = (trips, opts) => { const ev = []; let t = trips; filePlaceIntoTrips({ p: place, trips, setTrips: (fn) => { t = typeof fn === "function" ? fn(t) : fn; }, autoOrder: false, logEvent: (name) => ev.push(name), showToast: () => {}, ...opts }); return { ev, t }; };
+  const first = run({}, { src: "quick_save" });
+  ok(first.ev.join() === "trip_create", "heart save into a new trip: trip_create only, no stop_add (got " + first.ev.join() + ")");
+  ok(run(first.t, { src: "quick_save" }).ev.length === 0, "heart save into an existing trip emits nothing");
+  ok(run({}, { src: "card_itinerary", isCardItinerary: true }).ev.join() === "trip_create,stop_add,itinerary_item_added", "control: an explicit itinerary add keeps its events");
+  ok(run({}, { src: "detail_plan" }).ev.includes("stop_add"), "control: a non-auto source still emits stop_add");
+}
+ok(/filePlaceIntoTrips\(\{ p, trips: tripsRef\.current, setTrips, autoOrder: itineraryFlags\.autoOrder, src: "quick_save"/.test(home) && /tripsRef\.current = trips;/.test(home), "quick_save auto-file judges trip_create against current trips (tripsRef)");
 
 // (c) syntactic roles. Every call to quickSaveFavorite(opened) lives inside that gate.
 const replayCalls = home.match(/quickSaveFavorite\(opened\)/g) || [];

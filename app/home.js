@@ -4268,6 +4268,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // Trip planner: destinations keyed by city+state. Own store, persisted
   // separately from lists. See lib/trips.js for the model.
   const [trips, setTrips] = useState({});
+  // Current trips for decisions made in async continuations (a stale closure re-counted trip_create).
+  const tripsRef = useRef(trips);
+  tripsRef.current = trips;
   const [itineraryFlags, setItineraryFlags] = useState(EMPTY_ITINERARY_FLAGS);
   const [activeTrip, setActiveTrip] = useState(null);   // open trip key, or null for the index
   const [tripNoteEdit, setTripNoteEdit] = useState(null); // place id whose note is being edited
@@ -4448,6 +4451,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   useEffect(() => { if (detail && !detail._event) { try { loadFullInsight(detail, detailExtra); } catch (e) {} try { loadVideos(detail); } catch (e) {} } }, [detail && detail.id]);
   const [themesOpen, setThemesOpen] = useState(false);
   const [lists, setLists] = useState({ favorites: { id: "favorites", name: "Favorites", emoji: "❤️", places: [] } });
+  const listsRef = useRef(lists);
+  listsRef.current = lists;
   const [activeList, setActiveList] = useState(null);
   const [saveTarget, setSaveTarget] = useState(null);
   const [newListOpen, setNewListOpen] = useState(false);
@@ -4968,6 +4973,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // Engagement signals — stored in localStorage, used to personalise the feed.
   const [signals, setSignals] = useState([]);
   const [liked, setLiked] = useState({});
+  const likedRef = useRef(liked);
+  likedRef.current = liked;
   useEffect(() => {
     if (!supabase) return;
     const onVis = () => { try { if (document.visibilityState === "visible") supabase.auth.getSession(); } catch (e) {} };
@@ -4986,6 +4993,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [detail]);
   const [disliked, setDisliked] = useState({});
+  const dislikedRef = useRef(disliked);
+  dislikedRef.current = disliked;
   const [likedItems, setLikedItems] = useState({});
   // v5.07 Coupons: saved coupons live on-device (wf_coupons) AND, when signed
   // in, in the cloud "Coupons" folder (saved_places) so they survive devices.
@@ -7298,8 +7307,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (pl && pl.length) { setSharedList(pl); setSharedItinerary(null); setScreen("shared"); logEvent("share_open", null, { kind: "list", n: pl.length }); markShareOpen(); }
       }).catch(() => {});
     } else if (placeId) {
-      logEvent("share_open", null, { kind: "place", place_id: placeId });
-      markShareOpen();
+      // The effect re-runs on supabaseReady: share_open is one landing, claimed once like the action.
+      if (placeActionGateRef.current.claim(placeId, "share_open")) {
+        logEvent("share_open", null, { kind: "place", place_id: placeId });
+        markShareOpen();
+      }
       (async () => {
         const p = await fetchPlaceById(placeId);
         if (p) {
@@ -7311,9 +7323,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {
             // A "save this place" link ADDS. quickSaveFavorite is a toggle, so an
             // already-saved place must be left alone, never un-saved by its own link.
-            if (placeAction === "save") { if (!isSaved(opened.id)) quickSaveFavorite(opened); }
-            else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
-            else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+            // State is read from refs: this runs after awaits inside the FIRST
+            // render's effect, whose `lists`/`liked` predate the localStorage
+            // load, so a closure read un-saved / un-liked an already-set place.
+            // Links SET a state; they never toggle it off.
+            if (placeAction === "save") { if (!isSavedNow(opened.id)) quickSaveFavorite(opened); }
+            else if (placeAction === "like") { if (!isLikedNow(opened.id)) toggleLike({ stopPropagation() {} }, opened); }
+            else if (placeAction === "dislike") { if (!isDislikedNow(opened.id)) toggleDislike({ stopPropagation() {} }, opened); }
           }
           openDetail(opened);
         }
@@ -9344,7 +9360,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
-      loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips, setTrips, autoOrder: itineraryFlags.autoOrder, src: "quick_save", logEvent })).catch(() => {});
+      loadTrips().then((m) => m.filePlaceIntoTrips({ p, trips: tripsRef.current, setTrips, autoOrder: itineraryFlags.autoOrder, src: "quick_save", logEvent })).catch(() => {});
     }
     if (supabase && user) {
       if (has) {
@@ -9469,6 +9485,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (pls.length) saveHookList(h, pls);
   }
   const isSaved = (id) => Object.values(lists).some((l) => l.places.some((p) => p.id === id));
+  // Same questions against the CURRENT state, for async continuations (deep-link replay).
+  const isSavedNow = (id) => Object.values(listsRef.current || {}).some((l) => l && Array.isArray(l.places) && l.places.some((p) => p.id === id));
+  const isLikedNow = (id) => !!(likedRef.current && likedRef.current[id]);
+  const isDislikedNow = (id) => !!(dislikedRef.current && dislikedRef.current[id]);
 
   function createList() {
     if (!requireAuth("Sign up free to build a list and open it from any device.")) return;
