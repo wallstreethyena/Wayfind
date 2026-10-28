@@ -137,5 +137,25 @@ ok(/<BooGhostSvg\s+face="wink"\s*\/>/.test(comp) && /\.boo-pi\.in\{animation:boo
 for (const need of ["sales", "talk", "bye", "err", "kids", "price"]) ok(new RegExp('"' + need + '"').test(comp), "pose state used: " + need);
 ok(/boo-blink\s+2\.2s/.test(comp) && /92\.3%/.test(comp), "blink cadence: 2.2s with 170ms closed");
 
+// 10. Zap sequence, bulb glow in the bulb's own colour, idle charm.
+for (const c of [".boo-a-zap[data-ph=\"jolt\"]", ".boo-a-zap[data-ph=\"settle\"]", ".boo-zb{", ".boo-sm{", ".boo-l-hop", ".boo-l-spin", ".boo-l-wiggle", ".boo-l-nod", ".boo-c-sway{"]) ok(comp.includes(c), "zap or charm class missing: " + c);
+ok(/@keyframes\s+boo-k-zj\{/.test(comp) && /@keyframes\s+boo-k-zf\{/.test(comp) && /@keyframes\s+boo-k-zs\{/.test(comp), "zap keyframes boo-k-zj, boo-k-zf, boo-k-zs must exist");
+ok(/\.boo-a-zap\[data-ph="jolt"\]\{animation:boo-k-zj \.06s steps\(1,end\) 8/.test(comp), "jolt must be a 60ms cycle for 8 iterations (480 to 500ms)");
+ok(/setPose\("panic"\)/.test(comp) && /setPose\("nap"\)/.test(comp) && /panic:\s*"18-/.test(comp) && /nap:\s*"13-/.test(comp), "zap uses pose 18 (panic) then pose 13 (nap, sheepish grin)");
+const bk = comp.match(/@keyframes\s+boo-t-bulb\{([\s\S]*?)\}\s*\n/);
+ok(!!bk, "boo-t-bulb keyframes must exist");
+if (bk) {
+  ok(!/#[0-9a-fA-F]{3,8}\b/.test(bk[1]) && !/rgba?\(\s*255\s*,\s*2[01]\d/.test(bk[1]), "bulb touch keyframes must carry no fixed hex or gold colour");
+  ok(/var\(--bc,currentColor\)/.test(bk[1]) && /brightness\(1\.9\)/.test(bk[1]), "bulb touch glow must use the bulb's own colour (--bc) and brightness 1.9");
+}
+ok(/\[data-boo-touch\]\.boo-bulb\{animation:boo-cycle/.test(comp), "touched bulb must keep its colour cycle animation running");
+ok(/--bc"?,\s*getComputedStyle\(t\)\.backgroundColor/.test(comp), "touch must read the bulb's computed colour into --bc");
+const zl = comp.match(/const\s+ZAP_LINES\s*=\s*\[([\s\S]*?)\n\];/);
+const zs = zl ? [...zl[1].matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((x) => x[1]) : [];
+ok(zs.length === 6, "ZAP_LINES must hold 6 lines, found " + zs.length);
+for (const g of zs) ok(!DASH.test(g), 'zap line contains a dash: "' + g + '"');
+ok(/\.boo-zb,\.boo-sm,\.boo-sp\{display:none/.test(comp) && /\.boo-c-look,\.boo-c-sway\{animation:none/.test(comp), "reduced motion must switch off sparks, smoke and charm");
+ok(/if \(openRef\.current \|\| reducedRef\.current\) return false;/.test(comp), "charm must never run while the sheet is open or with reduced motion");
+
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
-console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key verified");
+console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key, zap + charm verified");
