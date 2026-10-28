@@ -20,12 +20,14 @@ const CSP_REPORT_ONLY = [
   // script-src and connect-src below. scripts.stay22.com stays: Stay22
   // LinkSwap is still loaded, now scoped to the one route with a raw OTA link
   // for it to rewrite (app/components/Stay22LinkSwap.js) instead of site-wide.
+  // Meta pixel (fbevents.js from connect.facebook.net; beacons and the
+  // noscript 1x1 go to www.facebook.com/tr) — app/components/MetaPixel.js.
   // Google tag (gtag.js) for Ads AW-18342267447 + GA4. googletagmanager.com
   // was MISSING while the Ads tag was already live in app/layout.js — harmless
   // only because this header is Report-Only. On the enforce-flip the tag would
   // have died silently and taken every conversion with it. googleadservices.com
   // is the Ads conversion-tracking script gtag pulls in when a conversion fires.
-  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://scripts.stay22.com https://maps.googleapis.com https://maps.gstatic.com https://cdn.apple-mapkit.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com",
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://scripts.stay22.com https://maps.googleapis.com https://maps.gstatic.com https://cdn.apple-mapkit.com https://us-assets.i.posthog.com https://www.googletagmanager.com https://www.googleadservices.com https://connect.facebook.net",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   // v5.56 (premium redesign, Phase 3 — image pipeline): the event + booking
@@ -58,7 +60,7 @@ const CSP_REPORT_ONLY = [
   // img-src. Removing the directive shrinks the CSP surface with zero
   // behavior change; lh3.googleusercontent.com and *.ggpht.com (the actual
   // photo-serving hosts) are untouched.
-  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://upload.wikimedia.org https://images.unsplash.com https://*.supabase.co https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com https://img.evbuc.com https://www.scf.edu https://parrishumc.com https://www.cmaquarium.org https://static.wixstatic.com https://www.centralfloridazoo.org https://cdn.monkplatform.com https://www.northportfl.gov https://secure.meetupstatic.com https://mds-assets.marriott.com https://www.playlargo.com",
+  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://upload.wikimedia.org https://images.unsplash.com https://*.supabase.co https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://www.facebook.com https://cdn.apple-mapkit.com https://*.apple-mapkit.com https://img.evbuc.com https://www.scf.edu https://parrishumc.com https://www.cmaquarium.org https://static.wixstatic.com https://www.centralfloridazoo.org https://cdn.monkplatform.com https://www.northportfl.gov https://secure.meetupstatic.com https://mds-assets.marriott.com https://www.playlargo.com",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
   // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
   // beacon to google.com/pagead + googleads.g.doubleclick.net.
@@ -70,7 +72,7 @@ const CSP_REPORT_ONLY = [
   // NOT adding securepubads / pagead2 / static.doubleclick: those are ad-SERVING
   // and viewability endpoints, and Wayfind serves no ads — blocking them is
   // correct and keeps the policy tight.
-  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
+  "connect-src 'self' https://*.googleapis.com https://*.supabase.co wss://*.supabase.co https://api.open-meteo.com https://marine-api.open-meteo.com https://us.i.posthog.com https://us.posthog.com https://us-assets.i.posthog.com https://*.stay22.com https://o4511751348486144.ingest.us.sentry.io https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://www.google.com https://googleads.g.doubleclick.net https://ad.doubleclick.net https://www.facebook.com https://cdn.apple-mapkit.com https://*.apple-mapkit.com",
   "worker-src 'self' blob: https://*.apple-mapkit.com",
   // v5.94: the /trending/[city] pages load click-to-load creator-video embeds by
   // id (TikTok player, YouTube-nocookie, Instagram). CSP is Report-Only today, so a
