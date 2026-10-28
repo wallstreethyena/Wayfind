@@ -119,6 +119,7 @@ node scripts/check-cron-failclosed.mjs
 # promoting 24 places once. Found 8 more call sites with the same latent bug.
 node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
+node scripts/test-sentry-meta-iab.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
