@@ -277,6 +277,8 @@ node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
 node scripts/test-coupon-wallet.mjs
+# 2026-10-27 Coupons screen without a known location: renders CouponsScreen for null / covered / outside centers; picker present, city deals never shown unknown, honest state copy.
+node scripts/test-coupon-location-state.mjs
 node scripts/check-deal-art.mjs
 node scripts/test-affiliate-chip.mjs
 node scripts/test-image-score.mjs
