@@ -853,6 +853,7 @@ scripts/test-photo-not-place-id.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	a796e
 scripts/test-photo-protection.mjs	0	CALL	blocks-ci-and-deploy	1	-	347	0	0	a43d45af5803e51982337a5d68394a2a00d2e6b9fd1a2f3100e876670468c5b8
 scripts/test-photo-purchase-log.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	66bc88e93828810fc42dc8b424d0b172a10884d09fceb5177dd60e2d84e3647f
 scripts/test-photo-queue-batch.mjs	0	CALL	blocks-ci-and-deploy	1	-	6	0	0	62fb45755ddf4ac3edfe56341f6fae7833476652bcf3b4c8a1a67780e43227cf
+scripts/test-photo-queue-close-condition.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	2063b9a718a733f166efdd3efccab86aa27098f59bb09929d743ac6229d2abbf
 scripts/test-photo-quota-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	fad307eae37fb0dd58a6386f7539cf76f0d27be3c12b6b85a0eddf77f2adc0da
 scripts/test-photo-quota-pacing.mjs	0	CALL	blocks-ci-and-deploy	1	-	61	0	0	9e159a7766dad0333006c1c5256f39b09eb2d96feb0872b6580e4af21fbf735f
 scripts/test-photo-quota-truth.mjs	0	CALL	blocks-ci-and-deploy	1	-	125	0	0	b45ea90f7d1d26953cab2677b06148a9ada8d8d05d59c06b3d42708a96a66055
@@ -976,7 +977,7 @@ scripts/test-tags.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	0	0	aa2b7807203284b8279
 scripts/test-taste.mjs	0	CALL	blocks-ci-and-deploy	1	-	126	0	0	1c6e163694a085102698cdfd651e621768b25b7d41431dadf4abb3a7bf48c54b
 scripts/test-taxonomy-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	137	0	0	cb13c584eda7142470a8147ed03c2369827568cdf1602bc1e91dfba4936dde9c
 scripts/test-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	436a1c75313e7ad7e7707408eb719a937cf1bfcf3f8d877a26499e93d3abff9d
-scripts/test-theme-park-core.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	57	0	0	c2bbc76c4beaa971a6f7b288a259118029a2254fe2c26b1096cd68fdc9ee2dea
+scripts/test-theme-park-core.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	67	0	0	8e637568e83c196dc1b6e1a4c009fa76666555ebbaaa2b6565a571a608b5206f
 scripts/test-theme-park-surfaces.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	4b35de719bf42f4f1db964009ce4d73d5e45a28f4be4801d627d9caa7aa79e98
 scripts/test-things-to-do.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	1	1	fd1b2786b6e0577ac7c8b9cadee3a084123167c64cbcb7e1455ec1ef8ba2079e
 scripts/test-today-discovery-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	0	0	78b79ce56715460967accc3c933a576aa2a90de9a2372f0001c12656267af6dc
