@@ -233,6 +233,17 @@ const nextConfig = {
         source: "/.well-known/apple-app-site-association",
         destination: "/api/aasa",
       },
+      // Affiliate product linkers reject a page whose path does not look
+      // like a product. These are internal rewrites: 200 on the requested
+      // URL, no redirect, onto the haunt page that carries Product JSON LD.
+      {
+        source: "/products/halloween-in-florida",
+        destination: "/halloween-in-florida",
+      },
+      {
+        source: "/product/halloween-in-florida",
+        destination: "/halloween-in-florida",
+      },
     ];
   },
   async redirects() {
