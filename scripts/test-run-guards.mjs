@@ -174,7 +174,7 @@ const scenarios = {
 
   unrunnable(runner) {
     const f = [];
-    const huge = "echo " + "x".repeat(200000); // beyond MAX_ARG_STRLEN: exec cannot even start it
+    const huge = "echo " + "x".repeat(2 * 1024 * 1024); // beyond Linux per-argument and macOS total argv limits: exec cannot start it
     for (const jobs of [3, 1]) {
       const r = drive(runner, { jobs, guards: (dir) => [fake(dir, "a", 30), huge, fake(dir, "c", 30)] });
       if (r.status !== 1) f.push(`GUARD_JOBS=${jobs}: an unrunnable guard line must exit 1, got ${r.status}`);
