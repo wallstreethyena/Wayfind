@@ -1,0 +1,126 @@
+{
+  "checked_at": "2026-10-28",
+  "sources": [
+    {
+      "shortcode": "DfCjYFPxx21",
+      "native_url": "https://www.instagram.com/reel/DfCjYFPxx21/",
+      "creator": "katrin_pfitzenreiter",
+      "status": "verified",
+      "places": [
+        {
+          "key": "ocean-grill-vero-beach",
+          "place_id": "ChIJlZM-TTdZ3ogRwPix4hq8hww",
+          "name": "Ocean Grill",
+          "city": "Vero Beach",
+          "address": "1050 Beachland Blvd, Vero Beach, FL 32963"
+        }
+      ],
+      "evidence": "Native reel and reviewed Maps identity identify Ocean Grill at 1050 Beachland Blvd in Vero Beach. Real estate account; retained as a credited non-independent provisional source."
+    },
+    {
+      "shortcode": "DfCzWVwRQlz",
+      "native_url": "https://www.instagram.com/reel/DfCzWVwRQlz/",
+      "creator": "ilovetheburg",
+      "status": "verified",
+      "places": [
+        {
+          "key": "the-book-lounge-st-petersburg",
+          "place_id": "ChIJ-6hlLADhwogRNUZF-kQBGAI",
+          "name": "The Book Lounge",
+          "city": "St. Petersburg",
+          "address": "631 Central Ave, St. Petersburg, FL 33701"
+        },
+        {
+          "key": "the-floridian-social-st-petersburg",
+          "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+          "name": "The Floridian Social",
+          "city": "St. Petersburg",
+          "address": "687 Central Ave, St. Petersburg, FL 33701"
+        }
+      ],
+      "evidence": "Native caption explicitly identifies The Book Lounge as organizer of the ACOTAR ball at The Floridian Social; host comment confirms. The reel was filmed at Floridian Social, not at the bookstore. No future event date or book-title claim is published.",
+      "collaborators": [
+        "thatssotampa"
+      ],
+      "filming_place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+      "organizer_place_id": "ChIJ-6hlLADhwogRNUZF-kQBGAI"
+    },
+    {
+      "shortcode": "DfCfX3whXW1",
+      "native_url": "https://www.instagram.com/reel/DfCfX3whXW1/",
+      "creator": "stufftodointampabay",
+      "status": "included_existing_pr",
+      "places": [
+        {
+          "place_id": "ChIJYQCTNOCxwogR77eUWAEbqwQ",
+          "name": "Farmer's Milk Cafe & Bakery",
+          "city": "Wesley Chapel",
+          "key": "farmers-milk-wesley-chapel",
+          "address": "27049 Halter Loop, Wesley Chapel, FL 33544"
+        }
+      ],
+      "evidence": "Native caption reviewed again during the six-link intake; the exact association from existing PR #2003 is preserved in the combined release.",
+      "pr": 2003
+    },
+    {
+      "shortcode": "De-JcqFISOV",
+      "native_url": "https://www.instagram.com/reel/De-JcqFISOV/",
+      "creator": "jennabenna_s",
+      "status": "included_existing_pr",
+      "places": [
+        {
+          "place_id": "ChIJ6cPIn0fiwogRklWu_EbSja0",
+          "name": "Rose's at St. Pete Athletic",
+          "city": "St. Petersburg",
+          "key": "roses-st-pete-athletic",
+          "address": "680 28th St S, St. Petersburg, FL 33712"
+        }
+      ],
+      "evidence": "Native caption reviewed again during the six-link intake; the exact association from existing PR #2003 is preserved in the combined release.",
+      "pr": 2003
+    },
+    {
+      "shortcode": "DemzosJpwBp",
+      "native_url": "https://www.instagram.com/reel/DemzosJpwBp/",
+      "creator": "valeriajubes",
+      "status": "already_merged",
+      "kind": "venue_visit",
+      "places": [
+        {
+          "key": "the-field-irish-pub-fort-lauderdale",
+          "place_id": "ChIJMTpK3B-q2YgRsI58IHDJFHo",
+          "name": "The Field Irish Pub & Eatery",
+          "city": "Fort Lauderdale",
+          "address": "3281 Griffin Rd, Fort Lauderdale, FL 33312"
+        }
+      ],
+      "evidence": "Native caption tags fieldpub and describes the creator's Harry Potter trivia visit. Current Maps listing confirms the exact existing inventory ID and Griffin Road address. No recurring schedule or menu availability is promised.",
+      "pr": 2004
+    },
+    {
+      "shortcode": "DfAakBaSwNM",
+      "native_url": "https://www.instagram.com/reel/DfAakBaSwNM/",
+      "creator": "techtravelrentals",
+      "status": "already_merged",
+      "kind": "event_at_venue",
+      "places": [
+        {
+          "key": "treasure-island-beach",
+          "place_id": "ChIJOxaHOSX9wogRT6_58s6LWOY",
+          "name": "Treasure Island Beach",
+          "city": "Treasure Island",
+          "address": "10451 Gulf Blvd, Treasure Island, FL 33706"
+        }
+      ],
+      "evidence": "Native caption names Sanding Ovations at Treasure Island Beach. Attach as dated event coverage, not a promise of current dates, free admission or sculpture availability.",
+      "pr": 2004
+    }
+  ],
+  "sorting_anchor": {
+    "city": "Vero Beach",
+    "lat": 27.6529803,
+    "lng": -80.3553387,
+    "evidence": "Reviewed Ocean Grill Maps location. Used only as a representative browse-sorting anchor, not a city centroid or displayed user distance."
+  },
+  "publication": "All six submitted native sources are preserved in one combined release: three new place associations, the two coffee sources from existing PR #2003, and two sources already merged in PR #2004. Native media stays on Instagram; deployment must be verified separately."
+}
