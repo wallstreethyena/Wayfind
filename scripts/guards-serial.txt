@@ -1,0 +1,95 @@
+# scripts/guards-serial.txt — guards that must run ALONE, never in the parallel pool.
+#
+# Read by scripts/run-guards.mjs (see its header). One EXACT guard line per entry,
+# identical to the line in scripts/guards.txt; "#" lines are comments. The runner runs
+# every other guard through a worker pool first, then runs these one at a time, in
+# manifest order. An entry that is not in guards.txt fails the whole run (a renamed
+# guard must not quietly lose its protection). Union-merged like guards.txt.
+#
+# HOW THIS LIST WAS BUILT (2026-10-27): every one of the 995 guards was run under
+# `strace -f` and every file it created, wrote, renamed or deleted, and every port it
+# bound, was recorded; that was cross-checked against a source grep for listen(,
+# fixed ports, tmpdir()/"/tmp/", writes into the repo tree and chromium/playwright.
+# A guard is parallel-safe only if every path it writes is minted uniquely per run
+# (mkdtemp, or pid + random) AND outside the trees other guards scan (app/, lib/,
+# scripts/). Anything else is listed here. Be conservative: when in doubt, list it.
+#
+# ADDING A GUARD: do nothing unless it writes a fixed path, writes inside app/ lib/
+# scripts/ or any tracked file (even temporarily, e.g. a red-prove mutation), runs
+# git against the live work tree, binds a fixed port, or launches a browser. Then add
+# its exact line below with the reason.
+
+# ── 1. Red-prove mutators: temporarily REWRITE a tracked source file (or drop a scratch
+# file into app/ or lib/, which every source scanner walks) and restore it afterwards.
+# Run beside any guard that reads that file, they make it fail at random.
+node scripts/test-analytics.mjs
+node scripts/test-inverse-booking-cta.mjs
+node scripts/test-poster-pool-parallel.mjs
+node scripts/test-revenue-heartbeat.mjs
+node scripts/check-card-action-parity.mjs
+node scripts/check-guide-cta-single-capture.mjs
+node scripts/check-rail-compute-budget.mjs
+node scripts/check-rail-rank-law.mjs
+
+# ── 2. Write into the repo tree (pid-named hidden files at the repo root, or a fixed
+# generated path). Unique names, but "writes into the tree" is the rule, so serial.
+node scripts/test-family-day-presentation.mjs
+node scripts/test-partner-rail-render.mjs
+# Writes the gitignored, FIXED scripts/lib/guard-registry.json and derives from the
+# whole tree (every guard file), so nothing may be mid-write beside it.
+node scripts/check-guard-registry.mjs
+
+# ── 3. Run git against the live work tree: `git status` / `git diff` take index.lock and
+# would report other guards' transient files as local changes.
+node scripts/check-live-event-poster-laws.mjs
+node scripts/check-migration-apply-canonical-path.mjs
+node scripts/test-guide-editorial-mode.mjs
+
+# ── 4. Launch Chromium via Playwright: heavy (CPU and RAM), share browser profile and
+# crash-report directories under $HOME, bind devtools ports, and several write fixed
+# paths (artifacts/<name>/, /tmp/wayfind-parking-mobile.png). Serial keeps a 4 vCPU
+# runner from being overcommitted by a browser per worker.
+node scripts/check-christmas-card-photo-slot.mjs
+node scripts/check-datenight-rail-uncropped.mjs
+node scripts/check-guide-in-rail.mjs
+node scripts/check-no-sideways-scroll.mjs
+node scripts/check-place-card-standard.mjs
+node scripts/check-rail-card-fits-its-content.mjs
+node scripts/check-rail-card-width-is-global.mjs
+node scripts/check-spooky-skin.mjs
+node scripts/test-card-action-row.mjs
+node scripts/test-card-photo-viewer.mjs
+node scripts/test-drop-rail-parity.mjs
+node scripts/test-editorial-hero-layout.mjs
+node scripts/test-event-hero-credited-photo.mjs
+node scripts/test-explore-bridge-gate.mjs
+node scripts/test-fall-visit-facts.mjs
+node scripts/test-halloween-crown.mjs
+node scripts/test-home-first-paint.mjs
+node scripts/test-image-health.mjs
+node scripts/test-map-family-layout.mjs
+node scripts/test-map-pin-standard.mjs
+node scripts/test-mobile-header-fit.mjs
+node scripts/test-place-card-layout.mjs
+node scripts/test-reaction-affordance.mjs
+node scripts/test-share-intent-fit.mjs
+node scripts/test-venue-parking-ui.mjs
+
+# ── 5. Enumerate the repo ROOT. ~150 parallel guards compile JSX through scripts/lib/
+# jsxLoad.mjs, which makes a transient, uniquely named .wf-jsx-XXXXXX directory AT THE REPO
+# ROOT (it must: bare imports like "react" resolve by walking up to node_modules). A guard
+# that walks the root can readdir that directory and then stat or read it after its owner
+# deleted it, so it dies with ENOENT. Seen for real under GUARD_JOBS=6:
+# check-no-disney-sources "ENOENT: stat .../.wf-jsx-6ygXxa". Found by tracing every guard's
+# directory opens. Some of these already skip ".wf-jsx-" for their own temp dir; serial is
+# still the safe rule because the skip only covers dirs they know about.
+node scripts/check-editorial-template.mjs
+node scripts/check-event-outing.mjs
+node scripts/check-no-disney-sources.mjs
+node scripts/check-one-clock.mjs
+node scripts/test-event-reminder-ics.mjs
+node scripts/test-free-source-hotlink.mjs
+
+# Real-clock timers: asserts a 60ms read loses to a 15ms watchdog and settles in 90ms.
+# Under a loaded pool the event loop reorders those; failed on the first hosted pooled run (2026-10-28).
+node scripts/check-experiences-link-health.mjs

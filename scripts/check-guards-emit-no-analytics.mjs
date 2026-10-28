@@ -83,7 +83,7 @@ try {
 /* ── 2. run-guards must set it for every child ────────────────────────────── */
 const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/[^\n]*/g, "$1");
 const runner = strip(readFileSync(REPO + "scripts/run-guards.mjs", "utf8"));
-ok(/spawnSync\([\s\S]{0,240}WF_SUPPRESS_ANALYTICS:\s*["']1["']/.test(runner),
+ok(/spawn(?:Sync)?\([\s\S]{0,240}WF_SUPPRESS_ANALYTICS:\s*["']1["']/.test(runner),
   "run-guards.mjs must pass WF_SUPPRESS_ANALYTICS=1 in the env of every guard it spawns");
 ok(/env:\s*\{\s*\.\.\.process\.env/.test(runner),
   "run-guards must SPREAD process.env, not replace it — a bare env object strips PATH and every guard dies");

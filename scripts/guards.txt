@@ -277,6 +277,8 @@ node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
 node scripts/test-coupon-wallet.mjs
+# 2026-10-27 Coupons screen without a known location: renders CouponsScreen for null / covered / outside centers; picker present, city deals never shown unknown, honest state copy.
+node scripts/test-coupon-location-state.mjs
 node scripts/check-deal-art.mjs
 node scripts/test-affiliate-chip.mjs
 node scripts/test-image-score.mjs
@@ -649,6 +651,9 @@ node scripts/check-creator-registry-bundle-wall.mjs
 # eager client entry. LandingPage now lives in lib/landingPage.js (-60,057 gz
 # bytes on "/"). This walks the real import graph, not strings.
 node scripts/check-landing-data-client-free.mjs
+# 2026-10-28 — "/" had 0.0KB of bundle headroom; wcRotation was pulling lib/shareCards ->
+# intentPages -> collectionHeader (~11KB gz) into the eager bundle. Static-closure lock + positive control.
+node scripts/check-home-bundle-splits.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard
@@ -2414,3 +2419,7 @@ node scripts/test-save-single-emitter.mjs
 # 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
 node scripts/test-auth-journey.mjs
 node scripts/test-photo-queue-close-condition.mjs
+
+# 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
+node scripts/test-run-guards.mjs
+node scripts/test-run-guards.mjs --red-prove

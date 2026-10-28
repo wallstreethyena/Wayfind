@@ -43,7 +43,7 @@ import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalyt
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
-import { wcRotation } from "../lib/shareCards";
+import { wcRotation } from "../lib/wcRotations.js";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
 import { businessStatus, isOpenNow } from "../lib/businessStatus";
@@ -4995,13 +4995,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [couponHandoff, setCouponHandoff] = useState(null);
   const couponWalletHydrated = useRef(false);
   const [cpnOffers, setCpnOffers] = useState([]);
+  // "idle" until the dashboard-offers fetch starts; the Coupons screen only claims
+  // "loading" or "unavailable" when this says so (it never guesses).
+  const [cpnOffersStatus, setCpnOffersStatus] = useState("idle");
   const _cpnLoadedRef = useRef(false);
   useEffect(() => {
     if (screen !== "coupons" || !supabase || _cpnLoadedRef.current) return;
     _cpnLoadedRef.current = true;
     // v6.55: same single-flight scan as loadOffers (fetchOffersOnce already
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
-    fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
+    setCpnOffersStatus("loading");
+    fetchOffersOnce().then((rows) => { setCpnOffers(rows || []); setCpnOffersStatus("ready"); }, () => { setCpnOffersStatus("failed"); });
   }, [screen, supabaseReady]);
   function clipCoupon(c) {
     if (!c || !c.id) return;
@@ -8957,6 +8961,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
   }
 
+  // Coupons screen manual area pick (a covered metro's own center). Same contract
+  // as searchMapArea/jumpToArea: manual flag so GPS never silently yanks it back,
+  // label set with the coordinates so the wf_center writer persists a coherent,
+  // timestamped pair (storedPinFresh rule).
+  function pickCouponCenter(c) {
+    if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
+    manualRef.current = true;
+    setCenter({ lat: c.lat, lng: c.lng });
+    setLocResolved(true);
+    setLocName(String(c.label || ""));
+    try { logEvent("coupons_area_pick", null, { area: String(c.label || "") }); } catch (e) {}
+  }
+
   function jumpToArea(a) {
     manualRef.current = true;
     setSearchMode(false);
@@ -9889,7 +9906,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // surprise
     surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, surpriseWhy,
     // coupons
-    cpnOffers, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
+    cpnOffers, cpnOffersStatus, locResolved, pickCouponCenter, recenterToMe, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
     // saved
     activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, deleteAccountUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
     // personalization (v6.56): the taste consent + entry point live at the
