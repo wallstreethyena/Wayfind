@@ -79,6 +79,25 @@ ok(/uniq\(person_id\)/.test(q),
   "people is uniq(person_id), never count() — one user retrying must not read as many users, which is the rule's entire discriminator");
 ok(/event = 'app_error'/.test(q), "it reads the boundary's own event");
 
+/* ── 5b. a script that never arrived is NOT a crash (2026-10-24) ──────────── */
+// Five "Loading chunk 7601 failed" events from four datacenter Chrome sessions
+// paged as "Build v8.63.0 is crashing for real users". Nothing in the build was
+// broken. Chunk-tagged rows must leave the crash query and land in their own
+// warn-only rule with a higher floor.
+const notChunk = (/const NOT_CHUNK = "([^"]+)"/.exec(src) || [])[1] || "";
+ok(/properties\.chunk/.test(notChunk) && /!= 'true'/.test(notChunk) && /\$\{NOT_CHUNK\}/.test(q), "the crash query EXCLUDES chunk-tagged app_error rows (a missing script is delivery, not a crash)");
+ok(typeof PH.chunkFailuresHour === "function", "chunkFailuresHour is exported from the PostHog source");
+const cq = (/export function chunkFailuresHour[\s\S]*?\n}/.exec(src) || [""])[0];
+ok(/chunk_load_failed/.test(cq) && /INTERVAL 1 HOUR/.test(cq) && /uniq\(person_id\)/.test(cq), "the chunk query counts chunk_load_failed + tagged app_error per hour by people");
+const chunkAlerts = (byBuild) => computeAlerts({ chunkFailures: { windowHours: 1, byBuild } }).filter((a) => a.id.startsWith("chunk_failures"));
+const { CHUNK_MIN_FAILURES, CHUNK_MIN_PEOPLE } = A;
+ok(chunkAlerts([{ build: "v8.63.0", failures: 5, people: 4 }]).length === 0, "the 2026-10-24 shape (5 failures / 4 people) does NOT email as a chunk alert either");
+const cf = chunkAlerts([{ build: "v8.63.0", failures: CHUNK_MIN_FAILURES, people: CHUNK_MIN_PEOPLE }]);
+ok(cf.length === 1 && cf[0].severity === "warn", `…but ${CHUNK_MIN_FAILURES}/${CHUNK_MIN_PEOPLE} warns, never critical (got ${cf.map((a) => a.severity).join(",") || "none"})`);
+ok(CHUNK_MIN_PEOPLE > BOUNDARY_MIN_PEOPLE, "the chunk floor is higher than the crash floor — delivery noise needs more people to matter");
+ok(boundaryAlerts([{ build: "v8.63.0", failures: 20, people: 6 }]).length === 0, "chunk rows never reach the crash rule by shape (no `errors` field → no crash alert)");
+ok(/chunkFailuresHour\(\)/.test((await import("node:fs")).readFileSync(path.resolve("lib/commandCenter/alertsRun.js"), "utf8")), "gatherAlerts CALLS chunkFailuresHour");
+
 /* ── 6. it is actually wired into the bundle both consumers use ───────────── */
 const run = (await import("node:fs")).readFileSync(path.resolve("lib/commandCenter/alertsRun.js"), "utf8");
 ok(/boundaryErrorsByBuild\(\)/.test(run), "gatherAlerts CALLS the source — an unwired rule is a rule that never fires");
@@ -89,4 +108,4 @@ if (fail.length) {
   fail.forEach((f) => console.error("  - " + f));
   process.exit(1);
 }
-console.log(`check-boundary-alert: OK — ${pass} assertions (the 14/3/v6.56 incident pages at critical, the old 24h rule provably would not have, one retrying user does not, per-build ids stay distinct, and the rule is wired into gatherAlerts)`);
+console.log(`check-boundary-alert: OK — ${pass} assertions (the 14/3/v6.56 incident pages at critical, the old 24h rule provably would not have, one retrying user does not, per-build ids stay distinct, chunk failures are split out at warn, and both rules are wired into gatherAlerts)`);

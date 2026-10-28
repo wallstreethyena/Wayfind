@@ -71,7 +71,11 @@ ok(route.includes("2000"), "the feedback route must cap message length (untruste
 ok(/cache: "no-store"/.test(route), 'the feedback insert must be cache:"no-store" (mutating fetch) - see check-cron-post-nostore doctrine');
 
 // == 4. It is actually mounted, in the home footer, not the side nav ==
-ok(/const CommunityFooter\s*=\s*nextDynamic\(\(\)\s*=>\s*import\("\.\/components\/CommunityFooter"\)/.test(home), "app/home.js must load CommunityFooter outside the first screen bundle");
+// 2026-10-27: loaded through optionalChunk (a nextDynamic wrapper that retries
+// once, then renders nothing + chunk_load_failed instead of throwing a footer
+// into the root boundary). Still a dynamic import, still off the first screen.
+ok(/const optionalChunk\s*=\s*\(load, name\)\s*=>\s*nextDynamic\(/.test(home), "app/home.js's optionalChunk is a nextDynamic wrapper (dynamic import, off the first screen)");
+ok(/const CommunityFooter\s*=\s*optionalChunk\(\(\)\s*=>\s*import\("\.\/components\/CommunityFooter"\)/.test(home), "app/home.js must load CommunityFooter outside the first screen bundle (through optionalChunk)");
 ok(/<CommunityFooter\b/.test(home), "app/home.js must render <CommunityFooter/>");
 // It must sit in the centered in-app footer block (next to Privacy/Terms), not
 // bolted onto the left nav. Assert proximity to the Privacy link.
