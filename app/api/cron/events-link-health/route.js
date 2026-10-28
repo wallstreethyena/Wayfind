@@ -22,7 +22,7 @@
 // bad — a bot wall is our problem, never the venue's. Never throws a 500.
 import { sbEnv } from "../../../../lib/serverCache.js";
 import { probeAndClassify } from "../../../../lib/linkProbe.js";
-import { hostOfUrl, isBadVerdict, dedupeVerdictRows } from "../../../../lib/linkQuarantine.js";
+import { hostOfUrl, isBadVerdict, dedupeVerdictRows, linkHealthJobFailed } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 
@@ -163,11 +163,19 @@ export async function GET(req) {
     });
     if (!r.ok) err = err || `verdicts-${r.status}`;
   }
+  // An inconclusive probe (bot wall, 403/429/5xx, timeout, waiting room,
+  // affiliate hop we refuse to follow) is the checker DECLINING to judge,
+  // not the job failing: the row is left exactly as it was. Counting each one
+  // as `failed` made the job red 14/14 nights on 2-8 bot walls out of 120.
+  // The job fails only when it could judge NOTHING — that is an outage on
+  // our side (network, egress, DNS) and must stay loud.
+  const conclusive = counts.alive + counts.bad + counts.strike;
+  const jobFailed = linkHealthJobFailed(counts, rows.length);
   try {
     await recordPulse(JOB, {
       attempted: rows.length,
-      succeeded: counts.alive + counts.bad + counts.strike,
-      failed: counts.unknown,
+      succeeded: jobFailed ? conclusive : rows.length,
+      failed: jobFailed ? counts.unknown : 0,
       note: err ? `persistence error: ${err}`.slice(0, 200) : ([counts.bad ? `${counts.bad} event link(s) darkened` : null, counts.unknown ? `${counts.unknown} link probe(s) inconclusive` : null].filter(Boolean).join('; ') || null),
     });
   } catch (e) {}

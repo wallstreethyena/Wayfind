@@ -2413,3 +2413,5 @@ node scripts/check-redirect-traffic-class.mjs
 node scripts/test-save-single-emitter.mjs
 # 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
 node scripts/test-auth-journey.mjs
+node scripts/test-save-event-once.mjs
+node scripts/test-link-health-blocked-not-dead.mjs
