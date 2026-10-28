@@ -11,6 +11,7 @@ import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { openerFor } from "./booOpeners.js";
+import { coverageGap, coverageLines, coverageSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 
 const HIDE_KEY = "wf_boo_hidden";
@@ -164,6 +165,9 @@ const REACT_POSES = ["poke", "cheer", "sales", "orb", "swipe", "up", "peek", "pa
 const HOVER_MS = 700;
 const TYPE_MS = 24;
 const VISITS_KEY = "wf_boo_visits";
+// Outside coverage he explains it once per area per tab session, not on every page.
+const COVER_TOLD_KEY = "wf_boo_cov_told";
+const LINE_GAP = 450; // pause between lines of a sequence so each one lands alone
 const SPOOKY_PLACEHOLDER = "Search a haunt or city...";
 function splitKicker(t) {
   const m = /^([A-Z][A-Z0-9 '&]{2,24}):\s+([\s\S]+)$/.exec(t || "");
@@ -308,6 +312,11 @@ const CSS = `
 .boo-s-chips{display:flex;flex-wrap:wrap;gap:7px;padding-top:2px}
 .boo-s-chip{all:unset;box-sizing:border-box;cursor:pointer;font-size:13px;font-weight:600;color:#C4B5FD;border:1px solid rgba(196,181,253,.3);padding:8px 12px;border-radius:999px}
 .boo-s-chip:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.boo-s-cities{display:grid;gap:8px;padding-top:4px}
+.boo-s-city{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;font-weight:700;color:#EDE9FE;border:1px solid rgba(196,181,253,.35);padding:10px 14px;border-radius:12px}
+.boo-s-city.near{background:#F97316;border-color:#F97316;color:#111}
+.boo-s-city:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.boo-s-city.near:focus-visible{outline-color:#EDE9FE}
 .boo-wrap{display:block;text-align:center;color:#1A0E05;background:#F5EFE6;font-weight:800;font-size:14px;padding:12px;border-radius:12px;text-decoration:none}
 .boo-s-foot{flex:none;display:flex;gap:10px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));background:#07060B;border-top:1px solid rgba(245,239,230,.28)}
 .boo-in{flex:1;min-width:0;box-sizing:border-box;background:#110E19;color:#F5EFE6;border:1.5px solid rgba(245,239,230,.6);border-radius:14px;padding:0 14px;height:52px;font:500 16px var(--wf-sans),system-ui,sans-serif;-webkit-text-size-adjust:100%}
@@ -384,6 +393,7 @@ export default function BooCompanion() {
   const [draft, setDraft] = useState("");
   const [zap, setZap] = useState(null); // null | "jolt" | "settle"
   const [look, setLook] = useState(null); // hop | spin | wiggle | nod
+  const [gap, setGap] = useState(null); // outside coverage: { area, near, options, cell }
 
   const elRef = useRef(null);
   const flipRef = useRef(null);
@@ -412,6 +422,10 @@ export default function BooCompanion() {
   const tappedRef = useRef(false);
   const openerRef = useRef("");
   const openerSpoken = useRef(false);
+  const gapRef = useRef(null);
+  const seqT = useRef([]);
+  const closeSheetRef = useRef(() => {});
+  const coverKick = useRef(() => {});
   const touchSt = useRef({ els: new Set(), rings: new Set(), timers: [] });
   const openRef = useRef(false);
   const eligibleRef = useRef(false);
@@ -443,6 +457,36 @@ export default function BooCompanion() {
       openerRef.current = openerFor(raw, Math.floor(Math.random() * 6));
     }
     return openerRef.current;
+  };
+
+  // Outside coverage: the same law /api/rails uses (lib/railCoverage.js), read
+  // from the same wf_center the feed uses. null whenever the feed is covered.
+  const readGap = () => {
+    let raw = null;
+    try { raw = localStorage.getItem(CENTER_KEY); } catch { /* ignore */ }
+    const g = coverageGap(raw);
+    gapRef.current = g;
+    setGap(g);
+    return g;
+  };
+  const toldFor = (g) => { try { return !!g && sessionStorage.getItem(COVER_TOLD_KEY) === g.cell; } catch { return false; } };
+  const markTold = (g) => { try { sessionStorage.setItem(COVER_TOLD_KEY, g.cell); } catch { /* ignore */ } };
+
+  // Move the feed to a covered city. On the home page the app takes it in
+  // place (wf:jump-city, handled by home.js); anywhere else, or if nothing
+  // answered, store the city the way the app does and open the home page.
+  const jumpTo = (opt, isNearest) => {
+    if (!opt || !Number.isFinite(opt.lat) || !Number.isFinite(opt.lng)) return;
+    track("boo_coverage_jump", { city: opt.slug, nearest: !!isNearest, miles: roundMiles(opt.mi), path: pathRef.current });
+    const detail = { name: opt.label, lat: opt.lat, lng: opt.lng, handled: false };
+    if (pathRef.current === "/") { try { window.dispatchEvent(new CustomEvent("wf:jump-city", { detail })); } catch { /* ignore */ } }
+    closeSheetRef.current();
+    if (detail.handled) {
+      sayRef.current(opt.name + "! Floated you over. Your picks are loading.", "cheer", 700);
+      return;
+    }
+    try { localStorage.setItem(CENTER_KEY, JSON.stringify({ lat: opt.lat, lng: opt.lng, loc: opt.label, manual: true, ts: Date.now() })); } catch { /* ignore */ }
+    try { window.location.assign("/"); } catch { /* ignore */ }
   };
 
   // Mount gate: season, reserved paths, session hide.
@@ -883,11 +927,36 @@ export default function BooCompanion() {
         track("boo_companion_gag", { path: pathRef.current, n: gagCount.current, source: src, antic: name });
       }, delay);
     };
+    // Outside coverage: four lines, one at a time, then the normal gags resume.
+    const coverSeq = (g) => {
+      const lines = coverageLines(g);
+      if (!lines.length) return false;
+      markTold(g);
+      openerSpoken.current = true;
+      track("boo_coverage_shown", { path: pathRef.current, nearest: g.near.slug, miles: roundMiles(g.near.mi) });
+      present(lines[0], "wave", "coverage");
+      let at = readMs(lines[0]) + LINE_GAP;
+      lines.slice(1).forEach((line, i) => {
+        const last = i === lines.length - 2;
+        seqT.current.push(window.setTimeout(() => {
+          if (dead || openRef.current) return;
+          const pp = last ? "up" : i === 1 ? "idle" : "talk";
+          prefetch(pp); setPose(pp);
+          showBubble(line);
+        }, at));
+        at += readMs(line) + LINE_GAP;
+      });
+      schedule(at + rand(40000, 70000));
+      return true;
+    };
+    coverKick.current = () => { if (!dead) schedule(1500); };
     const fire = async () => {
       if (dead) return;
-      if (gagCount.current >= 6) return;
       if (openRef.current || document.hidden) { schedule(rand(8000, 15000)); return; }
       if (Date.now() - lastSay.current < 6000) { schedule(rand(6000, 9000)); return; }
+      const g = readGap();
+      if (g && !toldFor(g)) { gagCount.current += 1; coverSeq(g); return; }
+      if (gagCount.current >= 6) return;
       gagCount.current += 1;
       const n = gagCount.current;
       let text = null, name = ANTICS[Math.floor(Math.random() * ANTICS.length)], src = "local";
@@ -921,8 +990,18 @@ export default function BooCompanion() {
       schedule(rand(40000, 70000));
     };
     schedule(page > 1 ? 2500 : 6000);
-    return () => { dead = true; gagBump.current = () => {}; clearTimeout(timer); clearTimeout(showTimer); clearTimeout(bubbleT.current); setBubble(null); setPose(restPose()); };
+    return () => { dead = true; gagBump.current = () => {}; coverKick.current = () => {}; seqT.current.forEach(clearTimeout); seqT.current = []; clearTimeout(timer); clearTimeout(showTimer); clearTimeout(bubbleT.current); setBubble(null); setPose(restPose()); };
   }, [eligible, pathname, corner, playAntic, showBubble]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The app stored a new center: re-read coverage, and if the visitor just
+  // landed somewhere uncovered, let the gag loop explain it shortly.
+  useEffect(() => {
+    if (!eligible) return undefined;
+    readGap();
+    const on = () => { const g = readGap(); if (g && !toldFor(g)) coverKick.current(); };
+    window.addEventListener("wf:center", on);
+    return () => window.removeEventListener("wf:center", on);
+  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Listeners for what the visitor does. All passive, scroll work is done once
   // per animation frame, hover only on a real mouse, nothing is ever blocked.
@@ -1085,6 +1164,7 @@ export default function BooCompanion() {
     setMsgs((m) => (m.some((x) => x.fresh) ? m.map((x) => (x.fresh ? { ...x, fresh: false } : x)) : m));
     try { if (lastFocus.current && lastFocus.current.focus) lastFocus.current.focus(); } catch { /* ignore */ }
   }, []);
+  closeSheetRef.current = closeSheet;
 
   const send = useCallback(async (raw, source) => {
     const message = String(raw || "").trim().slice(0, 300);
@@ -1146,7 +1226,7 @@ export default function BooCompanion() {
   // Opening line, focus, scroll lock, Escape and focus trap.
   useEffect(() => {
     if (!open) return;
-    setMsgs((m) => (m.length ? m : [{ role: "boo", text: getOpener() || GREETING, fresh: true }]));
+    setMsgs((m) => (m.length ? m : [{ role: "boo", text: gapRef.current ? coverageSheetLine(gapRef.current) : getOpener() || GREETING, fresh: true }]));
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const f = window.setTimeout(() => { try { (inputRef.current || sheetRef.current).focus({ preventScroll: true }); } catch { /* ignore */ } }, 60);
@@ -1274,7 +1354,16 @@ export default function BooCompanion() {
                 </div>
               ) : null}
               {wrapped ? <a className="boo-wrap" href={HAUNT_PATH}>Open the full haunt list</a> : null}
-              {!wrapped && !hasUser && !pending ? (
+              {!wrapped && !hasUser && !pending && gap ? (
+                <div className="boo-s-cities" role="group" aria-label="Florida cities on Wayfind">
+                  {gap.options.map((o, i) => (
+                    <button type="button" key={o.slug} className={"boo-s-city" + (i === 0 ? " near" : "")} onClick={() => jumpTo(o, i === 0)}>
+                      {coverageButtonText(o, i === 0)}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+              {!wrapped && !hasUser && !pending && !gap ? (
                 <div className="boo-s-chips">
                   {chips.map((c) => (<button type="button" key={c} className="boo-s-chip" onClick={() => send(c, "chip")}>{c}</button>))}
                 </div>
