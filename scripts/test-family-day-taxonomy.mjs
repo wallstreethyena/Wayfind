@@ -3,7 +3,9 @@ import { mock } from "node:test";
 import { FAMILY_DAY_RAILS, canonicalFamilyRailId, familyRailMatches, familyWeatherSafe, matchesFamilyFilters } from "../lib/familyDayTaxonomy.js";
 
 // Exercise the reviewed evidence window without depending on the wall clock.
-mock.method(Date, "now", () => Date.parse("2026-09-10T12:00:00Z"));
+// Inside the current audit window of lib/familyDayEvidence.js (2026-10-27 batch: 10-27 to 11-27);
+// moves with each re-audit, like test-family-day-data's REF_MS.
+mock.method(Date, "now", () => Date.parse("2026-11-05T12:00:00Z"));
 
 assert.deepEqual(FAMILY_DAY_RAILS.map((rail) => rail.id), [
   "beach", "attractions", "water", "animals", "outdoors",
@@ -60,7 +62,10 @@ assert.equal(familyRailMatches(wonderWorks, "attractions"), true);
 assert.equal(familyRailMatches(wonderWorks, "indoor"), true, "verified exact-ID evidence may add a second rail");
 assert.equal(matchesFamilyFilters(wonderWorks, { ages: "kid", weather: "indoor", cost: "ticketed" }), true,
   "verified all-ages evidence admits a specific requested age");
-assert.equal(matchesFamilyFilters(wonderWorks, { logistics: ["parking", "stroller", "height"] }), true);
+assert.equal(matchesFamilyFilters(wonderWorks, { logistics: ["parking", "height"] }), true);
+// 2026-10-27 re-audit: WonderWorks' page states parking and height rules but not a stroller policy,
+// so the stroller claim was withdrawn and a selected stroller filter must now fail (unknown, not false).
+assert.equal(matchesFamilyFilters(wonderWorks, { logistics: "stroller" }), false, "an unstated stroller fact is unknown and fails the filter");
 assert.equal(matchesFamilyFilters(wonderWorks, { logistics: "changing" }), false,
   "unknown evidence fails a selected filter");
 assert.equal(matchesFamilyFilters(wonderWorks, { duration: "quick" }), false);

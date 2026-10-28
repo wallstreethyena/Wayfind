@@ -1,6 +1,6 @@
 "use client";
 import PlaceDistance, { usePlaceDistance } from "./components/PlaceDistance.js";
-import { Component, useEffect, useMemo, useRef, useState } from "react";
+import { Component, startTransition, useEffect, useMemo, useRef, useState } from "react";
 import { useEdgeFade } from "./components/EdgeFade";
 import { CATEGORIES, SUBFILTERS, VIBES, DEFAULT_RADIUS_MI, DEFAULT_RADIUS_M, distMeters, geocodeCity, reverseGeocode, fetchPlaceDetail, fetchPlaceById, findPlace, searchNearbyPlaces, normalizeSearchPlace, wayfindScore } from "../lib/google";
 import { fetchLivePhoto, detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto";
@@ -43,7 +43,7 @@ import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalyt
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
-import { wcRotation } from "../lib/shareCards";
+import { wcRotation } from "../lib/wcRotations.js";
 // v6.31: THE single source of truth for open/closed. Every surface reads status
 // from here so one venue can never show two statuses at the same instant.
 import { businessStatus, isOpenNow } from "../lib/businessStatus";
@@ -77,6 +77,10 @@ import { attributionParams } from "../lib/attribution";
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
 import { noteExplodingSignup } from "../lib/explodingExperiment";
+// lib/authJourney is loaded on demand (a sign-in moment, never first paint): the
+// homepage bundle sits 0.4KB under its 501KB ratchet and this code is not needed
+// until someone signs in. See check-bundle.mjs.
+const loadAuthJourney = () => import("../lib/authJourney");
 // Experiment slice, so an in-app detail_open can be attributed back to the
 // static entry page that assigned the visitor. Empty when never exposed.
 import { experimentProps } from "../lib/experiment";
@@ -126,8 +130,29 @@ import { useBestPhoto } from "../lib/bestPhoto";
 import nextDynamic from "next/dynamic";
 // The community tools sit below the entire discovery feed. Keep their form
 // state and submission code out of the first screen bundle.
-const CommunityFooter = nextDynamic(() => import("./components/CommunityFooter"), { ssr: false });
-const PoweredByStrip = nextDynamic(() => import("./components/PoweredByStrip"), { ssr: false });
+// OPTIONAL CHROME NEVER TAKES THE SCREEN DOWN (2026-10-27). When one of these
+// chunks fails to load, next/dynamic throws inside the tree and the root
+// ErrorBoundary below replaced the ENTIRE home page with "That took a wrong
+// turn" — for a footer. On 2026-10-24 the CommunityFooter chunk timed out on
+// datacenter Chrome sessions (Azure IPs, 1920px, Chrome 141/142) and that
+// paged the owner as "Build v8.63.0 is crashing for real users". So: retry the
+// import once (a stale deploy or a slow link usually clears on the second
+// try), then render nothing and record `chunk_load_failed` — a delivery
+// problem, not a crash, and the Command Center counts it separately
+// (lib/commandCenter/alerts.js, chunk_failures). The reload-once recovery in
+// lib/chunkRecovery stays for the chunks the page cannot work without.
+const optionalChunk = (load, name) => nextDynamic(() => load().catch(() => load()).catch((e) => {
+  try { if (typeof window !== "undefined") captureOrQueue(window, "chunk_load_failed", { chunk: name, message: String((e && e.message) || "").slice(0, 200), build: BUILD_ID }); } catch (_) { /* best-effort */ }
+  // The pre-React layer (lib/chunkRecovery) paints #wf-chunk-bar when its one
+  // reload is spent and a chunk fails again. Measured on production 2026-10-27
+  // with this chunk blocked: the page is fully usable without the footer, so a
+  // persistent "didn't finish loading — Reload" bar is a prompt for nothing.
+  // One prompt at a time, and none when nothing is broken.
+  try { const bar = typeof document !== "undefined" && document.getElementById("wf-chunk-bar"); if (bar) bar.remove(); } catch (_) { /* best-effort */ }
+  return { default: () => null };
+}), { ssr: false });
+const CommunityFooter = optionalChunk(() => import("./components/CommunityFooter"), "CommunityFooter");
+const PoweredByStrip = optionalChunk(() => import("./components/PoweredByStrip"), "PoweredByStrip");
 // v5.39 (July 2026 audit, Phase 7): the map bundle loads when the map
 // screen (or sidebar map) first renders, not on first paint.
 const MapView = nextDynamic(() => import("./components/MapView"), { ssr: false, loading: () => <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, color: "#CBD5E1", background: "#070C14", fontSize: 13, fontWeight: 700 }}><div aria-hidden="true" style={{ position: "relative", width: 126, height: 126, borderRadius: "50%", border: "1px solid rgba(249,115,22,.42)", boxShadow: "0 0 0 28px rgba(249,115,22,.08),0 0 0 56px rgba(249,115,22,.045)" }}><span style={{ position: "absolute", left: "50%", top: "50%", width: 15, height: 15, margin: "-7.5px", borderRadius: "50%", background: "#F97316", border: "3px solid #FFF7ED", boxShadow: "0 0 0 7px rgba(249,115,22,.18)" }} /></div><span>Setting the map…</span></div> });
@@ -334,6 +359,7 @@ const askShareIntent = (o) => {
 import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
+import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
@@ -367,7 +393,7 @@ function _viatorCityParams(cityQ, center) {
 // and v8.x because check-version.mjs only asserts VERSION == BUILD_ID, not
 // that either moved — and the owner used the footer label to judge whether
 // production was stale. A version label that never changes is disinformation.
-const BUILD_ID = "v8.63.0";
+const BUILD_ID = "v8.64.0";
 // v6.27 killswitch: set NEXT_PUBLIC_SCORE_BADGE="off" in Vercel to restore the
 // pre-badge card layout. Inlined at build time.
 const SCORE_BADGE_OFF = process.env.NEXT_PUBLIC_SCORE_BADGE === "off";
@@ -2773,7 +2799,19 @@ class MapErrorBoundary extends Component {
 class ErrorBoundary extends Component {
   constructor(props) { super(props); this.state = { hit: false, err: "" }; }
   static getDerivedStateFromError(e) { return { hit: true, err: String((e && e.message) || e || "").slice(0, 160) }; }
-  componentDidCatch(error) { try { if (typeof window !== "undefined") captureOrQueue(window, "app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID }); } catch (e) {} }
+  // Same two things app/components/RecoveryScreen.js does: hand a chunk
+  // failure to the layout's reload-once rule (lib/chunkRecovery, through
+  // window.__wfChunkRecover) and tag the event `chunk`, so the Command Center
+  // can tell "a script did not arrive" from "we shipped a crash" (2026-10-27:
+  // this boundary sent untagged events, so chunk timeouts paged as crashes).
+  componentDidCatch(error) {
+    try {
+      if (typeof window === "undefined") return;
+      let chunk = false;
+      try { if (typeof window.__wfChunkRecover === "function") chunk = !!window.__wfChunkRecover(error); } catch (e) { /* best-effort */ }
+      captureOrQueue(window, "app_error", { message: String(error && error.message || "").slice(0, 200), stack: String((error && error.stack) || "").split("\n").slice(0, 3).join(" | "), build: BUILD_ID, chunk });
+    } catch (e) { /* best-effort */ }
+  }
   render() {
     if (this.state.hit) {
       return (
@@ -4197,6 +4235,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // for one opening (deep-link effect re-runs on supabaseReady). Reset on close.
   const detailOpenGateRef = useRef(null);
   if (!detailOpenGateRef.current) detailOpenGateRef.current = createDetailOpenGate();
+  // One replay of a /p/{id}?action=save|like|dislike deep link, however many times the deep-link effect runs (lib/placeActionOnce.js).
+  const placeActionGateRef = useRef(null);
+  if (!placeActionGateRef.current) placeActionGateRef.current = createPlaceActionGate();
   useEffect(() => { if (!detail) { detailOpenRequestRef.current++; detailOpenGateRef.current.close(); } }, [detail]);
   useEffect(() => {
     // The app changes screens inside one route. Sync after the DOM surface
@@ -4960,13 +5001,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const [couponHandoff, setCouponHandoff] = useState(null);
   const couponWalletHydrated = useRef(false);
   const [cpnOffers, setCpnOffers] = useState([]);
+  // "idle" until the dashboard-offers fetch starts; the Coupons screen only claims
+  // "loading" or "unavailable" when this says so (it never guesses).
+  const [cpnOffersStatus, setCpnOffersStatus] = useState("idle");
   const _cpnLoadedRef = useRef(false);
   useEffect(() => {
     if (screen !== "coupons" || !supabase || _cpnLoadedRef.current) return;
     _cpnLoadedRef.current = true;
     // v6.55: same single-flight scan as loadOffers (fetchOffersOnce already
     // returns normalizeOfferRow-mapped, redeemable rows — the v6.17 shape).
-    fetchOffersOnce().then((rows) => setCpnOffers(rows || []), () => {});
+    setCpnOffersStatus("loading");
+    fetchOffersOnce().then((rows) => { setCpnOffers(rows || []); setCpnOffersStatus("ready"); }, () => { setCpnOffersStatus("failed"); });
   }, [screen, supabaseReady]);
   function clipCoupon(c) {
     if (!c || !c.id) return;
@@ -5063,11 +5108,28 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // control could otherwise land in the window before `user` is populated
   // and get wrongly told to sign in. requireAuth() below waits on this.
   const [authReady, setAuthReady] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
+  const [authOpen, setAuthOpenRaw] = useState(false);
+  // Every open/close of the sign-in sheet goes through this one wrapper so the
+  // journey events (auth_opened / auth_dismissed) cannot be missed by a call
+  // site. src names the door ("header", "save_offer", "require_auth", ...).
+  // "success" and "recovery" closes are not dismissals.
+  const authOpenRef = useRef(false);
+  const userRef = useRef(null);
+  const logEventRef = useRef(null);
+  function setAuthOpen(v, src) {
+    try {
+      if (v && !authOpenRef.current) logEvent("auth_opened", null, { src: src || "other" });
+      else if (!v && authOpenRef.current && src !== "success" && src !== "recovery" && !userRef.current) logEvent("auth_dismissed", null, { mode: authMode });
+    } catch (e) {}
+    authOpenRef.current = !!v;
+    setAuthOpenRaw(v);
+  }
   const [authEmail, setAuthEmail] = useState("");
   const [authSending, setAuthSending] = useState(false);
   const [authPassword, setAuthPassword] = useState("");
   const [authMode, setAuthMode] = useState("signin"); // signin | signup
+  userRef.current = user;
+  logEventRef.current = logEvent;
   // v4.57: Reservations folder. Outbound booking taps auto-log a stub the
   // user can complete with a confirmation number when they return. Affiliate
   // partners never send booking data back, so this is the honest capture.
@@ -5256,7 +5318,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       // v4.56 PROTECTED (check-auth.mjs): a reset-password email link lands the
       // user here with a recovery session. Open the set-new-password sheet.
-      if (_event === "PASSWORD_RECOVERY") { try { setRecoveryOpen(true); setAuthOpen(false); } catch (e) {} }
+      if (_event === "PASSWORD_RECOVERY") { try { setRecoveryOpen(true); setAuthOpen(false, "recovery"); } catch (e) {} }
       // ONLY AN EXPLICIT SIGN-OUT SIGNS THE UI OUT (owner-reported, 2026-08-07:
       // "I keep getting logged out while browsing"). This line used to hand
       // setUser a null whenever the event carried no session — which treats
@@ -5277,6 +5339,18 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       try { if (session && session.user && (_event === "SIGNED_IN" || _event === "INITIAL_SESSION")) { const _ret = consumeAuthReturn(window.sessionStorage); if (_ret) window.location.assign(_ret); } } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.__WF_NOTE_AUTH_USER) window.__WF_NOTE_AUTH_USER(session.user); } catch (e) {}
       try { if (typeof window !== "undefined") captureOrQueue(window, "auth_event", { event: _event, hasSession: !!(session && session.user) }); } catch (e) {}
+      // THE ONLY place signup_completed / login_completed are emitted (lib/authJourney.js).
+      // Web Google OAuth is a full-page redirect, so no click handler survives to
+      // log it; the auth state change is the one moment every method passes through.
+      // logEventRef: this closure is created once, logEvent must be the latest render's.
+      try {
+        if (typeof window !== "undefined") {
+          loadAuthJourney().then((aj) => {
+            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: window.localStorage, sess: window.sessionStorage, log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
+            if (_done && _done.indexOf("signup") === 0) { try { noteExplodingSignup((...a) => logEventRef.current && logEventRef.current(...a)); } catch (e) {} }
+          }).catch(() => {});
+        }
+      } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
       try { const _k = "wf_authlog"; const _a = JSON.parse(localStorage.getItem(_k) || "[]"); _a.push({ t: new Date().toISOString().slice(5, 19), e: _event, s: !!(session && session.user) }); localStorage.setItem(_k, JSON.stringify(_a.slice(-12))); } catch (e) {}
     });
@@ -5316,7 +5390,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   function requireAuth(msg) {
     if (user) return true;
     if (!authReady) return false;
-    setAuthOpen(true);
+    setAuthOpen(true, "require_auth");
     showToast(msg || "Sign up free — save your spots and sync them to every device.");
     return false;
   }
@@ -5337,7 +5411,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // Let the save's own confirmation toast land first; then the offer.
       setTimeout(() => {
         try { logEvent("signup_offer_shown", null, { src }); } catch (e) {}
-        setAuthOpen(true);
+        setAuthOpen(true, "save_offer");
         showToast("Saved on this device — sign up free and it follows you to every device.");
       }, 1200);
     } catch (e) {}
@@ -5361,7 +5435,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     Object.values(trips || {}).some((t) => t && Array.isArray(t.items) && t.items.length > 0)
   );
   useEffect(() => {
-    if (authReady && !user && AUTH_SCREENS.has(screen) && !(screen === "itinerary" && hasLocalGuestTrip)) setAuthOpen(true);
+    if (authReady && !user && AUTH_SCREENS.has(screen) && !(screen === "itinerary" && hasLocalGuestTrip)) setAuthOpen(true, "screen_gate");
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, authReady, user, hasLocalGuestTrip]);
 
@@ -5369,6 +5443,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // in Supabase. Redirects out to Google/Apple and back to the app.
   async function signInWithProvider(provider) {
     if (!supabase) return;
+    try { logEvent("auth_method_clicked", null, { method: provider, mode: authMode }); } catch (e) {}
+    try { (await loadAuthJourney()).markAuthAttempt(window.sessionStorage, provider); } catch (e) {}
     try {
       if (provider === "apple" && isNative()) {
         const credential = await nativeAppleCredential();
@@ -5390,18 +5466,16 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           await supabase.auth.updateUser({ data: { full_name: fullName, given_name: givenName || null, family_name: familyName || null } });
         }
         if (data && data.session) {
-          try { logEvent("login_completed", null, { method: "apple_native" }); } catch (e) {}
           showToast("Signed in with Apple");
-          setAuthOpen(false);
+          setAuthOpen(false, "success");
         }
         return;
       }
       if (provider === "google" && isNative()) {
         const session = await nativeOAuthSignIn(supabase, "google");
         if (session) {
-          try { logEvent("login_completed", null, { method: "google_native" }); } catch (e) {}
           showToast("Signed in with Google");
-          setAuthOpen(false);
+          setAuthOpen(false, "success");
         }
         return;
       }
@@ -5435,6 +5509,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const fixed = fixEmailTypos(authEmail);
     if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email \u2014 check it and tap again."); return; }
     setAuthSending(true);
+    try { logEvent("auth_method_clicked", null, { method: "password", mode: authMode }); } catch (e) {}
+    try { (await loadAuthJourney()).markAuthAttempt(window.sessionStorage, "password"); } catch (e) {}
     // Intent, not conversion. signup_started is analytics-only in GA4 and is
     // deliberately NOT an Ads conversion — submitting a form is not an account.
     if (authMode === "signup") { try { logEvent("signup_started"); } catch (e) {} }
@@ -5460,12 +5536,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // A session is the proof that Supabase completed the authentication flow.
       // Only then is a signup counted as a completed conversion.
       else if (res.data && res.data.session) {
-        try {
-          logEvent(authMode === "signup" ? "signup_completed" : "login_completed", null, { method: "password" });
-          if (authMode === "signup") noteExplodingSignup(logEvent);
-        } catch (e) {}
+        // signup_completed / login_completed fire from onAuthStateChange, once, for every method.
         showToast("Signed in");
-        setAuthOpen(false);
+        setAuthOpen(false, "success");
         setAuthEmail("");
         setAuthPassword("");
       }
@@ -7241,9 +7314,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             const sig = await fetchMemberSignals(supabase, [p]);
             if (sig) opened = withMemberSignal([p], sig)[0] || p;
           } catch (e) {}
-          if (placeAction === "save") quickSaveFavorite(opened);
-          else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
-          else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+          if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {
+            // A "save this place" link ADDS. quickSaveFavorite is a toggle, so an
+            // already-saved place must be left alone, never un-saved by its own link.
+            if (placeAction === "save") { if (!isSaved(opened.id)) quickSaveFavorite(opened); }
+            else if (placeAction === "like") toggleLike({ stopPropagation() {} }, opened);
+            else if (placeAction === "dislike") toggleDislike({ stopPropagation() {} }, opened);
+          }
           openDetail(opened);
         }
       })();
@@ -8664,7 +8741,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSearchRecoveryNear("");
     setCityTransition(null);
     setQuery(v);
-    setSuggestions(localCitySuggestions(v));
+    // INP 2026-10-27: the typed text paints first (setQuery above); the suggestion
+    // list is derived work, so it renders as a transition and never blocks a keystroke.
+    startTransition(() => { setSuggestions(localCitySuggestions(v)); });
     if (!v || v.trim().length < 2) return;
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
   }
@@ -8760,7 +8839,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (request !== suggestionRequestRef.current) return;
     // Cities stay in the dropdown so a reader can pick Parrish or Sarasota.
     // Place, event, and guide hits render as cards on the page from submitSearch.
-    setSuggestions(cities.slice(0, 8));
+    // INP 2026-10-27: debounced suggestion result lands as a transition so it
+    // cannot interrupt typing.
+    startTransition(() => { setSuggestions(cities.slice(0, 8)); });
     setSugIdx(-1);
     setSearchFeedback("");
     setSearchRecovery(false);
@@ -8884,6 +8965,19 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setLocResolved(true);
     setLocName("this map area");
     try { logEvent("map_search_area", null, { lat: +Number(c.lat).toFixed(3), lng: +Number(c.lng).toFixed(3) }); } catch (e) {}
+  }
+
+  // Coupons screen manual area pick (a covered metro's own center). Same contract
+  // as searchMapArea/jumpToArea: manual flag so GPS never silently yanks it back,
+  // label set with the coordinates so the wf_center writer persists a coherent,
+  // timestamped pair (storedPinFresh rule).
+  function pickCouponCenter(c) {
+    if (!c || !isFinite(c.lat) || !isFinite(c.lng)) return;
+    manualRef.current = true;
+    setCenter({ lat: c.lat, lng: c.lng });
+    setLocResolved(true);
+    setLocName(String(c.label || ""));
+    try { logEvent("coupons_area_pick", null, { area: String(c.label || "") }); } catch (e) {}
   }
 
   function jumpToArea(a) {
@@ -9818,7 +9912,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // surprise
     surprisePick, surprisePool, surpriseLoading, setSurprisePick, rerollSurprise, surpriseWhy,
     // coupons
-    cpnOffers, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
+    cpnOffers, cpnOffersStatus, locResolved, pickCouponCenter, recenterToMe, savedCoupons, clipCoupon, toggleSaveCoupon, copyCouponCode, shareCoupon, walletOpen, setWalletOpen, couponHandoff,
     // saved
     activeList, setActiveList, sysFolder, setSysFolder, setNewListOpen, user, setAuthOpen, signOutUser, deleteAccountUser, lists, setListMenu, likedItems, dislikedItems, sharedItems, shareList, deleteList, rollDice,
     // personalization (v6.56): the taste consent + entry point live at the
@@ -10258,7 +10352,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             {supabase && (user ? (
               <button onClick={() => setAccountOpen(true)} aria-label="Account" title={user.email || "Signed in"} style={{ flexShrink: 0, width: 40, height: 40, borderRadius: "50%", border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 14, fontWeight: 800, cursor: "pointer", textTransform: "uppercase" }}>{(user.email || "?").slice(0, 1)}</button>
             ) : (
-              <button className="wf-signin-button" onClick={() => setAuthOpen(true)} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
+              <button className="wf-signin-button" onClick={() => setAuthOpen(true, "header")} aria-label="Sign in" title="Sign in" style={{ flexShrink: 0, display: "inline-flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 999, border: `1px solid ${C.border}`, background: C.card, color: C.light, fontSize: 12, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="3.2" /><path d="M5.5 19.5c0-3.3 2.9-5.5 6.5-5.5s6.5 2.2 6.5 5.5" /></svg>Sign in</button>
             ))}
           </div>
         </div>
@@ -10328,13 +10422,20 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               // Only when a category is OPENED. Closing the tray (id === null)
               // leaves the feed exactly as it is, so there is nothing to land on
               // and moving the page would be a lie about what just happened.
-              openBrowse(id);
+              // INP 2026-10-27: setNavOpenCat above is the cheap state that paints
+              // the tapped tab; the feed swap behind openBrowse is the expensive
+              // render, so it runs as a transition and cannot hold up that paint.
+              startTransition(() => { openBrowse(id); });
               try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "nav_open", opened: !!id }); } catch (e) {}
             }}
             onNavSub={(catId, subId, subLabel) => {
               // v8.22 — same screen-pop as onNavOpen above: a sub-filter tap
               // from Coupons/Events/Saved must land the reader on the place
               // cards it just filtered, not leave them on the old screen.
+              // INP 2026-10-27: the whole sub-filter state change re-renders the
+              // feed, so it runs as one transition (same updates, same batch,
+              // just interruptible) and the tap paints without waiting on it.
+              startTransition(() => {
               if (screen !== "suggested") {
                 setScreen("suggested");
                 try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
@@ -10345,6 +10446,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
               categoryChosenRef.current = true;
               if (browseCat !== catId) pickBrowse(catId);
               setSub(subId);
+              });
               // v8.10 (owner, 2026-08-18: "the submenu also goes away — i want
               // the submenu to remain open"). The tray STAYS: the pick
               // highlights in place (aria-pressed) and the reader can hop
@@ -11303,7 +11405,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                         const gwArrow = (<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14" /><path d="M13 6l6 6-6 6" /></svg>);
                         let gwCta;
                         if (!giveawayLive()) gwCta = { label: "Opens July 4", disabled: true };
-                        else if (!user) gwCta = { label: gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter", go: () => { gwPopClose("cta"); setAuthOpen(true); try { logEvent("giveaway_pop_signin"); } catch (e) {} } };
+                        else if (!user) gwCta = { label: gwCount > 0 ? "Sign in to lock your entry" : "Sign in to enter", go: () => { gwPopClose("cta"); setAuthOpen(true, "giveaway"); try { logEvent("giveaway_pop_signin"); } catch (e) {} } };
                         else if (gwDone) gwCta = { label: "Keep exploring", go: () => gwPopClose("entered") };
                         else gwCta = { label: gwShared > 0 ? "Share " + (3 - gwShared) + " more to enter" : "Find a place to share", go: () => { gwPopClose("browse"); openBrowse("food"); try { logEvent("giveaway_pop_browse"); } catch (e) {} } };
                         return (
@@ -11444,7 +11546,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             It stays usable before sign-in; the screen offers sign-in only as
             optional cloud sync. Itinerary remains account-backed. */}
         {screen === "saved" && <SavedScreen ctx={ctx} />}
-        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true)} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
+        {screen === "itinerary" && (authReady && !user && !hasLocalGuestTrip ? <AuthWall label="your Itinerary" onSignIn={() => setAuthOpen(true, "auth_wall")} detail={itineraryFlags.sync ? "Sign in to plan trips. Your trips sync across your devices." : "Sign in to plan trips and build itineraries."} /> : <ItineraryScreen ctx={ctx} />)}
 
         {screen === "shared" && sharedList && <SharedScreen ctx={ctx} />}
         {screen === "shared" && sharedItinerary && !sharedList && <SharedItineraryScreen ctx={ctx} />}

@@ -19,6 +19,7 @@ import {
   halloweenHauntProductSchema,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
+import { HAUNT_GOOGLE_PLACE, MAX_HAUNT_PHOTOS, googleStripPhoto, mergeHauntPhotos, withHauntPhotos } from "../lib/halloweenHauntPhotos.js";
 import {
   BO_ANTICS,
   BO_GAG_MAX_WORDS,
@@ -30,6 +31,8 @@ import {
   sanitizeAntic,
   BO_WRAP_LINES,
   boCards,
+  boSmallTalk,
+  BO_SMALLTALK,
   boHauntFallback,
   boPageKind,
   boPrompt,
@@ -182,7 +185,23 @@ for (const entry of schema.itemListElement) {
 }
 
 const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
-const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
+// Fake free-store reader: ready Google photos for three venues, nothing (or removed) for the rest.
+const FAKE_STORE = {
+  [HAUNT_GOOGLE_PLACE.peppa]: "Lizzie Applegate",
+  [HAUNT_GOOGLE_PLACE.petrified]: "A Petrified Forest Scare Trail",
+  [HAUNT_GOOGLE_PLACE.howlTampa]: "Matthew Anderson",
+};
+const fakeRead = async (id) => (FAKE_STORE[id] ? {
+  source: "google", src: "/api/photo/stored/" + id + "?v=" + "a".repeat(64), width: 1280, height: 960,
+  credit: { name: FAKE_STORE[id], authors: [{ name: FAKE_STORE[id], uri: "https://maps.google.com/maps/contrib/1" }], mapsUri: "https://www.google.com/maps/place/x" },
+} : null);
+const photoModel = await withHauntPhotos(model, { read: fakeRead });
+ok(googleStripPhoto({ name: "X" }, { source: "google", src: "https://evil.example/a.jpg", credit: { name: "A" } }) === null, "red-prove: only the private stored route counts as a Google strip photo");
+ok(googleStripPhoto({ name: "X" }, { source: "google", src: "/api/photo/stored/abc?v=" + "a".repeat(64), credit: { authors: [] } }) === null, "red-prove: a Google photo without an author is refused");
+ok(mergeHauntPhotos({ photo: null }, Array.from({ length: 9 }, (_, i) => ({ src: "/api/photo/stored/p" + i + "?v=" + "a".repeat(64) }))).length === MAX_HAUNT_PHOTOS, "strip is capped at five");
+const failing = await withHauntPhotos(model, { read: async () => { throw new Error("store down"); } });
+ok(failing.haunts.every((r, i) => r.photos.length === model.haunts[i].photos.length), "a store failure leaves the owner photo only, never throws");
+const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: photoModel }));
 ok(html.includes("<svg") && html.includes("boo-bulb"), "string lights render");
 ok(html.includes("/images/boo/boo_v1_hype_guide.png"), "Boo art sits in the hero");
 ok(html.includes('data-analytics-page="halloween_haunts"'), "surface id stays on the page");
@@ -215,7 +234,14 @@ for (const row of model.haunts) {
   else ok(html.includes(row.admissionNote), "no numeric price shows the admission note for " + row.id);
   ok(html.includes('data-haunt-id="' + row.id + '"'), "card renders for " + row.id + " even without a photo");
   ok(row.photo === null || (row.photo.src && row.photo.alt && !DASH.test(row.photo.alt)), row.id + " photo is a real mapped source or null");
-  if (row.photo && row.photo.credit) ok(html.includes(row.photo.credit), row.id + " photo credit renders under the headline");
+  const prow = photoModel.haunts.find((r) => r.id === row.id);
+  ok(Array.isArray(prow.photos) && prow.photos.length <= MAX_HAUNT_PHOTOS, row.id + " photos is an array of 0 to 5");
+  for (const ph of prow.photos) {
+    ok(/^(https:\/\/|\/)/.test(ph.src) && ph.alt && !DASH.test(ph.alt), row.id + " photo has an absolute or site path and dash free alt");
+    ok(ph.source !== "google" || (ph.credit && /^\/api\/photo\/stored\//.test(ph.src)), row.id + " Google photo carries its author credit");
+    if (ph.credit) ok(html.includes(ph.credit), row.id + " photo credit renders under the headline");
+  }
+  if (row.photo) ok(prow.photos[0].src === row.photo.src, row.id + " existing photo stays photo 1");
   ok(html.includes(row.timing), "renders " + row.timing);
   const href = row.cta.href.replace(/&/g, "&amp;");
   ok(html.includes('href="' + href + '"'), "renders href " + row.id);
@@ -223,6 +249,15 @@ for (const row of model.haunts) {
   ok(html.includes(row.cta.label.replace(/&/g, "&amp;") + "</a>") && html.includes(row.cta.via), row.id + " buy button label and seller line");
 }
 ok((html.match(/class="boo-buy"/g) || []).length === model.haunts.length, "every haunt card has a buy button");
+ok((html.match(/data-photo-strip=""/g) || []).length === model.haunts.length, "the photo strip renders once per card");
+ok(html.includes("scroll-snap-type:x mandatory") && html.includes("grid-template-columns:40% minmax(0,1fr)"), "strip snaps and the card is photo left, content right at every width");
+ok(!/@media[^{]*\{[^}]*\.boo-card\{[^}]*flex-direction:column/.test(html), "the card never stacks on phones");
+ok(/background:var\(--orange\);color:#0D1117;border:2px solid var\(--orange\)/.test(html), "buy button stays solid orange");
+ok(html.includes("Photo by Lizzie Applegate on Google Maps") && html.includes("Photo by A Petrified Forest Scare Trail on Google Maps"), "Google author credit renders");
+const peppaCard = html.slice(html.indexOf('data-haunt-id="peppa"'), html.indexOf('data-haunt-id="spookquarium"'));
+ok((peppaCard.match(/class="boo-slide"/g) || []).length === photoModel.haunts.find((r) => r.id === "peppa").photos.length && (peppaCard.match(/<i class="/g) || []).length === (peppaCard.match(/class="boo-slide"/g) || []).length, "dots match slides");
+ok(/lazy/.test(peppaCard), "slides after the first lazy load");
+for (const row of photoModel.haunts) ok(row.photos.every((p) => !p.src.includes("api/photo?")), row.id + " never uses the paid /api/photo lane");
 ok(!html.includes("wf-place-card"), "ticket rows are not place cards");
 
 function visibleText(markup) {
@@ -382,6 +417,16 @@ try {
   ok(ANTICS_EXPECTED.includes(payload.antic) && ANTICS_EXPECTED.includes(wrapPayload.antic), "route responses carry a valid antic");
   const turn3 = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "kids", turn: 3, page: { path: "/x".repeat(3000), title: "\u0000" } }) }))).json();
   ok(turn3.wrap === false && turn3.source === "fallback", "turn 3 does not wrap");
+  // Small talk: in character, zero cards, empty ids, no pitch, no model call.
+  for (const q of ["who are you", "hi", "lol", "what are you", "tell me a joke", "Thanks!"]) {
+    const r = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: q, turn: 1 }) }))).json();
+    ok(r.smallTalk === true && r.source === "smalltalk" && Array.isArray(r.cards) && r.cards.length === 0 && Array.isArray(r.recommendedIds) && r.recommendedIds.length === 0 && r.wrap === false, "small talk returns no cards: " + q);
+    ok(r.reply && !DASH.test(r.reply) && boReplyProblems(r.reply).length === 0 && !/Get Tickets|Official Tickets|Book Now/.test(r.reply) && ANTICS_EXPECTED.includes(r.antic), "small talk reply is clean, in character, no pitch: " + q);
+  }
+  const real = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "who is the scariest in Tampa", turn: 1 }) }))).json();
+  ok(real.smallTalk !== true && real.cards.length > 0 && real.recommendedIds.length > 0, "a real question still returns ticket cards");
+  const wrapTalk = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "lol", turn: 4 }) }))).json();
+  ok(wrapTalk.wrap === true && wrapTalk.cards.length > 0 && BO_WRAP_LINES.includes(wrapTalk.reply), "wrap turn is unchanged even after small talk");
 } finally {
   if (savedAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY;
   else process.env.ANTHROPIC_API_KEY = savedAnthropicKey;
@@ -390,5 +435,16 @@ try {
   if (savedPaidAi === undefined) delete process.env.WF_PAID_AI_ENABLED;
   else process.env.WF_PAID_AI_ENABLED = savedPaidAi;
 }
+
+// Pure helpers: small talk pool is clean, strict, and the parser accepts empty ids only with smallTalk.
+for (const row of BO_SMALLTALK) for (const line of row.replies) ok(!DASH.test(line) && boReplyProblems(line).length === 0, "small talk line is clean: " + line);
+ok(boSmallTalk("what is the cheapest haunt in orlando") === null && boSmallTalk("hi, any kid friendly haunts in tampa?") === null && boSmallTalk("") === null, "real questions are never small talk");
+const stJson = (extra) => JSON.stringify({ reply: "Hi mortal, I am Boo, the ghost guide.", recommendedIds: [], antic: "wave", ...extra });
+ok(parseBoReply(stJson({}), model, "hi") === null, "empty recommendedIds without smallTalk is still rejected");
+const stParsed = parseBoReply(stJson({ smallTalk: true }), model, "hi");
+ok(stParsed && stParsed.smallTalk === true && stParsed.recommendedIds.length === 0, "smallTalk true allows empty recommendedIds");
+const scrubbed = parseBoReply(JSON.stringify({ reply: "Hi mortal-boo", recommendedIds: [], smallTalk: true }), model, "hi");
+ok(scrubbed && !DASH.test(scrubbed.reply), "smallTalk replies still get the dash scrub");
+ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [], smallTalk: true }), model, "hi") === null, "smallTalk replies still enforce the banned phrases");
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");
