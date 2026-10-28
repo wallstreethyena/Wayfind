@@ -1,5 +1,5 @@
 {
- "_about": "Christmas 2026 venues matched to an existing wf_inventory venue (owner, 2026-10-14: real photos of the actual places). Read only SELECT against wf_inventory on 2026-10-14, no paid lookup. A match needs the same venue name (normalized), the same city, the inventory point within 0.5 mi of the listing's point, and for parades and boat parades never a staging marina. place_id only: no photo names or URLs. Locked by scripts/check-christmas-venue-matches.mjs.",
+ "_about": "Christmas 2026 venues matched to an existing wf_inventory venue (owner, 2026-10-14: real photos of the actual places). Read only SELECT against wf_inventory on 2026-10-14, no paid lookup. A match needs the same venue name (normalized), the same city, the inventory point within 0.5 mi of the listing's point, and for parades and boat parades never a staging marina. place_id only: no photo names or URLs. Locked by scripts/check-christmas-venue-matches.mjs. Six matches added 2026-10-28 for the first100 batch (same read only SELECT rule).",
  "checked": "2026-10-14",
  "matches": [
   {
@@ -665,6 +665,114 @@
     "locality": null,
     "lat": 27.384507,
     "lng": -82.452843
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "jingle-eve-ivanhoe-2026",
+   "place_id": "ChIJu54LVI1654gR4wd8T-CvADg",
+   "rail": "parties",
+   "city": "Orlando",
+   "venue": "Ivanhoe Village (Orange Avenue, Virginia Drive and Gaston Edwards Park)",
+   "point": {
+    "lat": 28.561602,
+    "lng": -81.3740011
+   },
+   "inventory": {
+    "name": "Gaston Edwards Park",
+    "locality": null,
+    "lat": 28.561602,
+    "lng": -81.3740011
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "charlie-brown-christmas-orlando-family-stage-2026",
+   "place_id": "ChIJacgdI5d654gRH-ZIspxFHKE",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Orlando Family Stage, 1001 E. Princeton Street",
+   "point": {
+    "lat": 28.5708511,
+    "lng": -81.3656665
+   },
+   "inventory": {
+    "name": "Orlando Family Stage",
+    "locality": null,
+    "lat": 28.5708511,
+    "lng": -81.3656665
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "a-christmas-carol-orlando-shakes-2026",
+   "place_id": "ChIJdZyA4pl654gRe829ktxXMOo",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Margeson Theater, Orlando Shakes",
+   "point": {
+    "lat": 28.5731716,
+    "lng": -81.3667678
+   },
+   "inventory": {
+    "name": "Orlando Shakes",
+    "locality": null,
+    "lat": 28.5731716,
+    "lng": -81.3667678
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "a-very-broadway-christmas-dr-phillips-2026",
+   "place_id": "ChIJ-7QCIgJ754gRcfF7EG3N1Xs",
+   "rail": "shows-outings",
+   "city": "Orlando",
+   "venue": "Walt Disney Theater, Dr. Phillips Center, 445 South Magnolia Avenue",
+   "point": {
+    "lat": 28.5378247,
+    "lng": -81.3773806
+   },
+   "inventory": {
+    "name": "Dr. Phillips Center for the Performing Arts",
+    "locality": null,
+    "lat": 28.5378247,
+    "lng": -81.3773806
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "candlelight-carols-on-strings-seminole-heights-2026",
+   "place_id": "ChIJY8ox6qHGwogRuVDBPjx0laE",
+   "rail": "shows-outings",
+   "city": "Tampa",
+   "venue": "Seminole Heights United Methodist Church",
+   "point": {
+    "lat": 28.0029653,
+    "lng": -82.4546032
+   },
+   "inventory": {
+    "name": "Seminole Heights United Methodist Church",
+    "locality": "Tampa",
+    "lat": 28.0029653,
+    "lng": -82.4546032
+   },
+   "target": "research"
+  },
+  {
+   "research_id": "zootampa-christmas-in-the-wild-2026",
+   "place_id": "ChIJBQ5SjLHGwogRL4X19g4J5tI",
+   "rail": "lights",
+   "city": "Tampa",
+   "venue": "ZooTampa at Lowry Park",
+   "point": {
+    "lat": 28.0138361,
+    "lng": -82.4699672
+   },
+   "inventory": {
+    "name": "ZooTampa at Lowry Park",
+    "locality": "Tampa",
+    "lat": 28.0138361,
+    "lng": -82.4699672
    },
    "target": "research"
   }

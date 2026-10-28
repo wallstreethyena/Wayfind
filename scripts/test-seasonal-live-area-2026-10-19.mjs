@@ -148,7 +148,7 @@ function xmasRails(today) {
 }
 
 check("eight Christmas rows are confirmed, in the Nov 15 window, and photo-backed", () => {
-  assert.equal(RAW.length, 770);
+  assert.equal(RAW.length, 799); // 770 researched 2026-10-13 plus the 29 first-100 rows added 2026-10-28
   for (const [id, expect] of Object.entries(XMAS)) {
     const raw = RAW.find((row) => row.id === id);
     assert.ok(raw, id);
@@ -183,8 +183,10 @@ const XMAS_MORE = {
 };
 
 check("ten more confirmed Christmas rows stay in the window and off the Florida catchall", () => {
+  // ZooTampa was the watchlist control on Oct 19; zootampa.org states the 2026 dates as of 2026-10-28, so it is published and pinned now.
   const zoo = RAW.find((row) => row.id === "zootampa-christmas-in-the-wild-2026");
-  assert.equal(zoo.state, "recurring_unconfirmed");
+  assert.equal(zoo.state, "confirmed_dated");
+  assert.equal(zoo.place_id, "ChIJBQ5SjLHGwogRL4X19g4J5tI");
   for (const [id, expect] of Object.entries(XMAS_MORE)) {
     const raw = RAW.find((row) => row.id === id);
     assert.ok(raw, id);
