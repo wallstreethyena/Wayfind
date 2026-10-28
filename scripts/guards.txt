@@ -649,6 +649,9 @@ node scripts/check-creator-registry-bundle-wall.mjs
 # eager client entry. LandingPage now lives in lib/landingPage.js (-60,057 gz
 # bytes on "/"). This walks the real import graph, not strings.
 node scripts/check-landing-data-client-free.mjs
+# 2026-10-28 — "/" had 0.0KB of bundle headroom; wcRotation was pulling lib/shareCards ->
+# intentPages -> collectionHeader (~11KB gz) into the eager bundle. Static-closure lock + positive control.
+node scripts/check-home-bundle-splits.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard
