@@ -119,6 +119,7 @@ node scripts/check-cron-failclosed.mjs
 # promoting 24 places once. Found 8 more call sites with the same latent bug.
 node scripts/check-cron-post-nostore.mjs
 node scripts/test-sentry-lazy.mjs
+node scripts/test-sentry-meta-iab.mjs
 node scripts/check-cache-refresh.mjs
 node scripts/test-cache-refresh.mjs
 node scripts/test-editorial.mjs
@@ -277,6 +278,8 @@ node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
 node scripts/test-coupon-wallet.mjs
+# 2026-10-27 Coupons screen without a known location: renders CouponsScreen for null / covered / outside centers; picker present, city deals never shown unknown, honest state copy.
+node scripts/test-coupon-location-state.mjs
 node scripts/check-deal-art.mjs
 node scripts/test-affiliate-chip.mjs
 node scripts/test-image-score.mjs
@@ -540,6 +543,7 @@ node scripts/check-lib-call-imports.mjs
 node scripts/check-unbound-refs.mjs
 node scripts/check-cuisine-shortlist.mjs
 node scripts/check-boundary-alert.mjs
+node scripts/test-posthog-timeout-retry.mjs
 node scripts/check-ut-crawler-clicks.mjs
 node scripts/check-hero-chrome.mjs
 node scripts/check-money-funnel.mjs
@@ -648,6 +652,9 @@ node scripts/check-creator-registry-bundle-wall.mjs
 # eager client entry. LandingPage now lives in lib/landingPage.js (-60,057 gz
 # bytes on "/"). This walks the real import graph, not strings.
 node scripts/check-landing-data-client-free.mjs
+# 2026-10-28 — "/" had 0.0KB of bundle headroom; wcRotation was pulling lib/shareCards ->
+# intentPages -> collectionHeader (~11KB gz) into the eager bundle. Static-closure lock + positive control.
+node scripts/check-home-bundle-splits.mjs
 # 2026-09-07 — the lean mirror's DATA FORMAT compacted further (positional
 # tuples + a sentinel + an interned platform table, replacing pretty-printed
 # object literals — see scripts/gen-creator-signals.mjs's header). This guard
@@ -2400,3 +2407,20 @@ node scripts/test-share-intent-fit.mjs
 node scripts/check-inventory-refresh-free-tier.mjs
 node scripts/test-inventory-free-refresh.mjs
 node scripts/test-richness-loading-path.mjs
+
+# 2026-10-27: Boo, the site wide Halloween companion (own dynamic chunk, season gate by siteTodayStr, reserved paths, session hide key, dash free gags).
+node scripts/check-boo-companion.mjs
+# 2026-10-27 (fix-affiliate-synthetic-traffic) - prefetch, QA opt-in and burst traffic never follow a
+# partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
+# still do. Drives all four go handlers with the PostHog capture intercepted.
+node scripts/check-redirect-traffic-class.mjs
+
+# 2026-10-27: one tap on /p/{id}?action=save|like|dislike replays ONE action (deep-link effect re-ran on supabaseReady and doubled PostHog `save`, and un-saved the place).
+node scripts/test-save-single-emitter.mjs
+# 2026-10-27: signup journey. signup_completed/login_completed emit once from onAuthStateChange (lib/authJourney.js); Ads mirror gets exactly one signup conversion.
+node scripts/test-auth-journey.mjs
+node scripts/test-photo-queue-close-condition.mjs
+
+# 2026-10-27: parallel guard runner (worker pool, serial list, fail-closed exit codes). Fake-guard scenarios against the real runner, plus --red-prove mutants of the runner.
+node scripts/test-run-guards.mjs
+node scripts/test-run-guards.mjs --red-prove

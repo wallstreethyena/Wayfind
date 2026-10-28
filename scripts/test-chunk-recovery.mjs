@@ -215,6 +215,27 @@ ok(!OWN_DOCUMENT.test(routeHtml), "3: app/error.js renders INSIDE the root layou
     "4: the boundary effect removes a #wf-chunk-bar painted for the same failure (one prompt at a time)");
   ok(effect && /window\.__wfChunkRecover\(error\)/.test(effect[1]),
     "4: the boundary effect applies the ONE chunk rule through window.__wfChunkRecover (reload once, never a loop)");
+  // 2026-10-27: app/home.js has a THIRD boundary (ErrorBoundary) that sent
+  // untagged app_error events, so a timed-out CommunityFooter chunk paged as
+  // "Build v8.63.0 is crashing for real users". It must apply the same hook
+  // and tag `chunk`, and the optional chrome it lazy-loads must swallow its
+  // own chunk failure (render nothing + chunk_load_failed) instead of
+  // throwing into that boundary.
+  // Raw source on purpose: the local stripComments treats a JSX `{/*` as the
+  // start of a block comment and swallows home.js up to a far `*/}`.
+  const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
+  const homeCatch = (/class ErrorBoundary extends Component \{[\s\S]*?componentDidCatch\(error\) \{([\s\S]*?)\n  \}/.exec(home) || [])[1] || "";
+  ok(homeCatch.length > 40, "4: found home.js ErrorBoundary.componentDidCatch (positive control)");
+  ok(/window\.__wfChunkRecover\(error\)/.test(homeCatch), "4: home's boundary applies the ONE chunk rule through window.__wfChunkRecover too");
+  ok(/captureOrQueue\(window, "app_error", \{[^}]*\bchunk\b/.test(homeCatch), "4: home's boundary tags app_error with `chunk` so a missing script is not counted as a crash");
+  const optional = (/const optionalChunk = [\s\S]*?\{ ssr: false \}\);/.exec(home) || [""])[0];
+  ok(/\.catch\(\(\) => load\(\)\)/.test(optional) && /default: \(\) => null/.test(optional) && /"chunk_load_failed"/.test(optional),
+    "4: optionalChunk retries the import once, then renders nothing and records chunk_load_failed (never throws into the boundary)");
+  ok(/getElementById\("wf-chunk-bar"\)[\s\S]*?\.remove\(\)/.test(optional),
+    "4: optionalChunk removes a #wf-chunk-bar painted for its own failure — the page works without optional chrome, so no prompt stays up (production, 2026-10-27)");
+  for (const name of ["CommunityFooter", "PoweredByStrip"]) {
+    ok(new RegExp(`const ${name} = optionalChunk\\(`).test(home), `4: ${name} (optional chrome) is loaded through optionalChunk`);
+  }
   // Bundle ratchet (scripts/check-bundle.mjs, 498KB, 0.3KB headroom on
   // 2026-09-30): importing lib/chunkRecovery or lazy SDK loaders into a root
   // boundary measured +0.4KB and failed it. Every import in these three files

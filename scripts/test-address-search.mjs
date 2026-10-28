@@ -25,6 +25,7 @@ function harness(query, response = {status:'ok',places:[row()]}) {
   const state = { query, suggestions: [], searchFeedback:'', calls:[], events:[], detail:{id:'old'}, hookDetail:{id:'old'} };
   const target = {
     setTimeout, clearTimeout,
+    startTransition: fn => fn(), // INP 2026-10-27: React's startTransition runs its callback synchronously; the harness has no scheduler
     query, center:{lat:28.54,lng:-81.38}, deviceLoc:{lat:25.76,lng:-80.19}, locName:'Orlando, FL', screen:'suggested',
     manualRef:{current:true}, debounceRef:{current:null}, suggestionRequestRef:{current:0},
     searchInputRef:{current:{focus(){state.inputFocused=true;}}}, mainSearchAbortRef:{current:null}, mainSearchAttemptRef:{current:null}, detailOpenRequestRef:{current:0},

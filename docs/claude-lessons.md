@@ -87,6 +87,37 @@ Five rules, each bought with a real outage or leak that day. Do not relearn them
 
 ---
 
+## Synthetic redirect traffic (2026-10-27): filter `traffic_class`, never delete
+
+Real-browser-UA automation was following the live affiliate redirects, so
+`provider_redirect_started` counted QA and agents as shoppers. Contamination windows
+(raw rows are KEPT in PostHog; nothing is deleted or rewritten):
+
+- 2026-10-20: one Windows-Chrome actor swept every `summer_picks_*` rail (waterfront 72, water adventures 69, nature 63, nightlife 44, shopping 31, family 21, attractions 15).
+- 2026-10-21 12:08Z: five AWS Ashburn IPs (140.248.50.86/.96/.97/.108, 54.164.169.207), 8-10 redirects over 8-10 different offers each in ~12 s, UA `Chrome/129.0` with no patch digits; 284 redirects from `intent_partner_rail`. That day: 466 US redirects and 0 `commerce_cta_clicked`.
+- 2026-10-22 21:24-21:26Z: 52 redirects / 34 offers in 2 minutes from the owner's own Claude-in-Chrome session.
+
+All were `$process_person_profile=false` (no PostHog cookie). UA matching (`isCrawler`) cannot see them.
+
+**Dashboards.** From the deploy date forward every `provider_redirect_started` / `_failed`
+carries `traffic_class` ("human", or "crawler" on the crawler refusal) and refusals are a
+separate event, `provider_redirect_refused` (`refusal_class` qa|synthetic, `refusal_reason`).
+Filter user-intent redirects with `properties.traffic_class = 'human'`. For older data
+exclude `$process_person_profile = false` bursts of more than 6 distinct `offer_id` per IP
+(`$ip`) per minute. Known remaining human-tagged non-shoppers: the weekly affiliate watchdog
+(surface `affiliate-watchdog`) and any Node/curl probe without the QA opt-in; exclude by `surface`.
+
+**Rules (lib/redirectTrafficClass.js, locked by scripts/check-redirect-traffic-class.mjs).**
+`Sec-Purpose`/`Purpose: prefetch|prerender` -> 204 no-store. A browser sub-resource fetch
+(Sec-Fetch-Mode cors/no-cors/same-origin/websocket AND a Sec-Fetch-Dest that is not
+document/iframe/frame/embed/object) -> 204. NODE fetch() sends `sec-fetch-mode: cors` alone
+(no Dest, measured on node 22), so a lone mode header MUST stay human or the watchdog breaks.
+QA opt-in (`wf_qa=1` cookie, `x-wayfind-qa: 1`, UA `WayfindQA/`) and the burst gate (more
+than 6 distinct offers per IP+UA per 60 s, cookie-less, `REDIRECT_BURST_GATE=1`, state in
+`wf_redirect_burst`, fails open) -> 302 to our own page, partner never resolved. The
+synthetic monitor UA is exempt and keeps its real partner redirect. Everything unreadable
+classifies human: a refused customer costs more than a leaked bot click.
+
 ## ⚠️ Concurrency rules
 
 - **main moves fast** — both sessions push, sometimes every few minutes. NEVER assume main

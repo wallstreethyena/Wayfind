@@ -30,8 +30,9 @@ import { emitCommerce, rankBucket, mintClickId } from "../../../lib/commerce";
 import { useCommerceImpression } from "../useCommerceImpression";
 import {
   dealTiers, dealSeal, dealEndsLabel, dealProofPoint, dealDisclosure,
-  dealScope,
+  dealScope, coveredMetros, metroLabel, auditHiddenOffers, areaStateFor, AREA_PATIENCE_MS,
 } from "../../../lib/dealSheet";
+import { nearestMetro } from "../../../lib/orderInFeatured";
 
 const COUPON_CARD_EXPERIMENT = "coupon_wallet_v2";
 
@@ -247,8 +248,59 @@ function CouponCard({ c, position, ctx }) {
   );
 }
 
+// Where the deals are being shown for, and how the visitor can change it. The
+// metro list comes from coveredMetros() (the registry nearestMetro resolves
+// against), and a pick goes through ctx.pickCouponCenter, the home.js manual-pin
+// path, so there is no second source of truth for location.
+function AreaBar({ state, metroName, ctx, open, setOpen, asked, setAsked }) {
+  const metros = coveredMetros();
+  const chip = (m) => (
+    <button key={m.key} type="button" onClick={() => { try { ctx.pickCouponCenter({ lat: m.lat, lng: m.lng, label: m.label }); } catch (e) {} setOpen(false); }}
+      aria-label={"Show deals in " + m.label}
+      style={{ minHeight: 38, padding: "0 13px", borderRadius: 999, border: `1px solid ${metroName === m.label ? "rgba(249,115,22,.75)" : T.border}`, background: metroName === m.label ? "rgba(249,115,22,.14)" : "#0b1320", color: metroName === m.label ? "#ffa25f" : T.light, fontSize: 12.5, fontWeight: 850, cursor: "pointer" }}>{m.label}</button>
+  );
+  if (state === "loading") return null;
+  if (state === "known") {
+    return (
+      <div data-area-state="known" style={{ marginTop: 12 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, minWidth: 0 }}>
+          <span style={{ minWidth: 0, color: T.light, fontSize: 12.5, fontWeight: 700 }}>Showing deals for {metroName}</span>
+          <button type="button" onClick={() => setOpen(!open)} aria-expanded={!!open} aria-label="Change area" style={{ flexShrink: 0, minHeight: 32, padding: "0 11px", borderRadius: 999, border: `1px solid ${T.border}`, background: T.panel, color: "#ffa25f", fontSize: 11.5, fontWeight: 900, cursor: "pointer" }}>Change</button>
+        </div>
+        {open ? <div data-area-picker="metros" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>{metros.map(chip)}</div> : null}
+      </div>
+    );
+  }
+  const outside = state === "outside";
+  return (
+    <div data-area-state={state} role="group" aria-label="Choose your area" style={{ marginTop: 14, padding: "14px 14px 15px", borderRadius: 14, border: `1px solid ${T.border}`, background: T.panel }}>
+      <strong style={{ display: "block", color: T.text, fontSize: 14 }}>{outside ? "Pick an area to see local deals" : "Where should we look for deals?"}</strong>
+      <span style={{ display: "block", marginTop: 5, color: T.muted, fontSize: 12.5, lineHeight: 1.5 }}>
+        {outside
+          ? "Your location is outside the areas where Wayfind has local deals. Choose one of these, and offers that are good anywhere still show."
+          : "Local deals only show for the area you are in, and we do not know yours yet. Choose an area, or share your location."}
+      </span>
+      <div data-area-picker="metros" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 11 }}>{metros.map(chip)}</div>
+      <button type="button" onClick={() => { setAsked(true); try { ctx.recenterToMe && ctx.recenterToMe(); } catch (e) {} }} style={{ marginTop: 11, minHeight: 40, padding: "0 16px", borderRadius: 10, border: "1px solid rgba(249,115,22,.65)", background: "rgba(249,115,22,.14)", color: "#ffa25f", fontSize: 12.5, fontWeight: 900, cursor: "pointer" }}>Use my location</button>
+      {asked ? <span role="status" style={{ display: "block", marginTop: 8, color: T.hint, fontSize: 11.5, lineHeight: 1.45 }}>Waiting for your device. If nothing changes, location may be blocked, so pick an area above.</span> : null}
+    </div>
+  );
+}
+
 export default function CouponsScreen({ ctx }) {
   const { cpnOffers, center, savedCoupons, walletOpen, setWalletOpen, couponHandoff, user, setAuthOpen } = ctx;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [askedLoc, setAskedLoc] = useState(false);
+  // Patience: once the screen has waited AREA_PATIENCE_MS with no center, an
+  // unresolved location is treated as unknown so the picker appears (a visitor
+  // who denied location while the IP lookup failed otherwise never leaves
+  // "Finding your area"). See areaStateFor in lib/dealSheet.js.
+  const [waitedMs, setWaitedMs] = useState(0);
+  useEffect(() => {
+    if (center || ctx.locResolved) return undefined;
+    const t = setTimeout(() => setWaitedMs(AREA_PATIENCE_MS), AREA_PATIENCE_MS);
+    return () => clearTimeout(t);
+  }, [center, ctx.locResolved]);
   const today = siteTodayStr();
   const all = [...new Map([...COUPONS, ...(Array.isArray(cpnOffers) ? cpnOffers : [])].map((c) => [c.id, c])).values()];
   const { featured, ledger } = dealTiers(all, today, center);
@@ -259,13 +311,26 @@ export default function CouponsScreen({ ctx }) {
     .filter((c) => c && couponIsLive(c, today));
   const visibleCount = featured.length + ledger.length;
 
+  // What we honestly know about the viewer's area. Four facts, never invented:
+  //   loading  : no center yet AND location has not finished resolving
+  //   unknown  : location resolved to nothing usable (denied, blocked, failed)
+  //   outside  : a real location, but outside every covered metro
+  //   known    : inside a covered metro (a manual pick lands here too)
+  const centerKnown = !!(center && isFinite(center.lat) && isFinite(center.lng));
+  const metroKey = centerKnown ? nearestMetro(center.lat, center.lng) : null;
+  const metroName = metroLabel(metroKey);
+  const areaState = areaStateFor({ metroKey, centerKnown, locResolved: ctx.locResolved, waitedMs });
+  const offersLoading = ctx.cpnOffersStatus === "loading";
+  const partnerHidden = ctx.cpnOffersStatus === "failed" || auditHiddenOffers(all, today, metroKey).length > 0;
+  const where = metroName ? " in " + metroName : "";
+
   return (
     <div style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflowX: "clip", boxSizing: "border-box" }}>
       <header style={{ padding: "12px 4px 3px", textAlign: "left" }}>
         <div style={{ color: T.orange, fontSize: 10, fontWeight: 900, letterSpacing: ".2em", textTransform: "uppercase" }}>Wayfind coupons</div>
         <h1 style={{ margin: "7px 0 0", color: T.text, fontSize: 30, lineHeight: 1.06, letterSpacing: "-.8px", fontWeight: 900 }}>Clip it now.<br />Find it later.</h1>
         <p style={{ margin: "9px 0 0", maxWidth: 390, color: T.muted, fontSize: 13, lineHeight: 1.5 }}>Verified local savings and partner offers, kept together so you can use them when the moment is right.</p>
-        {visibleCount > 0 ? <p style={{ margin: "8px 0 0", color: T.hint, fontSize: 11, fontWeight: 700 }}>{visibleCount} verified {visibleCount === 1 ? "offer" : "offers"} near you · no ads, ever</p> : null}
+        {visibleCount > 0 ? <p style={{ margin: "8px 0 0", color: T.hint, fontSize: 11, fontWeight: 700 }}>{visibleCount} verified {metroName ? "" : "nationwide "}{visibleCount === 1 ? "offer" : "offers"}{where} · no ads, ever</p> : null}
       </header>
 
       <nav aria-label="Coupon views" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "16px 0 2px" }}>
@@ -301,9 +366,13 @@ export default function CouponsScreen({ ctx }) {
         )
       ) : (
         <>
+          <AreaBar state={areaState} metroName={metroName} ctx={ctx} open={pickerOpen} setOpen={setPickerOpen} asked={askedLoc} setAsked={setAskedLoc} />
+          {partnerHidden ? (
+            <p data-deals-note="partner-unavailable" role="status" style={{ margin: "12px 0 0", padding: "9px 12px", borderRadius: 10, border: `1px solid ${T.border}`, background: T.bg, color: T.muted, fontSize: 11.5, lineHeight: 1.45 }}>Some partner offers are temporarily unavailable. They will return when they are checked again.</p>
+          ) : null}
           {featured.length > 0 ? (
             <section aria-label="Partner savings">
-              <TierHead title="Partner savings" count={featured.length} hint="May earn commission" tone="gold" />
+              <TierHead title={"Partner savings" + where} count={featured.length} hint="May earn commission" tone="gold" />
               <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
                 {featured.map((c, i) => <CouponCard key={c.id} c={c} position={i + 1} ctx={ctx} />)}
               </div>
@@ -312,20 +381,33 @@ export default function CouponsScreen({ ctx }) {
 
           {ledger.length > 0 ? (
             <section aria-label="Free and local offers">
-              <TierHead title="Free & local" count={ledger.length} hint="No commission" tone="green" />
+              <TierHead title={"Free & local" + where} count={ledger.length} hint="No commission" tone="green" />
               <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
                 {ledger.map((c, i) => <CouponCard key={c.id} c={c} position={featured.length + i + 1} ctx={ctx} />)}
               </div>
             </section>
           ) : null}
 
-          {visibleCount === 0 ? (
-            <div style={{ textAlign: "center", padding: "44px 24px", color: T.hint }}>
-              <div style={{ fontSize: 38, marginBottom: 10 }}>🏷</div>
-              <strong style={{ display: "block", color: T.light, marginBottom: 5, fontSize: 14 }}>New local deals land here</strong>
-              <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>Wayfind only publishes offers it can verify and redeem.</span>
-            </div>
-          ) : null}
+          {visibleCount === 0 ? (() => {
+            // Exactly one reason, chosen from what the code actually knows.
+            const reason = areaState === "loading" ? "locating"
+              : offersLoading ? "offers-loading"
+              : areaState === "known" ? "metro-empty"
+              : "needs-area";
+            const copy = {
+              "locating": ["Finding your area", "Looking for deals near you. This takes a moment."],
+              "offers-loading": ["Loading deals", "Checking the latest offers now."],
+              "metro-empty": ["No verified deals in " + metroName + " right now", "Offers that are good anywhere show here when they exist. New local deals land here as soon as they are verified."],
+              "needs-area": ["Choose an area to see deals", "Local deals are tied to where you are. Pick an area above and they will show up here."],
+            }[reason];
+            return (
+              <div data-deals-state={reason} style={{ textAlign: "center", padding: "44px 24px", color: T.hint }}>
+                <div style={{ fontSize: 38, marginBottom: 10 }}>🏷</div>
+                <strong style={{ display: "block", color: T.light, marginBottom: 5, fontSize: 14 }}>{copy[0]}</strong>
+                <span style={{ fontSize: 12.5, lineHeight: 1.5 }}>{copy[1]} Wayfind only publishes offers it can verify and redeem.</span>
+              </div>
+            );
+          })() : null}
         </>
       )}
 

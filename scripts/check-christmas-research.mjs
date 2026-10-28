@@ -82,7 +82,7 @@ const eligible = merged.filter((e) => isTrusted(e) && christmasEventRail(e)).map
 const cards = eligible.map((e) => christmasEventCard(e, { today: TODAY }));
 
 // ── 0. The data itself ───────────────────────────────────────────────────────
-ok(RAW.length === 770, `the research file holds the 770 researched rows (got ${RAW.length})`);
+ok(RAW.length === 844, `the research file holds the 844 researched rows (got ${RAW.length})`);
 ok(new Set(RAW.map((r) => r.id)).size === RAW.length, "research ids are unique");
 ok(RAW.every((r) => ["confirmed_dated", "confirmed_season_undated", "recurring_unconfirmed", "excluded"].includes(r.state)), "every row carries one of the four states");
 ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/photo|places\/[A-Za-z0-9_-]+\/photos\//.test(JSON.stringify(r))), "the data stores no Google photo name or URL (PR #1697)");
@@ -423,7 +423,8 @@ function CITIES() {
   //    research twin is not published.
   const canon = new Map(CHRISTMAS_RESEARCH_CANONICAL.map((r) => [r.id, r]));
   const twinIds = Object.entries(CHRISTMAS_DB_RESEARCH_IDS).filter(([, rid]) => { const r = canon.get(CHRISTMAS_RESEARCH_ALIASES[rid] || rid); return r && !CHRISTMAS_PUBLISHED_STATES.includes(r.state); }).map(([dbId]) => dbId);
-  ok(twinIds.length >= 8 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach, ZooTampa among them)`);
+  // 2026-10-28: ZooTampa and the Auburndale Wonderland left the watchlist (organizer pages now state 2026 dates), so 6 twins remain.
+  ok(twinIds.length >= 6 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && twinIds.includes("lights-4-hope-drive-thru-light-show-2026") && !twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach, Lights 4 Hope among them; ZooTampa is published now)`);
   const twinRow = (id) => ({ ...fmbDb, event_id: id, slug: id === "zootampa-christmas-wild-2026" ? "zootampa-christmas-in-the-wild-2026" : id, event_name: "Twin " + id + " 2026", year: 2026, start_date: "2026-12-05", end_date: "2026-12-06", last_verified_at: "2026-10-06T00:00:00Z" });
   const twins = twinIds.map(twinRow);
   for (const db of twins) {

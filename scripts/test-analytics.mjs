@@ -220,7 +220,11 @@ function harness() {
 
   const home = readFileSync(join(ROOT, "app/home.js"), "utf8");
   ok(home.indexOf("forwardToGoogle(action") >= 0, "home.js logEvent forwards to Google");
-  ok(/logEvent\(authMode === "signup" \? "signup_completed" : "login_completed"/.test(home), "signup_completed is fired only on a real session");
+  // 2026-10-27: completion moved out of the per-path handlers into one place, the auth
+  // state change, via lib/authJourney.js (behavior locked by scripts/test-auth-journey.mjs).
+  // A real session is still the only trigger: SIGNED_IN with a user, never INITIAL_SESSION.
+  const journey = readFileSync(join(ROOT, "lib/authJourney.js"), "utf8");
+  ok(/onAuthStateChange\([\s\S]{0,6000}runAuthTransition\(\{[^}]*session/.test(home) && /event !== "SIGNED_IN"/.test(journey) && /!user \|\| !user\.id/.test(journey) && journey.indexOf('"signup_completed"') >= 0, "signup_completed is fired only on a real session");
   ok(home.indexOf('logEvent("signup_started")') >= 0, "signup_started is fired as intent");
   // The confirmation-email branch creates an account WITHOUT a session — it is
   // not a completed signup and must not convert.
