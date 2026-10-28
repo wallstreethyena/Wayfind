@@ -8,6 +8,8 @@ import GuideMapExplorer from "../../components/GuideMapExplorer";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
 import { googleCreditMissing } from "../../components/GuideFigure";
 import { guideContextPhoto } from "../../../lib/guideContextPhotos.js";
+import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { guidePhotoForPlace, guidePickPhoto } from "../../../lib/guidePickPhotos.js";
 import { fallEventCardImageSrc, withFallVenueIdentity } from "../../../lib/fallEventImage";
 import { findFreePhoto } from "../../../lib/freePhoto";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
@@ -49,7 +51,6 @@ const EVENT_PHOTO_PLACE_IDS = Object.freeze({
   "hunsader-pumpkin-2026": "ChIJuSnFvF8xw4gRt0WOWL_cqRc",
   "tampa-riverwalk-trick-or-treat-2026": "ChIJc8QsSADFwogRH9awG-1qaCs",
   "howl-o-scream-tampa-2026": "ChIJhRo4DU_GwogRUgjhMAj-pag",
-  "screamageddon-2026": "ChIJ7zRUJ9CowogRM70pcoqrdUM",
   "oktoberfest-tampa-curtis-hixon-2026": "ChIJlRUlG4nEwogRJOgu0Hf2n54",
   "tampa-pig-jig-2026": "ChIJ-U84wHnEwogR9ry4KMSoZW8",
   "fantasy-fest-2026": "ChIJs_tsm0ix0YgRmYbIX_M5CT8",
@@ -606,10 +607,62 @@ function eventWhen(event) {
   return start || end || "Check the organizer for dates";
 }
 
-function eventImage(event) {
+const LOCAL_HERO_CREDITS = Object.freeze({
+  "/guides/verified/hunsader-farms-goats.webp": {
+    credit: "Robin Teng",
+    creditHref: "https://unsplash.com/photos/a-couple-of-goats-laying-on-top-of-a-grass-covered-field-i_sBNY7UoNQ",
+    license: "Unsplash License",
+    licenseUrl: "https://unsplash.com/license",
+    width: 1200,
+    height: 800,
+  },
+  "/guides/verified/nature-parrish-railroad-museum.webp": {
+    credit: "Dllu",
+    creditHref: "https://commons.wikimedia.org/wiki/File:Florida_Railroad_Museum_2019_05.jpg",
+    license: "CC BY-SA 4.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
+    width: 1200,
+    height: 800,
+  },
+});
+
+const EVENT_MANIFEST_FALLBACKS = Object.freeze({
+  "halloween-horror-nights-orlando-2026": { slug: "fall-events-orlando-2026", name: "Halloween Horror Nights 35" },
+  "epcot-food-wine-festival-2026": { slug: "fall-events-orlando-2026", name: "EPCOT International Food & Wine Festival" },
+  "gatorland-ghosts-goblins-2026": { slug: "fall-events-orlando-2026", name: "Gators, Ghosts & Goblins at Gatorland" },
+  "howl-o-scream-seaworld-orlando-2026": { slug: "fall-events-orlando-2026", name: "Howl-O-Scream at SeaWorld Orlando" },
+  "mickeys-not-so-scary-halloween-party-2026": { slug: "fall-events-orlando-2026", name: "Mickey's Not-So-Scary Halloween Party" },
+});
+
+function eventImage(event, venuePhotos = null) {
   if (!event) return null;
   const resolved = withFallVenueIdentity(event);
   const src = fallEventCardImageSrc(resolved, 900);
+  if (venuePhotos?.has(event.event_id)) return venuePhotos.get(event.event_id);
+  const localHero = LOCAL_HERO_CREDITS[src];
+  if (localHero) {
+    return {
+      src,
+      alt: resolved.image_alt || ((resolved.venue || resolved.event_name) + "; venue photo"),
+      width: localHero.width,
+      height: localHero.height,
+      caption: resolved.image_alt || ((resolved.venue || resolved.event_name) + " — photo"),
+      credit: localHero.credit,
+      creditHref: localHero.creditHref,
+      license: localHero.license,
+      licenseUrl: localHero.licenseUrl,
+    };
+  }
+  const manifestFallback = EVENT_MANIFEST_FALLBACKS[event.event_id];
+  if (manifestFallback) {
+    const manifestImg = guidePickPhoto(manifestFallback.slug, manifestFallback.name);
+    if (manifestImg) return manifestImg;
+  }
+  const placeId = resolved.place_id || EVENT_PHOTO_PLACE_IDS[event.event_id];
+  if (placeId) {
+    const reused = guidePhotoForPlace(placeId);
+    if (reused) return reused;
+  }
   if (!src) return null;
   const image = {
     src,
@@ -644,12 +697,22 @@ function guideTicketCta(event, href) {
   return registryId ? eventTicketCta(registryId, { surface: "guide_fall_festivals" }) : null;
 }
 
-function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
+function EventMiniCard({ event, compact = false, rank = null, visual = true, venuePhotos = null, usedSrc = undefined }) {
   if (!event) return null;
   const href = fallGuideEventHref(event);
   const ticket = guideTicketCta(event, href);
-  const fallbackImage = visual ? guideContextPhoto("florida-fall-festivals-2026", { name: event.event_name, detail: [event.detail, event.card_hook, event.editorial_summary, event.schedule_note, event.guide_kind].filter(Boolean).join(" ") }, { region: event.city || "Florida" }) : null;
-  const image = visual ? eventImage(event) || fallbackImage : null;
+  const primaryImage = visual ? eventImage(event, venuePhotos) : null;
+  if (primaryImage && usedSrc) {
+    if (primaryImage.src) usedSrc.add(primaryImage.src);
+    if (primaryImage.creditHref) usedSrc.add(primaryImage.creditHref);
+  }
+  const fallbackImage = visual ? guideContextPhoto(
+    "florida-fall-festivals-2026",
+    { name: event.event_name, detail: [event.detail, event.card_hook, event.editorial_summary, event.schedule_note, event.guide_kind].filter(Boolean).join(" ") },
+    { region: event.city || "Florida" },
+    usedSrc ? { usedSrc } : undefined
+  ) : null;
+  const image = visual ? primaryImage || fallbackImage : null;
   return (
     <article className={compact ? styles.miniCardCompact : styles.miniCard}>
       {image ? (
@@ -680,7 +743,7 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true }) {
   );
 }
 
-function StarterGrid() {
+function StarterGrid({ venuePhotos, usedSrc }) {
   const picks = FALL_GUIDE_STARTER_IDS.map(findFallGuideEvent).filter(Boolean);
   return (
     <section className={styles.editorialSection} aria-labelledby="start-here">
@@ -690,7 +753,7 @@ function StarterGrid() {
         This is the fast version: unusual experiences, big statewide events, classic farms and the strongest October anchors from North Florida to the Keys.
       </p>
       <div className={styles.topTenGrid}>
-        {picks.map((event, index) => <EventMiniCard key={event.event_id} event={event} rank={index + 1} />)}
+        {picks.map((event, index) => <EventMiniCard key={event.event_id} event={event} rank={index + 1} venuePhotos={venuePhotos} usedSrc={usedSrc} />)}
       </div>
     </section>
   );
@@ -742,7 +805,7 @@ function ExperienceLanes() {
   );
 }
 
-function OctoberWeekendPlanner() {
+function OctoberWeekendPlanner({ venuePhotos, usedSrc }) {
   return (
     <section className={styles.editorialSection} aria-labelledby="october-weekends">
       <p className={styles.kicker}>Every October weekend</p>
@@ -762,7 +825,7 @@ function OctoberWeekendPlanner() {
             </div>
             <div className={styles.weekendEvents}>
               {weekend.ids.map(findFallGuideEvent).filter(Boolean).map((event) => (
-                <EventMiniCard compact key={event.event_id} event={event} />
+                <EventMiniCard compact key={event.event_id} event={event} venuePhotos={venuePhotos} usedSrc={usedSrc} />
               ))}
             </div>
           </article>
@@ -772,7 +835,7 @@ function OctoberWeekendPlanner() {
   );
 }
 
-function WeekdayPlans() {
+function WeekdayPlans({ venuePhotos, usedSrc }) {
   const plans = FALL_GUIDE_WEEKDAY_IDS.map(findFallGuideEvent).filter(Boolean);
   return (
     <section className={styles.editorialSection} aria-labelledby="weekday-fall">
@@ -782,7 +845,7 @@ function WeekdayPlans() {
         Use these when you want a quieter pumpkin stop, a seasonal dinner, a coffee run, a ghost tour or a major festival that is open beyond the weekend.
       </p>
       <div className={styles.cardGrid}>
-        {plans.map((event) => <EventMiniCard key={event.event_id} event={event} />)}
+        {plans.map((event) => <EventMiniCard key={event.event_id} event={event} venuePhotos={venuePhotos} usedSrc={usedSrc} />)}
       </div>
     </section>
   );
@@ -862,6 +925,40 @@ const revalidatingFetch = (url, init = {}) => {
   return fetch(url, { ...rest, next: { revalidate: 3600 } });
 };
 
+async function resolveFallGuideVenuePhotos() {
+  const cardIds = [...new Set([
+    ...FALL_GUIDE_STARTER_IDS,
+    ...FALL_GUIDE_OCTOBER_WEEKENDS.flatMap((w) => w.ids),
+    ...FALL_GUIDE_WEEKDAY_IDS,
+  ])];
+  const events = cardIds.map(findFallGuideEvent).filter(Boolean);
+  const placeMap = new Map();
+  for (const event of events) {
+    const resolved = withFallVenueIdentity(event);
+    const src = fallEventCardImageSrc(resolved, 900);
+    if (LOCAL_HERO_CREDITS[src] || EVENT_MANIFEST_FALLBACKS[event.event_id]) continue;
+    const placeId = resolved.place_id || EVENT_PHOTO_PLACE_IDS[event.event_id];
+    if (placeId && !placeMap.has(placeId)) {
+      placeMap.set(placeId, { id: placeId, name: resolved.venue || resolved.event_name });
+    }
+  }
+  const byPlaceId = new Map();
+  await Promise.all([...placeMap.values()].map(async (place) => {
+    const img = await guidePlaceFigureImage(place, {
+      findFreePhoto: (args) => findFreePhoto(args, { fetchImpl: revalidatingFetch }),
+    });
+    if (img) byPlaceId.set(place.id, img);
+  }));
+  const venuePhotos = new Map();
+  for (const event of events) {
+    const resolved = withFallVenueIdentity(event);
+    const placeId = resolved.place_id || EVENT_PHOTO_PLACE_IDS[event.event_id];
+    const img = placeId ? byPlaceId.get(placeId) : null;
+    if (img) venuePhotos.set(event.event_id, img);
+  }
+  return venuePhotos;
+}
+
 async function FallMapExplorer(props) {
   const spots = await withAttributableSpotPhotos(fallGuideSpots(mapSpots), {
     findFreePhoto: (args) => findFreePhoto(args, { fetchImpl: revalidatingFetch }),
@@ -869,7 +966,9 @@ async function FallMapExplorer(props) {
   return <GuideMapExplorer spots={spots} {...props} />;
 }
 
-export default function FloridaFallGuide() {
+export default async function FloridaFallGuide() {
+  const venuePhotos = await resolveFallGuideVenuePhotos();
+  const usedSrc = new Set([hero.src]);
   return (
     <main className={styles.page}>
       <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
@@ -911,10 +1010,10 @@ export default function FloridaFallGuide() {
         </div>
 
         <FallQuickNav />
-        <StarterGrid />
+        <StarterGrid venuePhotos={venuePhotos} usedSrc={usedSrc} />
         <ExperienceLanes />
-        <OctoberWeekendPlanner />
-        <WeekdayPlans />
+        <OctoberWeekendPlanner venuePhotos={venuePhotos} usedSrc={usedSrc} />
+        <WeekdayPlans venuePhotos={venuePhotos} usedSrc={usedSrc} />
 
         <section id="fall-map" className={styles.mapSection} aria-label="Florida fall map">
         <FallMapExplorer

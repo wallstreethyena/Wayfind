@@ -71,6 +71,7 @@ import { INV_LIST_SCHEMA } from "../lib/coordProvenance.js";
 // park's card instead of as peer rows. Ranking is untouched — presentation only.
 import { consolidateDestinations } from "../lib/venueContainment";
 import { forwardToGoogle } from "../lib/analytics";
+import { forwardToMeta } from "../lib/metaPixel";
 import { attributionParams } from "../lib/attribution";
 // Primary metric: activated sessions. See lib/activation.js for why page depth
 // is a diagnostic and not the target (Wayfind is SPA-like; ?place=, filters and
@@ -6628,6 +6629,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         place_name: (place && place.name) || null,
       }, extra || {}, attributionParams(), _exp));
     } catch (e1) {}
+    // Mirror to the Meta pixel (Lead / ViewContent / AddToWishlist /
+    // CompleteRegistration); forwardToMeta maps, dedupes and skips the rest.
+    try {
+      forwardToMeta(action, Object.assign({
+        place_id: (place && place.id) || (extra && extra.place_id) || null,
+        place_name: (place && place.name) || null,
+      }, extra || {}, _exp));
+    } catch (e1b) {}
     // Session-scoped milestones — the PRIMARY metric (activated sessions).
     // Fires at most one first_intent and one session_activated per session.
     // Strictly additive: no existing event name, payload, or history changes.
