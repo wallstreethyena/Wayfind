@@ -77,7 +77,10 @@ import { attributionParams } from "../lib/attribution";
 // map interactions never mint a second $pageview).
 import { noteSessionProgress } from "../lib/activation";
 import { noteExplodingSignup } from "../lib/explodingExperiment";
-import { runAuthTransition, markAuthAttempt } from "../lib/authJourney";
+// lib/authJourney is loaded on demand (a sign-in moment, never first paint): the
+// homepage bundle sits 0.4KB under its 501KB ratchet and this code is not needed
+// until someone signs in. See check-bundle.mjs.
+const loadAuthJourney = () => import("../lib/authJourney");
 // Experiment slice, so an in-app detail_open can be attributed back to the
 // static entry page that assigned the visitor. Empty when never exposed.
 import { experimentProps } from "../lib/experiment";
@@ -5332,8 +5335,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       // logEventRef: this closure is created once, logEvent must be the latest render's.
       try {
         if (typeof window !== "undefined") {
-          const _done = runAuthTransition({ event: _event, session, now: Date.now(), local: window.localStorage, sess: window.sessionStorage, log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
-          if (_done && _done.indexOf("signup") === 0) { try { noteExplodingSignup((...a) => logEventRef.current && logEventRef.current(...a)); } catch (e) {} }
+          loadAuthJourney().then((aj) => {
+            const _done = aj.runAuthTransition({ event: _event, session, now: Date.now(), local: window.localStorage, sess: window.sessionStorage, log: (n, pl, ex) => { if (logEventRef.current) logEventRef.current(n, pl, ex); } });
+            if (_done && _done.indexOf("signup") === 0) { try { noteExplodingSignup((...a) => logEventRef.current && logEventRef.current(...a)); } catch (e) {} }
+          }).catch(() => {});
         }
       } catch (e) {}
       try { if (session && session.user && typeof window !== "undefined" && window.posthog) window.posthog.identify(session.user.id); } catch (e) {}
@@ -5429,7 +5434,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   async function signInWithProvider(provider) {
     if (!supabase) return;
     try { logEvent("auth_method_clicked", null, { method: provider, mode: authMode }); } catch (e) {}
-    try { markAuthAttempt(window.sessionStorage, provider); } catch (e) {}
+    try { (await loadAuthJourney()).markAuthAttempt(window.sessionStorage, provider); } catch (e) {}
     try {
       if (provider === "apple" && isNative()) {
         const credential = await nativeAppleCredential();
@@ -5495,7 +5500,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (fixed) { setAuthEmail(fixed); showToast("Fixed a typo in your email \u2014 check it and tap again."); return; }
     setAuthSending(true);
     try { logEvent("auth_method_clicked", null, { method: "password", mode: authMode }); } catch (e) {}
-    try { markAuthAttempt(window.sessionStorage, "password"); } catch (e) {}
+    try { (await loadAuthJourney()).markAuthAttempt(window.sessionStorage, "password"); } catch (e) {}
     // Intent, not conversion. signup_started is analytics-only in GA4 and is
     // deliberately NOT an Ads conversion — submitting a form is not an account.
     if (authMode === "signup") { try { logEvent("signup_started"); } catch (e) {} }
