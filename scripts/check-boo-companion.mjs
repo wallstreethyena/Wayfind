@@ -9,7 +9,7 @@
 //      arrays are parsed from source and every string is checked.
 // Positive control: the dash probe must flag a known bad string, and at least
 // 20 gag strings must be found, so an empty parse can never read as clean.
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 
 let fails = 0;
 const ok = (c, m) => { if (!c) { console.error("  FAIL: " + m); fails++; } };
@@ -85,6 +85,57 @@ for (const m of arrays) {
   }
 }
 ok(total >= 25, "expected at least 25 gag strings, parsed " + total);
+
+// 6. Touch reactions: the CSS for every target lives in BooCompanion's style
+// block as data-boo-touch attribute selectors, and the hop code sets the
+// attribute for TOUCH_MS and never touches the page components.
+const touchSel = [...comp.matchAll(/\[data-boo-touch\]/g)].length;
+ok(touchSel >= 7, "expected attribute selectors for bulbs, buttons, photo, wordmark, input (>=7), found " + touchSel);
+for (const cls of [".boo-bulb", ".boo-buy", ".boo-ask", ".boo-goto", ".boo-picks button", ".boo-photo", ".wf-wordmark-text"]) {
+  ok(comp.includes(cls + "[data-boo-touch]") || comp.includes("[data-boo-touch]" + cls), "touch reaction selector missing for " + cls);
+}
+ok(/const\s+TOUCH_SEL\s*=\s*"[^"]*\.boo-bulb[^"]*\.boo-photo[^"]*"/.test(comp), "TOUCH_SEL must list the real page targets");
+ok(/setAttribute\(\s*"data-boo-touch"/.test(comp) && /removeAttribute\(\s*"data-boo-touch"/.test(comp), "touch must set and remove data-boo-touch");
+ok(/const\s+TOUCH_MS\s*=\s*1200/.test(comp), "TOUCH_MS must be 1200");
+ok((comp.match(/querySelectorAll\(\s*TOUCH_SEL\s*\)/g) || []).length === 1, "exactly one querySelectorAll(TOUCH_SEL) per hop");
+ok(/!openRef\.current\s*&&\s*!reducedRef\.current\s*&&\s*Math\.random\(\)\s*<\s*0\.45/.test(comp), "touch legs must be gated on sheet closed and no reduced motion");
+ok(/Search a haunt or city\.\.\./.test(comp), "spooky search placeholder must exist");
+
+// 7. Openers: call the module. 12 city lines + 6 generic, dash free, max 14 words.
+const { OPENERS_CITY, OPENERS_GENERIC, METRO_POINTS, metroFromCenter, openerFor } = await import("../app/components/booOpeners.js");
+const need = ["Tampa", "St Pete", "Sarasota", "Bradenton", "Orlando", "Miami", "Fort Lauderdale", "Clearwater", "Lakeland", "Naples", "Fort Myers", "Jacksonville"];
+ok(METRO_POINTS.length === 12 && need.every((n) => METRO_POINTS.some((m) => m[1] === n)), "metro map must cover the 12 served names");
+ok(Object.keys(OPENERS_CITY).length === 12 && METRO_POINTS.every((m) => typeof OPENERS_CITY[m[0]] === "string"), "12 city openers, one per metro key");
+ok(OPENERS_GENERIC.length === 6, "6 generic openers");
+for (const t of [...Object.values(OPENERS_CITY), ...OPENERS_GENERIC]) {
+  ok(!DASH.test(t), 'opener has a dash: "' + t + '"');
+  ok(t.trim().split(/\s+/).length <= 14, 'opener over 14 words: "' + t + '"');
+}
+for (const m of METRO_POINTS) ok(metroFromCenter(JSON.stringify({ lat: m[2], lng: m[3] })) === m[0], "metro " + m[0] + " must map to itself");
+ok(metroFromCenter(JSON.stringify({ lat: 42.08, lng: -71.02 })) === null && metroFromCenter("not json") === null && metroFromCenter(null) === null, "far or bad centers give no metro");
+ok(openerFor(JSON.stringify({ lat: 27.3364, lng: -82.5307 }), 0) === OPENERS_CITY.sarasota, "a Sarasota center gets the Sarasota opener");
+ok(OPENERS_GENERIC.includes(openerFor(null, 2)), "no stored city gets a generic opener");
+ok(!/lat|lng|latitude/i.test([...Object.values(OPENERS_CITY), ...OPENERS_GENERIC].join(" ")), "openers never carry coordinates");
+
+// 8. Composer polish and face wiring.
+ok(/\.boo-in\{[^}]*height:52px[^}]*font:500 16px/.test(comp) && /border:1\.5px solid rgba\(245,239,230,\.6\)/.test(comp) && /::placeholder\{color:#B8B2C6/.test(comp), "composer input: 52px, 16px text, cream 1.5px 60% border, #B8B2C6 placeholder");
+ok(/\.boo-s\{[^}]*background:#07060B/.test(comp), "sheet background must be plain #07060B");
+// 9. Pose art: every pose in the POSES map exists as a 256px and 128px webp, small,
+// and the companion renders one <img> with width/height, async decode, a
+// crossfade and the SVG ghost only as the onError fallback.
+const pm = comp.match(/const\s+POSES\s*=\s*\{([\s\S]*?)\n\};/);
+ok(!!pm, "BooCompanion must declare const POSES = {...}");
+const slugs = pm ? [...pm[1].matchAll(/:\s*"([0-9]{2}-[a-z0-9-]+)"/g)].map((x) => x[1]) : [];
+ok(slugs.length === 20 && new Set(slugs).size === 20, "POSES must map 20 distinct pose files, found " + slugs.length);
+for (const slug of slugs) for (const suf of ["", "-128"]) {
+  const f = new URL("../public/boo/poses/" + slug + suf + ".webp", import.meta.url);
+  ok(existsSync(f), "pose asset missing: " + slug + suf);
+  if (existsSync(f)) ok(statSync(f).size <= 16000, "pose asset over 16KB: " + slug + suf);
+}
+ok(/<img[\s\S]*?width=\{px\}[\s\S]*?height=\{px\}[\s\S]*?decoding="async"[\s\S]*?onError=/.test(comp), "pose <img> needs width, height, decoding=async and an onError fallback");
+ok(/<BooGhostSvg\s+face="wink"\s*\/>/.test(comp) && /\.boo-pi\.in\{animation:boo-pi-in \.15s/.test(comp), "SVG ghost fallback and 150ms crossfade must exist");
+for (const need of ["sales", "talk", "bye", "err", "kids", "price"]) ok(new RegExp('"' + need + '"').test(comp), "pose state used: " + need);
+ok(/boo-blink\s+2\.2s/.test(comp) && /92\.3%/.test(comp), "blink cadence: 2.2s with 170ms closed");
 
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
 console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key verified");

@@ -29,6 +29,8 @@ import {
   sanitizeAntic,
   BO_WRAP_LINES,
   boCards,
+  boSmallTalk,
+  BO_SMALLTALK,
   boHauntFallback,
   boPageKind,
   boPrompt,
@@ -367,6 +369,16 @@ try {
   ok(ANTICS_EXPECTED.includes(payload.antic) && ANTICS_EXPECTED.includes(wrapPayload.antic), "route responses carry a valid antic");
   const turn3 = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "kids", turn: 3, page: { path: "/x".repeat(3000), title: "\u0000" } }) }))).json();
   ok(turn3.wrap === false && turn3.source === "fallback", "turn 3 does not wrap");
+  // Small talk: in character, zero cards, empty ids, no pitch, no model call.
+  for (const q of ["who are you", "hi", "lol", "what are you", "tell me a joke", "Thanks!"]) {
+    const r = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: q, turn: 1 }) }))).json();
+    ok(r.smallTalk === true && r.source === "smalltalk" && Array.isArray(r.cards) && r.cards.length === 0 && Array.isArray(r.recommendedIds) && r.recommendedIds.length === 0 && r.wrap === false, "small talk returns no cards: " + q);
+    ok(r.reply && !DASH.test(r.reply) && boReplyProblems(r.reply).length === 0 && !/Get Tickets|Official Tickets|Book Now/.test(r.reply) && ANTICS_EXPECTED.includes(r.antic), "small talk reply is clean, in character, no pitch: " + q);
+  }
+  const real = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "who is the scariest in Tampa", turn: 1 }) }))).json();
+  ok(real.smallTalk !== true && real.cards.length > 0 && real.recommendedIds.length > 0, "a real question still returns ticket cards");
+  const wrapTalk = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "lol", turn: 4 }) }))).json();
+  ok(wrapTalk.wrap === true && wrapTalk.cards.length > 0 && BO_WRAP_LINES.includes(wrapTalk.reply), "wrap turn is unchanged even after small talk");
 } finally {
   if (savedAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY;
   else process.env.ANTHROPIC_API_KEY = savedAnthropicKey;
@@ -375,5 +387,16 @@ try {
   if (savedPaidAi === undefined) delete process.env.WF_PAID_AI_ENABLED;
   else process.env.WF_PAID_AI_ENABLED = savedPaidAi;
 }
+
+// Pure helpers: small talk pool is clean, strict, and the parser accepts empty ids only with smallTalk.
+for (const row of BO_SMALLTALK) for (const line of row.replies) ok(!DASH.test(line) && boReplyProblems(line).length === 0, "small talk line is clean: " + line);
+ok(boSmallTalk("what is the cheapest haunt in orlando") === null && boSmallTalk("hi, any kid friendly haunts in tampa?") === null && boSmallTalk("") === null, "real questions are never small talk");
+const stJson = (extra) => JSON.stringify({ reply: "Hi mortal, I am Boo, the ghost guide.", recommendedIds: [], antic: "wave", ...extra });
+ok(parseBoReply(stJson({}), model, "hi") === null, "empty recommendedIds without smallTalk is still rejected");
+const stParsed = parseBoReply(stJson({ smallTalk: true }), model, "hi");
+ok(stParsed && stParsed.smallTalk === true && stParsed.recommendedIds.length === 0, "smallTalk true allows empty recommendedIds");
+const scrubbed = parseBoReply(JSON.stringify({ reply: "Hi mortal-boo", recommendedIds: [], smallTalk: true }), model, "hi");
+ok(scrubbed && !DASH.test(scrubbed.reply), "smallTalk replies still get the dash scrub");
+ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [], smallTalk: true }), model, "hi") === null, "smallTalk replies still enforce the banned phrases");
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");

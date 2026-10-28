@@ -15,6 +15,7 @@ import {
   boHauntFallback,
   boPageKind,
   boPrompt,
+  boSmallTalk,
   boWrapReply,
   normalizeBoQuery,
   parseBoGag,
@@ -157,6 +158,11 @@ export async function POST(req) {
   }
 
   if (!message) return fallback();
+
+  // Small talk (hi, who are you, lol, a joke): local in character answer, zero
+  // cards, no pitch, no model call, no rate bucket.
+  const chat = boSmallTalk(message, message.length + turn);
+  if (chat) return answer({ ...chat, source: "smalltalk" });
 
   const norm = normalizeBoQuery(message);
   if (!norm) return fallback();
