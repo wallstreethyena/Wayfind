@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
+import { THEME_PARKS, THEME_PARK_PLACE_IDS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
 import { themeParkRows, loadThemeParks } from "../lib/themeParksServer.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 
@@ -57,20 +57,55 @@ const inventoryColumns = new Set("place_id,name,lat,lng,category,primary_type,go
 const originalFetch = globalThis.fetch;
 const env = { url: "https://inventory.test", key: "fixture-only" };
 try {
-  globalThis.fetch = async (url) => {
-    const query = new URL(url);
+  const validate = (query) => {
     assert.equal(query.pathname, "/rest/v1/wf_inventory");
-    assert.ok(query.searchParams.get("or").includes('name.ilike."EPCOT"'), "whole-name query is case insensitive");
-    assert.ok(!/[%*]/.test(query.searchParams.get("or")), "no wildcard expands park identity");
     const unknown = query.searchParams.get("select").split(",").filter((field) => !inventoryColumns.has(field));
-    if (unknown.length) return Response.json({ error: "unknown inventory column" }, { status: 400 });
+    return unknown.length ? Response.json({ error: "unknown inventory column" }, { status: 400 }) : null;
+  };
+  // 1) Fallback path: ids return too few parks, so the alias read runs (case-insensitive whole names, no wildcard).
+  const calls = [];
+  globalThis.fetch = async (url) => {
+    const query = new URL(url); calls.push(query);
+    const bad = validate(query); if (bad) return bad;
+    if (query.searchParams.get("or")) {
+      assert.ok(query.searchParams.get("or").includes('name.ilike."EPCOT"'), "whole-name query is case insensitive");
+      assert.ok(!/[%*]/.test(query.searchParams.get("or")), "no wildcard expands park identity");
+    }
     return Response.json([row("Gatorland", "g", 4.7, 1000), row("Epcot", "epcot", 4.7, 163052), row("PEPPA PIG Theme Park Florida", "peppa", 4.1, 2079)]);
   };
   assert.deepEqual((await loadThemeParks({ env })).map(p => p.id), ["epcot", "g", "peppa"], "real reader keeps deployed spelling variants in score order");
+  assert.ok(calls[0].searchParams.get("place_id")?.startsWith("in.("), "first read is the id-first primary-key read");
+  assert.ok(!calls[0].searchParams.get("or"), "id-first read carries no ilike OR");
+  assert.ok(calls.some((q) => q.searchParams.get("or")), "alias ilike read is the fallback when an id is missing");
+
+  // 2) Id-first path: every park found by id, so the alias read must NOT run.
+  const idCalls = [];
+  globalThis.fetch = async (url) => {
+    const query = new URL(url); idCalls.push(query);
+    if (!query.searchParams.get("place_id")) return Response.json({ error: "alias read must not run" }, { status: 500 });
+    const all = THEME_PARKS.filter((park) => park.modes.includes("flagship")).map((park) => row(park.name, THEME_PARK_PLACE_IDS[park.key][0], 4.5, 1000));
+    return Response.json(all);
+  };
+  const viaIds = await loadThemeParks({ env, mode: "flagship" });
+  assert.equal(idCalls.filter((q) => q.searchParams.get("or")).length, 0, "complete id read never issues the alias OR query");
+  assert.ok(viaIds.length >= 15, "id-first read yields the full flagship rail");
+  const idList = decodeURIComponent(idCalls[0].searchParams.get("place_id"));
+  for (const park of THEME_PARKS.filter((p) => p.modes.includes("flagship"))) assert.ok(idList.includes(THEME_PARK_PLACE_IDS[park.key][0]), `${park.key} id requested`);
+
+  // 3) Stale fallback: a read that never settles / fails serves the last good list, not a 503.
+  globalThis.fetch = async () => { throw new DOMException("The operation was aborted due to timeout", "TimeoutError"); };
+  const stale = await loadThemeParks({ env, mode: "flagship" });
+  assert.deepEqual(stale.map((p) => p.id).sort(), viaIds.map((p) => p.id).sort(), "timeout serves the last good list");
+  globalThis.fetch = async () => Response.json({ error: "boom" }, { status: 500 });
+  assert.ok((await loadThemeParks({ env, mode: "flagship", intent: themeParkIntent("Disney parks") })).length > 0, "5xx serves stale, shaped through the intent filter");
+  // ...but with no last good list for the mode there is nothing honest to serve.
+  globalThis.fetch = async () => { throw new DOMException("The operation was aborted due to timeout", "TimeoutError"); };
+  await assert.rejects(loadThemeParks({ env, mode: "orlando" }), /timeout/, "no last-good entry for a mode still fails loudly");
+
   globalThis.fetch = async () => Response.json({ error: "unknown column" }, { status: 400 });
-  await assert.rejects(loadThemeParks({ env }), /returned 400/);
+  await assert.rejects(loadThemeParks({ env, mode: "family" }), /returned 400/);
   globalThis.fetch = async () => Response.json({ rows: [] });
-  await assert.rejects(loadThemeParks({ env }), /invalid response/);
+  await assert.rejects(loadThemeParks({ env, mode: "family" }), /invalid response/);
 } finally { globalThis.fetch = originalFetch; }
 const ownedOnly = { ...row("Gatorland", "owned", 4.7, 1000), photo_ref: null };
 ownedOnly.signals.photo_url = "/owned-gatorland.jpg";
