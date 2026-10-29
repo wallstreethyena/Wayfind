@@ -1,11 +1,16 @@
 // Runtime actions with real components and deterministic React hook state.
 // This proves navigation/lifecycle, not third-party media availability.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { createRequire } from "node:module";
 import React from "react";
 import ts from "typescript";
 import { embedSrc } from "../lib/videoEmbed.js";
+import { experienceVideoFor } from "../lib/experienceVideos.js";
 const require = createRequire(import.meta.url);
 const component = (file, mocks) => {
   const code = ts.transpileModule(readFileSync(new URL("../" + file, import.meta.url), "utf8"), { compilerOptions: { jsx: ts.JsxEmit.React, module: ts.ModuleKind.CommonJS } }).outputText;
@@ -27,8 +32,66 @@ function nodes(tree) {
 }
 let opens = 0, closes = 0, logs = 0;
 const PlayerStub = () => null;
+// Exact product identity, not the shared springs location or a title match.
+const silver = experienceVideoFor({ provider: "viator", id: "290298P1" });
+assert.ok(silver, "verified Silver Springs SKU has an operator video");
+assert.equal(silver.url, "https://www.instagram.com/reel/De-lBfCIBGZ/");
+assert.equal(silver.creator, "getupandgosilversprings");
+assert.equal(silver.relationship, "operator");
+for (const subject of [undefined, {}, { provider: "viator", id: "290298P2" }, { provider: "viator", id: "Silver Springs Clear Kayak Tour" }, { provider: "other", id: "290298P1" }, { provider: "viator", id: "toString" }]) {
+  assert.equal(experienceVideoFor(subject), null, "unknown products/operators get no attachment");
+}
+let lazyLoads = 0;
+const OperatorAction = component("app/components/ExperienceVideoAction.js", {
+  "next/dynamic": { default: (loader, options) => { lazyLoads++; assert.equal(options.ssr, false); assert.match(String(loader), /CreatorVideoAction/); return PlayerStub; } },
+  "../../lib/experienceVideos.js": { experienceVideoFor },
+});
+const operatorTree = OperatorAction({ provider: "viator", id: "290298P1" });
+assert.equal(lazyLoads, 1);
+assert.equal(operatorTree.type, PlayerStub);
+assert.equal(operatorTree.props.url, silver.url);
+assert.equal(operatorTree.props["data-video-relationship"], "operator");
+assert.match(operatorTree.props.label, /operator video in Wayfind/);
+assert.ok(nodes(operatorTree).some(n => n.type === "svg"), "visible play icon");
+assert.ok(nodes(operatorTree).some(n => n.props?.children === "Operator video"), "business relationship stays visible");
+assert.equal(operatorTree.props.style.pointerEvents, "auto", "credit band remains tappable");
+let prevented = 0, stopped = 0;
+operatorTree.props.onClick({ preventDefault() { prevented++; }, stopPropagation() { stopped++; } });
+assert.equal(prevented, 1); assert.equal(stopped, 1, "play cannot activate booking/card navigation");
+assert.equal(OperatorAction({ provider: "viator", id: "another-tour" }), null);
+// Mount the real callers. Only Next's lazy-module boundary is made synchronous
+// in this isolated temp graph; the modal/button implementation remains real.
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+async function withVideo(file) {
+  return loadComponent(path.join(root, file), root, { onGraph(graph) {
+    const wrapper = graph.get(path.join(root, "app/components/ExperienceVideoAction.js"));
+    const actionFile = graph.get(path.join(root, "app/components/CreatorVideoAction.js"));
+    assert.ok(wrapper && actionFile, "real caller reaches the shared video action");
+    const stub = readFileSync(wrapper, "utf8").match(/from "([^"]*stub-next_dynamic.mjs)"/)[1];
+    writeFileSync(stub, `import Action from ${JSON.stringify(actionFile)}; export default function dynamic() { return Action; }`);
+  } });
+}
+const render = (Component, p) => renderToStaticMarkup(React.createElement(Component, p));
+const Rail = (await withVideo("app/components/ViatorRail.js")).default;
+const targetTour = { code: "290298P1", title: "Silver Springs", rating: 4.9, reviews: 500, fromPrice: 89, url: "https://www.viator.com/tours/Orlando/Silver-Springs-Tour/d663-290298P1" };
+const railHtml = render(Rail, { title: "Bookable experiences", items: [targetTour] });
+assert.match(railHtml, /data-experience-video="290298P1"/);
+assert.match(railHtml, /data-creator-video-action="in-app"/);
+assert.match(railHtml, /Operator video/);
+assert.match(railHtml, /offer=290298P1/);
+assert.doesNotMatch(railHtml, /<iframe/, "operator post remains click-to-load");
+assert.doesNotMatch(render(Rail, { items: [{ ...targetTour, code: "other-supplier" }] }), /data-experience-video=/);
+const TtdCard = (await withVideo("app/components/ThingsToDoList.js")).Card;
+const ttdFixture = { kind: "experience", id: "290298P1", title: "Silver Springs", rating: 4.9, reviews: 500, governed_score: 92, selling_out: true, booking_url: "https://www.viator.com/tours/Orlando/Silver-Springs-Tour/d663-290298P1" };
+const ttdHtml = render(TtdCard, { r: ttdFixture, rank: 1, city: "Orlando" });
+assert.match(ttdHtml, /data-experience-video="290298P1"/);
+assert.match(ttdHtml, /href="\/api\/commerce\/go\?provider=viator&amp;offer=290298P1/, "matched tour books the exact product, never a title search");
+assert.match(ttdHtml, /Selling fast/);
+assert.match(ttdHtml, /wf-place-card-award/, "attached tour keeps its earned rank award");
+assert.doesNotMatch(ttdHtml, /<a\b[^>]*>[\s\S]*?<button[\s\S]*?<\/a>/, "video button must not be nested in booking link");
+assert.doesNotMatch(render(TtdCard, { r: { ...ttdFixture, id: "another-tour" }, rank: 1 }), /data-experience-video=/);
 const action = harness("app/components/CreatorVideoAction.js", { "./CreatorVideoPlayer": { default: PlayerStub }, "../../lib/links": { safeUrl: s => s.startsWith("https://") ? s : null } }, { showModal() { opens++; }, close() { closes++; } });
-const props = { platform: "instagram", url: "https://www.instagram.com/reel/DcycQAlkXid/", label: "Horror Nights", onClick: () => logs++ };
+const props = { ...operatorTree.props, onClick: () => logs++ };
 let tree = action(props);
 let all = nodes(tree);
 assert.equal(all.filter(n => n.type === PlayerStub).length, 0, "no third-party player before tap");
@@ -38,13 +101,13 @@ primary.props.onClick({});
 assert.equal(opens, 1); assert.equal(logs, 1);
 all = nodes(action(props));
 assert.equal(all.filter(n => n.type === PlayerStub).length, 1, "tap mounts a player in Wayfind");
-assert.equal(all.find(n => n.type === "dialog").props["aria-label"], "Horror Nights");
+assert.equal(all.find(n => n.type === "dialog").props["aria-label"], operatorTree.props.label);
 all.find(n => n.props?.["aria-label"] === "Close video").props.onClick();
 assert.equal(closes, 1); assert.equal(nodes(action(props)).filter(n => n.type === PlayerStub).length, 0, "close unmounts video/audio");
 primary.props.onClick({}); nodes(action(props)).find(n => n.type === "dialog").props.onCancel();
 assert.equal(nodes(action(props)).filter(n => n.type === PlayerStub).length, 0, "Escape unmounts player");
 for (const [platform, url, expected] of [
-  ["instagram", props.url, "https://www.instagram.com/reel/DcycQAlkXid/embed/"],
+  ["instagram", props.url, "https://www.instagram.com/reel/De-lBfCIBGZ/embed/"],
   ["instagram", "https://www.instagram.com/p/flyer/", "https://www.instagram.com/p/flyer/embed/"],
   ["tiktok", "https://www.tiktok.com/@creator/video/6718335390845095173", "https://www.tiktok.com/player/v1/6718335390845095173"],
   ["youtube", "https://youtu.be/abcdefghijk", "https://www.youtube-nocookie.com/embed/abcdefghijk"],
@@ -100,4 +163,4 @@ for (const file of ["app/components/sheets/Detail.js", "app/components/sheets/So
   assert.ok(source.includes("<CreatorVideoAction"), file + " uses shared action");
   assert.doesNotMatch(source, /<a\b[^>]*href=\{(?:v\.url|video\.url|post\.url|selected\.videoUrl)\}/, file + " cannot send primary video taps off-site");
 }
-console.log("creator-in-app-playback PASS: six surfaces, 12 real cover variants with SVG controls, lazy load, attribution, open, close, Escape, four official URL formats, error, retry, unsupported-post control");
+console.log("creator-in-app-playback PASS: six surfaces, exact-SKU operator attachment in real ViatorRail/TTD renders, wrong-SKU controls, 12 cover variants, lazy load, attribution, open, close, Escape, four official URL formats, error, retry, unsupported-post control");

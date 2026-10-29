@@ -40,6 +40,7 @@
 // the `when` badge in the same box, which is a fact it really carries. That is
 // the same never-fabricate rule the rest of this codebase runs on.
 import { eventPhotoCredit } from "../../lib/eventImageProvenance.js";
+import ExperienceVideoAction from "./ExperienceVideoAction";
 import useEventClock from "./useEventClock.js";
 import { usePlaceDistance } from "./PlaceDistance.js";
 import { formatDistanceMiles } from "../../lib/deviceDistance.js";
@@ -664,6 +665,7 @@ export default function RailCard({
               a read-only card: the credit is a fact about the place, not a
               control, and a tour card simply resolves no videos. */}
           <CreatorCardMark videos={railCreatorVideos} />
+          {!place && actionItem?.type === "experience" ? <ExperienceVideoAction provider={actionItem.provider} id={actionItem.id} /> : null}
           <div className="wf-place-card-actions wf-sheet-card-actions">
             <button
               type="button"
