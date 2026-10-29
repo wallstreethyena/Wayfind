@@ -132,7 +132,8 @@ export async function GET(request) {
     // v41 drops warm rails that still showed two cards for one brand or one venue.
     // v42 publishes the October 28 Halloween hospitality rows (Pomona, Cherry Smash,
     // Pirate Water Taxi Haunted River Tours, HalloWYN); a warm v41 rail predates them.
-    const key = `fall-intents:v42:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v43 publishes the October 29 pulse rows (Fall-O-Ween, Bridge Street Spooktacular).
+    const key = `fall-intents:v43:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
