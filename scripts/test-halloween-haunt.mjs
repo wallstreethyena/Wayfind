@@ -16,9 +16,12 @@ import {
   hauntCopyProblems,
   hauntsForFilter,
   halloweenHauntModel,
+  hauntIsLive,
   halloweenHauntProductSchema,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
+import { isInternalVerifier, isCrawler } from "../lib/crawler.js";
+import { snapshotTours, TOUR_REMOVED, withHalloweenTours } from "../lib/halloweenTours.js";
 import { HAUNT_GOOGLE_PLACE, MAX_HAUNT_PHOTOS, googleStripPhoto, mergeHauntPhotos, withHauntPhotos } from "../lib/halloweenHauntPhotos.js";
 import {
   BO_ANTICS,
@@ -59,11 +62,14 @@ const banned = hauntCopyProblems({ lines: ["the best haunt right now"] });
 ok(banned.some((row) => row.startsWith("best:")) && banned.some((row) => row.startsWith("right now:")), "red-prove: banned ranking phrases are problems");
 ok(hauntCopyProblems({ lines: ["Howl O Scream starts at $45.99."] }).length === 0, "a clean savings line has no copy problem");
 
-const model = halloweenHauntModel();
+const model = halloweenHauntModel({ today: "2026-10-28" }); // fixed clock: the catalog is date bound
 ok(model.lines.length >= 10, "Bo has at least 10 lines");
+const LIVE_N = model.haunts.filter((row) => hauntIsLive(row)).length;
+ok(LIVE_N > 0 && model.lines.every((l) => !/^\d+ haunts/.test(l) || l.startsWith(LIVE_N + " haunts")), "Boo count line is computed from the live haunts (" + LIVE_N + ")");
+ok(hauntIsLive({ expiresAfter: "2020-01-01" }) === false && hauntIsLive({ expiresAfter: "2999-01-01" }) === true, "red-prove: an expired haunt is not live");
 const required = [
   "I'm Boo, your ghost host! I died so I could haunt these Florida scares and save your wallet from gate prices.",
-  "17 haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.",
+  `${LIVE_N} haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.`,
   "Sunglasses on, sunscreen energy, gate prices off. Howl O Scream starts at $45.99 when you book ahead.",
   "Paying box office prices is the real horror story here. Tap a haunt below and keep your soul and your cash.",
 ];
@@ -83,7 +89,6 @@ const expectedHref = {
   howlOrlando: "/api/commerce/go?provider=undercover_tourist&offer=21&surface=halloween_haunts&content=howl-o-scream-seaworld-2026",
   hhn: "/api/commerce/go?provider=undercover_tourist&offer=19&surface=halloween_haunts&content=hhn-orlando-2026",
   zooTampa: "/api/commerce/go?provider=tiqets&offer=tampa-event-zootampa-creatures-of-the-night&surface=halloween_haunts&content=zootampa-creatures-2026",
-  mickey: "/api/commerce/go?provider=undercover_tourist&offer=8&surface=halloween_haunts&content=mnsshp-2026",
   spooktacular: "/api/commerce/go?provider=undercover_tourist&offer=7&surface=halloween_haunts&content=seaworld-spooktacular-2026",
   brick: "/api/commerce/go?provider=undercover_tourist&offer=16&surface=halloween_haunts&content=brick-or-treat-2026",
   peppa: "/api/commerce/go?provider=undercover_tourist&offer=18&surface=halloween_haunts&content=peppas-halloween-party-2026",
@@ -117,6 +122,7 @@ const organizerHref = {
   petrified: "https://events.ticketleap.com/tickets/a-petrified-forest/a-petrified-forest-scream-park-2026",
   undead: "https://www.undeadinthewater.com/",
   frightfest: "https://www.sarasotafrightfest.com/",
+  mickey: "https://disneyworld.disney.go.com/events-tours/magic-kingdom/mickeys-not-so-scary-halloween-party/",
 };
 const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist", "sideshowObscura"]);
 
@@ -134,7 +140,13 @@ for (const row of model.haunts) {
     }
   } else {
     ok(row.cta.kind === "organizer" && row.cta.href === organizerHref[row.id], row.id + " organizer href");
-    ok(row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
+    if (row.id === "mickey") {
+      ok(row.cta.label === "Check Disney" && row.bookable === false && !/sponsored/.test(row.cta.rel), "mickey: no partner CTA, plain Check Disney link, not sponsored");
+      ok(row.admissionNote === "Party tickets are currently unavailable through our booking partners." && !/sold out/i.test(row.admissionNote + row.tip + row.roast + row.priceNote), "mickey: accurate partner availability wording, never sold out");
+      ok(row.alternatives.length === 3 && row.alternatives.every((id) => model.haunts.some((h) => h.id === id && h.bookable !== false && h.cta.kind === "affiliate")), "mickey: three bookable family alternatives");
+    } else {
+      ok(row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
+    }
   }
 }
 
@@ -254,7 +266,9 @@ for (const row of model.haunts) {
   if (row.cta.kind === "affiliate") ok(html.includes('rel="sponsored nofollow noopener"'), row.id + " rel in markup");
   ok(html.includes(row.cta.label.replace(/&/g, "&amp;") + "</a>") && html.includes(row.cta.via), row.id + " buy button label and seller line");
 }
-ok((html.match(/class="boo-buy"/g) || []).length === model.haunts.length, "every haunt card has a buy button");
+ok((html.match(/class="boo-buy(?: is-muted)?"/g) || []).length === model.haunts.length, "every haunt card has a buy button");
+ok((html.match(/class="boo-buy is-muted"/g) || []).length === model.haunts.filter((r) => r.bookable === false).length, "only partner-unavailable haunts get the muted button");
+ok(/data-haunt-alternatives=""[\s\S]*?href="#haunt-spooktacular"[\s\S]*?href="#haunt-brick"[\s\S]*?href="#haunt-seaLifePirates"/.test(html), "Mickey card links its three bookable family alternatives");
 ok((html.match(/data-photo-strip=""/g) || []).length === model.haunts.length, "the photo strip renders once per card");
 ok(html.includes("scroll-snap-type:x mandatory") && html.includes("grid-template-columns:40% minmax(0,1fr)"), "strip snaps and the card is photo left, content right at every width");
 ok(!/@media[^{]*\{[^}]*\.boo-card\{[^}]*flex-direction:column/.test(html), "the card never stacks on phones");
@@ -307,7 +321,11 @@ ok(parseBoReply('{"reply":"the best haunt right now","recommendedIds":["hhn"]}',
 ok(parseBoReply('{"reply":"Use promo code BOO20 for 20% off tickets!","recommendedIds":["hhn"]}', model) === null, "parser rejects invented promo codes and percentage discounts");
 ok(parseBoReply('{"reply":"Book at https://evil.example/tickets now.","recommendedIds":["hhn"]}', model) === null, "parser rejects external URLs in AI reply");
 ok(parseBoReply('{"reply":"Take the toddlers to Universal Horror Nights!","recommendedIds":["hhn"]}', model, "Where can I take kids and toddlers?") === null, "parser rejects non-family haunts when visitor asks for kids/toddlers");
-ok(parseBoReply('{"reply":"Mickey Not So Scary runs 7:00 PM to midnight from $119 to $229. Tap Get Tickets!","recommendedIds":["mickey"]}', model, "Where can I take kids and toddlers?") !== null, "parser accepts verified family haunts when visitor asks for kids");
+ok(parseBoReply('{"reply":"SeaWorld Spooktacular runs Oct 30, Oct 31 and Nov 1 with SeaWorld admission.","recommendedIds":["spooktacular"]}', model, "Where can I take kids and toddlers?") !== null, "parser accepts verified family haunts when visitor asks for kids");
+ok(parseBoReply('{"reply":"Mickey party is sold out, try SeaWorld Spooktacular.","recommendedIds":["spooktacular"]}', model) === null, "parser rejects an unverified sold out claim");
+ok(!boPrompt(model, "kids?").user.includes("mickey"), "the Claude catalog leaves out haunts partners cannot sell");
+const mickeyPick = parseBoReply('{"reply":"SeaWorld Spooktacular runs Oct 30, Oct 31 and Nov 1.","recommendedIds":["mickey","spooktacular"]}', model, "Where can I take kids?");
+ok(mickeyPick && !mickeyPick.recommendedIds.includes("mickey") && mickeyPick.recommendedIds.includes("spooktacular"), "Boo never recommends a haunt our partners cannot sell (Mickey)");
 
 const promoFallback = boHauntFallback("Give me a secret promo code for 50% off", model);
 ok(promoFallback.reply.includes("No secret promo codes") && !DASH.test(promoFallback.reply), "fallback handles promo code requests truthfully");
@@ -406,7 +424,7 @@ try {
     body: JSON.stringify({ message: "Where can I take kids?" }),
   }));
   const payload = await live.json();
-  ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
+  ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("spooktacular") && !payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
   const wrapRes = await POST(new Request("https://wayfind.test/api/bo-haunt", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -452,5 +470,76 @@ ok(stParsed && stParsed.smallTalk === true && stParsed.recommendedIds.length ===
 const scrubbed = parseBoReply(JSON.stringify({ reply: "Hi mortal-boo", recommendedIds: [], smallTalk: true }), model, "hi");
 ok(scrubbed && !DASH.test(scrubbed.reply), "smallTalk replies still get the dash scrub");
 ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [], smallTalk: true }), model, "hi") === null, "smallTalk replies still enforce the banned phrases");
+
+// ── 2026-10-28 customer journey audit ────────────────────────────────────
+// Expired exclusion with a FIXED clock (never the real one).
+const idsOn = (today) => halloweenHauntModel({ today }).haunts.map((r) => r.id);
+ok(idsOn("2026-10-28").length === 17, "Oct 28: all 17 haunts render");
+ok(idsOn("2026-10-30").includes("spookquarium"), "Spookquarium still renders on its last day (Oct 30)");
+ok(!idsOn("2026-10-31").includes("spookquarium") && idsOn("2026-10-31").length === 16, "Oct 31: Spookquarium (last date Oct 30) is gone, 16 left");
+const nov1 = idsOn("2026-11-01");
+ok(!nov1.includes("howlTampa") && !nov1.includes("mickey") && !nov1.includes("zooTampa") && nov1.includes("hhn") && nov1.includes("frightfest"), "Nov 1: Oct 31 events gone, Nov 1 events stay");
+ok(idsOn("2026-11-02").length === 0, "Nov 2: nothing renders, no throw");
+ok(hauntIsLive({ expiresAfter: "2026-10-30" }, "2026-10-30") === true && hauntIsLive({ expiresAfter: "2026-10-30" }, "2026-10-31") === false, "red-prove: hauntIsLive is inclusive of the last date and false after it");
+const expiredModel = halloweenHauntModel({ today: "2026-10-31" });
+ok(!JSON.stringify(halloweenHauntSchema(expiredModel)).includes("spookquarium"), "an expired haunt is also out of the JSON LD list");
+ok(expiredModel.haunts.every((r) => r.expiresAfter >= "2026-10-31"), "every rendered haunt ends on or after the clock date");
+for (const row of model.haunts) ok(/^\d{4}-\d{2}-\d{2}$/.test(row.expiresAfter), row.id + " has a real last date");
+
+// No duplicates
+ok(new Set(model.haunts.map((r) => r.id)).size === model.haunts.length, "haunt ids are unique");
+const withEvent = model.haunts.filter((r) => r.eventId);
+ok(withEvent.length === 12 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
+ok(new Set(model.haunts.map((r) => r.cta.href)).size === model.haunts.length, "haunt buy hrefs are unique");
+ok(new Set(model.haunts.map((r) => r.name)).size === model.haunts.length, "haunt names are unique");
+const liveModel = await withHalloweenTours(model, { env: {} });
+const allTours = [...liveModel.tours, ...liveModel.eventTours];
+ok(new Set(allTours.map((t) => t.id)).size === allTours.length, "no Viator product code twice");
+ok(new Set(allTours.map((t) => t.name)).size === allTours.length, "no tour name twice");
+for (const code of Object.keys(TOUR_REMOVED)) ok(!allTours.some((t) => t.id === code), "removed tour " + code + " never renders");
+const squash = (t) => t.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+for (const t of allTours) {
+  for (const h of model.haunts) ok(!squash(h.name).includes(squash(t.name)) && !squash(t.name).includes(squash(h.name)), "tour " + t.id + " does not duplicate haunt " + h.id);
+}
+ok(!allTours.some((t) => /creatures of the night|not so scary/i.test(t.name)), "the ZooTampa and Mickey events exist once, as haunt cards");
+
+// Ghost tours behind a chip with the real count; haunts and events by default
+const { default: HauntPage } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
+const defaultHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel }));
+const chipCount = liveModel.tours.length;
+ok(chipCount === snapshotTours().filter((t) => t.group === "ghost").length && chipCount >= 30, "ghost tour count is the snapshot ghost group (" + chipCount + ")");
+ok(defaultHtml.includes("Ghost tours (" + chipCount + ")"), "filter row shows the Ghost tours chip with count " + chipCount);
+ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 17 && (defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length, "default view is the 17 haunts plus haunted attractions, no ghost tours");
+ok(!defaultHtml.includes("Florida Ghost Tours"), "ghost tour section is hidden by default");
+const chipHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel, initialFilter: "tours" }));
+ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount, "chip view lists exactly the counted ghost tours");
+const groupOf = (id) => (liveModel.eventTours.some((t) => t.id === id) ? "haunt event" : liveModel.tours.some((t) => t.id === id) ? "ghost tour" : model.haunts.some((h) => h.id === id) ? "haunt" : "none");
+ok(groupOf("180859P9") === "haunt event" && groupOf("38620P1") === "ghost tour" && groupOf("howlTampa") === "haunt", "grouping spot checks");
+ok(/filters\.map/.test(readFileSync("app/components/BoHalloweenHaunt.js", "utf8")) && /aria-pressed/.test(defaultHtml), "chip lives in the existing filter row");
+
+// Every buy href is one of OUR go routes; organizer links are an explicit allow list
+const GO_ROUTE = /^\/api\/(?:commerce|viator|ticketmaster|hotels)\/go\?/;
+const ORGANIZER_ALLOW = new Set(Object.values(organizerHref));
+for (const row of model.haunts) {
+  if (row.cta.kind === "affiliate") ok(GO_ROUTE.test(row.cta.href) && !/^https?:/.test(row.cta.href), row.id + " buy href is our go route");
+  else ok(row.cta.kind === "organizer" && ORGANIZER_ALLOW.has(row.cta.href) && !/sponsored/.test(row.cta.rel), row.id + " is a non commercial organizer link on the allow list (no affiliate param)");
+}
+for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
+const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
+for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
+
+// Tracking: the page mounts the one delegated beacon, and no card carries its own second tracker
+const hauntSource = readFileSync("app/components/BoHalloweenHaunt.js", "utf8");
+ok(/<CommerceClickBeacon surface="halloween_haunts" \/>/.test(hauntSource), "page mounts CommerceClickBeacon for surface halloween_haunts (one commerce_cta_clicked per tap)");
+ok(/data-commerce-owner=\{row\.cta\.kind === "organizer" \? "BoHalloweenHaunt" : undefined\}/.test(hauntSource) && (hauntSource.match(/emitCommerce\(/g) || []).length === 1 && /row\.cta\.kind === "organizer" \? \(\) => organizerTap\(row\)/.test(hauntSource), "only organizer links (outside our go routes, invisible to the beacon) emit their own single event; go links are the beacon's alone, no double count");
+
+// Internal verifier traffic is automation, never human (real redirect still happens: check-redirect-traffic-class)
+ok(isInternalVerifier("Mozilla/5.0 WayfindVerify") && isInternalVerifier("node") && isInternalVerifier(" Node "), "verifier UAs are classified internal");
+ok(!isInternalVerifier("Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 Safari/604.1") && !isInternalVerifier("") && !isInternalVerifier("nodejs-fan-browser"), "red-prove: real browsers and blanks are not internal");
+ok(!isCrawler("Mozilla/5.0 WayfindVerify") && !isCrawler("node"), "verifier UAs are not crawlers, so the redirect keeps working");
+for (const f of ["commerce", "viator", "hotels", "ticketmaster"]) {
+  ok(/let trafficClass = isInternalVerifier\(req\.headers\.get\("user-agent"\)\) \? "automation" : "human";/.test(readFileSync("app/api/" + f + "/go/route.js", "utf8")), f + " go route stamps verifier traffic as automation");
+}
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");

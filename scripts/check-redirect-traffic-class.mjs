@@ -104,6 +104,15 @@ for (const name of Object.keys(ROUTES)) {
   if (r.host) ok(m.loc && m.loc.includes(r.host), `${name} synthetic monitor still reaches ${r.host} (${m.loc})`);
   ok(m.events.length === 0, `${name} synthetic monitor emits nothing (${names(m)})`);
 
+  // Our own verifier scripts (PostHog 2026-10-28: UA "Mozilla/5.0 WayfindVerify" and bare "node"
+  // were tagged human). They keep a REAL redirect; only the event class changes to automation.
+  for (const ua of ["Mozilla/5.0 WayfindVerify", "node"]) {
+    const v = await hit(name, { "user-agent": ua });
+    if (r.host) ok(v.loc && v.loc.includes(r.host), `${name} verifier UA "${ua}" still reaches ${r.host} (${v.loc})`);
+    else ok(v.res.status === 302 && v.events.some((e) => e.event === "provider_redirect_failed"), `${name} verifier UA "${ua}" takes the normal path (${names(v)})`);
+    ok(v.events.length >= 1 && v.events.every((e) => e.p.traffic_class === "automation"), `${name} verifier UA "${ua}" events carry traffic_class=automation (${JSON.stringify(v.events.map((e) => e.p.traffic_class))})`);
+  }
+
   // Negative controls
   for (const [label, h] of [
     ["Sec-Purpose: prefetch", { "user-agent": CHROME, "sec-purpose": "prefetch", "sec-fetch-dest": "empty", "sec-fetch-mode": "no-cors" }],

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import GuidePhoto from "./GuidePhoto.js";
 import { NavIcon } from "./kit.js";
+import CommerceClickBeacon from "./CommerceClickBeacon.js";
+import { emitCommerce } from "../../lib/commerce.js";
 import { activeSeasonalMark, HALLOWEEN_MARK } from "../../lib/seasonalBrand.js";
 
 // Wayfind home header replica plus Halloween ticket cards. Home palette, Inter via --wf-sans.
@@ -42,6 +44,15 @@ function trackHauntEvent(event, props) {
   if (typeof window === "undefined") return;
   try {
     captureOrQueue(window, event, { surface: "halloween_haunts", ...props });
+  } catch { /* ignore */ }
+}
+
+// Organizer links (no affiliate, not one of our /go routes) are invisible to
+// CommerceClickBeacon, so the card records its own single tap. Our /go links
+// are recorded once by the beacon and never here.
+function organizerTap(row) {
+  try {
+    emitCommerce("commerce_cta_clicked", { surface: "halloween_haunts", provider: "organizer", merchant: new URL(row.cta.href).hostname, content_id: row.id });
   } catch { /* ignore */ }
 }
 
@@ -151,6 +162,7 @@ const CSS = `
 .boo-ask{margin-top:12px;width:100%;min-height:48px;border-radius:12px;border:0;cursor:pointer;background:var(--orange);color:#0D1117;font-size:15px;font-weight:700}
 
 .boo-share{margin-top:8px;display:flex;justify-content:flex-start}
+.boo-share button,.boo-share a{min-height:44px}
 .boo-picks-wrap{margin-top:24px}
 .boo-picks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;align-items:stretch}
 .boo-picks button{
@@ -162,7 +174,7 @@ const CSS = `
 .boo-picks button:last-child:nth-child(odd){grid-column:1 / -1}
 .boo-picks button .boo-arrow{flex:0 0 auto;color:var(--orange);font-size:18px;line-height:1}
 .boo-picks button[aria-pressed="true"]{border-color:var(--orange)}
-.boo-picks button:focus-visible,.boo-filters button:focus-visible,.boo-ask:focus-visible,.boo-buy:focus-visible,.boo-card a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
+.boo-jump:focus-visible,.boo-picks button:focus-visible,.boo-filters button:focus-visible,.boo-ask:focus-visible,.boo-buy:focus-visible,.boo-card a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
 
 #boo-vault{margin-top:28px;scroll-margin-top:12px}
 .boo-filters{display:flex;flex-wrap:wrap;gap:8px}
@@ -200,11 +212,14 @@ const CSS = `
 .boo-amt{text-align:right;font-size:22px;line-height:1.2;font-weight:800;color:var(--cream)}
 .boo-note{margin:0;font-size:13px;line-height:1.35;color:var(--cream);text-align:right;overflow-wrap:anywhere}
 .boo-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:var(--orange);color:#0D1117;border:2px solid var(--orange);border-radius:12px;font-size:15px;font-weight:700;line-height:1.2;text-decoration:none;text-align:center}
+.boo-buy.is-muted{background:transparent;color:var(--cream);border-color:var(--line)}
+.boo-alts{display:flex;flex-direction:column;gap:4px;margin:0;font-size:12.5px;line-height:1.35;color:#9A94A8}
+.boo-alts a{color:var(--lav);font-weight:600;text-decoration:underline;text-underline-offset:2px;min-height:24px;display:inline-flex;align-items:center}
 .boo-via{margin:0;font-size:11px;line-height:1.35;color:#9A94A8;text-align:center}
-.boo-event{display:flex;align-items:center;justify-content:center;min-height:36px;color:var(--lav);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.boo-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:var(--lav);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .boo-empty{margin:16px 0 0;color:var(--muted);font-size:14px}
-.boo-jump{display:inline-flex;align-items:center;gap:6px;margin-top:10px;min-height:40px;color:var(--lav);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
-#boo-tours{margin-top:40px;scroll-margin-top:12px}
+.boo-jump{display:inline-flex;align-items:center;gap:6px;margin-top:4px;min-height:44px;padding:0;background:none;border:0;cursor:pointer;color:var(--lav);font-size:14px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+#boo-tours{margin-top:16px;scroll-margin-top:12px}
 #boo-tours h2.boo-sec{margin:0 0 6px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream);min-height:0;display:block;-webkit-line-clamp:unset}
 .boo-sec-lede{margin:0 0 14px;font-size:14px;line-height:1.5;color:var(--muted)}
 .boo-rating{margin:0;font-size:13px;line-height:1.4;color:var(--cream);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -366,6 +381,42 @@ function PhotoCredit({ photos }) {
   );
 }
 
+function TourCard({ t, priority }) {
+  return (
+    <article id={"tour-" + t.id} data-tour-id={t.id} className="boo-card">
+      <div className="boo-tour-photo" data-tour-photo="">
+        <GuidePhoto
+          src={t.photo.src}
+          alt={t.photo.alt}
+          width={t.photo.width}
+          height={t.photo.height}
+          sizes="(min-width: 720px) 190px, 40vw"
+          loading={priority ? "eager" : "lazy"}
+          fallbackClassName="boo-ph"
+          fallbackText=""
+        />
+      </div>
+      <div className="boo-body">
+        {t.duration ? <span className="boo-chip">{t.duration}</span> : null}
+        <h2>{t.name}</h2>
+        {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : <p className="boo-rating" aria-hidden="true">&nbsp;</p>}
+        <p className="boo-line boo-city">
+          <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
+          <span>{t.place}</span>
+        </p>
+        <div className="boo-bottom">
+          <p className="boo-pricerow" aria-label={t.priceLabel}>
+            <span className="boo-from">from</span>
+            <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
+          </p>
+          <a className="boo-buy" href={t.cta.href} rel={t.cta.rel}>{t.cta.label}</a>
+          <p className="boo-via">{t.cta.via}</p>
+        </div>
+      </div>
+    </article>
+  );
+}
+
 function TourSection({ chrome, tours, regions }) {
   const [region, setRegion] = useState("all");
   const shown = region === "all" ? tours : tours.filter((t) => t.region === region);
@@ -384,57 +435,31 @@ function TourSection({ chrome, tours, regions }) {
         ))}
       </div>
       <div className="boo-vault-grid">
-        {shown.map((t, i) => (
-          <article key={t.id} id={"tour-" + t.id} data-tour-id={t.id} className="boo-card">
-            <div className="boo-tour-photo" data-tour-photo="">
-              <GuidePhoto
-                src={t.photo.src}
-                alt={t.photo.alt}
-                width={t.photo.width}
-                height={t.photo.height}
-                sizes="(min-width: 720px) 190px, 40vw"
-                loading={i < 2 ? "eager" : "lazy"}
-                fallbackClassName="boo-ph"
-                fallbackText=""
-              />
-            </div>
-            <div className="boo-body">
-              {t.duration ? <span className="boo-chip">{t.duration}</span> : null}
-              <h2>{t.name}</h2>
-              {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : <p className="boo-rating" aria-hidden="true">&nbsp;</p>}
-              <p className="boo-line boo-city">
-                <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
-                <span>{t.place}</span>
-              </p>
-              <div className="boo-bottom">
-                <p className="boo-pricerow" aria-label={t.priceLabel}>
-                  <span className="boo-from">from</span>
-                  <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
-                </p>
-                <a className="boo-buy" href={t.cta.href} rel={t.cta.rel}>{t.cta.label}</a>
-                <p className="boo-via">{t.cta.via}</p>
-              </div>
-            </div>
-          </article>
-        ))}
+        {shown.map((t, i) => <TourCard key={t.id} t={t} priority={i < 2} />)}
       </div>
     </div>
   );
 }
 
-export default function BoHalloweenHaunt({ model, share = null }) {
+export default function BoHalloweenHaunt({ model, share = null, initialFilter = "all" }) {
   const { chrome, filters, haunts, picks } = model;
   const tours = Array.isArray(model.tours) ? model.tours : [];
+  const eventTours = Array.isArray(model.eventTours) ? model.eventTours : [];
   const tourRegions = Array.isArray(model.tourRegions) ? model.tourRegions : [];
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(initialFilter);
   const [selectedPickId, setSelectedPickId] = useState(null);
 
   const selectedPick = picks.find((p) => p.id === selectedPickId) || null;
+  const showTours = !selectedPick && filter === "tours" && tours.length > 0 && tourRegions.length > 0;
   const shown = selectedPick
     ? (selectedPick.shortlistIds || [selectedPick.hauntId]).map((id) => haunts.find((h) => h.id === id)).filter(Boolean)
     : filter === "all"
       ? haunts
       : haunts.filter((row) => row.filters.includes(filter));
+  // Haunted attractions sold by Viator ride in the haunt grid (never behind the ghost tour chip).
+  const shownEvents = selectedPick ? [] : eventTours.filter((t) => filter === "all" || t.filters.includes(filter));
+  const hauntTotal = haunts.length + eventTours.length;
+  const toursChip = tours.length && tourRegions.length ? { id: "tours", label: "Ghost tours (" + tours.length + ")" } : null;
 
   const scrollToVault = () => {
     if (typeof window === "undefined") return;
@@ -459,17 +484,22 @@ export default function BoHalloweenHaunt({ model, share = null }) {
     setFilter(id);
     trackHauntEvent("boo_preference_applied", { filter_id: id, pick_id: "none" });
   };
+  const openTours = () => {
+    applyFilter("tours");
+    scrollToVault();
+  };
 
   return (
     <section className="boo-page" aria-labelledby="boo-title" data-analytics-page="halloween_haunts">
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
+      <CommerceClickBeacon surface="halloween_haunts" />
       <FestivalLights />
       <WayfindHeader />
 
       <div className="boo-main">
         <div className="boo-hero" id="boo-hero">
           <h1 id="boo-title">{chrome.title}</h1>
-          <p className="boo-lede">{"Prices, dates and hours for " + haunts.length + " Florida haunts" + (tours.length ? " and " + tours.length + " ghost tours." : ".")}</p>
+          <p className="boo-lede">{"Prices, dates and hours for " + hauntTotal + " Florida haunts and Halloween events." + (tours.length ? " Ghost tours are one tap away (" + tours.length + ")." : "")}</p>
           <p className="boo-legal">{chrome.disclosure}</p>
           <div className="boo-boo-row">
             <div className="boo-art">
@@ -481,7 +511,7 @@ export default function BoHalloweenHaunt({ model, share = null }) {
           </div>
           <button type="button" className="boo-ask" onClick={openBoo}>{chrome.ask}</button>
           {share ? <div className="boo-share">{share}</div> : null}
-          {tours.length ? <a className="boo-jump" href="#boo-tours">{chrome.toursJump}<span aria-hidden="true">↓</span></a> : null}
+          {toursChip ? <button type="button" className="boo-jump" onClick={openTours}>{chrome.toursJump}<span aria-hidden="true">↓</span></button> : null}
         </div>
 
         <div className="boo-picks-wrap">
@@ -512,16 +542,28 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                 {item.label}
               </button>
             ))}
+            {toursChip ? (
+              <button
+                type="button"
+                data-filter-id="tours"
+                aria-pressed={!selectedPick && filter === "tours"}
+                onClick={() => applyFilter("tours")}
+              >
+                {toursChip.label}
+              </button>
+            ) : null}
           </div>
 
           {selectedPick ? (
             <div className="boo-picked" data-boo-shortlist={selectedPick.id}>
               <p>{selectedPick.label}</p>
-              <button type="button" onClick={() => applyFilter("all")}>{"Show all " + haunts.length}</button>
+              <button type="button" onClick={() => applyFilter("all")}>{"Show all " + hauntTotal}</button>
             </div>
           ) : null}
 
-          {shown.length ? (
+          {showTours ? (
+            <TourSection chrome={chrome} tours={tours} regions={tourRegions} />
+          ) : shown.length || shownEvents.length ? (
             <div className="boo-vault-grid">
               {shown.map((row) => (
                 <article
@@ -556,20 +598,27 @@ export default function BoHalloweenHaunt({ model, share = null }) {
                         </p>
                       );
                     })()}
-                    <a className="boo-buy" href={row.cta.href} rel={row.cta.rel}>{row.cta.label}</a>
+                    {row.bookable === false && Array.isArray(row.alternatives) && row.alternatives.length ? (
+                      <p className="boo-alts" data-haunt-alternatives="">
+                        <span>Still bookable:</span>
+                        {row.alternatives.map((id) => haunts.find((h) => h.id === id)).filter(Boolean).map((alt) => (
+                          <a key={alt.id} href={"#haunt-" + alt.id} onClick={() => { setSelectedPickId(null); setFilter("all"); }}>{alt.name}</a>
+                        ))}
+                      </p>
+                    ) : null}
+                    <a className={"boo-buy" + (row.bookable === false ? " is-muted" : "")} href={row.cta.href} rel={row.cta.rel} data-commerce-owner={row.cta.kind === "organizer" ? "BoHalloweenHaunt" : undefined} onClick={row.cta.kind === "organizer" ? () => organizerTap(row) : undefined}>{row.cta.label}</a>
                     <p className="boo-via">{row.cta.via}</p>
                     <a className="boo-event" href={row.eventHref}>{chrome.eventPage}</a>
                     </div>
                   </div>
                 </article>
               ))}
+              {shownEvents.map((t, i) => <TourCard key={t.id} t={t} priority={shown.length + i < 2} />)}
             </div>
           ) : (
             <p className="boo-empty">{chrome.empty}</p>
           )}
         </div>
-
-        {tours.length && tourRegions.length ? <TourSection chrome={chrome} tours={tours} regions={tourRegions} /> : null}
       </div>
     </section>
   );

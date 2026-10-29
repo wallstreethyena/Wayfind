@@ -40,7 +40,7 @@ import { randomUUID } from "node:crypto";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
-import { isCrawler } from "../../../../lib/crawler.js";
+import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
@@ -83,7 +83,8 @@ export async function GET(req) {
   };
 
   // "human" until a gate below says otherwise; stamped on every redirect event.
-  let trafficClass = "human";
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     // commercePayload enforces the field whitelist, so nothing outside the
     // schema can leave here even if a caller passes it.
