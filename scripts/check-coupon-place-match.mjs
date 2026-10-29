@@ -63,13 +63,6 @@ const suffixed = (s) => / - .+$/.test(String(s || ""));
 // A row lands here ONLY when the fix is data the owner has to supply. It may
 // not be used to wave through a row we could fix in code.
 const KNOWN_UNREACHABLE = {
-  "cpn-clipp-m-marcos-bradenton":
-    "lib/clippOffers.js row has photoRef:\"\" so there is no Google Place ID to key on, and the "
-    + "business name carries the \" - Bradenton\" listing suffix Google never returns. It CANNOT be "
-    + "given match:[\"Marco's Pizza\"] — three other Marco's rows exist and the name would resolve "
-    + "whichever was indexed first, selling a Bradenton reader the Tampa certificate. "
-    + "OWNER ACTION: capture the venue's own Google photoRef (the same location-verified step the "
-    + "other 47 rows already went through) and this row fixes itself.",
 };
 
 const unreachable = [];

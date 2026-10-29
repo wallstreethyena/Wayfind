@@ -278,8 +278,10 @@ node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
 node scripts/test-coupon-wallet.mjs
-# 2026-10-27 Coupons screen without a known location: renders CouponsScreen for null / covered / outside centers; picker present, city deals never shown unknown, honest state copy.
+# 2026-10-27 Coupons screen without a known location: renders CouponsScreen for null / covered / outside centers; picker present, honest state copy. (2026-10-29: unknown/outside now show the statewide by-area view.)
 node scripts/test-coupon-location-state.mjs
+# 2026-10-29 owner decision: unknown/outside location -> live Florida deals grouped by area (never "near you"), N per area + See all, picker on top; known area unchanged; expired excluded; impressions per rendered card.
+node scripts/test-coupon-no-location.mjs
 node scripts/check-deal-art.mjs
 node scripts/test-affiliate-chip.mjs
 node scripts/test-image-score.mjs
