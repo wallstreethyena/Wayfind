@@ -362,7 +362,9 @@ const render = async (c, s, city) => {
 // Google-ref photo URL — evergreen pages pass photoNoSpend so it carries nospend=1.
 {
   const { LANDING_CITIES: LC } = await import("../lib/landingCities.js");
-  const parkQuery = (cs) => cs.filter((c) => c.kind === "supabase" && /name\.ilike/.test(decodeURIComponent(c.u)));
+  // The seed's alias read: one anchored case-insensitive regex (name=imatch.^(...)$)
+  // since 2026-10-29; the legacy ilike OR spelling is still recognised.
+  const parkQuery = (cs) => cs.filter((c) => c.kind === "supabase" && /name\.ilike|name=imatch\.\^\(/.test(decodeURIComponent(c.u)));
   calls = [];
   const evHtml = await render("things-to-do", "st-petersburg", landing.landingPair("things-to-do", "st-petersburg").city);
   ok(parkQuery(calls).length === 0, "st-petersburg (Tampa metro) things-to-do read no theme-park seed");
