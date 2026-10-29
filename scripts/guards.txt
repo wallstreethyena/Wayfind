@@ -2443,3 +2443,6 @@ node scripts/check-seasonal-movies.mjs
 node scripts/check-seasonal-movies-ui.mjs
 node scripts/test-link-health-blocked-not-dead.mjs
 node scripts/check-redirect-suspect-gate.mjs
+
+# Safari 15 parse-time crash (WAYFIND-1K): shared/client regex compatibility.
+node scripts/check-browser-regex-compat.mjs

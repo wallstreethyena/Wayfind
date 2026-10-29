@@ -61,6 +61,19 @@ for (const daysAfter of [-2, 1]) {
 ok(run("2026-10-28", [familyFuse]).length === 0, "renewed family evidence does not produce the screenshot's stale lapse alert");
 ok(/lib\/coupons\.js/.test(lapsed[0].detail) && /untracked/.test(lapsed[0].detail), "the Clipp notice retains its coupon and attribution repair instructions");
 
+// A seasonal end is not a Clipp verification fuse. Never tell the owner
+// to extend an event date or repair coupon attribution for this alert.
+const fallFuse = COUPON_AUDIT_FUSES.find((f) => f.id === "fall_offering_end");
+ok(!!fallFuse && /Hashtag/.test(fallFuse.label), "the earliest fall ending identifies Hashtag Café, rather than an unnamed offering");
+for (const today of ["2026-10-28", "2026-10-30", "2026-10-31"]) {
+  const notice = run(today, [fallFuse])[0];
+  ok(notice && notice.id === "audit_fuse_fall_offering_end" && notice.severity === "warn", `fall notice preserves its stable cooldown identity (${today})`);
+  ok(notice && /lib\/fallPool\.js/.test(notice.detail) && /lib\/fallSkin\.js/.test(notice.detail) && /check-fall-registry-integrity/.test(notice.detail), `fall notice names the actual registries and build consequence (${today})`);
+  ok(notice && /Keep the verified end date/.test(notice.detail) && !/lib\/coupons\.js|untracked|guide CTA|Builds are NOT affected/.test(notice.detail), `fall notice does not fabricate coupon consequences or encourage invented renewal (${today})`);
+}
+ok(/ends today/.test(run("2026-10-30", [fallFuse])[0]?.title), "the last local day is still live");
+ok(/ended/.test(run("2026-10-31", [fallFuse])[0]?.title), "the following local day requests retirement, not renewal");
+
 // Wiring: the report builder must carry couponAudit through to computeAlerts (a rule nobody feeds is decoration).
 const stub = { source: { name: "s", connected: false }, data: null };
 const rep = buildAlertsReport({ fractionOfDay: 0.5, todayKey: "2099-01-01", asOf: new Date("2099-01-01T15:00:00Z"),

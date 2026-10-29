@@ -20,9 +20,13 @@
 //      "coupons" (once per partner card) and card_impression once per card.
 import path from "node:path";
 import { createRequire } from "node:module";
-import React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { loadComponent } from "./lib/jsxLoad.mjs";
+// React act() is a development-only testing API. Set the test environment
+// before importing React or the JSX loader; Vercel invokes prebuild with
+// NODE_ENV=production. Every SSR/mount/impression assertion still executes.
+process.env.NODE_ENV = "development";
+const { default: React } = await import("react");
+const { renderToStaticMarkup } = await import("react-dom/server");
+const { loadComponent } = await import("./lib/jsxLoad.mjs");
 
 const REPO = process.cwd();
 let pass = 0;
