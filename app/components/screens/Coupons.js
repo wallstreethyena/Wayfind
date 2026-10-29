@@ -31,6 +31,7 @@ import { useCommerceImpression } from "../useCommerceImpression";
 import {
   dealTiers, dealSeal, dealEndsLabel, dealProofPoint, dealDisclosure,
   dealScope, coveredMetros, metroLabel, auditHiddenOffers, areaStateFor, AREA_PATIENCE_MS,
+  dealsByArea, STATEWIDE_PER_AREA,
 } from "../../../lib/dealSheet";
 import { nearestMetro } from "../../../lib/orderInFeatured";
 
@@ -277,8 +278,8 @@ function AreaBar({ state, metroName, ctx, open, setOpen, asked, setAsked }) {
       <strong style={{ display: "block", color: T.text, fontSize: 14 }}>{outside ? "Pick an area to see local deals" : "Where should we look for deals?"}</strong>
       <span style={{ display: "block", marginTop: 5, color: T.muted, fontSize: 12.5, lineHeight: 1.5 }}>
         {outside
-          ? "Your location is outside the areas where Wayfind has local deals. Choose one of these, and offers that are good anywhere still show."
-          : "Local deals only show for the area you are in, and we do not know yours yet. Choose an area, or share your location."}
+          ? "Your location is outside the areas where Wayfind has local deals. Below are live deals across Florida, listed by area. Choose one to see only that area."
+          : "We do not know your area yet. Below are live deals across Florida, listed by area. Choose yours to see only that area, or share your location."}
       </span>
       <div data-area-picker="metros" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 11 }}>{metros.map(chip)}</div>
       <button type="button" onClick={() => { setAsked(true); try { ctx.recenterToMe && ctx.recenterToMe(); } catch (e) {} }} style={{ marginTop: 11, minHeight: 40, padding: "0 16px", borderRadius: 10, border: "1px solid rgba(249,115,22,.65)", background: "rgba(249,115,22,.14)", color: "#ffa25f", fontSize: 12.5, fontWeight: 900, cursor: "pointer" }}>Use my location</button>
@@ -323,6 +324,15 @@ export default function CouponsScreen({ ctx }) {
   const offersLoading = ctx.cpnOffersStatus === "loading";
   const partnerHidden = ctx.cpnOffersStatus === "failed" || auditHiddenOffers(all, today, metroKey).length > 0;
   const where = metroName ? " in " + metroName : "";
+  // STATEWIDE (owner decision 2026-10-29): location unknown or outside every
+  // covered metro -> every live, placed Florida deal, grouped under the heading
+  // of the area it is good in (plus nationwide offers first). Never framed as
+  // nearby; dealTiers() stays the proximity sheet for a known area.
+  const statewide = areaState === "unknown" || areaState === "outside";
+  const areaGroups = statewide ? dealsByArea(all, today) : [];
+  const statewideCount = areaGroups.reduce((n, g) => n + g.deals.length, 0);
+  const [expandedAreas, setExpandedAreas] = useState({});
+  const shownCount = statewide ? statewideCount : visibleCount;
 
   return (
     <div style={{ width: "100%", maxWidth: "100%", minWidth: 0, overflowX: "clip", boxSizing: "border-box" }}>
@@ -330,11 +340,13 @@ export default function CouponsScreen({ ctx }) {
         <div style={{ color: T.orange, fontSize: 10, fontWeight: 900, letterSpacing: ".2em", textTransform: "uppercase" }}>Wayfind coupons</div>
         <h1 style={{ margin: "7px 0 0", color: T.text, fontSize: 30, lineHeight: 1.06, letterSpacing: "-.8px", fontWeight: 900 }}>Clip it now.<br />Find it later.</h1>
         <p style={{ margin: "9px 0 0", maxWidth: 390, color: T.muted, fontSize: 13, lineHeight: 1.5 }}>Verified local savings and partner offers, kept together so you can use them when the moment is right.</p>
-        {visibleCount > 0 ? <p style={{ margin: "8px 0 0", color: T.hint, fontSize: 11, fontWeight: 700 }}>{visibleCount} verified {metroName ? "" : "nationwide "}{visibleCount === 1 ? "offer" : "offers"}{where} · no ads, ever</p> : null}
+        {statewide && statewideCount > 0
+          ? <p data-coupon-mode="statewide" style={{ margin: "8px 0 0", color: T.hint, fontSize: 11, fontWeight: 700 }}>{statewideCount} verified {statewideCount === 1 ? "offer" : "offers"} across Florida, by area · no ads, ever</p>
+          : visibleCount > 0 ? <p style={{ margin: "8px 0 0", color: T.hint, fontSize: 11, fontWeight: 700 }}>{visibleCount} verified {metroName ? "" : "nationwide "}{visibleCount === 1 ? "offer" : "offers"}{where} · no ads, ever</p> : null}
       </header>
 
       <nav aria-label="Coupon views" style={{ width: "100%", maxWidth: "100%", boxSizing: "border-box", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, padding: "16px 0 2px" }}>
-        <button onClick={() => setWalletOpen(false)} aria-pressed={!walletOpen} style={{ minWidth: 0, height: 46, borderRadius: 12, border: `1px solid ${!walletOpen ? "rgba(249,115,22,.7)" : T.border}`, background: !walletOpen ? "rgba(249,115,22,.13)" : T.panel, color: !walletOpen ? "#ffa25f" : T.light, fontSize: 13.5, fontWeight: 900, cursor: "pointer" }}>All deals · {visibleCount}</button>
+        <button onClick={() => setWalletOpen(false)} aria-pressed={!walletOpen} style={{ minWidth: 0, height: 46, borderRadius: 12, border: `1px solid ${!walletOpen ? "rgba(249,115,22,.7)" : T.border}`, background: !walletOpen ? "rgba(249,115,22,.13)" : T.panel, color: !walletOpen ? "#ffa25f" : T.light, fontSize: 13.5, fontWeight: 900, cursor: "pointer" }}>All deals · {shownCount}</button>
         <button onClick={() => setWalletOpen(true)} aria-pressed={!!walletOpen} aria-label="Tap to open your wallet" style={{ minWidth: 0, height: 46, borderRadius: 12, border: `1px solid ${walletOpen ? "rgba(249,115,22,.7)" : T.border}`, background: walletOpen ? "rgba(249,115,22,.13)" : T.panel, color: walletOpen ? "#ffa25f" : T.light, fontSize: 13.5, fontWeight: 900, cursor: "pointer" }}>Clipped · {clipped.length}</button>
       </nav>
 
@@ -370,7 +382,34 @@ export default function CouponsScreen({ ctx }) {
           {partnerHidden ? (
             <p data-deals-note="partner-unavailable" role="status" style={{ margin: "12px 0 0", padding: "9px 12px", borderRadius: 10, border: `1px solid ${T.border}`, background: T.bg, color: T.muted, fontSize: 11.5, lineHeight: 1.45 }}>Some partner offers are temporarily unavailable. They will return when they are checked again.</p>
           ) : null}
-          {featured.length > 0 ? (
+          {statewide ? (() => {
+            // Position = rank in the FULL grouped list, so expanding one area never
+            // shifts another card's rank_bucket (which would re-arm its impression).
+            let offset = 0;
+            return areaGroups.map((g) => {
+              const base = offset;
+              offset += g.deals.length;
+              const open = !!expandedAreas[g.metro];
+              const everywhere = g.metro === "everywhere";
+              const shown = everywhere || open ? g.deals : g.deals.slice(0, STATEWIDE_PER_AREA);
+              return (
+                <section key={g.metro} data-deal-area={g.metro} aria-label={everywhere ? "Deals good anywhere" : "Deals in " + g.label}>
+                  <TierHead title={everywhere ? "Good anywhere" : g.label} count={g.deals.length} hint={everywhere ? "Valid nationwide" : "Deals in this area"} tone="gold" />
+                  <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
+                    {shown.map((c, i) => <CouponCard key={c.id} c={c} position={base + i + 1} ctx={ctx} />)}
+                  </div>
+                  {!everywhere && g.deals.length > STATEWIDE_PER_AREA ? (
+                    <button type="button" data-see-all={g.metro} aria-expanded={open} onClick={() => setExpandedAreas({ ...expandedAreas, [g.metro]: !open })}
+                      style={{ marginTop: 10, width: "100%", minHeight: 40, borderRadius: 10, border: `1px solid ${T.border}`, background: T.panel, color: "#ffa25f", fontSize: 12.5, fontWeight: 900, cursor: "pointer" }}>
+                      {open ? "Show fewer " + g.label + " deals" : "See all " + g.deals.length + " " + g.label + " deals"}
+                    </button>
+                  ) : null}
+                </section>
+              );
+            });
+          })() : null}
+
+          {!statewide && featured.length > 0 ? (
             <section aria-label="Partner savings">
               <TierHead title={"Partner savings" + where} count={featured.length} hint="May earn commission" tone="gold" />
               <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
@@ -379,7 +418,7 @@ export default function CouponsScreen({ ctx }) {
             </section>
           ) : null}
 
-          {ledger.length > 0 ? (
+          {!statewide && ledger.length > 0 ? (
             <section aria-label="Free and local offers">
               <TierHead title={"Free & local" + where} count={ledger.length} hint="No commission" tone="green" />
               <div style={{ display: "grid", gap: 10, width: "100%", minWidth: 0 }}>
@@ -388,7 +427,7 @@ export default function CouponsScreen({ ctx }) {
             </section>
           ) : null}
 
-          {visibleCount === 0 ? (() => {
+          {shownCount === 0 ? (() => {
             // Exactly one reason, chosen from what the code actually knows.
             const reason = areaState === "loading" ? "locating"
               : offersLoading ? "offers-loading"
@@ -411,7 +450,7 @@ export default function CouponsScreen({ ctx }) {
         </>
       )}
 
-      {visibleCount > 0 ? (
+      {shownCount > 0 ? (
         <p style={{ color: T.hint, fontSize: 10.5, textAlign: "center", margin: "24px 10px 0", lineHeight: 1.6 }}>Every offer is checked at its source and removed when it expires. Partner cards are labeled; commissions never change your price or Wayfind rankings.</p>
       ) : null}
     </div>

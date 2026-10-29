@@ -44,10 +44,11 @@ if (!/function requireAuth\(/.test(shell)) fail("requireAuth() gate is missing f
 // the value is really in the store. So the assertion accepts either writer and
 // still fails if a path stops persisting at all.
 const PERSIST = (key) => new RegExp('(?:localStorage\\.setItem|setLocal)\\("' + key + '"');
+// `extra` (2026-10-29) carries deep-link analytics labels (trigger/traffic_class); see lib/deepLinkAction.js.
 const LOCAL_FIRST = [
-  ["quickSaveFavorite(p)", "function quickSaveFavorite(p) {", "function saveHookList", new RegExp(PERSIST("wayfind_lists").source + '|setLists\\(')],
-  ["toggleLike(e, p)", "function toggleLike(e, p) {", "function toggleDislike", PERSIST("wf_liked")],
-  ["toggleDislike(e, p)", "function toggleDislike(e, p) {", "function toggleHookLike", PERSIST("wf_disliked")],
+  ["quickSaveFavorite(p, extra)", "function quickSaveFavorite(p, extra) {", "function saveHookList", new RegExp(PERSIST("wayfind_lists").source + '|setLists\\(')],
+  ["toggleLike(e, p, extra)", "function toggleLike(e, p, extra) {", "function toggleDislike", PERSIST("wf_liked")],
+  ["toggleDislike(e, p, extra)", "function toggleDislike(e, p, extra) {", "function toggleHookLike", PERSIST("wf_disliked")],
   ["addShared(p)", "function addShared(p) {", "function refreshOwnerPick", PERSIST("wf_shared_items")],
   ["toggleSaveCoupon(c)", "function toggleSaveCoupon(c) {", "function copyCouponCode", PERSIST("wf_coupons")],
 ];
