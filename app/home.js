@@ -4167,6 +4167,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try {
       if (center && isFinite(center.lat) && isFinite(center.lng) && locName && centerAgreesWithLabel(center, locName)) {
         setLocal("wf_center", JSON.stringify({ lat: center.lat, lng: center.lng, loc: locName, manual: !!manualRef.current, ts: Date.now() }));
+        // Boo (app/components/BooCompanion.js) re-reads coverage from this record.
+        try { window.dispatchEvent(new Event("wf:center")); } catch (e) {}
       }
     } catch (e) {}
     // v8.14 (owner: the search bar's left slot "should show the previous
@@ -9016,6 +9018,30 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSuggestions([]);
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
   }
+
+  // Boo's "Explore <city>" buttons for visitors outside coverage. Same contract
+  // as jumpToArea (manual pick, GPS never yanks it back); the event is
+  // same-page only, and the payload is checked before it moves anything.
+  const jumpToAreaRef = useRef(jumpToArea);
+  jumpToAreaRef.current = jumpToArea;
+  useEffect(() => {
+    const on = (e) => {
+      const d = e && e.detail;
+      if (!d || typeof d.name !== "string" || !d.name || d.name.length > 80) return;
+      const lat = Number(d.lat), lng = Number(d.lng);
+      if (!isFinite(lat) || !isFinite(lng) || Math.abs(lat) > 90 || Math.abs(lng) > 180) return;
+      d.handled = true;
+      jumpToAreaRef.current({ name: d.name, lat, lng });
+      setSearchFeedback("");
+      setSearchRecovery(false);
+      setSearchMissing(false);
+      setScreen("suggested");
+      try { logEvent("boo_city_jump", null, { city: d.name }); } catch (e2) {}
+    };
+    window.addEventListener("wf:jump-city", on);
+    return () => window.removeEventListener("wf:jump-city", on);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function clearSearchedLocation() {
     manualRef.current = false; try { localStorage.removeItem("wf_center"); } catch (e) {}

@@ -210,5 +210,48 @@ const perch = comp.match(/const\s+PERCH_SEL\s*=\s*"([^"]*)"/);
 ok(!!perch && !/boo-buy|boo-ask|boo-goto|boo-picks|commerce|input|\ba\b/.test(perch[1]), "Boo may only perch on top of things nobody taps (bulbs, wordmark), never a ticket button, link or input");
 ok(/hit\.el\.matches\(PERCH_SEL\)\s*\?\s*aimAt\(hit\.r\)\s*:\s*aimBeside\(hit\.r,\s*b\.vw\)/.test(comp), "roaming touches park beside anything tappable");
 
+// 12. Outside coverage (2026-10-28, owner: a visitor from an area Wayfind does
+// not cover must be told why it is empty, which Florida areas are covered, the
+// closest one, and where the most picks are). Call the module.
+{
+  const V = await import("../app/components/booCoverage.js");
+  const { COVERED_CITIES } = await import("../lib/landingCities.js");
+  const { COVERAGE_MI, nearestCoveredCity } = await import("../lib/railCoverage.js");
+  ok(V.MOST_PICKS.length >= 3 && V.MOST_PICKS.every((k) => COVERED_CITIES[k] && COVERED_CITIES[k].state === "FL"), "MOST_PICKS are covered Florida cities");
+  const at = (lat, lng, loc) => JSON.stringify({ lat, lng, loc });
+  // Covered points never trigger it, by the same law /api/rails uses.
+  for (const [slug, c] of Object.entries(COVERED_CITIES)) ok(V.coverageGap(at(c.lat, c.lng, c.name)) === null, "covered city " + slug + " must not get the out of area guide");
+  ok(V.coverageGap(null) === null && V.coverageGap("not json") === null && V.coverageGap(at("x", 1)) === null, "no or bad center gets no guide");
+  // Boston: uncovered, nearest Florida city is Jacksonville, far.
+  const bos = V.coverageGap(at(42.3601, -71.0589, "Boston, MA"));
+  ok(!!bos && nearestCoveredCity(COVERED_CITIES, 42.3601, -71.0589, COVERAGE_MI) === null, "Boston is outside coverage");
+  ok(bos && bos.area === "Boston" && bos.near.slug === "jacksonville", "Boston: area named, nearest Florida city Jacksonville");
+  // Savannah, GA: uncovered, about two hours from Jacksonville.
+  const dot = V.coverageGap(at(32.0809, -81.0912, "Savannah, GA"));
+  ok(!!dot && dot.near.slug === "jacksonville" && dot.near.mi < 150, "Savannah gets Jacksonville as its near Florida city");
+  for (const g of [bos, dot]) {
+    if (!g) continue;
+    const lines = V.coverageLines(g);
+    ok(lines.length === 4, "four lines, one at a time");
+    ok(g.options.length >= 3 && g.options.length <= 4 && g.options[0].slug === g.near.slug && new Set(g.options.map((o) => o.slug)).size === g.options.length, "options: nearest first, no repeats, three or four");
+    for (const t of lines.concat([V.coverageSheetLine(g)], g.options.map((o, i) => V.coverageButtonText(o, i === 0)))) {
+      ok(!DASH.test(t), 'coverage line has a dash: "' + t + '"');
+      ok(t.trim().split(/\s+/).length <= 14, 'coverage line over 14 words: "' + t + '"');
+      ok(!/lat|lng|\d+\.\d{3}/i.test(t), 'coverage line carries coordinates: "' + t + '"');
+    }
+  }
+  ok(/Closest to you: [A-Za-z .]+, about \d+ miles away/.test(V.coverageLines(dot)[2]), "a close Florida city is named with a rounded distance");
+  ok(!/mi\)/.test(V.coverageButtonText(bos.near, true)) && /\(\d+ mi\)$/.test(V.coverageButtonText(dot.near, true)), "miles on the button only for a real drive");
+  ok(/Planning a Florida trip\?/.test(V.coverageLines(bos)[2]), "a far visitor is invited to plan a trip, not told to drive 1,000 miles");
+  ok(V.coverageLines({ area: "", near: dot.near, options: dot.options, cell: "x" })[0].startsWith("Your area"), "no named city reads Your area, never you");
+  ok(/coverageGap\(raw\)/.test(comp) && /localStorage\.getItem\(CENTER_KEY\)/.test(comp), "Boo reads coverage from the stored wf_center");
+  ok(/window\.addEventListener\("wf:center"/.test(comp), "Boo re-checks coverage when the app stores a new center");
+  ok(/sessionStorage\.setItem\(COVER_TOLD_KEY/.test(comp), "the explanation plays once per area per session");
+  ok(/new CustomEvent\("wf:jump-city"/.test(comp) && /window\.location\.assign\("\/"\)/.test(comp), "city buttons move the feed on home, or store the city and open home");
+  const home = stripComments(readFileSync(new URL("../app/home.js", import.meta.url), "utf8"));
+  ok(/window\.addEventListener\("wf:jump-city"/.test(home) && /d\.handled\s*=\s*true/.test(home), "home.js answers Boo's city jump");
+  ok(/window\.dispatchEvent\(new Event\("wf:center"\)\)/.test(home), "home.js announces a stored center");
+}
+
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
 console.log("check-boo-companion: OK, " + total + " gags parsed across " + arrays.length + " arrays; layout dynamic ssr:false, gate, reserved paths, hide key, zap + charm verified; " + nLines + " reaction lines checked");
