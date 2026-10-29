@@ -13,6 +13,8 @@ import { isDeniedViatorSku } from "../lib/viatorDenylist.js";
 import {
   HALLOWEEN_TOUR_CTA,
   TOUR_REGIONS,
+  TOUR_EVENT_CODES,
+  TOUR_REMOVED,
   TOUR_SNAPSHOT,
   halloweenToursSchema,
   snapshotTours,
@@ -30,7 +32,11 @@ const ok = (c, m) => { assert.ok(c, m); checks += 1; };
 
 // Catalogue shape
 const codes = TOUR_SNAPSHOT.map((t) => t.code);
-ok(codes.length >= 45, "at least 45 Florida ghost tours in the snapshot (" + codes.length + ")");
+ok(codes.length >= 40, "at least 40 Florida tours in the snapshot (" + codes.length + ")");
+for (const gone of Object.keys(TOUR_REMOVED)) ok(!codes.includes(gone), "audit removed " + gone + " stays removed: " + TOUR_REMOVED[gone]);
+ok(!TOUR_SNAPSHOT.some((t) => /Creatures of the Night|Mickey/i.test(t.name)), "no Viator tour duplicates the ZooTampa or Mickey haunt cards");
+ok(!TOUR_SNAPSHOT.some((t) => /kayak/i.test(t.name)), "no kayak tours on a Halloween page");
+for (const c of TOUR_EVENT_CODES) ok(codes.includes(c), "event code " + c + " is a real snapshot row");
 ok(new Set(codes).size === codes.length, "no duplicate product codes");
 const regionIds = new Set(TOUR_REGIONS.map((r) => r.id));
 for (const t of TOUR_SNAPSHOT) {
@@ -75,34 +81,44 @@ const fakeFetch = async (url) => {
 const model = halloweenHauntModel();
 const live = await withHalloweenTours(model, { env, fetch: fakeFetch });
 ok(/wf_experiences/.test(seenUrl) && /provider=eq\.viator/.test(seenUrl), "reads wf_experiences for viator rows");
-ok(live.tours.length === TOUR_SNAPSHOT.length - 2, "dead and vanished rows are dropped");
-ok(!live.tours.some((t) => t.id === dead) && !live.tours.some((t) => t.id === missing), "dropped rows do not render");
-ok(live.tours.every((t) => t.fromPrice === TOUR_SNAPSHOT.find((s) => s.code === t.id).fromPrice + 1), "live prices win");
+const liveAll = [...live.tours, ...live.eventTours];
+ok(liveAll.length === TOUR_SNAPSHOT.length - 2, "dead and vanished rows are dropped");
+ok(!liveAll.some((t) => t.id === dead) && !liveAll.some((t) => t.id === missing), "dropped rows do not render");
+ok(live.tours.every((t) => t.group === "ghost") && live.eventTours.every((t) => t.group === "event" && t.filters.includes("local")), "ghost tours and haunted attractions are split by group");
+ok(liveAll.every((t) => t.fromPrice === TOUR_SNAPSHOT.find((s) => s.code === t.id).fromPrice + 1), "live prices win");
 ok(live.haunts.length === model.haunts.length && live.tourRegions === TOUR_REGIONS, "haunts untouched, regions attached");
 const failed = await withHalloweenTours(model, { env, fetch: async () => { throw new Error("down"); } });
-ok(failed.tours.length === TOUR_SNAPSHOT.length, "a failed read renders the snapshot, never an empty section");
+ok(failed.tours.length + failed.eventTours.length === TOUR_SNAPSHOT.length, "a failed read renders the snapshot, never an empty section");
 const noEnv = await withHalloweenTours(model, { env: {} });
-ok(noEnv.tours.length === TOUR_SNAPSHOT.length, "no Supabase env renders the snapshot");
+ok(noEnv.tours.length + noEnv.eventTours.length === TOUR_SNAPSHOT.length, "no Supabase env renders the snapshot");
 
 // Schema
 const schema = halloweenToursSchema(live.tours, "https://www.gowayfind.com/halloween-in-florida");
 ok(schema["@type"] === "ItemList" && schema.numberOfItems === live.tours.length, "tour schema is an ItemList of every card");
 ok(!JSON.stringify(schema).includes("/api/commerce/go") && !JSON.stringify(schema).includes("viator.com"), "schema never embeds the redirect or a partner URL");
 
-// Render
+// Render: default view is haunts and Halloween events; ghost tours sit behind the chip
 const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live }));
-ok(html.includes('id="boo-tours"') && html.includes("Florida Ghost Tours"), "tour section renders");
-ok((html.match(/data-tour-id="/g) || []).length === live.tours.length, "one card per tour");
+const chipLabel = "Ghost tours (" + live.tours.length + ")";
+ok(html.includes(">" + chipLabel + "<") && html.includes('data-filter-id="tours"'), "the ghost tours chip carries the real count: " + chipLabel);
+ok(!html.includes('id="boo-tours"') && !html.includes("Florida Ghost Tours"), "default view does not render the ghost tour section");
+ok(live.tours.every((t) => !html.includes('data-tour-id="' + t.id + '"')), "default view renders no ghost tour card");
+ok(live.eventTours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders the haunted attraction with the haunts");
+ok(html.includes("Show all") === false && html.includes("Prices, dates and hours for " + (live.haunts.length + live.eventTours.length) + " Florida haunts and Halloween events."), "lede counts haunts and events only");
+const toursHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "tours" }));
+ok(toursHtml.includes('id="boo-tours"') && toursHtml.includes("Florida Ghost Tours"), "tour section renders behind the chip");
+ok((toursHtml.match(/data-tour-id="/g) || []).length === live.tours.length, "chip view: one card per ghost tour");
+ok(!/data-haunt-id="/.test(toursHtml), "chip view swaps the haunt cards out");
 for (const t of live.tours) {
-  ok(html.includes('href="' + t.cta.href.replace(/&/g, "&amp;") + '"'), t.id + " buy href renders");
-  ok(html.includes(t.name.replace(/'/g, "&#x27;")) || html.includes(t.name), t.id + " name renders");
+  ok(toursHtml.includes('href="' + t.cta.href.replace(/&/g, "&amp;") + '"'), t.id + " buy href renders");
+  ok(toursHtml.includes(t.name.replace(/'/g, "&#x27;")) || toursHtml.includes(t.name), t.id + " name renders");
 }
-ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html), "no raw Viator link in the page");
-ok((html.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length, "every tour has the See availability button");
-ok((html.match(/Wayfind may earn a commission/g) || []).length === 1, "disclosure still appears once");
-ok(html.includes('href="#boo-tours"'), "hero jump link points at the tours");
+ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml), "no raw Viator link in the page");
+ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length, "every tour has the See availability button");
+ok((toursHtml.match(/Wayfind may earn a commission/g) || []).length === 1, "disclosure still appears once");
+ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
-ok(!bare.includes('id="boo-tours"') && !bare.includes('href="#boo-tours"'), "no tours, no section and no jump link");
+ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !bare.includes('data-filter-id="tours"'), "no tours, no chip and no jump button");
 
-console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " tours rendered)");
+console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");

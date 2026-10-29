@@ -21,7 +21,7 @@ import { randomUUID } from "node:crypto";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
-import { isCrawler } from "../../../../lib/crawler.js";
+import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 
 const FALLBACK = "/events";
@@ -50,7 +50,8 @@ export async function GET(req) {
     rank_bucket: rankBucket(rank),
   };
 
-  let trafficClass = "human";
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
