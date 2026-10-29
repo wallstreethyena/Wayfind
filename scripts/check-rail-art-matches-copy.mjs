@@ -47,7 +47,10 @@ const PAIRS = {
   // 2026-10-18: re-read the unchanged 760px pixels. They say only
   // "Halloween Starts Here", with no rail count. The new bars/treats subtitle
   // accurately describes the expanded collection; the headline still matches.
-  halloween: { copy: "3c55f1625b28499c", art: "088f64ffdadb7c26" },
+  // 2026-10-28: owner supplied a new poster, a paper ghost in a witch hat
+  // under the words "BEST OF HALLOWEEN". Looked at the 760px pixels: no count
+  // or claim the rail cannot back; the headline copy still fits it.
+  halloween: { copy: "3c55f1625b28499c", art: "807c6aaa35a531a7" },
   // Pin a rail here only after LOOKING at public/cards-v8/<id>-760.jpg and
   // confirming the words in the image match the words in lib/rails.js.
   //
