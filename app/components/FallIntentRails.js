@@ -26,6 +26,7 @@ import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import FallRecommendedHotels from "./FallRecommendedHotels.js";
+import SeasonalMoviesRail from "./SeasonalMoviesRail.js";
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
@@ -236,6 +237,7 @@ export default function FallIntentRails({
     <GuideCollection rails={payload.rails} collectionId={collection}>{payload.rails.map((rail) => <FallRailSection key={collection === "halloween" ? `${collection}:${today}:${rail.id}` : `${today}:${rail.id}`} collection={collection} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
       onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideCollection>
+    <SeasonalMoviesRail collection={collection} active={active} onTrack={onTrack} />
     {collection === "fall" ? <FallRecommendedHotels center={center} /> : null}
   </>;
 }

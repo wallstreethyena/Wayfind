@@ -86,10 +86,21 @@ const EXEMPT = {
 EXEMPT["app/components/PhotoCredit.js"] =
   "credit pill only: renders the 'Photo: <author> · Google Maps' / licence line for a photo that ANOTHER component (Detail sheet, lightbox, EventHeroBg) already paints. It contains no <img>, no background-image and no place-photo URL; it is detected only because its header comment names /api/photo?fmt=json. The surfaces that paint the photo are registered in lib/photoSurfaces.js.";
 
+// (2026-10-28) Seasonal Movies rail: a movie is not a place. It paints owned poster art from
+// /movies/ (registry `art.src`) or the designed placeholder tile, with place={null}.
+EXEMPT["app/components/SeasonalMoviesRail.js"] =
+  "movie cards, not place cards: it reuses RailCard only for the standard rail card look and passes place={null}, so there is no place id and no Google place photo to source. The image is owned movie art under /movies/ (registry art.src) or the designed placeholder tile (EventPlaceholderTile); it never passes photoFallback or a /api/photo URL.";
+
 // The exemption's own claim is enforced, not trusted: PhotoCredit.js must paint no image.
 {
   const pc = readFileSync(path.join(REPO, "app/components/PhotoCredit.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
   ok(!/<img\b|<Image\b|backgroundImage|url\(|\/api\/photo/.test(pc), "app/components/PhotoCredit.js is EXEMPT as a credit-only component but now paints or references a photo (<img>/backgroundImage/url()//api/photo) — register it in a PHOTO_SURFACES entry instead");
+}
+
+// The movies exemption's claim is enforced too: no place-photo plumbing may appear in that component.
+{
+  const mv = readFileSync(path.join(REPO, "app/components/SeasonalMoviesRail.js"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(!/\/api\/photo|photoFallback|ownedPlacePhotoSrc|googleusercontent|places\.googleapis/.test(mv) && /place=\{null\}/.test(mv), "app/components/SeasonalMoviesRail.js is EXEMPT as a movie (non place) renderer but now references place-photo plumbing or no longer passes place={null}; register it in a PHOTO_SURFACES entry instead");
 }
 
 const candidates = [];

@@ -999,5 +999,13 @@
       "detail": "A regression could let the hourly refresh buy Google Place Details past the free monthly lines (paid at $5 to $20 per 1,000) or delete or blank inventory rows. Every clause is red-proved against a mutated copy of the route."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/check-seasonal-movies.mjs": {
+    "protects": "The seasonal movies rail data and its Undercover Tourist ticket handoff: every movie card sells the one live CJ attributed movie ticket deal (wf_deals 11) only through /api/commerce/go, no Fandango or CJ destination reaches a response, and the route returns 3 to 8 clean cards per collection.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A movie ticket click that reaches the partner without our CJ attribution earns nothing, and a card whose button sells something other than what it delivers breaks the product integrity law. The label says a discounted theater ticket, never a specific showtime seat."
+    },
+    "owner": "Revenue QA"
   }
 }

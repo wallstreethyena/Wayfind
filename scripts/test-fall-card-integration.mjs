@@ -32,6 +32,7 @@ Module._load=function(request,parent,isMain){
   if(parent?.filename===cardFile && resolved===path.join(root,'app/components/photoPolicyContext.js'))return {usePhotoSrcFilter:()=>(src)=>src};
   if(parent?.filename===fallFile && resolved===path.join(root,'app/components/GuideRailCollection.js'))return {__esModule:true,default:({children})=>React.createElement(React.Fragment,null,children)};
   if(parent?.filename===fallFile && resolved===path.join(root,'app/components/FallRecommendedHotels.js'))return {__esModule:true,default:()=>null};
+  if(parent?.filename===fallFile && resolved===path.join(root,'app/components/SeasonalMoviesRail.js'))return {__esModule:true,default:()=>null};
   if(parent?.filename===fallFile && resolved===path.join(root,'lib/curatorPicks.js'))return {useCuratorPicks:()=>({}),applyCuratorPicks:(items)=>items};
   if(parent?.filename===fallFile && resolved===path.join(root,'app/components/usePagedRail.js'))return {usePagedRail:(_route,_params,opts)=>({items:opts.seedItems,total:opts.seedTotal,sentinelIndex:7,sentinelRef,loading:false,loadingMore:false})};
   return originalLoad.call(this,request,parent,isMain);
