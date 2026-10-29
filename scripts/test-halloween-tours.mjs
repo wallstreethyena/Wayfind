@@ -10,12 +10,19 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { halloweenHauntModel } from "../lib/halloweenHauntVault.js";
 import { isDeniedViatorSku } from "../lib/viatorDenylist.js";
+import { destinationUrl } from "../lib/destinations.js";
+import { viatorCampaign, withViatorTracking } from "../lib/affiliates.js";
 import {
+  FEATURED_GHOST_TOUR_CODES,
+  GHOST_DESTINATIONS,
   HALLOWEEN_TOUR_CTA,
   TOUR_REGIONS,
   TOUR_EVENT_CODES,
   TOUR_REMOVED,
   TOUR_SNAPSHOT,
+  featuredGhostTours,
+  ghostDestinationHref,
+  ghostDestinationProductUrl,
   halloweenToursSchema,
   snapshotTours,
   tourCard,
@@ -56,10 +63,38 @@ const href = tourHref("38620P1");
 ok(href === "/api/commerce/go?provider=viator&offer=38620P1&surface=halloween_haunts&content=hw-tour-38620P1&page=halloween-in-florida", "tour href is the commerce redirect: " + href);
 ok(tourHref("https://www.viator.com/x") === null && tourHref("") === null, "red-prove: a URL or blank code never becomes an href");
 
+// Destination links: tracked redirect, distinct campaign surfaces, dash free labels.
+const campaigns = [];
+for (const dest of GHOST_DESTINATIONS) {
+  ok(!DASH.test(dest.label), dest.id + " label is dash free: " + dest.label);
+  const product = ghostDestinationProductUrl(dest);
+  const href = ghostDestinationHref(dest);
+  ok(product && product.includes("/" + dest.destId + "-ttd") && !/searchResults/i.test(product), dest.id + " is a destination page");
+  if (dest.market) ok(product === withViatorTracking(destinationUrl("viator", dest.market)), dest.id + " uses the destinations.js url with Viator tracking");
+  const u = new URL(href, "https://www.gowayfind.com");
+  ok(u.pathname === "/api/viator/go", dest.id + " goes through /api/viator/go");
+  ok(u.searchParams.get("product") === product, dest.id + " product param is the destination url");
+  ok(u.searchParams.get("surface") === dest.surface, dest.id + " surface tag");
+  ok(u.searchParams.get("page") === "halloween-in-florida", dest.id + " keeps the halloween page tag");
+  const last = new URL(product).pathname.split("/").filter(Boolean).pop() || "";
+  const offerId = (last.match(/^d\d+-([A-Za-z0-9]+)$/) || [])[1];
+  campaigns.push(viatorCampaign({ page: "halloween-in-florida", surface: dest.surface, offerId }));
+}
+ok(campaigns.every(Boolean) && new Set(campaigns).size === GHOST_DESTINATIONS.length, "destination campaigns are distinct: " + campaigns.join(" | "));
+ok(ghostDestinationHref(null) === null && ghostDestinationProductUrl({}) === null, "red-prove: a blank destination never becomes an href");
+
 // Merit order: big review counts beat tiny perfect scores
 ok(tourMerit({ rating: 4.7, reviews: 2479 }) > tourMerit({ rating: 5, reviews: 5 }), "2479 reviews at 4.7 outranks 5 reviews at 5.0");
 const snap = snapshotTours();
 ok(snap.length === TOUR_SNAPSHOT.length, "snapshot renders every tour");
+const featured = featuredGhostTours(snap);
+ok(featured.map((t) => t.id).join(",") === FEATURED_GHOST_TOUR_CODES.join(","), "featured order is the approved product list");
+ok(featuredGhostTours(snap.filter((t) => t.id !== "38620P1")).length === FEATURED_GHOST_TOUR_CODES.length - 1, "a product missing from the catalogue is omitted, not invented");
+ok(featuredGhostTours([]).length === 0, "no tours means no featured cards");
+for (const t of featured) {
+  ok(t.fromPrice > 0 && t.rating > 0 && t.reviews > 0 && /^https:\/\//.test(t.photo.src), t.id + " featured card uses stored price, rating, reviews and image");
+  ok(!DASH.test([t.name, t.place, t.ratingLabel, t.duration, t.cta.label, t.cta.via].join(" ")), t.id + " featured copy is dash free");
+}
 for (let i = 1; i < snap.length; i += 1) ok(tourMerit(snap[i - 1]) >= tourMerit(snap[i]), "merit order holds at " + i);
 ok(tourDuration(90) === "1 hr 30 min" && tourDuration(60) === "1 hr" && tourDuration(120) === "2 hrs" && tourDuration(20) === "20 min", "duration labels");
 
@@ -105,9 +140,16 @@ const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/c
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live }));
 const chipLabel = "Ghost tours (" + live.tours.length + ")";
 ok(html.includes(">" + chipLabel + "<") && html.includes('data-filter-id="tours"'), "the ghost tours chip carries the real count: " + chipLabel);
-ok(!html.includes('id="boo-tours"') && !html.includes("Florida Ghost Tours"), "default view does not render the ghost tour section");
-ok(live.tours.every((t) => !html.includes('data-tour-id="' + t.id + '"')), "default view renders no ghost tour card");
+ok((html.match(/data-haunt-id="/g) || []).length === live.haunts.length, "default view keeps the haunt grid");
+ok(html.includes('id="boo-tours"') && html.includes("Florida Ghost Tours"), "default view renders the full ghost tour section under the haunts");
+ok(live.tours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders every ghost tour card");
 ok(live.eventTours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders the haunted attraction with the haunts");
+ok(html.includes("Top Florida ghost tours") && (html.match(/data-featured-tour="/g) || []).length === live.featuredTours.length, "featured ghost tours render near the top");
+ok(html.includes("More ghost tours on Viator"), "destination heading renders");
+for (const dest of live.ghostDestinations) {
+  ok(html.includes('data-ghost-dest="' + dest.id + '"') && html.includes(dest.href.replace(/&/g, "&amp;")), dest.id + " destination link renders through its tracked href");
+}
+ok(!DASH.test("Top Florida ghost tours") && !DASH.test("More ghost tours on Viator"), "new headings are dash free");
 ok(html.includes("Show all") === false && html.includes("Prices, dates and hours for " + (live.haunts.length + live.eventTours.length) + " Florida haunts and Halloween events."), "lede counts haunts and events only");
 const toursHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "tours" }));
 ok(toursHtml.includes('id="boo-tours"') && toursHtml.includes("Florida Ghost Tours"), "tour section renders behind the chip");
@@ -118,8 +160,14 @@ for (const t of live.tours) {
   ok(toursHtml.includes(t.name.replace(/'/g, "&#x27;")) || toursHtml.includes(t.name), t.id + " name renders");
 }
 ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml), "no raw Viator link in the page");
-ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length, "every tour has the See availability button");
-ok((toursHtml.match(/Wayfind may earn a commission/g) || []).length === 1, "disclosure still appears once");
+ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length + live.featuredTours.length, "every tour card and featured pick has the See availability button");
+const PICK_LINE = "Wayfind may earn a commission, which never changes our picks or their order.";
+ok((toursHtml.match(/Wayfind may earn a commission when you book through partner links\./g) || []).length === 1, "page disclosure still appears once");
+const toursPartnerButtons = live.tours.length + live.featuredTours.length + live.ghostDestinations.length;
+ok((toursHtml.match(/which never changes our picks or their order\./g) || []).length === toursPartnerButtons, "tours view: pick disclosure on every partner button (" + toursPartnerButtons + ")");
+ok(toursHtml.includes(PICK_LINE), "pick disclosure wording is the existing sentence");
+const partnerTags = [...toursHtml.matchAll(/<a class="(?:boo-buy|boo-dest-link)"[^>]*>/g)].map((m) => m[0]);
+ok(partnerTags.length === toursPartnerButtons && partnerTags.every((tag) => tag.includes('target="_blank"') && tag.includes('rel="sponsored nofollow noopener"')), "tours view partner links open in a new tab");
 ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !bare.includes('data-filter-id="tours"'), "no tours, no chip and no jump button");

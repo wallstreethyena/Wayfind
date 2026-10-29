@@ -1008,6 +1008,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-halloween-tours.mjs": {
+    "protects": "Every Halloween ghost tour card books through /api/commerce/go by product code, destination links use the destinations.js Viator URL with withViatorTracking and then /api/viator/go, and a bare or denied code never becomes an href.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A ghost tour button that opens viator.com without our pid, or skips /api/viator/go, sends the click with no commission and no provider_redirect record. The test locks the tracked destination URL and the go route for every city chip."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/check-seasonal-movies.mjs": {
     "protects": "The seasonal movies rail data and its Undercover Tourist ticket handoff: every movie card sells the one live CJ attributed movie ticket deal (wf_deals 11) only through /api/commerce/go, no Fandango or CJ destination reaches a response, and the route returns 3 to 8 clean cards per collection.",
     "blastRadius": {
