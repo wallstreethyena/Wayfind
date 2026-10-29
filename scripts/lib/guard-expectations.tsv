@@ -573,7 +573,7 @@ scripts/test-coord-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	130	0	0	1d3057
 scripts/test-coords-independent-verified.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	d15edc8d3044c115a3d72aace64ee0f920825eb134db6fd206c085e924403679
 scripts/test-coupon-audit-alert.mjs	0	CALL	blocks-ci-and-deploy	1	-	58	0	0	fc41443c1e95cc7a6c01058388a1cd939c7976a5899d9886d1798a472721744a
 scripts/test-coupon-geo.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	3a4bd79945467751dc2436ce722759ad9f9f4b6ab5cb601d592418f2cf7bb690
-scripts/test-coupon-location-state.mjs	0	RENDER	blocks-ci-and-deploy	1	-	45	0	0	a4981e1978de2b5b9502a54c680756688e4b865d3eba6473a4c1e0f04663878d
+scripts/test-coupon-location-state.mjs	0	RENDER	blocks-ci-and-deploy	1	-	48	0	0	c71616853b6d88903334fdec2d3ff1489dec44ab63aaf71f4a524642fa5033e1
 scripts/test-coupon-no-location.mjs	0	RENDER	blocks-ci-and-deploy	1	-	56	0	0	9e80243617113c50106184a0429323183044c80daa2bb04c9d0b11702221a9e1
 scripts/test-coupon-selection.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	ab38a3b0ca7cc5fb862a74fa54dbe3b09f4f390742b8904cdd4b45207f87c0ff
 scripts/test-coupon-value.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	c799a3f77917a67ae4e2a41985f088cd998348126691dbc455bbebcc269a055b

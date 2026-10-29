@@ -101,23 +101,36 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
   ok(/Partner savings in Tampa/.test(h) && /Free &amp; local in Tampa/.test(h), "tampa: BOTH tier heads carry the metro name (both tiers render here, so neither check is vacuous)");
 }
 
-// 5. metro known, nothing there (pick a covered metro the registry has no deal for)
+// 5. metro known, nothing local there.
+// "Empty" counts only metro-scoped registry deals. Nationwide rows (Undercover
+// Tourist) are good in every metro, so counting them made every covered metro
+// look non-empty and the metro-empty branch never ran (#1990). The screen
+// unions the registry with cpnOffers (later id wins), so this render replaces
+// those nationwide ids with expired copies. That is the registry with no
+// everywhere rows: the empty state must still paint. It is not a skip.
 {
-  // "Empty" means no deal scoped to THIS metro. Nationwide cards (the Undercover
-  // Tourist rows) may still render there, and that is correct.
-  const emptyMetro = coveredMetros().find((m) => { const t = dealTiers(COUPONS, today, { lat: m.lat, lng: m.lng }); return [...t.featured, ...t.ledger].every((c) => dealScope(c).kind === "everywhere"); });
+  const centerOf = (m) => ({ lat: m.lat, lng: m.lng });
+  const metroScoped = (m) => {
+    const t = dealTiers(COUPONS, today, centerOf(m));
+    return [...t.featured, ...t.ledger].filter((c) => dealScope(c).kind === "metro");
+  };
+  const emptyMetro = coveredMetros().find((m) => metroScoped(m).length === 0);
+  ok(!!emptyMetro, "a covered metro with zero metro-scoped registry deals exists (Miami today), so the metro-empty path is exercised, not skipped");
   if (emptyMetro) {
-    const h = render({ center: { lat: emptyMetro.lat, lng: emptyMetro.lng }, cpnOffers: [], locResolved: true });
-    const t = dealTiers(COUPONS, today, { lat: emptyMetro.lat, lng: emptyMetro.lng });
-    if (t.featured.length + t.ledger.length === 0) {
-      ok(/data-deals-state="metro-empty"/.test(h) && h.includes("No verified deals in " + emptyMetro.label + " right now") && /good anywhere/.test(h), "metro empty: names the metro and says national offers still show when they exist");
-    } else {
-      ok(!/data-deals-state=/.test(h) && t.featured.concat(t.ledger).every((c) => h.includes(c.business)), "metro with only nationwide deals: those render, no empty state");
-    }
+    const hideNationwide = COUPONS
+      .filter((c) => dealScope(c).kind === "everywhere")
+      .map((c) => ({ ...c, expires: "2000-01-01" }));
+    ok(hideNationwide.length > 0, "positive control: the registry has nationwide rows, so hiding them is what makes this render empty");
+    const h = render({ center: centerOf(emptyMetro), cpnOffers: hideNationwide, locResolved: true });
+    ok(/data-deals-state="metro-empty"/.test(h) && h.includes("No verified deals in " + emptyMetro.label + " right now") && /good anywhere/.test(h), "metro empty: names the metro and says national offers still show when they exist");
+    ok(!hideNationwide.some((c) => h.includes(c.title)), "metro empty: the expired nationwide overrides do not render");
     ok(!/data-coupon-mode="statewide"/.test(h) && !/data-deal-area="(tampa|sarasota|orlando|stpete)"/.test(h), "metro empty: never falls back to other areas' cards");
     ok(!/data-area-state="unknown"/.test(h) && /Showing deals for/.test(h), "metro empty: it is not mistaken for 'location unknown'");
+    const live = render({ center: centerOf(emptyMetro), cpnOffers: [], locResolved: true });
+    const nationwide = [...dealTiers(COUPONS, today, centerOf(emptyMetro)).featured, ...dealTiers(COUPONS, today, centerOf(emptyMetro)).ledger];
+    ok(nationwide.length > 0 && nationwide.every((c) => dealScope(c).kind === "everywhere" && live.includes(c.business)), "the same metro with the live registry still shows its nationwide deals");
+    ok(!/data-coupon-mode="statewide"/.test(live) && !/data-deal-area=/.test(live), "nationwide-only metro: those cards render without borrowing another area");
   }
-  ok(!!emptyMetro, "a covered metro with zero metro-scoped registry deals exists (Miami today), so the metro-empty path is exercised, not skipped");
 }
 
 // 6. center outside every metro
