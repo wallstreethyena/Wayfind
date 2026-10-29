@@ -399,6 +399,7 @@ function TourCard({ t, priority }) {
       <div className="boo-body">
         {t.duration ? <span className="boo-chip">{t.duration}</span> : null}
         <h2>{t.name}</h2>
+        {t.photo && t.photo.credit ? <PhotoCredit photos={[t.photo]} /> : null}
         {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : <p className="boo-rating" aria-hidden="true">&nbsp;</p>}
         <p className="boo-line boo-city">
           <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
