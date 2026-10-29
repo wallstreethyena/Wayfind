@@ -31,17 +31,25 @@
  *      proves nothing either way. If the lib stops building tracked links,
  *      that IS the breakage this check can see, and it fails below.
  *
- * THE USER-AGENT IS LOAD-BEARING. Every probe sends a real phone
- * User-Agent. The /api/.../go redirectors refuse self-identified crawlers
- * (lib/crawler.js BOT_UA: bot/crawl/headless/curl/...), so a headless or
- * default fetch UA gets bounced to our own fallback and every check here
- * would report a healthy partner as broken. A phone UA is also what the
- * money actually arrives on.
+ * THE USER-AGENT IS LOAD-BEARING — AND IT IS OURS, NOT A PHONE'S
+ * (2026-10-28). Every probe identifies as our own synthetic monitor
+ * (lib/crawler.js isSyntheticMonitor: "WayfindSyntheticMonitor/…"). That
+ * identity is never refused as a crawler, so the /go routes still return
+ * the REAL attributed partner Location this watchdog asserts on — but
+ * lib/serverEvents.js captureServer() drops every event for it, so a
+ * watchdog run is never a human provider_redirect_started. Before this it
+ * sent a real iPhone UA and showed up in the money funnel as a person
+ * (surfaces "affiliate-watchdog"/"watchdog", 5 events 2026-10-23..27).
  *
- * READ-ONLY. GETs only, manual redirect following, no writes to the site,
- * no partner clicks beyond the redirect chain itself (the last hop is
- * observed as a Location/status, never rendered). The only write this
- * watchdog ever causes is the GitHub issue the workflow opens on failure.
+ * NO PARTNER CONTACT. The chain stops at the FIRST Location that leaves our
+ * own origin: it is recorded, never fetched. Every tracking value checked
+ * here (Impact evyy.net path, Viator pid, Stay22 aid) is already in that
+ * first Wayfind-issued Location, so following it into ticketmaster.evyy.net /
+ * viator.com / stay22.com only minted a real partner click per run.
+ *
+ * READ-ONLY. GETs only against our own origin, no writes to the site. The
+ * only write this watchdog ever causes is the GitHub issue the workflow
+ * opens on failure.
  *
  * NOT A GUARD. Deliberately absent from scripts/guards.txt and not
  * check-/test- shaped: it hits live production, so wiring it into the
@@ -68,11 +76,10 @@ const DEFAULT_BASE_URL = "https://www.gowayfind.com";
 const MAX_HOPS = 10;
 const FETCH_TIMEOUT_MS = 20_000;
 
-// A real phone UA — see "THE USER-AGENT IS LOAD-BEARING" above. Must never
-// contain a token lib/crawler.js BOT_UA matches (bot/crawl/headless/...).
-const PHONE_UA =
-  "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 " +
-  "(KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
+// Our own internal-probe identity — see "THE USER-AGENT IS LOAD-BEARING"
+// above. Must satisfy lib/crawler.js isSyntheticMonitor() and never match
+// isCrawler(); scripts/check-redirect-suspect-gate.mjs runs this script end to end.
+export const WATCHDOG_UA = "WayfindSyntheticMonitor/1.0 (affiliate-watchdog; +https://www.gowayfind.com)";
 
 // ── Expectations ─────────────────────────────────────────────────────────
 // Ticketmaster/Impact: lib/affiliates.js TM_IMPACT_SID /
@@ -116,12 +123,13 @@ async function followChain(url) {
   const hops = [];
   const seen = [url];
   let current = url;
+  const ownOrigin = new URL(url).origin;
   for (let i = 0; i < MAX_HOPS; i++) {
     let res;
     try {
       res = await fetch(current, {
         redirect: "manual",
-        headers: { "User-Agent": PHONE_UA, Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8" },
+        headers: { "User-Agent": WATCHDOG_UA, Accept: "text/html,application/xhtml+xml,application/json;q=0.9,*/*;q=0.8" },
         signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
       });
     } catch (err) {
@@ -133,6 +141,11 @@ async function followChain(url) {
     if (res.status >= 300 && res.status < 400 && location) {
       current = new URL(location, current).toString();
       seen.push(current);
+      // Off our origin = a partner. Record the Location, never fetch it.
+      if (new URL(current).origin !== ownOrigin) {
+        hops.push(`STOP ${current} (partner hop recorded, not followed)`);
+        break;
+      }
       continue;
     }
     break;
@@ -143,7 +156,7 @@ async function followChain(url) {
 async function fetchText(url) {
   const res = await fetch(url, {
     redirect: "follow",
-    headers: { "User-Agent": PHONE_UA, Accept: "text/html,application/xhtml+xml" },
+    headers: { "User-Agent": WATCHDOG_UA, Accept: "text/html,application/xhtml+xml" },
     signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   return { status: res.status, text: await res.text() };
@@ -307,7 +320,7 @@ function checkTravelpayoutsLib() {
 }
 
 // ── Run ──────────────────────────────────────────────────────────────────
-console.log(`affiliate-watchdog: probing ${BASE_URL} (phone UA, GETs only)`);
+console.log(`affiliate-watchdog: probing ${BASE_URL} (internal-probe UA, GETs only, partner hops recorded not followed)`);
 await checkTicketmaster();
 await checkViator();
 await checkStay22();

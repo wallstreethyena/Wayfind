@@ -152,7 +152,10 @@ delete process.env.WF_SUPPRESS_ANALYTICS;
 
 const SYNTHETIC_UA = "WayfindSyntheticMonitor/1.0 (+https://www.gowayfind.com)";
 const HUMAN_UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/126.0.0.0 Safari/537.36";
-const headersFrom = (ua) => ({ get: (name) => (String(name).toLowerCase() === "user-agent" ? ua : null) });
+// 2026-10-28: a real Chrome sends Fetch Metadata on every navigation; a
+// Chrome UA WITHOUT it is the spoofed-crawler shape lib/redirectTrafficClass.js
+// holds at an interstitial. The human fixture models the real browser.
+const headersFrom = (ua) => ({ get: (name) => { const n = String(name).toLowerCase(); return n === "user-agent" ? ua : n === "sec-fetch-mode" ? "navigate" : n === "sec-fetch-dest" ? "document" : null; } });
 
 try {
   const { GET } = await import(REPO + "app/api/viator/go/route.js");

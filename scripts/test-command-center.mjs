@@ -16,6 +16,7 @@
 import { readFileSync } from "node:fs";
 import { requireOwner } from "../lib/commandCenter/auth.js";
 import { rangeFor, comparisonsFor, delta, dayList, dayStr, zonedDayStart, zonedParts } from "../lib/commandCenter/time.js";
+import { gatherTrafficPace, trafficPaceWindows } from "../lib/commandCenter/trafficPace.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 import { computeAlerts, MIN_BASELINE_DAYS } from "../lib/commandCenter/alerts.js";
 import { comparableTrafficDays, trafficCountsContradict, trafficDayQuality, trafficTrackingState, FIRST_COMPARABLE_TRAFFIC_DAY, VISIT_TRACKING_INCIDENT_STARTED_AT, VISIT_TRACKING_REPAIRED_AT } from "../lib/commandCenter/trafficDataQuality.js";
@@ -38,6 +39,7 @@ const ok = (c, m) => { if (!c) fail(m); };
     todayKey: "2026-10-04",
     asOf: new Date("2026-10-04T16:00:00.000Z"),
     dailyHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, devices: 110, sessions: 100, out_clicks: 10 }))),
+    trafficPace: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, devices: 100, sessions: 90 }))),
     todayK: good({ active_devices: 39, sessions: 40, out_clicks: 0 }),
     signupHist: good(Array.from({ length: 14 }, (_, i) => ({ day: `2026-${i < 11 ? "09" : "10"}-${String(i < 11 ? i + 20 : i - 10).padStart(2, "0")}`, signups: 10 }))),
     signupToday: good([{ signups: 0 }]),
@@ -61,6 +63,10 @@ const ok = (c, m) => { if (!c) fail(m); };
   const unavailable = buildAlertsReport({ ...fixture, todayK: missing, signupToday: missing });
   ok(!has(unavailable, "traffic_drop") && !has(unavailable, "out_clicks_drop") && !has(unavailable, "signup_drop"), "alerts assembly: failed current sources never become zero-count drops");
   ok(unavailable.sources.some((source) => source.connected === false), "alerts assembly: missing sources remain visible");
+  const staleCurrent = buildAlertsReport({ ...fixture, todayK: { ...fixture.todayK, source: srcOk("fixture", { confidence: "stale-cache" }) } });
+  ok(!has(staleCurrent, "traffic_drop"), "alerts assembly: a stale current count cannot establish a fresh traffic drop");
+  const missingPace = buildAlertsReport({ ...fixture, trafficPace: missing });
+  ok(!has(missingPace, "traffic_drop") && missingPace.sources.some((source) => source.connected === false), "alerts assembly: failed same-time comparisons suppress traffic claims and retain source-error visibility");
   const missingHistory = buildAlertsReport({ ...fixture, dailyHist: missing, signupHist: missing });
   ok(!has(missingHistory, "traffic_drop") && !has(missingHistory, "signup_drop"), "alerts assembly: missing baseline sources cannot establish a drop");
 }
@@ -311,13 +317,52 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   const quiet = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(3), today: { devices: 0, out_clicks: 0, searches: 0, no_result_searches: 0 } });
   ok(!quiet.find((a) => a.id === "traffic_drop"), "alerts: silent without 7 days of history (no false positives on a young site)");
   // Enough history + a real drop -> fires with baseline text.
-  const drop = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(10), today: { devices: 2, out_clicks: 5, searches: 10, no_result_searches: 1 } });
+  const drop = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(10), trafficPaceHistory: histDays(10, 20), today: { devices: 2, out_clicks: 5, searches: 10, no_result_searches: 1 } });
   const t = drop.find((a) => a.id === "traffic_drop");
   ok(t && t.baseline && t.current === "2", "alerts: traffic drop fires with explicit current vs baseline");
   // Healthy today -> silent.
-  const fine = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(10), today: { devices: 25, out_clicks: 6, searches: 12, no_result_searches: 1 } });
+  const fine = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(10), trafficPaceHistory: histDays(10, 20), today: { devices: 25, out_clicks: 6, searches: 12, no_result_searches: 1 } });
   ok(!fine.find((a) => a.id === "traffic_drop"), "alerts: no drop alert when tracking at baseline");
 }
+// Oct 29 regression: midnight is not 2% of a full day, and missing
+// comparisons never fall back to a uniform estimate. Replay production counts.
+{
+  const now = new Date("2026-10-29T04:07:33.255Z");
+  const fullCounts = [99,172,200,319,379,335,253,388,131,721,511,488,188,413];
+  const partialCounts = [0,0,1,1,1,1,0,2,1,0,2,3,0,0];
+  const history = fullCounts.map((devices, i) => ({ day: `2026-10-${15 + i}`, devices, sessions: devices }));
+  let reads = 0, active = 0, maxActive = 0;
+  const pace = await gatherTrafficPace(history, now, async (from, to) => {
+    reads++; active++; maxActive = Math.max(maxActive, active);
+    await new Promise((resolve) => setImmediate(resolve));
+    const index = Number(dayStr(from).slice(-2)) - 15;
+    ok(zonedParts(to).hh === 0 && zonedParts(to).mm === 7 && zonedParts(to).ss === 33, "traffic pace: every historical cutoff matches 00:07:33 ET");
+    ok(to > from && to - from === 453000, "traffic pace: samples cover seven minutes, not full days");
+    active--;
+    return { source: srcOk("fixture"), data: { active_devices: partialCounts[index], sessions: partialCounts[index] } };
+  });
+  ok(reads === 14 && maxActive <= 4 && pace.source.connected && pace.data.length === 14, "traffic pace: all 14 clean days are measured with bounded concurrency");
+  const bundle = { fractionOfDay: 0.02, trafficHistory: history, trafficPaceHistory: pace.data, today: { devices: 0, sessions: 0 } };
+  ok(!computeAlerts(bundle).some((a) => a.id === "traffic_drop"), "traffic pace: real Oct 29 midnight sample no longer sends the false 0-vs-7 alarm");
+  ok(!computeAlerts({ ...bundle, trafficPaceHistory: [] }).some((a) => a.id === "traffic_drop"), "traffic pace: missing same-time history cannot revive the linear estimate");
+  ok(computeAlerts({ ...bundle, trafficPaceHistory: history }).some((a) => a.id === "traffic_drop"), "traffic pace: zero still warns when measured same-time history shows real demand");
+  ok(!computeAlerts({ ...bundle, trafficPaceHistory: history, today: { devices: null, sessions: null } }).some((a) => a.id === "traffic_drop"), "traffic pace: missing current counters are never a measured zero");
+  const failed = await gatherTrafficPace(history, now, async () => ({ source: srcError("fixture", "timeout"), data: null }));
+  ok(!failed.source.connected && failed.source.reason === "error" && failed.data === null, "traffic pace: an unavailable source remains visible, without fabricated baseline counts");
+  const malformed = await gatherTrafficPace(history, now, async () => ({ source: srcOk("fixture"), data: {} }));
+  ok(!malformed.source.connected && malformed.data === null, "traffic pace: empty KPI responses are not successful zero samples");
+  const stale = await gatherTrafficPace(history, now, async () => ({ source: srcOk("fixture", { confidence: "stale-cache" }), data: { active_devices: 100, sessions: 100 } }));
+  ok(!stale.source.connected, "traffic pace: stale samples are not fresh same-time measurements");
+  const short = await gatherTrafficPace(history.slice(0, 6), now, () => { throw new Error("must not query"); });
+  ok(short.source.connected && short.data.length === 0, "traffic pace: fewer than seven clean days issue no additional RPCs");
+  const contradiction = await gatherTrafficPace(history, now, async () => ({ source: srcOk("fixture"), data: { active_devices: 9, sessions: 0 } }));
+  ok(contradiction.source.connected && contradiction.data.length === 0, "traffic pace: contradictory partial windows cannot normalize a tracking regression");
+  const winter = trafficPaceWindows([{ day: "2026-10-31", devices: 100, sessions: 100 }], new Date("2026-11-02T15:30:00Z"));
+  ok(winter[0].from.toISOString() === "2026-10-31T04:00:00.000Z" && winter[0].to.toISOString() === "2026-10-31T14:30:00.000Z", "traffic pace: clocks remain 10:30 ET across the DST fallback");
+  const spring = trafficPaceWindows([{ day: "2027-03-14", devices: 100, sessions: 100 }], new Date("2027-03-15T06:30:00Z"));
+  ok(spring.length === 0, "traffic pace: nonexistent 02:30 spring-forward samples are excluded");
+}
+
 {
   // No-result spike needs volume.
   const lowVol = computeAlerts({ fractionOfDay: 0.5, dailyHistory: histDays(10), today: { devices: 25, searches: 2, no_result_searches: 3, out_clicks: 5 } });

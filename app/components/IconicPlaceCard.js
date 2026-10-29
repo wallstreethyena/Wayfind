@@ -497,11 +497,14 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   const validAiSummary = !take && aiSummary && typeof aiSummary === "object" && aiSummary.card_line_1 && aiSummary.card_line_2 ? aiSummary : null;
   const hasTake = !!(take || validAiSummary);
   const initials = String(place.name || "WF").split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]).join("").toUpperCase();
-  // Save still has a crawlable fallback for callers that have not wired
-  // onSave. Like/Dislike MUST NOT — that href is the 2026-08-20 P0 (Amazon
-  // rail → /p/{id}?action=like → trapped on the place route). Like is a
-  // signal, not a page. See lib/railReaction.js.
-  const actionHref = (action) => "/p/" + encodeURIComponent(place.id) + "?action=" + action;
+  // 2026-10-29: NO ACTION IS A LINK ANY MORE — save included. The old
+  // pre-hydration <a href="/p/{id}?action=save"> was followed by crawlers and
+  // headless browsers, and the deep-link handler saved the place for them
+  // (week of 2026-10-19: every one of 300 PostHog `save` events was that
+  // replay; lib/deepLinkAction.js). Save is a <button> carrying the same
+  // [ACTION_ATTR] contract as Like/Dislike/Share, so a tap before hydration is
+  // queued by the inline bridge (lib/cardActionAttrs.js) and replayed into the
+  // real handler — a human loses nothing, a crawler finds nothing to follow.
   // v8.29 — WIRED, OR THE CARD WIRES ITSELF. `fb.hydrated` is false on the
   // server and on the hydrating render, so the markup React reconciles against
   // is byte-identical to the HTML that was sent (the no-JS anchor); the swap to
@@ -822,18 +825,14 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 them and re-parented the fallback to onItinerary, so any surface
                 passing onSave but NOT onItinerary drew TWO save controls. It is
                 back where it belongs. */}
-            {doSave ? (
-              <button
-                type="button"
-                className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
-                {...{ [ACTION_ATTR]: "save", [PLACE_ATTR]: place.id }}
-                aria-label={isSavedNow ? "Remove from saved: " + place.name : "Save " + place.name}
-                aria-pressed={isSavedNow}
-                onClick={(e) => { e.stopPropagation(); e.preventDefault(); doSave(e, place); }}
-              ><HeartIcon filled={isSavedNow} />{isSavedNow ? "Saved" : "Save"}</button>
-            ) : (
-              <a className="wf-place-card-save" href={actionHref("save")} aria-label={"Save " + place.name}><HeartIcon />Save</a>
-            )}
+            <button
+              type="button"
+              className={"wf-place-card-save" + (isSavedNow ? " is-active" : "")}
+              {...{ [ACTION_ATTR]: "save", [PLACE_ATTR]: place.id }}
+              aria-label={isSavedNow ? "Remove from saved: " + place.name : "Save " + place.name}
+              aria-pressed={isSavedNow}
+              onClick={(e) => { e.stopPropagation(); e.preventDefault(); if (doSave) doSave(e, place); }}
+            ><HeartIcon filled={isSavedNow} />{isSavedNow ? "Saved" : "Save"}</button>
             {/* v8.29.6 — ALWAYS A BUTTON (main PR #888), ALWAYS WIRED (v8.29).
                 The anchor is gone: a control that promises to register a like
                 and instead loads a route is the bug both fixes exist for. The

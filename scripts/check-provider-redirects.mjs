@@ -175,7 +175,10 @@ const UA_FIXTURES = [
 for (const [name, importPath, url] of UA_FIXTURES) {
   const before = captured.length;
   const { GET } = await import(importPath);
-  const res = await GET({ url, headers: headersFrom({ "user-agent": CHROME_UA }) });
+  // 2026-10-28: a real Chrome sends Fetch Metadata on every navigation; a
+  // Chrome UA WITHOUT it is the spoofed-crawler shape lib/redirectTrafficClass.js
+  // holds at an interstitial. The human fixture models the real browser.
+  const res = await GET({ url, headers: headersFrom({ "user-agent": CHROME_UA, "sec-fetch-mode": "navigate", "sec-fetch-dest": "document" }) });
   ok(res.status >= 300 && res.status < 400, `${name} (chrome UA) returns a redirect`);
   const ev = captured.slice(before).find((b) =>
     b.event === "provider_redirect_started" || b.event === "provider_redirect_failed"

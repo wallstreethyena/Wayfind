@@ -42,6 +42,8 @@ const ok = (c, m) => { checks++; if (!c) { bad++; console.error("check-card-acti
 // CONSTRUCT this URL", where a false negative inside a string literal that
 // happens to contain "//" is not a hazard this guard is trying to catch.
 const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+// JSX {/* … */} blocks and // lines both go, so the card's own changelog cannot trip rule 2.
+const stripCode = (src) => strip(src).replace(/\/\/[^\n]*$/gm, "");
 
 // THE FIRST "/>" IS NOT THE END OF THE ELEMENT. This guard used
 // src.indexOf("/>", i), and a card whose `badge` prop contains
@@ -167,48 +169,37 @@ ok(/const actionsLive[^\n]*onSave && onLike && onDislike && onShare/.test(cardSr
   `${CARD}: the pre-hydration bridge cannot stand down until Share and the three state actions are all live`);
 
 // ---------------------------------------------------------------------------
-// 2. Which actions can fall back to a navigation is read off the card itself,
-// so adding a seventh action extends this guard instead of escaping it.
+// 2. NO ACTION FALLS BACK TO A NAVIGATION — save included (2026-10-29).
+//
+// v8.29.6 removed the like/dislike anchors and kept `save` as the last no-JS
+// <a href={actionHref("save")}>. That anchor was crawlable, and crawlers and
+// headless browsers followed it: app/home.js then saved the place for them.
+// PostHog, week of 2026-10-19: all 300 `save` events were that replay (201
+// from one Singapore automation), each also firing signup_offer_shown. Owner
+// rule: a GET, link preview or crawler visit must never change saved state.
+// So the card renders NO ?action= href at all; save is a <button> on the same
+// pre-hydration [ACTION_ATTR] bridge as the other three controls, which is
+// what keeps a human's early tap working (lib/cardActionAttrs.js).
 const ACTIONS = [...new Set(
-  [...cardSrc.matchAll(/actionHref\(\s*"([a-z]+)"\s*\)/g)].map((m) => m[1])
+  [...stripCode(cardSrc).matchAll(/actionHref\(\s*"([a-z]+)"\s*\)/g)].map((m) => m[1])
 )];
-// v8.29.6 — LIKE AND DISLIKE NO LONGER HAVE AN ANCHOR AT ALL. main's PR #888
-// (lib/railReaction.js) deleted them, and this branch's fallback store is what
-// makes that safe: the control is always a <button> and always has a handler
-// after hydration. So `save` is the only action with a no-JS anchor left, and
-// the two thumbs are checked by the rules below instead — an anchor for either
-// is now a FAILURE, not the expected fallback.
-const MUST_COVER = ["save"];
+ok(ACTIONS.length === 0, `${CARD}: an actionHref("${ACTIONS.join('", "')}") anchor is back. No card control may be a link to /p/<id>?action= — crawlers follow it and the deep link changes state.`);
+ok(!/actionHref\s*=\s*\(/.test(stripCode(cardSrc)), `${CARD}: actionHref is declared again. A state-changing action must never be rendered as a crawlable URL.`);
+ok(!/href=\{?[^\n]{0,120}\?action=/.test(stripCode(cardSrc)), `${CARD}: renders an href carrying ?action=`);
+// positive control: the probes above do find a known-bad anchor
+ok(/actionHref\(\s*"([a-z]+)"\s*\)/.test('<a href={actionHref("save")}>') && /href=\{?[^\n]{0,120}\?action=/.test('<a href="/p/x?action=save">'), "probe self-test: anchor probes match a literal bad fixture");
 for (const gone of ["like", "dislike"]) {
-  ok(!ACTIONS.includes(gone), `${CARD}: an actionHref("${gone}") anchor is back. That control must be a <button> — see lib/railReaction.js and lib/cardActions.js.`);
   const Cap = gone[0].toUpperCase() + gone.slice(1);
   ok(new RegExp("stayOnRailReaction\\(e, do" + Cap + ", place\\)").test(cardSrc),
     `${CARD}: ${gone} must call stayOnRailReaction(e, do${Cap}, place) — main's contract (never navigates) with this branch's resolved handler (never a no-op).`);
 }
-for (const a of MUST_COVER) {
-  ok(ACTIONS.includes(a), `${CARD}: "${a}" is no longer detected as an actionHref fallback. Either the card stopped rendering it (delete it from MUST_COVER deliberately) or the fallback was renamed and this guard just stopped checking it.`);
-}
-ok(/actionHref\s*=\s*\(/.test(cardSrc), `${CARD}: the no-JS actionHref fallback must stay — this guard requires wiring, it does not delete progressive enhancement`);
-
-// Every action needs a resolved handler that is non-null once the store has
-// hydrated, and the anchor branch must be selected by THAT, not by the raw prop.
-for (const a of ACTIONS) {
-  const Cap = a[0].toUpperCase() + a.slice(1);
-  const resolved = "do" + Cap;
-  const declared = new RegExp("const\\s+" + resolved + "\\s*=\\s*on" + Cap + "\\s*\\|\\|\\s*\\(\\s*cardActionsReadOnly\\s*\\?\\s*content\\.toggle" + Cap + "\\s*:\\s*fb\\.hydrated\\s*\\?");
-  ok(declared.test(cardSrc),
-    `${CARD}: ${resolved} must select the isolated content handler for legacy read-only cards and the place fallback otherwise. Without either arm an unwired control is dead.`);
-  // The anchor must live in the else-branch of a ternary whose test is doX.
-  const anchorIdx = cardSrc.indexOf(`actionHref("${a}")`);
-  ok(anchorIdx > 0, `${CARD}: could not locate the ${a} anchor`);
-  if (anchorIdx > 0) {
-    const window = cardSrc.slice(Math.max(0, anchorIdx - 1400), anchorIdx);
-    ok(new RegExp(resolved + "\\s*\\?").test(window),
-      `${CARD}: the ${a} anchor is not guarded by ${resolved}. It is chosen by something else, so a hydrated page can still render a link where a button belongs.`);
-    ok(!new RegExp("\\bon" + Cap + "\\s*\\?\\s*\\(?\\s*<button")
-      .test(window), `${CARD}: the ${a} control still branches on the raw on${Cap} prop; it must branch on ${resolved} so the fallback counts.`);
-  }
-}
+// Save: always a button, on the bridge, invoking the RESOLVED handler.
+ok(/const\s+doSave\s*=\s*onSave\s*\|\|\s*\(\s*cardActionsReadOnly\s*\?\s*content\.toggleSave\s*:\s*fb\.hydrated\s*\?/.test(cardSrc),
+  `${CARD}: doSave must select the isolated content handler for legacy read-only cards and the place fallback otherwise. Without either arm an unwired control is dead.`);
+ok(/<button\s+type="button"\s+className=\{"wf-place-card-save"[\s\S]{0,160}\[ACTION_ATTR\]: "save", \[PLACE_ATTR\]: place\.id/.test(cardSrc),
+  `${CARD}: the save control must be a <button> exposing [ACTION_ATTR]: "save" to the pre-hydration bridge, so an early human tap is queued, not lost`);
+ok(/if \(doSave\) doSave\(e, place\)/.test(cardSrc), `${CARD}: the save button must invoke the resolved doSave handler`);
+ok(!/\{doSave \?\s*\(/.test(cardSrc), `${CARD}: the save control is branching on doSave again — that is the shape that rendered a link in the else-branch`);
 
 // ---------------------------------------------------------------------------
 // 2b. v8.30.1 — EVERY CONTROL IN THE ACTION ROW, not only the ones with an
@@ -253,7 +244,7 @@ ok(/from "\.\/shareFlow\.js"/.test(storeSrc), `${STORE}: the share fallback must
 let offenders = 0;
 for (const abs of [...walk(join(ROOT, "app")), ...walk(join(ROOT, "lib"))]) {
   const rel = relative(ROOT, abs).replace(/\\/g, "/");
-  if (rel === CARD) continue;
+  // 2026-10-29: the card is no longer exempt — nothing builds this URL.
   // COMMENTS ARE NOT CODE. Every one of these files DOCUMENTS the anchor it no
   // longer renders — the first cut of this check failed on its own changelog.
   const src = strip(readFileSync(abs, "utf8"));
@@ -369,4 +360,4 @@ for (const abs of walk(join(ROOT, "app"))) {
 ok(railSites > 0, "found no rail-card render sites — this half of the guard has lost its subject");
 
 if (bad) { console.error(`check-card-actions: ${bad} failure(s)`); process.exit(1); }
-console.log(`check-card-actions: OK — ${checks} assertions (${sites} place-card surfaces, ${railSites} rail-card surfaces, actions: ${ACTIONS.join(", ")})`);
+console.log(`check-card-actions: OK — ${checks} assertions (${sites} place-card surfaces, ${railSites} rail-card surfaces, no ?action= anchors)`);

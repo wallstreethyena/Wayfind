@@ -5,6 +5,7 @@ import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import GuidePhoto from "./GuidePhoto.js";
 import { NavIcon } from "./kit.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
+import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { emitCommerce } from "../../lib/commerce.js";
 import { activeSeasonalMark, HALLOWEEN_MARK } from "../../lib/seasonalBrand.js";
 
@@ -226,6 +227,16 @@ const CSS = `
 .boo-rating b{color:#F5A524;font-weight:700}
 .boo-tour-photo{position:relative;min-width:0;min-height:200px;height:100%;background:var(--surface);overflow:hidden}
 .boo-tour-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.boo-featured,.boo-dests{margin-top:22px}
+.boo-featured h2,.boo-dests h2{margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream)}
+.boo-pick-list,.boo-dest-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.boo-pick-card{background:#141c27;border:1px solid #F97316;border-radius:14px;overflow:hidden}
+.boo-pick-photo{position:relative;height:168px;background:#1C2230;overflow:hidden}
+.boo-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.boo-pick-body{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
+.boo-pick-card h3{margin:0;font-size:17px;line-height:1.3;font-weight:800;color:#F4F6F8}
+.boo-dest-link{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #F97316;color:#FDBA74;font-size:15px;font-weight:800;text-decoration:none;text-align:center}
+.boo-featured a:focus-visible,.boo-dests a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
 `;
 
 function FestivalLights() {
@@ -399,6 +410,7 @@ function TourCard({ t, priority }) {
       <div className="boo-body">
         {t.duration ? <span className="boo-chip">{t.duration}</span> : null}
         <h2>{t.name}</h2>
+        {t.photo && t.photo.credit ? <PhotoCredit photos={[t.photo]} /> : null}
         {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : <p className="boo-rating" aria-hidden="true">&nbsp;</p>}
         <p className="boo-line boo-city">
           <svg viewBox="0 0 16 16" {...ICON}><path d="M8 14.5s4.5-4 4.5-7.5a4.5 4.5 0 1 0-9 0c0 3.5 4.5 7.5 4.5 7.5z" /><circle cx="8" cy="7" r="1.6" /></svg>
@@ -409,7 +421,8 @@ function TourCard({ t, priority }) {
             <span className="boo-from">from</span>
             <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
           </p>
-          <a className="boo-buy" href={t.cta.href} rel={t.cta.rel}>{t.cta.label}</a>
+          <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
+          <GuideCommissionLine />
           <p className="boo-via">{t.cta.via}</p>
         </div>
       </div>
@@ -441,16 +454,89 @@ function TourSection({ chrome, tours, regions }) {
   );
 }
 
+const FEATURED_HEADING = "Top Florida ghost tours";
+const DEST_HEADING = "More ghost tours on Viator";
+
+function FeaturedGhostTours({ tours }) {
+  if (!tours.length) return null;
+  return (
+    <section className="boo-featured" aria-labelledby="boo-featured-title" data-featured-tours="">
+      <h2 id="boo-featured-title">{FEATURED_HEADING}</h2>
+      <div className="boo-pick-list">
+        {tours.map((t) => (
+          <article key={t.id} className="boo-pick-card" data-featured-tour={t.id}>
+            {t.photo && t.photo.src ? (
+              <div className="boo-pick-photo">
+                <GuidePhoto
+                  src={t.photo.src}
+                  alt={t.photo.alt || ""}
+                  width={t.photo.width}
+                  height={t.photo.height}
+                  sizes="(min-width: 720px) 688px, 100vw"
+                  loading="lazy"
+                  fallbackClassName="boo-ph"
+                  fallbackText=""
+                />
+              </div>
+            ) : null}
+            <div className="boo-pick-body">
+              {t.place ? <p className="boo-line">{t.place}</p> : null}
+              <h3>{t.name}</h3>
+              {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : null}
+              {t.duration ? <p className="boo-line">{t.duration}</p> : null}
+              {Number(t.fromPrice) > 0 ? (
+                <p className="boo-pricerow" aria-label={t.priceLabel}>
+                  <span className="boo-from">from</span>
+                  <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
+                </p>
+              ) : null}
+              <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
+              <GuideCommissionLine />
+              {t.cta.via ? <p className="boo-via">{t.cta.via}</p> : null}
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function GhostDestinations({ links }) {
+  if (!links.length) return null;
+  return (
+    <section className="boo-dests" aria-labelledby="boo-dest-title" data-ghost-destinations="">
+      <h2 id="boo-dest-title">{DEST_HEADING}</h2>
+      <ul className="boo-dest-list">
+        {links.map((link) => (
+          <li key={link.id}>
+            <a className="boo-dest-link" data-ghost-dest={link.id} href={link.href} target="_blank" rel="sponsored nofollow noopener">{link.label}</a>
+            <GuideCommissionLine />
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
 export default function BoHalloweenHaunt({ model, share = null, initialFilter = "all" }) {
   const { chrome, filters, haunts, picks } = model;
   const tours = Array.isArray(model.tours) ? model.tours : [];
   const eventTours = Array.isArray(model.eventTours) ? model.eventTours : [];
   const tourRegions = Array.isArray(model.tourRegions) ? model.tourRegions : [];
-  const [filter, setFilter] = useState(initialFilter);
+  const featuredTours = Array.isArray(model.featuredTours) ? model.featuredTours : [];
+  const ghostDestinations = Array.isArray(model.ghostDestinations) ? model.ghostDestinations : [];
+  // PR #2017 showed tours only after the Ghost tours chip. The default view
+  // stacks the haunt grid and the full tour section again. When every haunt
+  // has expired, open on that chip so the page is not an empty grid.
+  const [filter, setFilter] = useState(
+    initialFilter === "all" && haunts.length === 0 ? "tours" : initialFilter
+  );
   const [selectedPickId, setSelectedPickId] = useState(null);
 
   const selectedPick = picks.find((p) => p.id === selectedPickId) || null;
-  const showTours = !selectedPick && filter === "tours" && tours.length > 0 && tourRegions.length > 0;
+  const tourReady = !selectedPick && tours.length > 0 && tourRegions.length > 0;
+  const toursOnly = tourReady && filter === "tours";
+  const toursUnderHaunts = tourReady && filter === "all";
   const shown = selectedPick
     ? (selectedPick.shortlistIds || [selectedPick.hauntId]).map((id) => haunts.find((h) => h.id === id)).filter(Boolean)
     : filter === "all"
@@ -514,6 +600,9 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           {toursChip ? <button type="button" className="boo-jump" onClick={openTours}>{chrome.toursJump}<span aria-hidden="true">↓</span></button> : null}
         </div>
 
+        <FeaturedGhostTours tours={featuredTours} />
+        <GhostDestinations links={ghostDestinations} />
+
         <div className="boo-picks-wrap">
           <div className="boo-picks" role="toolbar" aria-label={chrome.pick}>
             {picks.map((item) => (
@@ -561,7 +650,7 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
             </div>
           ) : null}
 
-          {showTours ? (
+          {toursOnly ? (
             <TourSection chrome={chrome} tours={tours} regions={tourRegions} />
           ) : shown.length || shownEvents.length ? (
             <div className="boo-vault-grid">
@@ -606,7 +695,8 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
                         ))}
                       </p>
                     ) : null}
-                    <a className={"boo-buy" + (row.bookable === false ? " is-muted" : "")} href={row.cta.href} rel={row.cta.rel} data-commerce-owner={row.cta.kind === "organizer" ? "BoHalloweenHaunt" : undefined} onClick={row.cta.kind === "organizer" ? () => organizerTap(row) : undefined}>{row.cta.label}</a>
+                    <a className={"boo-buy" + (row.bookable === false ? " is-muted" : "")} href={row.cta.href} target={row.cta.kind === "affiliate" ? "_blank" : undefined} rel={row.cta.kind === "affiliate" ? "sponsored nofollow noopener" : row.cta.rel} data-commerce-owner={row.cta.kind === "organizer" ? "BoHalloweenHaunt" : undefined} onClick={row.cta.kind === "organizer" ? () => organizerTap(row) : undefined}>{row.cta.label}</a>
+                    {row.cta.kind === "affiliate" ? <GuideCommissionLine /> : null}
                     <p className="boo-via">{row.cta.via}</p>
                     <a className="boo-event" href={row.eventHref}>{chrome.eventPage}</a>
                     </div>
@@ -615,9 +705,10 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
               ))}
               {shownEvents.map((t, i) => <TourCard key={t.id} t={t} priority={shown.length + i < 2} />)}
             </div>
-          ) : (
+          ) : toursUnderHaunts ? null : (
             <p className="boo-empty">{chrome.empty}</p>
           )}
+          {toursUnderHaunts ? <TourSection chrome={chrome} tours={tours} regions={tourRegions} /> : null}
         </div>
       </div>
     </section>
