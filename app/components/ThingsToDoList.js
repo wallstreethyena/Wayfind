@@ -37,6 +37,8 @@ import { supabase } from "../../lib/supabase.js";
 import { waterForBeaches, sampledShort } from "../../lib/waterStations.js";
 import { WATER_PLAIN, waterQualityKey } from "../../lib/beachChip.js";
 import ViatorCommerceLink from "./ViatorCommerceLink";
+import RailCard from "./RailCard";
+import { experienceVideoFor } from "../../lib/experienceVideos.js";
 // WO-B (2026-09-03, owner, verbatim): "Every rail card, regardless of what it
 // is, should have the like, dislike, share and save button." This tour Card
 // had only Book and a conditionally-rendered Share — Save/Like/Dislike never
@@ -173,6 +175,18 @@ export function Card({ r, first, rank, city, blurb, beachSignal, onOpenPlace, on
     fmtDur(r.duration_min),
   ].filter(Boolean);
   const take = toHookLine(r.editorial_hook, r.title);
+  // An attached tour uses the shared card so its video button and modal are
+  // siblings of the booking link, never interactive content inside an anchor.
+  if (experienceVideoFor({ provider: "viator", id: r.id })) {
+    return <RailCard title={r.title} photo={r.image_url} rank={rank} score={ds}
+      eyebrow="Activities" facts={facts} take={take} award={award}
+      badge={r.selling_out ? <span>Selling fast</span> : null}
+      actionItem={{ id: r.id, type: "experience", provider: "viator", title: r.title, image: r.image_url, url: r.booking_url || r.url || "" }}
+      onShare={onShare ? () => onShare(r) : undefined}
+      onOpen={(event) => event.currentTarget.querySelector("a[data-offer]")?.click()}
+      ctaNode={<ViatorCommerceLink t={{ ...r, code: r.id }} city={city} surface="ttd_ranked_card" contentId={city} rank={rank}
+        className="wf-place-card-book wf-rail-card-cta" onClick={(event, clickId) => { event.stopPropagation(); try { onLog?.("ttd_book", { id: r.id, name: r.title }, { click_id: clickId }); } catch {} }}>Book ↗</ViatorCommerceLink>} />;
+  }
   const body = (
     <article className={"wf-place-card wf-ttd-focus" + fallCardClass(r.place_id || r.id, siteTodayStr()) + spookyOverFall(r, siteTodayStr())} style={{ marginBottom: 12 }}>
       {/* v8.62: score in the top right corner of the CARD, never on the photo
