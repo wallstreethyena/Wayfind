@@ -52,7 +52,7 @@
     "file": "supabase/migrations/20261021180000_wf_apple_place_ids.sql",
     "sha256": "e48800727ae58370478ded154224fce8fbd394aa3ab30b19715a65e47aef908d",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) \u2014 do not apply until the PR is reviewed",
+    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) — do not apply until the PR is reviewed",
     "reason": "Additive wf_apple_place_ids (Apple Place IDs only; exempt from DPLA Attachment 6 section 2.5) with RLS on and no anon/authenticated grants, plus the apple_maps row in wf_source_registry (15,000 calls/day ceiling under Apple's free 25,000). Not applied to production project gbhtoehdxkzjsmmkisgu. Until applied, the list ships no Place IDs and the map makes no Place ID lookups. Rollback: delete the apple_maps registry row (after its usage rows), drop table public.wf_apple_place_ids."
   },
   {
@@ -68,12 +68,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#1989: fix-affiliate-synthetic-traffic burst gate for synthetic redirect traffic",
     "reason": "NOT APPLIED. New table wf_redirect_burst (RLS on, no policies, service role only) + RPC wf_redirect_burst_record, additive, rollback = drop both. Stores only truncated sha256 hashes of IP+UA and offer plus a timestamp. Only used when REDIRECT_BURST_GATE=1; the code fails open and falls back to an in-memory counter without it."
-  },
-  {
-    "file": "supabase/migrations/20261029010000_wf_deals_mnsshp_partner_unavailable.sql",
-    "sha256": "c1d468b46b428f5d37b3fbc1f9403a3ee6d33ee085a859a8bad40a724c39fa1b",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2009 follow up (FIX MICKEY, owner approved 2026-10-28)",
-    "reason": "Data only: wf_deals id 8 (UT Mickey's Not-So-Scary party ticket) active=false because the UT party page now redirects to the general Disney World page. No schema/grant/RLS change; idempotent; rollback is UPDATE wf_deals SET active=true WHERE id=8. Applied right after this PR merges, receipt follows in a small follow-up commit."
   }
 ]
