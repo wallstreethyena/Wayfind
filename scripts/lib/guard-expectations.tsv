@@ -733,12 +733,12 @@ scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c7
 scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	46587f8ab638155f703f51fe41c5ddc580078f64024d40361d20bfd3f26074b1
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
 scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	72dae7d6f783e0b3813f791460b67f95aedb1480bf396af420f57e51d0073fe7
-scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	230	0	0	3dc70c5aaa15768aeeabc7f428593ef6c25c0b067dd665443323d964afea998d
+scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	233	0	0	a15c2ea6c50abcbf056a3b9bd5dea487dad67a01301681c21566406316d7421c
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	9d6e675717fb69fa9849cf701fccea544b8e355f0243a1abc61277ec60def499
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
 scripts/test-halloween-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0	57f8f08e5015cac3e797befc96add648645c0b0c1db66ffdca95371403ef6c77
 scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	93323a189af5ccd3b41f436983795d77a21effb05ceb05d2c1a1e55417c7a464
-scripts/test-haunt-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	ae666ca4763b2e452d62c2b1de7028289e2059b8232b37494624f43a03100fe2
+scripts/test-haunt-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	7cd10607cd12d1cc3cbfc9bc06f178b2525fca776d6ca91c83305429dc793fd2
 scripts/test-hero-image.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	1	e1422e62a97667fb64887e7c1b6df8b1d9fc8865f74ccb0ad89d6e6ba9041b9f
 scripts/test-hero-impression-rendered.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	61c4df06be19b4931ce8deb9cc6ba5c1dc52558d3a64164b6626f9bc120d18c5
 scripts/test-hero-people-free.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	d6e815af9682ea0248e2f02d05a9803fb9a75532ecd24a5260ea265b8f5fa369

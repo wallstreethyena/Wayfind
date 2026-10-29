@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Locks the /halloween-in-florida photo strip: at most five photos per card, no repeat
+// Locks the /halloween-in-florida photo strip: at most 14 photos per card, no repeat
 // of the same picture (by URL or by source picture), every Google photo carries its
 // author credit, nothing unrelated, and a missing or failing store row fails closed.
 import assert from "node:assert/strict";
@@ -28,6 +28,9 @@ const ok = (c, m) => { checks++; assert.ok(c, m); };
 const d = dedupeVaultEntries([vault(1, "File:A.jpg"), { ...vault(2, "File:A.jpg") }, vault(3, "File:B.jpg"), vault(3, "File:C.jpg")]);
 assert.equal(d.length, 2); checks++;
 assert.deepEqual(dedupeVaultEntries(null), []); checks++;
+const taggedCopy = dedupeVaultEntries([vault(1, "File:Shared.jpg"), { ...vault(9, "File:Shared.jpg"), haunt_key: "howlOrlando" }]);
+assert.equal(taggedCopy.length, 2); checks++;
+assert.equal(taggedCopy[1].haunt_key, "howlOrlando"); checks++;
 
 // 2. unrelated pictures are skipped, venue pictures kept
 const row = model.haunts.find((h) => h.id === "hhn");
@@ -47,7 +50,7 @@ ok(g && /^Photo by Jane on Google Maps$/.test(g.credit) && g.source === "google"
 const placeId = (id) => HAUNT_GOOGLE_PLACE[id];
 const many = await withHauntPhotos(model, {
   read: async (id) => google(id, "Jane"),
-  readVault: async () => [1, 2, 3, 4, 5, 6, 7].map((n) => vault(n)),
+  readVault: async () => Array.from({ length: MAX_HAUNT_PHOTOS + 6 }, (_, n) => vault(n + 1)),
 });
 for (const h of many.haunts) {
   const photos = h.photos;
@@ -57,7 +60,23 @@ for (const h of many.haunts) {
   if (h.photo) ok(photos[0].src === h.photo.src, h.id + " owned photo not first");
 }
 ok(many.haunts.some((h) => h.photos.length === MAX_HAUNT_PHOTOS), "some card reaches the cap");
-ok(MAX_HAUNT_PHOTOS === 5, "cap is five");
+ok(MAX_HAUNT_PHOTOS === 14, "cap is 14");
+
+const swModel = { haunts: model.haunts.filter((h) => h.id === "howlOrlando" || h.id === "spooktacular") };
+let googleReads = 0;
+const sw = await withHauntPhotos(swModel, {
+  read: async () => { googleReads += 1; return google(HAUNT_GOOGLE_PLACE.howlOrlando, "Jane"); },
+  readVault: async () => [
+    { ...vault(1), haunt_key: "howlOrlando" },
+    { ...vault(2), haunt_key: "spooktacular" },
+    vault(3),
+  ],
+});
+const howl = sw.haunts.find((h) => h.id === "howlOrlando");
+const spooky = sw.haunts.find((h) => h.id === "spooktacular");
+ok(googleReads === 0, "shared SeaWorld place does not read the shared Google photo");
+ok(howl.photos.some((p) => p.src.endsWith("/p1.jpg")) && howl.photos.every((p) => !p.src.endsWith("/p2.jpg") && !p.src.endsWith("/p3.jpg") && p.source !== "google"), "Howl O Scream keeps only its tagged photos");
+ok(spooky.photos.some((p) => p.src.endsWith("/p2.jpg")) && spooky.photos.every((p) => !p.src.endsWith("/p1.jpg") && !p.src.endsWith("/p3.jpg") && p.source !== "google"), "Spooktacular keeps only its tagged photos");
 
 // 5. fail closed: missing store row, throwing store, unmapped haunt
 const none = await withHauntPhotos(model, { read: async () => null, readVault: async () => [] });
