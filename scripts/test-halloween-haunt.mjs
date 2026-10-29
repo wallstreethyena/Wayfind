@@ -86,7 +86,6 @@ const expectedHref = {
   howlOrlando: "/api/commerce/go?provider=undercover_tourist&offer=21&surface=halloween_haunts&content=howl-o-scream-seaworld-2026",
   hhn: "/api/commerce/go?provider=undercover_tourist&offer=19&surface=halloween_haunts&content=hhn-orlando-2026",
   zooTampa: "/api/commerce/go?provider=tiqets&offer=tampa-event-zootampa-creatures-of-the-night&surface=halloween_haunts&content=zootampa-creatures-2026",
-  mickey: "/api/commerce/go?provider=undercover_tourist&offer=8&surface=halloween_haunts&content=mnsshp-2026",
   spooktacular: "/api/commerce/go?provider=undercover_tourist&offer=7&surface=halloween_haunts&content=seaworld-spooktacular-2026",
   brick: "/api/commerce/go?provider=undercover_tourist&offer=16&surface=halloween_haunts&content=brick-or-treat-2026",
   peppa: "/api/commerce/go?provider=undercover_tourist&offer=18&surface=halloween_haunts&content=peppas-halloween-party-2026",
@@ -120,6 +119,7 @@ const organizerHref = {
   petrified: "https://events.ticketleap.com/tickets/a-petrified-forest/a-petrified-forest-scream-park-2026",
   undead: "https://www.undeadinthewater.com/",
   frightfest: "https://www.sarasotafrightfest.com/",
+  mickey: "https://disneyworld.disney.go.com/events-tours/magic-kingdom/mickeys-not-so-scary-halloween-party/",
 };
 const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist", "sideshowObscura"]);
 
@@ -137,7 +137,13 @@ for (const row of model.haunts) {
     }
   } else {
     ok(row.cta.kind === "organizer" && row.cta.href === organizerHref[row.id], row.id + " organizer href");
-    ok(row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
+    if (row.id === "mickey") {
+      ok(row.cta.label === "Check Disney" && row.bookable === false && !/sponsored/.test(row.cta.rel), "mickey: no partner CTA, plain Check Disney link, not sponsored");
+      ok(row.admissionNote === "Party tickets are currently unavailable through our booking partners." && !/sold out/i.test(row.admissionNote + row.tip + row.roast + row.priceNote), "mickey: accurate partner availability wording, never sold out");
+      ok(row.alternatives.length === 3 && row.alternatives.every((id) => model.haunts.some((h) => h.id === id && h.bookable !== false && h.cta.kind === "affiliate")), "mickey: three bookable family alternatives");
+    } else {
+      ok(row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
+    }
   }
 }
 
@@ -257,7 +263,9 @@ for (const row of model.haunts) {
   if (row.cta.kind === "affiliate") ok(html.includes('rel="sponsored nofollow noopener"'), row.id + " rel in markup");
   ok(html.includes(row.cta.label.replace(/&/g, "&amp;") + "</a>") && html.includes(row.cta.via), row.id + " buy button label and seller line");
 }
-ok((html.match(/class="boo-buy"/g) || []).length === model.haunts.length, "every haunt card has a buy button");
+ok((html.match(/class="boo-buy(?: is-muted)?"/g) || []).length === model.haunts.length, "every haunt card has a buy button");
+ok((html.match(/class="boo-buy is-muted"/g) || []).length === model.haunts.filter((r) => r.bookable === false).length, "only partner-unavailable haunts get the muted button");
+ok(/data-haunt-alternatives=""[\s\S]*?href="#haunt-spooktacular"[\s\S]*?href="#haunt-brick"[\s\S]*?href="#haunt-seaLifePirates"/.test(html), "Mickey card links its three bookable family alternatives");
 ok((html.match(/data-photo-strip=""/g) || []).length === model.haunts.length, "the photo strip renders once per card");
 ok(html.includes("scroll-snap-type:x mandatory") && html.includes("grid-template-columns:40% minmax(0,1fr)"), "strip snaps and the card is photo left, content right at every width");
 ok(!/@media[^{]*\{[^}]*\.boo-card\{[^}]*flex-direction:column/.test(html), "the card never stacks on phones");
@@ -310,7 +318,11 @@ ok(parseBoReply('{"reply":"the best haunt right now","recommendedIds":["hhn"]}',
 ok(parseBoReply('{"reply":"Use promo code BOO20 for 20% off tickets!","recommendedIds":["hhn"]}', model) === null, "parser rejects invented promo codes and percentage discounts");
 ok(parseBoReply('{"reply":"Book at https://evil.example/tickets now.","recommendedIds":["hhn"]}', model) === null, "parser rejects external URLs in AI reply");
 ok(parseBoReply('{"reply":"Take the toddlers to Universal Horror Nights!","recommendedIds":["hhn"]}', model, "Where can I take kids and toddlers?") === null, "parser rejects non-family haunts when visitor asks for kids/toddlers");
-ok(parseBoReply('{"reply":"Mickey Not So Scary runs 7:00 PM to midnight from $119 to $229. Tap Get Tickets!","recommendedIds":["mickey"]}', model, "Where can I take kids and toddlers?") !== null, "parser accepts verified family haunts when visitor asks for kids");
+ok(parseBoReply('{"reply":"SeaWorld Spooktacular runs Oct 30, Oct 31 and Nov 1 with SeaWorld admission.","recommendedIds":["spooktacular"]}', model, "Where can I take kids and toddlers?") !== null, "parser accepts verified family haunts when visitor asks for kids");
+ok(parseBoReply('{"reply":"Mickey party is sold out, try SeaWorld Spooktacular.","recommendedIds":["spooktacular"]}', model) === null, "parser rejects an unverified sold out claim");
+ok(!boPrompt(model, "kids?").user.includes("mickey"), "the Claude catalog leaves out haunts partners cannot sell");
+const mickeyPick = parseBoReply('{"reply":"SeaWorld Spooktacular runs Oct 30, Oct 31 and Nov 1.","recommendedIds":["mickey","spooktacular"]}', model, "Where can I take kids?");
+ok(mickeyPick && !mickeyPick.recommendedIds.includes("mickey") && mickeyPick.recommendedIds.includes("spooktacular"), "Boo never recommends a haunt our partners cannot sell (Mickey)");
 
 const promoFallback = boHauntFallback("Give me a secret promo code for 50% off", model);
 ok(promoFallback.reply.includes("No secret promo codes") && !DASH.test(promoFallback.reply), "fallback handles promo code requests truthfully");
@@ -409,7 +421,7 @@ try {
     body: JSON.stringify({ message: "Where can I take kids?" }),
   }));
   const payload = await live.json();
-  ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
+  ok(live.status === 200 && payload.source === "fallback" && payload.recommendedIds.includes("spooktacular") && !payload.recommendedIds.includes("mickey") && !DASH.test(payload.reply), "missing key returns Boo's grounded fallback");
   const wrapRes = await POST(new Request("https://wayfind.test/api/bo-haunt", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -510,7 +522,7 @@ for (const row of model.haunts) {
   else ok(row.cta.kind === "organizer" && ORGANIZER_ALLOW.has(row.cta.href) && !/sponsored/.test(row.cta.rel), row.id + " is a non commercial organizer link on the allow list (no affiliate param)");
 }
 for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
-const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
 ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 

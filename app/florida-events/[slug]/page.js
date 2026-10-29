@@ -27,6 +27,7 @@ import { reminderFactsFor } from "../../../lib/eventReminderFacts.js";
 import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
+import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
@@ -153,6 +154,9 @@ const S = {
     boxShadow: "0 0 22px rgba(249,115,22,.30), 0 12px 36px rgba(249,115,22,.38), inset 0 1px 0 rgba(255,255,255,.3)",
   },
   disclosure: { margin: "10px 0 0", fontSize: 11.5, color: "#8B949E", textAlign: "center" },
+  availability: { margin: "0 0 20px", padding: "12px 14px", border: "1px solid #30363D", borderRadius: 12, background: "#161B22" },
+  availabilityNote: { margin: "0 0 8px", fontSize: 14, lineHeight: 1.5, color: "#E6EDF3" },
+  availabilityList: { margin: 0, paddingLeft: 18, display: "grid", gap: 6, fontSize: 14, lineHeight: 1.45 },
   actionsRow: { display: "flex", gap: 10, flexWrap: "wrap" },
   shareEnd: { margin: "28px 0 4px", padding: "18px 20px", borderRadius: 16, background: "#0E1520", border: "1px solid #1F2A3A" },
   shareAsk: { margin: "0 0 12px", fontSize: 15.5, lineHeight: 1.5, color: "#C9D1D9" },
@@ -219,6 +223,9 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
+  // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
+  // and offer the bookable alternatives, instead of a silent organizer fallback.
+  const availability = partnerAvailabilityNote(e.event_id);
   const crownTracked = CROWN_EVENT_SLUGS.has(params.slug);
   // "Remind me" (owner, 2026-10-14): only for an event with a real date. An
   // undated season, a watchlist twin and a past event get no button.
@@ -310,6 +317,18 @@ export default async function CuratedEventPage({ params }) {
             {"🎟️ " + ticket.label}
           </a>
           {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
+        </div>
+      ) : null}
+      {availability ? (
+        <div style={S.availability} data-partner-availability="">
+          <p style={S.availabilityNote}>{availability.note}</p>
+          {availability.alternatives.length ? (
+            <ul style={S.availabilityList}>
+              {availability.alternatives.map((alt) => (
+                <li key={alt.href}><a style={S.link} href={alt.href}>{alt.label}</a></li>
+              ))}
+            </ul>
+          ) : null}
         </div>
       ) : null}
 

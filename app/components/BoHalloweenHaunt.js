@@ -212,6 +212,9 @@ const CSS = `
 .boo-amt{text-align:right;font-size:22px;line-height:1.2;font-weight:800;color:var(--cream)}
 .boo-note{margin:0;font-size:13px;line-height:1.35;color:var(--cream);text-align:right;overflow-wrap:anywhere}
 .boo-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:var(--orange);color:#0D1117;border:2px solid var(--orange);border-radius:12px;font-size:15px;font-weight:700;line-height:1.2;text-decoration:none;text-align:center}
+.boo-buy.is-muted{background:transparent;color:var(--cream);border-color:var(--line)}
+.boo-alts{display:flex;flex-direction:column;gap:4px;margin:0;font-size:12.5px;line-height:1.35;color:#9A94A8}
+.boo-alts a{color:var(--lav);font-weight:600;text-decoration:underline;text-underline-offset:2px;min-height:24px;display:inline-flex;align-items:center}
 .boo-via{margin:0;font-size:11px;line-height:1.35;color:#9A94A8;text-align:center}
 .boo-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:var(--lav);font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
 .boo-empty{margin:16px 0 0;color:var(--muted);font-size:14px}
@@ -595,7 +598,15 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
                         </p>
                       );
                     })()}
-                    <a className="boo-buy" href={row.cta.href} rel={row.cta.rel} data-commerce-owner={row.cta.kind === "organizer" ? "BoHalloweenHaunt" : undefined} onClick={row.cta.kind === "organizer" ? () => organizerTap(row) : undefined}>{row.cta.label}</a>
+                    {row.bookable === false && Array.isArray(row.alternatives) && row.alternatives.length ? (
+                      <p className="boo-alts" data-haunt-alternatives="">
+                        <span>Still bookable:</span>
+                        {row.alternatives.map((id) => haunts.find((h) => h.id === id)).filter(Boolean).map((alt) => (
+                          <a key={alt.id} href={"#haunt-" + alt.id} onClick={() => { setSelectedPickId(null); setFilter("all"); }}>{alt.name}</a>
+                        ))}
+                      </p>
+                    ) : null}
+                    <a className={"boo-buy" + (row.bookable === false ? " is-muted" : "")} href={row.cta.href} rel={row.cta.rel} data-commerce-owner={row.cta.kind === "organizer" ? "BoHalloweenHaunt" : undefined} onClick={row.cta.kind === "organizer" ? () => organizerTap(row) : undefined}>{row.cta.label}</a>
                     <p className="boo-via">{row.cta.via}</p>
                     <a className="boo-event" href={row.eventHref}>{chrome.eventPage}</a>
                     </div>
