@@ -727,7 +727,7 @@ scripts/test-guide-lovebug-rail.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	91	
 scripts/test-guide-park-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	9707818cbfca8a511e52dbb93f8859a31bdb079653cbb4369192a56376f8b9b8
 scripts/test-guide-pick-offers.mjs	0	RENDER	blocks-ci-and-deploy	1	-	35	0	0	05df2e4d7f57d964aa9e4e3d8ba75f6c8187e434009a0c01033541e471c5615e
 scripts/test-guide-place-indexability.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	21ae009673cf910f1df0a42dc22e59f4aacf4d76cbf5d3bd50e2cc6eeb03486f
-scripts/test-guide-rays-game-day.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	32	0	0	2f0056c2cfaf69da7841d5e900dea81ae1eb354c8174fab2e59ffb365b29bcca
+scripts/test-guide-rays-game-day.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	26	0	0	bb8baeb5d1dde7a9989330a69d79edc85871efae75afffa53c95bcfe86b6a35c
 scripts/test-guide-search-as-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	33	0	0	75a7c656b0b56bc49804ebbe653154accdbcc56ee273511e975b1868baf9fdd9
 scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c71ddcdd9e9c00d77ab5575d17842f71b14bba71973917741ecc1789
 scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	46587f8ab638155f703f51fe41c5ddc580078f64024d40361d20bfd3f26074b1
@@ -920,7 +920,7 @@ scripts/test-rail-visual-standard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	41	0	0	f
 scripts/test-rails-failed-is-not-covered.mjs	0	CALL	blocks-ci-and-deploy	1	-	39	0	0	387f4ee328c78075475812b7ed65b53ffcf32d00a92c8c865857dc64472838b4
 scripts/test-ranked-experience-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	1	3	5f8b6ab194ce6348480b3ac16ae175b7f0bad6cb1f288fe2a0003539111e4298
 scripts/test-ranking-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	a954710f51e3a8d496e74df3717f1038f248d9da883342dfa0bd60e92b61dab2
-scripts/test-rays-world-series-poster.mjs	0	RENDER	blocks-ci-and-deploy	1	-	26	0	0	6badabff91a652290b6a028191c0d5c7333cf3fc66d33e6c7848480bf829d4f1
+scripts/test-rays-world-series-poster.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	86e3e9df4a82368a9d697412b12cdcfcb201a292e0ad8038168e830f606a7a60
 scripts/test-reaction-affordance.mjs	0	RENDER	blocks-ci-and-deploy	1	-	6	0	0	220676c3fce47c15caef74152814bc4cb854b6dd2eafb823e4526e90555db2b2
 scripts/test-reconcile-list-map-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	dca906ab3e256ee0683cd2195cebbd3fa1ba7a9cb7491201f1bd37a7ff1e652a
 scripts/test-red-tide.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	3665c2f2520aa17bb8ea626382bfb62e9fe5e2d003f19766b480c7ef13281b5e

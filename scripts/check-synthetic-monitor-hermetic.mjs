@@ -247,7 +247,7 @@ for (const s of SCENARIOS) {
     "menu-poster contract includes the product-owned geo-gated Coconut Grove sponsor tile");
   ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("rays-world-series-2026"),
     "menu-poster contract includes the product-owned Rays World Series 2026 campaign poster (#1834)");
-  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove", "rays-world-series-2026"], "2026-10-31");
+  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove", "rays-world-series-2026"], "2026-10-28");
   ok(withOptional.missingIds.length === 0 && withOptional.extraIds.length === 0
       && withOptional.optionalPresentIds.includes("live-sports")
       && withOptional.optionalPresentIds.includes("sponsor-coconut-grove")
@@ -258,11 +258,11 @@ for (const s of SCENARIOS) {
     "2026-10-12",
   );
   const raysAfterExpiry = posterMenuDiff(
-    [...EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "halloween" && id !== "augtober" && id !== "christmas"), "rays-world-series-2026"],
-    "2027-01-02",
+    [...EXPECTED_VISIBLE_POSTER_IDS, "rays-world-series-2026"],
+    "2026-10-29",
   );
   ok(raysBeforeLaunch.extraIds.includes("rays-world-series-2026") && raysAfterExpiry.extraIds.includes("rays-world-series-2026"),
-    "menu-poster MUTATION RED: Rays World Series 2026 poster is rejected as an extra tile before its 2026-10-22 launch and after its 2027-01-01 campaign end");
+    "menu-poster MUTATION RED: Rays World Series 2026 poster is rejected as an extra tile before its 2026-10-22 launch and after its 2026-10-29 campaign end");
 
   // Mutation red: remove the historical Breakfast tile from an otherwise
   // healthy menu. If this predicate stopped checking the required set, this
