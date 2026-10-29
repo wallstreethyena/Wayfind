@@ -19,7 +19,7 @@ import { siteTodayStr } from "../lib/siteTime.js";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVENT_TICKET_DEALS, SEPARATELY_TICKETED, eventTicketDeal, eventTicketHref, eventTicketCta, UT_VIA, VIA_BY_PROVIDER } from "../lib/eventTicketDeals.js";
+import { EVENT_TICKET_DEALS, NO_EXACT_AFFILIATE_PRODUCT, SEPARATELY_TICKETED, eventTicketDeal, eventTicketHref, eventTicketCta, UT_VIA, VIA_BY_PROVIDER } from "../lib/eventTicketDeals.js";
 import { UT_EVENT_DEAL_IDS, UT_PLACE_DEAL_IDS } from "../lib/deals.js";
 import { FALL_EVENT_TICKET_DEALS } from "../lib/fallPool.js";
 import { curatedToFeedEvent } from "../lib/curatedEvents.js";
@@ -123,8 +123,13 @@ ok(eventTicketDeal("screamageddon-2026") === null, "an event nobody sells return
 const href = eventTicketHref("hhn-orlando-2026", { surface: "fall_intent_rail" });
 ok(href === "/api/commerce/go?provider=undercover_tourist&offer=19&surface=fall_intent_rail&content=hhn-orlando-2026", `the href is the commerce redirect for THAT deal (${href})`);
 ok(isCommerceGoUrl(href), "and the pipeline recognises it as a commerce-go URL");
-const cta = eventTicketCta("mnsshp-2026", { surface: "florida_event_page" });
-ok(cta && cta.href.includes("offer=8") && cta.via === UT_VIA && cta.label === partnerTicketLabel(UT_VIA, { product: "event-ticket" }) && cta.product === "event-ticket", "the CTA descriptor carries href, actual merchant, Wayfind-led event label and product");
+const cta = eventTicketCta("howl-o-scream-tampa-2026", { surface: "florida_event_page" });
+ok(cta && cta.href.includes("offer=20") && cta.via === UT_VIA && cta.label === partnerTicketLabel(UT_VIA, { product: "event-ticket" }) && cta.product === "event-ticket", "the CTA descriptor carries href, actual merchant, Wayfind-led event label and product");
+// 2026-10-28 FIX MICKEY: UT's party page redirects to general Disney World, so
+// Not-So-Scary has NO ticket CTA anywhere and carries a visitor-facing note.
+ok(eventTicketCta("mnsshp-2026", { surface: "florida_event_page" }) === null && eventTicketDeal("mnsshp-2026") === null, "Not-So-Scary has no partner ticket CTA while partner tickets are gone");
+ok(Boolean(NO_EXACT_AFFILIATE_PRODUCT["mnsshp-2026"] && NO_EXACT_AFFILIATE_PRODUCT["mnsshp-2026"].visitorNote.startsWith("Party tickets are currently unavailable through our booking partners")), "Not-So-Scary carries the accurate partner-availability note (never 'sold out')");
+ok(!/sold out/i.test(NO_EXACT_AFFILIATE_PRODUCT["mnsshp-2026"].visitorNote), "the note never claims Disney sold out");
 const parkCta = eventTicketCta("brick-or-treat-2026", { surface: "x" });
 ok(parkCta && parkCta.label === partnerTicketLabel(UT_VIA, { product: "park-admission" }), "an included-with-admission event is labelled Wayfind-led PARK tickets, so the reader knows what they are buying");
 for (const [provider, merchant] of Object.entries(VIA_BY_PROVIDER)) {

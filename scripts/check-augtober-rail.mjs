@@ -121,7 +121,7 @@ ok(eventFranchiseKey("Halloween Horror Nights Orlando") !== eventFranchiseKey("S
 ok(eventFranchiseKey("Vampire Penguin") !== eventFranchiseKey("Fantasy Fest"), "distinct franchises stay distinct");
 
 // ── 2c. Ticket monetization: PRODUCT integrity, pinned ─────────────────────
-ok(FALL_EVENT_TICKET_DEALS["mnsshp-2026"] === 8, "Not-So-Scary deep-links UT's ticket for THAT event (deal 8)");
+ok(!("mnsshp-2026" in FALL_EVENT_TICKET_DEALS), "Not-So-Scary has no ticket deal while UT's party page redirects to general Disney World (2026-10-28)");
 // 2026-09-03: HHN and both Howl-O-Screams ARE mapped now — to UT's single-night
 // EVENT tickets (deals 19/20/21, page bodies read that day), never to the park
 // admission rows (6/15/7). The product rule is unchanged; the inventory grew.
