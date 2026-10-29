@@ -20,7 +20,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
-import { isCrawler, isSyntheticMonitor } from "../../../../lib/crawler.js";
+import { isCrawler, isInternalVerifier, isSyntheticMonitor } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 import {
   chooseViatorGoLocation,
@@ -256,7 +256,8 @@ export async function GET(req) {
     click_id: clickId,
   };
 
-  let trafficClass = "human";
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...baseProps, traffic_class: trafficClass, ...(extra || {}) });

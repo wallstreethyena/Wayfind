@@ -39,6 +39,11 @@ const CSP_REPORT_ONLY = [
   // Google conversion/analytics pixels: gtag still falls back to 1x1 image
   // beacons when sendBeacon/fetch is unavailable, so the image endpoints are
   // required for conversions to land reliably — not optional.
+  // dynamic-media-cdn.tripadvisor.com + aws-tiqets-cdn.imgix.net (2026-10-28,
+  // /halloween-in-florida audit): every tour photo on media-cdn 301s to the
+  // dynamic-media-cdn host, and the ZooTampa card photo is on the Tiqets imgix
+  // host. Both showed in local csp-report as img-src violations; the policy is
+  // report only today, so they only render because nothing enforces it yet.
   // media-cdn.tripadvisor.com: the TA content API returns BOTH hostnames for
   // place photos. Only media.tacdn.com was allowlisted, so every card whose
   // photo came back on the media-cdn host rendered an empty frame — confirmed
@@ -60,7 +65,7 @@ const CSP_REPORT_ONLY = [
   // img-src. Removing the directive shrinks the CSP surface with zero
   // behavior change; lh3.googleusercontent.com and *.ggpht.com (the actual
   // photo-serving hosts) are untouched.
-  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://upload.wikimedia.org https://images.unsplash.com https://*.supabase.co https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://www.facebook.com https://cdn.apple-mapkit.com https://*.apple-mapkit.com https://img.evbuc.com https://www.scf.edu https://parrishumc.com https://www.cmaquarium.org https://static.wixstatic.com https://www.centralfloridazoo.org https://cdn.monkplatform.com https://www.northportfl.gov https://secure.meetupstatic.com https://mds-assets.marriott.com https://www.playlargo.com",
+  "img-src 'self' data: blob: https://vercel.live https://vercel.com https://*.gstatic.com https://upload.wikimedia.org https://images.unsplash.com https://*.supabase.co https://lh3.googleusercontent.com https://*.ggpht.com https://s1.ticketm.net https://*.ticketm.net https://cache-graphicslib.viator.com https://media.tacdn.com https://media-cdn.tripadvisor.com https://dynamic-media-cdn.tripadvisor.com https://aws-tiqets-cdn.imgix.net https://tiles.openfreemap.org https://www.googletagmanager.com https://www.google-analytics.com https://*.google-analytics.com https://www.google.com https://googleads.g.doubleclick.net https://www.facebook.com https://cdn.apple-mapkit.com https://*.apple-mapkit.com https://img.evbuc.com https://www.scf.edu https://parrishumc.com https://www.cmaquarium.org https://static.wixstatic.com https://www.centralfloridazoo.org https://cdn.monkplatform.com https://www.northportfl.gov https://secure.meetupstatic.com https://mds-assets.marriott.com https://www.playlargo.com",
   // Sentry error beacons go to the project's ingest host (errors-only, no tunnel).
   // GA4 beacons to google-analytics.com and a region1.* shard; Ads conversions
   // beacon to google.com/pagead + googleads.g.doubleclick.net.
