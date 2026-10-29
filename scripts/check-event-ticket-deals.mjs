@@ -37,6 +37,23 @@ const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
 const venueIdentity = (merchant, norm) => !!(merchant && merchant.partners.some((p) => p.provider === norm.provider && p.offerId === norm.offerId));
 const isExactTiqetsProduct = (dest) => /tiqets\.com\/.+-p\d+\/?$/.test(String(dest || ""));
+const TN_EVENT_RX = /^https:\/\/www\.ticketnetwork\.com\/tickets\/\d+\/[a-z0-9:%().'_-]+$/;
+const TN_VENUE_RX = /^https:\/\/www\.ticketnetwork\.com\/e\/venues\/([a-z0-9-]+)-tickets$/;
+const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
+function ticketnetworkEventIdentity(offerId, lookup = partnerOfferById) {
+  const reg = lookup(offerId, "ticketnetwork");
+  if (!reg) return { ok: false, why: "offer missing from the registry" };
+  if (!TN_EVENT_RX.test(reg.destination)) return { ok: false, why: "destination is not an exact /tickets/<id>/ event page" };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(reg.expires || ""))) return { ok: false, why: "event row has no expires date" };
+  const venue = reg.fallbackOfferId ? lookup(reg.fallbackOfferId, "ticketnetwork") : null;
+  const m = venue && TN_VENUE_RX.exec(venue.destination);
+  if (!m || venue.expires) return { ok: false, why: "fallback is not an evergreen /e/venues/ page" };
+  const [y, mo, d] = reg.expires.split("-").map(Number);
+  const dateSlug = "-" + MONTHS[mo - 1] + "-" + d + "-" + y + "-";
+  if (!reg.destination.includes(dateSlug)) return { ok: false, why: "event page date is not " + reg.expires };
+  if (!reg.destination.endsWith(dateSlug + m[1])) return { ok: false, why: "event page venue is not " + m[1] };
+  return { ok: true, why: m[1] + " on " + reg.expires };
+}
 // ── 1. product integrity, executed ─────────────────────────────────────────
 const entries = Object.entries(EVENT_TICKET_DEALS);
 ok(entries.length >= 8, `registry holds the eight fall mappings (${entries.length})`);
@@ -53,6 +70,17 @@ for (const [eventId, raw] of entries) {
     } else {
       ok(!(String(norm.offerId) in UT_EVENT_DEAL_IDS), `${eventId}: a park-admission mapping does not borrow an event-ticket row`);
     }
+  } else if (norm.provider === "ticketnetwork") {
+    // 2026-10-29: TicketNetwork sells concert seats by EVENT page
+    // (/tickets/<id>/<show>-tickets-<dow>-<mon>-<d>-<yyyy>-<venue>). There is
+    // no affiliateLibrary merchant for an arena, so venue identity is proven
+    // from the registry row itself: the event page's slug must end with the
+    // SAME venue slug as the venue page it falls back to, carry the date the
+    // row expires on, and the row must expire (never a stale show page).
+    ok(!("deal" in raw), `${eventId}: a non-UT row carries no numeric \`deal\` alias`);
+    ok(norm.product === "event-ticket", `${eventId}: a TicketNetwork row is a show's own ticket`);
+    const check = ticketnetworkEventIdentity(norm.offerId);
+    ok(check.ok, `${eventId}: TicketNetwork event identity (${check.why})`);
   } else {
     // Tiqets / Klook: the row must resolve in the shared registry under its
     // OWN provider, name a real product, and match the merchant a reader
@@ -91,6 +119,16 @@ for (const [eventId, raw] of entries) {
   ok(wrongReg && isExactTiqetsProduct(wrongReg.destination), "control fixture: the other venue's offer really is an exact Tiqets product page");
   ok(!venueIdentity(zooMerchant, wrongVenue), "NEGATIVE CONTROL: a ZooTampa event-ticket row pointing at Adventure Island's Tiqets product FAILS venue identity");
   ok(!venueIdentity(null, wrongVenue), "NEGATIVE CONTROL: no merchant for the organizer URL fails venue identity");
+}
+// NEGATIVE CONTROLS (2026-10-29) for the TicketNetwork identity rule.
+{
+  const real = partnerOfferById("tampa-event-nightmare-on-channelside-2026", "ticketnetwork");
+  const fake = (patch) => (id, p) => (id === "x" ? { ...real, ...patch } : partnerOfferById(id, p));
+  ok(ticketnetworkEventIdentity("tampa-event-nightmare-on-channelside-2026").ok, "control: the real Channelside row passes");
+  ok(!ticketnetworkEventIdentity("x", fake({ destination: real.destination.replace("benchmark-international-arena", "raymond-james-stadium") })).ok, "NEGATIVE CONTROL: a show page at another venue FAILS");
+  ok(!ticketnetworkEventIdentity("x", fake({ expires: "2026-11-01" })).ok, "NEGATIVE CONTROL: a row whose expiry is not the show date FAILS");
+  ok(!ticketnetworkEventIdentity("x", fake({ expires: undefined })).ok, "NEGATIVE CONTROL: an undated show row FAILS");
+  ok(!ticketnetworkEventIdentity("x", fake({ destination: "https://www.ticketnetwork.com/e/venues/benchmark-international-arena-tickets" })).ok, "NEGATIVE CONTROL: a venue hub is not a show's own ticket");
 }
 for (const eventId of SEPARATELY_TICKETED) {
   const entry = EVENT_TICKET_DEALS[eventId];

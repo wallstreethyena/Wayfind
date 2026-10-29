@@ -35,6 +35,13 @@ eq(classifyProbe({ status: 404, resultHeader: "probe-no-spend" }), "miss", "cont
 eq(classifyProbe({ status: 302, location: "https://lh3.googleusercontent.com/x" }), "real", "control: a google redirect is real");
 eq(classifyProbe({ status: 302, resultHeader: "owned-free", location: "https://x.supabase.co/storage/v1/object/public/v/p.jpg" }), "real", "a 302 from the free licensed lane is a real photo, not an error");
 eq(classifyProbe({ status: 200, resultHeader: "owned-free" }), "error", "control: owned-free only counts on a 302");
+// 2026-10-28: retained Google photos 302 (google-stored) to our own /api/photo/stored/ path.
+// Filed as "error", they made every photo-monitor run "red" (failed 1 -> 36/run) at 0% placeholder rate.
+eq(classifyProbe({ status: 302, resultHeader: "google-stored", location: "https://www.gowayfind.com/api/photo/stored/ChIJs-j0fpYn5IgRDCh5tKV1Obc?v=ef92" }), "real", "a google-stored 302 to our stored path is a real photo, not an error");
+eq(classifyProbe({ status: 302, resultHeader: "google-stored", location: "https://wayfind-git-x.vercel.app/api/photo/stored/abc?v=1" }), "real", "preview host stored path is real too");
+eq(classifyProbe({ status: 302, resultHeader: "google-stored", location: "https://evil.example/api/photo/stored/abc" }), "error", "control: google-stored to a foreign host stays an error");
+eq(classifyProbe({ status: 302, resultHeader: "google-stored", location: "https://www.gowayfind.com/wf-elsewhere.jpg" }), "error", "control: google-stored off the stored path stays an error");
+eq(classifyProbe({ status: 200, resultHeader: "google-stored" }), "error", "control: google-stored only counts on a 302");
 eq(classifyProbe({ status: 500, resultHeader: "not-google-surface" }), "error", "a 500 is an error whatever the header says");
 eq(classifyProbe({ status: 404, resultHeader: "something-new" }), "error", "an unknown 404 reason is still an error (loud)");
 eq(classifyProbe({ status: 0 }), "error", "a network failure is an error");

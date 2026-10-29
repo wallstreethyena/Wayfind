@@ -77,7 +77,7 @@
  *   route (lib/landingInventory.js: things-to-do/restaurants/beaches/
  *   nightlife) x city in --cities, fetches the LIVE rendered
  *   /{catSlug}/{citySlug} HTML, extracts place ids from the same crawlable
- *   `/p/<id>?action=save` anchor every IconicPlaceCard always renders, and
+ *   save control (data-wf-act-place) every IconicPlaceCard always renders, and
  *   compares that set to the TRUE top-level ranking the page's own code would
  *   produce right now -- computed by loading lib/landing.js for real (the
  *   jsxLoad.mjs loader other guards in this repo already use to run a real
@@ -896,11 +896,16 @@ async function runBrowserLevel() {
 function extractSavedPlaceIds(html) {
   const ids = [];
   const seen = new Set();
-  const re = /\/p\/([A-Za-z0-9_%.-]{6,255})\?action=save/g;
+  // 2026-10-29: the card's save control is a <button data-wf-act="save"
+  // data-wf-act-place="<id>"> (no crawlable ?action= link any more — see
+  // lib/deepLinkAction.js). The legacy anchor is still read so a run against
+  // an older deployment keeps working.
+  const re = /data-wf-act="save"\s+data-wf-act-place="([A-Za-z0-9_%.-]{6,255})"|\/p\/([A-Za-z0-9_%.-]{6,255})\?action=save/g;
   let m;
   while ((m = re.exec(String(html || "")))) {
     let id;
-    try { id = decodeURIComponent(m[1]); } catch { id = m[1]; }
+    const raw = m[1] || m[2];
+    try { id = decodeURIComponent(raw); } catch { id = raw; }
     if (id && !seen.has(id)) { seen.add(id); ids.push(id); }
   }
   return ids;

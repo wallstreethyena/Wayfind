@@ -11,7 +11,7 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import { halloweenHauntModel } from "../lib/halloweenHauntVault.js";
 import { isDeniedViatorSku } from "../lib/viatorDenylist.js";
 import { destinationUrl } from "../lib/destinations.js";
-import { viatorCampaign } from "../lib/affiliates.js";
+import { viatorCampaign, withViatorTracking } from "../lib/affiliates.js";
 import {
   FEATURED_GHOST_TOUR_CODES,
   GHOST_DESTINATIONS,
@@ -30,6 +30,9 @@ import {
   tourHref,
   tourMerit,
   withHalloweenTours,
+  PARTNER_TOURS,
+  partnerTourCard,
+  partnerTours,
 } from "../lib/halloweenTours.js";
 
 const root = process.cwd();
@@ -67,7 +70,7 @@ for (const dest of GHOST_DESTINATIONS) {
   const product = ghostDestinationProductUrl(dest);
   const href = ghostDestinationHref(dest);
   ok(product && product.includes("/" + dest.destId + "-ttd") && !/searchResults/i.test(product), dest.id + " is a destination page");
-  if (dest.market) ok(product === destinationUrl("viator", dest.market), dest.id + " uses the destinations.js url");
+  if (dest.market) ok(product === withViatorTracking(destinationUrl("viator", dest.market)), dest.id + " uses the destinations.js url with Viator tracking");
   const u = new URL(href, "https://www.gowayfind.com");
   ok(u.pathname === "/api/viator/go", dest.id + " goes through /api/viator/go");
   ok(u.searchParams.get("product") === product, dest.id + " product param is the destination url");
@@ -168,5 +171,76 @@ ok(partnerTags.length === toursPartnerButtons && partnerTags.every((tag) => tag.
 ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !bare.includes('data-filter-id="tours"'), "no tours, no chip and no jump button");
+
+
+// ── 2026-10-29 partner ghost tours (US Ghost Adventures via Awin) ─────────
+{
+  const H64 = "a".repeat(64);
+  const googleStored = (id) => ({ source: "google", src: "/api/photo/stored/" + id + "?v=" + H64, width: 1280, height: 853, credit: { name: "x", authors: [{ name: "Pat Lee", uri: "https://maps.google.com/x" }] } });
+  const vaultRow = (id, text) => [{ url: "https://abc.supabase.co/storage/v1/object/public/place-photos/" + id + "/f.jpg", width: 1280, height: 853, attribution_text: text, attribution_url: "https://commons.wikimedia.org/wiki/File:X.jpg", source_ref: "File:X.jpg" }];
+  ok(PARTNER_TOURS.length === 3 && PARTNER_TOURS.every((t) => t.provider === "awin_usghostadventures"), "three US Ghost Adventures tours");
+  const all = await partnerTours({ readPhoto: async (id) => googleStored(id) });
+  ok(all.length === 3, "partner tours render with a stored Google photo");
+  for (const t of all) {
+    const base = PARTNER_TOURS.find((p) => p.code === t.id);
+    ok(t.cta.href === "/api/commerce/go?provider=awin_usghostadventures&offer=" + base.offerId + "&surface=halloween_haunts&content=hw-tour-" + base.code + "&page=halloween-in-florida", t.id + " books through the commerce redirect by offer id");
+    ok(!/usghostadventures\.com|awin1\.com/.test(t.cta.href), t.id + " never prints a raw partner URL");
+    ok(t.cta.via === "Tour tickets at US Ghost Adventures" && t.cta.rel === "sponsored nofollow noopener" && t.cta.label === HALLOWEEN_TOUR_CTA, t.id + " sponsored CTA names the partner");
+    ok(t.ratingLabel === "" && t.reviews === 0, t.id + " prints no rating without a review count");
+    ok(t.photo.credit === "Photo by Pat Lee on Google Maps", t.id + " Google photo carries its credit");
+    ok(!DASH.test(t.name + t.place + t.priceLabel + t.duration + t.photo.alt + t.cta.via), t.id + " copy is dash free");
+    ok(["tampa", "staug", "more"].includes(t.region), t.id + " sits in a real region");
+  }
+  const none = await partnerTours({ readPhoto: async () => null, readVault: async () => [] });
+  ok(none.length === 0, "red-prove: no stored photo, no partner card");
+  const vault = await partnerTours({ readPhoto: async () => null, readVault: async (id) => vaultRow(id, "Unknown authorUnknown author or not provided — Public domain, via Wikimedia Commons") });
+  ok(vault.length === 3 && vault.every((t) => t.photo.source === "vault" && t.photo.credit === "Public domain photo via Wikimedia Commons"), "vault photo fallback, public domain credit cleaned");
+  const credited = await partnerTours({ readPhoto: async () => null, readVault: async (id) => vaultRow(id, "Cromemco — CC BY-SA-3.0, via Wikimedia Commons") });
+  ok(credited.every((t) => t.photo.credit === "Photo by Cromemco CC BY SA 3.0, via Wikimedia Commons"), "vault credit keeps the author and license");
+  ok(partnerTourCard({ ...PARTNER_TOURS[0], provider: "viator" }, googleStored("x")) === null, "red-prove: an unknown partner gets no card");
+  ok(partnerTourCard(PARTNER_TOURS[0], { src: "https://evil.example/x.jpg", credit: "Photo by X" }) === null, "red-prove: an outside image URL is refused");
+  const merged = await withHalloweenTours(model, { env: {}, readPhoto: async (id) => googleStored(id) });
+  ok(merged.tours.filter((t) => t.id.startsWith("usga-")).length === 3, "partner tours join the ghost tour chip");
+  ok(merged.eventTours.every((t) => !t.id.startsWith("usga-")), "partner tours never land in the haunt grid");
+  const partnerHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: merged, initialFilter: "tours" }));
+  for (const t of merged.tours.filter((x) => x.id.startsWith("usga-"))) {
+    const at = partnerHtml.indexOf('data-tour-id="' + t.id + '"');
+    const end = partnerHtml.indexOf("</article>", at);
+    ok(at > -1 && partnerHtml.slice(at, end).includes(t.photo.credit), t.id + " renders with its photo credit");
+  }
+}
+
+
+// 2026-10-29 regression (Vercel preview build failed): an injected env/fetch
+// must govern the partner photo reads too. A child process gets real looking
+// service creds in ITS env (set here, never read from this shell) plus a
+// tripwire global fetch; with injected deps the partner reads may touch
+// neither, so the result is identical on CI, a laptop and the Vercel build.
+{
+  const { spawnSync } = await import("node:child_process");
+  const { pathToFileURL } = await import("node:url");
+  const lib = pathToFileURL(path.join(root, "lib/halloweenTours.js")).href;
+  const vault = pathToFileURL(path.join(root, "lib/halloweenHauntVault.js")).href;
+  const code = [
+    "let calls = 0; globalThis.fetch = async () => { calls++; throw new Error('tripwire'); };",
+    "const { withHalloweenTours, TOUR_SNAPSHOT } = await import(" + JSON.stringify(lib) + ");",
+    "const { halloweenHauntModel } = await import(" + JSON.stringify(vault) + ");",
+    "const env = { NEXT_PUBLIC_SUPABASE_URL: 'https://fake.supabase.co', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon' };",
+    "const stub = async () => ({ ok: true, json: async () => [] });",
+    "const m = await withHalloweenTours(halloweenHauntModel(), { env, fetch: stub });",
+    "console.log(JSON.stringify({ calls, partners: m.tours.filter((t) => t.id.startsWith('usga-')).length }));",
+  ].join("\n");
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", code], {
+    cwd: root,
+    encoding: "utf8",
+    env: { SUPABASE_URL: "https://realproject.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "tripwire-not-a-real-key", NODE_ENV: "test" },
+  });
+  const line = String(run.stdout || "").trim().split("\n").pop() || "{}";
+  let out = {};
+  try { out = JSON.parse(line); } catch { out = {}; }
+  ok(run.status === 0, "sealed child ran (" + String(run.stderr || "").slice(0, 200) + ")");
+  ok(out.calls === 0, "injected deps: partner photo reads never use the global fetch, whatever the process env holds");
+  ok(out.partners === 0, "injected deps without a service key: no partner card");
+}
 
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");

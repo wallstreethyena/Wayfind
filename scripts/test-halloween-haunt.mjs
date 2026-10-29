@@ -22,7 +22,7 @@ import {
 } from "../lib/halloweenHauntVault.js";
 import { isInternalVerifier, isCrawler } from "../lib/crawler.js";
 import { snapshotTours, TOUR_REMOVED, withHalloweenTours } from "../lib/halloweenTours.js";
-import { HAUNT_GOOGLE_PLACE, MAX_HAUNT_PHOTOS, googleStripPhoto, mergeHauntPhotos, withHauntPhotos } from "../lib/halloweenHauntPhotos.js";
+import { HAUNT_GOOGLE_PLACE, MAX_HAUNT_PHOTOS, googleStripPhoto, mergeHauntPhotos, photosForHaunt, withHauntPhotos } from "../lib/halloweenHauntPhotos.js";
 import {
   BO_ANTICS,
   BO_GAG_MAX_WORDS,
@@ -76,8 +76,8 @@ const required = [
 for (const line of required) ok(model.lines.includes(line), "required Bo line: " + line.slice(0, 42));
 ok(hauntCopyProblems(model).length === 0, "the live model is dash free and phrase safe");
 
-ok(model.haunts.length === 17, "seventeen haunts");
-ok(hauntsForFilter(model, "all").length === 17, "All Haunts is the full vault");
+ok(model.haunts.length === 18, "eighteen haunts");
+ok(hauntsForFilter(model, "all").length === 18, "All Haunts is the full vault");
 const major = hauntsForFilter(model, "major").map((row) => row.id);
 ok(major.includes("howlTampa") && major.includes("howlOrlando") && major.includes("hhn") && !major.includes("peppa"), "major scream parks are the three big nights");
 ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon Horror Park"), "local trails include Scream A Geddon");
@@ -96,6 +96,7 @@ const expectedHref = {
   seaLifePirates: "/api/commerce/go?provider=tiqets&offer=orlando-tonight-sealife&surface=halloween_haunts&content=hw26-pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
   waxHeist: "/api/commerce/go?provider=tiqets&offer=orlando-hook-madame-tussauds&surface=halloween_haunts&content=hw26-the-great-wax-heist-at-madame-tussauds-orlando-2026",
   sideshowObscura: "/api/commerce/go?provider=undercover_tourist&offer=6&surface=halloween_haunts&content=sideshow-obscura-hhn35-2026",
+  channelside: "/api/commerce/go?provider=ticketnetwork&offer=tampa-event-nightmare-on-channelside-2026&surface=halloween_haunts&content=nightmare-on-channelside-2026",
 };
 const expectedEvent = {
   howlTampa: "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
@@ -115,6 +116,7 @@ const expectedEvent = {
   seaLifePirates: "/florida-events/pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
   waxHeist: "/florida-events/the-great-wax-heist-at-madame-tussauds-orlando-2026",
   sideshowObscura: "/florida-events/sideshow-obscura-hhn35-2026",
+  channelside: "/florida-events/nightmare-on-channelside-2026",
 };
 const organizerHref = {
   screamageddon: "https://screamageddon.com/tickets/",
@@ -194,7 +196,7 @@ ok(nextConfig.includes('source: "/products/halloween-in-florida"') && nextConfig
 
 const schema = halloweenHauntSchema(model);
 ok(schema["@type"] === "ItemList", "event list schema stays an ItemList");
-ok(schema.numberOfItems === 17 && schema.itemListElement.length === 17, "schema lists 17 events");
+ok(schema.numberOfItems === 18 && schema.itemListElement.length === 18, "schema lists 18 events");
 const schemaBlob = JSON.stringify(schema);
 ok(!schemaBlob.includes("/api/commerce/go"), "schema does not embed the redirect");
 for (const entry of schema.itemListElement) {
@@ -216,7 +218,7 @@ const fakeRead = async (id) => (FAKE_STORE[id] ? {
 const photoModel = await withHauntPhotos(model, { read: fakeRead });
 ok(googleStripPhoto({ name: "X" }, { source: "google", src: "https://evil.example/a.jpg", credit: { name: "A" } }) === null, "red-prove: only the private stored route counts as a Google strip photo");
 ok(googleStripPhoto({ name: "X" }, { source: "google", src: "/api/photo/stored/abc?v=" + "a".repeat(64), credit: { authors: [] } }) === null, "red-prove: a Google photo without an author is refused");
-ok(mergeHauntPhotos({ photo: null }, Array.from({ length: 9 }, (_, i) => ({ src: "/api/photo/stored/p" + i + "?v=" + "a".repeat(64) }))).length === MAX_HAUNT_PHOTOS, "strip is capped at five");
+ok(mergeHauntPhotos({ photo: null }, Array.from({ length: MAX_HAUNT_PHOTOS + 4 }, (_, i) => ({ src: "/api/photo/stored/p" + i + "?v=" + "a".repeat(64) }))).length === MAX_HAUNT_PHOTOS, "strip is capped at MAX_HAUNT_PHOTOS");
 const failing = await withHauntPhotos(model, { read: async () => { throw new Error("store down"); } });
 ok(failing.haunts.every((r, i) => r.photos.length === model.haunts[i].photos.length), "a store failure leaves the owner photo only, never throws");
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: photoModel }));
@@ -255,7 +257,7 @@ for (const row of model.haunts) {
   ok(html.includes('data-haunt-id="' + row.id + '"'), "card renders for " + row.id + " even without a photo");
   ok(row.photo === null || (row.photo.src && row.photo.alt && !DASH.test(row.photo.alt)), row.id + " photo is a real mapped source or null");
   const prow = photoModel.haunts.find((r) => r.id === row.id);
-  ok(Array.isArray(prow.photos) && prow.photos.length <= MAX_HAUNT_PHOTOS, row.id + " photos is an array of 0 to 5");
+  ok(Array.isArray(prow.photos) && prow.photos.length <= MAX_HAUNT_PHOTOS, row.id + " photos is an array within the cap");
   for (const ph of prow.photos) {
     ok(/^(https:\/\/|\/)/.test(ph.src) && ph.alt && !DASH.test(ph.alt), row.id + " photo has an absolute or site path and dash free alt");
     ok(ph.source !== "google" || (ph.credit && /^\/api\/photo\/stored\//.test(ph.src)), row.id + " Google photo carries its author credit");
@@ -486,10 +488,11 @@ ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [
 // ── 2026-10-28 customer journey audit ────────────────────────────────────
 // Expired exclusion with a FIXED clock (never the real one).
 const idsOn = (today) => halloweenHauntModel({ today }).haunts.map((r) => r.id);
-ok(idsOn("2026-10-28").length === 17, "Oct 28: all 17 haunts render");
-ok(idsOn("2026-10-29").length === 17 && idsOn("2026-10-29").join(",") === idsOn("2026-10-28").join(","), "Oct 29: all 17 haunts are still live");
+ok(idsOn("2026-10-28").length === 18, "Oct 28: all 18 haunts render");
+ok(idsOn("2026-10-29").length === 18 && idsOn("2026-10-29").join(",") === idsOn("2026-10-28").join(","), "Oct 29: all 18 haunts are still live");
 ok(idsOn("2026-10-30").includes("spookquarium"), "Spookquarium still renders on its last day (Oct 30)");
-ok(!idsOn("2026-10-31").includes("spookquarium") && idsOn("2026-10-31").length === 16, "Oct 31: Spookquarium (last date Oct 30) is gone, 16 left");
+ok(!idsOn("2026-10-31").includes("spookquarium") && idsOn("2026-10-31").length === 17, "Oct 31: Spookquarium (last date Oct 30) is gone, 17 left");
+ok(idsOn("2026-10-31").includes("channelside") && !idsOn("2026-11-01").includes("channelside"), "Nightmare on Channelside shows through Oct 31 and is gone Nov 1");
 const nov1 = idsOn("2026-11-01");
 ok(!nov1.includes("howlTampa") && !nov1.includes("mickey") && !nov1.includes("zooTampa") && nov1.includes("hhn") && nov1.includes("frightfest"), "Nov 1: Oct 31 events gone, Nov 1 events stay");
 ok(idsOn("2026-11-02").length === 0, "Nov 2: nothing renders, no throw");
@@ -502,7 +505,7 @@ for (const row of model.haunts) ok(/^\d{4}-\d{2}-\d{2}$/.test(row.expiresAfter),
 // No duplicates
 ok(new Set(model.haunts.map((r) => r.id)).size === model.haunts.length, "haunt ids are unique");
 const withEvent = model.haunts.filter((r) => r.eventId);
-ok(withEvent.length === 12 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
+ok(withEvent.length === 13 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
 ok(new Set(model.haunts.map((r) => r.cta.href)).size === model.haunts.length, "haunt buy hrefs are unique");
 ok(new Set(model.haunts.map((r) => r.name)).size === model.haunts.length, "haunt names are unique");
 const liveModel = await withHalloweenTours(model, { env: {} });
@@ -522,7 +525,7 @@ const defaultHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveM
 const chipCount = liveModel.tours.length;
 ok(chipCount === snapshotTours().filter((t) => t.group === "ghost").length && chipCount >= 30, "ghost tour count is the snapshot ghost group (" + chipCount + ")");
 ok(defaultHtml.includes("Ghost tours (" + chipCount + ")"), "filter row shows the Ghost tours chip with count " + chipCount);
-ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 17, "default view keeps all 17 haunt cards");
+ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 18, "default view keeps all 18 haunt cards");
 ok((defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length + chipCount, "default view stacks haunted attractions and the full ghost tour section");
 ok(defaultHtml.includes("Florida Ghost Tours") && defaultHtml.includes('id="boo-tours"'), "ghost tour section renders on the default view");
 const chipHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel, initialFilter: "tours" }));
@@ -530,7 +533,7 @@ ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount, "chip view li
 ok(!/data-haunt-id="/.test(chipHtml), "chip view shows tours only");
 const oct29 = await withHalloweenTours(halloweenHauntModel({ today: "2026-10-29" }), { env: {} });
 const oct29Html = renderToStaticMarkup(createElement(HauntPage, { model: oct29 }));
-ok(oct29.haunts.length === 17 && (oct29Html.match(/data-haunt-id="/g) || []).length === 17, "Oct 29 page renders all 17 haunt cards");
+ok(oct29.haunts.length === 18 && (oct29Html.match(/data-haunt-id="/g) || []).length === 18, "Oct 29 page renders all 18 haunt cards");
 ok(oct29Html.includes('id="boo-tours"'), "Oct 29 default view also renders the ghost tour section");
 const nov2 = await withHalloweenTours(halloweenHauntModel({ today: "2026-11-02" }), { env: {} });
 const nov2Html = renderToStaticMarkup(createElement(HauntPage, { model: nov2 }));
@@ -551,7 +554,7 @@ for (const row of model.haunts) {
 for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
 const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
 const featuredN = liveModel.featuredTours.length;
-ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount + featuredN + chipCount + featuredN, "every rendered buy button was checked (" + buyHrefs.length + ")");
+ok(buyHrefs.length === 18 + liveModel.eventTours.length + chipCount + featuredN + chipCount + featuredN, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 
 // Tracking: the page mounts the one delegated beacon, and no card carries its own second tracker
@@ -565,6 +568,15 @@ ok(!isInternalVerifier("Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) A
 ok(!isCrawler("Mozilla/5.0 WayfindVerify") && !isCrawler("node"), "verifier UAs are not crawlers, so the redirect keeps working");
 for (const f of ["commerce", "viator", "hotels", "ticketmaster"]) {
   ok(/let trafficClass = isInternalVerifier\(req\.headers\.get\("user-agent"\)\) \? "automation" : "human";/.test(readFileSync("app/api/" + f + "/go/route.js", "utf8")), f + " go route stamps verifier traffic as automation");
+}
+
+// Shared SeaWorld place id: each card only keeps photos tagged with its own haunt key.
+{
+  const sw = HAUNT_GOOGLE_PLACE.howlOrlando;
+  const v = [{ src: "a", hauntKey: "howlOrlando" }, { src: "b", hauntKey: "spooktacular" }, { src: "c", hauntKey: null }];
+  ok(photosForHaunt("howlOrlando", sw, v).map((p) => p.src).join() === "a", "shared place keeps only its own tagged photos");
+  ok(photosForHaunt("spooktacular", sw, v).map((p) => p.src).join() === "b", "shared place never repeats the sibling card");
+  ok(photosForHaunt("brick", HAUNT_GOOGLE_PLACE.brick, v).map((p) => p.src).join() === "c", "single place keeps untagged photos");
 }
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");

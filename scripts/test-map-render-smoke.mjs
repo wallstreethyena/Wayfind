@@ -343,12 +343,15 @@ const actions = [];
 const actionHooks = hookHost();
 const originalPlace = P({ lat: 27.5, lng: -82.5 });
 const actionTree = actionHooks.render(MapScreen, { ctx: ctxFor({ mapPreview: applePin, view: [originalPlace],
-  quickSaveFavorite: (_event, p) => actions.push(p), openDetail: (p) => actions.push(p), addShared: (p) => actions.push(p),
+  // Same signature as app/home.js quickSaveFavorite(p, extra): the PLACE is the first argument.
+  // (Map.js used to call quickSaveFavorite(e, place), saving the click event; fixed 2026-10-29.)
+  quickSaveFavorite: (p) => actions.push(p), openDetail: (p) => actions.push(p), addShared: (p) => actions.push(p),
 }) });
 const actionCard = visitElement(actionTree, (el) => el.props.place?.id === applePin.id && typeof el.props.onSave === "function");
 ok(!!actionCard, "recovered pin renders the shared card action seam");
 actionCard?.props.onSave({}); actionCard?.props.onOpen(); actionCard?.props.onShare();
 ok(actions.length === 3 && actions.every((p) => p === originalPlace), "save, detail and share receive the original identity, never the Apple clone");
+ok(/function quickSaveFavorite\(p[,)]/.test(readFileSync(new URL("../app/home.js", import.meta.url), "utf8")), "the quickSaveFavorite stub above matches the real signature (place first)");
 ok(actionCard?.props.place.lat === null && actionCard?.props.place.lng === null, "card fallback hooks cannot serialize Apple coordinates");
 actionHooks.unmount();
 

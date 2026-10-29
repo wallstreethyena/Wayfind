@@ -149,7 +149,21 @@ ok(loc.startsWith("https://www.viator.com/"), `Location must be the viator produ
 ok(loc.includes("/tours/Orlando/Airboat/d827-1234P5"),
   "the EXACT destination must be preserved, not replaced by a search fallback");
 ok(!/\bclick_id=/.test(loc) && !/\bcid=/.test(loc), "our internal click_id must not be forwarded to the partner");
-ok((good.headers.get("Cache-Control") || "").includes("s-maxage"), "the product redirect must set a cache policy");
+// CACHE POLICY (2026-10-29, was: must include s-maxage). The intent is
+// unchanged: the product redirect must carry an EXPLICIT cache policy. The
+// policy itself flipped to private, no-store: a CDN-cached partner 302 is
+// replayed by the edge without running lib/redirectTrafficClass.js, so later
+// bots / prefetches / HEADs skip classification and still reach Viator. The
+// s-maxage never saved Viator API spend on THIS branch (?product= makes no
+// Partner API call); the ?q= branch's spend protection moved to
+// resolveProduct()'s resolved-URL cache, asserted (cold and warm instance,
+// zero Partner API calls on a repeat) by check-redirect-suspect-gate.mjs §E.
+{
+  const cc = good.headers.get("Cache-Control") || "";
+  ok(/\bno-store\b/.test(cc) && /\bprivate\b/.test(cc), `the product redirect must be private, no-store (got ${JSON.stringify(cc)})`);
+  ok(!/s-maxage|\bpublic\b/.test(cc), `the product redirect must never be CDN-cacheable (got ${JSON.stringify(cc)})`);
+  ok(/no-store/.test(good.headers.get("CDN-Cache-Control") || "") && /no-store/.test(good.headers.get("Vercel-CDN-Cache-Control") || ""), "the product redirect must also forbid CDN copies (CDN-Cache-Control / Vercel-CDN-Cache-Control: no-store)");
+}
 
 // A refused product must NOT redirect to the attacker's URL.
 const EVIL = "https://www.viator.com@evil.tld/x";

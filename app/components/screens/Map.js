@@ -459,7 +459,7 @@ export default function MapScreen({ ctx }) {
                             liked={!!(liked && liked[mp.id])}
                             disliked={!!(disliked && disliked[mp.id])}
                             onOpen={() => { try { logEvent("map_card_cta", actionPlace(mp), { rank: pos }); } catch (e) {} openDetail(actionPlace(mp)); }}
-                            onSave={(e) => { try { quickSaveFavorite(e, actionPlace(mp)); } catch (er) {} }}
+                            onSave={(e) => { try { quickSaveFavorite(actionPlace(mp)); } catch (er) {} }}
                             onLike={(e) => { try { toggleLike(e, actionPlace(mp)); } catch (er) {} }}
                             onDislike={(e) => { try { toggleDislike(e, actionPlace(mp)); } catch (er) {} }}
                             onShare={(place) => { const target = (place && place.id) ? place : actionPlace(mp); try { addShared(actionPlace(mp)); giveawayMark && giveawayMark(mp.id); } catch (er) {} try { shareCard(target, { surface: "map_preview" }); } catch (er) {} }}
