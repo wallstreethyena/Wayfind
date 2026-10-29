@@ -737,7 +737,7 @@ scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	465
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
 scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	72dae7d6f783e0b3813f791460b67f95aedb1480bf396af420f57e51d0073fe7
 scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	246	0	0	1855815d1c8e4661e430590828b95c2954684f49673d828618eabb7ace937c57
-scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	9d6e675717fb69fa9849cf701fccea544b8e355f0243a1abc61277ec60def499
+scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	976379a2ccefc1d556dc38b2f513cbcaa927bb4f9d37a87ba5ebe7df19125969
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
 scripts/test-halloween-tours.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	88	0	0	a0c390fa417bb5280144d4ad534f047294a858336074cb683a4bb614a4e7b1aa
 scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	93323a189af5ccd3b41f436983795d77a21effb05ceb05d2c1a1e55417c7a464
