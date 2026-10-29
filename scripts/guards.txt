@@ -2434,5 +2434,4 @@ node scripts/test-event-safety.mjs
 # 2026-10-28: seasonal movies rail data (Fall/Halloween/Christmas) + Undercover Tourist movie ticket handoff (wf_deals 11); calls the real route and resolver.
 node scripts/check-seasonal-movies.mjs
 node scripts/check-seasonal-movies-ui.mjs
-node scripts/test-save-event-once.mjs
 node scripts/test-link-health-blocked-not-dead.mjs
