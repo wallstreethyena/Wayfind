@@ -6,14 +6,16 @@ import assert from "node:assert/strict";
 import { halloweenHauntModel } from "../lib/halloweenHauntVault.js";
 import {
   HAUNT_GOOGLE_PLACE,
+  HAUNT_PHOTO_BLOCK,
   MAX_HAUNT_PHOTOS,
+  hauntPhotoBlocked,
   dedupeVaultEntries,
   googleStripPhoto,
   vaultStripPhoto,
   withHauntPhotos,
 } from "../lib/halloweenHauntPhotos.js";
 
-const model = halloweenHauntModel();
+const model = halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" });
 const V = "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJabcdefghij/";
 const vault = (n, ref = "File:Venue " + n + ".jpg") => ({ url: V + "p" + n + ".jpg", attribution_text: "Someone " + n + " CC BY, via Wikimedia Commons", source_ref: ref, width: 1280, height: 853 });
 const hash = (c) => c.repeat(64);
@@ -91,5 +93,19 @@ const seenIds = [];
 await withHauntPhotos(model, { read: async (id) => { seenIds.push(id); return null; }, readVault: async () => [] });
 ok(seenIds.every((id) => Object.values(HAUNT_GOOGLE_PLACE).includes(id)), "reads only mapped place ids");
 ok(placeId("howlTampa") === "ChIJhRo4DU_GwogRUgjhMAj-pag", "Busch Gardens id unchanged");
+
+// 7. 2026-10-29 photo truth: restaurant and wrong park shots never reach a card
+const hhnVault = (id) => ({ url: "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/" + id + ".jpg", attribution_text: "Someone, CC BY", source_ref: "File:Universal " + id + ".jpg", width: 1280, height: 853 });
+const restaurants = [
+  vault(21, "File:Big Fire restaurant CityWalk.jpg"), vault(22, "Fat Tuesday daiquiri bar.jpg"), vault(23, "Rock the Universe karaoke night.jpg"), vault(24, "CityWalk plaza.jpg"), vault(25, "Islands of Adventure Hulk.jpg"),
+];
+for (const r of restaurants) ok(vaultStripPhoto({ name: "Halloween Horror Nights" }, r) === null, "a restaurant or other park picture is refused by its source name: " + r.source_ref);
+ok(vaultStripPhoto({ name: "Halloween Horror Nights" }, vault(26, "File:Terrifier house.jpg")) !== null, "control: a normal haunt picture is kept");
+ok(HAUNT_PHOTO_BLOCK.hhn.length === 2 && hauntPhotoBlocked("hhn", "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/30ea7656d2b58f51f6fb855e.jpg") && hauntPhotoBlocked("hhn", "https://abc.supabase.co/x/17665bfac0bb5abe4505e5ff.jpg?v=1"), "the two viewed HHN pictures (CityWalk storefronts, Islands of Adventure) are blocked by file id");
+ok(!hauntPhotoBlocked("howlTampa", "https://abc.supabase.co/x/30ea7656d2b58f51f6fb855e.jpg") && !hauntPhotoBlocked("hhn", "https://abc.supabase.co/x/6715e50305d5a16b.jpg"), "control: the block is per card and per file");
+const hhnRun = await withHauntPhotos(model, { read: async () => null, readVault: async (id) => (id === HAUNT_GOOGLE_PLACE.hhn ? [hhnVault("30ea7656d2b58f51f6fb855e"), hhnVault("17665bfac0bb5abe4505e5ff"), hhnVault("6715e50305d5a16b")] : []) });
+const hhnPhotos = hhnRun.haunts.find((h) => h.id === "hhn").photos;
+ok(hhnPhotos.length === 2 && !hhnPhotos.some((p) => /30ea7656|17665bfa/.test(p.src)) && hhnPhotos.some((p) => /6715e50305d5a16b/.test(p.src)), "HHN keeps the owned photo plus the good vault photo, drops the blocked two");
+ok(!("sideshowObscura" in HAUNT_GOOGLE_PLACE) && !model.haunts.some((h) => h.id === "sideshowObscura"), "the Sideshow Obscura store has no card and no photo map entry");
 
 console.log("test-haunt-photos: " + checks + " checks passed");

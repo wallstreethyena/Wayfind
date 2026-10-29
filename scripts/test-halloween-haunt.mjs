@@ -17,6 +17,9 @@ import {
   hauntsForFilter,
   halloweenHauntModel,
   hauntIsLive,
+  hauntEndMs,
+  localWallToMs,
+  HAUNT_REMOVED,
   halloweenHauntProductSchema,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
@@ -62,11 +65,12 @@ const banned = hauntCopyProblems({ lines: ["the best haunt right now"] });
 ok(banned.some((row) => row.startsWith("best:")) && banned.some((row) => row.startsWith("right now:")), "red-prove: banned ranking phrases are problems");
 ok(hauntCopyProblems({ lines: ["Howl O Scream starts at $45.99."] }).length === 0, "a clean savings line has no copy problem");
 
-const model = halloweenHauntModel({ today: "2026-10-28" }); // fixed clock: the catalog is date bound
+const FIXED_NOW = "2026-10-29T12:00:00-04:00"; // fixed instant: the catalog is time bound
+const model = halloweenHauntModel({ now: FIXED_NOW });
 ok(model.lines.length >= 10, "Bo has at least 10 lines");
-const LIVE_N = model.haunts.filter((row) => hauntIsLive(row)).length;
+const LIVE_N = model.haunts.filter((row) => hauntIsLive(row, FIXED_NOW)).length;
 ok(LIVE_N > 0 && model.lines.every((l) => !/^\d+ haunts/.test(l) || l.startsWith(LIVE_N + " haunts")), "Boo count line is computed from the live haunts (" + LIVE_N + ")");
-ok(hauntIsLive({ expiresAfter: "2020-01-01" }) === false && hauntIsLive({ expiresAfter: "2999-01-01" }) === true, "red-prove: an expired haunt is not live");
+ok(hauntIsLive({ endsAt: "2020-01-01T22:00" }, FIXED_NOW) === false && hauntIsLive({ endsAt: "2999-01-01T22:00" }, FIXED_NOW) === true, "red-prove: an expired haunt is not live");
 const required = [
   "I'm Boo, your ghost host! I died so I could haunt these Florida scares and save your wallet from gate prices.",
   `${LIVE_N} haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.`,
@@ -76,8 +80,8 @@ const required = [
 for (const line of required) ok(model.lines.includes(line), "required Bo line: " + line.slice(0, 42));
 ok(hauntCopyProblems(model).length === 0, "the live model is dash free and phrase safe");
 
-ok(model.haunts.length === 18, "eighteen haunts");
-ok(hauntsForFilter(model, "all").length === 18, "All Haunts is the full vault");
+ok(model.haunts.length === 17, "seventeen haunts (Sideshow Obscura, a gift shop, is out)");
+ok(hauntsForFilter(model, "all").length === 17, "All Haunts is the full vault");
 const major = hauntsForFilter(model, "major").map((row) => row.id);
 ok(major.includes("howlTampa") && major.includes("howlOrlando") && major.includes("hhn") && !major.includes("peppa"), "major scream parks are the three big nights");
 ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon Horror Park"), "local trails include Scream A Geddon");
@@ -95,7 +99,6 @@ const expectedHref = {
   spookquarium: "/api/commerce/go?provider=tiqets&offer=tampa-drive-clearwater-aquarium&surface=halloween_haunts&content=hw26-halloween-spookquarium-clearwater-2026",
   seaLifePirates: "/api/commerce/go?provider=tiqets&offer=orlando-tonight-sealife&surface=halloween_haunts&content=hw26-pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
   waxHeist: "/api/commerce/go?provider=tiqets&offer=orlando-hook-madame-tussauds&surface=halloween_haunts&content=hw26-the-great-wax-heist-at-madame-tussauds-orlando-2026",
-  sideshowObscura: "/api/commerce/go?provider=undercover_tourist&offer=6&surface=halloween_haunts&content=sideshow-obscura-hhn35-2026",
   channelside: "/api/commerce/go?provider=ticketnetwork&offer=tampa-event-nightmare-on-channelside-2026&surface=halloween_haunts&content=nightmare-on-channelside-2026",
 };
 const expectedEvent = {
@@ -115,18 +118,17 @@ const expectedEvent = {
   frightfest: "/florida-events/sarasota-frightfest-2026",
   seaLifePirates: "/florida-events/pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
   waxHeist: "/florida-events/the-great-wax-heist-at-madame-tussauds-orlando-2026",
-  sideshowObscura: "/florida-events/sideshow-obscura-hhn35-2026",
   channelside: "/florida-events/nightmare-on-channelside-2026",
 };
 const organizerHref = {
-  screamageddon: "https://screamageddon.com/tickets/",
+  screamageddon: "https://screamageddon.com/tickets/", // redirects to /buy-tickets/, the dated calendar (checked 2026-10-29)
   sirHenry: "https://app.hauntpay.com/events/sir-henry-s-haunted-trail-2026",
   petrified: "https://events.ticketleap.com/tickets/a-petrified-forest/a-petrified-forest-scream-park-2026",
-  undead: "https://www.undeadinthewater.com/",
-  frightfest: "https://www.sarasotafrightfest.com/",
+  undead: "https://www.eventbrite.com/e/undead-in-the-water-halloween-attraction-tickets-1996421695032",
+  frightfest: "https://sarasotafrightfest.fearticket.com/",
   mickey: "https://disneyworld.disney.go.com/events-tours/magic-kingdom/mickeys-not-so-scary-halloween-party/",
 };
-const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist", "sideshowObscura"]);
+const parkAdmission = new Set(["spooktacular", "brick", "peppa", "spookquarium", "seaLifePirates", "waxHeist"]);
 
 for (const row of model.haunts) {
   ok(expectedEvent[row.id] === row.eventHref, row.id + " event page");
@@ -143,8 +145,9 @@ for (const row of model.haunts) {
   } else {
     ok(row.cta.kind === "organizer" && row.cta.href === organizerHref[row.id], row.id + " organizer href");
     if (row.id === "mickey") {
-      ok(row.cta.label === "Check Disney" && row.bookable === false && !/sponsored/.test(row.cta.rel), "mickey: no partner CTA, plain Check Disney link, not sponsored");
-      ok(row.admissionNote === "Party tickets are currently unavailable through our booking partners." && !/sold out/i.test(row.admissionNote + row.tip + row.roast + row.priceNote), "mickey: accurate partner availability wording, never sold out");
+      ok(row.cta.label === "See Disney Page" && row.bookable === false && !/sponsored/.test(row.cta.rel), "mickey: no partner CTA, plain Disney link, not sponsored");
+      ok(/sold out/i.test(row.priceLabel) && /Disney lists every 2026 party date as sold out/.test(row.admissionNote) && !/unavailable through our booking partners/.test(row.admissionNote + row.tip + row.roast), "mickey: says sold out because Disney's own party page says all 2026 dates sold out (read 2026-10-29), not a partner guess");
+      ok(row.timing === "Oct 29 and Oct 31, 7:00 PM to midnight", "mickey: only the remaining dates");
       ok(row.alternatives.length === 3 && row.alternatives.every((id) => model.haunts.some((h) => h.id === id && h.bookable !== false && h.cta.kind === "affiliate")), "mickey: three bookable family alternatives");
     } else {
       ok(row.cta.label === "Official Tickets" && !/sponsored/.test(row.cta.rel), row.id + " organizer is not sponsored");
@@ -196,7 +199,7 @@ ok(nextConfig.includes('source: "/products/halloween-in-florida"') && nextConfig
 
 const schema = halloweenHauntSchema(model);
 ok(schema["@type"] === "ItemList", "event list schema stays an ItemList");
-ok(schema.numberOfItems === 18 && schema.itemListElement.length === 18, "schema lists 18 events");
+ok(schema.numberOfItems === 17 && schema.itemListElement.length === 17, "schema lists 17 events");
 const schemaBlob = JSON.stringify(schema);
 ok(!schemaBlob.includes("/api/commerce/go"), "schema does not embed the redirect");
 for (const entry of schema.itemListElement) {
@@ -486,26 +489,47 @@ ok(scrubbed && !DASH.test(scrubbed.reply), "smallTalk replies still get the dash
 ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [], smallTalk: true }), model, "hi") === null, "smallTalk replies still enforce the banned phrases");
 
 // ── 2026-10-28 customer journey audit ────────────────────────────────────
-// Expired exclusion with a FIXED clock (never the real one).
-const idsOn = (today) => halloweenHauntModel({ today }).haunts.map((r) => r.id);
-ok(idsOn("2026-10-28").length === 18, "Oct 28: all 18 haunts render");
-ok(idsOn("2026-10-29").length === 18 && idsOn("2026-10-29").join(",") === idsOn("2026-10-28").join(","), "Oct 29: all 18 haunts are still live");
-ok(idsOn("2026-10-30").includes("spookquarium"), "Spookquarium still renders on its last day (Oct 30)");
-ok(!idsOn("2026-10-31").includes("spookquarium") && idsOn("2026-10-31").length === 17, "Oct 31: Spookquarium (last date Oct 30) is gone, 17 left");
-ok(idsOn("2026-10-31").includes("channelside") && !idsOn("2026-11-01").includes("channelside"), "Nightmare on Channelside shows through Oct 31 and is gone Nov 1");
-const nov1 = idsOn("2026-11-01");
-ok(!nov1.includes("howlTampa") && !nov1.includes("mickey") && !nov1.includes("zooTampa") && nov1.includes("hhn") && nov1.includes("frightfest"), "Nov 1: Oct 31 events gone, Nov 1 events stay");
-ok(idsOn("2026-11-02").length === 0, "Nov 2: nothing renders, no throw");
-ok(hauntIsLive({ expiresAfter: "2026-10-30" }, "2026-10-30") === true && hauntIsLive({ expiresAfter: "2026-10-30" }, "2026-10-31") === false, "red-prove: hauntIsLive is inclusive of the last date and false after it");
-const expiredModel = halloweenHauntModel({ today: "2026-10-31" });
-ok(!JSON.stringify(halloweenHauntSchema(expiredModel)).includes("spookquarium"), "an expired haunt is also out of the JSON LD list");
-ok(expiredModel.haunts.every((r) => r.expiresAfter >= "2026-10-31"), "every rendered haunt ends on or after the clock date");
-for (const row of model.haunts) ok(/^\d{4}-\d{2}-\d{2}$/.test(row.expiresAfter), row.id + " has a real last date");
+// Expiry is an INSTANT in the venue's local time, tested with fixed instants (never the real clock).
+const idsAt = (now) => halloweenHauntModel({ now }).haunts.map((r) => r.id);
+ok(idsAt("2026-10-29T12:00:00-04:00").length === 17, "Oct 29 noon: all 17 haunts render");
+ok(idsAt("2026-10-30T18:59:00-04:00").includes("spookquarium") && !idsAt("2026-10-30T19:01:00-04:00").includes("spookquarium"), "Spookquarium (organizer: 3 to 7 PM Oct 30) is live at 6:59 PM and gone at 7:01 PM");
+ok(idsAt("2026-10-31T23:30:00-04:00").includes("howlTampa") && !idsAt("2026-11-01T00:01:00-04:00").includes("howlTampa"), "unverified close uses 11:59 PM local: live at 23:30 on the last day, gone just after midnight");
+ok(idsAt("2026-10-31T15:59:00-04:00").includes("peppa") && !idsAt("2026-10-31T16:01:00-04:00").includes("peppa"), "non midnight venue: Peppa (candy stations to 4:00 PM) is live at 3:59 PM and gone at 4:01 PM Oct 31");
+ok(idsAt("2026-10-31T21:59:00-04:00").includes("undead") && !idsAt("2026-10-31T22:01:00-04:00").includes("undead"), "UNDead ends 10:00 PM Oct 31 (Eventbrite endDate)");
+ok(idsAt("2026-10-31T22:29:00-04:00").includes("petrified") && !idsAt("2026-10-31T22:31:00-04:00").includes("petrified"), "A Petrified Forest ends 10:30 PM Oct 31 (Ticketleap endDate)");
+ok(idsAt("2026-10-31T23:59:00-04:00").includes("mickey") && !idsAt("2026-11-01T00:01:00-04:00").includes("mickey"), "Mickey's party runs to midnight Oct 31");
+// A close after midnight stays live until that clock time. HHN runs to 2:00 AM; Nov 1 2026 is also the fall back night.
+const nov1 = idsAt("2026-11-01T12:00:00-05:00");
+ok(!nov1.includes("howlTampa") && !nov1.includes("mickey") && !nov1.includes("zooTampa") && nov1.includes("hhn") && nov1.includes("frightfest") && nov1.includes("screamageddon"), "Nov 1 noon: Oct 31 events gone, Nov 1 events stay");
+ok(idsAt("2026-10-31T23:30:00-04:00").includes("channelside") && !idsAt("2026-11-01T00:01:00-04:00").includes("channelside"), "Nightmare on Channelside (show 7:00 PM, no printed end, 11:59 PM unverified) shows through Oct 31 and is gone just after midnight");
+ok(idsAt("2026-11-02T01:30:00-05:00").join() === "hhn" && idsAt("2026-11-02T02:01:00-05:00").length === 0, "HHN stays live until 2:00 AM Nov 2 and nothing renders after, no throw");
+const oneAm = { endsAt: "2026-11-01T01:00" };
+ok(hauntIsLive(oneAm, "2026-10-31T23:30:00-04:00") === true, "a 1 AM Nov 1 close: live at 23:30 on the last day");
+ok(hauntIsLive(oneAm, "2026-11-01T00:30:00-04:00") === true, "a 1 AM Nov 1 close: still live at 00:30");
+ok(hauntIsLive(oneAm, "2026-11-01T01:01:00-04:00") === false, "a 1 AM Nov 1 close: gone at 01:01 (first pass of the repeated hour)");
+ok(hauntIsLive({ endsAt: "2026-10-31T22:00" }, "2026-10-31T21:59:59-04:00") === true && hauntIsLive({ endsAt: "2026-10-31T22:00" }, "2026-10-31T22:00:00-04:00") === false, "a 10 PM close is live until 22:00:00 exactly");
+ok(new Date(localWallToMs("2026-11-01T01:30")).toISOString() === "2026-11-01T05:30:00.000Z" && new Date(localWallToMs("2026-11-02T02:00")).toISOString() === "2026-11-02T07:00:00.000Z" && new Date(localWallToMs("2026-10-31T23:59")).toISOString() === "2026-11-01T03:59:00.000Z", "local wall to instant honors DST (EDT before 2 AM Nov 1, EST after)");
+ok(hauntIsLive({ endsAt: "2026-10-31T22:00" }, Date.parse("2026-11-01T01:59:00Z")) === true && hauntIsLive({ endsAt: "2026-10-31T22:00" }, new Date("2026-11-01T02:01:00Z")) === false, "hauntIsLive accepts epoch ms and Date, evaluated in the venue's timezone, not UTC");
+ok((() => { try { hauntIsLive({ endsAt: "2026-10-31T22:00" }, "2026-10-31"); return false; } catch { return true; } })(), "red-prove: a date only clock is refused, the cut needs an instant");
+ok(hauntIsLive({}, FIXED_NOW) === false && Number.isNaN(hauntEndMs({})), "a row without endsAt is never live");
+const expiredModel = halloweenHauntModel({ now: "2026-10-31T00:30:00-04:00" });
+ok(!JSON.stringify(halloweenHauntSchema(expiredModel)).includes("Spookquarium"), "an expired haunt is also out of the JSON LD list");
+ok(expiredModel.haunts.every((r) => hauntEndMs(r) > Date.parse("2026-10-31T00:30:00-04:00")), "every rendered haunt ends after the clock instant");
+for (const row of model.haunts) ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(row.endsAt) && row.endsTz === "America/New_York" && typeof row.endsVerified === "boolean" && row.endsSource.length > 20, row.id + " has a local end time, zone, verified flag and a source");
+ok(model.haunts.filter((r) => !r.endsVerified).every((r) => /^\d{4}-\d{2}-\d{2}T23:59$/.test(r.endsAt)), "an unverified close is always 11:59 PM local of the last date");
+ok(model.haunts.filter((r) => r.endsVerified).length === 9 && model.haunts.filter((r) => !r.endsVerified).length === 8, "9 closing times verified, 8 unverified (listed in the PR note)");
+ok(!("expiresAfter" in model.haunts[0]), "the date only expiresAfter field is gone");
+const pageSrcT = readFileSync("app/halloween-in-florida/page.js", "utf8");
+ok(/export const revalidate = (\d+);/.test(pageSrcT) && Number(/export const revalidate = (\d+);/.exec(pageSrcT)[1]) <= 900, "the page regenerates at least every 15 minutes so a closed haunt leaves within the hour");
+
+// Sideshow Obscura (HHN35 Tribute Store) is a gift shop, never a haunt
+ok(HAUNT_REMOVED.sideshowObscura.includes("2026-10-29") && /gift shop/.test(HAUNT_REMOVED.sideshowObscura), "the removal is dated and says why");
+ok(!JSON.stringify(model).includes("sideshow") && !JSON.stringify(model).includes("Sideshow") && !("sideshowObscura" in HAUNT_GOOGLE_PLACE), "Sideshow Obscura is gone from the cards, lines, picks, schema and photo map");
 
 // No duplicates
 ok(new Set(model.haunts.map((r) => r.id)).size === model.haunts.length, "haunt ids are unique");
 const withEvent = model.haunts.filter((r) => r.eventId);
-ok(withEvent.length === 13 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
+ok(withEvent.length === 12 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
 ok(new Set(model.haunts.map((r) => r.cta.href)).size === model.haunts.length, "haunt buy hrefs are unique");
 ok(new Set(model.haunts.map((r) => r.name)).size === model.haunts.length, "haunt names are unique");
 const liveModel = await withHalloweenTours(model, { env: {} });
@@ -525,17 +549,17 @@ const defaultHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveM
 const chipCount = liveModel.tours.length;
 ok(chipCount === snapshotTours().filter((t) => t.group === "ghost").length && chipCount >= 30, "ghost tour count is the snapshot ghost group (" + chipCount + ")");
 ok(defaultHtml.includes("Ghost tours (" + chipCount + ")"), "filter row shows the Ghost tours chip with count " + chipCount);
-ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 18, "default view keeps all 18 haunt cards");
+ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 17, "default view keeps all 17 haunt cards");
 ok((defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length + chipCount, "default view stacks haunted attractions and the full ghost tour section");
 ok(defaultHtml.includes("Florida Ghost Tours") && defaultHtml.includes('id="boo-tours"'), "ghost tour section renders on the default view");
 const chipHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel, initialFilter: "tours" }));
 ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount, "chip view lists exactly the counted ghost tours");
 ok(!/data-haunt-id="/.test(chipHtml), "chip view shows tours only");
-const oct29 = await withHalloweenTours(halloweenHauntModel({ today: "2026-10-29" }), { env: {} });
+const oct29 = await withHalloweenTours(halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" }), { env: {} });
 const oct29Html = renderToStaticMarkup(createElement(HauntPage, { model: oct29 }));
-ok(oct29.haunts.length === 18 && (oct29Html.match(/data-haunt-id="/g) || []).length === 18, "Oct 29 page renders all 18 haunt cards");
+ok(oct29.haunts.length === 17 && (oct29Html.match(/data-haunt-id="/g) || []).length === 17, "Oct 29 page renders all 17 haunt cards");
 ok(oct29Html.includes('id="boo-tours"'), "Oct 29 default view also renders the ghost tour section");
-const nov2 = await withHalloweenTours(halloweenHauntModel({ today: "2026-11-02" }), { env: {} });
+const nov2 = await withHalloweenTours(halloweenHauntModel({ now: "2026-11-02T12:00:00-05:00" }), { env: {} });
 const nov2Html = renderToStaticMarkup(createElement(HauntPage, { model: nov2 }));
 const nov2Chip = nov2Html.match(/<button[^>]*data-filter-id="tours"[^>]*>/);
 ok(nov2.haunts.length === 0 && nov2Chip && /aria-pressed="true"/.test(nov2Chip[0]), "Nov 2 opens on the Ghost tours chip because no haunt is still live");
@@ -554,7 +578,7 @@ for (const row of model.haunts) {
 for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
 const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
 const featuredN = liveModel.featuredTours.length;
-ok(buyHrefs.length === 18 + liveModel.eventTours.length + chipCount + featuredN + chipCount + featuredN, "every rendered buy button was checked (" + buyHrefs.length + ")");
+ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount + featuredN + chipCount + featuredN, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 
 // Tracking: the page mounts the one delegated beacon, and no card carries its own second tracker
