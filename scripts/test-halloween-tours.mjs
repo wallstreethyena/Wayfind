@@ -162,4 +162,37 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   }
 }
 
+
+// 2026-10-29 regression (Vercel preview build failed): an injected env/fetch
+// must govern the partner photo reads too. A child process gets real looking
+// service creds in ITS env (set here, never read from this shell) plus a
+// tripwire global fetch; with injected deps the partner reads may touch
+// neither, so the result is identical on CI, a laptop and the Vercel build.
+{
+  const { spawnSync } = await import("node:child_process");
+  const { pathToFileURL } = await import("node:url");
+  const lib = pathToFileURL(path.join(root, "lib/halloweenTours.js")).href;
+  const vault = pathToFileURL(path.join(root, "lib/halloweenHauntVault.js")).href;
+  const code = [
+    "let calls = 0; globalThis.fetch = async () => { calls++; throw new Error('tripwire'); };",
+    "const { withHalloweenTours, TOUR_SNAPSHOT } = await import(" + JSON.stringify(lib) + ");",
+    "const { halloweenHauntModel } = await import(" + JSON.stringify(vault) + ");",
+    "const env = { NEXT_PUBLIC_SUPABASE_URL: 'https://fake.supabase.co', NEXT_PUBLIC_SUPABASE_ANON_KEY: 'anon' };",
+    "const stub = async () => ({ ok: true, json: async () => [] });",
+    "const m = await withHalloweenTours(halloweenHauntModel(), { env, fetch: stub });",
+    "console.log(JSON.stringify({ calls, partners: m.tours.filter((t) => t.id.startsWith('usga-')).length }));",
+  ].join("\n");
+  const run = spawnSync(process.execPath, ["--input-type=module", "-e", code], {
+    cwd: root,
+    encoding: "utf8",
+    env: { SUPABASE_URL: "https://realproject.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "tripwire-not-a-real-key", NODE_ENV: "test" },
+  });
+  const line = String(run.stdout || "").trim().split("\n").pop() || "{}";
+  let out = {};
+  try { out = JSON.parse(line); } catch { out = {}; }
+  ok(run.status === 0, "sealed child ran (" + String(run.stderr || "").slice(0, 200) + ")");
+  ok(out.calls === 0, "injected deps: partner photo reads never use the global fetch, whatever the process env holds");
+  ok(out.partners === 0, "injected deps without a service key: no partner card");
+}
+
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");
