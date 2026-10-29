@@ -2430,3 +2430,7 @@ node scripts/test-run-guards.mjs --red-prove
 # 2026-10-28 event safety without the LLM task: deterministic rollover of ended
 # events + data-level verification freshness pulse that pages via job-watch.
 node scripts/test-event-safety.mjs
+
+# 2026-10-28: seasonal movies rail data (Fall/Halloween/Christmas) + Undercover Tourist movie ticket handoff (wf_deals 11); calls the real route and resolver.
+node scripts/check-seasonal-movies.mjs
+node scripts/check-seasonal-movies-ui.mjs
