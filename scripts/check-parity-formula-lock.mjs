@@ -85,7 +85,8 @@ ok(!!sExpr, "lib/landing.js still builds p._s inside rankedFor's pool.forEach");
 if (sExpr) {
   // Dotted call sites are captured whole ("CURATED_NAMES.has", not
   // "CURATED_NAMES"), so the allowlist must carry the exact captured form.
-  const known = ["wayfindScore", "governedWayfindScore", "hasCreatorVideoAt", "isFinite", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
+  // hasFeaturedCreatorVideoAt (2026-10-29): the featured-creator score term; census-parity mirrors it.
+  const known = ["wayfindScore", "governedWayfindScore", "hasCreatorVideoAt", "hasFeaturedCreatorVideoAt", "isFinite", "Math.min", "CURATED_NAMES.has", "_nn", "localCategoryBoost"];
   const calls = [...sExpr[1].matchAll(/([A-Za-z_$][A-Za-z0-9_$.]*)\s*\(/g)].map((m) => m[1]);
   const unknown = calls.filter((c) => !known.includes(c));
   ok(unknown.length === 0,
