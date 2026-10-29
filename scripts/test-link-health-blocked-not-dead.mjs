@@ -9,8 +9,7 @@
 // Executes lib/linkProbe.probeAndClassify with an injected fetch + DNS (no
 // sockets) and the real route against a fake PostgREST.
 import assert from "node:assert/strict";
-import { probeAndClassify, isAffiliateLink } from "../lib/linkProbe.js";
-import { linkHealthJobFailed } from "../lib/linkQuarantine.js";
+import { probeAndClassify, isAffiliateLink, linkHealthJobFailed } from "../lib/linkProbe.js";
 
 const lookupImpl = async () => [{ address: "93.184.216.34", family: 4 }];
 const html = (title, body) => `<html><head><title>${title}</title></head><body>${body}</body></html>`;

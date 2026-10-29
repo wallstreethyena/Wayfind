@@ -21,8 +21,8 @@
 // Fail-SOFT everything else: "unknown" (5xx/429/403/timeout) marks nothing
 // bad — a bot wall is our problem, never the venue's. Never throws a 500.
 import { sbEnv } from "../../../../lib/serverCache.js";
-import { probeAndClassify } from "../../../../lib/linkProbe.js";
-import { hostOfUrl, isBadVerdict, dedupeVerdictRows, linkHealthJobFailed } from "../../../../lib/linkQuarantine.js";
+import { probeAndClassify, linkHealthJobFailed } from "../../../../lib/linkProbe.js";
+import { hostOfUrl, isBadVerdict, dedupeVerdictRows } from "../../../../lib/linkQuarantine.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 
