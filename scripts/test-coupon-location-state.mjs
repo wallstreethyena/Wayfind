@@ -54,9 +54,14 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
   ok(coveredMetros().every((m) => h.includes('aria-label="Show deals in ' + m.label + '"')), "unknown: one picker button per covered metro (list derived from the METROS registry)");
   ok(/Use my location/.test(h), "unknown: 'Use my location' is offered");
   ok(h.includes(NATIONAL.title), "unknown: an everywhere deal still renders");
-  ok(!h.includes(TAMPA_ONLY.title) && !h.includes(SARASOTA_ONLY.title), "unknown: NO city deal renders (geo-gate not weakened)");
+  // Owner decision 2026-10-29: unknown location -> the statewide view, every city
+  // card under its own area heading (scripts/test-coupon-no-location.mjs locks the
+  // grouping). The proximity sheet itself is unchanged: dealTiers() with no center
+  // still returns nationwide only.
+  ok(/data-coupon-mode="statewide"/.test(h) && /across Florida, by area/.test(h), "unknown: statewide mode, header says 'across Florida, by area'");
+  ok([...dealTiers(OFFERS, today, null).featured, ...dealTiers(OFFERS, today, null).ledger].every((c) => dealScope(c).kind === "everywhere"), "unknown: dealTiers proximity gate unchanged (no center -> nationwide only)");
   ok(!/near you/.test(h), "unknown: no 'near you' claim anywhere on the screen");
-  ok(/nationwide offer/.test(h) && !/ in (Tampa|Sarasota|Orlando)/.test(h.split("Choose your area")[0]), "unknown: header count says nationwide, names no metro");
+  ok(!/ in (Tampa|Sarasota|Orlando)</.test(h.split("Choose your area")[0]), "unknown: header names no metro as the viewer's");
 }
 
 // 2. unknown AND nothing to show: the explanation, not a dead end
@@ -98,20 +103,28 @@ ok(dealTiers([NATIONAL, TAMPA_ONLY], today, TAMPA).ledger.some((c) => c.id === T
 
 // 5. metro known, nothing there (pick a covered metro the registry has no deal for)
 {
-  const emptyMetro = coveredMetros().find((m) => { const t = dealTiers(COUPONS, today, { lat: m.lat, lng: m.lng }); return t.featured.length + t.ledger.length === 0; });
+  // "Empty" means no deal scoped to THIS metro. Nationwide cards (the Undercover
+  // Tourist rows) may still render there, and that is correct.
+  const emptyMetro = coveredMetros().find((m) => { const t = dealTiers(COUPONS, today, { lat: m.lat, lng: m.lng }); return [...t.featured, ...t.ledger].every((c) => dealScope(c).kind === "everywhere"); });
   if (emptyMetro) {
     const h = render({ center: { lat: emptyMetro.lat, lng: emptyMetro.lng }, cpnOffers: [], locResolved: true });
-    ok(/data-deals-state="metro-empty"/.test(h) && h.includes("No verified deals in " + emptyMetro.label + " right now") && /good anywhere/.test(h), "metro empty: names the metro and says national offers still show when they exist");
+    const t = dealTiers(COUPONS, today, { lat: emptyMetro.lat, lng: emptyMetro.lng });
+    if (t.featured.length + t.ledger.length === 0) {
+      ok(/data-deals-state="metro-empty"/.test(h) && h.includes("No verified deals in " + emptyMetro.label + " right now") && /good anywhere/.test(h), "metro empty: names the metro and says national offers still show when they exist");
+    } else {
+      ok(!/data-deals-state=/.test(h) && t.featured.concat(t.ledger).every((c) => h.includes(c.business)), "metro with only nationwide deals: those render, no empty state");
+    }
+    ok(!/data-coupon-mode="statewide"/.test(h) && !/data-deal-area="(tampa|sarasota|orlando|stpete)"/.test(h), "metro empty: never falls back to other areas' cards");
     ok(!/data-area-state="unknown"/.test(h) && /Showing deals for/.test(h), "metro empty: it is not mistaken for 'location unknown'");
   }
-  ok(!!emptyMetro, "a covered metro with zero registry deals exists (Miami today), so the metro-empty state is exercised, not skipped");
+  ok(!!emptyMetro, "a covered metro with zero metro-scoped registry deals exists (Miami today), so the metro-empty path is exercised, not skipped");
 }
 
 // 6. center outside every metro
 {
   const h = render({ center: OUTSIDE, locResolved: true });
   ok(/data-area-state="outside"/.test(h) && /Pick an area to see local deals/.test(h), "outside: picker with outside-coverage copy");
-  ok(!h.includes(TAMPA_ONLY.title) && !h.includes(SARASOTA_ONLY.title), "outside: NO city deal renders");
+  ok(/data-coupon-mode="statewide"/.test(h) && /data-deal-area="tampa"/.test(h), "outside: statewide view, city deals sit under their own area heading");
   ok(h.includes(NATIONAL.title), "outside: an everywhere deal renders");
 }
 

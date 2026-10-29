@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import { THEME_PARKS, themeParkForPlace, themeParkIntent, themeParkHeading, orderThemeParks, filterFamilyThemeParks } from "../lib/themeParks.js";
 import { THEME_PARK_PLACE_IDS } from "../lib/themeParksServer.js";
-import { themeParkRows, loadThemeParks } from "../lib/themeParksServer.js";
+import { themeParkRows, loadThemeParks, themeParkAliasPattern, isTransientInventoryError, OWNER_PICKS_DEADLINE_MS } from "../lib/themeParksServer.js";
 import { placePartnerPick } from "../lib/placePartnerPicks.js";
 
 for (const park of THEME_PARKS) for (const alias of park.aliases) {
@@ -63,21 +63,29 @@ try {
     const unknown = query.searchParams.get("select").split(",").filter((field) => !inventoryColumns.has(field));
     return unknown.length ? Response.json({ error: "unknown inventory column" }, { status: 400 }) : null;
   };
-  // 1) Fallback path: ids return too few parks, so the alias read runs (case-insensitive whole names, no wildcard).
+  // 1) Fallback path: ids return too few parks, so the alias read runs: ONE
+  // anchored, escaped, case-insensitive regex (imatch = ~*, trigram-indexed),
+  // never the 42-term ilike OR that full-scanned wf_inventory (~1.1s on prod).
   const calls = [];
+  let aliasPattern = null;
   globalThis.fetch = async (url) => {
     const query = new URL(url); calls.push(query);
     const bad = validate(query); if (bad) return bad;
-    if (query.searchParams.get("or")) {
-      assert.ok(query.searchParams.get("or").includes('name.ilike."EPCOT"'), "whole-name query is case insensitive");
-      assert.ok(!/[%*]/.test(query.searchParams.get("or")), "no wildcard expands park identity");
-    }
+    if (query.searchParams.get("name")) aliasPattern = query.searchParams.get("name");
     return Response.json([row("Gatorland", "g", 4.7, 1000), row("Epcot", "epcot", 4.7, 163052), row("PEPPA PIG Theme Park Florida", "peppa", 4.1, 2079)]);
   };
   assert.deepEqual((await loadThemeParks({ env })).map(p => p.id), ["epcot", "g", "peppa"], "real reader keeps deployed spelling variants in score order");
   assert.ok(calls[0].searchParams.get("place_id")?.startsWith("in.("), "first read is the id-first primary-key read");
-  assert.ok(!calls[0].searchParams.get("or"), "id-first read carries no ilike OR");
-  assert.ok(calls.some((q) => q.searchParams.get("or")), "alias ilike read is the fallback when an id is missing");
+  assert.ok(calls.every((q) => !q.searchParams.get("or")), "no read carries the full-scan ilike OR");
+  assert.ok(aliasPattern?.startsWith("imatch.^("), "alias fallback is one case-insensitive anchored regex");
+  assert.ok(aliasPattern.endsWith(")$"), "regex is anchored at both ends (whole names only)");
+  const regex = new RegExp(aliasPattern.slice("imatch.".length), "i");
+  for (const park of THEME_PARKS.filter((p) => p.modes.includes("flagship"))) for (const alias of park.aliases) {
+    assert.ok(regex.test(alias) && regex.test(alias.toUpperCase()), `${alias} matches case-insensitively`);
+  }
+  for (const near of ["Epcot Hotel", "SeaWorld Orlando Resort Hotel", "Not LEGOLAND", "Disney's Animal Kingdom Lodge"]) assert.ok(!regex.test(near), `${near} is not a whole-name match`);
+  const escaped = new RegExp(themeParkAliasPattern(["A.B (x)|y", "Disney's"]), "i");
+  assert.ok(escaped.test("a.b (X)|Y") && !escaped.test("aXb (x)|y") && !escaped.test("A.B x") && !escaped.test("y"), "regex metacharacters in aliases are literal");
 
   // 2) Id-first path: every park found by id, so the alias read must NOT run.
   const idCalls = [];
@@ -103,10 +111,33 @@ try {
   globalThis.fetch = async () => { throw new DOMException("The operation was aborted due to timeout", "TimeoutError"); };
   await assert.rejects(loadThemeParks({ env, mode: "orlando" }), /timeout/, "no last-good entry for a mode still fails loudly");
 
+  globalThis.fetch = async () => Response.json({ error: "slow down" }, { status: 429 });
+  assert.ok((await loadThemeParks({ env, mode: "flagship" })).length > 0, "429 serves stale");
+  // A 4xx is a request we built wrong (unknown column, bad filter): it fails
+  // loudly even though a last-good list for the mode exists.
+  for (const status of [400, 401, 404]) {
+    globalThis.fetch = async () => Response.json({ error: "unknown column" }, { status });
+    await assert.rejects(loadThemeParks({ env, mode: "flagship" }), new RegExp(`returned ${status}`), `${status} is never masked by stale`);
+  }
+  assert.equal(isTransientInventoryError(Object.assign(new Error("x"), { status: 503 })), true);
+  assert.equal(isTransientInventoryError(Object.assign(new Error("x"), { status: 404 })), false);
+  assert.equal(isTransientInventoryError(new Error("Theme park inventory returned an invalid response")), false, "a shape error is not transient");
   globalThis.fetch = async () => Response.json({ error: "unknown column" }, { status: 400 });
   await assert.rejects(loadThemeParks({ env, mode: "family" }), /returned 400/);
   globalThis.fetch = async () => Response.json({ rows: [] });
-  await assert.rejects(loadThemeParks({ env, mode: "family" }), /invalid response/);
+  await assert.rejects(loadThemeParks({ env, mode: "flagship" }), /invalid response/, "an invalid body is never masked by stale");
+
+  // 4) Owner picks are bounded: a pick read that never settles leaves the
+  // rail in its own order ("unknown"), it does not hang the request.
+  globalThis.fetch = async () => Response.json(THEME_PARKS.filter((park) => park.modes.includes("flagship")).map((park) => row(park.name, THEME_PARK_PLACE_IDS[park.key][0], 4.5, 1000)));
+  const started = Date.now();
+  const bounded = await loadThemeParks({ env, mode: "flagship", loadPicks: () => new Promise(() => {}) });
+  const took = Date.now() - started;
+  assert.ok(took >= OWNER_PICKS_DEADLINE_MS - 50 && took < OWNER_PICKS_DEADLINE_MS + 1000, `hung owner-pick read is bounded (${took}ms)`);
+  assert.deepEqual(bounded.map((p) => p.id), viaIds.map((p) => p.id), "unknown picks leave the rail order untouched");
+  const rejected = await loadThemeParks({ env, mode: "flagship", loadPicks: () => Promise.reject(new Error("likes down")) });
+  assert.deepEqual(rejected.map((p) => p.id), viaIds.map((p) => p.id), "a failed pick read is unknown, not an error");
+  assert.match(server, /loadOwnerPickIds\(\{ fetchImpl: \(url, init\) => fetchDeadline\(url, init, OWNER_PICKS_DEADLINE_MS\) \}\)/, "the likes fetch itself carries an abort deadline");
 } finally { globalThis.fetch = originalFetch; }
 const ownedOnly = { ...row("Gatorland", "owned", 4.7, 1000), photo_ref: null };
 ownedOnly.signals.photo_url = "/owned-gatorland.jpg";

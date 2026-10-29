@@ -25,50 +25,47 @@ const { stripComments } = await import("./lib/guardHonestyAnalysis.mjs");
 { const g = createPlaceActionGate(); g.claim("A", "save"); ok(g.claim("A", "like") === true && g.claim("B", "save") === true, "different action or place is a separate claim"); }
 { const g = createPlaceActionGate(); ok(g.claim("", "save") === false && g.claim("A", "") === false && g.claim(null, null) === false, "missing id/action never claims"); }
 
-// (b) executable replay: the deep-link effect body run twice (supabaseReady false -> true)
-// with the exact gated block lifted out of app/home.js, so a regression in the
-// real source (not a copy) turns this red.
+// (b) executable replay. 2026-10-29: the claimed block no longer WRITES — it
+// proposes (lib/deepLinkAction.js). The write moved to applyLinkAction, run
+// only from confirmLinkAction on a trusted tap. So: the effect run 3x proposes
+// once, and the lifted applyLinkAction body applies once / never toggles off.
 const homeRaw = readFileSync(join(ROOT, "app/home.js"), "utf8");
 const home = stripComments(homeRaw);
 const blockRx = /if \(placeAction && placeActionGateRef\.current\.claim\(opened\.id, placeAction\)\) \{([^]*?)\n          \}\n/;
 const m = blockRx.exec(home);
-ok(!!m, "app/home.js deep-link effect must route the action replay through placeActionGateRef.current.claim(opened.id, placeAction)");
+ok(!!m, "app/home.js deep-link effect must route the action through placeActionGateRef.current.claim(opened.id, placeAction)");
 if (m) {
-  const caps = [];
-  const posthog = { capture: (ev, props) => caps.push([ev, props && props.place_id]) };
-  const quickSaveFavorite = (p) => posthog.capture("save", { place_id: p.id }); // quickSaveFavorite's only PostHog emit is logEvent("save")
-  const toggleLike = (e, p) => posthog.capture("like", { place_id: p.id });
-  const toggleDislike = (e, p) => posthog.capture("dislike", { place_id: p.id });
-  const gateRef = { current: createPlaceActionGate() };
-  const replayRaw = new Function("placeActionGateRef", "quickSaveFavorite", "toggleLike", "toggleDislike", "isSavedNow", "placeAction", "opened", "isLikedNow", "isDislikedNow",
-    "if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {" + m[1] + "\n}");
-  const replay = (g, qs, tl, td, saved, action, opened, liked = () => false, disliked = () => false) => replayRaw(g, qs, tl, td, saved, action, opened, liked, disliked);
   for (const action of ["save", "like", "dislike"]) {
-    caps.length = 0;
+    const proposals = [];
     const g = { current: createPlaceActionGate() };
-    for (let run = 0; run < 3; run++) replay(g, quickSaveFavorite, toggleLike, toggleDislike, () => false, action, { id: "P1" });
-    ok(caps.length === 1 && caps[0][0] === action, "3 effect runs for ?action=" + action + " must capture exactly 1 " + action + " (got " + caps.length + ")");
-  }
-  caps.length = 0;
-  replay(gateRef, quickSaveFavorite, toggleLike, toggleDislike, () => false, "save", { id: "P1" });
-  replay(gateRef, quickSaveFavorite, toggleLike, toggleDislike, () => false, "save", { id: "P2" });
-  ok(caps.length === 2, "a different place is a different tap");
-  caps.length = 0;
-  replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => true, "save", { id: "P3" });
-  ok(caps.length === 0, "?action=save on an already-saved place adds nothing and never un-saves it (idempotent add)");
-  // 2026-10-28 delta: like/dislike links SET, never toggle off an already-set reaction.
-  for (const action of ["like", "dislike"]) {
-    caps.length = 0;
-    replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => false, action, { id: "P4" }, () => action === "like", () => action === "dislike");
-    ok(caps.length === 0, "?action=" + action + " on a place already " + action + "d never toggles it off");
-    caps.length = 0;
-    replay({ current: createPlaceActionGate() }, quickSaveFavorite, toggleLike, toggleDislike, () => false, action, { id: "P5" }, () => false, () => false);
-    ok(caps.length === 1, "control: ?action=" + action + " on an un-reacted place applies once");
+    const run = new Function("placeActionGateRef", "placeAction", "opened", "linkPlan", "setLinkActionPrompt",
+      "if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {" + m[1] + "\n}");
+    for (let r = 0; r < 3; r++) run(g, action, { id: "P1" }, { prompt: true }, (v) => proposals.push(v));
+    ok(proposals.length === 1 && proposals[0].action === action, "3 effect runs for ?action=" + action + " propose exactly once (got " + proposals.length + ")");
+    ok(!/quickSaveFavorite|toggleLike|toggleDislike/.test(m[1]), "the claimed deep-link block never writes state itself");
   }
 }
+const applyM = /function applyLinkAction\(place, action, extra\) \{([^]*?)\n  \}\n/.exec(home);
+ok(!!applyM, "applyLinkAction(place, action, extra) found");
+if (applyM) {
+  const caps = [];
+  const apply = new Function("quickSaveFavorite", "toggleLike", "toggleDislike", "isSavedNow", "isLikedNow", "isDislikedNow", "place", "action", "extra", applyM[1]);
+  const qs = (p) => caps.push("save"); const tl = () => caps.push("like"); const td = () => caps.push("dislike");
+  const no = () => false; const yes = () => true;
+  for (const action of ["save", "like", "dislike"]) {
+    caps.length = 0; apply(qs, tl, td, no, no, no, { id: "P1" }, action, {});
+    ok(caps.join() === action, "control: confirmed ?action=" + action + " on an un-set place applies once (got " + caps.join() + ")");
+  }
+  caps.length = 0; apply(qs, tl, td, yes, no, no, { id: "P3" }, "save", {});
+  ok(caps.length === 0, "?action=save on an already-saved place adds nothing and never un-saves it (idempotent add)");
+  caps.length = 0; apply(qs, tl, td, no, yes, no, { id: "P4" }, "like", {});
+  ok(caps.length === 0, "?action=like on a place already liked never toggles it off");
+  caps.length = 0; apply(qs, tl, td, no, no, yes, { id: "P4" }, "dislike", {});
+  ok(caps.length === 0, "?action=dislike on a place already disliked never toggles it off");
+}
 
-// (b2) 2026-10-28 delta. The replay reads CURRENT state (refs), not the first render's closure.
-ok(/if \(!isSavedNow\(opened\.id\)\) quickSaveFavorite\(opened\)/.test(home), "deep-link save is judged on current state (isSavedNow), not the first render's stale lists");
+// (b2) the apply reads CURRENT state (refs), not the first render's closure.
+ok(/if \(!isSavedNow\(place\.id\)\) quickSaveFavorite\(place, extra\)/.test(home), "deep-link save is judged on current state (isSavedNow), not the first render's stale lists");
 ok(/const isSavedNow = \(id\) => Object\.values\(listsRef\.current/.test(home) && /listsRef\.current = lists;/.test(home), "isSavedNow reads listsRef, which tracks every render");
 ok(/const isLikedNow = \(id\) => !!\(likedRef\.current/.test(home) && /likedRef\.current = liked;/.test(home) && /dislikedRef\.current = disliked;/.test(home), "like/dislike state refs track every render");
 // share_open: one landing, claimed once through the same gate.
@@ -95,23 +92,26 @@ ok((home.match(shareRx) || []).length === 1, "exactly one place share_open emitt
 }
 ok(/filePlaceIntoTrips\(\{ p, trips: tripsRef\.current, setTrips, autoOrder: itineraryFlags\.autoOrder, src: "quick_save"/.test(home) && /tripsRef\.current = trips;/.test(home), "quick_save auto-file judges trip_create against current trips (tripsRef)");
 
-// (c) syntactic roles. Every call to quickSaveFavorite(opened) lives inside that gate.
-const replayCalls = home.match(/quickSaveFavorite\(opened\)/g) || [];
-ok(replayCalls.length === 1, "exactly one quickSaveFavorite(opened) replay call (found " + replayCalls.length + ")");
-const ungated = home.replace(blockRx, "");
-// positive controls: the same probes DO find the calls in the full source (and in the source with the gate stripped back out)
-const saveRx = /quickSaveFavorite\(opened\)/;
-const reactRx = /toggleLike\(\{ stopPropagation\(\) \{\} \}, opened\)|toggleDislike\(\{ stopPropagation\(\) \{\} \}, opened\)/;
-ok(saveRx.test("if (x) quickSaveFavorite(opened);") && reactRx.test("toggleLike({ stopPropagation() {} }, opened)"), "probe regexes match a literal known-good fixture");
-ok(saveRx.test(home) && reactRx.test(home), "positive control: probes find the gated replay calls in the full source");
-ok(saveRx.test(home.replace("placeActionGateRef.current.claim(opened.id, placeAction)", "true")) || !m, "positive control: probe still sees the call when the gate is removed");
-ok(!saveRx.test(ungated), "no quickSaveFavorite(opened) outside the claim gate");
-ok(!reactRx.test(ungated), "no like/dislike deep-link replay outside the claim gate");
+// (c) syntactic roles. The ONLY link-originated write is applyLinkAction, and
+// its ONLY caller is confirmLinkAction, behind humanConfirmed().
+const replayCalls = home.match(/quickSaveFavorite\(place, extra\)/g) || [];
+ok(replayCalls.length === 1, "exactly one quickSaveFavorite(place, extra) link-apply call (found " + replayCalls.length + ")");
+ok(!!applyM && /quickSaveFavorite\(place, extra\)/.test(applyM[1]), "that call sits inside applyLinkAction");
+const applyCalls = home.match(/\bapplyLinkAction\(/g) || [];
+ok(applyCalls.length === 2, "applyLinkAction is declared once and called once (found " + applyCalls.length + " occurrences)");
+const confirmM = /function confirmLinkAction\(e\) \{([^]*?)\n  \}\n/.exec(home);
+ok(!!confirmM && /if \(!humanConfirmed\(e, /.test(confirmM[1]) && confirmM[1].indexOf("humanConfirmed") < confirmM[1].indexOf("applyLinkAction("), "confirmLinkAction refuses before applying unless humanConfirmed(e)");
+ok(/onClick=\{confirmLinkAction\}/.test(home), "confirmLinkAction is wired to the prompt button's click (a real user activation)");
 ok(/import \{ createPlaceActionGate \} from "\.\.\/lib\/placeActionOnce\.js"/.test(home), "home.js imports the gate");
+ok(/import \{ planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel \} from "\.\.\/lib\/deepLinkAction\.js"/.test(home), "home.js imports the deep-link policy (lib/deepLinkAction.js)");
+ok((home.match(/function confirmLinkAction\(e\)/g) || []).length === 1, "exactly one confirmLinkAction");
+ok((home.match(/function applyLinkAction\(place, action, extra\)/g) || []).length === 1, "exactly one applyLinkAction");
+ok(/onClick=\{\(\) => setLinkActionPrompt\(null\)\}/.test(home), "the prompt can be dismissed without any write");
+ok(!!confirmM && /applyLinkAction\(pending\.place, pending\.action, deepLinkEventProps\("human", pending\.action\)\)/.test(confirmM[1]), "a confirmed link action is labelled traffic_class:'human', trigger:'deep_link'");
 ok(/placeActionGateRef\.current = createPlaceActionGate\(\)/.test(home), "gate lives in a ref (survives the effect re-run)");
 
 // one PostHog emitter inside quickSaveFavorite: logEvent("save") once, and no second capture/track.
-const qs = /function quickSaveFavorite\(p\) \{([^]*?)\n  \}\n/.exec(home);
+const qs = /function quickSaveFavorite\(p, extra\) \{([^]*?)\n  \}\n/.exec(home);
 ok(!!qs, "quickSaveFavorite found");
 if (qs) {
   ok((qs[1].match(/logEvent\("save"/g) || []).length === 1, "quickSaveFavorite emits logEvent(\"save\") exactly once");
@@ -131,4 +131,4 @@ const ca = stripComments(readFileSync(join(ROOT, "lib/cardActions.js"), "utf8"))
 ok((ca.match(/track\("save"/g) || []).length === 1, "lib/cardActions.js has exactly one track(\"save\")");
 
 if (failures) { console.error("test-save-single-emitter: " + failures + " failure(s)"); process.exit(1); }
-console.log("test-save-single-emitter: OK (gate executed, effect replayed 3x x 3 actions through a stubbed posthog, 4 source files role-checked)");
+console.log("test-save-single-emitter: OK (gate executed, effect replayed 3x x 3 actions proposing once, applyLinkAction executed, 4 source files role-checked)");
