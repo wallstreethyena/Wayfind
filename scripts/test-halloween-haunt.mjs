@@ -522,7 +522,7 @@ for (const row of model.haunts) {
   else ok(row.cta.kind === "organizer" && ORGANIZER_ALLOW.has(row.cta.href) && !/sponsored/.test(row.cta.rel), row.id + " is a non commercial organizer link on the allow list (no affiliate param)");
 }
 for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
-const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
+const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
 ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 
