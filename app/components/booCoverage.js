@@ -6,10 +6,15 @@
 // the one shared law, same function, same constant). So Boo only says "it is
 // quiet here" when the feed really has no ranked city behind it.
 //
-// WHAT HE SAYS. Four short lines, shown one at a time: the area is not covered
-// yet, which part of Florida is, the nearest covered Florida city with its real
-// distance, and the cities with the most places right now. Then a tap opens the
-// sheet with one button per city that moves the feed there.
+// WHAT HE SAYS. Four short polite lines, shown one at a time: Wayfind has not
+// reached the area yet, which part of Florida is covered, the nearest covered
+// Florida city as an OPTION, and a no pressure invitation. A tap opens the
+// sheet with one button per city. Nothing moves unless a visitor taps a city.
+//
+// UNKNOWN LOCATION. Nothing stored (no wf_center) is NOT "covered" and NOT
+// "uncovered": coverageState returns kind "unknown" and Boo offers a city
+// selector in the sheet, once per tab session. He never reads the device
+// location for this; he only reads what the site already stored.
 //
 // Rules: no dashes anywhere, at most 14 words a line, never coordinates.
 
@@ -27,8 +32,12 @@ export const MOST_PICKS = ["sarasota", "orlando", "miami", "tampa", "fort-lauder
 // Past this, a distance is a flight, not a road trip: no miles are quoted.
 export const DRIVE_MI = 300;
 
-// How Boo names the covered regions in one breath.
-export const REGIONS_LINE = "Right now Wayfind covers Florida: Tampa Bay, Sarasota, Orlando, Miami and more.";
+// How Boo names the covered regions in one breath (names come from the same
+// covered city list, so the line cannot drift from the data).
+export function regionsLine() {
+  const names = ["tampa", "sarasota", "orlando", "miami"].map((s) => COVERED_CITIES[s] && COVERED_CITIES[s].name).filter(Boolean);
+  return "Right now Wayfind covers Florida: " + names.join(", ") + " and more.";
+}
 
 const FL = Object.entries(COVERED_CITIES).filter(([, c]) => c && c.state === "FL");
 
@@ -79,25 +88,51 @@ export function coverageGap(raw) {
   return { area: cityLabel(c.loc), near, options, cell: c.lat.toFixed(1) + "," + c.lng.toFixed(1) };
 }
 
-/** The four bubble lines, one at a time. */
+/** All covered Florida cities, for the selector: [{ slug, name, label, lat, lng }]. */
+export function floridaCities() {
+  return FL.map(([slug]) => cityOf(slug, null)).filter(Boolean).sort((x, y) => x.name.localeCompare(y.name));
+}
+
+/**
+ * The one entry point the companion uses.
+ *   { kind: "covered" }                      stored center is inside coverage
+ *   { kind: "gap", gap }                     stored center is outside coverage
+ *   { kind: "unknown", options }             nothing usable stored: offer a selector
+ * Never guesses a location: unknown stays unknown.
+ */
+export function coverageState(raw) {
+  const c = parseCenter(raw);
+  if (!c) {
+    const options = MOST_PICKS.map((s) => cityOf(s, null)).filter(Boolean);
+    return { kind: "unknown", options, more: floridaCities() };
+  }
+  const gap = coverageGap(raw);
+  return gap ? { kind: "gap", gap } : { kind: "covered" };
+}
+
+/** The bubble lines, one at a time. Polite, short, the nearest city is optional. */
 export function coverageLines(gap) {
   if (!gap) return [];
-  const where = gap.area || "Your area";
-  const lines = [where + " isn't on Wayfind's map yet. That's why it's so quiet."];
-  lines.push(REGIONS_LINE);
+  const where = gap.area || "your area";
+  const lines = ["Wayfind hasn't reached " + where + " yet. Boo is a little embarrassed."];
+  lines.push(regionsLine());
   const mi = roundMiles(gap.near.mi);
   lines.push(mi != null && mi <= DRIVE_MI
-    ? "Closest to you: " + gap.near.name + ", about " + mi + " miles away. Road trip?"
-    : "Planning a Florida trip? " + gap.near.name + " is my closest haunt to you.");
-  const top = MOST_PICKS.slice(0, 3).map((s) => COVERED_CITIES[s].name);
-  lines.push("Most picks right now: " + top.join(", ") + ". Tap me to pick one!");
+    ? "Closest city, if you're curious: " + gap.near.name + ", about " + mi + " miles. Totally optional!"
+    : "Planning a Florida trip? " + gap.near.name + " is closest. Totally optional!");
+  lines.push("Tap me anytime to pick a city. Or keep browsing, no pressure.");
   return lines;
 }
 
 /** The sheet's opening message when the visitor is outside coverage. */
 export function coverageSheetLine(gap) {
   const where = gap && gap.area ? gap.area : "your area";
-  return "Wayfind isn't in " + where + " yet. Pick a Florida city and I'll float you there.";
+  return "Wayfind hasn't reached " + where + " yet. Want to peek at a Florida city? Totally optional.";
+}
+
+/** The sheet's opening message when no location is stored. */
+export function unknownSheetLine() {
+  return "I don't know where you are. Pick a Florida city if you like.";
 }
 
 /** Button text for a city option. Distance only on the nearest one. */

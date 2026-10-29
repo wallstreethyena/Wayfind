@@ -11,7 +11,7 @@ import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { openerFor } from "./booOpeners.js";
-import { coverageGap, coverageLines, coverageSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
+import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
 
 const HIDE_KEY = "wf_boo_hidden";
@@ -168,6 +168,11 @@ const VISITS_KEY = "wf_boo_visits";
 // Outside coverage he explains it once per area per tab session, not on every page.
 const COVER_TOLD_KEY = "wf_boo_cov_told";
 const LINE_GAP = 450; // pause between lines of a sequence so each one lands alone
+// Unknown location: the city selector shows once per tab session, in the sheet only.
+const UNK_SHOWN_KEY = "wf_boo_unk_shown";
+// Coverage messages stay quiet for this long after a booking or ticket tap.
+const BOOK_QUIET_MS = 10000;
+const BOOKING_SEL = ".boo-buy,a[href*='/api/commerce/go'],a[href*='/api/viator/go'],a[href*='/api/ticketmaster/go'],a[href*='/api/'][href*='/go'],a[href^='/go/'],a[href^='/go?']";
 const SPOOKY_PLACEHOLDER = "Search a haunt or city...";
 function splitKicker(t) {
   const m = /^([A-Z][A-Z0-9 '&]{2,24}):\s+([\s\S]+)$/.exec(t || "");
@@ -314,6 +319,10 @@ const CSS = `
 .boo-s-chip:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-s-cities{display:grid;gap:8px;padding-top:4px}
 .boo-s-city{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;font-weight:700;color:#EDE9FE;border:1px solid rgba(196,181,253,.35);padding:10px 14px;border-radius:12px}
+.boo-s-more{display:flex;gap:8px;align-items:stretch}
+.boo-s-more select{flex:1;min-width:0;min-height:44px;background:#110E19;color:#EDE9FE;border:1px solid rgba(196,181,253,.35);border-radius:12px;padding:0 10px;font:600 14px var(--wf-sans),system-ui,sans-serif}
+.boo-s-more .boo-s-city{flex:none;min-width:64px}
+.boo-s-city[disabled]{opacity:.45;cursor:default}
 .boo-s-city.near{background:#F97316;border-color:#F97316;color:#111}
 .boo-s-city:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-s-city.near:focus-visible{outline-color:#EDE9FE}
@@ -394,6 +403,8 @@ export default function BooCompanion() {
   const [zap, setZap] = useState(null); // null | "jolt" | "settle"
   const [look, setLook] = useState(null); // hop | spin | wiggle | nod
   const [gap, setGap] = useState(null); // outside coverage: { area, near, options, cell }
+  const [unk, setUnk] = useState(null); // no stored location: { options, more } city selector, sheet only
+  const [pickSlug, setPickSlug] = useState("");
 
   const elRef = useRef(null);
   const flipRef = useRef(null);
@@ -423,6 +434,8 @@ export default function BooCompanion() {
   const openerRef = useRef("");
   const openerSpoken = useRef(false);
   const gapRef = useRef(null);
+  const unkRef = useRef(null);
+  const bookTapAt = useRef(0);
   const seqT = useRef([]);
   const closeSheetRef = useRef(() => {});
   const coverKick = useRef(() => {});
@@ -464,14 +477,19 @@ export default function BooCompanion() {
   const readGap = () => {
     let raw = null;
     try { raw = localStorage.getItem(CENTER_KEY); } catch { /* ignore */ }
-    const g = coverageGap(raw);
+    const st = coverageState(raw);
+    const g = st.kind === "gap" ? st.gap : null;
     gapRef.current = g;
+    unkRef.current = st.kind === "unknown" ? st : null;
     setGap(g);
     return g;
   };
+  // Coverage talk never interrupts booking: quiet on the haunt page and for 10s after a booking tap.
+  const coverQuiet = () => pathRef.current === HAUNT_PATH || pathRef.current.startsWith(HAUNT_PATH + "/") || Date.now() - bookTapAt.current < BOOK_QUIET_MS;
   const toldFor = (g) => { try { return !!g && sessionStorage.getItem(COVER_TOLD_KEY) === g.cell; } catch { return false; } };
   const markTold = (g) => { try { sessionStorage.setItem(COVER_TOLD_KEY, g.cell); } catch { /* ignore */ } };
 
+  // ONLY called from a city button's onClick. Nothing else moves the feed.
   // Move the feed to a covered city. On the home page the app takes it in
   // place (wf:jump-city, handled by home.js); anywhere else, or if nothing
   // answered, store the city the way the app does and open the home page.
@@ -939,7 +957,7 @@ export default function BooCompanion() {
       lines.slice(1).forEach((line, i) => {
         const last = i === lines.length - 2;
         seqT.current.push(window.setTimeout(() => {
-          if (dead || openRef.current) return;
+          if (dead || openRef.current || coverQuiet()) return;
           const pp = last ? "up" : i === 1 ? "idle" : "talk";
           prefetch(pp); setPose(pp);
           showBubble(line);
@@ -955,7 +973,10 @@ export default function BooCompanion() {
       if (openRef.current || document.hidden) { schedule(rand(8000, 15000)); return; }
       if (Date.now() - lastSay.current < 6000) { schedule(rand(6000, 9000)); return; }
       const g = readGap();
-      if (g && !toldFor(g)) { gagCount.current += 1; coverSeq(g); return; }
+      if (g && !toldFor(g)) {
+        if (coverQuiet()) { schedule(rand(8000, 12000)); return; }
+        gagCount.current += 1; coverSeq(g); return;
+      }
       if (gagCount.current >= 6) return;
       gagCount.current += 1;
       const n = gagCount.current;
@@ -1043,6 +1064,7 @@ export default function BooCompanion() {
       activity();
       const t = e.target && e.target.closest ? e.target : null;
       if (!t || t.closest(".boo-c,.boo-s-back")) return;
+      if (t.closest(BOOKING_SEL)) bookTapAt.current = Date.now();
       const ticket = t.closest(TICKET_SEL);
       if (ticket) { reactRef.current("ticket", { pose: "cheer" }); return; }
       const btn = t.closest("button[aria-label]");
@@ -1226,7 +1248,22 @@ export default function BooCompanion() {
   // Opening line, focus, scroll lock, Escape and focus trap.
   useEffect(() => {
     if (!open) return;
-    setMsgs((m) => (m.length ? m : [{ role: "boo", text: gapRef.current ? coverageSheetLine(gapRef.current) : getOpener() || GREETING, fresh: true }]));
+    // Unknown location: offer the selector once per tab session, here only, never as a bubble.
+    let unkNow = null;
+    if (!gapRef.current) {
+      let raw = null;
+      try { raw = localStorage.getItem(CENTER_KEY); } catch { /* ignore */ }
+      const st = coverageState(raw);
+      let shown = false;
+      try { shown = sessionStorage.getItem(UNK_SHOWN_KEY) === "1"; } catch { /* ignore */ }
+      if (st.kind === "unknown" && !shown) {
+        unkNow = st;
+        try { sessionStorage.setItem(UNK_SHOWN_KEY, "1"); } catch { /* ignore */ }
+        track("boo_coverage_selector", { path: pathRef.current });
+      }
+    }
+    if (unkNow) setUnk(unkNow);
+    setMsgs((m) => (m.length ? m : [{ role: "boo", text: gapRef.current ? coverageSheetLine(gapRef.current) : unkNow ? unknownSheetLine() : getOpener() || GREETING, fresh: true }]));
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const f = window.setTimeout(() => { try { (inputRef.current || sheetRef.current).focus({ preventScroll: true }); } catch { /* ignore */ } }, 60);
@@ -1363,7 +1400,21 @@ export default function BooCompanion() {
                   ))}
                 </div>
               ) : null}
-              {!wrapped && !hasUser && !pending && !gap ? (
+              {!wrapped && !hasUser && !pending && !gap && unk ? (
+                <div className="boo-s-cities" role="group" aria-label="Florida cities on Wayfind">
+                  {unk.options.map((o) => (
+                    <button type="button" key={o.slug} className="boo-s-city" onClick={() => jumpTo(o, false)}>{coverageButtonText(o, false)}</button>
+                  ))}
+                  <div className="boo-s-more">
+                    <select aria-label="More Florida cities" value={pickSlug} onChange={(e) => setPickSlug(e.target.value)}>
+                      <option value="">More Florida cities</option>
+                      {unk.more.map((o) => (<option key={o.slug} value={o.slug}>{o.name}</option>))}
+                    </select>
+                    <button type="button" className="boo-s-city" disabled={!pickSlug} onClick={() => jumpTo(unk.more.find((o) => o.slug === pickSlug), false)}>Go</button>
+                  </div>
+                </div>
+              ) : null}
+              {!wrapped && !hasUser && !pending && !gap && !unk ? (
                 <div className="boo-s-chips">
                   {chips.map((c) => (<button type="button" key={c} className="boo-s-chip" onClick={() => send(c, "chip")}>{c}</button>))}
                 </div>
