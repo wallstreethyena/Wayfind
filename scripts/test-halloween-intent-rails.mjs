@@ -4,7 +4,7 @@ import { hospitalityDateChipLabel } from "../lib/seasonalHospitalityCopy.js";
 import { seasonalHospitalityPlaces } from "../lib/seasonalHospitality.js";
 import { SEASONAL_HOSPITALITY_2026 } from "../lib/seasonalHospitalityCatalog2026.js";
 import { composeFallIntentRails, fallEventRail } from "../lib/fallIntentRails.js";
-import { composeHalloweenRails, halloweenCardRail, HALLOWEEN_INTENT_RAIL_DEFS } from "../lib/halloweenIntentRails.js";
+import { composeHalloweenRails, halloweenCardRail, HALLOWEEN_INTENT_RAIL_DEFS, orderHalloweenRails, THIN_RAIL } from "../lib/halloweenIntentRails.js";
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const cases = [
@@ -128,4 +128,20 @@ ok(!!catalogWindow, "real catalog supplies a current select-date hospitality win
 const projectedWindow = seasonalHospitalityPlaces([{ place_id: catalogWindow.place_id, name: "Projection fixture", lat: 27.95, lng: -82.46, photo_url: "/fixture-owned-place.webp" }], "halloween", "2026-10-18", [catalogWindow])[0];
 ok(projectedWindow?.seasonalWhen.endsWith("; select dates"), "real helper retains select-date uncertainty in full metadata");
 ok(/^Select /.test(hospitalityDateChipLabel(projectedWindow.seasonalWhen)) && hospitalityDateChipLabel(projectedWindow.seasonalWhen).length <= 24, "real projected window becomes compact visible select-date copy");
+// Rail ORDER (owner, 2026-10-29): final week leads with Last Minute, thin
+// shelves sink below full ones, defined order holds inside each group, and the
+// reorder never adds, drops or edits a card.
+const mk = (id, n) => ({ id, cards: Array.from({ length: n }, (_, i) => ({ id: `${id}-${i}` })) });
+const shelf = HALLOWEEN_INTENT_RAIL_DEFS.map((d) => mk(d.id, { "decorated-bars": 1, "themed-food": 2, haunts: 6, farms: 3, "corn-mazes": 1, family: 18, festivals: 18, "ghost-tours": 1, "last-minute": 36 }[d.id]));
+const late = orderHalloweenRails(shelf, "2026-10-29").map((r) => r.id);
+ok(late[0] === "last-minute", "final week opens on Last Minute plans");
+ok(late.join() === "last-minute,haunts,farms,family,festivals,decorated-bars,themed-food,corn-mazes,ghost-tours", `thin shelves sink, stable inside groups (${late.join()})`);
+const early = orderHalloweenRails(shelf, "2026-10-13").map((r) => r.id);
+ok(early.indexOf("last-minute") > early.indexOf("festivals"), "before the final week Last Minute keeps its slot among full shelves");
+ok(early.slice(-4).every((id) => shelf.find((r) => r.id === id).cards.length < THIN_RAIL), "thin shelves sink before the final week too");
+const full = HALLOWEEN_INTENT_RAIL_DEFS.map((d) => mk(d.id, 5));
+ok(orderHalloweenRails(full, "2026-10-10").map((r) => r.id).join() === HALLOWEEN_INTENT_RAIL_DEFS.map((d) => d.id).join(), "full shelves keep the defined order early in the season");
+const ordered = orderHalloweenRails(shelf, "2026-10-29");
+ok(ordered.length === shelf.length && ordered.flatMap((r) => r.cards.map((c) => c.id)).sort().join() === shelf.flatMap((r) => r.cards.map((c) => c.id)).sort().join(), "reorder never adds, drops or edits a card");
+ok(composeHalloweenRails([], "2026-10-29")[0].id === "last-minute", "the production composer applies the order");
 console.log(`test-halloween-intent-rails: ${checks} runtime assertions passed`);
