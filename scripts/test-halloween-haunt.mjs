@@ -76,8 +76,8 @@ const required = [
 for (const line of required) ok(model.lines.includes(line), "required Bo line: " + line.slice(0, 42));
 ok(hauntCopyProblems(model).length === 0, "the live model is dash free and phrase safe");
 
-ok(model.haunts.length === 17, "seventeen haunts");
-ok(hauntsForFilter(model, "all").length === 17, "All Haunts is the full vault");
+ok(model.haunts.length === 18, "eighteen haunts");
+ok(hauntsForFilter(model, "all").length === 18, "All Haunts is the full vault");
 const major = hauntsForFilter(model, "major").map((row) => row.id);
 ok(major.includes("howlTampa") && major.includes("howlOrlando") && major.includes("hhn") && !major.includes("peppa"), "major scream parks are the three big nights");
 ok(hauntsForFilter(model, "local").some((row) => row.name === "Scream A Geddon Horror Park"), "local trails include Scream A Geddon");
@@ -96,6 +96,7 @@ const expectedHref = {
   seaLifePirates: "/api/commerce/go?provider=tiqets&offer=orlando-tonight-sealife&surface=halloween_haunts&content=hw26-pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
   waxHeist: "/api/commerce/go?provider=tiqets&offer=orlando-hook-madame-tussauds&surface=halloween_haunts&content=hw26-the-great-wax-heist-at-madame-tussauds-orlando-2026",
   sideshowObscura: "/api/commerce/go?provider=undercover_tourist&offer=6&surface=halloween_haunts&content=sideshow-obscura-hhn35-2026",
+  channelside: "/api/commerce/go?provider=ticketnetwork&offer=tampa-event-nightmare-on-channelside-2026&surface=halloween_haunts&content=nightmare-on-channelside-2026",
 };
 const expectedEvent = {
   howlTampa: "/florida-events/howl-o-scream-busch-gardens-tampa-2026",
@@ -115,6 +116,7 @@ const expectedEvent = {
   seaLifePirates: "/florida-events/pirates-of-the-haunted-seas-at-sea-life-orlando-2026",
   waxHeist: "/florida-events/the-great-wax-heist-at-madame-tussauds-orlando-2026",
   sideshowObscura: "/florida-events/sideshow-obscura-hhn35-2026",
+  channelside: "/florida-events/nightmare-on-channelside-2026",
 };
 const organizerHref = {
   screamageddon: "https://screamageddon.com/tickets/",
@@ -194,7 +196,7 @@ ok(nextConfig.includes('source: "/products/halloween-in-florida"') && nextConfig
 
 const schema = halloweenHauntSchema(model);
 ok(schema["@type"] === "ItemList", "event list schema stays an ItemList");
-ok(schema.numberOfItems === 17 && schema.itemListElement.length === 17, "schema lists 17 events");
+ok(schema.numberOfItems === 18 && schema.itemListElement.length === 18, "schema lists 18 events");
 const schemaBlob = JSON.stringify(schema);
 ok(!schemaBlob.includes("/api/commerce/go"), "schema does not embed the redirect");
 for (const entry of schema.itemListElement) {
@@ -474,9 +476,10 @@ ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [
 // ── 2026-10-28 customer journey audit ────────────────────────────────────
 // Expired exclusion with a FIXED clock (never the real one).
 const idsOn = (today) => halloweenHauntModel({ today }).haunts.map((r) => r.id);
-ok(idsOn("2026-10-28").length === 17, "Oct 28: all 17 haunts render");
+ok(idsOn("2026-10-28").length === 18, "Oct 28: all 18 haunts render");
 ok(idsOn("2026-10-30").includes("spookquarium"), "Spookquarium still renders on its last day (Oct 30)");
-ok(!idsOn("2026-10-31").includes("spookquarium") && idsOn("2026-10-31").length === 16, "Oct 31: Spookquarium (last date Oct 30) is gone, 16 left");
+ok(!idsOn("2026-10-31").includes("spookquarium") && idsOn("2026-10-31").length === 17, "Oct 31: Spookquarium (last date Oct 30) is gone, 17 left");
+ok(idsOn("2026-10-31").includes("channelside") && !idsOn("2026-11-01").includes("channelside"), "Nightmare on Channelside shows through Oct 31 and is gone Nov 1");
 const nov1 = idsOn("2026-11-01");
 ok(!nov1.includes("howlTampa") && !nov1.includes("mickey") && !nov1.includes("zooTampa") && nov1.includes("hhn") && nov1.includes("frightfest"), "Nov 1: Oct 31 events gone, Nov 1 events stay");
 ok(idsOn("2026-11-02").length === 0, "Nov 2: nothing renders, no throw");
@@ -489,7 +492,7 @@ for (const row of model.haunts) ok(/^\d{4}-\d{2}-\d{2}$/.test(row.expiresAfter),
 // No duplicates
 ok(new Set(model.haunts.map((r) => r.id)).size === model.haunts.length, "haunt ids are unique");
 const withEvent = model.haunts.filter((r) => r.eventId);
-ok(withEvent.length === 12 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
+ok(withEvent.length === 13 && new Set(withEvent.map((r) => r.eventId)).size === withEvent.length, "haunt event ids are unique (organizer only haunts carry none)");
 ok(new Set(model.haunts.map((r) => r.cta.href)).size === model.haunts.length, "haunt buy hrefs are unique");
 ok(new Set(model.haunts.map((r) => r.name)).size === model.haunts.length, "haunt names are unique");
 const liveModel = await withHalloweenTours(model, { env: {} });
@@ -509,7 +512,7 @@ const defaultHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveM
 const chipCount = liveModel.tours.length;
 ok(chipCount === snapshotTours().filter((t) => t.group === "ghost").length && chipCount >= 30, "ghost tour count is the snapshot ghost group (" + chipCount + ")");
 ok(defaultHtml.includes("Ghost tours (" + chipCount + ")"), "filter row shows the Ghost tours chip with count " + chipCount);
-ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 17 && (defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length, "default view is the 17 haunts plus haunted attractions, no ghost tours");
+ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 18 && (defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length, "default view is the 18 haunts plus haunted attractions, no ghost tours");
 ok(!defaultHtml.includes("Florida Ghost Tours"), "ghost tour section is hidden by default");
 const chipHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel, initialFilter: "tours" }));
 ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount, "chip view lists exactly the counted ghost tours");
@@ -526,7 +529,7 @@ for (const row of model.haunts) {
 }
 for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
 const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
-ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
+ok(buyHrefs.length === 18 + liveModel.eventTours.length + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 
 // Tracking: the page mounts the one delegated beacon, and no card carries its own second tracker

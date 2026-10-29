@@ -361,6 +361,7 @@ import { placeKinds } from "../lib/dateInvite";
 import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
+import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
@@ -4241,6 +4242,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // One replay of a /p/{id}?action=save|like|dislike deep link, however many times the deep-link effect runs (lib/placeActionOnce.js).
   const placeActionGateRef = useRef(null);
   if (!placeActionGateRef.current) placeActionGateRef.current = createPlaceActionGate();
+  // A ?action= link is a PROPOSAL, never a write (lib/deepLinkAction.js). It
+  // becomes a one-tap prompt; only a trusted click on that prompt changes state.
+  const [linkActionPrompt, setLinkActionPrompt] = useState(null);
   useEffect(() => { if (!detail) { detailOpenRequestRef.current++; detailOpenGateRef.current.close(); } }, [detail]);
   useEffect(() => {
     // The app changes screens inside one route. Sync after the DOM surface
@@ -6707,7 +6711,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const seq = beginCuratorToggle(placeId, on);
     import("../lib/curatorPicksWrite.js").then((m) => m.trackCuratorWrite(placeId, on, writePromise, curatorHeaders, prior, seq), () => {});
   }
-  function toggleLike(e, p) {
+  function toggleLike(e, p, extra) {
     e.stopPropagation();
     const wasLiked = !!liked[p.id];
     const nowLiked = !wasLiked;
@@ -6718,7 +6722,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       nextLiked[p.id] = true; delete nextDis[p.id];
       nextLikedItems[p.id] = { place: p, ts: Date.now() }; delete nextDisItems[p.id];
       recordSignal(p, "like");
-      logEvent("like", p);
+      logEvent("like", p, extra);
     }
     // Toggle-off fires the SAME PostHog event name with on:false (GLOBAL
     // LIKE RULE: every like/unlike/dislike/undislike is measured; no second
@@ -6744,7 +6748,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     }
     if (!wasLiked) { showToast("Added to your taste"); offerAccountAfterSave("like"); }
   }
-  function toggleDislike(e, p) {
+  function toggleDislike(e, p, extra) {
     e.stopPropagation();
     const wasDis = !!disliked[p.id];
     const nextLiked = { ...liked }; const nextDis = { ...disliked };
@@ -6753,7 +6757,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     else {
       nextDis[p.id] = true; delete nextLiked[p.id];
       nextDisItems[p.id] = { place: p, ts: Date.now() }; delete nextLikedItems[p.id];
-      recordSignal(p, "dislike"); logEvent("dislike", p);
+      recordSignal(p, "dislike"); logEvent("dislike", p, extra);
       svFolderUpsert("Disliked", p);
       if (supabase && user) { const w = supabase.from("likes").delete().eq("user_id", user.id).eq("place_id", p.id); refreshOwnerPick(p.id, w, false, !!liked[p.id]); watchLikeWrite(w, { liked, disliked, likedItems, dislikedItems }); }
     }
@@ -7294,6 +7298,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const placeId = params.get("place") || initialPlaceId || (pathId ? decodeURIComponent(pathId) : null);
     const requestedAction = params.get("action") || initialPlaceAction;
     const placeAction = ["save", "like", "dislike"].includes(requestedAction) ? requestedAction : null;
+    // automated (webdriver / crawler UA) -> no prompt, no write, no save event;
+    // anyone else -> a one-tap confirmation. Never auto-applied (owner rule:
+    // a GET, link preview or crawler visit must never change saved state).
+    const linkPlan = planDeepLinkAction({ action: placeAction, userAgent: navigator.userAgent, webdriver: navigator.webdriver });
     // Strip ?place= and ?action=like|dislike|save. Like is a signal, not a
     // page — leaving action=like in the address bar re-opens the sheet as
     // the only UI on refresh. Never collapse /p/{id} to "/" here; Back does
@@ -7326,7 +7334,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     } else if (placeId) {
       // The effect re-runs on supabaseReady: share_open is one landing, claimed once like the action.
       if (placeActionGateRef.current.claim(placeId, "share_open")) {
-        logEvent("share_open", null, { kind: "place", place_id: placeId });
+        logEvent("share_open", null, { kind: "place", place_id: placeId, ...(placeAction ? deepLinkEventProps(linkPlan.trafficClass, placeAction) : null) });
         markShareOpen();
       }
       (async () => {
@@ -7338,15 +7346,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             if (sig) opened = withMemberSignal([p], sig)[0] || p;
           } catch (e) {}
           if (placeAction && placeActionGateRef.current.claim(opened.id, placeAction)) {
-            // A "save this place" link ADDS. quickSaveFavorite is a toggle, so an
-            // already-saved place must be left alone, never un-saved by its own link.
-            // State is read from refs: this runs after awaits inside the FIRST
-            // render's effect, whose `lists`/`liked` predate the localStorage
-            // load, so a closure read un-saved / un-liked an already-set place.
-            // Links SET a state; they never toggle it off.
-            if (placeAction === "save") { if (!isSavedNow(opened.id)) quickSaveFavorite(opened); }
-            else if (placeAction === "like") { if (!isLikedNow(opened.id)) toggleLike({ stopPropagation() {} }, opened); }
-            else if (placeAction === "dislike") { if (!isDislikedNow(opened.id)) toggleDislike({ stopPropagation() {} }, opened); }
+            // ONE proposal per landing (the gate spans the supabaseReady re-run).
+            // Nothing is written here: applyLinkAction runs only from
+            // confirmLinkAction, on a trusted tap of the prompt.
+            if (linkPlan.prompt) setLinkActionPrompt({ place: opened, action: placeAction });
           }
           openDetail(opened);
         }
@@ -9386,7 +9389,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   // One-tap save straight to Favorites from a card heart.
-  function quickSaveFavorite(p) {
+  function quickSaveFavorite(p, extra) {
     if (!p) return;
     const fav = lists.favorites || { id: "favorites", name: "Favorites", emoji: "❤️", places: [] };
     const has = fav.places.some((x) => x.id === p.id);
@@ -9397,7 +9400,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       return { ...prev, favorites: { ...f, places: h ? f.places.filter((x) => x.id !== p.id) : [...f.places, p] } };
     });
     showToast(has ? "Removed from Favorites" : "❤️ Saved to Favorites");
-    if (!has) { logEvent("save", p); offerAccountAfterSave("favorite"); }
+    if (!has) { logEvent("save", p, extra); offerAccountAfterSave("favorite"); }
     // Auto-file into the city trip on save only. Unsaving from Favorites must
     // not remove it from a trip: the trip is an independent, curated plan.
     if (!has) {
@@ -9530,6 +9533,21 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const isSavedNow = (id) => Object.values(listsRef.current || {}).some((l) => l && Array.isArray(l.places) && l.places.some((p) => p.id === id));
   const isLikedNow = (id) => !!(likedRef.current && likedRef.current[id]);
   const isDislikedNow = (id) => !!(dislikedRef.current && dislikedRef.current[id]);
+  // Links SET a state; they never toggle it off. State is read from refs: the
+  // prompt can be tapped long after the render whose closure opened it.
+  function applyLinkAction(place, action, extra) {
+    if (!place || !place.id) return;
+    if (action === "save") { if (!isSavedNow(place.id)) quickSaveFavorite(place, extra); }
+    else if (action === "like") { if (!isLikedNow(place.id)) toggleLike({ stopPropagation() {} }, place, extra); }
+    else if (action === "dislike") { if (!isDislikedNow(place.id)) toggleDislike({ stopPropagation() {} }, place, extra); }
+  }
+  function confirmLinkAction(e) {
+    const pending = linkActionPrompt;
+    setLinkActionPrompt(null);
+    if (!pending) return;
+    if (!humanConfirmed(e, { userAgent: navigator.userAgent, webdriver: navigator.webdriver })) return;
+    applyLinkAction(pending.place, pending.action, deepLinkEventProps("human", pending.action));
+  }
 
   function createList() {
     if (!requireAuth("Sign up free to build a list and open it from any device.")) return;
@@ -11764,6 +11782,14 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         );
       })()}
       {hookDetail && <HookDetailSheet ctx={ctx} />}
+
+      {linkActionPrompt && linkActionPrompt.place ? (
+        <div role="dialog" aria-label={deepLinkPromptLabel(linkActionPrompt.action, linkActionPrompt.place.name)} data-deep-link-prompt={linkActionPrompt.action} style={{ position: "fixed", bottom: 132, left: "50%", transform: "translateX(-50%)", zIndex: 1100, background: C.text, color: C.bg, fontSize: 13, fontWeight: 700, padding: "10px 18px", borderRadius: 999, boxShadow: "0 8px 24px rgba(0,0,0,.4)", display: "flex", alignItems: "center", gap: 12, maxWidth: "calc(100vw - 32px)" }}>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{deepLinkPromptLabel(linkActionPrompt.action, linkActionPrompt.place.name)}</span>
+          <button type="button" data-deep-link-confirm onClick={confirmLinkAction} style={{ background: "transparent", border: "none", color: C.accent, fontWeight: 800, fontSize: 13, cursor: "pointer", padding: 0 }}>{linkActionPrompt.action === "save" ? "Save" : "Yes"}</button>
+          <button type="button" aria-label="Dismiss" onClick={() => setLinkActionPrompt(null)} style={{ background: "transparent", border: "none", color: C.bg, opacity: 0.7, fontWeight: 700, fontSize: 13, cursor: "pointer", padding: 0 }}>Not now</button>
+        </div>
+      ) : null}
 
       {/* Copied toast */}
       {toast && (
