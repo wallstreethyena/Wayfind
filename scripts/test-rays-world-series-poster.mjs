@@ -10,7 +10,9 @@ import { RAILS } from '../lib/rails.js';
 import { RAYS_POSTER, raysCampaignLive, raysSeriesComplete } from '../lib/raysWorldSeriesPoster.js';
 
 assert.equal(raysCampaignLive('2026-10-22'), true);
-assert.equal(raysCampaignLive('2026-11-03'), true, 'delayed series stays visible');
+assert.equal(raysCampaignLive('2026-10-28'), true, 'Game 5 day stays visible');
+assert.equal(raysCampaignLive('2026-10-29'), false, 'series ended Oct 28: campaign closed');
+assert.equal(raysCampaignLive('2026-11-03'), false, 'no Rays poster after the series');
 assert.equal(raysCampaignLive('2026-10-21'), false);
 assert.equal(raysCampaignLive('2027-10-22'), false, 'one campaign, no annual replay');
 assert.equal(raysCampaignLive('2026-10-27', true), false, 'early clinch closes campaign');

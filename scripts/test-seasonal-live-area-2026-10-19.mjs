@@ -40,6 +40,8 @@ const FALL_RAIL = {
   "oldsmar-haunted-happenings-2026": "family",
   "folly-farm-fright-nights-2026": "haunts",
   "bloomingdale-square-trick-or-treat-2026": "family",
+  "coachman-park-fall-o-ween-2026": "family",
+  "bridge-street-halloween-spooktacular-2026": "family",
 };
 const HALLOWEEN_RAIL = {
   "dinosaur-world-jurassic-haunt-2026": "family",
@@ -58,6 +60,8 @@ const HALLOWEEN_RAIL = {
   "oldsmar-haunted-happenings-2026": "family",
   "folly-farm-fright-nights-2026": "haunts",
   "bloomingdale-square-trick-or-treat-2026": "family",
+  "coachman-park-fall-o-ween-2026": "family",
+  "bridge-street-halloween-spooktacular-2026": "family",
 };
 const PLACE = {
   "dinosaur-world-jurassic-haunt-2026": "ChIJleFCpOE03YgR_W7zvLgzvVQ",
@@ -76,14 +80,16 @@ const PLACE = {
   "oldsmar-haunted-happenings-2026": "ChIJV66wZBXswogRrM3FN9_qikA",
   "folly-farm-fright-nights-2026": "ChIJoakkImnuwogRj5Szyimd6b8",
   "bloomingdale-square-trick-or-treat-2026": "ChIJU4LV-XbSwogRmb2VHDNtVuk",
+  "coachman-park-fall-o-ween-2026": "ChIJ9_6n_N7wwogR0_89wCluWV0",
+  "bridge-street-halloween-spooktacular-2026": "ChIJ32dZUkgRw4gRwbTouF34iDw",
 };
 // Family radius is 27 miles, so the two Sarasota trunk-or-treats are true at
 // a Sarasota viewer and absent for downtown Tampa. That is the radius, not a miss.
-const TAMPA_FALL = Object.keys(FALL_RAIL).filter((id) => id !== "sahib-shrine-trunk-or-treat-2026" && id !== "robert-taylor-trunk-or-treat-2026");
+const TAMPA_FALL = Object.keys(FALL_RAIL).filter((id) => id !== "sahib-shrine-trunk-or-treat-2026" && id !== "robert-taylor-trunk-or-treat-2026" && id !== "bridge-street-halloween-spooktacular-2026");
 const SARASOTA = { lat: 27.3364, lng: -82.5307 };
 
 check("live-area rows are trusted, pinned, photo-backed and still upcoming on Oct 19", () => {
-  assert.equal(FALL_LIVE_AREA_2026_10_19.length, 16);
+  assert.equal(FALL_LIVE_AREA_2026_10_19.length, 18);
   for (const row of FALL_LIVE_AREA_2026_10_19) {
     assert.equal(FALL_DISCOVERY_RAIL[row.event_id], FALL_RAIL[row.event_id], row.event_id);
     assert.equal(fallEventRail(row), FALL_RAIL[row.event_id], row.event_id);
