@@ -22,7 +22,7 @@ import {
 } from "../lib/halloweenHauntVault.js";
 import { isInternalVerifier, isCrawler } from "../lib/crawler.js";
 import { snapshotTours, TOUR_REMOVED, withHalloweenTours } from "../lib/halloweenTours.js";
-import { HAUNT_GOOGLE_PLACE, MAX_HAUNT_PHOTOS, googleStripPhoto, mergeHauntPhotos, withHauntPhotos } from "../lib/halloweenHauntPhotos.js";
+import { HAUNT_GOOGLE_PLACE, MAX_HAUNT_PHOTOS, googleStripPhoto, mergeHauntPhotos, photosForHaunt, withHauntPhotos } from "../lib/halloweenHauntPhotos.js";
 import {
   BO_ANTICS,
   BO_GAG_MAX_WORDS,
@@ -218,7 +218,7 @@ const fakeRead = async (id) => (FAKE_STORE[id] ? {
 const photoModel = await withHauntPhotos(model, { read: fakeRead });
 ok(googleStripPhoto({ name: "X" }, { source: "google", src: "https://evil.example/a.jpg", credit: { name: "A" } }) === null, "red-prove: only the private stored route counts as a Google strip photo");
 ok(googleStripPhoto({ name: "X" }, { source: "google", src: "/api/photo/stored/abc?v=" + "a".repeat(64), credit: { authors: [] } }) === null, "red-prove: a Google photo without an author is refused");
-ok(mergeHauntPhotos({ photo: null }, Array.from({ length: 9 }, (_, i) => ({ src: "/api/photo/stored/p" + i + "?v=" + "a".repeat(64) }))).length === MAX_HAUNT_PHOTOS, "strip is capped at five");
+ok(mergeHauntPhotos({ photo: null }, Array.from({ length: MAX_HAUNT_PHOTOS + 4 }, (_, i) => ({ src: "/api/photo/stored/p" + i + "?v=" + "a".repeat(64) }))).length === MAX_HAUNT_PHOTOS, "strip is capped at MAX_HAUNT_PHOTOS");
 const failing = await withHauntPhotos(model, { read: async () => { throw new Error("store down"); } });
 ok(failing.haunts.every((r, i) => r.photos.length === model.haunts[i].photos.length), "a store failure leaves the owner photo only, never throws");
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: photoModel }));
@@ -255,7 +255,7 @@ for (const row of model.haunts) {
   ok(html.includes('data-haunt-id="' + row.id + '"'), "card renders for " + row.id + " even without a photo");
   ok(row.photo === null || (row.photo.src && row.photo.alt && !DASH.test(row.photo.alt)), row.id + " photo is a real mapped source or null");
   const prow = photoModel.haunts.find((r) => r.id === row.id);
-  ok(Array.isArray(prow.photos) && prow.photos.length <= MAX_HAUNT_PHOTOS, row.id + " photos is an array of 0 to 5");
+  ok(Array.isArray(prow.photos) && prow.photos.length <= MAX_HAUNT_PHOTOS, row.id + " photos is an array within the cap");
   for (const ph of prow.photos) {
     ok(/^(https:\/\/|\/)/.test(ph.src) && ph.alt && !DASH.test(ph.alt), row.id + " photo has an absolute or site path and dash free alt");
     ok(ph.source !== "google" || (ph.credit && /^\/api\/photo\/stored\//.test(ph.src)), row.id + " Google photo carries its author credit");
@@ -543,6 +543,15 @@ ok(!isInternalVerifier("Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) A
 ok(!isCrawler("Mozilla/5.0 WayfindVerify") && !isCrawler("node"), "verifier UAs are not crawlers, so the redirect keeps working");
 for (const f of ["commerce", "viator", "hotels", "ticketmaster"]) {
   ok(/let trafficClass = isInternalVerifier\(req\.headers\.get\("user-agent"\)\) \? "automation" : "human";/.test(readFileSync("app/api/" + f + "/go/route.js", "utf8")), f + " go route stamps verifier traffic as automation");
+}
+
+// Shared SeaWorld place id: each card only keeps photos tagged with its own haunt key.
+{
+  const sw = HAUNT_GOOGLE_PLACE.howlOrlando;
+  const v = [{ src: "a", hauntKey: "howlOrlando" }, { src: "b", hauntKey: "spooktacular" }, { src: "c", hauntKey: null }];
+  ok(photosForHaunt("howlOrlando", sw, v).map((p) => p.src).join() === "a", "shared place keeps only its own tagged photos");
+  ok(photosForHaunt("spooktacular", sw, v).map((p) => p.src).join() === "b", "shared place never repeats the sibling card");
+  ok(photosForHaunt("brick", HAUNT_GOOGLE_PLACE.brick, v).map((p) => p.src).join() === "c", "single place keeps untagged photos");
 }
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");
