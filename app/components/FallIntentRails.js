@@ -27,6 +27,7 @@ import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import FallRecommendedHotels from "./FallRecommendedHotels.js";
 import SeasonalMoviesRail from "./SeasonalMoviesRail.js";
+import { withMoviesRail } from "../../lib/moviesRailSlot.js";
 import useEventClock from "./useEventClock.js";
 import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFacts.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
@@ -234,10 +235,9 @@ export default function FallIntentRails({
   if (failure) return failure.kind === "developer" ? <RailDevError /> : <RailMascotBusy rail="fall" failure={failure} onRetry={() => setRetry((value) => value + 1)} onVisible={() => { void emitRailDegraded(failure, { rail: "fall" }); }} />;
 
   return <>
-    <GuideCollection rails={payload.rails} collectionId={collection}>{payload.rails.map((rail) => <FallRailSection key={collection === "halloween" ? `${collection}:${today}:${rail.id}` : `${today}:${rail.id}`} collection={collection} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
+    <GuideCollection rails={payload.rails} collectionId={collection}>{withMoviesRail(payload.rails.map((rail) => <FallRailSection key={collection === "halloween" ? `${collection}:${today}:${rail.id}` : `${today}:${rail.id}`} collection={collection} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city} fallSkin={fallSkin}
       isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}</GuideCollection>
-    <SeasonalMoviesRail collection={collection} active={active} onTrack={onTrack} />
+      onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection={collection} active={active} onTrack={onTrack} />)}</GuideCollection>
     {collection === "fall" ? <FallRecommendedHotels center={center} /> : null}
   </>;
 }

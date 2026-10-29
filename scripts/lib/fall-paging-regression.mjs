@@ -11,6 +11,7 @@ import * as lawfulOrder from "../../lib/lawfulOrder.js";
 import { applyCuratorPicks } from "../../lib/curatorPicks.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import * as railVisibility from "../../lib/railVisibility.js";
+import { withMoviesRail } from "../../lib/moviesRailSlot.js";
 import { toDisplayScore } from "../../lib/score.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
@@ -118,6 +119,7 @@ export async function checkFallPaging({ componentSource = readFileSync(component
     if (spec.endsWith("eventVisitFacts.js")) return visitFacts;
     if (spec.endsWith("railPage.js")) return railPage;
     if (spec.endsWith("railVisibility.js")) return railVisibility;
+    if (spec.endsWith("moviesRailSlot.js")) return { withMoviesRail }; // pure helper, the real one
     if (spec.endsWith("score.js")) return { toDisplayScore };
     if (spec.endsWith("partnerCopy.js")) return { partnerTicketLabel };
     if (spec.endsWith("placePhoto.js")) return { ownedPlacePhotoSrc };

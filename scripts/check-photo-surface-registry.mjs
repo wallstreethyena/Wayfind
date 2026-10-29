@@ -87,9 +87,9 @@ EXEMPT["app/components/PhotoCredit.js"] =
   "credit pill only: renders the 'Photo: <author> · Google Maps' / licence line for a photo that ANOTHER component (Detail sheet, lightbox, EventHeroBg) already paints. It contains no <img>, no background-image and no place-photo URL; it is detected only because its header comment names /api/photo?fmt=json. The surfaces that paint the photo are registered in lib/photoSurfaces.js.";
 
 // (2026-10-28) Seasonal Movies rail: a movie is not a place. It paints owned poster art from
-// /movies/ (registry `art.src`) or the designed placeholder tile, with place={null}.
+// self-hosted official posters in /movies/ (registry `art.src`) or the designed placeholder tile, with place={null}.
 EXEMPT["app/components/SeasonalMoviesRail.js"] =
-  "movie cards, not place cards: it reuses RailCard only for the standard rail card look and passes place={null}, so there is no place id and no Google place photo to source. The image is owned movie art under /movies/ (registry art.src) or the designed placeholder tile (EventPlaceholderTile); it never passes photoFallback or a /api/photo URL.";
+  "movie cards, not place cards: it reuses RailCard only for the standard rail card look and passes place={null}, so there is no place id and no Google place photo to source. The image is a self-hosted official poster under /movies/ (registry art.src, downloaded once, no /api/photo) or the designed placeholder tile (EventPlaceholderTile); it never passes photoFallback or a /api/photo URL.";
 
 // The exemption's own claim is enforced, not trusted: PhotoCredit.js must paint no image.
 {

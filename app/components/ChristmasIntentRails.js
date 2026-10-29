@@ -26,6 +26,7 @@ import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFac
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 import SeasonalMoviesRail from "./SeasonalMoviesRail.js";
+import { withMoviesRail } from "../../lib/moviesRailSlot.js";
 import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel, christmasCardChips } from "../../lib/christmasCardCopy.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
@@ -209,9 +210,8 @@ export default function ChristmasIntentRails({
   // Each rail links its OWN guide (owner, 2026-10-08), carried server side on
   // rail.guide and placed INSIDE that rail as its third card (RailGuideSlot,
   // lib/railGuideSlot.js): nothing renders between the rails.
-  return <>{payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
+  return <>{withMoviesRail(payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
     isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}
-    <SeasonalMoviesRail collection="christmas" active={active} onTrack={onTrack} />
+    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection="christmas" active={active} onTrack={onTrack} />)}
   </>;
 }
