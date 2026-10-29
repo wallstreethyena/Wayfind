@@ -51,24 +51,50 @@ ok(count(USE, xmas) === 1, "ChristmasIntentRails renders <SeasonalMoviesRail> ex
 ok(/import\s+SeasonalMoviesRail\s+from\s+["']\.\/SeasonalMoviesRail(?:\.js)?["']/.test(fall), "FallIntentRails imports SeasonalMoviesRail");
 ok(/import\s+SeasonalMoviesRail\s+from\s+["']\.\/SeasonalMoviesRail(?:\.js)?["']/.test(xmas), "ChristmasIntentRails imports SeasonalMoviesRail");
 
-// 2. Position. Fall/Halloween: after the rails map (GuideCollection) and BEFORE the hotels.
+// 2. Position (owner, 2026-10-29): the movies rail sits in the MIDDLE of the content rails, right
+// after the 5th (rail index 4 and 5 of the composed list), in all three collections. EXECUTED part:
+// the real placement helper on 10 (fall), 9 (halloween, christmas) and short lists. STATIC part: each
+// section routes its rails.map through withMoviesRail(...) with <SeasonalMoviesRail> as the second
+// argument, so the movies element is a member of the composed list and not a trailing sibling.
 {
-  const mapAt = fall.indexOf("payload.rails.map");
+  const { withMoviesRail, MOVIES_AFTER_RAIL_COUNT } = await import("../lib/moviesRailSlot.js");
+  const MOVIES = "MOVIES";
+  const indexIn = (n) => withMoviesRail(Array.from({ length: n }, (_, i) => "rail" + i), MOVIES).indexOf(MOVIES);
+  ok(MOVIES_AFTER_RAIL_COUNT === 5, "movies rail goes after exactly 5 content rails");
+  ok(indexIn(10) === 5 && indexIn(9) === 5, "fall (10 rails), halloween and christmas (9 rails): movies lands at composed index 5, between rail index 4 and 5");
+  const ten = withMoviesRail(Array.from({ length: 10 }, (_, i) => "rail" + i), MOVIES);
+  ok(ten.length === 11 && ten[4] === "rail4" && ten[5] === MOVIES && ten[6] === "rail5" && ten[10] === "rail9", "10 rails + movies: order kept, rails 0-4 before, rails 5-9 after");
+  ok(indexIn(3) === 3 && indexIn(0) === 0, "control: fewer than 5 rails appends movies after the last rail without crashing");
+  ok(withMoviesRail(null, MOVIES).length === 1, "control: non array rails still yields the movies node");
+}
+// Role-based static check: the movies element is the 2nd argument of withMoviesRail(<rails map>, <SeasonalMoviesRail/>).
+const composed = (src) => {
+  const at = src.indexOf("withMoviesRail(");
+  if (at < 0) return null;
+  const mapAt = src.indexOf("payload.rails.map(", at);
+  const useAt = src.slice(at).search(USE);
+  return { at, mapAt, useAt: useAt < 0 ? -1 : at + useAt };
+};
+{
+  const c = composed(fall);
+  ok(!!c && c.mapAt > c.at && c.useAt > c.mapAt, "FallIntentRails: withMoviesRail(payload.rails.map(...), <SeasonalMoviesRail/>) wraps the rails and the movies element as its second argument");
+  ok(/import\s*\{[^}]*\bwithMoviesRail\b[^}]*\}\s*from\s+["'][^"']*moviesRailSlot/.test(fall), "FallIntentRails imports withMoviesRail from lib/moviesRailSlot");
   const useAt = fall.search(USE);
   const hotelsAt = fall.search(/<FallRecommendedHotels[\s/>]/);
-  ok(mapAt > -1 && hotelsAt > -1, "control: found payload.rails.map and <FallRecommendedHotels> in FallIntentRails");
-  ok(useAt > mapAt, "FallIntentRails: <SeasonalMoviesRail> comes after payload.rails.map");
-  ok(useAt > -1 && hotelsAt > useAt, "FallIntentRails: <SeasonalMoviesRail> comes before <FallRecommendedHotels>");
   const closeAt = fall.indexOf("</GuideCollection>");
-  ok(closeAt > -1 && useAt > closeAt, "FallIntentRails: movies rail sits after </GuideCollection>, not inside the guide wrapper");
+  ok(useAt > -1 && hotelsAt > useAt, "FallIntentRails: movies rail comes before <FallRecommendedHotels>, hotels stay last");
+  ok(closeAt > useAt && closeAt < hotelsAt, "FallIntentRails: movies rail is INSIDE <GuideCollection> with the rails (not a trailing sibling), hotels after </GuideCollection>");
+  ok(count(/payload\.rails\.map\(/g, fall) === 1, "FallIntentRails: one payload.rails.map render");
   ok(/<SeasonalMoviesRail[^>]*collection=\{collection\}/.test(fall), "FallIntentRails passes collection={collection} (fall and halloween)");
+  // red-proof control: the old trailing placement must NOT satisfy the check
+  const trailing = "<GuideCollection>{payload.rails.map((r) => <X/>)}</GuideCollection><SeasonalMoviesRail collection={collection} />";
+  ok(composed(trailing) === null, "control: the old trailing placement (no withMoviesRail) is rejected");
 }
-// Christmas: after the rails map.
 {
-  const mapAt = xmas.lastIndexOf("payload.rails.map");
-  const useAt = xmas.search(USE);
-  ok(mapAt > -1, "control: found payload.rails.map in ChristmasIntentRails");
-  ok(useAt > mapAt, "ChristmasIntentRails: <SeasonalMoviesRail> comes after payload.rails.map");
+  const c = composed(xmas);
+  ok(!!c && c.mapAt > c.at && c.useAt > c.mapAt, "ChristmasIntentRails: withMoviesRail(payload.rails.map(...), <SeasonalMoviesRail/>) wraps the rails and the movies element as its second argument");
+  ok(/import\s*\{[^}]*\bwithMoviesRail\b[^}]*\}\s*from\s+["'][^"']*moviesRailSlot/.test(xmas), "ChristmasIntentRails imports withMoviesRail from lib/moviesRailSlot");
+  ok(count(/payload\.rails\.map\(/g, xmas) === 1, "ChristmasIntentRails: one payload.rails.map render");
   ok(/<SeasonalMoviesRail[^>]*collection=["']christmas["']/.test(xmas), "ChristmasIntentRails passes collection=\"christmas\"");
 }
 
@@ -89,6 +115,11 @@ ok(/wf-christmas/.test(comp) && /wf-fall/.test(comp), "component carries the wf-
 ok(/data-rail=\{railId\}/.test(comp) && /"-intent-movies"/.test(comp), "rail wrapper carries data-rail {collection}-intent-movies");
 ok(/movies_rail_hidden/.test(comp) && /ticket_cta_pending/.test(comp), "defensive pending CTA hides the rail and tracks movies_rail_hidden");
 ok(/NODE_ENV\s*!==\s*["']production["']/.test(comp), "dev-only preview path exists so the layout can be checked before the link is live");
+
+// 3b. Posters: credit sits under the headline as a facts line, never as RailCard's photoAttr chip on the picture.
+ok(!/\bphotoAttr\b/.test(comp), "component never passes photoAttr (RailCard paints that as a (c) chip ON the picture)");
+ok(/art\.credit/.test(comp) && /facts=\{\[/.test(comp), "poster credit is carried in the facts line under the headline");
+ok(/wf-movie-card/.test(comp), "cards carry wf-movie-card (wider photo column so the whole poster shows)");
 
 // 4. Commission text never appears on a card.
 ok(!/may earn|commission/i.test(comp), "no commission text on movie cards");

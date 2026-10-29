@@ -1,6 +1,6 @@
 "use client";
 // Seasonal "Movies" rail (Fall / Halloween / Christmas): a sibling of the intent
-// rails, rendered after them (plan: movies-plan.md). Options, not a single pick.
+// rails, rendered in the middle of them (after the 5th content rail, lib/moviesRailSlot.js). Options, not a single pick.
 // Data comes from /api/movies/seasonal so the registry stays out of client chunks.
 // Every card with a buy button goes through /api/commerce/go (ticket.href), never
 // a partner URL. The button sells the live Undercover Tourist movie ticket deal (offer comes
@@ -44,6 +44,7 @@ function movieWhen(movie) {
   return { label: "Now playing", value: until ? "thru " + until : "In theaters", tone: "now" };
 }
 
+// wf-movie-card (css.js) widens the photo column to 150px so most of the tall 2:3 poster shows (cover, ~8% trimmed per side).
 // Placeholder tile when the movie has no owned art (no stock, no hotlinking).
 const TILE_TINT = { fall: "#92400E", halloween: "#581C87", christmas: "#991B1B" };
 function placeholderFor(collection, status) {
@@ -132,16 +133,15 @@ export default function SeasonalMoviesRail({ collection = "fall", active = true,
         {movies.map((movie, index) => {
           const baseChips = (Array.isArray(movie.vibes) ? movie.vibes : []).slice(0, 3).map((label) => ({ key: "vibe-" + label, icon: "\u{1F3AC}", label }));
           const art = movie.art && movie.art.src ? movie.art : null;
-          return <RailCard key={movie.id} className="wf-exploding-primary"
+          return <RailCard key={movie.id} className="wf-exploding-primary wf-movie-card"
             photo={art ? art.src : null}
-            photoAttr={art ? art.credit || null : null}
             placeholder={art ? null : placeholderFor(collection, movie.status)}
             eagerMedia={index < 3}
             place={null}
             actionItem={{ id: "movie:" + movie.id, type: "event", title: movie.title, url: movie.ticket && movie.ticket.href ? movie.ticket.href : "" }}
             title={movie.title} eyebrow={spooky ? spookyEyebrow(title) : title} rank={index + 1} spooky={spooky}
             score={null} when={movieWhen(movie)}
-            facts={[movie.rating || null, runtimeLabel(movie.runtimeMin)].filter(Boolean)}
+            facts={[movie.rating || null, runtimeLabel(movie.runtimeMin), art && art.credit ? art.credit : null].filter(Boolean)}
             chips={spooky ? withSpookyChip(baseChips) : baseChips}
             take={movie.why || null} cta={movieCta(movie, collection, onTrack)}
             ariaLabel={movie.title} />;
