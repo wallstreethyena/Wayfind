@@ -22,7 +22,6 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
-import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import FallRecommendedHotels from "./FallRecommendedHotels.js";
@@ -82,7 +81,7 @@ function eventCta(card, onTrack) {
 function NoGuideSlot({ children }) { return <>{children}</>; }
 
 function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, city, fallSkin, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const seedItems = useMemo(() => (rail.cards || []).slice(0, RAIL_PAGE_SIZE), [rail]);
+  const seedItems = useMemo(() => rail.cards || [], [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id, ...(collection === "halloween" ? { collection } : {}) } : null), [lat, lng, rail.id, collection]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
     "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length, itemsKey: "cards" },

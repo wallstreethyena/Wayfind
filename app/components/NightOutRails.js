@@ -33,7 +33,6 @@ import { railScoreOf } from "../../lib/railRank.js";
 import { fetchPosterJson } from "../../lib/posterJson.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
-import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { nightTourCacheCovers, nightTourProducts } from "../../lib/nightTourProducts.js";
 import NightTourProductCards from "./NightTourProductCards.js";
@@ -50,7 +49,7 @@ function NightOutRailSection({
   tourProducts = [], toursPending = false, toursFailed = false, onRetryTours = null,
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
 }) {
-  const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
+  const seedItems = useMemo(() => rail.places || [], [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat: lat.toFixed(2), lng: lng.toFixed(2), rail: rail.id }), [lat, lng, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(

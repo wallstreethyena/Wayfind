@@ -149,29 +149,17 @@ export async function checkFallPaging({ componentSource = readFileSync(component
     return observers.at(-1);
   };
 
-  source = Array.from({ length: 25 }, (_, i) => event(`normal-${i + 1}`));
+  // Owner 2026-10-29: a rail shows EVERY option and the counter is the true
+  // total. 69 rows mirrors the live Christmas towns-markets rail ("10 OF 12"
+  // while the API total was 69). Nothing trickles; nothing is left to fetch.
+  source = Array.from({ length: 69 }, (_, i) => event(`normal-${i + 1}`));
   const normal = renderRail(source);
   let tree = normal.render();
-  equal(ids(tree), source.slice(0, 10).map((row) => row.id), "Fall seeds exactly the first ten ranked rows without changing selection");
-  equal(refs(tree).map((card) => card.key), ["normal-8"], "ten loaded rows observe the eighth card, loaded minus three");
-  equal(elements(tree, RailNav)[0].props.loaded, 10, "navigation reports ten loaded rows");
-  equal(elements(tree, RailNav)[0].props.total, 25, "navigation retains the full selected total");
-  equal(requests.length, 0, "page zero uses the bulk seed without another request");
-  let observer = attach(tree);
-  observer.intersect(false);
-  equal(requests.length, 0, "a non-intersecting sentinel cannot fetch a page");
-  observer.intersect(); await settle(); tree = normal.render();
-  equal(ids(tree), source.slice(0, 20).map((row) => row.id), "the real observer and hook append the next ten in original order");
-  equal(new URL(requests[0], "https://local.fixture").searchParams.get("page"), "1", "the first continuation requests page one");
-  equal(new URL(requests[0], "https://local.fixture").searchParams.get("size"), "10", "continuation remains ten at a time");
-  equal(refs(tree).map((card) => card.key), ["normal-18"], "twenty loaded rows move the observer to the eighteenth card");
-  latestPage.sentinelRef(null); observer = attach(tree);
-  observer.intersect(); await settle(); tree = normal.render();
-  equal(ids(tree), source.map((row) => row.id), "the final page neither skips, duplicates nor reorders selected rows");
-  equal(refs(tree).map((card) => card.key), ["normal-23"], "the final partial page retains the loaded-minus-three boundary");
-  check(!latestPage.hasMore, "the real hook stops after the final available row");
-  latestPage.sentinelRef(null); observer = attach(tree); observer.intersect(); await settle();
-  equal(requests.length, 2, "the exhausted rail cannot request a phantom page");
+  equal(ids(tree), source.map((row) => row.id), "Fall renders every one of the 69 rows in ranked order");
+  equal(elements(tree, RailNav)[0].props.loaded, 69, "navigation reports all 69 loaded rows");
+  equal(elements(tree, RailNav)[0].props.total, 69, "navigation total is the true card count");
+  equal(requests.length, 0, "the bulk seed is complete, so no continuation request is ever made");
+  check(!latestPage.hasMore, "the real hook has nothing more to load when every row is seeded");
   normal.dispose();
 
   requests.length = 0;
@@ -179,13 +167,9 @@ export async function checkFallPaging({ componentSource = readFileSync(component
     ? { kind: "place", id: "selected-place", name: "Selected Place", wfScore: 98 }
     : event(`mixed-${i}`));
   const mixed = renderRail(source); tree = mixed.render();
-  equal(ids(tree), source.slice(4, 10).map((row) => row.id), "expired events disappear while the original live event and place slots survive");
-  equal(refs(tree).map((card) => card.key), ["mixed-9"], "a clipped loaded sentinel attaches to the last visible row instead of vanishing");
+  equal(ids(tree), source.slice(4).map((row) => row.id), "expired events disappear while the original live event and place slots survive, and every live row shows");
   equal(elements(tree, RailNav)[0].props.total, 11, "navigation subtracts only expired loaded rows from the source total");
-  equal(cards(tree).map((card) => card.props.rank), [1, 2, 3, 4, 5, 6], "visible ranks are contiguous after expiry filtering");
-  observer = attach(tree); observer.intersect(); await settle(); tree = mixed.render();
-  equal(ids(tree), source.slice(4).map((row) => row.id), "expiry does not prevent the real observer from reaching the later page");
-  equal(refs(tree).map((card) => card.key), ["mixed-14"], "appended mixed rows keep a reachable visible sentinel");
+  equal(cards(tree).map((card) => card.props.rank), [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], "visible ranks are contiguous after expiry filtering");
   equal(source.length, 15, "visible filtering does not mutate or truncate the selected source pool");
   mixed.dispose();
 
@@ -217,7 +201,7 @@ export async function checkFallPaging({ componentSource = readFileSync(component
   equal(bulkRequests.length, 2, "the date change makes exactly one fresh bulk request");
   source = bulkRails[0].cards;
   const newDay = renderRail(source); tree = newDay.render();
-  equal(ids(tree), source.slice(0, 10).map((row) => row.id), "the remounted day starts with only its own top ten rows");
+  equal(ids(tree), source.map((row) => row.id), "the remounted day starts with all of its own rows");
   check(ids(tree).every((id) => id.startsWith("day-five-")), "prior-day row identities cannot leak into the new generation");
   newDay.dispose(); collection.dispose();
   return checks;

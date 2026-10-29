@@ -37,7 +37,7 @@ const bulk = await response.json();
 ok(response.status === 200 && response.headers.get("x-wayfind-fast-cache") === "hit", "actual route uses warm cache");
 ok(bulk.rails.length === 9 && bulk.collection === "halloween", "selector produces nine rails");
 const ghost = bulk.rails.find((r) => r.id === "ghost-tours");
-ok(ghost.cards.length === 12 && ghost.total === 25, "union regrouped before first window");
+ok(ghost.cards.length === 25 && ghost.total === 25, "union regrouped, and every card ships with the true total (no first window, owner 2026-10-29)");
 ok(!("stayDestinations" in bulk), "Fall stays absent from Halloween");
 const page = await (await get("&collection=halloween&rail=ghost-tours&page=1&size=10")).json();
 ok(page.total === 25 && page.cards.length === 10 && page.hasMore, "continuation sees complete union");
