@@ -16,6 +16,7 @@ import {
   hauntCopyProblems,
   hauntsForFilter,
   halloweenHauntModel,
+  hauntIsLive,
   halloweenHauntProductSchema,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
@@ -61,9 +62,12 @@ ok(hauntCopyProblems({ lines: ["Howl O Scream starts at $45.99."] }).length === 
 
 const model = halloweenHauntModel();
 ok(model.lines.length >= 10, "Bo has at least 10 lines");
+const LIVE_N = model.haunts.filter((row) => hauntIsLive(row)).length;
+ok(LIVE_N > 0 && model.lines.every((l) => !/^\d+ haunts/.test(l) || l.startsWith(LIVE_N + " haunts")), "Boo count line is computed from the live haunts (" + LIVE_N + ")");
+ok(hauntIsLive({ expiresAfter: "2020-01-01" }) === false && hauntIsLive({ expiresAfter: "2999-01-01" }) === true, "red-prove: an expired haunt is not live");
 const required = [
   "I'm Boo, your ghost host! I died so I could haunt these Florida scares and save your wallet from gate prices.",
-  "17 haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.",
+  `${LIVE_N} haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.`,
   "Sunglasses on, sunscreen energy, gate prices off. Howl O Scream starts at $45.99 when you book ahead.",
   "Paying box office prices is the real horror story here. Tap a haunt below and keep your soul and your cash.",
 ];

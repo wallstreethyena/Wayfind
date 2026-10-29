@@ -208,7 +208,7 @@ ok(!!rposes && ["poke", "cheer", "sales", "orb"].every((k) => rposes[1].includes
 ok(!!reactBody && /prefetch\("poke"\);\s*prefetch\("cheer"\);/.test(reactBody[1]), "react must prefetch its poses before he flies, so he never flashes invisible");
 const perch = comp.match(/const\s+PERCH_SEL\s*=\s*"([^"]*)"/);
 ok(!!perch && !/boo-buy|boo-ask|boo-goto|boo-picks|commerce|input|\ba\b/.test(perch[1]), "Boo may only perch on top of things nobody taps (bulbs, wordmark), never a ticket button, link or input");
-ok(/hit\.el\.matches\(PERCH_SEL\)\s*\?\s*aimAt\(hit\.r\)\s*:\s*aimBeside\(hit\.r,\s*b\.vw\)/.test(comp), "roaming touches park beside anything tappable");
+ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\}/.test(comp) && /\[tx,\s*ty\]\s*=\s*hit\.spot/.test(comp), "roaming touches park beside anything tappable (besideSpot), perched only on PERCH_SEL");
 
 // 12. Outside coverage (2026-10-28, owner: a visitor from an area Wayfind does
 // not cover must be told why it is empty, which Florida areas are covered, the
@@ -293,6 +293,80 @@ ok(/hit\.el\.matches\(PERCH_SEL\)\s*\?\s*aimAt\(hit\.r\)\s*:\s*aimBeside\(hit\.r
   ok(/UNK_SHOWN_KEY/.test(comp) && /sessionStorage\.setItem\(UNK_SHOWN_KEY/.test(comp) && !/UNK_SHOWN_KEY|unkRef|setUnk/.test(pathSeq), "unknown selector is session limited and never part of the bubble sequence");
   ok(/class="boo-s-cities"|className="boo-s-cities"/.test(comp) && !/boo-s-cities/.test(comp.slice(comp.indexOf('className="boo-c-bubble"'), comp.indexOf('className="boo-c-bubble"') + 400)), "city buttons render in the sheet, not inside the bubble");
   ok(/@media \(prefers-reduced-motion:reduce\)/.test(comp) && /instant=\{reduced\}/.test(comp), "reduced motion: instant lines, no motion");
+}
+
+// 7. Never covers a control (owner rule). Pure helpers are CALLED with fixtures;
+// the component is checked for where the guard is wired.
+{
+  const clear = await import("../app/components/booClear.js");
+  const { overlapRatio, besideSpot, pickClearSpot, chooseBubbleSide, bubbleRect, touchesAny, isClear, MAX_COVER } = clear;
+  const R = (l, t, w, h) => ({ left: l, top: t, right: l + w, bottom: t + h });
+  // overlapRatio: share of the CONTROL covered.
+  ok(overlapRatio(R(0, 0, 88, 88), R(0, 0, 100, 100)) === 0.7744, "overlapRatio: 88x88 over a 100x100 control is 0.7744");
+  ok(overlapRatio(R(200, 0, 88, 88), R(0, 0, 100, 100)) === 0, "overlapRatio: disjoint boxes are 0");
+  ok(Math.abs(overlapRatio(R(90, 0, 88, 100), R(0, 0, 100, 100)) - 0.1) < 1e-9, "overlapRatio: a 10px sliver of a 100x100 is 0.1");
+  ok(MAX_COVER === 0.15, "the cap is 15%");
+  // Phone fixture: full width Get Tickets button, a link below it, a bottom nav.
+  const b = { minX: 12, maxX: 290, minY: 0, maxY: 748 };
+  const buy = R(24, 400, 340, 52), link = R(100, 520, 160, 24), nav = R(0, 780, 390, 64);
+  const ctl = [buy, link, nav];
+  const spot = besideSpot(buy, 88, b, ctl, 0.15);
+  ok(!!spot, "besideSpot finds a spot beside a full width button");
+  if (spot) {
+    const box = R(spot[0], spot[1], 88, 88);
+    ok(overlapRatio(box, buy) <= 0.15, "touch spot covers at most 15% of the button");
+    ok(overlapRatio(box, link) <= 0.15 && overlapRatio(box, nav) <= 0.15, "touch spot covers none of the other controls");
+    const cx = buy.left + (buy.right - buy.left) / 2 - 44, cy = buy.top + (buy.bottom - buy.top) / 2 - 44;
+    ok(!(Math.abs(spot[0] - cx) < 4 && Math.abs(spot[1] - cy) < 4), "touch spot is never centred on the target");
+  }
+  // Roomy fixture: lots of room to the right puts him right beside it.
+  const small = R(20, 300, 100, 40);
+  const sp2 = besideSpot(small, 88, { minX: 12, maxX: 290, minY: 0, maxY: 748 }, [small], 0.15);
+  ok(!!sp2 && sp2[0] >= small.right && overlapRatio(R(sp2[0], sp2[1], 88, 88), small) === 0, "touch spot sits on the right edge when there is room");
+  ok(besideSpot(R(0, 0, 100, 100), 88, { minX: 12, maxX: 12, minY: 0, maxY: 0 }, [R(0, 0, 100, 100)], 0.15) === null, "besideSpot gives up (null) when nothing fits");
+  // pickClearSpot: boxed in everywhere but the left gutter, 8 random tries fail then the gutter wins.
+  const wall = R(190, 190, 30, 30);
+  const picked = pickClearSpot(88, b, [wall], { x: 20, y: 300 }, () => 200, 8);
+  ok(picked.via === "gutter" && picked.x === b.minX && isClear(picked.x, picked.y, 88, [wall]), "pickClearSpot falls back to the side gutter that is clear");
+  let calls = 0;
+  const picked2 = pickClearSpot(88, b, [buy], { x: 0, y: 0 }, (lo, hi) => { calls++; return calls <= 4 ? 150 + (calls % 2) * 260 : 100; }, 8);
+  ok(picked2.via === "random" && isClear(picked2.x, picked2.y, 88, [buy]), "pickClearSpot returns a random candidate that is clear");
+  ok(isClear(10, 10, 88, []) && !isClear(30, 400, 88, [buy]), "isClear reads real overlap");
+  ok(touchesAny(R(0, 380, 88, 88), [buy]) && !touchesAny(R(0, 0, 88, 88), [buy]), "touchesAny drives the pass through flag");
+  // Bubble: preferred side over a control flips to a free side.
+  const blocker = R(0, 300, 390, 56);
+  const bs = chooseBubbleSide(100, 380, 88, 200, 54, { v: "above", h: "right" }, [blocker], 390, 844);
+  const br = bubbleRect(100, 380, 88, 200, 54, bs.v, bs.h);
+  ok(overlapRatio(br, blocker) <= 0.15 && bs.v === "below", "bubble flips below when above is covered by a control");
+  ok(clear.bubbleSideIfClear(100, 380, 88, 200, 54, { v: "above", h: "right" }, [R(60, 320, 300, 66), R(60, 460, 300, 66)], 390, 844) === null, "bubbleSideIfClear is null when every side is covered");
+  ok(chooseBubbleSide(100, 380, 88, 200, 54, { v: "above", h: "right" }, [], 390, 844).v === "above", "bubble keeps the preferred side when it is clear");
+
+  // Wiring in the component (comments stripped).
+  const fn = (name) => { const m = comp.match(new RegExp("const " + name + " = [^\\n]*\\{[\\s\\S]*?\\n  \\};")); return m ? m[0] : ""; };
+  ok(/from\s+["']\.\/booClear\.js["']/.test(comp) && /\bbesideSpot\b/.test(comp) && /\bpickClearSpot\b/.test(comp) && /\bchooseBubbleSide\b/.test(comp), "BooCompanion imports the overlap helpers");
+  const reloc = fn("relocateIfCovered"), side = fn("sideFor"), pass = fn("setPass");
+  ok(reloc.length > 100 && /pickClearSpot\(/.test(reloc) && /isClear\(/.test(reloc), "relocateIfCovered checks overlap and picks clear space");
+  ok(side.length > 50 && /chooseBubbleSide\(/.test(side), "sideFor flips the bubble around controls");
+  const body = (re) => { const m = comp.match(re); return m ? m[0] : ""; };
+  const antic = body(/const playAntic = useCallback\(\(name\) => \{[\s\S]*?\n  \}, \[\]\);/);
+  const bubble = body(/const showBubble = useCallback\([\s\S]*?\n  \}, \[corner\]\);/);
+  const zap = body(/const zapBoo = useCallback\(\(\) => \{[\s\S]*?\n  \}, \[stopZap\]\);/);
+  ok(/relocateIfCovered\(\)/.test(antic), "the guard runs on the antic path");
+  ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(bubble) && /sideFor\(/.test(bubble), "the guard and the side flip run on the bubble path");
+  ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(zap) && /sideFor\(/.test(zap), "the guard and the side flip run on the zap path");
+  ok(/parkClear\(\)/.test(comp.slice(comp.indexOf("const frame = (ts)"))), "arrival (pause) in the roam loop calls parkClear");
+  // Cheap: the moving check is throttled by CLEAR_MS (250), not per frame.
+  ok(/CLEAR_MS\s*=\s*250/.test(comp) && /ts - lastChk\.current >= CLEAR_MS/.test(comp), "moving overlap check is throttled to 250ms");
+  // Touch target offset: beside it, never centred; bulbs may be perched.
+  ok(/besideSpot\(r, SIZE, b, ctl, MAX_COVER\)/.test(comp) && /PERCH_SEL\s*=\s*"\.boo-bulb,\.wf-wordmark-text"/.test(comp), "touch target offset logic: beside spot for controls, perch only on bulbs and the wordmark");
+  ok(!/aimBeside/.test(comp), "the old beside-centre aim is gone");
+  ok(/touched\) g\.pause = TOUCH_MS \/ 1000/.test(comp), "after the 1.2s reaction he leaves");
+  // Pass through: wrapper ignores pointers while over a control; tap is handed to the control.
+  ok(/style\.pointerEvents\s*=\s*on\s*\?\s*"none"\s*:\s*""/.test(pass), "pointer-events pass through on the wrapper while over a control");
+  ok(/passCheck\(/.test(comp) && /touchesAny\(/.test(comp), "pass through is driven by touchesAny");
+  ok(/e\.detail > 0 && underTap\(e\)/.test(comp) && /elementsFromPoint\(/.test(comp), "a tap that lands on him is handed to the control under it");
+  // Reduced motion: bottom left, lifted clear of nav and sticky bars.
+  ok(/const settleReduced = /.test(comp) && /isClear\(x, y, SIZE, list\)/.test(comp), "reduced motion spot is checked clear of controls");
 }
 
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
