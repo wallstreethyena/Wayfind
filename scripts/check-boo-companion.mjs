@@ -240,17 +240,59 @@ ok(/hit\.el\.matches\(PERCH_SEL\)\s*\?\s*aimAt\(hit\.r\)\s*:\s*aimBeside\(hit\.r
       ok(!/lat|lng|\d+\.\d{3}/i.test(t), 'coverage line carries coordinates: "' + t + '"');
     }
   }
-  ok(/Closest to you: [A-Za-z .]+, about \d+ miles away/.test(V.coverageLines(dot)[2]), "a close Florida city is named with a rounded distance");
+  ok(/Closest city, if you're curious: [A-Za-z .]+, about \d+ miles\. Totally optional!/.test(V.coverageLines(dot)[2]), "a close Florida city is offered as optional with a rounded distance");
+  ok(V.coverageLines(bos)[0].startsWith("Wayfind hasn't reached Boston yet"), "polite first line: Wayfind has not reached them yet");
+  ok(V.coverageLines(bos).concat(V.coverageLines(dot)).filter((l) => /optional|no pressure/i.test(l)).length >= 3, "the nearest city is always an optional choice");
   ok(!/mi\)/.test(V.coverageButtonText(bos.near, true)) && /\(\d+ mi\)$/.test(V.coverageButtonText(dot.near, true)), "miles on the button only for a real drive");
   ok(/Planning a Florida trip\?/.test(V.coverageLines(bos)[2]), "a far visitor is invited to plan a trip, not told to drive 1,000 miles");
-  ok(V.coverageLines({ area: "", near: dot.near, options: dot.options, cell: "x" })[0].startsWith("Your area"), "no named city reads Your area, never you");
-  ok(/coverageGap\(raw\)/.test(comp) && /localStorage\.getItem\(CENTER_KEY\)/.test(comp), "Boo reads coverage from the stored wf_center");
+  ok(V.coverageLines({ area: "", near: dot.near, options: dot.options, cell: "x" })[0].startsWith("Wayfind hasn't reached your area yet"), "no named city reads your area, never a guess");
+  // Unknown location: nothing stored (or unusable) returns the selector state, never covered, never a guess.
+  for (const raw of [null, undefined, "", "not json", "{}", at("x", 1)]) {
+    const st = V.coverageState(raw);
+    ok(st.kind === "unknown" && st.options.length >= 3 && st.more.length >= 20 && st.more.every((o) => COVERED_CITIES[o.slug].state === "FL"), "unknown location returns the selector state: " + String(raw));
+    ok(st.options.every((o) => st.more.some((m) => m.slug === o.slug)), "selector chips are covered Florida cities");
+  }
+  ok(V.coverageState(at(42.3601, -71.0589, "Boston, MA")).kind === "gap" && V.coverageState(at(27.6, -82.4, "Parrish, FL")).kind === "covered", "state kinds: gap for Boston, covered for Parrish");
+  { const U = V.coverageState(null); for (const t of [V.unknownSheetLine()].concat(U.options.map((o) => V.coverageButtonText(o, false)))) { ok(!DASH.test(t) && t.split(/\s+/).length <= 14, 'unknown copy: "' + t + '"'); } }
+  ok(/coverageState\(raw\)/.test(comp) && /localStorage\.getItem\(CENTER_KEY\)/.test(comp), "Boo reads coverage from the stored wf_center");
   ok(/window\.addEventListener\("wf:center"/.test(comp), "Boo re-checks coverage when the app stores a new center");
   ok(/sessionStorage\.setItem\(COVER_TOLD_KEY/.test(comp), "the explanation plays once per area per session");
   ok(/new CustomEvent\("wf:jump-city"/.test(comp) && /window\.location\.assign\("\/"\)/.test(comp), "city buttons move the feed on home, or store the city and open home");
   const home = stripComments(readFileSync(new URL("../app/home.js", import.meta.url), "utf8"));
   ok(/window\.addEventListener\("wf:jump-city"/.test(home) && /d\.handled\s*=\s*true/.test(home), "home.js answers Boo's city jump");
   ok(/window\.dispatchEvent\(new Event\("wf:center"\)\)/.test(home), "home.js announces a stored center");
+
+  // Static scans of the coverage code path (owner rules, 2026-10-28).
+  const covSrc = stripComments(readFileSync(new URL("../app/components/booCoverage.js", import.meta.url), "utf8"));
+  const grab = (re, what) => { const m = re.exec(comp); ok(!!m, "coverage scan: found " + what); return m ? m[0] : ""; };
+  // Slices: readGap..markTold, jumpTo, the coverSeq closure, the wf:center effect.
+  const pathReadGap = grab(/const readGap = \(\) => \{[\s\S]*?const markTold = [^\n]*\n/, "readGap block");
+  const pathJump = grab(/const jumpTo = \(opt, isNearest\) => \{[\s\S]*?\n  \};/, "jumpTo");
+  const pathSeq = grab(/const coverSeq = \(g\) => \{[\s\S]*?\n    \};\n    coverKick/, "coverSeq");
+  const pathEvt = grab(/useEffect\(\(\) => \{\n    if \(!eligible\) return undefined;\n    readGap\(\);[\s\S]*?\[eligible\]\);/, "wf:center effect");
+  const covPath = [covSrc, pathReadGap, pathJump, pathSeq, pathEvt].join("\n");
+  ok(covPath.length > 2000, "coverage path slices are real code, not empty matches");
+  // 1. No geolocation call anywhere in Boo or the coverage module.
+  ok(!/geolocation|getCurrentPosition|watchPosition|permissions\.query/.test(comp + covSrc), "Boo and booCoverage never touch geolocation or location permission");
+  // 2. No focus theft in the coverage path (the sheet focuses only after the visitor opens it).
+  ok(!/\.focus\(|autoFocus|autofocus/.test(covPath), "coverage path never calls focus() or autofocus");
+  ok(!/autoFocus|autofocus/.test(comp), "Boo has no autofocus attribute anywhere");
+  // 3. Navigation / city change: only inside jumpTo, and jumpTo is only reachable from onClick.
+  ok(!/location\.(assign|replace|href\s*=)|history\.(push|replace)State|router\.(push|replace)|wf:jump-city|setItem\(CENTER_KEY/.test([covSrc, pathReadGap, pathSeq, pathEvt].join("\n")), "no navigation or city change in booCoverage, readGap, the line sequence or the wf:center listener");
+  ok((comp.match(/location\.(assign|replace)\(/g) || []).length === 1 && /location\.assign\("\/"\)/.test(pathJump), "exactly one navigation call in Boo and it lives in jumpTo");
+  ok((comp.match(/new CustomEvent\("wf:jump-city"/g) || []).length === 1 && /new CustomEvent\("wf:jump-city"/.test(pathJump), "exactly one wf:jump-city dispatch and it lives in jumpTo");
+  const calls = [...comp.matchAll(/\bjumpTo\(/g)].length;
+  const clicks = [...comp.matchAll(/onClick=\{\(\) => jumpTo\(/g)].length;
+  ok(calls === clicks && clicks === 3, "jumpTo is only ever called from " + clicks + " onClick handlers (found " + calls + " call sites)");
+  ok(!/(setTimeout|setInterval|requestAnimationFrame)\([^;]*jumpTo/.test(comp), "jumpTo is never scheduled by a timer");
+  // 4. Never interrupts booking, never on the haunt page, 10 second booking quiet.
+  ok(/BOOK_QUIET_MS\s*=\s*10000/.test(comp) && /bookTapAt\.current\s*=\s*Date\.now\(\)/.test(comp) && /const coverQuiet = /.test(comp), "booking taps silence coverage talk for 10s");
+  ok(/pathRef\.current === HAUNT_PATH/.test(comp) && (comp.match(/coverQuiet\(\)/g) || []).length >= 2, "coverage talk is quiet on /halloween-in-florida and checked before every line");
+  ok(/\.boo-buy/.test(comp.match(/const BOOKING_SEL = "[^"]*"/)[0]), "booking selector includes .boo-buy");
+  // 5. Unknown selector: sheet only, once per tab session.
+  ok(/UNK_SHOWN_KEY/.test(comp) && /sessionStorage\.setItem\(UNK_SHOWN_KEY/.test(comp) && !/UNK_SHOWN_KEY|unkRef|setUnk/.test(pathSeq), "unknown selector is session limited and never part of the bubble sequence");
+  ok(/class="boo-s-cities"|className="boo-s-cities"/.test(comp) && !/boo-s-cities/.test(comp.slice(comp.indexOf('className="boo-c-bubble"'), comp.indexOf('className="boo-c-bubble"') + 400)), "city buttons render in the sheet, not inside the bubble");
+  ok(/@media \(prefers-reduced-motion:reduce\)/.test(comp) && /instant=\{reduced\}/.test(comp), "reduced motion: instant lines, no motion");
 }
 
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
