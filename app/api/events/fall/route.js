@@ -130,7 +130,9 @@ export async function GET(request) {
     // v39 publishes the October 21 session/source corrections and reviewed DB rows.
     // v40 refreshes existing October 22 schedules, access restrictions and exact dates.
     // v41 drops warm rails that still showed two cards for one brand or one venue.
-    const key = `fall-intents:v41:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v42 publishes the October 28 Halloween hospitality rows (Pomona, Cherry Smash,
+    // Pirate Water Taxi Haunted River Tours, HalloWYN); a warm v41 rail predates them.
+    const key = `fall-intents:v42:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
