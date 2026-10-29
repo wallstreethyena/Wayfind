@@ -146,8 +146,12 @@ try {
    getField("Day & start time").props.onChange({target:{value:"2026-10-24T18:00"}});h.render();eq(getField("Reply by").props.value,"2026-10-25T18:00","an explicit invalidated deadline is preserved for correction, never silently moved");h.dispose();
  });
  await test("clearing an edited deadline remains explicit and reveals an actionable error",async()=>{
+   // Pinned clock: the fixture option is 2026-10-28 18:00 ET, so on the real
+   // clock the suggested deadline vanished once that evening passed.
+   const priorNow=Date.now;Date.now=()=>Date.parse("2026-10-20T12:00:00Z");try{
    const calls=[];const h=hooks(UI.GroupCreateForm,{placeId:"place-1",session:{},onCreated(){},request:async()=>calls.push("request")},{effects:false,seeds:["Host",["Alice"],"America/New_York","2026-10-25T18:00",[{start:"2026-10-28T18:00",end:null}],{},false,false,""]});h.render();
    const reply=()=>nodes(nodes(h.tree).find(n=>n.type==="label"&&text(n).startsWith("Reply by"))).find(n=>n.type==="input");reply().props.onChange({target:{value:""}});h.render();eq(reply().props.value,"");await h.tree.props.onSubmit({preventDefault(){}});h.render();eq(calls.length,0);eq(nodes(h.tree).find(n=>n.type==="details").props.open,true,"invalid deadline disclosure opens without hidden required-control browser errors");button(h.tree,"Use suggested deadline").props.onClick();h.render();yes(reply().props.value);h.dispose();
+   }finally{Date.now=priorNow;}
  });
  await test("email consent requires verified ready account and names exact destination",async()=>{
    const session={user:{email:"organizer@example.test"}},base={placeId:"place-1",session,onCreated(){},emailAvailable:true,hasVerifiedEmail:true};
