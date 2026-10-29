@@ -13,6 +13,7 @@
 // fails closed to our own site.
 export const runtime = "nodejs";
 
+import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
@@ -260,7 +261,7 @@ export async function GET(req) {
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
-      const props = commercePayload(event, { ...baseProps, traffic_class: trafficClass, ...(extra || {}) });
+      const props = commercePayload(event, { ...baseProps, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
       captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };

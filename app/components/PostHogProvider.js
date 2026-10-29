@@ -29,6 +29,8 @@ import {
   sanitizeAnalyticsProperties,
 } from "../../lib/browserAnalytics";
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
+import { attributionProps, captureLanding, installBridge, readState, writeLandingCookie } from "../../lib/campaignAttribution.js";
+import { isNative } from "../../lib/native";
 
 export default function PostHogProvider({ children }) {
   const pathname = usePathname();
@@ -37,6 +39,19 @@ export default function PostHogProvider({ children }) {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     if (typeof window === "undefined" || window._phInit) return;
     if (isGroupPlanPath(window.location.pathname)) { window.__WF_ANALYTICS_SUPPRESSED="private_group_plan"; clearPreReadyQueue(window); return; }
+    // CAMPAIGN LANDING CAPTURE (2026-10-29). Synchronous, on the first client
+    // effect, BEFORE the 4 s idle PostHog boot and before any client navigation
+    // can rewrite the URL. Stores first touch (90 d, localStorage) + session
+    // attribution + the wf_test / wf_meta_test markers; installs the bridge that
+    // lib/commerce.js uses to enrich and mirror commerce_cta_clicked. Not in the
+    // native shell (same rule as lib/attribution.js).
+    try {
+      if (!isNative()) {
+        const landed = captureLanding({ search: window.location.search, pathname: window.location.pathname, referrer: document.referrer, local: window.localStorage, session: window.sessionStorage });
+        writeLandingCookie(document, landed, window.location.protocol === "https:");
+        installBridge(window, { relayEnabled: process.env.NEXT_PUBLIC_META_CAPI_RELAY === "1" });
+      }
+    } catch (e) {}
     window._phInit = "starting";
     let cancelled = false;
     let tracker = null;
@@ -95,6 +110,13 @@ export default function PostHogProvider({ children }) {
           sanitize_properties: sanitizeAnalyticsProperties,
         });
         ph.register({ $internal_or_test_user: false });
+        try {
+          const st = readState({ local: window.localStorage, session: window.sessionStorage });
+          const ft = attributionProps(st, "ft");
+          const sess = attributionProps(st, "sess");
+          if (Object.keys(ft).length) ph.register(ft);
+          if (Object.keys(sess).length && typeof ph.register_for_session === "function") ph.register_for_session(sess);
+        } catch (e) {}
         try {
           const crown = readCrownCampaign(window.sessionStorage);
           if (crown && typeof ph.register_for_session === "function") ph.register_for_session(crown);

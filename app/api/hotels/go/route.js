@@ -1,5 +1,6 @@
 export const runtime = "nodejs";
 
+import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
@@ -47,7 +48,7 @@ export async function GET(req) {
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
-      const properties = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
+      const properties = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
       captureServer(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
