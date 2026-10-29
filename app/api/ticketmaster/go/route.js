@@ -23,7 +23,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders } from "../../../../lib/redirectTrafficClass.js";
 
 const FALLBACK = "/events";
 
@@ -66,7 +66,7 @@ export async function GET(req) {
       status: 302,
       headers: {
         Location: new URL(FALLBACK, req.url).toString(),
-        "Cache-Control": "no-store, max-age=0",
+        ...noStoreHeaders(),
         "Referrer-Policy": "no-referrer",
       },
     });
@@ -90,8 +90,13 @@ export async function GET(req) {
     status: 302,
     headers: {
       Location: dest,
-      "Cache-Control": "no-store, max-age=0",
+      ...noStoreHeaders(),
       "Referrer-Policy": "no-referrer",
     },
   });
+}
+
+// HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
+export async function HEAD() {
+  return headResponse();
 }

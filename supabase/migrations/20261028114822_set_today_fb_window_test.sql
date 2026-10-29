@@ -1,0 +1,1 @@
+UPDATE wf_blog_daily_runs SET fb_window = 'test', hook_type = 'surprise', updated_at = now() WHERE run_date = (now() AT TIME ZONE 'America/New_York')::date;

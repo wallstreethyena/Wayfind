@@ -22,7 +22,7 @@ import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isInternalVerifier, isSyntheticMonitor } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders, noStoreRedirect } from "../../../../lib/redirectTrafficClass.js";
 import {
   chooseViatorGoLocation,
   isDeniedViatorSku,
@@ -32,6 +32,7 @@ import {
 export { sanitizeClientClickId };
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { providerSpendAllow } from "../../../../lib/providerSpend.js";
+import { cget, cset } from "../../../../lib/serverCache.js";
 
 // v4.29: bracket-notation env reads inside call time. Next inlines dot-access
 // process.env.NEXT_PUBLIC_* at build; bracket access forces a true runtime
@@ -44,6 +45,32 @@ const getKey = () => credential(process.env["VIATOR_API_KEY"]);
 const mem = new Map();
 const RESOLVER_VERSION = "v2-geo-whitelist";
 const TTL = 3600 * 1000;
+// VIATOR SPEND PROTECTION (2026-10-29). Until today the ?q= Book 302 carried
+// public, s-maxage=3600 (60 on a fail): one Partner API search per unique
+// query per hour across ALL instances, enforced by the CDN (#196). The redirect
+// is now private, no-store so the classifier sees every request, and the same
+// protection moves to the RESOLVED URL: warm memory (above) plus the shared
+// wf_places_cache row (lib/serverCache.js) so a cold lambda reuses another's
+// answer. Same TTLs as the old edge cache: a product 1h, a miss 60s. The
+// monthly ledger (providerSpendAllow) is still the hard cap behind both.
+const NEG_TTL = 60 * 1000;
+const SHARED_PREFIX = "viator-go-resolve|";
+const SHARED_READ_TIMEOUT_MS = 400;
+async function sharedResolved(ck) {
+  try {
+    const hit = await Promise.race([
+      cget(SHARED_PREFIX + ck),
+      new Promise((r) => setTimeout(() => r(null), SHARED_READ_TIMEOUT_MS)),
+    ]);
+    if (!hit || hit.stale || !hit.v || typeof hit.v !== "object") return undefined;
+    return typeof hit.v.url === "string" && hit.v.url ? hit.v.url : null;
+  } catch { return undefined; }
+}
+async function remember(ck, url) {
+  const ttl = url ? TTL : NEG_TTL;
+  mem.set(ck, { url: url || null, exp: Date.now() + ttl });
+  try { await cset(SHARED_PREFIX + ck, { url: url || null }, ttl); } catch { /* best effort */ }
+}
 
 function searchFallback(q) {
   const u = new URL("https://www.viator.com/searchResults/all");
@@ -130,6 +157,11 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
   if (hit && hit.exp > Date.now()) return hit.url;
   const KEY = getKey();
   if (!KEY) return null;
+  const shared = await sharedResolved(ck);
+  if (shared !== undefined) {
+    mem.set(ck, { url: shared, exp: Date.now() + (shared ? TTL : NEG_TTL) });
+    return shared;
+  }
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 4500);
   try {
@@ -157,6 +189,7 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
     });
     if (!res.ok) {
       try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q: searchTerm, tokens, upstreamStatus: res.status, decision: "upstream_error" })); } catch (e) {}
+      await remember(ck, null);
       return null;
     }
     const data = await res.json();
@@ -185,11 +218,14 @@ async function resolveProduct(searchTerm, name, region, kind, placeId) {
         decision: offer ? "redirect_to_product" : "search_fallback",
       }));
     } catch (e) {}
-    if (!offer || isDeniedViatorSku(offer.productCode || offer.productUrl) || isViatorSearchOrHomeUrl(offer.productUrl)) return null;
+    if (!offer || isDeniedViatorSku(offer.productCode || offer.productUrl) || isViatorSearchOrHomeUrl(offer.productUrl)) {
+      await remember(ck, null);
+      return null;
+    }
     await persistOffer(offer);
     // The Partner API productUrl is not trusted to carry our pid. GET stamps
     // every viator.com Location through partnerLocation → withViatorTracking.
-    mem.set(ck, { url: offer.productUrl, exp: Date.now() + TTL });
+    await remember(ck, offer.productUrl);
     return offer.productUrl;
   } catch (e) {
     try { console.log(JSON.stringify({ tag: "booking_integrity_diag", route: "go", q: searchTerm, tokens, decision: "exception", error: String((e && e.message) || e).slice(0, 200) })); } catch (e2) {}
@@ -268,7 +304,7 @@ export async function GET(req) {
 
   const failAndRedirect = (reason, url) => {
     emit("provider_redirect_failed", { failure_reason: reason });
-    return Response.redirect(url, 302);
+    return noStoreRedirect(url, 302);
   };
 
   // Refuse crawlers BEFORE resolving anything, matching /api/commerce/go,
@@ -281,7 +317,7 @@ export async function GET(req) {
     trafficClass = "crawler";
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "crawler-refused", resolver_path: chosen.resolver_path });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+    return noStoreRedirect(siteLocation(req, chosen.location), 302);
   }
 
   // Prefetch / QA opt-in / burst: refused before any search or product handoff.
@@ -308,8 +344,9 @@ export async function GET(req) {
     if (isValidViatorProduct(rawProduct)) {
       const chosen = chooseViatorGoLocation({
         // Campaign from QUERY params only (surface + page + product code),
-        // never the Referer: this 302 is CDN-cached per URL, so anything not
-        // in the URL would leak one page's tag onto another's clicks.
+        // never the Referer. (This 302 was CDN-cached per URL until
+        // 2026-10-29; it is no-store now, but the campaign stays a pure
+        // function of the URL so links stay reproducible and joinable.)
         rawProduct: withViatorTracking(rawProduct, undefined, {
           campaign: viatorCampaign({
             page: viatorPageHint({ page: searchParams.get("page"), surface }),
@@ -323,18 +360,21 @@ export async function GET(req) {
         emit("provider_redirect_started", { offer_id: "product:" + rawProduct.slice(0, 120), resolver_path: chosen.resolver_path });
         return new Response(null, {
           status: 302,
-          headers: {
+          // private, no-store (2026-10-29): this used to be public,
+          // s-maxage=3600. That bought no Viator API spend (this branch makes
+          // no Partner API call) and let the edge replay the partner 302 to
+          // the next requester without running gateRedirectTraffic.
+          headers: noStoreHeaders({
             Location: partnerLocation(chosen.location),
-            "Cache-Control": "public, s-maxage=3600, max-age=0",
             "Referrer-Policy": "no-referrer",
-          },
+          }),
         });
       }
       emit("provider_redirect_failed", { failure_reason: chosen.reason, resolver_path: chosen.resolver_path });
-      return Response.redirect(siteLocation(req, chosen.location), 302);
+      return noStoreRedirect(siteLocation(req, chosen.location), 302);
     }
     emit("provider_redirect_failed", { failure_reason: "invalid-product-url", resolver_path: "fail-closed" });
-    return Response.redirect(siteLocation(req, FALLBACK), 302);
+    return noStoreRedirect(siteLocation(req, FALLBACK), 302);
   }
 
   // Honest Search Viator (intent=search). Book never uses this rung.
@@ -351,7 +391,7 @@ export async function GET(req) {
       failure_reason: chosen.ok ? undefined : chosen.reason,
       resolver_path: chosen.resolver_path,
     });
-    return Response.redirect(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), 302);
+    return noStoreRedirect(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), 302);
   }
 
   // BOOK. Missing query or a failed resolve used to 302 to searchResults /
@@ -359,7 +399,7 @@ export async function GET(req) {
   if (!q) {
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "missing-query", resolver_path: chosen.resolver_path });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+    return noStoreRedirect(siteLocation(req, chosen.location), 302);
   }
 
   // OUR OWN SYNTHETIC MONITOR MUST NEVER SPEND THE METERED VIATOR LEDGER.
@@ -390,7 +430,7 @@ export async function GET(req) {
   if (isSyntheticMonitor(req.headers.get("user-agent"))) {
     const chosen = chooseViatorGoLocation({ siteFallback: FALLBACK });
     emit("provider_redirect_failed", { failure_reason: "synthetic-monitor-search-skipped", resolver_path: chosen.resolver_path });
-    return Response.redirect(siteLocation(req, chosen.location), 302);
+    return noStoreRedirect(siteLocation(req, chosen.location), 302);
   }
 
   const term = city && !q.toLowerCase().includes(city.toLowerCase()) ? `${q} ${city}` : q;
@@ -405,6 +445,15 @@ export async function GET(req) {
     resolver_path: chosen.resolver_path,
   });
 
-  const cache = chosen.ok ? "public, s-maxage=3600, max-age=0" : "public, s-maxage=60, max-age=0";
-  return new Response(null, { status: 302, headers: { Location: chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), "Cache-Control": cache, "Referrer-Policy": "no-referrer" } });
+  // private, no-store (2026-10-29). The old edge cache (s-maxage 3600 on a
+  // product, 60 on a fail) existed to save Partner API spend (#196). That
+  // protection now lives in resolveProduct()'s cache of the RESOLVED URL
+  // (warm memory + the shared wf_places_cache row, same TTLs), never in a
+  // cached HTTP redirect the classifier cannot see.
+  return noStoreRedirect(chosen.ok ? partnerLocation(chosen.location) : siteLocation(req, chosen.location), 302, { "Referrer-Policy": "no-referrer" });
+}
+
+// HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
+export async function HEAD() {
+  return headResponse();
 }

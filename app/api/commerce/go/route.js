@@ -42,7 +42,7 @@ import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEven
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders } from "../../../../lib/redirectTrafficClass.js";
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 
@@ -108,7 +108,7 @@ export async function GET(req) {
       status: 302,
       headers: {
         Location: new URL(FALLBACK, req.url).toString(),
-        "Cache-Control": "no-store, max-age=0",
+        ...noStoreHeaders(),
         "Referrer-Policy": "no-referrer",
       },
     });
@@ -140,7 +140,7 @@ export async function GET(req) {
     }
     return new Response(null, { status: 302, headers: {
       Location: previewDestination.toString(),
-      "Cache-Control": "no-store, max-age=0",
+      ...noStoreHeaders(),
       "Referrer-Policy": "no-referrer",
     } });
   }
@@ -195,8 +195,13 @@ export async function GET(req) {
       // A redirect that carries a click_id must never be cached — a cached 302
       // would hand every later user the FIRST user's click_id and collapse
       // attribution to one person.
-      "Cache-Control": "no-store, max-age=0",
+      ...noStoreHeaders(),
       "Referrer-Policy": "no-referrer",
     },
   });
+}
+
+// HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
+export async function HEAD() {
+  return headResponse();
 }

@@ -138,6 +138,14 @@ export async function runRepairWithinBudget({ limit, sbEnv, startedAt = Date.now
     // lib/photoRepair.js, so another immediate query could select the exact
     // same row and retry it repeatedly inside one cron invocation.
     if (batchAttempted < batchLimit) break;
+    // A batch that changed nothing (every row was an unresolved row the
+    // stored-photo scan surfaced but could not close) would be re-selected
+    // verbatim by the next batch. Stop instead of spinning (2026-10-29).
+    const changed = Number(result.recovered || 0) + Number(result.classified || 0) + Number(result.blocked || 0);
+    if (batchAttempted > 0 && changed === 0 && Number(result.failed || 0) === 0) {
+      stopReason = "no-progress";
+      break;
+    }
     if (Number(result.failed || 0) > 0) {
       stopReason = "row-failure";
       break;

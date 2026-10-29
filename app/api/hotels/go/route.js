@@ -4,7 +4,7 @@ import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js"
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders } from "../../../../lib/redirectTrafficClass.js";
 import { isHotelBookingVerified } from "../../../../lib/hotelBookingVerification.js";
 import {
   HOTEL_REDIRECT_FALLBACK,
@@ -57,7 +57,7 @@ export async function GET(req) {
     status: 302,
     headers: {
       Location: location,
-      "Cache-Control": "no-store, max-age=0",
+      ...noStoreHeaders(),
       "Referrer-Policy": "no-referrer",
     },
   });
@@ -87,4 +87,9 @@ export async function GET(req) {
 
   emit("provider_redirect_started", { resolver_path: "stay22-allez-booking-search" });
   return redirect(destination);
+}
+
+// HEAD is never a click (link checkers, unfurlers): 204, no event, no partner.
+export async function HEAD() {
+  return headResponse();
 }

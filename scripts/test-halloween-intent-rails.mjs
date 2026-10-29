@@ -4,7 +4,7 @@ import { hospitalityDateChipLabel } from "../lib/seasonalHospitalityCopy.js";
 import { seasonalHospitalityPlaces } from "../lib/seasonalHospitality.js";
 import { SEASONAL_HOSPITALITY_2026 } from "../lib/seasonalHospitalityCatalog2026.js";
 import { composeFallIntentRails, fallEventRail } from "../lib/fallIntentRails.js";
-import { composeHalloweenRails, halloweenCardRail, HALLOWEEN_INTENT_RAIL_DEFS } from "../lib/halloweenIntentRails.js";
+import { composeHalloweenRails, halloweenCardRail, HALLOWEEN_INTENT_RAIL_DEFS, orderHalloweenRails, THIN_RAIL } from "../lib/halloweenIntentRails.js";
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const cases = [
@@ -128,4 +128,32 @@ ok(!!catalogWindow, "real catalog supplies a current select-date hospitality win
 const projectedWindow = seasonalHospitalityPlaces([{ place_id: catalogWindow.place_id, name: "Projection fixture", lat: 27.95, lng: -82.46, photo_url: "/fixture-owned-place.webp" }], "halloween", "2026-10-18", [catalogWindow])[0];
 ok(projectedWindow?.seasonalWhen.endsWith("; select dates"), "real helper retains select-date uncertainty in full metadata");
 ok(/^Select /.test(hospitalityDateChipLabel(projectedWindow.seasonalWhen)) && hospitalityDateChipLabel(projectedWindow.seasonalWhen).length <= 24, "real projected window becomes compact visible select-date copy");
+// Rail ORDER (owner, 2026-10-29): final week leads with Last Minute, thin
+// shelves sink below full ones, defined order holds inside each group, and the
+// reorder never adds, drops or edits a card.
+const mk = (id, n) => ({ id, cards: Array.from({ length: n }, (_, i) => ({ id: `${id}-${i}` })) });
+const shelf = HALLOWEEN_INTENT_RAIL_DEFS.map((d) => mk(d.id, { "decorated-bars": 1, "themed-food": 2, haunts: 6, farms: 3, "corn-mazes": 1, family: 18, festivals: 18, "ghost-tours": 1, "last-minute": 36 }[d.id]));
+const late = orderHalloweenRails(shelf, "2026-10-29").map((r) => r.id);
+ok(late[0] === "last-minute", "final week opens on Last Minute plans");
+ok(late.join() === "last-minute,haunts,farms,family,festivals,decorated-bars,themed-food,corn-mazes,ghost-tours", `thin shelves sink, stable inside groups (${late.join()})`);
+const early = orderHalloweenRails(shelf, "2026-10-13").map((r) => r.id);
+ok(early.indexOf("last-minute") > early.indexOf("festivals"), "before the final week Last Minute keeps its slot among full shelves");
+ok(early.slice(-4).every((id) => shelf.find((r) => r.id === id).cards.length < THIN_RAIL), "thin shelves sink before the final week too");
+const full = HALLOWEEN_INTENT_RAIL_DEFS.map((d) => mk(d.id, 5));
+ok(orderHalloweenRails(full, "2026-10-10").map((r) => r.id).join() === HALLOWEEN_INTENT_RAIL_DEFS.map((d) => d.id).join(), "full shelves keep the defined order early in the season");
+const ordered = orderHalloweenRails(shelf, "2026-10-29");
+ok(ordered.length === shelf.length && ordered.flatMap((r) => r.cards.map((c) => c.id)).sort().join() === shelf.flatMap((r) => r.cards.map((c) => c.id)).sort().join(), "reorder never adds, drops or edits a card");
+ok(composeHalloweenRails([], "2026-10-29")[0].id === "last-minute", "the production composer applies the order");
+// Owner, 2026-10-29: Sarasota/Manatee coverage. Ten reviewed rows admit on
+// Oct 29, and the five crawl-stop rows yield to the one ticketed crawl event.
+const SRQ_2026_10_29 = ["ChIJKSZuXtQVw4gRZRqrR4H9HyQ", "ChIJ89v5es48w4gR3A1gqsRwFtI", "ChIJ6dA5zbshw4gRoGDqdyieauE", "ChIJN5yXOycXw4gRWQnrJHNeLZo", "ChIJEy-6wsY_w4gRwaoazBQx2Ic", "ChIJP9RupDZBw4gR6EgYHYYbWn8", "ChIJP11-XFgxw4gRhT4sLm4RtYQ", "ChIJw8sn-INHw4gR06G2jufK8DI", "ChIJPSUkXtQXw4gRKLgj2TeTadU", "ChIJvaIDJv89w4gRA-8iRgiHZmw"];
+const CRAWL_STOPS = ["ChIJ_UA5QQBBw4gRng2r3E5nB-M", "ChIJB_VL5xJAw4gRY58y23x1wBw", "ChIJE5w2pzpBw4gRaPvSc_obWx0", "ChIJs2i6r29Aw4gRwopf2UaiX3E", "ChIJzcd5L6hBw4gRAON6hbly9cE"];
+const srqInventory = [...SRQ_2026_10_29, ...CRAWL_STOPS].map((place_id) => ({ place_id, name: place_id, lat: 27.4, lng: -82.5, status: "OPERATIONAL", photo_ref: `places/${place_id}/photos/fixture`, signals: { rating: 4.5, reviews: 100 } }));
+const srqCards = seasonalHospitalityPlaces(srqInventory, "halloween", "2026-10-29");
+const srqIds = new Set(srqCards.map((card) => card.place_id));
+ok(SRQ_2026_10_29.every((id) => srqIds.has(id)), "all ten reviewed Sarasota/Manatee Halloween rows admit on Oct 29");
+ok(CRAWL_STOPS.every((id) => !srqIds.has(id)), "crawl stops no longer render as five separate place cards");
+ok(CRAWL_STOPS.every((id) => SEASONAL_HOSPITALITY_2026.filter((row) => row.place_id === id && row.season.includes("halloween")).every((row) => row.status === "superseded" && row.superseded_by_event_id === "sarasota-boos-booze-bar-crawl-2026")), "each crawl stop names the ticketed crawl event that replaces it");
+ok(srqCards.filter((card) => SRQ_2026_10_29.includes(card.place_id)).every((card) => halloweenCardRail(card)), "every new row files onto a Halloween shelf");
+ok(halloweenCardRail(srqCards.find((card) => card.place_id === "ChIJKSZuXtQVw4gRZRqrR4H9HyQ")) === "themed-food", "the reviewed Halloween menu files as Treats & Themed Drinks");
 console.log(`test-halloween-intent-rails: ${checks} runtime assertions passed`);

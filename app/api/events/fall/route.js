@@ -133,7 +133,9 @@ export async function GET(request) {
     // v42 publishes the October 28 Halloween hospitality rows (Pomona, Cherry Smash,
     // Pirate Water Taxi Haunted River Tours, HalloWYN); a warm v41 rail predates them.
     // v43 publishes the October 29 pulse rows (Fall-O-Ween, Bridge Street Spooktacular).
-    const key = `fall-intents:v43:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v44 (2026-10-29, owner) publishes ten Sarasota/Manatee Halloween hospitality rows
+    // and retires five crawl-stop place cards in favor of the ticketed crawl event.
+    const key = `fall-intents:v44:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
