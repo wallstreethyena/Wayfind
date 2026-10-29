@@ -83,7 +83,10 @@ function findGoRoutes(dir) {
 }
 
 function headersFrom(ua) {
-  return { get: (name) => (String(name).toLowerCase() === "user-agent" ? ua : null) };
+  // 2026-10-28: a real Chrome sends Fetch Metadata on every navigation; a
+  // Chrome UA WITHOUT it is the spoofed-crawler shape lib/redirectTrafficClass.js
+  // holds at an interstitial. The human fixture models the real browser.
+  return { get: (name) => { const n = String(name).toLowerCase(); return n === "user-agent" ? ua : n === "sec-fetch-mode" ? "navigate" : n === "sec-fetch-dest" ? "document" : null; } };
 }
 
 function isViatorHost(hostname) {

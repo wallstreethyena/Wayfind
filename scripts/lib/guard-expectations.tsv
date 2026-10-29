@@ -385,6 +385,7 @@ scripts/check-rails-geo-grid.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	85057011
 scripts/check-rails-wire.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	028bd913bfb95c98515c6ef00f32c23e099cebb5bb1c95ec08bd443ef45585f8
 scripts/check-ranking-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	33	0	0	9cc975a5a53db1e749eecc7a53f0bd5a71d5a47f1e5c8c8e01cb77e4ee46d982
 scripts/check-redirect-host-classification.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	3cbc3295d6609ec3c431fc1bd43265a7f5ae29d413b1d27bcfce07211dec3e59
+scripts/check-redirect-suspect-gate.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	49	0	0	eb46afc0a972c3388261b11f8a61334ac1cb5fdf11ccd5ba3ae732d0c8bf9688
 scripts/check-redirect-traffic-class.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	74bcffd0d458fdb6e351fb88ddb45f527742410822ddd814fcd3c2590d8509d4
 scripts/check-response-imports.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cef5e7b06943a1d81b650f617738518f8c62940e24314fec252d445da9115485
 scripts/check-reverse-migration-reconciliation.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	67b3d315407af74ea68fdb83d46a2f5f4ace4ae8f99497431767ad21434598bc
@@ -450,7 +451,7 @@ scripts/check-version.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	343bb64781
 scripts/check-viator-go-location-pid.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	26	0	0	4d8f0f3c5610abf2f25900628adc185bdc08c25ad401c4840c0da01c59aa6724
 scripts/check-viator-monitor-spend-skip.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	25	0	0	d19a99217fc8fac6753452d68592fcc6178f89ca86be6b54f5cfa26d42d486e8
 scripts/check-viator-pid.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	8	0	0	b48d141c645e14f341bef9b387ac4bfd5f82b7f59f0a6442c4bdace0bbbdf0d8
-scripts/check-viator-redirect-layer.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	41	0	0	443d84ef1123b39903c0d2d54057f34d5917d1e03f517292be42f7a038b1ded0
+scripts/check-viator-redirect-layer.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	43	0	0	04b00e2712661c8e5faacbfa966766445d4463058c62c8c1c2cb765e32e9bbb3
 scripts/check-water.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	7c46c1c44b2f808cc15aabbf60595e7301a90f2b6c5ef8fdb69fe42b3d9d595b
 scripts/check-weather-code-plumbed.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	1	0	f77d3a6e3bc3b2b027437480c15f76013499a31f95fef2fd12d3d49e11bc75fe
 scripts/check-weather-race.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	1	2	a56e71608ef3f1aed1fd49650ae554ac1e21c816d9fcf8f8df6f5f2c62028c92

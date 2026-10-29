@@ -2435,3 +2435,4 @@ node scripts/test-event-safety.mjs
 node scripts/check-seasonal-movies.mjs
 node scripts/check-seasonal-movies-ui.mjs
 node scripts/test-link-health-blocked-not-dead.mjs
+node scripts/check-redirect-suspect-gate.mjs
