@@ -144,4 +144,16 @@ ok(orderHalloweenRails(full, "2026-10-10").map((r) => r.id).join() === HALLOWEEN
 const ordered = orderHalloweenRails(shelf, "2026-10-29");
 ok(ordered.length === shelf.length && ordered.flatMap((r) => r.cards.map((c) => c.id)).sort().join() === shelf.flatMap((r) => r.cards.map((c) => c.id)).sort().join(), "reorder never adds, drops or edits a card");
 ok(composeHalloweenRails([], "2026-10-29")[0].id === "last-minute", "the production composer applies the order");
+// Owner, 2026-10-29: Sarasota/Manatee coverage. Ten reviewed rows admit on
+// Oct 29, and the five crawl-stop rows yield to the one ticketed crawl event.
+const SRQ_2026_10_29 = ["ChIJKSZuXtQVw4gRZRqrR4H9HyQ", "ChIJ89v5es48w4gR3A1gqsRwFtI", "ChIJ6dA5zbshw4gRoGDqdyieauE", "ChIJN5yXOycXw4gRWQnrJHNeLZo", "ChIJEy-6wsY_w4gRwaoazBQx2Ic", "ChIJP9RupDZBw4gR6EgYHYYbWn8", "ChIJP11-XFgxw4gRhT4sLm4RtYQ", "ChIJw8sn-INHw4gR06G2jufK8DI", "ChIJPSUkXtQXw4gRKLgj2TeTadU", "ChIJvaIDJv89w4gRA-8iRgiHZmw"];
+const CRAWL_STOPS = ["ChIJ_UA5QQBBw4gRng2r3E5nB-M", "ChIJB_VL5xJAw4gRY58y23x1wBw", "ChIJE5w2pzpBw4gRaPvSc_obWx0", "ChIJs2i6r29Aw4gRwopf2UaiX3E", "ChIJzcd5L6hBw4gRAON6hbly9cE"];
+const srqInventory = [...SRQ_2026_10_29, ...CRAWL_STOPS].map((place_id) => ({ place_id, name: place_id, lat: 27.4, lng: -82.5, status: "OPERATIONAL", photo_ref: `places/${place_id}/photos/fixture`, signals: { rating: 4.5, reviews: 100 } }));
+const srqCards = seasonalHospitalityPlaces(srqInventory, "halloween", "2026-10-29");
+const srqIds = new Set(srqCards.map((card) => card.place_id));
+ok(SRQ_2026_10_29.every((id) => srqIds.has(id)), "all ten reviewed Sarasota/Manatee Halloween rows admit on Oct 29");
+ok(CRAWL_STOPS.every((id) => !srqIds.has(id)), "crawl stops no longer render as five separate place cards");
+ok(CRAWL_STOPS.every((id) => SEASONAL_HOSPITALITY_2026.filter((row) => row.place_id === id && row.season.includes("halloween")).every((row) => row.status === "superseded" && row.superseded_by_event_id === "sarasota-boos-booze-bar-crawl-2026")), "each crawl stop names the ticketed crawl event that replaces it");
+ok(srqCards.filter((card) => SRQ_2026_10_29.includes(card.place_id)).every((card) => halloweenCardRail(card)), "every new row files onto a Halloween shelf");
+ok(halloweenCardRail(srqCards.find((card) => card.place_id === "ChIJKSZuXtQVw4gRZRqrR4H9HyQ")) === "themed-food", "the reviewed Halloween menu files as Treats & Themed Drinks");
 console.log(`test-halloween-intent-rails: ${checks} runtime assertions passed`);
