@@ -2,7 +2,7 @@ export const runtime = "nodejs";
 
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
-import { isCrawler } from "../../../../lib/crawler.js";
+import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic } from "../../../../lib/redirectTrafficClass.js";
 import { isHotelBookingVerified } from "../../../../lib/hotelBookingVerification.js";
 import {
@@ -43,7 +43,8 @@ export async function GET(req) {
     click_id: clickId,
   };
 
-  let trafficClass = "human";
+  // Our own verifier scripts (WayfindVerify UA, bare node fetch) still get the real redirect; only the class changes.
+  let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
       const properties = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
