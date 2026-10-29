@@ -142,7 +142,7 @@ scripts/check-event-photo-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	5152
 scripts/check-event-price-fact.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	a07df857eada06cf050c0d2ce8fd85f563e4e637caef7b0a195dad6ff877c384
 scripts/check-event-price-language.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	037c93a05348a8f360185bb2582a766b8f13fb0e1bef02b7f95af0881a0fa558
 scripts/check-event-providers-not-google-gated.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	63d382c301f64eddbbf565aaf7f6fb225b828078c5e6cf9207e3ca56f44ed11e
-scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	72	0	0	831c6f7cdea6f72737a25ae47a20ee02f091e6f8927f2d96eb05a327d94ee4e6
+scripts/check-event-ticket-deals.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	80	0	0	2cf05c7355ab5525df19336cefda510ef807d3bab432cccd1626b38a3377b6f2
 scripts/check-event-ticket-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	749e38d5446ce1d5df49ba6f0ee00325632bf1e0b7ecbdc5aee0d31640864e5e
 scripts/check-event-where.mjs	0	CALL	blocks-ci-and-deploy	1	-	99	0	0	b09f1ac213535a462998b3fb0b8b4fc6d8d11335ae7c2e0c3b770e4a3fddf0d6
 scripts/check-events-feed-upcoming.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	04de6037d7c7cce9fbe1f87b20236752cec16ebfc3c65e7deb22f24216df389a
@@ -733,10 +733,10 @@ scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c7
 scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	46587f8ab638155f703f51fe41c5ddc580078f64024d40361d20bfd3f26074b1
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
 scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	72dae7d6f783e0b3813f791460b67f95aedb1480bf396af420f57e51d0073fe7
-scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	230	0	0	3dc70c5aaa15768aeeabc7f428593ef6c25c0b067dd665443323d964afea998d
+scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	231	0	0	dfed2376aa3f70ed272d1a7f49670087cb4817b00b5982196ef96aefac3c80eb
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	9d6e675717fb69fa9849cf701fccea544b8e355f0243a1abc61277ec60def499
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
-scripts/test-halloween-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0	57f8f08e5015cac3e797befc96add648645c0b0c1db66ffdca95371403ef6c77
+scripts/test-halloween-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	63	0	0	2d6bf0e63ac665c0a904913fca26e4c4d8a82f2a21a54aed2620580ab6cc5de4
 scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	93323a189af5ccd3b41f436983795d77a21effb05ceb05d2c1a1e55417c7a464
 scripts/test-haunt-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	ae666ca4763b2e452d62c2b1de7028289e2059b8232b37494624f43a03100fe2
 scripts/test-hero-image.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	1	e1422e62a97667fb64887e7c1b6df8b1d9fc8865f74ccb0ad89d6e6ba9041b9f

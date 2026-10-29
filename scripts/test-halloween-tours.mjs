@@ -23,6 +23,9 @@ import {
   tourHref,
   tourMerit,
   withHalloweenTours,
+  PARTNER_TOURS,
+  partnerTourCard,
+  partnerTours,
 } from "../lib/halloweenTours.js";
 
 const root = process.cwd();
@@ -120,5 +123,43 @@ ok((toursHtml.match(/Wayfind may earn a commission/g) || []).length === 1, "disc
 ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !bare.includes('data-filter-id="tours"'), "no tours, no chip and no jump button");
+
+
+// ── 2026-10-29 partner ghost tours (US Ghost Adventures via Awin) ─────────
+{
+  const H64 = "a".repeat(64);
+  const googleStored = (id) => ({ source: "google", src: "/api/photo/stored/" + id + "?v=" + H64, width: 1280, height: 853, credit: { name: "x", authors: [{ name: "Pat Lee", uri: "https://maps.google.com/x" }] } });
+  const vaultRow = (id, text) => [{ url: "https://abc.supabase.co/storage/v1/object/public/place-photos/" + id + "/f.jpg", width: 1280, height: 853, attribution_text: text, attribution_url: "https://commons.wikimedia.org/wiki/File:X.jpg", source_ref: "File:X.jpg" }];
+  ok(PARTNER_TOURS.length === 3 && PARTNER_TOURS.every((t) => t.provider === "awin_usghostadventures"), "three US Ghost Adventures tours");
+  const all = await partnerTours({ readPhoto: async (id) => googleStored(id) });
+  ok(all.length === 3, "partner tours render with a stored Google photo");
+  for (const t of all) {
+    const base = PARTNER_TOURS.find((p) => p.code === t.id);
+    ok(t.cta.href === "/api/commerce/go?provider=awin_usghostadventures&offer=" + base.offerId + "&surface=halloween_haunts&content=hw-tour-" + base.code + "&page=halloween-in-florida", t.id + " books through the commerce redirect by offer id");
+    ok(!/usghostadventures\.com|awin1\.com/.test(t.cta.href), t.id + " never prints a raw partner URL");
+    ok(t.cta.via === "Tour tickets at US Ghost Adventures" && t.cta.rel === "sponsored nofollow noopener" && t.cta.label === HALLOWEEN_TOUR_CTA, t.id + " sponsored CTA names the partner");
+    ok(t.ratingLabel === "" && t.reviews === 0, t.id + " prints no rating without a review count");
+    ok(t.photo.credit === "Photo by Pat Lee on Google Maps", t.id + " Google photo carries its credit");
+    ok(!DASH.test(t.name + t.place + t.priceLabel + t.duration + t.photo.alt + t.cta.via), t.id + " copy is dash free");
+    ok(["tampa", "staug", "more"].includes(t.region), t.id + " sits in a real region");
+  }
+  const none = await partnerTours({ readPhoto: async () => null, readVault: async () => [] });
+  ok(none.length === 0, "red-prove: no stored photo, no partner card");
+  const vault = await partnerTours({ readPhoto: async () => null, readVault: async (id) => vaultRow(id, "Unknown authorUnknown author or not provided — Public domain, via Wikimedia Commons") });
+  ok(vault.length === 3 && vault.every((t) => t.photo.source === "vault" && t.photo.credit === "Public domain photo via Wikimedia Commons"), "vault photo fallback, public domain credit cleaned");
+  const credited = await partnerTours({ readPhoto: async () => null, readVault: async (id) => vaultRow(id, "Cromemco — CC BY-SA-3.0, via Wikimedia Commons") });
+  ok(credited.every((t) => t.photo.credit === "Photo by Cromemco CC BY SA 3.0, via Wikimedia Commons"), "vault credit keeps the author and license");
+  ok(partnerTourCard({ ...PARTNER_TOURS[0], provider: "viator" }, googleStored("x")) === null, "red-prove: an unknown partner gets no card");
+  ok(partnerTourCard(PARTNER_TOURS[0], { src: "https://evil.example/x.jpg", credit: "Photo by X" }) === null, "red-prove: an outside image URL is refused");
+  const merged = await withHalloweenTours(model, { env: {}, readPhoto: async (id) => googleStored(id) });
+  ok(merged.tours.filter((t) => t.id.startsWith("usga-")).length === 3, "partner tours join the ghost tour chip");
+  ok(merged.eventTours.every((t) => !t.id.startsWith("usga-")), "partner tours never land in the haunt grid");
+  const partnerHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: merged, initialFilter: "tours" }));
+  for (const t of merged.tours.filter((x) => x.id.startsWith("usga-"))) {
+    const at = partnerHtml.indexOf('data-tour-id="' + t.id + '"');
+    const end = partnerHtml.indexOf("</article>", at);
+    ok(at > -1 && partnerHtml.slice(at, end).includes(t.photo.credit), t.id + " renders with its photo credit");
+  }
+}
 
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");
