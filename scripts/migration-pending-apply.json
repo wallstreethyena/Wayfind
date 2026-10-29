@@ -73,7 +73,7 @@
     "file": "supabase/migrations/20261029223000_holmes_beach_one_card_and_county_suffix.sql",
     "sha256": "f4a43a87902e22b2e6d1a10c7511703143c44b2a175f80081316b73cd4b280da",
     "decision_owner": "wallstreethyena",
-    "tracking": "canary run #40858615532",
+    "tracking": "#2034",
     "reason": "NOT APPLIED. Soft-excludes the Holmes Beach locality twin 164 m from the beach card and copies its Wikimedia locator map onto the keeper gallery. Strips the County suffix on Scream A Geddon (Pasco) and Sir Henry's Haunted Trail (Hillsborough). Owner applies via scripts/apply-migration.mjs. Does not write production from this commit."
   }
 ]
