@@ -319,6 +319,8 @@ const CSS = `
 .boo-s-chip:focus-visible{outline:2px solid #F97316;outline-offset:2px}
 .boo-s-cities{display:grid;gap:8px;padding-top:4px}
 .boo-s-city{all:unset;box-sizing:border-box;cursor:pointer;min-height:44px;display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;font-weight:700;color:#EDE9FE;border:1px solid rgba(196,181,253,.35);padding:10px 14px;border-radius:12px}
+.boo-s-cities.two{grid-template-columns:1fr 1fr}
+.boo-s-cities.two .boo-s-more{grid-column:1/-1}
 .boo-s-more{display:flex;gap:8px;align-items:stretch}
 .boo-s-more select{flex:1;min-width:0;min-height:44px;background:#110E19;color:#EDE9FE;border:1px solid rgba(196,181,253,.35);border-radius:12px;padding:0 10px;font:600 14px var(--wf-sans),system-ui,sans-serif}
 .boo-s-more .boo-s-city{flex:none;min-width:64px}
@@ -1401,7 +1403,7 @@ export default function BooCompanion() {
                 </div>
               ) : null}
               {!wrapped && !hasUser && !pending && !gap && unk ? (
-                <div className="boo-s-cities" role="group" aria-label="Florida cities on Wayfind">
+                <div className="boo-s-cities two" role="group" aria-label="Florida cities on Wayfind">
                   {unk.options.map((o) => (
                     <button type="button" key={o.slug} className="boo-s-city" onClick={() => jumpTo(o, false)}>{coverageButtonText(o, false)}</button>
                   ))}
