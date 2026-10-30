@@ -116,7 +116,7 @@ const fakeFetch = async (url) => {
   }));
   return { ok: true, json: async () => rows };
 };
-const model = halloweenHauntModel();
+const model = halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" });
 const live = await withHalloweenTours(model, { env, fetch: fakeFetch });
 ok(/wf_experiences/.test(seenUrl) && /provider=eq\.viator/.test(seenUrl), "reads wf_experiences for viator rows");
 const liveAll = [...live.tours, ...live.eventTours];
@@ -129,6 +129,15 @@ const failed = await withHalloweenTours(model, { env, fetch: async () => { throw
 ok(failed.tours.length + failed.eventTours.length === TOUR_SNAPSHOT.length, "a failed read renders the snapshot, never an empty section");
 const noEnv = await withHalloweenTours(model, { env: {} });
 ok(noEnv.tours.length + noEnv.eventTours.length === TOUR_SNAPSHOT.length, "no Supabase env renders the snapshot");
+
+// 2026-10-29 identity audit: one card per product and per name, none repeats a haunt card
+ok(new Set(TOUR_SNAPSHOT.map((t) => t.code)).size === TOUR_SNAPSHOT.length, "tour product codes are unique");
+const tourNameKey = (t) => t.name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+ok(new Set(TOUR_SNAPSHOT.map(tourNameKey)).size === TOUR_SNAPSHOT.length, "tour names are unique");
+const hauntKeys = model.haunts.map((h) => tourNameKey(h));
+ok(TOUR_SNAPSHOT.every((t) => !hauntKeys.some((k) => k.includes(tourNameKey(t)) || tourNameKey(t).includes(k))), "no tour card repeats a haunt card (same venue or event)");
+ok(![...live.tours, ...live.eventTours].some((t) => /sold out|unavailable/i.test(JSON.stringify(t))), "no tour card claims sold out or unavailable (Viator selling_out is a demand flag, not proof)");
+ok(model.haunts.every((h) => h.id !== "sideshowObscura"), "the Sideshow Obscura store is not in the haunt collection");
 
 // Schema
 const schema = halloweenToursSchema(live.tours, "https://www.gowayfind.com/halloween-in-florida");

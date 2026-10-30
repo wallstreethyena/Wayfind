@@ -194,7 +194,7 @@ ok(EVENT_TICKET_DEALS["mvmcp-2026"]?.deal === 38 && EVENT_TICKET_DEALS["mvmcp-20
 ok(EVENT_TICKET_DEALS["jollywood-nights-2026"]?.deal === 39 && EVENT_TICKET_DEALS["jollywood-nights-2026"]?.product === "event-ticket", "Jollywood maps to its exact Undercover Tourist event-ticket row, never Disney park admission");
 ok(EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.deal === 5 && EVENT_TICKET_DEALS["epcot-festival-holidays-2026"]?.product === "park-admission", "EPCOT Festival of the Holidays uses the verified Disney admission path");
 ok(EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.deal === 6 && EVENT_TICKET_DEALS["universal-orlando-holidays-2026"]?.product === "park-admission", "Universal Holidays uses the verified Universal admission path");
-ok(EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"]?.deal === 6 && EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"]?.product === "park-admission", "Sideshow Obscura uses Universal Studios admission rather than a false HHN-only ticket");
+ok(!EVENT_TICKET_DEALS["sideshow-obscura-hhn35-2026"] && NO_EXACT_AFFILIATE_PRODUCT["sideshow-obscura-hhn35-2026"]?.reviewedAt === "2026-10-29", "Sideshow Obscura is a gift shop: no Universal pass button, a dated reviewed decision instead");
 ok(EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.deal === 18 && EVENT_TICKET_DEALS["peppas-halloween-party-2026"]?.product === "park-admission",
   "Peppa's Halloween Party (organizer-confirmed 'Included in General Admission' on peppapigthemepark.com) maps to Peppa Pig Theme Park's UT admission row (deal 18)");
 ok(EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.provider === "tiqets" && EVENT_TICKET_DEALS["zoo-boo-zoo-miami-2026"]?.offerId === "miami-hook-zoo-miami",
@@ -228,7 +228,8 @@ const fx = [
 // nightly cron keeps using the real date so an expired decision still pages.
 const FIXTURE_TODAY = "2026-10-18";
 const statuses = fx.map((e) => eventAffiliateCoverage(e, { today: FIXTURE_TODAY }).status);
-ok(statuses.slice(0, 6).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
+ok(statuses.slice(0, 5).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
+ok(statuses[5] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Sideshow Obscura (a store, not a ticketed event) is a current reviewed no-product decision");
 ok(statuses[6] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Asian Lantern is a current reviewed no-exact-product decision, not a silent leak");
 ok(statuses[7] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "ZooTampa Christmas is a current reviewed no-exact-product decision until partner entitlement is proven");
 ok(statuses[8] === COVERAGE.UNMAPPED, "a new event at an affiliate merchant with no mapping or current decision is a revenue leak");
@@ -280,15 +281,15 @@ const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-fl
 const leakTally = tallyCoverage(fx, { today: FIXTURE_TODAY });
 const cleanRow = coveragePulseRow(cleanTally);
 const leakRow = coveragePulseRow(leakTally);
-ok(cleanTally.decidedNoExactProduct === 3 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
-  "tally counts all three reviewed no-exact-product decisions, including Zoo Lights");
-ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 7,
+ok(cleanTally.decidedNoExactProduct === 4 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
+  "tally counts all four reviewed no-exact-product decisions, including Zoo Lights and the Sideshow Obscura store");
+ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 6,
   "reviewed decisions do not inflate the missing-URL bucket; mapped and no-partner controls stay distinct");
 ok(cleanTally.mapped + cleanTally.decidedNoExactProduct + cleanTally.noPartner + cleanTally.noUrl + cleanTally.unmapped.length === fx.length - 1,
   "coverage buckets account for every scanned row exactly once");
 ok(cleanTally.decidedSeparatelyTicketed === cleanTally.decidedNoExactProduct && cleanTally.decidedSeparatelyTicketedIds === cleanTally.decidedNoExactProductIds,
   "legacy tally aliases preserve compatibility with the corrected reviewed decision count");
-ok(/3 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
+ok(/4 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
 ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /new-central-florida-zoo-special-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
 ok(leakRow.note.length <= 200, "the note fits the pulse column");
