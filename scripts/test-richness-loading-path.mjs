@@ -193,6 +193,11 @@ for (const id of hotelIds) {
     isHotelBookingVerified({ id }) === false,
     `Hotel ${id} must not receive an unverified affiliate booking button`,
   );
+  // Hotel copy is keyed by property_id (not by event) and must not make unsupported commute/timing or event-specific claims
+  ok(
+    !/\b(minutes? from|minutes? north|short drive|quick drive|scenic drive|walking distance|steps from|within easy reach|events|outings)\b/i.test(raw),
+    `Hotel ${id} editorial must remain factual property-location copy without unsupported commute or event claims: ${raw}`,
+  );
 }
 
 // Hotel without editorial copy retains clean null hook without invented text

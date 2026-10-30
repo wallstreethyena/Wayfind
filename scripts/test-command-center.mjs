@@ -461,8 +461,8 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     const src = code(raw);
     ok(!/dangerouslySetInnerHTML/.test(src), `client: ${name} never uses dangerouslySetInnerHTML (all provider text is untrusted)`);
     ok(!/from\s+["'][^"']*commandCenter\/(auth|supabaseAdmin|sources\/|alerts)/.test(src), `client: ${name} never imports server-only Command Center modules`);
-    ok(!/https?:\/\/[^"'`\s]*(posthog\.com|sentry\.io\/api|api\.vercel\.com|travelpayouts\.com|api\.github\.com)/.test(src), `client: ${name} talks only to /api/command-center/*, never to providers`);
-    ok(!/SERVICE_ROLE|PERSONAL_API_KEY|AUTH_TOKEN|ACCESS_TOKEN/.test(src), `client: ${name} references no server secrets`);
+    ok(!/https?:\/\/[^"'`\s]*(posthog\.com|sentry\.io\/api|api\.vercel\.com|travelpayouts\.com|api\.stay22\.com|api\.github\.com)/.test(src), `client: ${name} talks only to /api/command-center/*, never to providers`);
+    ok(!/SERVICE_ROLE|PERSONAL_API_KEY|AUTH_TOKEN|ACCESS_TOKEN|STAY22_REPORTING_API_KEY/.test(src), `client: ${name} references no server secrets`);
   }
   ok(/robots:\s*\{\s*index:\s*false/.test(page), "page: /command-center is noindexed");
   ok(/Briefing & metrics/.test(ui) && /Fixed previous-day briefing/.test(ui) && /unaffected by the metrics date range/.test(ui), "ui: fixed previous-day briefing is explicitly separate from the selected metrics window");
@@ -498,12 +498,12 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   const sitemap = read("app/sitemap.js");
   ok(!/command-center/.test(sitemap), "sitemap: /command-center is not listed");
   const example = read(".env.local.example");
-  for (const k of ["POSTHOG_PERSONAL_API_KEY", "SENTRY_AUTH_TOKEN", "VERCEL_API_TOKEN", "TRAVELPAYOUTS_TOKEN"]) {
+  for (const k of ["POSTHOG_PERSONAL_API_KEY", "SENTRY_AUTH_TOKEN", "VERCEL_API_TOKEN", "TRAVELPAYOUTS_TOKEN", "STAY22_REPORTING_API_KEY"]) {
     ok(example.includes(k), `env: ${k} documented in .env.local.example`);
     ok(!example.includes("NEXT_PUBLIC_" + k), `env: ${k} has no NEXT_PUBLIC_ variant (server-only secret)`);
   }
   const audit = read("lib/envAudit.js");
-  ok(/POSTHOG_PERSONAL_API_KEY/.test(audit) && /SENTRY_AUTH_TOKEN/.test(audit), "env: Command Center keys registered in envAudit OPTIONAL");
+  ok(/POSTHOG_PERSONAL_API_KEY/.test(audit) && /SENTRY_AUTH_TOKEN/.test(audit) && /STAY22_REPORTING_API_KEY/.test(audit), "env: Command Center keys registered in envAudit OPTIONAL");
 
   // Regression: the Health panel once queried raw web_vitals rows even though
   // PostHog's project-level test-account filters were enabled by default. That
@@ -594,7 +594,65 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   });
   ok(exclusionFailure.data === null && exclusionFailure.source?.reason === "error" && /supabase_not_configured/.test(exclusionFailure.source?.note || ""), "posthog scope: unavailable exclusion source fails closed instead of reporting contaminated traffic");
 
-  const srcFiles = [posthogPath, "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/vercel.js"];
+  // Stay22 Hub Data Reporting API contract (GET /v1/reporting/transactions with X-API-KEY):
+  // verifies missing-token visibility, HTTP 401/403 visibility, pagination, idempotent
+  // deduplication across repeated runs, status transitions (pending -> approved -> paid),
+  // cancellations/reversals, multi-currency flagging, reporting lag note, and separate
+  // booking approval vs. commission payment totals.
+  const stay22Module = await import("../lib/commandCenter/sources/stay22.js");
+  const { stay22Stats, reconcileStay22Transactions } = stay22Module;
+  const s22Missing = await stay22Stats(qFrom, qTo, { env: {} });
+  ok(s22Missing.data === null && s22Missing.source?.connected === false && s22Missing.source?.reason === "not_configured" && s22Missing.source?.confidence === "unavailable", "stay22: missing STAY22_REPORTING_API_KEY returns explicit not_configured (never silent $0.00)");
+  const s22AuthFail = await stay22Stats(qFrom, qTo, {
+    env: { STAY22_REPORTING_API_KEY: "invalid-key" },
+    fetchImpl: async () => ({ ok: false, status: 401, json: async () => ({ message: "Unauthorized" }) }),
+  });
+  ok(s22AuthFail.data === null && s22AuthFail.source?.connected === false && s22AuthFail.source?.reason === "error" && /HTTP 401/.test(s22AuthFail.source?.note || ""), "stay22: HTTP 401 auth failure is surfaced as error, never silent $0.00");
+
+  const s22Calls = [];
+  const page1 = [
+    // Tx 1: initially pending on page 1, upgraded to approved on page 2 (idempotent status update)
+    { transaction_id: "tx-101", status: "pending", commission: 18.5, currency: "USD", campaign: "click-uuid-1", created_at: "2026-10-03T12:00:00Z", updated_at: "2026-10-03T12:00:00Z" },
+    // Tx 2: initially approved, then canceled on page 2 (reversal must remove approved commission)
+    { transaction_id: "tx-102", status: "approved", commission: 42.0, currency: "USD", campaign: "click-uuid-2", created_at: "2026-10-03T13:00:00Z", updated_at: "2026-10-03T13:00:00Z" },
+  ];
+  const page2 = [
+    // Duplicate of tx-101 with newer updated_at and approved status
+    { transaction_id: "tx-101", status: "confirmed", commission: 18.5, currency: "USD", campaign: "click-uuid-1", created_at: "2026-10-03T12:00:00Z", updated_at: "2026-10-04T08:00:00Z" },
+    // Reversal of tx-102
+    { transaction_id: "tx-102", status: "cancelled", commission: 42.0, currency: "USD", campaign: "click-uuid-2", created_at: "2026-10-03T13:00:00Z", updated_at: "2026-10-04T09:00:00Z" },
+    // Tx 3: paid booking (distinct from approved-unpaid)
+    { transaction_id: "tx-103", status: "paid", payout_status: "paid", commission: 31.25, gross_amount: 450, currency: "USD", campaign: "click-uuid-3", created_at: "2026-10-03T15:00:00Z", updated_at: "2026-10-04T10:00:00Z" },
+    // Exact duplicate of tx-103 (repeated run / page overlap)
+    { transaction_id: "tx-103", status: "paid", payout_status: "paid", commission: 31.25, gross_amount: 450, currency: "USD", campaign: "click-uuid-3", created_at: "2026-10-03T15:00:00Z", updated_at: "2026-10-04T10:00:00Z" },
+  ];
+  const s22Paged = await stay22Stats(qFrom, qTo, {
+    env: { STAY22_REPORTING_API_KEY: "s22-test-key" },
+    pageLimit: 2,
+    fetchImpl: async (url, init = {}) => {
+      s22Calls.push({ url: String(url), headers: init.headers || {} });
+      const u = new URL(url);
+      const offset = Number(u.searchParams.get("offset") || 0);
+      const rows = offset === 0 ? page1 : offset === 2 ? page2 : [];
+      return { ok: true, status: 200, json: async () => ({ data: rows, has_more: offset === 0 }) };
+    },
+  });
+  ok(s22Calls.length === 2 && /\/v1\/reporting\/transactions\?/.test(s22Calls[0].url) && s22Calls[0].headers["X-API-KEY"] === "s22-test-key", "stay22: calls GET /v1/reporting\/transactions with X-API-KEY header and paginates until complete");
+  ok(/start_date=2026-10-03/.test(s22Calls[0].url) && /end_date=2026-10-04/.test(s22Calls[0].url), "stay22: passes date window parameters start_date and end_date");
+  ok(s22Paged.source?.connected === true && s22Paged.source?.confidence === "provider-reported", "stay22: USD-only complete reconciliation is marked connected and provider-reported");
+  ok(s22Paged.data?.unique_transactions === 3 && s22Paged.data?.rows_seen === 6, "stay22: deduplicates repeated transaction_ids idempotently across pages and runs");
+  ok(s22Paged.data?.confirmed_bookings === 2 && s22Paged.data?.commission_approved_usd === 49.75, "stay22: status transition pending->confirmed counts in confirmed_bookings and commission_approved_usd");
+  ok(s22Paged.data?.paid_bookings === 1 && s22Paged.data?.revenue_paid_usd === 31.25, "stay22: separates total approved commission ($49.75 across 2 bookings) from paid commission ($31.25 across 1 booking)");
+  ok(s22Paged.data?.canceled === 1 && s22Paged.data?.commission_reversed_usd === 42, "stay22: reversal approved->cancelled moves commission out of approved into canceled and commission_reversed_usd");
+  ok(typeof s22Paged.data?.reporting_lag_note === "string" && /checkout/.test(s22Paged.data.reporting_lag_note) && s22Paged.data?.covered_period?.from === "2026-10-03", "stay22: includes explicit reporting lag note and covered period");
+
+  // Multi-currency safeguard: non-USD rows are bucketed in by_currency and never silently summed into USD
+  const s22MultiCurr = reconcileStay22Transactions([
+    { transaction_id: "tx-eur-1", status: "approved", commission: 25, currency: "EUR", campaign: "click-eur" },
+  ]);
+  ok(s22MultiCurr.partial?.reason === "multi_currency_unconverted" && s22MultiCurr.agg.commission_approved_usd === null && s22MultiCurr.agg.by_currency.EUR.commission_approved === 25, "stay22: non-USD transactions are isolated in by_currency and never summed into USD without FX conversion");
+
+  const srcFiles = [posthogPath, "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/stay22.js", "lib/commandCenter/sources/vercel.js"];
   for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)) && (f !== posthogPath || posthogCwvFiltered), `source: ${f} has an explicit not-configured path; every PostHog query also applies project, bot, internal-person, and server-listed account exclusions`);
   // Alerts email cron: fail-closed auth, fail-soft capability, one shared gatherer.
   const cron = code(read("app/api/cron/cc-alerts/route.js"));

@@ -7,7 +7,11 @@ import { halloweenHauntModel, halloweenHauntProductSchema, halloweenHauntSchema 
 import { withHauntPhotos } from "../../lib/halloweenHauntPhotos";
 import { halloweenToursSchema, withHalloweenTours } from "../../lib/halloweenTours";
 
-export const revalidate = 3600;
+// The haunt cut is computed at render time from the current instant
+// (hauntIsLive), so a card disappears when its final night closes plus at most
+// one regeneration. 600s keeps that under 15 minutes (3600 allowed a card to
+// outlive its close by up to an hour). The page only reads free stored data.
+export const revalidate = 600;
 
 const seasonal = seasonalSearchMetadata("halloween-in-florida");
 const title = "Florida Haunted Houses and Scream Park Tickets | Wayfind";
