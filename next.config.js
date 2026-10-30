@@ -151,6 +151,8 @@ const nextConfig = {
     // local build (scripts/test-og-bodies.mjs's hero cases are the guard
     // that actually fetches this route and would have caught it).
     "/api/og/hero": ["./app/api/og/fonts/*.ttf"],
+    // /api/og/movie reads the Archivo fonts and the self-hosted movie posters with fs (Node runtime).
+    "/api/og/movie": ["./app/api/og/fonts/*.ttf", "./public/movies/*.webp"],
     // Atlas paid lane priority list is read with fs at runtime (lib/atlasPaidLane.js).
     "/api/cron/atlas-build": ["./data/atlas/priority-place-ids.json"],
   },

@@ -2442,6 +2442,8 @@ node scripts/test-event-safety.mjs
 # 2026-10-28: seasonal movies rail data (Fall/Halloween/Christmas) + Undercover Tourist movie ticket handoff (wf_deals 11); calls the real route and resolver.
 node scripts/check-seasonal-movies.mjs
 node scripts/check-seasonal-movies-ui.mjs
+# 2026-10-29: Wayfind movie page /movies/<id> (params, metadata, OG, JSON-LD, sitemap, card tap + share URL, buy button handoff); executes the page, the real sitemap fn and the share card model.
+node scripts/check-movie-pages.mjs
 node scripts/test-link-health-blocked-not-dead.mjs
 node scripts/check-redirect-suspect-gate.mjs
 

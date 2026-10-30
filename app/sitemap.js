@@ -21,6 +21,7 @@ import { cachedCuratedEventList } from "../lib/curatedEventsCache";
 import { unstable_cache } from "next/cache";
 import { christmasResearchSitemapRows, withoutChristmasWatchlistTwins } from "../lib/christmasResearch";
 import { siteTodayStr } from "../lib/siteTime";
+import { movieSitemapRows } from "../lib/moviePages.js";
 
 // Hourly, so the curated events layer below is read at request time. During
 // `next build` fetchCuratedEvents() is deliberately a skipped read (returns []),
@@ -111,7 +112,9 @@ export default async function sitemap() {
   const dedicatedGuides = ["florida-fall-festivals-2026"].filter((slug) => !GUIDES[slug]).map((slug) => ({ url: `${SITE_URL}/guides/${slug}` }));
   const placeIds = await placeIdsPromise;
   const places = [`${SITE_URL}/places`, ...placeIds.map((id) => `${SITE_URL}/places/${encodeURIComponent(id)}`)].map((url) => ({ url }));
+  // Seasonal movie pages (/movies/<id>), one per live registry movie, each with Movie JSON-LD.
+  const movies = movieSitemapRows(SITE_URL, siteTodayStr());
   const seasonal = SEASONAL_SEARCH_HUBS.map(({ slug }) => ({ url: `${SITE_URL}/${slug}` }));
   const crown = CROWN_PUBLISHED ? [{ url: `${SITE_URL}${CROWN_PATH}` }] : [];
-  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...crown, ...places];
+  return [...core, ...seasonal, ...guides, ...culture, ...landing, ...hubs, ...trending, ...creators, ...partners, ...bestBeaches, ...eventWindows, ...floridaEvents, ...dedicatedGuides, ...movies, ...crown, ...places];
 }

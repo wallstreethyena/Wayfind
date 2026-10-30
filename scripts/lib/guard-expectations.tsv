@@ -290,6 +290,7 @@ scripts/check-mobile-poster-fit.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	
 scripts/check-moment.mjs	0	CALL	unwired	0	-	32	0	0	d019099a86adeb301cdf7442e69078ef849215df21d725897d928c3da004d003
 scripts/check-monetized-degrade.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	15	0	0	4576ac536d7c8d7d4b2c9ed3bb89726895539530e6a45abea71d65f8955fcbf6
 scripts/check-money-funnel.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	21	0	0	474db2c823a5275a33285430184e5ce8901e61c353613ede2dca621f4c200cea
+scripts/check-movie-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	df2fe6c40550d331b78b92dc5f6aedc800de9c9902d02965190a0f74199affa0
 scripts/check-narrow-chip-inventory.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	1	2	ff8789430085b11dbde7ffd5467735976d416586abd96b26f9538d5424bb9457
 scripts/check-native-no-ad-tracking.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	55c2d20658358cc70c3005444519e42d18141484e24e38a85e438e0ba1d67fa3
 scripts/check-nearby-pool.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	97b600b0fea385a7014eacc75d88521da0cf2f410af5d580da2a9c4ed05253e1
