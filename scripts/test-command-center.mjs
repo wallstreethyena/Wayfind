@@ -601,56 +601,105 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   // booking approval vs. commission payment totals.
   const stay22Module = await import("../lib/commandCenter/sources/stay22.js");
   const { stay22Stats, reconcileStay22Transactions } = stay22Module;
-  const s22Missing = await stay22Stats(qFrom, qTo, { env: {} });
+  const s22Range = rangeFor("custom", new Date("2026-10-05T16:00:00Z"), undefined, { from: "2026-10-03", to: "2026-10-04" });
+  const s22Missing = await stay22Stats(s22Range.from, s22Range.to, { env: {} });
   ok(s22Missing.data === null && s22Missing.source?.connected === false && s22Missing.source?.reason === "not_configured" && s22Missing.source?.confidence === "unavailable", "stay22: missing STAY22_REPORTING_API_KEY returns explicit not_configured (never silent $0.00)");
-  const s22AuthFail = await stay22Stats(qFrom, qTo, {
+  const s22AuthFail = await stay22Stats(s22Range.from, s22Range.to, {
     env: { STAY22_REPORTING_API_KEY: "invalid-key" },
     fetchImpl: async () => ({ ok: false, status: 401, json: async () => ({ message: "Unauthorized" }) }),
   });
   ok(s22AuthFail.data === null && s22AuthFail.source?.connected === false && s22AuthFail.source?.reason === "error" && /HTTP 401/.test(s22AuthFail.source?.note || ""), "stay22: HTTP 401 auth failure is surfaced as error, never silent $0.00");
 
+  // The real reporting schema is camelCase and defaults to CSV unless format=json.
+  // Source: https://dev.stay22.com/docs/reporting/transactions (2026-10-30).
+  const s22Forbidden = await stay22Stats(s22Range.from, s22Range.to, {
+    env: { STAY22_REPORTING_API_KEY: "invalid-key" },
+    fetchImpl: async () => ({ ok: false, status: 403 }),
+  });
+  ok(s22Forbidden.data === null && s22Forbidden.source?.status === 403, "stay22: forbidden reporting access remains an explicit error");
   const s22Calls = [];
-  const page1 = [
-    // Tx 1: initially pending on page 1, upgraded to approved on page 2 (idempotent status update)
-    { transaction_id: "tx-101", status: "pending", commission: 18.5, currency: "USD", campaign: "click-uuid-1", created_at: "2026-10-03T12:00:00Z", updated_at: "2026-10-03T12:00:00Z" },
-    // Tx 2: initially approved, then canceled on page 2 (reversal must remove approved commission)
-    { transaction_id: "tx-102", status: "approved", commission: 42.0, currency: "USD", campaign: "click-uuid-2", created_at: "2026-10-03T13:00:00Z", updated_at: "2026-10-03T13:00:00Z" },
+  const record = (bookingId, bookingStatus, commission, lastUpdatedDate, extra = {}) => ({
+    provider: "booking", bookingId, bookingStatus, commission: String(commission), currency: "USD",
+    campaignId: "click-" + bookingId, bookedDate: "2026-10-03T12:00:00Z", lastUpdatedDate, ...extra,
+  });
+  const pages = [
+    [record("tx-101", "Pending", 18.5, "2026-10-03T12:00:00Z"), record("tx-102", "Approved", 42, "2026-10-03T13:00:00Z")],
+    [record("tx-101", "Approved", 18.5, "2026-10-04T08:00:00Z", { paymentStatus: "Pending" }), record("tx-102", "Canceled", 42, "2026-10-04T09:00:00Z")],
+    [record("tx-103", "Approved", 31.25, "2026-10-04T10:00:00Z", { paymentStatus: "Paid" }), record("tx-103", "Approved", 31.25, "2026-10-04T10:00:00Z", { paymentStatus: "Paid" })],
+    [],
   ];
-  const page2 = [
-    // Duplicate of tx-101 with newer updated_at and approved status
-    { transaction_id: "tx-101", status: "confirmed", commission: 18.5, currency: "USD", campaign: "click-uuid-1", created_at: "2026-10-03T12:00:00Z", updated_at: "2026-10-04T08:00:00Z" },
-    // Reversal of tx-102
-    { transaction_id: "tx-102", status: "cancelled", commission: 42.0, currency: "USD", campaign: "click-uuid-2", created_at: "2026-10-03T13:00:00Z", updated_at: "2026-10-04T09:00:00Z" },
-    // Tx 3: paid booking (distinct from approved-unpaid)
-    { transaction_id: "tx-103", status: "paid", payout_status: "paid", commission: 31.25, gross_amount: 450, currency: "USD", campaign: "click-uuid-3", created_at: "2026-10-03T15:00:00Z", updated_at: "2026-10-04T10:00:00Z" },
-    // Exact duplicate of tx-103 (repeated run / page overlap)
-    { transaction_id: "tx-103", status: "paid", payout_status: "paid", commission: 31.25, gross_amount: 450, currency: "USD", campaign: "click-uuid-3", created_at: "2026-10-03T15:00:00Z", updated_at: "2026-10-04T10:00:00Z" },
-  ];
-  const s22Paged = await stay22Stats(qFrom, qTo, {
-    env: { STAY22_REPORTING_API_KEY: "s22-test-key" },
-    pageLimit: 2,
+  const s22Paged = await stay22Stats(s22Range.from, s22Range.to, {
+    env: { STAY22_REPORTING_API_KEY: "s22-test-key" }, pageLimit: 2,
     fetchImpl: async (url, init = {}) => {
       s22Calls.push({ url: String(url), headers: init.headers || {} });
       const u = new URL(url);
-      const offset = Number(u.searchParams.get("offset") || 0);
-      const rows = offset === 0 ? page1 : offset === 2 ? page2 : [];
-      return { ok: true, status: 200, json: async () => ({ data: rows, has_more: offset === 0 }) };
+      // Reject the original implementation's invented request shape.
+      if (u.searchParams.get("format") !== "json" || u.searchParams.has("offset") || u.searchParams.has("start_date")) throw new Error("reporting contract mismatch");
+      return { ok: true, status: 200, json: async () => ({ statusCode: 200, partnerId: "fixture", data: pages[Number(u.searchParams.get("page"))] }) };
     },
   });
-  ok(s22Calls.length === 2 && /\/v1\/reporting\/transactions\?/.test(s22Calls[0].url) && s22Calls[0].headers["X-API-KEY"] === "s22-test-key", "stay22: calls GET /v1/reporting\/transactions with X-API-KEY header and paginates until complete");
-  ok(/start_date=2026-10-03/.test(s22Calls[0].url) && /end_date=2026-10-04/.test(s22Calls[0].url), "stay22: passes date window parameters start_date and end_date");
-  ok(s22Paged.source?.connected === true && s22Paged.source?.confidence === "provider-reported", "stay22: USD-only complete reconciliation is marked connected and provider-reported");
-  ok(s22Paged.data?.unique_transactions === 3 && s22Paged.data?.rows_seen === 6, "stay22: deduplicates repeated transaction_ids idempotently across pages and runs");
-  ok(s22Paged.data?.confirmed_bookings === 2 && s22Paged.data?.commission_approved_usd === 49.75, "stay22: status transition pending->confirmed counts in confirmed_bookings and commission_approved_usd");
-  ok(s22Paged.data?.paid_bookings === 1 && s22Paged.data?.revenue_paid_usd === 31.25, "stay22: separates total approved commission ($49.75 across 2 bookings) from paid commission ($31.25 across 1 booking)");
-  ok(s22Paged.data?.canceled === 1 && s22Paged.data?.commission_reversed_usd === 42, "stay22: reversal approved->cancelled moves commission out of approved into canceled and commission_reversed_usd");
-  ok(typeof s22Paged.data?.reporting_lag_note === "string" && /checkout/.test(s22Paged.data.reporting_lag_note) && s22Paged.data?.covered_period?.from === "2026-10-03", "stay22: includes explicit reporting lag note and covered period");
+  ok(s22Calls.length === 4 && s22Calls.every((c, i) => new URL(c.url).searchParams.get("page") === String(i)) && s22Calls[0].headers["X-API-KEY"] === "s22-test-key", "stay22: zero-based pages continue to the empty completion page with secret only in the header");
+  const s22Query = new URL(s22Calls[0].url).searchParams;
+  ok(s22Query.get("startDate") === "2026-10-03" && s22Query.get("endDate") === "2026-10-04" && s22Query.get("dateFilter") === "bookedDate" && s22Query.get("format") === "json", "stay22: documented camelCase date parameters scope bookings and explicitly request JSON");
+  ok(s22Paged.source?.connected === true && s22Paged.source?.confidence === "provider-reported", "stay22: complete canonical response is marked provider-reported");
+  ok(s22Paged.data?.unique_transactions === 3 && s22Paged.data?.rows_seen === 6, "stay22: canonical bookingId and lastUpdatedDate reconcile repeated transactions");
+  ok(s22Paged.data?.confirmed_bookings === 2 && s22Paged.data?.commission_approved_usd === 49.75, "stay22: pending to approved is counted only in the final approved snapshot");
+  ok(s22Paged.data?.paid_bookings === 1 && s22Paged.data?.revenue_paid_usd === 31.25, "stay22: only an explicit payment status proves paid commission");
+  ok(s22Paged.data?.canceled === 1 && s22Paged.data?.commission_reversed_usd === 42, "stay22: a later cancellation removes the previously approved commission");
+  ok(s22Paged.data?.by_campaign?.["click-tx-101"]?.approved_bookings === 1, "stay22: canonical campaignId retains attribution");
+  ok(s22Paged.data?.order_value_usd === null, "stay22: absent gross booking value remains unknown instead of fabricated zero");
+  ok(/checkout/.test(s22Paged.data?.reporting_lag_note || "") && s22Paged.data?.covered_period?.date_filter === "bookedDate", "stay22: reporting notes distinguish booking-date coverage and payout proof");
 
-  // Multi-currency safeguard: non-USD rows are bucketed in by_currency and never silently summed into USD
-  const s22MultiCurr = reconcileStay22Transactions([
-    { transaction_id: "tx-eur-1", status: "approved", commission: 25, currency: "EUR", campaign: "click-eur" },
-  ]);
-  ok(s22MultiCurr.partial?.reason === "multi_currency_unconverted" && s22MultiCurr.agg.commission_approved_usd === null && s22MultiCurr.agg.by_currency.EUR.commission_approved === 25, "stay22: non-USD transactions are isolated in by_currency and never summed into USD without FX conversion");
+  const canonicalOnly = reconcileStay22Transactions([record("canonical", "Approved", 12, "2026-10-03T10:00:00Z")]);
+  ok(canonicalOnly.agg.confirmed_bookings === 1 && canonicalOnly.agg.paid_bookings === null && canonicalOnly.agg.revenue_paid_usd === null && canonicalOnly.agg.payment_status_available === false, "stay22: the documented response has no payout field, so paid totals are unavailable");
+  const reordered = reconcileStay22Transactions([record("same", "Canceled", 10, "2026-10-04"), record("same", "Approved", 10, "2026-10-03")]);
+  ok(reordered.agg.canceled === 1 && reordered.agg.confirmed_bookings === 0, "stay22: an older snapshot cannot revive a canceled booking");
+  const providers = reconcileStay22Transactions([record("same", "Pending", 10, "2026-10-03"), record("same", "Pending", 20, "2026-10-03", { provider: "expedia" })]);
+  ok(providers.agg.unique_transactions === 2, "stay22: different providers with the same booking id remain distinct");
+  const s22MultiCurr = reconcileStay22Transactions([record("eur", "Approved", 25, "2026-10-03", { currency: "EUR" })]);
+  ok(s22MultiCurr.partial?.reason === "multi_currency_unconverted" && s22MultiCurr.agg.commission_approved_usd === null && s22MultiCurr.agg.by_currency.EUR.commission_approved === 25, "stay22: native currency never becomes USD without an explicit conversion");
+  let badCurrency = false;
+  try { reconcileStay22Transactions([record("bad-currency", "Approved", 12, "2026-10-03", { currency: "" })]); } catch { badCurrency = true; }
+  ok(badCurrency, "stay22: missing currency cannot silently default a financial total to USD");
+  const prototypeCampaign = reconcileStay22Transactions([record("prototype", "Pending", 12, "2026-10-03", { campaignId: "__proto__" })]);
+  ok(prototypeCampaign.agg.by_campaign["__proto__"].pending_bookings === 1, "stay22: campaign values are data, including object prototype names");
+  const repeated = await stay22Stats(new Date("2026-11-03"), new Date("2026-11-04"), {
+    env: { STAY22_REPORTING_API_KEY: "s22-test-key" }, pageLimit: 1,
+    fetchImpl: async () => ({ ok: true, json: async () => ({ data: [record("repeat", "Pending", 3, "2026-11-03")] }) }),
+  });
+  ok(repeated.data === null && /repeated a full page/.test(repeated.source?.note || ""), "stay22: a repeated full page is an incomplete result, never a successful truncated total");
+  let clampedLimit = null;
+  const empty = await stay22Stats(new Date("2026-12-03"), new Date("2026-12-04"), {
+    env: { STAY22_REPORTING_API_KEY: "s22-test-key" }, pageLimit: 1000,
+    fetchImpl: async (url) => { clampedLimit = new URL(url).searchParams.get("limit"); return { ok: true, json: async () => ({ data: [] }) }; },
+  });
+  ok(clampedLimit === "500" && empty.data?.unique_transactions === 0, "stay22: limit is capped at the documented 500 and a real empty page is measured zero");
+
+  // Exercise the actual dashboard range builder, including both DST day lengths.
+  const windowCases = [
+    ["yesterday", "2026-10-30T16:00:00Z", "2026-10-29", "2026-10-29", 24],
+    ["today", "2026-10-31T02:00:00Z", "2026-10-30", "2026-10-30", 22],
+    ["yesterday", "2026-03-09T16:00:00Z", "2026-03-08", "2026-03-08", 23],
+    ["yesterday", "2026-11-02T16:00:00Z", "2026-11-01", "2026-11-01", 25],
+    ["7d", "2026-11-05T16:00:00Z", "2026-10-29", "2026-11-04", 169],
+    ["last_month", "2026-12-12T16:00:00Z", "2026-11-01", "2026-11-30", 721],
+  ];
+  for (const [key, now, expectedFrom, expectedTo, hours] of windowCases) {
+    const range = rangeFor(key, new Date(now));
+    let query = null;
+    const result = await stay22Stats(range.from, range.to, {
+      env: { STAY22_REPORTING_API_KEY: "s22-test-key" },
+      fetchImpl: async (url) => { query = new URL(url).searchParams; return { ok: true, json: async () => ({ data: [] }) }; },
+    });
+    ok((range.to - range.from) / 3600000 === hours, `stay22 range fixture: ${key} at ${now} actually spans ${hours} hours`);
+    ok(query?.get("startDate") === expectedFrom && query?.get("endDate") === expectedTo, `stay22 dates: ${key} at ${now} requests only selected ET days ${expectedFrom} through ${expectedTo}`);
+    ok(result.data?.covered_period?.request_timezone === "America/New_York" && result.data?.covered_period?.granularity === "calendar-date" && /intraday/.test(result.data?.covered_period?.note || ""), "stay22 dates: response labels requested ET dates and the provider cutoff limitation");
+  }
+  let emptyWindowRequested = false;
+  const invalidWindow = await stay22Stats(new Date("2026-10-30T04:00:00Z"), new Date("2026-10-30T04:00:00Z"), {
+    env: { STAY22_REPORTING_API_KEY: "s22-test-key" }, fetchImpl: async () => { emptyWindowRequested = true; throw new Error("must not run"); },
+  });
+  ok(!emptyWindowRequested && invalidWindow.source?.category === "invalid_range", "stay22 dates: an empty instant range cannot accidentally query yesterday or a whole future day");
 
   const srcFiles = [posthogPath, "lib/commandCenter/sources/sentry.js", "lib/commandCenter/sources/travelpayouts.js", "lib/commandCenter/sources/stay22.js", "lib/commandCenter/sources/vercel.js"];
   for (const f of srcFiles) ok(/srcMissing\(/.test(read(f)) && (f !== posthogPath || posthogCwvFiltered), `source: ${f} has an explicit not-configured path; every PostHog query also applies project, bot, internal-person, and server-listed account exclusions`);
@@ -664,6 +713,46 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
   ok(vj.crons.some((c) => c.path === "/api/cron/cc-alerts"), "cron: cc-alerts is registered in vercel.json");
   const fpSrc = read("lib/commandCenter/sources/firstParty.js");
   ok(/wf_cc_/.test(fpSrc) && !/from\("events"\)|rest\/v1\/events\?/.test(fpSrc), "source: first-party reads go through wf_cc_* aggregate RPCs only (no raw event rows)");
+}
+
+// Render the actual Stay22 presentation and shared value/status components with
+// offline responses. The network hook is outside this pure presentation boundary.
+{
+  const React = (await import("react")).default;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const ts = (await import("typescript")).default;
+  const ui = readFileSync("app/command-center/ui.js", "utf8");
+  const charts = readFileSync("app/command-center/charts.js", "utf8");
+  const extract = (source, names) => {
+    const tree = ts.createSourceFile("fixture.jsx", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JSX);
+    return names.map((name) => {
+      const fn = tree.statements.find((n) => ts.isFunctionDeclaration(n) && n.name?.text === name);
+      if (!fn) throw new Error("Missing real component " + name);
+      return fn.getText(tree).replace(/^export /, "");
+    }).join("\n");
+  };
+  const code = extract(ui, ["Card", "Grid", "Stay22Results"]) + "\n" + extract(charts, ["fmtNum", "fmtUsd", "SourceBadge", "NotConnected", "StatTile", "EmptyNote"]);
+  const compiled = ts.transpileModule(code, { compilerOptions: { jsx: ts.JsxEmit.React, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const context = { React, C: {}, TYPE: { eyebrow: {} }, RADII: {}, STATUS: {}, CARD: "#111", styles: {}, DefTip: () => null };
+  const Results = new Function("context", `with(context){${compiled}; return Stay22Results;}`)(context);
+  const render = (report) => renderToStaticMarkup(React.createElement(Results, { report }));
+  const available = { source: { name: "Stay22", connected: true }, data: { confirmed_bookings: 2, commission_approved_usd: 49.75, revenue_paid_usd: 31.25, revenue_pending_usd: 4.5, pending_bookings: 1, canceled: 1, payment_status_available: true, covered_period: { from: "2026-10-29", to: "2026-10-29", note: "Calendar-date report; exact intraday cutoffs unverified" } } };
+  const full = render(available);
+  ok(full.includes("Approved commission") && full.includes("$49.75") && full.includes("Paid commission") && full.includes("$31.25"), "stay22 UI: real component keeps approved commission separate from paid totals");
+  ok(full.includes("Requested booking dates (ET):") && full.includes("exact intraday cutoffs unverified"), "stay22 UI: date-filter scope and intraday limitation are visible");
+  const unknown = render({ ...available, data: { ...available.data, revenue_paid_usd: null, payment_status_available: false } });
+  ok(unknown.includes("Paid commission is unknown") && !unknown.includes("$0.00"), "stay22 UI: absent payout status is visible and never renders a false zero");
+  const missing = render({ source: { name: "Stay22", connected: false, reason: "not_configured", nextStep: "Configure the reporting key" }, data: null });
+  ok(missing.includes("not connected") && missing.includes("Configure the reporting key") && !missing.includes("$0.00"), "stay22 UI: missing setup is visibly disconnected with next step");
+  const error = render({ source: { name: "Stay22", connected: false, reason: "error", note: "HTTP 401" }, data: available.data });
+  ok(error.includes("temporarily unavailable") && error.includes("HTTP 401") && !error.includes("$49.75"), "stay22 UI: errors withhold obsolete numbers even if a stale data object exists");
+  const partial = render({ ...available, source: { ...available.source, reason: "multi_currency_unconverted", note: "Native EUR amount has no USD conversion" }, data: { ...available.data, commission_approved_usd: null } });
+  ok(partial.includes("Partial USD totals") && partial.includes("Native EUR amount"), "stay22 UI: incomplete currency conversion is disclosed");
+  const stale = render({ ...available, source: { ...available.source, stale: true } });
+  ok(stale.includes("saved result, refresh failed"), "stay22 UI: cached fallback carries visible staleness");
+  const malicious = render({ source: { name: "Stay22", connected: false, reason: "error", note: "<img src=x onerror=alert(1)>" } });
+  ok(malicious.includes("&lt;img") && !malicious.includes("<img"), "stay22 UI: provider text is escaped");
+  ok((ui.match(/<Stay22Results report=\{dget\(d, "affiliate\.stay22", null\)\}/g) || []).length === 2, "stay22 UI: overview and Places both consume the reporting result");
 }
 
 if (failures) { console.error(`test-command-center: ${failures} failure(s)`); process.exit(1); }

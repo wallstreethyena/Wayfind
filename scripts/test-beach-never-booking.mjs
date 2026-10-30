@@ -80,18 +80,20 @@ ok(BEACHES.every((b) => PLACE_PARTNER_PICKS.some((r) => r.offerId === b.code)), 
 
 // RENDERED card: the real IconicPlaceCard, real markup.
 const render = (place) => renderToStaticMarkup(createElement(Card, { place, rank: 1, href: "/p/x" }));
+// The card's Buy button text (2026-10-25: the partner link moved from a chip-lane pill to this button).
+const buyLabel = (html) => ((html.match(/class="[^"]*wf-buy-cta[^"]*"[^>]*>(?:<span[^>]*>[^<]*<\/span>)?([^<]*)<\/a>/) || [])[1] || null);
 const goLinks = (html) => (html.match(/href="[^"]*\/api\/[a-z]+\/go[^"]*"/g) || []);
 for (const b of BEACHES) {
   for (const s of shapes(b.name)) {
     const html = render({ ...s.p, rating: 4.8, reviews: 900, distMi: 3, lat: 27.26, lng: -82.55 });
     ok(html.includes(b.name), `${b.name} (${s.label}): card actually rendered (probe)`);
-    ok(goLinks(html).length === 0 && !/wf-ticket-pill/.test(html) && !/Partner tickets/.test(html),
-      `${b.name} (${s.label}): rendered card carries no go-link / ticket pill`);
+    ok(goLinks(html).length === 0 && !/wf-buy-cta|wf-ticket-pill/.test(html) && !/Buy tickets|Partner tickets/.test(html),
+      `${b.name} (${s.label}): rendered card carries no go-link / Buy button`);
   }
 }
 {
   const html = render({ ...control, rating: 4.8, reviews: 3000, distMi: 3, lat: 27.77, lng: -82.63 });
-  ok(goLinks(html).length === 1 && /wf-ticket-pill/.test(html), `CONTROL: rendered non-beach card still carries exactly one go-link ticket pill (got ${goLinks(html).length})`);
+  ok(goLinks(html).length === 1 && /wf-buy-cta/.test(html), `CONTROL: rendered non-beach card still carries exactly one go-link Buy button (got ${goLinks(html).length})`);
 }
 
 // ── BookingCTA (the Detail sheet's own component), RENDERED ───────────────────
@@ -166,9 +168,9 @@ for (const t of TOURS) {
   const d = { id: "fx-tour-" + t.name, ...t };
   ok(placePartnerPick(d)?.offerId === t.code && placePartnerPick(d)?.product === "tour", `${t.name}: pin still resolves and is marked product=tour`);
   const html = render({ ...d, rating: 4.7, reviews: 1500, distMi: 5, lat: 27.6, lng: -82.7 });
-  const pill = (html.match(/<span class="wf-ticket-pill-lb">([^<]*)<\/span>/) || [])[1];
-  ok(goLinks(html).length === 1 && pill === "Tours", `${t.name}: card CTA label is "Tours" (got ${JSON.stringify(pill)})`);
-  ok(!ADMISSION_WORDS.test(pill || "") && !/Partner tickets/.test(html) && /Partner tours for/.test(html), `${t.name}: card label + aria carry no admission wording`);
+  const pill = buyLabel(html);
+  ok(goLinks(html).length === 1 && /^Book a tour · Viator ↗$/.test(pill || ""), `${t.name}: card Buy button says "Book a tour · Viator ↗" (got ${JSON.stringify(pill)})`);
+  ok(!ADMISSION_WORDS.test(pill || "") && !/Buy tickets|Partner tickets/.test(html) && /aria-label="Book a tour · Viator for /.test(html), `${t.name}: card label + aria carry no admission wording`);
   const r = resolveDetailCta({ detail: d, kind: "attraction", viaTours: {}, locName: "St. Petersburg, FL", offers: {}, openState: false });
   ok(r.monetized === true && r.exact === true && /Tours/.test(r.label) && !ADMISSION_WORDS.test(r.label), `${t.name}: resolveDetailCta (even closed) keeps the pin, label "${r.label}" is experience language`);
   const prim = cta("primary", d, "attraction", {});
@@ -178,7 +180,7 @@ for (const t of TOURS) {
 {
   // CONTROL: a true admission pin keeps "Tickets".
   const html = render({ ...control, rating: 4.8, reviews: 3000, distMi: 3, lat: 27.77, lng: -82.63 });
-  ok(/<span class="wf-ticket-pill-lb">Tickets<\/span>/.test(html), "CONTROL: the Dali admission pin still says Tickets");
+  ok(/^Buy tickets · Tiqets ↗$|^Buy (?:tickets · |at )\S/.test(buyLabel(html) || ""), `CONTROL: the Dali admission pin's Buy button says Buy tickets (got ${JSON.stringify(buyLabel(html))})`);
 }
 
 if (fails.length) {

@@ -1,54 +1,59 @@
 "use client";
 import { shareOut } from "../../lib/shareOut.js";
-import { useState, useMemo, useEffect } from "react";
+import { concreteSharePlaceId } from "../../lib/shareContext.js";
+import { track } from "../../lib/track.js";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { Cat, Heart, Portrait, Couple } from "./pixel.js";
 import { ASK_CSS } from "./style.js";
 import {
   ACTIVITIES, activityFor, activityHref, activityLinkLabel, askHeadline, yayLine,
-  pleaAt, moodAt, yesScale, noScale, yesText, needsName, planFitsPlace, datedCardPath,
+  pleaAt, moodAt, yesScale, noScale, yesText, noText, needsName, planFitsPlace, datedCardPath,
   inviteKinds,
 } from "../../lib/dateInvite.js";
 
-// app/ask/AskClient.js — the five frames (v7.27).
+// app/ask/AskClient.js — Wayfind Chibi Elf invitation flow.
 //
-//   1 ASK      "Will you go out with me?"  YES / No
-//   2 YAY      the celebration
-//   3 ACTIVITY what would you like to do
-//   4 WHEN     pick a date
-//   5 DONE     it's a date — and only NOW does Wayfind appear
-//
-// THE ORDER IS THE PRODUCT. Every instinct says put the place, the ranking and
-// the booking link on the first screen, because that is what we sell. It would
-// kill this. Someone opening a text from a person they like is answering one
-// question, and an app that interrupts to recommend a restaurant before they
-// have answered is a stranger talking over a private moment. Two people who
-// have just agreed on a night and a kind of evening are the highest-intent pair
-// on the site — so the ranking waits for frame 5, where it is help rather than
-// an ad.
-//
-// The no-count only ever grows the YES button; it never disables No. The joke
-// is that saying no gets harder, not that it becomes impossible — the moment
-// the answer stops being really theirs, the yes is worth nothing.
+//   1 ASK       "Will you go out with me?" + proposed plan summary + YES / No
+//   2 YAY       warm celebration with the Elf couple
+//   3 ACTIVITY  what would you like to do
+//   4 WHEN      pick or confirm a date
+//   5 DONE      proposed plan summary, share your answer, save card, open venue
+//   6 DECLINED  kind acknowledgment when the visitor answers No
 
 const DAYS = ["S", "M", "T", "W", "T", "F", "S"];
 const MONTHS = ["January", "February", "March", "April", "May", "June", "July",
   "August", "September", "October", "November", "December"];
 
-// The world: a dithered magenta sky, three banks of stepped pixel cloud, a
-// skyline on the horizon, sparkles and floating hearts. Not one image — the
-// owner's note was "no AI generated image, it looks fake", and a scene built
-// from boxes is also what lets this page paint instantly in a text thread.
-//
-// Every position is FIXED, not random. A random scatter re-rolls on each render,
-// so the sparkles visibly jumped every time the person pressed No.
+/**
+ * Parse an explicit date-only string ("YYYY-MM-DD") in local calendar time
+ * so UTC midnight never shifts the calendar day backward, and preserve human
+ * date labels ("Friday", "Sat, Oct 31") verbatim without replacing past dates.
+ */
+export function parseInviteWhen(raw) {
+  const s = typeof raw === "string" ? raw.trim() : "";
+  if (!s) return { iso: "", label: "", date: null };
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (m) {
+    const y = Number(m[1]);
+    const mo = Number(m[2]) - 1;
+    const da = Number(m[3]);
+    const d = new Date(y, mo, da);
+    if (!isNaN(d.getTime()) && d.getFullYear() === y && d.getMonth() === mo && d.getDate() === da) {
+      const nowYear = new Date().getFullYear();
+      const opts = { weekday: "short", month: "long", day: "numeric" };
+      if (y !== nowYear) opts.year = "numeric";
+      return { iso: s, label: d.toLocaleDateString(undefined, opts), date: d };
+    }
+  }
+  return { iso: s, label: s, date: null };
+}
+
 const CLOUDS = [
-  // [class, left%, bottom%, width%, height, rows of the stepped silhouette]
   ["wfx-sky3", -6, 46, 46, 3], ["wfx-sky3", 44, 52, 52, 3],
   ["wfx-sky2", 8, 26, 44, 4], ["wfx-sky2", 56, 30, 50, 4],
   ["wfx-sky1", -10, 8, 52, 5], ["wfx-sky1", 40, 4, 62, 5],
 ];
 function Cloud({ cls, left, bottom, width, rows }) {
-  // A stepped mound: each row is narrower and higher than the one below it.
   const bars = [];
   for (let i = 0; i < rows; i++) {
     const inset = i * 12;
@@ -124,45 +129,38 @@ function Calendar({ value, onPick }) {
   );
 }
 
-export default function AskClient({ inv }) {
+export default function AskClient({ inv, bad = false }) {
+  const proposedWhen = useMemo(() => parseInviteWhen(inv && inv.when), [inv && inv.when]);
+  const suggested = useMemo(() => inviteKinds(inv), [inv]);
+
   const [step, setStep] = useState("ask");
   const [nos, setNos] = useState(0);
-  const [activity, setActivity] = useState("");
-  const [dayIso, setDayIso] = useState("");
-  const [dayLabel, setDayLabel] = useState("");
-  // "" | "sent" | "copied" | "failed" — what really happened.
+  const [activity, setActivity] = useState(() => suggested[0] || "");
+  const [dayIso, setDayIso] = useState(() => proposedWhen.iso);
+  const [dayLabel, setDayLabel] = useState(() => proposedWhen.label);
+  // "" | "options" | "copied" | "failed"
   const [sent, setSent] = useState("");
+  const [paused, setPaused] = useState(false);
 
-  // WHERE THEY ARE LOOKING, AND HOW LONG THEY HAVE BEEN THINKING.
-  //
-  // OWNER, 2026-08-12: "the menu part is very jumpy, it's jumping all over the
-  // place… I asked you to have the little character look, but then I realized
-  // it's a phone. There's no way the character can look at where the finger is
-  // hovering from. Maybe that's something it's looking for and it just can't."
-  //
-  // That diagnosis was right, and the cost was worse than a missing effect.
-  // touchstart and touchmove were wired to the same handler as mousemove, so:
-  //   · every tap LURCHED the cat toward wherever the thumb landed, and the eye
-  //     highlights popped into existence on first touch and never before it;
-  //   · every scroll of this container re-rendered the entire page at 60Hz —
-  //     nineteen animated decoration nodes and ~150 run-length-encoded SVG
-  //     rects rebuilt per frame, on a phone.
-  //
-  // A pointer is a desktop object. There is nothing to track here, so we do not
-  // pretend: no listeners at all on a coarse pointer, and the fidget carries the
-  // performance on its own.
   const [look, setLook] = useState({ x: 0, y: 0 });
-
-  // THREE RUNGS, NOT A FLOAT — and this is the other half of the jumping.
-  // This used to tick every 900ms and feed the result into animation-duration
-  // through a custom property. Changing a RUNNING animation's duration makes the
-  // engine restart it, so the cat snapped roughly thirteen times per screen, and
-  // every one of those ticks also re-rendered the whole page. Three rungs means
-  // at most two changes, at the moments the speed genuinely changes.
   const [eager, setEager] = useState(0);
+
+  const loadedRef = useRef(false);
   useEffect(() => {
-    // Anxiety builds while they deliberate, and RESETS when they move on — a cat
-    // that stays frantic after the decision is just a broken animation.
+    if (loadedRef.current) return;
+    loadedRef.current = true;
+    track("ask_invite_loaded", { has_invite: Boolean(inv), bad_link: Boolean(bad) });
+  }, [inv, bad]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    const onVis = () => setPaused(Boolean(document.hidden));
+    onVis();
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  useEffect(() => {
     if (step !== "activity" && step !== "when") { setEager(0); return; }
     setEager(1);
     const a = setTimeout(() => setEager(2), 4200);
@@ -173,16 +171,12 @@ export default function AskClient({ inv }) {
   useEffect(() => {
     if (typeof window === "undefined") return;
     const fine = !!(window.matchMedia && window.matchMedia("(pointer: fine)").matches);
-    if (!fine) return; // a phone: nothing to follow, and no listeners to pay for
+    if (!fine) return;
     let raf = 0, next = null;
     const apply = () => { raf = 0; if (next) setLook(next); };
     const onMove = (e) => {
       const w = window.innerWidth || 1, h = window.innerHeight || 1;
-      // Relative to the middle of the screen, which is roughly where the cat is.
       next = { x: (e.clientX / w) * 2 - 1, y: (e.clientY / h) * 2 - 1 };
-      // One state update per frame. Setting state on every mousemove re-renders
-      // the whole pixel scene dozens of times a second and the page starts to
-      // stutter — on the screen where we are asking someone to feel something.
       if (!raf) raf = window.requestAnimationFrame(apply);
     };
     window.addEventListener("mousemove", onMove, { passive: true });
@@ -192,35 +186,29 @@ export default function AskClient({ inv }) {
     };
   }, []);
 
-  // WHO IS ANSWERING. The sender may have asked several people, and a reply
-  // reading 'Yes! Dinner out on Friday' tells them a date is happening without
-  // telling them with whom. If the sender named them at share time we already
-  // know; if not, the last screen asks — optionally, because a required field
-  // between a yes and telling them is a place to lose the yes.
   const [who, setWho] = useState("");
   const [note, setNote] = useState("");
+  const [hydrated, setHydrated] = useState(false);
 
-  // MOVED BELOW THE STATE IT READS. This block sat above `who` and `note`, and
-  // a dependency array is evaluated DURING render — so it touched two consts
-  // in their temporal dead zone and threw a ReferenceError that took the whole
-  // page down the instant anyone pressed YES. Guards cannot see this; opening
-  // the page did.
-  // COMING BACK. The worst thing this page can do is lose a yes: they say yes,
-  // get distracted halfway through picking a night, come back, and are asked to
-  // go out with someone all over again from a blank screen. The progress is kept
-  // on THEIR device against this invite's key — nothing leaves the phone, and a
-  // different invite is a different key, so two invites never collide.
+  useEffect(() => { setHydrated(true); }, []);
+
   const memKey = inv && inv.key ? "wf_ask_" + inv.key : "";
   useEffect(() => {
+    setStep("ask");
+    setNos(0);
+    setSent("");
+    setActivity(suggested[0] || "");
+    setDayIso(proposedWhen.iso);
+    setDayLabel(proposedWhen.label);
+    setWho("");
+    setNote("");
     if (!memKey) return;
     try {
       const raw = window.localStorage.getItem(memKey);
       if (!raw) return;
       const m = JSON.parse(raw);
       if (!m || typeof m !== "object") return;
-      // Never restore straight back into the celebration — it is a 2.6s frame
-      // that auto-advances, and landing on it cold is confusing.
-      if (m.step && m.step !== "ask" && m.step !== "yay") setStep(m.step);
+      if (m.step && m.step !== "ask" && m.step !== "yay" && m.step !== "declined") setStep(m.step);
       if (m.activity) setActivity(m.activity);
       if (m.dayIso) setDayIso(m.dayIso);
       if (m.dayLabel) setDayLabel(m.dayLabel);
@@ -228,24 +216,20 @@ export default function AskClient({ inv }) {
       if (m.note) setNote(m.note);
     } catch (e) {}
   }, [memKey]);
+
   useEffect(() => {
-    if (!memKey || step === "ask") return;
+    if (!memKey || step === "ask" || step === "declined") return;
     try { window.localStorage.setItem(memKey, JSON.stringify({ step, activity, dayIso, dayLabel, who, note })); } catch (e) {}
   }, [memKey, step, activity, dayIso, dayLabel, who, note]);
 
-  // A share that lands here with no payload still works: it becomes a plain ask
-  // rather than an error page. Someone forwarding the link to a third person is
-  // a feature, not a bug to catch.
   const from = (inv && inv.from) || "";
   const city = (inv && inv.city) || "";
+  const placeId = concreteSharePlaceId(inv && inv.id);
 
   useEffect(() => {
     if (step === "yay") { const t = setTimeout(() => setStep("activity"), 2600); return () => clearTimeout(t); }
   }, [step]);
 
-  // Delivery is outside this page’s control. Only explicit copy success is observable.
-  // Fired from the button's real position so the hearts come out of the thing
-  // they pressed, not out of the middle of the screen.
   const burst = (e) => {
     if (typeof document === "undefined") return;
     try {
@@ -263,10 +247,13 @@ export default function AskClient({ inv }) {
         h.style.setProperty("--dy", Math.round(Math.sin(a) * d - 40) + "px");
         h.style.setProperty("--rot", (i % 2 ? 1 : -1) * (20 + i * 7) + "deg");
         h.style.animationDelay = (i % 5) * 22 + "ms";
-        h.innerHTML = '<svg width="' + (12 + (i % 3) * 6) + '" height="' + (12 + (i % 3) * 6) + '" viewBox="0 0 10 6" shape-rendering="crispEdges">'
-          + '<rect x="2" y="0" width="2" height="1" fill="#FF4E96"/><rect x="6" y="0" width="2" height="1" fill="#FF4E96"/>'
-          + '<rect x="1" y="1" width="8" height="2" fill="#FF4E96"/><rect x="2" y="3" width="6" height="1" fill="#FF4E96"/>'
-          + '<rect x="3" y="4" width="4" height="1" fill="#FF4E96"/><rect x="4" y="5" width="2" height="1" fill="#FF4E96"/></svg>';
+        const sz = 16 + (i % 3) * 6;
+        h.innerHTML = (i % 3 === 0)
+          ? '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 24 24">'
+            + '<path d="M12 2 L14.8 9.2 L22 12 L14.8 14.8 L12 22 L9.2 14.8 L2 12 L9.2 9.2 Z" fill="' + (i % 2 ? "#FFD166" : "#00F5D4") + '"/></svg>'
+          : '<svg width="' + sz + '" height="' + sz + '" viewBox="0 0 48 40">'
+            + '<path d="M 24 36 C 10 26 3 17 3 9.5 C 3 4 7.5 0 13 0 C 17.5 0 21.5 2.8 24 6.8 C 26.5 2.8 30.5 0 35 0 C 40.5 0 45 4 45 9.5 C 45 17 38 26 24 36 Z" fill="#FF2A85" stroke="#23143B" stroke-width="3.5" stroke-linejoin="round"/>'
+            + '<ellipse cx="14" cy="8.5" rx="4.5" ry="2.5" transform="rotate(-25 14 8.5)" fill="#FFFFFF" opacity="0.88"/></svg>';
         host.appendChild(h);
       }
       document.body.appendChild(host);
@@ -275,14 +262,8 @@ export default function AskClient({ inv }) {
   };
 
   const replyText = () => yesText(inv, activity, dayLabel, { name: who, note });
+  const declineReplyText = () => noText(inv, { name: who, note });
 
-
-
-  // Their suggestion first, everything else in its usual order.
-  // Resolved the same way the fit check resolves it — from the payload when it
-  // has one, from the place name when it does not. Reading inv.kind directly
-  // marked the wrong chip on every link made before kinds existed.
-  const suggested = inviteKinds(inv);
   const ordered = (() => {
     const k = suggested[0];
     if (!k) return ACTIVITIES;
@@ -290,19 +271,14 @@ export default function AskClient({ inv }) {
     return hit.length ? hit.concat(ACTIVITIES.filter((a) => a.id !== k)) : ACTIVITIES;
   })();
 
-  // SAVE THE CARD. Web Share Level 2 hands the PNG itself to the share sheet,
-  // which is what puts it on a story rather than in a chat as a link. If files
-  // are unsupported we open the image instead — a long-press saves it, which is
-  // how most people save an image anyway.
   const [saving, setSaving] = useState(false);
   const cardUrl = () => datedCardPath(activity, dayLabel,
     inv && inv.place && planFitsPlace(inv, activity) ? inv.place : "");
 
   const saveCard = async () => {
     if (saving) return;
+    track("ask_invite_action", { action: "save_card" });
     const url = cardUrl();
-    // The fetch has to happen BEFORE the share, and that costs the tap's
-    // activation on iOS — so the fallback is a plain open, never a silent fail.
     setSaving(true);
     let file = null;
     try {
@@ -310,11 +286,6 @@ export default function AskClient({ inv }) {
       const blob = await r.blob();
       file = new File([blob], "its-a-date.png", { type: "image/png" });
     } catch (e) {}
-    // BACKING OUT IS NOT A FAILURE. The share and the fetch used to sit in one
-    // try, so cancelling the sheet threw AbortError into the same catch as a
-    // network error and the fallback fired — dumping the bare 1200x630 OG image
-    // into a new tab, seconds after they chose not to share it. tellThem() has
-    // always known the difference; this did not.
     if (file && navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file] });
@@ -328,32 +299,109 @@ export default function AskClient({ inv }) {
     try { window.open(url, "_blank", "noopener"); } catch (e) {}
   };
 
-  const tellThem = () => {
-    const text = replyText();
+  const sendReplyText = (text) => {
+    track("ask_invite_action", { action: "share_reply" });
     const how = shareOut({ title: "Your reply", text }, () => setSent("copied"), { textOnly: true });
     setSent(how === "failed" ? "failed" : "options");
   };
 
-  // The reply uses the same explicit text/email/native choices as every share.
+  const tellThem = () => sendReplyText(replyText());
+  const tellThemDeclined = () => sendReplyText(declineReplyText());
+
+  const suggestedActivityLabel = suggested[0] && activityFor(suggested[0]) ? activityFor(suggested[0]).label : "";
 
   return (
-    <div className="wfx">
+    <div className={"wfx" + (paused ? " wfx-paused" : "")} data-hydrated={hydrated ? "1" : undefined}>
       <style dangerouslySetInnerHTML={{ __html: ASK_CSS }} />
       <Decor />
       <div className="wfx-stage">
+
+        {bad && !inv ? (
+          <div className="wfx-alert" role="alert">
+            This invitation link looks incomplete or damaged, so the venue details could not be read. You can still respond below or explore Wayfind.
+          </div>
+        ) : null}
 
         {step === "ask" && (
           <>
             <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
+            {inv && (inv.place || proposedWhen.label || inv.note) ? (
+              <div className="wfx-plan-preview" aria-label="Proposed plan">
+                {inv.place ? (
+                  <div>
+                    <strong>{from ? from + "’s idea" : "Proposed spot"}</strong>
+                    {" · "}
+                    <span>{inv.place}{city ? " (" + city + ")" : ""}</span>
+                  </div>
+                ) : null}
+                {(suggestedActivityLabel || proposedWhen.label) ? (
+                  <div>
+                    <strong>Plan</strong>
+                    {" · "}
+                    <span>{[suggestedActivityLabel, proposedWhen.label].filter(Boolean).join(" · ")}</span>
+                  </div>
+                ) : null}
+                {inv.note ? <div className="wfx-plan-note">“{inv.note}”</div> : null}
+              </div>
+            ) : null}
             <div className="wfx-row">
               <button className="wfx-yes" style={{ "--s": yesScale(nos) }}
-                onClick={(e) => { burst(e); setStep("yay"); }}>YES</button>
+                onClick={(e) => {
+                  burst(e);
+                  setSent("");
+                  track("ask_invite_choice", { choice: "yes", has_place: Boolean(inv && inv.place) });
+                  setStep("yay");
+                }}>YES</button>
               <button className="wfx-no" style={{ "--n": noScale(nos) }}
-                onClick={() => setNos((n) => n + 1)}>No</button>
+                onClick={() => {
+                  setNos(1);
+                  setSent("");
+                  try { if (memKey) window.localStorage.removeItem(memKey); } catch (e) {}
+                  track("ask_invite_choice", { choice: "no", has_place: Boolean(inv && inv.place) });
+                  setStep("declined");
+                }}>No</button>
             </div>
-            <p className="wfx-plea" key={nos}>{nos > 0 ? pleaAt(nos) : ""}</p>
+            {nos > 0 ? <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p> : null}
+          </>
+        )}
+
+        {step === "declined" && (
+          <>
+            <Portrait><Cat tone="cream" mood={moodAt(nos || 1)} size={104} look={look} /></Portrait>
+            <h1 className="wfx-h1" key={step}>No worries. Thanks for letting me know.</h1>
+            <p className="wfx-sub">
+              {from
+                ? "You can share a quick reply with " + from + " below, or head out whenever you’re ready."
+                : "You can share a quick reply below, or head out whenever you’re ready."}
+            </p>
+            {needsName(inv) ? (
+              <input className="wfx-field" value={who} maxLength={24} enterKeyHint="done"
+                onChange={(e) => setWho(e.target.value)}
+                aria-label="Your name (optional)"
+                placeholder="Your name (optional)" />
+            ) : null}
+            <input className="wfx-field" value={note} maxLength={120} enterKeyHint="done"
+              onChange={(e) => setNote(e.target.value)}
+              aria-label="Add a message, optional"
+              placeholder="Say something back (optional)" />
+            <button className="wfx-go" onClick={tellThemDeclined}>
+              {sent === "copied" ? "REPLY COPIED ✓" : "SHARE YOUR ANSWER"}
+            </button>
+            {sent ? (
+              <p className="wfx-sub" role="status" aria-live="polite">
+                {sent === "options" ? "Share your answer — choose your message app and press Send there." :
+                 sent === "copied" ? "Reply copied. Paste your reply into your chat with " + (from || "them") + "." :
+                 "Could not open share options — copy your reply above and text it to " + (from || "them") + "."}
+              </p>
+            ) : null}
+            <button className="wfx-go wfx-go2" onClick={() => { setSent(""); setNos(0); setStep("yay"); }}>
+              Changed my mind — say YES
+            </button>
+            <a className="wfx-quiet" href={city ? "/best-of?city=" + encodeURIComponent(city) : "/"}>
+              Explore Wayfind
+            </a>
           </>
         )}
 
@@ -362,6 +410,7 @@ export default function AskClient({ inv }) {
             <Portrait size={138}><Couple size={64} /></Portrait>
             <h1 className="wfx-h1" key={step}>· YAY! ·</h1>
             <p className="wfx-sub">{yayLine(inv)}</p>
+            <button className="wfx-quiet" onClick={() => setStep("activity")}>Continue →</button>
           </>
         )}
 
@@ -369,11 +418,6 @@ export default function AskClient({ inv }) {
           <>
             <Portrait><Cat tone="cream" mood="love" size={104} look={look} fidget={eager} /></Portrait>
             <h1 className="wfx-h1" key={step}>What would you like to do?</h1>
-            {/* The sender's own suggestion goes FIRST and is labelled. It is the
-                only option on this screen that somebody actually chose, and
-                burying it in reading order made the two halves of the plan feel
-                unrelated — which is how "Drinks tonight" ended up paired with a
-                breakfast cafe. */}
             <div className="wfx-grid">
               {ordered.map((a) => (
                 <button key={a.id} className="wfx-chip" aria-pressed={activity === a.id}
@@ -394,6 +438,18 @@ export default function AskClient({ inv }) {
             <Portrait><Cat tone="panda" mood="happy" size={104} look={look} fidget={eager} /></Portrait>
             <h1 className="wfx-h1" key={step}>Pick a date</h1>
             <p className="wfx-sub">Choose the day for our cute little plans</p>
+            {proposedWhen.label ? (
+              <button
+                className="wfx-chip"
+                style={{ width: "100%", marginTop: "14px", minHeight: "48px" }}
+                aria-pressed={dayIso === proposedWhen.iso && dayLabel === proposedWhen.label}
+                onClick={() => {
+                  setDayIso(proposedWhen.iso);
+                  setDayLabel(proposedWhen.label);
+                }}>
+                <span>{from ? from + "’s proposed date: " : "Proposed date: "}{proposedWhen.label}</span>
+              </button>
+            ) : null}
             <Calendar value={dayIso} onPick={(iso, d) => {
               setDayIso(iso);
               setDayLabel(d.toLocaleDateString(undefined, { weekday: "short", month: "long", day: "numeric" }));
@@ -406,31 +462,19 @@ export default function AskClient({ inv }) {
           <>
             <Portrait size={138}><Couple size={64} /></Portrait>
             <h1 className="wfx-h1" key={step}>It's a date</h1>
-            {/* The sender's place goes back on the card, labelled as an IDEA
-                rather than a decision. Frame 3 lets the recipient choose the
-                kind of evening, and the first build then dropped the place the
-                sender had actually picked — so the person who sent the invite
-                watched their own suggestion vanish from their own date. */}
+            <p className="wfx-sub">Proposed plan — no table or tickets are booked yet.</p>
             <div className="wfx-card">
               <div><b>When</b> · {dayLabel}</div>
               <div><b>What</b> · {(activityFor(activity) || {}).label}</div>
-              {/* ONLY WHEN IT STILL FITS. This printed the sender's place
-                  unconditionally, so a plan reading "Drinks tonight" would sit
-                  directly above "Their idea · Keke's Breakfast Cafe" — two
-                  people arriving at a closed cafe at 9pm holding our screenshot.
-                  When the plan has moved on, the card says so and points at the
-                  ranking instead of at a contradiction. */}
               {inv && inv.place && planFitsPlace(inv, activity)
-                ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}</div>
+                ? <div><b>{from ? from + "'s idea" : "Their idea"}</b> · {inv.place}{city ? " (" + city + ")" : ""}</div>
                 : (inv && inv.place
                     ? <div><b>New plan</b> · not {inv.place} then — pick the spot below</div>
                     : null)}
+              {inv && inv.note ? <div><b>Note</b> · “{inv.note}”</div> : null}
               {from ? <div><b>With</b> · {from}</div> : null}
               {(who || (inv && inv.to)) ? <div><b>From</b> · {who || inv.to}</div> : null}
             </div>
-            {/* Their half of the conversation. Both optional, both one line —
-                the point is that the answer arrives sounding like a person and
-                the sender can tell which person it is. */}
             {needsName(inv) ? (
               <input className="wfx-field" value={who} maxLength={24} enterKeyHint="done"
                 onChange={(e) => setWho(e.target.value)}
@@ -443,23 +487,32 @@ export default function AskClient({ inv }) {
               placeholder="Say something back (optional)" />
 
             <button className="wfx-go" onClick={tellThem}>
-              {sent === "options" ? "SHARE OPTIONS ♥" : "TELL " + (from ? from.toUpperCase() : "THEM")}
+              {sent === "copied"
+                ? "REPLY COPIED ✓"
+                : sent === "options"
+                  ? "SHARE YOUR ANSWER"
+                  : ("TELL " + (from ? from.toUpperCase() : "THEM") + " · SHARE YOUR ANSWER")}
             </button>
             {sent ? (
               <p className="wfx-sub" role="status" aria-live="polite">
-                {sent === "options" ? "Choose how to share your reply. You’ll press Send in your message app." :
-                 sent === "copied" ? "Copied. Paste it into your chat with " + (from || "them") + "." :
+                {sent === "options" ? "Share your answer — choose your message app and press Send there." :
+                 sent === "copied" ? "Reply copied. Paste your reply into your chat with " + (from || "them") + "." :
                  "Could not open share options — copy the plan above and text it to " + (from || "them") + "."}
               </p>
             ) : null}
-            {/* Only here, after the yes and the plan, does Wayfind say anything.
-                Two people who have just agreed on a night are the best possible
-                audience for a ranking — and the worst possible audience for one
-                thirty seconds ago. */}
             <button className="wfx-go wfx-go2" onClick={saveCard} disabled={saving}>
               {saving ? "MAKING IT…" : "SAVE THE CARD"}
             </button>
-            <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}>{activityLinkLabel(activity, city)}</a>
+            {placeId && inv && inv.place && planFitsPlace(inv, activity) ? (
+              <a className="wfx-quiet" href={"/p/" + encodeURIComponent(placeId)}
+                onClick={() => track("ask_invite_action", { action: "open_place" })}>
+                {"Open " + inv.place + " on Wayfind"}
+              </a>
+            ) : null}
+            <a className="wfx-quiet" href={activityHref(activity, city, inv && inv.geo)}
+              onClick={() => track("ask_invite_action", { action: "explore_activity" })}>
+              {activityLinkLabel(activity, city)}
+            </a>
             <div className="wfx-mark">
               <span>arranged with</span>
               <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">

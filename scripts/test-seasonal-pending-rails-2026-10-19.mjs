@@ -203,30 +203,30 @@ function christmasIds(events, today, at) {
 const usf = seen.get(venueKey(byId.get("K073")));
 const usfEvents = resolveSeasonalLiveArea([usf], { today: "2026-12-01" }).christmas;
 ok(christmasIds(usfEvents, "2026-12-01", usf).includes(byId.get("K073").event_id)
-  && !christmasIds(usfEvents, "2026-12-01", usf).includes(byId.get("K120").event_id), "the sooner Nutcracker is the one USF card");
+  && christmasIds(usfEvents, "2026-12-01", usf).includes(byId.get("K120").event_id), "both distinct Nutcracker productions at USF remain discoverable");
 const usfLater = resolveSeasonalLiveArea([usf], { today: "2026-12-18" }).christmas;
 ok(christmasIds(usfLater, "2026-12-18", usf).includes(byId.get("K120").event_id)
-  && !christmasIds(usfLater, "2026-12-18", usf).includes(byId.get("K073").event_id), "Dance Theatre's Nutcracker waits until the sooner show has ended");
+  && !christmasIds(usfLater, "2026-12-18", usf).includes(byId.get("K073").event_id), "Dance Theatre's Nutcracker remains after the earlier production expires");
 
 const benchEvents = resolveSeasonalLiveArea([benchmark], { today: "2026-11-01" }).christmas;
-ok(christmasIds(benchEvents, "2026-11-01", benchmark).join(",") === byId.get("H029").event_id, "for KING + COUNTRY is the Benchmark card while it is the sooner show");
+ok(christmasIds(benchEvents, "2026-11-01", benchmark).join(",") === [byId.get("H029").event_id, byId.get("K122").event_id].join(","), "both Benchmark shows appear once in chronological order");
 const benchLater = resolveSeasonalLiveArea([benchmark], { today: "2026-12-01" }).christmas;
 ok(christmasIds(benchLater, "2026-12-01", benchmark).join(",") === byId.get("K122").event_id, "Trans-Siberian Orchestra shows after Drummer Boy has ended");
 
 const bilheimer = seen.get(venueKey(byId.get("H009")));
 const bilheimerNow = resolveSeasonalLiveArea([bilheimer], { today: "2026-12-01" }).christmas;
-ok(christmasIds(bilheimerNow, "2026-12-01", bilheimer).join(",") === byId.get("H009").event_id, "Rockapella is the Bilheimer card");
+ok(christmasIds(bilheimerNow, "2026-12-01", bilheimer).join(",") === [byId.get("H009").event_id, byId.get("K128").event_id].join(","), "both Bilheimer shows appear once in chronological order");
 const bilheimerLater = resolveSeasonalLiveArea([bilheimer], { today: "2026-12-20" }).christmas;
-ok(christmasIds(bilheimerLater, "2026-12-20", bilheimer).join(",") === byId.get("K128").event_id, "Celtic Angels waits until Rockapella has ended");
+ok(christmasIds(bilheimerLater, "2026-12-20", bilheimer).join(",") === byId.get("K128").event_id, "Celtic Angels remains and expired Rockapella leaves the shelf");
 
 const carols = [seen.get(venueKey(byId.get("K126"))), seen.get(venueKey(byId.get("K127")))];
 const carolsNow = resolveSeasonalLiveArea(carols, { today: "2026-12-01" }).christmas;
 const seminole = carols[0];
 ok(christmasIds(carolsNow, "2026-12-01", seminole).includes(byId.get("K126").event_id)
-  && !christmasIds(carolsNow, "2026-12-01", seminole).includes(byId.get("K127").event_id), "the shared Candlelight name keeps the sooner show");
+  && christmasIds(carolsNow, "2026-12-01", seminole).includes(byId.get("K127").event_id), "the shared Candlelight name preserves both venue/date identities");
 const carolsLater = resolveSeasonalLiveArea(carols, { today: "2026-12-19" }).christmas;
 ok(christmasIds(carolsLater, "2026-12-19", seminole).includes(byId.get("K127").event_id)
-  && !christmasIds(carolsLater, "2026-12-19", seminole).includes(byId.get("K126").event_id), "the Aquarium Candlelight show waits until Dec 18 has ended");
+  && !christmasIds(carolsLater, "2026-12-19", seminole).includes(byId.get("K126").event_id), "the Aquarium Candlelight show remains and the expired Dec 18 show leaves");
 
 const lecanto = ready.fall.find((event) => event.event_id === byId.get("K050").event_id);
 const dale = ready.fall.find((event) => event.event_id === byId.get("K063").event_id);
@@ -234,10 +234,21 @@ const mid = { lat: (lecanto.lat + dale.lat) / 2, lng: (lecanto.lng + dale.lng) /
 ok(distanceMi(lecanto, mid) <= 45 && distanceMi(dale, mid) <= 45, "both Fall Festival venues are inside the festivals radius of the midpoint");
 const fallNames = composeFallIntentRails([lecanto, dale], [], { ...mid, today: TODAY });
 ok(idsOn(fallNames.rails, "festivals").includes(lecanto.event_id)
-  && !idsOn(fallNames.rails, "festivals").includes(dale.event_id), "the sooner Fall Festival is the one card while both names match");
+  && idsOn(fallNames.rails, "festivals").includes(dale.event_id), "both Fall Festivals remain discoverable despite their shared name");
 const fallNamesLater = composeFallIntentRails([lecanto, dale], [], { ...mid, today: "2026-11-01" });
 ok(idsOn(fallNamesLater.rails, "festivals").includes(dale.event_id)
   && !idsOn(fallNamesLater.rails, "festivals").includes(lecanto.event_id), "Dale Mabry's Fall Festival shows after Lecanto's has ended");
+
+// All same-name/same-venue fixtures remain singular per occurrence. Shared
+// labels cannot hide a row, and preserving both must not introduce duplicates.
+for (const [ids, expected] of [
+  [christmasIds(usfEvents, "2026-12-01", usf), [byId.get("K073").event_id, byId.get("K120").event_id]],
+  [christmasIds(carolsNow, "2026-12-01", seminole), [byId.get("K126").event_id, byId.get("K127").event_id]],
+  [idsOn(fallNames.rails, "festivals"), [lecanto.event_id, dale.event_id]],
+]) {
+  ok(ids.length === new Set(ids).size && expected.every((id) => ids.filter((value) => value === id).length === 1),
+    "each distinct fixture occurrence is present exactly once");
+}
 
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const christmasRoute = readFileSync(new URL("../app/api/events/christmas/route.js", import.meta.url), "utf8");

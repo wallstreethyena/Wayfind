@@ -23,6 +23,7 @@ import { useSiteToday } from "../../lib/siteDayClock.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { usePagedRail } from "./usePagedRail.js";
+import { railItemIdentity } from "../../lib/eventOccurrenceIdentity.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import FallRecommendedHotels from "./FallRecommendedHotels.js";
 import SeasonalMoviesRail from "./SeasonalMoviesRail.js";
@@ -84,7 +85,7 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
   const seedItems = useMemo(() => rail.cards || [], [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id, ...(collection === "halloween" ? { collection } : {}) } : null), [lat, lng, rail.id, collection]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
-    "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length, itemsKey: "cards" },
+    "/api/events/fall", params, { enabled: !!params, seedItems, seedTotal: Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length, itemsKey: "cards", getId: railItemIdentity },
   );
   const curatorPicks = useCuratorPicks();
   const now = useEventClock();
@@ -148,7 +149,7 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
             : eventChips(card, { onOpenVenue: card.detailHref || card.officialOnly ? openEventVenue : null })) : placeChips;
           // "Halloween event" only when the event's own text says Halloween; otherwise the real rail title stays.
           const eyebrow = spooky && isEvent && sayHalloween(card) ? "Halloween event" : (spooky ? spookyEyebrow(rail.title) : rail.title);
-          return <RailCard key={card.id} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
+          return <RailCard key={railItemIdentity(card)} className="wf-exploding-primary" domRef={index === Math.min(sentinelIndex, items.length - 1) ? sentinelRef : undefined}
             photo={card.image || null}
             photoFallback={isEvent && card.place_id ? ownedPlacePhotoSrc(card.place_id, 640) : null}
             eagerMedia={index < 3}

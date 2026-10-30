@@ -4,6 +4,10 @@
 // merely grep for provider names.
 
 import { readFileSync } from "node:fs";
+import path from "node:path";
+import { createElement } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { loadComponent } from "./lib/jsxLoad.mjs";
 import { isAwinLive } from "../lib/awin.js";
 import { DESTS } from "../lib/experiencesData.js";
 import { allIntentPartnerPicks, canReadOwnedExperienceCache, fetchPartnerInventory, INTENT_PARTNER_PICKS, INTENT_PARTNER_RAILS, intentPartnerPick, intentPartnerPicks, inventoryPartnerPick, localPartnerQuery, mergePartnerInventory, normalizePartnerCity, OWNED_EXPERIENCE_DEST_IDS, PARTNER_INVENTORY_CANDIDATE_COUNT, PARTNER_RAIL_RENDER_LIMIT, partnerInventoryEligibleForIntent, partnerInventoryFetchPlan, partnerInventoryRequest, partnerRailInventory, qualifyPartnerInventory, resolvedIntentPartnerPick, resolvedIntentPartnerPicks } from "../lib/intentPartnerPicks.js";
@@ -309,23 +313,43 @@ ok(placePartnerPick({ name: "Tampa Riverwalk" }) === null,
 ok(pinServeability({ provider: "viator", offerId: "236733P1" }).reason === "retired-absent-from-catalogue",
   "…and 236733P1 is refused for the recorded catalogue reason, not by accidental deletion");
 ok(placePartnerPick({ name: "Florida Aquarium Bar" }) === null, "place matching is exact, not a revenue-seeking substring match");
-// v8.22 (owner reversal, 2026-08-19: "it doesn't have to have so many letters
-// — be more concise"): the VISIBLE label is now the short "🎟️ Tickets ·
-// {merchant} ↗"; the full partner disclosure moved to the anchor's aria-label
-// and title. Re-pointed, not deleted — the guard now asserts all three parts
-// of the new contract instead of the retired long copy.
-// v8.29 — the visible label was restyled from a bare anchor into a designed
-// ticket chip (WF_PLACE_CARD_CSS .wf-ticket-pill), so the literal
-// "🎟️ Tickets · {partner.merchant} ↗" this pinned no longer exists. What the
-// guard is FOR is the disclosure contract, not the punctuation: a visible
-// label that says Tickets and names the merchant, the full partner
-// disclosure in aria-label and title, and rel="sponsored". Pinned to those.
-ok(/aria-label=\{`Partner \$\{partner\.product === \"tour\" \? \"tours\" : partner\.product === \"transfer\" \? \"transfers\" : partner\.product === \"storage\" \? \"luggage storage\" : \"tickets\"\} for \$\{place\.name\} via \$\{partner\.merchant\}`\}/.test(placeClientSrc)
-  && /\{partner\.product === "tour" \? "Tours" : partner\.product === "transfer" \? "Transfers" : partner\.product === "storage" \? "Storage" : "Tickets"\}/.test(placeClientSrc)
-  && /\{partner\.merchant\}/.test(placeClientSrc)
-  && /Wayfind may earn a commission; rankings never change\./.test(placeClientSrc)
-  && /rel="sponsored noopener"/.test(placeClientSrc),
-  "global place cards disclose exact partner ticket links: visible label names the merchant + full aria/title disclosure + sponsored rel");
+// The owner now wants a Buy/Book button. Protect disclosure on the actual
+// rendered anchor across every product kind, independently of its JSX spelling.
+// SSR runs no effects; hosted auth is intentionally absent in this fixture.
+process.env.NEXT_PUBLIC_SUPABASE_URL = "";
+process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "";
+const { default: IconicPlaceCard } = await loadComponent(path.resolve("app/components/IconicPlaceCard.js"), process.cwd());
+const decodeHtml = (s) => String(s || "").replace(/&amp;/g, "&").replace(/&quot;/g, '"').replace(/&#x27;|&#39;/g, "'");
+const renderedPartner = (html) => [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/g)]
+  .filter((m) => /data-commerce-owner="IconicPlaceCard"/.test(m[1]))
+  .map((m) => ({ attrs: Object.fromEntries([...m[1].matchAll(/([\w-]+)="([^"]*)"/g)].map((a) => [a[1], decodeHtml(a[2])])),
+    text: decodeHtml(m[2].replace(/<[^>]*>/g, "")).trim() }));
+for (const [name, product, action] of [
+  ["Tampa Museum of Art", "ticket", "Buy"],
+  ["Magic Kingdom Park", "ticket", "Buy"], // long merchant: concise label still names the seller
+  ["Get Up and Go Kayaking - Robinson Preserve", "tour", "Book"],
+  ["Sarasota-Bradenton International Airport", "transfer", "Book"],
+  ["Siesta Key", "storage", "Book"],
+]) {
+  const place = { id: `disclosure-${product}-${name}`, name, rating: 4.8, reviews: 1000, types: ["tourist_attraction"], lat: 27.8, lng: -82.5 };
+  const partner = placePartnerPick(place);
+  ok(partner?.product === product, `${name}: positive control resolves the expected ${product} partner`);
+  const anchors = renderedPartner(renderToStaticMarkup(createElement(IconicPlaceCard, { place, rank: 1, href: "/p/fixture" })));
+  ok(anchors.length === 1, `${name}: the real card renders exactly one partner purchase anchor`);
+  const { attrs, text } = anchors[0] || { attrs: {}, text: "" };
+  ok(text.startsWith(`${action} `) && text.includes(partner?.merchant), `${name}: visible label names the purchase action and actual merchant`);
+  ok(attrs["aria-label"]?.startsWith(`${action} `) && attrs["aria-label"]?.includes(name) && attrs["aria-label"]?.includes(partner?.merchant),
+    `${name}: accessible label identifies the action, this place and merchant`);
+  ok(/partner link/i.test(attrs.title || "") && /Wayfind may earn a commission; rankings never change\./.test(attrs.title || ""),
+    `${name}: rendered title discloses the commission and independent ranking`);
+  ok((attrs.rel || "").split(/\s+/).includes("sponsored") && (attrs.rel || "").split(/\s+/).includes("noopener") && attrs.target === "_blank",
+    `${name}: the external purchase is sponsored and opens safely in a new tab`);
+  const url = new URL(attrs.href || "/", "https://www.gowayfind.com");
+  ok(url.origin === "https://www.gowayfind.com" && url.pathname === "/api/commerce/go"
+    && url.searchParams.get("provider") === partner?.provider && url.searchParams.get("offer") === partner?.offerId
+    && url.searchParams.get("surface") === "iconic_place_card" && url.searchParams.get("content") === place.id,
+    `${name}: the actual anchor tracks this exact provider, offer and place through Wayfind`);
+}
 // This table is the record of what was CONTENT-verified in wf_experiences, so a
 // code the 2026-09-09 audit proved absent must not still read as "live-verified"
 // here — otherwise re-pinning a dead SKU would sail through the assertion below.

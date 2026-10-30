@@ -6,6 +6,8 @@ import vm from "node:vm";
 import ts from "typescript";
 import React from "react";
 import * as railPage from "../../lib/railPage.js";
+import { railItemIdentity } from "../../lib/eventOccurrenceIdentity.js";
+import * as christmasCardCopy from "../../lib/christmasCardCopy.js";
 import * as visitFacts from "../../lib/eventVisitFacts.js";
 import * as lawfulOrder from "../../lib/lawfulOrder.js";
 import { applyCuratorPicks } from "../../lib/curatorPicks.js";
@@ -107,7 +109,7 @@ export async function checkFallPaging({ componentSource = readFileSync(component
     } };
     throw new Error(`unexpected paging fixture dependency: ${spec}`);
   }, ReactFixture, Observer);
-  const component = evaluate(componentSource + "\nexport { FallRailSection };\n", "app/components/FallIntentRails.js", (spec) => {
+  const componentImports = (spec) => {
     if (spec === "react") return ReactFixture;
     if (/\/RailCard$/.test(spec)) return { default: RailCard, RailNav, RailDots };
     if (/\/RailLoading$/.test(spec)) return { default: RailLoading };
@@ -118,6 +120,8 @@ export async function checkFallPaging({ componentSource = readFileSync(component
     if (spec.endsWith("lawfulOrder.js")) return lawfulOrder;
     if (spec.endsWith("eventVisitFacts.js")) return visitFacts;
     if (spec.endsWith("railPage.js")) return railPage;
+    if (spec.endsWith("eventOccurrenceIdentity.js")) return { railItemIdentity };
+    if (spec.endsWith("christmasCardCopy.js")) return christmasCardCopy;
     if (spec.endsWith("railVisibility.js")) return railVisibility;
     if (spec.endsWith("moviesRailSlot.js")) return { withMoviesRail }; // pure helper, the real one
     if (spec.endsWith("score.js")) return { toDisplayScore };
@@ -131,7 +135,10 @@ export async function checkFallPaging({ componentSource = readFileSync(component
       return { today: siteTodayStr(now), rails: bulkRails };
     } };
     return { default: leaf }; // Only visual/telemetry leaves are outside this boundary.
-  }, ReactFixture, Observer);
+  };
+  const component = evaluate(componentSource + "\nexport { FallRailSection };\n", "app/components/FallIntentRails.js", componentImports, ReactFixture, Observer);
+  const christmasSource = readFileSync(new URL("../../app/components/ChristmasIntentRails.js", import.meta.url), "utf8");
+  const christmas = evaluate(christmasSource + "\nexport { ChristmasRailSection };\n", "app/components/ChristmasIntentRails.js", componentImports, ReactFixture, Observer);
   const event = (id, end_date = "2026-10-31") => ({ kind: "event", id, name: id, start_date: "2026-10-01", end_date, detailHref: `/florida-events/${id}` });
   const rail = (cards) => ({ id: "farms", title: "Fall Farms", cards });
   const mount = (fn) => {
@@ -141,7 +148,7 @@ export async function checkFallPaging({ componentSource = readFileSync(component
   const renderRail = (rows) => mount(() => component.FallRailSection({ rail: rail(rows), lat: 27.3, lng: -82.5 }));
   const cards = (tree) => elements(tree, RailCard);
   const refs = (tree) => cards(tree).filter((card) => typeof card.props.domRef === "function");
-  const ids = (tree) => cards(tree).map((card) => card.key);
+  const ids = (tree) => cards(tree).map((card) => card.props.visitFacts?.id || card.props.place?.id);
   const settle = async () => { for (let i = 0; i < 6; i++) await Promise.resolve(); };
   const attach = (tree) => {
     equal(refs(tree).length, 1, "one mounted visible card owns the real paging observer");
@@ -161,6 +168,38 @@ export async function checkFallPaging({ componentSource = readFileSync(component
   equal(requests.length, 0, "the bulk seed is complete, so no continuation request is ever made");
   check(!latestPage.hasMore, "the real hook has nothing more to load when every row is seeded");
   normal.dispose();
+
+  // Different occurrences may share a source ID. Browser reconciliation must
+  // retain both, with stable keys that identify dates rather than the source.
+  const sharedSource = [
+    { ...event("same-source"), start_date: "2026-10-06", end_date: "2026-10-06", place_id: "venue" },
+    { ...event("same-source"), start_date: "2026-10-07", end_date: "2026-10-07", place_id: "venue" },
+  ];
+  for (const [label, Section] of [["Fall and Halloween", component.FallRailSection], ["Christmas", christmas.ChristmasRailSection]]) {
+    let seed = sharedSource;
+    let seedTotal = 2;
+    const shared = mount(() => Section({ rail: { ...rail(seed), total: seedTotal }, lat: 27.3, lng: -82.5 }));
+    const sharedCards = cards(shared.render());
+    equal(sharedCards.length, 2, `${label}: two source-ID-sharing occurrences remain rendered`);
+    equal(new Set(sharedCards.map((card) => card.key)).size, 2, `${label}: each rendered occurrence has a different React key`);
+    equal(sharedCards.map((card) => card.props.actionItem.id), ["same-source", "same-source"], `${label}: display keys do not rewrite saved or tracked source IDs`);
+    equal(sharedCards.map((card) => card.props.href), ["/florida-events/same-source", "/florida-events/same-source"], `${label}: source event routes are preserved`);
+    seed = [sharedSource[0]]; seedTotal = 1;
+    equal(cards(shared.render())[0].props.visitFacts.start_date, "2026-10-06", `${label}: first one-row generation is visible`);
+    seed = [sharedSource[1]];
+    equal(cards(shared.render())[0].props.visitFacts.start_date, "2026-10-07", `${label}: same-size seed with the same source ID reseeds when its occurrence changes`);
+    shared.dispose();
+
+    source = sharedSource;
+    const partial = mount(() => Section({ rail: { ...rail([sharedSource[0]]), total: 2 }, lat: 27.3, lng: -82.5 }));
+    tree = partial.render();
+    equal(cards(tree).length, 1, `${label}: partial seed starts with one occurrence`);
+    await latestPage.fetchMore(); await settle(); tree = partial.render();
+    equal(cards(tree).map((card) => card.props.visitFacts.start_date), ["2026-10-06", "2026-10-07"], `${label}: the real pager keeps both occurrences from the arriving page`);
+    equal(new Set(cards(tree).map((card) => card.key)).size, 2, `${label}: paged occurrences retain distinct mounted keys`);
+    equal(elements(tree, RailNav)[0].props.total, 2, `${label}: the counter still reports the full occurrence total`);
+    partial.dispose();
+  }
 
   requests.length = 0;
   source = Array.from({ length: 15 }, (_, i) => i < 4 ? event(`expired-${i}`, "2026-10-04") : i === 5

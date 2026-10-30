@@ -15,10 +15,11 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { isFallTagged, isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, eventFranchiseKey, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
+import { isFallTagged, isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, isOpenRun, fallSkinLive, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS, OPEN_RUN_DAYS } from "../lib/fallPool.js";
 import { FALL_CARD_IDS, fallCardClass, thanksgivingDayOfMonth } from "../lib/fallSkin.js";
 import { DAYPART_IDS, orderFor } from "../lib/dayparts.js";
 import { RAIL_IDS } from "../lib/rails.js";
+import { composeFallIntentRails } from "../lib/fallIntentRails.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 let pass = 0, fail = 0;
@@ -113,12 +114,40 @@ ok(srcIds.every((i) => /^https:\/\//.test(FALL_OFFERING_SOURCES[i].source) && FA
 ok(srcIds.every((i) => /menu|pumpkin|maple|squash|haunted|ghost|horror|spooky|potion|halloween|coffin|oddities|burial/i.test(FALL_OFFERING_SOURCES[i].offering)),
   "every offering names the FALL substance (menu item or theming), not a vibe");
 
-// ── 2b. Franchise dedupe, EXECUTED (owner: "most of them are repetitive") ──
-ok(eventFranchiseKey("Howl-O-Scream SeaWorld Orlando") === eventFranchiseKey("Howl-O-Scream Busch Gardens Tampa Bay"),
-  "the two Howl-O-Screams share one franchise key — only the nearest gets a tile");
-ok(eventFranchiseKey("Halloween Horror Nights Orlando") !== eventFranchiseKey("Sideshow Obscura — HHN35 Tribute Store"),
-  "HHN and the Tribute Store are DIFFERENT offerings — dedupe must not swallow them");
-ok(eventFranchiseKey("Vampire Penguin") !== eventFranchiseKey("Fantasy Fest"), "distinct franchises stay distinct");
+// ── 2b. Execute the collection's identity and ranking contracts. A shared
+// title is not proof of one occurrence; only verified series group dates.
+const fixtureContext = { today: "2026-10-29", now: new Date("2026-10-29T12:00:00Z") };
+const festival = {
+  id: "harvest-oct30-north", name: "Harvest Festival", title: "Harvest Festival",
+  venue: "North Community Park", city: "Tampa", place_id: "north-park",
+  start_date: "2026-10-30", end_date: "2026-10-30", start_time: "18:00",
+  fall_rail: "festivals", tags: ["halloween", "fall", "festival"], distMi: 8,
+};
+const nextDate = { ...festival, id: "harvest-oct31-north", start_date: "2026-10-31", end_date: "2026-10-31", distMi: 1 };
+const otherVenue = { ...festival, id: "harvest-oct30-south", place_id: "south-park", venue: "South Community Park", distMi: 2 };
+const laterTime = { ...festival, id: "harvest-oct30-late", start_time: "20:00" };
+const festivalCards = (events) => composeFallIntentRails(events, [], fixtureContext).rails.find((row) => row.id === "festivals").cards;
+const occurrences = festivalCards([nextDate, festival, otherVenue, laterTime]);
+ok(occurrences.length === 4 && [festival, nextDate, otherVenue, laterTime].every((event) => occurrences.some((card) => card.id === event.id)),
+  "same event title preserves distinct dates, venues and start times in the rendered collection");
+ok(festivalCards([festival, { ...festival }, { ...festival, id: "duplicate-provider-id" }]).length === 1,
+  "exact duplicates and alternate provider records for the same occurrence share one tile");
+const series = festivalCards([nextDate, festival].map((event) => ({ ...event, event_series_id: "verified-harvest-series" })));
+ok(series.length === 1 && series[0].id === festival.id,
+  "an explicit event series still groups to its first upcoming occurrence");
+ok(occurrences[0].id === otherVenue.id && occurrences.at(-1).id === nextDate.id,
+  "dated events rank by next date and then proximity, even when tomorrow's occurrence is nearer");
+const place = { id: "cafe-north", name: "Harvest Cafe", fallRail: "food", distMi: 8, wfScore: 90 };
+const places = composeFallIntentRails([], [
+  { ...place, id: "cafe-south", distMi: 1, wfScore: 80 },
+  place,
+  { ...place, id: "bakery", name: "Maple Bakery", distMi: 2 },
+  { ...place, id: "bistro", name: "Pumpkin Bistro", distMi: 1, wfScore: 70 },
+], fixtureContext).rails.find((row) => row.id === "food").cards;
+ok(places.filter((card) => card.name === "Harvest Cafe").length === 1 && places.some((card) => card.id === "cafe-north"),
+  "ordinary place brands still dedupe to the highest-quality location");
+ok(places.map((card) => card.id).join() === "bakery,cafe-north,bistro",
+  "undated places rank by quality first and proximity only breaks an equal-score tie");
 
 // ── 2c. Ticket monetization: PRODUCT integrity, pinned ─────────────────────
 ok(!("mnsshp-2026" in FALL_EVENT_TICKET_DEALS), "Not-So-Scary has no ticket deal while UT's party page redirects to general Disney World (2026-10-28)");
@@ -149,7 +178,6 @@ ok(DAYPART_IDS.every((b) => orderFor(b, RAIL_IDS).includes("augtober")),
   "the augtober tile rides every daypart band (called, not grepped)");
 const rail = strip(readFileSync(path.join(ROOT, "app/components/DaypartRail.js"), "utf8"));
 const fallComponent = strip(readFileSync(path.join(ROOT, "app/components/FallIntentRails.js"), "utf8"));
-const fallIntent = strip(readFileSync(path.join(ROOT, "lib/fallIntentRails.js"), "utf8"));
 const sharedCard = strip(readFileSync(path.join(ROOT, "app/components/RailCard.js"), "utf8"));
 ok(/FallIntentRails = dynamic/.test(rail) && /selRail\.id === "augtober"/.test(rail), "the drop lazy-loads its owned ten-rail answer only when Augtober opens");
 ok(/fetchRailJson\("\/api\/events\/fall\?"/.test(fallComponent), "…and it reads /api/events/fall through the shared deadline helper");
@@ -176,8 +204,6 @@ ok(/card\.ticket\?\.href/.test(fallComponent) && /sponsored: true/.test(fallComp
 ok(/partnerTicketLabel\(card\.ticket\.via[\s\S]*card\.ticket\.product/.test(fallComponent), "the paid card uses the shared Wayfind-led label with the actual partner and product (FTC line)");
 ok(/onTrack\?\.\("tickets_out", \{ kind: "fall_intent_rail"/.test(fallComponent), "a paid click emits tickets_out — revenue that cannot be measured cannot be protected");
 ok(/event\.url \|\| event\.place_id/.test(strip(readFileSync(path.join(ROOT, "app/api/events/fall/route.js"), "utf8"))), "an event with no link and no venue never renders — a dead card is worse than one fewer card");
-ok(/eventFranchiseKey\(name\)/.test(fallIntent) && /itemDistance\(a, ctx\)/.test(fallIntent),
-  "the collection dedupes by franchise and ranks on proximity after quality");
 // v8.69 — the branch became a ternary when the paid rail card landed. Followed,
 // not loosened: the invariant is that this drop is built from the VETTED fall
 // pool (lib/fallPool.FALL_PLACE_IDS, offering-sourced) mapped onto the house

@@ -59,6 +59,7 @@ import { mayHostPhoto } from "../../lib/creatorRights";
 // so these are captured by hand and committed. That is the trade: a manual step
 // that is checked, rather than an automated one that silently 404s.
 const INSTAGRAM_AVATARS = {
+  "cindy.selects": "/creators/cindy.selects.jpg", // Native Instagram photo, captured 2026-10-27.
   katelynintampa: "/creators/katelynintampa.jpg",
   "fashion.eat.travel": "/creators/fashion.eat.travel.jpg",
   neverboredinorlando: "/creators/neverboredinorlando.jpg",

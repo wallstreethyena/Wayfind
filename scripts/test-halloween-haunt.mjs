@@ -20,7 +20,7 @@ import {
   hauntEndMs,
   localWallToMs,
   HAUNT_REMOVED,
-  halloweenHauntProductSchema,
+  halloweenHauntCollectionSchema,
   halloweenHauntSchema,
 } from "../lib/halloweenHauntVault.js";
 import { isInternalVerifier, isCrawler } from "../lib/crawler.js";
@@ -184,16 +184,28 @@ for (const section of hub.sections) {
 }
 for (const text of hubStrings) ok(!DASH.test(text), "hub copy is dash free: " + text.slice(0, 60));
 
-const productSchema = halloweenHauntProductSchema(model);
-ok(productSchema["@type"] === "Product" && productSchema.sku === "wfFlHalloween2026", "product schema is a Product with dash free sku");
-ok(!DASH.test(productSchema.name + " " + productSchema.description + " " + productSchema.sku + " " + productSchema.brand.name), "product schema copy is dash free");
-ok(productSchema.offers && productSchema.offers["@type"] === "Offer" && productSchema.offers.price === "27.00" && productSchema.offers.priceCurrency === "USD" && productSchema.offers.availability === "https://schema.org/InStock", "product schema offer carries InStock USD price");
-ok(page.includes("halloweenHauntProductSchema(model)") && page.includes('"og:type": "product"') && page.includes('"product:price:amount": "27.00"'), "page renders Product JSON LD and Open Graph product meta tags");
-ok(productSchema.mpn === "wfFlHalloween2026" && productSchema.brand["@type"] === "Brand" && productSchema.brand.name === "Wayfind", "product schema brand and mpn");
-ok(Array.isArray(productSchema.image) && productSchema.image[0] === "https://www.gowayfind.com/images/bo-halloween-poster.jpg", "product schema image is the absolute poster");
-ok(productSchema.offers.url === "https://www.gowayfind.com/halloween-in-florida" && productSchema.offers.itemCondition === "https://schema.org/NewCondition", "product schema offer url and condition");
-ok(page.includes('property="og:type" content="product"') && page.includes('property="product:price:amount" content="27.00"') && page.includes('property="product:price:currency" content="USD"') && page.includes('property="product:availability" content="in stock"') && page.includes('property="product:condition" content="new"') && page.includes('property="product:retailer_item_id" content="wfFlHalloween2026"') && page.includes('property="product:brand" content="Wayfind"') && page.includes('property="og:price:amount" content="27.00"') && page.includes('property="og:price:currency" content="USD"') && page.includes('property="og:availability" content="instock"'), "page hoists product property meta tags");
-ok(!page.includes('type: "website"'), "page openGraph does not declare website type");
+ok(!/(?:product:price|product:availability|og:price|og:availability|twitter:data[12]|content="product"|"og:type": "product")/.test(page),
+  "a collection page never advertises one ticket price or stock state as its own product");
+const { metadata: pageMetadata } = await loadComponent(path.join(root, "app/halloween-in-florida/page.js"), root);
+ok(pageMetadata.openGraph.type === "website" && !pageMetadata.other,
+  "the real page metadata export describes a website without product or social price claims");
+const collectionSchema = halloweenHauntCollectionSchema(model);
+ok(collectionSchema["@type"] === "CollectionPage", "the guide schema is a collection page");
+ok(!DASH.test(collectionSchema.name + " " + collectionSchema.description), "collection schema copy is dash free");
+ok(!collectionSchema.offers && !collectionSchema.sku && !collectionSchema.mpn && !collectionSchema.brand,
+  "the collection makes no aggregate ticket offer, SKU, MPN, or product brand claim");
+ok(page.includes("halloweenHauntCollectionSchema(model)") && page.includes('type: "website"'),
+  "the page renders collection JSON LD and website Open Graph metadata");
+ok(Array.isArray(collectionSchema.image) && collectionSchema.image[0] === "https://www.gowayfind.com/images/bo-halloween-poster.jpg",
+  "collection schema image is the absolute poster");
+ok(collectionSchema.url === "https://www.gowayfind.com/halloween-in-florida", "the collection points at the canonical guide URL");
+ok(collectionSchema.mainEntity["@type"] === "ItemList" && collectionSchema.mainEntity.numberOfItems === model.haunts.length,
+  "the collection retains the actual event list and count");
+ok(collectionSchema.mainEntity.itemListElement.every(({ item }) => item["@type"] === "Event"),
+  "the collection contains individual events, not a product sold by Wayfind");
+const sirHenryOffer = collectionSchema.mainEntity.itemListElement.find(({ item }) => /Sir Henry/.test(item.name))?.item.offers;
+ok(sirHenryOffer?.price === 27 && sirHenryOffer.priceCurrency === "USD" && !sirHenryOffer.availability,
+  "Sir Henry's actual starting price remains on its own event without an invented stock state");
 const nextConfig = readFileSync("next.config.js", "utf8");
 ok(nextConfig.includes('source: "/products/halloween-in-florida"') && nextConfig.includes('source: "/product/halloween-in-florida"') && nextConfig.includes('destination: "/halloween-in-florida"'), "product paths rewrite internally to the haunt page");
 
@@ -602,6 +614,22 @@ for (const f of ["commerce", "viator", "hotels", "ticketmaster"]) {
   ok(photosForHaunt("howlOrlando", sw, v).map((p) => p.src).join() === "a", "shared place keeps only its own tagged photos");
   ok(photosForHaunt("spooktacular", sw, v).map((p) => p.src).join() === "b", "shared place never repeats the sibling card");
   ok(photosForHaunt("brick", HAUNT_GOOGLE_PLACE.brick, v).map((p) => p.src).join() === "c", "single place keeps untagged photos");
+}
+
+// PR #2038: only live, bookable haunts can lead a suggested shortlist.
+// Pin instants, including the DST boundary, to the current closing-time model.
+{
+  const oct31Model = halloweenHauntModel({ now: "2026-10-31T12:00:00-04:00" });
+  const tampaPickOct31 = oct31Model.picks.find((p) => p.id === "tampa");
+  ok(tampaPickOct31 && !tampaPickOct31.shortlistIds.includes("spookquarium"), "Oct 31 tampa shortlist drops expired spookquarium");
+  const nov1Model = halloweenHauntModel({ now: "2026-11-01T12:00:00-05:00" });
+  const nov1LiveIds = new Set(nov1Model.haunts.filter((h) => h.bookable !== false).map((h) => h.id));
+  ok(nov1Model.picks.length > 0 && nov1Model.picks.every((p) => nov1LiveIds.has(p.hauntId) && p.shortlistIds.length > 0 && p.shortlistIds.every((id) => nov1LiveIds.has(id))), "Nov 1 picks only lead to live Nov 1 bookable haunts");
+  const nov5Model = halloweenHauntModel({ now: "2026-11-05T12:00:00-05:00" });
+  ok(nov5Model.picks.length === 0, "Nov 5 has no shortlist picks when all haunts have expired");
+  ok(boCards(["mickey", "spooktacular"], model).map((c) => c.id).join(",") === "spooktacular", "boCards excludes bookable === false haunts");
+  const nov1TampaFallback = boHauntFallback("Scariest haunt in Tampa?", nov1Model);
+  ok(nov1TampaFallback.recommendedIds.length > 0 && nov1TampaFallback.recommendedIds.every((id) => nov1LiveIds.has(id)), "Nov 1 boHauntFallback falls back to live bookable haunts when primary Tampa haunts expired");
 }
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");

@@ -14,6 +14,8 @@ import { wayfindScore } from "../../lib/google";
 import { priceLabel } from "../../lib/price";
 import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce";
 import { placePartnerPick } from "../../lib/placePartnerPicks";
+import { buyCardLabel } from "../../lib/partnerCopy.js";
+import { useCommerceImpression } from "./useCommerceImpression.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine";
 import { fallCardClass } from "../../lib/fallSkin.js";
 import { spookyOverFall } from "../../lib/spookySkin.js";
@@ -269,16 +271,6 @@ const photoUrl = (p) => {
   return ownedPlacePhotoSrc(p && (p.place_id || p.id), 640) || null;
 };
 
-// v8.29 — the ticket glyph. Drawn, not an emoji: 🎟️ is a different picture on
-// iOS, Android and Windows, and the one control on this card that earns money
-// should not be the one whose artwork the platform chooses.
-const TicketGlyph = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
-    <path d="M3 8.5V6.6a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v1.9a2.4 2.4 0 0 0 0 4.8v1.9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-1.9a2.4 2.4 0 0 0 0-4.8Z" />
-    <path d="M14.6 5.6v1.7M14.6 11.1v1.8M14.6 16.7v1.5" strokeDasharray="1.6 2" />
-  </svg>
-);
-
 const ThumbIcon = ({ down = false }) => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {down
@@ -340,6 +332,19 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // above it would move React's hook count between renders — the exact
   // failure scripts/check-hook-order.mjs exists for.
   const pinQ = usePinQuarantine();
+  // A supplied primary CTA owns its own measurement; only a visible partner
+  // rung gets this context. Keep the hook above the missing-place gate.
+  const partner = !cta ? placePartnerPick(place, pinQ) : null;
+  const partnerHref = partner ? commerceHref({
+    provider: partner.provider, offerId: partner.offerId,
+    surface: "iconic_place_card", contentId: place && place.id,
+  }) : null;
+  const partnerCommerce = partnerHref ? {
+    surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant,
+    offer_id: partner.offerId, content_id: place.id, canonical_place_id: place.id,
+    city_id: place.city, disclosure_version: "partner-place-v1",
+  } : null;
+  const partnerImpressionRef = useCommerceImpression(partnerCommerce);
   // 2026-09-30 — under a PhotoPolicyProvider (guides) no Google photo renders
   // here: this card cannot show Google's required visible credit. A hook, so
   // it sits above every early return with the others.
@@ -526,13 +531,6 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
   // What the bridge replays into. Assigned during render, read only from the
   // layout effect, so a queued tap always meets the CURRENT handlers.
   handlersRef.current = { like: doLike, dislike: doDislike, save: doSave, share: doShare, place };
-  const partner = placePartnerPick(place, pinQ);
-  const partnerHref = partner ? commerceHref({
-    provider: partner.provider,
-    offerId: partner.offerId,
-    surface: "iconic_place_card",
-    contentId: place.id,
-  }) : null;
   // v8.33 — never let a curation lookup take a card down. creatorVideosFor()
   // is pure and dependency-free, but this component renders on embed surfaces
   // with hand-built rows, and a thrown lookup here would blank a whole guide.
@@ -553,7 +551,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
     <li ref={cardRef} data-iconic-place-card data-card-opens-detail data-place-id={place.id}
       onPointerDown={tapIntent.onPointerDown} onPointerMove={tapIntent.onPointerMove}
       onPointerUp={tapIntent.onPointerUp} onPointerCancel={tapIntent.onPointerCancel}
-      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
+      onClick={openCard} className={`wf-place-card${fallCardClass(place.id, siteDay)}${spookyOverFall(place, siteDay)}${trendPulseClass(place)}${awardWinnerClass(award)}${isCuratorPick ? " is-curator-pick" : ""}${isLikedNow ? " is-liked" : ""}${isDislikedNow ? " is-disliked" : ""}${hasTake ? "" : " is-no-take"}${take && editorialMore && cardHref ? " has-more" : ""}${cta || partnerHref ? " has-cta" : ""}`} style={{ listStyle: "none", cursor: cardHref ? "pointer" : "default" }}>
       {/* v8.62 (owner, 2026-08-26, live): the Wayfind Score sits in the top
           right corner of the CARD, never on the photo. Direct child of
           .wf-place-card so the shared css.js rule anchors it to the card. */}
@@ -721,43 +719,11 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
                 }}
               >{tag.icon} {tag.label} ›</button>
             ))}
-            {partnerHref ? (
-              <a
-                href={partnerHref}
-                target="_blank"
-                rel="sponsored noopener"
-                data-commerce-owner="IconicPlaceCard"
-                aria-label={`Partner ${partner.product === "tour" ? "tours" : partner.product === "transfer" ? "transfers" : partner.product === "storage" ? "luggage storage" : "tickets"} for ${place.name} via ${partner.merchant}`}
-                title="Partner link. Wayfind may earn a commission; rankings never change."
-                onClick={(event) => {
-                  const clickId = mintClickId();
-                  const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "iconic_place_card", contentId: place.id, clickId });
-                  if (live && event.currentTarget) event.currentTarget.href = live;
-                  try { emitCommerce("commerce_cta_clicked", { surface: "iconic_place_card", provider: partner.provider, merchant: partner.merchant, offer_id: partner.offerId, content_id: place.id, click_id: clickId, disclosure_version: "partner-place-v1" }); } catch {}
-                }}
-                className="wf-ticket-pill"
-              >{/* v8.22 (owner: "it doesn't have to have so many letters —
-                  be more concise"). Merchant + arrow is the whole message;
-                  the title/aria keep the full disclosure.
-
-                  v8.29 (owner: "display the tickets from viator on the place
-                  cards ... make it look premium and fancy not ghetto like
-                  this"). Same words, same disclosure, same one row — but it
-                  was a bare <a> with one inline colour sitting in a lane of
-                  real chips, so the ONE monetised affordance on the card was
-                  the least designed thing on it. It is now a ticket: stamped
-                  label, perforated stub rule, merchant in the reading weight,
-                  and a drawn glyph instead of an emoji that renders as a
-                  different picture on every platform. Styling only — the href,
-                  the click-id mint, the commerce event and the rel are
-                  untouched. */}
-                <TicketGlyph />
-                <span className="wf-ticket-pill-lb">{partner.product === "tour" ? "Tours" : partner.product === "transfer" ? "Transfers" : partner.product === "storage" ? "Storage" : "Tickets"}</span>
-                <span className="wf-ticket-pill-sep" aria-hidden="true" />
-                <span className="wf-ticket-pill-mr">{partner.merchant}</span>
-                <span className="wf-ticket-pill-ar" aria-hidden="true">↗</span>
-              </a>
-            ) : null}
+            {/* 2026-10-25 — the partner ticket link USED to be the last pill in this
+                sideways lane. On a phone the lane overflows after two chips, so the one
+                control that earns money sat off screen (owner screenshot, Universal
+                Studios on the theme park rail: "at a glance [people] should know that
+                can be purchased"). It is now the card's Buy button, below. */}
           </div>
           {/* v8.22 (owner: "indicate that the pills are scrollable — someone
               looking at it won't know"). Chevron renders only while the lane
@@ -795,7 +761,29 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               card's detail sheet (the <li> opens on any click that is not
               inside an a/button/etc — this wrapper is neither, so it needs
               its own guard). */}
-          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : null}
+          {cta ? <div className="wf-place-card-cta" onClick={(e) => e.stopPropagation()}>{cta}</div> : partnerHref ? (
+            // THE BUY BUTTON (owner rule, 2026-10-25, global): a card with a verified
+            // partner offer shows a solid orange Buy button above the action row. Same
+            // href, click id mint, commerce event and rel as the pill it replaced; the
+            // label comes from lib/partnerCopy.js so every card says it the same way.
+            <a
+              ref={partnerImpressionRef}
+              href={partnerHref}
+              target="_blank"
+              rel="sponsored noopener"
+              data-commerce-owner="IconicPlaceCard"
+              className="wf-place-card-book wf-rail-card-cta wf-buy-cta"
+              aria-label={`${buyCardLabel(partner.merchant, partner.product, false)} for ${place.name} (opens ${partner.merchant})`}
+              title="Partner link. Wayfind may earn a commission; rankings never change."
+              onClick={(event) => {
+                event.stopPropagation();
+                const clickId = mintClickId();
+                const live = commerceHref({ provider: partner.provider, offerId: partner.offerId, surface: "iconic_place_card", contentId: place.id, clickId });
+                if (live && event.currentTarget) event.currentTarget.href = live;
+                try { emitCommerce("commerce_cta_clicked", { ...partnerCommerce, click_id: clickId }); } catch {}
+              }}
+            >{spookyOverFall(place, siteDay) ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{buyCardLabel(partner.merchant, partner.product)}</a>
+          ) : null}
 
           {/* v8.34 — the creator credit sits in the bottom band, directly above
               the actions (see css.js .wf-place-card-credit). It carries the

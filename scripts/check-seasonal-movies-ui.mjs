@@ -119,7 +119,9 @@ ok(/NODE_ENV\s*!==\s*["']production["']/.test(comp), "dev-only preview path exis
 // 3b. Posters: credit sits under the headline as a facts line, never as RailCard's photoAttr chip on the picture.
 ok(!/\bphotoAttr\b/.test(comp), "component never passes photoAttr (RailCard paints that as a (c) chip ON the picture)");
 ok(/art\.credit/.test(comp) && /facts=\{\[/.test(comp), "poster credit is carried in the facts line under the headline");
-ok(/wf-movie-card/.test(comp), "cards carry wf-movie-card (wider photo column so the whole poster shows)");
+ok(/wf-movie-card/.test(comp), "cards carry a movie identity class without changing shared geometry");
+
+ok(!/\.wf-movie-card[^{}]*\{[^}]*--wf-place-card-media/.test(read("app/components/css.js")), "movie cards retain shared media geometry");
 
 // 4. Commission text never appears on a card.
 ok(!/may earn|commission/i.test(comp), "no commission text on movie cards");

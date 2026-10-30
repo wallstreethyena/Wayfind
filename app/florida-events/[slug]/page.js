@@ -29,7 +29,7 @@ import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
-import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
+import { eventMapPoint, isApproximateLocation, eventLocationNote } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
 import EventWhere from "../../components/EventWhere";
@@ -452,6 +452,7 @@ export default async function CuratedEventPage({ params }) {
         lat={mapPoint ? mapPoint.lat : NaN}
         lng={mapPoint ? mapPoint.lng : NaN}
         approximate={isApproximateLocation(e)}
+        locationNote={eventLocationNote(e)}
         picks={pairings}
         ticketLink={crownTracked}
         location={{ trust: "verified" }}

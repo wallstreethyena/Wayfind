@@ -210,14 +210,20 @@ check("ten more confirmed Christmas rows stay in the window and off the Florida 
   assert.equal(nut.start_time, null);
 });
 
-check("one card per venue per rail, and the next show takes the shelf when the sooner one ends", () => {
+check("distinct upcoming shows share a venue without hiding each other, and expired shows leave the shelf", () => {
   const oct19 = xmasRails(TODAY);
   const shows = idsOf(oct19, "shows-outings");
   for (const id of ["charlie-brown-christmas-ruth-eckerd-2026", "florida-orchestra-nightmare-before-christmas-2026", "mosi-holiday-laser-2026"]) {
     assert.ok(shows.includes(id), id);
   }
   for (const id of ["derek-hough-dance-for-the-holidays-2026", "kenny-g-miracles-holiday-ruth-eckerd-2026", "christmas-carol-ruth-eckerd-2026", "florida-orchestra-classical-christmas-2026"]) {
-    assert.ok(!shows.includes(id), id + " must wait behind the sooner show at the same hall");
+    assert.equal(shows.filter((value) => value === id).length, 1, id + " remains discoverable exactly once even when another show shares its hall");
+  }
+  for (const venue of new Set(Object.values(XMAS).map((row) => row.place))) {
+    const expected = Object.entries(XMAS).filter(([, row]) => row.place === venue && row.rail === "shows-outings")
+      .sort((a, b) => a[1].start.localeCompare(b[1].start)).map(([id]) => id);
+    assert.deepEqual(shows.filter((id) => XMAS[id]?.place === venue), expected,
+      "shows sharing " + venue + " retain chronological order and every distinct occurrence");
   }
   assert.ok(idsOf(oct19, "theme-parks").includes("mosi-santa-in-space-2026"));
   assert.ok(idsOf(xmasRails("2026-11-16"), "shows-outings").includes("derek-hough-dance-for-the-holidays-2026"));

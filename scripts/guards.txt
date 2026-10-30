@@ -2448,3 +2448,13 @@ node scripts/check-redirect-suspect-gate.mjs
 # Safari 15 parse-time crash (WAYFIND-1K): shared/client regex compatibility.
 node scripts/check-browser-regex-compat.mjs
 node scripts/check-seasonal-rail-depth.mjs
+
+node scripts/check-ticketmaster-static-ctas.mjs
+node scripts/test-photo-json-cors.mjs
+node scripts/test-photo-json-cors.mjs --red-prove
+node scripts/check-event-null-coords.mjs
+node scripts/check-event-deeplink.mjs
+node scripts/test-share-url-no-partner-leak.mjs
+node scripts/test-unknown-price.mjs
+node scripts/test-editorial-staff-notes.mjs
+node scripts/test-hub-major-events.mjs
