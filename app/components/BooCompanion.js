@@ -199,7 +199,7 @@ const LOOK_MS = { hop: 360, spin: 500, wiggle: 400, nod: 150 };
 const BOLT_SPOTS = [["2px", "-6px", "#00F5D4", "0s"], ["62px", "-2px", "#FFD166", ".08s"], ["-8px", "20px", "#FFD166", ".16s"], ["68px", "26px", "#00F5D4", ".24s"]];
 const SIZE = 88;
 // Everything a visitor can press. He never sits on more than 15% of any of it.
-const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[role=button]";
+const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[role=button],h1,h2";
 // Words he must never park on (owner 2026-10-30: "make sure he is not hovering
 // in front of text"). Headings, paragraphs, list text, labels, prices, alerts.
 // Only where he rests and where his bubble goes; taps still use HIT_SEL.

@@ -230,10 +230,10 @@ const CSS = `
 .boo-featured,.boo-dests{margin-top:22px}
 .boo-featured h2,.boo-dests h2{margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream)}
 .boo-pick-list,.boo-dest-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
-.boo-pick-card{background:#141c27;border:1px solid #F97316;border-radius:14px;overflow:hidden}
-.boo-pick-photo{position:relative;height:168px;background:#1C2230;overflow:hidden}
+.boo-pick-card{display:grid;grid-template-columns:40% minmax(0,1fr);min-width:0;background:#141c27;border:1px solid #F97316;border-radius:14px;overflow:hidden}
+.boo-pick-photo{position:relative;min-width:0;min-height:200px;height:100%;background:#1C2230;overflow:hidden}
 .boo-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.boo-pick-body{display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
+.boo-pick-body{min-width:0;display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
 .boo-pick-card h3{margin:0;font-size:17px;line-height:1.3;font-weight:800;color:#F4F6F8}
 .boo-dest-link{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #F97316;color:#FDBA74;font-size:15px;font-weight:800;text-decoration:none;text-align:center}
 .boo-featured a:focus-visible,.boo-dests a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
@@ -476,7 +476,7 @@ function FeaturedGhostTours({ tours }) {
                     alt={t.photo.alt || ""}
                     width={t.photo.width}
                     height={t.photo.height}
-                    sizes="(min-width: 720px) 688px, 100vw"
+                    sizes="(min-width: 720px) 280px, 40vw"
                     loading="lazy"
                     fallbackClassName="boo-ph"
                     fallbackText=""
