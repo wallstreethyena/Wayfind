@@ -70,7 +70,7 @@ const model = halloweenHauntModel({ now: FIXED_NOW });
 ok(model.lines.length >= 10, "Bo has at least 10 lines");
 const LIVE_N = model.haunts.filter((row) => hauntIsLive(row, FIXED_NOW)).length;
 ok(LIVE_N > 0 && model.lines.every((l) => !/^\d+ haunts/.test(l) || l.startsWith(LIVE_N + " haunts")), "Boo count line is computed from the live haunts (" + LIVE_N + ")");
-ok(hauntIsLive({ endsAt: "2020-01-01T22:00" }, FIXED_NOW) === false && hauntIsLive({ endsAt: "2999-01-01T22:00" }, FIXED_NOW) === true, "red-prove: an expired haunt is not live");
+ok(hauntIsLive({ endsVerified: true, endsAt: "2020-01-01T22:00" }, FIXED_NOW) === false && hauntIsLive({ endsVerified: true, endsAt: "2999-01-01T22:00" }, FIXED_NOW) === true, "red-prove: an expired haunt is not live");
 const required = [
   "I'm Boo, your ghost host! I died so I could haunt these Florida scares and save your wallet from gate prices.",
   `${LIVE_N} haunts so good it's spooky. Don't ghost me, tap a ticket link below and lock in your night before October 31.`,
@@ -493,7 +493,7 @@ ok(parseBoReply(JSON.stringify({ reply: "I am the best ghost", recommendedIds: [
 const idsAt = (now) => halloweenHauntModel({ now }).haunts.map((r) => r.id);
 ok(idsAt("2026-10-29T12:00:00-04:00").length === 17, "Oct 29 noon: all 17 haunts render");
 ok(idsAt("2026-10-30T18:59:00-04:00").includes("spookquarium") && !idsAt("2026-10-30T19:01:00-04:00").includes("spookquarium"), "Spookquarium (organizer: 3 to 7 PM Oct 30) is live at 6:59 PM and gone at 7:01 PM");
-ok(idsAt("2026-10-31T23:30:00-04:00").includes("howlTampa") && !idsAt("2026-11-01T00:01:00-04:00").includes("howlTampa"), "unverified close uses 11:59 PM local: live at 23:30 on the last day, gone just after midnight");
+ok(idsAt("2026-10-31T23:30:00-04:00").includes("howlTampa") && idsAt("2026-11-01T02:00:00-04:00").includes("howlTampa") && !idsAt("2026-11-01T06:20:00Z").includes("howlTampa"), "unverified close (11:59 PM placeholder): live on the last night and through a possible after-midnight close, gone after the 2:14 AM grace");
 ok(idsAt("2026-10-31T15:59:00-04:00").includes("peppa") && !idsAt("2026-10-31T16:01:00-04:00").includes("peppa"), "non midnight venue: Peppa (candy stations to 4:00 PM) is live at 3:59 PM and gone at 4:01 PM Oct 31");
 ok(idsAt("2026-10-31T21:59:00-04:00").includes("undead") && !idsAt("2026-10-31T22:01:00-04:00").includes("undead"), "UNDead ends 10:00 PM Oct 31 (Eventbrite endDate)");
 ok(idsAt("2026-10-31T22:29:00-04:00").includes("petrified") && !idsAt("2026-10-31T22:31:00-04:00").includes("petrified"), "A Petrified Forest ends 10:30 PM Oct 31 (Ticketleap endDate)");
@@ -501,16 +501,17 @@ ok(idsAt("2026-10-31T23:59:00-04:00").includes("mickey") && !idsAt("2026-11-01T0
 // A close after midnight stays live until that clock time. HHN runs to 2:00 AM; Nov 1 2026 is also the fall back night.
 const nov1 = idsAt("2026-11-01T12:00:00-05:00");
 ok(!nov1.includes("howlTampa") && !nov1.includes("mickey") && !nov1.includes("zooTampa") && nov1.includes("hhn") && nov1.includes("frightfest") && nov1.includes("screamageddon"), "Nov 1 noon: Oct 31 events gone, Nov 1 events stay");
-ok(idsAt("2026-10-31T23:30:00-04:00").includes("channelside") && !idsAt("2026-11-01T00:01:00-04:00").includes("channelside"), "Nightmare on Channelside (show 7:00 PM, no printed end, 11:59 PM unverified) shows through Oct 31 and is gone just after midnight");
-ok(idsAt("2026-11-02T01:30:00-05:00").join() === "hhn" && idsAt("2026-11-02T02:01:00-05:00").length === 0, "HHN stays live until 2:00 AM Nov 2 and nothing renders after, no throw");
-const oneAm = { endsAt: "2026-11-01T01:00" };
+ok(idsAt("2026-10-31T23:30:00-04:00").includes("channelside") && idsAt("2026-11-01T01:30:00-04:00").includes("channelside") && !idsAt("2026-11-01T06:20:00Z").includes("channelside"), "an UNVERIFIED 11:59 PM close keeps the card through a possible after-midnight close (to 2:14 AM local) and drops it after");
+ok(hauntIsLive({ endsAt: "2026-10-31T23:59", endsVerified: false }, "2026-11-01T01:59:00-04:00") === true && hauntIsLive({ endsAt: "2026-10-31T23:59", endsVerified: true }, "2026-11-01T00:00:00-04:00") === false, "grace applies only to unverified ends; a verified end is exact");
+ok(idsAt("2026-11-02T01:30:00-05:00").includes("hhn") && !idsAt("2026-11-02T02:01:00-05:00").includes("hhn") && idsAt("2026-11-02T02:15:00-05:00").length === 0, "HHN stays live until 2:00 AM Nov 2 (verified) and nothing renders after the last unverified grace, no throw");
+const oneAm = { endsVerified: true, endsAt: "2026-11-01T01:00" };
 ok(hauntIsLive(oneAm, "2026-10-31T23:30:00-04:00") === true, "a 1 AM Nov 1 close: live at 23:30 on the last day");
 ok(hauntIsLive(oneAm, "2026-11-01T00:30:00-04:00") === true, "a 1 AM Nov 1 close: still live at 00:30");
 ok(hauntIsLive(oneAm, "2026-11-01T01:01:00-04:00") === false, "a 1 AM Nov 1 close: gone at 01:01 (first pass of the repeated hour)");
-ok(hauntIsLive({ endsAt: "2026-10-31T22:00" }, "2026-10-31T21:59:59-04:00") === true && hauntIsLive({ endsAt: "2026-10-31T22:00" }, "2026-10-31T22:00:00-04:00") === false, "a 10 PM close is live until 22:00:00 exactly");
+ok(hauntIsLive({ endsVerified: true, endsAt: "2026-10-31T22:00" }, "2026-10-31T21:59:59-04:00") === true && hauntIsLive({ endsVerified: true, endsAt: "2026-10-31T22:00" }, "2026-10-31T22:00:00-04:00") === false, "a 10 PM close is live until 22:00:00 exactly");
 ok(new Date(localWallToMs("2026-11-01T01:30")).toISOString() === "2026-11-01T05:30:00.000Z" && new Date(localWallToMs("2026-11-02T02:00")).toISOString() === "2026-11-02T07:00:00.000Z" && new Date(localWallToMs("2026-10-31T23:59")).toISOString() === "2026-11-01T03:59:00.000Z", "local wall to instant honors DST (EDT before 2 AM Nov 1, EST after)");
-ok(hauntIsLive({ endsAt: "2026-10-31T22:00" }, Date.parse("2026-11-01T01:59:00Z")) === true && hauntIsLive({ endsAt: "2026-10-31T22:00" }, new Date("2026-11-01T02:01:00Z")) === false, "hauntIsLive accepts epoch ms and Date, evaluated in the venue's timezone, not UTC");
-ok((() => { try { hauntIsLive({ endsAt: "2026-10-31T22:00" }, "2026-10-31"); return false; } catch { return true; } })(), "red-prove: a date only clock is refused, the cut needs an instant");
+ok(hauntIsLive({ endsVerified: true, endsAt: "2026-10-31T22:00" }, Date.parse("2026-11-01T01:59:00Z")) === true && hauntIsLive({ endsVerified: true, endsAt: "2026-10-31T22:00" }, new Date("2026-11-01T02:01:00Z")) === false, "hauntIsLive accepts epoch ms and Date, evaluated in the venue's timezone, not UTC");
+ok((() => { try { hauntIsLive({ endsVerified: true, endsAt: "2026-10-31T22:00" }, "2026-10-31"); return false; } catch { return true; } })(), "red-prove: a date only clock is refused, the cut needs an instant");
 ok(hauntIsLive({}, FIXED_NOW) === false && Number.isNaN(hauntEndMs({})), "a row without endsAt is never live");
 const expiredModel = halloweenHauntModel({ now: "2026-10-31T00:30:00-04:00" });
 ok(!JSON.stringify(halloweenHauntSchema(expiredModel)).includes("Spookquarium"), "an expired haunt is also out of the JSON LD list");
