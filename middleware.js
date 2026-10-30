@@ -172,6 +172,10 @@ export const config = {
     // behind a shared 30-day cell cache. Same-origin + per-IP rate limit —
     // it is an XHR from our own pages, never a navigation or an <img>.
     "/api/geocode",
+    // Meta OutboundTicketClick relay (lib/metaCapi.js): same-origin POST that
+    // forwards one custom event to Graph when a token is configured. Dormant
+    // (204) otherwise. Full same-origin guard + per-IP rate limit.
+    "/api/meta/capi",
   ],
 };
 

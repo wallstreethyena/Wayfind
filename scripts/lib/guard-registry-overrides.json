@@ -1023,5 +1023,13 @@
       "detail": "A movie ticket click that reaches the partner without our CJ attribution earns nothing, and a card whose button sells something other than what it delivers breaks the product integrity law. The label says a discounted theater ticket, never a specific showtime seat."
     },
     "owner": "Revenue QA"
+  },
+  "scripts/test-campaign-attribution.mjs": {
+    "protects": "One ticket activation records exactly one commerce_cta_clicked carrying landing campaign, path, seller and placement; first-touch and session campaign attribution stay captured without PII; test and verifier traffic stays tagged or excluded; the Meta OutboundTicketClick custom event and its CAPI twin share one name and event_id.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "If attribution capture or the single-fire rule regresses, paid Facebook and Instagram clicks become unattributable or are double counted, so ad spend decisions are made on wrong numbers; a Purchase or Lead mislabel would also change Meta campaign optimization."
+    },
+    "owner": "Revenue QA"
   }
 }
