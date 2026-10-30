@@ -72,6 +72,17 @@ for (const [name, setup] of cases) {
 }
 const owner = scenario("owner", () => {}, { id: "00000000-0000-0000-0000-000000000000", email: OWNER_EMAIL });
 ok(owner.length === 0, `owner account: recordLikeEvent must write nothing, wrote ${owner.length}`);
+{
+  const savedWin = globalThis.window;
+  globalThis.window = undefined;
+  try {
+    const sb = recorder();
+    recordLikeEvent("like", place, { supabase: sb, user: null });
+    ok(sb.rows.length === 0, `headless/no-window context: recordLikeEvent must write nothing, wrote ${sb.rows.length}`);
+  } finally {
+    globalThis.window = savedWin;
+  }
+}
 
 // ── logLlmCall ──────────────────────────────────────────────────────────────
 process.env.SUPABASE_URL = "https://fixture.supabase.co";
