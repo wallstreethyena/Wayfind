@@ -36,6 +36,7 @@ export async function generateMetadata({ searchParams }) {
 }
 
 export default function AskPage({ searchParams }) {
-  const inv = decodeInvite(s(searchParams && searchParams.d));
-  return <AskClient inv={inv} />;
+  const d = s(searchParams && searchParams.d);
+  const inv = decodeInvite(d);
+  return <AskClient inv={inv} bad={Boolean(d && !inv)} />;
 }

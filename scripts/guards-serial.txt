@@ -93,3 +93,6 @@ node scripts/test-free-source-hotlink.mjs
 # Real-clock timers: asserts a 60ms read loses to a 15ms watchdog and settles in 90ms.
 # Under a loaded pool the event loop reorders those; failed on the first hosted pooled run (2026-10-28).
 node scripts/check-experiences-link-health.mjs
+
+# Chromium exercises actual Halloween rails, GPS lifecycle and ticket taps.
+node scripts/test-halloween-browse-browser.mjs

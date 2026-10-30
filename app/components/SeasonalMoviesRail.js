@@ -44,7 +44,6 @@ function movieWhen(movie) {
   return { label: "Now playing", value: until ? "thru " + until : "In theaters", tone: "now" };
 }
 
-// wf-movie-card (css.js) widens the photo column to 150px so most of the tall 2:3 poster shows (cover, ~8% trimmed per side).
 // Placeholder tile when the movie has no owned art (no stock, no hotlinking).
 const TILE_TINT = { fall: "#92400E", halloween: "#581C87", christmas: "#991B1B" };
 function placeholderFor(collection, status) {
@@ -135,6 +134,7 @@ export default function SeasonalMoviesRail({ collection = "fall", active = true,
           const art = movie.art && movie.art.src ? movie.art : null;
           return <RailCard key={movie.id} className="wf-exploding-primary wf-movie-card"
             photo={art ? art.src : null}
+            photoPosition="50% 40%"
             placeholder={art ? null : placeholderFor(collection, movie.status)}
             eagerMedia={index < 3}
             place={null}

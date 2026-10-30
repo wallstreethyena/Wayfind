@@ -348,7 +348,7 @@ if (!browserConfig) {
     award: addRootClass(skinBase, "is-award-winner"),
   });
   const richFallMarkup = renderToStaticMarkup(richFall);
-  ok(richFallMarkup.includes("Tickets at Undercover Tourist") && richFallMarkup.includes("wf-place-card-photo-attr") && !richFallMarkup.includes("Plan your visit") && !richFallMarkup.includes("Official details") && !richFallMarkup.includes("Venue photo") && !richFallMarkup.includes("wf-event-card-backdrop") && !richFallMarkup.includes("wf-rail-card-links") && richFallMarkup.includes(">©<") && !richFallMarkup.includes(">Robin Teng"), "PROBE: rich Fall fixture is the standard card: one CTA, (c) chip only, no caption, backdrop, link grid or Official details");
+  ok(richFallMarkup.includes("Buy at Undercover Tourist") && richFallMarkup.includes("wf-place-card-photo-attr") && !richFallMarkup.includes("Plan your visit") && !richFallMarkup.includes("Official details") && !richFallMarkup.includes("Venue photo") && !richFallMarkup.includes("wf-event-card-backdrop") && !richFallMarkup.includes("wf-rail-card-links") && richFallMarkup.includes(">©<") && !richFallMarkup.includes(">Robin Teng"), "PROBE: rich Fall fixture is the standard card: one CTA, (c) chip only, no caption, backdrop, link grid or Official details");
   ok((richFallMarkup.match(/wf-rail-card-cta/g) || []).length === 1, "LOCK: a rail card never renders two .wf-rail-card-cta links");
   for (const file of ["app/components/RailCard.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js"]) {
     const src = readFileSync(path.join(ROOT, file), "utf8");
@@ -716,7 +716,7 @@ if (!browserConfig) {
           if (skinClass[skin]) ok(v.cardClass.split(/\s+/).includes(skinClass[skin]), `PROBE ${width}px ${skin}: card root carries ${skinClass[skin]} (got "${v.cardClass}")`);
           if (skin === "spooky") ok(v.ghost, `PROBE ${width}px spooky: ghost glyph span rendered inside the CTA`);
           if (skin === "christmas" || skin === "spooky" || skin === "fall") ok(v.cta.bg !== baseBg || v.cta.border !== fits.skins.base.cta.border, `PROBE ${width}px ${skin}: skinned CTA computed style differs from the base CTA (skin CSS actually applied)`);
-          ok(/Tickets at Undercover Tourist/.test(v.cta.label), `PROBE ${width}px ${skin}: CTA carries the full partner label (got ${JSON.stringify(v.cta.label)})`);
+          ok(/Buy at Undercover Tourist/.test(v.cta.label), `PROBE ${width}px ${skin}: CTA carries the full partner label (got ${JSON.stringify(v.cta.label)})`);
           // REMIND ME (2026-10-14): the bell is in every skin's row at every phone width. <=410px it is icon-only
           // (aria-label "Remind me", label hidden, 26px track); <=340px it is a full-width second line with its
           // label; 411px and wider it keeps its label. In every case it is whole, inside the card, clear of its

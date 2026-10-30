@@ -156,4 +156,22 @@ ok(CRAWL_STOPS.every((id) => !srqIds.has(id)), "crawl stops no longer render as 
 ok(CRAWL_STOPS.every((id) => SEASONAL_HOSPITALITY_2026.filter((row) => row.place_id === id && row.season.includes("halloween")).every((row) => row.status === "superseded" && row.superseded_by_event_id === "sarasota-boos-booze-bar-crawl-2026")), "each crawl stop names the ticketed crawl event that replaces it");
 ok(srqCards.filter((card) => SRQ_2026_10_29.includes(card.place_id)).every((card) => halloweenCardRail(card)), "every new row files onto a Halloween shelf");
 ok(halloweenCardRail(srqCards.find((card) => card.place_id === "ChIJKSZuXtQVw4gRZRqrR4H9HyQ")) === "themed-food", "the reviewed Halloween menu files as Treats & Themed Drinks");
+// The owner's featured date pick moves only within already-admitted date
+// shelves. Dated neighbors, scores, geo admission and brand dedupe still hold.
+const dracula = { id: "ChIJIZt3d7DFwogRQ5Lg2tPMXyk", name: "Dracula's Legacy Wine Bar & Bistro Tampa", fallRail: "date-night", halloweenRail: "decorated-bars", distMi: 23, wfScore: 98 };
+const datedDate = { id: "dated-date", name: "Halloween room", fallRail: "date-night", halloweenRail: "decorated-bars", distMi: 5, wfScore: 86, seasonalStart: "2026-10-01", seasonalThrough: "2026-10-31" };
+const datePlaces = [datedDate, dracula, { ...dracula, id: "ChIJw8yuv53hwogRivnj0XblR-k", name: "Dracula's Legacy Wine Bar & Bistro", wfScore: 90, distMi: 18 }];
+const dateBefore = JSON.stringify(datePlaces);
+const featuredFall = composeFallIntentRails([], datePlaces, { today: "2026-10-27" });
+const featuredHalloween = composeHalloweenRails(featuredFall.rails, "2026-10-27");
+for (const [collection, railId] of [[featuredFall.rails, "date-night"], [featuredHalloween, "decorated-bars"]]) {
+  const cards = collection.find((row) => row.id === railId).cards;
+  ok(cards.length === 2 && cards[0].id === dracula.id && cards[1].id === datedDate.id, `${railId} leads with one existing Dracula card`);
+  ok(cards[0].wfScore === 98 && !cards[0].seasonalStart, `${railId} preserves score and undated permanent theme`);
+}
+ok(JSON.stringify(datePlaces) === dateBefore, "featured date placement does not mutate input");
+const farFeatured = composeFallIntentRails([], [{ ...dracula, distMi: 28 }, datedDate], { today: "2026-10-27" });
+ok(!farFeatured.rails.flatMap((r) => r.cards).some((card) => card.id === dracula.id), "featured date pick cannot bypass local radius");
+ok(featuredHalloween.find((r) => r.id === "last-minute").cards.every((card) => card.id !== dracula.id), "permanent feature does not invent a current event date");
+ok(composeHalloweenRails(featuredFall.rails, "2026-11-01").every((r) => r.cards.length === 0), "featured date pick cannot bypass Halloween retirement");
 console.log(`test-halloween-intent-rails: ${checks} runtime assertions passed`);

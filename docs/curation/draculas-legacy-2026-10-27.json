@@ -1,0 +1,26 @@
+{
+  "reviewed_on": "2026-10-27",
+  "source_url": "https://www.instagram.com/reel/DfA_fXppK6r/",
+  "creator": "cindy.selects",
+  "native_evidence": {
+    "caption_venue": "Dracula’s Legacy",
+    "tagged_accounts": [
+      "gowayfind.app",
+      "draculaslegacytampa"
+    ],
+    "branch_evidence": "Native Instagram Tagged panel identifies draculaslegacytampa.",
+    "offering": "Gothic atmosphere, themed cocktails and cheesy bites; Halloween date night.",
+    "disclosure": "In collaboration with @gowayfind.app",
+    "location_tag": "Dracula’s Legacy Wine Bar & Bistro Tampa"
+  },
+  "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+  "owner_direction": "Lead the Halloween date place cards with this existing venue.",
+  "scope": "Reorder already-admitted date shelves; preserve existing scores, location limits and date labels.",
+  "creator_avatar": {
+    "path": "public/creators/cindy.selects.jpg",
+    "source": "Cindy’s displayed native Instagram profile image",
+    "captured_on": "2026-10-27",
+    "dimensions": "150 × 150, original size; not enlarged",
+    "consent": "Existing OWNER_ATTESTED row in lib/creatorRights.js"
+  }
+}

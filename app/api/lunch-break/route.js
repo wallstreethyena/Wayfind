@@ -4,6 +4,7 @@ export const dynamic = "force-dynamic";
 // Lunch Break reads Wayfind's owned food inventory only: zero Google calls, a
 // bounded, deterministic, identity-first Supabase read (lib/ownedPool.js), then
 // FastCache + CDN reuse for nearby readers.
+import { priceNumFrom } from "../../../lib/price.js";
 import { DB_DEADLINE_MS, NET_DEADLINE_MS, fetchDeadline } from "../../../lib/fetchDeadline.js";
 import { toDiscoveryRef } from "../../../lib/discoveryRef.js";
 import { distMeters, invRowToPlace } from "../../../lib/inventoryServe.js";
@@ -93,10 +94,8 @@ async function dishImagesFor(s, placeIds) {
   }
 }
 
-function priceNum(level) {
-  const values = ["PRICE_LEVEL_FREE", "PRICE_LEVEL_INEXPENSIVE", "PRICE_LEVEL_MODERATE", "PRICE_LEVEL_EXPENSIVE", "PRICE_LEVEL_VERY_EXPENSIVE"];
-  return typeof level === "number" ? level : Math.max(0, values.indexOf(level));
-}
+// Unknown stays null (never a fabricated 0 = Free); see lib/price.priceNumFrom.
+const priceNum = priceNumFrom;
 
 function toLunchPlace(raw, origin) {
   const id = String(raw?.id || "");
@@ -146,7 +145,7 @@ function toLunchPlace(raw, origin) {
  * widening what counts), the photo requirement, and the composer's ranking.
  */
 async function loadLunchPlaces(lat, lng) {
-  const key = `lunch-break:v4:${geoCell(lat)}:${geoCell(lng)}`;
+  const key = `lunch-break:v5:${geoCell(lat)}:${geoCell(lng)}`;
   const cached = await fastCachedRail(key, async () => {
       const origin = { lat, lng };
       // The pool's mapper is the route's OWN mapper, fed the exact shape the

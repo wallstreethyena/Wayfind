@@ -11,8 +11,36 @@ import { rememberAuthReturn, consumeAuthReturn } from "../lib/authReturn.js";
 import { normName, betterPlace, dedupePlaces } from "../lib/placeDedupe";
 import { comparatorFor, sortPlacesBy, nearestBranch } from "../lib/sortModes";
 import { openBrowseHistory } from "../lib/browseHistory";
-import { localCitySuggestions, createSearchAttempt } from "../lib/searchExperience.js";
-import { resolveSearchIntent } from "../lib/searchIntent.js";
+// Phrase tables and city suggestions run only after a keystroke. A static
+// import put them in the homepage route's initial JS, which sits on the
+// 498KB gzip ratchet (scripts/check-bundle.mjs). The chunk loads at idle and
+// again on the first search, and every caller awaits it before painting.
+let searchExperienceMod = null;
+let searchExperienceReady = null;
+function loadSearchExperience() {
+  if (!searchExperienceReady) {
+    searchExperienceReady = import("../lib/searchExperience.js").then((mod) => {
+      searchExperienceMod = mod;
+      return mod;
+    });
+  }
+  return searchExperienceReady;
+}
+let searchIntentMod = null;
+let searchIntentReady = null;
+function loadSearchIntent() {
+  if (!searchIntentReady) {
+    searchIntentReady = import("../lib/searchIntent.js").then((mod) => {
+      searchIntentMod = mod;
+      return mod;
+    });
+  }
+  return searchIntentReady;
+}
+if (typeof window !== "undefined") {
+  loadSearchExperience();
+  loadSearchIntent();
+}
 import { mergeHealedPlacePhotos } from "../lib/detailHero";
 import { RON_DUPRAT_TOP7, chefHookCard, chefPickPlaces } from "../lib/chefPicks";
 import { fallCardClass, fallShareLine } from "../lib/fallSkin.js";
@@ -95,12 +123,25 @@ import { cardAffiliateProvider } from "../lib/cardAffiliate";
 // so the server records the handoff and echoes the client click_id.
 import ViatorCommerceLink from "./components/ViatorCommerceLink";
 import HomeAffiliateActivityRail from "./components/HomeAffiliateActivityRail";
-import { commerceHref } from "../lib/commerce";
-import { partnerTicketLabel } from "../lib/partnerCopy";
+import { commerceHref, emitCommerce, mintClickId } from "../lib/commerce";
+import { useCommerceImpression } from "./components/useCommerceImpression";
+import { partnerTicketLabel, buyCardLabel } from "../lib/partnerCopy";
+import { placePartnerPick } from "../lib/placePartnerPicks";
+import { usePinQuarantine } from "../lib/pinQuarantine";
 import { themeParkIntent } from "../lib/themeParks";
 // v4.86: every place search flows through the multi-source aggregator
 // (Google + Foursquare, merged + deduped) — same signature, bigger pool.
-import { searchPlaces } from "../lib/sources";
+// Loaded on the browse/vibe path, not the homepage entry: the module pulls
+// the editorial table with it, and that table is what pushed route JS over
+// the 498KB gzip ratchet. scripts/check-gate.mjs still requires this module.
+let searchPlacesReady = null;
+function loadSearchPlaces() {
+  if (!searchPlacesReady) {
+    searchPlacesReady = import("../lib/sources.js").then((m) => m.searchPlaces);
+  }
+  return searchPlacesReady;
+}
+if (typeof window !== "undefined") loadSearchPlaces();
 import { saveItem as saveMonetized, fetchSavedItems } from "../lib/savedItems";
 // v7.08 — the one writer that knows a cache from a preference, and the sweep
 // that reclaims the budget the caches had already taken. See lib/localStore.js.
@@ -269,7 +310,6 @@ import { locationPromoAllowed } from "../lib/promoLocation.js";
 import * as Cats from "../lib/categories";
 import * as Dining from "../lib/dining";
 import { arrangeChips, mealKeyFromTags } from "../lib/cardChips";
-import { CURATED } from "../lib/curated";
 import { INV_CAT_FOR_TILE, sameIdSet, tileAdmits } from "../lib/curatedLibrary";
 import { orderExploreMenu, EXPLORE_TILES, EXPLORE_ORDER_DEFAULT } from "../lib/exploreMenu";
 // July 2026 decomposition (G0): design tokens and stateless helpers live in the
@@ -1514,7 +1554,30 @@ function wayfindNotes(name) {
 // So the fix for a dead read was to delete the dead reader, not to build the
 // table it wanted. Locked by scripts/check-owner-curation-one-path.mjs.
 const _wfNorm = (s) => (s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-const CURATED_BY_NAME = new Map(CURATED.map((c) => [_wfNorm(c.name), c]));
+// Editorial rows (hooks, vibe injection) are live, but no first-paint surface
+// reads them: DaypartRail and ThemeParkRail use their own cards. Keeping the
+// table in the initial route put the homepage over the 498KB gzip ratchet.
+// Loaded at idle and awaited before any PlaceCard or vibe list paints, so the
+// hook line is present on the first paint of those cards.
+let CURATED_ROWS = [];
+let CURATED_BY_NAME = new Map();
+let curatedLoaded = false;
+let curatedRowsReady = null;
+function ensureCuratedRows() {
+  if (!curatedRowsReady) {
+    curatedRowsReady = import("../lib/curated.js").then((mod) => {
+      CURATED_ROWS = Array.isArray(mod.CURATED) ? mod.CURATED : [];
+      CURATED_BY_NAME = new Map(CURATED_ROWS.map((c) => [_wfNorm(c.name), c]));
+      curatedLoaded = true;
+    }).catch(() => { curatedLoaded = true; });
+  }
+  return curatedRowsReady;
+}
+function whenCurated(apply) {
+  if (curatedLoaded) apply();
+  else ensureCuratedRows().then(() => apply());
+}
+if (typeof window !== "undefined") ensureCuratedRows();
 const curatedFor = (p) => (p && inCuratedRegion(p) ? CURATED_BY_NAME.get(_wfNorm(p.name)) : undefined);
 // v4.83: curated picks stay injectable out to 45 mi even though lists open at
 // the 17-mi default — the owner's promise is that tagged picks always compete,
@@ -4744,7 +4807,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       setMenuOrder(orderExploreMenu(new Date(), p ? p.utcOffsetMinutes : null));
     } catch (e) {}
   }, [suggested]);
-  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } };
+  const pickBrowse = (id) => { const nv = browseCat === id ? null : id; if (!nv) { closeBrowse(); return; } captureBrowseReturn(); whenCurated(() => { setMoodPick(nv); setBrowseCat(nv); if (nv) { setCat(nv); setSub("all"); setVibe("all"); } }); };
   const openCuisine = (label, fromPlace) => {
     if (!label) return;
     setCuisineSheet({ label });
@@ -4871,7 +4934,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         heroImage: RON_DUPRAT_TOP7.heroImage, emoji: "👨‍🍳",
         places: chefPickPlaces(RON_DUPRAT_TOP7), sections: null, presetMi: 5000 });
     }
-    else if (type === "explore") setScreen("explore");
+    else if (type === "explore") whenCurated(() => setScreen("explore"));
   }
   const debounceRef = useRef(null);
   const suggestionRequestRef = useRef(0);
@@ -4971,13 +5034,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   const openBrowse = (id) => {
     if (!id) return;
     captureBrowseReturn();
-    if (screen !== "suggested") {
-      setScreen("suggested");
-      try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
-    }
-    categoryChosenRef.current = true;
-    if (browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
-    landOnBrowse();
+    whenCurated(() => {
+      if (screen !== "suggested") {
+        setScreen("suggested");
+        try { if (SCREEN_PATH[screen]) window.history.pushState({ wf: "screen" }, "", "/"); } catch (e) {}
+      }
+      categoryChosenRef.current = true;
+      if (browseCat !== id) { setMoodPick(id); setBrowseCat(id); setCat(id); setSub("all"); setVibe("all"); }
+      landOnBrowse();
+    });
   };
   const scrollRestore = useRef(null); // v6.08 (PR-C): { key, top } captured when a place opens, restored on back
   const sheetDragRef = useRef({});
@@ -6054,7 +6119,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
     const iv = setInterval(() => setDiceFace(faces[Math.floor(Math.random() * 6)]), 85);
     let res = [];
-    try { res = await searchPlaces(spec.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", spec.kw || ""); } catch {}
+    try { res = await (await loadSearchPlaces())(spec.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", spec.kw || ""); } catch {}
     // v6.44: a dice bucket may declare what actually belongs in it. This is a
     // HARD filter on purpose — falling back to the unfiltered pool when nothing
     // matches is what produced "Parks & outdoors -> escape room". If a bucket
@@ -6325,7 +6390,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const url = CANON_ORIGIN;
     shareLink("Wayfind", url, () => { setShareCopied(true); setTimeout(() => setShareCopied(false), 1800); }, "Find great things to do near you with Wayfind", () => { try { logEvent("share", null, { kind: "app" }); } catch (e) {} });
   }
-  function pickCat(id) { categoryChosenRef.current = true; setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }
+  function pickCat(id) { categoryChosenRef.current = true; whenCurated(() => { setCat(id); setSub("all"); setVibe("all"); setQuickFilter(null); setSearchMode(false); setSearchLabel(""); setScreen("explore"); }); }
   // Reset the scroll container to the top whenever the list the user is looking
   // at changes — category, sub-filter, vibe, sort, intent, distance, or screen.
   // Without this, changing a filter leaves you stranded mid-list looking at
@@ -6410,11 +6475,15 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     } catch {}
     posRestore.current = p;
     browseReturn.current = p.browseReturn || null;
-    if (p.screen) setScreen(p.screen);
-    if (p.cat) setCat(p.cat);
-    if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
-    if (p.sub) setSub(p.sub);
-    if (p.vibe) setVibe(p.vibe);
+    const revealBrowse = () => {
+      if (p.screen) setScreen(p.screen);
+      if (p.cat) setCat(p.cat);
+      if (p.browseCat !== undefined) setBrowseCat(p.browseCat);
+      if (p.sub) setSub(p.sub);
+      if (p.vibe) setVibe(p.vibe);
+    };
+    if (p.screen === "explore" || p.browseCat) whenCurated(revealBrowse);
+    else revealBrowse();
     if (p.center && Number.isFinite(p.center.lat) && Number.isFinite(p.center.lng)) {
       manualRef.current = true;
       setCenter((prev) => prev?.lat === p.center.lat && prev?.lng === p.center.lng ? prev : p.center);
@@ -7679,7 +7748,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             // query so real destinations like Red Barn Flea Market are fetched.
             else if (cat === "shopping") { _second = (_subs.find((x) => x.id === "markets") || _subs[0]).id; }
             else { _second = _subs[0].id; }
-            const _b = await Promise.all([searchPlaces(cat, "all", ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), searchPlaces(cat, _second, ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), _invAll(m)]); // v6.38: owned inventory joins the union — "All" is a superset everywhere
+            const _b = await Promise.all([(await loadSearchPlaces())(cat, "all", ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), (await loadSearchPlaces())(cat, _second, ctr, m, vibe).catch(() => { _fetchErrs++; return []; }), _invAll(m)]); // v6.38: owned inventory joins the union — "All" is a superset everywhere
             const _seen = new Set(); const _out = [];
             _b.forEach((arr) => (arr || []).forEach((pp) => { if (pp && pp.id && !_seen.has(pp.id)) { _seen.add(pp.id); _out.push(pp); } }));
             // v6.15: the markets query also pulls farm/grocery markets — re-gate
@@ -7694,7 +7763,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
             const inv = await _invAll(m);
             if (inv.length) return inv;
           }
-          return await searchPlaces(cat, sub, ctr, m, vibe);
+          return await (await loadSearchPlaces())(cat, sub, ctr, m, vibe);
         };
         // v4.85 adaptive radius: start at the current radius (17-mi default)
         // and auto-widen 30 → 45 → 60 while the category has fewer than 8
@@ -7781,6 +7850,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     if (_tok.dead) { _rec.done = true; return; }
     (async () => {
       try {
+        await ensureCuratedRows();
+        if (_tok.dead) { _rec.done = true; return; }
         // v4.85 adaptive: every vibe STARTS at the 17-mile default (or its
         // purpose-built wider radius, e.g. Bucket List) and auto-widens
         // while fewer than 8 places pass the vibe's filter. Sparse markets
@@ -7803,10 +7874,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           radius = _m;
           const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries; // v4.80: time-aware query sets
           if (_qs && _qs.length) {
-            const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, radius, "all", qd.keyword || "").catch(() => [])));
+            const _b = await Promise.all(_qs.map(async (qd) => (await loadSearchPlaces())(qd.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, radius, "all", qd.keyword || "").catch(() => [])));
             raw = dedupePlaces(_b.flat().filter(Boolean), true);
           } else {
-            raw = await searchPlaces(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
+            raw = await (await loadSearchPlaces())(exp.cat || "food", "all", { lat: center.lat, lng: center.lng }, radius, "all", exp.keyword || "");
           }
           _paint(raw);
           if (raw.filter(_vibePass).length >= ADAPT_MIN) break;
@@ -7817,7 +7888,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // and injected when the search missed them — kept only if they resolve,
         // are OPERATIONAL, and sit inside this vibe's radius of the user.
         try {
-          const _tagged = CURATED.filter((c) => Array.isArray(c.intents) && c.intents.includes(activeBadge));
+          const _tagged = CURATED_ROWS.filter((c) => Array.isArray(c.intents) && c.intents.includes(activeBadge));
           if (_tagged.length) {
             const _have = new Set(raw.map((p) => _wfNorm(p.name)));
             const _missing = _tagged.filter((c) => !_have.has(_wfNorm(c.name))).slice(0, 14);
@@ -8258,10 +8329,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         const _qs = typeof exp.queries === "function" ? exp.queries() : exp.queries;
         let raw;
         if (_qs && _qs.length) {
-          const _b = await Promise.all(_qs.map((qd) => searchPlaces(qd.cat || exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", ((qd.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim()).catch(() => [])));
+          const _b = await Promise.all(_qs.map(async (qd) => (await loadSearchPlaces())(qd.cat || exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", ((qd.keyword || "") + (hd.extraKeyword ? " " + hd.extraKeyword : "")).trim()).catch(() => [])));
           raw = dedupePlaces(_b.flat().filter(Boolean), true);
         } else {
-          raw = await searchPlaces(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
+          raw = await (await loadSearchPlaces())(exp.cat || "attractions", "all", { lat: center.lat, lng: center.lng }, _rad, "all", _kw);
         }
         // v6.52: an experience MAY also declare a bounded context boost — same
         // exp.boost(place) shape the legacy moment screen honors via
@@ -8308,7 +8379,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       else if (h >= 21) scat = "nightlife";
       else if (h >= 17) skeyword = "dinner";
       try {
-        const results = await searchPlaces(scat, "all", { lat: center.lat, lng: center.lng }, DEFAULT_RADIUS_M, "all", skeyword);
+        const results = await (await loadSearchPlaces())(scat, "all", { lat: center.lat, lng: center.lng }, DEFAULT_RADIUS_M, "all", skeyword);
         if (!cancelled) {
           const pick = pickSurprise(results);
           setSurprisePool(results);
@@ -8523,8 +8594,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         ];
         if (wet) plans = plans.filter((p) => { const k = p.kw || ""; return !(k.includes("park") || k.includes("rooftop") || k.includes("outdoor")); });
         plans = plans.slice(0, 3); // cap parallel Google searches per load to control cost
-        const results = await Promise.all(plans.map((pl) =>
-          searchPlaces(pl.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", pl.kw).catch(() => [])
+        const results = await Promise.all(plans.map(async (pl) =>
+          (await loadSearchPlaces())(pl.cat, "all", { lat: center.lat, lng: center.lng }, 32000, "all", pl.kw).catch(() => [])
         ));
         const seen = new Set();
         const buckets = [];
@@ -8575,7 +8646,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
           }
         } catch {}
         let res = [];
-        try { res = await searchPlaces("attractions", "all", { lat: center.lat, lng: center.lng }, 32000, "all"); } catch {}
+        try { res = await (await loadSearchPlaces())("attractions", "all", { lat: center.lat, lng: center.lng }, 32000, "all"); } catch {}
         const arr = Array.isArray(res) ? res : [];
         try { localStorage.setItem(ckey, JSON.stringify({ ts: Date.now(), places: arr })); } catch {}
         if (!cancelled) setHomeTodo(arr);
@@ -8771,9 +8842,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     setSearchRecoveryNear("");
     setCityTransition(null);
     setQuery(v);
-    // INP 2026-10-27: the typed text paints first (setQuery above); the suggestion
-    // list is derived work, so it renders as a transition and never blocks a keystroke.
-    startTransition(() => { setSuggestions(localCitySuggestions(v)); });
+    const request = suggestionRequestRef.current;
+    const applyCities = (mod) => {
+      if (suggestionRequestRef.current !== request) return;
+      startTransition(() => { setSuggestions(mod.localCitySuggestions(v)); });
+    };
+    if (searchExperienceMod) applyCities(searchExperienceMod);
+    else loadSearchExperience().then(applyCities);
     if (!v || v.trim().length < 2) return;
     debounceRef.current = setTimeout(() => fetchSuggestions(v.trim()), 250);
   }
@@ -8865,6 +8940,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
   async function fetchSuggestions(q) {
     const request = ++suggestionRequestRef.current;
+    const { localCitySuggestions } = await loadSearchExperience();
     const cities = localCitySuggestions(q);
     if (request !== suggestionRequestRef.current) return;
     // Cities stay in the dropdown so a reader can pick Parrish or Sarasota.
@@ -8955,7 +9031,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
 
   function pickSuggestion(item) {
+    const go = () => {
     cancelMainSearch();
+    const createSearchAttempt = searchExperienceMod.createSearchAttempt;
     const attempt = item._searchAttempt || createSearchAttempt(logEvent, query || item.text, { source: "suggestion" });
     mainSearchAttemptRef.current = attempt;
     setSugIdx(-1);
@@ -8980,6 +9058,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     } finally {
       setSearchBusy(false);
     }
+    };
+    if (searchExperienceMod) go();
+    else loadSearchExperience().then(go);
   }
 
   // v7.17 — "Search this area" from the Map tab: re-anchor the discovery
@@ -9182,6 +9263,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
 
 
   async function submitSearch(qOverride, opts) {
+    const [searchExperience, searchIntent] = await Promise.all([
+      loadSearchExperience(),
+      loadSearchIntent(),
+      ensureCuratedRows(),
+    ]);
+    const createSearchAttempt = searchExperience.createSearchAttempt;
+    const resolveSearchIntent = searchIntent.resolveSearchIntent;
     const q = (typeof qOverride === "string" ? qOverride : query).trim();
     const options = opts && typeof opts === "object" ? opts : {};
     const submittedRequest = cancelMainSearch();
@@ -9327,7 +9415,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         if (options.placeIntent) logEvent("guide_place_open", exact[0].place, { q: attempt.meta.q, search_id: attempt.id });
         return;
       }
-      const choices = [...localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
+      const choices = [...searchExperienceMod.localCitySuggestions(q), ...result.matches.filter((item) => item.kind === "place")].slice(0, 8);
       if (choices.length) {
         setSuggestions(choices.map((item) => ({ ...item, _searchAttempt: attempt })));
         setSearchFeedback("Choose the place or city you meant below.");
@@ -9970,7 +10058,10 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // the dice, Saved, Itinerary, Coupons, or Events never waits on the network.
   useEffect(() => {
     const idle = window.requestIdleCallback || ((f) => setTimeout(f, 2500));
-    const h = idle(() => SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} }));
+    const h = idle(() => {
+      SCREEN_LOADERS.forEach((load) => { try { load().catch(() => {}); } catch (e) {} });
+      try { loadSearchExperience(); loadSearchIntent(); loadSearchPlaces(); ensureCuratedRows(); } catch (e) {}
+    });
     return () => { try { (window.cancelIdleCallback || clearTimeout)(h); } catch (e) {} };
   }, []);
 
@@ -12312,6 +12403,19 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [p && p.id]);
   const cardProduct = usePlaceProduct(p && p.id);
+  // 2026-10-25 owner Buy button rule: a card with no verified Viator product still
+  // sells through its exact-name partner pin (Tiqets, Undercover Tourist, ...).
+  const cardPinQ = usePinQuarantine();
+  // One context joins the visible partner CTA to its click. The hook always
+  // runs; a primary Viator product or an absent partner supplies no context.
+  const cardPartner = !(cardProduct && cardProduct.url) ? placePartnerPick(p, cardPinQ) : null;
+  const cardPartnerHref = cardPartner ? commerceHref({ provider: cardPartner.provider, offerId: cardPartner.offerId, surface: "place_card", contentId: p && p.id }) : null;
+  const cardPartnerCommerce = cardPartnerHref && (cardComplete(p) || searchEditorialCard(p)) ? {
+    surface: "place_card", provider: cardPartner.provider, merchant: cardPartner.merchant,
+    offer_id: cardPartner.offerId, content_id: p.id, canonical_place_id: p.id,
+    city_id: city, disclosure_version: "partner-place-v1",
+  } : null;
+  const cardPartnerImpressionRef = useCommerceImpression(cardPartnerCommerce);
   const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
   // reads p.photo, which the heal effect above writes, so this gate genuinely
@@ -12585,7 +12689,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
           <div className="wf-place-card-actions wf-sheet-card-actions" style={{ marginTop: 9, pointerEvents: "auto" }}>
             {cardProduct && cardProduct.url && (
               <ViatorCommerceLink
-                className="wf-place-card-book"
+                className="wf-place-card-book wf-buy-cta"
                 t={p}
                 city={city}
                 surface="place_card"
@@ -12611,6 +12715,26 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
                 if (/tour|safari|walk/i.test(t)) return lab("🎟️ Book a tour ↗");
                 return "Book on Viator ↗";
               })()}</ViatorCommerceLink>
+            )}
+            {cardPartnerHref && (
+                <a
+                  className="wf-place-card-book wf-buy-cta"
+                  ref={cardPartnerImpressionRef}
+                  href={cardPartnerHref}
+                  target="_blank"
+                  rel="sponsored noopener"
+                  data-commerce-owner="PlaceCard"
+                  aria-label={`${buyCardLabel(cardPartner.merchant, cardPartner.product, false)} for ${p.name} (opens ${cardPartner.merchant})`}
+                  title="Partner link. Wayfind may earn a commission; rankings never change."
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    const clickId = mintClickId();
+                    const live = commerceHref({ provider: cardPartner.provider, offerId: cardPartner.offerId, surface: "place_card", contentId: p.id, clickId });
+                    if (live && e.currentTarget) e.currentTarget.href = live;
+                    try { emitCommerce("commerce_cta_clicked", { ...cardPartnerCommerce, click_id: clickId }); } catch (er) {}
+                    try { logEventAnon("tickets_out", p, { src: "place_card_partner" }); } catch (er) {}
+                  }}
+                >{spookyOverFall(p, siteDay) ? <span className="wf-spooky-ghost" aria-hidden="true">{"\u{1F47B}"}</span> : null}{buyCardLabel(cardPartner.merchant, cardPartner.product)}</a>
             )}
             {/* 2026-09-23 — the icon used to be a literal "♡"/"♥" character.
                 That codepoint sits outside every common UI sans font, so the

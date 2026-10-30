@@ -1143,6 +1143,9 @@ export default async function GuidePage({ params }) {
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
+              {pick.ticketCta && pick.ticketCta.href ? (
+                <p style={S.p}><a href={pick.ticketCta.href} rel="sponsored noreferrer">{pick.ticketCta.label || "Tickets"}</a></p>
+              ) : null}
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {/* guide-inline-book-v1 (lib/guideInlineBook.js): client-only
                   treatment; the server HTML and the control arm are unchanged. */}

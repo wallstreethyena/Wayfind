@@ -54,9 +54,12 @@ const ctx = {
 for (const key of ['setMap3D', 'setMapRetryKey', 'setCat', 'setSub', 'setVibe', 'setMapBrowse', 'setMapPreview', 'setMapFocus', 'setMapSearchOpen', 'recenterToMe', 'toggleLike', 'toggleDislike', 'quickSaveFavorite', 'addShared', 'setMapDrawer', 'logEvent', 'openDetail']) ctx[key] = noop;
 globalThis.__mapLayoutPlaces = [fixturePlace];
 const mapHtml = renderToStaticMarkup(React.createElement(MapScreen, { ctx }));
+const drawerHtml = renderToStaticMarkup(React.createElement(MapScreen, { ctx: { ...ctx, mapPreview: null, mapDrawer: true } }));
 const eventHtml = renderToStaticMarkup(React.createElement(family.FamilyEventCard, { event: { id: 'event-layout', name: 'Science Night For The Entire Family At The Museum', href: '/florida-events/science', whenFact: 'Saturday · 10:00 AM', venue: 'Science Hall', distMi: 4.2 } }));
 const html = `<!doctype html><html><head><meta charset="utf-8"><style>*{box-sizing:border-box}body{margin:0;background:#07111c;color:#eee;font-family:system-ui}#map-fixture{height:844px;position:relative}.family-fixture{padding:16px}${WF_PLACE_CARD_CSS}</style></head><body><div id="map-fixture">${mapHtml}</div><div class="family-fixture"><ol class="wf-rail wf-rail-exploding">${eventHtml}</ol></div></body></html>`;
+const drawerFixture = html.replace(mapHtml, drawerHtml);
 writeFileSync(path.join(artifacts, 'actual-component-layout.html'), html);
+writeFileSync(path.join(artifacts, 'actual-drawer-layout.html'), drawerFixture);
 let executable = chromium.executablePath();
 if (!existsSync(executable) && existsSync('/usr/bin/chromium')) executable = '/usr/bin/chromium';
 if (!existsSync(executable)) {
@@ -67,10 +70,10 @@ if (!existsSync(executable)) {
 const browser = await chromium.launch({ executablePath: executable, headless: true, args: ['--no-sandbox'] });
 const evidence = [];
 try {
-  for (const width of [390, 768, 1440]) {
+  for (const scenario of ['preview', 'drawer']) for (const width of [390, 768, 1440]) {
     const page = await browser.newPage({ viewport: { width, height: 844 } });
     await page.route('**/*', route => route.abort());
-    await page.setContent(html);
+    await page.setContent(scenario === 'drawer' ? drawerFixture : html);
     const result = await page.evaluate(() => {
       const box = (el) => { const b = el.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height }; };
       const cards = [...document.querySelectorAll('.wf-place-card')].map(card => ({ ...box(card), controls: [...card.querySelectorAll('button,a')].map(box) }));
@@ -92,10 +95,20 @@ try {
       const a = result.floats[i], b = result.floats[j];
       assert.ok(a.right <= b.left || b.right <= a.left || a.bottom <= b.top || b.bottom <= a.top, 'floating controls do not overlap');
     }
-    await page.screenshot({ path: path.join(artifacts, `map-family-${width}.png`), fullPage: true });
-    evidence.push({ width, ...result });
+    if (scenario === 'drawer') {
+      const drawer = await page.locator('.wf-map-results').boundingBox();
+      const input = await page.getByRole('searchbox', { name: 'Filter places in view' }).boundingBox();
+      const area = await page.getByRole('button', { name: '📍 Area', exact: true }).boundingBox();
+      const rings = await page.getByRole('button', { name: '◎ Rings', exact: true }).boundingBox();
+      assert.ok(drawer && input && area && rings, 'expanded drawer mounts its real controls');
+      assert.ok(drawer.y >= result.header.bottom && drawer.x >= 0 && drawer.x + drawer.width <= width + .5, 'expanded drawer clears header and fits viewport');
+      for (const control of [input, area, rings]) assert.ok(control.x >= drawer.x && control.x + control.width <= drawer.x + drawer.width + .5 && control.y >= drawer.y && control.y + control.height <= drawer.y + drawer.height + .5, 'drawer controls are visible and contained');
+      assert.equal(await page.getByRole('button', { name: '◎ Rings', exact: true }).getAttribute('aria-pressed'), 'true', 'distance rings preserve the existing default');
+    }
+    await page.screenshot({ path: path.join(artifacts, `map-family-${scenario}-${width}.png`), fullPage: true });
+    evidence.push({ scenario, width, ...result });
     await page.close();
   }
   writeFileSync(path.join(artifacts, 'measurements.json'), JSON.stringify({ sourceHashes: Object.fromEntries([mapPath, familyPath, homePath].map(p => [path.relative(ROOT, p), crypto.createHash('sha256').update(readFileSync(p)).digest('hex')])), fixtureOnly: true, liveMapkitVerified: false, evidence }, null, 2));
-  console.log('test-map-family-layout: PASS actual 390/768/1440px widths, map preview + family event shared 268px cards, contained controls, no overflow and non-overlapping map controls; SDK/API execution not claimed');
+  console.log('test-map-family-layout: PASS actual 390/768/1440px widths, map preview/drawer + family event shared 268px cards, contained controls, no overflow and non-overlapping map controls; SDK/API execution not claimed');
 } finally { await browser.close(); delete globalThis.__mapLayoutPlaces; }

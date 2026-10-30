@@ -138,6 +138,12 @@ export const WF_SEARCH_CSS = `.wf-search-row{filter:drop-shadow(0 11px 20px rgba
 const XMAS_SCOPES = [".wf-christmas .wf-place-card:not(.wf-guide-card)", ".wf-place-card.wf-christmas-card:not(.wf-guide-card)"];
 const XMAS = (tail = "", scopeTail = "") => XMAS_SCOPES.map((scope) => scope + scopeTail + (tail ? " " + tail : "")).join(",");
 const XMAS_ROSE = "#E8B48A";
+/* 2026-10-25 THE BUY BUTTON (owner: "any of these place cards that has an affiliate should have a buy button ...
+   at a glance should know that that can be purchased right there"). A purchase CTA is SOLID brand orange with
+   dark type; a navigation CTA (View details, Read the guide) keeps the quiet tinted bar above, so orange fill
+   always means "you can buy this". Same box, font size and tracking as .wf-rail-card-cta, so the 320/375/390
+   width law in scripts/check-place-card-standard.mjs is unchanged. Seasonal skins (fall, spooky, Christmas)
+   restyle it through their own higher-specificity rules and still win. */
 export const WF_PLACE_CARD_CSS = `
 ${WF_SKELETON_CSS}
 .wf-ticket-pill{display:inline-flex;align-items:center;gap:6px;height:26px;padding:0 9px 0 8px;border-radius:7px;text-decoration:none;position:relative;color:#FFD9AE;background:linear-gradient(180deg,rgba(253,186,116,.17),rgba(249,115,22,.10));border:1px solid rgba(253,186,116,.44);box-shadow:inset 0 1px 0 rgba(255,236,209,.18),0 1px 0 rgba(0,0,0,.34);transition:background .18s ease,border-color .18s ease,box-shadow .18s ease,transform .18s ease}
@@ -212,8 +218,6 @@ ${WF_SKELETON_CSS}
 .wf-rail .wf-place-card-layout>img,.wf-rail .wf-place-card-layout>.wf-place-card-media,.wf8-pcrail .wf-place-card-layout>img,.wf8-pcrail .wf-place-card-layout>.wf-place-card-media{width:var(--wf-place-card-media)!important;height:100%!important;min-height:176px!important}
 .wf-place-card-media>:first-child{display:block;width:100%!important;height:100%!important;min-height:100%!important;object-fit:cover}
 .wf-place-card.is-no-take .wf-place-card-layout{min-height:0}
-.wf-rail .wf-place-card.wf-movie-card{--wf-place-card-media:150px}
-.wf-rail .wf-movie-card .wf-place-card-media>:first-child{object-position:50% 40%!important}
 .wf-place-card-monogram{
   position:relative;
   display:grid;
@@ -809,6 +813,10 @@ ${XMAS(".wayfind-score-badge>span:last-child>span:last-child")},${XMAS(".wf-rail
 }
 @media(max-width:340px){.wf-rail-card-cta{padding-inline:2px;font-size:9px;letter-spacing:-.3px}}
 .wf-rail-card-cta:hover,.wf-rail-card-cta:focus-visible{border-color:rgba(255,155,80,.85);background:linear-gradient(180deg,rgba(249,115,22,.3),rgba(249,115,22,.12))}
+
+.wf-place-card-book.wf-buy-cta{background:linear-gradient(180deg,#FB923C,#F97316)!important;border:1px solid #FDBA74!important;color:#1A0B02!important;font-weight:800!important;opacity:1!important;box-shadow:0 1px 0 rgba(255,236,209,.35) inset,0 4px 14px -6px rgba(249,115,22,.85)!important;text-decoration:none}
+@media(hover:hover){.wf-place-card-book.wf-buy-cta:hover{background:linear-gradient(180deg,#FDA35A,#FB7A1E)!important}}
+.wf-place-card-book.wf-buy-cta:focus-visible{outline:2px solid #FFEAD2;outline-offset:2px}
 
 .wf-rail-heading{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px;font-family:var(--wf-sans,-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif)}
 .wf-rail-heading-copy{flex:1 1 160px;min-width:0}
