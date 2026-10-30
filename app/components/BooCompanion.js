@@ -198,7 +198,15 @@ const BOLT_SPOTS = [["2px", "-6px", "#00F5D4", "0s"], ["62px", "-2px", "#FFD166"
 const SIZE = 88;
 // Everything a visitor can press. He never sits on more than 15% of any of it.
 const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[role=button]";
-const CLEAR_MS = 250; // overlap check cadence while he moves (never every frame)
+// The ONLY pointer target on him is a small hit button. It is tappable only
+// while its padded box overlaps none of these (nothing navigational or
+// pressable), re-verified from a cached rect list at most every HIT_MS.
+const HIT = 44; // hit button size, centred in his SIZE box
+const HIT_MS = 100;
+const HIT_PAD = 10; // margin around the hit box before a control counts as near
+const HIT_LEAD = 0.16; // seconds of travel added to that margin while he moves
+const HEADER_SEL = ".wf-topbar,.wf-navtabs,.wf-dests,.wf-dest,.wf-dest-row,.wf-dest-opener,.boo-buy,.boo-goto,.boo-picks,.boo-chip,.boo-tours";
+const HIT_SEL = CONTROL_SEL + ",summary,label,details,[role=link],[tabindex]:not([tabindex='-1']),[class*='chip' i]," + HEADER_SEL;
 const TOP = 70, BOTTOM = 96, SIDE = 12;
 
 function track(event, props) {
@@ -237,8 +245,11 @@ function readMs(text) {
 
 const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
-.boo-c-btn{all:unset;box-sizing:border-box;display:block;width:${SIZE}px;height:${SIZE}px;cursor:pointer;position:relative;border-radius:50%;-webkit-tap-highlight-color:transparent}
-.boo-c-btn:focus-visible{outline:2px solid #F97316;outline-offset:3px}
+.boo-c,.boo-c *{pointer-events:none !important}
+.boo-c-body{display:block;box-sizing:border-box;width:${SIZE}px;height:${SIZE}px;position:relative;border-radius:50%}
+.boo-c .boo-c-hit{all:unset;box-sizing:border-box;position:absolute;left:${(SIZE - 44) / 2}px;top:${(SIZE - 44) / 2}px;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:none !important}
+.boo-c .boo-c-hit[data-tap="1"]{pointer-events:auto !important}
+.boo-c .boo-c-hit:focus-visible{outline:3px solid #F97316;outline-offset:4px;box-shadow:0 0 0 7px rgba(13,17,23,.85)}
 .boo-c-glow{position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(closest-side,rgba(249,115,22,.26),rgba(249,115,22,0));pointer-events:none}
 .boo-c-flip{position:absolute;inset:0;transition:transform .35s ease}
 .boo-c-bob{position:absolute;inset:0;animation:boo-c-bob .87s cubic-bezier(.37,0,.63,1) infinite}
@@ -268,8 +279,7 @@ const CSS = `
 .boo-sm{position:absolute;left:30px;top:-4px;width:22px;height:22px;border-radius:50%;background:rgba(222,222,232,.9);filter:blur(1.5px);pointer-events:none;opacity:0;animation:boo-k-sm .75s ease-out both}
 .boo-sm:nth-of-type(2){left:48px;top:2px;width:15px;height:15px;animation-delay:.15s}
 @keyframes boo-k-sm{0%{opacity:0;transform:translateY(6px) scale(.5)}30%{opacity:.95}100%{opacity:0;transform:translateY(-24px) scale(1.5)}}
-.boo-c-bubble{all:unset;box-sizing:border-box;position:absolute;width:max-content;max-width:210px;padding:9px 12px;background:#F5EFE6;color:#1A1420;font:600 14px/1.3 var(--wf-sans),system-ui,sans-serif;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);cursor:pointer;animation:boo-c-pop .35s cubic-bezier(.2,.8,.3,1) both}
-.boo-c-bubble:focus-visible{outline:2px solid #F97316;outline-offset:2px}
+.boo-c-bubble{all:unset;pointer-events:none;box-sizing:border-box;position:absolute;width:max-content;max-width:210px;padding:9px 12px;background:#F5EFE6;color:#1A1420;font:600 14px/1.3 var(--wf-sans),system-ui,sans-serif;border-radius:14px;box-shadow:0 8px 24px rgba(0,0,0,.35);animation:boo-c-pop .35s cubic-bezier(.2,.8,.3,1) both}
 .boo-c-bubble:after{content:"";position:absolute;width:10px;height:10px;background:#F5EFE6;transform:rotate(45deg);border-radius:2px}
 .boo-c-bubble[data-v="above"]{bottom:${SIZE - 2}px}
 .boo-c-bubble[data-v="above"]:after{bottom:-4px}
@@ -412,7 +422,6 @@ export default function BooCompanion() {
   const sheetRef = useRef(null);
   const bodyRef = useRef(null);
   const inputRef = useRef(null);
-  const lastFocus = useRef(null);
   const seg = useRef(null);
   const anticTimer = useRef(0);
   const reducedRef = useRef(false);
@@ -450,10 +459,10 @@ export default function BooCompanion() {
   const driftRef = useRef(false);
   const gagBump = useRef(() => {});
   const ctlRef = useRef({ t: 0, list: [] });
-  const passRef = useRef(false);
+  const hitRef = useRef(null);
+  const hitSt = useRef({ nodes: null, list: [], t: 0, fresh: false, dom: true, quiet: 0, prev: null, prevT: 0, spd: 0 });
   const relocUntil = useRef(0);
   const relocT = useRef(0);
-  const lastChk = useRef(0);
   const redPos = useRef(null);
   pathRef.current = pathname;
   openRef.current = open;
@@ -574,24 +583,119 @@ export default function BooCompanion() {
       if (me && me.contains(el)) continue;
       const r = el.getBoundingClientRect();
       if (r.width < 4 || r.height < 4 || r.bottom <= 0 || r.top >= vh || r.right <= 0 || r.left >= vw) continue;
-      if (r.width * r.height > vw * vh * 0.35) continue; // a page sized link is a background, not a button
+      if (r.width * r.height > vw * vh * 0.85) continue; // only a page sized link is a background, not a button
       try { if (el.checkVisibility && !el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) continue; } catch { /* ignore */ }
       out.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
     }
     c.t = now; c.list = out;
     return out;
   };
-  // Pass through: while any part of him is over a control the wrapper ignores
-  // pointers, so a tap meant for the button under him reaches the button.
-  const setPass = (on) => {
-    if (passRef.current === on) return;
-    passRef.current = on;
-    if (elRef.current) elRef.current.style.pointerEvents = on ? "none" : "";
+  // Tap safety. Everything of his ignores pointers in CSS, always. Only the 44px
+  // hit button can take a tap, and it is switched on (data-tap) only after a
+  // fresh rect pass shows its padded box overlaps no control. Every move
+  // switches it off first (hitDisarm), a scroll, resize or page mutation
+  // switches it off at once, and the rect list is re-read at most every HIT_MS.
+  const hitSet = (on) => {
+    const b = hitRef.current;
+    if (!b) return;
+    if (on) { if (b.getAttribute("data-tap") !== "1") b.setAttribute("data-tap", "1"); }
+    else if (b.hasAttribute("data-tap")) b.removeAttribute("data-tap");
   };
-  const passCheck = (pos) => {
-    const p = pos || (reducedRef.current ? corner() : posRef.current);
-    setPass(touchesAny(rectOf(p.x, p.y, SIZE, SIZE), controlRects()));
+  const hitDisarm = () => { hitSt.current.fresh = false; hitSet(false); };
+  const hitRead = (now) => {
+    const c = hitSt.current, vw = window.innerWidth, vh = window.innerHeight, me = elRef.current;
+    if (c.dom || !c.nodes) { c.nodes = Array.prototype.slice.call(document.querySelectorAll(HIT_SEL)); c.dom = false; }
+    const out = [];
+    for (let i = 0; i < c.nodes.length; i++) {
+      const el = c.nodes[i];
+      if (!el.isConnected || (me && me.contains(el))) continue;
+      const r = el.getBoundingClientRect();
+      if (r.width < 2 || r.height < 2 || r.bottom <= 0 || r.top >= vh || r.right <= 0 || r.left >= vw) continue;
+      if (r.width * r.height > vw * vh * 0.85 && !el.matches(HEADER_SEL)) continue; // only a truly page sized wrapper is a background; big tiles and cards still block the hit
+      out.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+    }
+    c.list = out; c.t = now; c.fresh = true;
   };
+  // Blocked for a while with nothing to say: while he rests, glide to the nearest
+  // spot where the hit button would be tappable (padded box touches no control).
+  // Nothing found means he stays; the hit stays off, never on over a control.
+  const seekTappable = () => {
+    const c = hitSt.current, g = seg.current;
+    if (!g || g.pause <= 0 || g.say || reducedRef.current || openRef.current || !c.fresh || !flipRef.current) return;
+    const b = bounds(), cur = posRef.current, o = (SIZE - HIT) / 2, pad = HIT_PAD + 6;
+    let best = null, bd = 1e9;
+    for (let x = 2; x <= b.vw - SIZE - 2; x += 12) {
+      for (let y = b.minY; y <= b.maxY; y += 12) {
+        const d = Math.hypot(x - cur.x, y - cur.y);
+        if (d >= bd || touchesAny(rectOf(x + o - pad, y + o - pad, HIT + pad * 2, HIT + pad * 2), c.list)) continue;
+        bd = d; best = { x, y };
+      }
+    }
+    if (!best) return;
+    const dir = best.x - cur.x;
+    if (Math.abs(dir) > 20) { facing.current = dir > 0 ? 1 : -1; flipRef.current.style.transform = facing.current > 0 ? "scaleX(1)" : "scaleX(-1)"; }
+    seg.current = { x0: cur.x, y0: cur.y, x1: best.x, y1: best.y, t: 0, dur: Math.max(0.4, bd / rand(80, 130)), pause: 0, target: null, free: false };
+    hitDisarm();
+  };
+  // Called every frame while he drifts (cheap math on the cached list) and every
+  // HIT_MS otherwise. Reads layout only when the cached list is HIT_MS old.
+  const hitTick = () => {
+    const b = hitRef.current;
+    if (!b) return;
+    const now = performance.now(), c = hitSt.current;
+    if (openRef.current || document.hidden || relocUntil.current > Date.now() || now < c.quiet) { c.fresh = false; hitSet(false); return; }
+    const p = reducedRef.current ? (redPos.current || corner()) : posRef.current;
+    if (!p) { hitSet(false); return; }
+    if (now - c.t >= HIT_MS || c.dom) { c.fresh = false; hitRead(now); }
+    if (!c.fresh) { hitSet(false); return; }
+    // Speed from the last two positions: the box is padded by where he can get in HIT_LEAD s.
+    if (c.prev && now > c.prevT) c.spd = Math.hypot(p.x - c.prev.x, p.y - c.prev.y) / ((now - c.prevT) / 1000);
+    c.prev = { x: p.x, y: p.y }; c.prevT = now;
+    const pad = HIT_PAD + Math.min(120, c.spd) * HIT_LEAD + Math.min(120, c.spd) * (now - c.t) / 1000;
+    const o = (SIZE - HIT) / 2;
+    const box = rectOf(p.x + o - pad, p.y + o - pad, HIT + pad * 2, HIT + pad * 2);
+    const clear = !touchesAny(box, c.list);
+    hitSet(clear);
+    if (clear) c.blockedAt = 0;
+    else if (!c.blockedAt) c.blockedAt = now;
+    else if (now - c.blockedAt > 2500 && now > (c.seekAt || 0)) { c.seekAt = now + 6000; seekTappable(); }
+  };
+  const passCheck = () => hitTick();
+  // Anything that can move a control under him switches the hit off first, then
+  // the next tick re-verifies from a fresh read: scroll (any scroller), resize,
+  // rotate, and page mutations outside his own subtree.
+  useEffect(() => {
+    if (!eligible) return undefined;
+    const c = hitSt.current;
+    const off = (quietMs) => { c.fresh = false; c.dom = true; if (quietMs) c.quiet = performance.now() + quietMs; hitSet(false); };
+    const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; off(140); };
+    const onResize = () => off(200);
+    let mo = null;
+    try {
+      mo = new MutationObserver((list) => {
+        for (let i = 0; i < list.length; i++) {
+          const t = list[i].target, el = t && t.nodeType === 1 ? t : t && t.parentElement;
+          if (!el || (el.closest && el.closest(".boo-c,.boo-ring,.boo-s-back"))) continue;
+          if (list[i].type === "attributes" && list[i].attributeName === "data-boo-touch") continue;
+          off(0);
+          return;
+        }
+      });
+      mo.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style", "hidden", "open", "aria-expanded", "disabled", "href"] });
+    } catch { /* ignore */ }
+    document.addEventListener("scroll", onScroll, { passive: true, capture: true });
+    window.addEventListener("resize", onResize);
+    window.addEventListener("orientationchange", onResize);
+    const iv = window.setInterval(hitTick, HIT_MS);
+    hitTick();
+    return () => {
+      clearInterval(iv);
+      if (mo) mo.disconnect();
+      document.removeEventListener("scroll", onScroll, { capture: true });
+      window.removeEventListener("resize", onResize);
+      window.removeEventListener("orientationchange", onResize);
+    };
+  }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
   // Reduced motion: the bottom left gutter, lifted until nothing pressable
   // (bottom nav, sticky CTA, page buttons) is under him.
   const settleReduced = () => {
@@ -621,6 +725,7 @@ export default function BooCompanion() {
     el.style.transition = "transform .3s ease-out";
     place(sp.x, sp.y);
     relocUntil.current = Date.now() + 360;
+    hitDisarm();
     clearTimeout(relocT.current);
     relocT.current = window.setTimeout(() => { if (el) el.style.transition = ""; }, 380);
     seg.current = { x0: sp.x, y0: sp.y, x1: sp.x, y1: sp.y, t: 0, dur: 1, pause: 0.3, target: null, free: false };
@@ -638,6 +743,7 @@ export default function BooCompanion() {
     const dir = sp.x - cur.x;
     if (Math.abs(dir) > 20 && flipRef.current) { facing.current = dir > 0 ? 1 : -1; flipRef.current.style.transform = facing.current > 0 ? "scaleX(1)" : "scaleX(-1)"; }
     seg.current = { x0: cur.x, y0: cur.y, x1: sp.x, y1: sp.y, t: 0, dur: dist / rand(70, 120), pause: 0, target: null, free: false };
+    hitDisarm();
     return true;
   };
   // Bubble side with no control under it, flipped to the other side or above/below when needed.
@@ -654,7 +760,7 @@ export default function BooCompanion() {
     try {
       const me = elRef.current;
       const hit = document.elementsFromPoint(e.clientX, e.clientY).find((n) => !(me && me.contains(n)) && n.closest && n.closest(CONTROL_SEL));
-      if (hit) { hit.closest(CONTROL_SEL).click(); return true; }
+      if (hit) { window.__booBackstop = (window.__booBackstop || 0) + 1; hit.closest(CONTROL_SEL).click(); return true; }
     } catch { /* ignore */ }
     return false;
   };
@@ -744,6 +850,7 @@ export default function BooCompanion() {
   // legs, varying speed, pauses, and now and then a dart to the far corner.
   const nextLeg = useCallback(() => {
     legRef.current += 1;
+    hitDisarm(); // every move starts untappable; tappable again only after a fresh clear check
     const b = bounds();
     const from = posRef.current;
     let tx, ty, speed, target = null, free = false;
@@ -858,6 +965,7 @@ export default function BooCompanion() {
         const darting = dist > 160;
         if (elRef.current) { elRef.current.dataset.dart = darting ? "1" : ""; elRef.current.style.setProperty("--tdir", String(facing.current)); }
         seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: Math.min(0.9, dist / 420), pause: 0, target: el, free: true, say: { text, pose: o.pose } };
+        hitDisarm();
         return true;
       }
     }
@@ -905,13 +1013,12 @@ export default function BooCompanion() {
         setLean(dt > 0 ? Math.max(-3, Math.min(3, ((x - posRef.current.x) / dt) / 45)) : leanRef.current);
         posRef.current = { x, y };
         place(x, y);
-        // Moving: look at the page at most every 250ms, never every frame.
-        if (ts - lastChk.current >= CLEAR_MS) { lastChk.current = ts; passCheck(posRef.current); }
+        // Cached rect math every frame; the layout read inside is throttled to HIT_MS.
+        hitTick();
         if (u >= 1) {
           if (elRef.current) elRef.current.dataset.dart = "";
           const touched = !!g.target;
           if (touched) { touchRef.current(g.target); g.target = null; }
-          passCheck(posRef.current);
           if (g.say) { const s = g.say; g.say = null; sayRef.current(s.text, s.pose, 280); }
           else if (touched) g.pause = TOUCH_MS / 1000; // the 1.2s reaction, then he leaves
           else if (!parkClear()) g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
@@ -1287,7 +1394,6 @@ export default function BooCompanion() {
     tappedRef.current = true;
     if (zapT.current.length) { stopZap(); setZap(null); setAntic(null); }
     clearTimeout(lookT.current); lookT.current = 0; setLook(null);
-    lastFocus.current = typeof document !== "undefined" ? document.activeElement : null;
     setBubble(null);
     holdRef.current = "greet";
     prefetch("greet", true);
@@ -1308,7 +1414,7 @@ export default function BooCompanion() {
     setPose("idle");
     setOpen(false);
     setMsgs((m) => (m.some((x) => x.fresh) ? m.map((x) => (x.fresh ? { ...x, fresh: false } : x)) : m));
-    try { if (lastFocus.current && lastFocus.current.focus) lastFocus.current.focus(); } catch { /* ignore */ }
+    try { if (hitRef.current) hitRef.current.focus({ preventScroll: true }); } catch { /* ignore */ }
   }, []);
   closeSheetRef.current = closeSheet;
 
@@ -1442,14 +1548,7 @@ export default function BooCompanion() {
     <>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="boo-c" ref={elRef} style={{ transform: "translate3d(" + SIDE + "px,-200px,0)" }}>
-        <button
-          type="button"
-          className="boo-c-btn"
-          aria-label="Chat with Boo, Wayfind's ghost guide"
-          onClick={(e) => { if (e.detail > 0 && underTap(e)) return; onTap(); }}
-          onPointerEnter={(e) => { if (e.pointerType === "mouse") holdUntil.current = Number.MAX_SAFE_INTEGER; }}
-          onPointerLeave={(e) => { if (e.pointerType === "mouse") holdUntil.current = Date.now() + 600; }}
-        >
+        <div className="boo-c-body" aria-hidden="true">
           <span className="boo-c-glow" aria-hidden="true" />
           <span className={"boo-c-act" + (antic ? " boo-a-" + antic.name : "")} data-ph={zap || undefined} key={antic ? antic.key : "idle"}>
             <span className={"boo-c-look" + (look ? " boo-l-" + look : "")}>
@@ -1469,12 +1568,23 @@ export default function BooCompanion() {
           )) : null}
           {zap === "settle" ? (<><i className="boo-sm" aria-hidden="true" /><i className="boo-sm" aria-hidden="true" /></>) : null}
           {look === "hop" || look === "spin" ? (<><i className="boo-sp" aria-hidden="true" style={{ left: 66, top: 4 }} /><i className="boo-sp" aria-hidden="true" style={{ left: 8, top: 14 }} /></>) : null}
-        </button>
+        </div>
+        <button
+          type="button"
+          className="boo-c-hit"
+          ref={hitRef}
+          aria-label="Chat with Boo"
+          onClick={(e) => { if (e.detail > 0 && underTap(e)) return; onTap(); }}
+          onPointerEnter={(e) => { if (e.pointerType === "mouse") holdUntil.current = Number.MAX_SAFE_INTEGER; }}
+          onPointerLeave={(e) => { if (e.pointerType === "mouse") holdUntil.current = Date.now() + 600; }}
+          onFocus={() => { holdUntil.current = Number.MAX_SAFE_INTEGER; }}
+          onBlur={() => { holdUntil.current = Date.now() + 600; }}
+        />
         <i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" />
         {bubble && !open ? (
-          <button type="button" className="boo-c-bubble" data-v={bubble.v} data-h={bubble.h} aria-label={bubble.text} onClick={() => openSheet("bubble")}>
+          <div className="boo-c-bubble" data-v={bubble.v} data-h={bubble.h} role="status" aria-label={bubble.text}>
             <TypeLine key={bubble.key || bubble.text} text={bubble.text} instant={reduced} />
-          </button>
+          </div>
         ) : null}
       </div>
       {open ? (

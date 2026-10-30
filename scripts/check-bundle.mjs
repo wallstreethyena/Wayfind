@@ -10,6 +10,8 @@
 // G4 (map shell/experience/intro) ≈ −17 — all from the route chunk.
 import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
+import { fileURLToPath } from "node:url";
+import { scanBuiltRegexes } from "./lib/browserRegexCompatibility.mjs";
 
 // ─── v7.29: THIS GUARD WAS NEVER RUNNING, AND IT HAD BEEN RED FOR MONTHS ────
 // It was wired ONLY into `npm run audit:regression`, which nothing runs
@@ -145,3 +147,9 @@ if (headroomKb < WARN_HEADROOM_KB) {
   console.warn("  gzip differs by ~0.5KB between this machine and Vercel, so this margin may already be gone in CI.");
   console.warn("  Move LIVE code off the homepage client — dead code is already tree-shaken and will not help.");
 }
+
+// Check all shipped chunks, including lazy and third-party modules. SWC can
+// turn a regex literal into RegExp("..."); both forms must remain Safari-safe.
+const compatibility = scanBuiltRegexes(fileURLToPath(new URL("../.next/static/chunks", import.meta.url)));
+if (compatibility.issues.length) fail("Safari-incompatible lookbehind in browser chunks: " + JSON.stringify(compatibility.issues));
+console.log(`check-bundle: browser regex compatibility OK — ${compatibility.files} built chunks checked`);
