@@ -42,6 +42,7 @@ globalThis.fetch = async (url, init = {}) => {
   throw new Error("guard: no network (" + String(url).slice(0, 60) + ")");
 };
 const settle = () => new Promise((r) => setTimeout(r, 60));
+const BARE_CAPTURE = /(?<![A-Za-z])captureServer\(/;
 // Vercel's request context, as @vercel/functions reads it: waitUntil is how the
 // capture POST survives the function freezing after the 302 is returned.
 const waited = [];
@@ -91,7 +92,10 @@ for (const r of ["hotels", "ticketmaster", "viator", "commerce"]) {
   // captureServer() is dropped when Vercel freezes the function. Every capture
   // in a go route must go through captureServerInBackground (waitUntil).
   const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
-  ok((code.match(/\bcaptureServerInBackground\(/g) || []).length >= 1 && !/(?<![A-Za-z])captureServer\(/.test(code), `${r}/go: captures only via captureServerInBackground (waitUntil), never a bare un-awaited captureServer`);
+  // Positive control for the absence probe: it must find a bare call and must not
+  // mistake the waitUntil variant for one.
+  ok(BARE_CAPTURE.test("captureServer(event, { distinctId })") && !BARE_CAPTURE.test("captureServerInBackground(event, { distinctId })"), "bare-captureServer probe finds a known positive and ignores the waitUntil variant");
+  ok((code.match(/\bcaptureServerInBackground\(/g) || []).length >= 1 && !BARE_CAPTURE.test(code), `${r}/go: captures only via captureServerInBackground (waitUntil), never a bare un-awaited captureServer`);
 }
 
 // ── 3. the visitor queries, hogql intercepted ────────────────────────────────
