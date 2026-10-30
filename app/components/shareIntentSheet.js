@@ -282,7 +282,9 @@ export function askShareIntent(o) {
   card.appendChild(button(false, "I’m asking someone out",
     "Write a little invite they can answer", askWho, true));
 
-  const groupHref = groupPlanHref(opt.id, name);
+  // groupId is a Group Vote-only subject (a tour's "vx_" key). It never feeds
+  // the invite or preview above, which only understand inventory place ids.
+  const groupHref = groupPlanHref(opt.groupId || opt.id, name);
   if (groupHref) card.appendChild(button(false, "Group Vote",
     "Friends vote on the spot and day", () => { window.location.href = groupHref; }));
 

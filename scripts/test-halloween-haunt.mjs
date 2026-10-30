@@ -604,4 +604,20 @@ for (const f of ["commerce", "viator", "hotels", "ticketmaster"]) {
   ok(photosForHaunt("brick", HAUNT_GOOGLE_PLACE.brick, v).map((p) => p.src).join() === "c", "single place keeps untagged photos");
 }
 
+// Dynamic instant-filtered picks + Nov 1 boHauntFallback
+{
+  const oct31Model = halloweenHauntModel({ now: "2026-10-31T20:00:00-04:00" });
+  const tampaPickOct31 = oct31Model.picks.find((p) => p.id === "tampa");
+  ok(tampaPickOct31 && !tampaPickOct31.shortlistIds.includes("spookquarium"), "Oct 31 tampa shortlist drops expired spookquarium");
+  const nov1Model = halloweenHauntModel({ now: "2026-11-01T14:00:00-05:00" });
+  const nov1LiveIds = new Set(nov1Model.haunts.filter((h) => h.bookable !== false).map((h) => h.id));
+  ok(nov1Model.picks.length > 0 && nov1Model.picks.every((p) => p.shortlistIds.length > 0 && p.shortlistIds.every((id) => nov1LiveIds.has(id))), "Nov 1 picks only contain live Nov 1 bookable haunts");
+  const nov5Model = halloweenHauntModel({ now: "2026-11-05T12:00:00-05:00" });
+  ok(nov5Model.picks.length === 0, "Nov 5 has no shortlist picks when all haunts have expired");
+  ok(boCards(["mickey", "spooktacular"], model).map((c) => c.id).join(",") === "spooktacular", "boCards excludes bookable === false haunts");
+  const nov1TampaFallback = boHauntFallback("Scariest haunt in Tampa?", nov1Model);
+  ok(nov1TampaFallback.recommendedIds.length > 0 && nov1TampaFallback.recommendedIds.every((id) => nov1LiveIds.has(id)), "Nov 1 boHauntFallback falls back to live bookable haunts when primary Tampa haunts expired");
+}
+
 console.log("test-halloween-haunt: " + checks + " assertions passed");
+
