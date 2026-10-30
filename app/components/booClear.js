@@ -2,19 +2,24 @@
 // function takes plain rects ({ left, top, right, bottom }) so the guard script
 // can call them with fixtures. BooCompanion.js owns the DOM reads.
 
-export const MAX_COVER = 0.15; // he may overlap at most 15% of any control
+export const MAX_COVER = 0.15; // at most 15% of any control, and at most 15% of him on one
 
 export function rectOf(x, y, w, h) {
   return { left: x, top: y, right: x + w, bottom: y + h };
 }
 
-// Share of rect b (the control) that rect a (Boo) covers: 0 to 1.
+// How much rect a (Boo) and rect b (the control) cover each other: 0 to 1.
+// The larger of "share of the control he covers" and "share of him sitting on
+// the control". The second half matters for wide things: 15% of a full-width
+// search bar is bigger than Boo himself, so a control-only ratio let him park
+// squarely on it (owner screenshot, Group Vote search, 2026-10-30).
 export function overlapRatio(a, b) {
   const w = Math.min(a.right, b.right) - Math.max(a.left, b.left);
   const h = Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top);
   if (w <= 0 || h <= 0) return 0;
-  const area = (b.right - b.left) * (b.bottom - b.top);
-  return area > 0 ? (w * h) / area : 0;
+  const areaB = (b.right - b.left) * (b.bottom - b.top);
+  const areaA = (a.right - a.left) * (a.bottom - a.top);
+  return Math.max(areaB > 0 ? (w * h) / areaB : 0, areaA > 0 ? (w * h) / areaA : 0);
 }
 
 // Worst single-control overlap for a box.
@@ -91,7 +96,19 @@ export function pickClearSpot(size, b, controls, from, rand, tries, max, extra) 
     const score = worstOverlap(rectOf(gx, y, size, size), controls) + (extra && !extra(gx, y) ? 0.5 : 0) + Math.abs(y - from.y) / 100000;
     if (score < best.score) best = { x: gx, y, score };
   }
-  return { x: best.x, y: best.y, via: "gutter" };
+  if (best.score <= lim) return { x: best.x, y: best.y, via: "gutter" };
+  // The gutter is covered too (a phone screen full of text and buttons): scan
+  // the whole safe area for the clearest spot instead of settling on a gutter
+  // that still sits over words.
+  let grid = null;
+  const gs = 20;
+  for (let x = b.minX; x <= b.maxX + 0.5; x += gs) {
+    for (let y = b.minY; y <= b.maxY + 0.5; y += gs) {
+      const score = worstOverlap(rectOf(x, y, size, size), controls) + (extra && !extra(x, y) ? 0.5 : 0) + Math.hypot(x - from.x, y - from.y) / 100000;
+      if (!grid || score < grid.score) grid = { x, y, score };
+    }
+  }
+  return grid && grid.score < best.score ? { x: grid.x, y: grid.y, via: "grid" } : { x: best.x, y: best.y, via: "gutter" };
 }
 
 // Bubble box for a given side, mirroring the CSS in BooCompanion (above sits

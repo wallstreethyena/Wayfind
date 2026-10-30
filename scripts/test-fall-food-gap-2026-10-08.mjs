@@ -10,7 +10,7 @@ import { FALL_DISCOVERIES_2026 } from "../lib/fallDiscoveries2026.js";
 import { FALL_FEATURED_FESTIVALS_2026 } from "../lib/fallFeaturedFestivals2026.js";
 import { FALL_GAP_FILL_2026_10_07 } from "../lib/fallGapFill20261007.js";
 import { FALL_FOOD_GAP_2026_10_08 } from "../lib/fallFoodGap20261008.js";
-import { fallEventRail, composeFallIntentRails, hasUpcomingFallOccurrence, FALL_RAIL_RADIUS_MI } from "../lib/fallIntentRails.js";
+import { fallEventRail, composeFallIntentRails, hasUpcomingFallOccurrence, FALL_RAIL_RADIUS_MI, FALL_FARMS_NEAR_MI } from "../lib/fallIntentRails.js";
 import { isTrusted } from "../lib/curatedEvents.js";
 import { fallEventLive } from "../lib/fallPool.js";
 import { fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
@@ -103,8 +103,12 @@ check("the two hidden farms now carry identity, image, real dates and honest geo
   assert.match(prana.schedule_note, /does not print an exact first and last day/, "Prana's inferred October window is flagged");
   assert.ok(shelf("Port Charlotte", "farms").has(prana.event_id), "Prana reaches Port Charlotte farms");
   assert.ok(shelf("Fort Myers", "farms").has(mikes.event_id) && shelf("Naples", "farms").has(mikes.event_id), "Farmer Mike's reaches Fort Myers and Naples");
-  assert.ok(miles([mikes.lat, mikes.lng], CITY["Port Charlotte"]) > FALL_RAIL_RADIUS_MI.farms, "Farmer Mike's is outside Port Charlotte's farm radius");
-  assert.ok(!shelf("Port Charlotte", "farms").has(mikes.event_id), "so it never pads Port Charlotte");
+  // 2026-10-29: the farm radius is 60 mi. Mike's sits in the new 45 to 60 mi
+  // band from Port Charlotte: admitted, but only after every nearer farm.
+  const mikesMi = miles([mikes.lat, mikes.lng], CITY["Port Charlotte"]);
+  assert.ok(mikesMi > FALL_FARMS_NEAR_MI && mikesMi <= FALL_RAIL_RADIUS_MI.farms, `Farmer Mike's is ${mikesMi.toFixed(1)} mi out: inside the 45 to 60 mi band`);
+  const pcFarms = composeFallIntentRails(merged, [], { lat: CITY["Port Charlotte"][0], lng: CITY["Port Charlotte"][1], today: TODAY, now: NOW }).rails.find((r) => r.id === "farms").cards.map((c) => c.event_id);
+  assert.equal(pcFarms.at(-1), mikes.event_id, "so it joins Port Charlotte farms, last behind every in-radius farm");
 });
 
 check("HarvestMoon shows its next real open day, not 'Select dates'", () => {

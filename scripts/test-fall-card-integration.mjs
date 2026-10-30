@@ -80,7 +80,7 @@ try{
   walk(railRoot,(node)=>{if(node.type?.name==='FallRailSection')section=node;});
   ok(section?.key==='2026-10-04:farms','paged rail remount key changes with the date generation');
   const sectionTree=section.type(section.props);let survivor=null;
-  walk(sectionTree,(node)=>{if(node.type===RailCard&&node.props.title==='Survivor 9')survivor=node;});
+  walk(sectionTree,(node)=>{if(node.type===RailCard&&node.props.title==='Survivor 10')survivor=node;});
   ok(survivor?.props.domRef===sentinelRef,'expired slots cannot remove the pagination sentinel from the final visible card');
 
   const {fetchCuratedEvents,curatedToFeedEvent,eventJsonLd}=require('../lib/curatedEvents.js');

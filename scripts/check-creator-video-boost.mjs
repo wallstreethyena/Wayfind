@@ -296,4 +296,42 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
   ok(displayedWfScore(P(90, { distMi: 17 })) === 90, "17.0 exactly is not past 17");
 }
 
+// Owner intake: preserve correct identity, credit, native playback and scope.
+{
+  const intake = JSON.parse(readFileSync(path.join(REPO, "docs/curation/owner-three-reels-2026-10-30.json"), "utf8"));
+  const { captionFor } = await import("../lib/creatorCaptions.js");
+  const { embedSrc } = await import("../lib/videoEmbed.js");
+  const { creatorCountFor } = await import("../lib/creatorVideos.js");
+  const { creatorCountFor: leanCount } = await import("../lib/creatorSignals.js");
+  ok(intake.sources.length === 16, "all sixteen owner-supplied reels are accounted for");
+  for (const source of intake.sources) {
+    if (source.status === "held_branch_unverified") {
+      ok(source.shortcode === "DbvKd-vo9GE" && source.places.length === 0, "unverified K10 branch remains held");
+      ok(!SRC.includes(source.native_url), "unverified branch cannot acquire a published place association");
+      continue;
+    }
+    const place = source.places[0];
+    const matches = creatorVideosFor({ id: place.place_id }).filter((v) => v.url === source.native_url);
+    ok(matches.length === 1 && matches[0].creator === source.creator, `${source.shortcode} resolves once with original credit`);
+    ok(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} retains native playback`);
+    ok(captionFor(matches[0]).length > 40, `${source.shortcode} has substantive original editorial context`);
+    if (source.independent === false && source.shortcode !== "DfIAf5bxY0Z") ok(creatorCountFor({ id: place.place_id }) === 0 && leanCount({ id: place.place_id }) === 0, `${source.creator} cannot create independent corroboration`);
+    ok(!creatorVideosFor({ id: "ChIJwrongVerifiedIdentity123", name: place.name, city: place.city }).some((v) => v.url === source.native_url), `${source.shortcode} cannot leak through a same-name different Google ID`);
+    const other = intake.sources.find((r) => r.status === "verified" && r.shortcode !== source.shortcode).places[0];
+    ok(!creatorVideosFor({ id: other.place_id }).some((v) => v.url === source.native_url), `${source.shortcode} cannot attach to the other venue`);
+    if (source.content_kind === "dated_venue_promotion") ok(/October 2026/.test(captionFor(matches[0])) && /dated promotion/.test(captionFor(matches[0])), "farm promotion remains explicitly dated after Halloween");
+  }
+  const { rankInventory } = await import("../lib/inventoryServe.js");
+  const globalPlaces = intake.sources.filter((s) => s.status === "verified").flatMap((s) => s.places).filter((p) => p.state !== "FL" && Number.isFinite(p.lat));
+  // Give fixtures identical real-looking quality signals so only geography
+  // decides: absence of scores must not be what makes this negative pass.
+  const rows = globalPlaces.map((p) => ({ place_id: p.place_id, name: p.name, lat: p.lat, lng: p.lng, status: "OPERATIONAL", category: "food", signals: { rating: 4.5, reviews: 100 } }));
+  const floridaControl = { place_id: "test-orlando-control", name: "Orlando control", lat: 28.54, lng: -81.37, status: "OPERATIONAL", category: "food", signals: { rating: 4.5, reviews: 100 } };
+  const local = rankInventory([...rows, floridaControl], 28.54, -81.37, 27000, 50);
+  ok(local.length === 1 && local[0].id === floridaControl.place_id, "non-Florida destinations cannot enter Florida local results; healthy local control survives");
+  ok(!creatorVideosFor({ id: "wfadd_howell_family_farms_arlington_tx" }).some((v) => v.url.includes("DdPnGEtPIcR")), "Austin footage is never attached to Arlington venue");
+  const ended = intake.sources.find((s) => s.shortcode === "De964Gsql3a");
+  ok(/season has ended/.test(ended.editorial_context), "ended October 27 event cannot masquerade as an upcoming visit");
+}
+
 console.log(`check-creator-video-boost: PASS (${pass} assertions)`);

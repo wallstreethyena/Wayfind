@@ -61,7 +61,6 @@ import { topPickAward } from "../../lib/topPickAward.js";
 import { coarseCat } from "../../lib/ranking.js";
 import { priceLabel } from "../../lib/price.js";
 import { cardImageSrc } from "../../lib/placePhoto.js";
-import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import PosterEventCard from "./PosterEventCard.js";
 import { usePosterEvents } from "./usePosterEvents.js";
@@ -84,7 +83,7 @@ const prettyType = (t) => {
 // contract lib/railPage.js defines for every other poster/rail endpoint. This
 // replaces the old "Load every ranked option" button.
 function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eventsPending = false, eventsFailed = false, isFirstNightOut, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
+  const seedItems = useMemo(() => rail.places || [], [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, city, hour: hour == null ? "" : hour, rail: rail.id }), [lat, lng, city, hour, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(

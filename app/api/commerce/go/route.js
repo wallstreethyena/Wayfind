@@ -32,6 +32,7 @@
 // classic affiliate link and records the degraded resolver path.
 export const runtime = "nodejs";
 
+import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 // Explicit .js extensions: scripts/check-commerce-redirect.mjs imports this route
 // under raw node ESM to drive the real handler, and node will not resolve an
@@ -88,7 +89,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     // commercePayload enforces the field whitelist, so nothing outside the
     // schema can leave here even if a caller passes it.
-    const props = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
+    const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
     // Deliberately NOT awaited: a slow analytics POST must not delay the user's
     // redirect. Errors are swallowed inside captureServer.
     // Visitor UA/IP attach inside captureServer (after the whitelist). Passing

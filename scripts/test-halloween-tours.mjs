@@ -116,7 +116,7 @@ const fakeFetch = async (url) => {
   }));
   return { ok: true, json: async () => rows };
 };
-const model = halloweenHauntModel();
+const model = halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" });
 const live = await withHalloweenTours(model, { env, fetch: fakeFetch });
 ok(/wf_experiences/.test(seenUrl) && /provider=eq\.viator/.test(seenUrl), "reads wf_experiences for viator rows");
 const liveAll = [...live.tours, ...live.eventTours];
@@ -129,6 +129,15 @@ const failed = await withHalloweenTours(model, { env, fetch: async () => { throw
 ok(failed.tours.length + failed.eventTours.length === TOUR_SNAPSHOT.length, "a failed read renders the snapshot, never an empty section");
 const noEnv = await withHalloweenTours(model, { env: {} });
 ok(noEnv.tours.length + noEnv.eventTours.length === TOUR_SNAPSHOT.length, "no Supabase env renders the snapshot");
+
+// 2026-10-29 identity audit: one card per product and per name, none repeats a haunt card
+ok(new Set(TOUR_SNAPSHOT.map((t) => t.code)).size === TOUR_SNAPSHOT.length, "tour product codes are unique");
+const tourNameKey = (t) => t.name.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+ok(new Set(TOUR_SNAPSHOT.map(tourNameKey)).size === TOUR_SNAPSHOT.length, "tour names are unique");
+const hauntKeys = model.haunts.map((h) => tourNameKey(h));
+ok(TOUR_SNAPSHOT.every((t) => !hauntKeys.some((k) => k.includes(tourNameKey(t)) || tourNameKey(t).includes(k))), "no tour card repeats a haunt card (same venue or event)");
+ok(![...live.tours, ...live.eventTours].some((t) => /sold out|unavailable/i.test(JSON.stringify(t))), "no tour card claims sold out or unavailable (Viator selling_out is a demand flag, not proof)");
+ok(model.haunts.every((h) => h.id !== "sideshowObscura"), "the Sideshow Obscura store is not in the haunt collection");
 
 // Schema
 const schema = halloweenToursSchema(live.tours, "https://www.gowayfind.com/halloween-in-florida");
@@ -243,4 +252,30 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   ok(out.partners === 0, "injected deps without a service key: no partner card");
 }
 
+// 2026-10-29 tour classification, price basis (per person vs per group), Jacksonville region, stale live row guard, and family filter
+{
+  ok(TOUR_REGIONS.some((r) => r.id === "jax" && r.label === "Jacksonville") && TOUR_REGIONS.some((r) => r.id === "more" && r.label === "Key West"), "Jacksonville and Key West have distinct region chips");
+  const jaxCards = snap.filter((t) => t.region === "jax");
+  ok(jaxCards.map((t) => t.id).sort().join(",") === "201204P3,333341P1", "both Jacksonville tours sit in the jax region, never under Key West");
+  const keyWestCards = snap.filter((t) => t.region === "more" && t.group === "ghost");
+  ok(keyWestCards.length > 0 && keyWestCards.every((t) => t.place === "Key West"), "every ghost tour in the Key West region is actually in Key West");
+  const pcb = snap.find((t) => t.id === "180859P9");
+  ok(pcb && pcb.group === "event" && pcb.place === "Panama City Beach, FL Panhandle" && pcb.formatLabel === "Walk through haunted house", "Panama City Beach attraction is in the event group with Panhandle place label");
+  const groupCodes = ["186588P10", "209615P123", "333814P8", "5567095P1"];
+  ok(snap.filter((t) => t.priceUnit === "per group").map((t) => t.id).sort().join(",") === groupCodes.join(","), "private vehicle/group tours carry per group price basis");
+  ok(snap.filter((t) => !groupCodes.includes(t.id)).every((t) => t.priceUnit === "per person"), "individual tours carry per person price basis");
+  ok(snap.find((t) => t.id === "5046OLDJAIL").formatLabel === "Daytime jail history tour" && snap.find((t) => t.id === "5046P21").formatLabel === "Night paranormal investigation", "Old Jail daytime tour and night paranormal experience are clearly distinguished");
+  ok(snap.find((t) => t.id === "107194P211").formatLabel === "Self guided phone game" && snap.find((t) => t.id === "469510P10").formatLabel === "Self guided audio tour", "self guided phone game and audio tours are labeled");
+  ok(toursHtml.includes("per group") && toursHtml.includes("per person") && toursHtml.includes("Private group tour") && toursHtml.includes("Self guided audio tour") && toursHtml.includes("Daytime jail history tour"), "rendered tour cards show formatLabel and priceUnit");
+  // Stale live row guard: dead link_ok, zero from_price, or removed code returns null instead of falling back to snapshot
+  ok(tourCard(TOUR_SNAPSHOT[0], { from_price: 0, link_ok: true }) === null, "red-prove: a live row with from_price 0 fails closed instead of falling back to snapshot price");
+  ok(tourCard(TOUR_SNAPSHOT[0], { from_price: 40, link_ok: false }) === null, "red-prove: a live row with link_ok false fails closed");
+  ok(tourCard({ ...TOUR_SNAPSHOT[0], code: "28841P2" }) === null && tourHref("28841P2") === null, "red-prove: a TOUR_REMOVED code never produces a tourCard or tourHref");
+  // Family filter hides adult-only pub crawls and 18+ tours across FeaturedGhostTours and TourSection
+  const familyHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "family" }));
+  ok(!familyHtml.includes("272079P3") && !familyHtml.includes("Spirits and Spirits Haunted Pub Crawl") && !familyHtml.includes("430526P2"), "family filter removes adult pub crawls and 18+ tours from FeaturedGhostTours");
+  ok(familyHtml.includes("38620P1") && familyHtml.includes("122676P1"), "family filter keeps family-appropriate featured ghost tours");
+}
+
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");
+

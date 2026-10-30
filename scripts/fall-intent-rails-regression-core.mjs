@@ -87,7 +87,7 @@ ok(Object.keys(FALL_RAIL_RADIUS_MI).sort().join("|") === expected.slice().sort()
 ok(FALL_NEAR_MI === 27, "the nearby ring ends at 27 miles");
 ok(FALL_MIN_RESULTS === 8, "eight remains the target depth, never a reason to violate the radius");
 ok(["food", "family", "date-night"].every((id) => FALL_RAIL_RADIUS_MI[id] === 27), "food, family and spooky date night stay local at 27 miles");
-ok(["farms", "haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45), "seasonal destinations widen only to 45 miles");
+ok(["haunts", "oktoberfest", "festivals", "photos"].every((id) => FALL_RAIL_RADIUS_MI[id] === 45) && FALL_RAIL_RADIUS_MI.farms === 60, "seasonal destinations widen only to 45 miles; farms reach 60 (2026-10-29, far band sorts last)");
 ok(FALL_RAIL_RADIUS_MI["theme-parks"] === 150 && FALL_RAIL_RADIUS_MI["day-trips"] === 60, "the owner-approved 150-mile exception applies only to Halloween theme parks; day trips stay at 60 miles");
 
 ok(fallPhase("2026-09-01") === "early", "September opens in the early fall phase");
@@ -138,12 +138,12 @@ ok(composed.rails.find((rail) => rail.id === "food").fallbackUsed === false, "th
 ok(composed.rails.flatMap((rail) => rail.cards).length === new Set(composed.rails.flatMap((rail) => rail.cards.map((card) => card.id))).size, "no card appears in more than one rail");
 
 const distanceLaw = composeFallIntentRails([], [
-  { kind: "place", id: "farm-wide", name: "Wide Ring Farm", lat: 28.80, lng: -82.46, fallRail: "farms", wfScore: 9.9 },
+  { kind: "place", id: "farm-wide", name: "Wide Ring Farm", lat: 29.00, lng: -82.46, fallRail: "farms", wfScore: 9.9 },
   { kind: "place", id: "farm-near", name: "Nearby Farm", lat: 28.20, lng: -82.46, fallRail: "farms", wfScore: 7.0 },
   { kind: "place", id: "farm-unknown", name: "Unknown Farm", fallRail: "farms", wfScore: 10 },
 ], { lat: 27.95, lng: -82.46, today: "2026-09-01", now });
 const farmCards = distanceLaw.rails.find((rail) => rail.id === "farms").cards;
-ok(farmCards.map((card) => card.id).join("|") === "farm-near", "a farm beyond its 45-mile rail radius is rejected");
+ok(farmCards.map((card) => card.id).join("|") === "farm-near", "a farm beyond its 60-mile rail radius (2026-10-29 widened from 45) is rejected");
 ok(!farmCards.some((card) => card.id === "farm-unknown"), "unknown distance is rejected rather than guessed nearby");
 
 const hauntRadiusLaw = composeFallIntentRails([
@@ -442,7 +442,7 @@ const fallOwnedImage = fallEventCardImageSrc(
 ok(fallOwnedImage.includes(encodeURIComponent(ownedPhotoRef)) && !/augtober-760/.test(fallOwnedImage), "the old scarecrow poster is rejected and replaced by that venue's owned Google photo ref");
 ok(fallEventCardImageSrc({ place_id: photoOwner, hero_image: "https://images.example.com/real-event.jpg" }) === "https://images.example.com/real-event.jpg", "a real event-specific hero remains eligible for a dated event");
 const fallWindow = windowRailAnswer({ rails: [{ id: "food", cards: Array.from({ length: 20 }, (_, id) => ({ id })) }] });
-ok(fallWindow.rails[0].cards.length === 12 && fallWindow.rails[0].total === 20 && fallWindow.hasMore === true, "Fall first paint carries a compact ranked window and the honest full count");
+ok(fallWindow.rails[0].cards.length === 20 && fallWindow.rails[0].total === 20 && !fallWindow.hasMore, "Fall ships every card with the honest full count (owner 2026-10-29: no first window)");
 ok(railScrollNeedsMore({ scrollLeft: 620, clientWidth: 300, scrollWidth: 1000 }) === true, "a swipe near the rail end requests the remaining ranked cards");
 ok(railScrollNeedsMore({ scrollLeft: 100, clientWidth: 300, scrollWidth: 1000 }) === false, "an early swipe does not fetch the full catalogue");
 

@@ -55,7 +55,7 @@
 import { useEffect } from "react";
 import { emitCommerce, mintClickId } from "../../lib/commerce";
 import { forwardToGoogle, PARTNER_CLICK_EVENT } from "../../lib/analytics";
-import { planPartnerClick } from "../../lib/partnerClick";
+import { planPartnerClick, planOrganizerClick } from "../../lib/partnerClick";
 import { analyticsSuppressionReason } from "../../lib/browserAnalytics";
 
 // Two clicks on the same partner anchor closer together than this are one
@@ -88,6 +88,24 @@ export default function CommerceClickBeacon({ surface }) {
         const a = ev.target && ev.target.closest ? ev.target.closest("a[href]") : null;
         if (!a) return;
         const owned = !!(a.getAttribute && a.getAttribute("data-commerce-owner"));
+        // Off-site organizer ticket link the page opted in with
+        // data-wf-outbound-ticket="organizer" (e.g. /florida-events/<slug>).
+        if (!owned && a.getAttribute("data-wf-outbound-ticket") === "organizer") {
+          const org = planOrganizerClick({
+            href: a.getAttribute("href"),
+            locationHost: typeof window !== "undefined" ? window.location.hostname : "",
+            surface,
+            contentId: a.getAttribute("data-wf-content-id"),
+            mint: mintClickId,
+          });
+          if (!org) return;
+          const t0 = Date.now();
+          const l0 = lastActivation.get(a);
+          if (l0 !== undefined && t0 - l0 < DOUBLE_ACTIVATION_MS) return;
+          lastActivation.set(a, t0);
+          try { emitCommerce("commerce_cta_clicked", org.ctx); } catch (e) {}
+          return;
+        }
         const plan = planPartnerClick({
           href: a.getAttribute("href"),
           owned,
