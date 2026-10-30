@@ -6,7 +6,7 @@ import { SITE_URL } from "../../lib/site.js";
 import { C } from "../components/kit.js";
 import IconicPlaceCard from "../components/IconicPlaceCard.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
-import { GroupPlaceOptions, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
+import { GroupPlaceOptions, PlaceCard, staleFactsNote, groupPhotoFilter } from "./GroupPlaceOptions.js";
 import { GroupVoteIntro } from "./GroupFrame.js";
 
 // Group Vote organizer dashboard. Motion budget: everything <= 0.6s, confetti <= 1s,
@@ -116,6 +116,7 @@ function Results({plan}) {
 function FinalPlaceCard({place,plan}) {
   if(!place)return null;
   if(place.unavailable)return <div className="gp-empty"><h3>{place.name}</h3><p>Details are unavailable. Check the venue before going.</p></div>;
+  if(place.kind==="experience")return <><div className="gpo-final-card">{PlaceCard({place})}</div>{staleFactsNote(place,plan.timeZone)}</>;
   return <><PhotoSrcFilterContext.Provider value={groupPhotoFilter(place)}><ul className="gp-card-list gpo-final-card"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>{staleFactsNote(place,plan.timeZone)}</>;
 }
 const CONFETTI=Array.from({length:12},(_,i)=><i key={i}/>);

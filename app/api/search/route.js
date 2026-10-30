@@ -5,6 +5,7 @@ import { searchOwnedPlaces } from "../../../lib/directSearch.js";
 import { resolveSearchIntent } from "../../../lib/searchIntent.js";
 import { searchLibrary } from "../../../lib/unifiedSearch.js";
 import { searchResultCards } from "../../../lib/searchCards.js";
+import { pluralFallbackQuery } from "../../../lib/searchRank.js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -28,6 +29,22 @@ export async function GET(request) {
       query: String(params.get("q") || "").trim().slice(0, 160),
       reason: "source_unavailable",
     };
+  }
+  // A one-word plural with no place match retries its singular once ("Bars"
+  // finds the same bars as "bar"). Only a real place answer replaces the
+  // first one, and everything below then reads the query that matched.
+  let query = params.get("q");
+  const singular = pluralFallbackQuery(query);
+  if (singular && result && result.reason !== "unsupported_location" && !(Array.isArray(result.places) && result.places.length)) {
+    try {
+      const retry = await searchOwnedPlaces({ query: singular, lat: params.get("lat"), lng: params.get("lng") });
+      if (retry && Array.isArray(retry.places) && retry.places.length) {
+        result = { ...retry, query: result.query, matchedAs: singular };
+        query = singular;
+      }
+    } catch {
+      // The first answer stands.
+    }
   }
   // An out-of-coverage point, or a named city we do not cover, stays a place
   // miss. Gastonia must keep that exact JSON. A known phrase with no point
@@ -58,7 +75,7 @@ export async function GET(request) {
     }
     try {
       const cards = await searchResultCards({
-        query: params.get("q"),
+        query,
         lat,
         lng,
         ownedPlaces: result.places,

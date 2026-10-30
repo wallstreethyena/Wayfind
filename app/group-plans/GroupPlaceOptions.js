@@ -1,5 +1,7 @@
 "use client";
 import IconicPlaceCard from "../components/IconicPlaceCard.js";
+import RailCard from "../components/RailCard.js";
+import { toDisplayScore } from "../../lib/score.js";
 import { PhotoSrcFilterContext } from "../components/photoPolicyContext.js";
 import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 
@@ -8,9 +10,22 @@ import { cardPhotoRequest } from "../../lib/cardPhotoRequest.js";
 // request for this exact place id, may render; anything else is blanked.
 export function groupPhotoFilter(place){return (src)=>{if(place.photo&&place.photoAttr&&place.photoAttrHref&&src===place.photo)return src;const req=cardPhotoRequest(src);return req&&new URL(req,"https://www.gowayfind.com").searchParams.get("place")===place.id?src:"";};}
 
+// A tour renders as the same RailCard the homepage tour rail uses. Its photo is
+// the tour's own Viator image (credited), and nothing else may render in it.
+function experienceFacts(place) {
+  const mins=place.durationMin;
+  return [place.city||null,place.reviews>0?Number(place.reviews).toLocaleString("en-US")+" reviews":null,
+    mins?(mins>=60?Math.round(mins/60)+"h":mins+"m"):null].filter(Boolean);
+}
+export function experiencePhotoFilter(place){return (src)=>place.photo&&src===place.photo?src:"";}
+function ExperienceCard({place}) {
+  return <PhotoSrcFilterContext.Provider value={experiencePhotoFilter(place)}><div className="gp-card-list gp-tour-card"><RailCard photo={place.photo||null} photoAttr={place.photoAttr||null} photoAttrHref={place.photoAttrHref||null} title={place.name} eyebrow="Tour" score={Number.isFinite(place.score)?toDisplayScore(place.score):null} facts={experienceFacts(place)} actionItem={{id:place.id.slice(3),type:"experience",title:place.name,image:place.photo||null,url:"",provider:"viator"}} ariaLabel={place.name}/></div></PhotoSrcFilterContext.Provider>;
+}
+
 // Plain functions (called, not mounted) so tests and the readOnly organizer view
 // see the canonical card element directly in the returned tree.
-function PlaceCard({place}) {
+export function PlaceCard({place}) {
+  if(!place.unavailable&&place.kind==="experience")return ExperienceCard({place});
   return place.unavailable?<div className="gp-empty"><h3>{place.name}</h3><p>Details are unavailable. Check the venue before finalizing.</p></div>:<PhotoSrcFilterContext.Provider value={groupPhotoFilter(place)}><ul className="gp-card-list"><IconicPlaceCard place={{id:place.id,name:place.name,lat:place.lat,lng:place.lng,primaryType:place.primaryType,cardCategory:place.category,governed_score:place.score,photo:place.photo||null,_members:{ownerPick:place.curatorPick},creator_video:place.creatorVideo,trending:place.trending,trend_reason:place.trendReason}} href={place.placeUrl} photoAttr={place.photoAttr} photoAttrHref={place.photoAttrHref} editorial={place.editorial?.text||null} cardActionsReadOnly surface="group_plan"/></ul></PhotoSrcFilterContext.Provider>;
 }
 
@@ -55,7 +70,7 @@ function VoteCard({place,label,selected,onSelect,timeZone}) {
     {label&&<p className="gb-label">{label}</p>}
     {PlaceCard({place})}
     {staleFactsNote(place,timeZone)}
-    <button type="button" className={`gb-vote${on?" is-on":""}`} aria-pressed={on} aria-label={`Vote for ${place.name}`} onClick={(e)=>{e.stopPropagation?.();onSelect(place.id);}}>{on?<><CheckIcon/><span>Your vote</span></>:<span>Vote for this place</span>}</button>
+    <button type="button" className={`gb-vote${on?" is-on":""}`} aria-pressed={on} aria-label={`Vote for ${place.name}`} onClick={(e)=>{e.stopPropagation?.();onSelect(place.id);}}>{on?<><CheckIcon/><span>Your vote</span></>:<span>{place.kind==="experience"?"Vote for this tour":"Vote for this place"}</span>}</button>
     {PlaceHoursNote({place})}
     {PlaceResearch({place})}
   </section>;
