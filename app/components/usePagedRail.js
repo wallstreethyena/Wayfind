@@ -17,7 +17,7 @@
 // fetches page N+1 the moment that ONE card intersects the viewport.
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { fetchPosterJson as fetchJsonWithDeadline } from "../../lib/posterJson.js";
-import { RAIL_PAGE_SIZE, pageOf, seedSignature, mergePagedItems } from "../../lib/railPage.js";
+import { RAIL_PAGE_SIZE, nextPageAfterSeed, pageOf, seedSignature, mergePagedItems } from "../../lib/railPage.js";
 
 export const RAIL_LOAD_MORE_OFFSET = 3;
 
@@ -104,7 +104,7 @@ export function usePagedRail(endpoint, params, {
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState(false);
 
-  const nextPageRef = useRef(hasSeed ? 1 : 0);
+  const nextPageRef = useRef(hasSeed ? nextPageAfterSeed(seedItems ? seedItems.length : 0, size, seedTotal == null ? Infinity : seedTotal) : 0);
   const askedKeyRef = useRef("");
   const currentKeyRef = useRef(key);
   const fetchingRef = useRef(false);
@@ -161,7 +161,7 @@ export function usePagedRail(endpoint, params, {
       setHasMore(seed.total == null || seed.items.length < seed.total);
       setLoading(false);
       setError(false);
-      nextPageRef.current = 1;
+      nextPageRef.current = nextPageAfterSeed(seed.items.length, size, seed.total == null ? Infinity : seed.total);
     } else {
       setItems([]); setTotal(null); setHasMore(true); nextPageRef.current = 0;
       load(0, true, key);

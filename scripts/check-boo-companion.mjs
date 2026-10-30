@@ -62,7 +62,15 @@ ok(/inSeason\(\)/.test(comp.replace(/function\s+inSeason\s*\(\)/, "")), "inSeaso
 // 3. reserved paths
 const rp = comp.match(/const\s+RESERVED_PATHS\s*=\s*\[([^\]]*)\]/);
 ok(!!rp, "BooCompanion must declare const RESERVED_PATHS = [...]");
-if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
+if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
+// Owner 2026-10-30: he never parks in front of text. Resting and bubble
+// placement read controls AND readable text blocks.
+{
+  const rs = comp.match(/const\s+READ_SEL\s*=\s*"([^"]*)"/);
+  ok(!!rs, "BooCompanion must declare const READ_SEL for text he must not cover");
+  if (rs) for (const t of ["h1", "h2", "p", "li", "[role=alert]", "[role=status]", "[data-boo-clear]"]) ok(rs[1].split(",").includes(t), "READ_SEL must include " + t);
+  ok(/querySelectorAll\(CONTROL_SEL \+ "," \+ READ_SEL\)/.test(comp), "controlRects must read controls and text together");
+}
 ok(/reservedPath\(/.test(comp.replace(/function\s+reservedPath\s*\(/, "")), "reservedPath() must be called by the gate");
 
 // 4. hide key
@@ -301,10 +309,13 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   const clear = await import("../app/components/booClear.js");
   const { overlapRatio, besideSpot, pickClearSpot, chooseBubbleSide, bubbleRect, touchesAny, isClear, MAX_COVER } = clear;
   const R = (l, t, w, h) => ({ left: l, top: t, right: l + w, bottom: t + h });
-  // overlapRatio: share of the CONTROL covered.
-  ok(overlapRatio(R(0, 0, 88, 88), R(0, 0, 100, 100)) === 0.7744, "overlapRatio: 88x88 over a 100x100 control is 0.7744");
+  // overlapRatio: the larger of the share of the CONTROL covered and the share
+  // of BOO resting on it, so a wide control cannot be sat on squarely.
+  ok(overlapRatio(R(0, 0, 88, 88), R(0, 0, 100, 100)) === 1, "overlapRatio: 88x88 wholly inside a 100x100 control is 1 (all of him is on it)");
+  ok(overlapRatio(R(400, 0, 88, 88), R(0, 0, 1000, 60)) > 0.6, "overlapRatio: Boo squarely on a full-width search bar is far over 15% even though it is under 15% of the bar");
+  ok(overlapRatio(R(0, 0, 10, 10), R(0, 0, 100, 100)) === 1, "overlapRatio: a box wholly inside a control counts as fully over it");
   ok(overlapRatio(R(200, 0, 88, 88), R(0, 0, 100, 100)) === 0, "overlapRatio: disjoint boxes are 0");
-  ok(Math.abs(overlapRatio(R(90, 0, 88, 100), R(0, 0, 100, 100)) - 0.1) < 1e-9, "overlapRatio: a 10px sliver of a 100x100 is 0.1");
+  ok(Math.abs(overlapRatio(R(90, 0, 88, 100), R(0, 0, 100, 100)) - 1000 / 8800) < 1e-9, "overlapRatio: a 10px sliver is the larger share (1000 of his 8800)");
   ok(MAX_COVER === 0.15, "the cap is 15%");
   // Phone fixture: full width Get Tickets button, a link below it, a bottom nav.
   const b = { minX: 12, maxX: 290, minY: 0, maxY: 748 };
@@ -355,16 +366,38 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(bubble) && /sideFor\(/.test(bubble), "the guard and the side flip run on the bubble path");
   ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(zap) && /sideFor\(/.test(zap), "the guard and the side flip run on the zap path");
   ok(/parkClear\(\)/.test(comp.slice(comp.indexOf("const frame = (ts)"))), "arrival (pause) in the roam loop calls parkClear");
-  // Cheap: the moving check is throttled by CLEAR_MS (250), not per frame.
-  ok(/CLEAR_MS\s*=\s*250/.test(comp) && /ts - lastChk\.current >= CLEAR_MS/.test(comp), "moving overlap check is throttled to 250ms");
+  // Cheap: the hit check is cached rect math per frame, with the layout read throttled to HIT_MS (100).
+  ok(/const HIT_MS\s*=\s*100/.test(comp) && /now - c\.t >= HIT_MS/.test(comp) && /setInterval\(hitTick, HIT_MS\)/.test(comp), "hit check layout read is throttled to 100ms");
   // Touch target offset: beside it, never centred; bulbs may be perched.
   ok(/besideSpot\(r, SIZE, b, ctl, MAX_COVER\)/.test(comp) && /PERCH_SEL\s*=\s*"\.boo-bulb,\.wf-wordmark-text"/.test(comp), "touch target offset logic: beside spot for controls, perch only on bulbs and the wordmark");
   ok(!/aimBeside/.test(comp), "the old beside-centre aim is gone");
   ok(/touched\) g\.pause = TOUCH_MS \/ 1000/.test(comp), "after the 1.2s reaction he leaves");
-  // Pass through: wrapper ignores pointers while over a control; tap is handed to the control.
-  ok(/style\.pointerEvents\s*=\s*on\s*\?\s*"none"\s*:\s*""/.test(pass), "pointer-events pass through on the wrapper while over a control");
-  ok(/passCheck\(/.test(comp) && /touchesAny\(/.test(comp), "pass through is driven by touchesAny");
-  ok(/e\.detail > 0 && underTap\(e\)/.test(comp) && /elementsFromPoint\(/.test(comp), "a tap that lands on him is handed to the control under it");
+  // Tap safety (owner rule): he cannot intercept navigation. Decorative parts are pointer-events:none in
+  // CSS unconditionally; the only pointer target is a 44px real button that is tappable only after a clear check.
+  const cssSrc = (comp.match(/const CSS = `([\s\S]*?)`;/) || [, ""])[1];
+  ok(cssSrc.length > 1000, "CSS template found");
+  ok(/\.boo-c,\.boo-c \*\{pointer-events:none !important\}/.test(cssSrc), "wrapper and every descendant are pointer-events:none !important in CSS");
+  ok(/\.boo-c \.boo-c-hit\{[\s\S]*?pointer-events:none !important\}/.test(cssSrc), "hit button defaults to pointer-events:none in CSS");
+  ok(/\.boo-c \.boo-c-hit\[data-tap="1"\]\{pointer-events:auto !important\}/.test(cssSrc), "hit button is auto ONLY under [data-tap=1]");
+  ok((cssSrc.match(/pointer-events:auto/g) || []).length === 1, "exactly one pointer-events:auto rule in the companion CSS");
+  ok(/\.boo-c-bubble\{[^}]*pointer-events:none/.test(cssSrc), "bubbles are decorative: pointer-events:none");
+  ok(!/style\.pointerEvents/.test(comp), "no JS toggles style.pointerEvents any more");
+  ok(/<button\s[^>]*className="boo-c-hit"[^>]*aria-label="Chat with Boo"/.test(comp.replace(/\n\s*/g, " ")) && /type="button"/.test(comp.slice(comp.indexOf('className="boo-c-hit"') - 60, comp.indexOf('className="boo-c-hit"'))), "hit area is a real <button> with aria-label 'Chat with Boo'");
+  ok(/\.boo-c \.boo-c-hit\{[\s\S]*?width:44px;height:44px/.test(cssSrc) && /\.boo-c-hit:focus-visible\{outline:/.test(cssSrc), "hit button is 44x44 with a visible focus ring");
+  ok(!/tabIndex=\{-1\}/.test(comp.slice(comp.indexOf('className="boo-c-hit"'), comp.indexOf('className="boo-c-hit"') + 500)) && !/\.focus\(/.test(comp.slice(comp.indexOf("const hitTick"), comp.indexOf("const settleReduced"))), "hit button is in normal tab order and the hit logic never focuses anything");
+  ok(!/<button[^>]*className="boo-c-bubble"/.test(comp) && /<div className="boo-c-bubble"/.test(comp), "the speech bubble is a decorative div, not a button");
+  const nl = (comp.match(/const nextLeg = useCallback\(\(\) => \{[\s\S]*?\n  \}, \[/) || [""])[0];
+  ok(/hitDisarm\(\)/.test(nl.slice(0, 200)), "every move (nextLeg) starts with hitDisarm(): data-tap removed first");
+  ok((comp.match(/hitDisarm\(\);/g) || []).length >= 4, "relocation, parkClear and gag legs also disarm the hit");
+  const hs = (comp.match(/const hitSet = [\s\S]*?\n  \};/) || [""])[0];
+  ok(/removeAttribute\("data-tap"\)/.test(hs) && /setAttribute\("data-tap", "1"\)/.test(hs), "hit state is the data-tap attribute (CSS decides pointer-events)");
+  const ht = (comp.match(/const hitTick = [\s\S]*?\n  \};/) || [""])[0];
+  ok(/touchesAny\(box, c\.list\)/.test(ht) && /openRef\.current/.test(ht) && /c\.fresh/.test(ht) && /relocUntil/.test(ht), "tappable only when the padded box touches no cached control, the list is fresh, the sheet is closed and he is not sliding");
+  ok(/MutationObserver/.test(comp) && /addEventListener\("scroll", onScroll/.test(comp) && /addEventListener\("resize", onResize\)/.test(comp) && /orientationchange/.test(comp), "scroll, resize, rotate and mutation switch the hit off immediately");
+  ok(/HIT_SEL\s*=\s*CONTROL_SEL[^;]*summary[^;]*label[^;]*\[role=link\][^;]*HEADER_SEL/.test(comp.replace(/\n/g, " ")) && /wf-topbar/.test(comp.match(/const HEADER_SEL = "[^"]*"/)[0]) && /wf-navtabs/.test(comp) && /boo-goto/.test(comp) && /boo-buy/.test(comp) && /boo-picks/.test(comp), "control list covers links, buttons, inputs, summary, label, role button/link, header rows, buy, goto, picks, chips");
+  // Second line of defense only: a tap that still lands on the hit while a control is under it is handed over and counted.
+  ok(/e\.detail > 0 && underTap\(e\)/.test(comp) && /elementsFromPoint\(/.test(comp) && /__booBackstop/.test(comp), "backstop: a tap on the hit with a control under it goes to the control (counted in window.__booBackstop)");
+  ok(/hitRef\.current\.focus\(/.test(comp.slice(comp.indexOf("const closeSheet"))), "closing the sheet returns focus to the hit button");
   // Reduced motion: bottom left, lifted clear of nav and sticky bars.
   ok(/const settleReduced = /.test(comp) && /isClear\(x, y, SIZE, list\)/.test(comp), "reduced motion spot is checked clear of controls");
 }

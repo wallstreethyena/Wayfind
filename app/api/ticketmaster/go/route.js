@@ -17,6 +17,7 @@ export const runtime = "nodejs";
 // NO sub_id on the outbound link (same rule as /api/commerce/go). The click_id
 // is minted and recorded on our side only.
 
+import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
 import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
@@ -54,7 +55,7 @@ export async function GET(req) {
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
-      const props = commercePayload(event, { ...base, traffic_class: trafficClass, ...(extra || {}) });
+      const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
       captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };

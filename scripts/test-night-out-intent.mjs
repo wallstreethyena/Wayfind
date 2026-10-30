@@ -166,8 +166,10 @@ ok(!composed.rails.flatMap((rail) => rail.places).some((row) => row.id === publi
 
 const longAnswer = { rails: [{ id: "cocktails", places: Array.from({ length: 20 }, (_, id) => ({ id })) }] };
 const firstWindow = windowRailAnswer(longAnswer);
-ok(firstWindow.rails[0].places.length === 12, "first paint carries a bounded ranked window");
-ok(firstWindow.rails[0].total === 20 && firstWindow.hasMore === true, "the compact answer preserves the full truthful count");
+// Owner 2026-10-29: every rail ships EVERY option; no first-paint window.
+ok(firstWindow.rails[0].places.length === 20, "the first answer carries every ranked place (no window)");
+ok(firstWindow.rails[0].total === 20 && !firstWindow.hasMore, "the answer's total is the true count and nothing is held back");
+ok(windowRailAnswer(longAnswer, false, 12).rails[0].places.length === 12 && windowRailAnswer(longAnswer, false, 12).hasMore === true, "an explicit window size still trims (mechanism intact)");
 ok(windowRailAnswer(longAnswer, true).rails[0].places.length === 20, "the full cached inventory remains available on request");
 
 const rails = readFileSync(new URL("../lib/rails.js", import.meta.url), "utf8");

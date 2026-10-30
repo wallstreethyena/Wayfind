@@ -292,6 +292,7 @@ node scripts/test-place-products.mjs
 node scripts/test-city-viator.mjs
 node scripts/test-analytics.mjs
 node scripts/test-meta-pixel.mjs
+node scripts/test-campaign-attribution.mjs
 node scripts/test-paid-landing.mjs
 node scripts/test-landing-inventory-ssg.mjs
 # 2026-09-29 owner decision: exact-place_id not-public registry (Le Mans Kitchen) - excluded from landing pool + inventory, /places stays noindex
@@ -2246,6 +2247,8 @@ node scripts/test-group-vote-ballot.mjs
 node scripts/test-group-vote-organizer.mjs
 
 node scripts/test-group-vote-frame.mjs
+# Shared tours start Group Vote on that tour; picker counts category searches.
+node scripts/test-group-vote-tours.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
@@ -2446,3 +2449,4 @@ node scripts/check-redirect-suspect-gate.mjs
 
 # Safari 15 parse-time crash (WAYFIND-1K): shared/client regex compatibility.
 node scripts/check-browser-regex-compat.mjs
+node scripts/check-seasonal-rail-depth.mjs

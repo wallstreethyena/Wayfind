@@ -26,6 +26,7 @@ import { gatherAlerts } from "../../../../lib/commandCenter/alertsRun.js";
 import * as fp from "../../../../lib/commandCenter/sources/firstParty.js";
 import * as ph from "../../../../lib/commandCenter/sources/posthog.js";
 import { tpStats } from "../../../../lib/commandCenter/sources/travelpayouts.js";
+import { stay22Stats } from "../../../../lib/commandCenter/sources/stay22.js";
 import { repoSnapshot } from "../../../../lib/commandCenter/sources/github.js";
 import { runtimeDeployment, deploymentsList } from "../../../../lib/commandCenter/sources/vercel.js";
 import { sentryIssues } from "../../../../lib/commandCenter/sources/sentry.js";
@@ -63,7 +64,7 @@ async function phWithComps(range, comps) {
 }
 
 async function overview(now, range, comps) {
-  const [liveFp, livePh, fpk, phk, signupsCur, signupsComps, totals, tpToday, err24, sentry, syn] = await Promise.all([
+  const [liveFp, livePh, fpk, phk, signupsCur, signupsComps, totals, tpToday, s22Today, err24, sentry, syn] = await Promise.all([
     fp.liveNow(),
     ph.posthogConfigured() ? ph.liveNow() : Promise.resolve(ph.posthogMissing()),
     fpWithComps(range, comps),
@@ -72,6 +73,7 @@ async function overview(now, range, comps) {
     Promise.all(comps.map((c) => fp.signups(c.from, c.to))),
     fp.userTotals(),
     tpStats(range.from, range.to),
+    stay22Stats(range.from, range.to),
     ph.posthogConfigured() ? ph.errorCount24h() : Promise.resolve(ph.posthogMissing()),
     sentryIssues(),
     selfCheck(),
@@ -94,7 +96,7 @@ async function overview(now, range, comps) {
       comparisons: comps.map((c, i) => ({ key: c.key, label: c.label, value: sumSignups(signupsComps[i]) })),
       totals: { source: totals.source, data: totals.data },
     },
-    affiliate: { travelpayouts: tpToday },
+    affiliate: { travelpayouts: tpToday, stay22: s22Today },
     errors: {
       posthog24h: { source: err24.source, data: err24.data && err24.data[0] },
       sentry: sentry,
@@ -178,7 +180,7 @@ async function journey(range) {
 }
 
 async function places(range) {
-  const [views, saves, shares, likes, directions, outs, outProviders, outSrc, kpis, tp] = await Promise.all([
+  const [views, saves, shares, likes, directions, outs, outProviders, outSrc, kpis, tp, s22] = await Promise.all([
     fp.topPlaces(range.from, range.to, "view", 5),
     fp.topPlaces(range.from, range.to, "save", 5),
     fp.topPlaces(range.from, range.to, "share", 5),
@@ -189,6 +191,7 @@ async function places(range) {
     fp.breakdown(range.from, range.to, "out_src", 10),
     fp.kpis(range.from, range.to),
     tpStats(range.from, range.to),
+    stay22Stats(range.from, range.to),
   ]);
   const k = kpis.data || {};
   return {
@@ -197,6 +200,7 @@ async function places(range) {
       providers: outProviders,
       placements: outSrc,
       travelpayouts: tp,
+      stay22: s22,
       integrityNote: "Affiliate availability and payout NEVER feed Wayfind Scores or editorial ranking — reporting here is read-only and fully separate from lib/score.js / lib/ranking.js.",
     },
     conversion: {

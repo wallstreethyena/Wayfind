@@ -49,29 +49,37 @@ export function GroupPlacePicker() {
           navigator.geolocation.getCurrentPosition((pos)=>{clearTimeout(timer);resolve({lat:pos.coords.latitude,lng:pos.coords.longitude});},()=>{clearTimeout(timer);resolve(null);},{timeout:2500});
         } catch {resolve(null);}
       });
+      // No GPS answer: the area the person was already browsing on Wayfind.
+      let near=point;
+      if(!near){try{const c=JSON.parse(window.localStorage.getItem("wf_center")||"null");if(c&&Number.isFinite(c.lat)&&Number.isFinite(c.lng))near={lat:c.lat,lng:c.lng};}catch{}}
       const params=new URLSearchParams({q});
-      if(point){params.set("lat",String(point.lat));params.set("lng",String(point.lng));}
+      if(near){params.set("lat",String(near.lat));params.set("lng",String(near.lng));}
       const response=await fetch("/api/search?"+params.toString(),{headers:{accept:"application/json"}});
       const data=await response.json().catch(()=>null);
-      const places=Array.isArray(data?.places)?data.places.slice(0,8):[];
+      // Name matches come back as places; category searches ("bars", "brunch")
+      // come back as place cards. Both are real inventory places, so both count.
+      const seen=new Set(),places=[];
+      const add=(id,name,address)=>{id=String(id||"");if(!id||!name||seen.has(id)||places.length>=8)return;seen.add(id);places.push({id,name:String(name),address:address?String(address):""});};
+      for(const p of Array.isArray(data?.places)?data.places:[])add(p?.id,p?.displayName?.text||p?.name,p?.formattedAddress||p?.address);
+      for(const c of Array.isArray(data?.cards)?data.cards:[])if((c?.kind||"place")==="place")add(c?.id,c?.name,c?.address);
       setResults(places);
-      if(!places.length)setError("No places found for that search yet. Try a place name or a food, like sushi.");
+      if(!places.length)setError("No spots matched that yet. Try a name, or something like bars, sushi, or brunch.");
     } catch {setError("Search did not answer. Try again.");}
     finally {setBusy(false);}
   };
   const choose=(place)=>{
-    const name=place?.displayName?.text||place?.name||"";
+    const name=place?.name||"";
     const qs=new URLSearchParams({place:String(place.id)});
     if(name)qs.set("name",String(name).slice(0,60));
     window.location.assign("/group-plans/new?"+qs.toString());
   };
-  return <section className="gp-panel"><div className="gp-step">First · Pick the place</div><h2>Which place should your group vote on?</h2><p className="gp-muted">You shared something that is not one single place, so pick the spot here. Friends will vote on it and a few similar options nearby.</p>
-    <form onSubmit={search} className="gp-field"><label className="gp-field">Search places<input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Try a restaurant, park, or museum" autoComplete="off"/></label><button type="submit" className="gp-button primary" disabled={busy||!query.trim()}>{busy?"Searching…":"Search"}</button></form>
+  return <section className="gp-panel"><div className="gp-step">First · Pick the spot</div><h2>Where should your group go?</h2><p className="gp-muted">Pick one spot. Friends vote on it, plus similar picks nearby when we find good ones.</p>
+    <form onSubmit={search} className="gp-field"><label className="gp-field">Search places<input value={query} onChange={(e)=>setQuery(e.target.value)} placeholder="Try bars, sushi, or a place name" autoComplete="off"/></label><button type="submit" className="gp-button primary" disabled={busy||!query.trim()}>{busy?"Searching…":"Search"}</button></form>
     <ErrorNotice message={error}/>
-    {results?.length?<div className="gp-people">{results.map((place)=>{const name=place?.displayName?.text||place?.name||"Place";return <button type="button" key={place.id} className="gp-button" onClick={()=>choose(place)}>{name}</button>;})}</div>:null}
+    {results?.length?<div className="gp-people gp-pick-list">{results.map((place)=><button type="button" key={place.id} className="gp-button gp-pick" onClick={()=>choose(place)}><strong>{place.name}</strong>{place.address?<span className="gp-muted">{place.address}</span>:null}</button>)}</div>:null}
   </section>;
 }
-function returnPathFor(mode,planId,placeId) {return mode==="new"?`/group-plans/new?place=${encodeURIComponent(placeId||"")}`:mode==="list"?"/group-plans":planId?`/group-plans/${encodeURIComponent(planId)}`:"/group-plans";}
+function returnPathFor(mode,planId,placeId,placeName) {return mode==="new"?`/group-plans/new?place=${encodeURIComponent(placeId||"")}${placeName?`&name=${encodeURIComponent(placeName)}`:""}`:mode==="list"?"/group-plans":planId?`/group-plans/${encodeURIComponent(planId)}`:"/group-plans";}
 function localDefault(days,hour) {
   const date=new Date();date.setDate(date.getDate()+days);date.setHours(hour,0,0,0);
   return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}T${String(date.getHours()).padStart(2,"0")}:00`;
@@ -133,7 +141,7 @@ export function GroupCreateForm({placeId,session,onCreated,emailAvailable=false,
   </form>;
 }
 
-export default function GroupPlanClient({mode="view",planId,placeId,enabled=false}) {
+export default function GroupPlanClient({mode="view",planId,placeId,placeName="",enabled=false}) {
   const session=useAccount();const [loaded,setLoaded]=useState(null),[listState,setListState]=useState(null),[error,setError]=useState(""),[busy,setBusy]=useState(false),[credentials,setCredentials]=useState(undefined);
   const identityKey=credentials?.token?`invite:${credentials.token}`:credentials?.finalToken?`final:${credentials.finalToken}`:session?.user?.id?`owner:${session.user.id}`:"signed-out";
   const identityRef=useRef(identityKey);identityRef.current=identityKey;
@@ -159,7 +167,7 @@ export default function GroupPlanClient({mode="view",planId,placeId,enabled=fals
   return <GroupFrame>
     {mode!=="view"&&<GroupVoteIntro title={mode==="new"?"Who’s in & when?":"Your group votes"}><p className="gp-lede">{mode==="new"?"Start a group vote. Bring your people. Make a plan.":"Good plans start with your people. Pick up where you left off."}</p></GroupVoteIntro>}
     <ErrorNotice message={error}/>
-    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId)):mode==="new"&&!placeId?<GroupPlacePicker/>:mode==="new"?<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/>:mode==="list"?<>
+    {session===undefined||credentials===undefined?<p role="status">Loading your group plans…</p>:!guest&&!session?signInBlock(returnPathFor(mode,planId,placeId,placeName)):mode==="new"&&!placeId?<GroupPlacePicker/>:mode==="new"?<>{placeName?<p className="gp-status gp-pick-note">Your pick: <strong>{placeName}</strong>. Friends vote on it, plus similar picks when we find good ones.</p>:null}<GroupCreateForm key={session.user.id} placeId={placeId} session={session} {...(emailReady.identity===identityKey?emailReady:{})} onCreated={(next)=>window.location.assign(`/group-plans/${encodeURIComponent(next.id)}`)}/></>:mode==="list"?<>
       {list?.notices?.length>0&&<section className="gp-panel"><h2>Updates for you</h2>{list.notices.map((notice)=><p key={notice.id}><a className="gp-button" href={`/group-plans/${notice.plan_id}`}>{notice.event_type==="voting_closed"?"Voting has finished":notice.event_type==="plan_finalized"?"Your plan is ready":"Plan cancelled"}</a>{notice.email_status==="pending_configuration"&&<span className="gp-note"> Email update pending setup.</span>}{["failed","suppressed"].includes(notice.email_status)&&<span className="gp-note"> Email was not confirmed. Your result is saved here.{notice.next_attempt_at?" We’ll retry the email automatically.":""}</span>}</p>)}</section>}
       <section className="gp-panel"><h2>Pick up where you left off</h2>{list?.plans?.length?list.plans.map((item)=><div className="gp-row" key={item.id}><span>{item.status==="draft"?"Invites not started":item.status==="open"?"Waiting for replies":item.status==="closed"?"Ready for your decision":item.status==="finalized"?"Final plan":"Cancelled"}<small className="gp-note" style={{display:"block"}}>Created {new Date(item.created_at).toLocaleDateString()}</small></span><a className="gp-button" href={`/group-plans/${item.id}`}>Open plan</a></div>):<p className="gp-muted">Find a place you like, tap Share, then Group Vote.</p>}</section>
     </>:plan?<>{plan.role==="organizer"?<GroupOrganizer key={plan.id} plan={plan} onCommand={command} busy={busy}/>:plan.role==="final"?<><h1>Here’s the plan</h1><GroupFinal plan={plan}/></>:<GroupBallot key={plan.id} plan={plan} onCommand={command} busy={busy}/>}<button className="gp-button" disabled={busy} onClick={load}>Refresh replies</button></>:!error?<p role="status">Loading your invitation…</p>:<button className="gp-button" onClick={load}>Try again</button>}

@@ -24,7 +24,6 @@ import { railScoreOf } from "../../lib/railRank.js";
 import { beachDecisionReason, beachWaterBand } from "../../lib/beachDecision.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
-import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 
@@ -59,7 +58,7 @@ export function TodayEntertainmentRail({ eventSurface }) {
 }
 
 function TodayRailSection({ rail, lat, lng, city, onOpenPlace, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const seedItems = useMemo(() => (rail.places || []).slice(0, RAIL_PAGE_SIZE), [rail]);
+  const seedItems = useMemo(() => rail.places || [], [rail]);
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, city, rail: rail.id }), [lat, lng, city, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
