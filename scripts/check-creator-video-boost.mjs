@@ -294,4 +294,31 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
   ok(displayedWfScore(P(90, { distMi: 17 })) === 90, "17.0 exactly is not past 17");
 }
 
+// Owner intake: preserve correct identity, credit, native playback and scope.
+{
+  const intake = JSON.parse(readFileSync(path.join(REPO, "docs/curation/owner-three-reels-2026-10-30.json"), "utf8"));
+  const { captionFor } = await import("../lib/creatorCaptions.js");
+  const { embedSrc } = await import("../lib/videoEmbed.js");
+  const { creatorCountFor } = await import("../lib/creatorVideos.js");
+  const { creatorCountFor: leanCount } = await import("../lib/creatorSignals.js");
+  ok(intake.sources.length === 3, "all three owner-supplied reels are accounted for");
+  for (const source of intake.sources) {
+    if (source.status === "held_outside_florida") {
+      ok(source.state === "MA" && source.places.length === 0, "Massachusetts source stays outside Florida discovery");
+      ok(!SRC.includes(source.native_url), "held Massachusetts source cannot acquire a published place association");
+      continue;
+    }
+    const place = source.places[0];
+    const matches = creatorVideosFor({ id: place.place_id }).filter((v) => v.url === source.native_url);
+    ok(matches.length === 1 && matches[0].creator === source.creator, `${source.shortcode} resolves once with original credit`);
+    ok(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} retains native playback`);
+    ok(captionFor(matches[0]).length > 40, `${source.shortcode} has substantive original editorial context`);
+    ok(creatorCountFor({ id: place.place_id }) === 0 && leanCount({ id: place.place_id }) === 0, `${source.creator} cannot create independent corroboration`);
+    ok(!creatorVideosFor({ id: "ChIJwrongVerifiedIdentity123", name: place.name, city: place.city }).some((v) => v.url === source.native_url), `${source.shortcode} cannot leak through a same-name different Google ID`);
+    const other = intake.sources.find((r) => r.status === "verified" && r.shortcode !== source.shortcode).places[0];
+    ok(!creatorVideosFor({ id: other.place_id }).some((v) => v.url === source.native_url), `${source.shortcode} cannot attach to the other venue`);
+    if (source.content_kind === "dated_venue_promotion") ok(/October 2026/.test(captionFor(matches[0])) && /dated promotion/.test(captionFor(matches[0])), "farm promotion remains explicitly dated after Halloween");
+  }
+}
+
 console.log(`check-creator-video-boost: PASS (${pass} assertions)`);

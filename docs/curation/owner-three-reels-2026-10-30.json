@@ -1,0 +1,61 @@
+{
+  "reviewed_at": "2026-10-30",
+  "method": "Owner-supplied screenshots and public native Instagram caption metadata; exact Google IDs matched against production wf_inventory. Native embeds and attribution only; no copied media.",
+  "sources": [
+    {
+      "shortcode": "De0MxVmO0H4",
+      "native_url": "https://www.instagram.com/reel/De0MxVmO0H4/",
+      "creator": "hellofoodreviews",
+      "place": "High Hopes Sugar House",
+      "city": "Worthington",
+      "state": "MA",
+      "status": "held_outside_florida",
+      "reason": "Owner coverage is currently Florida only. Do not mislocate or publish this Massachusetts venue as a Florida recommendation.",
+      "places": []
+    },
+    {
+      "shortcode": "DfA2eLpgp2a",
+      "native_url": "https://www.instagram.com/reel/DfA2eLpgp2a/",
+      "creator": "brownandbrownfarms_55",
+      "status": "verified",
+      "content_kind": "dated_venue_promotion",
+      "posted_at": "2026-10-27",
+      "independent": false,
+      "places": [
+        {
+          "key": "brown-and-brown-farms-oxford",
+          "place_id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+          "name": "Brown & Brown Farms and Country Store",
+          "city": "Oxford",
+          "state": "FL",
+          "address": "13940 US-301, Oxford, FL 34484",
+          "lat": 28.9596554,
+          "lng": -82.0408629
+        }
+      ],
+      "supporting_source": "https://brownandbrownfarms.ticketspice.com/7-weekends-of-fall",
+      "schedule_note": "Native organizer post advertises Oct 31 10 AM\u201310 PM; ticket page generic Saturday schedule says 10 AM\u20138 PM. No new event/time claim published; caption clearly identifies dated source promotion."
+    },
+    {
+      "shortcode": "DfGCeMvv1TQ",
+      "native_url": "https://www.instagram.com/reel/DfGCeMvv1TQ/",
+      "creator": "fortlauderdaledowntown",
+      "status": "verified",
+      "content_kind": "city_guide",
+      "posted_at": "2026-10-29",
+      "independent": false,
+      "places": [
+        {
+          "key": "glitch-bar-fort-lauderdale",
+          "place_id": "ChIJ4V0TH_kA2YgRxgaQuq3qeV4",
+          "name": "Glitch Bar",
+          "city": "Fort Lauderdale",
+          "state": "FL",
+          "address": "905 NE 5th Ave, Fort Lauderdale, FL 33304",
+          "lat": 26.1353327,
+          "lng": -80.1391925
+        }
+      ]
+    }
+  ]
+}
