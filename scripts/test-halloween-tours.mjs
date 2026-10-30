@@ -252,4 +252,30 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   ok(out.partners === 0, "injected deps without a service key: no partner card");
 }
 
+// 2026-10-29 tour classification, price basis (per person vs per group), Jacksonville region, stale live row guard, and family filter
+{
+  ok(TOUR_REGIONS.some((r) => r.id === "jax" && r.label === "Jacksonville") && TOUR_REGIONS.some((r) => r.id === "more" && r.label === "Key West"), "Jacksonville and Key West have distinct region chips");
+  const jaxCards = snap.filter((t) => t.region === "jax");
+  ok(jaxCards.map((t) => t.id).sort().join(",") === "201204P3,333341P1", "both Jacksonville tours sit in the jax region, never under Key West");
+  const keyWestCards = snap.filter((t) => t.region === "more" && t.group === "ghost");
+  ok(keyWestCards.length > 0 && keyWestCards.every((t) => t.place === "Key West"), "every ghost tour in the Key West region is actually in Key West");
+  const pcb = snap.find((t) => t.id === "180859P9");
+  ok(pcb && pcb.group === "event" && pcb.place === "Panama City Beach, FL Panhandle" && pcb.formatLabel === "Walk through haunted house", "Panama City Beach attraction is in the event group with Panhandle place label");
+  const groupCodes = ["186588P10", "209615P123", "333814P8", "5567095P1"];
+  ok(snap.filter((t) => t.priceUnit === "per group").map((t) => t.id).sort().join(",") === groupCodes.join(","), "private vehicle/group tours carry per group price basis");
+  ok(snap.filter((t) => !groupCodes.includes(t.id)).every((t) => t.priceUnit === "per person"), "individual tours carry per person price basis");
+  ok(snap.find((t) => t.id === "5046OLDJAIL").formatLabel === "Daytime jail history tour" && snap.find((t) => t.id === "5046P21").formatLabel === "Night paranormal investigation", "Old Jail daytime tour and night paranormal experience are clearly distinguished");
+  ok(snap.find((t) => t.id === "107194P211").formatLabel === "Self guided phone game" && snap.find((t) => t.id === "469510P10").formatLabel === "Self guided audio tour", "self guided phone game and audio tours are labeled");
+  ok(toursHtml.includes("per group") && toursHtml.includes("per person") && toursHtml.includes("Private group tour") && toursHtml.includes("Self guided audio tour") && toursHtml.includes("Daytime jail history tour"), "rendered tour cards show formatLabel and priceUnit");
+  // Stale live row guard: dead link_ok, zero from_price, or removed code returns null instead of falling back to snapshot
+  ok(tourCard(TOUR_SNAPSHOT[0], { from_price: 0, link_ok: true }) === null, "red-prove: a live row with from_price 0 fails closed instead of falling back to snapshot price");
+  ok(tourCard(TOUR_SNAPSHOT[0], { from_price: 40, link_ok: false }) === null, "red-prove: a live row with link_ok false fails closed");
+  ok(tourCard({ ...TOUR_SNAPSHOT[0], code: "28841P2" }) === null && tourHref("28841P2") === null, "red-prove: a TOUR_REMOVED code never produces a tourCard or tourHref");
+  // Family filter hides adult-only pub crawls and 18+ tours across FeaturedGhostTours and TourSection
+  const familyHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "family" }));
+  ok(!familyHtml.includes("272079P3") && !familyHtml.includes("Spirits and Spirits Haunted Pub Crawl") && !familyHtml.includes("430526P2"), "family filter removes adult pub crawls and 18+ tours from FeaturedGhostTours");
+  ok(familyHtml.includes("38620P1") && familyHtml.includes("122676P1"), "family filter keeps family-appropriate featured ghost tours");
+}
+
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");
+
