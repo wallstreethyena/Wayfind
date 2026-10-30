@@ -5,8 +5,8 @@
 //    if the business is below 9; if above 9 it will increase 0.1. make this a
 //    global rule."
 //
-// Owner's choices the same day: it REPLACES the +0.2 any creator video earns
-// (one creator term per place), and it is DISCLOSED ("Cindy Selects pick" on
+// Owner's choices the same day: it STACKS on the +0.2 any creator video earns
+// (so +0.5 under 9.0, +0.3 at 9.0+), and it is DISCLOSED ("Cindy Selects pick" on
 // the card, her real connection on her page). Every assertion here CALLS the
 // real code: the score law, the creator-term helper every home.js rank site
 // uses, the displayed-score path, the lawful sort and todaysBest.
@@ -29,21 +29,21 @@ ok(FEATURED_VIDEO_BONUS_LOW === 3 && FEATURED_VIDEO_BONUS_HIGH === 1 && FEATURED
 ok(FEATURED_CREATOR === "cindy.selects", "the featured creator is cindy.selects");
 
 // ── 2. The law itself ──────────────────────────────────────────────────────
-ok(governedWayfindScore(85, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 88, "8.5 with her video shows 8.8 (+0.3)");
-ok(governedWayfindScore(89, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 92, "8.9 with her video shows 9.2 (+0.3: tier reads the base)");
-ok(governedWayfindScore(90, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 91, "9.0 with her video shows 9.1 (+0.1)");
-ok(governedWayfindScore(95, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 96, "9.5 with her video shows 9.6 (+0.1)");
+ok(governedWayfindScore(85, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 90, "8.5 with her video shows 9.0 (+0.2 creator +0.3 hers)");
+ok(governedWayfindScore(89, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 94, "8.9 with her video shows 9.4 (+0.5: tier reads the base)");
+ok(governedWayfindScore(90, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 93, "9.0 with her video shows 9.3 (+0.2 +0.1)");
+ok(governedWayfindScore(95, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 98, "9.5 with her video shows 9.8 (+0.3)");
 ok(governedWayfindScore(100, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }) === 100, "never past 10.0");
 ok(governedWayfindScore(85, { hasCreatorVideo: true }) === 85 + CREATOR_VIDEO_BONUS, "any other creator video keeps the flat +0.2");
-ok(governedWayfindScore(85, { hasFeaturedCreatorVideo: true }) === 88, "her flag alone applies the term");
+ok(governedWayfindScore(85, { hasFeaturedCreatorVideo: true }) === 90, "her flag alone applies the term");
 ok(governedWayfindScore(85, {}) === 85 && governedWayfindScore(null, { hasFeaturedCreatorVideo: true }) === null,
   "no video, no term; unrated stays null ('Score pending')");
-ok(governedWayfindScore(85, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true, distanceMi: 30 }) === 86, "the far deduction still applies after her term");
-ok(creatorVideoTerm(92, true, true) === 1 && creatorVideoTerm(70, true, true) === 3 && creatorVideoTerm(70, true, false) === 2 && creatorVideoTerm(70, false, false) === 0,
+ok(governedWayfindScore(85, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true, distanceMi: 30 }) === 88, "the far deduction still applies after her term");
+ok(creatorVideoTerm(92, true, true) === 3 && creatorVideoTerm(70, true, true) === 5 && creatorVideoTerm(70, true, false) === 2 && creatorVideoTerm(70, false, false) === 0,
   "creatorVideoTerm: featured high / featured low / other creator / none");
 const trace = [];
 governedWayfindScore(85, { hasFeaturedCreatorVideo: true, hasCreatorVideo: true }, trace);
-ok(trace.length === 1 && trace[0].key === "featured_creator" && trace[0].delta === 3, "the receipt names the featured-creator step, once, with its real delta");
+ok(trace.length === 1 && trace[0].key === "featured_creator" && trace[0].delta === 5, "the receipt names the featured-creator step, once, with its real delta");
 
 // ── 3. The resolver: real registry places ──────────────────────────────────
 const bellabean = { id: "ChIJ6_hQr4AXw4gRwfUFqlfdRfA", name: "Bellabean", city: "Bradenton" };
@@ -52,17 +52,17 @@ ok(creatorVideosFor(bellabean).some((v) => v.creator === FEATURED_CREATOR), "pos
 ok(hasFeaturedCreatorVideoAt(bellabean) === true, "hasFeaturedCreatorVideoAt finds her on Bellabean");
 ok(creatorVideosFor(roses).length > 0 && hasFeaturedCreatorVideoAt(roses) === false, "negative control: another creator's place is not featured");
 ok(hasFeaturedCreatorVideoAt({ id: "nope", name: "Nowhere Cafe" }) === false && hasFeaturedCreatorVideoAt(null) === false, "unknown places and null fail closed");
-ok(creatorEvidenceTerm({ ...bellabean, wfScore: 85 }) === 3 && creatorEvidenceTerm({ ...bellabean, wfScore: 93 }) === 1, "home.js rank term: her place gets 3 under 9.0, 1 at 9.0+");
+ok(creatorEvidenceTerm({ ...bellabean, wfScore: 85 }) === 5 && creatorEvidenceTerm({ ...bellabean, wfScore: 93 }) === 3, "home.js rank term: her place gets 5 under 9.0, 3 at 9.0+");
 ok(creatorEvidenceTerm({ ...roses, wfScore: 85 }) === CREATOR_VIDEO_BONUS && creatorEvidenceTerm({ id: "x", name: "Nowhere", wfScore: 85 }) === 0, "home.js rank term: other creator 2, none 0");
 
 // ── 4. Shown == sorted on every path that scores a place ───────────────────
-ok(displayedWfScore({ ...bellabean, wfScore: 85 }) === 88, "displayedWfScore applies her +0.3");
-ok(displayedWfScore({ ...bellabean, wfScore: 93 }) === 94, "displayedWfScore applies her +0.1");
+ok(displayedWfScore({ ...bellabean, wfScore: 85 }) === 90, "displayedWfScore applies +0.5");
+ok(displayedWfScore({ ...bellabean, wfScore: 93 }) === 96, "displayedWfScore applies +0.3");
 const lawful = { ...bellabean, wfScore: 85 };
-ok(governedScoreOf(lawful) === 88 && lawful.featured_creator_video === true, "the lawful sort scores 8.8 and records the verdict on the row");
+ok(governedScoreOf(lawful) === 90 && lawful.featured_creator_video === true, "the lawful sort scores 9.0 and records the verdict on the row");
 const recomputed = { ...lawful, id: lawful.id, name: "renamed", governed_score: undefined };
 delete recomputed.governed_score;
-ok(governedScoreOf(recomputed) === 88, "a later city-less recompute keeps the recorded term");
+ok(governedScoreOf(recomputed) === 90, "a later city-less recompute keeps the recorded term");
 // Two rows: Array.prototype.sort never calls the comparator for one row.
 const tb = byVisibleScore([{ place_id: bellabean.id, id: bellabean.id, name: "Bellabean", rating: 4.9, reviews: 116, distance_mi: 3 },
   { place_id: roses.id, id: roses.id, name: roses.name, rating: 4.4, reviews: 13, distance_mi: 3 }]);
@@ -79,4 +79,4 @@ if (fails.length) {
   console.error("check-featured-creator-score: FAIL\n  - " + fails.join("\n  - "));
   process.exit(1);
 }
-console.log(`check-featured-creator-score: OK — ${n} assertions (+0.3 under 9.0, +0.1 at 9.0+, replaces +0.2, capped at 10.0, shown == sorted across law/display/lawful/todaysBest/home rank term, disclosed on card and page)`);
+console.log(`check-featured-creator-score: OK — ${n} assertions (+0.3 under 9.0, +0.1 at 9.0+, stacked on the +0.2, capped at 10.0, shown == sorted across law/display/lawful/todaysBest/home rank term, disclosed on card and page)`);
