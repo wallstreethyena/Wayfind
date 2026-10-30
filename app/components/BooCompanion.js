@@ -197,7 +197,7 @@ const LOOK_MS = { hop: 360, spin: 500, wiggle: 400, nod: 150 };
 const BOLT_SPOTS = [["2px", "-6px", "#00F5D4", "0s"], ["62px", "-2px", "#FFD166", ".08s"], ["-8px", "20px", "#FFD166", ".16s"], ["68px", "26px", "#00F5D4", ".24s"]];
 const SIZE = 88;
 // Everything a visitor can press. He never sits on more than 15% of any of it.
-const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[role=button]";
+const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[role=button],h1,h2";
 // The ONLY pointer target on him is a small hit button. It is tappable only
 // while its padded box overlaps none of these (nothing navigational or
 // pressable), re-verified from a cached rect list at most every HIT_MS.
