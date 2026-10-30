@@ -153,7 +153,7 @@ ok((html.match(/data-haunt-id="/g) || []).length === live.haunts.length, "defaul
 ok(html.includes('id="boo-tours"') && html.includes("Florida Ghost Tours"), "default view renders the full ghost tour section under the haunts");
 ok(live.tours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders every ghost tour card");
 ok(live.eventTours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders the haunted attraction with the haunts");
-ok(html.includes("Top Florida ghost tours") && (html.match(/data-featured-tour="/g) || []).length === live.featuredTours.length, "featured ghost tours render near the top");
+ok(html.includes("Top Florida ghost tours") && (html.match(/data-featured-tour="/g) || []).length === live.featuredTours.length, "featured ghost tours render (after the haunt cards)");
 ok(html.includes("More ghost tours on Viator"), "destination heading renders");
 for (const dest of live.ghostDestinations) {
   ok(html.includes('data-ghost-dest="' + dest.id + '"') && html.includes(dest.href.replace(/&/g, "&amp;")), dest.id + " destination link renders through its tracked href");
@@ -172,11 +172,17 @@ ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml), "no raw Viat
 ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length + live.featuredTours.length, "every tour card and featured pick has the See availability button");
 const PICK_LINE = "Wayfind may earn a commission, which never changes our picks or their order.";
 ok((toursHtml.match(/Wayfind may earn a commission when you book through partner links\./g) || []).length === 1, "page disclosure still appears once");
-const toursPartnerButtons = live.tours.length + live.featuredTours.length + live.ghostDestinations.length;
-ok((toursHtml.match(/which never changes our picks or their order\./g) || []).length === toursPartnerButtons, "tours view: pick disclosure on every partner button (" + toursPartnerButtons + ")");
+// The four city links share ONE disclosure line under the group (2026-10-30 owner:
+// a line under every small link read as clutter); every card keeps its own.
+const toursPartnerButtons = live.tours.length + live.featuredTours.length + (live.ghostDestinations.length ? 1 : 0);
+ok((toursHtml.match(/which never changes our picks or their order\./g) || []).length === toursPartnerButtons, "tours view: pick disclosure on every partner card plus one for the city link group (" + toursPartnerButtons + ")");
+{
+  const destBlock = (toursHtml.match(/<section class="boo-dests"[\s\S]*?<\/section>/) || [""])[0];
+  ok(destBlock && (destBlock.match(/which never changes our picks or their order\./g) || []).length === 1 && (destBlock.match(/data-ghost-dest="/g) || []).length === live.ghostDestinations.length, "the city link group carries exactly one disclosure line for its " + live.ghostDestinations.length + " links");
+}
 ok(toursHtml.includes(PICK_LINE), "pick disclosure wording is the existing sentence");
 const partnerTags = [...toursHtml.matchAll(/<a class="(?:boo-buy|boo-dest-link)"[^>]*>/g)].map((m) => m[0]);
-ok(partnerTags.length === toursPartnerButtons && partnerTags.every((tag) => tag.includes('target="_blank"') && tag.includes('rel="sponsored nofollow noopener"')), "tours view partner links open in a new tab");
+ok(partnerTags.length === live.tours.length + live.featuredTours.length + live.ghostDestinations.length && partnerTags.every((tag) => tag.includes('target="_blank"') && tag.includes('rel="sponsored nofollow noopener"')), "tours view partner links open in a new tab");
 ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
 ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !bare.includes('data-filter-id="tours"'), "no tours, no chip and no jump button");

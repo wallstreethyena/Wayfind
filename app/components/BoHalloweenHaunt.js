@@ -229,7 +229,8 @@ const CSS = `
 .boo-tour-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .boo-featured,.boo-dests{margin-top:22px}
 .boo-featured h2,.boo-dests h2{margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream)}
-.boo-pick-list,.boo-dest-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.boo-pick-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.boo-dest-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:0 0 8px;padding:0;list-style:none}
 .boo-pick-card{display:grid;grid-template-columns:40% minmax(0,1fr);min-width:0;background:#141c27;border:1px solid #F97316;border-radius:14px;overflow:hidden}
 .boo-pick-photo{position:relative;min-width:0;min-height:200px;height:100%;background:#1C2230;overflow:hidden}
 .boo-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
@@ -516,10 +517,10 @@ function GhostDestinations({ links }) {
         {links.map((link) => (
           <li key={link.id}>
             <a className="boo-dest-link" data-ghost-dest={link.id} href={link.href} target="_blank" rel="sponsored nofollow noopener">{link.label}</a>
-            <GuideCommissionLine />
           </li>
         ))}
       </ul>
+      <GuideCommissionLine />
     </section>
   );
 }
@@ -608,9 +609,6 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           {share ? <div className="boo-share">{share}</div> : null}
           {toursChip ? <button type="button" className="boo-jump" onClick={openTours}>{chrome.toursJump}<span aria-hidden="true">↓</span></button> : null}
         </div>
-
-        <FeaturedGhostTours tours={visibleFeaturedTours} />
-        <GhostDestinations links={ghostDestinations} />
 
         {picks.length ? (
           <div className="boo-picks-wrap">
@@ -719,6 +717,10 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           ) : toursUnderHaunts ? null : (
             <p className="boo-empty">{chrome.empty}</p>
           )}
+          {/* Featured ghost tours and the four city links sit AFTER the haunt
+              cards (2026-10-30 owner: the stack above the cards read as clutter). */}
+          {!selectedPick ? <FeaturedGhostTours tours={visibleFeaturedTours} /> : null}
+          {!selectedPick ? <GhostDestinations links={ghostDestinations} /> : null}
           {toursUnderHaunts ? <TourSection chrome={chrome} tours={visibleTours} regions={tourRegions} /> : null}
         </div>
       </div>
