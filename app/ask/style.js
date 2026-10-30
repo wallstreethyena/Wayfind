@@ -1,280 +1,259 @@
-// app/ask/style.js — the pixel world (v7.27).
+// app/ask/style.js — Wayfind's Chibi Elf date-invite world.
 //
-// Matched to the owner's reference capture, frame by frame: a magenta sky with
-// a dither at the top, three banks of chunky pixel cloud, a hot-pink skyline on
-// the horizon, crimson pixel type with a white outline, and a bevelled YES.
-//
-// This page does NOT look like the rest of Wayfind, and that is deliberate. It
-// is opened inside a private conversation by someone who has never heard of us,
-// at the one moment they are being asked a personal question. A dark product UI
-// with an orange CTA reads there as an advert interrupting something private.
-// Wayfind's mark appears once, at the end, after the yes — where it reads as
-// "somebody arranged this for you" rather than as a banner.
-//
-// NOTHING HERE IS AN IMAGE. Owner: "I don't want to use any AI generated image,
-// it looks fake." Every cloud, every sparkle, the skyline and the whole cast are
-// drawn — CSS boxes and SVG rects on a grid. That is also why the page opens
-// instantly in a text thread: the entire world is a few kilobytes of markup.
-//
-// Exported as a string so the page inlines it: one request, no stylesheet round
-// trip, because the whole thing must paint before the person decides to bother.
+// Styled around Wayfind's Chibi Elf mascot (Official Mascot Bible palette):
+// twilight-lavender sky (#1B1030 -> #5E2479) with Govee Neon Pink (#FF2A85),
+// Rosy Blush (#FF7597), Springs Cyan (#00F5D4), and Wayfind Gold (#FFD166)
+// accents, soft glowing aura portrait frame, and accessible pill controls.
 export const ASK_CSS = `
-@font-face{font-family:Pixelify;font-style:normal;font-weight:400;font-display:block;
-  src:url(/fonts/pixelify-sans-latin-400-normal.woff2) format('woff2')}
-@font-face{font-family:Pixelify;font-style:normal;font-weight:700;font-display:block;
-  src:url(/fonts/pixelify-sans-latin-700-normal.woff2) format('woff2')}
-
 .wfx{position:fixed;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;
-  font-family:Pixelify,ui-monospace,monospace;
-  background:linear-gradient(180deg,#E07AD0 0%,#DD66C2 34%,#DA51B0 62%,#D63C9E 100%)}
+  font-family:var(--wf-sans),-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  background:
+    radial-gradient(circle at 50% 16%,rgba(255,117,151,.32),transparent 54%),
+    radial-gradient(circle at 84% 22%,rgba(0,245,212,.15),transparent 46%),
+    radial-gradient(circle at 16% 74%,rgba(255,42,133,.24),transparent 52%),
+    linear-gradient(180deg,#1B1030 0%,#2B174C 38%,#441D68 72%,#5E2479 100%)}
 .wfx *{box-sizing:border-box}
+.wfx button:focus-visible,.wfx a:focus-visible,.wfx input:focus-visible{
+  outline:3px solid #00F5D4;outline-offset:3px}
 
-/* The dither. The reference fades a checkerboard out of the top of the sky —
-   two pixels of a lighter magenta on a 8px grid, masked to the upper third. It
-   is what makes a flat CSS gradient read as a 16-bit sky instead of a gradient. */
-.wfx-dither{position:absolute;left:0;right:0;top:0;height:34%;pointer-events:none;opacity:.34;
-  background-image:linear-gradient(45deg,rgba(255,255,255,.18) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.18) 75%),
-    linear-gradient(45deg,rgba(255,255,255,.18) 25%,transparent 25%,transparent 75%,rgba(255,255,255,.18) 75%);
-  background-size:10px 10px;background-position:0 0,5px 5px;
+.wfx-dither{position:absolute;left:0;right:0;top:0;height:38%;pointer-events:none;opacity:.45;
+  background-image:radial-gradient(circle,rgba(255,255,255,.28) 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(255,209,102,.22) 1px,transparent 1.5px);
+  background-size:36px 36px,54px 54px;background-position:0 0,18px 18px;
   -webkit-mask-image:linear-gradient(180deg,#000 0%,transparent 100%);
   mask-image:linear-gradient(180deg,#000 0%,transparent 100%)}
 
-/* Clouds and skyline. Stepped boxes, never border-radius: a rounded cloud in a
-   pixel scene is the one thing that gives the whole illusion away. */
 .wfx-scene{position:absolute;left:0;right:0;bottom:0;height:42%;pointer-events:none}
-.wfx-cloud{position:absolute;display:block}
-.wfx-cloud i{position:absolute;display:block}
-.wfx-sky1 i{background:#F6DCF0}.wfx-sky2 i{background:#F1CBE8}.wfx-sky3 i{background:#EAB8DF}
-.wfx-ground{position:absolute;left:0;right:0;bottom:0;height:26%;
-  background:linear-gradient(180deg,#DF4EA4 0%,#D63C97 100%)}
-.wfx-skyline{position:absolute;left:0;right:0;bottom:22%;height:26px;
-  background-image:repeating-linear-gradient(90deg,#C82E82 0 6px,transparent 6px 14px,#C82E82 14px 24px,transparent 24px 30px,#C82E82 30px 34px,transparent 34px 46px);
-  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 40%);mask-image:linear-gradient(180deg,transparent 0,#000 40%)}
+.wfx-cloud{position:absolute;display:block;filter:blur(0.5px);pointer-events:none}
+.wfx-cloud i{position:absolute;display:block;border-radius:999px}
+.wfx-sky1 i{background:rgba(255,214,238,.16)}
+.wfx-sky2 i{background:rgba(213,194,255,.14)}
+.wfx-sky3 i{background:rgba(255,117,151,.12)}
+.wfx-ground{position:absolute;left:0;right:0;bottom:0;height:24%;
+  background:linear-gradient(180deg,rgba(255,42,133,.14) 0%,rgba(27,16,48,.55) 100%)}
+.wfx-skyline{position:absolute;left:0;right:0;bottom:22%;height:2px;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,117,151,.35) 25%,rgba(0,245,212,.3) 50%,rgba(255,209,102,.35) 75%,transparent 100%)}
 
-/* Sparkles are four-pointed pixel crosses, drawn with two bars. */
+/* Four-pointed star sparkles */
 .wfx-sparkle{position:absolute;width:14px;height:14px;pointer-events:none;
-  animation:wfxTwinkle 1.6s steps(3,end) infinite}
-.wfx-sparkle:before,.wfx-sparkle:after{content:"";position:absolute;background:#FBD9F2}
-.wfx-sparkle:before{left:5px;top:0;width:4px;height:14px}
-.wfx-sparkle:after{left:0;top:5px;width:14px;height:4px}
-@keyframes wfxTwinkle{0%,100%{transform:scale(.45);opacity:.35}50%{transform:scale(1);opacity:.95}}
+  background:#FFD166;
+  clip-path:polygon(50% 0,63% 37%,100% 50%,63% 63%,50% 100%,37% 63%,0 50%,37% 37%);
+  animation:wfxTwinkle 2.2s ease-in-out infinite}
+.wfx-sparkle:nth-child(even){background:#00F5D4}
+.wfx-sparkle:nth-child(3n){background:#FF7597}
+@keyframes wfxTwinkle{0%,100%{transform:scale(.45) rotate(-8deg);opacity:.35}50%{transform:scale(1.08) rotate(8deg);opacity:.95}}
 
-.wfx-heart{position:absolute;animation:wfxFloat 5s linear infinite;opacity:.95}
-@keyframes wfxFloat{0%{transform:translateY(0) scale(.9);opacity:0}
-  14%{opacity:.95}86%{opacity:.95}100%{transform:translateY(-300px) scale(1.05);opacity:0}}
+.wfx-heart{position:absolute;pointer-events:none;animation:wfxFloat 5.6s ease-in-out infinite;opacity:.92;
+  filter:drop-shadow(0 4px 10px rgba(255,42,133,.35))}
+@keyframes wfxFloat{0%{transform:translateY(0) scale(.85);opacity:0}
+  16%{opacity:.92}84%{opacity:.92}100%{transform:translateY(-290px) scale(1.08);opacity:0}}
 
-/* ONE HEIGHT AUTHORITY, NOT TWO. This was max-height:100dvh inside a parent
-   that is position:fixed;inset:0. On iOS those are different numbers — the
-   fixed box is pinned while dvh tracks the toolbar collapsing as you scroll —
-   so the scroll container resized underneath the thumb mid-scroll and the
-   content jumped. 100% of the fixed parent is the same number all the way
-   down. overscroll-behavior stops the scroll chaining out to the page and
-   dragging the whole thing with it. */
-.wfx-stage{position:relative;z-index:3;width:100%;max-width:430px;padding:20px 20px 28px;
+/* Single scroll authority inside fixed parent */
+.wfx-stage{position:relative;z-index:3;width:100%;max-width:440px;padding:22px 20px 32px;
   display:flex;flex-direction:column;align-items:center;text-align:center;
-  max-height:100%;overflow-y:auto;overscroll-behavior:contain}
+  max-height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain}
 
-/* THE FRAME. Two chunky pixel rings around a near-black plate, with a notched
-   corner on each side — the reference's frame, rebuilt in box-shadow so it
-   costs nothing and scales with the art. */
-.wfx-portrait{position:relative;display:flex;align-items:center;justify-content:center;
-  background:#140C18;image-rendering:pixelated;
-  box-shadow:0 0 0 5px #C0246A,0 0 0 10px #FFF3FB,0 0 0 15px #A8175A,0 16px 0 rgba(120,16,70,.32);
-  animation:wfxBob 2.2s steps(4,end) infinite}
-.wfx-portrait:before,.wfx-portrait:after{content:"";position:absolute;width:9px;height:9px;background:#E8459E}
-.wfx-portrait:before{left:-3px;top:-3px;box-shadow:calc(100% + 6px) 0 0 #E8459E}
-.wfx-portrait:after{left:-3px;bottom:-3px;box-shadow:calc(100% + 6px) 0 0 #E8459E}
-@keyframes wfxBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+/* Soft glowing Elf medallion stage */
+.wfx-portrait{position:relative;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  border-radius:42px;
+  background:
+    radial-gradient(circle at 50% 42%,rgba(255,117,151,.34),rgba(213,194,255,.18) 56%,rgba(24,14,44,.84) 100%);
+  border:2.5px solid rgba(255,255,255,.32);
+  box-shadow:
+    0 18px 44px rgba(12,5,26,.52),
+    0 0 0 6px rgba(255,117,151,.15),
+    inset 0 2px 0 rgba(255,255,255,.35);
+  animation:wfxBob 2.4s ease-in-out infinite}
+.wfx-portrait:before,.wfx-portrait:after{content:"";position:absolute;width:12px;height:12px;pointer-events:none;
+  background:#FFD166;
+  clip-path:polygon(50% 0,63% 37%,100% 50%,63% 63%,50% 100%,37% 63%,0 50%,37% 37%)}
+.wfx-portrait:before{right:10px;top:10px}
+.wfx-portrait:after{left:10px;bottom:10px;background:#00F5D4}
+@keyframes wfxBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 
-/* TYPE. Crimson with a hard white outline and a deep shadow under it — the
-   reference's exact treatment. The outline is four offsets rather than a blur,
-   because a blurred pixel letter is a smudge. */
-.wfx-h1{margin:26px 0 0;font-weight:700;line-height:1.3;color:#5E0A2C;letter-spacing:2px;
-  font-size:clamp(27px,7.6vw,35px);
-  text-shadow:3px 0 0 #FFF6FB,-3px 0 0 #FFF6FB,0 3px 0 #FFF6FB,0 -3px 0 #FFF6FB,
-    3px 3px 0 #FFF6FB,-3px 3px 0 #FFF6FB,3px -3px 0 #FFF6FB,-3px -3px 0 #FFF6FB,
-    0 8px 0 rgba(94,10,44,.34);
-  animation:wfxPop .38s steps(4,end)}
-@keyframes wfxPop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.wfx-h1{margin:20px 0 0;font-weight:850;line-height:1.18;color:#FFFFFF;letter-spacing:-.02em;
+  font-size:clamp(26px,7vw,35px);max-width:100%;overflow-wrap:anywhere;
+  text-shadow:0 4px 18px rgba(15,6,32,.55);
+  animation:wfxPop .34s cubic-bezier(.2,1.4,.3,1)}
+@keyframes wfxPop{0%{transform:scale(.86);opacity:0}100%{transform:scale(1);opacity:1}}
 
-.wfx-sub{margin:14px 0 0;color:#FFF6FB;font-size:16px;letter-spacing:1px;
-  text-shadow:0 2px 0 #7E1038,2px 0 0 rgba(94,10,44,.45),-2px 0 0 rgba(94,10,44,.45)}
+.wfx-sub{margin:10px 0 0;color:#F5E6FF;font-size:15.5px;font-weight:650;letter-spacing:.01em;line-height:1.45;
+  max-width:100%;overflow-wrap:anywhere;
+  text-shadow:0 2px 10px rgba(15,6,32,.45)}
 
-.wfx-row{display:flex;align-items:center;justify-content:center;gap:18px;margin-top:26px;min-height:108px}
+.wfx-plan-preview{width:100%;max-width:368px;margin-top:14px;padding:12px 16px;border-radius:18px;
+  background:rgba(24,14,44,.78);backdrop-filter:blur(12px);
+  border:1.5px solid rgba(255,255,255,.24);color:#F5E6FF;
+  font-size:14.5px;font-weight:650;line-height:1.5;text-align:center;
+  overflow-wrap:anywhere;box-shadow:0 10px 26px rgba(12,5,26,.36)}
+.wfx-plan-preview strong{color:#FFD166;font-weight:800}
+.wfx-plan-note{margin-top:5px;color:#D5C2FF;font-size:13.5px;font-weight:600;font-style:italic}
 
-/* THE YES. Bevelled and notched at the corners like a 16-bit menu button, and
-   it grows with REAL LAYOUT — font-size and padding, not transform:scale().
-   scale() does not reflow, so at the second No it grew straight over the top of
-   the No button and the person could no longer press the thing they were
-   reaching for, which turns a joke into a trick. */
-.wfx-yes{position:relative;border:0;cursor:pointer;font-family:inherit;font-weight:700;color:#FFFFFF;
-  background:#E8236E;letter-spacing:2px;
-  padding:calc(14px * var(--s,1)) calc(30px * var(--s,1));
-  font-size:calc(26px * var(--s,1));
-  clip-path:polygon(10px 0,calc(100% - 10px) 0,100% 10px,100% calc(100% - 10px),
-    calc(100% - 10px) 100%,10px 100%,0 calc(100% - 10px),0 10px);
-  box-shadow:inset 0 0 0 5px #FFF6FB,inset 0 0 0 9px #C0165A,0 8px 0 #8E0F3E;
-  text-shadow:0 3px 0 rgba(120,10,55,.55);
-  transition:font-size .3s steps(5,end),padding .3s steps(5,end)}
-.wfx-yes:active{transform:translateY(4px)}
-.wfx-no{border:0;cursor:pointer;font-family:inherit;font-weight:400;color:#B01F4A;background:#FFF6FB;
-  padding:calc(9px * var(--n,1)) calc(18px * var(--n,1));font-size:calc(16px * var(--n,1));
-  box-shadow:inset 0 0 0 3px #E27BB8,0 5px 0 rgba(140,20,70,.3);
-  transition:font-size .3s steps(5,end),padding .3s steps(5,end)}
-.wfx-plea{margin-top:18px;color:#FFF6FB;font-size:16px;letter-spacing:.8px;min-height:22px;
-  text-shadow:0 2px 0 #7E1038,2px 0 0 rgba(94,10,44,.45),-2px 0 0 rgba(94,10,44,.45);
-  animation:wfxPop .24s steps(3,end)}
+.wfx-alert{width:100%;max-width:368px;margin-top:12px;padding:11px 15px;border-radius:15px;
+  background:rgba(255,209,102,.15);border:1.5px solid rgba(255,209,102,.52);
+  color:#FFE8A3;font-size:13.5px;font-weight:650;line-height:1.45;text-align:center}
 
-.wfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:24px}
-/* COLUMN, NOT ROW. The chip was display:flex with the default row direction,
-   which turns the "their idea" tag from a block underneath the label into a
-   flex ITEM beside it — the sender's suggestion rendered as "DinnerTHEIR IDEA",
-   two typefaces jammed together on the one chip that has to read as chosen. */
-.wfx-chip{border:0;cursor:pointer;font-family:inherit;font-weight:400;color:#6E0B33;background:#FFF6FB;
-  padding:14px 8px;font-size:14px;letter-spacing:1px;line-height:1.3;min-height:54px;
+.wfx-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:22px;min-height:64px;flex-wrap:wrap;width:100%}
+
+/* Balanced, accessible response buttons — both answers stay clearly readable and easy to tap */
+.wfx-yes{position:relative;border:2.5px solid #FFFFFF;cursor:pointer;font-family:inherit;font-weight:850;color:#FFFFFF;
+  background:linear-gradient(135deg,#FF2A85 0%,#FF5E9E 100%);
+  letter-spacing:.04em;border-radius:999px;
+  min-height:52px;min-width:132px;padding:14px 32px;font-size:20px;
+  box-shadow:0 6px 0 #9E1152,0 14px 32px rgba(255,42,133,.48),inset 0 2px 0 rgba(255,255,255,.45);
+  text-shadow:0 2px 4px rgba(120,10,55,.45);
+  transition:transform .12s ease,filter .15s ease}
+.wfx-yes:hover{filter:brightness(1.06)}
+.wfx-yes:active{transform:translateY(3px)}
+
+.wfx-no{border:2px solid rgba(255,228,242,.55);cursor:pointer;font-family:inherit;font-weight:800;
+  color:#FFFFFF;background:rgba(26,15,46,.74);backdrop-filter:blur(10px);
+  border-radius:999px;
+  min-height:52px;min-width:120px;padding:14px 28px;font-size:18px;
+  box-shadow:0 6px 18px rgba(15,6,32,.34);
+  transition:transform .12s ease,background .15s ease,border-color .15s ease}
+.wfx-no:hover{background:rgba(44,26,74,.88);border-color:#FFFFFF}
+.wfx-no:active{transform:translateY(2px)}
+
+.wfx-plea{margin-top:12px;color:#FFD166;font-size:15px;font-weight:750;letter-spacing:.01em;min-height:22px;
+  text-shadow:0 2px 10px rgba(15,6,32,.55);
+  animation:wfxPop .24s cubic-bezier(.2,1.4,.3,1)}
+
+.wfx-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;width:100%;margin-top:20px}
+.wfx-chip{border:1.5px solid rgba(255,255,255,.22);cursor:pointer;font-family:inherit;font-weight:750;
+  color:#FFFFFF;background:rgba(26,15,46,.72);backdrop-filter:blur(12px);
+  border-radius:18px;padding:14px 10px;font-size:15px;letter-spacing:.01em;line-height:1.3;min-height:58px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  box-shadow:inset 0 0 0 4px #E8236E,0 5px 0 rgba(140,20,70,.3);
-  transition:transform .1s steps(2,end)}
-.wfx-chip:active{transform:translateY(3px)}
-.wfx-chip[aria-pressed="true"]{background:#E8236E;color:#FFF6FB;
-  box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #C0165A,0 5px 0 #8E0F3E}
+  box-shadow:0 8px 20px rgba(12,5,26,.32);
+  transition:transform .12s ease,border-color .15s ease,background .15s ease}
+.wfx-chip:active{transform:translateY(2px)}
+.wfx-chip:hover{border-color:rgba(255,117,151,.65);background:rgba(40,22,68,.84)}
+.wfx-chip[aria-pressed="true"]{background:linear-gradient(135deg,#FF2A85 0%,#FF5E9E 100%);color:#FFFFFF;
+  border-color:#FFFFFF;
+  box-shadow:0 5px 0 #9E1152,0 12px 26px rgba(255,42,133,.42)}
 
-.wfx-tag{display:block;margin-top:4px;font-size:10px;letter-spacing:1px;color:#E8236E;
+.wfx-tag{display:inline-block;margin-top:5px;padding:2px 8px;border-radius:999px;
+  font-size:10px;font-weight:800;letter-spacing:.06em;color:#0A0A0B;background:#00F5D4;
   text-transform:uppercase}
-.wfx-chip[aria-pressed="true"] .wfx-tag{color:#FFD9EC}
+.wfx-chip[aria-pressed="true"] .wfx-tag{background:#FFD166;color:#1E1233}
 
-.wfx-cal{width:100%;margin-top:20px;background:#FFF6FB;padding:14px 12px 16px;
-  box-shadow:inset 0 0 0 4px #E8236E,0 8px 0 rgba(140,20,70,.3)}
+.wfx-cal{width:100%;margin-top:16px;background:rgba(24,14,44,.82);backdrop-filter:blur(14px);
+  border:1.5px solid rgba(255,255,255,.22);border-radius:22px;padding:16px 14px 18px;
+  box-shadow:0 14px 34px rgba(12,5,26,.42)}
 .wfx-calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;
-  color:#6E0B33;font-weight:700;font-size:16px;letter-spacing:1px}
-.wfx-calnav{border:0;background:transparent;color:#B01F4A;font-family:inherit;font-size:20px;
-  cursor:pointer;padding:0 12px;line-height:1}
+  color:#FFFFFF;font-weight:800;font-size:16px;letter-spacing:.01em}
+.wfx-calnav{border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08);color:#FFFFFF;
+  border-radius:999px;font-family:inherit;font-size:16px;font-weight:800;
+  cursor:pointer;width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;line-height:1}
 .wfx-calnav[disabled]{opacity:.25;cursor:default}
-.wfx-caldays,.wfx-calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
-.wfx-caldays div{color:#C4658F;font-size:11px;padding-bottom:4px}
-.wfx-day{border:0;background:#FBE6F3;color:#5E0A2C;font-family:inherit;font-size:14px;
-  padding:8px 0;cursor:pointer}
-.wfx-day[disabled]{background:transparent;color:#DCA9C6;cursor:default}
-.wfx-day[aria-pressed="true"]{background:#E8236E;color:#FFF6FB;box-shadow:inset 0 0 0 2px #FFF6FB}
+.wfx-caldays,.wfx-calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wfx-caldays div{color:#D5C2FF;font-size:11.5px;font-weight:750;padding-bottom:4px}
+.wfx-day{border:1px solid transparent;background:rgba(255,255,255,.08);color:#FFFFFF;
+  border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;
+  padding:9px 0;cursor:pointer;transition:all .14s ease}
+.wfx-day:hover:not([disabled]){border-color:rgba(255,117,151,.6);background:rgba(255,255,255,.15)}
+.wfx-day[disabled]{background:transparent;color:rgba(213,194,255,.28);cursor:default}
+.wfx-day[aria-pressed="true"]{background:linear-gradient(135deg,#FF2A85 0%,#FF5E9E 100%);
+  color:#FFFFFF;border-color:#FFFFFF;box-shadow:0 4px 12px rgba(255,42,133,.45)}
 
-.wfx-field{display:block;width:100%;margin-top:12px;padding:13px 14px;font-family:inherit;
-  font-size:16px;letter-spacing:.5px;color:#5E0A2C;background:#FFF6FB;border:0;outline:none;
-  box-shadow:inset 0 0 0 4px #E8236E}
-.wfx-field::placeholder{color:#C4658F}
-.wfx-field:focus{box-shadow:inset 0 0 0 4px #B01F4A}
+.wfx-field{display:block;width:100%;margin-top:12px;padding:13px 16px;font-family:inherit;
+  font-size:16px;font-weight:650;color:#FFFFFF;background:rgba(24,14,44,.78);
+  border:1.5px solid rgba(255,255,255,.24);border-radius:16px;outline:none;
+  box-shadow:0 6px 18px rgba(12,5,26,.28)}
+.wfx-field::placeholder{color:rgba(213,194,255,.68)}
+.wfx-field:focus{border-color:#FF7597;box-shadow:0 0 0 3px rgba(255,117,151,.25)}
 
-.wfx-go{margin-top:22px;border:0;cursor:pointer;font-family:inherit;font-weight:700;color:#FFFFFF;
-  background:#E8236E;padding:14px 28px;font-size:19px;letter-spacing:2px;
-  clip-path:polygon(9px 0,calc(100% - 9px) 0,100% 9px,100% calc(100% - 9px),
-    calc(100% - 9px) 100%,9px 100%,0 calc(100% - 9px),0 9px);
-  box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #C0165A,0 7px 0 #8E0F3E}
-.wfx-go[disabled]{background:#C88BB0;box-shadow:inset 0 0 0 4px #FFF6FB,inset 0 0 0 7px #A87696,0 7px 0 #8E6480;cursor:default}
-.wfx-go2{margin-top:12px;background:#FFF6FB;color:#B01F4A;
-  box-shadow:inset 0 0 0 4px #E8236E,0 7px 0 rgba(140,20,70,.35)}
+.wfx-go{margin-top:18px;border:2px solid #FFFFFF;cursor:pointer;font-family:inherit;font-weight:850;color:#FFFFFF;
+  background:linear-gradient(135deg,#FF2A85 0%,#FF5E9E 100%);
+  border-radius:999px;min-height:50px;padding:13px 28px;font-size:16.5px;letter-spacing:.04em;
+  box-shadow:0 5px 0 #9E1152,0 12px 28px rgba(255,42,133,.42)}
+.wfx-go[disabled]{background:rgba(255,255,255,.14);color:rgba(255,255,255,.45);
+  border-color:rgba(255,255,255,.18);box-shadow:none;cursor:default}
+.wfx-go2{margin-top:12px;background:rgba(255,255,255,.12);color:#FFFFFF;
+  border:1.5px solid rgba(255,255,255,.32);box-shadow:0 6px 18px rgba(12,5,26,.32)}
 
-.wfx-quiet{margin-top:18px;border:0;background:transparent;color:#FFF6FB;font-family:inherit;
-  font-size:15px;letter-spacing:.6px;cursor:pointer;text-decoration:underline;
-  text-shadow:0 2px 0 #7E1038}
+.wfx-quiet{display:inline-block;margin-top:14px;border:0;background:transparent;color:#FFD166;font-family:inherit;
+  font-size:15px;font-weight:750;letter-spacing:.01em;cursor:pointer;text-decoration:underline;
+  text-underline-offset:4px;text-shadow:0 2px 8px rgba(12,5,26,.5)}
 
-.wfx-card{width:100%;margin-top:22px;background:#FFF6FB;padding:16px 18px;color:#5E0A2C;
-  font-size:15px;line-height:1.9;letter-spacing:.6px;text-align:left;
-  box-shadow:inset 0 0 0 4px #E8236E,0 8px 0 rgba(140,20,70,.3)}
-.wfx-card b{color:#C0165A;font-weight:700}
+.wfx-card{width:100%;margin-top:16px;background:rgba(24,14,44,.82);backdrop-filter:blur(14px);
+  border:1.5px solid rgba(255,255,255,.24);border-radius:20px;padding:15px 18px;color:#F5E6FF;
+  font-size:15px;font-weight:600;line-height:1.8;text-align:left;overflow-wrap:anywhere;
+  box-shadow:0 12px 30px rgba(12,5,26,.4)}
+.wfx-card b{color:#FFD166;font-weight:800}
 
-.wfx-mark{margin-top:22px;display:flex;align-items:center;justify-content:center;gap:8px;
-  color:#FFF0F8;font-size:13px;letter-spacing:1.4px;text-shadow:0 2px 0 #7E1038}
+.wfx-mark{margin-top:20px;display:flex;align-items:center;justify-content:center;gap:8px;
+  color:#D5C2FF;font-size:13px;font-weight:700;letter-spacing:.06em;text-shadow:0 2px 8px rgba(12,5,26,.5)}
 
-/* THE BURST. Pressing YES is the whole point of the page, and until now it was
-   the least eventful tap on it — the frame simply changed. Fourteen hearts fly
-   out of the button. It costs nothing, it lasts 700ms, and it is the moment
-   people screenshot. Each heart gets its angle and distance from a custom
-   property so one keyframe serves all of them. */
 .wfx-burst{position:fixed;left:0;top:0;width:0;height:0;z-index:99999;pointer-events:none}
 .wfx-burst i{position:absolute;left:0;top:0;display:block;
-  animation:wfxBurst .72s cubic-bezier(.16,.9,.36,1) forwards}
+  animation:wfxBurst .75s cubic-bezier(.16,.9,.36,1) forwards}
 @keyframes wfxBurst{
   0%{transform:translate(-50%,-50%) rotate(0) scale(.4);opacity:0}
   18%{opacity:1}
-  100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rot)) scale(1);opacity:0}}
+  100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rot)) scale(1.08);opacity:0}}
 
-/* ── THE CAST ─────────────────────────────────────────────────────────────
-   Fast and looping, per the owner. Sub-second cycles on purpose: at 1.5s a
-   kawaii idle reads as a slow shrug, and this page has about two seconds to be
-   charming before the person decides whether to answer. steps() rather than
-   ease, because pixel art that eases between frames looks like smooth vector
-   art wearing a costume.
-
-   One rhythm per rung. They are all fast, but not the SAME fast — hopeful hops,
-   worried wobbles, crying trembles, heartbroken slumps. Reusing one loop across
-   six moods is how a mood ladder turns back into a single drawing. */
-.wfc{overflow:visible;transform-origin:50% 92%;image-rendering:pixelated}
-.wfc-hop{animation:wfcHop .5s steps(4,end) infinite}
-.wfc-bounce{animation:wfcHop .36s steps(4,end) infinite}
-.wfc-wobble{animation:wfcWobble .44s steps(4,end) infinite}
-.wfc-shiver{animation:wfcShiver .12s steps(2,end) infinite}
-.wfc-slump{animation:wfcSlump .8s steps(4,end) infinite}
-.wfc-tremble{animation:wfcTremble .1s steps(2,end) infinite}
-@keyframes wfcHop{0%,100%{transform:translateY(0)}50%{transform:translateY(-8%)}}
+/* ── ELF MOTION RHYTHMS ─────────────────────────────────────────────────── */
+.wfc{overflow:visible;transform-origin:50% 88%}
+.wfc-hop{animation:wfcHop .95s ease-in-out infinite}
+.wfc-bounce{animation:wfcHop .68s ease-in-out infinite}
+.wfc-wobble{animation:wfcWobble .76s ease-in-out infinite}
+.wfc-shiver{animation:wfcShiver .18s ease-in-out infinite}
+.wfc-slump{animation:wfcSlump 1.2s ease-in-out infinite}
+.wfc-tremble{animation:wfcTremble .16s ease-in-out infinite}
+@keyframes wfcHop{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7%) scale(1.02)}}
 @keyframes wfcWobble{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
-@keyframes wfcShiver{0%,100%{transform:translateX(-1.4%)}50%{transform:translateX(1.4%)}}
-@keyframes wfcSlump{0%,100%{transform:translateY(3%)}50%{transform:translateY(6%)}}
-@keyframes wfcTremble{0%,100%{transform:translate(-1%,3%)}50%{transform:translate(1%,3%)}}
+@keyframes wfcShiver{0%,100%{transform:translateX(-1.6%)}50%{transform:translateX(1.6%)}}
+@keyframes wfcSlump{0%,100%{transform:translateY(3%) scale(.98)}50%{transform:translateY(6%) scale(.96)}}
+@keyframes wfcTremble{0%,100%{transform:translate(-1.2%,2%)}50%{transform:translate(1.2%,2%)}}
 
-.wfc-xheart{animation:wfcPulse .4s steps(3,end) infinite}
-.wfc-xsweat{animation:wfcSweat .66s steps(5,end) infinite}
-.wfc-xbreak{animation:wfcBreak .7s steps(3,end) infinite}
-.wfc-tear1{animation:wfcDrop .56s steps(6,end) infinite}
-.wfc-tear2{animation:wfcDrop .56s steps(6,end) .28s infinite}
-@keyframes wfcPulse{0%,100%{transform:scale(.82)}50%{transform:scale(1.2)}}
-@keyframes wfcDrop{0%{transform:translateY(0);opacity:0}18%{opacity:1}100%{transform:translateY(22px);opacity:0}}
-@keyframes wfcSweat{0%{transform:translateY(0);opacity:0}28%{opacity:1}100%{transform:translateY(13px);opacity:0}}
+.wfc-xheart{animation:wfcPulse .7s ease-in-out infinite}
+.wfc-xsweat{animation:wfcSweat .9s ease-in-out infinite}
+.wfc-xbreak{animation:wfcBreak .85s ease-in-out infinite}
+.wfc-tear1{animation:wfcDrop .75s ease-in infinite}
+.wfc-tear2{animation:wfcDrop .75s ease-in .36s infinite}
+@keyframes wfcPulse{0%,100%{transform:scale(.86) translateY(0)}50%{transform:scale(1.16) translateY(-4px)}}
+@keyframes wfcDrop{0%{transform:translateY(0) scale(.75);opacity:0}22%{opacity:1}100%{transform:translateY(28px) scale(1);opacity:0}}
+@keyframes wfcSweat{0%{transform:translateY(0);opacity:0}28%{opacity:1}100%{transform:translateY(18px);opacity:0}}
 @keyframes wfcBreak{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
 
-/* EAGER. Owner: "make the little guy seem excited but also track the mouse,
-   anxious about the decision, shaking, literally bouncing off the walls with
-   excitement, but cute."
-
-   Three layers, deliberately: the mood's own loop keeps running underneath, a
-   fidget vibrates on top at a speed set by how long they have been deliberating,
-   and the lean tips the whole body a single pixel cell after the pointer. Capped
-   at one cell on purpose — a smooth 12px slide in a pixel scene is what gives
-   the illusion away, and "cute" and "seizure" are about four pixels apart.
-
-   THE JUMPING LIVED HERE. The duration used to come from a custom property the
-   page rewrote every 900ms, and the lean was interpolated INSIDE the keyframes.
-   Both mutate a running animation, which the engine answers by restarting it —
-   so the cat snapped about thirteen times on the activity screen, which is what
-   the owner saw as "jumping all over the place".
-
-   Now: the lean is the standalone 'translate' property on the wrapper, which
-   composes with the animated 'transform' instead of being part of it, so a
-   pointer move is a composited nudge and touches no animation. The speed is
-   three static classes, so it changes at most twice — and the SVG underneath
-   keeps its own mood loop, which the old single-element version silently
-   overrode. */
-.wfc-lean{display:inline-flex;translate:var(--lean,0) var(--liftv,0)}
-.wfc-eager{will-change:transform;animation:wfcEager .44s steps(2,end) infinite}
+.wfc-lean{display:inline-flex;translate:var(--lean,0) var(--liftv,0);transition:translate .12s ease-out}
+.wfc-eager{will-change:transform;animation:wfcEager .44s ease-in-out infinite}
 .wfc-fid2{animation-duration:.3s}
 .wfc-fid3{animation-duration:.2s}
 @keyframes wfcEager{
-  0%{transform:translate(-1px,0)}
-  50%{transform:translate(1px,-2px)}
-  100%{transform:translate(-1px,0)}}
+  0%{transform:translate(-1.5px,0)}
+  50%{transform:translate(1.5px,-3px)}
+  100%{transform:translate(-1.5px,0)}}
 
-/* THE HUG. They lean in, squeeze, and a heart pops between them — on a loop,
-   because a hug that happens once is a picture. */
+/* Two Elves snuggling cheek-to-cheek */
 .wfc-couple{position:relative;display:flex;align-items:flex-end;justify-content:center}
-.wfc-hugL{animation:wfcHugL .44s steps(4,end) infinite;margin-right:-18%;transform-origin:80% 90%}
-.wfc-hugR{animation:wfcHugR .44s steps(4,end) infinite;margin-left:-18%;transform-origin:20% 90%}
-@keyframes wfcHugL{0%,100%{transform:translateX(0)}50%{transform:translateX(7%)}}
-@keyframes wfcHugR{0%,100%{transform:translateX(0)}50%{transform:translateX(-7%)}}
-.wfc-heart{position:absolute;top:-14%;left:50%;margin-left:-8px;z-index:2;
-  animation:wfcPulse .4s steps(3,end) infinite}
+.wfc-hugL{animation:wfcHugL .72s ease-in-out infinite;margin-right:-11%;transform-origin:80% 90%}
+.wfc-hugR{animation:wfcHugR .72s ease-in-out infinite;margin-left:-11%;transform-origin:20% 90%}
+@keyframes wfcHugL{0%,100%{transform:translateX(0) rotate(-2deg)}50%{transform:translateX(5%) rotate(3deg)}}
+@keyframes wfcHugR{0%,100%{transform:translateX(0) rotate(2deg)}50%{transform:translateX(-5%) rotate(-3deg)}}
+.wfc-heart{position:absolute;top:-6%;left:50%;margin-left:-11px;z-index:2;
+  animation:wfcCoupleHeart .65s ease-in-out infinite}
+@keyframes wfcCoupleHeart{0%,100%{transform:scale(.88) translateY(0)}50%{transform:scale(1.22) translateY(-5px)}}
+
+.boo-c,.boo-s-back{display:none!important}
+.wfx-paused *,.wfx-paused *:before,.wfx-paused *:after{animation-play-state:paused!important}
+
+@media (max-height: 520px){
+  .wfx{align-items:flex-start}
+  .wfx-stage{padding:8px 16px 14px}
+  .wfx-portrait{transform:scale(.72);margin:-18px 0 -14px}
+  .wfx-h1{margin-top:6px;font-size:clamp(20px,4.8vw,25px)}
+  .wfx-sub{margin-top:4px;font-size:14px}
+  .wfx-plan-preview{margin-top:8px;padding:8px 12px;font-size:13.5px}
+  .wfx-row{margin-top:10px;min-height:48px}
+}
 
 @media (prefers-reduced-motion: reduce){
   .wfx-portrait,.wfx-heart,.wfx-sparkle,.wfx-h1,.wfx-plea,
   .wfc,.wfc-eager,.wfc-hugL,.wfc-hugR,.wfc-heart,
   .wfc-xheart,.wfc-xsweat,.wfc-xbreak,.wfc-tear1,.wfc-tear2{animation:none}
-  .wfx-yes,.wfx-no{transition:none}
+  .wfx-yes,.wfx-no,.wfc-lean{transition:none}
 }
 `;
+
