@@ -1,3 +1,4 @@
+import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
 import { christmasEventPageRow } from "../../../lib/christmasEventPage.js";
@@ -266,7 +267,7 @@ export default async function CuratedEventPage({ params }) {
   };
 
   return (
-    <main className="wf-event-experience"><EventExperienceStyles />{crownTracked ? <CrownOutbound slug={params.slug} /> : null}<div className="wf-event-wrap">
+    <main className="wf-event-experience"><EventExperienceStyles />{crownTracked ? <CrownOutbound slug={params.slug} /> : <CommerceClickBeacon surface="florida_event_page" />}<div className="wf-event-wrap">
       {ld ? <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld) }} /> : null}
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(crumbs) }} />
 
@@ -313,7 +314,8 @@ export default async function CuratedEventPage({ params }) {
         <div style={S.ticketWrap}>
           <a style={S.tix} href={ticket.href} target="_blank" rel={ticket.kind === "affiliate" ? "sponsored nofollow noopener" : ticket.rel}
             aria-label={ticket.label.replace(" ↗", "") + " for " + e.event_name}
-            {...(crownTracked ? { "data-wf-ticket": "1", ...(ticket.kind === "affiliate" ? { "data-wf-ticket-kind": "affiliate" } : {}) } : {})}>
+            {...(crownTracked ? { "data-wf-ticket": "1", ...(ticket.kind === "affiliate" ? { "data-wf-ticket-kind": "affiliate" } : {}) } : {})}
+            {...(!crownTracked && ticket.kind === "organizer" ? { "data-wf-outbound-ticket": "organizer", "data-wf-content-id": params.slug } : {})}>
             {"🎟️ " + ticket.label}
           </a>
           {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
