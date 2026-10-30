@@ -2,6 +2,7 @@
 // Seasonal "Movies" rail (Fall / Halloween / Christmas): a sibling of the intent
 // rails, rendered in the middle of them (after the 5th content rail, lib/moviesRailSlot.js). Options, not a single pick.
 // Data comes from /api/movies/seasonal so the registry stays out of client chunks.
+// Tapping the card body opens the Wayfind movie page (/movies/<id>); Share sends that page's canonical URL.
 // Every card with a buy button goes through /api/commerce/go (ticket.href), never
 // a partner URL. The button sells the live Undercover Tourist movie ticket deal (offer comes
 // from the API payload, so the registry stays out of the client). If ctaLive were ever false
@@ -17,6 +18,7 @@ import { useSiteToday } from "../../lib/siteDayClock.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
+import { SITE_URL } from "../../lib/site.js";
 
 export const MOVIES_LOAD_TIMEOUT_MS = 10000;
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
@@ -138,7 +140,8 @@ export default function SeasonalMoviesRail({ collection = "fall", active = true,
             placeholder={art ? null : placeholderFor(collection, movie.status)}
             eagerMedia={index < 3}
             place={null}
-            actionItem={{ id: "movie:" + movie.id, type: "event", title: movie.title, url: movie.ticket && movie.ticket.href ? movie.ticket.href : "" }}
+            href={"/movies/" + movie.id}
+            actionItem={{ id: "movie:" + movie.id, type: "event", title: movie.title, image: art ? art.src : null, url: SITE_URL + "/movies/" + movie.id }}
             title={movie.title} eyebrow={spooky ? spookyEyebrow(title) : title} rank={index + 1} spooky={spooky}
             score={null} when={movieWhen(movie)}
             facts={[movie.rating || null, runtimeLabel(movie.runtimeMin), art && art.credit ? art.credit : null].filter(Boolean)}

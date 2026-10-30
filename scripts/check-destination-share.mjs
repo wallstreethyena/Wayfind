@@ -76,6 +76,7 @@ const STANDARD = {
   "app/nightlife/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/florida/[town]/page.js": "app/florida/[town]/page.js",
   "app/events/[city]/[slug]/page.js": "app/events/[city]/[slug]/page.js",
+  "app/movies/[slug]/page.js": "app/movies/[slug]/page.js",
   "app/culture/[metro]/page.js": "app/culture/[metro]/page.js",
   "app/trending/page.js": "lib/trending.js#TrendingIndexPage",
   "app/trending/[city]/page.js": "lib/trending.js#TrendingCityPage",

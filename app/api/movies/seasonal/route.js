@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 // partner destination never leaves the server. ctaLive false (defensive only) would null
 // every ticket and the rail hides itself.
 
-import { moviesForCollection, MOVIES_RAIL_DEFS, MOVIE_COLLECTIONS, MOVIE_TICKET_OFFER } from "../../../../lib/seasonalMovies.js";
+import { moviesForCollection, MOVIES_RAIL_DEFS, MOVIE_COLLECTIONS, MOVIE_TICKET_OFFER, movieTicketHref } from "../../../../lib/seasonalMovies.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 
 const CACHE = "public, s-maxage=3600, stale-while-revalidate=600";
@@ -33,7 +33,7 @@ export async function GET(request) {
     vibes: m.vibes,
     art: m.art,
     ticket: ctaLive
-      ? { provider: MOVIE_TICKET_OFFER.provider, offerId: MOVIE_TICKET_OFFER.offerId, href: `/api/commerce/go?provider=${MOVIE_TICKET_OFFER.provider}&offer=${MOVIE_TICKET_OFFER.offerId}&surface=${surface}&content=${encodeURIComponent(m.id)}` }
+      ? { provider: MOVIE_TICKET_OFFER.provider, offerId: MOVIE_TICKET_OFFER.offerId, href: movieTicketHref(m.id, surface) }
       : null,
   }));
   return Response.json(
