@@ -16,7 +16,9 @@ import { pickLine, routeLine, timeLines } from "./booReactions.js";
 import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide } from "./booClear.js";
 
 const HIDE_KEY = "wf_boo_hidden";
-const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share"];
+// /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
+// open those links to vote; nothing there should float over the ballot.
+const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"];
 const HAUNT_PATH = "/halloween-in-florida";
 
 // Oct 1 through Nov 1 inclusive, by the Eastern site date.
@@ -198,6 +200,10 @@ const BOLT_SPOTS = [["2px", "-6px", "#00F5D4", "0s"], ["62px", "-2px", "#FFD166"
 const SIZE = 88;
 // Everything a visitor can press. He never sits on more than 15% of any of it.
 const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[role=button]";
+// Words he must never park on (owner 2026-10-30: "make sure he is not hovering
+// in front of text"). Headings, paragraphs, list text, labels, prices, alerts.
+// Only where he rests and where his bubble goes; taps still use HIT_SEL.
+const READ_SEL = "h1,h2,h3,h4,p,li,blockquote,figcaption,dt,dd,td,th,[role=status],[role=alert],[data-boo-clear]";
 // The ONLY pointer target on him is a small hit button. It is tappable only
 // while its padded box overlaps none of these (nothing navigational or
 // pressable), re-verified from a cached rect list at most every HIT_MS.
@@ -577,7 +583,7 @@ export default function BooCompanion() {
     const c = ctlRef.current, now = performance.now();
     if (!fresh && c.t && now - c.t < 120) return c.list;
     const vw = window.innerWidth, vh = window.innerHeight, me = elRef.current, out = [];
-    const nodes = document.querySelectorAll(CONTROL_SEL);
+    const nodes = document.querySelectorAll(CONTROL_SEL + "," + READ_SEL);
     for (let i = 0; i < nodes.length; i++) {
       const el = nodes[i];
       if (me && me.contains(el)) continue;
