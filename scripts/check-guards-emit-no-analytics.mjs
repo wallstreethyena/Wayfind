@@ -111,7 +111,7 @@ function capturingRoutes(dir, out = []) {
     const full = dir + "/" + e.name;
     if (e.isDirectory()) { capturingRoutes(full, out); continue; }
     if (e.name !== "route.js") continue;
-    if (!/\bcaptureServer\s*\(/.test(readFileSync(full, "utf8"))) continue;
+    if (!/\bcaptureServer(?:InBackground)?\s*\(/.test(readFileSync(full, "utf8"))) continue;
     out.push(full.slice(full.indexOf("app/api")).replace(/\.js$/, ""));
   }
   return out;

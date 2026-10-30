@@ -19,7 +19,7 @@ export const runtime = "nodejs";
 
 import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js";
 import { randomUUID } from "node:crypto";
-import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
+import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isTicketmasterFamily, ticketOutUrl } from "../../../../lib/affiliates.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
@@ -56,7 +56,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
-      captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
+      captureServerInBackground(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
 
