@@ -399,8 +399,9 @@ scripts/check-score-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0	da0c3f8c7ab8
 scripts/check-scout-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	d385f315b661b1b2c97ddbb83e6d2988c02d8f585c85fb5c37da459bc8fa21c1
 scripts/check-search-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	7b07ace798eeef53088ff0f2f3fb7f67da7fd057d1781cf77884a95fc821d8f0
 scripts/check-search-understand.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	a0ecccf47c9bd23e36a51dc754743b1b9f0c39ac829cb2493938ae0f82c44097
-scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	213c6feb81c7f67794d5bb9ff1f54b4816064e0da54f9c8c9e7bb27214e961da
-scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	45	0	0	deaabd229b6daa5908858508cb513473ab08d7db9fbc82e9201aa711ab63e838
+scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	1502c346b55b7ee664ced3af210c9d1fa2859b04b406b3cb741e63b3e8d022db
+scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	48	0	0	7f17889735396450c995de27de8ae62350271ef7e4000b9edb221cf4e8c55fc6
+scripts/check-seasonal-rail-depth.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	a7af84063d56e22ef5103369c1381458b88e4111bdef296e7e2dcbb01456d2cd
 scripts/check-seasonal-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	111	0	0	8759742d8d856a247f1cc6372f6c6f24f558ca12948b328a8dab58b71f443572
 scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	63	1	0	b23fd93b05f825d0254f15ac6d1cf09b1a04578c3336c94410e5116939a5bebc
 scripts/check-share-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	9236820711658a41523c578ca14987d68d3219ccb18ae185b6e36df01153974c
@@ -678,7 +679,7 @@ scripts/test-fall-card-integration.mjs	0	RENDER	blocks-ci-and-deploy	1	-	17	0	0	
 scripts/test-fall-destination-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	58	0	0	ae6627e9198b035a957a7be8268735ea0cfd395b269f33351dfce034c8b31579
 scripts/test-fall-discovery-report.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	85d86782cc80ab88d387391fef8aa36a0812db41511128eb0ca06f41344fe9f1
 scripts/test-fall-farm-food-gap-2026-10-07.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	5f704f024266072c06901f004e91be43c48c84744a498394204e753da67055f7
-scripts/test-fall-food-gap-2026-10-08.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a165e39633801e326f0121d7045596b67a532d8cfb7157aebc398551ff4b4eaa
+scripts/test-fall-food-gap-2026-10-08.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	5dc6ba6ca47618bc8147431667e9c243724e6422adca2a19836e5d23c7f7c0a3
 scripts/test-fall-gap-fill-2026-10-06.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	036f15f671338df81c764094dca821e0a0c88d8bd823d246235718aa2df5b33d
 scripts/test-fall-intent-rails.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	cdfa40b616335324937e0932f8e41abc2366a0be023794557d707cdd957ea058
 scripts/test-fall-tampa-picks-2026-10-08.mjs	0	RENDER	blocks-ci-and-deploy	1	-	47	0	0	c30382a3f48485bbecc14ee6977f7fa4c77ebce3e8187904b56a7a4b542325e2
@@ -828,7 +829,7 @@ scripts/test-morning-candidate-integrity.mjs	0	RENDER	blocks-ci-and-deploy	1	-	1
 scripts/test-morning-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	105	0	0	527087a457c10b6f953584ff3fbb23a8fa550718efa1c6f8744eb4ab83f34bb3
 scripts/test-morning-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	aff00f3ed9953797cfbaf594c3f4787a64bf09701229d4b2f25d5e20153b0eb0
 scripts/test-night-out-identity-first.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	963731c128e78911fd088f109073e1229342a3b83b79539ec91459cc11907136
-scripts/test-night-out-intent.mjs	0	CALL	blocks-ci-and-deploy	1	-	118	0	0	5c27d37e214c696c68d3f0717488cbea70b4aeab4d04d97a8aa8ba2d137b8760
+scripts/test-night-out-intent.mjs	0	CALL	blocks-ci-and-deploy	1	-	119	0	0	813f05e1b0f8fdb9d9869c2e7498ebc1e6aa8a657c88837f20eee7f6b4f11a5f
 scripts/test-night-out-inventory-merge.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	4a2722d9865455336585d8c98aa6cfc1cd364dd0c0c4b014e1df470f1fef8a9d
 scripts/test-night-tour-products.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	c50d8e3220db21d29c3b56bd727859b232120a87fba1b281813a2359b20f5036
 scripts/test-nightlife-census.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	d7eac0043a33612bb67d95c5e39ac2d03c5aedea4781f8eb2a55708d03530d13

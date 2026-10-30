@@ -57,6 +57,14 @@ try {
       ok(m.title && !dashy(m.title), `${m.id}: title has no dashes`);
       ok(Array.isArray(m.vibes) && m.vibes.length >= 1 && m.vibes.length <= 3 && m.vibes.every((v) => v && !dashy(v)), `${m.id}: 1 to 3 clean vibes`);
       ok(m.art === null || (/^\/movies\/[\w.-]+\.webp$/.test(m.art.src) && m.art.credit && fs.existsSync(new URL("../public" + m.art.src, import.meta.url))), `${m.id}: art null or an existing /movies/ file with credit`);
+    // Owner 2026-10-29: every movie carries a real self-hosted poster (webp, small, tall one-sheet).
+    ok(m.art && m.art.src === `/movies/${m.id}-400.webp` && m.art.credit === "Official poster", `${m.id}: art is { src: /movies/${m.id}-400.webp, credit: "Official poster" }`);
+    {
+      const file = new URL("../public" + (m.art && m.art.src), import.meta.url);
+      const buf = fs.existsSync(file) ? fs.readFileSync(file) : Buffer.alloc(0);
+      ok(buf.length > 1000 && buf.length <= 60000, `${m.id}: poster file exists and is 1KB..60KB (got ${buf.length})`);
+      ok(buf.length > 12 && buf.subarray(0, 4).toString() === "RIFF" && buf.subarray(8, 12).toString() === "WEBP", `${m.id}: poster is a real webp (RIFF/WEBP magic bytes), not a renamed jpg`);
+    }
     }
   }
 

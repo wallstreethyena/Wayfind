@@ -135,7 +135,9 @@ export async function GET(request) {
     // v43 publishes the October 29 pulse rows (Fall-O-Ween, Bridge Street Spooktacular).
     // v44 (2026-10-29, owner) publishes ten Sarasota/Manatee Halloween hospitality rows
     // and retires five crawl-stop place cards in favor of the ticketed crawl event.
-    const key = `fall-intents:v44:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v45 (2026-10-29, owner) every option shown and farms reach 60 mi; a warm v44 rail
+    // predates the new 45 to 60 mi farm band.
+    const key = `fall-intents:v45:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([

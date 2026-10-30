@@ -18,7 +18,6 @@ import { settleRescored, rescoredIds } from "../../lib/lawfulOrder.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { emitRailDegraded, isRailCancelled, railDeveloperFailure } from "../../lib/railFailure.js";
 import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson.js";
-import { RAIL_PAGE_SIZE } from "../../lib/railPage.js";
 import { usePagedRail } from "./usePagedRail.js";
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import useEventClock from "./useEventClock.js";
@@ -26,6 +25,7 @@ import { eventVisitStatus, eventRestrictionChips } from "../../lib/eventVisitFac
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 import SeasonalMoviesRail from "./SeasonalMoviesRail.js";
+import { withMoviesRail } from "../../lib/moviesRailSlot.js";
 import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel, christmasCardChips } from "../../lib/christmasCardCopy.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
@@ -67,10 +67,10 @@ function eventCta(card, onTrack) {
 }
 
 function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare }) {
-  const seedItems = useMemo(() => (rail.cards || []).slice(0, RAIL_PAGE_SIZE), [rail]);
+  const seedItems = useMemo(() => rail.cards || [], [rail]);
   const params = useMemo(() => (lat != null && lng != null ? { lat, lng, rail: rail.id } : null), [lat, lng, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loading, loadingMore, error, fetchMore } = usePagedRail(
-    "/api/events/christmas", params, { enabled: !!params, seedItems, seedTotal: (rail.cards || []).length, itemsKey: "cards" },
+    "/api/events/christmas", params, { enabled: !!params, seedItems, seedTotal: Number.isFinite(rail.total) ? rail.total : (rail.cards || []).length, itemsKey: "cards" },
   );
   const curatorPicks = useCuratorPicks();
   const now = useEventClock();
@@ -209,9 +209,8 @@ export default function ChristmasIntentRails({
   // Each rail links its OWN guide (owner, 2026-10-08), carried server side on
   // rail.guide and placed INSIDE that rail as its third card (RailGuideSlot,
   // lib/railGuideSlot.js): nothing renders between the rails.
-  return <>{payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
+  return <>{withMoviesRail(payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
     isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />)}
-    <SeasonalMoviesRail collection="christmas" active={active} onTrack={onTrack} />
+    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection="christmas" active={active} onTrack={onTrack} />)}
   </>;
 }
