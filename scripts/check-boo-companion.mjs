@@ -62,7 +62,15 @@ ok(/inSeason\(\)/.test(comp.replace(/function\s+inSeason\s*\(\)/, "")), "inSeaso
 // 3. reserved paths
 const rp = comp.match(/const\s+RESERVED_PATHS\s*=\s*\[([^\]]*)\]/);
 ok(!!rp, "BooCompanion must declare const RESERVED_PATHS = [...]");
-if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
+if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"]) ok(rp[1].includes('"' + p + '"'), "RESERVED_PATHS must include " + p);
+// Owner 2026-10-30: he never parks in front of text. Resting and bubble
+// placement read controls AND readable text blocks.
+{
+  const rs = comp.match(/const\s+READ_SEL\s*=\s*"([^"]*)"/);
+  ok(!!rs, "BooCompanion must declare const READ_SEL for text he must not cover");
+  if (rs) for (const t of ["h1", "h2", "p", "li", "[role=alert]", "[role=status]", "[data-boo-clear]"]) ok(rs[1].split(",").includes(t), "READ_SEL must include " + t);
+  ok(/querySelectorAll\(CONTROL_SEL \+ "," \+ READ_SEL\)/.test(comp), "controlRects must read controls and text together");
+}
 ok(/reservedPath\(/.test(comp.replace(/function\s+reservedPath\s*\(/, "")), "reservedPath() must be called by the gate");
 
 // 4. hide key
@@ -301,10 +309,13 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   const clear = await import("../app/components/booClear.js");
   const { overlapRatio, besideSpot, pickClearSpot, chooseBubbleSide, bubbleRect, touchesAny, isClear, MAX_COVER } = clear;
   const R = (l, t, w, h) => ({ left: l, top: t, right: l + w, bottom: t + h });
-  // overlapRatio: share of the CONTROL covered.
-  ok(overlapRatio(R(0, 0, 88, 88), R(0, 0, 100, 100)) === 0.7744, "overlapRatio: 88x88 over a 100x100 control is 0.7744");
+  // overlapRatio: the larger of the share of the CONTROL covered and the share
+  // of BOO resting on it, so a wide control cannot be sat on squarely.
+  ok(overlapRatio(R(0, 0, 88, 88), R(0, 0, 100, 100)) === 1, "overlapRatio: 88x88 wholly inside a 100x100 control is 1 (all of him is on it)");
+  ok(overlapRatio(R(400, 0, 88, 88), R(0, 0, 1000, 60)) > 0.6, "overlapRatio: Boo squarely on a full-width search bar is far over 15% even though it is under 15% of the bar");
+  ok(overlapRatio(R(0, 0, 10, 10), R(0, 0, 100, 100)) === 1, "overlapRatio: a box wholly inside a control counts as fully over it");
   ok(overlapRatio(R(200, 0, 88, 88), R(0, 0, 100, 100)) === 0, "overlapRatio: disjoint boxes are 0");
-  ok(Math.abs(overlapRatio(R(90, 0, 88, 100), R(0, 0, 100, 100)) - 0.1) < 1e-9, "overlapRatio: a 10px sliver of a 100x100 is 0.1");
+  ok(Math.abs(overlapRatio(R(90, 0, 88, 100), R(0, 0, 100, 100)) - 1000 / 8800) < 1e-9, "overlapRatio: a 10px sliver is the larger share (1000 of his 8800)");
   ok(MAX_COVER === 0.15, "the cap is 15%");
   // Phone fixture: full width Get Tickets button, a link below it, a bottom nav.
   const b = { minX: 12, maxX: 290, minY: 0, maxY: 748 };
