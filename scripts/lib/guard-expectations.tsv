@@ -80,7 +80,7 @@ scripts/check-creator-signal-equivalence.mjs	0	RENDER	blocks-ci-and-deploy	1	-	4
 scripts/check-creator-signals-fresh.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	1	1	0	712a4942732fa7d8d0fcdbb103e5a9ed828330df44be4d7b35806df43c5c0f85
 scripts/check-creator-summary-counts.mjs	0	CALL	blocks-ci-and-deploy	1	-	7	0	0	07842d94301d1930c17550ebdce17a8bc3a63cf9d9671d88cabda12edeeb34dc
 scripts/check-creator-tile-navigates.mjs	0	RENDER	blocks-ci-and-deploy	1	-	13	0	0	5f9a0c3a9d9d54963ced643531b28b55f391a70e8b936173bebc8bcf30f1869a
-scripts/check-creator-video-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	70	0	0	9fb02252e74c6ec268fd9fe18341c614b471a6389457f8cd2c01260692219793
+scripts/check-creator-video-boost.mjs	0	CALL	blocks-ci-and-deploy	1	-	83	0	0	564a29c5b78c1fd8564db6f91fdfbb9d850e7e68e80a380d598af12783a6365e
 scripts/check-credential-discipline.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	1065b2ebcbf17da1077c4e64cb24f23dc4542a1d7d23b67e0d9817a5aa2ff345
 scripts/check-credentialed-paths.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	27	0	0	c0caa8075db9050fdd4a16517950ea1d5f87b7a410efc9a291520aa640bf2f11
 scripts/check-cron-failclosed.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	557c093f0330dca7030d09f2e7cbcfef04c91f4c41e4445265802effdf9fd7bc
@@ -716,6 +716,7 @@ scripts/test-group-plan.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	3101cb57e13f
 scripts/test-group-vote-ballot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	164	0	0	8bc6a6963bd8e249d3bac58f90dfc29fe011127294c855213a7d982de590be67
 scripts/test-group-vote-frame.mjs	0	RENDER	blocks-ci-and-deploy	1	-	24	0	0	6656a6b7662600b0037bd5cc4bb8b1a34ba7b70aecf2620e495ac48051a84367
 scripts/test-group-vote-organizer.mjs	0	RENDER	blocks-ci-and-deploy	1	-	194	0	0	8385835f396ec7061fe2c3a38766c00fed76e8fd55a1e01b160abcfbfedabb7c
+scripts/test-group-vote-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	-	57	0	0	5106470cfbf6c6f3231d6823ade1ef54396405b3df0d77e481ebd612468b98a1
 scripts/test-guide-city-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	c6a465e7282b1e60a693f376ebcef9066f918ad5a6a75a58a145c0d51a5b9ee2
 scripts/test-guide-commerce-exit.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	5	0	0	8a2ba9479167f59ac0f8eb3f7d0a2befac1f6a04f78edd66ea9556f557f02e2e
 scripts/test-guide-commerce-measurement.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	31	0	0	fa5b5652425a0349567726dff834cfb3a5633c94fa0afe53ef33971e315938d1
