@@ -8,7 +8,8 @@ import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { halloweenHauntModel } from "../lib/halloweenHauntVault.js";
+import { halloweenBrowse, halloweenBrowseCards } from "../lib/halloweenBrowse.js";
+import { halloweenHauntModel, withHalloweenHauntLocations, HAUNT_BROWSE_PLACE } from "../lib/halloweenHauntVault.js";
 import { isDeniedViatorSku } from "../lib/viatorDenylist.js";
 import { destinationUrl } from "../lib/destinations.js";
 import { viatorCampaign, withViatorTracking } from "../lib/affiliates.js";
@@ -112,12 +113,19 @@ let seenUrl = "";
 const fakeFetch = async (url) => {
   seenUrl = url;
   const rows = TOUR_SNAPSHOT.filter((t) => t.code !== missing).map((t) => ({
+    // Synthetic exact product coordinates, not a destination/city fallback.
+    ...(t.code === codes[0] ? { lat: 27.9506, lng: -82.4572 } : t.code === codes[3] ? { lat: 28.5, lng: -81.4 } : {}),
     product_code: t.code, provider: "viator", from_price: t.fromPrice + 1, rating: t.rating, reviews: t.reviews, duration_min: t.minutes, image: t.image, link_ok: t.code !== dead,
   }));
   return { ok: true, json: async () => rows };
 };
 const model = halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" });
-const live = await withHalloweenTours(model, { env, fetch: fakeFetch });
+const live = await withHalloweenHauntLocations(await withHalloweenTours(model, { env, fetch: fakeFetch }), {
+  now: Date.parse("2026-10-29T12:00:00-04:00"), env,
+  fetch: async () => ({ ok: true, json: async () => [["howlTampa", 27.9506, -82.4572], ["zooTampa", 27.98, -82.46], ["hhn", 28.5, -81.4]].map(([id, lat, lng]) => ({
+    place_id: HAUNT_BROWSE_PLACE[id], independent_coords: [{ source: "wikidata", lat, lng }],
+  })) }),
+});
 ok(/wf_experiences/.test(seenUrl) && /provider=eq\.viator/.test(seenUrl), "reads wf_experiences for viator rows");
 const liveAll = [...live.tours, ...live.eventTours];
 ok(liveAll.length === TOUR_SNAPSHOT.length - 2, "dead and vanished rows are dropped");
@@ -144,42 +152,59 @@ const schema = halloweenToursSchema(live.tours, "https://www.gowayfind.com/hallo
 ok(schema["@type"] === "ItemList" && schema.numberOfItems === live.tours.length, "tour schema is an ItemList of every card");
 ok(!JSON.stringify(schema).includes("/api/commerce/go") && !JSON.stringify(schema).includes("viator.com"), "schema never embeds the redirect or a partner URL");
 
-// Render: default view is haunts and Halloween events; ghost tours sit behind the chip
-const { default: BoHalloweenHaunt } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
+// The default SSR page has no location and therefore no listing cards. Every
+// catalogue card is still rendered in isolation to preserve all facts and links.
+const { default: BoHalloweenHaunt, TourCard, CategoryRail, HalloweenBrowseContent } = await loadComponent(path.join(root, "app/components/BoHalloweenHaunt.js"), root);
 const html = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live }));
-const chipLabel = "Ghost tours (" + live.tours.length + ")";
-ok(html.includes(">" + chipLabel + "<") && html.includes('data-filter-id="tours"'), "the ghost tours chip carries the real count: " + chipLabel);
-ok((html.match(/data-haunt-id="/g) || []).length === live.haunts.length, "default view keeps the haunt grid");
-ok(html.includes('id="boo-tours"') && html.includes("Florida Ghost Tours"), "default view renders the full ghost tour section under the haunts");
-ok(live.tours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders every ghost tour card");
-ok(live.eventTours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders the haunted attraction with the haunts");
-ok(html.includes("Top Florida ghost tours") && (html.match(/data-featured-tour="/g) || []).length === live.featuredTours.length, "featured ghost tours render near the top");
-ok(html.includes("More ghost tours on Viator"), "destination heading renders");
+ok(html.includes('data-filter-id="ghost"') && html.includes("Ghost tours"), "ghost tours has a category selector");
+ok(!/data-(?:haunt|tour|browse)-id=/.test(html), "default SSR never renders statewide cards without a location");
+ok(html.includes("Where are you looking?") && html.includes("Use my location") && html.includes("Choose area"), "unknown location requires an explicit chooser");
+ok(!html.includes('id="boo-tours"') && !html.includes("Florida Ghost Tours"), "legacy statewide tour section is replaced by local category rails");
+ok(!html.includes("Top Florida ghost tours") && !html.includes("data-featured-tour="), "statewide featured picks cannot bypass the local radius");
+ok(!html.includes("More ghost tours on Viator"), "generic city booking heading is removed");
 for (const dest of live.ghostDestinations) {
-  ok(html.includes('data-ghost-dest="' + dest.id + '"') && html.includes(dest.href.replace(/&/g, "&amp;")), dest.id + " destination link renders through its tracked href");
+  ok(!html.includes('data-ghost-dest="' + dest.id + '"') && !html.includes(dest.href.replace(/&/g, "&amp;")), dest.id + " generic destination shortcut is absent");
 }
-ok(!DASH.test("Top Florida ghost tours") && !DASH.test("More ghost tours on Viator"), "new headings are dash free");
-ok(html.includes("Show all") === false && html.includes("Prices, dates and hours for " + (live.haunts.length + live.eventTours.length) + " Florida haunts and Halloween events."), "lede counts haunts and events only");
-const toursHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "tours" }));
-ok(toursHtml.includes('id="boo-tours"') && toursHtml.includes("Florida Ghost Tours"), "tour section renders behind the chip");
-ok((toursHtml.match(/data-tour-id="/g) || []).length === live.tours.length, "chip view: one card per ghost tour");
-ok(!/data-haunt-id="/.test(toursHtml), "chip view swaps the haunt cards out");
-for (const t of live.tours) {
-  ok(toursHtml.includes('href="' + t.cta.href.replace(/&/g, "&amp;") + '"'), t.id + " buy href renders");
-  ok(toursHtml.includes(t.name.replace(/'/g, "&#x27;")) || toursHtml.includes(t.name), t.id + " name renders");
+ok(!DASH.test("Ghost tours and haunted walks") && !DASH.test("Halloween parties and nightlife"), "category headings are dash free");
+ok(html.includes("Find Halloween plans within 40 miles.") && !html.includes("Prices, dates and hours for " + (live.haunts.length + live.eventTours.length) + " Florida haunts"), "lede states the radius rather than implying all Florida cards are nearby");
+const toursHtml = live.tours.map((t) => renderToStaticMarkup(createElement(TourCard, { t }))).join("");
+const eventsHtml = live.eventTours.map((t) => renderToStaticMarkup(createElement(TourCard, { t }))).join("");
+ok((toursHtml.match(/data-tour-id="/g) || []).length === live.tours.length, "isolated render covers every retained ghost tour exactly once");
+ok(live.tours.every((t) => toursHtml.includes('data-tour-id="' + t.id + '"')), "every ghost tour id renders in its own card");
+ok(live.eventTours.every((t) => eventsHtml.includes('data-tour-id="' + t.id + '"')), "every haunted attraction id renders in its own card");
+ok(!/data-haunt-id="/.test(toursHtml), "tour card renderer never emits a haunt identity");
+for (const t of [...live.tours, ...live.eventTours]) {
+  const cardHtml = renderToStaticMarkup(createElement(TourCard, { t }));
+  ok(cardHtml.includes('href="' + t.cta.href.replace(/&/g, "&amp;") + '"'), t.id + " buy href renders");
+  ok(cardHtml.includes(t.name.replace(/'/g, "&#x27;")) || cardHtml.includes(t.name), t.id + " name renders");
+  ok(cardHtml.includes(t.cta.via), t.id + " seller line accompanies the booking link");
+  ok((cardHtml.match(/class="boo-buy"/g) || []).length === 1, t.id + " has a single primary booking CTA");
 }
-ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml), "no raw Viator link in the page");
-ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length + live.featuredTours.length, "every tour card and featured pick has the See availability button");
-const PICK_LINE = "Wayfind may earn a commission, which never changes our picks or their order.";
-ok((toursHtml.match(/Wayfind may earn a commission when you book through partner links\./g) || []).length === 1, "page disclosure still appears once");
-const toursPartnerButtons = live.tours.length + live.featuredTours.length + live.ghostDestinations.length;
-ok((toursHtml.match(/which never changes our picks or their order\./g) || []).length === toursPartnerButtons, "tours view: pick disclosure on every partner button (" + toursPartnerButtons + ")");
-ok(toursHtml.includes(PICK_LINE), "pick disclosure wording is the existing sentence");
-const partnerTags = [...toursHtml.matchAll(/<a class="(?:boo-buy|boo-dest-link)"[^>]*>/g)].map((m) => m[0]);
-ok(partnerTags.length === toursPartnerButtons && partnerTags.every((tag) => tag.includes('target="_blank"') && tag.includes('rel="sponsored nofollow noopener"')), "tours view partner links open in a new tab");
-ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
+ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml + eventsHtml), "no raw Viator link in the page or isolated cards");
+ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length, "every tour card has the See availability button");
+const DISCLOSURE = "Wayfind may earn a commission when you book through partner links. Rankings are never for sale.";
+const origin = { lat: 27.9506, lng: -82.4572, kind: "device", label: "your current location" };
+const location = { origin, status: "ready", areas: [], requestLocation() {}, chooseArea() {} };
+const browse = halloweenBrowse(live, { ...origin });
+const localHtml = renderToStaticMarkup(createElement(HalloweenBrowseContent, { model: live, location }));
+ok(browse.cards.length > 0 && browse.cards.length < live.haunts.length + live.tours.length + live.eventTours.length, "origin yields only the local subset of injected exact-identity inventory and product fixtures");
+for (const t of [...live.tours, ...live.eventTours]) {
+  const admitted = browse.cards.find((row) => row.browseType === "tour" && row.id === t.id);
+  ok(localHtml.includes('data-tour-id="' + t.id + '"') === Boolean(admitted), t.id + " page visibility matches exact venue distance eligibility");
+  if (admitted) ok(admitted.distanceMi <= 40, t.id + " uses the full precision hard radius");
+}
+for (const rail of browse.rails.filter((row) => row.cards.length > 0)) {
+  const section = renderToStaticMarkup(createElement(CategoryRail, { rail, origin }));
+  ok((section.split(DISCLOSURE).length - 1) === 1, rail.id + " has exactly one section disclosure");
+  ok(section.indexOf(DISCLOSURE) < section.indexOf('data-halloween-rail-track='), rail.id + " discloses commission before the booking cards");
+}
+ok((localHtml.split(DISCLOSURE).length - 1) === (localHtml.match(/data-halloween-rail="/g) || []).length, "every local category rail retains the full disclosure once");
+ok(!toursHtml.includes("Wayfind may earn a commission") && !eventsHtml.includes("Wayfind may earn a commission"), "isolated cards do not repeat the category disclosure");
+const partnerTags = [...(toursHtml + eventsHtml).matchAll(/<a class="boo-buy"[^>]*>/g)].map((m) => m[0]);
+ok(partnerTags.length === live.tours.length + live.eventTours.length && partnerTags.every((tag) => tag.includes('target="_blank"') && tag.includes('rel="sponsored nofollow noopener"')), "every tour partner link opens in a new tab with the sponsored rel");
+ok(!html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "legacy tour jumps cannot bypass the new category control");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
-ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !bare.includes('data-filter-id="tours"'), "no tours, no chip and no jump button");
+ok(!bare.includes('data-tour-id="') && !bare.includes('data-ghost-dest="'), "model without tours emits no tour cards or generic booking links");
 
 
 // ── 2026-10-29 partner ghost tours (US Ghost Adventures via Awin) ─────────
@@ -211,7 +236,7 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   const merged = await withHalloweenTours(model, { env: {}, readPhoto: async (id) => googleStored(id) });
   ok(merged.tours.filter((t) => t.id.startsWith("usga-")).length === 3, "partner tours join the ghost tour chip");
   ok(merged.eventTours.every((t) => !t.id.startsWith("usga-")), "partner tours never land in the haunt grid");
-  const partnerHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: merged, initialFilter: "tours" }));
+  const partnerHtml = merged.tours.map((t) => renderToStaticMarkup(createElement(TourCard, { t }))).join("");
   for (const t of merged.tours.filter((x) => x.id.startsWith("usga-"))) {
     const at = partnerHtml.indexOf('data-tour-id="' + t.id + '"');
     const end = partnerHtml.indexOf("</article>", at);
@@ -250,6 +275,37 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   ok(run.status === 0, "sealed child ran (" + String(run.stderr || "").slice(0, 200) + ")");
   ok(out.calls === 0, "injected deps: partner photo reads never use the global fetch, whatever the process env holds");
   ok(out.partners === 0, "injected deps without a service key: no partner card");
+}
+
+// 2026-10-29 tour classification, price basis (per person vs per group), Jacksonville region, stale live row guard, and family filter
+{
+  ok(TOUR_REGIONS.some((r) => r.id === "jax" && r.label === "Jacksonville") && TOUR_REGIONS.some((r) => r.id === "more" && r.label === "Key West"), "Jacksonville and Key West have distinct region chips");
+  const jaxCards = snap.filter((t) => t.region === "jax");
+  ok(jaxCards.map((t) => t.id).sort().join(",") === "201204P3,333341P1", "both Jacksonville tours sit in the jax region, never under Key West");
+  const keyWestCards = snap.filter((t) => t.region === "more" && t.group === "ghost");
+  ok(keyWestCards.length > 0 && keyWestCards.every((t) => t.place === "Key West"), "every ghost tour in the Key West region is actually in Key West");
+  const pcb = snap.find((t) => t.id === "180859P9");
+  ok(pcb && pcb.group === "event" && pcb.place === "Panama City Beach, FL Panhandle" && pcb.formatLabel === "Walk through haunted house", "Panama City Beach attraction is in the event group with Panhandle place label");
+  const groupCodes = ["186588P10", "209615P123", "333814P8", "5567095P1"];
+  ok(snap.filter((t) => t.priceUnit === "per group").map((t) => t.id).sort().join(",") === groupCodes.join(","), "private vehicle/group tours carry per group price basis");
+  ok(snap.filter((t) => !groupCodes.includes(t.id)).every((t) => t.priceUnit === "per person"), "individual tours carry per person price basis");
+  ok(snap.find((t) => t.id === "5046OLDJAIL").formatLabel === "Daytime jail history tour" && snap.find((t) => t.id === "5046P21").formatLabel === "Night paranormal investigation", "Old Jail daytime tour and night paranormal experience are clearly distinguished");
+  ok(snap.find((t) => t.id === "107194P211").formatLabel === "Self guided phone game" && snap.find((t) => t.id === "469510P10").formatLabel === "Self guided audio tour", "self guided phone game and audio tours are labeled");
+  ok(toursHtml.includes("per group") && toursHtml.includes("per person") && toursHtml.includes("Private group tour") && toursHtml.includes("Self guided audio tour") && toursHtml.includes("Daytime jail history tour"), "rendered tour cards show formatLabel and priceUnit");
+  // Stale live row guard: dead link_ok, zero from_price, or removed code returns null instead of falling back to snapshot
+  ok(tourCard(TOUR_SNAPSHOT[0], { from_price: 0, link_ok: true }) === null, "red-prove: a live row with from_price 0 fails closed instead of falling back to snapshot price");
+  ok(tourCard(TOUR_SNAPSHOT[0], { from_price: 40, link_ok: false }) === null, "red-prove: a live row with link_ok false fails closed");
+  ok(tourCard({ ...TOUR_SNAPSHOT[0], code: "28841P2" }) === null && tourHref("28841P2") === null, "red-prove: a TOUR_REMOVED code never produces a tourCard or tourHref");
+  // Family suitability requires affirmative evidence. General ghost tours remain
+  // in their own category; an absent adultOnly flag is not a kids recommendation.
+  const familyHtml = renderToStaticMarkup(createElement(HalloweenBrowseContent, { model: live, initialFilter: "family", location }));
+  ok(!familyHtml.includes("272079P3") && !familyHtml.includes("Spirits and Spirits Haunted Pub Crawl") && !familyHtml.includes("430526P2"), "family category excludes adult pub crawls and 18+ tours");
+  ok(!familyHtml.includes('data-tour-id="38620P1"') && !familyHtml.includes('data-tour-id="122676P1"'), "general ghost tours do not silently become family recommendations");
+  const classified = halloweenBrowseCards(live);
+  for (const id of ["38620P1", "122676P1"]) ok(classified.some((row) => row.id === id && row.browseCategory === "ghost"), id + " remains available in the ghost tour catalogue");
+  const family = halloweenBrowse(live, { ...origin, category: "family" });
+  ok(family.cards.length > 0 && family.cards.every((row) => row.browseCategory === "family" && row.distanceMi <= 40), "family controls return verified local family listings");
+  ok((familyHtml.match(/data-halloween-rail="/g) || []).length === 1 && familyHtml.includes('data-halloween-rail="family"'), "family selection renders only its category rail");
 }
 
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");

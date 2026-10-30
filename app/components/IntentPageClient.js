@@ -1,6 +1,7 @@
 "use client";
 import { openShareFlow } from "../../lib/shareFlow.js";
 import { shareOut } from "../../lib/shareOut.js";
+import { scrubEditorialText } from "../../lib/editorialScrub.js";
 // IntentPageClient — the dynamic engine behind /date-night and /family
 // (owner: "pull a dynamic search when the user clicks"). Location from URL
 // params (the hero cards pass them) with a wf_center fallback; queries per
@@ -388,7 +389,7 @@ export default function IntentPageClient({ intent }) {
       try {
         if (supabase && ranked.length) {
           const { data: eds } = await supabase.from("wf_editorial_servable").select("place_id,hook").eq("verified", true).in("place_id", ranked.map((r) => r.id));
-          const byId = new Map((eds || []).map((e) => [e.place_id, e.hook]));
+          const byId = new Map((eds || []).map((e) => [e.place_id, scrubEditorialText(e.hook)]));
           for (const r of ranked) r.editorial_hook = byId.get(r.id) || null;
         }
       } catch (e) {}

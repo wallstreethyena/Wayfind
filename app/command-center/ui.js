@@ -455,6 +455,30 @@ function FeedbackSection({ auth }) {
   );
 }
 
+// Keep provider-confirmed approvals separate from evidence that commission was paid.
+function Stay22Results({ report, compact = false }) {
+  const source = report && report.source;
+  const data = source && source.connected === true ? report.data : null;
+  return <Card>
+    <div style={{ ...TYPE.eyebrow, color: C.muted, marginBottom: 8 }}>Stay22 bookings and commission</div>
+    {!report ? <EmptyNote>Stay22 reporting is loading.</EmptyNote> : !data ? <NotConnected source={source} compact /> : <>
+      <Grid min={140}>
+        <StatTile label="Approved bookings" value={fmtNum(data.confirmed_bookings)} def="Bookings reported as approved by Stay22. A click is not a booking; approval is not proof of payment." />
+        <StatTile label="Approved commission" value={fmtUsd(data.commission_approved_usd)} def="USD commission on approved bookings, including any explicitly paid amount. Do not add this to paid commission." />
+        <StatTile label="Paid commission" value={fmtUsd(data.revenue_paid_usd)} sub={data.payment_status_available === false ? "Payment status unavailable" : undefined} def="Only commission with an explicit paid payment status. A dash means the report does not provide enough evidence." />
+        {!compact ? <StatTile label="Pending commission" value={fmtUsd(data.revenue_pending_usd)} def="Commission on pending bookings. Not included in approved or paid totals." /> : null}
+      </Grid>
+      {!compact ? <p style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>{fmtNum(data.pending_bookings)} pending bookings · {fmtNum(data.canceled)} canceled bookings</p> : null}
+      {source.reason === "multi_currency_unconverted" ? <p role="status" style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>Partial USD totals. {source.note}</p> : null}
+      {data.payment_status_available === false ? <p role="status" style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5 }}>Paid commission is unknown because this report does not include payment status.</p> : null}
+      {!compact && data.reporting_lag_note ? <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.5 }}>{data.reporting_lag_note}</p> : null}
+      {data.covered_period ? <p style={{ fontSize: 11, color: C.muted }}>Requested booking dates (ET): {data.covered_period.from} through {data.covered_period.to}</p> : null}
+      {data.covered_period && data.covered_period.note ? <p style={{ fontSize: 11, color: C.muted, lineHeight: 1.5 }}>{data.covered_period.note}</p> : null}
+      <SourceBadge source={source} />
+    </>}
+  </Card>;
+}
+
 function OverviewSection({ auth, range }) {
   const p = usePanel("overview", auth, range, { refreshMs: 60000 });
   const d = dget(p.data, "data", null);
@@ -505,7 +529,7 @@ function OverviewSection({ auth, range }) {
         <StatTile label="Signups" def={defs.signups} value={fmtNum(dget(d, "signups.current"))} deltas={signupComps}
           sub={`total ${fmtNum(dget(d, "signups.totals.data.total_users"))}`} source={dget(d, "signups.source")} />
         <StatTile label="Partner clicks" def={defs.affiliate_clicks} value={fmtNum(fpK.out_clicks)} deltas={compDeltas("out_clicks")} source={dget(d, "firstParty.source")} />
-        <StatTile label="Confirmed revenue" def={defs.revenue} goodWhenUp
+        <StatTile label="Travelpayouts paid" def={defs.revenue} goodWhenUp
           value={tp && tp.data ? fmtUsd(tp.data.revenue_paid_usd) : "–"}
           sub={tp && tp.data ? `${fmtNum(tp.data.confirmed_bookings)} bookings · ${fmtUsd(tp.data.revenue_pending_usd)} pending` : "not connected"}
           source={tp && tp.source} />
@@ -518,6 +542,8 @@ function OverviewSection({ auth, range }) {
           sub={healthOk === true ? "all checks passing" : healthOk === false ? (dget(d, "health.failing", []) || []).join(", ") : "health status unavailable"}
           source={dget(d, "health.source")} />
       </Grid>
+      <div style={{ height: 12 }} />
+      <Stay22Results report={dget(d, "affiliate.stay22", null)} compact />
     </Section>
   );
 }
@@ -835,8 +861,9 @@ function PlacesSection({ auth, range }) {
               <StatTile label="Cancellation rate" goodWhenUp={false} value={tp.data.cancellation_rate != null ? fmtPct(tp.data.cancellation_rate, 1) : "–"} def="Canceled ÷ all provider actions in window." />
             </Grid>
           ) : <NotConnected source={tp && tp.source} />}
-          <p style={{ fontSize: 11, color: C.muted, marginTop: 10, lineHeight: 1.5 }}>Stay22, Impact (Ticketmaster) and direct Viator have no reporting API connected — their clicks are tracked first-party above; bookings/revenue for them are “Not connected”, not zero.</p>
+          <p style={{ fontSize: 11, color: C.muted, marginTop: 10, lineHeight: 1.5 }}>Impact (Ticketmaster) and direct Viator have no reporting API connected — their clicks are tracked first-party above; bookings/revenue for them are “Not connected”, not zero.</p>
         </Card>
+        <Stay22Results report={dget(d, "affiliate.stay22", null)} />
       </Two>
       <div style={{ height: 12 }} />
       <Grid min={170}>

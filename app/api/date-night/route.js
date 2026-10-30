@@ -185,7 +185,7 @@ export async function GET(req) {
   const page = searchParams.get("page");
   const size = searchParams.get("size");
   const hourBucket = Number.isFinite(hour) ? Math.floor(hour / 3) : "auto";
-  const key = `date-night:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
+  const key = `date-night:v2:${geoCell(lat)}:${geoCell(lng)}:${hourBucket}`;
   let cached;
   try {
     cached = await fastCachedRail(key, () => buildDateNightAnswer({ lat, lng, city, hour }), {

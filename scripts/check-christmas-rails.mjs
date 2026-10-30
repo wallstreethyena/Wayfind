@@ -447,7 +447,7 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
   ok(enrichChristmasEvent({ event_id: "z", city: "Naples", lat: 26.1, lng: -81.8 }, new Map()).approxLocation === undefined, "an event with its own coordinates is never marked approximate");
 }
 
-// ── 6i. One destination, one card; honest distances ───────────────────────
+// ── 6i. One event occurrence or place card; honest distances ───────────────────────
 {
   ok(CHRISTMAS_KNOWN_DUPLICATE_IDS.length === 3 && CHRISTMAS_KNOWN_DUPLICATE_IDS.every((id) => !CHRISTMAS_PLACE_RAIL[id] && !Object.values(CHRISTMAS_EVENT_VENUE_PLACE_IDS).includes(id)), "the three EXCLUDED Coquina Beach duplicate pins are never pooled");
   const extraFixture = [
@@ -462,16 +462,21 @@ ok(/placeholder=\{isEvent && !card\.image \? card\.placeholder/.test(read("app/c
     const out = composeChristmasIntentRails(extraFixture, placeFixture(), { ...at, today: TODAY });
     for (const r of out.rails) {
       ok(r.cards.every((c) => c.kind === "event" ? christmasEventRail(c) === r.id : c.christmasRail === r.id), `${label} ${r.id}: every card (top up included) belongs to this rail by the same classifier`);
-      const venues = r.cards.map((c) => c.kind === "event" ? c.place_id : c.id).filter(Boolean);
-      ok(new Set(venues).size === venues.length, `${label} ${r.id}: no venue appears twice`);
+      const venues = r.cards.filter((c) => c.kind === "place").map((c) => c.place_id || c.id).filter(Boolean);
+      const eventVenues = new Set(r.cards.filter((c) => c.kind === "event").map((c) => c.place_id).filter(Boolean));
+      ok(new Set(venues).size === venues.length && venues.every((id) => !eventVenues.has(id)), `${label} ${r.id}: no permanent venue card repeats or duplicates an event venue`);
       const series = r.cards.map((c) => c.event_series_id).filter(Boolean);
       ok(new Set(series).size === series.length, `${label} ${r.id}: no event series appears twice`);
-      const names = r.cards.map((c) => String(c.name || c.event_name || "").toLowerCase());
-      ok(new Set(names).size === names.length, `${label} ${r.id}: no name appears twice (tags never create a second card)`);
+      const names = r.cards.filter((c) => c.kind === "place").map((c) => String(c.name || "").toLowerCase());
+      ok(new Set(names).size === names.length, `${label} ${r.id}: permanent places do not repeat by name`);
       ok(r.cards.every((c) => c.distanceGroup === christmasDistanceGroup(c.distMi)), `${label} ${r.id}: every card's group matches its distance`);
     }
     const allOut = out.rails.flatMap((r) => r.cards.map((c) => String(c.id)));
     ok(new Set(allOut).size === allOut.length, `${label}: topping up never repeats a card across rails`);
+    if (label === "Sarasota" || label === "Naples") {
+      ok(allOut.includes("selby-dup-a-2026") && allOut.includes("selby-dup-b-2026"), `${label}: separate Selby events on Dec 6 and Dec 7 both survive`);
+      ok(allOut.includes("lights-walk-2026") && allOut.includes("tagdup-2026"), `${label}: matching light walk titles with different date ranges both survive`);
+    }
   }
   ok(christmasDistanceLabel({ distMi: 8.1 }) === "8.1 mi" && christmasDistanceLabel({ distMi: 74.6 }) === "75 mi", "a Nearby or Within reach card shows its true distance");
   ok(christmasDistanceLabel({ distMi: 90 }) === "90 mi" && christmasDistanceLabel({ distMi: 118.2 }) === "118 mi · Day trip", `over ${CHRISTMAS_DAY_TRIP_MI} mi a card is clearly labeled Day trip`);

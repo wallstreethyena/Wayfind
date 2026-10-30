@@ -32,6 +32,11 @@ function harness(query, response = {status:'ok',places:[row()]}) {
     localCitySuggestions, createSearchAttempt, themeParkIntent, localityFromFormattedAddress, centerAgreesWithLabel, attachOfficialScoreReceipt,
     geocodeCity: async q => knownCityGeocode(q), feelingToMoment:()=>null,
     resolveSearchIntent, cardComplete,
+    // Homepage loads these on the search path (dynamic import), not at first paint.
+    searchExperienceMod: { localCitySuggestions, createSearchAttempt },
+    loadSearchExperience: async () => ({ localCitySuggestions, createSearchAttempt }),
+    loadSearchIntent: async () => ({ resolveSearchIntent }),
+    ensureCuratedRows: async () => {},
     EXPERIENCES:{ pizza:{label:'Pizza',keyword:'pizza'}, coffee:{label:'Coffee',keyword:'coffee shop'}, citytrap:{label:'Best of Sarasota',keyword:'Sarasota highlights'} },
     C:{accent:'#ff7a12'},
     logEvent:(name,place,extra)=>state.events.push({name,place,...extra}),

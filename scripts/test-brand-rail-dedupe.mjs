@@ -2,6 +2,8 @@
 // One brand, one card in a rail. Locks the Parrish Halloween shelf that
 // showed both Dracula's Legacy locations side by side, and the cover/gallery
 // photo rules that go with a place card.
+import { railItemIdentity } from "../lib/eventOccurrenceIdentity.js";
+import { mergePagedItems, seedSignature } from "../lib/railPage.js";
 import { brandKey, collapseRailBrands, dedupePlaces, normName } from "../lib/placeDedupe.js";
 import { composeFallIntentRails } from "../lib/fallIntentRails.js";
 import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
@@ -206,6 +208,95 @@ const ritzNaples = { id: "ritz-naples", kind: "place", name: "The Ritz-Carlton, 
 const ritzTiburon = { id: "ritz-tiburon", kind: "place", name: "The Ritz-Carlton Naples, Tiburón", title: "The Ritz-Carlton Naples, Tiburón", wfScore: 90 };
 ok(collapseRailBrands([ritzNaples, ritzTiburon]).map((card) => card.id).join() === "ritz-naples",
   "Southwest shelf collapse keeps one Ritz-Carlton after Tiburón normalizes");
+
+// An event title identifies the program, not its date or location. Retain
+// distinct occurrences while still folding duplicate representations of one.
+const festival = {
+  kind: "event", id: "harvest-oct30-north", name: "Harvest Festival", title: "Harvest Festival",
+  venue: "North Community Park", city: "Tampa", place_id: "north-park",
+  start_date: "2026-10-30", end_date: "2026-10-30", start_time: "18:00",
+  halloweenRail: "festivals", fall_rail: "festivals", christmas_rail: "towns-markets",
+  tags: ["halloween", "fall", "festival"], lat: 27.95, lng: -82.46,
+};
+const nextDate = { ...festival, id: "harvest-oct31-north", start_date: "2026-10-31", end_date: "2026-10-31" };
+const otherVenue = { ...festival, id: "harvest-oct30-south", place_id: "south-park", venue: "South Community Park" };
+const laterTime = { ...festival, id: "harvest-oct30-late", start_time: "20:00" };
+const eventCases = [festival, nextDate, otherVenue, laterTime];
+ok(collapseRailBrands(eventCases).length === 4, "same event title at different dates, venues, and times stays four occurrences");
+ok(collapseRailBrands([festival, { ...festival }]).length === 1, "a duplicate event record still collapses");
+ok(collapseRailBrands([festival, { ...festival, id: "other-provider-id" }]).length === 1,
+  "two provider records for the same title, venue, and schedule collapse");
+ok(collapseRailBrands([festival, { ...nextDate, id: festival.id }]).length === 2,
+  "a reused event ID cannot hide a different dated occurrence");
+ok(collapseRailBrands([festival, { ...otherVenue, id: festival.id }]).length === 2,
+  "a reused event ID cannot hide a different venue");
+ok(collapseRailBrands([{ kind: "event", id: "undated-a", title: "Fall Festival" }, { kind: "event", id: "undated-b", title: "Fall Festival" }]).length === 2,
+  "a title without venue and schedule is insufficient evidence to collapse events");
+ok(collapseRailBrands([{ kind: "event", id: "id-only" }, { kind: "event", id: "id-only" }]).length === 1,
+  "an exact event ID still deduplicates a sparse copy");
+ok(collapseRailBrands([
+  { ...festival, id: "town-a", place_id: null, venue: "Community Park", city: "Tampa" },
+  { ...festival, id: "town-b", place_id: null, venue: "Community Park", city: "Orlando" },
+]).length === 2, "identically named venues in different cities stay distinct");
+ok(collapseRailBrands([
+  { ...festival, id: "branch-a", place_id: null, venue: "Nueva Cantina - Palm Harbor" },
+  { ...festival, id: "branch-b", place_id: null, venue: "Nueva Cantina - Downtown Tampa" },
+]).length === 2, "event venue matching retains branch suffixes");
+ok(collapseRailBrands([
+  { ...festival, id: "series-a", occurrence_dates: ["2026-10-30", "2026-10-31"] },
+  { ...festival, id: "series-b", occurrence_dates: ["2026-10-31", "2026-10-30", "2026-10-30"] },
+]).length === 1, "the same verified date set in a different order is one occurrence listing");
+ok(collapseRailBrands([
+  { ...festival, id: "series-a", occurrence_dates: ["2026-10-30"] },
+  { ...festival, id: "series-b", occurrence_dates: ["2026-10-31"] },
+]).length === 2, "different verified date sets stay distinct even when their season envelope matches");
+const rejectedVenuePlace = { kind: "place", id: "north-park", place_id: "north-park", name: "North Community Park" };
+ok(collapseRailBrands([festival, rejectedVenuePlace, nextDate]).map((row) => row.id).join() === [festival.id, nextDate.id].join(),
+  "a rejected duplicate venue card cannot hide a later distinct event");
+const eventHalloween = composeHalloweenRails([{ cards: eventCases }], "2026-10-29").find((row) => row.id === "festivals");
+ok(eventHalloween?.cards.length === 4, "Halloween composition retains all four event occurrences");
+const eventFall = composeFallIntentRails(eventCases, [], { ...HERE, today: "2026-10-29" }).rails.find((row) => row.id === "festivals");
+ok(eventFall?.cards.length === 4, "Fall composition retains all four event occurrences");
+const winterEvents = [
+  { ...festival, id: "winter-dec1", name: "Winter Market", title: "Winter Market", tags: ["christmas"], start_date: "2026-12-01", end_date: "2026-12-01" },
+  { ...festival, id: "winter-dec2", name: "Winter Market", title: "Winter Market", tags: ["christmas"], start_date: "2026-12-02", end_date: "2026-12-02" },
+];
+const eventChristmas = composeChristmasIntentRails(winterEvents, [], { ...HERE, today: "2026-12-01" }).rails.find((row) => row.id === "towns-markets");
+ok(eventChristmas?.cards.length === 2, "Christmas composition keeps different events at the same venue on different dates");
+
+const reusedIdDates = [festival, { ...nextDate, id: festival.id }];
+ok(composeFallIntentRails(reusedIdDates, [], { ...HERE, today: "2026-10-29" }).rails.find((row) => row.id === "festivals")?.cards.length === 2,
+  "Fall does not treat a reused source event ID as an explicit series");
+ok(composeHalloweenRails([{ cards: reusedIdDates }], "2026-10-29").find((row) => row.id === "festivals")?.cards.length === 2,
+  "Halloween does not treat a reused source event ID as an explicit series");
+ok(composeChristmasIntentRails([winterEvents[0], { ...winterEvents[1], id: winterEvents[0].id }], [], { ...HERE, today: "2026-12-01" }).rails.find((row) => row.id === "towns-markets")?.cards.length === 2,
+  "Christmas does not treat a reused source event ID as an explicit series");
+ok(mergePagedItems([reusedIdDates[0]], [reusedIdDates[1]], 1, railItemIdentity).length === 2,
+  "client paging uses the same occurrence identity as server selection");
+ok(mergePagedItems([festival], [{ ...festival }], 1, railItemIdentity).length === 1,
+  "an already loaded occurrence is not appended a second time");
+ok(seedSignature([reusedIdDates[0]], 1, railItemIdentity) !== seedSignature([reusedIdDates[1]], 1, railItemIdentity),
+  "a same-sized seed changes when a source ID moves to another occurrence date");
+ok(seedSignature([festival], 1, railItemIdentity) === seedSignature([{ ...festival }], 1, railItemIdentity),
+  "equivalent occurrence data keeps a stable client seed signature");
+ok(railItemIdentity(tampa) === TAMPA_ID && railItemIdentity({ ...tampa }) === TAMPA_ID,
+  "permanent place render and paging identity stays its source ID");
+const explicitSeries = [festival, nextDate].map((row) => ({ ...row, event_series_id: "verified-harvest-series" }));
+ok(composeFallIntentRails(explicitSeries, [], { ...HERE, today: "2026-10-29" }).rails.find((row) => row.id === "festivals")?.cards.length === 1,
+  "Fall still groups an explicitly identified event series");
+ok(composeHalloweenRails([{ cards: explicitSeries }], "2026-10-29").find((row) => row.id === "festivals")?.cards.length === 1,
+  "Halloween still groups an explicitly identified event series");
+ok(composeChristmasIntentRails(winterEvents.map((row) => ({ ...row, event_series_id: "verified-winter-series" })), [], { ...HERE, today: "2026-12-01" }).rails.find((row) => row.id === "towns-markets")?.cards.length === 1,
+  "Christmas still groups an explicitly identified event series");
+ok(collapseRailBrands([
+  { kind: "event", id: "unknown-venue-a", name: "Harvest Festival", city: "Tampa", start_date: "2026-10-30" },
+  { kind: "event", id: "unknown-venue-b", name: "Harvest Festival", city: "Tampa", start_date: "2026-10-30" },
+]).length === 2, "a city is not sufficient venue evidence for occurrence deduplication");
+
+ok(collapseRailBrands([
+  { ...festival, id: "opaque-venue-a", place_id: null, venue: { name: "North Park" } },
+  { ...festival, id: "opaque-venue-b", place_id: null, venue: { name: "South Park" } },
+]).length === 2, "opaque venue objects never become a shared literal object name");
 
 const PHOTO_ID = "ChIJphotogallerytest01";
 const DIRECT_A = "https://cdn.wayfind.test/a.jpg";

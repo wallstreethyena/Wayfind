@@ -78,6 +78,8 @@ import { safeUrl } from "../../lib/links.js";
 // ~56KB-gz lib/creatorVideos.js into the eager "/" bundle. RailCard.js is
 // itself eager (app/home.js imports it directly).
 import { creatorVideosFor } from "../../lib/creatorSignals.js";
+// 2026-10-25 owner Buy button rule: a purchase CTA wears the solid orange Buy look (lib/partnerCopy.js isBuyCta).
+import { isBuyCta } from "../../lib/partnerCopy.js";
 import CreatorCardMark from "./CreatorCardMark";
 import { couponForPlace } from "../../lib/coupons.js";
 import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
@@ -651,7 +653,7 @@ export default function RailCard({
 
           {ctaNode || (ctaHref || (cta && !cta.external) ? (
             <a
-              className="wf-place-card-book wf-rail-card-cta"
+              className={"wf-place-card-book wf-rail-card-cta" + (isBuyCta(cta) ? " wf-buy-cta" : "")}
               href={ctaHref || cta.href || "#"}
               {...(cta.external ? { target: "_blank", rel: cta.sponsored ? "sponsored nofollow noopener" : "noreferrer" } : {})}
               onClick={(e) => { e.stopPropagation(); if (cta.onClick) cta.onClick(e); }}

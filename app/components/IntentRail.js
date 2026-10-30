@@ -516,7 +516,7 @@ export default function IntentRailBody({
               const coupon = couponForPlace(r);
               const facts = [
                 r.reviews ? compactReviews(r.reviews) + " reviews" : null,
-                priceLabel(r.priceLevel),
+                priceLabel(r),
                 st.open === true ? "Open" : st.open === false ? "Closed" : null,
                 // The trend bump is DISCLOSED wherever it is applied — the same
                 // rule the Top 40 rail and the ranked rows follow.

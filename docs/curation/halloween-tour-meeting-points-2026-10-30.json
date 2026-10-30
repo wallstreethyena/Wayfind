@@ -1,0 +1,119 @@
+{
+  "checkedAt": "2026-10-30",
+  "purpose": "Primary-source evidence for exact meeting-venue joins; these URLs are research citations, never booking CTAs.",
+  "products": {
+    "272079P1": {
+      "place_id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+      "meetingPoint": "Tampa Theatre, 711 N Franklin St, Tampa, FL 33602",
+      "meetingPointUrl": "https://www.viator.com/tours/Tampa/Tampa-Terrors/d666-272079P1",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product meets at Tampa Theatre; matched existing wf_inventory Tampa Theatre place ID. Shares the US Ghost Adventures experience sold as usga-tampa, not the distinct 369692P1 operator.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://usghostadventures.com/tampa-ghost-tour/",
+      "browseIdentity": "usga-tampa-ghost-walk"
+    },
+    "usga-tampa": {
+      "place_id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+      "meetingPoint": "Tampa Theatre, 711 N Franklin St, Tampa, FL 33602",
+      "meetingPointUrl": "https://usghostadventures.com/tampa-ghost-tour/",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Current operator lists the one-hour Tampa Terrors walk at Tampa Theatre; this is the same operator and experience as Viator 272079P1. Matched existing wf_inventory Tampa Theatre place ID.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://www.viator.com/tours/Tampa/Tampa-Terrors/d666-272079P1",
+      "browseIdentity": "usga-tampa-ghost-walk"
+    },
+    "272079P3": {
+      "place_id": "ChIJvfy6yovEwogRqL6O2tYonco",
+      "meetingPoint": "Sal Rosa Kitchen + Bar, 601 N Florida Ave, Tampa, FL 33602",
+      "meetingPointUrl": "https://www.viator.com/en-PH/tours/Tampa/Tampa-Terrors-Boos-and-Booze-Haunted-Pub-Crawl/d666-272079P3",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product search result names Sal Rosa; current operator tour selector independently confirms the pub crawl meets at Sal Rosa. Matched existing wf_inventory Sal Rosa place ID.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://usghostadventures.com/tampa-ghost-tour/"
+    },
+    "369692P1": {
+      "place_id": "ChIJ98cKiInEwogRfyDonUPi2bc",
+      "meetingPoint": "Tampa Theatre, 711 N Franklin St, Tampa, FL 33602",
+      "meetingPointUrl": "https://www.viator.com/tours/Tampa/The-Official-Downtown-Tampa-Ghost-Tour/d666-369692P1",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product names Tampa Theatre as meeting point; matched existing wf_inventory Tampa Theatre place ID. Different operator from US Ghost Adventures despite sharing the meeting venue.",
+      "meetingPointCheckedAt": "2026-10-30"
+    },
+    "430526P1": {
+      "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+      "meetingPoint": "SpookEasy Lounge entrance, 1909 N 15th St, Tampa, FL 33605",
+      "meetingPointUrl": "https://www.viator.com/tours/Tampa/SpookEasy-Ghost-Tours-an-interactive-paranormal-experience/d666-430526P1",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product names SpookEasy Lounge entrance at 1909 N 15th St; matched existing wf_inventory SpookEasy Lounge place ID.",
+      "meetingPointCheckedAt": "2026-10-30"
+    },
+    "430526P2": {
+      "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+      "meetingPoint": "SpookEasy Lounge entrance, 1909 N 15th St, Tampa, FL 33605",
+      "meetingPointUrl": "https://www.viator.com/tours/Tampa/SpookEasy-Ghost-Tours-an-interactive-paranormal-experience-18/d666-430526P2",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact adult product independently names SpookEasy Lounge entrance at 1909 N 15th St; matched existing wf_inventory SpookEasy Lounge place ID.",
+      "meetingPointCheckedAt": "2026-10-30"
+    },
+    "120329P6": {
+      "place_id": "ChIJaVDYNb5Bw4gRbV2ffQ-VTfQ",
+      "meetingPoint": "Discover Sarasota Tours, 1826 4th St, Sarasota, FL 34236",
+      "meetingPointUrl": "https://www.viator.com/tours/Sarasota/Ghost-Tour-of-Sarasota/d25738-120329P6",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product departs from 1826 4th St behind Breakfast House; operator independently confirms departure. Matched existing wf_inventory Discover Sarasota Tours place ID.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://www.discoversarasotatours.com/all-tours/haunted-sarasota/"
+    },
+    "120329P20": {
+      "place_id": "ChIJaVDYNb5Bw4gRbV2ffQ-VTfQ",
+      "meetingPoint": "Discover Sarasota Tours, 1826 4th St, Sarasota, FL 34236",
+      "meetingPointUrl": "https://www.viator.com/tours/Sarasota/Murder-Mystery-Trolley-Who-Killed-The-Circus-Queen/d25738-120329P20",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product departs from 1826 4th St; operator independently confirms this show's departure. Matched existing wf_inventory Discover Sarasota Tours place ID.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://www.discoversarasotatours.com/all-tours/murder-mystery-trolley-who-killed-the-circus-queen/"
+    },
+    "120329P4": {
+      "place_id": "ChIJaVDYNb5Bw4gRbV2ffQ-VTfQ",
+      "meetingPoint": "Discover Sarasota Tours, 1826 4th St, Sarasota, FL 34236",
+      "meetingPointUrl": "https://www.viator.com/tours/Sarasota/Psychic-Sunday-Tour/d25738-120329P4",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product departs from 1826 4th St; operator independently confirms this tour's departure. Matched existing wf_inventory Discover Sarasota Tours place ID.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://www.discoversarasotatours.com/all-tours/psychic-sundays-tour/"
+    },
+    "122676P1": {
+      "place_id": "ChIJW1l9yf9654gRZTLprKzXp9Y",
+      "meetingPoint": "American Ghost Adventures outside Venture X, 100 E Pine St #110, Orlando, FL 32801",
+      "meetingPointUrl": "https://www.viator.com/en-CA/tours/Orlando/Downtown-Orlando-2-HR-Walking-Ghost-Tour/d663-122676P1",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact product meets outside Venture X at 100 E Pine St #110; operator confirms its address there. Matched existing wf_inventory American Ghost Adventures place ID, not its parking-map center.",
+      "meetingPointCheckedAt": "2026-10-30",
+      "corroboratingUrl": "https://www.americanghostadventures.com/"
+    },
+    "122676P2": {
+      "place_id": "ChIJQSl1y_1654gRhLYdyKVK32Q",
+      "meetingPoint": "Harp & Celt Irish Pub & Restaurant, outside the Harp entrance, Orlando",
+      "meetingPointUrl": "https://www.viator.com/tours/Orlando/A-Toast-to-the-Ghost-Haunted-Pub-Crawl-in-Downtown-Orlando/d663-122676P2",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact pub-crawl product names the Harp side of Harp & Celt; matched existing wf_inventory Harp & Celt Irish Pub & Restaurant place ID. This is not the 122676P1 meeting point.",
+      "meetingPointCheckedAt": "2026-10-30"
+    },
+    "5046OLDJAIL": {
+      "place_id": "ChIJgW0dDsgn5IgRCD4brXWf9IE",
+      "meetingPoint": "Old Jail Museum, 167 San Marco Ave, St. Augustine, FL 32084",
+      "meetingPointUrl": "https://www.viator.com/tours/St-Augustine/The-Old-Jail-of-St-Augustine/d823-5046OLDJAIL",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact daytime product names Old Jail Museum at 167 San Marco Ave; matched existing wf_inventory Old Jail Museum place ID.",
+      "meetingPointCheckedAt": "2026-10-30"
+    },
+    "5046P21": {
+      "place_id": "ChIJgW0dDsgn5IgRCD4brXWf9IE",
+      "meetingPoint": "Old Jail Museum, 167 San Marco Ave, St. Augustine, FL 32084",
+      "meetingPointUrl": "https://www.viator.com/tours/St-Augustine/Old-Jail-After-Dark-Paranormal-Tour/d823-5046P21",
+      "coordinateSource": "exact_meeting_venue",
+      "coordinateEvidence": "Exact after-dark product names Old Jail at 167 San Marco Ave; matched existing wf_inventory Old Jail Museum place ID.",
+      "meetingPointCheckedAt": "2026-10-30"
+    }
+  }
+}

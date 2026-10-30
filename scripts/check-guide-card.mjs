@@ -51,6 +51,8 @@ const guideOf = (slug) => ({ slug, ...GUIDES[slug] });
 const clean = (t) => String(t || "").replace(/\s*[–—]\s*/g, ", ").replace(/\s+/g, " ").trim();
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/'/g, "&#x27;").replace(/"/g, "&quot;");
 
+// 2026-10-30: the reviewed purchase-button recovery adds only wf-buy-cta
+// to the fixture CTA. Every other byte stays at the pre-guide baseline.
 // ── 1. PLACE CARD: byte-identical, never a guide ────────────────────────────
 const placeProps = { photo: "/api/photo?place=x&w=640", title: "Mazzaro's Italian Market", eyebrow: "Italian market", score: 8.7, facts: ["St. Petersburg", "$$"], chips: [{ key: "a", icon: "📍", label: "Gulfport" }], take: "Worth the trip for the cannoli.", cta: { label: "Get tickets", href: "/api/x/go", external: false }, href: "/p/abc" };
 const placeHtml = html(h(RailCard, placeProps));

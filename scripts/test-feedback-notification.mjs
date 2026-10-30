@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import {notifyFeedback,FEEDBACK_TEAM_EMAIL} from '../lib/feedbackNotification.js';
+import {notifyFeedback,FEEDBACK_TEAM_EMAIL,FEEDBACK_OWNER_EMAIL} from '../lib/feedbackNotification.js';
 const row={message:'Place recommendation: Test cafe\n\nPlease review <script>fake</script>',place:'Test cafe',path:'/search',loc_name:'Orlando',ua:'PRIVATE-UA',user_id:'PRIVATE-ID'};
 function setup(responses=[{ok:true,status:200}],env={VERCEL_ENV:'production',RESEND_API_KEY:'fixture'}){
  const calls=[],logs=[],waits=[];
@@ -8,7 +8,7 @@ function setup(responses=[{ok:true,status:200}],env={VERCEL_ENV:'production',RES
 {
  const h=setup();assert.deepEqual(await notifyFeedback(row,'saved-1',h.options),{sent:true});
  const {init}=h.calls[0]; const data=JSON.parse(init.body);
- assert.deepEqual(data.to,['info@gowayfind.com']);assert.equal(FEEDBACK_TEAM_EMAIL,data.to[0]);
+ assert.deepEqual(data.to,['info@gowayfind.com','hello@gowayfind.com']);assert.equal(FEEDBACK_TEAM_EMAIL,data.to[0]);assert.equal(FEEDBACK_OWNER_EMAIL,data.to[1]);
  assert.match(data.subject,/recommendation/);assert.equal(data.html,undefined,'user text never becomes HTML');
  assert.match(data.text,/command-center#feedback/);assert(!data.text.includes('PRIVATE-'));
  assert(init.signal);assert.equal(init.cache,'no-store');
@@ -29,4 +29,4 @@ for(const env of [{VERCEL_ENV:'preview',RESEND_API_KEY:'fixture'},{VERCEL_ENV:'p
 {
  const h=setup();h.options.sender=()=>{throw new Error('invalid sender');};assert.equal((await notifyFeedback(row,'saved-6',h.options)).reason,'unconfigured');assert.equal(h.calls.length,0);
 }
-console.log('test-feedback-notification: OK — fixed recipient, plaintext, privacy, stored-event idempotency, bounded retries, production-only and configuration failures');
+console.log('test-feedback-notification: OK — team and owner recipients, plaintext, privacy, stored-event idempotency, bounded retries, production-only and configuration failures');

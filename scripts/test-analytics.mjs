@@ -430,7 +430,8 @@ function scanCommerceOwnership() {
   // Positive control: prove the scan itself finds the real emitters before
   // trusting a "0 violations" result — a broken grep pattern would report a
   // false-clean scan that proves nothing (CLAUDE.md's known failure mode).
-  ok(hits.length === 25, "completeness scan finds the expected 25 commerce_cta_clicked-emitting files under app/ (a new emitter changes this count on purpose — update it here AND give the new anchor ownership), got " + hits.length + ": " + hits.join(", "));
+  ok(hits.length === 26, "completeness scan finds the expected 26 commerce_cta_clicked-emitting files under app/ (a new emitter changes this count on purpose — update it here AND give the new anchor ownership), got " + hits.length + ": " + hits.join(", "));
+  ok(checked.includes("app/home.js") && /data-commerce-owner="PlaceCard"/.test(readFileSync(join(ROOT, "app/home.js"), "utf8")), "the recovered home partner CTA has explicit ownership and is included in the non-exempt emitter scan");
   ok(checked.length === hits.length - 1 - RAILCARD_ALLOWLIST.size, "the beacon itself + the 3-file RailCard allowlist are excluded; every other emitter is held to the check");
   ok(violations.length === 0, "every non-excluded commerce_cta_clicked emitter carries data-commerce-owner on the anchor whose onClick fires it: " + violations.join(", "));
 }

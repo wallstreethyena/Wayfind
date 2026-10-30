@@ -15,6 +15,9 @@ import { eventVenueImageSrc } from "../../lib/eventPageImage.js";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { isSsgBuild } from "../../lib/landingInventory";
 import { unstable_noStore as noStore } from "next/cache";
+import { siteTodayStr } from "../../lib/siteTime";
+import { majorEventsByMonth } from "../../lib/majorEventsByMonth";
+import anchorList from "../../data/florida-anchor-events.json";
 import {
   dateRangeLabel,
   floridaEventsHubPageModel,
@@ -73,6 +76,9 @@ const S = {
   hook: { fontSize: 13.5, color: "#C9D1D9", margin: "4px 0 0" },
   meta: { fontSize: 12.5, color: "#8B949E", margin: "5px 0 0" },
   foot: { fontSize: 14.5, color: "#8B949E", marginTop: 34, borderTop: "1px solid #21262D", paddingTop: 16 },
+  monthH: { fontSize: 16, fontWeight: 800, color: "#FFFFFF", margin: "18px 0 6px" },
+  monthList: { listStyle: "none", margin: 0, padding: 0 },
+  monthItem: { padding: "6px 0", borderBottom: "1px solid #21262D", fontSize: 15, overflowWrap: "anywhere" },
   link: { color: "#FF8A3D", textDecoration: "none", fontWeight: 700 },
   // v8.88 — the hub was a dead end too. Same pill as /guides and every event
   // page, so the way out of any Wayfind content surface looks identical.
@@ -99,6 +105,10 @@ export default async function FloridaEventsHub() {
   const model = floridaEventsHubPageModel({ ok: true, rows: all }, {
     now, railKeys: RAILS, ssg: isSsgBuild(),
   });
+
+  // Additive: every major anchor event with an eligible row, by month. Built
+  // from the rows already loaded above; hidden on an SSG skip or when empty.
+  const majorByMonth = model.skipped ? [] : majorEventsByMonth(model.eligible, anchorList.anchors, siteTodayStr(now));
 
   // ItemList on the hub; the individual Event schema lives on each event page,
   // which is what Google asks for. Omitted on an SSG skip so next build cannot
@@ -169,6 +179,25 @@ export default async function FloridaEventsHub() {
           ))}
         </section>
       ))}
+
+      {majorByMonth.length > 0 ? (
+        <section aria-labelledby="major-by-month">
+          <h2 id="major-by-month" style={S.railTitle}>Major Florida events by month</h2>
+          {majorByMonth.map((month) => (
+            <div key={month.monthKey}>
+              <h3 style={S.monthH}>{month.label}</h3>
+              <ul style={S.monthList}>
+                {month.events.map((e) => (
+                  <li key={e.event_id} style={S.monthItem}>
+                    <a href={"/florida-events/" + e.slug} style={S.link}>{e.event_name}{e.city ? ", " + e.city : ""}</a>
+                    <span style={S.meta}>{e.when ? " \u00b7 " + e.when : ""}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </section>
+      ) : null}
 
       <p style={S.foot}>
         Planning around one of these? Our city guides cover what else to do while you are there —{" "}

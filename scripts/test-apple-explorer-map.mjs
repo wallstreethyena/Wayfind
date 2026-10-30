@@ -116,6 +116,38 @@ assert.equal(controller.map.annotations.length, 2, "updates replace stale annota
 assert.equal(controller.map.overlays.length, 0, "updates remove obsolete rings");
 assert.equal(controller.map.shown.length, 2, "explicit fit frames the current annotations");
 
+// Recovery of the unpublished explorer lane: reuse stable native objects, but
+// replace an occurrence when its coordinate/score changes. Same ID is not proof
+// that the old marker still represents the place.
+const stable = controller.map.annotations.find((a) => a.__wayfindId === "p-0");
+const renamed = { ...places[0], name: "Renamed café", primaryType: "coffee_shop" };
+controller.update({ places: [renamed, places[1]], center: { lat: 27.3, lng: -82.5 }, rings: false, showOrigin: false });
+const renamedPin = controller.map.annotations.find((a) => a.__wayfindId === "p-0");
+assert.equal(controller.map.annotations.filter((a) => a.__wayfindId === "p-0").length, 1, "category change replaces rather than duplicates a same-ID marker");
+assert.equal(renamedPin.title, "Renamed café", "renamed place refreshes the native label");
+const refreshed = { ...renamed, name: "Renamed again" };
+controller.update({ places: [refreshed, places[1]], center: { lat: 27.3, lng: -82.5 }, rings: false, showOrigin: false });
+assert.equal(controller.map.annotations.find((a) => a.__wayfindId === "p-0"), renamedPin, "same location and visual properties retain native object identity");
+assert.equal(renamedPin.title, "Renamed again", "retained annotations still receive new title metadata");
+assert.match(renamedPin.accessibilityLabel, /Renamed again/, "retained annotations refresh accessible labels");
+controller.map.listeners.get("select")({ annotation: renamedPin });
+assert.equal(selected, refreshed, "retained native object selects the newest place data");
+const moved = { ...refreshed, lat: 27.5, governed_score: 96 };
+controller.update({ places: [moved, moved, places[1]], center: { lat: 27.3, lng: -82.5 }, rings: false, showOrigin: false });
+const movedPins = controller.map.annotations.filter((a) => a.__wayfindId === "p-0");
+assert.equal(movedPins.length, 1, "same-ID coordinate and score changes plus duplicate input yield exactly one live marker");
+assert.equal(movedPins[0].coordinate.latitude, 27.5, "replacement marker uses the updated coordinate");
+assert.match(movedPins[0].subtitle, /Wayfind 9\.6\/10/, "replacement marker exposes the updated governed score in its detail subtitle");
+assert.ok(controller.map.annotations.filter((a) => a.__wayfindId).every((a) => !/<text\b/.test(decodeURIComponent(a.image[1]))), "place pins preserve the shared teardrop without score text; scores stay on the card");
+assert.equal(controller.map.annotations.includes(renamedPin), false, "old same-ID native annotation is removed");
+assert.equal(controller.map.annotations.includes(stable), false, "obsolete category marker stays removed");
+const customMembers = [movedPins[0], controller.map.annotations.find((a) => a.__wayfindId === "p-1")];
+const customCluster = controller.map.annotationForCluster({ coordinate: movedPins[0].coordinate, memberAnnotations: customMembers });
+controller.map.listeners.get("select")({ annotation: customCluster });
+assert.equal(controller.map.shown, customMembers, "custom image cluster retains its members for tap-to-zoom without assigning Apple's readonly property");
+controller.update({ places: [places[1]], center: { lat: 27.3, lng: -82.5 }, rings: false, showOrigin: false });
+assert.equal(controller.map.annotations.length, 1, "removed rows have no lingering native marker");
+
 const selectListener = controller.map.listeners.get("select");
 const selectedBeforeDestroy = selected;
 controller.destroy();

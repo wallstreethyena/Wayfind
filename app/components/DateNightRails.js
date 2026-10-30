@@ -64,7 +64,7 @@ import { cardImageSrc } from "../../lib/placePhoto.js";
 import { usePagedRail } from "./usePagedRail.js";
 import PosterEventCard from "./PosterEventCard.js";
 import { usePosterEvents } from "./usePosterEvents.js";
-import { DATE_NIGHT_RAIL_DEFS, DATE_NIGHT_WIDEN_MI } from "../../lib/dateNightIntent.js";
+import { DATE_NIGHT_RAIL_DEFS, DATE_NIGHT_WIDEN_MI, scrubLegacyPrice } from "../../lib/dateNightIntent.js";
 import { normalizePartnerCity } from "../../lib/intentPartnerPicks.js";
 import { METROS, nearestMetro } from "../../lib/orderInFeatured.js";
 import { milesBetween } from "../../lib/locationHonesty.js";
@@ -121,7 +121,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
           const type = prettyType(p.primaryType || p.primary_type || p.category);
           const facts = [
             p.reviews ? compact(p.reviews) + " reviews" : null,
-            priceLabel(p.priceLevel != null ? p.priceLevel : p.priceNum) || null,
+            priceLabel(scrubLegacyPrice(p)) || null,
           ].filter(Boolean);
           const chips = [type ? { key: "type", icon: "📍", label: type, title: type } : null].filter(Boolean);
           const href = directionsUrl(p);

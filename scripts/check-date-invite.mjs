@@ -233,6 +233,14 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(!/undefined|null|NaN/.test(bare) && bare.length > 3, `the reply breaks with no data: "${bare}"`);
 }
 
+// A decline is a decline. Do not invent interest or a later promise for the
+// person who pressed No; retain only their identity and optional own words.
+{
+  const reply = noText({ to: "Sam" }, { note: "Have a great weekend." });
+  ok(reply.includes("Sam") && reply.includes("I'll pass this time."), "No reply clearly declines and keeps recipient identity");
+  ok(!/want to|another time|next time/i.test(reply) && reply.endsWith("Have a great weekend."), "No reply invents no desire or future consent and preserves their own note");
+}
+
 // ── 6. THE CAST IS OURS ────────────────────────────────────────────────────
 // The reference the owner sent is a Google Images page of Mochi Peach Cat and
 // friends — copyrighted, merchandised characters. This asserts the page draws
@@ -246,18 +254,39 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
     ok(!/\.gif["'`)]/i.test(src), `${rel} references a .gif — the cast is drawn`);
     ok(!/<img\b/.test(src), `${rel} renders an <img> — the cast is SVG so it stays sharp and weighs nothing`);
   }
-  // RE-AIMED 2026-08-12: the cast moved from vector paths to a PIXEL GRID after
-  // the owner sent his reference frames, so requiring <path> would fail the
-  // build for doing what was asked. The claim underneath never changed — the
-  // characters are DRAWN here, not fetched — so it is asserted on the grids
-  // themselves, which is a stronger property than the element name.
-  const px = readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8");
-  ok(/<svg/.test(px) && /<rect/.test(px), "the cast must be drawn in the page, not fetched");
-  const grids = px.match(/"[.owsepEMmthd]{12,}"/g) || [];
-  ok(grids.length >= 20,
-     `the cast must be authored as readable pixel grids — found ${grids.length} rows. An asset nobody can edit one pixel at a time is the thing the owner rejected`);
-  const widths = new Set(grids.map((g) => g.length));
-  ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
+  // 2026-10-30: #2040 implements the owner's Chibi Elf vector design.
+  // Check what React actually renders; invisible legacy grids prove nothing
+  // about the visible mascot and must not be carried merely to pass a guard.
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const { default: React } = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { JSDOM } = await import("jsdom");
+  const { Cat, Heart } = await loadComponent(path.join(REPO, "app/ask/pixel.js"), REPO);
+  const draw = (props = {}) => renderToStaticMarkup(React.createElement(Cat, props));
+  const faces = new Set();
+  for (const mood of MOOD_LADDER) {
+    const document = new JSDOM(draw({ mood })).window.document;
+    const svg = document.querySelector("svg");
+    ok(!!svg && svg.querySelectorAll("path").length >= 15, `${mood}: visible vector mascot must render`);
+    ok(!svg?.querySelector('[opacity="0"], [display="none"], [visibility="hidden"]'), `${mood}: no hidden legacy art may stand in for the visible mascot`);
+    const geometry = [...svg.querySelectorAll("path")].map((node) => node.getAttribute("d")).join("|");
+    ok(!faces.has(geometry), `${mood}: visible face/body geometry duplicates an earlier mood`);
+    faces.add(geometry);
+  }
+  const pair = () => React.createElement("div", null, React.createElement(Cat), React.createElement(Cat));
+  const pairHtml = renderToStaticMarkup(pair());
+  const pairDocument = new JSDOM(pairHtml).window.document;
+  const ids = [...pairDocument.querySelectorAll("svg [id]")].map((node) => node.id);
+  ok(ids.length === 8 && new Set(ids).size === ids.length, "identical mascot instances must have eight distinct SVG definition IDs");
+  for (const svg of pairDocument.querySelectorAll("svg")) {
+    const ownIds = new Set([...svg.querySelectorAll("[id]")].map((node) => node.id));
+    const references = [...svg.outerHTML.matchAll(/url\(#([^)]*)\)/g)].map((match) => match[1]);
+    ok(references.length >= 8 && references.every((id) => ownIds.has(id)), "every gradient reference resolves within its own mascot");
+  }
+  ok(renderToStaticMarkup(pair()) === pairHtml, "server rendering the same tree produces deterministic SVG IDs");
+  const heartDocument = new JSDOM(renderToStaticMarkup(React.createElement(Heart))).window.document;
+  ok(heartDocument.querySelectorAll("path").length > 0 && !heartDocument.querySelector('[opacity="0"]'), "floating hearts contain only the artwork they display");
+
 }
 
 // ── 6c. ONE LINK PER PERSON, AND A LEGIBLE ANSWER ──────────────────────────
@@ -359,10 +388,14 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   ok(/setEager\(0\)/.test(client),
      "the fidget must RESET when the step changes — a cat still frantic after the decision is a broken animation, not a character");
   ok(/fidget=\{eager\}/.test(client), "the deliberation clock must actually reach the cat");
-  const px = readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8");
-  ok(/eyesOpen/.test(px), "a cat with its eyes squeezed shut has no pupils to move");
-  ok(/lx > 0\.25 \? 1 : 0/.test(px),
-     "the pupil must SNAP to a whole grid cell — a smooth sub-pixel slide in a pixel scene is what gives the illusion away");
+  const { loadComponent } = await import("./lib/jsxLoad.mjs");
+  const { default: React } = await import("react");
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { JSDOM } = await import("jsdom");
+  const { Cat } = await loadComponent(path.join(REPO, "app/ask/pixel.js"), REPO);
+  const eyeArt = (mood, look) => new JSDOM(renderToStaticMarkup(React.createElement(Cat, { mood, look }))).window.document.querySelector("svg").innerHTML;
+  ok(eyeArt("hopeful", { x: -1, y: -1 }) !== eyeArt("hopeful", { x: 1, y: 1 }), "open-eyed vector face follows the fine pointer");
+  ok(eyeArt("crying", { x: -1, y: -1 }) === eyeArt("crying", { x: 1, y: 1 }), "closed eyes have no hidden pupils tracking the pointer");
   ok(/prefers-reduced-motion/.test(client),
      "the heart burst must not fire for someone who asked the OS for less motion");
   ok(/localStorage/.test(client) && /wf_ask_/.test(client),
@@ -1106,4 +1139,4 @@ if (fails.length) {
   for (const f of fails) console.error("  · " + f);
   process.exit(1);
 }
-console.log(`check-date-invite: OK — ${n} assertions; the preview never names the place, all ${ACTIVITIES.length} activities resolve to real ranked pages, ${MOOD_LADDER.length} distinct mood rungs each with their own motion, and No stays pressable at the bottom`);
+console.log(`check-date-invite: OK — ${n} assertions; the preview never names the place, all ${ACTIVITIES.length} activities resolve to real ranked pages, ${MOOD_LADDER.length} distinct mood rungs each with their own motion, and rendered mascots have unique SVG IDs`);

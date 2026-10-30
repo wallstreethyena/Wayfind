@@ -46,7 +46,7 @@ export default function PosterEventCard({ event, rank = null, surface = "poster_
     href={event.dest}
     external={!internal}
     ariaLabel={`Open ${event.name}`}
-    cta={event.ticketed && event.url ? { label: "Tickets ↗", href: event.url, external: true, sponsored: !!event.ticketVia } : null}
+    cta={event.ticketed && event.url ? { label: "Get tickets ↗", href: event.url, external: true, sponsored: !!event.ticketVia, buy: true } : null}
     actionItem={{ id: event.id, type: "event", title: event.name, image, url: event.dest, provider: event.source || null }}
     surface={surface}
   />;
