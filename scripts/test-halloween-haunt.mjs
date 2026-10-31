@@ -22,6 +22,7 @@ import {
   HAUNT_REMOVED,
   halloweenHauntProductSchema,
   halloweenHauntSchema,
+  HAUNT_VENUE_REVIEWS_2026_10_30,
 } from "../lib/halloweenHauntVault.js";
 import { isInternalVerifier, isCrawler } from "../lib/crawler.js";
 import { snapshotTours, TOUR_REMOVED, withHalloweenTours } from "../lib/halloweenTours.js";
@@ -67,6 +68,13 @@ ok(hauntCopyProblems({ lines: ["Howl O Scream starts at $45.99."] }).length === 
 
 const FIXED_NOW = "2026-10-29T12:00:00-04:00"; // fixed instant: the catalog is time bound
 const model = halloweenHauntModel({ now: FIXED_NOW });
+// Owner, 2026-10-30: most popular first, least popular last (venue Google
+// review count); a haunt with no known count goes last, never guessed.
+{
+  const counts = model.haunts.map((r) => (Number.isFinite(HAUNT_VENUE_REVIEWS_2026_10_30[r.id]) ? HAUNT_VENUE_REVIEWS_2026_10_30[r.id] : -1));
+  ok(counts.length > 3 && counts.some((c) => c > 0), "popularity probe control: counts are found for the live haunts");
+  for (let i = 1; i < counts.length; i += 1) ok(counts[i - 1] >= counts[i], "haunts run most popular first at " + i + " (" + model.haunts[i - 1].id + " then " + model.haunts[i].id + ")");
+}
 ok(model.lines.length >= 10, "Bo has at least 10 lines");
 const LIVE_N = model.haunts.filter((row) => hauntIsLive(row, FIXED_NOW)).length;
 ok(LIVE_N > 0 && model.lines.every((l) => !/^\d+ haunts/.test(l) || l.startsWith(LIVE_N + " haunts")), "Boo count line is computed from the live haunts (" + LIVE_N + ")");
@@ -291,7 +299,11 @@ ok(html.includes("scroll-snap-type:x mandatory") && html.includes("grid-template
 ok(!/@media[^{]*\{[^}]*\.boo-card\{[^}]*flex-direction:column/.test(html), "the card never stacks on phones");
 ok(/background:var\(--orange\);color:#0D1117;border:2px solid var\(--orange\)/.test(html), "buy button stays solid orange");
 ok(html.includes("Photo by Lizzie Applegate on Google Maps") && html.includes("Photo by A Petrified Forest Scare Trail on Google Maps"), "Google author credit renders");
-const peppaCard = html.slice(html.indexOf('data-haunt-id="peppa"'), html.indexOf('data-haunt-id="spookquarium"'));
+// Cards are ordered by popularity (2026-10-30), so slice to the NEXT card, whichever it is.
+const peppaStart = html.indexOf('data-haunt-id="peppa"');
+const peppaNext = html.indexOf('data-haunt-id="', peppaStart + 1);
+const peppaCard = html.slice(peppaStart, peppaNext === -1 ? undefined : peppaNext);
+ok(peppaStart >= 0 && peppaCard.length > 0, "probe control: the Peppa card is found");
 ok((peppaCard.match(/class="boo-slide"/g) || []).length === photoModel.haunts.find((r) => r.id === "peppa").photos.length && (peppaCard.match(/<i class="/g) || []).length === (peppaCard.match(/class="boo-slide"/g) || []).length, "dots match slides");
 ok(/lazy/.test(peppaCard), "slides after the first lazy load");
 for (const row of photoModel.haunts) ok(row.photos.every((p) => !p.src.includes("api/photo?")), row.id + " never uses the paid /api/photo lane");
