@@ -21,6 +21,7 @@ globalThis.localStorage = {
 };
 globalThis.window = new EventTarget();
 globalThis.window.localStorage = globalThis.localStorage;
+globalThis.window.navigator = { userAgent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)", webdriver: false };
 
 const { syncReactionsWithServer, persistLike, persistDislike, recordCommerceClick } = await import(pathToFileURL(path.join(ROOT, "lib/likeSignal.js")).href);
 const { reconcileIdsSafe } = await import(pathToFileURL(path.join(ROOT, "lib/syncReconcile.js")).href);

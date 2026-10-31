@@ -108,7 +108,7 @@ import { setLocal, sweepLocal } from "../lib/localStore";
 import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIdsSafe } from "../lib/syncReconcile";
-import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange } from "../lib/likeSignal";
+import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange, likeEventSuppressed } from "../lib/likeSignal";
 import { mergeSinceSnapshot } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
@@ -1196,6 +1196,7 @@ const NOLOG = () => {};
 function skipOwnerOrBotAnalytics(user) {
   if (typeof window === "undefined") return false;
   try {
+    if (likeEventSuppressed(user)) return true;
     return !!(window.__WF_ANALYTICS_SUPPRESSED || analyticsSuppressionReason({
       storage: window.localStorage, user,
       userAgent: window.navigator.userAgent, webdriver: window.navigator.webdriver,
