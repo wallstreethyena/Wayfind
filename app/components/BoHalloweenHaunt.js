@@ -227,16 +227,15 @@ const CSS = `
 .boo-rating b{color:#F5A524;font-weight:700}
 .boo-tour-photo{position:relative;min-width:0;min-height:200px;height:100%;background:var(--surface);overflow:hidden}
 .boo-tour-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.boo-featured,.boo-dests{margin-top:22px}
-.boo-featured h2,.boo-dests h2{margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream)}
-.boo-pick-list,.boo-dest-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
+.boo-featured{margin-top:22px}
+.boo-featured h2{margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream)}
+.boo-pick-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
 .boo-pick-card{display:grid;grid-template-columns:40% minmax(0,1fr);min-width:0;background:#141c27;border:1px solid #F97316;border-radius:14px;overflow:hidden}
 .boo-pick-photo{position:relative;min-width:0;min-height:200px;height:100%;background:#1C2230;overflow:hidden}
 .boo-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .boo-pick-body{min-width:0;display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
 .boo-pick-card h3{margin:0;font-size:17px;line-height:1.3;font-weight:800;color:#F4F6F8}
-.boo-dest-link{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 14px;border-radius:12px;border:1px solid #F97316;color:#FDBA74;font-size:15px;font-weight:800;text-decoration:none;text-align:center}
-.boo-featured a:focus-visible,.boo-dests a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
+.boo-featured a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
 `;
 
 function FestivalLights() {
@@ -457,7 +456,6 @@ function TourSection({ chrome, tours, regions }) {
 }
 
 const FEATURED_HEADING = "Top Florida ghost tours";
-const DEST_HEADING = "More ghost tours on Viator";
 
 function FeaturedGhostTours({ tours }) {
   if (!tours.length) return null;
@@ -468,7 +466,7 @@ function FeaturedGhostTours({ tours }) {
         {tours.map((t) => {
           const metaText = [t.formatLabel, t.duration].filter(Boolean).join(" · ");
           return (
-            <article key={t.id} className="boo-pick-card" data-featured-tour={t.id}>
+            <article key={t.id} id={"tour-" + t.id} className="boo-pick-card" data-featured-tour={t.id}>
               {t.photo && t.photo.src ? (
                 <div className="boo-pick-photo">
                   <GuidePhoto
@@ -507,30 +505,12 @@ function FeaturedGhostTours({ tours }) {
   );
 }
 
-function GhostDestinations({ links }) {
-  if (!links.length) return null;
-  return (
-    <section className="boo-dests" aria-labelledby="boo-dest-title" data-ghost-destinations="">
-      <h2 id="boo-dest-title">{DEST_HEADING}</h2>
-      <ul className="boo-dest-list">
-        {links.map((link) => (
-          <li key={link.id}>
-            <a className="boo-dest-link" data-ghost-dest={link.id} href={link.href} target="_blank" rel="sponsored nofollow noopener">{link.label}</a>
-            <GuideCommissionLine />
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
 export default function BoHalloweenHaunt({ model, share = null, initialFilter = "all" }) {
   const { chrome, filters, haunts, picks } = model;
   const tours = Array.isArray(model.tours) ? model.tours : [];
   const eventTours = Array.isArray(model.eventTours) ? model.eventTours : [];
   const tourRegions = Array.isArray(model.tourRegions) ? model.tourRegions : [];
   const featuredTours = Array.isArray(model.featuredTours) ? model.featuredTours : [];
-  const ghostDestinations = Array.isArray(model.ghostDestinations) ? model.ghostDestinations : [];
   // PR #2017 showed tours only after the Ghost tours chip. The default view
   // stacks the haunt grid and the full tour section again. When every haunt
   // has expired, open on that chip so the page is not an empty grid.
@@ -543,6 +523,12 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
   const isFamilyMode = filter === "family" || Boolean(selectedPick && selectedPick.filterId === "family");
   const visibleTours = isFamilyMode ? tours.filter((t) => !t.adultOnly) : tours;
   const visibleFeaturedTours = isFamilyMode ? featuredTours.filter((t) => !t.adultOnly) : featuredTours;
+  // Featured picks are the same catalogue rows as the tour grid. Production
+  // 2026-10-31 rendered each of them twice (featured section and the grid).
+  // The grid keeps every other tour, so each tour shows once. Flags, hrefs
+  // and the region chips are unchanged; a region still filters this grid.
+  const featuredShownIds = new Set(visibleFeaturedTours.map((t) => t.id));
+  const gridTours = visibleTours.filter((t) => !featuredShownIds.has(t.id));
   const tourReady = !selectedPick && visibleTours.length > 0 && tourRegions.length > 0;
   const toursOnly = tourReady && filter === "tours";
   const toursUnderHaunts = tourReady && filter === "all";
@@ -610,7 +596,6 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
         </div>
 
         <FeaturedGhostTours tours={visibleFeaturedTours} />
-        <GhostDestinations links={ghostDestinations} />
 
         {picks.length ? (
           <div className="boo-picks-wrap">
@@ -662,7 +647,7 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           ) : null}
 
           {toursOnly ? (
-            <TourSection chrome={chrome} tours={visibleTours} regions={tourRegions} />
+            <TourSection chrome={chrome} tours={gridTours} regions={tourRegions} />
           ) : shown.length || shownEvents.length ? (
             <div className="boo-vault-grid">
               {shown.map((row) => (
@@ -719,7 +704,7 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           ) : toursUnderHaunts ? null : (
             <p className="boo-empty">{chrome.empty}</p>
           )}
-          {toursUnderHaunts ? <TourSection chrome={chrome} tours={visibleTours} regions={tourRegions} /> : null}
+          {toursUnderHaunts ? <TourSection chrome={chrome} tours={gridTours} regions={tourRegions} /> : null}
         </div>
       </div>
     </section>
