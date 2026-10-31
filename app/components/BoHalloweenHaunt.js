@@ -452,7 +452,6 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
   const tours = Array.isArray(model.tours) ? model.tours : [];
   const eventTours = Array.isArray(model.eventTours) ? model.eventTours : [];
   const tourRegions = Array.isArray(model.tourRegions) ? model.tourRegions : [];
-  const featuredTours = Array.isArray(model.featuredTours) ? model.featuredTours : [];
   // PR #2017 showed tours only after the Ghost tours chip. The default view
   // stacks the haunt grid and the full tour section again. When every haunt
   // has expired, open on that chip so the page is not an empty grid.
@@ -464,15 +463,10 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
   const selectedPick = picks.find((p) => p.id === selectedPickId) || null;
   const isFamilyMode = filter === "family" || Boolean(selectedPick && selectedPick.filterId === "family");
   const visibleTours = isFamilyMode ? tours.filter((t) => !t.adultOnly) : tours;
-  const visibleFeaturedTours = isFamilyMode ? featuredTours.filter((t) => !t.adultOnly) : featuredTours;
-  // Featured picks are the same catalogue rows as the tour grid. Production
-  // 2026-10-31 rendered each of them twice (featured section and the grid).
-  // The grid keeps every other tour, so each tour shows once. Flags, hrefs
-  // and the region chips are unchanged; a region still filters this grid.
-  // One ghost tour system (2026-10-30 owner): the approved featured picks lead
-  // the Florida Ghost Tours grid instead of a separate block, each tour once.
-  const featuredShownIds = new Set(visibleFeaturedTours.map((t) => t.id));
-  const gridTours = [...visibleFeaturedTours.filter((t) => visibleTours.some((v) => v.id === t.id)), ...visibleTours.filter((t) => !featuredShownIds.has(t.id))];
+  // Owner (2026-10-30, #2068): most popular first. The tours arrive sorted by
+  // traveler review count, so the one grid keeps that order and the approved
+  // picks sit wherever their popularity puts them, each exactly once.
+  const gridTours = visibleTours;
   const tourReady = !selectedPick && visibleTours.length > 0 && tourRegions.length > 0;
   const toursOnly = tourReady && filter === "tours";
   // Family view keeps the (family-safe) ghost tour system under its haunts too,
