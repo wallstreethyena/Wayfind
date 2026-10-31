@@ -11,6 +11,8 @@
 // The compact pixel-grid tables are preserved alongside the vector layers so
 // every mood diff and guard invariant remains inspectable in source.
 
+import { useId } from "react";
+
 const P = {
   cream: { o: "#23143B", w: "#FFFFFF", s: "#D5C2FF", p: "#FF7597", e: "#1E1233", m: "#FF2A85", t: "#00F5D4", h: "#FF2A85", d: "#9D174D" },
   bear:  { o: "#23143B", w: "#FFF5F9", s: "#FFC2E0", p: "#FF5C8A", e: "#1E1233", m: "#FF2A85", t: "#00F5D4", h: "#FF2A85", d: "#9D174D" },
@@ -195,7 +197,9 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
 
   const isRosy = tone === "bear";
   const isAqua = tone === "panda";
-  const idSuffix = tone + "-" + mood + (flip ? "-f" : "");
+  const rawId = useId();
+  const uid = String(rawId || "").replace(/[^a-zA-Z0-9_-]/g, "");
+  const idSuffix = tone + "-" + mood + (flip ? "-f" : "") + (uid ? "-" + uid : "");
   const skinId = "elf-skin-" + idSuffix;
   const hatId = "elf-hat-" + idSuffix;
   const brimId = "elf-brim-" + idSuffix;
