@@ -68,6 +68,18 @@
     },
     "@vercel/cli-config": {
       "zod": "4.6.7"
+    },
+    "@sentry/bundler-plugin-core": {
+      "glob": "14.0.3",
+      "minimatch": "11.0.3"
+    },
+    "@sentry/bundler-plugins": {
+      "glob": "14.0.3",
+      "minimatch": "11.0.3"
+    },
+    "rimraf": {
+      "glob": "14.0.3",
+      "minimatch": "11.0.3"
     }
   }
 }

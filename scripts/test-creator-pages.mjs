@@ -26,7 +26,7 @@ import { loadComponent } from "./lib/jsxLoad.mjs";
 import { renderToStaticMarkup } from "react-dom/server";
 import { allCreators, videosByKey, CREATOR_PAGE_MIN_SPOTS, hasCreatorPage, FEATURED_CREATOR } from "../lib/creatorVideos.js";
 import { isEmbeddable } from "../lib/videoEmbed.js";
-import { claimsAffiliation, REMOVAL_CONTACT } from "../lib/creatorRights.js";
+import { claimsAffiliation, REMOVAL_CONTACT, FEATURED_CREATOR_DISCLOSURE } from "../lib/creatorRights.js";
 
 const REPO = path.resolve(fileURLToPath(new URL("..", import.meta.url)));
 const pagesMod = await loadComponent(fileURLToPath(new URL("../lib/creatorPages.js", import.meta.url)), REPO);
@@ -105,7 +105,10 @@ ok(!/property="og:video"/.test(html), "…and no og:video either");
 ok(html.includes("tiktok.com/@" + FEATURED_CREATOR), "links to the creator's own profile — the backlink that makes this worth their while");
 ok(!/rel="[^"]*nofollow/.test(html), "no nofollow on a creator link: a followed link is the deal, not a favour");
 ok(!claimsAffiliation(html), "the RENDERED page makes no affiliation claim");
-ok(/not affiliated with Wayfind/i.test(html), "…and states the independence disclosure outright");
+// 2026-10-29: the featured creator is NOT independent (owner's family, Wayfind's
+// own series, her own score term), so her page must say that, never the
+// independence line.
+ok(html.replace(/&#x27;|&#39;|&apos;/g, "'").includes(FEATURED_CREATOR_DISCLOSURE) && !/not affiliated with Wayfind/i.test(html), "…and states her real connection to Wayfind outright, never the independence line");
 ok(html.includes(REMOVAL_CONTACT), "…and offers the removal route before anyone has to ask");
 ok(html.includes("/creators\"") || html.includes("href=\"/creators\""), "links back to the index — no orphan page");
 

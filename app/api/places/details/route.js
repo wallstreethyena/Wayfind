@@ -25,6 +25,7 @@ import { gateShut, spendAllow, spendAllowDetailsAtmosphere } from "../../../../l
 import { placeDiscoveryRef } from "../../../../lib/discoveryRef.js";
 import { getInventoryIdentity } from "../../../../lib/inventoryIdentity.js";
 import { getCachedPlaceIdentity } from "../../../../lib/cachedPlaceIdentity.js";
+import { loadPlaceDetailPhotos } from "../../../../lib/placeDetailGallery.js";
 
 export const dynamic = "force-dynamic";
 
@@ -42,6 +43,17 @@ async function inventoryPlace(placeId) {
   const row = await getInventoryIdentity(placeId);
   if (!row || !Number.isFinite(row.lat) || !Number.isFinite(row.lng)) return null;
   const signals = row.signals || {};
+  const coverSrc = typeof signals.photo_url === "string" ? signals.photo_url : (typeof signals.photoUrl === "string" ? signals.photoUrl : "");
+  let gallery = [];
+  try {
+    gallery = await loadPlaceDetailPhotos(row.place_id, { name: row.name, signals, coverSrc });
+  } catch { gallery = []; }
+  const photos = gallery.length
+    ? gallery.map((photo) => ({ _directUri: photo.src }))
+    : [
+      ...(Array.isArray(signals.photos) ? signals.photos.filter((u) => typeof u === "string" && u).map((u) => ({ _directUri: u })) : []),
+      { _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&g=2&w=640` },
+    ];
   return {
     id: row.place_id,
     displayName: { text: row.name },
@@ -53,10 +65,7 @@ async function inventoryPlace(placeId) {
       : (row.primary_type ? [row.primary_type] : (row.category ? [row.category] : [])),
     primaryType: row.primary_type || null,
     businessStatus: row.status || null,
-    photos: [
-      ...(Array.isArray(signals.photos) ? signals.photos.filter((u) => typeof u === "string" && u).map((u) => ({ _directUri: u })) : []),
-      { _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&g=2&w=640` },
-    ],
+    photos,
   };
 }
 
