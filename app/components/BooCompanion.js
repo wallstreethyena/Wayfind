@@ -1,7 +1,9 @@
 "use client";
 
 // Boo, the Halloween ghost guide, as a site wide floating companion (through
-// Nov 1). He drifts, drops one liners, and opens a small chat sheet backed by
+// Nov 1). On /christmas-in-florida the same companion is Santa instead (Oct 1
+// through Jan 1, chat at /api/santa-chat); Boo never renders there and Santa
+// never renders anywhere else (companionCharacter.js picks from the path). He drifts, drops one liners, and opens a small chat sheet backed by
 // POST /api/bo-haunt. One element, transform only, rAF loop stops whenever he
 // is not drifting (sheet open, bubble up, tab hidden, reduced motion).
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -10,6 +12,9 @@ import { siteTodayStr } from "../../lib/siteTime.js";
 import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
+import { SantaSvg, santaPose } from "./santaArt.js";
+import { pickCharacter, santaSeasonOpen, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
+import { SANTA, SANTA_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
@@ -30,6 +35,16 @@ function inSeason() {
 function reservedPath(p) {
   return RESERVED_PATHS.some((r) => p === r || p.startsWith(r + "/"));
 }
+// Which character this page gets, and whether that character is in season.
+// Boo keeps inSeason() exactly; Santa has his own window (Oct 1 through Jan 1).
+function seasonFor(character) {
+  return character === "santa" ? santaSeasonOpen(siteTodayStr()) : inSeason();
+}
+// The character on screen right now. Set while rendering (there is one
+// companion), read by track(), prefetch() and the chat calls so every one of
+// them follows the page without threading a prop through ~40 closures.
+let ACTIVE = "boo";
+const santaNow = () => ACTIVE === "santa";
 
 const GAGS_GENERAL = [
   "Boo! Did I scare you or is that your battery?",
@@ -96,6 +111,7 @@ const POSES = {
 const ANTIC_POSE = { wave: "greet", bow: "bow", spin: "cheer", zoomies: "mega", peekaboo: "peek", shiver: "panic", nap: "nap", juggle: "juggle" };
 const seen = new Set();
 function prefetch(k, small) {
+  if (ACTIVE === "santa") return; // Santa is SVG: no pose PNGs to warm
   const src = PB + POSES[k] + (small ? "-128" : "") + ".webp";
   if (seen.has(src) || typeof Image === "undefined") return;
   seen.add(src);
@@ -131,6 +147,19 @@ function PoseImg({ pose, small }) {
     />
   );
   return <>{layers.prev ? one(layers.prev, "out") : null}{one(layers.cur, "in")}</>;
+}
+
+// Santa is one SVG, taller than Boo's square art (viewBox 250 by 330), so he is
+// fitted to the same box by height and centred: same footprint, never clipped.
+function SantaPose({ pose, small }) {
+  const h = small ? 42 : SIZE;
+  const w = Math.round((h * 250) / 330);
+  const sp = santaPose(pose);
+  return (
+    <span className="boo-sa" style={{ width: w, marginLeft: -w / 2 }}>
+      <SantaSvg face={sp.face} arm={sp.arm} />
+    </span>
+  );
 }
 
 // Types a line out a letter at a time, like he is talking. The untyped rest is
@@ -217,7 +246,7 @@ const TOP = 70, BOTTOM = 96, SIDE = 12;
 
 function track(event, props) {
   if (typeof window === "undefined") return;
-  try { captureOrQueue(window, event, { surface: "boo_companion", ...props }); } catch { /* ignore */ }
+  try { captureOrQueue(window, event, { surface: "boo_companion", character: ACTIVE, ...props }); } catch { /* ignore */ }
 }
 function clean(t) {
   return String(t || "").replace(/[–—]/g, " ").replace(/\s{2,}/g, " ").trim();
@@ -374,6 +403,16 @@ const CSS = `
 .boo-pi.out{animation:boo-pi-out .15s ease-out both}
 @keyframes boo-pi-in{from{opacity:0}to{opacity:1}}
 @keyframes boo-pi-out{from{opacity:1}to{opacity:0}}
+.boo-sa{position:absolute;left:50%;top:0;bottom:0;display:block;pointer-events:none;user-select:none}
+.boo-sa svg{pointer-events:none}
+@media (prefers-reduced-motion:no-preference){
+.boo-sa .s-star{transform-box:fill-box;transform-origin:center;animation:boo-sa-tw 1.8s ease-in-out infinite}
+.boo-sa .s-pom{transform-box:fill-box;transform-origin:center;animation:boo-sa-pom 2.4s ease-in-out infinite}
+.boo-s-av .boo-sa .s-body,.boo-s-av .boo-sa .s-head{animation:boo-sa-bob 2.6s ease-in-out infinite}
+}
+@keyframes boo-sa-tw{0%,100%{transform:scale(1) rotate(0)}50%{transform:scale(1.14) rotate(8deg)}}
+@keyframes boo-sa-pom{0%,100%{transform:translateY(0)}50%{transform:translateY(2px)}}
+@keyframes boo-sa-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 .boo-eye{transform-box:fill-box;transform-origin:center;animation:boo-blink 2.2s infinite}
 .boo-lid{opacity:0;animation:boo-lid 2.2s infinite}
 @keyframes boo-blink{0%,92.2%{transform:scaleY(1)}92.3%,100%{transform:scaleY(.1)}}
@@ -395,12 +434,21 @@ input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 .boo-ring{position:fixed;z-index:939;pointer-events:none;box-sizing:border-box;animation:boo-t-ring 1.2s ease-out both}
 @keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 .boo-ty{color:transparent}
-@media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
+@media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr,.boo-sa *{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
 export default function BooCompanion() {
   const pathname = usePathname() || "/";
-  const [eligible, setEligible] = useState(false);
+  // Boo everywhere except the Christmas page, where it is Santa. Chosen from
+  // the path alone, so Boo can never render on /christmas-in-florida.
+  const character = pickCharacter(pathname);
+  const santa = character === "santa";
+  ACTIVE = character;
+  // Eligibility is remembered WITH the character it was worked out for, so the
+  // frame after a client side navigation can never show the previous page's
+  // character (Boo out of season on the Christmas page, Santa anywhere else).
+  const [elig, setElig] = useState({ ok: false, ch: "" });
+  const eligible = elig.ok && elig.ch === character;
   const [reduced, setReduced] = useState(false);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }
@@ -484,7 +532,7 @@ export default function BooCompanion() {
     if (!openerRef.current) {
       let raw = null;
       try { raw = localStorage.getItem(CENTER_KEY); } catch { /* ignore */ }
-      openerRef.current = openerFor(raw, Math.floor(Math.random() * 6));
+      openerRef.current = (santaNow() ? santaOpenerFor : openerFor)(raw, Math.floor(Math.random() * 6));
     }
     return openerRef.current;
   };
@@ -502,7 +550,7 @@ export default function BooCompanion() {
     return g;
   };
   // Coverage talk never interrupts booking: quiet on the haunt page and for 10s after a booking tap.
-  const coverQuiet = () => pathRef.current === HAUNT_PATH || pathRef.current.startsWith(HAUNT_PATH + "/") || Date.now() - bookTapAt.current < BOOK_QUIET_MS;
+  const coverQuiet = () => pathRef.current === HAUNT_PATH || pathRef.current.startsWith(HAUNT_PATH + "/") || pickCharacter(pathRef.current) === "santa" || Date.now() - bookTapAt.current < BOOK_QUIET_MS;
   const toldFor = (g) => { try { return !!g && sessionStorage.getItem(COVER_TOLD_KEY) === g.cell; } catch { return false; } };
   const markTold = (g) => { try { sessionStorage.setItem(COVER_TOLD_KEY, g.cell); } catch { /* ignore */ } };
 
@@ -517,7 +565,7 @@ export default function BooCompanion() {
     if (pathRef.current === "/") { try { window.dispatchEvent(new CustomEvent("wf:jump-city", { detail })); } catch { /* ignore */ } }
     closeSheetRef.current();
     if (detail.handled) {
-      sayRef.current(opt.name + "! Floated you over. Your picks are loading.", "cheer", 700);
+      sayRef.current(santaNow() ? opt.name + SANTA.jumped : opt.name + "! Floated you over. Your picks are loading.", "cheer", 700);
       return;
     }
     try { localStorage.setItem(CENTER_KEY, JSON.stringify({ lat: opt.lat, lng: opt.lng, loc: opt.label, manual: true, ts: Date.now() })); } catch { /* ignore */ }
@@ -528,11 +576,24 @@ export default function BooCompanion() {
   useEffect(() => {
     let ok = false;
     try {
-      ok = inSeason() && !reservedPath(pathname);
-      if (ok && sessionStorage.getItem(HIDE_KEY) === "1") ok = false;
-    } catch { ok = inSeason() && !reservedPath(pathname); }
-    setEligible(ok);
-  }, [pathname]);
+      ok = seasonFor(character) && !reservedPath(pathname);
+      // Each character has its own hide key: hiding Boo never hides Santa.
+      if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
+    } catch { ok = seasonFor(character) && !reservedPath(pathname); }
+    setElig({ ok, ch: character });
+  }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // A different character on the next page: forget the other one's chat.
+  const lastChar = useRef(character);
+  useEffect(() => {
+    if (lastChar.current === character) return;
+    lastChar.current = character;
+    openerRef.current = "";
+    openerSpoken.current = false;
+    wrapRef.current = false;
+    turnRef.current = 0;
+    setMsgs([]); setCards([]); setWrapped(false); setDraft(""); setPose("idle");
+  }, [character]);
 
   useEffect(() => {
     let mq;
@@ -565,7 +626,7 @@ export default function BooCompanion() {
       returning.current = n >= 2;
     } catch { /* ignore */ }
   }, []);
-  useEffect(() => { if (eligible) track("boo_companion_shown", { path: pathname }); }, [eligible]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (eligible) track("boo_companion_shown", { path: pathname }); }, [eligible, character]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const place = useCallback((x, y) => {
     const el = elRef.current;
@@ -822,9 +883,10 @@ export default function BooCompanion() {
       }
       if (isInput) {
         const prev = el.getAttribute("placeholder");
-        el.setAttribute("placeholder", SPOOKY_PLACEHOLDER);
+        const swapPh = santaNow() ? SANTA.searchPlaceholder : SPOOKY_PLACEHOLDER;
+        el.setAttribute("placeholder", swapPh);
         st.timers.push(window.setTimeout(() => {
-          try { if (el.getAttribute("placeholder") === SPOOKY_PLACEHOLDER) { if (prev == null) el.removeAttribute("placeholder"); else el.setAttribute("placeholder", prev); } } catch { /* ignore */ }
+          try { if (el.getAttribute("placeholder") === swapPh) { if (prev == null) el.removeAttribute("placeholder"); else el.setAttribute("placeholder", prev); } } catch { /* ignore */ }
         }, TOUCH_MS));
       }
       // Poke first, then the happy cheer. Hovering a photo is the orb pose,
@@ -939,7 +1001,7 @@ export default function BooCompanion() {
     if ((reactKinds.current[kind] || 0) >= (REACT_LIMIT[kind] || 1)) return false;
     const ae = document.activeElement;
     if (kind !== "search" && ae && (ae.tagName === "TEXTAREA" || (ae.tagName === "INPUT" && ae.type !== "checkbox" && ae.type !== "radio"))) return false;
-    const text = pickLine(kind, usedLines.current);
+    const text = pickLine(kind, usedLines.current, Math.random, santaNow() ? SANTA_REACT_LINES : undefined);
     if (!text) return false;
     reactKinds.current[kind] = (reactKinds.current[kind] || 0) + 1;
     reactN.current += 1;
@@ -1101,8 +1163,9 @@ export default function BooCompanion() {
     if (openRef.current) return;
     stopZap();
     clearTimeout(anticTimer.current);
-    const fresh = ZAP_LINES.filter((z) => !usedLines.current.has(z));
-    const pool = fresh.length ? fresh : ZAP_LINES;
+    const zaps = santaNow() ? SANTA_ZAP_LINES : ZAP_LINES;
+    const fresh = zaps.filter((z) => !usedLines.current.has(z));
+    const pool = fresh.length ? fresh : zaps;
     const text = pool[Math.floor(Math.random() * pool.length)];
     relocateIfCovered(estimateBubble(text));
     usedLines.current.add(text);
@@ -1164,7 +1227,8 @@ export default function BooCompanion() {
     const localGag = () => {
       let hour = 12;
       try { hour = Math.floor(siteHourFloat()); } catch { /* ignore */ }
-      const pool = gagPoolFor(pathRef.current).concat(timeLines(hour)).filter((g) => !shownGags.current.has(g));
+      const base = santaNow() ? SANTA_GAGS.concat(santaTimeLines(hour)) : gagPoolFor(pathRef.current).concat(timeLines(hour));
+      const pool = base.filter((g) => !shownGags.current.has(g));
       if (!pool.length) return null;
       const text = pool[Math.floor(Math.random() * pool.length)];
       shownGags.current.add(text);
@@ -1218,15 +1282,17 @@ export default function BooCompanion() {
       gagCount.current += 1;
       const n = gagCount.current;
       let text = null, name = ANTICS[Math.floor(Math.random() * ANTICS.length)], src = "local";
-      const back = n === 2 && returning.current ? pickLine("returning", usedLines.current) : null;
+      const rLines = santaNow() ? SANTA_REACT_LINES : undefined;
+      const back = n === 2 && returning.current ? pickLine("returning", usedLines.current, Math.random, rLines) : null;
+      const routeTxt = santaNow() ? santaRouteLine(pathRef.current) : routeLine(pathRef.current);
       if (n === 1 && !openerSpoken.current) { openerSpoken.current = true; text = getOpener(); name = "wave"; src = "opener"; }
-      else if (n === 1 && page > 1 && routeLine(pathRef.current)) { text = routeLine(pathRef.current); name = "wave"; src = "route"; }
+      else if (n === 1 && page > 1 && routeTxt) { text = routeTxt; name = "wave"; src = "route"; }
       else if (back) { returning.current = false; text = back; name = "wave"; src = "returning"; }
       else if (n >= 3 && n % 3 === 0) {
         try {
           const ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
           const to = window.setTimeout(() => ctl && ctl.abort(), 4000);
-          const res = await fetch("/api/bo-haunt", {
+          const res = await fetch(santaNow() ? SANTA_API : "/api/bo-haunt", {
             method: "POST",
             headers: { "content-type": "application/json" },
             body: JSON.stringify({ mode: "gag", page: { path: pathRef.current, title: (document.title || "").slice(0, 120) } }),
@@ -1436,7 +1502,7 @@ export default function BooCompanion() {
     const started = Date.now();
     let source2 = "fallback", wrap = false;
     try {
-      const res = await fetch("/api/bo-haunt", {
+      const res = await fetch(santaNow() ? SANTA_API : "/api/bo-haunt", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ message, page: { path: pathRef.current, title: (document.title || "").slice(0, 120) }, turn }),
@@ -1453,7 +1519,7 @@ export default function BooCompanion() {
       const rp = wrap ? "bye" : data.smallTalk ? "talk" : !nCards ? "greet" : KID_RX.test(message) ? "kids" : PRICE_RX.test(message) ? "price" : "sales";
       holdRef.current = rp; prefetch(rp, true); setPose(rp);
     } catch {
-      setMsgs((m) => m.concat([{ role: "boo", text: FALLBACK_LINE, link: true }]));
+      setMsgs((m) => m.concat([{ role: "boo", text: santaNow() ? SANTA.fallbackLine : FALLBACK_LINE, link: true }]));
       playAntic();
       holdRef.current = "err"; prefetch("err", true); setPose("err");
       setCards([]);
@@ -1464,21 +1530,25 @@ export default function BooCompanion() {
     }
   }, [playAntic]);
 
-  // External trigger (Ask Boo button on the Halloween page).
+  // External trigger (Ask Boo button on the Halloween page, Ask Santa button on
+  // the Christmas page). Opens whichever character this page has; wf:santa-open
+  // is an alias of wf:boo-open.
   useEffect(() => {
     const on = (e) => {
       let ok = false;
-      try { ok = inSeason() && !reservedPath(pathRef.current); } catch { /* ignore */ }
+      const ch = pickCharacter(pathRef.current);
+      try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
       if (!ok) return;
-      try { sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
-      setEligible(true);
+      try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
+      setElig({ ok: true, ch });
       eligibleRef.current = true;
       const prompt = e && e.detail && typeof e.detail.prompt === "string" ? e.detail.prompt : "";
       if (!openRef.current) openSheet("event");
       if (prompt) send(prompt, "prompt");
     };
     window.addEventListener("wf:boo-open", on);
-    return () => window.removeEventListener("wf:boo-open", on);
+    window.addEventListener("wf:santa-open", on);
+    return () => { window.removeEventListener("wf:boo-open", on); window.removeEventListener("wf:santa-open", on); };
   }, [openSheet, send]);
 
   // Opening line, focus, scroll lock, Escape and focus trap.
@@ -1499,7 +1569,7 @@ export default function BooCompanion() {
       }
     }
     if (unkNow) setUnk(unkNow);
-    setMsgs((m) => (m.length ? m : [{ role: "boo", text: gapRef.current ? coverageSheetLine(gapRef.current) : unkNow ? unknownSheetLine() : getOpener() || GREETING, fresh: true }]));
+    setMsgs((m) => (m.length ? m : [{ role: "boo", text: gapRef.current ? coverageSheetLine(gapRef.current) : unkNow ? unknownSheetLine() : getOpener() || (santaNow() ? SANTA.greeting : GREETING), fresh: true }]));
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     const f = window.setTimeout(() => { try { (inputRef.current || sheetRef.current).focus({ preventScroll: true }); } catch { /* ignore */ } }, 60);
@@ -1537,17 +1607,18 @@ export default function BooCompanion() {
   };
 
   const hideBoo = () => {
-    try { sessionStorage.setItem(HIDE_KEY, "1"); } catch { /* ignore */ }
+    try { if (santaNow()) sessionStorage.setItem(SANTA_HIDE_KEY, "1"); else sessionStorage.setItem(HIDE_KEY, "1"); } catch { /* ignore */ }
     track("boo_companion_hidden", { path: pathRef.current });
     holdRef.current = null;
     setOpen(false);
-    setEligible(false);
+    setElig({ ok: false, ch: character });
   };
 
   if (!eligible) return null;
 
   const onHaunt = pathname.startsWith("/halloween");
-  const chips = onHaunt ? CHIPS_HALLOWEEN : CHIPS_OTHER;
+  const chips = santa ? SANTA_CHIPS : onHaunt ? CHIPS_HALLOWEEN : CHIPS_OTHER;
+  const listPath = santa ? CHRISTMAS_PATH : HAUNT_PATH;
   const hasUser = msgs.some((m) => m.role === "user");
 
   return (
@@ -1560,7 +1631,7 @@ export default function BooCompanion() {
             <span className={"boo-c-look" + (look ? " boo-l-" + look : "")}>
               <span className="boo-c-sway" ref={swayRef}>
                 <span className="boo-c-flip" ref={flipRef}>
-                  <span className="boo-c-bob"><PoseImg pose={pose} /></span>
+                  <span className="boo-c-bob">{santa ? <SantaPose pose={pose} /> : <PoseImg pose={pose} />}</span>
                 </span>
               </span>
             </span>
@@ -1579,7 +1650,7 @@ export default function BooCompanion() {
           type="button"
           className="boo-c-hit"
           ref={hitRef}
-          aria-label="Chat with Boo"
+          aria-label={santa ? SANTA.ariaChat : "Chat with Boo"}
           onClick={(e) => { if (e.detail > 0 && underTap(e)) return; onTap(); }}
           onPointerEnter={(e) => { if (e.pointerType === "mouse") holdUntil.current = Number.MAX_SAFE_INTEGER; }}
           onPointerLeave={(e) => { if (e.pointerType === "mouse") holdUntil.current = Date.now() + 600; }}
@@ -1595,12 +1666,12 @@ export default function BooCompanion() {
       </div>
       {open ? (
         <div className="boo-s-back" onClick={(e) => { if (e.target === e.currentTarget) closeSheet(); }}>
-          <div className="boo-s" ref={sheetRef} role="dialog" aria-modal="true" aria-label="Chat with Boo" tabIndex={-1}>
+          <div className="boo-s" ref={sheetRef} role="dialog" aria-modal="true" aria-label={santa ? SANTA.ariaChat : "Chat with Boo"} tabIndex={-1}>
             <div className="boo-s-grab" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}><i /></div>
             <div className="boo-s-head" onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-              <div className={"boo-s-av" + (antic && ["wave", "spin", "shiver", "bow"].indexOf(antic.name) >= 0 ? " boo-a-" + antic.name : "")} key={antic ? antic.key : "i"}><PoseImg pose={pending ? "panic" : pose} small /></div>
-              <div className="boo-s-name"><b>Boo</b><span>Wayfind's ghost guide</span></div>
-              <button type="button" className="boo-s-hide" onClick={hideBoo}>Hide Boo</button>
+              <div className={"boo-s-av" + (antic && ["wave", "spin", "shiver", "bow"].indexOf(antic.name) >= 0 ? " boo-a-" + antic.name : "")} key={antic ? antic.key : "i"}>{santa ? <SantaPose pose={pending ? "panic" : pose} small /> : <PoseImg pose={pending ? "panic" : pose} small />}</div>
+              <div className="boo-s-name"><b>{santa ? SANTA.name : "Boo"}</b><span>{santa ? SANTA.subtitle : "Wayfind's ghost guide"}</span></div>
+              <button type="button" className="boo-s-hide" onClick={hideBoo}>{santa ? SANTA.hide : "Hide Boo"}</button>
               <button type="button" className="boo-s-x" aria-label="Close chat" onClick={closeSheet}>{"×"}</button>
             </div>
             <div className="boo-s-body" ref={bodyRef} aria-live="polite">
@@ -1608,10 +1679,10 @@ export default function BooCompanion() {
                 <div key={i} className={"boo-m " + (m.role === "user" ? "u" : "b")}>
                   {m.role === "boo" && splitKicker(m.text)[0] ? <span className="boo-k">{splitKicker(m.text)[0]}</span> : null}
                   {m.role === "boo" ? (m.fresh && i === msgs.length - 1 && !reduced ? <TypeLine text={splitKicker(m.text)[1]} /> : splitKicker(m.text)[1]) : m.text}
-                  {m.link ? <> <a href={HAUNT_PATH}>See the haunt list</a></> : null}
+                  {m.link ? <> <a href={listPath}>{santa ? SANTA.fallbackLink : "See the haunt list"}</a></> : null}
                 </div>
               ))}
-              {pending ? <div className="boo-m b t">Boo is rattling the chains...</div> : null}
+              {pending ? <div className="boo-m b t">{santa ? SANTA.pending : "Boo is rattling the chains..."}</div> : null}
               {cards.length ? (
                 <div className="boo-s-cards">
                   {cards.map((c, i) => (
@@ -1630,7 +1701,7 @@ export default function BooCompanion() {
                   ))}
                 </div>
               ) : null}
-              {wrapped ? <a className="boo-wrap" href={HAUNT_PATH}>Open the full haunt list</a> : null}
+              {wrapped ? <a className="boo-wrap" href={listPath}>{santa ? SANTA.wrapLink : "Open the full haunt list"}</a> : null}
               {!wrapped && !hasUser && !pending && gap ? (
                 <div className="boo-s-cities" role="group" aria-label="Florida cities on Wayfind">
                   {gap.options.map((o, i) => (
@@ -1668,8 +1739,8 @@ export default function BooCompanion() {
                 maxLength={300}
                 disabled={wrapped}
                 onChange={(e) => setDraft(e.target.value)}
-                placeholder={wrapped ? "That is all from me" : "Ask Boo anything"}
-                aria-label="Your question for Boo"
+                placeholder={wrapped ? "That is all from me" : santa ? SANTA.placeholder : "Ask Boo anything"}
+                aria-label={santa ? SANTA.ariaInput : "Your question for Boo"}
                 enterKeyHint="send"
               />
               <button type="submit" className="boo-send" disabled={wrapped || pending || !draft.trim()}>Send</button>

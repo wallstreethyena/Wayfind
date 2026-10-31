@@ -382,7 +382,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   ok((cssSrc.match(/pointer-events:auto/g) || []).length === 1, "exactly one pointer-events:auto rule in the companion CSS");
   ok(/\.boo-c-bubble\{[^}]*pointer-events:none/.test(cssSrc), "bubbles are decorative: pointer-events:none");
   ok(!/style\.pointerEvents/.test(comp), "no JS toggles style.pointerEvents any more");
-  ok(/<button\s[^>]*className="boo-c-hit"[^>]*aria-label="Chat with Boo"/.test(comp.replace(/\n\s*/g, " ")) && /type="button"/.test(comp.slice(comp.indexOf('className="boo-c-hit"') - 60, comp.indexOf('className="boo-c-hit"'))), "hit area is a real <button> with aria-label 'Chat with Boo'");
+  ok(/<button\s[^>]*className="boo-c-hit"[^>]*aria-label=(?:"Chat with Boo"|\{santa \? SANTA\.ariaChat : "Chat with Boo"\})/.test(comp.replace(/\n\s*/g, " ")) && /type="button"/.test(comp.slice(comp.indexOf('className="boo-c-hit"') - 60, comp.indexOf('className="boo-c-hit"'))), "hit area is a real <button> with aria-label 'Chat with Boo'");
   ok(/\.boo-c \.boo-c-hit\{[\s\S]*?width:44px;height:44px/.test(cssSrc) && /\.boo-c-hit:focus-visible\{outline:/.test(cssSrc), "hit button is 44x44 with a visible focus ring");
   ok(!/tabIndex=\{-1\}/.test(comp.slice(comp.indexOf('className="boo-c-hit"'), comp.indexOf('className="boo-c-hit"') + 500)) && !/\.focus\(/.test(comp.slice(comp.indexOf("const hitTick"), comp.indexOf("const settleReduced"))), "hit button is in normal tab order and the hit logic never focuses anything");
   ok(!/<button[^>]*className="boo-c-bubble"/.test(comp) && /<div className="boo-c-bubble"/.test(comp), "the speech bubble is a decorative div, not a button");
