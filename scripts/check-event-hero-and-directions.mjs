@@ -91,7 +91,9 @@ function siteCaptionUsesHostOnly(where) {
 // same shape as app/components/css.js's .wf-place-card-monogram, so an event
 // with neither never opens on a bare kicker + h1 (the "text document" defect).
 function heroLadderComplete(page) {
-  const block = (page.match(/\{shots && shots\.hero \? \([\s\S]*?\n\s*\)\}/) || [""])[0];
+  // A card gallery may lead the same ladder. The three rungs still have to be
+  // there: owned shots, the row's hero_image, then the monogram. Never nothing.
+  const block = (page.match(/\{(?:detailPhotos\.length \? [\s\S]*? : )?shots && shots\.hero \? \([\s\S]*?\n\s*\)\}/) || [""])[0];
   if (!block) return false;
   return /shots\.hero \? \(/.test(block)
     && /e\.hero_image \? \(/.test(block)
