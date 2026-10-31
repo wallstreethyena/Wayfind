@@ -158,7 +158,7 @@ scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	
 scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	16ab10b0900dd3df4d8820402773fd40aacd8d01c8ad1abd92f11b8bfbb7e684
 scripts/check-fall-is-calling.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	7fc906fb7c2916d8187d01b003000b9baf497693074d32901754e055cb224bf3
 scripts/check-fall-offering-freshness.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	98f3485ccee60ed1be8d56b55b9b7f829ff72795f194bb61acbb413de49d645a
-scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	739a38992d88da22ffb715a879e4aefba01b9860ead67259dbacea48ca250440
+scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	32b5dd7e5771e82717c9c9830427d24393059b38f7e05c519dc8328996705bd5
 scripts/check-fall-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	f624d4c9457ac3eeea2f0e5cd3c9a0b792b8a8cea9c31d4271fc0287a2ed4266
 scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	15031df1dd6a7d99113360f50447a6af00a95639b1adf37b7aeaeba3e3908c89
 scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	859f42c43e3b795df3a2be315fb01d8fff1708f5d080d3b2d6f9661f1bd95b2c
@@ -400,8 +400,8 @@ scripts/check-score-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0	da0c3f8c7ab8
 scripts/check-scout-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	d385f315b661b1b2c97ddbb83e6d2988c02d8f585c85fb5c37da459bc8fa21c1
 scripts/check-search-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	7b07ace798eeef53088ff0f2f3fb7f67da7fd057d1781cf77884a95fc821d8f0
 scripts/check-search-understand.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	a0ecccf47c9bd23e36a51dc754743b1b9f0c39ac829cb2493938ae0f82c44097
-scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	1502c346b55b7ee664ced3af210c9d1fa2859b04b406b3cb741e63b3e8d022db
-scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	48	0	0	7f17889735396450c995de27de8ae62350271ef7e4000b9edb221cf4e8c55fc6
+scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a310cca2d23253c98dc904365a76c5f3a0834c6d430378b5ce5e50f645399bc7
+scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	3d6ac4aad7109d32139fd067d71bf7c45d2653c228d2aaeef96ee543b179472c
 scripts/check-seasonal-rail-depth.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	a7af84063d56e22ef5103369c1381458b88e4111bdef296e7e2dcbb01456d2cd
 scripts/check-seasonal-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	111	0	0	8759742d8d856a247f1cc6372f6c6f24f558ca12948b328a8dab58b71f443572
 scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	63	1	0	b23fd93b05f825d0254f15ac6d1cf09b1a04578c3336c94410e5116939a5bebc
@@ -742,7 +742,7 @@ scripts/test-guide-stays.mjs	0	RENDER	blocks-ci-and-deploy	1	-	22	0	0	f38fd627c7
 scripts/test-guide-visual-monitor.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	46587f8ab638155f703f51fe41c5ddc580078f64024d40361d20bfd3f26074b1
 scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	e9f66b81ad1c2c33cfe7845b7b0677896a1e4f97032c01c6a288f093607ef963
 scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	72dae7d6f783e0b3813f791460b67f95aedb1480bf396af420f57e51d0073fe7
-scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	274	0	0	800fd406cbde3cefd356a33b5b2de6faf07e240b440ae9465fd76a644d83fd68
+scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	284	0	0	228549a1ed2304f4f4779153d823213082bd31c182aab529634f647d388a40ae
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	976379a2ccefc1d556dc38b2f513cbcaa927bb4f9d37a87ba5ebe7df19125969
 scripts/test-halloween-overnight-dedupe.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	f185d199d7ecc84e0887d0ea70ac1fdd9a58ce9eb0c359e7f4bbaa8e4d88cf70
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
