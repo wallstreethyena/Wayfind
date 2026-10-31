@@ -118,6 +118,19 @@ than 6 distinct offers per IP+UA per 60 s, cookie-less, `REDIRECT_BURST_GATE=1`,
 synthetic monitor UA is exempt and keeps its real partner redirect. Everything unreadable
 classifies human: a refused customer costs more than a leaked bot click.
 
+**2026-10-31: our own test traffic is refused, link followers are labelled.** PostHog
+10-28/29: ~220 of our own hits (UA `node`, `Mozilla/5.0 WayfindVerify`, wf_test sessions)
+went through to Viator and other partners. Now `?wf_test=` on a go link, a `wf_attr` cookie
+carrying a test label, and the verifier UAs are refused as qa (`test-param`,
+`test-session`, `verifier-ua`): own-site 302 with `X-Wayfind-Refused: qa/<reason>`. A check
+that must read the real partner Location uses the synthetic monitor UA with redirect
+"manual" (scripts/watchdog-affiliate-links.mjs) and never follows it. 10-21..10-30:
+`intent_partner_rail` had 757 human redirects and 12 matched a browser click; on 10-30, 45
+of 52 had no page click_id, no first-party cookie and no same-site Referer. They are not
+refused (an ad-blocked person looks the same) but every redirect event now carries
+`click_proof` (client_click_id | first_party_cookie | first_party_referer | direct_link |
+none). Count real taps with `traffic_class = 'human' AND click_proof != 'none'`.
+
 ## ⚠️ Concurrency rules
 
 - **main moves fast** — both sessions push, sometimes every few minutes. NEVER assume main

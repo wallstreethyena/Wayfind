@@ -4,7 +4,7 @@ import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js"
 import { randomUUID } from "node:crypto";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic, headResponse, noStoreHeaders } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from "../../../../lib/redirectTrafficClass.js";
 import { isHotelBookingVerified } from "../../../../lib/hotelBookingVerification.js";
 import {
   HOTEL_REDIRECT_FALLBACK,
@@ -48,7 +48,7 @@ export async function GET(req) {
   let trafficClass = isInternalVerifier(req.headers.get("user-agent")) ? "automation" : "human";
   const emit = (event, extra) => {
     try {
-      const properties = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
+      const properties = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
       captureServerInBackground(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
