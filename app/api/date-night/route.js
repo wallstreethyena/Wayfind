@@ -20,6 +20,7 @@ import { getBeachConditions } from "../../../lib/marine.js";
 import { nowContext } from "../../../lib/nowContext.js";
 import { BROWSE_INVENTORY_N } from "../../../lib/browseInventory.js";
 import {
+  DATE_NIGHT_RAIL_DEFS,
   DATE_NIGHT_WIDEN_MI,
   composeDateNightRails,
   isDateDinner,
@@ -203,7 +204,11 @@ export async function GET(req) {
     "x-wayfind-fast-cache": cached.state,
   };
   if (railId) {
-    const paged = pageOneRail(answer.rails, railId, { page, size });
+    const knownDef = DATE_NIGHT_RAIL_DEFS.find((r) => r.id === railId);
+    const railsForPaging = knownDef && !answer.rails.some((r) => r.id === railId)
+      ? [...answer.rails, { ...knownDef, places: [], total: 0 }]
+      : answer.rails;
+    const paged = pageOneRail(railsForPaging, railId, { page, size });
     if (!paged) return Response.json({ error: "unknown rail" }, { status: 404, headers: { "cache-control": "no-store" } });
     return Response.json({ rail: railId, ...paged }, { status: 200, headers });
   }
