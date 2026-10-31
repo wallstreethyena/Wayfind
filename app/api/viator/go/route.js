@@ -17,7 +17,7 @@ import { landingFromCookieHeader } from "../../../../lib/campaignAttribution.js"
 import { randomUUID } from "node:crypto";
 import { resolveVerified } from "../../../../lib/bookingResolver.js";
 import { getFanoutCount, persistOffer } from "../../../../lib/verifiedOfferStore.js";
-import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
+import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { withViatorTracking, viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { FALLBACK } from "../../../../lib/commerceProviders.js";
@@ -298,7 +298,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const props = commercePayload(event, { ...baseProps, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
-      captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
+      captureServerInBackground(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
 
