@@ -468,7 +468,7 @@ function FeaturedGhostTours({ tours }) {
         {tours.map((t) => {
           const metaText = [t.formatLabel, t.duration].filter(Boolean).join(" · ");
           return (
-            <article key={t.id} className="boo-pick-card" data-featured-tour={t.id}>
+            <article key={t.id} id={"tour-" + t.id} className="boo-pick-card" data-featured-tour={t.id}>
               {t.photo && t.photo.src ? (
                 <div className="boo-pick-photo">
                   <GuidePhoto
@@ -543,6 +543,12 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
   const isFamilyMode = filter === "family" || Boolean(selectedPick && selectedPick.filterId === "family");
   const visibleTours = isFamilyMode ? tours.filter((t) => !t.adultOnly) : tours;
   const visibleFeaturedTours = isFamilyMode ? featuredTours.filter((t) => !t.adultOnly) : featuredTours;
+  // Featured picks are the same catalogue rows as the tour grid. Production
+  // 2026-10-31 rendered each of them twice (featured section and the grid).
+  // The grid keeps every other tour, so each tour shows once. Flags, hrefs
+  // and the region chips are unchanged; a region still filters this grid.
+  const featuredShownIds = new Set(visibleFeaturedTours.map((t) => t.id));
+  const gridTours = visibleTours.filter((t) => !featuredShownIds.has(t.id));
   const tourReady = !selectedPick && visibleTours.length > 0 && tourRegions.length > 0;
   const toursOnly = tourReady && filter === "tours";
   const toursUnderHaunts = tourReady && filter === "all";
@@ -662,7 +668,7 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           ) : null}
 
           {toursOnly ? (
-            <TourSection chrome={chrome} tours={visibleTours} regions={tourRegions} />
+            <TourSection chrome={chrome} tours={gridTours} regions={tourRegions} />
           ) : shown.length || shownEvents.length ? (
             <div className="boo-vault-grid">
               {shown.map((row) => (
@@ -719,7 +725,7 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           ) : toursUnderHaunts ? null : (
             <p className="boo-empty">{chrome.empty}</p>
           )}
-          {toursUnderHaunts ? <TourSection chrome={chrome} tours={visibleTours} regions={tourRegions} /> : null}
+          {toursUnderHaunts ? <TourSection chrome={chrome} tours={gridTours} regions={tourRegions} /> : null}
         </div>
       </div>
     </section>

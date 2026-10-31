@@ -551,10 +551,14 @@ const chipCount = liveModel.tours.length;
 ok(chipCount === snapshotTours().filter((t) => t.group === "ghost").length && chipCount >= 30, "ghost tour count is the snapshot ghost group (" + chipCount + ")");
 ok(defaultHtml.includes("Ghost tours (" + chipCount + ")"), "filter row shows the Ghost tours chip with count " + chipCount);
 ok((defaultHtml.match(/data-haunt-id="/g) || []).length === 17, "default view keeps all 17 haunt cards");
-ok((defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length + chipCount, "default view stacks haunted attractions and the full ghost tour section");
+const featuredIds = new Set(liveModel.featuredTours.map((t) => t.id));
+const gridGhostCount = liveModel.tours.filter((t) => !featuredIds.has(t.id)).length;
+ok(liveModel.featuredTours.length > 0 && gridGhostCount === chipCount - liveModel.featuredTours.length, "featured picks are a subset of the ghost tour catalogue");
+ok((defaultHtml.match(/data-tour-id="/g) || []).length === liveModel.eventTours.length + gridGhostCount, "default view stacks haunted attractions and the ghost tours that are not already featured");
 ok(defaultHtml.includes("Florida Ghost Tours") && defaultHtml.includes('id="boo-tours"'), "ghost tour section renders on the default view");
 const chipHtml = renderToStaticMarkup(createElement(HauntPage, { model: liveModel, initialFilter: "tours" }));
-ok((chipHtml.match(/data-tour-id="/g) || []).length === chipCount, "chip view lists exactly the counted ghost tours");
+ok((chipHtml.match(/data-tour-id="/g) || []).length === gridGhostCount, "chip view lists each non-featured ghost tour once");
+ok(liveModel.featuredTours.every((t) => (chipHtml.match(new RegExp('data-featured-tour="' + t.id + '"', "g")) || []).length === 1 && !chipHtml.includes('data-tour-id="' + t.id + '"')), "each featured pick renders once and not again in the grid");
 ok(!/data-haunt-id="/.test(chipHtml), "chip view shows tours only");
 const oct29 = await withHalloweenTours(halloweenHauntModel({ now: "2026-10-29T12:00:00-04:00" }), { env: {} });
 const oct29Html = renderToStaticMarkup(createElement(HauntPage, { model: oct29 }));
@@ -564,7 +568,9 @@ const nov2 = await withHalloweenTours(halloweenHauntModel({ now: "2026-11-02T12:
 const nov2Html = renderToStaticMarkup(createElement(HauntPage, { model: nov2 }));
 const nov2Chip = nov2Html.match(/<button[^>]*data-filter-id="tours"[^>]*>/);
 ok(nov2.haunts.length === 0 && nov2Chip && /aria-pressed="true"/.test(nov2Chip[0]), "Nov 2 opens on the Ghost tours chip because no haunt is still live");
-ok(!/data-haunt-id="/.test(nov2Html) && (nov2Html.match(/data-tour-id="/g) || []).length === nov2.tours.length && nov2.tours.length > 0, "Nov 2 renders ghost tours and no haunt card");
+const nov2Featured = new Set(nov2.featuredTours.map((t) => t.id));
+const nov2Grid = nov2.tours.filter((t) => !nov2Featured.has(t.id)).length;
+ok(!/data-haunt-id="/.test(nov2Html) && (nov2Html.match(/data-tour-id="/g) || []).length === nov2Grid && nov2.tours.length > 0, "Nov 2 renders each remaining ghost tour once and no haunt card");
 const groupOf = (id) => (liveModel.eventTours.some((t) => t.id === id) ? "haunt event" : liveModel.tours.some((t) => t.id === id) ? "ghost tour" : model.haunts.some((h) => h.id === id) ? "haunt" : "none");
 ok(groupOf("180859P9") === "haunt event" && groupOf("38620P1") === "ghost tour" && groupOf("howlTampa") === "haunt", "grouping spot checks");
 ok(/filters\.map/.test(readFileSync("app/components/BoHalloweenHaunt.js", "utf8")) && /aria-pressed/.test(defaultHtml), "chip lives in the existing filter row");
@@ -578,8 +584,7 @@ for (const row of model.haunts) {
 }
 for (const t of allTours) ok(GO_ROUTE.test(t.cta.href) && t.cta.href.includes("provider=viator"), t.id + " buy href is our go route");
 const buyHrefs = [...(defaultHtml + chipHtml).matchAll(/class="boo-buy(?: is-muted)?" href="([^"]+)"/g)].map((m) => m[1].replace(/&amp;/g, "&"));
-const featuredN = liveModel.featuredTours.length;
-ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount + featuredN + chipCount + featuredN, "every rendered buy button was checked (" + buyHrefs.length + ")");
+ok(buyHrefs.length === 17 + liveModel.eventTours.length + chipCount + chipCount, "every rendered buy button was checked (" + buyHrefs.length + ")");
 for (const href of buyHrefs) ok(GO_ROUTE.test(href) || ORGANIZER_ALLOW.has(href), "rendered buy href is a go route or an allowed organizer link: " + href.slice(0, 60));
 
 // Tracking: the page mounts the one delegated beacon, and no card carries its own second tracker
