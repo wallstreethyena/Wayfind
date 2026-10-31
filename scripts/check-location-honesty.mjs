@@ -42,6 +42,9 @@ import {
   cityOriginsWire,
   firstPaintRailOrigin,
   nearestOwnedCityName,
+  storedPlaceHeader,
+  placeHeaderLabel,
+  detailLocationLine,
 } from "../lib/locationHonesty.js";
 import { nearestCoveredCity, railDistanceMi } from "../lib/railCoverage.js";
 
@@ -356,6 +359,41 @@ ok(nearestOwnedCityName(27.3364, -82.5307) === "Sarasota, FL", "Sarasota coords 
 ok(nearestOwnedCityName(27.9506, -82.4572) === "Tampa, FL", "Tampa coords name Tampa");
 ok(nearestOwnedCityName(39.7392, -104.9903) === "", "outside covered range the fallback stays empty (Denver)");
 ok(nearestOwnedCityName(NaN, NaN) === "", "invalid coords stay empty");
+
+// Place headers name the business's stored city. The nearest covered city is
+// only the fallback when no city is stored. Ranking still uses the coverage key.
+const beyond = { name: "Beyond Borders Outfitters", locality: "Punta Gorda", lat: 26.9298, lng: -82.0454 };
+const jazz = { name: "All That Jazz Cafe", locality: "Sunrise", lat: 26.1707764, lng: -80.2968915 };
+ok(nearestOwnedCityName(beyond.lat, beyond.lng) === "Fort Myers, FL", "PROBE: Beyond Borders sits in the Fort Myers coverage market");
+ok(nearestOwnedCityName(jazz.lat, jazz.lng) === "Fort Lauderdale, FL", "PROBE: All That Jazz sits in the Fort Lauderdale coverage market");
+ok(storedPlaceHeader(beyond) === "Punta Gorda, FL" && placeHeaderLabel(beyond) === "Punta Gorda, FL" && detailLocationLine(beyond) === "Punta Gorda, FL",
+  "a stored Punta Gorda city is the header, not Fort Myers");
+ok(storedPlaceHeader(jazz) === "Sunrise, FL" && detailLocationLine(jazz) === "Sunrise, FL",
+  "a stored Sunrise city is the header, not Fort Lauderdale");
+ok(storedPlaceHeader({ lat: beyond.lat, lng: beyond.lng }) === "" && placeHeaderLabel({ lat: beyond.lat, lng: beyond.lng }) === "Fort Myers, FL",
+  "no stored city falls back to the nearest covered city, and the card header stays blank");
+ok(placeHeaderLabel({ city: "florida", lat: beyond.lat, lng: beyond.lng }) === "Fort Myers, FL",
+  "a coverage slug is not a stored city");
+ok(storedPlaceHeader({ locality: "Honolulu", state: "HI", lat: beyond.lat, lng: beyond.lng }) === "Honolulu, HI",
+  "an explicit stored state is not replaced by the nearest market's state");
+ok(detailLocationLine({ ...beyond, address: "3150 Matecumbe Key Rd, Punta Gorda, FL 33955" }) === "3150 Matecumbe Key Rd, Punta Gorda, FL 33955",
+  "a street address stays the location line");
+ok(detailLocationLine({ address: "Sunrise", lat: jazz.lat, lng: jazz.lng }) === "Sunrise, FL",
+  "a bare stored city in the address gains its state");
+ok(detailLocationLine({ address: "Siesta Key", lat: 27.267, lng: -82.546 }) === "Siesta Key, FL",
+  "a non-street place name that is not the coverage city is kept");
+ok(storedPlaceHeader({ lat: 27.4, lng: -82.4, name: "SSR Probe Place" }) === "",
+  "the card-geometry probe has no stored city, so it grows no header line");
+const DETAIL = strip(read("app/components/sheets/Detail.js"));
+ok(/detailLocationLine\(detail\)/.test(DETAIL), "the detail header calls detailLocationLine");
+ok(!/nearestOwnedCityName\(/.test(DETAIL), "the detail header does not call the nearest-city fallback itself");
+ok(/storedPlaceHeader\(p\)/.test(strip(read("app/home.js"))) && /storedPlaceHeader\(place\)/.test(strip(read("app/components/IconicPlaceCard.js"))) && /storedPlaceHeader\(place\)/.test(strip(read("app/components/RailCard.js"))),
+  "place cards render the stored city header");
+const MAP = read("lib/mapAreaData.js");
+ok(/city: row\.metro \|\| null/.test(MAP) && /governedScoreOf\(p, row\.metro\)/.test(MAP),
+  "map ranking still scores on the coverage metro, not the stored city");
+ok(/nearestCoveredCity\(row\.lat, row\.lng\)/.test(read("lib/directSearch.js")),
+  "search ranking still tiers on the nearest covered city");
 
 if (fail.length) {
   console.error(`check-location-honesty: ${pass} passed, ${fail.length} FAILED`);

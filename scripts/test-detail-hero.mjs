@@ -6,6 +6,7 @@
 import { readFileSync } from "fs";
 import ts from "typescript";
 import { hasRealPlacePhoto, mergeHealedPlacePhotos, detailHeroLayout } from "../lib/detailHero.js";
+import { detailLocationLine } from "../lib/locationHonesty.js";
 import { PLACE_DETAIL_PHOTO_STANDARD } from "../lib/placeDetailPhotoStandard.js";
 
 let failures = 0;
@@ -101,9 +102,13 @@ ok(heroBranch.length > 80, "hasRealPlacePhoto(detail) is used in the render path
 ok(!/height:\s*250[\s\S]{0,240}BrandedImageFallback|BrandedImageFallback[\s\S]{0,240}height:\s*250/.test(detailSrc),
   "Detail must not render a 250px BrandedImageFallback hero");
 
-// Compact still shows the sheet's decision surface.
-ok(/detail\.name/.test(detailSrc) && /detail\.address/.test(detailSrc),
-  "compact sheet still has name and address");
+// Compact still shows the sheet's decision surface. The location line is
+// detailLocationLine: a street stays a street, a stored city is not replaced
+// by the nearest covered market.
+ok(/detail\.name/.test(detailSrc) && /detailLocationLine\(detail\)/.test(detailSrc),
+  "compact sheet still renders the name and the location line");
+ok(detailLocationLine({ name: "Links Garage", address: "25 S Links Ave, Sarasota", lat: 27.3364, lng: -82.5307 }) === "25 S Links Ave, Sarasota",
+  "a street address still shows on the compact sheet");
 
 // Heal-on-open: fetchPlaceDetail must ask for photos; openDetail must merge them.
 const google = readFileSync(new URL("../lib/google.js", import.meta.url), "utf8");

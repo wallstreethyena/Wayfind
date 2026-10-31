@@ -329,6 +329,8 @@ ${WF_SKELETON_CSS}
 .wf-place-card-category:before{content:"";width:12px;height:2px;border-radius:99px;background:#F97316}
 .wf-place-card-category.is-tappable{cursor:pointer}
 .wf-place-card-name{font-size:16px!important;font-weight:780!important;line-height:1.12!important;letter-spacing:-.025em}
+.wf-place-card-where{margin:1px 0 0;font-size:11px;font-weight:700;line-height:1.2;color:#94A3B8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wf-place-card-heading:has(>.wf-place-card-where) .wf-place-card-name{-webkit-line-clamp:2!important}
 .wf-place-card-score{position:absolute;z-index:5;inset:10px 10px auto auto;pointer-events:auto;filter:none!important}
 .wf-fall .wf-place-card,.wf-place-card.wf-fall-card{background:#BC4D08 url(/fall/card-bg-dark-640.webp?v=2) right bottom/cover no-repeat!important;border:1.5px solid rgba(255,196,110,.75)!important;box-shadow:0 10px 26px rgba(96,46,8,.5)!important;overflow:hidden}
 @media(min-resolution:1.5dppx){.wf-fall .wf-place-card,.wf-place-card.wf-fall-card{background-image:url(/fall/card-bg-dark-1100.webp?v=2)!important}}
