@@ -20,7 +20,7 @@ const ok = (condition, message) => {
 
 ok(searchUnderstandEnabled({}) === false, "absent flag is off");
 ok(searchUnderstandEnabled({ WAYFIND_SEARCH_UNDERSTAND: "on" }) === true, "exact on is the only enable");
-ok(UNDERSTAND_MODEL === "claude-haiku-4-5", "the filter model is claude-haiku-4-5");
+ok(UNDERSTAND_MODEL === "claude-haiku-5-5", "the filter model is claude-haiku-5-5");
 ok(UNDERSTAND_TIMEOUT_MS === 1500, "the filter times out at 1.5s");
 
 const understand = read("lib/searchUnderstand.js");
