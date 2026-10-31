@@ -81,13 +81,15 @@ ok(!/const VIDEO_BOOST\s*=/.test(HOME),
 // THE GOVERNING LAW replaced creatorBoostFor() at every home.js ranking site
 // (owner, 2026-08-07): the evidence term is the flat CREATOR_VIDEO_BONUS when
 // a video exists, visible in the chip, identical in the sort.
-const lawSites = (HOME.match(/hasCreatorVideoAt\(p\) \? CREATOR_VIDEO_BONUS : 0/g) || []).length;
+// 2026-10-29: the law term is creatorEvidenceTerm(p) (lib/creatorBoost.js), which
+// routes through the same creatorVideoTerm() as the displayed score.
+const lawSites = (HOME.match(/\bcreatorEvidenceTerm\(p\)/g) || []).length;
 ok(lawSites >= 5, `the flat law term is applied at ${lawSites} ranking sites (expected >= 5) — the home feed, holidays, merit sort and the two fit sorts`);
 ok(!/creatorBoostFor\(/.test(HOME), "no home.js ranking site still uses the retired reach-curve boost — the law is flat +0.2, everywhere");
 ok(!/hasCreatorVideo\([^)]*\)\s*\?\s*VIDEO_BOOST/.test(HOME),
    "no ranking site still applies the OLD flat, unfloored +45 — that number dwarfed the whole score spread");
 ok(/function hasCreatorVideo\(p\)[\s\S]{0,600}creatorVideosFor\(p\)/.test(HOME), "hasCreatorVideo() (the BADGE predicate) still resolves through creatorVideosFor()");
-ok(/\bhasCreatorVideo\(p\) \? \["creatorvideo"\]/.test(HOME) && /key: "creatorvideo", icon: "🎬", label: "Creator post"/.test(HOME), "…and it drives the visible source-neutral badge, so a boosted post is disclosed without implying video footage");
+ok(/\bhasCreatorVideo\(p\) \? \["creatorvideo"\]/.test(HOME) && /key: "creatorvideo", icon: "🎬", label: hasFeaturedCreatorVideoAt\(p\) \? "Cindy Selects pick" : "Creator post"/.test(HOME), "…and it drives the visible source-neutral badge, so a boosted post is disclosed without implying video footage (and a featured-creator boost names itself)");
 
 // ── 1b. THE LAW'S ARITHMETIC, END TO END ────────────────────────────────────
 // Owner, verbatim (2026-08-07): "if there is an influencer video, I want that
