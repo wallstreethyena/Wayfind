@@ -68,7 +68,17 @@
         "https://www.instagram.com/explore/locations/39075/",
         "https://www.crackerbarrel.com/locations/states/fl/bradenton/73",
         "https://www.google.com/maps/search/?api=1&query=Cracker+Barrel&query_place_id=ChIJs8X39n07w4gR0NEp6j5PNdc"
-      ]
+      ],
+      "native_location_observation": {
+        "observed_date": "2026-10-31",
+        "surface": "Instagram signed-in desktop reels view; original /reel/ URL redirected to /reels/",
+        "observed_url": "https://www.instagram.com/reels/De4TQPHibq8/",
+        "creator_in_same_player": "cindy.selects",
+        "location_link_text": "Location Cracker Barrel Old Country Store",
+        "location_link_href": "/explore/locations/39075/",
+        "caption_in_same_player": "We came for breakfast… but apparently Christmas got here first! 🎄😂",
+        "reproduction_note": "Open the native Reel and inspect the header under cindy.selects in its video player. The header rotates audio, collaborators and location; the public post view may omit location. Only public DOM content is recorded; no session metadata."
+      }
     },
     {
       "shortcode": "Dewd4hwiVIE",

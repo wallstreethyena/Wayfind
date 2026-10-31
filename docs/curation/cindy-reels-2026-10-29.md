@@ -62,6 +62,14 @@ the same post at the reel path.
   shows (941) 746-7886 and ZIP 34208. The [official branch page](https://www.crackerbarrel.com/locations/states/fl/bradenton/73)
   matches the phone to 636 67th Street Circle East. The SR64 association stays
   on this stronger evidence; “nearest to Parrish” is not accepted as proof.
+  Reproduced on 2026-10-31 in Instagram's signed-in desktop reels view: opening
+  the original URL redirected to `/reels/De4TQPHibq8/`. In Cindy's video player,
+  directly below `cindy.selects`, the visible link labeled “Location Cracker
+  Barrel Old Country Store” had `href="/explore/locations/39075/"`. Its enclosing
+  player also contained the caption “We came for breakfast… but apparently
+  Christmas got here first!” The header can rotate between audio, collaborators
+  and location; the public post view may omit it. The minimal DOM fields are
+  retained in the JSON intake. A location page by itself is not Reel evidence.
 - Mote: [native location tag](https://www.instagram.com/explore/locations/205212922/)
   currently says Mote Marine Laboratory & Aquarium, ZIP 34243. That current
   general tag does not date or locate the footage. The [official alligator page](https://mote.org/animal-encyclopedia/american-alligator/)
