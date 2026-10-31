@@ -81,6 +81,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-aloft-by-marriott-jacksonville-tapestry-park-30260",
+"placeId":"ChIJczgwqH615YgRx33ldbtjG1A",
+"resolved":"Aloft Jacksonville Tapestry Park",
+"google":"Aloft by Marriott Jacksonville Tapestry Park",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-aloft-sarasota-27334",
 "placeId":"ChIJx26IQRNAw4gRgUI4V2RHDfY",
 "resolved":"Aloft Sarasota",
@@ -92,10 +101,10 @@
 {
 "key":"wfh-ameniti-bay-bw-signature-collection-27337",
 "placeId":"ChIJR8F-rdpHw4gRfCTV2SNZZEQ",
-"resolved":"Amenit\u00ed Bay: Sarasota Hotel & Suites",
+"resolved":"Amenití Bay: Sarasota Hotel & Suites",
 "google":"Coral Pointe Sarasota, an Ascend Collection Hotel",
 "allowed":false,
-"reason":"wrong-property:Amenit\u00ed Bay: Sarasota Hotel & Suites",
+"reason":"wrong-property:Amenití Bay: Sarasota Hotel & Suites",
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
@@ -342,6 +351,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-bayfront-marin-house-29890",
+"placeId":"ChIJx1zW1ZYn5IgRmxGBUMW1Zr0",
+"resolved":"Bayfront Marin House",
+"google":"Bayfront Marin House",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-baymont-by-wyndham-sarasota-27321",
 "placeId":"ChIJ2T-loFxAw4gRiMRtmFiC1h0",
 "resolved":"Baymont Sarasota",
@@ -549,6 +567,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-best-western-plus-winter-haven-inn-suites-27994",
+"placeId":"ChIJGelc64YN3YgRKjvLtc05rfY",
+"resolved":"Cypress Gardens Boulevard, Winter Haven, Polk County, Florida, 33884, USA",
+"google":"Best Western Plus Winter Haven Inn & Suites",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-bianco-sands-vacation-resort-27247",
 "placeId":"",
 "resolved":"1122, Point of Rocks Road, Gulf Gate Estates, Sarasota County, Florida, 34242, USA",
@@ -556,6 +583,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-biltmore-hotel-miami-coral-gables-25741",
+"placeId":"ChIJn-er0I-32YgR4K99ZMfBxiQ",
+"resolved":"Biltmore Hotel Miami Coral Gables",
+"google":"Biltmore Hotel Miami Coral Gables",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-bimini-bay-front-home-by-redawning-27514",
@@ -729,6 +765,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-cedar-house-inn-victorian-bed-breakfast-29890",
+"placeId":"ChIJpdYhe5Qn5IgR97Z04UAJx2I",
+"resolved":"Cedar House Inn",
+"google":"Cedar House Inn Victorian Bed & Breakfast",
+"allowed":false,
+"reason":"wrong-property:Cedar House Inn",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-cedars-tennis-resort-by-rva-27417",
 "placeId":"",
 "resolved":"Cedars Court, Longboat Key, Manatee County, Florida, 34228, USA",
@@ -774,6 +819,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-club-continental-30163",
+"placeId":"ChIJJeL3i_nF5YgRr9EuF0Z7sGI",
+"resolved":"The Club Continental",
+"google":"The Club Continental",
+"allowed":true,
+"reason":"exact-verified:google-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-club-longboat-27405",
 "placeId":"",
 "resolved":"5073, Gulf of Mexico Drive, Longboat Key, Manatee County, Florida, 34228, USA",
@@ -808,6 +862,15 @@
 "allowed":true,
 "reason":"exact-verified:google-identity",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-comfort-suites-downtown-28574",
+"placeId":"ChIJM_5FUYV654gRynX2sqAsnQw",
+"resolved":"Comfort Suites Downtown",
+"google":"Comfort Suites Downtown",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-community-miracle-resort-27052",
@@ -862,6 +925,24 @@
 "allowed":true,
 "reason":"exact-verified:google-identity",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-courtyard-by-marriott-orlando-downtown-28554",
+"placeId":"ChIJ_S1iOvF654gRtbuIdK1-nAU",
+"resolved":"Courtyard Orlando Downtown",
+"google":"Courtyard by Marriott Orlando Downtown",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-courtyard-by-marriott-winter-haven-27985",
+"placeId":"ChIJNUbnz44N3YgRbzGPeXAdW7Y",
+"resolved":"Courtyard Winter Haven",
+"google":"Courtyard by Marriott Winter Haven",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-courtyard-sarasota-bradenton-airport-27381",
@@ -945,6 +1026,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-disney-s-riviera-resort-28366",
+"placeId":"ChIJL7uFxU1_3YgR6ZbWmitzB7M",
+"resolved":"Disney's Riviera Resort",
+"google":"Disney's Riviera Resort",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-dock-on-the-bay-27377",
 "placeId":"ChIJdSUdlb0Uw4gR2WtEg1jGFII",
 "resolved":"Longboat Key, Sarasota County, Florida, USA",
@@ -952,6 +1042,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-doubletree-by-hilton-orlando-downtown-28559",
+"placeId":"ChIJ29BhhvR654gRnyA-BlNnZ74",
+"resolved":"DoubleTree",
+"google":"DoubleTree by Hilton Orlando Downtown",
+"allowed":false,
+"reason":"wrong-property:DoubleTree",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-dream-lover-boat-breakfast-27468",
@@ -972,6 +1071,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-east-miami-25767",
+"placeId":"ChIJMUSwboO22YgRDFlX6qQGxrE",
+"resolved":"Brickell City Centre",
+"google":"EAST Miami",
+"allowed":false,
+"reason":"wrong-property:Brickell City Centre",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-embassy-suites-by-hilton-27338",
 "placeId":"ChIJfYV_5RFAw4gRoWMEc-mBd6I",
 "resolved":"Embassy Suites by Hilton Sarasota",
@@ -988,6 +1096,15 @@
 "allowed":true,
 "reason":"exact-verified:google-identity",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-fairfield-by-marriott-inn-suites-orlando-east-uc-28599",
+"placeId":"ChIJWe6Jy-xo54gRSidqyw0IPTo",
+"resolved":"Fairfield Inn & Suites",
+"google":"Fairfield by Marriott Inn & Suites Orlando East/UCF Area",
+"allowed":false,
+"reason":"wrong-property:Fairfield Inn & Suites",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-fairfield-inn-suites-sarasota-lakewood-ranch-27390",
@@ -1033,6 +1150,24 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-four-seasons-hotel-and-residences-fort-lauderdal-26130",
+"placeId":"ChIJHQP0C9QB2YgRbLjCHfQM9tM",
+"resolved":"Aqua Hotel",
+"google":"Four Seasons Hotel And Residences Fort Lauderdale",
+"allowed":false,
+"reason":"wrong-property:Aqua Hotel",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-four-seasons-hotel-miami-25759",
+"placeId":"ChIJB4u6yIC22YgRSudXSqzWT0k",
+"resolved":"1441, Brickell Avenue, Miami, Miami-Dade County, Florida, 33131, USA",
+"google":"Four Seasons Hotel Miami",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-fun-wave-rentals-27496",
@@ -1242,6 +1377,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-hampton-inn-tampa-downtown-channel-district-27950",
+"placeId":"ChIJvQuE3_XEwogR-IEje3CmvTU",
+"resolved":"Hampton Inn Tampa Downtown Channel District",
+"google":"Hampton Inn Tampa Downtown Channel District",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-harbor-lane-court-vacation-rentals-27501",
 "placeId":"",
 "resolved":"4507, Gulf Drive, Holmes Beach, Manatee County, Florida, 34217, USA",
@@ -1303,6 +1447,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hilton-naples-26209",
+"placeId":"ChIJazMrCUAe24gR8Vu2_TaXRxs",
+"resolved":"Hilton Naples",
+"google":"Hilton Naples",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-historic-el-patio-motor-hotel-27100",
@@ -1440,6 +1593,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-home2-suites-by-hilton-tampa-downtown-channel-di-27950",
+"placeId":"ChIJvQuE3_XEwogRxOJCpbZuTP8",
+"resolved":"Hampton Inn Tampa Downtown Channel District",
+"google":"Home2 Suites by Hilton Tampa Downtown Channel District",
+"allowed":false,
+"reason":"wrong-property:Hampton Inn Tampa Downtown Channel District",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-homewood-suites-by-hilton-27337",
 "placeId":"ChIJJX2D2ZlAw4gRyYWV0lOoIIM",
 "resolved":"Homewood Suites by Hilton Sarasota",
@@ -1503,6 +1665,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-hyatt-place-jacksonville-st-johns-town-center-30257",
+"placeId":"ChIJNeFd8Ou15YgRGwyiPsIwwTQ",
+"resolved":"Hyatt Place Jacksonville / Saint Johns Town Center",
+"google":"Hyatt Place Jacksonville / St. Johns Town Center",
+"allowed":false,
+"reason":"wrong-property:Hyatt Place Jacksonville / Saint Johns Town Center",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-hyatt-place-sarasota-bradenton-airport-27381",
 "placeId":"ChIJCdzhRds_w4gRgtt02DP25nA",
 "resolved":"Hyatt Place",
@@ -1519,6 +1690,24 @@
 "allowed":true,
 "reason":"exact-verified:name-identity",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-hyatt-regency-coconut-point-resort-and-spa-26398",
+"placeId":"ChIJdXrfE5YX24gRGDeLXzfUPMg",
+"resolved":"Hyatt Regency Coconut Point Resort And Spa",
+"google":"Hyatt Regency Coconut Point Resort and Spa",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-hyatt-regency-jacksonville-riverfront-30324",
+"placeId":"ChIJvdhY0hu35YgR1jJrfNz4aaA",
+"resolved":"Hyatt Regency Jacksonville Riverfront",
+"google":"Hyatt Regency Jacksonville Riverfront",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-hyatt-regency-sarasota-27341",
@@ -1611,6 +1800,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-jw-marriott-marquis-miami-25771",
+"placeId":"ChIJx0AED5222YgRnR0KdP4FJ0I",
+"resolved":"JW Marriott Marquis Miami",
+"google":"JW Marriott Marquis Miami",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-kentucky-motel-27486",
 "placeId":"ChIJM0UTKzIWw4gRSm5JR5EHYDc",
 "resolved":"1399, 15th Avenue West, Bradenton, Manatee County, Florida, 34205, USA",
@@ -1627,6 +1825,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-kimpton-epic-hotel-25771",
+"placeId":"ChIJlWF1Gp222YgRkg_v_MAt_Sc",
+"resolved":"Area 31 - Epic Hotel",
+"google":"Kimpton EPIC Hotel",
+"allowed":false,
+"reason":"wrong-property:Area 31 - Epic Hotel",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-knights-inn-sarasota-27380",
@@ -1683,6 +1890,24 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-lago-mar-beach-resort-club-26100",
+"placeId":"ChIJnfHh8xgA2YgRVZyn89wf5_k",
+"resolved":"South Ocean Lane, Fort Lauderdale, Broward County, Florida, 33316, USA",
+"google":"Lago Mar Beach Resort & Club",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-lakeside-inn-28798",
+"placeId":"ChIJMXbAPH2i54gRMHlETt_-mM4",
+"resolved":"Laskeside Inn",
+"google":"Lakeside Inn",
+"allowed":false,
+"reason":"wrong-property:Laskeside Inn",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-lantern-inn-and-suites-27413",
 "placeId":"",
 "resolved":"7150, Manatee Street, Whitfield, Manatee County, Florida, 34243, USA",
@@ -1690,6 +1915,24 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-laplaya-beach-golf-resort-26261",
+"placeId":"ChIJMdTE7yAf24gRwuFSZ2wo87w",
+"resolved":"LaPlaya Beach & Golf Resort",
+"google":"LaPlaya Beach & Golf Resort",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-latitude-26-waterfront-boutique-resort-fort-myer-26479",
+"placeId":"ChIJffdRjHo_24gRFc-E9UknYII",
+"resolved":"12011, Siesta Drive, Iona, Lee County, Florida, 33931, USA",
+"google":"Latitude 26 Waterfront Boutique Resort - Fort Myers Beach",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-laurel-villa-motel-27144",
@@ -1708,6 +1951,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-legoland-beach-retreat-27989",
+"placeId":"ChIJESg5X48N3YgRZFc8Z5weaSk",
+"resolved":"Legoland Beach Retreat",
+"google":"LEGOLAND® Beach Retreat",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-lido-beach-resort-27310",
@@ -1746,6 +1998,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-lions-and-lanterns-29896",
+"placeId":"ChIJGWiOz5An5IgRwN_uJnl8YKQ",
+"resolved":"Mulvey Street, Model Land Historic District, Saint Augustine, Saint Johns County, Florida, 32084, USA",
+"google":"Lions and Lanterns",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-little-gull-cottages-27384",
 "placeId":"",
 "resolved":"",
@@ -1762,6 +2023,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-loews-coral-gables-hotel-25745",
+"placeId":"ChIJd0uwEau32YgRtrlp8q09QT4",
+"resolved":"Loews Coral Gables Hotel",
+"google":"Loews Coral Gables Hotel",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-longboat-accommodations-27388",
@@ -1836,6 +2106,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-luminary-hotel-co-autograph-collection-26645",
+"placeId":"ChIJ2_Cz0XlB24gR_jg5VrcSwz4",
+"resolved":"Luminary Hotel & Co., Autograph Collection",
+"google":"Luminary Hotel & Co., Autograph Collection",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-m-and-m-lodgings-llc-27258",
 "placeId":"ChIJf71SMOxBw4gRwbz-zuF08Zk",
 "resolved":"Spark by Hilton Sarasota Siesta Key Gateway",
@@ -1863,6 +2142,42 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-marriott-jacksonville-30248",
+"placeId":"ChIJoeB8WQ7K5YgRMeNFkfGxE7o",
+"resolved":"4670, Salisbury Road, Jacksonville, Duval County, Florida, 32256, USA",
+"google":"Marriott Jacksonville",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-marriott-jacksonville-downtown-30326",
+"placeId":"ChIJ5YA2xha35YgRwupdz2BiCuE",
+"resolved":"Juliette's Bistro",
+"google":"Marriott Jacksonville Downtown",
+"allowed":false,
+"reason":"wrong-property:Juliette's Bistro",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-marriott-orlando-downtown-28547",
+"placeId":"ChIJhdv-nfh654gRt191l96-wd8",
+"resolved":"Marriott Orlando Downtown",
+"google":"Marriott Orlando Downtown",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-mayfair-house-hotel-garden-25729",
+"placeId":"ChIJvxlzmgO32YgRvIVYWTPrDkk",
+"resolved":"Mayfair House Hotel & Garden",
+"google":"Mayfair House Hotel & Garden",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-michiana-motel-27472",
 "placeId":"ChIJ79-oAT0Ww4gRK6cEN0fCaLk",
 "resolved":"Baxter's Motel",
@@ -1879,6 +2194,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-mission-resort-club-28727",
+"placeId":"ChIJBXoN1P9154gRBFmCgKtrG8o",
+"resolved":"Camino Real Boulevard, Yalaha, Lake County, Florida, 34737, USA",
+"google":"Mission Resort + Club",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-motel-6-27492",
@@ -1924,6 +2248,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-opal-sol-resort-27971",
+"placeId":"ChIJt_7NKNj3wogRAY1VCSopCS8",
+"resolved":"400, Coronado Drive, Clearwater, Pinellas County, Florida, 33767, USA",
+"google":"Opal Sol Resort",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-our-house-at-the-beach-27268",
@@ -2032,6 +2365,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-prestige-collection-boutique-hotel-27778",
+"placeId":"ChIJBSEHZTzhwogRslD18ROzHbQ",
+"resolved":"Bay Villas",
+"google":"Prestige Collection - Boutique Hotel",
+"allowed":false,
+"reason":"wrong-property:Bay Villas",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-quality-inn-27268",
@@ -2691,6 +3033,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-st-francis-inn-bed-and-breakfast-29888",
+"placeId":"ChIJ-zFpa5En5IgRtQaDgb3tcfc",
+"resolved":"Saint Francis Inn Bed and Breakfast",
+"google":"St Francis Inn Bed and Breakfast",
+"allowed":false,
+"reason":"wrong-property:Saint Francis Inn Bed and Breakfast",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-starfish-enterprise-lbk-27429",
 "placeId":"",
 "resolved":"6766, Bayview Drive, Longboat Key, Manatee County, Florida, 34228, USA",
@@ -2907,6 +3258,15 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-the-banyan-hotel-fort-myers-tapestry-collection--26643",
+"placeId":"ChIJU3_qS2tB24gRH9nRn6q3hrY",
+"resolved":"Hotel Indigo Ft Myers Dtwn River District",
+"google":"The Banyan Hotel Fort Myers, Tapestry Collection by Hilton",
+"allowed":false,
+"reason":"wrong-property:Hotel Indigo Ft Myers Dtwn River District",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-the-banyan-house-historic-bed-and-breakfast-27091",
 "placeId":"",
 "resolved":"514, Harbor Drive South, Venice, Sarasota County, Florida, 34285, USA",
@@ -2970,6 +3330,24 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-the-collector-luxury-inn-gardens-29890",
+"placeId":"ChIJ20zN_pMn5IgR-ya0hJrtwTA",
+"resolved":"The Collector Luxury Inn & Gardens",
+"google":"The Collector Luxury Inn & Gardens",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-the-courtyard-at-lake-lucerne-28536",
+"placeId":"ChIJC9h9qwN754gR0x0TnGEHmRo",
+"resolved":"The Courtyard at Lake Lucerne",
+"google":"The Courtyard at Lake Lucerne",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-the-cypress-a-bed-breakfast-inn-27330",
 "placeId":"",
 "resolved":"Echelon on Palm",
@@ -2986,6 +3364,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-elser-hotel-miami-25779",
+"placeId":"ChIJ-Y3e5mK32YgR9dW31Ul4ZD4",
+"resolved":"The Elser Hotel Miami",
+"google":"The Elser Hotel Miami",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-the-flamingo-house-27275",
@@ -3013,6 +3400,15 @@
 "allowed":false,
 "reason":"generic-list-no-property",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-grand-resort-and-spa-26130",
+"placeId":"ChIJhwWOzNMB2YgRgnfL1HLmbkE",
+"resolved":"The Grand Resort and Spa",
+"google":"The Grand Resort and Spa",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-the-hummingbird-27274",
@@ -3096,6 +3492,33 @@
 "at":"2026-09-23T18:08:59+00:00"
 },
 {
+"key":"wfh-the-ritz-carlton-fort-lauderdale-26123",
+"placeId":"ChIJUSThYisA2YgR3FTxvBX6Qzk",
+"resolved":"The Ritz-Carlton",
+"google":"The Ritz-Carlton, Fort Lauderdale",
+"allowed":false,
+"reason":"wrong-property:The Ritz-Carlton",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-the-ritz-carlton-naples-26252",
+"placeId":"ChIJi30UkuEe24gRhkuVM5pLihk",
+"resolved":"Ritz Carlton Naples",
+"google":"The Ritz-Carlton, Naples",
+"allowed":false,
+"reason":"wrong-property:Ritz Carlton Naples",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-the-ritz-carlton-naples-tibur-n-26249",
+"placeId":"ChIJ1dWvvDwc24gR9yIR-YKLBFM",
+"resolved":"The Ritz-Carlton Golf Resort",
+"google":"The Ritz-Carlton Naples, Tiburón",
+"allowed":false,
+"reason":"wrong-property:The Ritz-Carlton Golf Resort",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
 "key":"wfh-the-ritz-carlton-sarasota-27338",
 "placeId":"ChIJRxeQRxBAw4gRi93tRdpVyX0",
 "resolved":"The Ritz-Carlton, Sarasota",
@@ -3148,6 +3571,24 @@
 "allowed":false,
 "reason":"wrong-property:Island Sun Inn",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-the-vineta-hotel-26703",
+"placeId":"ChIJbyIdP8bX2IgRdB44jHZiQ3Y",
+"resolved":"363, Cocoanut Row, Palm Beach, Palm Beach County, Florida, 33480, USA",
+"google":"The Vineta Hotel",
+"allowed":false,
+"reason":"generic-list-no-property",
+"at":"2026-10-31T03:48:00+00:00"
+},
+{
+"key":"wfh-the-westin-cape-coral-resort-at-marina-village-26539",
+"placeId":"ChIJGz8GwVg424gRdFHC4MoMMhQ",
+"resolved":"The Westin Cape Coral Resort at Marina Village",
+"google":"The Westin Cape Coral Resort at Marina Village",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-the-westin-sarasota-27336",
@@ -3391,6 +3832,15 @@
 "allowed":false,
 "reason":"wrong-property:Hotel Indigo Sarasota",
 "at":"2026-09-23T18:08:59+00:00"
+},
+{
+"key":"wfh-w-miami-25769",
+"placeId":"ChIJX1XoS5222YgRb-NQO12eZe0",
+"resolved":"W Miami",
+"google":"W Miami",
+"allowed":true,
+"reason":"exact-verified:name-identity",
+"at":"2026-10-31T03:48:00+00:00"
 },
 {
 "key":"wfh-warm-mineral-springs-motel-27048",
