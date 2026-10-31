@@ -7,6 +7,7 @@ import * as seasonalHospitality from "../lib/seasonalHospitality.js";
 import * as eventSocial from "../lib/eventSocial.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
 import * as fallPhotoDestinations from "../lib/fallPhotoDestinations2026.js";
+import * as overnightClose from "../lib/overnightClose.js";
 
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
@@ -53,6 +54,7 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
       fetchCuratedEvents: async () => [], isTrusted: () => false, eventOutboundUrl: () => null,
     },
     "../../../../lib/siteTime.js": { siteTodayStr: () => "2026-09-10" },
+    "../../../../lib/overnightClose.js": overnightClose,
     "../../../../lib/fallPool.js": {
       isFallEvent: () => true, fallEventLive: () => true, fallWhenLabel: () => "Tonight",
       fallScheduleChip: () => null, FALL_PLACE_IDS: { p1: "Verified fall offering" },

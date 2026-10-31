@@ -2450,3 +2450,5 @@ node scripts/check-redirect-suspect-gate.mjs
 # Safari 15 parse-time crash (WAYFIND-1K): shared/client regex compatibility.
 node scripts/check-browser-regex-compat.mjs
 node scripts/check-seasonal-rail-depth.mjs
+# 2026-10-29: Halloween overnight close (keep after-midnight listings until verified close), explicit-link dedupe on republish, experience titles and honest booking chips, fail-closed fall cache epoch reader.
+node scripts/test-halloween-overnight-dedupe.mjs
