@@ -87,7 +87,7 @@ function DateNightRailSection({ rail, lat, lng, city, hour, eventCards = [], eve
   const seedTotal = Number.isFinite(rail.total) ? rail.total : (rail.places || []).length;
   const params = useMemo(() => ({ lat, lng, city, hour: hour == null ? "" : hour, rail: rail.id }), [lat, lng, city, hour, rail.id]);
   const { items: pagedItems, total, sentinelIndex, sentinelRef, loadingMore } = usePagedRail(
-    "/api/date-night", params, { seedItems, seedTotal, itemsKey: "places" },
+    "/api/date-night", params, { seedItems, seedTotal, itemsKey: "places", enabled: seedTotal !== 0 || seedItems.length > 0 },
   );
   // Owner pick applied before the rail is rendered/ranked (lib/curatorPicks.js); moves only re-scored rows into score order.
   const items = useCuratedRows(pagedItems, { ranked: true });
