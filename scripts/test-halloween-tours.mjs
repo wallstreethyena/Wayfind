@@ -88,14 +88,16 @@ ok(tourMerit({ rating: 4.7, reviews: 2479 }) > tourMerit({ rating: 5, reviews: 5
 const snap = snapshotTours();
 ok(snap.length === TOUR_SNAPSHOT.length, "snapshot renders every tour");
 const featured = featuredGhostTours(snap);
-ok(featured.map((t) => t.id).join(",") === FEATURED_GHOST_TOUR_CODES.join(","), "featured order is the approved product list");
+ok(featured.map((t) => t.id).sort().join(",") === FEATURED_GHOST_TOUR_CODES.slice().sort().join(","), "featured set is the approved product list");
+// Owner, 2026-10-30: most popular first. Popularity is the review count.
+for (let i = 1; i < featured.length; i += 1) ok(featured[i - 1].reviews >= featured[i].reviews, "featured picks run most reviewed first at " + i);
 ok(featuredGhostTours(snap.filter((t) => t.id !== "38620P1")).length === FEATURED_GHOST_TOUR_CODES.length - 1, "a product missing from the catalogue is omitted, not invented");
 ok(featuredGhostTours([]).length === 0, "no tours means no featured cards");
 for (const t of featured) {
   ok(t.fromPrice > 0 && t.rating > 0 && t.reviews > 0 && /^https:\/\//.test(t.photo.src), t.id + " featured card uses stored price, rating, reviews and image");
   ok(!DASH.test([t.name, t.place, t.ratingLabel, t.duration, t.cta.label, t.cta.via].join(" ")), t.id + " featured copy is dash free");
 }
-for (let i = 1; i < snap.length; i += 1) ok(tourMerit(snap[i - 1]) >= tourMerit(snap[i]), "merit order holds at " + i);
+for (let i = 1; i < snap.length; i += 1) ok(snap[i - 1].reviews > snap[i].reviews || (snap[i - 1].reviews === snap[i].reviews && tourMerit(snap[i - 1]) >= tourMerit(snap[i])), "most reviewed first holds at " + i);
 ok(tourDuration(90) === "1 hr 30 min" && tourDuration(60) === "1 hr" && tourDuration(120) === "2 hrs" && tourDuration(20) === "20 min", "duration labels");
 
 // Live overlay: live price wins, bad image host refused
@@ -153,11 +155,14 @@ ok((html.match(/data-haunt-id="/g) || []).length === live.haunts.length, "defaul
 ok(html.includes('id="boo-tours"') && html.includes("Florida Ghost Tours"), "default view renders the full ghost tour section under the haunts");
 ok(live.eventTours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders the haunted attraction with the haunts");
 ok(html.includes("Top Florida ghost tours") && (html.match(/data-featured-tour="/g) || []).length === live.featuredTours.length, "featured ghost tours render near the top");
-ok(html.includes("More ghost tours on Viator"), "destination heading renders");
-for (const dest of live.ghostDestinations) {
-  ok(html.includes('data-ghost-dest="' + dest.id + '"') && html.includes(dest.href.replace(/&/g, "&amp;")), dest.id + " destination link renders through its tracked href");
+// Owner, 2026-10-30: the "More ghost tours on Viator" city buttons, each with its
+// own commission line, are removed from the page. Positive control first: the
+// probe finds the featured section's own partner button markup.
+ok(/<a class="boo-buy"/.test(html), "probe control: featured partner buttons are found by the same markup scan");
+for (const view of [html, renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "tours" }))]) {
+  ok(!view.includes("More ghost tours on Viator") && !/data-ghost-destinations=|data-ghost-dest=|class="boo-dest-link"/.test(view), "the Viator city ghost tour buttons are gone");
 }
-ok(!DASH.test("Top Florida ghost tours") && !DASH.test("More ghost tours on Viator"), "new headings are dash free");
+ok(!DASH.test("Top Florida ghost tours"), "new headings are dash free");
 ok(html.includes("Show all") === false && html.includes("Prices, dates and hours for " + (live.haunts.length + live.eventTours.length) + " Florida haunts and Halloween events."), "lede counts haunts and events only");
 const toursHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "tours" }));
 ok(toursHtml.includes('id="boo-tours"') && toursHtml.includes("Florida Ghost Tours"), "tour section renders behind the chip");
@@ -170,7 +175,7 @@ const assertEachTourOnce = (markup, label) => {
   const eventIds = new Set(live.eventTours.map((t) => t.id));
   const gridGhost = idsOf(markup, "data-tour-id").filter((id) => !eventIds.has(id));
   const featuredIds = live.featuredTours.map((t) => t.id);
-  ok(featured.join(",") === featuredIds.join(","), label + ": featured picks stay in the approved order");
+  ok(featured.join(",") === featuredIds.join(","), label + ": featured picks render in the model order (most reviewed first)");
   ok(featuredIds.length > 0 && featuredIds.every((id) => !gridGhost.includes(id)), label + ": featured picks are not repeated in the tour grid");
   ok(new Set(gridGhost).size === gridGhost.length, label + ": tour grid has no repeated product");
   ok([...featured, ...gridGhost].sort().join(",") === live.tours.map((t) => t.id).sort().join(","), label + ": every ghost tour shows once (" + featured.length + " featured, " + gridGhost.length + " in the grid)");
@@ -183,7 +188,7 @@ const full = await withHalloweenTours(model, { env: {} });
 const fullHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: full }));
 const fullFeat = idsOf(fullHtml, "data-featured-tour");
 const fullGrid = idsOf(fullHtml, "data-tour-id");
-ok(fullFeat.join(",") === FEATURED_GHOST_TOUR_CODES.join(","), "snapshot keeps the six featured picks in order: " + fullFeat.join(","));
+ok(fullFeat.slice().sort().join(",") === FEATURED_GHOST_TOUR_CODES.slice().sort().join(",") && fullFeat.join(",") === full.featuredTours.map((t) => t.id).join(","), "snapshot keeps the six featured picks, most reviewed first: " + fullFeat.join(","));
 ok(FEATURED_GHOST_TOUR_CODES.every((code) => !fullGrid.includes(code)), "snapshot grid does not repeat a featured pick");
 const fullGhost = full.tours.map((t) => t.id).sort();
 ok([...fullFeat, ...fullGrid.filter((id) => fullGhost.includes(id))].sort().join(",") === fullGhost.join(","), "snapshot shows every ghost tour once");
@@ -196,10 +201,10 @@ ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml), "no raw Viat
 ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length, "every ghost tour has one See availability button");
 const PICK_LINE = "Wayfind may earn a commission, which never changes our picks or their order.";
 ok((toursHtml.match(/Wayfind may earn a commission when you book through partner links\./g) || []).length === 1, "page disclosure still appears once");
-const toursPartnerButtons = live.tours.length + live.ghostDestinations.length;
+const toursPartnerButtons = live.tours.length;
 ok((toursHtml.match(/which never changes our picks or their order\./g) || []).length === toursPartnerButtons, "tours view: pick disclosure on every partner button (" + toursPartnerButtons + ")");
 ok(toursHtml.includes(PICK_LINE), "pick disclosure wording is the existing sentence");
-const partnerTags = [...toursHtml.matchAll(/<a class="(?:boo-buy|boo-dest-link)"[^>]*>/g)].map((m) => m[0]);
+const partnerTags = [...toursHtml.matchAll(/<a class="boo-buy"[^>]*>/g)].map((m) => m[0]);
 ok(partnerTags.length === toursPartnerButtons && partnerTags.every((tag) => tag.includes('target="_blank"') && tag.includes('rel="sponsored nofollow noopener"')), "tours view partner links open in a new tab");
 ok(html.includes('class="boo-jump"') && !html.includes('href="#boo-tours"'), "hero jump is a button that opens the chip, not an anchor to a hidden section");
 const bare = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model }));
