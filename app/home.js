@@ -362,7 +362,7 @@ import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
-import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 
 const BUILD = "beta";
@@ -12484,6 +12484,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               )}
               <AwardListRank award={cardAward} rank={rank} />
               <div className="wf-place-card-name">{p.name}</div>
+              {(() => { const where = storedPlaceHeader(p); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>

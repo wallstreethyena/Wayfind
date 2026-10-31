@@ -83,6 +83,7 @@ import { couponForPlace } from "../../lib/coupons.js";
 import { wayfindAwardFor } from "../../lib/wayfindAwards.js";
 import { AwardSticker, AwardBand, AwardListRank, awardWinnerClass } from "./AwardCardParts";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
+import { storedPlaceHeader } from "../../lib/locationHonesty.js";
 import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { useCardTapIntent } from "./useCardTapIntent.js";
@@ -604,6 +605,7 @@ export default function RailCard({
                 : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
               <div className="wf-place-card-name">{title}</div>
+              {(() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
 

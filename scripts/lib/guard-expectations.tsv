@@ -263,7 +263,7 @@ scripts/check-live-reads.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	89fede7a30c2
 scripts/check-local-calendars-import.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	f16950f56f277dfeb6d77dcc910f6e659144cf6cf568c3f702b7c14783055270
 scripts/check-local-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	4f9dd3976f0b399ab0753738eae86e34a490a60ce3329ea74321cd6e2524bebf
 scripts/check-location-fail-open.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	43	2	5	3b4335f58050899cc3232d933112b31be9681d97a84772af7ba4180512057104
-scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	111	0	0	a295a4cd857235424fb32d906803eaa423a7def2ca9714102970e4d59c898d90
+scripts/check-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	127	0	0	5fae7622cfab4178b2aa222d6b23f5f6f5de65d6246e12dfa7fb5cb5d8ff3e24
 scripts/check-locks.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	b3c28ea038c04167de21229a233777d4ef55c4b620b1e679a5ce7a96e5416933
 scripts/check-lodging.mjs	0	CALL	blocks-ci-and-deploy	1	-	4	0	0	b0c933db1852f36e655d034be32596ef29f63c07bdbec8465bf34640022ebd49
 scripts/check-lunch-in-my-city.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	075963393aaafe8b7996dab88498b3304a7a1ae1081688a62aab4601eac6b9bf
@@ -610,7 +610,7 @@ scripts/test-deep-link-no-mutation.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	
 scripts/test-destinations.mjs	0	CALL	blocks-ci-and-deploy	1	-	47	0	0	2bb096d5825913daa1d0ac015fd48ee045571985348fded71468f787e2fc4e03
 scripts/test-detail-cta-ladder.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	7ee9395a95e188eb5c7e6c541a8cdc206fc63a2093102b14a1a1fe7cc1623001
 scripts/test-detail-event-editorial.mjs	0	CALL	blocks-ci-and-deploy	1	-	55	0	0	7aa6bf67e41dc3d536e43e6d871d729593c6e964daec5d1969086b82fd135bb1
-scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	d62dd02f74de5a54265fba40328886cb6d7ea3576455ea58bd2e2832ef0e3c29
+scripts/test-detail-hero.mjs	0	CALL	blocks-ci-and-deploy	1	-	77	0	0	1fec173d6ecd934027d9f86c5d7f1c3a5b83f1316816021b2608bb2a7064ae38
 scripts/test-detail-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	31	0	0	e21f04368be475b7c99c4532e2f8bd12dc6980f564a1c45375ed988920637d66
 scripts/test-detail-open-once.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	c3dbbe48126179cfdfa036db7d3066d8de302810c2e1ddaf291d4c0d8ff146df
 scripts/test-detail-photo-acquisition.mjs	0	CALL	blocks-ci-and-deploy	1	-	76	0	0	b36586e2ae25926bb107c1223d8598623e74fc94915bc4add29887273776a2d1
