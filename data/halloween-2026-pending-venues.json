@@ -1,6 +1,6 @@
 {
   "prepared_at": "2026-10-30",
-  "status": "awaiting_budget_approval",
+  "status": "imported_2026-10-30",
   "note": "Prepared import records only. Nothing here is loaded at runtime. Each venue must resolve to its OWN Google place (name, address and a point within 1 km agree) before a catalog row is written; a hotel or shopping center match is rejected. Universal and Hard Rock start dates are not stated by the organizers, so they stay null (end date only).",
   "venues": [
     {
@@ -21,7 +21,9 @@
       "age": "21+, proper attire",
       "source_url": "https://www.roomnine01.com/",
       "evidence_quote": "Three two hour seatings are available Tuesday-Sunday 5 PM, 7:15 pm, 9:30 pm $60 per person Food & beverage minimum",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": null,
+      "import_result": "Google has no listing for Room 901 itself; the search returns the Hyatt Centric hotel, which the 1 km name check correctly rejected. Not added."
     },
     {
       "request_id": 20,
@@ -41,7 +43,8 @@
       "age": "all ages (alcohol 21+)",
       "source_url": "https://cafe.hardrock.com/orlando/",
       "evidence_quote": "All drinks are available for purchase to all other guests for $16",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJcUYRsd1-54gRCs-DHwnVg5s"
     },
     {
       "request_id": 23,
@@ -61,7 +64,8 @@
       "age": "all ages venue; alcohol 21+; costumes encouraged",
       "source_url": "https://worldofbeer.com/spooky-pop-up-bar/",
       "evidence_quote": "Our Very Spooky Pop-Up Bar is taking over Brandon and Coconut Creek with hauntingly good cocktails, creepy vibes and plenty of Halloween fun.",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJK3LR_acc2YgRSGF8JTxhi3I"
     },
     {
       "request_id": 26,
@@ -81,7 +85,8 @@
       "age": "adults only after 8 PM (21+ for alcohol); family trick-or-treat 11:30am-2pm",
       "source_url": "https://www.playatkings.com/halloween/",
       "evidence_quote": "Our Adults-Only Trick-or-Treat is not your average Halloween night out.",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJd7uTqvSw2YgRINnJ7d86Dc0"
     },
     {
       "request_id": 28,
@@ -101,7 +106,8 @@
       "age": "bar 21+ for alcohol; open to hotel guests and public bar patrons",
       "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
       "evidence_quote": "Jake's American Bar will transform into Universal Monsters Laguna Lounge, a classic monster hideaway inspired by mid-century modern tiki",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJW6zujeN-54gRWCLmfe3vCFo"
     },
     {
       "request_id": 29,
@@ -121,7 +127,8 @@
       "age": "21+ for alcohol",
       "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
       "evidence_quote": "The fan-favorite Pumpkin Lord Bar returns to Swizzle Lounge, with the theme expanding to the lobby",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJseOImPt_54gR93cCEI-y7s8"
     },
     {
       "request_id": 30,
@@ -141,7 +148,8 @@
       "age": "21+ for alcohol",
       "source_url": "https://blog.discoveruniversal.com/hotels/sip-between-scares-themed-universal-hotel-bars/",
       "evidence_quote": "The Thirsty Fish at Loews Portofino Bay Hotel has transformed into an eerie fishing vessel rendered frozen by an ice storm",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJ52UOX9x-54gRnLhDlNJEUHo"
     },
     {
       "request_id": 39,
@@ -161,7 +169,8 @@
       "age": "21+; costumes required per Miami New Times",
       "source_url": "https://dice.fm/event/53mbmw-wonderland-halloween-31st-oct-national-hotel-miami-tickets",
       "evidence_quote": "This is a 21+ event Presented by The Originals & VIP Nightlife",
-      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms"
+      "photo_plan": "Google place photo through the vault after the venue resolves; no organizer image has stated reuse terms",
+      "place_id": "ChIJ79nKoJu02YgR9JmY-V9V0Nc"
     }
   ],
   "held": [
