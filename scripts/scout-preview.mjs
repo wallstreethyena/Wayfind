@@ -50,7 +50,7 @@ const ai = await fetch("https://api.anthropic.com/v1/messages", {
   method: "POST", cache: "no-store",
   headers: { "content-type": "application/json", "x-api-key": AI, "anthropic-version": "2023-06-01" },
   body: JSON.stringify({
-    model: "claude-haiku-4-5", max_tokens: 2000, system: ADJUDICATE_SYSTEM,
+    model: "claude-haiku-5-5", max_tokens: 2000, system: ADJUDICATE_SYSTEM,
     messages: [{ role: "user", content: buildAdjudicationBatch(places) }],
   }),
 });
@@ -66,7 +66,7 @@ for (const p of places) {
   (out.accept ? yes : no).push({ ...p, section: out.section, why: out.reason });
 }
 const line = (p) => `  ${String(p.score).padStart(3)}  ${String(p.rating).padEnd(4)} ${String(p.reviews).padStart(5)}rev  ${(p.section || "—").padEnd(10)} ${p.name}\n        ${p.why}`;
-console.log(`\nfloor ${FLOOR} · ${places.length} candidates · model claude-haiku-4-5 · in ${data.usage?.input_tokens} out ${data.usage?.output_tokens} tokens\n`);
+console.log(`\nfloor ${FLOOR} · ${places.length} candidates · model claude-haiku-5-5 · in ${data.usage?.input_tokens} out ${data.usage?.output_tokens} tokens\n`);
 console.log(`ACCEPT — would be re-queued for promotion (${yes.length})`);
 console.log(yes.map(line).join("\n") || "  (none)");
 console.log(`\nREJECT — recorded as "not a destination" (${no.length})`);
