@@ -81,10 +81,20 @@ export async function POST(req) {
   const kind = FIELDS[body.kind] ? body.kind : "place";
   const sessionToken = typeof body.sessionToken === "string" ? body.sessionToken.slice(0, 100) : undefined;
   if (!PLACE_ID_RX.test(placeId)) return NextResponse.json({ error: "bad request" }, { status: 400 });
+  // The wf_inventory identity for this id, read AT MOST ONCE per request.
+  // kind "place" resolves it below before the gate; the budget refusals near
+  // the bottom reuse that same answer instead of issuing a second Supabase
+  // read for a row we already know is absent.
+  let ownedRow = null;
+  let ownedRead = false;
+  const ownedIdentity = async () => {
+    if (!ownedRead) { ownedRead = true; ownedRow = await inventoryPlace(placeId); }
+    return ownedRow;
+  };
   // Card navigation needs identity, not paid enrichment. Open owned places
   // before the spending gate so a closed budget cannot strand /p links.
   if (kind === "place") {
-    const owned = await inventoryPlace(placeId);
+    const owned = await ownedIdentity();
     if (owned) return NextResponse.json({ place: owned, source: "inventory" });
     // Reuse only a recorded, still-fresh identity. This cache-only read cannot
     // buy enrichment, renew the record, or return a legacy photo resource.
@@ -108,12 +118,35 @@ export async function POST(req) {
     // Area fields alone bill Pro. A terminal Autocomplete session request,
     // or the fixed editorialSummary/reviews detail mask, bills Atmosphere.
     // https://developers.google.com/maps/documentation/places/web-service/session-pricing
-    if (gateShut()) return NextResponse.json({ error: "gate shut" }, { status: 200 });
+    // WE CHOSE NOT TO SPEND — that is not the same as "this place is empty",
+    // and it must not reach a caller looking like one. Both refusals below
+    // used to answer 200 with a bare {error}, so every caller landed on its
+    // `!payload.place` branch: lib/google.js#fetchPlaceDetail logged the
+    // generic "[wf] fetchPlaceDetail FAILED … details unavailable" with no way
+    // to tell a shut gate from a broken upstream. Observed on prod 2026-10-30.
+    //
+    // A 200 from this route now ALWAYS carries `place`. No Google call happens
+    // on either branch (the whole point of the gate), and the SKU/ledger
+    // accounting below is untouched — scripts/test-google-details-accounting.mjs
+    // still reads `.error` off the body, which both shapes keep.
+    const budgetRefusal = async (reason) => {
+      // NEVER for kind "detail". That mask asks for hours, reviews, phone and
+      // website; wf_inventory holds none of them, so answering one with an
+      // identity row would turn "we never asked Google" into "this place has
+      // no hours" — the exact conflation lib/google.js's {ok:false} shape and
+      // scripts/check-place-detail-honest.mjs exist to prevent.
+      const fallback = kind === "detail" ? null : await ownedIdentity();
+      if (fallback) return NextResponse.json({ place: fallback, source: "inventory", degraded: reason });
+      // Nothing held. Say so with a STATUS, so the caller's transport branch
+      // handles it instead of its empty-payload branch.
+      return NextResponse.json({ error: reason, degraded: reason }, { status: 503 });
+    };
+    if (gateShut()) return budgetRefusal("gate shut");
     const legacySku = kind === "area" ? "details_pro" : "details_enterprise";
     const atmosphere = !!sessionToken || kind === "detail";
     const allowed = atmosphere ? await spendAllowDetailsAtmosphere(legacySku) : await spendAllow(legacySku);
     if (!allowed) {
-      return NextResponse.json({ error: "budget" }, { status: 200 });
+      return budgetRefusal("budget");
     }
     const r = await fetch("https://places.googleapis.com/v1/places/" + encodeURIComponent(placeId) + qs, {
       headers: { "X-Goog-Api-Key": serverKey, "X-Goog-FieldMask": FIELDS[kind] },
