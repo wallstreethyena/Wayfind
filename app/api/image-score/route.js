@@ -47,7 +47,7 @@ async function scoreOne(ref, key) {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     body: JSON.stringify({
-      model: "claude-haiku-4-5", max_tokens: 40, temperature: 0, system: SYSTEM,
+      model: "claude-haiku-5-5", max_tokens: 40, system: SYSTEM,
       messages: [{ role: "user", content: [
         { type: "image", source: { type: "url", url: imageUrl } },
         { type: "text", text: "Rate this photo." },
@@ -106,7 +106,7 @@ export async function POST(req) {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        model: "claude-haiku-4-5", max_tokens: 40, temperature: 0, system: SYSTEM,
+        model: "claude-haiku-5-5", max_tokens: 40, system: SYSTEM,
         messages: [{ role: "user", content: [
           { type: "image", source: { type: "url", url: imageUrl } },
           { type: "text", text: "Rate this photo." },

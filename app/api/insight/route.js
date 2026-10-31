@@ -117,7 +117,7 @@ export async function POST(req) {
     const reqInit = {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: "claude-haiku-4-5", max_tokens: maxTokens, temperature: 0.35, system, messages: [{ role: "user", content: factsText }] }),
+      body: JSON.stringify({ model: "claude-haiku-5-5", max_tokens: maxTokens, system, messages: [{ role: "user", content: factsText }] }),
     };
 
     let r;
