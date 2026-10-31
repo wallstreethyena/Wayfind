@@ -54,7 +54,10 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
       fetchCuratedEvents: async () => [], isTrusted: () => false, eventOutboundUrl: () => null,
     },
     "../../../../lib/siteTime.js": { siteTodayStr: () => "2026-09-10" },
-    "../../../../lib/overnightClose.js": overnightClose,
+    // Pin the wall clock to midday: overnightCacheBucket (real, below) shortens
+    // complete-answer CDN caching between 00:00–06:00 venue time by design, so
+    // an unpinned clock made the s-maxage=900 assertion fail every night.
+    "../../../../lib/overnightClose.js": { ...overnightClose, siteNowLocal: () => "2026-09-10T12:00" },
     "../../../../lib/fallPool.js": {
       isFallEvent: () => true, fallEventLive: () => true, fallWhenLabel: () => "Tonight",
       fallScheduleChip: () => null, FALL_PLACE_IDS: { p1: "Verified fall offering" },

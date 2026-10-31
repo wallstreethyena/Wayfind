@@ -158,7 +158,7 @@ scripts/check-fall-date-order-and-when.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	
 scripts/check-fall-evidence-rules.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	16ab10b0900dd3df4d8820402773fd40aacd8d01c8ad1abd92f11b8bfbb7e684
 scripts/check-fall-is-calling.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	7fc906fb7c2916d8187d01b003000b9baf497693074d32901754e055cb224bf3
 scripts/check-fall-offering-freshness.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	98f3485ccee60ed1be8d56b55b9b7f829ff72795f194bb61acbb413de49d645a
-scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	739a38992d88da22ffb715a879e4aefba01b9860ead67259dbacea48ca250440
+scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	32b5dd7e5771e82717c9c9830427d24393059b38f7e05c519dc8328996705bd5
 scripts/check-fall-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	f624d4c9457ac3eeea2f0e5cd3c9a0b792b8a8cea9c31d4271fc0287a2ed4266
 scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	15031df1dd6a7d99113360f50447a6af00a95639b1adf37b7aeaeba3e3908c89
 scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	859f42c43e3b795df3a2be315fb01d8fff1708f5d080d3b2d6f9661f1bd95b2c
