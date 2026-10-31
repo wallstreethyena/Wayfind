@@ -170,6 +170,10 @@ const atlasLines = atlasLinesFor(rawCards, [
   ...hotelIds,
   "ChIJxaeEtGVMw4gRd5SI3lZDqnY",
 ]);
+const bookingAudit = JSON.parse(
+  fs.readFileSync(path.join(root, "lib/hotelBookingVerification.json"), "utf8"),
+);
+const bookingAuditById = new Map(bookingAudit.map((row) => [row.placeId, row]));
 for (const id of hotelIds) {
   const raw = eventHotelEditorialById(id);
   ok(isUsableCardHook(raw), `Hotel ${id} blurb must pass isUsableCardHook`);
@@ -188,10 +192,11 @@ for (const id of hotelIds) {
     sourcedWhyById("ChIJ_wrong_id_999", "Hilton Tampa Downtown") === "",
     "Hotel editorial must never match by name alone without exact place_id",
   );
-  // None of the 50 enrichment hotels may receive unverified affiliate booking links
+  // Only audited, exact-property-verified Batch C hotels receive a booking button; failed/unverified stay fail-closed
+  const auditRow = bookingAuditById.get(id);
   ok(
-    isHotelBookingVerified({ id }) === false,
-    `Hotel ${id} must not receive an unverified affiliate booking button`,
+    Boolean(auditRow) && isHotelBookingVerified({ id }) === (auditRow.allowed === true),
+    `Hotel ${id} booking button state must match its audited Stay22 verification verdict`,
   );
   // Hotel copy is keyed by property_id (not by event) and must not make unsupported commute/timing or event-specific claims
   ok(
