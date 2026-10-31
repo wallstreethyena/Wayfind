@@ -8,7 +8,7 @@ import {
   HAUNT_GOOGLE_PLACE,
   withHauntPhotos,
 } from "../lib/halloweenHauntPhotos.js";
-import { assemblePlaceDetailPhotos, loadEventDetailPhotos, loadPlaceDetailPhotos } from "../lib/placeDetailGallery.js";
+import { assemblePlaceDetailPhotos, detailGalleryFetch, loadEventDetailPhotos, loadPlaceDetailPhotos } from "../lib/placeDetailGallery.js";
 import { detailGalleryPhotos } from "../lib/livePhoto.js";
 import { isStoredPlacePhotoUrl } from "../lib/placePhoto.js";
 
@@ -132,4 +132,11 @@ ok(!blocked.some((p) => /30ea7656/.test(p.src)) && blocked.some((p) => /6715e503
   "a blocked haunt photo stays off the detail list");
 
 ok(model.haunts.some((h) => h.id === "mickey"), "positive control: the haunt model still has Mickey");
+const originalFetch = globalThis.fetch;
+let seenInit = null;
+globalThis.fetch = async (_url, init) => { seenInit = init; return { ok: false, json: async () => [] }; };
+await detailGalleryFetch(600)("https://example.test/photos", { cache: "no-store", headers: { apikey: "x" } });
+globalThis.fetch = originalFetch;
+ok(seenInit && !("cache" in seenInit) && seenInit.next && seenInit.next.revalidate === 600 && seenInit.headers.apikey === "x",
+  "a static page photo read is cached, not no-store");
 console.log("test-place-detail-gallery: " + checks + " checks passed");
