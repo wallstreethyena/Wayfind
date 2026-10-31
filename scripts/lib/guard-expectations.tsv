@@ -551,6 +551,7 @@ scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8
 scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
+scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	107	0	0	10bf75763bbe7d8530c6af65b8de4d9202d43801868945cb506242d3b66e65ee
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
 scripts/test-cindy-reel-identities.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	15985941dc12e50780e9b03a7e6fbc82fb7a343843a3d163cb7493f66f3fe7ec
 scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	964b0a958014d38059e7c12277c73bd25765d5dbaa51098530d845d74ff9de8c
@@ -944,6 +945,8 @@ scripts/test-review-depth-deduction.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	0
 scripts/test-richness-loading-path.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	f7d60ea7b20a700e4f1f95642bf20ac26e9fc45aa61e2d309fb7ee4e6d011a15
 scripts/test-run-guards.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	981a56d2931ce19ee4699c3b5ef0a06ed633860efe0a6b365be7b6c872574c31
 scripts/test-safe-force-push.mjs	0	CALL	blocks-ci-and-deploy	1	-	52	0	0	09804c6ab5a9bf5154763b7c14e422d56ec58f4fdbaab039ef805a0b1e0566d2
+scripts/test-santa-chat.mjs	0	RENDER	blocks-ci-and-deploy	1	-	66	0	0	9b773c2780fd49b38f8fa8cfd43896ca6ce0c1db803c3290d5463cb4618c74a9
+scripts/test-santa-companion.mjs	0	RENDER	blocks-ci-and-deploy	1	-	82	0	0	be3a9e68217a1fd3393cd7bad9ab7de4e377688be20fd3f70870aebc52622d47
 scripts/test-save-single-emitter.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	1ab6e3d6acd7791070c30b79f5763811b231c7abf1eafb3b63aa88c9fd5b1909
 scripts/test-saved-items.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	80b413bed0d1ff93e69541e5e1d91d0e6590745d2f0565967b09ef392b885010
 scripts/test-score-band.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	66ce6bb8d963c3794ed7e0a60023cae63e93fc48bec98c83697c4743d4415f40
