@@ -125,14 +125,17 @@ function FallRailSection({ rail, collection, lat, lng, onOpenPlace, onTrack, cit
         {items.map((card, index) => {
           const rank = index + 1;
           const isEvent = card.kind === "event";
-          const place = isEvent ? null : { ...card, id: card.id, photo: card.image || null, hook: card.take || null };
+          // A hospitality card may lead with its verified experience title; the
+          // place sheet, saves and likes stay on the canonical venue.
+          const place = isEvent ? null : { ...card, id: card.id, title: card.name, photo: card.image || null, hook: card.take || null };
           const facts = isEvent
             ? [card.city || null, Number.isFinite(card.distMi) ? card.distMi + " mi" : null].filter(Boolean)
-            : [card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
+            : [card.title && card.name && card.title !== card.name ? card.name : null, card.bestTime || null, card.reviews ? compact(card.reviews) + " reviews" : null].filter(Boolean);
           const placeChips = [
             card.hospitalityEvidence && card.seasonalWhen ? { key: "season", icon: "🗓", label: hospitalityDateChipLabel(card.seasonalWhen), title: card.seasonalWhen } : null,
             card.shotLocation ? { key: "shot", icon: "📍", label: "Exact shot", title: card.shotLocation } : null,
             card.accessNote ? { key: "access", icon: "✓", label: "Check access", title: card.accessNote } : null,
+            card.bookingUrl && card.bookingLabel ? { key: "book", icon: "🎟", label: card.bookingLabel, title: `${card.bookingLabel} on the organizer's page`, onClick: () => { try { onTrack?.("organizer_booking_out", { kind: "fall_intent_rail", id: card.id, label: card.bookingLabel }); } catch {} window.open(card.bookingUrl, "_blank", "noopener,noreferrer"); } } : null,
             card.sourceUrl && (card.shotLocation || card.hospitalityEvidence) ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
           ].filter(Boolean);
           const cta = isEvent ? eventCta(card, onTrack) : null;
