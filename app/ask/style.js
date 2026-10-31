@@ -95,25 +95,40 @@ export const ASK_CSS = `
 
 .wfx-row{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:22px;min-height:64px;flex-wrap:wrap;width:100%}
 
-/* Balanced, accessible response buttons — both answers stay clearly readable and easy to tap */
+/* Growing YES and shrinking No — layout-driven so YES expands naturally without overlapping No */
 .wfx-yes{position:relative;border:2.5px solid #FFFFFF;cursor:pointer;font-family:inherit;font-weight:850;color:#FFFFFF;
   background:linear-gradient(135deg,#FF2A85 0%,#FF5E9E 100%);
   letter-spacing:.04em;border-radius:999px;
-  min-height:52px;min-width:132px;padding:14px 32px;font-size:20px;
-  box-shadow:0 6px 0 #9E1152,0 14px 32px rgba(255,42,133,.48),inset 0 2px 0 rgba(255,255,255,.45);
+  padding:calc(14px * var(--s,1)) calc(32px * var(--s,1));
+  font-size:calc(20px * var(--s,1));
+  box-shadow:0 6px 0 #9E1152,0 14px 32px rgba(255,42,133,.52),inset 0 2px 0 rgba(255,255,255,.45);
   text-shadow:0 2px 4px rgba(120,10,55,.45);
-  transition:transform .12s ease,filter .15s ease}
-.wfx-yes:hover{filter:brightness(1.06)}
+  animation:wfxYesPulse 1.5s ease-in-out infinite;
+  transition:padding .22s cubic-bezier(.2,1.4,.3,1),font-size .22s cubic-bezier(.2,1.4,.3,1),transform .12s ease,filter .15s ease}
+.wfx-yes:hover{filter:brightness(1.08)}
 .wfx-yes:active{transform:translateY(3px)}
+@keyframes wfxYesPulse{0%,100%{box-shadow:0 6px 0 #9E1152,0 14px 32px rgba(255,42,133,.48),inset 0 2px 0 rgba(255,255,255,.45)}
+  50%{box-shadow:0 6px 0 #9E1152,0 18px 42px rgba(255,42,133,.74),0 0 0 5px rgba(255,209,102,.22),inset 0 2px 0 rgba(255,255,255,.55)}}
 
 .wfx-no{border:2px solid rgba(255,228,242,.55);cursor:pointer;font-family:inherit;font-weight:800;
   color:#FFFFFF;background:rgba(26,15,46,.74);backdrop-filter:blur(10px);
   border-radius:999px;
-  min-height:52px;min-width:120px;padding:14px 28px;font-size:18px;
+  padding:calc(12px * var(--n,1)) calc(24px * var(--n,1));
+  font-size:calc(17px * var(--n,1));
   box-shadow:0 6px 18px rgba(15,6,32,.34);
-  transition:transform .12s ease,background .15s ease,border-color .15s ease}
+  transition:padding .22s cubic-bezier(.2,1.4,.3,1),font-size .22s cubic-bezier(.2,1.4,.3,1),transform .12s ease,background .15s ease,border-color .15s ease}
 .wfx-no:hover{background:rgba(44,26,74,.88);border-color:#FFFFFF}
 .wfx-no:active{transform:translateY(2px)}
+
+/* Witty comic speech bubble above the Elf when No is pressed */
+.wfx-bubble{position:relative;margin:0 0 10px;padding:7px 14px;border-radius:999px;
+  background:#FFFFFF;color:#23143B;font-size:13px;font-weight:850;letter-spacing:.01em;
+  border:2.5px solid #23143B;
+  box-shadow:0 6px 18px rgba(12,5,26,.42),0 0 0 3px rgba(255,42,133,.28);
+  animation:wfxPop .26s cubic-bezier(.2,1.4,.3,1)}
+.wfx-bubble:after{content:"";position:absolute;left:50%;bottom:-8px;margin-left:-6px;
+  width:10px;height:10px;background:#FFFFFF;border-right:2.5px solid #23143B;border-bottom:2.5px solid #23143B;
+  transform:rotate(45deg)}
 
 .wfx-plea{margin-top:12px;color:#FFD166;font-size:15px;font-weight:750;letter-spacing:.01em;min-height:22px;
   text-shadow:0 2px 10px rgba(15,6,32,.55);
@@ -193,29 +208,67 @@ export const ASK_CSS = `
   18%{opacity:1}
   100%{transform:translate(calc(-50% + var(--dx)),calc(-50% + var(--dy))) rotate(var(--rot)) scale(1.08);opacity:0}}
 
-/* ── ELF MOTION RHYTHMS ─────────────────────────────────────────────────── */
+/* ── ELF MOTION RHYTHMS & ARTICULATED SUB-PARTS ────────────────────────── */
 .wfc{overflow:visible;transform-origin:50% 88%}
-.wfc-hop{animation:wfcHop .95s ease-in-out infinite}
-.wfc-bounce{animation:wfcHop .68s ease-in-out infinite}
-.wfc-wobble{animation:wfcWobble .76s ease-in-out infinite}
-.wfc-shiver{animation:wfcShiver .18s ease-in-out infinite}
-.wfc-slump{animation:wfcSlump 1.2s ease-in-out infinite}
-.wfc-tremble{animation:wfcTremble .16s ease-in-out infinite}
-@keyframes wfcHop{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-7%) scale(1.02)}}
-@keyframes wfcWobble{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
-@keyframes wfcShiver{0%,100%{transform:translateX(-1.6%)}50%{transform:translateX(1.6%)}}
-@keyframes wfcSlump{0%,100%{transform:translateY(3%) scale(.98)}50%{transform:translateY(6%) scale(.96)}}
-@keyframes wfcTremble{0%,100%{transform:translate(-1.2%,2%)}50%{transform:translate(1.2%,2%)}}
+.wfc-hop{animation:wfcHop .72s cubic-bezier(.34,1.56,.64,1) infinite}
+.wfc-bounce{animation:wfcBounce .54s cubic-bezier(.34,1.56,.64,1) infinite}
+.wfc-wobble{animation:wfcWobble .62s ease-in-out infinite}
+.wfc-shiver{animation:wfcShiver .15s ease-in-out infinite}
+.wfc-slump{animation:wfcSlump .95s ease-in-out infinite}
+.wfc-tremble{animation:wfcTremble .13s ease-in-out infinite}
+@keyframes wfcHop{
+  0%,100%{transform:translateY(0) scale(1.03,.97)}
+  45%{transform:translateY(-9%) scale(.97,1.05) rotate(-1.5deg)}
+  75%{transform:translateY(-2%) scale(1.01,.99) rotate(1.5deg)}}
+@keyframes wfcBounce{
+  0%,100%{transform:translateY(0) scale(1.05,.95)}
+  48%{transform:translateY(-12%) scale(.95,1.07)}}
+@keyframes wfcWobble{
+  0%,100%{transform:rotate(-5deg) translateY(0)}
+  50%{transform:rotate(5deg) translateY(-4%)}}
+@keyframes wfcShiver{
+  0%,100%{transform:translateX(-2.4%) rotate(-1.5deg)}
+  50%{transform:translateX(2.4%) rotate(1.5deg)}}
+@keyframes wfcSlump{
+  0%,100%{transform:translateY(3%) scale(1.03,.96) rotate(-2deg)}
+  50%{transform:translateY(8%) scale(1.06,.93) rotate(2deg)}}
+@keyframes wfcTremble{
+  0%,100%{transform:translate(-2%,3%) scale(1.02,.97)}
+  50%{transform:translate(2%,3%) scale(.98,1.02)}}
 
-.wfc-xheart{animation:wfcPulse .7s ease-in-out infinite}
-.wfc-xsweat{animation:wfcSweat .9s ease-in-out infinite}
-.wfc-xbreak{animation:wfcBreak .85s ease-in-out infinite}
-.wfc-tear1{animation:wfcDrop .75s ease-in infinite}
-.wfc-tear2{animation:wfcDrop .75s ease-in .36s infinite}
-@keyframes wfcPulse{0%,100%{transform:scale(.86) translateY(0)}50%{transform:scale(1.16) translateY(-4px)}}
-@keyframes wfcDrop{0%{transform:translateY(0) scale(.75);opacity:0}22%{opacity:1}100%{transform:translateY(28px) scale(1);opacity:0}}
+/* Articulated bell, ears, arms, star-wink, and pleading hands */
+.wfc-bell{animation:wfcBellSwing .68s ease-in-out infinite}
+.wfc-earL{animation:wfcEarL .72s ease-in-out infinite}
+.wfc-earR{animation:wfcEarR .72s ease-in-out infinite}
+.wfc-armL{animation:wfcArmL .68s ease-in-out infinite}
+.wfc-armR{animation:wfcArmR .68s ease-in-out infinite}
+.wfc-starwink{animation:wfcStarWink .9s ease-in-out infinite}
+.wfc-plead-hands{animation:wfcPlead .42s ease-in-out infinite}
+
+.wfc-mood-worried .wfc-earL,.wfc-mood-teary .wfc-earL,.wfc-mood-crying .wfc-earL,
+.wfc-mood-heartbroken .wfc-earL,.wfc-mood-curled .wfc-earL{animation:wfcEarDroopL .85s ease-in-out infinite}
+.wfc-mood-worried .wfc-earR,.wfc-mood-teary .wfc-earR,.wfc-mood-crying .wfc-earR,
+.wfc-mood-heartbroken .wfc-earR,.wfc-mood-curled .wfc-earR{animation:wfcEarDroopR .85s ease-in-out infinite}
+
+@keyframes wfcBellSwing{0%,100%{transform:rotate(-14deg)}50%{transform:rotate(16deg)}}
+@keyframes wfcEarL{0%,100%{transform:rotate(0deg)}50%{transform:rotate(8deg) translateY(-1px)}}
+@keyframes wfcEarR{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-8deg) translateY(-1px)}}
+@keyframes wfcEarDroopL{0%,100%{transform:rotate(-8deg) translateY(2px)}50%{transform:rotate(-14deg) translateY(4px)}}
+@keyframes wfcEarDroopR{0%,100%{transform:rotate(8deg) translateY(2px)}50%{transform:rotate(14deg) translateY(4px)}}
+@keyframes wfcArmL{0%,100%{transform:rotate(0deg)}50%{transform:rotate(-14deg) translateY(-2px)}}
+@keyframes wfcArmR{0%,100%{transform:rotate(0deg)}50%{transform:rotate(18deg) translateY(-3px)}}
+@keyframes wfcStarWink{0%,100%{transform:scale(.85) rotate(-12deg)}50%{transform:scale(1.22) rotate(18deg)}}
+@keyframes wfcPlead{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.08)}}
+
+.wfc-xheart{animation:wfcPulse .58s ease-in-out infinite}
+.wfc-xsweat{animation:wfcSweat .75s ease-in-out infinite}
+.wfc-xbreak{animation:wfcBreak .62s ease-in-out infinite}
+.wfc-tear1{animation:wfcDrop .64s ease-in infinite}
+.wfc-tear2{animation:wfcDrop .64s ease-in .32s infinite}
+@keyframes wfcPulse{0%,100%{transform:scale(.86) translateY(0)}50%{transform:scale(1.2) translateY(-5px)}}
+@keyframes wfcDrop{0%{transform:translateY(0) scale(.75);opacity:0}22%{opacity:1}100%{transform:translateY(28px) scale(1.05);opacity:0}}
 @keyframes wfcSweat{0%{transform:translateY(0);opacity:0}28%{opacity:1}100%{transform:translateY(18px);opacity:0}}
-@keyframes wfcBreak{0%,100%{transform:rotate(-7deg)}50%{transform:rotate(7deg)}}
+@keyframes wfcBreak{0%,100%{transform:rotate(-9deg) scale(.96)}50%{transform:rotate(9deg) scale(1.08)}}
 
 .wfc-lean{display:inline-flex;translate:var(--lean,0) var(--liftv,0);transition:translate .12s ease-out}
 .wfc-eager{will-change:transform;animation:wfcEager .44s ease-in-out infinite}
@@ -226,15 +279,27 @@ export const ASK_CSS = `
   50%{transform:translate(1.5px,-3px)}
   100%{transform:translate(-1.5px,0)}}
 
-/* Two Elves snuggling cheek-to-cheek */
+/* Two Elves snuggling cheek-to-cheek with staggered floating hearts */
 .wfc-couple{position:relative;display:flex;align-items:flex-end;justify-content:center}
-.wfc-hugL{animation:wfcHugL .72s ease-in-out infinite;margin-right:-11%;transform-origin:80% 90%}
-.wfc-hugR{animation:wfcHugR .72s ease-in-out infinite;margin-left:-11%;transform-origin:20% 90%}
-@keyframes wfcHugL{0%,100%{transform:translateX(0) rotate(-2deg)}50%{transform:translateX(5%) rotate(3deg)}}
-@keyframes wfcHugR{0%,100%{transform:translateX(0) rotate(2deg)}50%{transform:translateX(-5%) rotate(-3deg)}}
-.wfc-heart{position:absolute;top:-6%;left:50%;margin-left:-11px;z-index:2;
-  animation:wfcCoupleHeart .65s ease-in-out infinite}
-@keyframes wfcCoupleHeart{0%,100%{transform:scale(.88) translateY(0)}50%{transform:scale(1.22) translateY(-5px)}}
+.wfc-hugL{animation:wfcHugL .58s cubic-bezier(.34,1.56,.64,1) infinite;margin-right:-9%;transform-origin:80% 88%}
+.wfc-hugR{animation:wfcHugR .58s cubic-bezier(.34,1.56,.64,1) infinite;margin-left:-9%;transform-origin:20% 88%}
+@keyframes wfcHugL{
+  0%,100%{transform:translateX(0) translateY(0) rotate(-3deg) scale(1.02,.98)}
+  50%{transform:translateX(6%) translateY(-5%) rotate(4deg) scale(.98,1.04)}}
+@keyframes wfcHugR{
+  0%,100%{transform:translateX(0) translateY(0) rotate(3deg) scale(1.02,.98)}
+  50%{transform:translateX(-6%) translateY(-5%) rotate(-4deg) scale(.98,1.04)}}
+.wfc-heart{position:absolute;top:-10%;left:50%;margin-left:-12px;z-index:3;
+  animation:wfcCoupleHeart .56s ease-in-out infinite}
+.wfc-heart-smL{position:absolute;top:4%;left:14%;z-index:2;
+  animation:wfcSideHeartL 1.1s ease-in-out infinite}
+.wfc-heart-smR{position:absolute;top:2%;right:14%;z-index:2;
+  animation:wfcSideHeartR 1.1s ease-in-out .35s infinite}
+@keyframes wfcCoupleHeart{0%,100%{transform:scale(.88) translateY(0)}50%{transform:scale(1.26) translateY(-6px)}}
+@keyframes wfcSideHeartL{0%,100%{transform:translate(0,0) rotate(-14deg) scale(.78);opacity:.65}
+  50%{transform:translate(-4px,-8px) rotate(-6deg) scale(1.08);opacity:1}}
+@keyframes wfcSideHeartR{0%,100%{transform:translate(0,0) rotate(14deg) scale(.78);opacity:.65}
+  50%{transform:translate(4px,-8px) rotate(6deg) scale(1.08);opacity:1}}
 
 .boo-c,.boo-s-back{display:none!important}
 .wfx-paused *,.wfx-paused *:before,.wfx-paused *:after{animation-play-state:paused!important}
@@ -250,8 +315,9 @@ export const ASK_CSS = `
 }
 
 @media (prefers-reduced-motion: reduce){
-  .wfx-portrait,.wfx-heart,.wfx-sparkle,.wfx-h1,.wfx-plea,
-  .wfc,.wfc-eager,.wfc-hugL,.wfc-hugR,.wfc-heart,
+  .wfx-portrait,.wfx-heart,.wfx-sparkle,.wfx-h1,.wfx-plea,.wfx-bubble,.wfx-yes,
+  .wfc,.wfc-eager,.wfc-hugL,.wfc-hugR,.wfc-heart,.wfc-heart-smL,.wfc-heart-smR,
+  .wfc-bell,.wfc-earL,.wfc-earR,.wfc-armL,.wfc-armR,.wfc-starwink,.wfc-plead-hands,
   .wfc-xheart,.wfc-xsweat,.wfc-xbreak,.wfc-tear1,.wfc-tear2{animation:none}
   .wfx-yes,.wfx-no,.wfc-lean{transition:none}
 }

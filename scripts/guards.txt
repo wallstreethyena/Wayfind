@@ -2463,3 +2463,5 @@ node scripts/check-browser-regex-compat.mjs
 node scripts/check-seasonal-rail-depth.mjs
 # 2026-10-29: Halloween overnight close (keep after-midnight listings until verified close), explicit-link dedupe on republish, experience titles and honest booking chips, fail-closed fall cache epoch reader.
 node scripts/test-halloween-overnight-dedupe.mjs
+# 2026-10-31: "Top rated on Wayfind" badge for business websites (backlinks): merit-only eligibility, followed link, escaped names, official logo, never-break image route, no Google spend.
+node scripts/check-top-rated-badge.mjs
