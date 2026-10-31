@@ -327,7 +327,7 @@ export default function AskClient({ inv, bad = false }) {
             <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
-            {inv && (inv.place || proposedWhen.label || inv.note) ? (
+            {inv && (inv.place || suggestedActivityLabel || proposedWhen.label || inv.note) ? (
               <div className="wfx-plan-preview" aria-label="Proposed plan">
                 {inv.place ? (
                   <div>

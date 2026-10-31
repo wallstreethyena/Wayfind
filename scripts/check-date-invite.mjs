@@ -258,6 +258,7 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
      `the cast must be authored as readable pixel grids — found ${grids.length} rows. An asset nobody can edit one pixel at a time is the thing the owner rejected`);
   const widths = new Set(grids.map((g) => g.length));
   ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
+  ok(/\buseId\b/.test(px), "Cat must include React useId() in SVG gradient IDs so identical Elf instances rendered together never collide while keeping SSR hydration deterministic");
 }
 
 // ── 6c. ONE LINK PER PERSON, AND A LEGIBLE ANSWER ──────────────────────────
