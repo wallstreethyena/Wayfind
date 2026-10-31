@@ -17,17 +17,19 @@ const S = {
 export default function BadgeCopyBox({ title, theme, imgSrc, alt, code }) {
   const [state, setState] = useState("");
   const id = "badge-code-" + theme;
-  async function copy() {
-    try {
-      await navigator.clipboard.writeText(code);
-      setState("Copied! Now paste it into your website.");
-    } catch {
-      // Clipboard can be blocked (old browsers, some in-app browsers). Select
-      // the text so a long press / Ctrl+C still works.
-      const el = document.getElementById(id);
-      if (el) { el.focus(); el.select(); }
-      setState("Code selected. Copy it with your keyboard or long press.");
+  // Copies from the visible code box itself (select + copy, inside the tap).
+  // Deliberately not navigator.clipboard: that transport is reserved for the
+  // share chooser and coupon copy (scripts/test-unified-share-flow.mjs).
+  function copy() {
+    const el = document.getElementById(id);
+    let copied = false;
+    if (el) {
+      el.focus();
+      el.select();
+      try { el.setSelectionRange(0, code.length); } catch { /* older iOS */ }
+      try { copied = document.execCommand("copy") === true; } catch { copied = false; }
     }
+    setState(copied ? "Copied! Now paste it into your website." : "Code selected. Copy it with your keyboard or long press.");
   }
   return (
     <div style={S.card}>
