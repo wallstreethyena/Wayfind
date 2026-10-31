@@ -20,7 +20,8 @@
 ## OutboundTicketClick (2026-10-29)
 
 - **What:** a CUSTOM event, `fbq('trackCustom','OutboundTicketClick',{content_ids:[id],content_type:'event',seller,surface},{eventID})`,
-  fired once per accepted `commerce_cta_clicked` (the choke point is `emitCommerce` in `lib/commerce.js`, via the
+  fired once per accepted `commerce_cta_clicked` whose provider is a TICKET seller (`TICKET_PROVIDERS` in
+  lib/campaignAttribution.js: tours, attractions, events, passes; never coupons, stays, food or transfers) (the choke point is `emitCommerce` in `lib/commerce.js`, via the
   `window.__WF_ATTR` bridge from `lib/campaignAttribution.js`). Never Purchase / Lead, no value, no currency, so it
   changes no campaign optimization. Build it as a custom conversion in Ads Manager if you want to optimize for it.
 - **Not sent:** suppressed sessions (owner, verifier UAs, bots, native shell, group plans) and any session carrying
@@ -37,3 +38,5 @@
   first-party session cookie `wf_attr` written at landing. Click-id VALUES are never stored there, and no route copies
   the cookie into a seller URL. Business reporting: `provider_redirect_started` where `traffic_class = 'human'` and
   `is_test` is not true.
+- **Click-id values** (fbclid/gclid/ttclid) live only in the tab-session record; the 90-day first-touch record and the
+  `wf_ft_*` super-properties keep only the click TYPE. `landing_*` = this session's landing; first touch only as `first_touch_*`.
