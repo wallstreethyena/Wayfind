@@ -227,15 +227,6 @@ const CSS = `
 .boo-rating b{color:#F5A524;font-weight:700}
 .boo-tour-photo{position:relative;min-width:0;min-height:200px;height:100%;background:var(--surface);overflow:hidden}
 .boo-tour-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.boo-featured{margin-top:22px}
-.boo-featured h2{margin:0 0 12px;font-size:22px;line-height:1.25;font-weight:700;color:var(--cream)}
-.boo-pick-list{display:flex;flex-direction:column;gap:12px;margin:0;padding:0;list-style:none}
-.boo-pick-card{display:grid;grid-template-columns:40% minmax(0,1fr);min-width:0;background:#141c27;border:1px solid #F97316;border-radius:14px;overflow:hidden}
-.boo-pick-photo{position:relative;min-width:0;min-height:200px;height:100%;background:#1C2230;overflow:hidden}
-.boo-pick-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
-.boo-pick-body{min-width:0;display:flex;flex-direction:column;gap:6px;padding:12px 14px 14px}
-.boo-pick-card h3{margin:0;font-size:17px;line-height:1.3;font-weight:800;color:#F4F6F8}
-.boo-featured a:focus-visible{outline:2px solid var(--lav);outline-offset:2px}
 `;
 
 function FestivalLights() {
@@ -455,62 +446,12 @@ function TourSection({ chrome, tours, regions }) {
   );
 }
 
-const FEATURED_HEADING = "Top Florida ghost tours";
-
-function FeaturedGhostTours({ tours }) {
-  if (!tours.length) return null;
-  return (
-    <section className="boo-featured" aria-labelledby="boo-featured-title" data-featured-tours="">
-      <h2 id="boo-featured-title">{FEATURED_HEADING}</h2>
-      <div className="boo-pick-list">
-        {tours.map((t) => {
-          const metaText = [t.formatLabel, t.duration].filter(Boolean).join(" · ");
-          return (
-            <article key={t.id} id={"tour-" + t.id} className="boo-pick-card" data-featured-tour={t.id}>
-              {t.photo && t.photo.src ? (
-                <div className="boo-pick-photo">
-                  <GuidePhoto
-                    src={t.photo.src}
-                    alt={t.photo.alt || ""}
-                    width={t.photo.width}
-                    height={t.photo.height}
-                    sizes="(min-width: 720px) 280px, 40vw"
-                    loading="lazy"
-                    fallbackClassName="boo-ph"
-                    fallbackText=""
-                  />
-                </div>
-              ) : null}
-              <div className="boo-pick-body">
-                {t.place ? <p className="boo-line">{t.place}</p> : null}
-                <h3>{t.name}</h3>
-                {t.ratingLabel ? <p className="boo-rating">{t.ratingLabel}</p> : null}
-                {metaText ? <p className="boo-line">{metaText}</p> : null}
-                {Number(t.fromPrice) > 0 ? (
-                  <p className="boo-pricerow" aria-label={t.priceLabel + (t.priceUnit ? " " + t.priceUnit : "")}>
-                    <span className="boo-from">from</span>
-                    <span className="boo-amt">{"$" + Math.round(t.fromPrice)}</span>
-                    {t.priceUnit ? <span className="boo-from">{t.priceUnit}</span> : null}
-                  </p>
-                ) : null}
-                <a className="boo-buy" href={t.cta.href} target="_blank" rel="sponsored nofollow noopener">{t.cta.label}</a>
-                <GuideCommissionLine />
-                {t.cta.via ? <p className="boo-via">{t.cta.via}</p> : null}
-              </div>
-            </article>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
 
 export default function BoHalloweenHaunt({ model, share = null, initialFilter = "all" }) {
   const { chrome, filters, haunts, picks } = model;
   const tours = Array.isArray(model.tours) ? model.tours : [];
   const eventTours = Array.isArray(model.eventTours) ? model.eventTours : [];
   const tourRegions = Array.isArray(model.tourRegions) ? model.tourRegions : [];
-  const featuredTours = Array.isArray(model.featuredTours) ? model.featuredTours : [];
   // PR #2017 showed tours only after the Ghost tours chip. The default view
   // stacks the haunt grid and the full tour section again. When every haunt
   // has expired, open on that chip so the page is not an empty grid.
@@ -522,16 +463,15 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
   const selectedPick = picks.find((p) => p.id === selectedPickId) || null;
   const isFamilyMode = filter === "family" || Boolean(selectedPick && selectedPick.filterId === "family");
   const visibleTours = isFamilyMode ? tours.filter((t) => !t.adultOnly) : tours;
-  const visibleFeaturedTours = isFamilyMode ? featuredTours.filter((t) => !t.adultOnly) : featuredTours;
-  // Featured picks are the same catalogue rows as the tour grid. Production
-  // 2026-10-31 rendered each of them twice (featured section and the grid).
-  // The grid keeps every other tour, so each tour shows once. Flags, hrefs
-  // and the region chips are unchanged; a region still filters this grid.
-  const featuredShownIds = new Set(visibleFeaturedTours.map((t) => t.id));
-  const gridTours = visibleTours.filter((t) => !featuredShownIds.has(t.id));
+  // Owner (2026-10-30, #2068): most popular first. The tours arrive sorted by
+  // traveler review count, so the one grid keeps that order and the approved
+  // picks sit wherever their popularity puts them, each exactly once.
+  const gridTours = visibleTours;
   const tourReady = !selectedPick && visibleTours.length > 0 && tourRegions.length > 0;
   const toursOnly = tourReady && filter === "tours";
-  const toursUnderHaunts = tourReady && filter === "all";
+  // Family view keeps the (family-safe) ghost tour system under its haunts too,
+  // now that the featured block no longer exists on its own.
+  const toursUnderHaunts = tourReady && (filter === "all" || filter === "family");
   const shown = selectedPick
     ? (selectedPick.shortlistIds || [selectedPick.hauntId]).map((id) => haunts.find((h) => h.id === id)).filter(Boolean)
     : filter === "all"
@@ -594,8 +534,6 @@ export default function BoHalloweenHaunt({ model, share = null, initialFilter = 
           {share ? <div className="boo-share">{share}</div> : null}
           {toursChip ? <button type="button" className="boo-jump" onClick={openTours}>{chrome.toursJump}<span aria-hidden="true">↓</span></button> : null}
         </div>
-
-        <FeaturedGhostTours tours={visibleFeaturedTours} />
 
         {picks.length ? (
           <div className="boo-picks-wrap">
