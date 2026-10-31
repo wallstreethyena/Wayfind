@@ -1,0 +1,459 @@
+{
+  "submitted": "2026-10-29",
+  "reviewed": "2026-10-31",
+  "review_scope": "Three disputed identities corrected; other 25 source associations preserved from PR #2051 and prior live checks. Assigned is a source state, not a deployment claim.",
+  "sources": [
+    {
+      "shortcode": "DfBTb96CFZQ",
+      "native_url": "https://www.instagram.com/reel/DfBTb96CFZQ/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "spookeasy-lounge-tampa",
+          "place_id": "ChIJ7QVjUK_FwogRaTLY8uxOico",
+          "name": "SpookEasy Lounge",
+          "city": "Tampa",
+          "address": "1909 N 15th St, Tampa, FL 33605"
+        }
+      ],
+      "evidence": "Caption pin \"SpookEasy Lounge, Tampa\""
+    },
+    {
+      "shortcode": "DfA_fXppK6r",
+      "native_url": "https://www.instagram.com/reel/DfA_fXppK6r/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "draculas-legacy-tampa",
+          "place_id": "ChIJIZt3d7DFwogRQ5Lg2tPMXyk",
+          "name": "Dracula's Legacy",
+          "city": "Tampa"
+        }
+      ],
+      "evidence": "Post is a collab with @draculaslegacytampa; the St. Pete branch is deliberately not used"
+    },
+    {
+      "shortcode": "DfAz7qIpxOC",
+      "native_url": "https://www.instagram.com/reel/DfAz7qIpxOC/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "nueva-cantina-brandon",
+          "place_id": "wfadd_nueva_cantina_brandon",
+          "name": "Nueva Cantina",
+          "city": "Brandon"
+        }
+      ],
+      "evidence": "Cover text reads \"Nueva Cantina, Brandon, FL\"; Tampa, Palm Harbor and St. Pete branches not used"
+    },
+    {
+      "shortcode": "De4TQPHibq8",
+      "native_url": "https://www.instagram.com/reel/De4TQPHibq8/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "cracker-barrel-bradenton-sr64",
+          "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+          "name": "Cracker Barrel",
+          "city": "Bradenton",
+          "address": "636 67th Street Circle East, Bradenton, FL 34208"
+        }
+      ],
+      "evidence": "The native Reel tags Instagram location 39075 (Cracker Barrel Old Country Store). That location page displays ZIP 34208 and (941) 746-7886. The official Bradenton store page gives that exact phone at 636 67th Street Circle East, and current Maps resolves the existing inventory ID to that address. Retained from exact native tag plus official branch corroboration, not from Parrish proximity.",
+      "evidence_urls": [
+        "https://www.instagram.com/explore/locations/39075/",
+        "https://www.crackerbarrel.com/locations/states/fl/bradenton/73",
+        "https://www.google.com/maps/search/?api=1&query=Cracker+Barrel&query_place_id=ChIJs8X39n07w4gR0NEp6j5PNdc"
+      ],
+      "native_location_observation": {
+        "observed_date": "2026-10-31",
+        "surface": "Instagram signed-in desktop reels view; original /reel/ URL redirected to /reels/",
+        "observed_url": "https://www.instagram.com/reels/De4TQPHibq8/",
+        "creator_in_same_player": "cindy.selects",
+        "location_link_text": "Location Cracker Barrel Old Country Store",
+        "location_link_href": "/explore/locations/39075/",
+        "caption_in_same_player": "We came for breakfast… but apparently Christmas got here first! 🎄😂",
+        "reproduction_note": "Open the native Reel and inspect the header under cindy.selects in its video player. The header rotates audio, collaborators and location; the public post view may omit location. Only public DOM content is recorded; no session metadata."
+      }
+    },
+    {
+      "shortcode": "Dewd4hwiVIE",
+      "native_url": "https://www.instagram.com/reel/Dewd4hwiVIE/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "ofkors-bakery-sarasota",
+          "place_id": "ChIJG-8UUxJAw4gRR5dxpu_5F7c",
+          "name": "ofKors BAKERY",
+          "city": "Sarasota",
+          "address": "1359 Main St, Sarasota, FL 34236"
+        }
+      ],
+      "evidence": "Caption names ofKors Bakery in downtown Sarasota"
+    },
+    {
+      "shortcode": "DeX0q3ZJmYA",
+      "native_url": "https://www.instagram.com/reel/DeX0q3ZJmYA/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "atria-cafe-lakewood-ranch",
+          "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+          "name": "ATRIA Cafe",
+          "city": "Lakewood Ranch"
+        }
+      ],
+      "evidence": "Captions name ATRIA Café in Lakewood Ranch"
+    },
+    {
+      "shortcode": "Dc44pPUiNHZ",
+      "native_url": "https://www.instagram.com/reel/Dc44pPUiNHZ/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "atria-cafe-lakewood-ranch",
+          "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+          "name": "ATRIA Cafe",
+          "city": "Lakewood Ranch"
+        }
+      ],
+      "evidence": "Captions name ATRIA Café in Lakewood Ranch"
+    },
+    {
+      "shortcode": "DeVNmyypnUU",
+      "native_url": "https://www.instagram.com/reel/DeVNmyypnUU/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "mall-at-utc-pumpkin-patch-sarasota",
+          "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
+          "name": "The Mall at University Town Center",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "Caption pin \"Pumpkin Patch at UTC\"; seasonal display at the mall"
+    },
+    {
+      "shortcode": "DeR1pO4i1Ef",
+      "native_url": "https://www.instagram.com/reel/DeR1pO4i1Ef/",
+      "creator": "cindy.selects",
+      "status": "held_identity",
+      "places": [],
+      "evidence": "Native footage includes an alligator habitat. Caption discusses a rainy-day aquarium outing around Sarasota/Bradenton without naming a facility. Native location 205212922 says Mote Marine Laboratory & Aquarium and currently displays ZIP 34243, but does not establish which facility this footage depicts. Mote's American alligator page labels City Island while SEA has a separate Florida Waters gallery. Neither generic shark footage nor the current general tag proves SEA or City Island. Do not transfer to either candidate without facility-specific corroboration.",
+      "evidence_urls": [
+        "https://www.instagram.com/explore/locations/205212922/",
+        "https://mote.org/animal-encyclopedia/american-alligator/",
+        "https://mote.org/aquarium/florida-waters/"
+      ],
+      "needed": "Facility-specific evidence linking this exact Reel to the filmed aquarium, such as a matching labeled habitat or creator confirmation of the branch and filming date.",
+      "candidate_place_ids": [
+        "ChIJRyOEfAo5w4gR664aD_YYBLU",
+        "ChIJrXZ3LLxqw4gRjYTBNBMgJnA"
+      ]
+    },
+    {
+      "shortcode": "DePUUmXCRYy",
+      "native_url": "https://www.instagram.com/reel/DePUUmXCRYy/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "cafe-soleil-st-pete-beach",
+          "place_id": "ChIJe5Ox97ECw4gR2fGQC-g97jc",
+          "name": "Café Soleil",
+          "city": "St. Pete Beach"
+        }
+      ],
+      "evidence": "Caption and hashtags name Café Soleil, St. Pete"
+    },
+    {
+      "shortcode": "DeN61B-CAJX",
+      "native_url": "https://www.instagram.com/reel/DeN61B-CAJX/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "kaizen-japanese-kitchen-sarasota",
+          "place_id": "ChIJrZufuCg5w4gRXu8owbAhZss",
+          "name": "Kaizen Japanese Kitchen",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "Caption pin \"Kaizen Japanese Kitchen, Sarasota, near UTC\""
+    },
+    {
+      "shortcode": "DeFxig6p1Oa",
+      "native_url": "https://www.instagram.com/reel/DeFxig6p1Oa/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "fruitville-grove-sarasota",
+          "place_id": "ChIJhWqZvoVHw4gRehUSFsbZARo",
+          "name": "Fruitville Grove",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "First caption names it and is a collab with @fruitville.grove; second carries the \"Fruitville Grove Farm Market\" location tag"
+    },
+    {
+      "shortcode": "DeVj71Miy2c",
+      "native_url": "https://www.instagram.com/reel/DeVj71Miy2c/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "fruitville-grove-sarasota",
+          "place_id": "ChIJhWqZvoVHw4gRehUSFsbZARo",
+          "name": "Fruitville Grove",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "First caption names it and is a collab with @fruitville.grove; second carries the \"Fruitville Grove Farm Market\" location tag"
+    },
+    {
+      "shortcode": "Dd5S1XViNoA",
+      "native_url": "https://www.instagram.com/reel/Dd5S1XViNoA/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "joy-coffee-bradenton",
+          "place_id": "ChIJ1U_vFp0Xw4gRGKl6mJGJ9UI",
+          "name": "Joy Coffee",
+          "city": "Bradenton",
+          "address": "4524 14th St W, Bradenton, FL 34207"
+        }
+      ],
+      "evidence": "Caption pin \"Joy Coffee, Bradenton\""
+    },
+    {
+      "shortcode": "DdzvudupUdo",
+      "native_url": "https://www.instagram.com/reel/DdzvudupUdo/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "ananda-farm-terra-ceia",
+          "place_id": "ChIJScJ5bQAZw4gRjNIj9iS5bus",
+          "name": "Ananda Farm",
+          "city": "Terra Ceia"
+        }
+      ],
+      "evidence": "Caption pin \"Ananda Farm, Terra Ceia\""
+    },
+    {
+      "shortcode": "DdmEL0_JrDW",
+      "native_url": "https://www.instagram.com/reel/DdmEL0_JrDW/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "ryans-coffee-house-parrish",
+          "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+          "name": "Ryan's Coffee House",
+          "city": "Parrish",
+          "address": "8231 US-301, Parrish, FL 34219"
+        }
+      ],
+      "evidence": "Caption and hashtag name Ryan's Coffee House"
+    },
+    {
+      "shortcode": "DdJuoujCqvS",
+      "native_url": "https://www.instagram.com/reel/DdJuoujCqvS/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "orange-blossom-coffee-bradenton",
+          "place_id": "ChIJPfVM-xIXw4gRiT1_XuUakks",
+          "name": "Orange Blossom Coffee",
+          "city": "Bradenton"
+        }
+      ],
+      "evidence": "Caption names Orange Blossom Coffee in Bradenton"
+    },
+    {
+      "shortcode": "DdHA6GCq4Ym",
+      "native_url": "https://www.instagram.com/reel/DdHA6GCq4Ym/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "bellabean-bradenton",
+          "place_id": "ChIJ6_hQr4AXw4gRwfUFqlfdRfA",
+          "name": "Bellabean",
+          "city": "Bradenton"
+        }
+      ],
+      "evidence": "Caption names Bellabean in Bradenton"
+    },
+    {
+      "shortcode": "DczhpPGp5-b",
+      "native_url": "https://www.instagram.com/reel/DczhpPGp5-b/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "cedar-fox-coffee-sarasota",
+          "place_id": "ChIJww1nz5VBw4gRl0xv985c9E4",
+          "name": "Cedar Fox Coffee",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "Caption names Cedar Fox Coffee in downtown Sarasota"
+    },
+    {
+      "shortcode": "DcuNn9JpJUx",
+      "native_url": "https://www.instagram.com/reel/DcuNn9JpJUx/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "daily-brew-station-palmetto",
+          "place_id": "ChIJh4stzQ8Xw4gRn6tMomjUjzQ",
+          "name": "The Daily Brew Station",
+          "city": "Palmetto"
+        }
+      ],
+      "evidence": "Caption names The Daily Brew Station; only listing with that name"
+    },
+    {
+      "shortcode": "Dcrv8nJpg2Y",
+      "native_url": "https://www.instagram.com/reel/Dcrv8nJpg2Y/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "riviera-french-cafe-sarasota",
+          "place_id": "ChIJ32YG_ao5w4gRpzcR49e5sMo",
+          "name": "Riviera French Café",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "Caption pin \"Riviera French Café, Sarasota\""
+    },
+    {
+      "shortcode": "Dcj4cnpJSDx",
+      "native_url": "https://www.instagram.com/reel/Dcj4cnpJSDx/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "project-coffee-burns-court-sarasota",
+          "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
+          "name": "Project Coffee (Burns Court)",
+          "city": "Sarasota",
+          "address": "538 S Pineapple Ave, Sarasota, FL 34236"
+        }
+      ],
+      "evidence": "Native Reel shows low white joists, rectangular tan storefront windows and parking immediately outside. Official labeled locations photos match Burns Court at 538 S Pineapple Ave, not Rosemary at 1419 5th St with tall arched windows and raw concrete. The Instagram tag identifies Project Coffee but does not itself expose a street address. Existing inventory ID resolves on current Google Maps to 538 S Pineapple Ave. Caption reference to changes at the original location is not branch proof.",
+      "evidence_urls": [
+        "https://www.projectcoffee.us/pages/locations",
+        "https://www.instagram.com/explore/locations/2545923948813337/",
+        "https://www.google.com/maps/search/?api=1&query=Project+Coffee&query_place_id=ChIJy6vf9_dBw4gRGg1sXR5UTGU"
+      ],
+      "rejected_place_ids": [
+        "ChIJK4UHeR1Bw4gRBlMVPK7epPo"
+      ]
+    },
+    {
+      "shortcode": "DchZaJ0JIeh",
+      "native_url": "https://www.instagram.com/reel/DchZaJ0JIeh/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "the-bakero-sarasota",
+          "place_id": "ChIJ7R-BEwBBw4gRPxw9nzLE4l0",
+          "name": "The Bakero",
+          "city": "Sarasota"
+        }
+      ],
+      "evidence": "Caption pin \"The Bakero, Downtown Sarasota\""
+    },
+    {
+      "shortcode": "DccTV0rJaHI",
+      "native_url": "https://www.instagram.com/reel/DccTV0rJaHI/",
+      "creator": "cindy.selects",
+      "status": "assigned",
+      "places": [
+        {
+          "key": "tuscan-hills-coffee-parrish",
+          "place_id": "ChIJPSkey7Elw4gR5gvfcin8NQc",
+          "name": "Tuscan Hills Coffee Company",
+          "city": "Parrish",
+          "address": "12205 81st St E, Parrish, FL 34219"
+        }
+      ],
+      "evidence": "Caption names Tuscan Hills Coffee Co. and pins Parrish"
+    },
+    {
+      "shortcode": "DfCcRklCSOC",
+      "native_url": "https://www.instagram.com/reel/DfCcRklCSOC/",
+      "creator": "cindy.selects",
+      "status": "already_live",
+      "places": [
+        {
+          "key": "bellabean-bradenton",
+          "place_id": "ChIJ6_hQr4AXw4gRwfUFqlfdRfA",
+          "name": "Bellabean",
+          "city": "Bradenton"
+        }
+      ],
+      "evidence": "Already-live association independently checked on the normal place card by the parent review; retained unchanged in this correction."
+    },
+    {
+      "shortcode": "De0TPJ-pRSI",
+      "native_url": "https://www.instagram.com/reel/De0TPJ-pRSI/",
+      "creator": "cindy.selects",
+      "status": "already_live",
+      "places": [
+        {
+          "key": "heights-drive-thru-tampa",
+          "place_id": "ChIJizhkpNfHwogRbx738MsVHK4",
+          "name": "Heights Drive Thru",
+          "city": "Tampa"
+        }
+      ],
+      "evidence": "Already-live association independently checked on the normal place card by the parent review; retained unchanged in this correction."
+    },
+    {
+      "shortcode": "DevB7D0JXlF",
+      "native_url": "https://www.instagram.com/reel/DevB7D0JXlF/",
+      "creator": "cindy.selects",
+      "status": "already_live",
+      "places": [
+        {
+          "key": "rreal-tacos-downtown-tampa",
+          "name": "Rreal Tacos Downtown Tampa",
+          "city": "Tampa"
+        }
+      ],
+      "evidence": "Already-live association independently checked on the normal place card by the parent review; retained unchanged in this correction."
+    },
+    {
+      "shortcode": "Dcwuyx8p6Bo",
+      "native_url": "https://www.instagram.com/reel/Dcwuyx8p6Bo/",
+      "creator": "cindy.selects",
+      "status": "already_live",
+      "places": [
+        {
+          "key": "breakfast-company-university-parkway",
+          "place_id": "ChIJU-JqYJo5w4gRTKYuKEM5uH0",
+          "name": "The Breakfast Company",
+          "city": "Bradenton"
+        }
+      ],
+      "evidence": "Already-live association independently checked on the normal place card by the parent review; retained unchanged in this correction."
+    }
+  ]
+}
