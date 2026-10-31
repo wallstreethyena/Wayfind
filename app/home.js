@@ -1924,11 +1924,26 @@ function confidenceOf(reviews) {
 // The house media column is `.wf-place-card-layout > .wf-place-card-media`.
 // This helper fills that column — pass `wf-place-card-photo`, never a 96×96
 // inline size (that was Image-1 compact chrome). Leave dimensions to css.js.
-function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover" }) {
+function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, onClick, fit = "cover", defer = false }) {
   // An unrelated fallback update must not hide an already decoded primary.
   // Keep outcomes attached to the URL that actually emitted the event.
   const [outcomes, setOutcomes] = useState(() => new Map());
   const imgRef = useRef(null);
+  // Detail-rail slides past the open photo and its peek pass defer. Hold the
+  // slide's box (so the counter and the swipe still include it) and attach
+  // the image src only once that box nears the scroller.
+  const [armed, setArmed] = useState(!defer);
+  const holdRef = useRef(null);
+  useEffect(() => {
+    if (!defer || armed) return undefined;
+    const el = holdRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") { setArmed(true); return undefined; }
+    const observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting)) { setArmed(true); observer.disconnect(); }
+    }, { root: el.parentElement, rootMargin: "0px 80% 0px 80%" });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [defer, armed, src]);
   const activeSrc = (!src || outcomes.get(src) === "error") && fallbackSrc && fallbackSrc !== src ? fallbackSrc : src;
   const outcome = outcomes.get(activeSrc);
   const state = imageDisplayState({ src: activeSrc, errored: outcome === "error", loaded: outcome === "loaded" });
@@ -1996,6 +2011,7 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
       }
     };
   }, [activeSrc, state]);
+  if (defer && !armed) return <div ref={holdRef} data-detail-photo-deferred="" style={style} />;
   if (cardPhotoRequest(activeSrc)) return <div className={className} style={{ ...style, position: "relative", overflow: "hidden" }}><CardPhoto src={activeSrc} alt={alt || ""} fallbackIcon={icon} fallbackCategory={category} onClick={onClick} compact={typeof style?.width === "number" && style.width < 120} style={{ width: "100%", height: "100%", objectFit: fit, display: "block" }} /></div>;
   if (state === "fallback") return <BrandedImageFallback className={className} style={style} name={alt} icon={icon} category={category} />;
   return (
