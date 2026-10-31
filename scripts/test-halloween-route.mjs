@@ -7,6 +7,7 @@ import { composeHalloweenRails } from "../lib/halloweenIntentRails.js";
 import { pageOneRail } from "../lib/railPage.js";
 import { windowRailAnswer } from "../lib/railResponse.js";
 import * as fallPhotoDestinations from "../lib/fallPhotoDestinations2026.js";
+import * as overnightClose from "../lib/overnightClose.js";
 let checks = 0;
 const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const cards = Array.from({ length: 25 }, (_, i) => ({ id: `ghost-${i}`, kind: "event", name: `Ghost tour ${i}`, event_series_id: `series-${i}`, start_date: "2026-10-13", end_date: "2026-10-31", distMi: i }));
@@ -23,6 +24,7 @@ async function harness(code = source) {
     "railPage": { pageOneRail }, "railResponse": { windowRailAnswer },
     "fallStayDestinations": { fallStayDestinations: () => ["fall-stay"] },
     "fallPhotoDestinations2026": fallPhotoDestinations,
+    "overnightClose": overnightClose,
     "fallPhotoInventory2026": { readFallPhotoInventory: async () => ({ rows: [], calendars: [], calendarFailed: false, failed: false }) },
   };
   const compiled = ts.transpileModule(code, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
