@@ -325,8 +325,8 @@ import { MARKETS, marketForLocation } from "../lib/destinations";
 // app/components/sheets/SocialFind.js, the only place that read them.
 import { creatorVideosFor } from "../lib/creatorSignals";
 import CreatorCardMark from "./components/CreatorCardMark";
-import { hasCreatorVideoAt, displayedWfScore } from "../lib/creatorBoost";
-import { CREATOR_VIDEO_BONUS, FAR_MILES, FAR_PENALTY, TRENDING_BONUS } from "../lib/wayfindScore";
+import { hasCreatorVideoAt, hasFeaturedCreatorVideoAt, displayedWfScore, creatorEvidenceTerm } from "../lib/creatorBoost";
+import { FAR_MILES, FAR_PENALTY, TRENDING_BONUS } from "../lib/wayfindScore";
 import { attachTrendSignals } from "../lib/trendSignal";
 // THE ONE ARITHMETIC for ordering places (spec step 2). This file composed it
 // six times in six subtly different expressions; the terms are still computed
@@ -1154,7 +1154,7 @@ function applyAffinity(places, affinities) {
     // chip, which is the exact defect the law exists to end.
     const _d = p.distMi || 0;
     const distPenalty = _d > FAR_MILES ? FAR_PENALTY : 0;
-    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }) };
+    return { ...p, _ps: placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: boost, distancePenalty: distPenalty, faveTier: faveTier(p), featured: featuredBoost(p), curated: !!curatedFor(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }) };
   }).sort((a, b) => b._ps - a._ps);
 }
 
@@ -4530,7 +4530,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       const lists = await Promise.all(content.queries.map((q) => searchNearbyPlaces(q, center).then((l) => (l || []).filter((p) => placeAllowed(null, null, p))).catch(() => []))); // v4.94: composites route through the shared filter
       let pool = dedupePlaces([].concat(...lists), true).filter((pp) => pp && !content.exclude(pp));
       // Rank by base quality + bounded holiday-fit + editorial pins, not raw score alone.
-      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 });
+      const rankScore = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, contextBoost: Hol.fitFor(hol.key, p) + Hol.pinFor(hol.key, p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 });
       pool.sort((a, b) => rankScore(b) - rankScore(a));
       pool = pool.slice(0, 12);
       try { const sig = await fetchMemberSignals(supabase, pool); if (sig) pool = withMemberSignal(pool, sig); } catch (e) {}
@@ -4634,7 +4634,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         const picks = pool.filter((p) => p && p.id && p.lat != null && inCat(p) && tileAdmits(kind, p)); // 2026-09-16: today/experiences ask "what to go and DO" — lib/outing.js answers, unchanged
         if (!picks.length) return [];
         const condCtx = condCtxFromNow(nowContext({ weather }));
-        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
+        const boostBase = (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_MIDPACK, zeroIsUnrated: false, featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }); // B13: merit base = wfScore + boosts applied ONCE and uniformly. NOT p._ps, which already bakes in these same boosts (+ affinity/distance/curated) -> using it here double-counted featured/community/video AND compared personalized _ps items against raw-wfScore items in one comparator.
         const ranked = lens === "gems" ? picks.slice().sort(GEMS_RANK) : Ranking.rankByConditions(picks, condCtx, boostBase);
         return ranked.slice(0, 10);
       } catch (e) { return []; }
@@ -7808,7 +7808,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // v5.25: vibes can carry their own context boost (exp.boost) — e.g.
         // Outside lifts real water venues, hardest when it's beach weather.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p, weather) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), curated: !!curatedFor(p), contextBoost: _ctxBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 })));
         const _paint = (pool) => { if (_tok.dead || !pool.length) return; const passed = pool.filter(_vibePass); const quick = sortFit(passed.length >= 5 ? passed : pool).slice(0, 40); if (quick.length) { setExpPlaces(quick); setExpLoading(false); } };
         const _startM = exp.radius || DEFAULT_RADIUS_M;
         let radius = _startM;
@@ -8285,7 +8285,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         // pre-existing key, so `_ctxBoost` is 0 and sortFit is unchanged for
         // them; Seasonal Picks is the first sheet-path experience to use it.
         const _ctxBoost = (p) => { try { return exp.boost ? exp.boost(p) : 0; } catch (e) { return 0; } };
-        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 })));
+        const sortFit = (arr) => arr.slice().sort(byPlaceScore((p) => ({ quality: p.wfScore, unratedBase: UNRATED_LAST, featured: featuredBoost(p), contextBoost: _ctxBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 })));
         // 2026-08-08: same decoration as the vibe screen above — the signal
         // attaches before sortFit runs so rank and disclosure agree.
         try { await attachTrendSignals(raw, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] }); } catch (e) {}
@@ -9708,7 +9708,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     // (displayed Wayfind Score, locked by test-top-rated) · price: low → high.
     viewBase = sortPlacesBy(_dedupedPool, sortBy);
   } else {
-    viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: hasCreatorVideoAt(p) ? CREATOR_VIDEO_BONUS : 0, trend: p.trending ? TRENDING_BONUS : 0 }));
+    viewBase = Ranking.rankByConditions(_dedupedPool, _viewCtx, (p) => placeScore({ quality: p.wfScore, unratedBase: UNRATED_LAST, faveTier: faveTier(p), featured: featuredBoost(p), evidence: creatorEvidenceTerm(p), trend: p.trending ? TRENDING_BONUS : 0 }));
     // Near-first rule: with 5+ options inside 12 miles, nothing past 20 may outrank them.
     const _nc = viewBase.filter((p) => p && p.distMi != null && p.distMi <= 12).length;
     if (_nc >= 5) viewBase = [...viewBase.filter((p) => !(p.distMi != null && p.distMi > 20)), ...viewBase.filter((p) => p.distMi != null && p.distMi > 20)];
@@ -12366,7 +12366,9 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
     engineKeys: _chipKeys,
     selectedKey: selectedBadge,
   }).map((c) => c.kind === "cuisine" ? { key: "cuisine", icon: "🍴", label: _chipCuisine }
-    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: "Creator post" }
+    // Owner, 2026-10-29: a cindy.selects video carries its own score term, so
+    // the disclosure names it (she is Wayfind's own creator series).
+    : c.key === "creatorvideo" ? { key: "creatorvideo", icon: "🎬", label: hasFeaturedCreatorVideoAt(p) ? "Cindy Selects pick" : "Creator post" }
     : c.key === "featured" ? { key: "featured", icon: "🏅", label: "Featured" }
     : { key: c.key, icon: EXPERIENCES[c.key].icon, label: EXPERIENCES[c.key].label });
   // v8.33 (owner, 2026-08-22) — the SAME resolved set the "Creator video" chip

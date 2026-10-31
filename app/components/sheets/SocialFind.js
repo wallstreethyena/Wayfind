@@ -26,7 +26,7 @@ import CreatorAvatar from "../CreatorAvatar";
 import CreatorVideoAction from "../CreatorVideoAction";
 import VideoFacade from "../VideoFacade";
 import CreatorPlaybackDetails from "../CreatorPlaybackDetails";
-import { creatorLabel, AFFILIATION_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
+import { creatorLabel, AFFILIATION_DISCLOSURE, FEATURED_CREATOR_DISCLOSURE, REMOVAL_PROMPT, REMOVAL_CONTACT } from "../../../lib/creatorRights";
 import { summaryFor } from "../../../lib/creatorArchetypes";
 import { isEmbeddable } from "../../../lib/videoEmbed";
 
@@ -472,7 +472,7 @@ function LibrarySheet({ onClose, onDragStart, onDragMove, onDragEnd, onOpenSpot,
               expensive part. */}
           <div style={{ marginTop: 22, paddingTop: 14, borderTop: `1px solid ${C.border}`, display: "flex", flexDirection: "column", gap: 6 }}>
             <div style={{ fontSize: 10.5, color: C.muted, lineHeight: 1.5 }}>Curated by Wayfind, never sponsored. Tapping a spot opens it here if it's near you, or takes you straight to the creator's real video.</div>
-            <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.82, lineHeight: 1.5 }}>{AFFILIATION_DISCLOSURE}</div>
+            <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.82, lineHeight: 1.5 }}>{AFFILIATION_DISCLOSURE} {FEATURED_CREATOR_DISCLOSURE}</div>
             <div style={{ fontSize: 10.5, color: C.muted, opacity: 0.82, lineHeight: 1.5 }}>
               {REMOVAL_PROMPT}{" "}
               <a href={"mailto:" + REMOVAL_CONTACT + "?subject=Creator%20removal%20request"} style={{ color: C.muted, fontWeight: 700, textDecoration: "underline" }}>{REMOVAL_CONTACT}</a>

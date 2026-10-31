@@ -162,6 +162,7 @@ scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
 scripts/check-fall-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	f624d4c9457ac3eeea2f0e5cd3c9a0b792b8a8cea9c31d4271fc0287a2ed4266
 scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	15031df1dd6a7d99113360f50447a6af00a95639b1adf37b7aeaeba3e3908c89
 scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	859f42c43e3b795df3a2be315fb01d8fff1708f5d080d3b2d6f9661f1bd95b2c
+scripts/check-featured-creator-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	106effab3651fdbcecead640c32ef7ef8be7fd2298326110b501bd93fbb0b4ab
 scripts/check-fetch-deadlines.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	3c24d15bc67f13045f7c91be58ccbc728a4cbbf9fea4fe91218c2bbbafe0fe94
 scripts/check-floor-derivation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	c2196e1c2ff71dbf6b3b9bd4c060f8709694696b2444e4330c2f188444d7fb38
 scripts/check-florida-events-are-florida.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a33c8aa9c75b7bfd3e212c81988d5f748be3fb61311929ee140c29719e58f70f

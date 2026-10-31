@@ -31,7 +31,8 @@
 // the ranking is bad; an honest empty state teaches them it is careful."
 // This is that rule, applied to the one surface that never got it.
 import { useEffect, useState } from "react";
-import { PLATFORM } from "../../lib/creatorVideos";
+import { PLATFORM, FEATURED_CREATOR } from "../../lib/creatorVideos";
+import { hasFeaturedCreatorVideoAt } from "../../lib/creatorBoost";
 import { CREATOR_FINDS_MAX, CREATOR_FINDS_MIN, CREATOR_BRIDGE_MAX_MI, CREATOR_FINDS_RADIUS_MI, orderFinds, bridgeCity, scoutedSpots, mergeCreatorInventory } from "../../lib/creatorFinds";
 import { C, TYPE } from "./kit";
 // v7.02: the row renders the canonical place card (see RailCard.js). The chip
@@ -43,6 +44,10 @@ import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
 import { governedWayfindScore } from "../../lib/wayfindScore";
+
+// A registry spot filmed by the featured creator carries her own score term
+// (owner, 2026-10-29, lib/wayfindScore.js creatorVideoTerm), same as a pool row.
+const spotIsFeatured = (spot) => !!(spot && spot.video && String(spot.video.creator || "").toLowerCase() === FEATURED_CREATOR);
 import { priceLabel } from "../../lib/price";
 import { businessStatus } from "../../lib/businessStatus";
 
@@ -207,7 +212,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
       if (!p) return -Infinity;
       if (Number.isFinite(p.governed_score)) return p.governed_score;
       const base = p.wfScore != null ? p.wfScore : wayfindScore(p.rating, p.reviews);
-      const governed = governedWayfindScore(base, { hasCreatorVideo: true, distanceMi: p.distMi, trending: !!p.trending });
+      const governed = governedWayfindScore(base, { hasCreatorVideo: true, hasFeaturedCreatorVideo: p.featured_creator_video === true || hasFeaturedCreatorVideoAt(p), distanceMi: p.distMi, trending: !!p.trending });
       // Stamp the exact sort key onto the rendered place so the badge and rank
       // cannot disagree on the creator shelf.
       if (governed != null) p.governed_score = governed;
@@ -215,7 +220,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
     }
     const h = hydrated[entry.key];
     return h && h.rating
-      ? governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true }) ?? -Infinity
+      ? governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true, hasFeaturedCreatorVideo: spotIsFeatured(entry.spot) }) ?? -Infinity
       : -Infinity;
   };
   // v7.08: the id-level safety net behind sameVenueName() — hydration resolves
@@ -326,7 +331,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               photo={(h && h.photo) || null}
               title={s0.name}
               eyebrow={s0.city ? "Scouted in " + s0.city : "Scouted"}
-              score={h && h.rating ? toDisplayScore(governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true })) : null}
+              score={h && h.rating ? toDisplayScore(governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true, hasFeaturedCreatorVideo: spotIsFeatured(s0) })) : null}
               facts={h ? cardFacts({ reviews: h.reviews, priceLevel: h.priceLevel, oh: h.oh, utcOffset: h.utcOffset }) : [s0.city || null].filter(Boolean)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={[{ key: "video", icon: "🎬", label: "Creator post", onClick: () => { if (onBrowse) onBrowse(); } }]}
