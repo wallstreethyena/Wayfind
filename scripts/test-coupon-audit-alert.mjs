@@ -64,15 +64,19 @@ ok(/lib\/coupons\.js/.test(lapsed[0].detail) && /untracked/.test(lapsed[0].detai
 // A seasonal end is not a Clipp verification fuse. Never tell the owner
 // to extend an event date or repair coupon attribution for this alert.
 const fallFuse = COUPON_AUDIT_FUSES.find((f) => f.id === "fall_offering_end");
-ok(!!fallFuse && /Hashtag/.test(fallFuse.label), "the earliest fall ending identifies Hashtag Café, rather than an unnamed offering");
-for (const today of ["2026-10-28", "2026-10-30", "2026-10-31"]) {
+ok(!!fallFuse && /^Fall offering: \S/.test(fallFuse.label), "the earliest fall ending identifies the actual offering, rather than an unnamed offering");
+// Dates derive from the live fuse (the earliest dated fall end changes as
+// entries are retired — Hashtag Café, ended 2026-10-30, was the first case).
+const shiftDay = (iso, n) => new Date(Date.parse(iso + "T12:00:00Z") + n * 86400000).toISOString().slice(0, 10);
+const fallEnd = fallFuse?.expires;
+for (const today of [shiftDay(fallEnd, -2), fallEnd, shiftDay(fallEnd, 1)]) {
   const notice = run(today, [fallFuse])[0];
   ok(notice && notice.id === "audit_fuse_fall_offering_end" && notice.severity === "warn", `fall notice preserves its stable cooldown identity (${today})`);
   ok(notice && /lib\/fallPool\.js/.test(notice.detail) && /lib\/fallSkin\.js/.test(notice.detail) && /check-fall-registry-integrity/.test(notice.detail), `fall notice names the actual registries and build consequence (${today})`);
   ok(notice && /Keep the verified end date/.test(notice.detail) && !/lib\/coupons\.js|untracked|guide CTA|Builds are NOT affected/.test(notice.detail), `fall notice does not fabricate coupon consequences or encourage invented renewal (${today})`);
 }
-ok(/ends today/.test(run("2026-10-30", [fallFuse])[0]?.title), "the last local day is still live");
-ok(/ended/.test(run("2026-10-31", [fallFuse])[0]?.title), "the following local day requests retirement, not renewal");
+ok(/ends today/.test(run(fallEnd, [fallFuse])[0]?.title), "the last local day is still live");
+ok(/ended/.test(run(shiftDay(fallEnd, 1), [fallFuse])[0]?.title), "the following local day requests retirement, not renewal");
 
 // Wiring: the report builder must carry couponAudit through to computeAlerts (a rule nobody feeds is decoration).
 const stub = { source: { name: "s", connected: false }, data: null };
