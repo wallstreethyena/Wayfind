@@ -68,24 +68,19 @@ try {
     }
   }
 
-  // The single offer constant and the real resolver. Row 11 is served by an injected fake table
-  // (no network); the assertions are that the resolver asks wf_deals for EXACTLY the configured id
-  // and passes the CJ attributed link through, and refuses a row proven dead.
-  ok(MOVIE_TICKET_OFFER.provider === "undercover_tourist" && MOVIE_TICKET_OFFER.offerId === 11 && MOVIE_TICKET_OFFER.merchant === "Undercover Tourist", "MOVIE_TICKET_OFFER is undercover_tourist offer 11");
-  ok(PROVIDERS.undercover_tourist?.table === "wf_deals" && PROVIDERS.undercover_tourist.requireTracking === true, "undercover_tourist resolves wf_deals and requires tracking");
-  ok(!("fandango" in PROVIDERS), "no fandango provider remains in commerceProviders");
-  const UT_URL = "https://www.anrdoezrs.net/links/101643573/type/dlg/sid/coupon_movie/https://www.undercovertourist.com/movie-tickets/";
-  const asked = [];
-  const fakeDeps = (row) => ({ env: () => ({ url: "https://db.invalid", key: "k" }), fetch: async (u) => { asked.push(String(u)); return { ok: true, json: async () => (String(u).includes("id=eq." + MOVIE_TICKET_OFFER.offerId) ? [row] : []) }; } });
-  const res11 = await resolveOffer(MOVIE_TICKET_OFFER.provider, MOVIE_TICKET_OFFER.offerId, { subId: "fall_movies_rail", ...fakeDeps({ id: 11, affiliate_url: UT_URL, link_ok: null }) });
-  ok(!res11.error && /^https:\/\/www\.anrdoezrs\.net\/links\/101643573\//.test(res11.dest) && res11.dest.includes("undercovertourist.com/movie-tickets/"), "resolveOffer(undercover_tourist, 11) returns the attributed CJ movie tickets link");
-  ok(asked.length === 1 && /\/rest\/v1\/wf_deals\?/.test(asked[0]) && asked[0].includes("id=eq.11"), "resolver looked up wf_deals id 11 exactly");
-  ok((await resolveOffer("undercover_tourist", 11, fakeDeps({ id: 11, affiliate_url: UT_URL, link_ok: false }))).error === "offer-link-dead", "a row proven dead (link_ok false) refuses, null serves");
-  ok((await resolveOffer("undercover_tourist", 11, fakeDeps({ id: 11, affiliate_url: "https://www.undercovertourist.com/movie-tickets/", link_ok: null }))).error, "an unattributed (non CJ) row is refused");
-  // card label comes from partnerCopy: honest, sells a discounted theater ticket, not a showtime seat
-  const lbl = partnerTicketLabel("Undercover Tourist", { product: "movie-voucher", card: true });
-  ok(lbl === "Save on movie tickets ↗" && !dashy(lbl), "card CTA label is exactly: Save on movie tickets ↗");
-  ok(!/fandango|showtime|seats?\b/i.test(lbl), "label promises no specific showtime or seat and names no Fandango");
+  // The ticket constant and the real resolver. Since 2026-10-30 every movie
+  // resolves to its OWN Fandango page (offerId = registry movie id) wrapped
+  // in the CJ dlg deep link — never the generic chain voucher a movie tap
+  // used to land on. Unknown ids refuse; non-Fandango destinations refuse.
+  ok(MOVIE_TICKET_OFFER.provider === "fandango" && MOVIE_TICKET_OFFER.merchant === "Fandango", "MOVIE_TICKET_OFFER is the per-movie Fandango path");
+  ok(PROVIDERS.fandango?.requireTracking === true && typeof PROVIDERS.fandango.resolve === "function", "fandango provider exists and requires tracking");
+  ok(reg.movieDestinationById("resident-evil-2026") === "https://www.fandango.com/resident-evil-2026-245893/movie-overview", "movieDestinationById resolves the movie's own Fandango page");
+  ok(reg.movieDestinationById("nope-not-a-movie") === null, "unknown movie id resolves null (refuses, never guesses)");
+  const resF = await resolveOffer("fandango", "resident-evil-2026", { subId: "halloween_movies_rail" });
+  ok(!resF.error && /^https:\/\/www\.anrdoezrs\.net\/links\/101643573\/type\/dlg\/sid\/halloween_movies_rail\//.test(resF.dest) && resF.dest.includes("fandango.com/resident-evil-2026-245893/movie-overview"), "resolveOffer(fandango, resident-evil-2026) returns the CJ-attributed deep link to that movie");
+  ok((await resolveOffer("fandango", "nope-not-a-movie", { subId: "x" })).error, "an unknown movie id is refused");
+  const lbl = partnerTicketLabel("Fandango", { product: "movie-ticket", card: true });
+  ok(lbl === "Tickets at Fandango ↗" && !dashy(lbl), "card CTA label is exactly: Tickets at Fandango ↗");
 
   // status resolution (called, with fixed days)
   const xmas = SEASONAL_MOVIES.christmas;
@@ -107,13 +102,14 @@ try {
     ok(body.ctaLive === true, `${c}: ctaLive true (no pending state)`);
     ok(/public, s-maxage=\d+/.test(res.headers.get("cache-control") || ""), `${c}: cacheable`);
     const json = JSON.stringify(body);
-    ok(!/fandango/i.test(json) && !/anrdoezrs/i.test(json) && !/kqzyfj/.test(json) && !/"destination"|sourceUrl|linkId|advertiserId|affiliate_url/.test(json), `${c}: no fandango or anrdoezrs (or any destination / CJ id) in the response`);
+    ok(!/fandango\.com/i.test(json) && !/anrdoezrs/i.test(json) && !/"destination"|sourceUrl|linkId|advertiserId|affiliate_url/.test(json), `${c}: no Fandango destination URL or CJ wrapper (or any destination / CJ id) in the response — the page stays server-side`);
     for (const m of body.movies) {
       const u = new URL(m.ticket.href, "https://www.gowayfind.com");
-      ok(u.pathname === "/api/commerce/go" && u.searchParams.get("provider") === "undercover_tourist" && u.searchParams.get("offer") === "11" && u.searchParams.get("surface") === `${c}_movies_rail` && u.searchParams.get("content") === m.id, `${m.id}: ticket.href goes through /api/commerce/go provider=undercover_tourist offer=11 surface=${c}_movies_rail content=<id>`);
-      ok(m.ticket.href === `/api/commerce/go?provider=undercover_tourist&offer=11&surface=${c}_movies_rail&content=${encodeURIComponent(m.id)}` && m.ticket.provider === "undercover_tourist" && m.ticket.offerId === 11, `${m.id}: exact href shape and ticket provider/offerId`);
-      const viaHref = await resolveOffer(u.searchParams.get("provider"), u.searchParams.get("offer"), { subId: u.searchParams.get("surface"), ...fakeDeps({ id: 11, affiliate_url: UT_URL, link_ok: null }) });
-      ok(!viaHref.error && viaHref.dest.includes("undercovertourist.com/movie-tickets/"), `${m.id}: the real resolver resolves the href's own provider and offer`);
+      ok(u.pathname === "/api/commerce/go" && u.searchParams.get("provider") === "fandango" && u.searchParams.get("offer") === m.id && u.searchParams.get("surface") === `${c}_movies_rail` && u.searchParams.get("content") === m.id, `${m.id}: ticket.href goes through /api/commerce/go provider=fandango offer=<movie id> surface=${c}_movies_rail content=<id>`);
+      ok(m.ticket.href === `/api/commerce/go?provider=fandango&offer=${encodeURIComponent(m.id)}&surface=${c}_movies_rail&content=${encodeURIComponent(m.id)}` && m.ticket.provider === "fandango" && m.ticket.offerId === m.id && m.ticket.merchant === "Fandango", `${m.id}: exact href shape and per-movie ticket`);
+      const viaHref = await resolveOffer(u.searchParams.get("provider"), u.searchParams.get("offer"), { subId: u.searchParams.get("surface") });
+      ok(!viaHref.error && viaHref.dest.includes("anrdoezrs.net/links/101643573/") && viaHref.dest.includes(reg.movieDestinationById(m.id)), `${m.id}: the real resolver resolves the href to this movie's own Fandango page, CJ-wrapped`);
+      ok(m.art && /^\/movies\/[\w.-]+\.webp$/.test(m.art.src) && /Fandango/.test(m.art.credit || ""), `${m.id}: poster art is the local Fandango-credited file`);
     }
   }
   const bad = await GET(new Request("https://www.gowayfind.com/api/movies/seasonal?collection=summer"));
@@ -122,4 +118,4 @@ try {
   ok((await GET(new Request("https://www.gowayfind.com/api/movies/seasonal?collection=constructor"))).status === 400, "inherited key is 400");
 
 } finally { globalThis.fetch = originalFetch; }
-console.log(`check-seasonal-movies: OK — ${pass} assertions; ${total} movies across 3 collections; real route handler and real resolver executed against an injected fake wf_deals row (the live row 11 is not read here), every ticket is undercover_tourist offer 11, ctaLive true, no fandango or anrdoezrs in any response`);
+console.log(`check-seasonal-movies: OK — ${pass} assertions; ${total} movies across 3 collections; real route handler and the real Fandango resolver executed, every ticket is the movie's own Fandango page (CJ-wrapped), ctaLive true, no destination or CJ wrapper in any response`);
