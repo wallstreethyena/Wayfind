@@ -104,7 +104,7 @@ Return a JSON array of exactly 8 objects:
         "content-type": "application/json",
       },
       body: JSON.stringify({
-        model: "claude-haiku-4-5",
+        model: "claude-haiku-5-5",
         max_tokens: 2500,
         system: systemPrompt,
         messages: [{ role: "user", content: userPrompt }],
