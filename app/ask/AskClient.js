@@ -309,6 +309,13 @@ export default function AskClient({ inv, bad = false }) {
   const tellThemDeclined = () => sendReplyText(declineReplyText());
 
   const suggestedActivityLabel = suggested[0] && activityFor(suggested[0]) ? activityFor(suggested[0]).label : "";
+  const BUBBLES = [
+    "Wait—your finger slipped, right?! 👀",
+    "Deploying emergency puppy eyes 🥺",
+    "EMOTIONAL DAMAGE: 999% 😭",
+    "Even my hat bell stopped jingling 💔",
+    "Plot twist: “No” is purely decorative ✨",
+  ];
 
   return (
     <div className={"wfx" + (paused ? " wfx-paused" : "")} data-hydrated={hydrated ? "1" : undefined}>
@@ -324,10 +331,15 @@ export default function AskClient({ inv, bad = false }) {
 
         {step === "ask" && (
           <>
+            {nos > 0 ? (
+              <div className="wfx-bubble" key={"b" + nos} role="status" aria-live="polite">
+                {BUBBLES[Math.min(nos - 1, BUBBLES.length - 1)]}
+              </div>
+            ) : null}
             <Portrait><Cat tone="cream" mood={moodAt(nos)} size={104} key={nos} look={look} /></Portrait>
             <h1 className="wfx-h1" key={step}>{askHeadline(inv)}</h1>
             {from ? <p className="wfx-sub">from {from}</p> : null}
-            {inv && (inv.place || proposedWhen.label || inv.note) ? (
+            {inv && (inv.place || suggestedActivityLabel || proposedWhen.label || inv.note) ? (
               <div className="wfx-plan-preview" aria-label="Proposed plan">
                 {inv.place ? (
                   <div>
@@ -356,11 +368,8 @@ export default function AskClient({ inv, bad = false }) {
                 }}>YES</button>
               <button className="wfx-no" style={{ "--n": noScale(nos) }}
                 onClick={() => {
-                  setNos(1);
-                  setSent("");
-                  try { if (memKey) window.localStorage.removeItem(memKey); } catch (e) {}
+                  setNos((n) => n + 1);
                   track("ask_invite_choice", { choice: "no", has_place: Boolean(inv && inv.place) });
-                  setStep("declined");
                 }}>No</button>
             </div>
             {nos > 0 ? <p className="wfx-plea" key={nos}>{pleaAt(nos)}</p> : null}
