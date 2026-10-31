@@ -99,53 +99,60 @@ export default function MapScreen({ ctx }) {
     const dLat = .36, dLng = .42;
     setViewport({ north: center.lat + dLat, south: center.lat - dLat, east: center.lng + dLng, west: center.lng - dLng });
   }, [center?.lat, center?.lng]);
-  const coveredAreaRef = useRef({ key: "", bounds: null });
+  const coveredAreaRef = useRef({ key: "", originKey: "", boxes: [] });
   useEffect(() => {
     if (!validMapBounds(viewport) || !center || explicitList) return undefined;
     const originKey = `${center?.lat}|${center?.lng}|${areaRetry}|${curatorSnap.v}`;
-    if (coveredAreaRef.current.key !== originKey) {
-      coveredAreaRef.current = { key: originKey, bounds: null };
+    const coverageKey = `${originKey}|${mapCategory || ""}|${sub || ""}|${searchMode ? "1" : "0"}`;
+    const originChanged = coveredAreaRef.current.originKey !== originKey;
+    if (coveredAreaRef.current.key !== coverageKey) {
+      coveredAreaRef.current = { key: coverageKey, originKey, boxes: [] };
     }
-    const cb = coveredAreaRef.current.bounds;
     const eps = 1e-4;
-    if (cb && viewport.north <= cb.north + eps && viewport.south >= cb.south - eps && viewport.east <= cb.east + eps && viewport.west >= cb.west - eps) {
+    const isCovered = coveredAreaRef.current.boxes.some(
+      (cb) => viewport.north <= cb.north + eps && viewport.south >= cb.south - eps && viewport.east <= cb.east + eps && viewport.west >= cb.west - eps
+    );
+    if (isCovered) {
       setAreaStatus("ready");
       setSettledArea(areaReadKey);
       return undefined;
     }
     const controller = new AbortController();
     let dead = false;
-    if (!cb) {
-      setAreaStatus("loading");
+    setAreaStatus("loading");
+    if (originChanged) {
       setAreaPlaces([]);
     }
     const timer = setTimeout(() => {
       readCompleteMapArea({ bounds: viewport, origin: center, signal: controller.signal,
         onPage: (rows) => {
-          if (dead) return;
+          if (dead || controller.signal.aborted) return;
           setAreaPlaces((existing) => {
-            if (!cb || !existing.length) return rows;
+            if (originChanged || !existing.length) return rows;
             const byId = new Map(existing.map((r) => [r.id || r.place_id, r]));
             for (const r of rows) byId.set(r.id || r.place_id, r);
             return [...byId.values()];
           });
         } })
-        .then(() => {
-          if (dead) return;
-          const prevBounds = coveredAreaRef.current.bounds;
-          coveredAreaRef.current = {
-            key: originKey,
-            bounds: prevBounds
-              ? { north: Math.max(prevBounds.north, viewport.north), south: Math.min(prevBounds.south, viewport.south), east: Math.max(prevBounds.east, viewport.east), west: Math.min(prevBounds.west, viewport.west) }
-              : { north: viewport.north, south: viewport.south, east: viewport.east, west: viewport.west },
-          };
+        .then((rows) => {
+          if (dead || controller.signal.aborted || !Array.isArray(rows)) return;
+          if (coveredAreaRef.current.key === coverageKey) {
+            coveredAreaRef.current = {
+              key: coverageKey,
+              originKey,
+              boxes: [
+                ...coveredAreaRef.current.boxes,
+                { north: viewport.north, south: viewport.south, east: viewport.east, west: viewport.west },
+              ],
+            };
+          }
           setAreaStatus("ready");
           setSettledArea(areaReadKey);
         })
-        .catch(() => { if (!dead && !coveredAreaRef.current.bounds) setAreaStatus("error"); });
+        .catch(() => { if (!dead && !controller.signal.aborted) setAreaStatus("error"); });
     }, 250);
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
-  }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, explicitList]);
+  }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, mapCategory, sub, searchMode, explicitList]);
   useEffect(() => {
     if (!center || !listKey) return undefined;
     const controller = new AbortController();
@@ -170,7 +177,7 @@ export default function MapScreen({ ctx }) {
   const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: explicitList ? listInventory : inventoryAreaPlaces,
     bounds: viewport, origin: center, category: explicitList ? "all" : mapCategory, sub: explicitList || allCategories ? "all" : sub,
     mapkit: appleSDK?.mapkit, minScore: explicitList ? null : undefined,
-    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && mapMode === "places", ready: explicitList ? listStatus === "ready" : areaStatus === "ready" && (settledArea === areaReadKey || !!coveredAreaRef.current.bounds) });
+    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && mapMode === "places", ready: explicitList ? listStatus === "ready" : areaStatus === "ready" && (settledArea === areaReadKey || coveredAreaRef.current.boxes.length > 0) });
   const liveAreaPlaces = useMemo(() => {
     const owned = new Set(inventoryAreaPlaces.map((p) => p.id));
     return [...inventoryAreaPlaces, ...appleRecovery.places.filter((p) => !owned.has(p.id))];
