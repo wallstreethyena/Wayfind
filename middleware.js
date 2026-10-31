@@ -95,6 +95,9 @@ export const config = {
     // gate (lib/paidAi.js). Full same-origin + per-IP guard, like the other
     // model routes. A missing key returns the grounded fallback and spends nothing.
     "/api/bo-haunt",
+    // Santa's Christmas ticket chat: same gate as Bo (shared Anthropic gate in
+    // lib/paidAi.js), full same-origin + per-IP guard.
+    "/api/santa-chat",
     "/api/viator/tours",
     // Intent-sheet curated enrichment: exact product artwork and commercial
     // metadata come from the metered Viator Partner API on cache misses.
