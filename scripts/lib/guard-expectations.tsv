@@ -162,6 +162,7 @@ scripts/check-fall-registry-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0
 scripts/check-fall-share.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	f624d4c9457ac3eeea2f0e5cd3c9a0b792b8a8cea9c31d4271fc0287a2ed4266
 scripts/check-family.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	15031df1dd6a7d99113360f50447a6af00a95639b1adf37b7aeaeba3e3908c89
 scripts/check-favorites-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	859f42c43e3b795df3a2be315fb01d8fff1708f5d080d3b2d6f9661f1bd95b2c
+scripts/check-featured-creator-score.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	106effab3651fdbcecead640c32ef7ef8be7fd2298326110b501bd93fbb0b4ab
 scripts/check-fetch-deadlines.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	3c24d15bc67f13045f7c91be58ccbc728a4cbbf9fea4fe91218c2bbbafe0fe94
 scripts/check-floor-derivation.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	c2196e1c2ff71dbf6b3b9bd4c060f8709694696b2444e4330c2f188444d7fb38
 scripts/check-florida-events-are-florida.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	a33c8aa9c75b7bfd3e212c81988d5f748be3fb61311929ee140c29719e58f70f
@@ -551,6 +552,7 @@ scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
+scripts/test-cindy-reel-identities.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	15985941dc12e50780e9b03a7e6fbc82fb7a343843a3d163cb7493f66f3fe7ec
 scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	964b0a958014d38059e7c12277c73bd25765d5dbaa51098530d845d74ff9de8c
 scripts/test-city-gate.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	20	1	0	912ef8bc336c6f85e2660ca914636023ed167c3386ca4e193e9b38393dcac6c0
 scripts/test-city-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	69348535de48f62f4383204c91a2351eaf6b32663a41738831c97e7cbd692afe
@@ -742,9 +744,9 @@ scripts/test-gulf-coast-brunch-date-night.mjs	0	CALL	blocks-ci-and-deploy	1	-	47
 scripts/test-halloween-crown.mjs	0	RENDER	blocks-ci-and-deploy	1	-	75	0	0	72dae7d6f783e0b3813f791460b67f95aedb1480bf396af420f57e51d0073fe7
 scripts/test-halloween-haunt.mjs	0	RENDER	blocks-ci-and-deploy	1	-	274	0	0	800fd406cbde3cefd356a33b5b2de6faf07e240b440ae9465fd76a644d83fd68
 scripts/test-halloween-intent-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	976379a2ccefc1d556dc38b2f513cbcaa927bb4f9d37a87ba5ebe7df19125969
-scripts/test-halloween-overnight-dedupe.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	0	0	f9a7cdae9749561a4085f5ed2de064fcb3f56e7742cb115cc414f676fcc71bcb
+scripts/test-halloween-overnight-dedupe.mjs	0	CALL	blocks-ci-and-deploy	1	-	71	0	0	f185d199d7ecc84e0887d0ea70ac1fdd9a58ce9eb0c359e7f4bbaa8e4d88cf70
 scripts/test-halloween-route.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	07c43a5e70e48e6df5ee5d28dd5092f956d155afedbc4480f65c75af19bb0a53
-scripts/test-halloween-tours.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	121	0	0	e81f2f161ad03ead1cccab1be021a7f294118041702ea5b0a62caa50ea01ae32
+scripts/test-halloween-tours.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	115	0	0	8488f985439a384ee504908b5f46029c36ab28878a9bd0aba655ff14ee779732
 scripts/test-harvest-owned-hotel-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	93323a189af5ccd3b41f436983795d77a21effb05ceb05d2c1a1e55417c7a464
 scripts/test-haunt-photos.mjs	0	CALL	blocks-ci-and-deploy	1	-	57	0	0	45c22c360d08b2e7472bf00d0deab93969244aeddc199eeef8dc702a8f6a33cc
 scripts/test-hero-image.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	2	1	e1422e62a97667fb64887e7c1b6df8b1d9fc8865f74ccb0ad89d6e6ba9041b9f

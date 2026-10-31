@@ -321,7 +321,7 @@ ok(governedWayfindScore(90, { hasCreatorVideo: true, trending: true, distanceMi:
   // keys on city — so this assertion was quietly holding the creator term dead
   // as a precondition of checking the trending term. The city argument is now
   // required; the trending-flag assertion itself is unchanged and still binds.
-  ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
+  ok(/governedWayfindScore\(q, \{ hasCreatorVideo: hasCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), hasFeaturedCreatorVideo: hasFeaturedCreatorVideoAt\(p, [A-Za-z_$][\w$.]*\), distanceMi: [^}]*trending: !!p\.trending \}\)/.test(land),
     "rankedFor's governed call carries the trending flag AND passes the city to hasCreatorVideoAt");
   const rankingWhy = readFileSync(path.resolve("lib/rankingWhy.js"), "utf8");
   ok(/export function whyLine\s*\(/.test(land) && /rankingWhyLine\(p\)/.test(land),
@@ -389,7 +389,10 @@ ok(!/PROXIMITY_PER_MI/.test(TB), "the per-mile decay is gone from todaysBest —
 ok(!/capCreatorHead\(/.test(TB), "no head cap reorders the answer-first list against the governed score");
 const HOME = readFileSync(path.join(REPO, "app/home.js"), "utf8");
 ok(!/\(_d - 4\) \* 1\.3/.test(HOME), "the v4.24 hidden 1.3/mi model is gone from the personalised feed");
-ok((HOME.match(/hasCreatorVideoAt\(p\) \? CREATOR_VIDEO_BONUS : 0/g) || []).length >= 5,
+// 2026-10-29: the flat term became creatorEvidenceTerm(p) — the SAME
+// creatorVideoTerm() the displayed score uses, which adds the featured
+// creator tier. Still one helper, still at every ranking site.
+ok((HOME.match(/\bcreatorEvidenceTerm\(p\)/g) || []).length >= 5 && !/\? CREATOR_VIDEO_BONUS : 0/.test(HOME),
   "every home.js ranking site applies the flat law term");
 const LANDING = readFileSync(path.join(REPO, "lib/landing.js"), "utf8") + "\n" + readFileSync(path.join(REPO, "lib/landingPage.js"), "utf8"); // LandingPage lives in landingPage.js
 ok(!/Math\.min\(30, \(mi - 4\) \* 1\.3\)/.test(LANDING), "the landing pages' 1.3/mi model is gone");
