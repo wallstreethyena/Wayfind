@@ -105,12 +105,27 @@ for (const name of Object.keys(ROUTES)) {
   ok(m.events.length === 0, `${name} synthetic monitor emits nothing (${names(m)})`);
 
   // Our own verifier scripts (PostHog 2026-10-28: UA "Mozilla/5.0 WayfindVerify" and bare "node"
-  // were tagged human). They keep a REAL redirect; only the event class changes to automation.
-  for (const ua of ["Mozilla/5.0 WayfindVerify", "node"]) {
-    const v = await hit(name, { "user-agent": ua });
-    if (r.host) ok(v.loc && v.loc.includes(r.host), `${name} verifier UA "${ua}" still reaches ${r.host} (${v.loc})`);
-    else ok(v.res.status === 302 && v.events.some((e) => e.event === "provider_redirect_failed"), `${name} verifier UA "${ua}" takes the normal path (${names(v)})`);
-    ok(v.events.length >= 1 && v.events.every((e) => e.p.traffic_class === "automation"), `${name} verifier UA "${ua}" events carry traffic_class=automation (${JSON.stringify(v.events.map((e) => e.p.traffic_class))})`);
+  // were tagged human) and wf_test sessions (10-29: 12 test redirects reached partners).
+  // Since 2026-10-31 they are refused as qa: an own-site 302, never the partner, an
+  // X-Wayfind-Refused header, one provider_redirect_refused and no started event.
+  for (const [label, h, reason] of [
+    ["verifier UA WayfindVerify", { "user-agent": "Mozilla/5.0 WayfindVerify" }, "verifier-ua"],
+    ["verifier UA node", { "user-agent": "node" }, "verifier-ua"],
+    ["wf_test session cookie", { "user-agent": CHROME, ...NAV, cookie: "a=b; wf_attr=t~e2e-check" }, "test-session"],
+  ]) {
+    const v = await hit(name, h);
+    ok(v.res.status === 302 && v.loc && new URL(v.loc).hostname === "localhost", `${name} ${label} -> own-site 302 (${v.loc})`);
+    if (r.host) ok(!v.loc.includes(r.host), `${name} ${label} never reaches ${r.host}`);
+    ok(v.res.headers.get("x-wayfind-refused") === "qa/" + reason, `${name} ${label} says why: X-Wayfind-Refused qa/${reason} (got ${v.res.headers.get("x-wayfind-refused")})`);
+    const ev = v.events.find((e) => e.event === "provider_redirect_refused");
+    ok(!!ev && ev.p.refusal_class === "qa" && ev.p.refusal_reason === reason && !v.events.some((e) => e.event === "provider_redirect_started"), `${name} ${label} emits provider_redirect_refused qa/${reason} and no started event (${names(v)})`);
+  }
+  // Red-prove control: a real browser with an ordinary first-party cookie is not a test session.
+  {
+    const c = await hit(name, { "user-agent": CHROME, ...NAV, cookie: "wf_device=d_abc123; wf_attr=c~halloween_reels" });
+    if (r.host) ok(c.loc && c.loc.includes(r.host), `${name} control: a person with a non-test wf_attr cookie still reaches ${r.host} (${c.loc})`);
+    else ok(c.res.status === 302 && !c.events.some((e) => e.event === "provider_redirect_refused"), `${name} control: a person with a non-test wf_attr cookie is not refused (${names(c)})`);
+    ok(c.events.length >= 1 && c.events.every((e) => e.p.click_proof === "first_party_cookie"), `${name} control: first-party cookie labels click_proof=first_party_cookie (${JSON.stringify(c.events.map((e) => e.p.click_proof))})`);
   }
 
   // Negative controls
@@ -188,10 +203,35 @@ ok(c3.klass === "synthetic", "probe: a store reporting 99 distinct offers IS cla
 const c4 = await classifyRedirectRequest({ headers: null }, { offerKey: "a" });
 ok(c4.klass === "human", "fail-open: a request with no headers object is human");
 delete process.env.REDIRECT_BURST_GATE;
+
+/* ── click_proof, direct (2026-10-31): labels, never refuses ───────────── */
+{
+  const { clickProof } = await import(REPO + "lib/redirectTrafficClass.js");
+  const at = (q, h) => ({ url: "http://localhost/api/commerce/go?provider=viator&offer=1" + q, headers: mkHeaders(h || {}) });
+  ok(clickProof(at("&click_id=wf-abc12345", { "user-agent": CHROME, ...NAV }), "intent_partner_rail") === "client_click_id", "click_proof: a page-minted click_id is client_click_id");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV, referer: "https://www.gowayfind.com/guides/x" }), "guide") === "first_party_referer", "click_proof: same-site Referer is first_party_referer");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV, cookie: "wf_device=d_1" }), "guide") === "first_party_cookie", "click_proof: our own cookie is first_party_cookie");
+  ok(clickProof(at("", { "user-agent": SAFARI }), "instagram") === "direct_link" && clickProof(at("", { "user-agent": SAFARI }), "x") === "direct_link", "click_proof: bio-link surfaces (instagram, x) are direct_link");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV }), "intent_partner_rail") === "none", "click_proof: no click_id, cookie, Referer or direct surface is none (the 10-30 link-follower shape)");
+  ok(clickProof(at("&click_id=x", { "user-agent": CHROME, ...NAV }), "guide") === "none", "click_proof: a malformed click_id is not proof");
+  ok(clickProof(at("", { "user-agent": CHROME, ...NAV, referer: "https://evil.example/" }), "experience") === "none", "click_proof: a foreign Referer is not proof");
+  // The 10-30 shape still gets the REAL redirect, labelled none (labelled, never refused).
+  const b = await hit("ticketmaster", { "user-agent": CHROME, ...NAV });
+  ok(b.loc && b.loc.includes("ticketmaster.com") && b.events.some((e) => e.event === "provider_redirect_started" && e.p.click_proof === "none" && e.p.traffic_class === "human"), `click_proof: an unproven request still reaches the partner, labelled human + none (${JSON.stringify(b.events.map((e) => [e.event, e.p.click_proof]))})`);
+  // ?wf_test= on the go link itself is a test request too.
+  const t = await hit("ticketmaster", { "user-agent": CHROME, ...NAV, "x-test": "1" }, 7);
+  ok(!t.events.some((e) => e.event === "provider_redirect_refused"), "probe: the same request without wf_test is not refused (so the wf_test refusal below is caused by the tag)");
+  const { GET: tmGET } = await import(REPO + "app/api/ticketmaster/go/route.js");
+  const before = captured.length;
+  const tr = await tmGET({ url: "http://localhost:3000/api/ticketmaster/go?" + ROUTES.ticketmaster.q(8) + "&wf_test=qa-run", headers: mkHeaders({ "user-agent": CHROME, ...NAV }) });
+  await new Promise((s) => setImmediate(s));
+  const tev = captured.slice(before);
+  ok(tr.status === 302 && !String(tr.headers.get("location")).includes("ticketmaster.com") && tr.headers.get("x-wayfind-refused") === "qa/test-param" && tev.some((e) => e.event === "provider_redirect_refused"), `?wf_test= on the go link is refused as qa/test-param (${tr.headers.get("location")}, ${tr.headers.get("x-wayfind-refused")})`);
+}
 globalThis.fetch = realFetch;
 
 if (fail.length) {
   console.error("check-redirect-traffic-class FAILED:\n - " + fail.join("\n - "));
   process.exit(1);
 }
-console.log(`check-redirect-traffic-class OK — ${pass} assertions: ${discovered.length} go routes discovered and gated, 4 routes driven with Chrome/Firefox/old-Safari/iframe/cookie/monitor humans vs prefetch/QA/burst refusals`);
+console.log(`check-redirect-traffic-class OK — ${pass} assertions: ${discovered.length} go routes discovered and gated, 4 routes driven with Chrome/Firefox/old-Safari/iframe/cookie/monitor humans vs prefetch/QA/test/verifier/burst refusals, click_proof labels`);
