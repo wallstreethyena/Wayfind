@@ -42,7 +42,7 @@ import { captureServerInBackground, distinctIdFromCookies } from "../../../../li
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
-import { gateRedirectTraffic, headResponse, noStoreHeaders } from "../../../../lib/redirectTrafficClass.js";
+import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from "../../../../lib/redirectTrafficClass.js";
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
 
@@ -89,7 +89,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     // commercePayload enforces the field whitelist, so nothing outside the
     // schema can leave here even if a caller passes it.
-    const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
+    const props = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, click_proof: clickProof(req, surface), ...(extra || {}) });
     // Deliberately NOT awaited: a slow analytics POST must not delay the user's
     // redirect. Errors are swallowed inside captureServer.
     // Visitor UA/IP attach inside captureServer (after the whitelist). Passing
