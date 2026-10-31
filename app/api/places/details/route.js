@@ -53,6 +53,9 @@ async function inventoryPlace(placeId) {
       : (row.primary_type ? [row.primary_type] : (row.category ? [row.category] : [])),
     primaryType: row.primary_type || null,
     businessStatus: row.status || null,
+    // Stored city. The coverage metro is not a city and is not sent here.
+    ...(typeof row.locality === "string" && row.locality.trim() ? { locality: row.locality.trim() } : {}),
+    ...(typeof signals.state === "string" && /^[A-Za-z]{2}$/.test(signals.state.trim()) ? { state: signals.state.trim().toUpperCase() } : {}),
     photos: [
       ...(Array.isArray(signals.photos) ? signals.photos.filter((u) => typeof u === "string" && u).map((u) => ({ _directUri: u })) : []),
       { _directUri: `/api/photo?place=${encodeURIComponent(row.place_id)}&g=2&w=640` },
