@@ -70,6 +70,9 @@ if (rp) for (const p of ["/api", "/go", "/oauth", "/embed", "/share", "/group-pl
   ok(!!rs, "BooCompanion must declare const READ_SEL for text he must not cover");
   if (rs) for (const t of ["h1", "h2", "p", "li", "[role=alert]", "[role=status]", "[data-boo-clear]"]) ok(rs[1].split(",").includes(t), "READ_SEL must include " + t);
   ok(/querySelectorAll\(CONTROL_SEL \+ "," \+ READ_SEL\)/.test(comp), "controlRects must read controls and text together");
+  const sb = comp.slice(comp.indexOf("const showBubble = useCallback"), comp.indexOf("const sayRef"));
+  ok(/if \(!must\)[\s\S]*bubbleSideIfClear\([\s\S]*return;/.test(sb), "an unprompted line with no clear side is skipped, never laid over text");
+  ok(/showBubble\(line, undefined, true\)/.test(comp) && /src === "coverage"/.test(comp), "the out-of-coverage explanation is never skipped");
 }
 ok(/reservedPath\(/.test(comp.replace(/function\s+reservedPath\s*\(/, "")), "reservedPath() must be called by the gate");
 
@@ -363,7 +366,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   const bubble = body(/const showBubble = useCallback\([\s\S]*?\n  \}, \[corner\]\);/);
   const zap = body(/const zapBoo = useCallback\(\(\) => \{[\s\S]*?\n  \}, \[stopZap\]\);/);
   ok(/relocateIfCovered\(\)/.test(antic), "the guard runs on the antic path");
-  ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(bubble) && /sideFor\(/.test(bubble), "the guard and the side flip run on the bubble path");
+  ok((/relocateIfCovered\(estimateBubble\(text\)\)/.test(bubble) || (/const need = estimateBubble\(text\)/.test(bubble) && /relocateIfCovered\(need\)/.test(bubble))) && /sideFor\(/.test(bubble), "the guard and the side flip run on the bubble path");
   ok(/relocateIfCovered\(estimateBubble\(text\)\)/.test(zap) && /sideFor\(/.test(zap), "the guard and the side flip run on the zap path");
   ok(/parkClear\(\)/.test(comp.slice(comp.indexOf("const frame = (ts)"))), "arrival (pause) in the roam loop calls parkClear");
   // Cheap: the hit check is cached rect math per frame, with the layout read throttled to HIT_MS (100).
