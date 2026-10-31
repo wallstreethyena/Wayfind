@@ -432,6 +432,7 @@ scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	187
 scripts/check-tampa-bay-region.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	ffae4749646c06fb87046402ffae8326645a1462dddb583d5237847fdfdde1ed
 scripts/check-temp-closed-recheck.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0	4f2736dad1893f43603ea91461aa8878993082c2aa941899a077d2c4e1973489
 scripts/check-theme-park-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	a69c3f13cf347bec80068f4a71ddd8d6acbeeb1bc88aba0a154c9a09af7536d7
+scripts/check-top-rated-badge.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	34a09bdcf9ffcd5c3a3225565c1f6d05388f879d8aeca88830741f3db598d054
 scripts/check-top40-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	6da7946578d22d1499da707e2f933f1a466c5ec2fbe57018d0fe85546e12cb20
 scripts/check-tour-strip-redirect.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	ad1d90c40f2fcae1202af9302612c49ef28db9b5325bbd611054609bee0da14f
 scripts/check-tp-short-url-constraint-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	01722d9bc4f7f6925cddf7844fcd53ff19b3b91851f6bfd3252f931603cb1a51
