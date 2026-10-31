@@ -11,6 +11,8 @@
 // The compact pixel-grid tables are preserved alongside the vector layers so
 // every mood diff and guard invariant remains inspectable in source.
 
+import { useId } from "react";
+
 const P = {
   cream: { o: "#23143B", w: "#FFFFFF", s: "#D5C2FF", p: "#FF7597", e: "#1E1233", m: "#FF2A85", t: "#00F5D4", h: "#FF2A85", d: "#9D174D" },
   bear:  { o: "#23143B", w: "#FFF5F9", s: "#FFC2E0", p: "#FF5C8A", e: "#1E1233", m: "#FF2A85", t: "#00F5D4", h: "#FF2A85", d: "#9D174D" },
@@ -179,7 +181,7 @@ function BooDropGlyph({ x, y, scale = 1, className = "" }) {
  * Wayfind's adorable Chibi Elf mascot in the Official Mascot Bible vector style.
  * Keeps the `Cat` export name so every caller and test imports it seamlessly.
  */
-export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0 }) {
+export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false, delay = 0, look, fidget = 0, snuggle = false }) {
   const pal = P[tone] || P.cream;
   const m = MOODS[mood] || MOODS.hopeful;
   const lx = look && typeof look.x === "number" ? Math.max(-1, Math.min(1, look.x)) : 0;
@@ -195,7 +197,10 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
 
   const isRosy = tone === "bear";
   const isAqua = tone === "panda";
-  const idSuffix = tone + "-" + mood + (flip ? "-f" : "");
+  let rawId = "";
+  try { rawId = useId(); } catch (e) {}
+  const uid = String(rawId || "").replace(/[^a-zA-Z0-9_-]/g, "");
+  const idSuffix = tone + "-" + mood + (flip ? "-f" : "") + (uid ? "-" + uid : "");
   const skinId = "elf-skin-" + idSuffix;
   const hatId = "elf-hat-" + idSuffix;
   const brimId = "elf-brim-" + idSuffix;
@@ -218,7 +223,7 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
     <span className={"wfc-lean" + (rung > 0 ? " wfc-eager wfc-fid" + rung : "")}
       style={{ "--lean": Math.round(lx * px) + "px", "--liftv": Math.round(ly * px * 0.6) + "px" }}>
     <svg width={Math.round(box * 1.16)} height={Math.round(box * 1.16)} viewBox="6 -14 228 236" shapeRendering="geometricPrecision"
-      className={"wfc " + m.anim}
+      className={"wfc " + m.anim + " wfc-mood-" + mood}
       style={{
         animationDelay: delay + "s",
         transform: flip ? "scaleX(-1)" : "none",
@@ -270,9 +275,13 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
 
       {/* Festive Ambient Sparkles */}
       {(mood === "hopeful" || mood === "happy" || mood === "love") ? (
-        <g opacity="0.92">
-          <BooStar cx={26} cy={72} r={6.5} fill="#FFD166" />
-          <BooStar cx={214} cy={96} r={5.5} fill="#00F5D4" />
+        <g className="wfc-sparkles" opacity="0.92">
+          <g className="wfc-starwink" style={{ transformOrigin: "26px 72px" }}>
+            <BooStar cx={26} cy={72} r={6.5} fill="#FFD166" />
+          </g>
+          <g className="wfc-starwink" style={{ transformOrigin: "214px 96px" }}>
+            <BooStar cx={214} cy={96} r={5.5} fill="#00F5D4" />
+          </g>
           <circle cx="34" cy="176" r="3" fill="#FF7597" />
           <circle cx="206" cy="172" r="3.5" fill="#FFD166" />
         </g>
@@ -280,61 +289,79 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
 
       {/* ── STUBBY CHIBI ELF BOOTS ── */}
       <g>
-        <path
-          d="M 84 192 L 82 208 C 82 215 98 215 104 208 L 104 192 Z"
-          fill="#2B1842" stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-        />
-        <circle cx="80" cy="206" r="4.5" fill="#FFD166" stroke="#23143B" strokeWidth="3" />
-        <path
-          d="M 136 192 L 136 208 C 142 215 158 215 158 208 L 156 192 Z"
-          fill="#2B1842" stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-        />
-        <circle cx="160" cy="206" r="4.5" fill="#FFD166" stroke="#23143B" strokeWidth="3" />
+        <g className="wfc-bootL" style={{ transformOrigin: "92px 194px" }}>
+          <path
+            d="M 84 192 L 82 208 C 82 215 98 215 104 208 L 104 192 Z"
+            fill="#2B1842" stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+          />
+          <circle cx="80" cy="206" r="4.5" fill="#FFD166" stroke="#23143B" strokeWidth="3" />
+        </g>
+        <g className="wfc-bootR" style={{ transformOrigin: "148px 194px" }}>
+          <path
+            d="M 136 192 L 136 208 C 142 215 158 215 158 208 L 156 192 Z"
+            fill="#2B1842" stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+          />
+          <circle cx="160" cy="206" r="4.5" fill="#FFD166" stroke="#23143B" strokeWidth="3" />
+        </g>
       </g>
 
-      {/* ── CHIBI ELF SLEEVES, HANDS & TUNIC (Clear of Pointed Ears) ── */}
+      {/* ── CHIBI ELF SLEEVES, HANDS & TUNIC (Articulated & Animated) ── */}
       {(mood === "hopeful" || mood === "happy" || mood === "love") ? (
         <g>
-          <path
-            d="M 70 166 C 48 162 34 152 38 143 C 42 135 56 142 70 154 Z"
-            fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-          />
-          <circle cx="37" cy="145" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
-          <path
-            d="M 170 166 C 192 162 206 152 202 143 C 198 135 184 142 170 154 Z"
-            fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-          />
-          <circle cx="203" cy="145" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          <g className="wfc-armL" style={{ transformOrigin: "70px 160px" }}>
+            <path
+              d="M 70 166 C 48 162 34 152 38 143 C 42 135 56 142 70 154 Z"
+              fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+            />
+            <circle cx="37" cy="145" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          </g>
+          {!snuggle ? (
+            <g className="wfc-armR" style={{ transformOrigin: "170px 160px" }}>
+              <path
+                d="M 170 166 C 192 162 206 152 202 143 C 198 135 184 142 170 154 Z"
+                fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+              />
+              <circle cx="203" cy="145" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+            </g>
+          ) : null}
         </g>
       ) : null}
 
       {mood === "worried" ? (
         <g>
-          <path
-            d="M 70 168 C 48 168 36 160 40 151 C 44 144 58 150 70 158 Z"
-            fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-          />
-          <circle cx="39" cy="153" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
-          <path
-            d="M 170 168 C 192 168 204 160 200 151 C 196 144 182 150 170 158 Z"
-            fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-          />
-          <circle cx="201" cy="153" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          <g className="wfc-armL" style={{ transformOrigin: "70px 162px" }}>
+            <path
+              d="M 70 168 C 48 168 36 160 40 151 C 44 144 58 150 70 158 Z"
+              fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+            />
+            <circle cx="39" cy="153" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          </g>
+          <g className="wfc-armR" style={{ transformOrigin: "170px 162px" }}>
+            <path
+              d="M 170 168 C 192 168 204 160 200 151 C 196 144 182 150 170 158 Z"
+              fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+            />
+            <circle cx="201" cy="153" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          </g>
         </g>
       ) : null}
 
       {(mood === "heartbroken" || mood === "teary" || mood === "crying") ? (
         <g>
-          <path
-            d="M 68 168 C 46 176 40 190 49 195 C 56 198 64 188 70 178 Z"
-            fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-          />
-          <circle cx="48" cy="192" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
-          <path
-            d="M 172 168 C 194 176 200 190 191 195 C 184 198 176 188 170 178 Z"
-            fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
-          />
-          <circle cx="192" cy="192" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          <g className="wfc-armL" style={{ transformOrigin: "68px 172px" }}>
+            <path
+              d="M 68 168 C 46 176 40 190 49 195 C 56 198 64 188 70 178 Z"
+              fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+            />
+            <circle cx="48" cy="192" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          </g>
+          <g className="wfc-armR" style={{ transformOrigin: "172px 172px" }}>
+            <path
+              d="M 172 168 C 194 176 200 190 191 195 C 184 198 176 188 170 178 Z"
+              fill={"url(#" + hatId + ")"} stroke="#23143B" strokeWidth="6.5" strokeLinejoin="round"
+            />
+            <circle cx="192" cy="192" r="8.5" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.8" />
+          </g>
         </g>
       ) : null}
 
@@ -353,24 +380,30 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
       <rect x="108" y="178" width="24" height="15" rx="4" fill="#FFD166" stroke="#23143B" strokeWidth="4.2" />
       <rect x="114" y="182" width="12" height="7" rx="1.5" fill="#23143B" />
 
-      {/* ── POINTED ELF EARS (Perky & Unobstructed) ── */}
+      {/* ── POINTED ELF EARS (Animated Ear Perk & Droop) ── */}
       <g>
-        <path
-          d={"M 60 106 C 34 96 16 " + (98 + earDroop) + " 14 " + (112 + earDroop) + " C 20 " + (130 + earDroop) + " 40 138 62 136 Z"}
-          fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="7.2" strokeLinejoin="round"
-        />
-        <path
-          d={"M 53 114 C 38 109 27 " + (110 + earDroop) + " 24 " + (116 + earDroop) + " C 30 " + (125 + earDroop) + " 42 129 54 128 Z"}
-          fill="#FF8DA8" opacity="0.72"
-        />
-        <path
-          d={"M 180 106 C 206 96 224 " + (98 + earDroop) + " 226 " + (112 + earDroop) + " C 220 " + (130 + earDroop) + " 200 138 178 136 Z"}
-          fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="7.2" strokeLinejoin="round"
-        />
-        <path
-          d={"M 187 114 C 202 109 213 " + (110 + earDroop) + " 216 " + (116 + earDroop) + " C 210 " + (125 + earDroop) + " 198 129 186 128 Z"}
-          fill="#FF8DA8" opacity="0.72"
-        />
+        <g className="wfc-earL" style={{ transformOrigin: "60px 120px" }}>
+          <path
+            d={"M 60 106 C 34 96 16 " + (98 + earDroop) + " 14 " + (112 + earDroop) + " C 20 " + (130 + earDroop) + " 40 138 62 136 Z"}
+            fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="7.2" strokeLinejoin="round"
+          />
+          <path
+            d={"M 53 114 C 38 109 27 " + (110 + earDroop) + " 24 " + (116 + earDroop) + " C 30 " + (125 + earDroop) + " 42 129 54 128 Z"}
+            fill="#FF8DA8" opacity="0.72"
+          />
+        </g>
+        {!snuggle ? (
+          <g className="wfc-earR" style={{ transformOrigin: "180px 120px" }}>
+            <path
+              d={"M 180 106 C 206 96 224 " + (98 + earDroop) + " 226 " + (112 + earDroop) + " C 220 " + (130 + earDroop) + " 200 138 178 136 Z"}
+              fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="7.2" strokeLinejoin="round"
+            />
+            <path
+              d={"M 187 114 C 202 109 213 " + (110 + earDroop) + " 216 " + (116 + earDroop) + " C 210 " + (125 + earDroop) + " 198 129 186 128 Z"}
+              fill="#FF8DA8" opacity="0.72"
+            />
+          </g>
+        ) : null}
       </g>
 
       {/* ── ROUND KAWAII ELF HEAD ── */}
@@ -391,7 +424,7 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         fill={hairCol} stroke="#23143B" strokeWidth="5.2" strokeLinejoin="round"
       />
 
-      {/* ── POINTED ELF HAT + SCALLOPED BRIM + GOLDEN JINGLE BELL ── */}
+      {/* ── POINTED ELF HAT + SCALLOPED BRIM + SWINGING GOLDEN JINGLE BELL ── */}
       <g>
         {/* Tall perky pointed Elf Hat curving to the right */}
         <path
@@ -408,12 +441,14 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
           d="M 48 89 C 48 75 68 69 88 74 C 108 68 132 68 152 74 C 172 69 192 75 192 89 C 192 100 174 104 156 98 C 136 104 104 104 84 98 C 66 104 48 100 48 89 Z"
           fill={"url(#" + brimId + ")"} stroke="#23143B" strokeWidth="7" strokeLinejoin="round"
         />
-        {/* Golden Jingle Bell on Hat Tip */}
+        {/* Swinging Golden Jingle Bell on Hat Tip */}
         <g transform={"translate(210 " + (78 + earDroop) + ")"}>
-          <circle cx="0" cy="0" r="12" fill="#FFD166" stroke="#23143B" strokeWidth="5.5" />
-          <circle cx="-3.5" cy="-4" r="3.5" fill="#FFFFFF" opacity="0.9" />
-          <circle cx="1.5" cy="2.5" r="2.6" fill="#23143B" />
-          <line x1="1.5" y1="2.5" x2="5" y2="7" stroke="#23143B" strokeWidth="2.8" strokeLinecap="round" />
+          <g className="wfc-bell" style={{ transformOrigin: "0px -8px" }}>
+            <circle cx="0" cy="0" r="12" fill="#FFD166" stroke="#23143B" strokeWidth="5.5" />
+            <circle cx="-3.5" cy="-4" r="3.5" fill="#FFFFFF" opacity="0.9" />
+            <circle cx="1.5" cy="2.5" r="2.6" fill="#23143B" />
+            <line x1="1.5" y1="2.5" x2="5" y2="7" stroke="#23143B" strokeWidth="2.8" strokeLinecap="round" />
+          </g>
         </g>
       </g>
 
@@ -428,7 +463,7 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
 
       {/* Signature Dual-Tone Neon Shades on Hat Brim (Mascot Bible Blueprint) */}
       {showShades ? (
-        <g transform={
+        <g className="wfc-shades" transform={
           shadesHigh
             ? (shadesAskew ? "translate(0 -7) rotate(-8 120 83) scale(0.92)" : "translate(0 -7) rotate(-4 120 83) scale(0.92)")
             : "rotate(-5 120 83)"
@@ -438,10 +473,10 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
           <line x1="167" y1="82" x2="174" y2="82" stroke="#23143B" strokeWidth="5" strokeLinecap="round" />
           {/* Left Lens: Govee Neon Pink */}
           <rect x="74" y="68" width="42" height="27" rx="8.5" fill="#160F24" stroke="#FF2A85" strokeWidth="4.2" />
-          <polygon points="81,90 89,73 96,73 88,90" fill="#FFFFFF" opacity="0.28" />
+          <polygon points="81,90 89,73 96,73 88,90" fill="#FFFFFF" opacity="0.32" />
           {/* Right Lens: Springs Cyan */}
           <rect x="126" y="68" width="42" height="27" rx="8.5" fill="#160F24" stroke="#00F5D4" strokeWidth="4.2" />
-          <polygon points="133,90 141,73 148,73 140,90" fill="#FFFFFF" opacity="0.28" />
+          <polygon points="133,90 141,73 148,73 140,90" fill="#FFFFFF" opacity="0.32" />
         </g>
       ) : null}
 
@@ -450,13 +485,13 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         cx="72" cy="140"
         rx={mood === "love" || mood === "happy" || mood === "hopeful" ? "15" : "13"}
         ry={mood === "love" || mood === "happy" || mood === "hopeful" ? "8.5" : "7.2"}
-        fill="#FF7597" opacity="0.84"
+        fill="#FF7597" opacity="0.88"
       />
       <ellipse
         cx="168" cy="140"
         rx={mood === "love" || mood === "happy" || mood === "hopeful" ? "15" : "13"}
         ry={mood === "love" || mood === "happy" || mood === "hopeful" ? "8.5" : "7.2"}
-        fill="#FF7597" opacity="0.84"
+        fill="#FF7597" opacity="0.88"
       />
       <ellipse cx="120" cy="131" rx="4.8" ry="3.4" fill="#FF8DA8" opacity="0.9" />
 
@@ -468,7 +503,9 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
           <path d="M 79 126 Q 93 109 107 126" fill="none" stroke="#1E1233" strokeWidth="7" strokeLinecap="round" />
           <g transform={"translate(" + gx + " " + gy + ")"}>
             <ellipse cx="147" cy="122" rx="16" ry="18.5" fill="#1E1233" />
-            <BooStar cx={150} cy={118} r={10} fill="#FFD166" />
+            <g className="wfc-starwink" style={{ transformOrigin: "150px 118px" }}>
+              <BooStar cx={150} cy={118} r={10} fill="#FFD166" />
+            </g>
             <circle cx="140" cy="129" r="3.4" fill="#FFFFFF" />
           </g>
           <path d="M 105 138 C 107 155 133 155 135 138 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
@@ -513,15 +550,17 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         </g>
       ) : null}
 
-      {/* 4. CRYING: Squeezed Chibi Crying Arcs + Wailing Mouth */}
+      {/* 4. CRYING: Squeezed Chibi Crying Arcs + Dual Waterfall Streams + Wailing Mouth */}
       {mood === "crying" ? (
         <g>
+          <path d="M 80 128 L 76 168" stroke="#00F5D4" strokeWidth="9" strokeLinecap="round" opacity="0.72" />
+          <path d="M 160 128 L 164 168" stroke="#00F5D4" strokeWidth="9" strokeLinecap="round" opacity="0.72" />
           <path d="M 77 114 L 99 124 L 77 134" fill="none" stroke="#1E1233" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
           <path d="M 163 114 L 141 124 L 163 134" fill="none" stroke="#1E1233" strokeWidth="6.5" strokeLinecap="round" strokeLinejoin="round" />
-          <circle cx="76" cy="134" r="5" fill="#00F5D4" />
-          <circle cx="164" cy="134" r="5" fill="#00F5D4" />
-          <path d="M 104 149 C 106 135 134 135 136 149 C 136 156 104 156 104 149 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
-          <ellipse cx="120" cy="151" rx="9" ry="4.5" fill="#FF7597" />
+          <circle cx="76" cy="134" r="5.5" fill="#00F5D4" />
+          <circle cx="164" cy="134" r="5.5" fill="#00F5D4" />
+          <path d="M 102 150 C 104 133 136 133 138 150 C 138 158 102 158 102 150 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
+          <ellipse cx="120" cy="152" rx="9.5" ry="5" fill="#FF7597" />
         </g>
       ) : null}
 
@@ -551,9 +590,11 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
           <path d="M 131 132 Q 147 145 163 132" fill="#00F5D4" opacity="0.9" />
           {/* Tiny trembling pleading mouth */}
           <path d="M 111 149 Q 120 141 129 149" fill="none" stroke="#1E1233" strokeWidth="5" strokeLinecap="round" />
-          {/* Stubby elf hands clasped together under chin in a pleading pose */}
-          <path d="M 88 170 C 92 154 112 152 119 163 C 122 171 104 178 88 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.5" strokeLinejoin="round" />
-          <path d="M 152 170 C 148 154 128 152 121 163 C 118 171 136 178 152 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.5" strokeLinejoin="round" />
+          {/* Stubby elf hands clasped together under chin in an animated begging pose */}
+          <g className="wfc-plead-hands" style={{ transformOrigin: "120px 166px" }}>
+            <path d="M 88 170 C 92 154 112 152 119 163 C 122 171 104 178 88 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.5" strokeLinejoin="round" />
+            <path d="M 152 170 C 148 154 128 152 121 163 C 118 171 136 178 152 170 Z" fill={"url(#" + skinId + ")"} stroke="#23143B" strokeWidth="5.5" strokeLinejoin="round" />
+          </g>
         </g>
       ) : null}
 
@@ -572,10 +613,14 @@ export function Cat({ tone = "cream", mood = "hopeful", size = 96, flip = false,
         <g>
           <g transform={"translate(" + gx + " " + gy + ")"}>
             <ellipse cx="93" cy="121" rx="16" ry="18.5" fill="#1E1233" />
-            <BooStar cx={95} cy={118} r={10} fill="#FFD166" />
+            <g className="wfc-starwink" style={{ transformOrigin: "95px 118px" }}>
+              <BooStar cx={95} cy={118} r={10} fill="#FFD166" />
+            </g>
             <circle cx="86" cy="128" r="3.2" fill="#FFFFFF" />
             <ellipse cx="147" cy="121" rx="16" ry="18.5" fill="#1E1233" />
-            <BooStar cx={149} cy={118} r={10} fill="#FFD166" />
+            <g className="wfc-starwink" style={{ transformOrigin: "149px 118px" }}>
+              <BooStar cx={149} cy={118} r={10} fill="#FFD166" />
+            </g>
             <circle cx="140" cy="128" r="3.2" fill="#FFFFFF" />
           </g>
           <path d="M 103 137 C 105 155 135 155 137 137 Z" fill="#1E1233" stroke="#1E1233" strokeWidth="3.5" strokeLinejoin="round" />
@@ -622,14 +667,16 @@ export function Portrait({ children, size = 124 }) {
   return <div className="wfx-portrait" style={{ width: s, height: s }}>{children}</div>;
 }
 
-/** The hug: two Elves (Emerald Elf + Rosy Berry Elf) snuggling with a heart between them. */
+/** The hug: two Elves (Emerald Elf + Rosy Berry Elf) snuggling cheek-to-cheek with floating hearts. */
 export function Couple({ size = 64 }) {
-  const s = Math.round(size * 1.34);
+  const s = Math.round(size * 1.32);
   return (
     <div className="wfc-couple">
-      <div className="wfc-hugL"><Cat tone="cream" mood="happy" size={s} /></div>
-      <div className="wfc-heart"><Heart size={26} tone="cream" /></div>
-      <div className="wfc-hugR"><Cat tone="bear" mood="happy" size={s} flip /></div>
+      <div className="wfc-hugL"><Cat tone="cream" mood="love" size={s} snuggle /></div>
+      <div className="wfc-heart"><Heart size={28} tone="cream" /></div>
+      <div className="wfc-heart-smL"><Heart size={16} tone="bear" /></div>
+      <div className="wfc-heart-smR"><Heart size={16} tone="cream" /></div>
+      <div className="wfc-hugR"><Cat tone="bear" mood="happy" size={s} flip snuggle /></div>
     </div>
   );
 }
