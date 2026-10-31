@@ -7,6 +7,7 @@ import { applyStoredStartCorrection, applyStoredStartCorrections, applyFreshTick
 import { FALL_LIVE_AREA_2026_10_19 } from '../lib/fallLiveArea20261019.js';
 import { mergeFallDiscoveryRows } from '../lib/fallEventImage.js';
 import { curatedFeedEventsWithFall } from '../lib/curatedFallFeed.js';
+import { fallIntentsEpoch } from "./lib/fallCacheEpoch.mjs";
 
 const cases = [
   ['tm_Z7r9jZ1A709qK', '2026-10-22', '19:00:00', '18:30:00'],
@@ -33,7 +34,7 @@ assert.deepEqual(applyStoredStartCorrection(cake), { ...cake, venue: 'The BayCar
 // reaches validation/dedup/geo before the final cache-serving correction.
 const route = readFileSync(new URL('../app/api/events/route.js', import.meta.url), 'utf8');
 const seasonalRoute = readFileSync(new URL('../app/api/events/fall/route.js', import.meta.url), 'utf8');
-assert.ok(Number((/fall-intents:v(\d+):/.exec(seasonalRoute) || [])[1]) >= 41, 'seasonal snapshot retires the old paddle sessions (fall-intents epoch v41 or later)');
+assert.ok(fallIntentsEpoch(seasonalRoute) >= 41, 'seasonal snapshot retires the old paddle sessions (fall-intents epoch v41 or later)');
 const start = route.indexOf('async function fromTicketmaster(');
 const end = route.indexOf('\nfunction seatgeekSegment(', start);
 assert(start > 0 && end > start);
