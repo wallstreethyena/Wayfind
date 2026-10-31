@@ -562,7 +562,9 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   useEdgeFade(navTabsRef);
   const catRowRef = useRef(null);
   useEdgeFade(catRowRef);
-  const [coach, setCoach] = useState(false);
+  const [ coach, setCoach ] = useState(false);
+  const [ mapSubsCollapsed, setMapSubsCollapsed ] = useState(false);
+  const [ mapPanelCollapsed, setMapPanelCollapsed ] = useState(false);
   useEffect(() => {
     let seen = true;
     try { seen = !!localStorage.getItem(CAT_COACH_KEY); } catch (e) {}
@@ -588,59 +590,86 @@ function CategoryMenu({ heading, activeCat, sub, onCat, onSub, trailing, tight, 
   // side they fit on one line, which is what takes the panel under 150px.
   if (compact) {
     const open = !!(activeCat && subs.length > 1);
+    const activeTile = Cats.CATEGORY_TILES.find((m) => m.id === activeCat);
+    const activeSubObj = subs.find((s) => s.id === sub);
+    const subVisible = open && !mapSubsCollapsed && !mapPanelCollapsed;
     return (
       <div className="wf-mapfp">
         <style dangerouslySetInnerHTML={{ __html: `
-          .wf-mapfp{background:rgba(10,14,20,.86);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.13);border-radius:19px;overflow:hidden}
-          .wf-mapfp-row{position:relative}
-          .wf-mapfp-scroll{display:flex;gap:7px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:9px 11px}
+          .wf-mapfp{background:rgba(10,14,20,.86);-webkit-backdrop-filter:blur(18px) saturate(140%);backdrop-filter:blur(18px) saturate(140%);border:1px solid rgba(255,255,255,.13);border-radius:19px;overflow:hidden;box-shadow:0 10px 28px rgba(0,0,0,.38)}
+          .wf-mapfp-row{position:relative;display:flex;align-items:center}
+          .wf-mapfp-scroll{display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:6px 10px;flex:1;min-width:0}
           .wf-mapfp-scroll::-webkit-scrollbar{display:none}
           /* Scroll affordance. pointer-events:none so it can never eat a tap on
              the pill underneath, and it is only rendered when the row actually
              overflows — a permanent fade would imply movement that is not there. */
-          .wf-mapfp-fade{position:absolute;top:0;right:0;bottom:0;width:44px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.92))}
+          .wf-mapfp-fade{position:absolute;top:0;right:40px;bottom:0;width:36px;pointer-events:none;background:linear-gradient(to right,rgba(10,14,20,0),rgba(10,14,20,.92))}
           /* 32px visual pill, 44px touch target — the extra comes from padding on
              a transparent wrapper, never from height, or the row grows again. */
           .wf-mapfp-tap{flex:none;scroll-snap-align:start;background:none;border:0;padding:6px 0;cursor:pointer;display:block}
-          .wf-mapfp-pill{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
+          .wf-mapfp-pill{display:flex;align-items:center;gap:6px;height:32px;padding:0 11px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.09);white-space:nowrap}
           .wf-mapfp-pill span{font-size:12.5px;font-weight:600;color:#FFFFFF;line-height:1}
-          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 4px rgba(249,115,22,.16),0 4px 14px rgba(249,115,22,.3)}
+          .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill{background:${C.accent};border-color:${C.accent};box-shadow:0 0 0 3px rgba(249,115,22,.16),0 3px 10px rgba(249,115,22,.28)}
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-pill span{color:#0B0F14;font-weight:800}
           .wf-mapfp-tap:focus-visible .wf-mapfp-pill{outline:2px solid ${C.accent};outline-offset:2px}
           /* 26px sub pill + 9px top/bottom = 44px touch target. Measured 40px at 390px
              with the shared 6px padding, which is under the floor. */
           .wf-mapfp-subs .wf-mapfp-tap{padding:9px 0}
-          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.09);margin:0 11px}
+          .wf-mapfp-divider{height:1px;background:rgba(255,255,255,.09);margin:0 10px}
           /* Height/opacity transition so the row slides rather than snaps. */
           .wf-mapfp-subs{overflow:hidden;max-height:0;opacity:0;transition:max-height .18s ease-out,opacity .18s ease-out}
-          .wf-mapfp-subs.is-open{max-height:64px;opacity:1}
+          .wf-mapfp-subs.is-open{max-height:56px;opacity:1}
           .wf-mapfp-sub{display:flex;align-items:center;height:26px;padding:0 10px;border-radius:13px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:600;color:#FFFFFF;white-space:nowrap;line-height:1}
           /* Subfilters are SECONDARY: a tint, never a solid fill, so they cannot
              compete with the active category pill directly above them. */
           .wf-mapfp-tap[aria-selected="true"] .wf-mapfp-sub{background:rgba(249,115,22,.16);border-color:rgba(249,115,22,.42);color:${C.accent};font-weight:800}
+          .wf-mapfp-toggle{flex:none;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);color:#FFFFFF;border-radius:14px;height:30px;padding:0 9px;margin-right:8px;font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
           @media (prefers-reduced-motion: reduce){ .wf-mapfp-subs{transition:none} }
         ` }} />
-        <div className="wf-mapfp-row">
-          <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
-            {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
-              <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
-                onClick={() => tapCat(m.id, m.label)}>
-                <span className="wf-mapfp-pill">
-                  <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
-                  <span>{m.label}</span>
-                </span>
-              </button>
-            ); })}
-            {trailing || null}
+        {mapPanelCollapsed ? (
+          <div className="wf-mapfp-row" style={{ padding: "5px 10px", justifyContent: "space-between" }}>
+            <button type="button" onClick={() => { setMapPanelCollapsed(false); setMapSubsCollapsed(false); }} style={{ background: "none", border: 0, padding: "4px 2px", color: "#FFFFFF", fontSize: 12.5, fontWeight: 800, cursor: "pointer", display: "inline-flex", alignItems: "center", gap: 7 }}>
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, background: C.accent, color: "#0B0F14", padding: "3px 10px", borderRadius: 12, fontSize: 12, fontWeight: 800 }}>
+                {activeTile ? activeTile.label : "All categories"}
+              </span>
+              {activeSubObj && activeSubObj.id !== "all" ? <span style={{ color: C.accent, fontSize: 11.5, fontWeight: 700 }}>· {activeSubObj.label}</span> : null}
+            </button>
+            <button type="button" className="wf-mapfp-toggle" style={{ marginRight: 0 }} onClick={() => { setMapPanelCollapsed(false); setMapSubsCollapsed(false); }} aria-expanded="false">
+              Filters ▾
+            </button>
           </div>
-          <MapFpFade />
-        </div>
+        ) : (
+          <div className="wf-mapfp-row">
+            <div className="wf-mapfp-scroll" role="tablist" aria-label="Map categories" ref={mapfpArrowKeys}>
+              {Cats.CATEGORY_TILES.map((m) => { const on = activeCat === m.id; return (
+                <button key={m.id} role="tab" aria-selected={on ? "true" : "false"} className="wf-mapfp-tap"
+                  onClick={() => { if (on) { setMapSubsCollapsed((c) => !c); } else { setMapSubsCollapsed(false); tapCat(m.id, m.label); } }}>
+                  <span className="wf-mapfp-pill">
+                    <NavIcon name={m.id} color={on ? "#0B0F14" : "#FFFFFF"} size={15} strokeWidth={1.6} />
+                    <span>{m.label}</span>
+                  </span>
+                </button>
+              ); })}
+              {trailing || null}
+            </div>
+            <MapFpFade />
+            <button type="button" className="wf-mapfp-toggle"
+              aria-expanded={subVisible ? "true" : "false"}
+              title={subVisible ? "Collapse sub-filters" : "Collapse filter bar"}
+              onClick={() => {
+                if (open && !mapSubsCollapsed) setMapSubsCollapsed(true);
+                else setMapPanelCollapsed(true);
+              }}>
+              {open && !mapSubsCollapsed ? "Less ▴" : "Hide ▴"}
+            </button>
+          </div>
+        )}
         {/* MOUNTED ONLY WHEN A CATEGORY IS SELECTED. On landing the panel is one
             pill row — that is the ~100px the work order asks for. */}
         {open ? (
           <>
-            <div className="wf-mapfp-divider" />
-            <div className={"wf-mapfp-subs is-open"}>
+            {subVisible ? <div className="wf-mapfp-divider" /> : null}
+            <div className={"wf-mapfp-subs" + (subVisible ? " is-open" : "")}>
               <div className="wf-mapfp-row">
                 <div className="wf-mapfp-scroll" role="tablist" aria-label="Sub-filters" ref={mapfpArrowKeys}>
                   {subs.map((sf) => { const son = sub === sf.id; return (

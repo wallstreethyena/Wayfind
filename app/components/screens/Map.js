@@ -96,14 +96,14 @@ export default function MapScreen({ ctx }) {
   // box also provides a discoverable results list when MapKit cannot load.
   useEffect(() => {
     if (!center || !Number.isFinite(center.lat) || !Number.isFinite(center.lng)) return;
-    const dLat = .36, dLng = .42;
+    const dLat = .56, dLng = .62;
     setViewport({ north: center.lat + dLat, south: center.lat - dLat, east: center.lng + dLng, west: center.lng - dLng });
   }, [center?.lat, center?.lng]);
   const coveredAreaRef = useRef({ key: "", originKey: "", boxes: [] });
   useEffect(() => {
     if (!validMapBounds(viewport) || !center || explicitList) return undefined;
     const originKey = `${center?.lat}|${center?.lng}|${areaRetry}|${curatorSnap.v}`;
-    const coverageKey = `${originKey}|${mapCategory || ""}|${sub || ""}|${searchMode ? "1" : "0"}`;
+    const coverageKey = `${originKey}|${searchMode ? "1" : "0"}`;
     const originChanged = coveredAreaRef.current.originKey !== originKey;
     if (coveredAreaRef.current.key !== coverageKey) {
       coveredAreaRef.current = { key: coverageKey, originKey, boxes: [] };
@@ -124,18 +124,15 @@ export default function MapScreen({ ctx }) {
       setAreaPlaces([]);
     }
     const timer = setTimeout(() => {
-      readCompleteMapArea({ bounds: viewport, origin: center, signal: controller.signal,
-        onPage: (rows) => {
-          if (dead || controller.signal.aborted) return;
+      readCompleteMapArea({ bounds: viewport, origin: center, signal: controller.signal })
+        .then((rows) => {
+          if (dead || controller.signal.aborted || !Array.isArray(rows)) return;
           setAreaPlaces((existing) => {
             if (originChanged || !existing.length) return rows;
             const byId = new Map(existing.map((r) => [r.id || r.place_id, r]));
             for (const r of rows) byId.set(r.id || r.place_id, r);
             return [...byId.values()];
           });
-        } })
-        .then((rows) => {
-          if (dead || controller.signal.aborted || !Array.isArray(rows)) return;
           if (coveredAreaRef.current.key === coverageKey) {
             coveredAreaRef.current = {
               key: coverageKey,
@@ -152,7 +149,7 @@ export default function MapScreen({ ctx }) {
         .catch(() => { if (!dead && !controller.signal.aborted) setAreaStatus("error"); });
     }, 250);
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
-  }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, mapCategory, sub, searchMode, explicitList]);
+  }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, searchMode, explicitList]);
   useEffect(() => {
     if (!center || !listKey) return undefined;
     const controller = new AbortController();
@@ -323,15 +320,7 @@ export default function MapScreen({ ctx }) {
                 <div className="wf-map-explorer" style={{ position: "relative", width: "100%", height: "100%" }}>
                   <style dangerouslySetInnerHTML={{ __html: `@media (min-width: 760px) { .wf-map-explorer .wf-map-results { width: 390px; right: auto !important; } .wf-map-explorer .wf-map-note { width: 390px; right: auto !important; } } .wf-map-explorer .maplibregl-ctrl-bottom-left, .wf-map-explorer .maplibregl-ctrl-bottom-right { margin-bottom: ${MAPLIBRE_ATTRIBUTION_LIFT}px; }` }} />
                   <div style={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 30, padding: "8px 10px 0" }}>
-                    <div style={{ borderRadius: 19, border: "1px solid rgba(255,255,255,.09)", boxShadow: "0 14px 36px rgba(0,0,0,.5), 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)", background: "linear-gradient(180deg, rgba(23,29,39,.96), rgba(13,17,24,.96))",  }}>
-                      {/* v5.08 (user direction): the map menu never fully
-                          collapses — the primary tile row stays; only the
-                          sub-row expands down after a category is chosen. */}
-                      {(<>
-                      <CategoryMenu compact activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} setAreaOnly(true); setAllCategories(false); setMapPreview(null); setMapBrowse(true); setCat(id); setSub("all"); setVibe("all"); }} onSub={(v) => { setAreaOnly(true); setAllCategories(false); setSub(v); }} />
-                      </>)}
-
-                    </div>
+                    <CategoryMenu compact activeCat={cat} sub={sub} onCat={(id, label) => { try { logEvent("intent_chip", null, { intent: label, layer: 1, src: "map" }); } catch (e) {} setAreaOnly(true); setAllCategories(false); setMapPreview(null); setMapBrowse(true); setCat(id); setSub("all"); setVibe("all"); }} onSub={(v) => { setAreaOnly(true); setAllCategories(false); setSub(v); }} />
                   </div>
                   <button type="button" onClick={() => { setAreaOnly(true); setAllCategories((on) => !on); setMapPreview(null); }} aria-pressed={allCategories} style={{ position: "absolute", top: 164, left: 12, zIndex: 5, minHeight: 44, padding: "8px 12px", borderRadius: 999, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: allCategories ? "#FDBA74" : C.light, fontSize: 12, fontWeight: 800, cursor: "pointer" }}>All places · 9.2+</button>
                   {/* v6.97 (owner: "a near me button... I got stuck looking
@@ -381,7 +370,7 @@ export default function MapScreen({ ctx }) {
                   </button>
                   {map3D ? <MapView key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings styleMode="3d" fit={explicitList} places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", actionPlace(p), { rank: 1 + view.findIndex((x) => x.id === p.id) }); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />
                     : <AppleExplorerMap onReady={(mapkit) => { if (currentRendererAttempt.current === rendererAttempt) setAppleSDK({ attempt: rendererAttempt, mapkit }); }} fit={explicitList} key={mapRetryKey} onRetry={() => setMapRetryKey((k) => k + 1)} onLoadError={() => { if (currentRendererAttempt.current === rendererAttempt) setFailedRendererAttempt(rendererAttempt); }} onAreaChange={setAreaOffer} onViewportChange={setViewport} rings places={mapMode === "events" ? [] : view} events={mapEvents} center={center} category={mapCategory} deviceLoc={deviceLoc} focus={map3D && mapFocus?.coordSource === "apple_live" ? null : mapFocus} selectedId={mapPreview && mapPreview.id} onSelect={(p) => { setMapPreview(p); setMapDrawer(false); try { logEvent("map_pin_tap", actionPlace(p), { rank: 1 + view.findIndex((x) => x.id === p.id) }); logEvent("map_pin_selected", actionPlace(p), {}); } catch (e) {} }} onSelectEvent={(e) => { setMapPreview(null); setEventPreview(e); }} />}
-                  {mapMode === "places" && !appleMapFailed && (mapStatus !== "ready" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 72, top: 330, zIndex: 4, background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 14, padding: "11px 14px", fontSize: 12 }}>
+                  {mapMode === "places" && !appleMapFailed && (mapStatus === "error" || !view.length) && <div role="status" style={{ position: "absolute", left: 12, right: 12, bottom: view.length ? 138 : 76, zIndex: 4, maxWidth: 390, background: "rgba(10,14,20,.9)", WebkitBackdropFilter: "blur(16px)", backdropFilter: "blur(16px)", border: `1px solid ${C.border}`, color: C.text, borderRadius: 16, padding: "9px 14px", fontSize: 12, boxShadow: "0 8px 24px rgba(0,0,0,.35)" }}>
                     {mapStatus === "loading" ? (explicitList ? "Placing every place in this list on the map…" : "Finding every 9.2+ place in this area…") : appleRecovery.status === "loading" ? "Checking places with Apple Maps…" : mapStatus === "error" ? (explicitList ? "This list could not finish loading on the map." : "This area could not finish loading.") : explicitList ? "None of these places has a confirmed map location yet. They stay in your list." : "No 9.2+ places match these filters here. Move the map or choose All places."}
                     {mapStatus === "error" && <button type="button" onClick={() => (explicitList ? setListRetry : setAreaRetry)((n) => n + 1)} style={{ marginLeft: 8, color: "#FDBA74", background: "transparent", border: 0, cursor: "pointer" }}>{explicitList ? "Retry" : "Retry area"}</button>}
                     {unpinnedNote && <div data-wf-map-unpinned={unpinnedForCoord} style={{ marginTop: 6, color: C.muted, lineHeight: 1.4 }}>{unpinnedNote}</div>}
@@ -559,16 +548,16 @@ export default function MapScreen({ ctx }) {
                       line-height makes the row's real height predictable,
                       and 58px gives it headroom instead of an exact fit. */}
                   {mapMode === "places" && !mapPreview && view.length > 0 && (
-                    <div className="wf-map-results" style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "linear-gradient(180deg, rgba(21,27,37,.96), rgba(10,15,23,.97))", border: "1px solid rgba(255,255,255,.09)", borderRadius: 20, boxShadow: "0 16px 42px rgba(0,0,0,.55), 0 2px 8px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08)", maxHeight: mapDrawer ? "min(58%, 460px)" : 58, transition: "max-height .26s cubic-bezier(.4,0,.2,1)", display: "flex", flexDirection: "column", overflow: "hidden" }}>
-                      <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
-                        <div style={{ width: 36, height: 4, background: C.border, borderRadius: 2, margin: "8px auto 6px" }} />
-                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, width: "100%", padding: "0 20px 11px" }}>
-                          <span style={{ fontSize: 13.5, lineHeight: "18px", fontWeight: 800, letterSpacing: ".01em", color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{view.length}</span> place{view.length === 1 ? "" : "s"} · {mapStatus === "ready" ? rankingLabel : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
-                          <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: C.accent, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
+                    <div className="wf-map-results" style={{ position: "absolute", left: 12, right: 12, bottom: 76, zIndex: 18, background: "rgba(10,14,20,.9)", WebkitBackdropFilter: "blur(18px) saturate(140%)", backdropFilter: "blur(18px) saturate(140%)", border: "1px solid rgba(255,255,255,.13)", borderRadius: mapDrawer ? 20 : 999, boxShadow: "0 14px 36px rgba(0,0,0,.48), 0 2px 8px rgba(0,0,0,.28)", maxHeight: mapDrawer ? "min(44vh, 350px)" : 52, transition: "max-height .24s cubic-bezier(.4,0,.2,1), border-radius .2s ease", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+                      <button onClick={() => setMapDrawer((o) => !o)} aria-label={mapDrawer ? "Collapse list" : "Expand list"} style={{ flexShrink: 0, width: "100%", background: "transparent", border: "none", borderBottom: mapDrawer ? "1px solid rgba(255,255,255,.08)" : "none", cursor: "pointer", padding: 0, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                        <div style={{ width: 32, height: 3.5, background: "rgba(255,255,255,.22)", borderRadius: 2, margin: "6px auto 4px" }} />
+                        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, width: "100%", padding: "0 16px 9px" }}>
+                          <span style={{ fontSize: 13, lineHeight: "18px", fontWeight: 800, letterSpacing: ".01em", color: C.text, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}><span style={{ color: "#FB923C" }}>{view.length}</span> place{view.length === 1 ? "" : "s"} · {mapStatus === "ready" ? rankingLabel : mapStatus === "error" ? "partial results" : explicitList ? "loading list" : "loading area"}</span>
+                          <span style={{ flexShrink: 0, fontSize: 11.5, lineHeight: "17px", color: "#0B0F14", background: C.accent, padding: "2px 10px", borderRadius: 999, fontWeight: 800 }}>{mapDrawer ? "Hide list ▾" : "Browse list ▴"}</span>
                         </div>
                       </button>
                       {mapDrawer && (
-                        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "0 12px 16px" }}>
+                        <div style={{ flex: 1, minHeight: 0, overflowY: "auto", WebkitOverflowScrolling: "touch", padding: "10px 10px 14px", display: "flex", flexDirection: "column", gap: 10 }}>
                           {/* v6.88 (owner: "Sofra Kitchen Bar & Bistro looks like two
                               different restaurants depending on where I see it"): this
                               drawer used to render its own trimmed-down row (rank +
