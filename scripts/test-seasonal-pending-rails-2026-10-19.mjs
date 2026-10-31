@@ -18,6 +18,7 @@ import { isTrusted, distanceMi } from "../lib/curatedEvents.js";
 import { isFallEvent } from "../lib/fallPool.js";
 import { fallEventCardImageSrc, mergeFallDiscoveryRows } from "../lib/fallEventImage.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
+import { fallIntentsEpoch } from "./lib/fallCacheEpoch.mjs";
 
 let n = 0;
 function ok(cond, msg) {
@@ -241,7 +242,7 @@ ok(idsOn(fallNamesLater.rails, "festivals").includes(dale.event_id)
 
 const fallRoute = readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8");
 const christmasRoute = readFileSync(new URL("../app/api/events/christmas/route.js", import.meta.url), "utf8");
-ok(Number((/fall-intents:v(\d+):/.exec(fallRoute) || [])[1]) >= 41 && fallRoute.includes("resolveSeasonalLiveArea") && fallRoute.includes("...resolved.fall"), "the Fall route uses the v41 or later verified-event epoch and merges resolved rows");
+ok(fallIntentsEpoch(fallRoute) >= 41 && fallRoute.includes("resolveSeasonalLiveArea") && fallRoute.includes("...resolved.fall"), "the Fall route uses the v41 or later verified-event epoch and merges resolved rows");
 ok(christmasRoute.includes("christmas-intents:v10:") && christmasRoute.includes("resolveSeasonalLiveArea")
   && /mergeChristmasResearch\(rows \|\| \[\]\)\.concat\(resolved\.christmas\)/.test(christmasRoute), "the Christmas route bumps to v10 and appends resolved rows");
 ok(!/googleapis|maps\.google|places\.googleapis|fetch\(/.test(christmasRoute), "the Christmas route still makes no Google call and no fetch");
