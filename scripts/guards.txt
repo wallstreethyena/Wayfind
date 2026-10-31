@@ -2278,6 +2278,8 @@ node scripts/check-creator-independence.mjs
 
 node scripts/test-seasonal-search.mjs
 node scripts/test-halloween-haunt.mjs
+# 2026-10-30 Santa chat (Claude powered Christmas guide, /api/santa-chat): catalog honesty, /go + https hrefs, no dashes, parser rejections.
+node scripts/test-santa-chat.mjs
 node scripts/test-haunt-photos.mjs
 node scripts/test-halloween-tours.mjs
 
