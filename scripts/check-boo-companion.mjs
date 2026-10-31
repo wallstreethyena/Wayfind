@@ -2,7 +2,8 @@
 // Asserts by syntactic role, comments stripped first:
 //   1. app/layout.js renders <BooCompanionLoader /> once; the loader (a client
 //      component) binds BooCompanion through next/dynamic with ssr:false.
-//   2. The season gate calls siteTodayStr and compares against 10-01 and 11-01.
+//   2. The season gate calls siteTodayStr and compares against 10-01 and 10-31
+//      (owner 2026-10-30: Santa replaces Boo site wide from Nov 1).
 //   3. The reserved paths list exists and names api, go, oauth, embed, share.
 //   4. The sessionStorage hide key wf_boo_hidden exists.
 //   5. No dash character (hyphen, en dash, em dash) in any gag string: the gag
@@ -55,8 +56,8 @@ ok(/import\s*\{[^}]*\bsiteTodayStr\b[^}]*\}\s*from\s*["'][^"']*lib\/siteTime/.te
 const gate = comp.match(/function\s+inSeason\s*\(\)\s*\{([\s\S]*?)\n\}/);
 ok(!!gate, "BooCompanion must declare function inSeason()");
 ok(!!gate && /\bsiteTodayStr\s*\(/.test(gate[1]), "inSeason() must call siteTodayStr()");
-ok(!!gate && /["']10-01["']/.test(gate[1]) && /["']11-01["']/.test(gate[1]), "inSeason() must bound by 10-01 and 11-01 inclusive");
-ok(!!gate && /<=\s*["']11-01["']/.test(gate[1]) && />=\s*["']10-01["']/.test(gate[1]), "inSeason() must use inclusive >= 10-01 and <= 11-01");
+ok(!!gate && /["']10-01["']/.test(gate[1]) && /["']10-31["']/.test(gate[1]), "inSeason() must bound by 10-01 and 10-31 inclusive");
+ok(!!gate && /<=\s*["']10-31["']/.test(gate[1]) && />=\s*["']10-01["']/.test(gate[1]), "inSeason() must use inclusive >= 10-01 and <= 10-31");
 ok(/inSeason\(\)/.test(comp.replace(/function\s+inSeason\s*\(\)/, "")), "inSeason() must actually be called");
 
 // 3. reserved paths

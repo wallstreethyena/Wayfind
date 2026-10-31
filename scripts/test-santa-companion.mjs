@@ -90,7 +90,13 @@ let santaPoseCount = 0;
   for (const p of booPaths) ok(C.pickCharacter(p) === "boo", "Boo on " + String(p));
   ok(C.CHRISTMAS_PATH === "/christmas-in-florida", "Christmas path is /christmas-in-florida");
   // Boo never renders there: the character comes from the path and eligibility is stored with it.
-  ok(/const character = pickCharacter\(pathname\)/.test(comp), "BooCompanion picks the character from the pathname");
+  ok(/const character = charFor\(pathname\)/.test(comp), "BooCompanion picks the character from the pathname and today's date");
+  ok(/function charFor\(p\) \{\s*return previewSanta\(\) \? "santa" : pickCharacter\(p, siteTodayStr\(\)\);\s*\}/.test(comp), "charFor = ?companion=santa preview, else path + Eastern date");
+  // Owner 2026-10-30: Santa replaces Boo on EVERY page from Nov 1 (finder off the Christmas page).
+  for (const p of booPaths) ok(C.pickCharacter(p, "2026-10-31") === "boo" && C.pickCharacter(p, "2026-11-01") === "santa" && C.pickCharacter(p, "2027-01-01") === "santa" && C.pickCharacter(p, "2027-01-02") === "boo", "Boo through Oct 31, Santa Nov 1 to Jan 1 on " + String(p));
+  for (const p of santaPaths) ok(C.pickCharacter(p, "2026-10-15") === "santa", "the Christmas page is Santa on any date: " + p);
+  ok(C.santaApiFor("/christmas-in-florida") === C.SANTA_API && C.santaApiFor("/") === "/api/santa" && C.santaApiFor("/p/x") === "/api/santa", "tickets brain on the Christmas page, finder brain everywhere else");
+  ok(/fetch\(santaNow\(\) \? santaApiFor\(pathRef\.current\) : "\/api\/bo-haunt"/.test(comp), "the chat posts to the brain for the current page");
   ok(/const eligible = elig\.ok && elig\.ch === character/.test(comp), "eligibility is bound to the character it was computed for (no stale Boo frame on the Christmas page)");
   ok(/seasonFor\(character\)/.test(comp), "the mount gate uses the season of the picked character");
 }
@@ -101,7 +107,7 @@ let santaPoseCount = 0;
   const santaOn = ["10-01", "10-31", "11-02", "12-25", "12-31", "01-01"], santaOff = ["01-02", "03-15", "06-30", "09-30"];
   for (const d of santaOn) ok(C.santaSeasonOpen(y + d) === true && C.santaSeasonOpen(d) === true, "Santa season open on " + d);
   for (const d of santaOff) ok(C.santaSeasonOpen(y + d) === false && C.santaSeasonOpen(d) === false, "Santa season closed on " + d);
-  const booOn = ["10-01", "10-31", "11-01"], booOff = ["09-30", "11-02", "12-25", "01-01"];
+  const booOn = ["10-01", "10-15", "10-31"], booOff = ["09-30", "11-01", "11-02", "12-25", "01-01"];
   for (const d of booOn) ok(C.booSeasonOpen(y + d) === true, "Boo season open on " + d);
   for (const d of booOff) ok(C.booSeasonOpen(y + d) === false, "Boo season closed on " + d);
   ok(C.seasonOpenFor("santa", "2027-01-01") === true && C.seasonOpenFor("boo", "2027-01-01") === false && C.seasonOpenFor("boo", "2026-10-15") === true, "seasonOpenFor routes by character");
@@ -118,7 +124,7 @@ let santaPoseCount = 0;
       n++;
     }
     ok(n === 372, "swept 372 days");
-    ok(/>=\s*"10-01"\s*&&\s*md\s*<=\s*"11-01"/.test(gm[0]), "Boo's gate is still 10-01 through 11-01");
+    ok(/>=\s*"10-01"\s*&&\s*md\s*<=\s*"10-31"/.test(gm[0]), "Boo's gate is 10-01 through 10-31 (Santa takes Nov 1)");
   }
   ok(/function seasonFor\(character\) \{\s*return character === "santa" \? santaSeasonOpen\(siteTodayStr\(\)\) : inSeason\(\);\s*\}/.test(comp), "Santa's gate reads the Eastern site date (siteTodayStr), Boo's stays inSeason()");
   ok(/RESERVED_PATHS/.test(comp) && /seasonFor\(character\) && !reservedPath\(pathname\)/.test(comp), "reserved paths still apply to both characters");
@@ -165,10 +171,10 @@ let santaPoseCount = 0;
   ok(/santaNow\(\) \? SANTA_GAGS\.concat\(santaTimeLines\(hour\)\) : gagPoolFor\(pathRef\.current\)\.concat\(timeLines\(hour\)\)/.test(comp), "gag pool is Santa's for Santa");
   ok(/santaNow\(\) \? SANTA_ZAP_LINES : ZAP_LINES/.test(comp), "zap lines are Santa's for Santa");
   ok(/\(santaNow\(\) \? santaOpenerFor : openerFor\)\(raw/.test(comp), "opener is Santa's for Santa");
-  ok(/const chips = santa \? SANTA_CHIPS/.test(comp), "chips are Santa's for Santa");
+  ok(/const chips = santa \? \(isChristmasPath\(pathname\) \? SANTA_CHIPS : SANTA_FINDER_CHIPS\)/.test(comp), "chips are Santa's for Santa (ticket chips on the Christmas page, finder chips elsewhere)");
   ok(/santaNow\(\) \? SANTA\.fallbackLine : FALLBACK_LINE/.test(comp) && /href=\{listPath\}/.test(comp) && /const listPath = santa \? CHRISTMAS_PATH : HAUNT_PATH/.test(comp), "fallback line and its link go to the Christmas list for Santa");
   // Coverage bubble lines mention Boo: Santa must never speak them. coverQuiet is checked before every line, and it is true on the Christmas page.
-  ok(/const coverQuiet = \(\) => [^;]*pickCharacter\(pathRef\.current\) === "santa"/.test(comp), "coverage talk is quiet on the Christmas page");
+  ok(/const coverQuiet = \(\) => [^;]*isChristmasPath\(pathRef\.current\)/.test(comp), "coverage talk is quiet on the Christmas page (and only there, so site wide Santa still explains coverage)");
   ok((comp.match(/coverageLines\(/g) || []).length === 1 && /if \(coverQuiet\(\)\) \{ schedule\(rand\(8000, 12000\)\); return; \}\s*gagCount\.current \+= 1; coverSeq\(g\)/.test(comp), "coverageLines (the only Boo worded coverage text) is reached only after the quiet check");
   const V = await import("../app/components/booCoverage.js");
   const sheetLines = [V.coverageSheetLine({ area: "Boston" }), V.coverageSheetLine(null), V.unknownSheetLine(), V.coverageButtonText({ name: "Tampa", mi: 40 }, true), V.coverageButtonText({ name: "Tampa", mi: 40 }, false)];
@@ -178,7 +184,7 @@ let santaPoseCount = 0;
 // ---- 5. wiring ------------------------------------------------------------
 {
   ok(C.SANTA_API === "/api/santa-chat", "Santa chat endpoint is /api/santa-chat");
-  ok((comp.match(/fetch\(santaNow\(\) \? SANTA_API : "\/api\/bo-haunt",/g) || []).length === 2, "both chat calls (gag mode and chat) pick /api/santa-chat for Santa, /api/bo-haunt for Boo");
+  ok((comp.match(/fetch\(santaNow\(\) \? SANTA_API : "\/api\/bo-haunt",/g) || []).length === 1 && (comp.match(/fetch\(santaNow\(\) \? santaApiFor\(pathRef\.current\) : "\/api\/bo-haunt",/g) || []).length === 1, "gag mode uses /api/santa-chat, the chat uses the page's Santa brain, /api/bo-haunt for Boo");
   ok((comp.match(/\/api\/bo-haunt/g) || []).length === 2 && !/["']\/api\/santa-chat["']/.test(comp), "no hard coded Santa URL in the component, no stray Boo URL");
   const bodies = [...comp.matchAll(/body: JSON\.stringify\(\{ (mode: "gag"|message)([^\n]*)/g)].map((m) => m[1]);
   ok(bodies.length === 2, "the request bodies are the same ones Boo sends (gag mode and chat)");
@@ -188,7 +194,7 @@ let santaPoseCount = 0;
   ok(/sessionStorage\.setItem\(HIDE_KEY, "1"\)/.test(comp) && /sessionStorage\.getItem\(HIDE_KEY\)/.test(comp) && /sessionStorage\.removeItem\(HIDE_KEY\)/.test(comp), "Boo's hide key is still set, read and cleared");
   // Events.
   ok(/addEventListener\("wf:boo-open", on\)/.test(comp) && /addEventListener\("wf:santa-open", on\)/.test(comp) && /removeEventListener\("wf:boo-open", on\)/.test(comp) && /removeEventListener\("wf:santa-open", on\)/.test(comp), "wf:boo-open and wf:santa-open both open the active character, and both are cleaned up");
-  ok(/const ch = pickCharacter\(pathRef\.current\);\s*try \{ ok = seasonFor\(ch\)/.test(comp), "the open event checks the active character's season");
+  ok(/const ch = charFor\(pathRef\.current\);\s*try \{ ok = seasonFor\(ch\)/.test(comp), "the open event checks the active character's season");
   // Analytics: one captureOrQueue call, inside track(), carrying character.
   ok((comp.match(/captureOrQueue\(/g) || []).length === 1 && /captureOrQueue\(window, event, \{ surface: "boo_companion", character: ACTIVE, \.\.\.props \}\)/.test(comp), "every track() call carries character (boo or santa)");
   ok(/ACTIVE = character;/.test(comp) && /let ACTIVE = "boo"/.test(comp), "ACTIVE follows the picked character");

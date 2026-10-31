@@ -22,6 +22,8 @@ export const SANTA = {
   jumped: "! Sleighed you over. Your picks are loading.",
 };
 
+// Off the Christmas page Santa finds anything on Wayfind (/api/santa).
+export const SANTA_FINDER_CHIPS = ["Christmas lights near me?", "Brunch this weekend?", "Things to do with kids?"];
 export const SANTA_CHIPS = ["Best Christmas lights near Tampa?", "Kid friendly this weekend?", "Free holiday events?"];
 
 export const SANTA_GAGS = [

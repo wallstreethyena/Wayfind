@@ -13,8 +13,8 @@ import { siteHourFloat } from "../../lib/nowContext.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
 import { BooGhostSvg } from "./booGhost.js";
 import { SantaSvg, santaPose } from "./santaArt.js";
-import { pickCharacter, santaSeasonOpen, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
-import { SANTA, SANTA_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
+import { pickCharacter, santaSeasonOpen, santaApiFor, isChristmasPath, CHRISTMAS_PATH, SANTA_API, SANTA_HIDE_KEY } from "./companionCharacter.js";
+import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SANTA_REACT_LINES, santaTimeLines, santaRouteLine, santaOpenerFor } from "./santaCopy.js";
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
@@ -26,11 +26,25 @@ const HIDE_KEY = "wf_boo_hidden";
 const RESERVED_PATHS = ["/api", "/go", "/oauth", "/embed", "/share", "/group-plans"];
 const HAUNT_PATH = "/halloween-in-florida";
 
-// Oct 1 through Nov 1 inclusive, by the Eastern site date.
+// Oct 1 through Oct 31 inclusive, by the Eastern site date (Santa takes Nov 1).
 function inSeason() {
   const d = siteTodayStr();
   const md = d.slice(5);
-  return md >= "10-01" && md <= "11-01";
+  return md >= "10-01" && md <= "10-31";
+}
+// Preview: ?companion=santa on any URL shows Santa for the tab session, so the
+// owner can check him before Nov 1. Only "santa" is accepted.
+const PREVIEW_KEY = "wf_companion_preview";
+function previewSanta() {
+  try {
+    if (new URLSearchParams(window.location.search).get("companion") === "santa") sessionStorage.setItem(PREVIEW_KEY, "santa");
+    return sessionStorage.getItem(PREVIEW_KEY) === "santa";
+  } catch { return false; }
+}
+// The character for path p today: Santa on the Christmas page, and on every
+// page from Nov 1 (or in preview); Boo otherwise.
+function charFor(p) {
+  return previewSanta() ? "santa" : pickCharacter(p, siteTodayStr());
 }
 function reservedPath(p) {
   return RESERVED_PATHS.some((r) => p === r || p.startsWith(r + "/"));
@@ -441,7 +455,7 @@ export default function BooCompanion() {
   const pathname = usePathname() || "/";
   // Boo everywhere except the Christmas page, where it is Santa. Chosen from
   // the path alone, so Boo can never render on /christmas-in-florida.
-  const character = pickCharacter(pathname);
+  const character = charFor(pathname);
   const santa = character === "santa";
   ACTIVE = character;
   // Eligibility is remembered WITH the character it was worked out for, so the
@@ -550,7 +564,7 @@ export default function BooCompanion() {
     return g;
   };
   // Coverage talk never interrupts booking: quiet on the haunt page and for 10s after a booking tap.
-  const coverQuiet = () => pathRef.current === HAUNT_PATH || pathRef.current.startsWith(HAUNT_PATH + "/") || pickCharacter(pathRef.current) === "santa" || Date.now() - bookTapAt.current < BOOK_QUIET_MS;
+  const coverQuiet = () => pathRef.current === HAUNT_PATH || pathRef.current.startsWith(HAUNT_PATH + "/") || isChristmasPath(pathRef.current) || Date.now() - bookTapAt.current < BOOK_QUIET_MS;
   const toldFor = (g) => { try { return !!g && sessionStorage.getItem(COVER_TOLD_KEY) === g.cell; } catch { return false; } };
   const markTold = (g) => { try { sessionStorage.setItem(COVER_TOLD_KEY, g.cell); } catch { /* ignore */ } };
 
@@ -1502,10 +1516,18 @@ export default function BooCompanion() {
     const started = Date.now();
     let source2 = "fallback", wrap = false;
     try {
-      const res = await fetch(santaNow() ? SANTA_API : "/api/bo-haunt", {
+      // Off the Christmas page Santa searches Wayfind near the feed's center.
+      let point = null;
+      if (santaNow()) {
+        try {
+          const c = JSON.parse(localStorage.getItem(CENTER_KEY) || "null");
+          if (c && Number.isFinite(c.lat) && Number.isFinite(c.lng)) point = { lat: c.lat, lng: c.lng };
+        } catch { /* no point: the search still runs */ }
+      }
+      const res = await fetch(santaNow() ? santaApiFor(pathRef.current) : "/api/bo-haunt", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ message, page: { path: pathRef.current, title: (document.title || "").slice(0, 120) }, turn }),
+        body: JSON.stringify({ message, page: { path: pathRef.current, title: (document.title || "").slice(0, 120) }, turn, point }),
       });
       const data = await res.json().catch(() => null);
       if (!res.ok || !data || !data.reply) throw new Error("bad");
@@ -1536,7 +1558,7 @@ export default function BooCompanion() {
   useEffect(() => {
     const on = (e) => {
       let ok = false;
-      const ch = pickCharacter(pathRef.current);
+      const ch = charFor(pathRef.current);
       try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
@@ -1617,7 +1639,7 @@ export default function BooCompanion() {
   if (!eligible) return null;
 
   const onHaunt = pathname.startsWith("/halloween");
-  const chips = santa ? SANTA_CHIPS : onHaunt ? CHIPS_HALLOWEEN : CHIPS_OTHER;
+  const chips = santa ? (isChristmasPath(pathname) ? SANTA_CHIPS : SANTA_FINDER_CHIPS) : onHaunt ? CHIPS_HALLOWEEN : CHIPS_OTHER;
   const listPath = santa ? CHRISTMAS_PATH : HAUNT_PATH;
   const hasUser = msgs.some((m) => m.role === "user");
 
