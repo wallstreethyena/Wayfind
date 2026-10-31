@@ -24,7 +24,7 @@ const ok = (cond, msg) => { assert.ok(cond, msg); n += 1; };
 const eq = (a, b, msg) => { assert.deepEqual(a, b, msg); n += 1; };
 
 // ── 1. Clock: venue-local wall time across the Nov 1 2026 fall-back ─────────
-eq(siteNowLocal(new Date("2026-11-01T06:30:00Z")), "2026-11-01T01:30", "06:30Z on Nov 1 is 1:30 AM (still EDT)");
+eq(siteNowLocal(new Date("2026-11-01T06:30:00Z")), "2026-11-01T01:30", "06:30Z on Nov 1 is 1:30 AM EST (after the 06:00Z fall-back)");
 eq(siteNowLocal(new Date("2026-11-01T07:59:00Z")), "2026-11-01T02:59", "07:59Z is 2:59 AM EST after the fall-back");
 eq(siteNowLocal(new Date("2026-11-01T08:00:00Z")), "2026-11-01T03:00", "08:00Z is 3:00 AM EST");
 
@@ -39,6 +39,8 @@ eq(eventFinalClose({ start_date: "2026-10-30", end_date: "2026-10-31", start_tim
   "a multi-night run closes after its LAST night");
 eq(eventFinalClose({ ...party, end_date: "2026-11-07", occurrence_dates: ["2026-10-30", "2026-10-31"] }), "2026-11-01T03:00",
   "select nights close after the last listed night");
+
+eq(eventFinalClose({ ...party, start_time: "03:00", end_time: "03:00" }), null, "a degenerate equal clock keeps the date law");
 
 // ── 3. Carry keeps the real date law green until the close, then retires ───
 const at = (local) => ({ today: local.slice(0, 10), nowLocal: local });
@@ -63,6 +65,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 ok(/const key = `fall-intents:v\d+:\$\{today\}\$\{overnightCacheBucket\(nowLocal\)\}:/.test(route), "the rail key carries the overnight bucket");
 ok(/\.map\(\(e\) => carryOvernight\(e, eventFinalClose\(e\), \{ today, nowLocal \}\)\)/.test(route), "route carries events before the date filter");
 ok(/seasonalHospitalityPlaces\([^)]*"halloween", today, undefined, now\)/.test(route), "route passes the clock to hospitality rows");
+ok(/overnightCacheBucket\(nowLocal\) \? "public, s-maxage=60, stale-while-revalidate=30"/.test(route), "after midnight the CDN copy lives 60s, so it cannot outlive a quarter-hour close by more than ~1.5 minutes");
 
 // ── 4b. Epoch reader used by the v41-or-later guards fails closed ─────────
 ok(fallIntentsEpoch(readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8")) >= 44, "real route reads as v44 or later");
@@ -119,6 +122,14 @@ const republished = [
     start_date: "2026-10-31", end_date: "2026-10-31", image: "/z.jpg", url: "https://example.org/party" },
 ];
 const merged = reconcileSeasonalHospitalityEvents(republished, places);
+// A linked row with no coordinates must not vanish after consuming the card.
+const noCoords = reconcileSeasonalHospitalityEvents([{ ...republished[1], lat: null, lng: null }], places);
+const nc = noCoords.events[0];
+ok(Number.isFinite(nc.lat) && Number.isFinite(nc.lng), "a coordinate-less linked event inherits the venue point");
+ok(composeHalloweenRails(composeFallIntentRails(noCoords.events, noCoords.places, { lat: 25.80, lng: -80.20, today, now }).rails, today)
+  .some((r) => (r.cards || []).some((c) => c.id === "hallowyn-block-party-2026")), "and still reaches a Halloween rail");
+ok(seasonalHospitalityIds("christmas", "2027-01-01", [{ ...wyn, season: ["christmas"], start_date: "2026-12-31", end_date: "2026-12-31", occurrence_dates: ["2026-12-31"], final_close: "2027-01-01T02:00" }], new Date("2027-01-01T06:00:00Z")).length === 0,
+  "a Christmas row never carries (its route keeps one cache key per day)");
 ok(!merged.places.some((p) => p.place_id === pwt.place_id), "republished Pirate Water Taxi event consumes its hospitality card");
 ok(!merged.places.some((p) => p.place_id === wyn.place_id), "republished HalloWYN event consumes its hospitality card even without a place_id");
 const wynEvent = merged.events.find((e) => e.event_id === "hallowyn-block-party-2026");
@@ -167,6 +178,16 @@ ok(!/costume chaos/i.test(bag.offering), "Tales of the River copy no longer cont
 const ui = readFileSync(new URL("../app/components/FallIntentRails.js", import.meta.url), "utf8");
 ok(/card\.bookingUrl && card\.bookingLabel \? \{ key: "book"/.test(ui), "rail card renders the organizer booking chip");
 ok(/title: card\.name, photo: card\.image/.test(ui), "place sheet opens on the canonical venue name");
+
+// ── 8. The seven venues imported 2026-10-30 carry their own identity ──────
+const imported = { "ChIJcUYRsd1-54gRCs-DHwnVg5s": "Hard Rock Cafe Orlando", "ChIJK3LR_acc2YgRSGF8JTxhi3I": "World of Beer",
+  "ChIJd7uTqvSw2YgRINnJ7d86Dc0": "Kings Dining & Entertainment", "ChIJW6zujeN-54gRWCLmfe3vCFo": "Jake's American Bar",
+  "ChIJseOImPt_54gR93cCEI-y7s8": "Swizzle Lounge", "ChIJ52UOX9x-54gRnLhDlNJEUHo": "The Thirsty Fish", "ChIJ79nKoJu02YgR9JmY-V9V0Nc": "National Hotel" };
+for (const [pid, name] of Object.entries(imported)) {
+  const rows = SEASONAL_HOSPITALITY_2026.filter((r) => r.place_id === pid);
+  ok(rows.length === 1 && rows[0].name === name && rows[0].display_title && rows[0].checked_at === "2026-10-30", `${name}: one reviewed row on its own venue identity`);
+  ok(seasonalHospitalityEligible(rows[0], "halloween", "2026-10-30"), `${name}: eligible on Oct 30`);
+}
 
 // Eligibility is unchanged for rows without an overnight close.
 ok(!seasonalHospitalityEligible({ ...pwt }, "halloween", "2026-11-01"), "Pirate Water Taxi (no overnight close) retires Nov 1");
