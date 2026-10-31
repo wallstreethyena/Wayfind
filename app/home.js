@@ -364,6 +364,7 @@ import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
 import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
+import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
 
 const BUILD = "beta";
 
@@ -6409,13 +6410,29 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   }
   function readPosition() {
     const key = positionEntryKey();
-    const raw = sessionStorage.getItem("wf_pos_entry_" + key) || (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
-    const p = JSON.parse(raw || "null");
+    const entryRaw = sessionStorage.getItem("wf_pos_entry_" + key);
+    const genericRaw = entryRaw ? null
+      : (["/", "/v8"].includes(window.location.pathname) && !window.location.search ? sessionStorage.getItem("wf_pos") : null);
+    const p = JSON.parse(entryRaw || genericRaw || "null");
     if (!p || !p.ts || Date.now() - p.ts > 30 * 60000) {
       sessionStorage.removeItem("wf_pos");
       return null;
     }
-    return p;
+    // THE MAP DEAD-END (reproduced on prod 2026-10-30, deterministic in a
+    // fresh tab): open /map, then go to gowayfind.com — you land back on /map,
+    // with the HOMEPAGE <title> still set. `wf_pos` is the GENERIC snapshot,
+    // not tied to a history entry, and it carried `screen: "map"`, so a fresh
+    // visit to "/" reopened the map and the address-bar sync effect rewrote
+    // the URL to /map. The map is the one screen that hides the global header
+    // (0 elements match a[href="/"]) and whose category chips and "Browse
+    // list" all keep you on it, so the only way out was a bottom-nav tab and
+    // then the logo. For 30 minutes, typing the site's own address could not
+    // reach the homepage.
+    //
+    // A generic restore is for the FEED's scroll position. It must not reopen
+    // a standalone screen; entry-keyed restores (a real Back navigation) are
+    // untouched and still return exactly where the user was.
+    return sanitizeRestoredPosition(p, !!genericRaw, SCREEN_PATH);
   }
   function applyPosition(p) {
     if (!p) return false;
