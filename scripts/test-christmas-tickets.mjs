@@ -243,4 +243,19 @@ ok(!one.includes('class="xm-filters"'), "a single filter (All) renders no pill r
   ok(/christmas-in-florida/.test(sitemap) || /seasonalSearchHub|SEASONAL_SEARCH_HUBS/.test(sitemap), "the page stays in the sitemap");
 }
 
+// Owner 2026-10-30: the companion (Santa here) never rests or talks in front of
+// text. READ_SEL in BooCompanion.js includes [data-boo-clear]; mark the card text,
+// the filter row and the hero so badges and pill labels count as text too.
+{
+  const html = render(model);
+  const cards = (html.match(/<article [^>]*class="xm-card"/g) || []).length;
+  const clearBodies = (html.match(/<div class="xm-body" data-boo-clear="">/g) || []).length;
+  ok(cards > 0 && clearBodies === cards, "every card text column is marked data-boo-clear (" + clearBodies + "/" + cards + ")");
+  ok(/<div class="xm-hero" id="xm-hero" data-boo-clear="">/.test(html), "the hero is marked data-boo-clear");
+  ok(/<div class="xm-filters" data-boo-clear=""/.test(html), "the filter pill row is marked data-boo-clear");
+  const boo = read("app/components/BooCompanion.js");
+  const rs = boo.match(/const READ_SEL = "([^"]+)"/);
+  ok(rs && rs[1].split(",").includes("[data-boo-clear]"), "BooCompanion READ_SEL still honours [data-boo-clear]");
+}
+
 console.log("test-christmas-tickets: " + checks + " assertions OK (" + model.rows.length + " featured cards on 2026-10-30)");

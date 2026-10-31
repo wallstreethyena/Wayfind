@@ -329,7 +329,7 @@ function TicketCard({ row, chrome, priority }) {
   return (
     <article id={"xm-" + row.id} data-ticket-id={row.id} className="xm-card">
       <PhotoStrip row={row} priority={priority} />
-      <div className="xm-body">
+      <div className="xm-body" data-boo-clear="">
         <span className="xm-chip">{row.chip}</span>
         <h2>{row.name}</h2>
         <PhotoCredit photos={row.photos} />
@@ -395,7 +395,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, i
       <WayfindHeader seasonal={seasonal} />
 
       <div className="xm-main">
-        <div className="xm-hero" id="xm-hero">
+        <div className="xm-hero" id="xm-hero" data-boo-clear="">
           <h1 id="xm-title">{chrome.title}</h1>
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
@@ -406,7 +406,7 @@ export default function ChristmasTickets({ model, share = null, browse = null, i
 
         <div id="xm-tickets" data-ticket-grid="">
           {filters.length > 1 ? (
-            <div className="xm-filters" role="toolbar" aria-label="Filter Christmas tickets">
+            <div className="xm-filters" data-boo-clear="" role="toolbar" aria-label="Filter Christmas tickets">
               {filters.map((item) => (
                 <button type="button" key={item.id} aria-pressed={filter === item.id} onClick={() => applyFilter(item.id)}>{item.label}</button>
               ))}
