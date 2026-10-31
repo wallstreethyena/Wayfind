@@ -144,7 +144,10 @@ export async function GET(request) {
     // (lib/overnightClose.js) and publishes experience titles and booking chips:
     // between midnight and 6 AM the key also carries the quarter hour, so a 3 AM
     // close retires on time instead of riding a payload computed while it was open.
-    const key = `fall-intents:v46:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v47 publishes the seven Halloween venues imported 2026-10-30 (Hard Rock Cafe
+    // Orlando, World of Beer Coconut Creek, Kings Doral, Jake's, Swizzle, Thirsty
+    // Fish, Wonderland at the National Hotel); a warm v46 rail predates them.
+    const key = `fall-intents:v47:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
@@ -478,7 +481,7 @@ export async function GET(request) {
     const headers = {
       // After midnight a close can land any quarter hour: keep the CDN copy
       // short enough that it does not outlive the rail key above.
-      "cache-control": complete ? (overnightCacheBucket(nowLocal) ? "public, s-maxage=300, stale-while-revalidate=60" : "public, s-maxage=900, stale-while-revalidate=86400") : "no-store",
+      "cache-control": complete ? (overnightCacheBucket(nowLocal) ? "public, s-maxage=60, stale-while-revalidate=30" : "public, s-maxage=900, stale-while-revalidate=86400") : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
