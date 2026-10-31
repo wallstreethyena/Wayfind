@@ -1,0 +1,434 @@
+{
+  "reviewed_at": "2026-10-30",
+  "method": "Owner-supplied screenshots, native Instagram caption metadata, official venue addresses, existing production IDs, and independently geocoded addresses. Native embeds and original attribution only.",
+  "sources": [
+    {
+      "shortcode": "DfA2eLpgp2a",
+      "native_url": "https://www.instagram.com/reel/DfA2eLpgp2a/",
+      "creator": "brownandbrownfarms_55",
+      "status": "verified",
+      "content_kind": "dated_venue_promotion",
+      "posted_at": "2026-10-27",
+      "independent": false,
+      "places": [
+        {
+          "key": "brown-and-brown-farms-oxford",
+          "place_id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+          "name": "Brown & Brown Farms and Country Store",
+          "city": "Oxford",
+          "state": "FL",
+          "address": "13940 US-301, Oxford, FL 34484",
+          "lat": 28.9596554,
+          "lng": -82.0408629
+        }
+      ],
+      "supporting_source": "https://brownandbrownfarms.ticketspice.com/7-weekends-of-fall",
+      "schedule_note": "Native organizer post advertises Oct 31 10 AM–10 PM; ticket page generic Saturday schedule says 10 AM–8 PM. No new event/time claim published; caption clearly identifies dated source promotion."
+    },
+    {
+      "shortcode": "DfGCeMvv1TQ",
+      "native_url": "https://www.instagram.com/reel/DfGCeMvv1TQ/",
+      "creator": "fortlauderdaledowntown",
+      "status": "verified",
+      "content_kind": "city_guide",
+      "posted_at": "2026-10-29",
+      "independent": false,
+      "places": [
+        {
+          "key": "glitch-bar-fort-lauderdale",
+          "place_id": "ChIJ4V0TH_kA2YgRxgaQuq3qeV4",
+          "name": "Glitch Bar",
+          "city": "Fort Lauderdale",
+          "state": "FL",
+          "address": "905 NE 5th Ave, Fort Lauderdale, FL 33304",
+          "lat": 26.1353327,
+          "lng": -80.1391925
+        }
+      ]
+    },
+    {
+      "shortcode": "De0MxVmO0H4",
+      "native_url": "https://www.instagram.com/reel/De0MxVmO0H4/",
+      "creator": "hellofoodreviews",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "high-hopes-sugarhouse-worthington",
+          "place_id": "wfadd_high_hopes_sugarhouse_worthington_ma",
+          "name": "High Hopes Farm Sugarhouse",
+          "city": "Worthington",
+          "state": "MA",
+          "country": "US",
+          "address": "1132 Huntington Rd, Worthington, MA 01098",
+          "category": "Food",
+          "metro": "western-massachusetts-ma",
+          "official_source": "https://highhopesmaplesyrup.com/",
+          "lat": 42.340160297951,
+          "lng": -72.887156675122,
+          "coordinate_source": "owner_verified",
+          "coordinate_method": "editor-linked-official-address-census-geocoder",
+          "coordinate_url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=1132+Huntington+Rd%2C+Worthington%2C+MA+01098",
+          "coordinate_match": "1132 HUNTINGTON RD, WORTHINGTON, MA, 01098"
+        }
+      ],
+      "editorial_context": "A seasonal breakfast visit at High Hopes Farm Sugarhouse in Worthington, Massachusetts, featuring a maple-leaf waffle and pumpkin pancakes. Buffet service is seasonal; confirm dates with the farm."
+    },
+    {
+      "shortcode": "DfIAf5bxY0Z",
+      "native_url": "https://www.instagram.com/reel/DfIAf5bxY0Z/",
+      "creator": "jessinthesuburbs",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "mangoni-italian-market-winter-garden",
+          "place_id": "ChIJRStTdYSD54gRhH5dTvKQLJI",
+          "name": "MANGONI Italian Market Pizza",
+          "city": "Winter Garden",
+          "state": "FL",
+          "country": "US",
+          "address": "Winter Garden, FL",
+          "category": "Food",
+          "metro": "orlando",
+          "official_source": "https://www.instagram.com/mangoniwg/"
+        }
+      ],
+      "editorial_context": "Jessica visits Haunted Mangoni in Winter Garden for ghost pizza and a themed spritz. This October 2026 Halloween menu feature is seasonal, not a promise of future availability."
+    },
+    {
+      "shortcode": "De964Gsql3a",
+      "native_url": "https://www.instagram.com/reel/De964Gsql3a/",
+      "creator": "sellingjax",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "cordle-family-estates-st-augustine",
+          "place_id": "wfadd_cordle_family_estates_st_augustine",
+          "name": "Cordle Family Estates Pumpkin House",
+          "city": "St. Augustine",
+          "state": "FL",
+          "country": "US",
+          "address": "1109 Fazio Rd, St. Augustine, FL 32084",
+          "category": "Activities",
+          "metro": "jacksonville",
+          "official_source": "https://www.instagram.com/cordlefamilyestates/",
+          "lat": 29.909833805448,
+          "lng": -81.368699353576,
+          "coordinate_source": "owner_verified",
+          "coordinate_method": "editor-linked-official-address-census-geocoder",
+          "coordinate_url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=1109+Fazio+Rd%2C+Saint+Augustine%2C+FL+32084",
+          "coordinate_match": "1109 FAZIO RD, SAINT AUGUSTINE, FL, 32084"
+        }
+      ],
+      "editorial_context": "An October 2026 preview of the Cordle Family Estates Pumpkin House in St. Augustine. The post announces a final night on October 27, 2026; that season has ended. Confirm future public events before visiting."
+    },
+    {
+      "shortcode": "DfH5LR1RfWd",
+      "native_url": "https://www.instagram.com/reel/DfH5LR1RfWd/",
+      "creator": "frenchlooch",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "pemberton-haunted-acres-plant-city",
+          "place_id": "ChIJR7KXbB_LwogRc-iB55U1AHQ",
+          "name": "Pemberton Haunted Acres",
+          "city": "Plant City",
+          "state": "FL",
+          "country": "US",
+          "address": "4802 W Knights Griffin Rd, Plant City, FL 33565",
+          "category": "Activities",
+          "metro": "tampa",
+          "official_source": "https://www.pembertonhauntedacres.com/",
+          "coordinate_source": "google_places",
+          "coordinate_method": "wf_place_ids-sighting"
+        }
+      ],
+      "editorial_context": "Raven visits Pemberton Haunted Acres in Plant City for haunted houses, a trail and horror movies on the lawn. This October 2026 seasonal feature does not establish year-round opening dates."
+    },
+    {
+      "shortcode": "DeC-SqzSqKh",
+      "native_url": "https://www.instagram.com/reel/DeC-SqzSqKh/",
+      "creator": "khailanonymous",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "t-rex-cafe-lake-buena-vista",
+          "place_id": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+          "name": "T-REX Cafe",
+          "city": "Lake Buena Vista",
+          "state": "FL",
+          "country": "US",
+          "address": "1676 E Buena Vista Dr, Lake Buena Vista, FL 32830",
+          "category": "Food",
+          "metro": "orlando",
+          "official_source": "https://www.trexcafe.com/"
+        }
+      ],
+      "editorial_context": "Khail explores the animatronic dinosaurs and theatrical meteor-shower atmosphere at T-REX Cafe in Lake Buena Vista. A restaurant visit with a prehistoric setting."
+    },
+    {
+      "shortcode": "Dd1jHMLxzQG",
+      "native_url": "https://www.instagram.com/reel/Dd1jHMLxzQG/",
+      "creator": "croissantsandcaviar",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "sexy-fish-miami",
+          "place_id": "ChIJdfkR4PC32YgRgxEP4swq1oY",
+          "name": "Sexy Fish Miami",
+          "city": "Miami",
+          "state": "FL",
+          "country": "US",
+          "address": "1001 S Miami Ave, Miami, FL 33130",
+          "category": "Food",
+          "metro": "miami-dade",
+          "official_source": "https://sexyfishmiami.com/"
+        }
+      ],
+      "editorial_context": "A Miami dining feature at Sexy Fish highlights shrimp, sushi and the elaborate interior. Menu items and offers shown reflect the creator's September 2026 visit; check the restaurant for current availability."
+    },
+    {
+      "shortcode": "DeR7AkggmMn",
+      "native_url": "https://www.instagram.com/reel/DeR7AkggmMn/",
+      "creator": "dallas_discovered",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "serious-eats-grand-prairie",
+          "place_id": "wfadd_serious_eats_grand_prairie_tx",
+          "name": "Serious Eats",
+          "city": "Grand Prairie",
+          "state": "TX",
+          "country": "US",
+          "address": "2971 S State Hwy 161, Grand Prairie, TX 75052",
+          "category": "Food",
+          "metro": "dallas-fort-worth-tx",
+          "official_source": "https://www.eat-serious.com/location/serious-eats-sliders/",
+          "coordinate_source": "google_places",
+          "coordinate_note": "Native Maps editor review 2026-10-30; coordinate retained only in dated production cache, not permanent evidence."
+        }
+      ],
+      "editorial_context": "Dallas Discovered features the October 2026 Halloween shakes and pizza at Serious Eats in Grand Prairie, Texas. Seasonal menu coverage, not a year-round menu guarantee."
+    },
+    {
+      "shortcode": "DeHycpnovc0",
+      "native_url": "https://www.instagram.com/reel/DeHycpnovc0/",
+      "creator": "brittanyblossoms",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "koffee-sutra-orlando",
+          "place_id": "wfadd_koffee_sutra_orlando",
+          "name": "Koffee Sutra",
+          "city": "Orlando",
+          "state": "FL",
+          "country": "US",
+          "address": "707 E Washington St, Orlando, FL 32801",
+          "category": "Food",
+          "metro": "orlando",
+          "official_source": "https://koffeesutra.com/location/",
+          "lat": 28.543706561154,
+          "lng": -81.368365822385,
+          "coordinate_source": "owner_verified",
+          "coordinate_method": "editor-linked-official-address-census-geocoder",
+          "coordinate_url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=707+E+Washington+St%2C+Orlando%2C+FL+32801",
+          "coordinate_match": "707 E WASHINGTON ST, ORLANDO, FL, 32801"
+        }
+      ],
+      "editorial_context": "Brittany visits Koffee Sutra in Orlando's Thornton Park during its October 2026 opening period, sharing a banana bread latte and breakfast dishes. Check the cafe for its current menu."
+    },
+    {
+      "shortcode": "Dc1opPAqF7X",
+      "native_url": "https://www.instagram.com/reel/Dc1opPAqF7X/",
+      "creator": "viktorfeo",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "upper-buena-vista-miami",
+          "place_id": "wfadd_upper_buena_vista_miami",
+          "name": "Upper Buena Vista",
+          "city": "Miami",
+          "state": "FL",
+          "country": "US",
+          "address": "5040 NE 2nd Ave, Miami, FL 33137",
+          "category": "Shopping",
+          "metro": "miami-dade",
+          "official_source": "https://www.upperbuenavista.com/visit/",
+          "lat": 25.822005792515,
+          "lng": -80.191790511673,
+          "coordinate_source": "owner_verified",
+          "coordinate_method": "editor-linked-official-address-census-geocoder",
+          "coordinate_url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=5040+NE+2nd+Ave%2C+Miami%2C+FL+33137",
+          "coordinate_match": "5040 NE 2ND AVE, MIAMI, FL, 33137"
+        }
+      ],
+      "editorial_context": "Viktor features the leafy open-air setting at Upper Buena Vista in Miami. This is coverage of the retail and dining complex, rather than a review of any one tenant."
+    },
+    {
+      "shortcode": "Dd98ln5PWda",
+      "native_url": "https://www.instagram.com/reel/Dd98ln5PWda/",
+      "creator": "dallas_discovered",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "lounge-by-topgolf-frisco",
+          "place_id": "wfadd_lounge_by_topgolf_frisco_tx",
+          "name": "Lounge by Topgolf",
+          "city": "Frisco",
+          "state": "TX",
+          "country": "US",
+          "address": "3255 PGA Pkwy, Frisco, TX 75033",
+          "category": "Nightlife",
+          "metro": "dallas-fort-worth-tx",
+          "official_source": "https://www.pgafrisco.com/dine/lounge-by-top-golf/",
+          "coordinate_source": "google_places",
+          "coordinate_method": "public-maps-editor-review"
+        }
+      ],
+      "editorial_context": "Dallas Discovered previews Spookeasy, the 2026 Halloween overlay at Lounge by Topgolf in Frisco, Texas. The organizer lists September 25–November 1, 2026; the seasonal decor is not a permanent lounge feature."
+    },
+    {
+      "shortcode": "Ddj-gJfhUF5",
+      "native_url": "https://www.instagram.com/reel/Ddj-gJfhUF5/",
+      "creator": "kayaeatsnj",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "giselle-miami",
+          "place_id": "ChIJI-aAsE-32YgRlQrq8LqdUa8",
+          "name": "Giselle Miami",
+          "city": "Miami",
+          "state": "FL",
+          "country": "US",
+          "address": "15 NE 11th St, Miami, FL 33132",
+          "category": "Food",
+          "metro": "miami-dade",
+          "official_source": "https://gisellemiami.com/"
+        }
+      ],
+      "editorial_context": "Kaya shares a September 2026 dining visit to Giselle Miami, featuring short rib skewers and Giselle's Pearls. Confirm current dishes directly with the restaurant."
+    },
+    {
+      "shortcode": "DfH8WrigZc0",
+      "native_url": "https://www.instagram.com/reel/DfH8WrigZc0/",
+      "creator": "dallas_discovered",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "primal-steakhouse-the-colony",
+          "place_id": "wfadd_primal_steakhouse_the_colony_tx",
+          "name": "Primal Steakhouse",
+          "city": "The Colony",
+          "state": "TX",
+          "country": "US",
+          "address": "5625 State Hwy 121 Suite 100, The Colony, TX 75056",
+          "category": "Food",
+          "metro": "dallas-fort-worth-tx",
+          "official_source": "https://primalsteakhouse.com/the-colony/",
+          "lat": 33.075561579653,
+          "lng": -96.868654331944,
+          "coordinate_source": "owner_verified",
+          "coordinate_method": "editor-linked-official-address-census-geocoder",
+          "coordinate_url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=5625+State+Hwy+121%2C+The+Colony%2C+TX+75056",
+          "coordinate_match": "5625 E HWY 121, THE COLONY, TX, 75056"
+        }
+      ],
+      "editorial_context": "Dallas Discovered features a tasting-menu visit to Primal Steakhouse in The Colony, Texas, in October 2026. Promotional prices and dates in the source are historical; confirm current menus with the restaurant."
+    },
+    {
+      "shortcode": "DdPnGEtPIcR",
+      "native_url": "https://www.instagram.com/reel/DdPnGEtPIcR/",
+      "creator": "atasteoftexas_",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "pioneer-farms-austin",
+          "place_id": "wfadd_pioneer_farms_austin_tx",
+          "name": "Pioneer Farms",
+          "city": "Austin",
+          "state": "TX",
+          "country": "US",
+          "address": "10621 Pioneer Farms Dr, Austin, TX 78754",
+          "category": "Activities",
+          "metro": "austin-tx",
+          "official_source": "https://www.pumpkinnights.com/austin",
+          "lat": 30.370069635283,
+          "lng": -97.658591118298,
+          "coordinate_source": "owner_verified",
+          "coordinate_method": "editor-linked-official-address-census-geocoder",
+          "coordinate_url": "https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?benchmark=Public_AR_Current&format=json&address=10621+Pioneer+Farms+Dr%2C+Austin%2C+TX+78754",
+          "coordinate_match": "10621 PIONEER FARMS DR, AUSTIN, TX, 78754"
+        }
+      ],
+      "editorial_context": "A Taste of Texas previews Pumpkin Nights with footage filmed at Pioneer Farms in Austin. The reel also mentions Arlington; this footage is associated only with Austin. The 2026 event runs September 17–November 1 on select nights; check the organizer for tickets."
+    },
+    {
+      "shortcode": "DbvKd-vo9GE",
+      "native_url": "https://www.instagram.com/reel/DbvKd-vo9GE/",
+      "creator": "withlaya",
+      "status": "held_branch_unverified",
+      "places": [],
+      "reason": "Native caption names K10 Sushi without branch or city. Official Sant Boi and Tarragona galleries show multiple water-feature rooms; exact branch is not conclusively established. Do not guess from the creator profile.",
+      "supporting_sources": [
+        "https://www.sushik10.com/sant-boi-2/",
+        "https://www.sushik10.com/tarragona-2/"
+      ]
+    }
+  ],
+  "scope": "Owner explicitly authorized all destinations, with non-Florida venues excluded from Florida results.",
+  "additional_venue_mentions": [
+    {
+      "key": "howell-family-farms-arlington",
+      "place_id": "wfadd_howell_family_farms_arlington_tx",
+      "name": "Howell Family Farms",
+      "city": "Arlington",
+      "state": "TX",
+      "country": "US",
+      "address": "4016 W Division St, Arlington, TX 76012",
+      "category": "Activities",
+      "metro": "dallas-fort-worth-tx",
+      "official_source": "https://www.pumpkinnights.com/dallas",
+      "coordinate_source": "google_places",
+      "coordinate_method": "public-maps-editor-review",
+      "reason": "Arlington mentioned in Austin-filmed Pumpkin Nights reel. Create the verified venue, but do not attach Austin footage to Arlington.",
+      "public_visit_note": "Event venue; public entry depends on an announced ticketed event. Pumpkin Nights 2026 ends November 1."
+    }
+  ],
+  "city_sort_sources": [
+    "https://www.wikidata.org/wiki/Q128269",
+    "https://www.wikidata.org/wiki/Q51694"
+  ],
+  "inventory_creation": {
+    "applied_on": "2026-10-30",
+    "table": "wf_inventory",
+    "method": "INSERT ON CONFLICT DO NOTHING; no existing records overwritten",
+    "verified_created_count": 10,
+    "new_place_ids": [
+      "wfadd_high_hopes_sugarhouse_worthington_ma",
+      "wfadd_cordle_family_estates_st_augustine",
+      "ChIJR7KXbB_LwogRc-iB55U1AHQ",
+      "wfadd_koffee_sutra_orlando",
+      "wfadd_upper_buena_vista_miami",
+      "wfadd_serious_eats_grand_prairie_tx",
+      "wfadd_lounge_by_topgolf_frisco_tx",
+      "wfadd_primal_steakhouse_the_colony_tx",
+      "wfadd_pioneer_farms_austin_tx",
+      "wfadd_howell_family_farms_arlington_tx"
+    ],
+    "rating_policy": "New records retain null rating and zero review count. They can resolve by identity; ranked discovery awaits verified quality signals.",
+    "coordinate_policy": "Official-address Census geocodes have recorded provenance. Three native Maps positions and the earlier Pemberton sighting retain dated Google cache timestamps; no independent provenance is claimed for Google locations.",
+    "season_policy": "Cordle is temporarily closed after its October 27 finale. Howell is an event venue with event-only public access. Seasonal footage remains explicitly dated."
+  }
+}

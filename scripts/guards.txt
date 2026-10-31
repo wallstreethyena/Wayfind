@@ -2247,6 +2247,8 @@ node scripts/test-group-vote-ballot.mjs
 node scripts/test-group-vote-organizer.mjs
 
 node scripts/test-group-vote-frame.mjs
+# Shared tours start Group Vote on that tour; picker counts category searches.
+node scripts/test-group-vote-tours.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
@@ -2448,3 +2450,5 @@ node scripts/check-redirect-suspect-gate.mjs
 # Safari 15 parse-time crash (WAYFIND-1K): shared/client regex compatibility.
 node scripts/check-browser-regex-compat.mjs
 node scripts/check-seasonal-rail-depth.mjs
+# 2026-10-29: Halloween overnight close (keep after-midnight listings until verified close), explicit-link dedupe on republish, experience titles and honest booking chips, fail-closed fall cache epoch reader.
+node scripts/test-halloween-overnight-dedupe.mjs
