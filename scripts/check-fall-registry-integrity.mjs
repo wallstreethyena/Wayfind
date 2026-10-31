@@ -90,18 +90,16 @@ for (const rid of FALL_REJECTED_IDS) {
 }
 ok(FALL_REJECTED_IDS.length >= 6, `positive control — the owner-rejected list still carries its known members (${FALL_REJECTED_IDS.length}); a guard reporting 0 here would be checking nothing`);
 
-// Owner 2026-10-04: Hashtag Café must stay visible in Fall Drinks & Seasonal Bites
-// while its verified Halloween food events are active. Pin the exact place identity
-// so a future registry refresh cannot silently drop the Sarasota feature.
+// Owner 2026-10-04 / retired 2026-10-31: Hashtag Café's ticketed Halloween food
+// events (Oct 17, 24, and 30, 2026) ran through 2026-10-30 and are retired once
+// their bounded October window ends.
 const HASHTAG_CAFE = "ChIJEUEmzE1Bw4gRHHXe_oxJF7E";
-ok(poolIds.has(HASHTAG_CAFE) && cardIds.has(HASHTAG_CAFE) && railIds.has(HASHTAG_CAFE) && srcIds.has(HASHTAG_CAFE),
-  "Hashtag Café Sarasota stays present across the fall pool, card skin, rail assignment and evidence registry");
-ok(FALL_PLACE_RAIL[HASHTAG_CAFE] === "food",
-  "Hashtag Café Sarasota is assigned to Fall Drinks & Seasonal Bites (food rail)");
-ok(FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.sourceType === "official_site"
-  && FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.verified === "2026-10-05"
-  && FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.until === "2026-10-30",
-  "Hashtag Café uses current official Halloween food-event evidence with a bounded October window");
+ok(!poolIds.has(HASHTAG_CAFE) && !cardIds.has(HASHTAG_CAFE) && !railIds.has(HASHTAG_CAFE) && !srcIds.has(HASHTAG_CAFE),
+  "Hashtag Café Sarasota's expired Oct 30 Halloween food-event entry is retired from all four fall sets");
+ok(!FALL_PLACE_RAIL[HASHTAG_CAFE] && !FALL_PLACE_IDS[HASHTAG_CAFE],
+  "Hashtag Café Sarasota is no longer assigned to Fall Drinks & Seasonal Bites after its Oct 30 event window ended");
+ok(!FALL_OFFERING_SOURCES[HASHTAG_CAFE] && !offeringActive({ ends: "2026-10-30", today: "2026-10-31" }),
+  "Hashtag Café's bounded October 30 window is expired from 2026-10-31 onward");
 
 // ── 3. every pool member: https source, real offering text, current-season
 // verification (or the documented evergreen exemption), and — for a DATED

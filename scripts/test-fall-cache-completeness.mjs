@@ -54,7 +54,7 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
       fetchCuratedEvents: async () => [], isTrusted: () => false, eventOutboundUrl: () => null,
     },
     "../../../../lib/siteTime.js": { siteTodayStr: () => "2026-09-10" },
-    "../../../../lib/overnightClose.js": overnightClose,
+    "../../../../lib/overnightClose.js": { ...overnightClose, siteNowLocal: () => "2026-09-10T14:00" },
     "../../../../lib/fallPool.js": {
       isFallEvent: () => true, fallEventLive: () => true, fallWhenLabel: () => "Tonight",
       fallScheduleChip: () => null, FALL_PLACE_IDS: { p1: "Verified fall offering" },
