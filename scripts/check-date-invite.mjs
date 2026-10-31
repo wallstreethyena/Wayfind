@@ -253,11 +253,21 @@ ok(noScale(50) >= SCALE.noMin && SCALE.noMin > 0.4,
   // themselves, which is a stronger property than the element name.
   const px = readFileSync(path.join(REPO, "app/ask/pixel.js"), "utf8");
   ok(/<svg/.test(px) && /<rect/.test(px), "the cast must be drawn in the page, not fetched");
+  ok(/\buseId\b/.test(px), "Cat must use React.useId() so two identical Elf instances never collide on SVG <defs> gradient IDs");
   const grids = px.match(/"[.owsepEMmthd]{12,}"/g) || [];
   ok(grids.length >= 20,
      `the cast must be authored as readable pixel grids — found ${grids.length} rows. An asset nobody can edit one pixel at a time is the thing the owner rejected`);
   const widths = new Set(grids.map((g) => g.length));
   ok(widths.size <= 3, `the grids are ragged: ${[...widths].join(",")} — every row of a sprite must be the same width or the drawing shears`);
+  const actOnly = decodeInvite(encodeInvite({ kind: "dinner", from: "Gabe", when: "Friday" }));
+  ok(actOnly && actOnly.kind === "dinner" && inviteKinds(actOnly)[0] === "dinner" && planFitsPlace(actOnly, "dinner") === true,
+     "an activity-only invite must survive encode/decode and resolve its suggested activity");
+  const askClientRaw = readFileSync(path.join(REPO, "app/ask/AskClient.js"), "utf8");
+  const styleRaw = readFileSync(path.join(REPO, "app/ask/style.js"), "utf8");
+  ok(/inv\.place \|\| suggestedActivityLabel/.test(askClientRaw),
+     "AskClient must render the proposed plan preview for activity-only invitations too");
+  ok(/setNos\(\(n\)\s*=>\s*n\s*\+\s*1\)/.test(askClientRaw) && /var\(--s,1\)/.test(styleRaw) && /var\(--n,1\)/.test(styleRaw),
+     "pressing No must escalate the mood ladder and dynamically grow YES while shrinking No");
 }
 
 // ── 6c. ONE LINK PER PERSON, AND A LEGIBLE ANSWER ──────────────────────────

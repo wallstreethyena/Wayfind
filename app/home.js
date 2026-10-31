@@ -108,7 +108,7 @@ import { setLocal, sweepLocal } from "../lib/localStore";
 import { browsePosition, horizontalPositions, restoreBrowsePosition } from "../lib/restoreBrowsePosition";
 import { placeRouteBackPlan } from "../lib/railReaction";
 import { reconcileIdsSafe } from "../lib/syncReconcile";
-import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange } from "../lib/likeSignal";
+import { STORE_CHANGE_EVENT, applyFavoritesChange, applyReactionChange, likeEventSuppressed } from "../lib/likeSignal";
 import { mergeSinceSnapshot } from "../lib/syncReconcile";
 // v4.94: the ONE junk filter — composites and any non-aggregator pool call it too.
 import { placeAllowed, SUB_ALLOW } from "../lib/placeFilter";
@@ -362,7 +362,7 @@ import { isDateRoom } from "../lib/dateRoom.js";
 import { createDetailOpenGate } from "../lib/detailOpenGate.js";
 import { createPlaceActionGate } from "../lib/placeActionOnce.js";
 import { planDeepLinkAction, humanConfirmed, deepLinkEventProps, deepLinkPromptLabel } from "../lib/deepLinkAction.js";
-import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh } from "../lib/locationHonesty";
+import { isSeedCenter, cityLabel, landingSlugFromLoc, centerAgreesWithLabel, firstPaintRailOrigin, localityFromFormattedAddress, storedPinFresh, storedPlaceHeader } from "../lib/locationHonesty";
 import { ownedPlacePhotoSrc } from "../lib/placePhoto";
 import { sanitizeRestoredPosition } from "../lib/restorePosition.js";
 
@@ -1197,6 +1197,7 @@ const NOLOG = () => {};
 function skipOwnerOrBotAnalytics(user) {
   if (typeof window === "undefined") return false;
   try {
+    if (likeEventSuppressed(user)) return true;
     return !!(window.__WF_ANALYTICS_SUPPRESSED || analyticsSuppressionReason({
       storage: window.localStorage, user,
       userAgent: window.navigator.userAgent, webdriver: window.navigator.webdriver,
@@ -12503,6 +12504,7 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
               )}
               <AwardListRank award={cardAward} rank={rank} />
               <div className="wf-place-card-name">{p.name}</div>
+              {(() => { const where = storedPlaceHeader(p); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
           <div className="wf-place-card-meta" style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", margin: "7px 0 6px" }}>
