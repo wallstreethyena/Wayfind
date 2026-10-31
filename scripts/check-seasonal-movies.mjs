@@ -109,7 +109,7 @@ try {
       ok(m.ticket.href === `/api/commerce/go?provider=fandango&offer=${encodeURIComponent(m.id)}&surface=${c}_movies_rail&content=${encodeURIComponent(m.id)}` && m.ticket.provider === "fandango" && m.ticket.offerId === m.id && m.ticket.merchant === "Fandango", `${m.id}: exact href shape and per-movie ticket`);
       const viaHref = await resolveOffer(u.searchParams.get("provider"), u.searchParams.get("offer"), { subId: u.searchParams.get("surface") });
       ok(!viaHref.error && viaHref.dest.includes("anrdoezrs.net/links/101643573/") && viaHref.dest.includes(reg.movieDestinationById(m.id)), `${m.id}: the real resolver resolves the href to this movie's own Fandango page, CJ-wrapped`);
-      ok(m.art && /^\/movies\/[\w.-]+\.webp$/.test(m.art.src) && /Fandango/.test(m.art.credit || ""), `${m.id}: poster art is the local Fandango-credited file`);
+      ok(m.art && /^\/movies\/[\w.-]+\.webp$/.test(m.art.src) && /poster/i.test(m.art.credit || ""), `${m.id}: poster art is the local credited poster file`);
     }
   }
   const bad = await GET(new Request("https://www.gowayfind.com/api/movies/seasonal?collection=summer"));
