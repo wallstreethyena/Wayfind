@@ -2254,6 +2254,7 @@ node scripts/test-group-vote-tours.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
+node scripts/test-place-details-budget-refusal.mjs
 node scripts/test-events-fall-feed-image.mjs
 node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
