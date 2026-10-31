@@ -40,6 +40,8 @@ import { C, TYPE } from "./kit";
 // adaptation of home.js's experienceBadges that check-collection-look.mjs
 // already pins — rather than a fourth copy of the same badge logic.
 import RailCard, { RailNav, RailDots } from "./RailCard";
+import useEditorialHooks from "./useEditorialHooks.js";
+import { toHookLine } from "../../lib/editorialHook.js";
 import { coarseCat } from "../../lib/ranking";
 import { toDisplayScore } from "../../lib/score";
 import { wayfindScore } from "../../lib/google";
@@ -199,6 +201,20 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [registryRows.map((r) => r.key).join(","), center && center.lat, center && center.lng]);
 
+  // THE EDITORIAL LINE (owner, 2026-10-31): creator cards named the creator
+  // but never said why the place is worth going to. Resolve the same verified
+  // line every other place card uses. VERIFIED RUNG ONLY ("wayfind" tier) —
+  // no researched line means the card stays silent. Registry spots ask only
+  // once hydration has resolved them to a real place id; an unresolved spot
+  // has no identity to look editorial up by, so it is never asked about.
+  const hookItems = [];
+  for (const e of inventory) {
+    if (e.kind === "pool" && e.row && e.row.p && e.row.p.id) hookItems.push(e.row.p);
+    else { const h = hydrated[e.key]; if (h && h.id) hookItems.push(h); }
+  }
+  const hooks = useEditorialHooks(hookItems);
+  const verifiedTake = (id, name) => (id && hooks.tiers && hooks.tiers[id] === "wayfind" ? toHookLine(hooks[id], name) || null : null);
+
   const excluded = new Set((excludePlaceIds || []).map(String));
   const creatorEntryId = (entry) => {
     if (!entry) return "";
@@ -293,6 +309,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
                 rank={i + 1}
                 score={cardScore(p)}
                 facts={cardFacts(p)}
+                take={verifiedTake(p.id, p.name)}
                 award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
                 chips={creatorChips(p, onExperience)}
                 ariaLabel={"Open " + p.name}
@@ -333,6 +350,7 @@ export default function CreatorFinds({ items, byCity, center, excludePlaceIds, o
               eyebrow={s0.city ? "Scouted in " + s0.city : "Scouted"}
               score={h && h.rating ? toDisplayScore(governedWayfindScore(wayfindScore(h.rating, h.reviews), { hasCreatorVideo: true, hasFeaturedCreatorVideo: spotIsFeatured(s0) })) : null}
               facts={h ? cardFacts({ reviews: h.reviews, priceLevel: h.priceLevel, oh: h.oh, utcOffset: h.utcOffset }) : [s0.city || null].filter(Boolean)}
+              take={verifiedTake(h && h.id, s0.name)}
               award={v && v.creator ? { tone: "creator", icon: "🎬", label: "@" + v.creator + (plat ? " on " + plat.label : "") } : null}
               chips={[{ key: "video", icon: "🎬", label: "Creator post", onClick: () => { if (onBrowse) onBrowse(); } }]}
               ariaLabel={"Open " + s0.name}

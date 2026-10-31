@@ -119,7 +119,7 @@ scripts/check-drop-photo-window.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	33	1	0
 scripts/check-dupes.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	d31ca083d0beff58efc7929c7c9e4b987c27e9225aeedb5a222d8414f5d563f9
 scripts/check-earning-integrations.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	23	0	0	b0d0e1f194112d8bad6a484da38019bb4c056a88b49b1245b07099bfba12e8fd
 scripts/check-editorial-coverage-pipeline.mjs	0	CALL	blocks-ci-and-deploy	1	-	45	0	0	22150db8c08d542fd25f11db5cb84f020c1aa4427efe60785328bb3fc3707441
-scripts/check-editorial-everywhere.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	51	1	5	3a4038355408049a02c1c0c014f03dcd27a06164b68395b28c34ce4b0445536a
+scripts/check-editorial-everywhere.mjs	1	CALL	blocks-ci-and-deploy	1	Llama (Editorial)	55	1	6	269f5026216879ddd4cecbbce4e8ab8842a18216934fbc5b290101b5efa07955
 scripts/check-editorial-publish-symmetry.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	d653008b40a9fef149e60546446189f95831c82cd747ad67402e0e0a42b10d60
 scripts/check-editorial-publish.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	38	1	0	483199dca425b408e02adb8693b08daac1e807c81d47db4fd7fe2cb3529be588
 scripts/check-editorial-read-gate.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	59cde10366d11727f8d694b706d85b380b18f8182b05fb3a190813ff2480bba6
