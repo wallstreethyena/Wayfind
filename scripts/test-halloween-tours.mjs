@@ -151,7 +151,6 @@ const chipLabel = "Ghost tours (" + live.tours.length + ")";
 ok(html.includes(">" + chipLabel + "<") && html.includes('data-filter-id="tours"'), "the ghost tours chip carries the real count: " + chipLabel);
 ok((html.match(/data-haunt-id="/g) || []).length === live.haunts.length, "default view keeps the haunt grid");
 ok(html.includes('id="boo-tours"') && html.includes("Florida Ghost Tours"), "default view renders the full ghost tour section under the haunts");
-ok(live.tours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders every ghost tour card");
 ok(live.eventTours.every((t) => html.includes('data-tour-id="' + t.id + '"')), "default view renders the haunted attraction with the haunts");
 ok(html.includes("Top Florida ghost tours") && (html.match(/data-featured-tour="/g) || []).length === live.featuredTours.length, "featured ghost tours render near the top");
 ok(html.includes("More ghost tours on Viator"), "destination heading renders");
@@ -162,17 +161,42 @@ ok(!DASH.test("Top Florida ghost tours") && !DASH.test("More ghost tours on Viat
 ok(html.includes("Show all") === false && html.includes("Prices, dates and hours for " + (live.haunts.length + live.eventTours.length) + " Florida haunts and Halloween events."), "lede counts haunts and events only");
 const toursHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "tours" }));
 ok(toursHtml.includes('id="boo-tours"') && toursHtml.includes("Florida Ghost Tours"), "tour section renders behind the chip");
-ok((toursHtml.match(/data-tour-id="/g) || []).length === live.tours.length, "chip view: one card per ghost tour");
+ok((toursHtml.match(/data-tour-id="/g) || []).length === live.tours.length - live.featuredTours.length, "chip view grid omits the featured picks");
+// Featured picks are the same rows as the tour catalogue. Each one stays in
+// the featured section and is left out of the grid, so a name shows once.
+const idsOf = (markup, attr) => [...markup.matchAll(new RegExp(attr + '="([^"]+)"', "g"))].map((m) => m[1]);
+const assertEachTourOnce = (markup, label) => {
+  const featured = idsOf(markup, "data-featured-tour");
+  const eventIds = new Set(live.eventTours.map((t) => t.id));
+  const gridGhost = idsOf(markup, "data-tour-id").filter((id) => !eventIds.has(id));
+  const featuredIds = live.featuredTours.map((t) => t.id);
+  ok(featured.join(",") === featuredIds.join(","), label + ": featured picks stay in the approved order");
+  ok(featuredIds.length > 0 && featuredIds.every((id) => !gridGhost.includes(id)), label + ": featured picks are not repeated in the tour grid");
+  ok(new Set(gridGhost).size === gridGhost.length, label + ": tour grid has no repeated product");
+  ok([...featured, ...gridGhost].sort().join(",") === live.tours.map((t) => t.id).sort().join(","), label + ": every ghost tour shows once (" + featured.length + " featured, " + gridGhost.length + " in the grid)");
+  ok(live.tours.every((t) => (markup.match(new RegExp('id="tour-' + t.id + '"', "g")) || []).length === 1), label + ": one tour anchor per ghost tour");
+};
+assertEachTourOnce(html, "default");
+assertEachTourOnce(toursHtml, "chip");
+ok(TOUR_REGIONS.every((r) => toursHtml.includes(r.label.replace(/&/g, "&amp;"))), "region filter labels are unchanged");
+const full = await withHalloweenTours(model, { env: {} });
+const fullHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: full }));
+const fullFeat = idsOf(fullHtml, "data-featured-tour");
+const fullGrid = idsOf(fullHtml, "data-tour-id");
+ok(fullFeat.join(",") === FEATURED_GHOST_TOUR_CODES.join(","), "snapshot keeps the six featured picks in order: " + fullFeat.join(","));
+ok(FEATURED_GHOST_TOUR_CODES.every((code) => !fullGrid.includes(code)), "snapshot grid does not repeat a featured pick");
+const fullGhost = full.tours.map((t) => t.id).sort();
+ok([...fullFeat, ...fullGrid.filter((id) => fullGhost.includes(id))].sort().join(",") === fullGhost.join(","), "snapshot shows every ghost tour once");
 ok(!/data-haunt-id="/.test(toursHtml), "chip view swaps the haunt cards out");
 for (const t of live.tours) {
   ok(toursHtml.includes('href="' + t.cta.href.replace(/&/g, "&amp;") + '"'), t.id + " buy href renders");
   ok(toursHtml.includes(t.name.replace(/'/g, "&#x27;")) || toursHtml.includes(t.name), t.id + " name renders");
 }
 ok(!/href="https:\/\/(?:www\.)?viator\.com/.test(html + toursHtml), "no raw Viator link in the page");
-ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length + live.featuredTours.length, "every tour card and featured pick has the See availability button");
+ok((toursHtml.match(new RegExp(HALLOWEEN_TOUR_CTA, "g")) || []).length === live.tours.length, "every ghost tour has one See availability button");
 const PICK_LINE = "Wayfind may earn a commission, which never changes our picks or their order.";
 ok((toursHtml.match(/Wayfind may earn a commission when you book through partner links\./g) || []).length === 1, "page disclosure still appears once");
-const toursPartnerButtons = live.tours.length + live.featuredTours.length + live.ghostDestinations.length;
+const toursPartnerButtons = live.tours.length + live.ghostDestinations.length;
 ok((toursHtml.match(/which never changes our picks or their order\./g) || []).length === toursPartnerButtons, "tours view: pick disclosure on every partner button (" + toursPartnerButtons + ")");
 ok(toursHtml.includes(PICK_LINE), "pick disclosure wording is the existing sentence");
 const partnerTags = [...toursHtml.matchAll(/<a class="(?:boo-buy|boo-dest-link)"[^>]*>/g)].map((m) => m[0]);
@@ -275,6 +299,7 @@ ok(!bare.includes('id="boo-tours"') && !bare.includes('class="boo-jump"') && !ba
   const familyHtml = renderToStaticMarkup(createElement(BoHalloweenHaunt, { model: live, initialFilter: "family" }));
   ok(!familyHtml.includes("272079P3") && !familyHtml.includes("Spirits and Spirits Haunted Pub Crawl") && !familyHtml.includes("430526P2"), "family filter removes adult pub crawls and 18+ tours from FeaturedGhostTours");
   ok(familyHtml.includes("38620P1") && familyHtml.includes("122676P1"), "family filter keeps family-appropriate featured ghost tours");
+  ok((familyHtml.match(/data-featured-tour="38620P1"/g) || []).length === 1 && !familyHtml.includes('data-tour-id="38620P1"'), "family view keeps a family featured tour once");
 }
 
 console.log("test-halloween-tours: " + checks + " assertions OK (" + live.tours.length + " ghost tours, " + live.eventTours.length + " event tours)");
