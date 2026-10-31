@@ -29,12 +29,13 @@ ok(Object.keys(A.parseCampaign("?utm_source=a%40b.com&utm_campaign=" + "x".repea
 
 const local = mem(); const session = mem();
 let st = A.captureLanding({ search: "?utm_source=ig&utm_campaign=halloween&fbclid=F1&secret=1", pathname: "/halloween-in-florida", referrer: "https://l.instagram.com/?u=x&token=zzz", local, session, now: T0 });
-ok(st.ft.p.utm_campaign === "halloween" && st.ft.p.fbclid === "F1", "first touch stored");
+ok(st.ft.p.utm_campaign === "halloween" && !("fbclid" in st.ft.p) && st.ft.ct === "fbclid", "first touch stored: campaign kept, click-id VALUE dropped, only its type (fbclid) kept");
+ok(!/F1/.test(local._m.get(A.FIRST_TOUCH_KEY)) && /F1/.test(session._m.get(A.SESSION_KEY)), "the 90-day localStorage record never holds a click-id value; the tab session may");
 ok(st.ft.lp === "/halloween-in-florida" && st.ft.rd === "l.instagram.com", "landing path (no query) and referrer HOST only");
 const raw = local._m.get(A.FIRST_TOUCH_KEY) + session._m.get(A.SESSION_KEY);
 ok(!/token|zzz|secret|\?/.test(raw), "stored JSON holds no query string, referrer token, or unlisted param");
 st = A.captureLanding({ search: "?utm_source=tiktok&utm_campaign=other&ttclid=T9", pathname: "/guides/x", referrer: "", local, session, now: T0 + DAY });
-ok(st.ft.p.utm_campaign === "halloween" && st.ft.p.fbclid === "F1" && !st.ft.p.ttclid, "first touch KEPT after a later campaign landing");
+ok(st.ft.p.utm_campaign === "halloween" && st.ft.ct === "fbclid" && !st.ft.p.ttclid, "first touch KEPT after a later campaign landing");
 ok(st.sess.p.utm_campaign === "other" && st.sess.p.ttclid === "T9" && st.sess.lp === "/guides/x", "session attribution overwritten by the later landing");
 st = A.captureLanding({ search: "", pathname: "/p/abc", local, session, now: T0 + 2 * DAY });
 ok(st.sess.p.utm_campaign === "other", "param-less navigation does not erase session attribution");
@@ -49,7 +50,20 @@ ok(st.ft.p.utm_campaign === "paid1", "a no-campaign first visit never blocks the
 st = A.captureLanding({ search: "?utm_campaign=paid2", pathname: "/", local: l2, session: mem(), now: T0 + 2 * DAY });
 ok(st.ft.p.utm_campaign === "paid1", "once a campaign first touch exists it is immutable");
 const props = A.attributionProps(A.readState({ local, session, now: T0 + 3 * DAY }));
-ok(props.wf_ft_utm_source === "ig" && props.wf_ft_fbclid === "F1" && props.wf_ft_landing_path === "/halloween-in-florida" && props.wf_sess_utm_source === "tiktok", "wf_ft_* and wf_sess_* flat props");
+ok(props.wf_ft_utm_source === "ig" && !("wf_ft_fbclid" in props) && props.wf_ft_click_type === "fbclid" && props.wf_ft_landing_path === "/halloween-in-florida" && props.wf_sess_utm_source === "tiktok", "wf_ft_* (no click-id values) and wf_sess_* flat props");
+{
+  // returning direct visitor: first touch from an old campaign, empty session => landing_* empty, first_touch_* set
+  const lr = mem(); A.captureLanding({ search: "?utm_source=ig&utm_campaign=old_reel", pathname: "/", local: lr, session: mem(), now: T0 });
+  const st2 = A.captureLanding({ search: "", pathname: "/halloween-in-florida", local: lr, session: mem(), now: T0 + 5 * DAY });
+  const lp2 = A.landingProps(st2);
+  ok(!("landing_campaign" in lp2) && !("landing_source" in lp2) && lp2.first_touch_campaign === "old_reel" && lp2.first_touch_source === "ig" && lp2.landing_path === "/halloween-in-florida", "a returning direct visit is NOT labelled with the old campaign as its landing: " + JSON.stringify(lp2));
+  // OutboundTicketClick only for ticket sellers
+  const calls = []; const winT = { fbq: (...a) => calls.push(a) };
+  const tix = A.fireOutboundTicketClick({ win: winT, payload: { provider: "viator", surface: "halloween_haunts", content_id: "x1", click_id: "cid-tix-1" }, state: {} });
+  const coupon = A.fireOutboundTicketClick({ win: winT, payload: { provider: "clipp", surface: "guide_deals", content_id: "c1", click_id: "cid-cp-1" }, state: {} });
+  const stay = A.fireOutboundTicketClick({ win: winT, payload: { provider: "stay22", surface: "hotel_booking", click_id: "cid-st-1" }, state: {} });
+  ok(tix.fired && !coupon.fired && coupon.skipped === "not_ticket" && !stay.fired && calls.length === 1, "OutboundTicketClick fires for a ticket seller only, never for a coupon or a stay");
+}
 ok(Object.keys(A.attributionProps(st, "ft")).every((k) => k.startsWith("wf_ft_")) && Object.keys(A.attributionProps(st, "sess")).every((k) => k.startsWith("wf_sess_")), "which=ft|sess split");
 
 // 2. test marker + checker exclusion ------------------------------------------
