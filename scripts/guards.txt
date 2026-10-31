@@ -972,6 +972,7 @@ node scripts/check-mobile-poster-fit.mjs
 # taxonomy and not just a scroll offset, and it must be written on pagehide —
 # an outbound tap runs no React cleanup.
 node scripts/check-position-memory.mjs
+node scripts/check-map-not-a-dead-end.mjs
 node scripts/test-document-position.mjs
 node scripts/test-map-router-return.mjs
 # v8.26 — the shell scrolls .wf-scrollarea, not the document, so window.scrollTo
