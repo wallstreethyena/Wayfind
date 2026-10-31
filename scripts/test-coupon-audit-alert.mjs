@@ -64,15 +64,28 @@ ok(/lib\/coupons\.js/.test(lapsed[0].detail) && /untracked/.test(lapsed[0].detai
 // A seasonal end is not a Clipp verification fuse. Never tell the owner
 // to extend an event date or repair coupon attribution for this alert.
 const fallFuse = COUPON_AUDIT_FUSES.find((f) => f.id === "fall_offering_end");
-ok(!!fallFuse && /Hashtag/.test(fallFuse.label), "the earliest fall ending identifies Hashtag Café, rather than an unnamed offering");
-for (const today of ["2026-10-28", "2026-10-30", "2026-10-31"]) {
+// DERIVED, NOT PINNED. This used to hardcode "Hashtag Café" and the dates
+// around its 2026-10-30 end. When that offering expired, the pin broke this
+// guard as a side effect of a correct registry retirement — the same class of
+// calendar failure that took check-fall-registry-integrity red on main. The
+// fuse itself already computes the earliest ending from the registry (it now
+// reads "Fall offering: Dead Coconut Club"), so assert the INVARIANT: the
+// alert names a real venue and tracks that venue's own end date, whichever
+// offering happens to be earliest.
+const fallVenue = String(fallFuse?.label || "").replace(/^Fall offering:\s*/, "").trim();
+ok(!!fallFuse && fallVenue.length > 2 && !/^(unknown|offering|tbd)$/i.test(fallVenue),
+  `the earliest fall ending identifies a named venue ("${fallVenue}"), rather than an unnamed offering`);
+const fallEnd = String(fallFuse?.expires || "");
+ok(/^\d{4}-\d{2}-\d{2}$/.test(fallEnd), `the earliest fall ending carries that venue's own end date (${fallEnd})`);
+const dayBefore = (d, n) => { const t = new Date(d + "T12:00:00Z"); t.setUTCDate(t.getUTCDate() + n); return t.toISOString().slice(0, 10); };
+for (const today of [dayBefore(fallEnd, -2), fallEnd, dayBefore(fallEnd, 1)]) {
   const notice = run(today, [fallFuse])[0];
   ok(notice && notice.id === "audit_fuse_fall_offering_end" && notice.severity === "warn", `fall notice preserves its stable cooldown identity (${today})`);
   ok(notice && /lib\/fallPool\.js/.test(notice.detail) && /lib\/fallSkin\.js/.test(notice.detail) && /check-fall-registry-integrity/.test(notice.detail), `fall notice names the actual registries and build consequence (${today})`);
   ok(notice && /Keep the verified end date/.test(notice.detail) && !/lib\/coupons\.js|untracked|guide CTA|Builds are NOT affected/.test(notice.detail), `fall notice does not fabricate coupon consequences or encourage invented renewal (${today})`);
 }
-ok(/ends today/.test(run("2026-10-30", [fallFuse])[0]?.title), "the last local day is still live");
-ok(/ended/.test(run("2026-10-31", [fallFuse])[0]?.title), "the following local day requests retirement, not renewal");
+ok(/ends today/.test(run(fallEnd, [fallFuse])[0]?.title), `the last local day is still live (${fallEnd})`);
+ok(/ended/.test(run(dayBefore(fallEnd, 1), [fallFuse])[0]?.title), `the following local day requests retirement, not renewal (${dayBefore(fallEnd, 1)})`);
 
 // Wiring: the report builder must carry couponAudit through to computeAlerts (a rule nobody feeds is decoration).
 const stub = { source: { name: "s", connected: false }, data: null };

@@ -123,8 +123,26 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
   ok(h.observed.loaded && h.observed.usable === true, "healthy ten-rail answer is admitted to FastCache");
   ok(body.sourceFailures === 0 && body.rails.length === 10, "healthy response preserves its output and explicit source health");
   ok(windowRailAnswer(body).sourceFailures === 0, "the real wire serializer preserves health evidence for browser reuse");
-  ok(response.headers.get("cache-control") === "public, s-maxage=900, stale-while-revalidate=86400",
-    "complete Fall answer retains the existing public CDN policy");
+  // THE POLICY IS TIME-OF-DAY DEPENDENT, and this assertion used to ignore
+  // that. app/api/events/fall/route.js serves a SHORT window during the
+  // overnight carry hours so a rollover is picked up quickly:
+  //   complete ? (overnightCacheBucket(nowLocal) ? 60s : 900s) : "no-store"
+  // Pinning the 900s string made the guard fail on main itself every night —
+  // observed 2026-10-31 at 00:0x ET, where a perfectly healthy answer (10
+  // rails, 0 source failures, admitted to FastCache) returned
+  // "public, s-maxage=60, stale-while-revalidate=30" and this line called it
+  // a regression.
+  //
+  // Derive the expectation the SAME way the route does, from the same helper
+  // the harness already injects, so the assertion still catches a real change
+  // (a "no-store", a dropped stale-while-revalidate, a wrong duration) at any
+  // hour instead of only between 03:00 and midnight ET.
+  const overnight = !!overnightClose.overnightCacheBucket(overnightClose.siteNowLocal());
+  const expectedPolicy = overnight
+    ? "public, s-maxage=60, stale-while-revalidate=30"
+    : "public, s-maxage=900, stale-while-revalidate=86400";
+  ok(response.headers.get("cache-control") === expectedPolicy,
+    `complete Fall answer retains the existing public CDN policy for this hour (overnight=${overnight}, expected "${expectedPolicy}", got "${response.headers.get("cache-control")}")`);
 }
 
 {

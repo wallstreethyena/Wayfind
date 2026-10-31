@@ -90,18 +90,20 @@ for (const rid of FALL_REJECTED_IDS) {
 }
 ok(FALL_REJECTED_IDS.length >= 6, `positive control — the owner-rejected list still carries its known members (${FALL_REJECTED_IDS.length}); a guard reporting 0 here would be checking nothing`);
 
-// Owner 2026-10-04: Hashtag Café must stay visible in Fall Drinks & Seasonal Bites
-// while its verified Halloween food events are active. Pin the exact place identity
-// so a future registry refresh cannot silently drop the Sarasota feature.
-const HASHTAG_CAFE = "ChIJEUEmzE1Bw4gRHHXe_oxJF7E";
-ok(poolIds.has(HASHTAG_CAFE) && cardIds.has(HASHTAG_CAFE) && railIds.has(HASHTAG_CAFE) && srcIds.has(HASHTAG_CAFE),
-  "Hashtag Café Sarasota stays present across the fall pool, card skin, rail assignment and evidence registry");
-ok(FALL_PLACE_RAIL[HASHTAG_CAFE] === "food",
-  "Hashtag Café Sarasota is assigned to Fall Drinks & Seasonal Bites (food rail)");
-ok(FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.sourceType === "official_site"
-  && FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.verified === "2026-10-05"
-  && FALL_OFFERING_SOURCES[HASHTAG_CAFE]?.until === "2026-10-30",
-  "Hashtag Café uses current official Halloween food-event evidence with a bounded October window");
+// Owner 2026-10-04: Hashtag Café (ChIJEUEmzE1Bw4gRHHXe_oxJF7E) was pinned
+// across all four fall sets so a registry refresh could not silently drop the
+// Sarasota feature. That instruction was explicitly conditional — "while its
+// verified Halloween food events are active" — and the condition has lapsed:
+// its evidence carried `until: "2026-10-30"` for three ticketed dates (Oct 17,
+// 24, 30), all now past. At 00:00 on 2026-10-31 THIS guard began failing on
+// main itself, and therefore on every open PR, because section 3 below
+// correctly refuses to list an ended dated offering as if still running.
+//
+// The pin is retired rather than relaxed. Section 3 keeps enforcing the expiry
+// rule for every member, and FALL_REJECTED_IDS above still makes owner
+// rejections permanent — nothing about either protection is weakened here. If
+// Hashtag Café runs a 2027 season, it re-enters through the normal
+// verification path with fresh evidence, not by restoring this fixture.
 
 // ── 3. every pool member: https source, real offering text, current-season
 // verification (or the documented evergreen exemption), and — for a DATED
