@@ -21,6 +21,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { detailGalleryPhotos, liveCreditFor } from "../lib/livePhoto.js";
+import { normalizedPhotoList } from "../lib/detailPhotoFields.js";
 
 const root = new URL("../", import.meta.url);
 const p = (rel) => fileURLToPath(new URL(rel, root));
@@ -113,4 +114,36 @@ ok(/detail\.photoAttrs\[oi\]/.test(home) && /detail\.photos\.indexOf\(lightbox\)
   ok(liveCreditFor({ ...d, _live: { ...d._live, source: "wayfind" } }, "https://live.test/g.jpg") === null, "a Wayfind-owned live photo carries no third-party credit");
 }
 
-console.log("test-lightbox-paging: OK — " + pass + " assertions (the full-screen photo viewer pages by arrow, key and swipe; the swipe decision is race-free)");
+// ─── 8. the detail rail shows every stored photo, cover first ───────────────
+// normalize() used to keep p.photos.slice(0, 6) via the same list this builds.
+// A place whose inventory holds 15 photos opened from /p/{id} as "1 / 6".
+{
+  const urls = Array.from({ length: 15 }, (_, i) => "https://cdn.wayfind.test/stored-" + i + ".jpg");
+  const place = normalizedPhotoList([
+    ...urls.map((u) => ({ _directUri: u })),
+    { _directUri: urls[0] },
+    { _directUri: "/api/photo?place=wfadd_fixture_photos&g=2&w=640" },
+  ], "wfadd_fixture_photos");
+  ok(place.photos[0] === urls[0] && place.photo === urls[0],
+    "the cover stays the first photo; got " + JSON.stringify(place.photos.slice(0, 2)));
+  ok(place.photos.length === 16 && place.photos.slice(0, 15).join("|") === urls.join("|") && place.photos[15].startsWith("/api/photo?place="),
+    "the list keeps every stored photo in order, drops the duplicate cover, and still allows one distinct proxy; got " + place.photos.length);
+  const rail = detailGalleryPhotos({ photo: place.photo, photos: place.photos });
+  ok(rail.length === 15 && rail[0] === urls[0] && rail.join("|") === urls.join("|"),
+    "the detail rail lists all 15 stored photos, cover first, and drops the proxy; got " + rail.length);
+  const viaGetter = normalizedPhotoList(urls.map((u) => ({ getURI: () => u })), "wfadd_fixture_photos");
+  ok(viaGetter.photos.join("|") === urls.join("|") && viaGetter.photo === urls[0],
+    "photos reached through getURI (the details-route shape) are not capped at 6; got " + viaGetter.photos.length);
+  const named = normalizedPhotoList(
+    Array.from({ length: 8 }, (_, i) => ({ name: "places/ChIJfixtureplace00001/photos/p" + i })),
+    "ChIJfixtureplace00001",
+  );
+  ok(named.photos.length === 1 && decodeURIComponent(named.photos[0]).includes("/photos/wfplacediscovery"),
+    "named Google photos still collapse to one place proxy (no extra media fetch); got " + JSON.stringify(named.photos));
+}
+ok(/normalizedPhotoList\(p\.photos, p\.id\)/.test(readFileSync(p("lib/google.js"), "utf8")),
+  "normalize() must build its photo list from normalizedPhotoList — a private slice would cap the rail again");
+ok(/defer=\{i >= 2\}/.test(detail) && !/galleryPhotos\.slice\(/.test(detail),
+  "slides after the open photo and its peek defer their image; the sheet does not slice the gallery");
+
+console.log("test-lightbox-paging: OK — " + pass + " assertions (the full-screen photo viewer pages by arrow, key and swipe; the swipe decision is race-free; the detail rail keeps every stored photo)");
