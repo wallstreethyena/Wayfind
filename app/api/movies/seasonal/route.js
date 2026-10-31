@@ -19,7 +19,7 @@ export async function GET(request) {
     return Response.json({ error: "unknown-collection", collections: MOVIE_COLLECTIONS }, { status: 400, headers: { "Cache-Control": "no-store" } });
   }
   const today = siteTodayStr();
-  const ctaLive = !!(MOVIE_TICKET_OFFER.provider && Number.isInteger(MOVIE_TICKET_OFFER.offerId));
+  const ctaLive = !!(MOVIE_TICKET_OFFER.provider && MOVIE_TICKET_OFFER.merchant);
   const surface = `${collection}_movies_rail`;
   const movies = moviesForCollection(collection, today).map((m) => ({
     id: m.id,
@@ -32,8 +32,11 @@ export async function GET(request) {
     why: m.why,
     vibes: m.vibes,
     art: m.art,
+    // Per-movie ticket: offer = THIS movie's registry id, so the commerce
+    // gate resolves its own Fandango page (lib/seasonalMovies.js
+    // movieDestinationById) — never a generic voucher destination.
     ticket: ctaLive
-      ? { provider: MOVIE_TICKET_OFFER.provider, offerId: MOVIE_TICKET_OFFER.offerId, href: `/api/commerce/go?provider=${MOVIE_TICKET_OFFER.provider}&offer=${MOVIE_TICKET_OFFER.offerId}&surface=${surface}&content=${encodeURIComponent(m.id)}` }
+      ? { provider: MOVIE_TICKET_OFFER.provider, merchant: MOVIE_TICKET_OFFER.merchant, offerId: m.id, href: `/api/commerce/go?provider=${MOVIE_TICKET_OFFER.provider}&offer=${encodeURIComponent(m.id)}&surface=${surface}&content=${encodeURIComponent(m.id)}` }
       : null,
   }));
   return Response.json(
