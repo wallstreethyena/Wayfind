@@ -641,6 +641,8 @@ node scripts/check-home-location.mjs
 node scripts/check-owner-curation-one-path.mjs
 node scripts/check-ranking-integrity.mjs
 node scripts/check-creator-video-boost.mjs
+# Owner's 28 Cindy Reels: exact branch proof and held-source accountability.
+node scripts/test-cindy-reel-identities.mjs
 # WO9, 2026-09-02 — the homepage bundle ratchet (scripts/check-bundle.mjs)
 # failed at 494.1KB against its 492KB budget because lib/creatorBoost.js and
 # lib/trendSignal.js (eager app-wide via lib/lawfulOrder.js) pulled the full
