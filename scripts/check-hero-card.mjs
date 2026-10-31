@@ -444,32 +444,46 @@ for (const { f, src } of ogPages) {
 
 // ── 12. CITY RESOLUTION IS PER-PLACE, NEVER ONE HARDCODED TEST CITY ─────────
 // Audit (2026-09-23): verify against two REAL places named in the audit —
-// La Natural (Miami) and Bern's Steak House (Tampa) — that lib/placeData.js's
-// cityOf() actually resolves a different city per address rather than
-// returning something constant. cityOf is the pure function
-// placePageMetadata feeds into the hero URL's &loc=, asserted in section 10.
+// La Natural (Miami) and Bern's Steak House (Tampa) — that cityOf() actually
+// resolves a different city per address rather than returning something
+// constant. cityOf is the pure function placePageMetadata feeds into the hero
+// URL's &loc=, asserted in section 10.
 //
-// EXTRACTED FROM SOURCE rather than imported: lib/placeData.js's own imports
-// (`from "./site"`, `from "./socialMeta"`, …) omit the .js extension, which
-// Next's webpack bundler resolves but plain Node ESM — every guard here runs
-// under plain `node`, not the Next build — cannot. cityOf itself has zero
-// external references (verified below), so it is extracted and evaluated in
-// isolation rather than dragging that unrelated, pre-existing extension gap
-// into scope for this PR.
+// IMPORTED AND CALLED, not extracted from source. cityOf used to live in
+// lib/placeData.js, whose react/Next imports a plain-node guard cannot load,
+// so this block had to regex it out and `new Function` it. cityOf now lives in
+// lib/placeCity.js — a module that is import-free ON PURPOSE (see its header),
+// which is exactly what lets the real export be exercised here. CLAUDE.md:
+// assert on the CALL, not the string. The import-free property is itself
+// asserted below so the module cannot quietly grow a dependency.
 {
-  const placeDataSrc = read("lib/placeData.js");
-  const m = placeDataSrc.match(/export function cityOf\(address\) \{[\s\S]*?\n\}/);
-  ok(!!m, "lib/placeData.js#cityOf must exist in the expected shape to test in isolation");
-  const body = m ? m[0] : "";
-  ok(!/\bimport\b|[^.\w]require\(/.test(body), "cityOf must stay a PURE function with no external reference — that is the only reason extracting it for isolated testing here is safe");
-  // eslint-disable-next-line no-new-func
-  const cityOf = m ? new Function("return (" + body.replace("export function", "function") + ")")() : () => null;
+  const cityModuleSrc = read("lib/placeCity.js");
+  ok(!/^\s*import\s|[^.\w]require\(/m.test(cityModuleSrc),
+     "lib/placeCity.js must stay import-free — plain-node guards (this one, scripts/check-no-third-party-rating-schema.mjs) and lib/placeSchema.js all depend on being able to load it");
+  const { cityOf, placeCityLabel } = await import("../lib/placeCity.js");
   const laNatural = cityOf("7289 NW 2nd Ave, Miami, FL 33150");
   const berns = cityOf("1208 S Howard Ave, Tampa, FL 33606");
   ok(laNatural === "Miami", `cityOf must resolve La Natural's address to "Miami", got "${laNatural}"`);
   ok(berns === "Tampa", `cityOf must resolve Bern's Steak House's address to "Tampa", got "${berns}"`);
   ok(laNatural !== berns, "two different places' addresses must resolve to two different cities — a constant return here is exactly the \"said SARASOTA for everything\" failure mode");
   ok(cityOf(null) === null && cityOf("") === null, "a missing address must resolve to null, never a fallback city string");
+
+  // A STATE IS NOT A CITY. Prod on 2026-10-30 served "Disney Springs in
+  // Florida | Wayfind" and a LocalBusiness addressLocality of "Florida",
+  // because the statewide GUIDES entries carry `region: "Florida"` and that
+  // rung reached the page as a city. placeCityLabel is the single rung-ladder
+  // every place-page surface now uses (<title>, hero &loc=, share text,
+  // PostalAddress), so the rule is asserted once, here.
+  ok(placeCityLabel({ address: null, guideCity: "Florida" }) === null,
+     'a statewide guide region ("Florida") must never be used as a city');
+  ok(placeCityLabel({ address: null, guideCity: "Key West" }) === "Key West",
+     "a guide region that IS a real city must still be used — the state rule must not swallow every guide city");
+  ok(placeCityLabel({ address: null, inventoryCity: "Palmetto" }) === "Palmetto",
+     "wf_inventory.locality must reach the page as the city when no address is held");
+  ok(placeCityLabel({ address: "1208 S Howard Ave, Tampa, FL 33606", inventoryCity: "Sarasota" }) === "Tampa",
+     "a real parsed address must outrank the inventory locality — cityOf stays the strongest rung");
+  ok(placeCityLabel({ address: "6100 N LOCKWOOD RIDGE RD" }) === null,
+     "a street-only address with nothing else held must stay city-less — no city beats a wrong one");
 }
 
 // ── 12b. THE ROUTE ACTUALLY HANDS kind/r/rev TO THE PHOTO MODEL ─────────────
