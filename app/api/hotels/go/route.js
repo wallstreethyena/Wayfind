@@ -11,7 +11,7 @@ import {
   normalizedHotelLocation,
   stay22HotelRedirectUrl,
 } from "../../../../lib/hotelRedirect.js";
-import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
+import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 
 const boundedContext = (value, max, fallback = null) => {
   const text = String(value || "").replace(/[\u0000-\u001f\u007f]+/g, " ").replace(/\s+/g, " ").trim();
@@ -49,7 +49,7 @@ export async function GET(req) {
   const emit = (event, extra) => {
     try {
       const properties = commercePayload(event, { ...base, ...landingFromCookieHeader(req.headers.get("cookie")), traffic_class: trafficClass, ...(extra || {}) });
-      captureServer(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
+      captureServerInBackground(event, { distinctId, properties, headers: req.headers, personless: !cookieDistinctId });
     } catch {}
   };
 

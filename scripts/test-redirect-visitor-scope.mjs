@@ -42,6 +42,13 @@ globalThis.fetch = async (url, init = {}) => {
   throw new Error("guard: no network (" + String(url).slice(0, 60) + ")");
 };
 const settle = () => new Promise((r) => setTimeout(r, 60));
+const BARE_CAPTURE = /(?<![A-Za-z])captureServer\(/;
+// Vercel's request context, as @vercel/functions reads it: waitUntil is how the
+// capture POST survives the function freezing after the 302 is returned.
+const waited = [];
+const RC = Symbol.for("@vercel/request-context");
+const prevRC = globalThis[RC];
+globalThis[RC] = { get: () => ({ waitUntil: (p) => { waited.push(p); } }) };
 try {
   const mod = await import("../app/api/commerce/go/route.js");
   const call = (headers) => mod.GET(new Request("https://wayfind.test/api/commerce/go?provider=viator&offer=abc", { headers: { "user-agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X)", ...headers } }));
@@ -54,6 +61,7 @@ try {
   const c1 = sent[0] || { properties: {} };
   ok(c1.properties.$process_person_profile === false, `cookie-less click is personless: $process_person_profile=${JSON.stringify(c1.properties.$process_person_profile)}`);
   ok(c1.properties.$lib === "wayfind-server", "server events keep $lib wayfind-server (the reader's visitor exclusion key)");
+  ok(waited.length >= 1 && waited.length === sent.length && waited.every((p) => p && typeof p.then === "function"), `every redirect capture is handed to waitUntil (waited ${waited.length}, sent ${sent.length})`);
 
   sent.length = 0;
   const visitorId = "0190fixture-visitor-distinct-id";
@@ -70,6 +78,7 @@ try {
 } finally {
   globalThis.fetch = realFetch;
   process.env.WF_SUPPRESS_ANALYTICS = "1";
+  if (prevRC === undefined) delete globalThis[RC]; else globalThis[RC] = prevRC;
 }
 
 // ── 2. the other three routes (structural) ───────────────────────────────────
@@ -77,8 +86,16 @@ const strip = (s) => s.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/
 for (const r of ["hotels", "ticketmaster", "viator", "commerce"]) {
   const src = strip(readFileSync(path.join(ROOT, `app/api/${r}/go/route.js`), "utf8"));
   ok(/const cookieDistinctId = distinctIdFromCookies\(req\.headers\.get\("cookie"\)\);/.test(src), `${r}/go reads the cookie id into cookieDistinctId`);
-  const caps = src.match(/captureServer\([^;]*\);/g) || [];
+  const caps = src.match(/captureServer(?:InBackground)?\([^;]*\);/g) || [];
   ok(caps.length >= 1 && caps.every((c) => /personless:\s*!cookieDistinctId/.test(c)), `${r}/go: every captureServer call passes personless: !cookieDistinctId (${caps.length} call(s))`);
+  // 2026-10-29: the redirect returns before the POST settles; a bare un-awaited
+  // captureServer() is dropped when Vercel freezes the function. Every capture
+  // in a go route must go through captureServerInBackground (waitUntil).
+  const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:"'`\\])\/\/[^\n]*/g, "$1");
+  // Positive control for the absence probe: it must find a bare call and must not
+  // mistake the waitUntil variant for one.
+  ok(BARE_CAPTURE.test("captureServer(event, { distinctId })") && !BARE_CAPTURE.test("captureServerInBackground(event, { distinctId })"), "bare-captureServer probe finds a known positive and ignores the waitUntil variant");
+  ok((code.match(/\bcaptureServerInBackground\(/g) || []).length >= 1 && !BARE_CAPTURE.test(code), `${r}/go: captures only via captureServerInBackground (waitUntil), never a bare un-awaited captureServer`);
 }
 
 // ── 3. the visitor queries, hogql intercepted ────────────────────────────────
