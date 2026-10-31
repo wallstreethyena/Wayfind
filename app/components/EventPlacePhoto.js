@@ -26,9 +26,14 @@ const usePhotoLayoutEffect = typeof window === "undefined" ? useEffect : useLayo
 //                hydrated is caught on mount (complete && naturalWidth === 0)
 //
 // `hero` publishes the outcome so EventHeroCredit shows the credit only when a photo is visible.
+const STORED_RX = /^\/api\/photo\/stored\/[A-Za-z0-9_-]+\?v=[a-f0-9]{64}$/;
+
 export default function EventPlacePhoto({ src, name = "Place", priority = false, hero = false }) {
-  const placeId = photoPlaceIdFromSrc(src);
-  const proxied = isApiPhotoSrc(src);
+  // A stored photo is already one specific image. Do not ask the place lane
+  // again or every slide in the rail collapses to the same answer.
+  const storedDirect = STORED_RX.test(String(src || ""));
+  const placeId = storedDirect ? null : photoPlaceIdFromSrc(src);
+  const proxied = !storedDirect && isApiPhotoSrc(src);
   const ctx = useEventHeroPhoto();
   const report = hero && ctx ? ctx.report : null;
   const ref = useRef(null);
@@ -54,8 +59,8 @@ export default function EventPlacePhoto({ src, name = "Place", priority = false,
   }, [src, placeId]);
 
   const photo = placeId && answer?.key === src ? answer.photo : null;
-  const imgSrc = !src ? "" : placeId ? (photo ? photo.src : "") : proxied ? "" : src;
-  const pending = !!placeId && answer?.key !== src;
+  const imgSrc = storedDirect ? src : (!src ? "" : placeId ? (photo ? photo.src : "") : proxied ? "" : src);
+  const pending = !storedDirect && !!placeId && answer?.key !== src;
   const visible = !!imgSrc && failed !== imgSrc;
 
   // A server-rendered <img> can fail before hydration installs onError.

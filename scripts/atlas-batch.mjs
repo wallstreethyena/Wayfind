@@ -26,7 +26,7 @@
 //      the interactive route sends, so this path and the trickle path can
 //      never disagree about what "the standard" says. ATLAS_BATCH_MODEL
 //      (default claude-sonnet-5) is a SEPARATE override from the trickle
-//      path's ATLAS_MODEL (default claude-haiku-4-5) precisely so this path
+//      path's ATLAS_MODEL (default claude-haiku-5-5) precisely so this path
 //      can clear the 1,024-token cache minimum without changing what the
 //      hourly cron does.
 //

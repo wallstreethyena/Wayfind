@@ -6,7 +6,7 @@
  * feature is off. `ATLAS_MODEL` is a different shape and fell straight through
  * the gap. It was read as
  *
- *     process.env.ATLAS_MODEL || "claude-haiku-4-5"
+ *     process.env.ATLAS_MODEL || "claude-haiku-5-5"
  *
  * and appeared in no list anywhere. Absent is its correct state, so it could not
  * go in OPTIONAL without printing "integration OFF" for the healthy case — and
@@ -37,7 +37,7 @@ const ok = (c, m) => { if (c) pass++; else fail.push(m); };
   // crashes still exits non-zero, but it tells whoever broke it nothing.
   ok(!!spec, "ATLAS_MODEL is declared as a value override");
   if (spec) {
-    ok(spec.fallback === "claude-haiku-4-5", `the declared fallback matches the route's default (got ${spec.fallback})`);
+    ok(spec.fallback === "claude-haiku-5-5", `the declared fallback matches the route's default (got ${spec.fallback})`);
     ok(Array.isArray(spec.known) && spec.known.length >= 5, "a known-model list exists");
     ok(spec.known.includes("claude-haiku-4-5") && spec.known.includes("claude-sonnet-5"),
       "the known list covers the default and the documented upgrade (ATLAS_MODEL=claude-sonnet-5)");
@@ -61,7 +61,7 @@ const saved = process.env.ATLAS_MODEL;
 try {
   delete process.env.ATLAS_MODEL;
   ok(resolveOverride("ATLAS_MODEL").status === "default", "unset -> default (the healthy case stays quiet)");
-  ok(resolveOverride("ATLAS_MODEL").value === "claude-haiku-4-5", "unset -> the fallback value is returned, not empty");
+  ok(resolveOverride("ATLAS_MODEL").value === "claude-haiku-5-5", "unset -> the fallback value is returned, not empty");
 
   process.env.ATLAS_MODEL = "claude-sonnet-5";
   ok(resolveOverride("ATLAS_MODEL").status === "known", "a recognised model -> known");
