@@ -38,7 +38,7 @@ import { placeAllowed } from "../lib/placeFilter.js";
 import { marketReviewFloor, passesMarketFloor } from "../lib/marketFloor.js";
 import { localCategoryBoost } from "../lib/localCategorySignals.js";
 import { wayfindScore, governedWayfindScore } from "../lib/wayfindScore.js";
-import { hasCreatorVideoAt } from "../lib/creatorBoost.js";
+import { hasCreatorVideoAt, hasFeaturedCreatorVideoAt } from "../lib/creatorBoost.js";
 import { LANDING_CITIES } from "../lib/landing.js";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
@@ -66,7 +66,7 @@ function shippedScore(p, cityName) {
   // Same null contract as the shipped ranker: an unrated place does not compete.
   const q = wayfindScore(p.rating, p.reviews);
   if (q == null) return -Infinity;
-  return governedWayfindScore(q, { hasCreatorVideo: hasCreatorVideoAt(p, cityName), distanceMi: isFinite(p.distMi) && p.distMi > 0 ? p.distMi : null }) + localCategoryBoost(p);
+  return governedWayfindScore(q, { hasCreatorVideo: hasCreatorVideoAt(p, cityName), hasFeaturedCreatorVideo: hasFeaturedCreatorVideoAt(p, cityName), distanceMi: isFinite(p.distMi) && p.distMi > 0 ? p.distMi : null }) + localCategoryBoost(p);
   // NOTE: the CURATED_NAMES +15 term is deliberately omitted — CURATED_NAMES is
   // a local Set in landing.js built from lib/sources CURATED. It applies
   // identically to BOTH sides of this comparison, so it cannot change the

@@ -719,7 +719,7 @@ ok(/maxHeight: isOpen \? \(sdef\.maxHeight \|\| 10 \* ROW_MAX_H \+ 220\)/.test(B
     // one variable — a card shows what was resolved and omits what was not.
     ok(/photo=\{\(h && h\.photo\) \|\| null\}/.test(CF),
       "…and hands that resolved photo to the card (the placeholder shows only while loading or on a genuine miss)");
-    ok(/score=\{h && h\.rating \? toDisplayScore\(governedWayfindScore\(wayfindScore\(h\.rating, h\.reviews\), \{ hasCreatorVideo: true \}\)\) : null\}/.test(CF),
+    ok(/score=\{h && h\.rating \? toDisplayScore\(governedWayfindScore\(wayfindScore\(h\.rating, h\.reviews\), \{ hasCreatorVideo: true(?:, hasFeaturedCreatorVideo: spotIsFeatured\(s0\))? \}\)\) : null\}/.test(CF),
       "…a registry card scores ONLY when the lookup returned a real rating — an unresolved spot carries no score, never a zero or a guess");
     // 2026-09-01: named venue cards must not share category stock. A real
     // <img> renders only when the caller resolved that venue's own photo;

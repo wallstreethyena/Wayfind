@@ -172,14 +172,20 @@ function oldGovernedScoreOf(index, p, locName) {
   oldApplyCorroboration(index, p, locName);
   const dist = oldNum(p.distMi) != null ? oldNum(p.distMi) : oldNum(p.distance_mi);
   if (p.wfScore != null) {
-    const video = oldVideosFor(index, p, locName).length > 0;
-    return governedWayfindScore(p.wfScore, { hasCreatorVideo: video, distanceMi: dist, trending: !!p.trending });
+    const vids = oldVideosFor(index, p, locName);
+    // 2026-10-29: the featured creator's own term, resolved from the FULL
+    // registry's handles — the same question the lean path answers.
+    const featured = vids.some(oldIsFeatured);
+    return governedWayfindScore(p.wfScore, { hasCreatorVideo: vids.length > 0, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
   }
   const base = wayfindScore(p.rating, p.reviews);
   if (base == null) return null;
-  const video = p.creator_video === true || oldVideosFor(index, p, locName).length > 0;
-  return governedWayfindScore(base, { hasCreatorVideo: video, distanceMi: dist, trending: !!p.trending });
+  const vids = oldVideosFor(index, p, locName);
+  const video = p.creator_video === true || vids.length > 0;
+  const featured = p.featured_creator_video === true || vids.some(oldIsFeatured);
+  return governedWayfindScore(base, { hasCreatorVideo: video, hasFeaturedCreatorVideo: featured, distanceMi: dist, trending: !!p.trending });
 }
+function oldIsFeatured(v) { return !!(v && String(v.creator || "").trim().toLowerCase().replace(/^@/, "") === "cindy.selects"); }
 
 const OLD_INDEX = buildOldIndex(CURATED);
 
