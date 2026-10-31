@@ -60,7 +60,7 @@ import {
   parseAdjudication, adjudicationOutcome, clearsFloor, freeScoutLane,
 } from "../../../../lib/scoutAdjudicate";
 
-const MODEL = "claude-haiku-4-5";
+const MODEL = "claude-haiku-5-5";
 const BATCH = 25;          // places per model call
 const MAX_BATCHES = 4;     // hard ceiling per invocation: 100 places, ~$0.02
 const MODEL_TIMEOUT_MS = 20000;

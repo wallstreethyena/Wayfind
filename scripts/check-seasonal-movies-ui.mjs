@@ -38,9 +38,9 @@ const count = (re, s) => (s.match(re) || []).length;
 // shows is exactly this return value, and a pending link (no movies after the
 // production hide) must resolve to HIDDEN, never an empty rail.
 {
-  const label = partnerTicketLabel("Undercover Tourist", { product: "movie-voucher", card: true });
-  ok(label === "Save on movie tickets ↗", "partnerTicketLabel(Undercover Tourist, movie-voucher, card) is exactly \"Save on movie tickets ↗\": " + label);
-  ok(!/wayfind pick/i.test(label) && !/fandango/i.test(label), "card label is the short card form, no \"Wayfind pick\" lead, no Fandango: " + label);
+  const label = partnerTicketLabel("Fandango", { product: "movie-ticket", card: true });
+  ok(label === "Tickets at Fandango ↗", "partnerTicketLabel(Fandango, movie-ticket, card) is exactly \"Tickets at Fandango ↗\": " + label);
+  ok(!/wayfind pick/i.test(label) && !/undercover/i.test(label), "card label is the short card form, no \"Wayfind pick\" lead, no voucher merchant: " + label);
   ok(railRenderState([], { loading: false }) === RAIL_RENDER_STATE.HIDDEN, "no movies and not loading resolves to HIDDEN (defensive hidden state)");
   ok(railRenderState([{ id: "x" }]) === RAIL_RENDER_STATE.CONTENT, "control: a movie renders CONTENT");
 }
@@ -104,11 +104,10 @@ ok(/<RailCard[\s>]/.test(comp), "component renders <RailCard>");
 ok(/\bscore=\{null\}/.test(comp), "component passes score={null} (no Wayfind Score badge on a movie)");
 ok(!/score\s+pending/i.test(comp) && !/Score pending/.test(compRaw), "component never says \"Score pending\"");
 ok(/import\s*\{[^}]*\bpartnerTicketLabel\b[^}]*\}\s*from\s+["'][^"']*partnerCopy/.test(comp), "component imports partnerTicketLabel");
-ok(/partnerTicketLabel\(\s*["']Undercover Tourist["']\s*,\s*\{[^}]*product:\s*["']movie-voucher["'][^}]*card:\s*true/.test(comp), "CTA label is partnerTicketLabel(\"Undercover Tourist\", movie-voucher, card)");
+ok(/partnerTicketLabel\(\s*merchant\s*,\s*\{[^}]*product:\s*["']movie-ticket["'][^}]*card:\s*true/.test(comp), "CTA label is partnerTicketLabel(merchant, movie-ticket, card) — per-movie Fandango");
 ok(/\bplaceholder=\{/.test(comp), "component passes a placeholder tile when a movie has no art");
 ok(/ticket\?\.href/.test(comp) && /external:\s*true/.test(comp) && /sponsored:\s*true/.test(comp), "CTA only when ticket.href exists, external + sponsored");
-ok(/commerceHref\(\{[^}]*\bprovider\b[^}]*\boffer(?:Id)?\b/.test(comp) && /const provider = movie\.ticket\.provider/.test(comp) && /merchant:\s*["']Undercover Tourist["']/.test(comp), "click path mints the commerce href from the API ticket provider/offer (undercover_tourist 11) with merchant Undercover Tourist");
-ok(!/fandango/i.test(comp), "no Fandango anywhere in the client component");
+ok(/commerceHref\(\{[^}]*\bprovider\b[^}]*\boffer(?:Id)?\b/.test(comp) && /const provider = movie\.ticket\.provider/.test(comp) && /merchant,/.test(comp), "click path mints the commerce href from the API ticket provider/offer (fandango + the movie's own id) with the API merchant");
 ok(/\/api\/movies\/seasonal\?collection=/.test(comp), "component reads /api/movies/seasonal?collection=");
 ok(!/fandango\.com/i.test(comp), "no raw fandango.com URL in the client component (links go through /api/commerce/go)");
 ok(/wf-christmas/.test(comp) && /wf-fall/.test(comp), "component carries the wf-fall and wf-christmas seasonal skins");

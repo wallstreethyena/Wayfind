@@ -2279,8 +2279,13 @@ node scripts/check-creator-independence.mjs
 
 node scripts/test-seasonal-search.mjs
 node scripts/test-halloween-haunt.mjs
+# 2026-10-30 Santa chat (Claude powered Christmas guide, /api/santa-chat): catalog honesty, /go + https hrefs, no dashes, parser rejections.
+node scripts/test-santa-chat.mjs
 node scripts/test-haunt-photos.mjs
+node scripts/test-place-detail-gallery.mjs
 node scripts/test-halloween-tours.mjs
+# 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
+node scripts/test-christmas-tickets.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
@@ -2422,7 +2427,9 @@ node scripts/test-inventory-free-refresh.mjs
 node scripts/test-richness-loading-path.mjs
 
 # 2026-10-27: Boo, the site wide Halloween companion (own dynamic chunk, season gate by siteTodayStr, reserved paths, session hide key, dash free gags).
+node scripts/check-santa-companion.mjs
 node scripts/check-boo-companion.mjs
+node scripts/test-santa-companion.mjs
 # 2026-10-27 (fix-affiliate-synthetic-traffic) - prefetch, QA opt-in and burst traffic never follow a
 # partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
 # still do. Drives all four go handlers with the PostHog capture intercepted.
