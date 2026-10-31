@@ -54,8 +54,11 @@ function placeholderFor(collection, status) {
 function movieCta(movie, collection, onTrack) {
   if (!movie.ticket?.href) return null;
   const surface = collection + "_movies_rail";
+  const merchant = movie.ticket.merchant || "Fandango";
   return {
-    label: partnerTicketLabel("Undercover Tourist", { product: "movie-voucher", card: true }), href: movie.ticket.href, external: true, sponsored: true,
+    // "Tickets at Fandango": the button opens THIS movie's own Fandango
+    // page to buy tickets for it (per-movie deep link, CJ-attributed).
+    label: partnerTicketLabel(merchant, { product: "movie-ticket", card: true }), href: movie.ticket.href, external: true, sponsored: true,
     onClick: (event) => {
       const provider = movie.ticket.provider;
       const offerId = movie.ticket.offerId;
@@ -65,7 +68,7 @@ function movieCta(movie, collection, onTrack) {
           const clickId = mintClickId();
           const live = commerceHref({ provider, offerId, surface, contentId: movie.id, clickId });
           if (live && event && event.currentTarget) event.currentTarget.href = live;
-          emitCommerce("commerce_cta_clicked", { surface, content_id: movie.id, provider, merchant: "Undercover Tourist", offer_id: String(offerId), click_id: clickId, disclosure_version: "fall-intent-v2" });
+          emitCommerce("commerce_cta_clicked", { surface, content_id: movie.id, provider, merchant, offer_id: String(offerId), click_id: clickId, disclosure_version: "fall-intent-v2" });
         } catch {}
       }).catch(() => {});
     },

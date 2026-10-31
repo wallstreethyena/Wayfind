@@ -400,8 +400,8 @@ scripts/check-score-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0	da0c3f8c7ab8
 scripts/check-scout-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	79	0	0	d385f315b661b1b2c97ddbb83e6d2988c02d8f585c85fb5c37da459bc8fa21c1
 scripts/check-search-no-rebuy.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	7b07ace798eeef53088ff0f2f3fb7f67da7fd057d1781cf77884a95fc821d8f0
 scripts/check-search-understand.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	a0ecccf47c9bd23e36a51dc754743b1b9f0c39ac829cb2493938ae0f82c44097
-scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	51	0	0	1502c346b55b7ee664ced3af210c9d1fa2859b04b406b3cb741e63b3e8d022db
-scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	48	0	0	7f17889735396450c995de27de8ae62350271ef7e4000b9edb221cf4e8c55fc6
+scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a310cca2d23253c98dc904365a76c5f3a0834c6d430378b5ce5e50f645399bc7
+scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	3d6ac4aad7109d32139fd067d71bf7c45d2653c228d2aaeef96ee543b179472c
 scripts/check-seasonal-rail-depth.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	a7af84063d56e22ef5103369c1381458b88e4111bdef296e7e2dcbb01456d2cd
 scripts/check-seasonal-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	111	0	0	8759742d8d856a247f1cc6372f6c6f24f558ca12948b328a8dab58b71f443572
 scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	63	1	0	b23fd93b05f825d0254f15ac6d1cf09b1a04578c3336c94410e5116939a5bebc
