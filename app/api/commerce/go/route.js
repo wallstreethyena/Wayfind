@@ -38,7 +38,7 @@ import { randomUUID } from "node:crypto";
 // under raw node ESM to drive the real handler, and node will not resolve an
 // extensionless specifier. Next resolves both, so this costs nothing and is what
 // makes the route executable by a guard.
-import { captureServer, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
+import { captureServerInBackground, distinctIdFromCookies } from "../../../../lib/serverEvents.js";
 import { commercePayload, rankBucket, sanitizeClientClickId } from "../../../../lib/commerce.js";
 import { PROVIDERS, FALLBACK, resolveOffer } from "../../../../lib/commerceProviders.js";
 import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
@@ -94,7 +94,7 @@ export async function GET(req) {
     // redirect. Errors are swallowed inside captureServer.
     // Visitor UA/IP attach inside captureServer (after the whitelist). Passing
     // them through commercePayload would drop them.
-    captureServer(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
+    captureServerInBackground(event, { distinctId, properties: props, headers: req.headers, personless: !cookieDistinctId });
   };
 
   const fail = (reason) => {

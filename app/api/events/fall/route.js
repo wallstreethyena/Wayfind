@@ -13,6 +13,7 @@ export const dynamic = "force-dynamic";
 // vetted year-round spooky PLACES ride along as normal scored place rows.
 import { fetchCuratedEvents, isTrusted, eventOutboundUrl } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
+import { carryOvernight, eventFinalClose, overnightCacheBucket, siteNowLocal } from "../../../../lib/overnightClose.js";
 import { fallPlaceEvidenceCurrent } from "../../../../lib/fallPlaceEvidence.js";
 import { isFallEvent, fallEventLive, fallWhenLabel, fallScheduleChip, FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_OFFERING_SOURCES, FALL_EVENT_TICKET_DEALS } from "../../../../lib/fallPool.js";
 import { eventTicketDeal, eventTicketCta, isServableDeal } from "../../../../lib/eventTicketDeals.js";
@@ -67,7 +68,9 @@ export async function GET(request) {
   const page = searchParams.get("page");
   const size = searchParams.get("size");
   try {
-    const today = siteTodayStr();
+    const now = new Date();
+    const today = siteTodayStr(now);
+    const nowLocal = siteNowLocal(now);
     // v6 invalidated payloads composed before verified registry identity won
     // over stale database duplicates. v7 (#1082) suppressed unresolved image
     // cards. v8 (2026-09-03, this lane): ticket hrefs moved from the raw CJ URL
@@ -137,13 +140,17 @@ export async function GET(request) {
     // and retires five crawl-stop place cards in favor of the ticketed crawl event.
     // v45 (2026-10-29, owner) every option shown and farms reach 60 mi; a warm v44 rail
     // predates the new 45 to 60 mi farm band.
-    const key = `fall-intents:v45:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v46 keeps after-midnight listings until their verified close
+    // (lib/overnightClose.js) and publishes experience titles and booking chips:
+    // between midnight and 6 AM the key also carries the quarter hour, so a 3 AM
+    // close retires on time instead of riding a payload computed while it was open.
+    const key = `fall-intents:v46:${today}${overnightCacheBucket(nowLocal)}:${geoCell(lat)}:${geoCell(lng)}`;
     let cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const ids = [...new Set([
         ...Object.keys(FALL_PLACE_IDS),
-        ...seasonalHospitalityIds("fall", today),
-        ...seasonalHospitalityIds("halloween", today),
+        ...seasonalHospitalityIds("fall", today, undefined, now),
+        ...seasonalHospitalityIds("halloween", today, undefined, now),
         ...FALL_PHOTO_PLACE_IDS,
         ...fallPhotoKnownPlaceIds(today),
         ...[...FALL_DISCOVERIES_2026, ...FALL_FEATURED_FESTIVALS_2026, ...FALL_GAP_FILL_2026_10_07, ...FALL_FOOD_GAP_2026_10_08, ...FALL_TAMPA_PICKS_2026_10_08, ...FALL_LIVE_AREA_2026_10_19].map((row) => row.place_id).filter(Boolean),
@@ -204,6 +211,8 @@ export async function GET(request) {
       // rather than a 404 wearing the event's name.
       const pageSlugs = new Set((rows || []).map((row) => row?.slug).filter(Boolean));
       const eligibleRows = eventRows
+      // A last night that closes after midnight stays until its clock close.
+      .map((e) => carryOvernight(e, eventFinalClose(e), { today, nowLocal }))
       // isTrusted, NOT a second inline copy of the status check. The line this
       // replaced asked only about event_status and therefore skipped the
       // source_tier and confidence gates that lib/curatedEvents has always
@@ -261,7 +270,7 @@ export async function GET(request) {
         venue: e.venue || null,
         lat: e.lat, lng: e.lng, place_id: e.place_id || null,
         start_date: e.start_date, end_date: e.end_date || null,
-        when: e.occurrence_dates?.length && nextFallOccurrence(e, today)
+        when: e.overnight_label ? e.overnight_label : e.occurrence_dates?.length && nextFallOccurrence(e, today)
           ? fallWhenLabel({ ...e, start_date: nextFallOccurrence(e, today), end_date: nextFallOccurrence(e, today) }, today)
           : fallWhenLabel(e, today),
         select_nights: e.select_nights,
@@ -435,8 +444,8 @@ export async function GET(request) {
           fallRail: null,
         });
       }
-      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "fall", today));
-      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "halloween", today));
+      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "fall", today, undefined, now));
+      places = mergeSeasonalHospitalityPlaces(places, seasonalHospitalityPlaces(placeResult.data || [], "halloween", today, undefined, now));
       // Picks land before the wfScore sort and the composer's caps; unknown -> untouched.
       try { places = applyCuratorPicksServer(places, pickIds); } catch {}
       places.sort((a, b) => (b.wfScore || 0) - (a.wfScore || 0));
@@ -467,7 +476,9 @@ export async function GET(request) {
     else cached = { ...cached, value: { ...cached.value, rails: filed.fallRails } };
     const complete = cached.value?.sourceFailures === 0;
     const headers = {
-      "cache-control": complete ? "public, s-maxage=900, stale-while-revalidate=86400" : "no-store",
+      // After midnight a close can land any quarter hour: keep the CDN copy
+      // short enough that it does not outlive the rail key above.
+      "cache-control": complete ? (overnightCacheBucket(nowLocal) ? "public, s-maxage=300, stale-while-revalidate=60" : "public, s-maxage=900, stale-while-revalidate=86400") : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
