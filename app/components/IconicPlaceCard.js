@@ -64,6 +64,7 @@ import { couponForPlace } from "../../lib/coupons";
 import { normalizePlaceCardHref } from "../../lib/placeCardRoute.js";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass } from "../../lib/trendPulse.js";
+import { storedPlaceHeader } from "../../lib/locationHonesty.js";
 
 // ---------------------------------------------------------------------------
 // Experience-tag chips (owner: "I need the cards to look like the cards from
@@ -635,6 +636,7 @@ function IconicPlaceCard({ place, rank, href, editorial, editorialTier = "wayfin
               <span className="wf-place-card-category">{category}</span>
               <AwardListRank award={award} rank={rank} />
               <a className="wf-place-card-name" href={cardHref} onClick={onOpen ? (e) => { e.preventDefault(); e.stopPropagation(); onOpen(place); } : undefined} style={{ display: "block", color: "#F8F5EE", textDecoration: "none" }}>{place.name}</a>
+              {(() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })()}
             </div>
           </div>
 

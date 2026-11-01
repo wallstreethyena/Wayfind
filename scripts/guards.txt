@@ -972,6 +972,7 @@ node scripts/check-mobile-poster-fit.mjs
 # taxonomy and not just a scroll offset, and it must be written on pagehide —
 # an outbound tap runs no React cleanup.
 node scripts/check-position-memory.mjs
+node scripts/check-map-not-a-dead-end.mjs
 node scripts/test-document-position.mjs
 node scripts/test-map-router-return.mjs
 # v8.26 — the shell scrolls .wf-scrollarea, not the document, so window.scrollTo
@@ -2255,6 +2256,7 @@ node scripts/test-group-vote-tours.mjs
 
 node scripts/test-place-share-metadata.mjs
 node scripts/test-cached-place-identity.mjs
+node scripts/test-place-details-budget-refusal.mjs
 node scripts/test-events-fall-feed-image.mjs
 node scripts/test-fall-additions-2026-10-06.mjs
 node scripts/test-fall-gap-fill-2026-10-06.mjs
@@ -2462,3 +2464,5 @@ node scripts/check-browser-regex-compat.mjs
 node scripts/check-seasonal-rail-depth.mjs
 # 2026-10-29: Halloween overnight close (keep after-midnight listings until verified close), explicit-link dedupe on republish, experience titles and honest booking chips, fail-closed fall cache epoch reader.
 node scripts/test-halloween-overnight-dedupe.mjs
+# 2026-10-31: "Top rated on Wayfind" badge for business websites (backlinks): merit-only eligibility, followed link, escaped names, official logo, never-break image route, no Google spend.
+node scripts/check-top-rated-badge.mjs

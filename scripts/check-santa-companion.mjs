@@ -83,6 +83,8 @@ const rejects = [
 for (const [text, why] of rejects) ok(parseSantaReply(text, cands) === null, "rejected reply with " + why);
 const talk = parseSantaReply('{"reply":"Ho ho, hi friend!","recommendedIds":["c1"],"smallTalk":true}', cands);
 ok(talk && talk.recommendedIds.length === 0 && talk.cards.length === 0, "small talk never carries cards");
+const promised = parseSantaReply('{"reply":"Ho ho, tap a pick below for your glow tour.","recommendedIds":[]}', cands);
+ok(promised && promised.cards.length === 3 && promised.cards[0].cta.href === cands[0].href, "a reply that promises picks but names none gets Wayfind's top 3 results, never an empty promise (seen live 2026-10-31)");
 const none = parseSantaReply('{"reply":"Couldn\'t find that one, try other words.","recommendedIds":[]}', cands);
 ok(none && none.cards.length === 0, "an honest no-fit answer is allowed with zero picks");
 
