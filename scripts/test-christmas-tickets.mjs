@@ -407,6 +407,48 @@ ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !htm
   ok(!/\/go\?/.test(parkDown) && text(parkDown).includes("Full event page"), "browse a partner ticket with no live deal shows no ticket button, only the event page");
   ok(browseTicketFields(park, TODAY, allDeals).cta.kind === "affiliate", "browseTicketFields hands the card exactly ticketAction's way in");
 
+  // Save and Remind me on the one card (owner 2026-11-01). Fixture dates sit
+  // ahead of the real clock so RemindMe (which reads the real today) shows.
+  {
+    const { siteTodayStr } = await import("../lib/siteTime.js");
+    const { addDays } = await import("../lib/eventReminder.js");
+    const now = siteTodayStr();
+    const ahead = (d) => addDays(now, d);
+    const dated = base({ id: "bx-remind", slug: "bx-remind", detailHref: "/florida-events/bx-remind", start_date: ahead(10), end_date: ahead(20), start_time: "18:00:00" });
+    const viaServer = attachBrowseTickets({ cards: [dated].map(christmasBrowseCardJson) }, [dated], now, new Map()).cards[0];
+    const r = draw(JSON.parse(JSON.stringify(viaServer)));
+    const rText = text(r);
+    ok(viaServer.ticketRow.remind && viaServer.ticketRow.remind.slug === "bx-remind" && viaServer.ticketRow.remindTicketHref === null, "a dated ticketed row with an event page gets server reminder facts; an organizer ticket gives no Google ticket link");
+    ok(/class="xm-actions"/.test(r) && /class="xm-save"[^>]*aria-pressed="false"/.test(r) && rText.includes("Save") && /wf-place-card-remind/.test(r) && rText.includes("Remind me"), "a dated ticketed card with an event page renders Save and Remind me");
+    ok((r.match(/class="xm-buy"/g) || []).length === 1 && !/wf-place-card-like|wf-place-card-dislike|>Like<|Directions/i.test(r), "the card keeps exactly one .xm-buy and has no Like and no Directions");
+    ok(r.indexOf('class="xm-buy"') < r.indexOf('class="xm-actions"') && r.indexOf('class="xm-actions"') < r.indexOf("</article>"), "the action row sits after the ticket button inside the card");
+    ok(!DASH.test(rText) && !/[–—]/.test(rText), "the card with actions is dash free");
+    // A partner ticket carries our own /go route into the Google Calendar link, never a raw partner URL.
+    const parkDated = { ...park, slug: "christmas-town-2026", start_date: ahead(5), end_date: ahead(60) };
+    const parkFields = browseTicketFields(parkDated, now, allDeals);
+    ok(parkFields.remind && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(parkFields.remindTicketHref || "") && parkFields.remindTicketHref === parkFields.cta.href, "a partner ticket hands Remind me our own /go route");
+    // No facts: undated, no event page, past. Save stays, Remind me does not.
+    const noFacts = [
+      base({ id: "bx-undated", slug: "bx-undated", detailHref: "/florida-events/bx-undated", season_undated: true, start_date: null, end_date: null }),
+      base({ id: "bx-watch", slug: "bx-watch", detailHref: "/florida-events/bx-watch", christmas_watchlist: true, start_date: ahead(10), end_date: ahead(20) }),
+      base({ id: "bx-nopage2", detailHref: null, start_date: ahead(10), end_date: ahead(20) }),
+      base({ id: "bx-past", slug: "bx-past", detailHref: "/florida-events/bx-past", start_date: "2025-12-01", end_date: "2025-12-05" }),
+    ];
+    for (const c of noFacts) {
+      const row = browseTicketFields(c, now, new Map());
+      const hc = draw(attachBrowseTickets({ cards: [c].map(christmasBrowseCardJson) }, [c], now, new Map()).cards[0]);
+      ok(row.remind === null && /class="xm-save"/.test(hc) && !/wf-place-card-remind|Remind me/.test(hc) && (hc.match(/class="xm-buy"/g) || []).length <= 1, c.id + ": no reminder facts, Save still renders, no Remind me");
+    }
+    // The top grid rows carry the same fields.
+    const gridRow = christmasTicketsModel([dated], now).rows[0];
+    ok(gridRow && gridRow.remind && gridRow.remind.slug === "bx-remind" && "remindTicketHref" in gridRow, "christmasTicketsModel rows carry remind and remindTicketHref");
+    // A place card never gets Save or Remind me (places use the place signal store).
+    ok(!/xm-save|wf-place-card-remind/.test(c), "a place card has no event Save and no Remind me");
+    const cardSrc2 = strip(read("app/components/ChristmasTicketCard.js"));
+    ok(/useContentCardActions\(item\)/.test(cardSrc2) && /type: "event"/.test(cardSrc2) && /\{ id: row\.id, type: "event"/.test(cardSrc2), "Save uses the content card store under the bare event id (same key as the Christmas rails)");
+    ok(/\.xm-actions>button\{[^}]*min-height:44px/.test(cardSrc2), "the action buttons are at least 44px tall");
+  }
+
   // every real browse card renders through the one card, dash free, one main button at most
   const listings = christmasBrowseListings([], TODAY);
   const cardsAll = attachBrowseTickets({ cards: listings.map(christmasBrowseCardJson) }, listings, TODAY, allDeals).cards;
