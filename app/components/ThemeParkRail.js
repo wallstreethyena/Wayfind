@@ -8,6 +8,7 @@ import { themeParkHeading, themeParkForPlace, orderThemeParks, filterFamilyTheme
 import { placePartnerPick } from "../../lib/placePartnerPicks.js";
 import { usePinQuarantine } from "../../lib/pinQuarantine.js";
 import { useCuratedRows } from "../../lib/curatorPicks.js";
+import useEditorialHooks from "./useEditorialHooks.js";
 
 export default function ThemeParkRail({ mode = "flagship", query = "", items = null, initialItems = null, familyContext = null, excludeOfferIds = null, onOpenPlace,
   isSaved, isOnTrip, isLiked, isDisliked, liked, disliked,
@@ -30,6 +31,14 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
     return () => controller.abort();
   }, [mode, query, items]);
   const rows = orderThemeParks(filterFamilyThemeParks(loaded.filter((place) => { if (!themeParkForPlace(place)) return false; const pick = placePartnerPick(place, pinQ); return !!pick && !(excludeOfferIds && excludeOfferIds.includes(pick.offerId)); }), familyContext));
+  // THE EDITORIAL LINE (owner, 2026-10-31): this was the one IconicPlaceCard
+  // surface that never asked for the place's verified line, so the flagship
+  // park cards said nothing about why to go while 15 of 17 parks already had
+  // researched copy held for them. VERIFIED RUNG ONLY ("wayfind" tier: Atlas
+  // + verified wf_editorial + hand-reviewed editorial_card) — a park with no
+  // researched line stays silent rather than borrowing a generated one.
+  const hooks = useEditorialHooks(rows);
+  const verifiedLine = (place) => (hooks.tiers && hooks.tiers[place.id] === "wayfind" ? hooks[place.id] || null : null);
   if (!rows.length) return null;
   const heading = themeParkHeading(mode);
   const railId = `theme-parks-${mode}`;
@@ -41,6 +50,7 @@ export default function ThemeParkRail({ mode = "flagship", query = "", items = n
     <ol className="wf-rail" data-rail={railId} aria-label={heading.title}>
       {rows.map((place, index) => <IconicPlaceCard key={place.id} place={place} rank={index + 1}
         href={`/p/${encodeURIComponent(place.id)}`} onOpen={onOpenPlace ? () => onOpenPlace(place) : undefined}
+        editorial={verifiedLine(place)} editorialTier="wayfind"
         surface="theme_park_rail" eagerMedia={index < 2}
         saved={isSaved ? !!isSaved(place.id) : undefined} inTrip={isOnTrip ? !!isOnTrip(place) : undefined}
         liked={isLiked ? !!isLiked(place.id) : liked ? !!liked[place.id] : undefined}
