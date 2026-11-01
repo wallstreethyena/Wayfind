@@ -1,5 +1,8 @@
 # Wayfind
 
+**Official website:** [Discover things to do in Florida on Wayfind](https://www.gowayfind.com/)  
+**Local planning guides:** [Wayfind Florida guides](https://blog.gowayfind.com/)
+
 Wayfind is a Next.js discovery app backed by owned inventory and guarded
 server-side provider integrations. The interactive map uses MapLibre and needs
 no Google browser key.
