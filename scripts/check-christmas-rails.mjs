@@ -273,27 +273,23 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
 
 // ── 6. Poster position ──────────────────────────────────────────────────────
 const ids = RAILS.map((r) => r.id);
-// Owner slot rule (2026-10-08): 2nd in the morning, lunch and at night, 3rd in
-// the afternoon (behind tonight); 1st all day from the morning after
-// Thanksgiving through Jan 1 (owner, 2026-10-14; was Jan 6).
-// Owner, 2026-10-14: the Halloween poster sits right of Fall in the raw order, so Christmas is one place
-// further right in it (slots 3/3/4/3); Halloween is hidden outside Oct 10-31 by lib/posterSeasons.js and the
-// old seats (2/2/3/2) are asserted on the visible track in scripts/check-poster-seasons.mjs. The Jan 6 end moved to Jan 1.
+// October keeps its owner-approved slots behind Fall and Halloween.
+// Owner, 2026-11-01: Christmas leads all day Nov 1 through Jan 1 annually.
 const LIVE_SLOT = { morning: 2, lunch: 2, afternoon: 3, night: 2 };
 for (const band of DAYPART_IDS) {
   const live = orderFor(band, ids, "2026-10-08");
   ok(live[0] === "augtober" && live.indexOf("christmas") === LIVE_SLOT[band], `${band}: while fall is live, christmas is poster ${LIVE_SLOT[band] + 1} (got ${live.slice(0, 4).join(", ")})`);
   const noDate = orderFor(band, ids);
   ok(noDate.indexOf("christmas") === LIVE_SLOT[band], `${band}: with no date the static order keeps the same slot`);
-  for (const d of ["2026-11-27", "2026-12-25", "2027-01-01"]) {
-    const after = orderFor(band, ids, d); // Thanksgiving 2026 is Nov 26
+  for (const d of ["2026-11-01", "2026-11-27", "2026-12-25", "2027-01-01"]) {
+    const after = orderFor(band, ids, d);
     ok(after[0] === "christmas", `${band} ${d}: christmas is the first poster (got ${after.slice(0, 3).join(", ")})`);
     ok(new Set(after).size === ids.length && after.length === ids.length, `${band} ${d}: nothing is dropped or duplicated`);
   }
   const thanksgiving = orderFor(band, ids, "2026-11-26");
-  ok(thanksgiving[0] === "augtober", `${band}: Thanksgiving Day itself still leads with fall`);
+  ok(thanksgiving[0] === "christmas", `${band}: Christmas stays first on Thanksgiving Day`);
 }
-ok(christmasLeads("2026-11-27") && !christmasLeads("2026-11-26") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && christmasLeads("2027-01-01") && !christmasLeads("2027-01-02") && !christmasLeads("2027-01-06") && christmasLeads("2025-11-28") && !christmasLeads("2025-11-27"), "christmasLeads follows the fall season law (Thanksgiving computed per year) through Jan 6");
+ok(christmasLeads("2026-11-01") && christmasLeads("2026-11-26") && !christmasLeads("2026-10-31") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && christmasLeads("2027-01-01") && !christmasLeads("2027-01-02") && !christmasLeads("2027-01-06") && christmasLeads("2025-11-01") && !christmasLeads("2025-10-31"), "christmasLeads runs Nov 1 through Jan 1 every year");
 
 // ── 6b. Revenue: ticketed events carry the affiliate CTA (EXECUTED) ────────
 // Healthy wf_deals rows for every UT entry, as the route would read them (a missing row means "not servable", exactly as in Fall).
