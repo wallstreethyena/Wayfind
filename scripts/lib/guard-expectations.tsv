@@ -54,7 +54,7 @@ scripts/check-census-tos-boundary.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1
 scripts/check-cget-envelope.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	5a0d77cd258d6d90ffb56e42fca30fec553217b8f7beb03c947a1da70a49cf7b
 scripts/check-chef-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	cfaea31fa7cef2129f202e3c5d81dbbff369ad0438567b2530f2cdd68f74ad50
 scripts/check-christmas-browse-credit.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	19be5142d5a24b020114c0d4fc219e95f38d12ddcfa251dbf24d9c7f92013883
-scripts/check-christmas-card-photo-slot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	b3dcaae2c6c6d60575974a5e61370b243c62610a4a5232a99cc809d9f89f2ddf
+scripts/check-christmas-card-photo-slot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	bc23f946fc58f2e3263f956fd695f2fcf2fedb17aaf45894b98ce6cb7975c9a6
 scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	3ba1bd393522d685ea99eb931914a694d9ac8e688dbf8a3245ad3ab0f636c9eb
 scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	257	0	0	cbbad01359756390f983641f40a3b8fdff778a556b142f5b85583542fe05c747
 scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	159	0	0	1c4b158132b424297c294d76b8fa2a0671d5261e6e421108c5192f5f572d7532
@@ -554,7 +554,7 @@ scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8
 scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
-scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	138	0	0	5334076a9e4770f03cda911a96622a786f74dfdea7ed257627ae32a564dfbf4f
+scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	181	0	0	cfcbeecbb6e0a91691e5f420e363ad58426d8872da87932f647829d82bb969fe
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
 scripts/test-cindy-reel-identities.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	15985941dc12e50780e9b03a7e6fbc82fb7a343843a3d163cb7493f66f3fe7ec
 scripts/test-city-fetch.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	1	0	964b0a958014d38059e7c12277c73bd25765d5dbaa51098530d845d74ff9de8c

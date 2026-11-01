@@ -1,47 +1,76 @@
 "use client";
-import { hospitalityDateChipLabel } from "../../lib/seasonalHospitalityCopy.js";
 // The statewide Christmas browse (/christmas-in-florida, lead packet v4,
 // 2026-10-13). The server renders the first page (app/christmas-in-florida/page.js);
 // every filter change asks /api/christmas/browse, which reads the same merged
-// data. Cards are the STANDARD RailCard in the standard list layout
-// (.wf-place-card-list) wearing the Christmas skin (.wf-christmas): no second
-// card component. Honesty labels come from lib/christmasCardCopy.js.
+// data. ONE CARD LOOK ON THE PAGE (owner direction 2026-11-01, "I like the one
+// from image 1 better but add the background similar to image 2"): every
+// result is the same TicketCard the top ticket grid uses, in its red
+// Christmas background. This replaced the RailCard in the red .wf-christmas
+// skin; there is no second card component. Honesty labels come from
+// lib/christmasCardCopy.js and from the server built `ticketRow`
+// (lib/christmasTickets.js attachBrowseTickets), so an unknown price says
+// "Price not announced" and a ticket button exists only where the existing
+// data has a real ticket or official link.
 import { useEffect, useRef, useState } from "react";
-import RailCard from "./RailCard";
-import { WF_PLACE_CARD_CSS } from "./css.js";
-import { CHRISTMAS_CARD_LABELS, christmasCardChips } from "../../lib/christmasCardCopy.js";
-import { toDisplayScore } from "../../lib/score.js";
+import { TicketCard } from "./ChristmasTicketCard.js";
+import { GuideCommissionLine } from "./GuideCommissionLine.js";
+import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
 
 const C = { text: "#FFF7ED", muted: "#C9B8B0", line: "rgba(232,180,138,.45)", panel: "#2A0A12", accent: "#E8B48A" };
 const FILTER_KEYS = ["region", "category", "when", "date", "price", "audience", "undated", "q", "lat", "lng"];
+const CHROME = { eventPage: "Full event page" };
+const PLACE_CHIP = { "popup-bars": "Bars and dining", "seasonal-food": "Festive bites" };
 
-function distanceFact(card) {
-  if (!Number.isFinite(Number(card.distMi)) || card.distMi == null) return null;
-  const mi = Number(card.distMi);
-  const shown = (card.approxLocation ? "~" : "") + (mi >= 10 ? Math.round(mi) : Math.round(mi * 10) / 10) + " mi";
-  return card.distanceNote ? shown + " · " + card.distanceNote : shown;
+function sentenceCase(label) {
+  const t = String(label || "").toLowerCase();
+  return t ? t.charAt(0).toUpperCase() + t.slice(1) : "Christmas";
 }
 
-export function ChristmasBrowseCard({ card, rank, today }) {
+// The card's own photo plus its credit. A licensed photo keeps its provenance
+// pair; a Google Maps photo says so, like the top grid.
+function browsePhotos(card) {
+  const src = card.image;
+  if (!src || /\/cards-v8\//.test(src)) return [];
+  const credit = card.photoAttr ? christmasCopy(card.photoAttr) : (/^\/api\/photo/.test(src) ? "Photo from Google Maps" : "");
+  return [{
+    src,
+    alt: christmasCopy("Photo of " + (card.venue || card.title || card.name || "the event")),
+    credit,
+    creditHref: card.photoAttrHref && /^https:\/\//.test(card.photoAttrHref) ? card.photoAttrHref : null,
+  }];
+}
+
+// Map a browse card (event or place) into the ticket card's row shape.
+export function browseRowFor(card) {
   const isPlace = card.kind === "place";
-  const place = isPlace ? { ...card, photo: card.image || null, hook: card.take || card.hook || null } : null;
-  const chips = isPlace ? [
-    card.seasonalWhen ? { key: "season", icon: "🗓", label: hospitalityDateChipLabel(card.seasonalWhen), title: card.seasonalWhen } : null,
-    card.sourceUrl ? { key: "proof", icon: "↗", label: "Source", title: "Open source", onClick: () => window.open(card.sourceUrl, "_blank", "noopener,noreferrer") } : null,
-  ].filter(Boolean) : christmasCardChips(card, today);
-  return <RailCard className="wf-exploding-primary"
-    photo={card.image || null} placeholder={!card.image ? card.placeholder || null : null} photoFallbackCategory="christmas"
-    photoAttr={card.photoAttr || null} photoAttrHref={card.photoAttrHref || null}
-    place={place} visitFacts={isPlace ? null : card} title={card.title || card.name} eyebrow={CHRISTMAS_CARD_LABELS[card.christmasRail] || "CHRISTMAS"} rank={rank}
-    score={isPlace ? toDisplayScore(card.wfScore) : null}
-    when={isPlace ? null : card.when || null} facts={[card.city || null, distanceFact(card) || card.region || null].filter(Boolean)}
-    chips={chips.slice(0, 4)} take={card.hook || null}
-    href={card.detailHref || card.url || null} external={!card.detailHref}
-    ariaLabel={`Open ${card.title || card.name}`}
-    actionItem={isPlace ? null : { id: card.id, type: "event", title: card.title || card.name, image: card.image || null, url: card.detailHref || card.url || "" }} />;
+  const name = christmasCopy(card.title || card.name || "");
+  const ticket = !isPlace ? card.ticketRow || null : null;
+  const season = card.season_undated === true ? CHRISTMAS_SEASON_UNDATED_TEXT : "";
+  const price = isPlace ? null : ticket ? ticket.price : (() => {
+    const label = christmasPriceLabel(card);
+    return card.is_free === true || card.price_kind === "free" ? { kind: "free", text: christmasCopy(label) } : { kind: "note", text: christmasCopy(label || CHRISTMAS_PRICE_UNKNOWN_TEXT) };
+  })();
+  return {
+    id: card.id,
+    name,
+    chip: isPlace ? (PLACE_CHIP[card.christmasRail] || "Christmas") : ticket ? ticket.chip : sentenceCase(CHRISTMAS_CARD_LABELS[card.christmasRail]),
+    city: christmasCopy(card.city || ""),
+    when: isPlace ? christmasCopy(card.seasonalWhen || "") : ticket ? ticket.when : christmasCopy(card.when || season || ""),
+    price,
+    photos: ticket && Array.isArray(ticket.photos) && ticket.photos.length ? ticket.photos : browsePhotos(card),
+    placeholder: card.placeholder || null,
+    cta: ticket ? ticket.cta : null,
+    eventHref: card.detailHref || null,
+    pageLabel: isPlace ? "View place" : null,
+    sourceHref: !card.detailHref && /^https:\/\//.test(card.url || card.sourceUrl || "") ? (card.url || card.sourceUrl) : null,
+  };
 }
 
-const selectStyle = { minHeight: 44, borderRadius: 12, border: "1px solid " + C.line, background: C.panel, color: C.text, padding: "0 10px", fontSize: 14, maxWidth: "100%" };
+export function ChristmasBrowseCard({ card, rank = 0, today }) {
+  return <TicketCard row={browseRowFor(card)} chrome={CHROME} idPrefix="xb-" headingLevel={3} priority={false} />;
+}
+
+const selectStyle = { minHeight: 44, borderRadius: 12, border: "1px solid " + C.line, background: "rgba(24,2,8,.72)", color: C.text, padding: "0 12px", fontSize: 16, maxWidth: "100%", minWidth: 0 };
 
 export default function ChristmasBrowse({ initial, facets, today, initialQuery = {} }) {
   const [query, setQuery] = useState(() => ({ ...initialQuery }));
@@ -81,41 +110,35 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     } catch {}
   };
 
-  return <section id="browse" aria-labelledby="browse-title" style={{ margin: "8px 0 28px" }} data-christmas-browse="">
-    <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
-    <h2 id="browse-title" style={{ fontSize: 24, margin: "0 0 6px", color: C.text }}>Verified Christmas outings in Florida</h2>
-    <p style={{ margin: "0 0 14px", color: C.muted, fontSize: 15 }}>Filter by region, kind of outing, date, price and who it is for. Each listing links to its page with the map, schedule and official source.</p>
-    <form role="search" onSubmit={(e) => e.preventDefault()} style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+  // ONE list and ONE menu for the whole page (owner 2026-11-01): the pill row
+  // filters every Christmas listing, events with a real ticket first (server
+  // order, lib/christmasBrowse.js). There is no heading of its own here and no
+  // second section; the hero h1 names the page.
+  const pills = Array.isArray(facets.pills) ? facets.pills : [];
+  const shownCards = cards.length;
+  const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
+  return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
+    <div className="xm-filters" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
+      <button type="button" aria-pressed={!query.category} onClick={() => set("category", "")}>All</button>
+      {pills.map((pill) => <button type="button" key={pill.id} aria-pressed={query.category === pill.id} onClick={() => set("category", query.category === pill.id ? "" : pill.id)}>{pill.label}</button>)}
+    </div>
+    <form role="search" className="xm-controls" onSubmit={(e) => e.preventDefault()}>
       <input type="search" aria-label="Search by name or city" placeholder="Search by name or city" defaultValue={query.q || ""}
         onChange={(e) => { const v = e.target.value; clearTimeout(typing.current); typing.current = setTimeout(() => set("q", v), 300); }}
-        style={{ ...selectStyle, flex: "1 1 220px" }} />
-      <select aria-label="Region" value={query.region || ""} onChange={(e) => set("region", e.target.value)} style={selectStyle}>
+        style={{ ...selectStyle, flex: "1 1 100%" }} />
+      <select aria-label="Region" value={query.region || ""} onChange={(e) => set("region", e.target.value)} style={{ ...selectStyle, flex: "1 1 160px" }}>
         <option value="">All regions</option>{facets.regions.map((r) => <option key={r} value={r}>{r}</option>)}
       </select>
-      <select aria-label="Kind of outing" value={query.category || ""} onChange={(e) => set("category", e.target.value)} style={selectStyle}>
-        <option value="">Every kind</option>{facets.categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-      </select>
-      <select aria-label="When" value={query.when || ""} onChange={(e) => set("when", e.target.value)} style={selectStyle}>
-        <option value="">Any date</option>{facets.dates.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-      </select>
-      <input type="date" aria-label="A specific date" min="2026-11-01" max="2027-01-31" value={query.date || ""} onChange={(e) => set("date", e.target.value)} style={selectStyle} />
-      <select aria-label="Price" value={query.price || ""} onChange={(e) => set("price", e.target.value)} style={selectStyle}>
-        <option value="">Any price</option>{facets.prices.map((p) => <option key={p.id} value={p.id}>{p.label}</option>)}
-      </select>
-      <select aria-label="Who it is for" value={query.audience || ""} onChange={(e) => set("audience", e.target.value)} style={selectStyle}>
-        <option value="">Everyone</option>{facets.audiences.map((a) => <option key={a.id} value={a.id}>{a.label}</option>)}
-      </select>
-      <label style={{ ...selectStyle, display: "inline-flex", alignItems: "center", gap: 8 }}>
-        <input type="checkbox" checked={!!query.undated} onChange={(e) => set("undated", e.target.checked)} /> Dates not announced
-      </label>
-      <button type="button" onClick={nearMe} style={{ ...selectStyle, fontWeight: 800 }}>{query.lat ? "Sorted nearest first" : "Sort nearest to me"}</button>
+      <button type="button" onClick={nearMe} style={{ ...selectStyle, fontWeight: 800, flex: "1 1 160px" }}>{query.lat ? "Nearest first" : "Nearest to me"}</button>
     </form>
-    <p role="status" aria-live="polite" style={{ margin: "0 0 12px", color: C.muted, fontSize: 14 }}>
-      {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "listing" : "listings"}${query.undated ? " with a confirmed 2026 season and no dates yet" : ""}`}
+    <p className="xm-count" role="status" aria-live="polite">
+      {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "listing" : "listings"}`}
     </p>
-    <ol className="wf-place-card-list wf-christmas" style={{ listStyle: "none", margin: 0, padding: 0 }} data-browse-total={data.total}>
-      {cards.map((card, i) => <li key={card.id} className="wf-place-card-slot"><ChristmasBrowseCard card={card} rank={i + 1} today={today} /></li>)}
-    </ol>
-    {data.hasMore ? <button type="button" onClick={more} disabled={loading} style={{ ...selectStyle, marginTop: 14, fontWeight: 800, padding: "0 18px" }}>{loading ? "Loading…" : "Show more"}</button> : null}
+    <div className="xm-grid" data-browse-total={data.total} data-browse-shown={shownCards}>
+      {cards.map((card, i) => <ChristmasBrowseCard key={card.id} card={card} rank={i + 1} today={today} />)}
+    </div>
+    {!loading && !failed && !cards.length ? <p className="xm-empty">No Christmas events match this filter right now. Try another pill or region.</p> : null}
+    {data.hasMore ? <button type="button" className="xm-more" onClick={more} disabled={loading}>{loading ? "Loading…" : "Show more"}</button> : null}
+    {hasPartner ? <div className="xm-foot"><GuideCommissionLine /></div> : null}
   </section>;
 }
