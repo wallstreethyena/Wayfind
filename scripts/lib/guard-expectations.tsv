@@ -708,7 +708,7 @@ scripts/test-free-photo-serving.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	121
 scripts/test-free-source-hotlink.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	3a771165af9ced894476435411410ee57459dc0cb65ba1413590bf7d27dfb14a
 scripts/test-front-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	32f11e82bf230d69cf5d3eb549b2c1ea2e4ae54874a1028586579072027ee933
 scripts/test-global-share-entrypoints.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	60375cbb4391fae7b6aedb73012b864f74f38e4218db4128cb88037f20842270
-scripts/test-google-details-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	52	0	0	58fea42a6e1a289b8d3fe5a576033745b4f4771beeb22214080fd7f962e0fcb6
+scripts/test-google-details-accounting.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	57	0	0	96a1cf3a66207ab5481a76cad4367ae7dcfd37935daa76ba2b4dd0dc5806e8fc
 scripts/test-google-photo-attribution.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	53699f081e0154fdcd6cae2aee7b04aba85cc2e989cd9b02aa242ef0059b801f
 scripts/test-google-photo-compliance.mjs	0	CALL	blocks-ci-and-deploy	1	-	105	0	0	1b3f82dcb2ff03bc96d6a9e2a7644fb8ad055371ccee9e90641de9adfc5fde91
 scripts/test-google-photo-prefetch-pause.mjs	0	CALL	blocks-ci-and-deploy	1	-	16	0	0	a1744cc54b8664b573e5f37e4cb960db168305af4696b7b9e41bfcceb7e73ae5
@@ -922,7 +922,7 @@ scripts/test-privileged-rpc-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	
 scripts/test-prominence.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	3cd01c672c24f10ec374cbfc6af7a74cd99b65e0d8ef59c78868c9dd9bd16836
 scripts/test-promote-backfill.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	e4820a091780d0d103c7b13e37df3baf6925467040c47c85c983b759a4b77117
 scripts/test-promote-decision.mjs	0	CALL	blocks-ci-and-deploy	1	-	75	0	0	85aaa1acf13af8a16d7d710abd2ae81e322bc04d79617f33d40c4b2eb65c34fa
-scripts/test-promote-details.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	52	0	0	410597153dd0b460aac4178fa2c66adc04fe2d3b28c2c198152e1826c4752371
+scripts/test-promote-details.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	67	0	0	c99f63c61ed7a6b5ac2443d8f27267885fc2d9880e9e0442a304f0ff46fd2140
 scripts/test-promote-index.mjs	0	CALL	blocks-ci-and-deploy	1	-	72	0	0	dcc097e3f0c77deed8ded1f97f0e276248c6e35150508bbcaa2f022521f5509f
 scripts/test-promote-paid-cap.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	14	0	0	b5e4bbf5da70d67e358bc60de6adc0e9c6657ea901bbfdb22f35ccf1d6263063
 scripts/test-promote-throttle.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	c1a77d57b9488879b0319df7266db59d34bdfc53f93dd9b1390f84aaf13d7c9a
