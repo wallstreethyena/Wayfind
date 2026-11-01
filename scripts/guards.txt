@@ -2466,3 +2466,6 @@ node scripts/check-seasonal-rail-depth.mjs
 node scripts/test-halloween-overnight-dedupe.mjs
 # 2026-10-31: "Top rated on Wayfind" badge for business websites (backlinks): merit-only eligibility, followed link, escaped names, official logo, never-break image route, no Google spend.
 node scripts/check-top-rated-badge.mjs
+
+# Dated fall associations expire across feed, card, share and metadata.
+node scripts/test-fall-offering-retirement.mjs

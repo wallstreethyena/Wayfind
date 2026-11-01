@@ -20,7 +20,7 @@ import { homeShellData } from "../../../lib/homeShellData";
 // the skin on the card — and never from a query parameter, so a link copied
 // today and opened in December arrives in the ordinary ink instead of wearing
 // a season that is over.
-import { FALL_CARD_IDS, fallSkinLive } from "../../../lib/fallSkin";
+import { fallCardClass } from "../../../lib/fallSkin";
 import { siteTodayStr } from "../../../lib/siteTime";
 import { getInventoryIdentity } from "../../../lib/inventoryIdentity.js";
 import { durablePlaceUrl } from "../../../lib/placeData";
@@ -50,7 +50,7 @@ export async function generateMetadata({ params, searchParams }) {
   if (cat) bits.push(cat);
   if (r) bits.push(r + "\u2605");
   if (loc) bits.push("in " + loc);
-  const isFall = FALL_CARD_IDS.has(id) && fallSkinLive(siteTodayStr());
+  const isFall = !!fallCardClass(id, siteTodayStr());
   // The preview text under the image is the other half of what lands in the
   // thread. A fall place says so there too, in one word, before the facts.
   const desc = (isFall ? "Fall on Wayfind \u00b7 " : "") + (hk ? hk + " \u00b7 " : "") + (bits.length ? bits.join(" \u00b7 ") : "A great nearby spot") + " \u00b7 Tap to open on Wayfind";

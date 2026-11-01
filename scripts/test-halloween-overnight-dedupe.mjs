@@ -65,7 +65,7 @@ const route = readFileSync(new URL("../app/api/events/fall/route.js", import.met
 ok(/const key = `fall-intents:v\d+:\$\{today\}\$\{overnightCacheBucket\(nowLocal\)\}:/.test(route), "the rail key carries the overnight bucket");
 ok(/\.map\(\(e\) => carryOvernight\(e, eventFinalClose\(e\), \{ today, nowLocal \}\)\)/.test(route), "route carries events before the date filter");
 ok(/seasonalHospitalityPlaces\([^)]*"halloween", today, undefined, now\)/.test(route), "route passes the clock to hospitality rows");
-ok(/overnightCacheBucket\(nowLocal\) \? "public, s-maxage=60, stale-while-revalidate=30"/.test(route), "after midnight the CDN copy lives 60s, so it cannot outlive a quarter-hour close by more than ~1.5 minutes");
+ok(/overnightCacheBucket\(nowLocal\) \? "public, s-maxage=60, stale-while-revalidate=0"/.test(route), "after midnight the CDN copy lives 60s without stale replay past a verified close");
 
 // ── 4b. Epoch reader used by the v41-or-later guards fails closed ─────────
 ok(fallIntentsEpoch(readFileSync(new URL("../app/api/events/fall/route.js", import.meta.url), "utf8")) >= 44, "real route reads as v44 or later");

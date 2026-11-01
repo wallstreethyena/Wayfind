@@ -26,6 +26,7 @@ import { FALL_OFFERING_SOURCES } from "../lib/fallPool.js";
 // definitions that can drift apart. Re-exported so anything that imported
 // seasonStart from THIS file before the move keeps working.
 import { seasonStart } from "../lib/fallEvidence.js";
+import { FALL_OFFERING_ENDS, fallOfferingRetired } from "../lib/fallOfferingDates.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 export { seasonStart };
 
@@ -79,7 +80,11 @@ ok(seasonal.length > 0, `at least one offering reads as seasonal (got ${seasonal
 const stale = [];
 for (const [id, v] of seasonal) {
   const verified = typeof v.verified === "string" ? v.verified : null;
-  if (verified && verified >= start) continue;      // re-verified this season
+  // A completed offering is retained as evidence, never a current claim.
+  // Only matched, enforced dates qualify; malformed/stale live claims fail.
+  const until = v.until || v.ends;
+  const claimSeason = FALL_OFFERING_ENDS[id] === until && fallOfferingRetired(id, today) ? seasonStart(until) : start;
+  if (verified && verified >= claimSeason) continue;      // re-verified this season
   if (Object.prototype.hasOwnProperty.call(BASELINE, id)) continue;  // known debt
   stale.push(`${id} (${verified ? `verified ${verified}, before season start ${start}` : "no verified date"}): ${String(v.offering).slice(0, 60)}`);
 }
