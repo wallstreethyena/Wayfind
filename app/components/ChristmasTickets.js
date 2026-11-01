@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { XM_CARD_CSS } from "./ChristmasTicketCard.js";
-import { NavIcon } from "./kit.js";
 import CommerceClickBeacon from "./CommerceClickBeacon.js";
 import { activeSeasonalMark } from "../../lib/seasonalBrand.js";
 
@@ -42,21 +41,6 @@ const SPARKLE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="340" height=
 <path d="M40 30l3 9 9 3-9 3-3 9-3-9-9-3 9-3z"/><path d="M250 70l2.4 7 7 2.4-7 2.4-2.4 7-2.4-7-7-2.4 7-2.4z" opacity=".8"/><path d="M130 150l3.4 10 10 3.4-10 3.4-3.4 10-3.4-10-10-3.4 10-3.4z"/><path d="M300 230l2.6 7.5 7.5 2.6-7.5 2.6-2.6 7.5-2.6-7.5-7.5-2.6 7.5-2.6z" opacity=".8"/><path d="M60 280l3 8.5 8.5 3-8.5 3-3 8.5-3-8.5-8.5-3 8.5-3z"/><circle cx="200" cy="300" r="2.4"/><circle cx="90" cy="100" r="2"/><circle cx="310" cy="140" r="2"/><circle cx="190" cy="40" r="1.8"/></svg>`;
 const svgUrl = (svg) => 'url("data:image/svg+xml,' + encodeURIComponent(svg) + '")';
 
-// Same destinations home uses (CATEGORY_ROUTE through railHref for Tampa).
-const CATEGORY_TABS = [
-  { id: "food", label: "Food", href: "/restaurants/tampa" },
-  { id: "nightlife", label: "Night out", href: "/nightlife/tampa" },
-  { id: "attractions", label: "Activities", href: "/things-to-do/tampa" },
-  { id: "family", label: "Family", href: "/family" },
-  { id: "hotels", label: "Stays", href: "/?q=hotels" },
-  { id: "shopping", label: "Shopping", href: "/?q=shopping" },
-];
-const DEST_LINKS = [
-  { icon: "saved", label: "Favorites", href: "/favorites" },
-  { icon: "itinerary", label: "Itinerary", href: "/itinerary" },
-  { icon: "events", label: "Events", href: "/events" },
-  { icon: "coupons", label: "Coupons", href: "/coupons" },
-];
 
 function askSanta() {
   if (typeof window === "undefined") return;
@@ -86,17 +70,15 @@ const CSS = XM_CARD_CSS + `
 /* Festival string lights: green garland, multicolor bulbs with real glow, rotating chase and twinkle sequences */
 .xm-lights{position:relative;height:36px;pointer-events:none;overflow-x:clip;z-index:30}
 .xm-wire{position:absolute;inset:0;width:100%;height:100%}
-.xm-bloom{position:absolute;left:0;right:0;top:0;height:150px;pointer-events:none;background:linear-gradient(90deg,rgba(255,60,80,.34),rgba(255,196,80,.32),rgba(70,220,140,.30),rgba(80,150,255,.32),rgba(255,110,200,.34),rgba(255,60,80,.34));-webkit-mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 40%,transparent 100%);mask-image:linear-gradient(180deg,#000 0%,rgba(0,0,0,.35) 40%,transparent 100%);opacity:.55;animation:xm-bloom 5s ease-in-out infinite}
-@keyframes xm-bloom{0%,100%{opacity:.4}50%{opacity:.72}}
 .xm-bulb{
-  position:absolute;top:15px;width:13px;height:19px;margin-left:-6.5px;
+  position:absolute;top:14px;width:12px;height:17px;margin-left:-6px;
   border-radius:50% 50% 55% 55%;
   background:radial-gradient(circle at 36% 28%,#fff 0%,var(--bc) 42%,var(--bd) 100%);
-  box-shadow:0 0 7px 2px var(--bg-glow),0 0 18px 6px var(--bg-glow2);
+  box-shadow:0 0 6px 1px var(--bg-glow),0 0 14px 3px var(--bg-glow2);
   will-change:opacity,transform;
 }
-.xm-bulb::before{content:"";position:absolute;left:2.5px;top:-5px;width:8px;height:6px;border-radius:2px 2px 0 0;background:#143524}
-.xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.7}
+.xm-bulb::before{content:"";position:absolute;left:3px;top:-4px;width:6px;height:5px;border-radius:2px 2px 0 0;background:#1E1A16}
+.xm-bulb::after{content:"";position:absolute;left:50%;top:50%;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;background:radial-gradient(circle,var(--bg-glow) 0%,rgba(0,0,0,0) 66%);opacity:.45}
 .xm-bulb:nth-of-type(6n+1){--bc:#FF4458;--bd:#B3111F;--bg-glow:rgba(255,68,88,.75);--bg-glow2:rgba(255,68,88,.32)}
 .xm-bulb:nth-of-type(6n+2){--bc:#3DDC84;--bd:#13803F;--bg-glow:rgba(61,220,132,.7);--bg-glow2:rgba(61,220,132,.3)}
 .xm-bulb:nth-of-type(6n+3){--bc:#FFC94A;--bd:#C98A0B;--bg-glow:rgba(255,201,74,.78);--bg-glow2:rgba(255,201,74,.34)}
@@ -110,13 +92,12 @@ const CSS = XM_CARD_CSS + `
 @keyframes xm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.93)}}
 @keyframes xm-chase{0%,100%{opacity:.32;transform:scale(.9)}14%,26%{opacity:1;transform:scale(1.1)}48%{opacity:.32;transform:scale(.9)}}
 @keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.04)}50%{opacity:.28;transform:scale(.9)}}
-@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-bloom,.xm-sparkles{animation:none!important}.xm-bloom{opacity:.55}.xm-sparkles{opacity:.4}}
+@media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
 
 /* Wayfind header replica (home classes and values) */
-.wf-topbar{background:rgba(22,2,8,.9);border-bottom:1px solid rgba(232,180,138,.35);padding:12px 14px;padding-top:max(12px,env(safe-area-inset-top));position:relative;z-index:20;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 20px rgba(0,0,0,.12)}
-.wf-topbar:after{content:"";position:absolute;left:14px;right:14px;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,rgba(249,115,22,.48),transparent);opacity:.6}
+.wf-topbar{background:transparent;border:0;padding:6px 16px 4px;position:relative;z-index:20}
 .xm-topin{max-width:800px;margin:0 auto}
-.wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}
+.wf-topbar-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0}
 .wf-wordmark{display:flex;align-items:center;gap:5px;flex-shrink:0;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3));text-decoration:none}
 .wf-wordmark-text{display:block;flex:none;width:154.05px;height:39.06px;background-image:url("/brand/wayfind-wordmark-original-v3.png");background-image:image-set(url("/brand/opt/wordmark-original-v3-400.avif") type("image/avif"),url("/brand/opt/wordmark-original-v3-400.webp") type("image/webp"));background-repeat:no-repeat;background-size:contain;background-position:center}
 .xm-goto{
@@ -124,28 +105,7 @@ const CSS = XM_CARD_CSS + `
   background:#F97316;color:#0D1117;font-size:13px;font-weight:800;text-decoration:none;white-space:nowrap;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 7px 14px rgba(249,115,22,.22);
 }
-.wf-navtabs{display:flex;gap:18px;overflow-x:auto;scrollbar-width:none;margin:0 0 8px;padding:0 2px;overscroll-behavior-x:contain}
-.wf-navtabs::-webkit-scrollbar,.wf-dests::-webkit-scrollbar{display:none}
-.wf-navtab{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:5px 0 10px;font-size:14px;font-weight:600;color:#8A96AE;white-space:nowrap;text-decoration:none;transition:color .16s ease}
-.wf-navtab:hover{color:#CBD4E8}
-.wf-navtab:focus-visible,.wf-dest:focus-visible,.xm-goto:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
-.wf-search-row{display:flex;gap:0;position:relative;min-width:0;filter:drop-shadow(0 11px 20px rgba(0,0,0,.24))}
-.wf-scope{display:flex;align-items:center;gap:5px;height:48px;padding:0 12px;background:#1D2536;border:1.5px solid #30363D;border-right:none;border-radius:14px 0 0 14px;color:#B7C2D8;font-size:13px;font-weight:650;white-space:nowrap;flex:0 0 auto}
-.wf-scope-city{max-width:104px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wf-search-field{flex:1;min-width:0;position:relative}
-.wf-search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);pointer-events:none;opacity:.9;display:inline-flex;z-index:1;color:#AEB9C8}
-.wf-search-input{width:100%;min-width:0;height:48px;padding:0 46px 0 38px;background:linear-gradient(135deg,#182130,#111923);border:1.5px solid #354153;border-left:none;border-right:none;border-radius:0;color:#F1F5F9;font-size:16px;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.045),inset 0 -1px 0 rgba(0,0,0,.25)}
-.wf-search-input::placeholder{color:#8190A3;opacity:1}
-.wf-search-input:focus{border-color:rgba(203,213,225,.72)}
-.wf-search-submit{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:54px;height:48px;background:linear-gradient(180deg,#FF9B47 0%,#F97316 55%,#E95A0C 100%);border:none;border-radius:0 14px 14px 0;color:#0D1117;font-size:22px;font-weight:800;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.34),0 8px 18px rgba(249,115,22,.27)}
-.wf-dest-row{display:flex;align-items:stretch;gap:2px;margin:9px 0 -6px;border-top:1px solid #22272E}
-.wf-dests{display:flex;align-items:stretch;gap:2px;flex:1;min-width:0;overflow-x:auto;scrollbar-width:none}
-.wf-dest{position:relative;display:inline-flex;align-items:center;gap:7px;flex:0 0 auto;padding:10px 12px 11px;font-size:13.5px;font-weight:600;color:#94A1BC;white-space:nowrap;text-decoration:none;transition:color .16s ease}
-.wf-dest:hover{color:#E4EAF7}
-.wf-dest-opener{margin-left:auto}
-@media(max-width:560px){.wf-navtabs{gap:9px}.wf-navtab{font-size:12.5px;gap:4px}.wf-navtab svg{width:15px;height:15px}.wf-dest{padding:10px 8px 11px;font-size:12.5px;gap:5px}.wf-dest svg{width:16px;height:16px}.wf-scope{font-size:12.5px;padding:0 10px}}
-@media(max-width:430px){.wf-scope{padding:0 8px;gap:4px}.wf-scope-city{max-width:88px}.wf-search-icon{display:none}.wf-search-input{font-size:14px;padding-left:12px;padding-right:8px}.wf-search-submit{width:46px}}
-@media(max-width:380px){.wf-dest{padding:10px 6px 11px;font-size:12px;gap:4px}.wf-dest svg{width:15px;height:15px}.wf-dest-opener{padding-left:4px}}
+.xm-goto:focus-visible{outline:2px solid #F97316;outline-offset:2px;border-radius:6px}
 
 /* Page body */
 .xm-main{max-width:720px;margin:0 auto;padding:20px 16px 0}
@@ -188,10 +148,8 @@ function FestivalLights() {
   }, []);
   return (
     <div className="xm-lights" aria-hidden="true" data-pattern={pattern}>
-      <div className="xm-bloom" />
       <svg className="xm-wire" viewBox="0 0 1200 36" preserveAspectRatio="none">
-        <path d={WIRE_PATH} fill="none" stroke="#14582F" strokeWidth="4.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
-        <path d={WIRE_PATH} fill="none" stroke="#3FBF7F" strokeOpacity=".75" strokeWidth="1.6" strokeDasharray="1 6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
+        <path d={WIRE_PATH} fill="none" stroke="rgba(20,8,10,.85)" strokeWidth="1.6" strokeLinecap="round" vectorEffect="non-scaling-stroke" />
       </svg>
       {Array.from({ length: BULB_COUNT }, (_, i) => (
         <span
@@ -276,48 +234,20 @@ function seasonalMarkCss(mark) {
   return `.wf-wordmark.is-seasonal{gap:0}.wf-wordmark.is-seasonal .wf-wordmark-text{width:${width}px;height:49.1px;background-image:url("${mark.png}");background-image:image-set(url("${mark.avif}") type("image/avif"),url("${mark.webp}") type("image/webp"));background-position:center;background-size:contain}`;
 }
 
+// Just the logo and one way back (owner 2026-11-01: "remove the top portion
+// of the site and bring them back to gowayfind only by keeping the button").
+// No category tabs, search or shortcut row: they led off this page into
+// surfaces that are not part of it. It sits on the page's own red, so the top
+// no longer reads as a separate dark block.
 function WayfindHeader({ seasonal }) {
   return (
-    <div className="wf-topbar">
+    <div className="wf-topbar xm-topbar">
       <div className="xm-topin">
         <div className="wf-topbar-row">
           <a className={"wf-wordmark" + (seasonal ? " is-seasonal" : "")} href="/" aria-label="Wayfind home">
             <span className="wf-wordmark-text" aria-hidden="true" />
           </a>
           <a className="xm-goto" href="/">Go to Wayfind<span aria-hidden="true">→</span></a>
-        </div>
-        <div className="wf-navtabs" role="group" aria-label="Browse categories">
-          {CATEGORY_TABS.map((tab) => (
-            <a key={tab.id} className="wf-navtab" href={tab.href}>
-              <NavIcon name={tab.id} color="#8A96AE" size={17} strokeWidth={1.7} />
-              <span>{tab.label}</span>
-            </a>
-          ))}
-        </div>
-        <form className="wf-search-row has-scope" action="/" method="get" role="search">
-          <div className="wf-scope">
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 21s-6.6-5.4-6.6-10.2A6.6 6.6 0 0 1 12 4.2a6.6 6.6 0 0 1 6.6 6.6C18.6 15.6 12 21 12 21Z" /><circle cx="12" cy="10.8" r="2.3" /></svg>
-            <span className="wf-scope-city">Florida</span>
-          </div>
-          <div className="wf-search-field">
-            <span className="wf-search-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5" /><path d="m16 16 4.2 4.2" /></svg></span>
-            <input className="wf-search-input" type="search" name="q" placeholder="Search a place or city" aria-label="Search Wayfind" autoComplete="off" enterKeyHint="search" />
-          </div>
-          <button type="submit" className="wf-search-submit" aria-label="Search">→</button>
-        </form>
-        <div className="wf-dest-row">
-          <nav className="wf-dests" aria-label="Destinations">
-            {DEST_LINKS.map((d) => (
-              <a key={d.label} className="wf-dest" href={d.href}>
-                <NavIcon name={d.icon} color="currentColor" size={17} strokeWidth={1.8} />
-                <span>{d.label}</span>
-              </a>
-            ))}
-          </nav>
-          <a className="wf-dest wf-dest-opener" href="/">
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
-            <span>Shortcuts</span>
-          </a>
         </div>
       </div>
     </div>
