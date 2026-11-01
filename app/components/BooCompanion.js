@@ -448,7 +448,7 @@ input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 .boo-ring{position:fixed;z-index:939;pointer-events:none;box-sizing:border-box;animation:boo-t-ring 1.2s ease-out both}
 @keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 .boo-ty{color:transparent}
-body:has(.wf-map-explorer) .wf-boo-layer,body:has([data-analytics-page="map"]) .wf-boo-layer{display:none !important}
+body:has(.wf-map-explorer) .wf-boo-layer,body:has([data-analytics-page="map"]) .wf-boo-layer,body:has(.wf-map-explorer) .boo-c,body:has(.wf-map-explorer) .boo-ring,body:has([data-analytics-page="map"]) .boo-c,body:has([data-analytics-page="map"]) .boo-ring{display:none !important}
 @media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr,.boo-sa *{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
