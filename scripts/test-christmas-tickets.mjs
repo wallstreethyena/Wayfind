@@ -317,13 +317,25 @@ ok(((renderPage(christmasTicketsModel([base({ id: "solo" })], TODAY), [base({ id
 ok(html.includes("data-analytics-page=\"christmas_tickets\""), "the analytics surface is christmas_tickets");
 ok(html.includes("prefers-reduced-motion"), "the string lights and sparkles respect reduced motion");
 ok((html.match(/class="xm-bulb"/g) || []).length === 18, "18 string light bulbs render");
-ok(html.includes('class="xm-bloom"') && html.includes('data-pattern="twinkle"') && html.includes("data-xm-snow") && html.includes('class="xm-doodles"'), "the lights bloom, the rotating light pattern, the snow canvas and the doodle backdrop render");
+ok(!html.includes("xm-bloom") && html.includes('data-pattern="twinkle"') && html.includes("data-xm-snow") && html.includes('class="xm-doodles"'), "the rotating light pattern, the snow canvas and the doodle backdrop render, with no rainbow haze band under the lights (owner 2026-11-01: the lights looked ugly)");
+// Owner 2026-11-01: the top menu looked detached and its links (Food, ...) led
+// off the page. The header is the logo plus one way back to Wayfind, nothing else.
+ok(html.includes('class="xm-goto" href="/"') && html.includes('class="wf-wordmark') && !/wf-navtab|wf-search-row|wf-dest/.test(html), "the header is only the logo and Go to Wayfind: no category tabs, search bar or shortcut row");
 ok(/<canvas[^>]*class="xm-snow"[^>]*aria-hidden="true"/.test(html) && /\.xm-snow\{[^}]*pointer-events:none/.test(html) && /\.xm-snow\{[^}]*z-index:1/.test(html) && /\.xm-main\{[^}]*z-index:2/.test(html), "the snow is hidden from assistive tech, ignores pointer events and sits behind the content");
 ok(html.indexOf('class="xm-filters"') > 0 && html.indexOf('class="xm-filters"') < html.indexOf('data-ticket-id="'), "the pill menu comes before every card");
 ok(/aria-pressed="true"[^>]*>All</.test(html) && html.includes(">Light shows<") && html.includes(">Theme parks<"), "the pill row starts on All and offers Light shows and Theme parks");
 const pillLabels = [...html.matchAll(/<button type="button" aria-pressed="(?:true|false)">([^<]+)<\/button>/g)].map((m) => m[1]);
 ok(pillLabels[0] === "All" && pillLabels.length === 1 + pillsOf(partnerList).length, "only pills for categories that have listings render (" + pillLabels.join(", ") + ")");
-ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"') && html.includes('aria-label="Region"') && html.includes('aria-label="Search by name or city"') && html.includes("Nearest to me"), "the dropdown clutter is gone; region, search and nearest remain");
+ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"') && html.includes('aria-label="Search by name or city"'), "the dropdown clutter is gone; search remains");
+// Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
+// uses the site's one filter pill (CollectionFilter look), not its own region
+// <select> and "Nearest to me" button.
+ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+{
+  const f = strip(read("app/components/ChristmasFilter.js"));
+  ok(/"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /stroke="#F97316"/.test(f) && /background: "#161D2B"/.test(f),
+    "the filter offers order (tickets first, closest), when and region, in the CollectionFilter pill style");
+}
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
   const order = [...html.matchAll(/data-ticket-id="([^"]+)"/g)].map((m) => m[1]);
@@ -508,7 +520,7 @@ ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !htm
   ok(/w < 720 \? 36 : 70/.test(shell) && /visibilitychange/.test(shell) && /prefers-reduced-motion: reduce/.test(shell) && /aria-hidden="true" data-xm-snow/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
   ok(/#FF4458/.test(shell) && /#3DDC84/.test(shell) && /#FFC94A/.test(shell) && /#4DA3FF/.test(shell) && /#FF7AC8/.test(shell) && /xm-chase/.test(shell) && /xm-alt/.test(shell) && /xm-twinkle/.test(shell), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");
   const kf = [...shell.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
-  ok(kf.length === 5 && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
+  ok(kf.length === 4 && !/xm-bloom/.test(shell) && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
   ok(/background:radial-gradient\(120% 55% at 50% 0%,#7A0F22/.test(shell) && !/--bg:#050A14/.test(shell), "the page background is deep red burgundy, not navy");
 }
 
