@@ -145,9 +145,36 @@ for (const { card, facts } of [...dated.slice(0, 40), ...undated.slice(0, 20)]) 
   if (!facts) ok(rail === renderToStaticMarkup(h(RailCard, { ...railProps(card, null), remind: undefined, remindTicketHref: undefined })), `${card.id}: with no reminder the card markup is unchanged`);
   const browse = renderToStaticMarkup(h(ChristmasBrowseCard, { card, rank: 1, today: TODAY }));
   browseChecked++;
-  // Owner direction 2026-11-01: the browse renders the one ticket card, which has no
-  // reaction row. Remind me stays on the event page (and the rails); the card links there.
-  ok(!/wf-place-card-remind|Remind me/.test(browse), `${card.id}: the browse ticket card carries no Remind me button (it lives on the event page)`);
+  // Owner direction 2026-11-01: the one Christmas ticket card carries Save and,
+  // where reminder facts exist, Remind me (surface christmas_ticket_card). A
+  // card with no server ticketRow derives the facts itself with the same module.
+  ok(live === /wf-place-card-remind/.test(browse), `${card.id}: the browse ticket card ${live ? "has" : "has no"} Remind me button`);
+  ok(/class="xm-save"/.test(browse) && (browse.match(/class="xm-buy"/g) || []).length <= 1 && !/wf-place-card-like|Directions/.test(browse), `${card.id}: the browse ticket card has Save, at most one main button, no Like and no Directions`);
+}
+// The server path: attachBrowseTickets puts the facts on ticketRow (the page and /api/christmas/browse "Show more").
+{
+  const { attachBrowseTickets } = await import("../lib/christmasTickets.js");
+  const { christmasBrowseListings, christmasBrowseCardJson } = await import("../lib/christmasBrowse.js");
+  const listings = christmasBrowseListings([], realToday);
+  const page = JSON.parse(JSON.stringify(attachBrowseTickets({ cards: listings.map(christmasBrowseCardJson) }, listings, realToday, new Map())));
+  const events = page.cards.filter((c) => c.kind !== "place");
+  ok(events.length > 100 && events.every((c) => c.ticketRow && "remind" in c.ticketRow && "remindTicketHref" in c.ticketRow), `every event card in the browse JSON carries ticketRow.remind and remindTicketHref after a JSON round trip (${events.length} cards)`);
+  let withBell = 0, without = 0;
+  for (const c of events) {
+    const htmlCard = renderToStaticMarkup(h(ChristmasBrowseCard, { card: c, rank: 1, today: realToday }));
+    const has = /wf-place-card-remind/.test(htmlCard);
+    const full = listings.find((l) => l.id === c.id);
+    const expect = !!reminderFactsFor(full, { href: full.detailHref || null, today: realToday });
+    ok(has === expect, `${c.id}: Remind me on the server built card matches reminderFactsFor (${expect})`);
+    if (full.season_undated || full.christmas_watchlist || !full.detailHref) ok(!has, `${c.id}: undated, watchlist or no page card shows no Remind me`);
+    if (has) withBell++; else without++;
+  }
+  ok(withBell > 50 && without > 10, `server built browse cards: ${withBell} with Remind me, ${without} without`);
+  const dated = events.find((c) => c.ticketRow.remind);
+  const card = (over) => renderToStaticMarkup(h(ChristmasBrowseCard, { card: { ...dated, ticketRow: { ...dated.ticketRow, ...over } }, rank: 1, today: realToday }));
+  ok(!/wf-place-card-remind/.test(card({ remind: null })) && /class="xm-save"/.test(card({ remind: null })), "a card whose facts are null keeps Save and drops Remind me");
+  const pastFacts = { ...dated.ticketRow.remind, start_date: "2025-12-01", end_date: "2025-12-02", nights: null };
+  ok(!/wf-place-card-remind/.test(card({ remind: pastFacts })), "a past event shows no Remind me");
 }
 ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked} rail, ${browseChecked} browse)`);
 
@@ -201,6 +228,14 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
 {
   const rails = strip(read("app/components/ChristmasIntentRails.js")), browse = strip(read("app/components/ChristmasBrowse.js")), card = strip(read("app/components/RailCard.js"));
   ok(!/\bremind=|remindTicketHref=/.test(rails + browse) && !/RailCard/.test(browse.replace(/RailCard in the red/, "")), "the Christmas rails pass no reminder props (RailCard derives the button itself) and the browse no longer renders a RailCard");
+  const ticketCard = strip(read("app/components/ChristmasTicketCard.js"));
+  ok(/\{row\.remind \? <RemindMe facts=\{row\.remind\} variant="card" ticketHref=\{row\.remindTicketHref \|\| null\} surface=\{REMIND_SURFACE\} \/> : null\}/.test(ticketCard) && /const REMIND_SURFACE = "christmas_ticket_card"/.test(ticketCard), "the Christmas ticket card renders Remind me only when facts exist, on the christmas_ticket_card surface");
+  ok(/remind: browseRemind\(card, ticket\)/.test(browse) && /reminderFactsFor\(card, \{ href: card\.detailHref \|\| null \}\)/.test(browse), "the browse passes the server facts through and derives them from the card's own page link when missing");
+  // Census: every file that renders the Remind me button. A new surface must be added here on purpose.
+  const remindUsers = [];
+  const walkR = (dir) => { for (const e of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) { const rel = dir + "/" + e.name; if (e.isDirectory()) walkR(rel); else if (/\.js$/.test(e.name) && /<RemindMe[\s/]/.test(strip(read(rel)))) remindUsers.push(rel); } };
+  walkR("app");
+  ok(remindUsers.sort().join() === ["app/components/ChristmasTicketCard.js", "app/components/RailCard.js", "app/florida-events/[slug]/page.js"].join(), `every Remind me surface is accounted for (${remindUsers.join(", ")})`);
   ok(/reminderFactsFor\(\{ name: title, \.\.\.visitFacts \}, \{ href: cardHref \|\| null \}\)/.test(card) && /visitFacts \? reminderFactsFor/.test(card), "RailCard derives reminder facts from the event row (visitFacts) and the card's own link");
   ok(/\{remind \? <RemindMe facts=\{remind\} variant="card" ticketHref=\{remindTicketHref\} surface="rail_card" \/> : null\}/.test(card), "RailCard renders the button only when facts exist");
   // Census: every file that hands RailCard an event row. A new event card surface must be added here on purpose.

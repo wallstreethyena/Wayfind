@@ -14,6 +14,7 @@
 import { useEffect, useRef, useState } from "react";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
+import { reminderFactsFor } from "../../lib/eventReminderFacts.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
 
 const C = { text: "#FFF7ED", muted: "#C9B8B0", line: "rgba(232,180,138,.45)", panel: "#2A0A12", accent: "#E8B48A" };
@@ -40,6 +41,16 @@ function browsePhotos(card) {
   }];
 }
 
+// Remind me facts: the server built them for every event (ticketRow.remind,
+// lib/christmasTickets.js browseTicketFields). A card that reached the client
+// without them (an older cached API page) derives them from its own fields
+// with the same pure module. Places never carry a reminder.
+function browseRemind(card, ticket) {
+  if (card.kind === "place") return null;
+  if (ticket && ticket.remind !== undefined) return ticket.remind || null;
+  try { return reminderFactsFor(card, { href: card.detailHref || null }); } catch { return null; }
+}
+
 // Map a browse card (event or place) into the ticket card's row shape.
 export function browseRowFor(card) {
   const isPlace = card.kind === "place";
@@ -62,6 +73,9 @@ export function browseRowFor(card) {
     cta: ticket ? ticket.cta : null,
     eventHref: card.detailHref || null,
     pageLabel: isPlace ? "View place" : null,
+    isPlace,
+    remind: browseRemind(card, ticket),
+    remindTicketHref: ticket && ticket.remindTicketHref ? ticket.remindTicketHref : null,
     sourceHref: !card.detailHref && /^https:\/\//.test(card.url || card.sourceUrl || "") ? (card.url || card.sourceUrl) : null,
   };
 }

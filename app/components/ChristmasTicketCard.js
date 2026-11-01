@@ -4,6 +4,8 @@ import { useState } from "react";
 import GuidePhoto from "./GuidePhoto.js";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import { emitCommerce } from "../../lib/commerce.js";
+import { useContentCardActions } from "../../lib/contentCardActions.js";
+import RemindMe from "./RemindMe.js";
 
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
 // "I like the one from image 1 better but add the background similar to image
@@ -53,6 +55,12 @@ export const XM_CARD_CSS = `
 .xm-buy{display:flex;align-items:center;justify-content:center;width:100%;min-height:46px;padding:6px 8px;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border:2px solid var(--xm-rose);border-radius:12px;font-size:15px;font-weight:800;line-height:1.2;text-decoration:none;text-align:center;box-shadow:0 0 10px rgba(232,180,138,.25)}
 .xm-via{margin:0;font-size:11px;line-height:1.35;color:var(--xm-soft);text-align:center}
 .xm-event{display:flex;align-items:center;justify-content:center;min-height:44px;color:#FFD9AE;font-size:13px;font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.xm-actions{display:flex;flex-wrap:wrap;gap:6px;margin:0;min-width:0}
+.xm-actions>button{flex:1 1 auto;display:inline-flex;align-items:center;justify-content:center;gap:5px;min-width:max-content!important;min-height:44px;margin:0;padding:6px 8px;border-radius:999px;background:rgba(40,2,8,.55);color:var(--xm-cream);border:1.5px solid rgba(245,196,81,.75);font:inherit;font-size:12.5px;font-weight:700;line-height:1.1;white-space:nowrap;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.xm-actions>button svg{flex:0 0 auto;width:14px;height:14px;color:#F5C451}
+.xm-actions>button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:var(--xm-ink);border-color:var(--xm-rose)}
+.xm-actions>button[aria-pressed="true"] svg{color:#C0102A}
+.xm-actions>button:focus-visible,.xm-card button:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 .xm-card a:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 `;
 
@@ -131,6 +139,44 @@ function PhotoCredit({ photos }) {
   );
 }
 
+const REMIND_SURFACE = "christmas_ticket_card";
+
+function Heart({ on }) {
+  return (
+    <svg viewBox="0 0 24 24" fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1.1L12 21l7.8-7.5 1-1.1a5.5 5.5 0 0 0 0-7.8z" />
+    </svg>
+  );
+}
+
+// Save and Remind me (owner 2026-11-01). Save uses the content card store
+// (lib/contentCardActions.js: local first, synced to saved_items when signed
+// in) under the same event id the Christmas rails use, so a heart set on one
+// surface shows on the other. Remind me is the existing sheet; it renders only
+// when the server built reminder facts for this event. No Like, no Directions.
+function saveItemFor(row) {
+  if (!row || row.isPlace || !row.id) return null;
+  const photo = Array.isArray(row.photos) && row.photos[0] ? row.photos[0].src : null;
+  return { id: row.id, type: "event", title: row.name, image: photo, url: row.eventHref || row.sourceHref || "" };
+}
+
+function CardActions({ row, item }) {
+  const actions = useContentCardActions(item);
+  const on = actions.hydrated && actions.saved;
+  return (
+    <div className="xm-actions" data-card-actions="">
+      <button
+        type="button"
+        className="xm-save"
+        aria-pressed={on ? "true" : "false"}
+        aria-label={on ? "Saved: " + item.title : "Save " + item.title}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); actions.toggleSave(); }}
+      ><Heart on={on} /><span>{on ? "Saved" : "Save"}</span></button>
+      {row.remind ? <RemindMe facts={row.remind} variant="card" ticketHref={row.remindTicketHref || null} surface={REMIND_SURFACE} /> : null}
+    </div>
+  );
+}
+
 // row.cta is the ticket way in (affiliate /go route or organizer ticket page),
 // or null. With no ticket the main button is the event page (row.eventHref) or
 // the official source (row.sourceHref), and the secondary link is omitted so
@@ -139,6 +185,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
   const { price, cta } = row;
   const affiliate = !!cta && cta.kind === "affiliate";
   const Heading = headingLevel === 3 ? "h3" : "h2";
+  const saveItem = saveItemFor(row);
   const fallback = !cta
     ? (row.eventHref ? { href: row.eventHref, label: row.pageLabel || chrome.eventPage, external: false } : row.sourceHref ? { href: row.sourceHref, label: "Official site", external: true } : null)
     : null;
@@ -193,6 +240,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
               {...(fallback.external ? { target: "_blank", rel: "nofollow noopener" } : {})}
             >{fallback.label}</a>
           ) : null}
+          {saveItem ? <CardActions row={row} item={saveItem} /> : null}
         </div>
       </div>
     </article>
