@@ -139,4 +139,40 @@ await detailGalleryFetch(600)("https://example.test/photos", { cache: "no-store"
 globalThis.fetch = originalFetch;
 ok(seenInit && !("cache" in seenInit) && seenInit.next && seenInit.next.revalidate === 600 && seenInit.headers.apikey === "x",
   "a static page photo read is cached, not no-store");
+
+{
+  const savedFetch = globalThis.fetch;
+  const noCreds = {};
+  const creds = { SUPABASE_SERVICE_ROLE_KEY: "test-only-not-a-real-key", SUPABASE_URL: "https://abc.supabase.co" };
+  try {
+    let fetches = 0;
+    const fetchImpl = async (url) => { fetches += 1; return fetchImpl.respond(url); };
+    fetchImpl.respond = async () => ({ ok: true, json: async () => [{ christmas_photo_gallery: [] }] });
+    const quiet = await loadEventDetailPhotos("/florida-events/not-a-christmas-event", { name: "Quiet", env: noCreds, fetchImpl });
+    ok(quiet.length === 0 && fetches === 0, "no tagged photos and no photo credentials: the event page rail stays empty and does not fetch");
+    fetchImpl.respond = async () => { throw new Error("a haunt page must not read the Christmas gallery"); };
+    const stillHaunt = await loadEventDetailPhotos(spookySeed.eventHref, {
+      hauntSeed: spookySeed,
+      env: creds,
+      fetchImpl,
+      deps: { read: async () => google(seaId), readVault: async () => tagged },
+    });
+    ok(stillHaunt.some((p) => p.src.endsWith("/p2.jpg")) && stillHaunt.every((p) => !p.src.endsWith("/cover.jpg")), "a haunt page keeps its own rail");
+    const buschGallery = [
+      { url: V + "later.jpg", christmas_keys: ["busch-gardens-christmas-town-2026"], attribution_text: "Park Photographer", width: 1200, height: 800 },
+      { url: V + "cover.jpg", christmas_keys: ["christmas-town-2026"], cover: true, attribution_text: "Park Photographer", width: 1400, height: 900 },
+      { url: V + "p2.jpg", christmas_keys: ["howlOrlando"], attribution_text: "Someone else" },
+    ];
+    let seenUrl = "";
+    fetchImpl.respond = async (url) => { seenUrl = String(url); return { ok: true, json: async () => [{ christmas_photo_gallery: buschGallery }] }; };
+    fetches = 0;
+    const busch = await loadEventDetailPhotos("/florida-events/busch-gardens-christmas-town-2026", { name: "Busch Gardens Christmas Town", env: creds, fetchImpl });
+    ok(fetches === 1 && seenUrl.includes("place_id=eq.ChIJhRo4DU_GwogRUgjhMAj-pag") && seenUrl.includes("christmas_photo_gallery"), "the Busch page reads the existing Busch Gardens gallery");
+    ok(busch.length === 2 && busch[0].src.endsWith("/cover.jpg") && busch.every((p) => !p.src.endsWith("/p2.jpg")), "the event page opens on the tagged cover and leaves other events out");
+    const none = await loadEventDetailPhotos("/florida-events/some-other-parade-2026", { name: "Parade", placeId: "ChIJparadeplace01", env: creds, fetchImpl });
+    ok(none.length === 0, "a place gallery with no tag for this event leaves the page rail empty");
+  } finally {
+    globalThis.fetch = savedFetch;
+  }
+}
 console.log("test-place-detail-gallery: " + checks + " checks passed");

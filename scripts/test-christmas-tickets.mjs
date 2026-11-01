@@ -17,9 +17,10 @@ import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
 import { CJ_PID } from "../lib/deals.js";
 import {
-  CHRISTMAS_TICKETS_MAX, CHRISTMAS_TICKET_FILTERS, christmasTicketsModel, christmasTicketsSchema,
+  CHRISTMAS_TICKETS_MAX, CHRISTMAS_TICKETS_MAX_PHOTOS, CHRISTMAS_TICKET_FILTERS, christmasTicketsModel, christmasTicketsSchema,
   ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, christmasPlaceFor, christmasTaggedPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -178,17 +179,60 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   const vaultHalloween = { url: "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJfixture0000/two.jpg", attribution_text: "Venue Owner", source_ref: "halloween-haunt.jpg" };
   const vaultTagged = { url: "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJfixture0000/three.jpg", attribution_text: "Venue Owner", source_ref: "x.jpg", haunt_key: "hhn" };
   const vaultNoCredit = { url: "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJfixture0000/four.jpg", source_ref: "y.jpg" };
-  const withPhotos = await withChristmasTicketPhotos(m, { noMemo: true, readGoogle: async () => google, readVault: async () => [vaultOk, vaultHalloween, vaultTagged, vaultNoCredit, vaultOk] });
+  const withPhotos = await withChristmasTicketPhotos(m, { noMemo: true, readTagged: async () => [], readGoogle: async () => google, readVault: async () => [vaultOk, vaultHalloween, vaultTagged, vaultNoCredit, vaultOk] });
   const row = withPhotos.rows[0];
   ok(row.photos.length === 3, "own photo plus one stored Google photo plus one vaulted photo (got " + row.photos.length + ")");
   ok(row.photos[0].src === "/api/photo?place=ChIJfixture0000&g=2&w=640" && row.photos[1].source === "google" && row.photos[2].source === "vault", "the card's own photo leads, then Google, then the vault");
   ok(row.photos.every((p) => p.credit), "every extra photo carries its credit");
   ok(!christmasVaultPhoto(row, vaultHalloween) && !christmasVaultPhoto(row, vaultTagged) && !christmasVaultPhoto(row, vaultNoCredit), "Halloween, event tagged and uncredited vault photos are skipped");
   ok(!christmasGooglePhoto(row, { src: "https://evil.example/x.jpg", source: "google", credit: { name: "x" } }), "a Google photo must be our stored route");
-  const failed = await withChristmasTicketPhotos(m, { noMemo: true, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
+  const failed = await withChristmasTicketPhotos(m, { noMemo: true, readTagged: async () => [], readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
   ok(failed.rows[0].photos.length === 1 && failed.rows[0].placeholder, "a failed photo read keeps the card with its own photo");
-  const none = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "np", image: null, place_id: null })], TODAY), { noMemo: true });
+  const none = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "np", image: null, place_id: null })], TODAY), { noMemo: true, readTagged: async () => [] });
   ok(none.rows[0].photos.length === 0 && none.rows[0].placeholder.label, "no photo anywhere: the designed tile");
+  const manyVault = Array.from({ length: 10 }, (_, n) => ({ url: "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJfixture0000/v" + n + ".jpg", attribution_text: "Venue Owner", source_ref: "lights-" + n + ".jpg" }));
+  const capped = await withChristmasTicketPhotos(m, { noMemo: true, readTagged: async () => [], readGoogle: async () => google, readVault: async () => manyVault });
+  ok(CHRISTMAS_TICKETS_MAX_PHOTOS === 6 && capped.rows[0].photos.length === 6, "no tagged photos: the venue rail stays capped at 6 (got " + capped.rows[0].photos.length + ")");
+  ok(capped.rows[0].photos[0].src === row.photos[0].src && capped.rows[0].placeId === "ChIJfixture0000", "no tagged photos: the card's own photo still leads and its place id is unchanged");
+}
+
+// ── Tagged Christmas photos replace the venue rail; cover first, cap 14 ─────
+{
+  const V = "https://abc.supabase.co/storage/v1/object/public/place-photos/ChIJl0CYCGZ_3YgRL05pG5wZSsE/";
+  const entry = (name, keys, extra = {}) => ({ url: V + name + ".jpg", attribution_text: "Park Photographer", attribution_url: "https://example.com/credit", width: 1600, height: 900, christmas_keys: keys, ...extra });
+  const gallery = [
+    entry("other", ["universal-orlando-holidays-2026"]),
+    entry("plain", ["christmas-at-gaylord-palms-2026"]),
+    entry("nocredit", ["christmas-at-gaylord-palms-2026"], { attribution_text: "" }),
+    entry("cover", ["christmas-at-gaylord-palms-2026"], { cover: true }),
+    entry("dup", ["christmas-at-gaylord-palms-2026"]),
+    entry("dup", ["christmas-at-gaylord-palms-2026"]),
+  ];
+  const tagged = christmasTaggedPhotos("christmas-at-gaylord-palms-2026", gallery, "Gaylord Palms");
+  ok(tagged.map((p) => p.src.split("/").pop()).join(",") === "cover.jpg,plain.jpg,dup.jpg", "cover leads, other events and uncredited or repeated urls stay out: " + tagged.map((p) => p.src.split("/").pop()).join(","));
+  ok(tagged[0].credit === "Photo by Park Photographer" && tagged[0].creditHref === "https://example.com/credit" && tagged[0].alt === "Photo of Gaylord Palms", "a tagged photo carries its credit and the venue alt");
+  const overflow = christmasTaggedPhotos("christmas-at-gaylord-palms-2026", Array.from({ length: 16 }, (_, n) => entry("n" + n, ["christmas-at-gaylord-palms-2026"], n === 15 ? { cover: true } : {})), "Gaylord");
+  ok(CHRISTMAS_MAX_PHOTOS === 14 && overflow.length === 14 && overflow[0].src.endsWith("/n15.jpg"), "the tagged rail stops at 14 and still opens on the cover");
+  ok(christmasTaggedPhotos("christmas-town-2026", [entry("town", ["busch-gardens-christmas-town-2026"])], "Busch").length === 1, "the Busch card event id reads photos tagged with the public slug");
+  ok(christmasTaggedPhotos("enchant-christmas-st-petersburg-2026", [entry("ice", ["enchant-stpete-2026"])], "Enchant").length === 1, "the Enchant page slug reads photos tagged with the event id");
+  ok(christmasTaggedPhotos("someone-else", gallery, "X").length === 0, "an event with no tagged photos gets nothing from this rail");
+  ok(christmasPlaceFor("christmas-town-2026", null) === CHRISTMAS_EVENT_PLACE["busch-gardens-christmas-town-2026"] && christmasPlaceFor("enchant-stpete-2026", "ChIJkeep") === "ChIJkeep", "a missing place id resolves to the existing venue, and a place id already on the row is kept");
+  const shot = (name) => ({ src: V + name + ".jpg", alt: "Photo of Gaylord Palms", credit: "Photo by Park Photographer", source: "vault" });
+  const gaylord = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "christmas-at-gaylord-palms-2026", place_id: null, venue: "Gaylord Palms" })], TODAY), {
+    noMemo: true,
+    readTagged: async () => [shot("plain"), shot("cover")],
+    readGoogle: async () => { throw new Error("tagged photos replace the venue rail"); },
+    readVault: async () => { throw new Error("tagged photos replace the venue rail"); },
+  });
+  const grow = gaylord.rows[0];
+  ok(grow.photos.map((p) => p.src.endsWith("/cover.jpg") || p.src.endsWith("/plain.jpg")).every(Boolean) && grow.photos.length === 2, "tagged photos replace the card's own photo and the venue rail");
+  ok(grow.placeId === "ChIJl0CYCGZ_3YgRL05pG5wZSsE", "Gaylord links to the existing Gaylord Palms place");
+  const busch = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "christmas-town-2026", place_id: null })], TODAY), { noMemo: true, readTagged: async () => [shot("town")] });
+  ok(busch.rows[0].placeId === "ChIJhRo4DU_GwogRUgjhMAj-pag", "Busch links to the existing Busch Gardens place");
+  const enchant = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "enchant-stpete-2026", place_id: null })], TODAY), { noMemo: true, readTagged: async () => [shot("ice")] });
+  ok(enchant.rows[0].placeId === "ChIJkXdv95vhwogR3e84WZCqrJ4", "Enchant links to the existing Tropicana Field place");
+  const universal = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "universal-orlando-holidays-2026", place_id: null })], TODAY), { noMemo: true, readTagged: async () => [shot("uni")] });
+  ok(universal.rows[0].placeId === "ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal links to the existing Universal Orlando place");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
