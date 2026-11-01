@@ -1940,11 +1940,37 @@ function FallbackImg({ src, fallbackSrc, alt, style, className, icon, category, 
     if (!defer || armed) return undefined;
     const el = holdRef.current;
     if (!el || typeof IntersectionObserver === "undefined") { setArmed(true); return undefined; }
-    const observer = new IntersectionObserver((entries) => {
-      if (entries.some((entry) => entry.isIntersecting)) { setArmed(true); observer.disconnect(); }
-    }, { root: el.parentElement, rootMargin: "0px 80% 0px 80%" });
+    // The rail is a horizontal scroller. An 80% root margin only reached the
+    // open photo and its peek, so every later slide stayed an empty box.
+    const root = el.parentElement;
+    let observer = null;
+    const arm = () => { setArmed(true); };
+    const near = () => {
+      if (!root) return true;
+      const view = root.getBoundingClientRect();
+      const box = el.getBoundingClientRect();
+      if (box.width <= 0 && box.height <= 0) return false;
+      const buffer = Math.max(view.width, root.scrollWidth, 1);
+      return box.right >= view.left - buffer && box.left <= view.right + buffer;
+    };
+    const onScroll = () => { if (near()) done(); };
+    const done = () => {
+      if (observer) observer.disconnect();
+      if (root) root.removeEventListener("scroll", onScroll);
+      arm();
+    };
+    if (near()) { arm(); return undefined; }
+    observer = new IntersectionObserver((entries) => {
+      if (entries.some((entry) => entry.isIntersecting) || near()) done();
+    }, { root: root || null, rootMargin: "0px 100% 0px 100%", threshold: 0 });
     observer.observe(el);
-    return () => observer.disconnect();
+    if (root) root.addEventListener("scroll", onScroll, { passive: true });
+    const frame = requestAnimationFrame(() => { if (near()) done(); });
+    return () => {
+      cancelAnimationFrame(frame);
+      if (observer) observer.disconnect();
+      if (root) root.removeEventListener("scroll", onScroll);
+    };
   }, [defer, armed, src]);
   const activeSrc = (!src || outcomes.get(src) === "error") && fallbackSrc && fallbackSrc !== src ? fallbackSrc : src;
   const outcome = outcomes.get(activeSrc);
