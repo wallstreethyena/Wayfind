@@ -27,13 +27,15 @@ const gen = readFileSync(new URL("./backfill-locality-from-events.mjs", import.m
 ok(/evs\.find\(\(e\)\s*=>\s*addressCorroboratesCity\(e\.address,\s*city\)\)/.test(gen), "tier A corroboration calls addressCorroboratesCity");
 ok(/if \(localityIsFillable\(r\)\) needing\.set/.test(gen), "the candidate set is gated by localityIsFillable");
 ok(/select=place_id,name,locality,county/.test(gen), "the inventory read includes county, or localityIsFillable sees nothing");
-ok(!/address\.toLowerCase\(\)\.includes\(/.test(gen), "the substring corroboration is gone");
+ok(gen.includes("addressCorroboratesCity(e.address, city)"), "control: the probe below can find a call shape that IS in the generator");
+ok(!gen.includes("address.toLowerCase().includes("), "the substring corroboration is gone");
 
 // 4. The committed artifact obeys the rules.
 const mig = readdirSync(new URL("../supabase/migrations/", import.meta.url)).filter((f) => /_wf_inventory_locality_from_owned_events\.sql$/.test(f));
 ok(mig.length >= 1, `a locality backfill migration is committed (${mig.length})`);
 for (const f of mig) {
   const sql = readFileSync(new URL(`../supabase/migrations/${f}`, import.meta.url), "utf8");
+  ok(sql.includes("ChIJ550owHsXw4gR4L8ZcLVqA-M"), `${f}: control — a known Tier A row (Flamingo Bay Brewing, Bradenton) is present, so the absence probe below can see place ids`);
   for (const bad of ["ChIJBap9MoR_3YgRnzGmE9oTtYE", "ChIJeYs9itH2wogRrCzlbripy1w", "ChIJFwrRu7o33YgRIuZ-0QgeCVQ", "ChIJ_5yVrBY13YgRwSgyH1hrRjg"]) {
     ok(!sql.includes(bad), `${f} does not touch ${bad} (a row the review proved wrong)`);
   }

@@ -812,7 +812,7 @@ scripts/test-live-event-posters-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	80	
 scripts/test-live-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	25	0	0	340f34680f78e5459596756b98d49f3704e302b1fd754d3c196dd2adcab0fe15
 scripts/test-live-poster-art.mjs	0	CALL	blocks-ci-and-deploy	1	-	87	0	0	c89fb0543a5074412568e712d86e1319a0af10ff465fa1b16fc2083aeea0fc57
 scripts/test-local-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	1	1	47b7a9b8444c4d9b10c47e658e1f14e27cd352bb33908faec637cc82f381215f
-scripts/test-locality-backfill-evidence.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	1	2	09b9122f6e96884f0c1ad6c5830ee95fff4be8425b416b0d3287950b59dcd470
+scripts/test-locality-backfill-evidence.mjs	0	CALL	blocks-ci-and-deploy	1	-	22	0	0	f126feb59c88052d6cdb41d9ae4572ae64e9ce6ffe1cf4fee74d7970a2384e6e
 scripts/test-location-context.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	afa128e0bbe3f00a87879bdc9116b0606438bab04414c2a64afe1f04eb93645d
 scripts/test-location-pairing-integrity.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	c8d7ef8d543b3344230ea0f214112d142c0d4283c88ae0de9bb06f0c299237b4
 scripts/test-lunch-break-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	32	0	0	3c89da583af884270e5a37b74ee51ed6bb2cedb8d3f754150d998d210995ee7d
