@@ -1,0 +1,534 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for the 9 flagship theme parks whose cards carried no verified (wayfind-tier) editorial line. Researched 2026-10-31 from official venue and tourism DMO pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJdd8VlMN-54gRoaU0d_zYhfk",
+   "name": "Universal Studios Florida",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida",
+     "source_name": "Universal Orlando — Universal Studios Florida",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Universal Studios Florida is a theme park themed to movies and television.",
+      "The Wizarding World of Harry Potter – Diagon Alley includes Harry Potter and the Escape from Gringotts.",
+      "Transformers: The Ride-3D battles Autobots and Decepticons through a city.",
+      "Springfield is home to The Simpsons Ride.",
+      "Revenge of the Mummy is an indoor roller coaster."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The movie park: Diagon Alley, Gringotts, and a Transformers battle in one day.",
+    "why_here": "Studios is the park built around movies and television, so the day moves from casting spells in Diagon Alley to a bank-vault chase on Escape from Gringotts and a city battle on Transformers: The Ride-3D. Springfield adds The Simpsons for families.",
+    "know_before": "Diagon Alley and its Gringotts ride draw the longest lines in this park, so start there and work outward into the movie lands.",
+    "best_time": null,
+    "local_tip": "Ride Escape from Gringotts first, then let Springfield and the movie sets fill the afternoon.",
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida"
+     ],
+     "local_tip": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Wizarding World of Harry Potter – Diagon Alley includes Harry Potter and the Escape from Gringotts.",
+      "source": "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida"
+     },
+     {
+      "claim": "Transformers: The Ride-3D battles Autobots and Decepticons through a city.",
+      "source": "https://www.universalorlando.com/web/en/us/theme-parks/universal-studios-florida"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa7bjTAB_54gR-M-m-KIOCP0",
+   "name": "Universal Epic Universe",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/",
+     "source_name": "Universal Parks press release — Epic Universe is now officially open",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Universal Epic Universe opened on May 22, 2025 as the fourth theme park at Universal Orlando Resort.",
+      "Epic Universe transports guests to five imaginative worlds: Celestial Park, The Wizarding World of Harry Potter – Ministry of Magic, SUPER NINTENDO WORLD, How to Train Your Dragon – Isle of Berk, and Dark Universe.",
+      "Celestial Park is the gateway world, with portals into the other worlds.",
+      "Dark Universe is themed to classic Universal monsters."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Five worlds, one park: Nintendo, Potter, dragons, and monsters through the portals.",
+    "why_here": "Epic Universe is Universal's newest park, built as five separate worlds reached through portals from Celestial Park. One day can cover SUPER NINTENDO WORLD, the Ministry of Magic, dragon flights on Isle of Berk, and Dark Universe's classic monsters.",
+    "know_before": "This is a full-day park with five worlds spread through portals; pick the two worlds you want most first and let the rest fill in.",
+    "best_time": null,
+    "local_tip": "Start in Celestial Park and work through the portals world by world instead of crossing the park twice.",
+    "citations": {
+     "hook": [
+      "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/"
+     ],
+     "why_here": [
+      "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/"
+     ],
+     "know_before": [
+      "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/"
+     ],
+     "local_tip": [
+      "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Universal Epic Universe opened on May 22, 2025 as the fourth theme park at Universal Orlando Resort.",
+      "source": "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/"
+     },
+     {
+      "claim": "Epic Universe transports guests to five imaginative worlds: Celestial Park, The Wizarding World of Harry Potter – Ministry of Magic, SUPER NINTENDO WORLD, How to Train Your Dragon – Isle of Berk, and Dark Universe.",
+      "source": "https://media.universalparksusa.com/press-releases/universal-epic-universe-is-now-officially-open/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgUulalN-3YgRGoTaWM2LawY",
+   "name": "Magic Kingdom Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/",
+     "source_name": "Visit Orlando — Magic Kingdom Park",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Magic Kingdom is one of four theme parks at Walt Disney World Resort.",
+      "Magic Kingdom Park is divided into six themed lands.",
+      "Cinderella Castle stands in Fantasyland.",
+      "Seven Dwarfs Mine Train is a family roller coaster in Fantasyland.",
+      "TRON Lightcycle / Run is the newest thrill ride at Magic Kingdom.",
+      "Fireworks light the sky above Cinderella Castle at night."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cinderella Castle, six lands, and the classic Disney day: Mine Train mornings, fireworks nights.",
+    "why_here": "Magic Kingdom is the original Walt Disney World park, six themed lands arranged around Cinderella Castle. Families come for the classic rides and the newer pair, Seven Dwarfs Mine Train and TRON Lightcycle / Run, with fireworks over the castle to finish.",
+    "know_before": "Seven Dwarfs Mine Train and TRON Lightcycle / Run build the longest waits, so ride them early or late in the day.",
+    "best_time": null,
+    "local_tip": "Do Fantasyland first with small kids, and save TRON Lightcycle / Run for after dark.",
+    "citations": {
+     "hook": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/"
+     ],
+     "why_here": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/"
+     ],
+     "know_before": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/"
+     ],
+     "local_tip": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Magic Kingdom Park is divided into six themed lands.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/"
+     },
+     {
+      "claim": "TRON Lightcycle / Run is the newest thrill ride at Magic Kingdom.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/magic-kingdom/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGzFs3q9_3YgRvZd1y2NSJOo",
+   "name": "Epcot",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/",
+     "source_name": "Visit Orlando — EPCOT",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Epcot's World Showcase features faithful homages to 11 diverse nations around a lagoon.",
+      "World Showcase pavilions serve food and drink from their countries.",
+      "Guardians of the Galaxy: Cosmic Rewind is an intergalactic family-friendly chase through time and space.",
+      "Remy's Ratatouille Adventure shrinks guests to the size of Remy in the France pavilion.",
+      "Spaceship Earth is the geodesic sphere at the entrance of Epcot."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eat and drink around 11 countries, then ride a Guardians coaster through space.",
+    "why_here": "Epcot splits between future-facing rides and the World Showcase, where 11 national pavilions circle a lagoon with their own food and shops. Cosmic Rewind and Remy's Ratatouille Adventure are the headline rides; the showcase is the meal.",
+    "know_before": "Cosmic Rewind and Remy's Ratatouille Adventure draw the longest lines here, so place them first in the day.",
+    "best_time": null,
+    "local_tip": "Graze instead of booking one big meal: one small plate per pavilion around the lagoon.",
+    "citations": {
+     "hook": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/"
+     ],
+     "why_here": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/"
+     ],
+     "know_before": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/"
+     ],
+     "local_tip": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Epcot's World Showcase features faithful homages to 11 diverse nations around a lagoon.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/"
+     },
+     {
+      "claim": "Guardians of the Galaxy: Cosmic Rewind is an intergalactic family-friendly chase through time and space.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/epcot/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_eH9PaOB3YgRuz8jIkYEODQ",
+   "name": "Disney's Animal Kingdom Theme Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/",
+     "source_name": "Visit Orlando — Disney's Animal Kingdom",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Pandora — The World of Avatar features Avatar Flight of Passage, flying on the back of a banshee past floating mountains.",
+      "Kilimanjaro Safaris carries guests in an open-air vehicle past exotic creatures in natural environments.",
+      "Expedition Everest — Legend of the Forbidden Mountain faces a growling Yeti.",
+      "The Tree of Life stands at the center of Disney's Animal Kingdom."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A safari by morning, a banshee flight over Pandora, and a Yeti on Everest.",
+    "why_here": "Animal Kingdom mixes a working safari park with themed lands. Kilimanjaro Safaris runs open-air vehicles past live animals, Pandora adds the Flight of Passage banshee flight, and Expedition Everest supplies the coaster.",
+    "know_before": "Animals on Kilimanjaro Safaris are most active early, so make the safari the first stop of the day.",
+    "best_time": null,
+    "local_tip": "Ride Kilimanjaro Safaris first, then cross to Pandora for Flight of Passage.",
+    "citations": {
+     "hook": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/"
+     ],
+     "why_here": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/"
+     ],
+     "know_before": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/"
+     ],
+     "local_tip": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pandora — The World of Avatar features Avatar Flight of Passage, flying on the back of a banshee past floating mountains.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/"
+     },
+     {
+      "claim": "Kilimanjaro Safaris carries guests in an open-air vehicle past exotic creatures in natural environments.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/animal-kingdom/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRx6CYyd83YgRD_HjNqPO_7s",
+   "name": "Disney's Hollywood Studios",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/",
+     "source_name": "Visit Orlando — Disney's Hollywood Studios",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Star Wars: Galaxy's Edge is an immersive land on the planet Batuu with two signature attractions.",
+      "Star Wars: Rise of the Resistance puts guests amid a battle against the First Order.",
+      "Millennium Falcon: Smugglers Run puts guests in the cockpit of the Millennium Falcon.",
+      "Toy Story Land shrinks guests to the size of a toy for Slinky Dog Dash.",
+      "The Twilight Zone Tower of Terror drops guests in a haunted hotel elevator."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Walk onto Batuu, fly the Falcon, then shrink down in Toy Story Land.",
+    "why_here": "Hollywood Studios is built around living inside films. Galaxy's Edge carries the day with Rise of the Resistance and Smugglers Run, Toy Story Land covers families, and Tower of Terror keeps the thrill riders.",
+    "know_before": "Rise of the Resistance is the longest wait in this park most days, so make it the first or last ride of the day.",
+    "best_time": null,
+    "local_tip": "Pilot the Millennium Falcon on Smugglers Run, then let Slinky Dog Dash anchor the family half of the day.",
+    "citations": {
+     "hook": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/"
+     ],
+     "why_here": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/"
+     ],
+     "know_before": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/"
+     ],
+     "local_tip": [
+      "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Star Wars: Galaxy's Edge is an immersive land on the planet Batuu with two signature attractions.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/"
+     },
+     {
+      "claim": "Star Wars: Rise of the Resistance puts guests amid a battle against the First Order.",
+      "source": "https://www.visitorlando.com/things-to-do/theme-parks/walt-disney-world-resort/hollywood-studios/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJWdHR8wJ_54gRNNot6lDLYvk",
+   "name": "Universal Volcano Bay",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay",
+     "source_name": "Universal Orlando — Volcano Bay",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Universal Volcano Bay is a water theme park built around a volcano called Krakatau.",
+      "Krakatau Aqua Coaster travels through the volcano.",
+      "The park is themed as a South Pacific island.",
+      "Waturi Beach faces the volcano with a wave pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A water park built around a volcano, with an aqua coaster through Krakatau.",
+    "why_here": "Volcano Bay treats a water park like a theme park: a towering volcano at the center, slides and rivers arranged as island villages, and the Krakatau Aqua Coaster running through the volcano itself.",
+    "know_before": "The Krakatau Aqua Coaster is the signature ride and the busiest, so ride it before the afternoon.",
+    "best_time": null,
+    "local_tip": "Claim a spot facing the volcano at Waturi Beach, then work the slides outward.",
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay"
+     ],
+     "local_tip": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Universal Volcano Bay is a water theme park built around a volcano called Krakatau.",
+      "source": "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay"
+     },
+     {
+      "claim": "Krakatau Aqua Coaster travels through the volcano.",
+      "source": "https://www.universalorlando.com/web/en/us/theme-parks/volcano-bay"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ38rlfogN3YgRGic46M9dbLw",
+   "name": "LEGOLAND® Florida Resort",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.legoland.com/florida/",
+     "source_name": "LEGOLAND Florida Resort — official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "LEGOLAND Florida Resort is designed for families with children ages 2 to 12.",
+      "Miniland USA builds miniature cities from millions of LEGO blocks.",
+      "The resort has more than 50 rides, shows and attractions.",
+      "LEGOLAND Florida Resort is in Winter Haven, Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A full theme park at kid scale: 50 rides and whole cities built from LEGO bricks.",
+    "why_here": "LEGOLAND is designed for children ages 2 to 12 rather than thrill seekers, so rides, shows and building stations all pitch at grade-school height. Miniland USA, with miniature cities built from millions of LEGO blocks, is the walk-through centerpiece.",
+    "know_before": "Rides pitch at younger children, so plan a full but gentler day than a thrill park, with building breaks between rides.",
+    "best_time": null,
+    "local_tip": "Walk Miniland USA slowly: the miniature cities reward a full lap before the rides.",
+    "citations": {
+     "hook": [
+      "https://www.legoland.com/florida/"
+     ],
+     "why_here": [
+      "https://www.legoland.com/florida/"
+     ],
+     "know_before": [
+      "https://www.legoland.com/florida/"
+     ],
+     "local_tip": [
+      "https://www.legoland.com/florida/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LEGOLAND Florida Resort is designed for families with children ages 2 to 12.",
+      "source": "https://www.legoland.com/florida/"
+     },
+     {
+      "claim": "Miniland USA builds miniature cities from millions of LEGO blocks.",
+      "source": "https://www.legoland.com/florida/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu5o2QZAN3YgRMruJ3jk1KG8",
+   "name": "PEPPA PIG Theme Park Florida",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.peppapigthemepark.com/florida/",
+     "source_name": "Peppa Pig Theme Park Florida — official site",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Peppa Pig Theme Park Florida is the world's first standalone Peppa Pig theme park.",
+      "The park is designed for preschoolers, with gentle rides and themed play areas.",
+      "It stands next to LEGOLAND Florida Resort in Winter Haven.",
+      "Daddy Pig's Roller Coaster is a gentle first coaster for small children."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The first Peppa Pig park: gentle first rides sized for preschoolers.",
+    "why_here": "This is a first theme park for toddlers and preschoolers: gentle rides, splash and play areas, and everything scaled to small children, standing next to LEGOLAND Florida in Winter Haven.",
+    "know_before": "The park is small by design and aimed at preschoolers, so pair it with LEGOLAND Florida next door for older siblings.",
+    "best_time": null,
+    "local_tip": "Make Daddy Pig's Roller Coaster the first coaster: it is built as a gentle first ride.",
+    "citations": {
+     "hook": [
+      "https://www.peppapigthemepark.com/florida/"
+     ],
+     "why_here": [
+      "https://www.peppapigthemepark.com/florida/"
+     ],
+     "know_before": [
+      "https://www.peppapigthemepark.com/florida/"
+     ],
+     "local_tip": [
+      "https://www.peppapigthemepark.com/florida/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Peppa Pig Theme Park Florida is the world's first standalone Peppa Pig theme park.",
+      "source": "https://www.peppapigthemepark.com/florida/"
+     },
+     {
+      "claim": "The park is designed for preschoolers, with gentle rides and themed play areas.",
+      "source": "https://www.peppapigthemepark.com/florida/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,2125 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for Creator Finds registry places with no verified editorial (pack 4). Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJa147K9HX3IAR-lwiGIQv9i4",
+   "name": "Disneyland Park",
+   "category": "attractions",
+   "metro": "global",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/",
+     "source_name": "Visit Anaheim",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Disneyland Park has over 60 attractions.",
+      "Sleeping Beauty Castle sits at the center of Disneyland Park.",
+      "Star Wars: Galaxy's Edge is a land in Disneyland Park.",
+      "Visitors can fly the Millennium Falcon on a smuggling mission."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Original Disney park known for Sleeping Beauty Castle and over 60 attractions",
+    "why_here": "Go for classic lands, parades, and newer worlds in a single park day. The mix of castle icons and Star Wars: Galaxy's Edge rewards both first visits and returns.",
+    "know_before": "Check the official park calendar before visiting and arrive early for popular attractions.",
+    "local_tip": "Fly the Millennium Falcon on a smuggling mission.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Disneyland Park has over 60 attractions.",
+      "source": "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/"
+     },
+     {
+      "claim": "Visitors can fly the Millennium Falcon on a smuggling mission.",
+      "source": "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/"
+     ],
+     "why_here": [
+      "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/"
+     ],
+     "know_before": [
+      "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/"
+     ],
+     "local_tip": [
+      "https://www.visitanaheim.org/things-to-do/theme-parks/disneyland/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJYWbd5bFBaYgRO9b4WSc6ET8",
+   "name": "Georgetown Drive-In",
+   "category": "attractions",
+   "metro": "global",
+   "primary_type": "movie_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://georgetowndrivein.com/",
+     "source_name": "Georgetown Drive-In",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Georgetown Drive-In shows movies under the stars.",
+      "The drive-in thanks loyal customers for support through the years.",
+      "Families introduce the next generation to the Georgetown experience.",
+      "The theatre closes for the season and reopens in spring."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Drive-in theatre known for movies under the stars across generations",
+    "why_here": "Go for a shared night at the movies from your car rather than an indoor cinema. Families return across generations, which gives the evening a ritual feel.",
+    "know_before": "Check the official site for the seasonal schedule before driving out.",
+    "local_tip": "Arrive for a movie under the stars and make it a family night.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Families introduce the next generation to the Georgetown experience.",
+      "source": "https://georgetowndrivein.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://georgetowndrivein.com/"
+     ],
+     "why_here": [
+      "https://georgetowndrivein.com/"
+     ],
+     "know_before": [
+      "https://georgetowndrivein.com/"
+     ],
+     "local_tip": [
+      "https://georgetowndrivein.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+   "name": "Red Coconut Club",
+   "category": "nightlife",
+   "metro": "orlando",
+   "primary_type": "night_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Nightclub at Universal CityWalk known for signature cocktails and seasonal themed takeovers.",
+    "why_here": "Go for a nightclub night at Universal CityWalk with signature cocktails, beer, and wine in a lounge setting that changes with seasonal themed events.",
+    "know_before": "Bring valid photo ID, since guests must be 21 or older to purchase and consume alcoholic beverages.",
+    "best_time": null,
+    "local_tip": "Order a signature cocktail from the Red Coconut Club menu.",
+    "facts": [
+     {
+      "claim": "Red Coconut Club is a nightclub at Universal CityWalk in Orlando.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club"
+     },
+     {
+      "claim": "Red Coconut Club serves signature cocktails as well as beer and wine.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club"
+     ],
+     "local_tip": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/things-to-do/entertainment/red-coconut-club",
+     "source_name": "Universal Orlando Resort - Red Coconut Club",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Red Coconut Club is a nightclub at Universal CityWalk in Orlando.",
+      "Red Coconut Club serves signature cocktails as well as beer and wine.",
+      "Guests must be 21 or older with valid photo ID to purchase and consume alcoholic beverages.",
+      "Universal CityWalk transforms Red Coconut Club into seasonal themed clubs for holidays and special events."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJE8ib-7x_54gR3rj5fZw1BKM",
+   "name": "JoJo's Shake Bar - Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJE8ib-7x_54gR3rj5fZw1BKM",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "First Florida JoJo's at Pointe Orlando, built around shakes, American food, and cocktails.",
+    "why_here": "Go for over-the-top shakes and American comfort food at Pointe Orlando, with cocktails and weekend brunch giving the menu a grown-up side too.",
+    "know_before": "JoJo's ShakeBAR Orlando is at Pointe Orlando, and weekend brunch is offered, so time a visit for brunch if you want it.",
+    "best_time": null,
+    "local_tip": "Order an over-the-top shake at JoJo's ShakeBAR Orlando.",
+    "facts": [
+     {
+      "claim": "JoJo's ShakeBAR Orlando is the first JoJo's location in Florida at Pointe Orlando.",
+      "source": "https://www.jojosshakebar.com/orlando"
+     },
+     {
+      "claim": "JoJo's ShakeBAR serves over-the-top shakes, American food, and cocktails.",
+      "source": "https://www.jojosshakebar.com/orlando"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.jojosshakebar.com/orlando"
+     ],
+     "why_here": [
+      "https://www.jojosshakebar.com/orlando"
+     ],
+     "know_before": [
+      "https://www.jojosshakebar.com/orlando"
+     ],
+     "local_tip": [
+      "https://www.jojosshakebar.com/orlando"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.jojosshakebar.com/orlando",
+     "source_name": "JoJo's ShakeBAR Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "JoJo's ShakeBAR Orlando is the first JoJo's location in Florida at Pointe Orlando.",
+      "JoJo's ShakeBAR serves over-the-top shakes, American food, and cocktails.",
+      "JoJo's ShakeBAR Orlando offers weekend brunch.",
+      "JoJo's ShakeBAR is known for Instagrammable seasonal experiences and workshops."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJrZohIJMK6IkRjDYtfS6WREg",
+   "name": "Wells Hollow Creamery",
+   "category": "attractions",
+   "metro": "shelton-ct",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "5th generation farm creamery in Shelton with over 60 flavors of ice cream.",
+    "why_here": "Go for farm-made ice cream in over 60 flavors, plus smoothies, flurries, soft serve, and Italian ice on a big open air patio in Shelton.",
+    "know_before": "Check the flavor list before your visit, since Wells Hollow Creamery offers over 60 different flavors to choose from.",
+    "best_time": null,
+    "local_tip": "Pick a new flavor from the over 60 flavors, or go for a flurry or Italian ice on the patio.",
+    "facts": [
+     {
+      "claim": "Wells Hollow Creamery is a 5th generation farm in Shelton, Connecticut offering over 60 flavors of ice cream.",
+      "source": "https://www.wellshollowcreamery.com/index.html"
+     },
+     {
+      "claim": "Wells Hollow Creamery opened in spring 2007 as Wells Hollow Creamery and Corn Maze.",
+      "source": "https://www.wellshollowcreamery.com/index.html"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.wellshollowcreamery.com/index.html"
+     ],
+     "why_here": [
+      "https://www.wellshollowcreamery.com/index.html"
+     ],
+     "know_before": [
+      "https://www.wellshollowcreamery.com/index.html"
+     ],
+     "local_tip": [
+      "https://www.wellshollowcreamery.com/index.html"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.wellshollowcreamery.com/index.html",
+     "source_name": "Wells Hollow Creamery",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Wells Hollow Creamery is a 5th generation farm in Shelton, Connecticut offering over 60 flavors of ice cream.",
+      "Wells Hollow Creamery opened in spring 2007 as Wells Hollow Creamery and Corn Maze.",
+      "The ice cream shop features ice cream, smoothies, flurries, soft serve, and Italian ice with a 3,000 square foot open air patio.",
+      "Wells Hollow Creamery runs an annual corn maze in its corn field."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJaRU86ORx54gRK3zyCcF94hw",
+   "name": "A Petrified Forest Scare Trail",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Central Florida scream park with 3 scare trails for 1 price in Altamonte Springs.",
+    "why_here": "Go to brave 3 scare trails on one ticket at Central Florida's premiere scream park, an outdoor haunted night out in Altamonte Springs woods.",
+    "know_before": "One ticket gets one trip through all 3 scare trails, and your color stamp sets your queue grouping through the Color Wheel System.",
+    "best_time": null,
+    "local_tip": "Do all 3 scare trails on your one ticket at A Petrified Forest.",
+    "facts": [
+     {
+      "claim": "A Petrified Forest is Central Florida's premiere scream park in Altamonte Springs.",
+      "source": "https://www.apetrifiedforest.com/"
+     },
+     {
+      "claim": "A Petrified Forest offers 3 scare trails for 1 price with one ticket giving one trip through all 3 scare trails.",
+      "source": "https://www.apetrifiedforest.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.apetrifiedforest.com/"
+     ],
+     "why_here": [
+      "https://www.apetrifiedforest.com/"
+     ],
+     "know_before": [
+      "https://www.apetrifiedforest.com/"
+     ],
+     "local_tip": [
+      "https://www.apetrifiedforest.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.apetrifiedforest.com/",
+     "source_name": "A Petrified Forest Scare Trail",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "A Petrified Forest is Central Florida's premiere scream park in Altamonte Springs.",
+      "A Petrified Forest offers 3 scare trails for 1 price with one ticket giving one trip through all 3 scare trails.",
+      "A Petrified Forest uses a Color Wheel System with a color stamp that denotes your queue grouping.",
+      "Tickets for The Keeper's Offering and Psychosis are only available to purchase at the event as spaces are limited."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJZx685RbDwogRMUoUeorzjiw",
+   "name": "V Modern Italian",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Modern Italian in Tampa with house-made pastas, hand-crafted pizzas, and chef Stefano Ciotti dishes.",
+    "why_here": "Go for Italian classics with a twist, house-made pastas and hand-crafted pizzas developed with Stefano Ciotti, plus an inventive cocktail program and curated wine list.",
+    "know_before": "The Tampa menu runs from CACIO E PEPE to hand-crafted pizzas, so come ready to order pasta or pizza.",
+    "best_time": null,
+    "local_tip": "Try the CACIO E PEPE with cavatappi, pecorino romano, and black pepper.",
+    "facts": [
+     {
+      "claim": "V Modern Italian in Tampa serves Italian classics with house-made pastas and hand-crafted pizzas.",
+      "source": "https://v.restaurant/tampa/"
+     },
+     {
+      "claim": "V Modern Italian dishes were developed in collaboration with Michelin-starred chef Stefano Ciotti.",
+      "source": "https://v.restaurant/tampa/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://v.restaurant/tampa/"
+     ],
+     "why_here": [
+      "https://v.restaurant/tampa/"
+     ],
+     "know_before": [
+      "https://v.restaurant/tampa/"
+     ],
+     "local_tip": [
+      "https://v.restaurant/tampa/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://v.restaurant/tampa/",
+     "source_name": "V Modern Italian - Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "V Modern Italian in Tampa serves Italian classics with house-made pastas and hand-crafted pizzas.",
+      "V Modern Italian dishes were developed in collaboration with Michelin-starred chef Stefano Ciotti.",
+      "The Tampa menu includes CACIO E PEPE with cavatappi, pecorino romano, and black pepper.",
+      "V Modern Italian pairs its food with an inventive cocktail program and curated wine list."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ02QeVQF154gRkZlyxSZYgdk",
+   "name": "Calypso Coffee Bar",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Farm to cup coffee in Apopka from a family farm in Guatemala.",
+    "why_here": "Go for specialty grade coffee with a direct farm connection, beans from a family farm in Guatemala brewed as a farm to cup experience in Apopka.",
+    "know_before": "Calypso Coffee Bar is the only farm to cup experience in Apopka, so expect coffee built around its Guatemala farm beans.",
+    "best_time": null,
+    "local_tip": "Try a specialty grade coffee brewed from the family farm in Guatemala beans.",
+    "facts": [
+     {
+      "claim": "Calypso Coffee Bar offers a farm to cup coffee experience in Apopka, Florida.",
+      "source": "https://www.calypso.coffee/"
+     },
+     {
+      "claim": "Calypso Coffee Bar serves specialty grade coffee beans from its family farm in Guatemala.",
+      "source": "https://www.calypso.coffee/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.calypso.coffee/"
+     ],
+     "why_here": [
+      "https://www.calypso.coffee/"
+     ],
+     "know_before": [
+      "https://www.calypso.coffee/"
+     ],
+     "local_tip": [
+      "https://www.calypso.coffee/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.calypso.coffee/",
+     "source_name": "Calypso Coffee Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Calypso Coffee Bar offers a farm to cup coffee experience in Apopka, Florida.",
+      "Calypso Coffee Bar serves specialty grade coffee beans from its family farm in Guatemala.",
+      "Calypso Coffee Bar calls itself the only farm to cup experience in Apopka.",
+      "Calypso Coffee Bar sells specialty grade coffee beans for home brewing."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJhWCYaL4n5IgRhwgdf5lIGbc",
+   "name": "St. Augustine Coffee House",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Locally roasted coffee in St Augustine, anchored by House Blend espresso.",
+    "why_here": "Go for locally roasted coffee from Martin Coffee Company beans, from House Blend espresso to iced coffee and cold brew in the heart of St Augustine.",
+    "know_before": "St Augustine Coffee House partners with Martin Coffee Company, so beans are locally roasted African coffee beans in every cup.",
+    "best_time": null,
+    "local_tip": "Order the House Blend espresso at St Augustine Coffee House.",
+    "facts": [
+     {
+      "claim": "St Augustine Coffee House serves locally roasted coffee beans in St Augustine, Florida.",
+      "source": "https://staugustinecoffeehouse.com/"
+     },
+     {
+      "claim": "St Augustine Coffee House partners with Martin Coffee Company for locally roasted African coffee beans.",
+      "source": "https://staugustinecoffeehouse.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://staugustinecoffeehouse.com/"
+     ],
+     "why_here": [
+      "https://staugustinecoffeehouse.com/"
+     ],
+     "know_before": [
+      "https://staugustinecoffeehouse.com/"
+     ],
+     "local_tip": [
+      "https://staugustinecoffeehouse.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://staugustinecoffeehouse.com/",
+     "source_name": "St Augustine Coffee House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "St Augustine Coffee House serves locally roasted coffee beans in St Augustine, Florida.",
+      "St Augustine Coffee House partners with Martin Coffee Company for locally roasted African coffee beans.",
+      "The House Blend espresso captures African and South American bean traditions.",
+      "St Augustine Coffee House offers espresso drinks, iced coffee, cold brew, and a Sangria menu."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJfzpM43oRw4gR6ifHWRbjp9E",
+   "name": "The Fox Mercantile",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Curated boutique in Bradenton with a coffee bar, homewares, clothing, jewelry, books, and gifts.",
+    "why_here": "Go to sip at the coffee bar and browse handpicked homewares, clothing, jewelry, books, and gifts in a shop designed to slow you down in Bradenton.",
+    "know_before": "The Fox Mercantile pairs its coffee bar with boutique shelves, so plan time to browse homewares and gifts after your coffee.",
+    "best_time": null,
+    "local_tip": "Get a coffee at the coffee bar, then browse for homewares, books, and gifts.",
+    "facts": [
+     {
+      "claim": "The Fox Mercantile is a curated boutique in Bradenton, Florida with a coffee bar.",
+      "source": "https://thefoxmercantile.com/about-us"
+     },
+     {
+      "claim": "The Fox Mercantile shops handpicked homewares, clothing, jewelry, books, and gifts.",
+      "source": "https://thefoxmercantile.com/about-us"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thefoxmercantile.com/about-us"
+     ],
+     "why_here": [
+      "https://thefoxmercantile.com/about-us"
+     ],
+     "know_before": [
+      "https://thefoxmercantile.com/about-us"
+     ],
+     "local_tip": [
+      "https://thefoxmercantile.com/about-us"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://thefoxmercantile.com/about-us",
+     "source_name": "The Fox Mercantile",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Fox Mercantile is a curated boutique in Bradenton, Florida with a coffee bar.",
+      "The Fox Mercantile shops handpicked homewares, clothing, jewelry, books, and gifts.",
+      "From the coffee bar to the carefully arranged shelves, every corner of The Fox Mercantile is designed to slow you down.",
+      "The Fox Mercantile sells Fox M Coffee Beans and coffee mugs."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJPWsUhY9Aw4gRoltOtGa3nPM",
+   "name": "Sarasota Fairgrounds",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sarasotafair.com/p/getinvolved/robards-arena",
+     "source_name": "Sarasota County Fair",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Robarts Arena is home to a variety of events.",
+      "Robarts Arena has a 15,000 square foot floor for sporting events, home shows, banquets, concerts and graduations.",
+      "The annual Sarasota County Fair is held annually in March.",
+      "The Sarasota County Fairgrounds is owned and operated by the Sarasota County Agricultural Fair Association."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home to Robarts Arena and the annual Sarasota County Fair in March",
+    "why_here": "Come for the annual Sarasota County Fair in March, or for concerts, sporting events, home shows and banquets at Robarts Arena throughout the year.",
+    "know_before": "Check the event calendar before you go, as the fairgrounds host different events at Robarts Arena throughout the year.",
+    "local_tip": "Time a visit for the annual Sarasota County Fair in March.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Robarts Arena is home to a variety of events.",
+      "source": "https://www.sarasotafair.com/p/getinvolved/robards-arena"
+     },
+     {
+      "claim": "Robarts Arena has a 15,000 square foot floor for sporting events, home shows, banquets, concerts and graduations.",
+      "source": "https://www.sarasotafair.com/p/getinvolved/robards-arena"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.sarasotafair.com/p/getinvolved/robards-arena"
+     ],
+     "why_here": [
+      "https://www.sarasotafair.com/p/getinvolved/robards-arena"
+     ],
+     "know_before": [
+      "https://www.sarasotafair.com/p/getinvolved/robards-arena"
+     ],
+     "local_tip": [
+      "https://www.sarasotafair.com/p/getinvolved/robards-arena"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJW5C20gaI54gRZuH_-8hPQy8",
+   "name": "Showcase of Citrus",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://showcaseofcitrus.com/contact.html",
+     "source_name": "Showcase of Citrus",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Showcase of Citrus offers an orange picking adventure and a Monster Truck Ride.",
+      "Hayrides run on Saturdays and Sundays.",
+      "Showcase of Citrus is in Clermont, Florida.",
+      "Visitors can book a Monster Truck Ride ahead of time."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Citrus grove in Clermont known for its Monster Truck Ride",
+    "why_here": "Go for an orange picking adventure and a Monster Truck Ride through the citrus grove, with hayrides on Saturdays and Sundays adding a slower way to see the property.",
+    "know_before": "Book your Monster Truck Ride ahead of time and check the expedition schedule before you go.",
+    "local_tip": "Book the Monster Truck Ride ahead of time.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Showcase of Citrus offers an orange picking adventure and a Monster Truck Ride.",
+      "source": "https://showcaseofcitrus.com/contact.html"
+     },
+     {
+      "claim": "Hayrides run on Saturdays and Sundays.",
+      "source": "https://showcaseofcitrus.com/contact.html"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://showcaseofcitrus.com/contact.html"
+     ],
+     "why_here": [
+      "https://showcaseofcitrus.com/contact.html"
+     ],
+     "know_before": [
+      "https://showcaseofcitrus.com/contact.html"
+     ],
+     "local_tip": [
+      "https://showcaseofcitrus.com/contact.html"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJXWVI-Nca2YgRJxmxjtOPI3U",
+   "name": "Cherry Smash",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cherrysmash.com",
+     "source_name": "Cherry Smash",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Cherry Smash is an ice cream shop in Coral Springs, Florida.",
+      "Cherry Smash serves sundaes and banana splits.",
+      "Cherry Smash serves ice cream in cones and cups.",
+      "The shop keeps a menu of ice cream treats for visitors."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coral Springs ice cream shop serving sundaes and banana splits",
+    "why_here": "Go for classic ice cream in cones and cups, or sit down with sundaes and banana splits in a Coral Springs shop built around frozen treats.",
+    "know_before": "Check the current menu before you go, as ice cream flavors and treats can change.",
+    "local_tip": "Order a banana split or a sundae.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Cherry Smash is an ice cream shop in Coral Springs, Florida.",
+      "source": "https://cherrysmash.com"
+     },
+     {
+      "claim": "Cherry Smash serves sundaes and banana splits.",
+      "source": "https://cherrysmash.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://cherrysmash.com"
+     ],
+     "why_here": [
+      "https://cherrysmash.com"
+     ],
+     "know_before": [
+      "https://cherrysmash.com"
+     ],
+     "local_tip": [
+      "https://cherrysmash.com"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJxzf0Op3hwogRjW4p7ZQeClE",
+   "name": "New Hotel Collection | The Cordova Inn",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cordovainnstpete.com/",
+     "source_name": "The Cordova Inn",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Cordova Inn is in St. Petersburg, Florida.",
+      "The Cordova Inn offers Historic King Standard rooms.",
+      "The Cordova Inn offers Historic King Deluxe rooms.",
+      "The Cordova Inn offers Historic Double Queen rooms.",
+      "Rooms blend comfort and style."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic inn in St. Petersburg with King and Double Queen rooms",
+    "why_here": "Stay for a historic inn stay in St. Petersburg, choosing among Historic King Standard, Historic King Deluxe and Historic Double Queen rooms that blend comfort and style.",
+    "know_before": "Choose your room type before booking, as Historic King and Historic Double Queen rooms differ in layout.",
+    "local_tip": "Book a Historic King Deluxe room for the historic stay.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Cordova Inn is in St. Petersburg, Florida.",
+      "source": "https://www.cordovainnstpete.com/"
+     },
+     {
+      "claim": "The Cordova Inn offers Historic King Standard rooms.",
+      "source": "https://www.cordovainnstpete.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.cordovainnstpete.com/"
+     ],
+     "why_here": [
+      "https://www.cordovainnstpete.com/"
+     ],
+     "know_before": [
+      "https://www.cordovainnstpete.com/"
+     ],
+     "local_tip": [
+      "https://www.cordovainnstpete.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJUcSOQap_3YgRzKLq5rYIdYI",
+   "name": "The Cake Bake Shop by Gwendolyn Rogers",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort",
+     "source_name": "The Cake Bake Shop",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Cake Bake Shop by Gwendolyn Rogers is at Disney's BoardWalk.",
+      "The Cake Bake Shop is a table-service restaurant and bakery.",
+      "The menu includes French macarons, truffles and signature cakes.",
+      "Gwendolyn Rogers is president and owner of The Cake Bake Shop."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gwendolyn Rogers bakery at Disney's BoardWalk known for signature cakes",
+    "why_here": "Go for a table-service restaurant and bakery from Gwendolyn Rogers, where French macarons, truffles and signature cakes make dessert the main event at Disney's BoardWalk.",
+    "know_before": "Plan for a table-service meal or bakery stop, as this is both a restaurant and a bakery.",
+    "local_tip": "Order a signature cake with French macarons.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Cake Bake Shop by Gwendolyn Rogers is at Disney's BoardWalk.",
+      "source": "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort"
+     },
+     {
+      "claim": "The Cake Bake Shop is a table-service restaurant and bakery.",
+      "source": "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort"
+     ],
+     "why_here": [
+      "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort"
+     ],
+     "know_before": [
+      "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort"
+     ],
+     "local_tip": [
+      "https://thecakebakeshop.com/pages/disneys-boardwalk-walt-disney-world-resort"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJAcphlZd_3YgRVnw4XgEUJoY",
+   "name": "Olivia's Cafe",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/",
+     "source_name": "Walt Disney World Resort",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Olivia's Cafe is at Disney's Old Key West Resort.",
+      "Olivia's Cafe serves fresh Florida seafood and American cuisine with a Caribbean influence.",
+      "Lunch includes coastal cuisine like Conch Fritters.",
+      "Olivia welcomes diners with island-inspired dishes and traditional American fare."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Old Key West cafe serving Conch Fritters and Florida seafood",
+    "why_here": "Go for fresh Florida seafood and American cuisine with a Caribbean influence, in an island-inspired cafe at Disney's Old Key West Resort where Olivia welcomes diners.",
+    "know_before": "Plan for lunch if you want Conch Fritters, which are listed as coastal cuisine at lunch.",
+    "local_tip": "Order the Conch Fritters at lunch.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Olivia's Cafe is at Disney's Old Key West Resort.",
+      "source": "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/"
+     },
+     {
+      "claim": "Olivia's Cafe serves fresh Florida seafood and American cuisine with a Caribbean influence.",
+      "source": "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/"
+     ],
+     "local_tip": [
+      "https://www.disneyworld.co.uk/dining/old-key-west-resort/olivia-cafe/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJkWXRuBC02YgRripCIoUAN9g",
+   "name": "Jungle Island",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jungleisland.com/",
+     "source_name": "Jungle Island",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Jungle Island is an outdoor adventure park in Miami.",
+      "Visitors can enjoy encounters with capybaras, lemurs, sloths, wallabies, flamingos and giant tortoises.",
+      "Jungle Island offers Treetop Trekking, an aerial adventure park.",
+      "Tickets can be purchased at the park and online."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami outdoor adventure park known for animal encounters",
+    "why_here": "Go for close animal encounters with capybaras, lemurs, sloths, wallabies, flamingos and giant tortoises, plus Treetop Trekking aerial adventure in an outdoor Miami park.",
+    "know_before": "Buy tickets online or at the park, and book animal encounters separately before they sell out.",
+    "local_tip": "Book an encounter with sloths or lemurs.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Jungle Island is an outdoor adventure park in Miami.",
+      "source": "https://www.jungleisland.com/"
+     },
+     {
+      "claim": "Visitors can enjoy encounters with capybaras, lemurs, sloths, wallabies, flamingos and giant tortoises.",
+      "source": "https://www.jungleisland.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.jungleisland.com/"
+     ],
+     "why_here": [
+      "https://www.jungleisland.com/"
+     ],
+     "know_before": [
+      "https://www.jungleisland.com/"
+     ],
+     "local_tip": [
+      "https://www.jungleisland.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJhdEC7MUD2YgRWqeIwaYujc4",
+   "name": "Xtreme Action Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://xtremeactionpark.com/",
+     "source_name": "Xtreme Action Park",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Xtreme Action Park is the largest indoor entertainment venue in Florida.",
+      "Xtreme Action Park has over 200,000 square feet of attractions and event spaces.",
+      "Attractions include Go Kart Racing, Bowling Lanes, Arcade Game Room and a Ropes Course Adventure.",
+      "Attractions also include a Trampoline Park, Roller Skating Rink, Escape Rooms and Laser Tag."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor venue with Go Kart Racing, bowling and a ropes course",
+    "why_here": "Go for Go Kart Racing, Bowling Lanes, an Arcade Game Room and a Ropes Course Adventure, plus a Trampoline Park, Roller Skating Rink, Escape Rooms and Laser Tag indoors.",
+    "know_before": "Pick your attractions before you go, as Go Kart Racing and other activities are booked separately.",
+    "local_tip": "Start with Go Kart Racing, then try the Ropes Course Adventure.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Xtreme Action Park is the largest indoor entertainment venue in Florida.",
+      "source": "https://xtremeactionpark.com/"
+     },
+     {
+      "claim": "Xtreme Action Park has over 200,000 square feet of attractions and event spaces.",
+      "source": "https://xtremeactionpark.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://xtremeactionpark.com/"
+     ],
+     "why_here": [
+      "https://xtremeactionpark.com/"
+     ],
+     "know_before": [
+      "https://xtremeactionpark.com/"
+     ],
+     "local_tip": [
+      "https://xtremeactionpark.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJgYp-DDIv2YgRH8hrgA3I3pI",
+   "name": "South Florida Fair",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets",
+     "source_name": "South Florida Fair",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The South Florida Fair is held in West Palm Beach, Florida.",
+      "Ride wristbands and individual ride credits are available at the Fair.",
+      "A Gold Access Wristband lets you skip the regular ride lines at designated entrances.",
+      "Fair admission tickets are available online."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "West Palm Beach fair known for midway rides and ride wristbands",
+    "why_here": "Go for midway rides and fair food in West Palm Beach, where ride wristbands, individual ride credits and admission tickets shape a full day at the fairgrounds.",
+    "know_before": "Buy Fair admission online before you go and decide between ride wristbands and individual ride credits.",
+    "local_tip": "Get a ride wristband if you plan to ride repeatedly.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The South Florida Fair is held in West Palm Beach, Florida.",
+      "source": "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets"
+     },
+     {
+      "claim": "Ride wristbands and individual ride credits are available at the Fair.",
+      "source": "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets"
+     ],
+     "why_here": [
+      "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets"
+     ],
+     "know_before": [
+      "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets"
+     ],
+     "local_tip": [
+      "https://www.southfloridafair.com/p/south-florida-fair/visit/buytickets"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJqwCnDja_2YgR0fQINSRA2MM",
+   "name": "Miami-Dade County Fair & Exposition, Inc.",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thefair.me/",
+     "source_name": "Miami-Dade County Fair & Exposition, Inc.",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Miami-Dade County Fair & Exposition, Inc. is a not-for-profit organization dedicated to promoting education and South Florida agriculture.",
+      "The organization showcases and rewards youth achievement.",
+      "The Miami-Dade County Youth Fair features rides, carnival food, livestock and agricultural competitions, and concerts.",
+      "Visitors should check the official website for current dates, tickets, and parking information before visiting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for rides, carnival food, livestock competitions, and youth achievement in South Florida agriculture.",
+    "why_here": "Go for the rides, carnival food, livestock and agricultural competitions, and concerts, and to see youth achievement showcased and rewarded.",
+    "know_before": "Check the official website for current dates, tickets, and parking information before visiting.",
+    "local_tip": "Try the carnival food and see the livestock and agricultural competitions.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Miami-Dade County Fair & Exposition, Inc. is a not-for-profit organization dedicated to promoting education and South Florida agriculture.",
+      "source": "https://www.thefair.me/"
+     },
+     {
+      "claim": "The Miami-Dade County Youth Fair features rides, carnival food, livestock and agricultural competitions, and concerts.",
+      "source": "https://www.thefair.me/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.thefair.me/"
+     ],
+     "why_here": [
+      "https://www.thefair.me/"
+     ],
+     "know_before": [
+      "https://www.thefair.me/"
+     ],
+     "local_tip": [
+      "https://www.thefair.me/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ1T2OiMEp34gRcRQOutyc6j8",
+   "name": "Guanabanas Restaurant",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.guanabanas.com/",
+     "source_name": "Guanabanas Restaurant",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Guanabanas is a waterfront restaurant and bar in Jupiter, Florida.",
+      "Situated along the Jupiter River, Guanabanas is a 100% open-air restaurant and bar with woven tiki huts and banyan trees.",
+      "The menu features local seafood and tropical cuisine, including fresh Florida seafood options such as shrimp and blue crab.",
+      "The Mahi Rachel features blackened mahi, coleslaw, and thousand island on toasted rye bread.",
+      "Guanabanas opens at 11:30am, seven days a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a 100% open-air waterfront restaurant with tiki huts and banyan trees in Jupiter.",
+    "why_here": "Go for waterfront dining along the Jupiter River, with local seafood and tropical cuisine in an open-air setting under banyan trees.",
+    "know_before": "Guanabanas opens at 11:30am, seven days a week, so plan arrival accordingly.",
+    "local_tip": "Try the Mahi Rachel with blackened mahi, coleslaw, and thousand island on toasted rye bread.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Situated along the Jupiter River, Guanabanas is a 100% open-air restaurant and bar with woven tiki huts and banyan trees.",
+      "source": "https://www.guanabanas.com/"
+     },
+     {
+      "claim": "The Mahi Rachel features blackened mahi, coleslaw, and thousand island on toasted rye bread.",
+      "source": "https://www.guanabanas.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.guanabanas.com/"
+     ],
+     "why_here": [
+      "https://www.guanabanas.com/"
+     ],
+     "know_before": [
+      "https://www.guanabanas.com/"
+     ],
+     "local_tip": [
+      "https://www.guanabanas.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJRZdWPwrLwogR6JIH5BpCvBQ",
+   "name": "Ever After Farms U-Pick Flowers",
+   "category": "activities",
+   "metro": "tampa",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.everafterfarms.com/pick-your-own-flowers/",
+     "source_name": "Ever After Farms",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "You can pick your own flowers in Florida at Ever After Farms.",
+      "The farm near Tampa is full of wildflowers, sunflowers and greenery and is open year round.",
+      "Ever After Farms provides clippers for the pick your own flowers experience.",
+      "Pick your own fresh bouquet and take home a beautiful arrangement.",
+      "Visitors should book the flower experience before visiting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for pick your own wildflowers, sunflowers and greenery near Tampa, open year round.",
+    "why_here": "Go to pick your own flowers in Florida, wander a farm full of wildflowers, sunflowers and greenery, and take home a fresh bouquet.",
+    "know_before": "Book the flower experience before visiting, and note the farm provides clippers.",
+    "local_tip": "Pick your own wildflowers and sunflowers for a fresh bouquet.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "You can pick your own flowers in Florida at Ever After Farms.",
+      "source": "https://www.everafterfarms.com/pick-your-own-flowers/"
+     },
+     {
+      "claim": "The farm near Tampa is full of wildflowers, sunflowers and greenery and is open year round.",
+      "source": "https://www.everafterfarms.com/pick-your-own-flowers/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.everafterfarms.com/pick-your-own-flowers/"
+     ],
+     "why_here": [
+      "https://www.everafterfarms.com/pick-your-own-flowers/"
+     ],
+     "know_before": [
+      "https://www.everafterfarms.com/pick-your-own-flowers/"
+     ],
+     "local_tip": [
+      "https://www.everafterfarms.com/pick-your-own-flowers/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJMTpK3B-q2YgRsI58IHDJFHo",
+   "name": "The Field Irish Pub & Eatery",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thefieldfl.com/about/",
+     "source_name": "The Field Irish Pub & Eatery",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Field Irish Pub & Eatery serves Irish-American cuisine featuring pub favorites like Fish & Chips, Shepherd's Pie, Chicken or Beef Pies, along with steaks, chops and fresh seafood.",
+      "The Full Irish Breakfast includes Irish sausage, Irish bacon, homemade potato pancake, black & white pudding, grilled tomato, fried eggs, and toast.",
+      "The Full Irish Breakfast is available Saturday & Sunday 11am - 2pm.",
+      "Daily lunch and dinner specials are served at The Field Irish Pub & Eatery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for Irish-American pub favorites like Fish & Chips and Shepherd's Pie.",
+    "why_here": "Go for Irish-American cuisine with pub favorites, steaks, chops and fresh seafood, plus daily lunch and dinner specials.",
+    "know_before": "The Full Irish Breakfast is available Saturday & Sunday 11am - 2pm.",
+    "local_tip": "Try the Full Irish Breakfast with Irish sausage, Irish bacon, and homemade potato pancake.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Field Irish Pub & Eatery serves Irish-American cuisine featuring pub favorites like Fish & Chips, Shepherd's Pie, Chicken or Beef Pies, along with steaks, chops and fresh seafood.",
+      "source": "https://www.thefieldfl.com/about/"
+     },
+     {
+      "claim": "The Full Irish Breakfast is available Saturday & Sunday 11am - 2pm.",
+      "source": "https://www.thefieldfl.com/about/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.thefieldfl.com/about/"
+     ],
+     "why_here": [
+      "https://www.thefieldfl.com/about/"
+     ],
+     "know_before": [
+      "https://www.thefieldfl.com/about/"
+     ],
+     "local_tip": [
+      "https://www.thefieldfl.com/about/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJlZM-TTdZ3ogRwPix4hq8hww",
+   "name": "Ocean Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ocean-grill.com/",
+     "source_name": "Ocean Grill",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The landmark restaurant, Ocean Grill, is known for its consistent food and its precarious perch over the Atlantic Ocean in Vero Beach, FL.",
+      "The Ocean Grill was built between 1938 and 1941 by Waldo Sexton and his team.",
+      "The restaurant is run by the Replogle Family.",
+      "Dinner is served 7 nights a week at Ocean Grill.",
+      "The dinner menu features Famous Seafood Entrees including Nova Scotia Sea Scallops and Baked Stuffed Shrimp."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a landmark restaurant with a precarious perch over the Atlantic Ocean in Vero Beach.",
+    "why_here": "Go for consistent food and Famous Seafood Entrees at a landmark restaurant perched over the Atlantic Ocean, built by Waldo Sexton.",
+    "know_before": "Dinner is served 7 nights a week at Ocean Grill.",
+    "local_tip": "Try the Nova Scotia Sea Scallops and Baked Stuffed Shrimp.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The landmark restaurant, Ocean Grill, is known for its consistent food and its precarious perch over the Atlantic Ocean in Vero Beach, FL.",
+      "source": "https://www.ocean-grill.com/"
+     },
+     {
+      "claim": "The Ocean Grill was built between 1938 and 1941 by Waldo Sexton and his team.",
+      "source": "https://www.ocean-grill.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.ocean-grill.com/"
+     ],
+     "why_here": [
+      "https://www.ocean-grill.com/"
+     ],
+     "know_before": [
+      "https://www.ocean-grill.com/"
+     ],
+     "local_tip": [
+      "https://www.ocean-grill.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ-6hlLADhwogRNUZF-kQBGAI",
+   "name": "The Book Lounge",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "book_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebooklounge.com/pages/about-us",
+     "source_name": "The Book Lounge",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Book Lounge is an independent bookstore, café, tea room, and wine bar located in downtown St. Petersburg, Florida.",
+      "The Book Lounge specializes in fiction books, immersive literary experiences, and creating meaningful connections through books, conversation, and community.",
+      "Offerings include curated book selections, author events, book clubs, reading parties, board games, coffee, tea, wine, beer, and charcuterie.",
+      "Visitors should check the website for upcoming events before visiting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as an independent bookstore, café, tea room, and wine bar specializing in fiction books.",
+    "why_here": "Go for curated fiction books, immersive literary experiences, author events, book clubs, and meaningful connections through books and conversation.",
+    "know_before": "Check the website for upcoming events before visiting.",
+    "local_tip": "Try the board games with coffee, tea, wine, or charcuterie.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Book Lounge is an independent bookstore, café, tea room, and wine bar located in downtown St. Petersburg, Florida.",
+      "source": "https://thebooklounge.com/pages/about-us"
+     },
+     {
+      "claim": "The Book Lounge specializes in fiction books, immersive literary experiences, and creating meaningful connections through books, conversation, and community.",
+      "source": "https://thebooklounge.com/pages/about-us"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thebooklounge.com/pages/about-us"
+     ],
+     "why_here": [
+      "https://thebooklounge.com/pages/about-us"
+     ],
+     "know_before": [
+      "https://thebooklounge.com/pages/about-us"
+     ],
+     "local_tip": [
+      "https://thebooklounge.com/pages/about-us"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+   "name": "The Floridian Social",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thefloridiansocial.com/",
+     "source_name": "The Floridian Social",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Tracing its origins to 1924, The Floridian Social is an iconic event hall and live music venue in the heart of downtown St. Petersburg.",
+      "The Floridian Social is a private events venue in St. Petersburg.",
+      "Meticulously restored by architect Jack Bodziak, the venue blends historic grandeur with contemporary elegance.",
+      "The venue hosts private events including weddings and celebrations.",
+      "Some events at The Floridian Social are 21+."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as an iconic event hall and live music venue tracing its origins to 1924 in downtown St. Petersburg.",
+    "why_here": "Go for private events, weddings and celebrations in a meticulously restored venue blending historic grandeur with contemporary elegance.",
+    "know_before": "Some events at The Floridian Social are 21+, so check before visiting.",
+    "local_tip": "Book the venue for weddings and celebrations in downtown St. Petersburg.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Tracing its origins to 1924, The Floridian Social is an iconic event hall and live music venue in the heart of downtown St. Petersburg.",
+      "source": "https://thefloridiansocial.com/"
+     },
+     {
+      "claim": "Meticulously restored by architect Jack Bodziak, the venue blends historic grandeur with contemporary elegance.",
+      "source": "https://thefloridiansocial.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thefloridiansocial.com/"
+     ],
+     "why_here": [
+      "https://thefloridiansocial.com/"
+     ],
+     "know_before": [
+      "https://thefloridiansocial.com/"
+     ],
+     "local_tip": [
+      "https://thefloridiansocial.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ6cPIn0fiwogRklWu_EbSja0",
+   "name": "Rose's at St. Pete Athletic",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stpeteathletic.com/roses-menu",
+     "source_name": "St. Pete Athletic - Rose's",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Rose's at St. Pete Athletic is a restaurant, cocktail bar, and coffee bar inside St. Pete Athletic, open to the public.",
+      "Rose's is located in St. Petersburg's Warehouse Arts District.",
+      "Rose's serves weekend brunch with everything made from scratch, including Key Lime Pie Pancakes and Crab Cake Benedict.",
+      "Rose's weekend brunch includes Surf & Turf Grits and bottomless mimosas.",
+      "Rose's is open to the public, with free parking."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a restaurant, cocktail bar, and coffee bar inside St. Pete Athletic, open to the public.",
+    "why_here": "Go for weekend brunch made from scratch inside St. Pete Athletic, with a cocktail bar and coffee bar in the Warehouse Arts District.",
+    "know_before": "Rose's is open to the public, with free parking.",
+    "local_tip": "Try the Key Lime Pie Pancakes and Crab Cake Benedict at weekend brunch.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Rose's at St. Pete Athletic is a restaurant, cocktail bar, and coffee bar inside St. Pete Athletic, open to the public.",
+      "source": "https://www.stpeteathletic.com/roses-menu"
+     },
+     {
+      "claim": "Rose's serves weekend brunch with everything made from scratch, including Key Lime Pie Pancakes and Crab Cake Benedict.",
+      "source": "https://www.stpeteathletic.com/roses-menu"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.stpeteathletic.com/roses-menu"
+     ],
+     "why_here": [
+      "https://www.stpeteathletic.com/roses-menu"
+     ],
+     "know_before": [
+      "https://www.stpeteathletic.com/roses-menu"
+     ],
+     "local_tip": [
+      "https://www.stpeteathletic.com/roses-menu"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ6_hQr4AXw4gRwfUFqlfdRfA",
+   "name": "Bellabean",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bellabeanco.com/",
+     "source_name": "Bellabean",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Located in Bradenton, Bellabean is more than a coffee shop, it is a welcoming space where Italian traditions meet modern flavors and creativity.",
+      "The menu features specialty espresso drinks, house-made confections, sandwiches, and Rhode Island favorites, offering both familiar classics and Italian staples.",
+      "Bellabean serves espresso based drinks with premium Italian Illy Espresso.",
+      "Bellabean also serves Strawberry Matcha.",
+      "Visitors should check the Bellabean website for location and hours before visiting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a Bradenton coffee shop where Italian traditions meet modern flavors and creativity.",
+    "why_here": "Go for specialty espresso drinks, house-made confections, sandwiches, and Rhode Island favorites in a welcoming coffee shop space.",
+    "know_before": "Check the Bellabean website for location and hours before visiting.",
+    "local_tip": "Try the Strawberry Matcha or a specialty espresso drink.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Located in Bradenton, Bellabean is more than a coffee shop, it is a welcoming space where Italian traditions meet modern flavors and creativity.",
+      "source": "https://bellabeanco.com/"
+     },
+     {
+      "claim": "The menu features specialty espresso drinks, house-made confections, sandwiches, and Rhode Island favorites, offering both familiar classics and Italian staples.",
+      "source": "https://bellabeanco.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://bellabeanco.com/"
+     ],
+     "why_here": [
+      "https://bellabeanco.com/"
+     ],
+     "know_before": [
+      "https://bellabeanco.com/"
+     ],
+     "local_tip": [
+      "https://bellabeanco.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+   "name": "Cracker Barrel Old Country Store",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "american_restaurant",
+   "city": "Bradenton",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Known for home-style country food and made-from-scratch biscuits served all day.",
+    "why_here": "Come for home-style country food in a friendly home-away-from-home setting. The old country stores and restaurants serve comfort dishes alongside made-from-scratch biscuits using an old family recipe.",
+    "know_before": "Breakfast is served all day, so breakfast dishes remain available beyond morning hours.",
+    "best_time": null,
+    "local_tip": "Try the homemade chicken n' dumplins with made-from-scratch biscuits.",
+    "facts": [
+     {
+      "claim": "Cracker Barrel serves home-style country food such as meatloaf and homemade chicken n' dumplins.",
+      "source": "https://www.crackerbarrel.com"
+     },
+     {
+      "claim": "Cracker Barrel serves made-from-scratch biscuits using an old family recipe.",
+      "source": "https://www.crackerbarrel.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.crackerbarrel.com"
+     ],
+     "why_here": [
+      "https://www.crackerbarrel.com"
+     ],
+     "know_before": [
+      "https://www.crackerbarrel.com"
+     ],
+     "local_tip": [
+      "https://www.crackerbarrel.com"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.crackerbarrel.com",
+     "source_name": "Cracker Barrel Old Country Store",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Cracker Barrel serves home-style country food such as meatloaf and homemade chicken n' dumplins.",
+      "Cracker Barrel serves made-from-scratch biscuits using an old family recipe.",
+      "Breakfast is served all day at Cracker Barrel.",
+      "Cracker Barrel provides a friendly home-away-from-home in its old country stores and restaurants."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+   "name": "ATRIA Cafe",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "cafe",
+   "city": "Lakewood Ranch",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A daytime cafe that turns to sourdough pizza and natural wine at night.",
+    "why_here": "Visit in the daytime for house-made pastries, specialty coffee, breakfast and lunch. Return at night when the cafe shifts to sourdough pizza and a natural wine bar.",
+    "know_before": "The cafe serves pizza at night, while breakfast and lunch are daytime offerings.",
+    "best_time": null,
+    "local_tip": "Try the sourdough pizza, served in personal size.",
+    "facts": [
+     {
+      "claim": "ATRIA CAFE is a local daytime cafe and pizza at night.",
+      "source": "https://www.atria.cafe"
+     },
+     {
+      "claim": "ATRIA CAFE serves house-made pastries, specialty coffee, beverages, breakfast and lunch.",
+      "source": "https://www.atria.cafe"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.atria.cafe"
+     ],
+     "why_here": [
+      "https://www.atria.cafe"
+     ],
+     "know_before": [
+      "https://www.atria.cafe"
+     ],
+     "local_tip": [
+      "https://www.atria.cafe"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.atria.cafe",
+     "source_name": "ATRIA Cafe",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "ATRIA CAFE is a local daytime cafe and pizza at night.",
+      "ATRIA CAFE serves house-made pastries, specialty coffee, beverages, breakfast and lunch.",
+      "ATRIA CAFE serves sourdough pizza and a natural wine bar at night.",
+      "All pizzas are personal size at ATRIA CAFE."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJhWqZvoVHw4gRehUSFsbZARo",
+   "name": "Fruitville Grove",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "farmers_market",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A farm fresh family market known for fresh produce and its Pumpkin Festival.",
+    "why_here": "Go for a wide variety of fresh produce from a farm fresh family market. Seasonal festivals add food trucks, live music and a kids fun zone alongside the market stalls.",
+    "know_before": "Check the Facebook page for updates before visiting, as seasonal closure can limit daily opening.",
+    "best_time": null,
+    "local_tip": "Browse jams, jellies and honey, and try the hand-dipped ice cream.",
+    "facts": [
+     {
+      "claim": "Fruitville Grove is a farm fresh family market with a wide variety of fresh produce.",
+      "source": "https://fruitvillegrovefarm.com"
+     },
+     {
+      "claim": "Fruitville Grove hosts a Pumpkin Festival with food trucks, live music and a kids fun zone.",
+      "source": "https://fruitvillegrovefarm.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://fruitvillegrovefarm.com"
+     ],
+     "why_here": [
+      "https://fruitvillegrovefarm.com"
+     ],
+     "know_before": [
+      "https://fruitvillegrovefarm.com"
+     ],
+     "local_tip": [
+      "https://fruitvillegrovefarm.com"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://fruitvillegrovefarm.com",
+     "source_name": "Fruitville Grove",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Fruitville Grove is a farm fresh family market with a wide variety of fresh produce.",
+      "Fruitville Grove hosts a Pumpkin Festival with food trucks, live music and a kids fun zone.",
+      "The farmers market carries jams, jellies, honey, butter, snacks and hand-dipped ice cream.",
+      "Fruitville Grove can be closed for the season, with updates posted on its Facebook page."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ9_YnI8k_w4gRRiuNIcvA5y8",
+   "name": "The Mall at University Town Center",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Sarasota shopping anchored by Saks Fifth Avenue, Macy's and Dillard's.",
+    "why_here": "Come for shopping and dining in one regional center. Anchors Saks Fifth Avenue, Macy's and Dillard's sit alongside many stores and dining options for a single outing.",
+    "know_before": "Plan for shopping and dining together, as the mall combines many stores with dining options.",
+    "best_time": null,
+    "local_tip": "Start with the anchor stores, then browse the wider stores and dining options.",
+    "facts": [
+     {
+      "claim": "The Mall at University Town Center is a shopping mall in Sarasota.",
+      "source": "https://www.simon.com/mall/the-mall-at-university-town-center"
+     },
+     {
+      "claim": "The Mall at University Town Center is anchored by Saks Fifth Avenue, Macy's and Dillard's.",
+      "source": "https://www.simon.com/mall/the-mall-at-university-town-center"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.simon.com/mall/the-mall-at-university-town-center"
+     ],
+     "why_here": [
+      "https://www.simon.com/mall/the-mall-at-university-town-center"
+     ],
+     "know_before": [
+      "https://www.simon.com/mall/the-mall-at-university-town-center"
+     ],
+     "local_tip": [
+      "https://www.simon.com/mall/the-mall-at-university-town-center"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.simon.com/mall/the-mall-at-university-town-center",
+     "source_name": "The Mall at University Town Center",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Mall at University Town Center is a shopping mall in Sarasota.",
+      "The Mall at University Town Center is anchored by Saks Fifth Avenue, Macy's and Dillard's.",
+      "The mall features many stores and dining options for shopping and dining.",
+      "The Mall at University Town Center opened as a regional shopping center in Sarasota."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJrZufuCg5w4gRXu8owbAhZss",
+   "name": "Kaizen Japanese Kitchen",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "restaurant",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Known for ramen, with pho, seaweed salad and chicken katsu also served.",
+    "why_here": "Go for the art of ramen in a focused Japanese kitchen. Ramen noodle dishes lead, with pho, seaweed salad and chicken katsu giving lighter and heartier alternatives.",
+    "know_before": "The kitchen is located on University Pkwy near The Market at UTC, so plan around that area.",
+    "best_time": null,
+    "local_tip": "Try the ramen noodle, the signature focus of the kitchen.",
+    "facts": [
+     {
+      "claim": "Kaizen Japanese Kitchen serves ramen noodle, pho, seaweed salad and chicken katsu.",
+      "source": "https://kaizenjapanesekitchen.com"
+     },
+     {
+      "claim": "Kaizen Japanese Kitchen is located on University Pkwy near The Market at UTC.",
+      "source": "https://kaizenjapanesekitchen.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://kaizenjapanesekitchen.com"
+     ],
+     "why_here": [
+      "https://kaizenjapanesekitchen.com"
+     ],
+     "know_before": [
+      "https://kaizenjapanesekitchen.com"
+     ],
+     "local_tip": [
+      "https://kaizenjapanesekitchen.com"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://kaizenjapanesekitchen.com",
+     "source_name": "Kaizen Japanese Kitchen",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Kaizen Japanese Kitchen serves ramen noodle, pho, seaweed salad and chicken katsu.",
+      "Kaizen Japanese Kitchen is located on University Pkwy near The Market at UTC.",
+      "Kaizen Japanese Kitchen presents the art of ramen."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJScJ5bQAZw4gRjNIj9iS5bus",
+   "name": "Ananda Farm",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "farm",
+   "city": "Terra Ceia",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A family farm on Terra Ceia Island with live music and U-Pick Flowers.",
+    "why_here": "Bring the family for live music, farm grown food and things to do together. Attractions are included with farm admission, and U-Pick Flowers adds a hands-on farm activity.",
+    "know_before": "Card and tap payments are accepted everywhere, so carry a card rather than relying on cash.",
+    "best_time": null,
+    "local_tip": "Try U-Pick Flowers and explore the attractions included with admission.",
+    "facts": [
+     {
+      "claim": "Ananda Farm offers live music, farm grown food and U-Pick Flowers for families.",
+      "source": "https://anandafarm.com"
+     },
+     {
+      "claim": "Ananda Farm includes attractions with farm admission, with flower picking available for a bucket fee.",
+      "source": "https://anandafarm.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://anandafarm.com"
+     ],
+     "why_here": [
+      "https://anandafarm.com"
+     ],
+     "know_before": [
+      "https://anandafarm.com"
+     ],
+     "local_tip": [
+      "https://anandafarm.com"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://anandafarm.com",
+     "source_name": "Ananda Farm",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ananda Farm offers live music, farm grown food and U-Pick Flowers for families.",
+      "Ananda Farm includes attractions with farm admission, with flower picking available for a bucket fee.",
+      "Ananda Farm is on Terra Ceia Island near the Sunshine Skyway Bridge.",
+      "Card and tap payments are accepted everywhere at Ananda Farm."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJww1nz5VBw4gRl0xv985c9E4",
+   "name": "Cedar Fox Coffee",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "cafe",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Downtown Sarasota specialty coffee with fresh breakfast and daily baked goods.",
+    "why_here": "Go for specialty coffee alongside fresh breakfast, hearty lunch and daily baked goods. Espresso drinks and cold brew pair with avocado toast, paninis and scones in an independently owned shop.",
+    "know_before": "The shop sits in downtown Sarasota, serving coffee with breakfast, lunch and baked goods daily.",
+    "best_time": null,
+    "local_tip": "Try cold brew with a scone, or avocado toast with an espresso drink.",
+    "facts": [
+     {
+      "claim": "Cedar Fox Coffee serves specialty coffee, fresh breakfast, hearty lunch and daily baked goods in Sarasota.",
+      "source": "https://cedarfoxcoffee.com"
+     },
+     {
+      "claim": "Cedar Fox Coffee serves espresso drinks, cold brew, avocado toast, paninis and scones.",
+      "source": "https://cedarfoxcoffee.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://cedarfoxcoffee.com"
+     ],
+     "why_here": [
+      "https://cedarfoxcoffee.com"
+     ],
+     "know_before": [
+      "https://cedarfoxcoffee.com"
+     ],
+     "local_tip": [
+      "https://cedarfoxcoffee.com"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://cedarfoxcoffee.com",
+     "source_name": "Cedar Fox Coffee",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Cedar Fox Coffee serves specialty coffee, fresh breakfast, hearty lunch and daily baked goods in Sarasota.",
+      "Cedar Fox Coffee serves espresso drinks, cold brew, avocado toast, paninis and scones.",
+      "Cedar Fox Coffee was founded in 2023 as an independently owned coffee shop in Sarasota.",
+      "Cedar Fox Coffee is located in downtown Sarasota."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ7R-BEwBBw4gRPxw9nzLE4l0",
+   "name": "The Bakero",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "bakery",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A European artisan bakery known for real sourdough made from scratch.",
+    "why_here": "Visit a European artisan bakery and cafe in downtown Sarasota. Real sourdough bread is the signature, and everything is made from scratch for a daily-changing bakery case.",
+    "know_before": "The menu changes daily, so expect the from-scratch selection to vary by visit.",
+    "best_time": null,
+    "local_tip": "Try the real sourdough bread made with flour, water, salt and starter.",
+    "facts": [
+     {
+      "claim": "THE BAKERO is a European artisan bakery and cafe in downtown Sarasota.",
+      "source": "https://thebakero.com"
+     },
+     {
+      "claim": "The signature at THE BAKERO is real sourdough bread made with flour, water, salt and sourdough starter.",
+      "source": "https://thebakero.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thebakero.com"
+     ],
+     "why_here": [
+      "https://thebakero.com"
+     ],
+     "know_before": [
+      "https://thebakero.com"
+     ],
+     "local_tip": [
+      "https://thebakero.com"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://thebakero.com",
+     "source_name": "THE BAKERO SARASOTA",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "THE BAKERO is a European artisan bakery and cafe in downtown Sarasota.",
+      "The signature at THE BAKERO is real sourdough bread made with flour, water, salt and sourdough starter.",
+      "Sourdough bread at THE BAKERO uses no yeast, no additives and no shortcuts.",
+      "The menu changes daily and everything is made from scratch at THE BAKERO."
+     ]
+    }
+   ]
+  }
+ ]
+}

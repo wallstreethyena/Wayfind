@@ -1,0 +1,28 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-01T15:41:24.741Z",
+  "pack": "docs/editorial/creator-lines-2026-10-31/pack-06.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-10-31",
+  "researched_at": "2026-10-31T12:00:00-04:00",
+  "replaced": [
+    {
+      "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
+      "name": "Project Coffee",
+      "prior_row": {
+        "place_id": "ChIJy6vf9_dBw4gRGg1sXR5UTGU",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:Instagram",
+          "unsourced-number:best_time:10 AM"
+        ],
+        "written_at": "2026-08-24T08:55:33.359343+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-24T08:55:33.359343+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}

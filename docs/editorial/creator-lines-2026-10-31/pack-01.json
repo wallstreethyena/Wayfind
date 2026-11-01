@@ -1,0 +1,2402 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for Creator Finds registry places with no verified editorial (pack 1). Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJR7KXbB_LwogRc-iB55U1AHQ",
+   "name": "Pemberton Haunted Acres",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "tourist_attraction",
+   "city": "Plant City",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pembertonhauntedacres.com/",
+     "source_name": "Pemberton Haunted Acres",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Pemberton Haunted Acres is a haunted attraction in Plant City, Florida.",
+      "Hillbilly Mayhem is an immersive haunted house experience set at a campground and a rotting farmhouse.",
+      "This is an outdoor attraction at Pemberton Haunted Acres.",
+      "Visitors should wear closed toe shoes and bring bug spray.",
+      "Tickets must be purchased online in advance."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Plant City haunted attraction known for Hillbilly Mayhem, its immersive haunted house",
+    "why_here": "Go for Hillbilly Mayhem, an immersive haunted house experience where a campground and a rotting farmhouse turn a night out into a scare-filled escape attempt.",
+    "know_before": "This is an outdoor attraction, so wear closed toe shoes and bring bug spray.",
+    "best_time": null,
+    "local_tip": "Start with Hillbilly Mayhem, the immersive haunted house experience.",
+    "facts": [
+     {
+      "claim": "Pemberton Haunted Acres is a haunted attraction in Plant City, Florida.",
+      "source": "https://www.pembertonhauntedacres.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.pembertonhauntedacres.com/"
+     ],
+     "why_here": [
+      "https://www.pembertonhauntedacres.com/"
+     ],
+     "know_before": [
+      "https://www.pembertonhauntedacres.com/"
+     ],
+     "local_tip": [
+      "https://www.pembertonhauntedacres.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+   "name": "T-Rex Cafe",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "family_restaurant",
+   "city": "Lake Buena Vista",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://trexcafe.com/",
+     "source_name": "T-Rex Cafe",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "T-REX Cafe is a dinosaur-themed family restaurant serving American cuisine in Disney Springs, Lake Buena Vista, Florida.",
+      "Guests dine amongst roaring dinosaurs, meteor showers, and themed rooms like the Ice Cave and Under the Sea.",
+      "The Paleo Zone is a kids play area with a Discovery Dig fossil sandpit.",
+      "Build-A-Dino is where guests can make their own prehistoric pal."
+     ]
+    },
+    {
+     "source": "https://www.trexcafe.com/menus/",
+     "source_name": "T-Rex Cafe Menus",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Supersaurus Sampler includes Cheesy Skillet Meatballs, Nashville Hot boneless wings, Chili Con Queso, Caprese Flatbread, and Mozzarella Sticks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinosaur-themed family restaurant in Disney Springs with roaring dinosaurs and meteor showers",
+    "why_here": "Families go to dine amongst roaring dinosaurs and meteor showers in themed rooms, then let kids explore the Paleo Zone play area after the meal.",
+    "know_before": "Plan time after your meal for the Paleo Zone and Build-A-Dino so kids can dig and build.",
+    "best_time": null,
+    "local_tip": "Order the Supersaurus Sampler for Cheesy Skillet Meatballs and Chili Con Queso.",
+    "facts": [
+     {
+      "claim": "T-REX Cafe is a dinosaur-themed family restaurant serving American cuisine in Disney Springs, Lake Buena Vista, Florida.",
+      "source": "https://trexcafe.com/"
+     },
+     {
+      "claim": "The Supersaurus Sampler includes Cheesy Skillet Meatballs, Nashville Hot boneless wings, Chili Con Queso, Caprese Flatbread, and Mozzarella Sticks.",
+      "source": "https://www.trexcafe.com/menus/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://trexcafe.com/"
+     ],
+     "why_here": [
+      "https://trexcafe.com/"
+     ],
+     "know_before": [
+      "https://trexcafe.com/"
+     ],
+     "local_tip": [
+      "https://www.trexcafe.com/menus/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJdfkR4PC32YgRgxEP4swq1oY",
+   "name": "Sexy Fish Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sexyfishmiami.com/",
+     "source_name": "Sexy Fish Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sexy Fish Miami is an Asian restaurant and bar in the Brickell neighborhood of Miami.",
+      "Sexy Fish Miami serves Japanese-inspired sushi, sashimi, seafood, fish, and meat cooked on a Robata grill.",
+      "Sexy Fish Miami has champagne, wine, and cocktails alongside an extensive and curated agave collection.",
+      "Sexy Fish Miami offers live music 7 nights a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brickell Asian restaurant known for Japanese-inspired sushi, sashimi and Robata grill cooking",
+    "why_here": "Go for Japanese-inspired sushi and sashimi, seafood and meat from the Robata grill, and a night that pairs dinner with cocktails and live music.",
+    "know_before": "Live music runs 7 nights a week, so expect entertainment as part of dinner.",
+    "best_time": null,
+    "local_tip": "Try Japanese-inspired sushi and meat cooked on a Robata grill.",
+    "facts": [
+     {
+      "claim": "Sexy Fish Miami is an Asian restaurant and bar in the Brickell neighborhood of Miami.",
+      "source": "https://sexyfishmiami.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://sexyfishmiami.com/"
+     ],
+     "why_here": [
+      "https://sexyfishmiami.com/"
+     ],
+     "know_before": [
+      "https://sexyfishmiami.com/"
+     ],
+     "local_tip": [
+      "https://sexyfishmiami.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJI-aAsE-32YgRlQrq8LqdUa8",
+   "name": "Giselle Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "fusion_restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gisellemiami.com/",
+     "source_name": "Giselle Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Giselle Miami is a rooftop restaurant in Downtown Miami.",
+      "Giselle Miami serves fusion cuisine with Asian, Mediterranean, and French influences.",
+      "Giselle Miami offers late-night rooftop dining with handcrafted cocktails and skyline views.",
+      "Giselle Miami takes reservations through its website."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Miami rooftop restaurant for Asian, Mediterranean and French fusion cuisine",
+    "why_here": "Go for late-night rooftop dining above Downtown Miami, where fusion cuisine, handcrafted cocktails and skyline views set up a long evening out.",
+    "know_before": "Giselle Miami takes reservations through its website, so book before you go.",
+    "best_time": null,
+    "local_tip": "Try a handcrafted cocktail with skyline views before dinner.",
+    "facts": [
+     {
+      "claim": "Giselle Miami is a rooftop restaurant in Downtown Miami.",
+      "source": "https://gisellemiami.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://gisellemiami.com/"
+     ],
+     "why_here": [
+      "https://gisellemiami.com/"
+     ],
+     "know_before": [
+      "https://gisellemiami.com/"
+     ],
+     "local_tip": [
+      "https://gisellemiami.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ4V0TH_kA2YgRxgaQuq3qeV4",
+   "name": "Glitch Bar",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar",
+   "city": "Fort Lauderdale",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.glitchbar.com/",
+     "source_name": "Glitch Bar & Arcade",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Glitch Bar & Arcade is a Retro & Indie Arcade Bar in the Flagler Village Neighborhood of Fort Lauderdale.",
+      "Glitch Bar & Arcade serves Craft Beer, Creative Cocktails and Classic Arcade Games.",
+      "Games at Glitch Bar & Arcade include Killer Queen, TMNT, Donkey Kong, and Pinball.",
+      "Everyone is required to have a Game Pass wristband at Glitch Bar & Arcade.",
+      "Glitch Bar & Arcade has a variety of vintage arcade games to enjoy in a fun bar atmosphere."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Flagler Village arcade bar pairing Craft Beer and Creative Cocktails with Classic Arcade Games",
+    "why_here": "Go to play vintage arcade games with friends in a bar atmosphere, moving between Classic Arcade Games, craft drinks and cocktails through the night.",
+    "know_before": "Everyone is required to have a Game Pass wristband, so get one when you arrive.",
+    "best_time": null,
+    "local_tip": "Play Killer Queen, TMNT, Donkey Kong, and Pinball between drinks.",
+    "facts": [
+     {
+      "claim": "Glitch Bar & Arcade is a Retro & Indie Arcade Bar in the Flagler Village Neighborhood of Fort Lauderdale.",
+      "source": "https://www.glitchbar.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.glitchbar.com/"
+     ],
+     "why_here": [
+      "https://www.glitchbar.com/"
+     ],
+     "know_before": [
+      "https://www.glitchbar.com/"
+     ],
+     "local_tip": [
+      "https://www.glitchbar.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJpfrpSwTCwogRLCISnRpe6dY",
+   "name": "Mi Tierra Latina",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "colombian_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mitierralatina.getsauce.com/",
+     "source_name": "Mi Tierra Latina",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mi Tierra Latina in Tampa offers authentic Colombian cuisine.",
+      "Mi Tierra Latina serves empanadas, mushroom chicken, and sweet corn cake with cheese.",
+      "Mi Tierra Latina is a family-owned restaurant bringing the flavors and traditions of Colombia to Tampa.",
+      "Mi Tierra Latina offers delivery and pickup, and guests can order directly from our website."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa Colombian restaurant known for empanadas and sweet corn cake with cheese",
+    "why_here": "Go for authentic Colombian cuisine made fresh, from empanadas to mushroom chicken, served by a family-owned restaurant rooted in Colombia traditions.",
+    "know_before": "Order directly from the website for pickup or delivery.",
+    "best_time": null,
+    "local_tip": "Try the empanadas and the sweet corn cake with cheese.",
+    "facts": [
+     {
+      "claim": "Mi Tierra Latina in Tampa offers authentic Colombian cuisine.",
+      "source": "https://www.mitierralatina.getsauce.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.mitierralatina.getsauce.com/"
+     ],
+     "why_here": [
+      "https://www.mitierralatina.getsauce.com/"
+     ],
+     "know_before": [
+      "https://www.mitierralatina.getsauce.com/"
+     ],
+     "local_tip": [
+      "https://www.mitierralatina.getsauce.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJA97liAnHwogRWgNVGLuqV1c",
+   "name": "Darna Mediterranean Grill",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "mediterranean_restaurant",
+   "city": "Temple Terrace",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://darnatampa.com/",
+     "source_name": "Darna Mediterranean Grill",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Darna Mediterranean Grill is a Palestinian-owned and family-run restaurant in Temple Terrace.",
+      "Darna serves rotisserie shawarma, fire-grilled kabobs, lamb ouzi, mansaf, and fresh mezze.",
+      "Lamb ouzi is slow-roasted lamb over spiced rice with cashews and almonds, served at Darna every day.",
+      "Darna does not require a reservation.",
+      "Every kabob at Darna goes over real charcoal."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Palestinian family-run grill known for charcoal kabobs, rotisserie shawarma and lamb ouzi",
+    "why_here": "Go for Palestinian home cooking in Temple Terrace: charcoal-grilled kabobs, rotisserie shawarma, mansaf and fresh mezze made for sharing at the table.",
+    "know_before": "No reservation is required at Darna, so you can walk in.",
+    "best_time": null,
+    "local_tip": "Order lamb ouzi, slow-roasted lamb over spiced rice with cashews and almonds.",
+    "facts": [
+     {
+      "claim": "Darna Mediterranean Grill is a Palestinian-owned and family-run restaurant in Temple Terrace.",
+      "source": "https://darnatampa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://darnatampa.com/"
+     ],
+     "why_here": [
+      "https://darnatampa.com/"
+     ],
+     "know_before": [
+      "https://darnatampa.com/"
+     ],
+     "local_tip": [
+      "https://darnatampa.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJHR5ndAAXw4gR8YMNFEoI_f0",
+   "name": "Eleanors Coffee & Cakes",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "cake_shop",
+   "city": "Palmetto",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Coffee and cakes inside the original 1912 Palmetto State Bank building in Palmetto.",
+    "why_here": "Go for freshly made cakes, cookies, and pastries by pastry chef Ella Scarberry, plus coffee in a historic bank building.",
+    "know_before": "The menu evolves with the seasons, so limited-time creations change; check what is fresh on your visit.",
+    "local_tip": "Try a beverage crafted with house-made syrups and a freshly made cake or pastry.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Eleanor's Coffee & Cakes is housed in the original 1912 Palmetto State Bank building in Palmetto, Florida.",
+      "source": "https://www.eleanorscoffeeandcakes.com/our-story"
+     },
+     {
+      "claim": "Founder Ella Scarberry is a pastry chef, and the team offers freshly made cakes, cookies, and pastries.",
+      "source": "https://www.eleanorscoffeeandcakes.com/our-story"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.eleanorscoffeeandcakes.com/our-story"
+     ],
+     "why_here": [
+      "https://www.eleanorscoffeeandcakes.com/our-story"
+     ],
+     "know_before": [
+      "https://www.eleanorscoffeeandcakes.com/our-story"
+     ],
+     "local_tip": [
+      "https://www.eleanorscoffeeandcakes.com/our-story"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.eleanorscoffeeandcakes.com/our-story",
+     "source_name": "Eleanor's Coffee & Cakes",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Eleanor's Coffee & Cakes is housed in the original 1912 Palmetto State Bank building in Palmetto, Florida.",
+      "Founder Ella Scarberry is a pastry chef, and the team offers freshly made cakes, cookies, and pastries.",
+      "The shop serves a blend of beans roasted nearby by Banyan Coffee.",
+      "Baristas craft beverages using house-made syrups.",
+      "The menu evolves with the seasons, with limited-time creations."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJh3AM9dxBw4gRhaIkp0z8rQE",
+   "name": "ALEUR-Event Collective",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "event_venue",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A curated event venue in downtown Sarasota with a light-filled main hall for up to 250 guests.",
+    "why_here": "Book it for wedding ceremonies and receptions, galas, or corporate retreats in a design-forward downtown Sarasota space.",
+    "know_before": "The main hall holds up to 250 guests, so confirm your guest count fits before booking.",
+    "local_tip": "Shape your event across three connected spaces: the main hall, the lounge, and the garden.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The venue has a light-filled main hall for up to 250 guests.",
+      "source": "https://www.aleursrq.com/"
+     },
+     {
+      "claim": "ALEUR hosts wedding ceremonies and receptions, galas, and corporate retreats.",
+      "source": "https://www.aleursrq.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.aleursrq.com/"
+     ],
+     "why_here": [
+      "https://www.aleursrq.com/"
+     ],
+     "know_before": [
+      "https://www.aleursrq.com/"
+     ],
+     "local_tip": [
+      "https://www.aleursrq.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.aleursrq.com/",
+     "source_name": "ALEUR Event Collective",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "ALEUR is a curated event venue in the heart of downtown Sarasota.",
+      "The venue has a light-filled main hall for up to 250 guests.",
+      "ALEUR hosts wedding ceremonies and receptions, galas, and corporate retreats.",
+      "The space blends soft industrial design with organic touches.",
+      "Three connected spaces include a main hall, a lounge, and a garden."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJHTdUDQT9wogRB5cYNqzhm_E",
+   "name": "Capybara Cafe",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "amusement_center",
+   "city": "St. Petersburg",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Small-group, guided encounters where guests feed capybaras in St. Petersburg.",
+    "why_here": "Go to feed capybaras and meet exotic animal ambassadors, knowing every booking funds rescue and care at Noah's Ark Sanctuary.",
+    "know_before": "Advance reservations are recommended and weekends often sell out, so book ahead and arrive 15 minutes early.",
+    "local_tip": "Feed capybaras during a small-group, guided encounter.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Capybara Cafe in St. Petersburg offers small-group, guided encounters with capybaras.",
+      "source": "https://capybaracafestpete.com/"
+     },
+     {
+      "claim": "Every booking funds rescue and care at Noah's Ark Sanctuary.",
+      "source": "https://capybaracafestpete.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://capybaracafestpete.com/"
+     ],
+     "why_here": [
+      "https://capybaracafestpete.com/"
+     ],
+     "know_before": [
+      "https://capybaracafestpete.com/"
+     ],
+     "local_tip": [
+      "https://capybaracafestpete.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://capybaracafestpete.com/",
+     "source_name": "Capybara Cafe St. Petersburg",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Capybara Cafe in St. Petersburg offers small-group, guided encounters with capybaras.",
+      "Guests can feed capybaras and meet exotic animal ambassadors.",
+      "Every booking funds rescue and care at Noah's Ark Sanctuary.",
+      "Advance reservations are recommended, and weekends often sell out.",
+      "Guests should arrive 15 minutes early, and closed-toe shoes are required."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJi0X6m8_RwogRmw_ipYjNjpc",
+   "name": "Hogan's Place Gibsonton Florida",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "farm",
+   "city": "Gibsonton",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A family-run petting farm in Gibsonton where kids meet goats, bunnies, pigs, and chickens.",
+    "why_here": "Go for hands-on animal encounters with friendly animals, plus birthday parties, field trips, and goat yoga in Gibsonton.",
+    "know_before": "The farm is open 7 days a week from 10:00 AM to 4:00 PM, and walk-ins are welcome for general admission.",
+    "local_tip": "Buy animal feed at check-in for hands-on feeding with goats and bunnies.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Hogan's Place is a family-run petting farm in Gibsonton, Florida.",
+      "source": "https://hogansplacepettingfarm.com/"
+     },
+     {
+      "claim": "The farm is open 7 days a week from 10:00 AM to 4:00 PM.",
+      "source": "https://hogansplacepettingfarm.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://hogansplacepettingfarm.com/"
+     ],
+     "why_here": [
+      "https://hogansplacepettingfarm.com/"
+     ],
+     "know_before": [
+      "https://hogansplacepettingfarm.com/"
+     ],
+     "local_tip": [
+      "https://hogansplacepettingfarm.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://hogansplacepettingfarm.com/",
+     "source_name": "Hogan's Place Petting Farm",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Hogan's Place is a family-run petting farm in Gibsonton, Florida.",
+      "Kids and adults can connect with friendly animals including goats, bunnies, pigs, and chickens.",
+      "The farm offers hands-on animal encounters, birthday parties, field trips, and goat yoga.",
+      "The farm is open 7 days a week from 10:00 AM to 4:00 PM.",
+      "Animal feed is available for purchase at check-in, and walk-ins are welcome for general admission."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJwTbbJpx_54gRN5aKRhMcC18",
+   "name": "Maple Street Biscuit Company",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf",
+     "source_name": "Maple Street Biscuit Company",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Maple Street Biscuit Company serves signature chicken biscuits.",
+      "The Five and Dime includes chicken, bacon, egg, cheddar, and gravy.",
+      "The Squawking Goat is a signature chicken biscuit.",
+      "Biscuit plates and classic biscuit sandwiches are on the menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for signature chicken biscuits, including The Five and Dime",
+    "why_here": "Go for a hearty biscuit meal built around chicken, bacon, egg, and cheddar, with gravy and classic biscuit sandwiches also on the menu.",
+    "know_before": "Check the menu for biscuit plates versus classic biscuit sandwiches before ordering.",
+    "local_tip": "Try The Five and Dime with chicken, bacon, egg, cheddar, and gravy.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Maple Street Biscuit Company serves signature chicken biscuits.",
+      "source": "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf"
+     },
+     {
+      "claim": "The Five and Dime includes chicken, bacon, egg, cheddar, and gravy.",
+      "source": "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf"
+     ],
+     "why_here": [
+      "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf"
+     ],
+     "know_before": [
+      "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf"
+     ],
+     "local_tip": [
+      "https://www.maplestreetbiscuits.com/s/MSBC_Main-Menu.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+   "name": "Hashtag Café",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hashtagcafesrq.com/",
+     "source_name": "Hashtag Café",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Hashtag Café is a small-batch coffee shop in Sarasota.",
+      "Hashtag Café serves scratch-made pastries and gluten-free treats.",
+      "Hashtag Café serves Moroccan food.",
+      "Hashtag Café offers coffee, bakery, and catering."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a small-batch coffee shop with scratch-made pastries in Sarasota",
+    "why_here": "Go for small-batch coffee with scratch-made pastries and gluten-free treats, plus Moroccan food beyond a standard coffee stop.",
+    "know_before": "Note the bakery case includes gluten-free treats alongside scratch-made pastries when ordering.",
+    "local_tip": "Order small-batch coffee with a scratch-made pastry.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Hashtag Café is a small-batch coffee shop in Sarasota.",
+      "source": "https://www.hashtagcafesrq.com/"
+     },
+     {
+      "claim": "Hashtag Café serves scratch-made pastries and gluten-free treats.",
+      "source": "https://www.hashtagcafesrq.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.hashtagcafesrq.com/"
+     ],
+     "why_here": [
+      "https://www.hashtagcafesrq.com/"
+     ],
+     "know_before": [
+      "https://www.hashtagcafesrq.com/"
+     ],
+     "local_tip": [
+      "https://www.hashtagcafesrq.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+   "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rohydepark.com/menus/",
+     "source_name": "Ro Hyde Park",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ro Hyde Park serves maki in Tampa.",
+      "The Hyde Park roll is the Ro signature.",
+      "The Hyde Park roll includes Japanese white fish, tom yum paste, asparagus, and hamachi.",
+      "Ro Hyde Park serves sushi and sashimi."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for maki and the Hyde Park signature roll in Tampa",
+    "why_here": "Go for sushi, sashimi, and maki, especially the Hyde Park signature with Japanese white fish, tom yum paste, asparagus, and hamachi.",
+    "know_before": "Check the maki list for the Hyde Park signature before ordering sushi or sashimi.",
+    "local_tip": "Try the Hyde Park roll, the Ro signature.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Ro Hyde Park serves maki in Tampa.",
+      "source": "https://www.rohydepark.com/menus/"
+     },
+     {
+      "claim": "The Hyde Park roll is the Ro signature.",
+      "source": "https://www.rohydepark.com/menus/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.rohydepark.com/menus/"
+     ],
+     "why_here": [
+      "https://www.rohydepark.com/menus/"
+     ],
+     "know_before": [
+      "https://www.rohydepark.com/menus/"
+     ],
+     "local_tip": [
+      "https://www.rohydepark.com/menus/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ18poUgC32YgRBBvIMo3rIH8",
+   "name": "Boûlan Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bistro",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boulan.us/",
+     "source_name": "Boûlan Wynwood",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Boûlan Wynwood is a bakery, coffee, and social house in Miami.",
+      "Boûlan Wynwood serves pastries, breakfast, sandwiches, and salads.",
+      "Croissants and Pain au Chocolat are on the menu.",
+      "The Boulan Club Sandwich is on the menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a bakery, coffee, and social house in Miami",
+    "why_here": "Go for pastries, breakfast, sandwiches, and salads in a bakery and coffee setting, with croissants and Pain au Chocolat on the menu.",
+    "know_before": "Check the menu across pastries, breakfast, sandwiches, and salads before ordering.",
+    "local_tip": "Try a croissant or Pain au Chocolat with coffee.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Boûlan Wynwood is a bakery, coffee, and social house in Miami.",
+      "source": "https://boulan.us/"
+     },
+     {
+      "claim": "Boûlan Wynwood serves pastries, breakfast, sandwiches, and salads.",
+      "source": "https://boulan.us/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://boulan.us/"
+     ],
+     "why_here": [
+      "https://boulan.us/"
+     ],
+     "know_before": [
+      "https://boulan.us/"
+     ],
+     "local_tip": [
+      "https://boulan.us/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ9R87L0i32YgR57jkvcj_oVI",
+   "name": "Mayfair Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mayfair-grill.com/menu/lunch/",
+     "source_name": "Mayfair Grill",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mayfair Grill serves food fueled by smoke and fire.",
+      "Mayfair Grill offers Sonoran flavors with local Floridian and Southwestern ingredients.",
+      "Shrimp and watermelon aguachile is on the menu.",
+      "Mayfair Grill has a wood-fired grill."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for food fueled by smoke and fire with Sonoran flavors",
+    "why_here": "Go for Sonoran flavors built on smoke and fire, using local Floridian and Southwestern ingredients in a wood-fired grill kitchen.",
+    "know_before": "Expect smoke and fire cooking and Sonoran flavors when choosing dishes.",
+    "local_tip": "Try the shrimp and watermelon aguachile.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Mayfair Grill serves food fueled by smoke and fire.",
+      "source": "https://www.mayfair-grill.com/menu/lunch/"
+     },
+     {
+      "claim": "Mayfair Grill offers Sonoran flavors with local Floridian and Southwestern ingredients.",
+      "source": "https://www.mayfair-grill.com/menu/lunch/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.mayfair-grill.com/menu/lunch/"
+     ],
+     "why_here": [
+      "https://www.mayfair-grill.com/menu/lunch/"
+     ],
+     "know_before": [
+      "https://www.mayfair-grill.com/menu/lunch/"
+     ],
+     "local_tip": [
+      "https://www.mayfair-grill.com/menu/lunch/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ1dJMdEc43YgRmII076Tbhmg",
+   "name": "Silver Moon Drive-In Theatre",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "movie_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.silvermoondrivein.com/",
+     "source_name": "Silver Moon Drive-In Theatre",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Silver Moon Drive-In Theatre has been in Lakeland, Florida for more than 75 years.",
+      "The theatre has two screens usually showing first-run movies with double features seven nights a week.",
+      "On Saturdays and Sundays the grounds become the Swap Shop, a market where most anything can be bought or sold.",
+      "The Silver Moon is one of only four drive-ins in Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for two screens showing first-run movies with double features seven nights a week.",
+    "why_here": "Come for a double feature under the open sky, with two screens of first-run movies and the feel of a Lakeland tradition kept alive for more than 75 years.",
+    "know_before": "Check the current listings before you go, and plan for the Swap Shop crowds on Saturdays and Sundays.",
+    "local_tip": "Stay for both films in the double feature.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Silver Moon Drive-In Theatre has been in Lakeland, Florida for more than 75 years.",
+      "source": "https://www.silvermoondrivein.com/"
+     },
+     {
+      "claim": "The theatre has two screens usually showing first-run movies with double features seven nights a week.",
+      "source": "https://www.silvermoondrivein.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.silvermoondrivein.com/"
+     ],
+     "why_here": [
+      "https://www.silvermoondrivein.com/"
+     ],
+     "know_before": [
+      "https://www.silvermoondrivein.com/"
+     ],
+     "local_tip": [
+      "https://www.silvermoondrivein.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJw3Z_hMsD54gRs2E9zBypvo8",
+   "name": "Old Sugar Mill Pancake House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house",
+     "source_name": "Florida State Parks",
+     "source_class": "government",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Old Sugar Mill Pancake House is located in a replica of the original sugar mill at De Leon Springs State Park.",
+      "The restaurant features cook-your-own pancakes at the table.",
+      "Park admission is required to visit and dine at the Old Sugar Mill Pancake House.",
+      "De Leon Springs State Park is known for its spring and the Old Sugar Mill Pancake House, where visitors make their own pancakes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for cook-your-own pancakes made at the table inside a replica sugar mill.",
+    "why_here": "Go to pour and flip your own pancakes at the table, then spend the rest of the visit enjoying the spring at De Leon Springs State Park.",
+    "know_before": "Park admission is required to visit and dine, so allow time for entry before you eat.",
+    "local_tip": "Cook your own pancakes at the table.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Old Sugar Mill Pancake House is located in a replica of the original sugar mill at De Leon Springs State Park.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house"
+     },
+     {
+      "claim": "The restaurant features cook-your-own pancakes at the table.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/de-leon-springs-state-park/old-sugar-mill-pancake-house"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ3-llxCKE3YgRTRx3PIudu5k",
+   "name": "Main Street Pizza",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mainstreetpizzakissimmee.com/",
+     "source_name": "Main Street Pizza",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Main Street Pizza serves New York style pizza in Kissimmee.",
+      "The menu includes New York and Sicilian cheese slices.",
+      "Main Street Pizza offers pasta trays and salads alongside pizza.",
+      "The restaurant created a very large pizza called the Monster."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for New York style pizza by the slice in Kissimmee.",
+    "why_here": "Go for a quick slice of New York style pizza, with Sicilian slices, pasta and salads when the table wants more than pizza.",
+    "know_before": "Choose between a New York slice and a Sicilian slice before you order for the table.",
+    "local_tip": "Try a New York cheese slice.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Main Street Pizza serves New York style pizza in Kissimmee.",
+      "source": "https://www.mainstreetpizzakissimmee.com/"
+     },
+     {
+      "claim": "The menu includes New York and Sicilian cheese slices.",
+      "source": "https://www.mainstreetpizzakissimmee.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.mainstreetpizzakissimmee.com/"
+     ],
+     "why_here": [
+      "https://www.mainstreetpizzakissimmee.com/"
+     ],
+     "know_before": [
+      "https://www.mainstreetpizzakissimmee.com/"
+     ],
+     "local_tip": [
+      "https://www.mainstreetpizzakissimmee.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJN_06nHi32YgRySCC7mR6HUM",
+   "name": "PASTA",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pasta-restaurants.com",
+     "source_name": "PASTA",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "PASTA is a modern Italian-inspired restaurant run by chefs Juan Manuel Umbert and Janice Buraschi.",
+      "The restaurant specializes in fresh, homemade pasta.",
+      "The menu includes housemade stracciatella and pici cacio e pepe.",
+      "PASTA is located in Wynwood in Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for fresh, homemade pasta from chefs Juan Manuel Umbert and Janice Buraschi.",
+    "why_here": "Go for fresh, homemade pasta in Wynwood, where a modern Italian-inspired menu is shaped by chefs Juan Manuel Umbert and Janice Buraschi.",
+    "know_before": "Book ahead for dinner in Wynwood, and start with the housemade stracciatella before the pasta.",
+    "local_tip": "Order the pici cacio e pepe.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "PASTA is a modern Italian-inspired restaurant run by chefs Juan Manuel Umbert and Janice Buraschi.",
+      "source": "https://pasta-restaurants.com"
+     },
+     {
+      "claim": "The restaurant specializes in fresh, homemade pasta.",
+      "source": "https://pasta-restaurants.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://pasta-restaurants.com"
+     ],
+     "why_here": [
+      "https://pasta-restaurants.com"
+     ],
+     "know_before": [
+      "https://pasta-restaurants.com"
+     ],
+     "local_tip": [
+      "https://pasta-restaurants.com"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJy5C9Qk2x2YgRe4lg1zuS8iA",
+   "name": "Borti Pasta Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bortipasta.com/",
+     "source_name": "Borti Pasta Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Borti Pasta Bar serves handmade Italian pasta dishes in Miami.",
+      "The menu includes fried calamari with marinara sauce.",
+      "The menu includes homemade meatballs.",
+      "Desserts at Borti Pasta Bar are made in house by the pastry chef."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for handmade pasta dishes in Miami.",
+    "why_here": "Go for handmade pasta in a small neighborhood room, with Italian starters and desserts made in house to round out the meal.",
+    "know_before": "Save room for a dessert made in house by the pastry chef.",
+    "local_tip": "Start with the homemade meatballs.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Borti Pasta Bar serves handmade Italian pasta dishes in Miami.",
+      "source": "https://www.bortipasta.com/"
+     },
+     {
+      "claim": "The menu includes fried calamari with marinara sauce.",
+      "source": "https://www.bortipasta.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.bortipasta.com/"
+     ],
+     "why_here": [
+      "https://www.bortipasta.com/"
+     ],
+     "know_before": [
+      "https://www.bortipasta.com/"
+     ],
+     "local_tip": [
+      "https://www.bortipasta.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJsQI4pFG32YgRu9buf2FGB94",
+   "name": "Charlatam - Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://charlatam.com/",
+     "source_name": "Charlatam Restaurant & Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Charlatam Restaurant & Bar blends Latin-inspired comfort food and craft cocktails in Miami.",
+      "Charlatam is located in the heart of Brickell in Miami.",
+      "The menu offers crispy fried chicken and ceviche.",
+      "The menu also offers wagyu burgers and premium cocktails."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for Latin-inspired comfort food and craft cocktails in Brickell.",
+    "why_here": "Go for Latin-inspired comfort food and craft cocktails in the heart of Brickell, in a warm room built for lingering with friends.",
+    "know_before": "Come ready for a lively room, and pair the food with a craft cocktail.",
+    "local_tip": "Try the ceviche with a craft cocktail.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Charlatam Restaurant & Bar blends Latin-inspired comfort food and craft cocktails in Miami.",
+      "source": "https://charlatam.com/"
+     },
+     {
+      "claim": "Charlatam is located in the heart of Brickell in Miami.",
+      "source": "https://charlatam.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://charlatam.com/"
+     ],
+     "why_here": [
+      "https://charlatam.com/"
+     ],
+     "know_before": [
+      "https://charlatam.com/"
+     ],
+     "local_tip": [
+      "https://charlatam.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJYTi0cLTC2YgRe4PpurmXWQM",
+   "name": "Wat Buddharangsi Buddhist Temple",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "buddhist_temple",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thaitemplemiamifl.org/",
+     "source_name": "Wat Buddharangsi Buddhist Temple",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Wat Buddharangsi is a Thai Buddhist Temple and a place to meditate in the Miami Redlands.",
+      "The temple is a Theravada Buddhism temple built in 1979.",
+      "Visitors can visit with the monks and attend special events at the temple.",
+      "Visitors can spend a quiet moment in front of the Buddha Statue at the temple."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known as a Thai Buddhist Temple where visitors meditate in the Miami Redlands.",
+    "why_here": "Go for a quiet moment in front of the Buddha Statue, a chance to meditate, and time with a Theravada Buddhism temple community.",
+    "know_before": "Dress and behave respectfully, and keep voices low while others meditate.",
+    "local_tip": "Spend a quiet moment in front of the Buddha Statue.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Wat Buddharangsi is a Thai Buddhist Temple and a place to meditate in the Miami Redlands.",
+      "source": "https://www.thaitemplemiamifl.org/"
+     },
+     {
+      "claim": "The temple is a Theravada Buddhism temple built in 1979.",
+      "source": "https://www.thaitemplemiamifl.org/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.thaitemplemiamifl.org/"
+     ],
+     "why_here": [
+      "https://www.thaitemplemiamifl.org/"
+     ],
+     "know_before": [
+      "https://www.thaitemplemiamifl.org/"
+     ],
+     "local_tip": [
+      "https://www.thaitemplemiamifl.org/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJM6d-F5Gt2YgR4xiZtJnzG68",
+   "name": "Hürrem Hammam Wellness & Spa",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "spa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hurremhammams.com",
+     "source_name": "Hürrem Hammam Wellness & Spa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Hürrem Hammam Wellness & Spa is an authentic Turkish hammam inspired by the Ottoman Empire.",
+      "The North Miami facility is a co-ed facility celebrating Turkish bathing culture.",
+      "Hammam Journeys include a classic kese scrub customized to your preferences.",
+      "The Royal Hammam Ceremony combines kese exfoliation with a foam and bubble massage called Kopuk."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for an authentic Turkish hammam inspired by the Ottoman Empire.",
+    "why_here": "Go to experience Turkish bathing culture through Hammam Journeys, with a kese scrub and time to slow down in North Miami.",
+    "know_before": "Book your Hammam Journey ahead, and arrive ready for a co-ed facility.",
+    "local_tip": "Try the Royal Hammam Ceremony with Kopuk.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Hürrem Hammam Wellness & Spa is an authentic Turkish hammam inspired by the Ottoman Empire.",
+      "source": "https://hurremhammams.com"
+     },
+     {
+      "claim": "The North Miami facility is a co-ed facility celebrating Turkish bathing culture.",
+      "source": "https://hurremhammams.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://hurremhammams.com"
+     ],
+     "why_here": [
+      "https://hurremhammams.com"
+     ],
+     "know_before": [
+      "https://hurremhammams.com"
+     ],
+     "local_tip": [
+      "https://hurremhammams.com"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJTwAMw0Cx2YgRw0ke2G7Z7ko",
+   "name": "Ichimi (Midtown)",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ramen_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ichimiramenbar.com/midtown",
+     "source_name": "Ichimi Ramen Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ichimi serves tonkotsu ramen in Midtown Miami near Wynwood.",
+      "The tonkotsu broth simmers through the night with pork bones.",
+      "Fresh noodles are made from scratch each morning at Ichimi.",
+      "The Ichimi Ramen uses tonkotsu soup base with black garlic oil and a hanjuku egg."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for tonkotsu ramen with fresh noodles made from scratch each morning.",
+    "why_here": "Go for a bowl built on broth that simmers through the night and fresh noodles made each morning, at the edge of Wynwood.",
+    "know_before": "Expect a busy Midtown room near Wynwood, and order the signature bowl first.",
+    "local_tip": "Order the Ichimi Ramen with black garlic oil.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Ichimi serves tonkotsu ramen in Midtown Miami near Wynwood.",
+      "source": "https://ichimiramenbar.com/midtown"
+     },
+     {
+      "claim": "The tonkotsu broth simmers through the night with pork bones.",
+      "source": "https://ichimiramenbar.com/midtown"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://ichimiramenbar.com/midtown"
+     ],
+     "why_here": [
+      "https://ichimiramenbar.com/midtown"
+     ],
+     "know_before": [
+      "https://ichimiramenbar.com/midtown"
+     ],
+     "local_tip": [
+      "https://ichimiramenbar.com/midtown"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJG-Tq3xy32YgR7QyvDubSiLA",
+   "name": "Yamashiro Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://yamashiromiami.com",
+     "source_name": "Yamashiro Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Yamashiro Miami brings a legacy of Japanese-inspired architecture and elevated dining to Miami.",
+      "The menu offers sushi, handrolls, robata and a wagyu selection.",
+      "Signature highlights include the Wagyu sando and A5 fried rice.",
+      "Yamashiro Miami also serves Alaskan crab and specialty rolls."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for Japanese-inspired dining with sushi, handrolls, robata and wagyu.",
+    "why_here": "Go for elevated Japanese-inspired dining in Miami, with sushi, handrolls and robata plates designed for sharing across the table.",
+    "know_before": "Book for a special night out, and plan to share plates across the table.",
+    "local_tip": "Try the Wagyu sando.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Yamashiro Miami brings a legacy of Japanese-inspired architecture and elevated dining to Miami.",
+      "source": "https://yamashiromiami.com"
+     },
+     {
+      "claim": "The menu offers sushi, handrolls, robata and a wagyu selection.",
+      "source": "https://yamashiromiami.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://yamashiromiami.com"
+     ],
+     "why_here": [
+      "https://yamashiromiami.com"
+     ],
+     "know_before": [
+      "https://yamashiromiami.com"
+     ],
+     "local_tip": [
+      "https://yamashiromiami.com"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJOZIFBwC12YgRieEn821YBic",
+   "name": "Andrés Carne de Res Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://andresmiami.us",
+     "source_name": "Andrés Carne de Res Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Andrés Carne de Res was founded by Andrés Jaramillo and María Stella in Bogota, Colombia.",
+      "Andrés Carne de Res Miami is a steakhouse serving Colombian dishes with meats, fish and seafood.",
+      "The Miami Beach location has two dining rooms and a rooftop.",
+      "Dishes include steak, lomo al trapo, chicharron and arepa de choclo.",
+      "Guests can make a reservation through the official website."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian steakhouse known for steak, lomo al trapo and arepa de choclo",
+    "why_here": "Go for a Colombian steakhouse meal built around meats, fish and seafood, bringing the Bogota original to Miami Beach dining rooms and a rooftop.",
+    "know_before": "Make a reservation through the official website before going for the dining rooms or rooftop.",
+    "local_tip": "Order the lomo al trapo with arepa de choclo.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Andrés Carne de Res Miami is a steakhouse serving Colombian dishes with meats, fish and seafood.",
+      "source": "https://andresmiami.us"
+     },
+     {
+      "claim": "Dishes include steak, lomo al trapo, chicharron and arepa de choclo.",
+      "source": "https://andresmiami.us"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://andresmiami.us"
+     ],
+     "why_here": [
+      "https://andresmiami.us"
+     ],
+     "know_before": [
+      "https://andresmiami.us"
+     ],
+     "local_tip": [
+      "https://andresmiami.us"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJqZppyNO72YgRGGXMaUINCMM",
+   "name": "Tres Leches Factory",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "dessert_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://3lechesfactory.com/product/tres-leches/",
+     "source_name": "Tres Leches Factory",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Tres Leches Factory calls its Tres Leches the factory superstar and flagship dessert.",
+      "Tres Leches is a Latin American dessert made with evaporated milk, condensed milk and heavy cream over fluffy cake.",
+      "The Tres Leches cake is topped with Italian meringue.",
+      "The original formula has been in South Florida since 2001.",
+      "Tres Leches is sold per unit and per tray in several sizes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for Tres Leches cake with evaporated, condensed and heavy cream milks",
+    "why_here": "Go for the flagship Latin American dessert from the original formula, with fluffy cake soaked in milks and topped with Italian meringue.",
+    "know_before": "Choose per unit for one serving or per tray for sharing, since both formats are sold.",
+    "local_tip": "Try the original Tres Leches first.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Tres Leches Factory calls its Tres Leches the factory superstar and flagship dessert.",
+      "source": "https://3lechesfactory.com/product/tres-leches/"
+     },
+     {
+      "claim": "Tres Leches is sold per unit and per tray in several sizes.",
+      "source": "https://3lechesfactory.com/product/tres-leches/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://3lechesfactory.com/product/tres-leches/"
+     ],
+     "why_here": [
+      "https://3lechesfactory.com/product/tres-leches/"
+     ],
+     "know_before": [
+      "https://3lechesfactory.com/product/tres-leches/"
+     ],
+     "local_tip": [
+      "https://3lechesfactory.com/product/tres-leches/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ-WgWlqq12YgRLqHWVu34USo",
+   "name": "Bella Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bellamiamibeach.com/",
+     "source_name": "Bella Miami Beach",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Bella is a Southern Italian-inspired restaurant by Chef Eyal Shani in Miami Beach.",
+      "Bella is located inside Liberty Park Hotel in Miami Beach.",
+      "The menu focuses on handmade pasta, vegetables, seafood and Mediterranean flavors.",
+      "Handmade pasta includes pomodoro, lamb ragù and black pepper pasta.",
+      "Bella accepts reservations through OpenTable for dinner and special dining occasions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern Italian cooking by Chef Eyal Shani, centered on handmade pasta",
+    "why_here": "Go for handmade pasta, vegetables and seafood with Mediterranean flavors, in a Southern Italian meal by Chef Eyal Shani inside Liberty Park Hotel.",
+    "know_before": "Book through OpenTable ahead, since Bella accepts reservations for dinner and special dining occasions.",
+    "local_tip": "Try the lamb ragù handmade pasta.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Bella is a Southern Italian-inspired restaurant by Chef Eyal Shani in Miami Beach.",
+      "source": "https://bellamiamibeach.com/"
+     },
+     {
+      "claim": "The menu focuses on handmade pasta, vegetables, seafood and Mediterranean flavors.",
+      "source": "https://bellamiamibeach.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://bellamiamibeach.com/"
+     ],
+     "why_here": [
+      "https://bellamiamibeach.com/"
+     ],
+     "know_before": [
+      "https://bellamiamibeach.com/"
+     ],
+     "local_tip": [
+      "https://bellamiamibeach.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJpYiE0s6_2YgRncfqRBxOs_M",
+   "name": "Sushiato",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sushi-ato.com/sushiato-doral",
+     "source_name": "Sushiato Doral",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sushiato Doral combines Japanese technique and cuisine with Latin American flavors.",
+      "The menu includes specialty rolls, ceviches, tiraditos, poke bowls, ramen and bao buns.",
+      "Latin ingredients include plantain, guava, mango, ají amarillo and cilantro.",
+      "Signature items include plantain-wrapped Obako Rolls, Guava Rolls and Hamachi Jalapeño Tiraditos.",
+      "Sushiato Doral offers happy hour with selected appetizers, rolls and drinks for dine-in guests on weekdays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin fusion sushi pairing Japanese technique with plantain, guava and ají amarillo",
+    "why_here": "Go for specialty rolls, ceviches and tiraditos where Japanese technique meets plantain, guava, mango and cilantro in Doral.",
+    "know_before": "Plan a weekday visit for happy hour appetizers, rolls and drinks, offered for dine-in guests.",
+    "local_tip": "Try the plantain-wrapped Obako Rolls.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Sushiato Doral combines Japanese technique and cuisine with Latin American flavors.",
+      "source": "https://www.sushi-ato.com/sushiato-doral"
+     },
+     {
+      "claim": "Signature items include plantain-wrapped Obako Rolls, Guava Rolls and Hamachi Jalapeño Tiraditos.",
+      "source": "https://www.sushi-ato.com/sushiato-doral"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.sushi-ato.com/sushiato-doral"
+     ],
+     "why_here": [
+      "https://www.sushi-ato.com/sushiato-doral"
+     ],
+     "know_before": [
+      "https://www.sushi-ato.com/sushiato-doral"
+     ],
+     "local_tip": [
+      "https://www.sushi-ato.com/sushiato-doral"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJA3BFE2G72YgRJ13Z8fc5eto",
+   "name": "Pronto Cafe",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://prontomarketcafe.com/",
+     "source_name": "Pronto Cafe",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Pronto Cafe started as a ventanita, a single take-out window, on 29th Street in Hialeah.",
+      "Pronto serves slow-pressed Cubanos, double-fried wings and Pan Con Bistec.",
+      "The wings are brined, fried twice and sauced in several ways.",
+      "Mango Habanero is highlighted as the wing sauce to beat at Pronto.",
+      "Pronto serves food fresh from the ventanita."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hialeah ventanita known for slow-pressed Cubanos, Pan Con Bistec and wings",
+    "why_here": "Go for a quick Hialeah meal of slow-pressed Cubanos, Pan Con Bistec and double-fried wings, served fresh from the ventanita on 29th Street.",
+    "know_before": "Expect a take-out window format, since Pronto began as a single take-out window ventanita.",
+    "local_tip": "Try the Mango Habanero wings.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Pronto serves slow-pressed Cubanos, double-fried wings and Pan Con Bistec.",
+      "source": "https://prontomarketcafe.com/"
+     },
+     {
+      "claim": "Mango Habanero is highlighted as the wing sauce to beat at Pronto.",
+      "source": "https://prontomarketcafe.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://prontomarketcafe.com/"
+     ],
+     "why_here": [
+      "https://prontomarketcafe.com/"
+     ],
+     "know_before": [
+      "https://prontomarketcafe.com/"
+     ],
+     "local_tip": [
+      "https://prontomarketcafe.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJw3vqvtndwogRobHwt-M78qw",
+   "name": "Rio Izakaya",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJw3vqvtndwogRobHwt-M78qw",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rioiza.com/",
+     "source_name": "Rio Izakaya",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Rio Izakaya is a Japanese fine dining restaurant in Tampa.",
+      "Rio Izakaya serves Binchotan yakitori cooked over Japanese oak charcoal.",
+      "The menu includes dry-aged sushi, sashimi and daily-milled fresh rice.",
+      "Rio Izakaya offers a Yakitori Tasting Menu and Yakitori Platter at dinner.",
+      "Guests can book a table through the official website."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese fine dining known for Binchotan yakitori and dry-aged sushi in Tampa",
+    "why_here": "Go for Binchotan yakitori over Japanese oak charcoal, paired with dry-aged sushi, sashimi and daily-milled fresh rice in Tampa.",
+    "know_before": "Book a table through the official website ahead of dinner.",
+    "local_tip": "Try the Yakitori Tasting Menu at dinner.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Rio Izakaya serves Binchotan yakitori cooked over Japanese oak charcoal.",
+      "source": "https://www.rioiza.com/"
+     },
+     {
+      "claim": "The menu includes dry-aged sushi, sashimi and daily-milled fresh rice.",
+      "source": "https://www.rioiza.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.rioiza.com/"
+     ],
+     "why_here": [
+      "https://www.rioiza.com/"
+     ],
+     "know_before": [
+      "https://www.rioiza.com/"
+     ],
+     "local_tip": [
+      "https://www.rioiza.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJzQJrFNfpwogRXVE296Q-hIM",
+   "name": "Palmette Brasserie & Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJzQJrFNfpwogRXVE296Q-hIM",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://palmettetampa.com/",
+     "source_name": "Palmette Brasserie & Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Palmette Brasserie & Bar offers coastal fare and craft cocktails near Tampa.",
+      "Palmette Brasserie & Bar is at The Westin Tampa Bay.",
+      "Palmette serves dinner, drinks and events."
+     ]
+    },
+    {
+     "source": "https://palmettetampa.com/menu/dinner/",
+     "source_name": "Palmette Brasserie & Bar Dinner Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The dinner menu includes Pan-Seared Snapper with saffron tomato broth.",
+      "Pan-Seared Snapper is listed as a main dish on the dinner menu.",
+      "The Pan-Seared Snapper comes with vegetables de Provence and cipollini onions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coastal brasserie at The Westin Tampa Bay for coastal fare and craft cocktails",
+    "why_here": "Go for coastal fare and craft cocktails at The Westin Tampa Bay, with dinner mains such as Pan-Seared Snapper in saffron tomato broth.",
+    "know_before": "Check the dinner menu online before you go, since mains such as Pan-Seared Snapper are listed there.",
+    "local_tip": "Order the Pan-Seared Snapper with saffron tomato broth.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Palmette Brasserie & Bar offers coastal fare and craft cocktails near Tampa.",
+      "source": "https://palmettetampa.com/"
+     },
+     {
+      "claim": "The dinner menu includes Pan-Seared Snapper with saffron tomato broth.",
+      "source": "https://palmettetampa.com/menu/dinner/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://palmettetampa.com/"
+     ],
+     "why_here": [
+      "https://palmettetampa.com/",
+      "https://palmettetampa.com/menu/dinner/"
+     ],
+     "know_before": [
+      "https://palmettetampa.com/menu/dinner/"
+     ],
+     "local_tip": [
+      "https://palmettetampa.com/menu/dinner/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ7aECsrzFwogRKra8aP0X5cE",
+   "name": "Predalina",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "mediterranean_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ7aECsrzFwogRKra8aP0X5cE",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Mediterranean cooking with coastal European flavors and a nod to Portugal",
+    "why_here": "Go for coastal European flavors in Water Street, where Mediterranean plates pair with a spritz under the golden disco ball.",
+    "know_before": "In Water Street, plan for a lively dining room and order Mediterranean plates to share.",
+    "local_tip": "Sip a spritz and share coastal European plates.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Predalina is a Mediterranean restaurant in the Water Street district of Tampa.",
+      "source": "https://predalina.com/"
+     },
+     {
+      "claim": "The menu features coastal European flavors with a nod to Portugal.",
+      "source": "https://predalina.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://predalina.com/"
+     ],
+     "why_here": [
+      "https://predalina.com/"
+     ],
+     "know_before": [
+      "https://predalina.com/"
+     ],
+     "local_tip": [
+      "https://predalina.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://predalina.com/",
+     "source_name": "Predalina",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Predalina is a Mediterranean restaurant in the Water Street district of Tampa.",
+      "The menu features coastal European flavors with a nod to Portugal.",
+      "Guests can sip a spritz under a golden disco ball.",
+      "The lunch menu centers on sandwiches and flatbreads including a falafel burger."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJl9A3H2PxwogRqvtZC7HHe_I",
+   "name": "Hog Island Fish Camp",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJl9A3H2PxwogRqvtZC7HHe_I",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Fresh Gulf seafood in downtown Dunedin, voted Best Grouper Sandwich",
+    "why_here": "Go for fresh Gulf seafood at a chef-owned and operated seafood restaurant in downtown Dunedin with handcrafted hospitality.",
+    "know_before": "Reservations are recommended through the official website, so book ahead before you go.",
+    "local_tip": "Try the Grouper sandwich and start with Smoked Fish Dip.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Hog Island Fish Camp serves fresh Gulf seafood in downtown Dunedin.",
+      "source": "https://www.hogislandfishcamp.com/"
+     },
+     {
+      "claim": "Hog Island Fish Camp is a chef-owned and operated seafood restaurant.",
+      "source": "https://www.hogislandfishcamp.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.hogislandfishcamp.com/"
+     ],
+     "why_here": [
+      "https://www.hogislandfishcamp.com/"
+     ],
+     "know_before": [
+      "https://www.hogislandfishcamp.com/"
+     ],
+     "local_tip": [
+      "https://www.hogislandfishcamp.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.hogislandfishcamp.com/",
+     "source_name": "Hog Island Fish Camp",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Hog Island Fish Camp serves fresh Gulf seafood in downtown Dunedin.",
+      "Hog Island Fish Camp is a chef-owned and operated seafood restaurant.",
+      "The menu lists Smoked Fish Dip, Raw Oysters, Grouper and Hogfish.",
+      "The restaurant was voted Best Grouper Sandwich and Best Fish Shack.",
+      "Reservations are recommended through the official website."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJJ1tmaHbDwogRxB86-j_tUjw",
+   "name": "Alessi Bakeries Food Market",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJJ1tmaHbDwogRxB86-j_tUjw",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Tampa bakery since 1912 for Italian pastries, custom cakes and Cuban bread",
+    "why_here": "Go for handcrafted baked goods and family recipes passed down through four generations, from Italian pastries to fresh Cuban bread.",
+    "know_before": "Plan ahead for custom cakes and wedding cakes, which are made to order.",
+    "local_tip": "Try the Scachatta pizza and a cannoli with fresh Cuban bread to go.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Alessi Bakeries has served Tampa since 1912.",
+      "source": "https://www.alessibakery.com/"
+     },
+     {
+      "claim": "Alessi Bakeries serves handcrafted baked goods, authentic Italian pastries, custom cakes and fresh Cuban bread.",
+      "source": "https://www.alessibakery.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.alessibakery.com/"
+     ],
+     "why_here": [
+      "https://www.alessibakery.com/"
+     ],
+     "know_before": [
+      "https://www.alessibakery.com/"
+     ],
+     "local_tip": [
+      "https://www.alessibakery.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.alessibakery.com/",
+     "source_name": "Alessi Bakeries",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Alessi Bakeries has served Tampa since 1912.",
+      "Alessi Bakeries serves handcrafted baked goods, authentic Italian pastries, custom cakes and fresh Cuban bread.",
+      "The bakery offers Scachatta pizza, deli favorites and cafe drinks.",
+      "Family recipes have been passed down through four generations.",
+      "Custom cakes include wedding cakes, cannoli, tiramisu and gourmet cupcakes."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJeS-mqN_PwogRYCTAjzN5_FI",
+   "name": "Frankie's Italian Deli",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "deli",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJeS-mqN_PwogRYCTAjzN5_FI",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Authentic Italian market and deli foods, from sandwiches to Sicilian street food",
+    "why_here": "Go for authentic Italian market and deli style foods, with sandwiches, antipasto salads, fresh mozzarella and charcuterie boards.",
+    "know_before": "The deli has dine-in seating and parking, with catering also available.",
+    "local_tip": "Order a sandwich with fresh mozzarella and an antipasto salad.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Frankie's Italian Deli serves authentic Italian market and deli style foods in Riverview.",
+      "source": "https://frankieandunclelouieg.com/"
+     },
+     {
+      "claim": "The deli offers pizzas, sandwiches, antipasto salads, Italian bread, fresh mozzarella and charcuterie boards.",
+      "source": "https://frankieandunclelouieg.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://frankieandunclelouieg.com/"
+     ],
+     "why_here": [
+      "https://frankieandunclelouieg.com/"
+     ],
+     "know_before": [
+      "https://frankieandunclelouieg.com/"
+     ],
+     "local_tip": [
+      "https://frankieandunclelouieg.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://frankieandunclelouieg.com/",
+     "source_name": "Frankie's Italian Deli",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Frankie's Italian Deli serves authentic Italian market and deli style foods in Riverview.",
+      "The deli offers pizzas, sandwiches, antipasto salads, Italian bread, fresh mozzarella and charcuterie boards.",
+      "The menu includes Sicilian street food, Italian style deli meats and catering.",
+      "The deli has dine-in seating and parking."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJjYZbT6_HwogRWy7ZriWtKEg",
+   "name": "Arwa Coffee",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "cafe",
+   "city": "Temple Terrace",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://arwafl.com/",
+     "source_name": "Arwa Coffee",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Arwa Coffee serves Yemeni coffee and matcha in Temple Terrace.",
+      "Beans come from specific farms in the high terraced mountains of the Haraz region in Yemen.",
+      "The Sampler is four different preparations poured side by side on a branded flight board.",
+      "Khaliat Alnahl is honey comb, a tray of soft pull-apart buns filled and glazed with honey.",
+      "Popular picks include the Biscoff Latte, the Pistachio latte and the Yemeni Latte."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Yemeni coffee and matcha in Temple Terrace, built around Haraz region beans",
+    "why_here": "Go for Yemeni coffee with a fruity, floral and chocolatey character from Haraz region beans, roasted in house for the cup.",
+    "know_before": "Order online for pickup, delivery or dine-in, and check delivery coverage at checkout before you order.",
+    "local_tip": "Try the Sampler, four different preparations poured side by side on a branded flight board.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Beans come from specific farms in the high terraced mountains of the Haraz region in Yemen.",
+      "source": "https://arwafl.com/"
+     },
+     {
+      "claim": "The Sampler is four different preparations poured side by side on a branded flight board.",
+      "source": "https://arwafl.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://arwafl.com/"
+     ],
+     "why_here": [
+      "https://arwafl.com/"
+     ],
+     "know_before": [
+      "https://arwafl.com/"
+     ],
+     "local_tip": [
+      "https://arwafl.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJbySe_TzHwogRkMu_duyM6ms",
+   "name": "Papa Kanafa",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "food_court",
+   "city": "Temple Terrace",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aseertimegroupflorida.com/",
+     "source_name": "Aseer Time Group Florida",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Papa Kanafa serves the iconic modern-traditional Kanafa in Temple Terrace.",
+      "Papa Kanafa is part of Aseer Time Group Florida with Farooj Abo Alabed and Juice Time.",
+      "Orders are available online for pickup or delivery.",
+      "The group brings together savory flavors and sweet indulgences in Temple Terrace."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Iconic modern-traditional Kanafa in Temple Terrace from Aseer Time Group Florida",
+    "why_here": "Go for the iconic modern-traditional Kanafa, a sweet stop alongside the group savory flavors and sweet indulgences in Temple Terrace.",
+    "know_before": "Order online for pickup or delivery, and confirm your order details at checkout before you head over.",
+    "local_tip": "Try the iconic modern-traditional Kanafa from Papa Kanafa.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Papa Kanafa serves the iconic modern-traditional Kanafa in Temple Terrace.",
+      "source": "https://aseertimegroupflorida.com/"
+     },
+     {
+      "claim": "Papa Kanafa is part of Aseer Time Group Florida with Farooj Abo Alabed and Juice Time.",
+      "source": "https://aseertimegroupflorida.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "why_here": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "know_before": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "local_tip": [
+      "https://aseertimegroupflorida.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJR-TvlVbHwogRyvfUR0EhEPg",
+   "name": "Juice time &papa kanafa | عصير تايم & بابا كنافه",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "dessert_shop",
+   "city": "Temple Terrace",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aseertimegroupflorida.com/",
+     "source_name": "Aseer Time Group Florida",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Juice Time serves refreshing juices, ice creams, and sweets in Temple Terrace.",
+      "Juice Time is part of Aseer Time Group Florida with Farooj Abo Alabed and Papa Kanafa.",
+      "Juice Time and Farooj Abo Alabed share this address and counter in Temple Terrace.",
+      "Orders are available online for pickup or delivery."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Refreshing juices, ice creams, and sweets in Temple Terrace",
+    "why_here": "Go for refreshing juices, ice creams, and sweets, a sweet counter stop in Temple Terrace with pickup or delivery online.",
+    "know_before": "Juice Time and Farooj Abo Alabed share this address and counter, so ask staff for the Juice Time order.",
+    "local_tip": "Try refreshing juices, ice creams, and sweets from Juice Time.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Juice Time serves refreshing juices, ice creams, and sweets in Temple Terrace.",
+      "source": "https://aseertimegroupflorida.com/"
+     },
+     {
+      "claim": "Juice Time and Farooj Abo Alabed share this address and counter in Temple Terrace.",
+      "source": "https://aseertimegroupflorida.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "why_here": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "know_before": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "local_tip": [
+      "https://aseertimegroupflorida.com/"
+     ]
+    }
+   }
+  }
+ ]
+}

@@ -1,0 +1,153 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-01T15:39:46.337Z",
+  "pack": "docs/editorial/creator-lines-2026-10-31/pack-03.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-10-31",
+  "researched_at": "2026-10-31T12:00:00-04:00",
+  "replaced": [
+    {
+      "place_id": "ChIJsxvw2YvEwogRCqbQZ7wpHUE",
+      "name": "SoFresh - Healthy Salads, Wraps & Bowls",
+      "prior_row": {
+        "place_id": "ChIJsxvw2YvEwogRCqbQZ7wpHUE",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-21T05:55:09.384421+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-21T05:55:09.384421+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ4VV6ppbDwogRbOl5NqhG6kA",
+      "name": "Sunda New Asian",
+      "prior_row": {
+        "place_id": "ChIJ4VV6ppbDwogRbOl5NqhG6kA",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-22T08:55:38.693183+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-22T08:55:38.693183+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ3xGkbI3DwogRApmOd1WDFHA",
+      "name": "Happy Fish",
+      "prior_row": {
+        "place_id": "ChIJ3xGkbI3DwogRApmOd1WDFHA",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-22T02:55:40.174485+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-22T02:55:40.174485+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+      "name": "@ The Diner",
+      "prior_row": {
+        "place_id": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:10 AM"
+        ],
+        "written_at": "2026-08-24T13:15:24.179+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJBwQpZK_FwogRsoz9WgSYnOk",
+      "name": "JW Marriott Tampa Water Street",
+      "prior_row": {
+        "place_id": "ChIJBwQpZK_FwogRsoz9WgSYnOk",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:hook:Hillsborough",
+          "unsourced-entity:hook:River",
+          "unsourced-entity:why_here:Ybor",
+          "unsourced-entity:why_here:City",
+          "unsourced-entity:why_here:Miami",
+          "unsourced-entity:best_time:October"
+        ],
+        "written_at": "2026-08-11T08:15:48.078+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+      "name": "Raglan Road Irish Pub",
+      "prior_row": {
+        "place_id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:6 PM"
+        ],
+        "written_at": "2026-08-06T10:55:15.749088+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T10:55:15.749088+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJU-JqYJo5w4gRTKYuKEM5uH0",
+      "name": "The Breakfast Company",
+      "prior_row": {
+        "place_id": "ChIJU-JqYJo5w4gRTKYuKEM5uH0",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-20T09:55:06.174202+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-20T09:55:06.174202+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+      "name": "Helena Modern Riviera",
+      "prior_row": {
+        "place_id": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-06T18:55:17.71204+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T18:55:17.71204+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    }
+  ]
+}

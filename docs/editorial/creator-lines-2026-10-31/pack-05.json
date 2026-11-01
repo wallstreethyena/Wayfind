@@ -1,0 +1,2421 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for Creator Finds registry places with no verified editorial (fix-up pack 5). Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJWSFAm9XE54gRynJk-W1qRFA",
+   "name": "Brown & Brown Farms and Country Store",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "farm",
+   "city": "Oxford",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brownandbrownfarms.com/",
+     "source_name": "Brown's Adventure Farm",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Brown's Adventure Farm is in Oxford, FL.",
+      "Brown's Adventure Farm offers a corn maze, barnyard animals, and attractions for the whole family.",
+      "Brown's Adventure Farm offers U-Pick Strawberries and a Country Store.",
+      "Visitors can check the Brown's Adventure Farm calendar when planning a visit."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oxford farm known for a corn maze, barnyard animals, U-Pick strawberries and a Country Store",
+    "why_here": "Families go to wander the corn maze, meet the barnyard animals, explore attractions, and enjoy U-Pick strawberries and the Country Store together.",
+    "know_before": "Check the farm calendar before you go, as farm events run on set dates.",
+    "best_time": null,
+    "local_tip": "Try U-Pick strawberries and browse the Country Store.",
+    "facts": [
+     {
+      "claim": "Brown's Adventure Farm is in Oxford, FL.",
+      "source": "https://brownandbrownfarms.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://brownandbrownfarms.com/"
+     ],
+     "why_here": [
+      "https://brownandbrownfarms.com/"
+     ],
+     "know_before": [
+      "https://brownandbrownfarms.com/"
+     ],
+     "local_tip": [
+      "https://brownandbrownfarms.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJIQGDwpgXw4gRxIJcGmjtyK4",
+   "name": "Spinning Coffee",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "coffee_shop",
+   "city": "Bradenton",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bradentongulfislands.com/blogs/bradenton-area-coffee-spots/",
+     "source_name": "Bradenton Gulf Islands",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Spinning Coffee is part coffee shop, part vinyl café in Bradenton.",
+      "Spinning Coffee brings Vietnamese coffee and a laid-back music scene to Bradenton.",
+      "Vinyl records and vintage music equipment line the walls at Spinning Coffee.",
+      "Warm wood accents and greenery create a cozy spot to settle in with a cup of coffee and a little music at Spinning Coffee."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bradenton vinyl café pouring Vietnamese coffee amid records and vintage music equipment",
+    "why_here": "Go to settle in with a cup of coffee and a little music in a cozy spot in Bradenton, where vinyl records and vintage music equipment line the walls.",
+    "know_before": "Expect a laid-back music scene, with vinyl records and vintage music equipment lining the walls.",
+    "best_time": null,
+    "local_tip": "Order Vietnamese coffee and settle in with a little music.",
+    "facts": [
+     {
+      "claim": "Spinning Coffee is part coffee shop, part vinyl café in Bradenton.",
+      "source": "https://www.bradentongulfislands.com/blogs/bradenton-area-coffee-spots/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.bradentongulfislands.com/blogs/bradenton-area-coffee-spots/"
+     ],
+     "why_here": [
+      "https://www.bradentongulfislands.com/blogs/bradenton-area-coffee-spots/"
+     ],
+     "know_before": [
+      "https://www.bradentongulfislands.com/blogs/bradenton-area-coffee-spots/"
+     ],
+     "local_tip": [
+      "https://www.bradentongulfislands.com/blogs/bradenton-area-coffee-spots/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJmzf1RPUB2YgRaEhyuQFGVt4",
+   "name": "MAI-KAI Restaurant and Polynesian Show",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "city": "Fort Lauderdale",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Known for the Polynesian Islander Revue, the longest running Polynesian dance show in the United States.",
+    "why_here": "Go for nightly songs and dances of Polynesia, with Polynesian cuisine and culture in Fort Lauderdale since 1956, and see the Polynesian Islander Revue at the MAI-KAI.",
+    "know_before": "Performances are nightly and reservations are required, so reserve before you go.",
+    "local_tip": "Catch the Polynesian Islander Revue, and on Saturdays and Sundays kids can join on stage to learn to dance.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The revue is described as the longest running Polynesian dance show in the United States, including Hawaii.",
+      "source": "https://maikai.com/entertainment/"
+     },
+     {
+      "claim": "Performances are nightly and reservations are required.",
+      "source": "https://maikai.com/entertainment/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://maikai.com/entertainment/"
+     ],
+     "why_here": [
+      "https://maikai.com/entertainment/"
+     ],
+     "know_before": [
+      "https://maikai.com/entertainment/"
+     ],
+     "local_tip": [
+      "https://maikai.com/entertainment/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://maikai.com/entertainment/",
+     "source_name": "The MAI-KAI Restaurant & Polynesian Show",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Polynesian Islander Revue brings songs and dances of Polynesia to life at the MAI-KAI.",
+      "The revue is described as the longest running Polynesian dance show in the United States, including Hawaii.",
+      "Performances are nightly and reservations are required.",
+      "On Saturdays and Sundays, kids are invited on stage to learn to dance during a special number.",
+      "Since 1956, the MAI-KAI has offered Polynesian cuisine and culture in Fort Lauderdale."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJo_IdHf0lw4gRHDbQNKBRE84",
+   "name": "Ryan's Coffee House",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "coffee_shop",
+   "city": "Parrish",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A Parrish coffee shop that grew from a mobile coffee trailer into a brick and mortar shop.",
+    "why_here": "Go for coffee and espresso in Parrish, from a shop that started as a mobile coffee trailer and now serves Signature Lattes at its brick and mortar shop.",
+    "know_before": "The shop opened its brick and mortar location on January 1st, 2026; check the shop before a first visit.",
+    "local_tip": "Start with coffee and try the Signature Lattes.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The shop started as a mobile coffee trailer and opened a brick and mortar shop on January 1st, 2026.",
+      "source": "https://ryanscoffeehouse.com/"
+     },
+     {
+      "claim": "The menu features Signature Lattes.",
+      "source": "https://ryanscoffeehouse.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://ryanscoffeehouse.com/"
+     ],
+     "why_here": [
+      "https://ryanscoffeehouse.com/"
+     ],
+     "know_before": [
+      "https://ryanscoffeehouse.com/"
+     ],
+     "local_tip": [
+      "https://ryanscoffeehouse.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://ryanscoffeehouse.com/",
+     "source_name": "Ryan's Coffee House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ryan's Coffee House serves coffee and espresso in Parrish, Florida.",
+      "The shop started as a mobile coffee trailer and opened a brick and mortar shop on January 1st, 2026.",
+      "The Parrish shop is at 8231 US 301 in Parrish, Florida.",
+      "The menu features Signature Lattes.",
+      "The shop invites guests to start with coffee and to stay caffeinated."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJfUYeWmAlw4gReflS439GCg0",
+   "name": "Gamble Creek Farms",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "farm",
+   "city": "Parrish",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A 26-acre Real Organic Certified farm and market for fresh produce in Parrish.",
+    "why_here": "Go to shop the farm market for fresh, in-season produce and deli sandwiches, learn about sustainable farming practices, and visit a community hub for fresh produce in Parrish.",
+    "know_before": "The farm is open Wednesday-Sunday from 10am-5pm, so plan a visit on those days.",
+    "local_tip": "Shop the farm market for fresh, in-season produce and deli sandwiches.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Gamble Creek Farms is a 26-acre Real Organic Certified farm in Parrish, Florida.",
+      "source": "https://www.gamblecreekfarms.com/"
+     },
+     {
+      "claim": "The farm is open Wednesday-Sunday from 10am-5pm.",
+      "source": "https://www.gamblecreekfarms.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.gamblecreekfarms.com/"
+     ],
+     "why_here": [
+      "https://www.gamblecreekfarms.com/"
+     ],
+     "know_before": [
+      "https://www.gamblecreekfarms.com/"
+     ],
+     "local_tip": [
+      "https://www.gamblecreekfarms.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.gamblecreekfarms.com/",
+     "source_name": "Gamble Creek Farms",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Gamble Creek Farms is a 26-acre Real Organic Certified farm in Parrish, Florida.",
+      "The farm serves as a community hub and a source for fresh produce and Florida-grown items.",
+      "The farm market offers fresh, in-season produce and deli sandwiches.",
+      "The farm is open Wednesday-Sunday from 10am-5pm.",
+      "Visitors can learn about sustainable farming practices at the farm."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJeTU_Lhk9w4gRYtxmZ9i_yP4",
+   "name": "JJ Fox's Treehouse",
+   "category": "attractions",
+   "metro": "manatee-sarasota",
+   "primary_type": "indoor_playground",
+   "city": "Bradenton",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "An indoor playground in Bradenton for climbing, sliding, and treehouse play.",
+    "why_here": "Go for indoor climbing and sliding in Bradenton, with a soft play toddler area for younger kids, plus a play kitchen and grill and an indoor picnic area for families.",
+    "know_before": "A parent or guardian must remain in the building with a child at all times.",
+    "local_tip": "Let younger kids try the soft play toddler area and the play kitchen and grill.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "JJ Fox's Treehouse is an indoor playground in Bradenton, Florida, for climbing, sliding, and play.",
+      "source": "https://jjfoxstreehouse.com/"
+     },
+     {
+      "claim": "A parent or guardian must remain in the building with a child at all times.",
+      "source": "https://jjfoxstreehouse.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://jjfoxstreehouse.com/"
+     ],
+     "why_here": [
+      "https://jjfoxstreehouse.com/"
+     ],
+     "know_before": [
+      "https://jjfoxstreehouse.com/"
+     ],
+     "local_tip": [
+      "https://jjfoxstreehouse.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://jjfoxstreehouse.com/",
+     "source_name": "JJ Fox's Treehouse",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "JJ Fox's Treehouse is an indoor playground in Bradenton, Florida, for climbing, sliding, and play.",
+      "The playground offers a soft play toddler area and a play kitchen and grill.",
+      "A parent or guardian must remain in the building with a child at all times.",
+      "The playground offers daily admission, punch passes, and memberships.",
+      "Families can bring snacks to an indoor picnic area while kids play."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ8w2n6UbDwogRGn3pnZEbbGQ",
+   "name": "Catrinas Tacos and Tequila Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ8w2n6UbDwogRGn3pnZEbbGQ",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://catrinastampa.com/menu",
+     "source_name": "Catrinas Tacos and Tequila Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Catrinas Tacos and Tequila Bar serves tacos in Tampa.",
+      "Quesabirria Tacos are on the menu.",
+      "Single tacos are on the menu.",
+      "Taco Tuesday chicken tacos are on the menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for tacos in Tampa, including Quesabirria Tacos",
+    "why_here": "Go for single tacos or Quesabirria Tacos when you want a taco-focused meal in Tampa, with Taco Tuesday chicken tacos also on the menu for more choice.",
+    "know_before": "Check the menu for single tacos versus Quesabirria Tacos before ordering.",
+    "local_tip": "Try the Quesabirria Tacos.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Catrinas Tacos and Tequila Bar serves tacos in Tampa.",
+      "source": "https://catrinastampa.com/menu"
+     },
+     {
+      "claim": "Quesabirria Tacos are on the menu.",
+      "source": "https://catrinastampa.com/menu"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://catrinastampa.com/menu"
+     ],
+     "why_here": [
+      "https://catrinastampa.com/menu"
+     ],
+     "know_before": [
+      "https://catrinastampa.com/menu"
+     ],
+     "local_tip": [
+      "https://catrinastampa.com/menu"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJSbDatOjnwogRLPoi6_FtJrM",
+   "name": "Atomic Cat Cafe",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://atomiccatstpete.com/",
+     "source_name": "Atomic Cat Cafe",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Atomic Cat Cafe serves coffee, tea, and matcha in St. Pete.",
+      "Atomic Cat Cafe is a coffee shop in St. Petersburg.",
+      "Coffee and matcha drinks are on the menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for coffee, tea, and matcha in St. Pete",
+    "why_here": "Go for coffee, tea, or matcha in a coffee shop setting in St. Petersburg when you want a drink-focused stop, with coffee and matcha drinks on the menu in St. Pete.",
+    "know_before": "Choose between coffee, tea, and matcha before ordering, as all three anchor the menu.",
+    "local_tip": "Try a matcha drink alongside coffee or tea.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Atomic Cat Cafe serves coffee, tea, and matcha in St. Pete.",
+      "source": "https://atomiccatstpete.com/"
+     },
+     {
+      "claim": "Atomic Cat Cafe is a coffee shop in St. Petersburg.",
+      "source": "https://atomiccatstpete.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://atomiccatstpete.com/"
+     ],
+     "why_here": [
+      "https://atomiccatstpete.com/"
+     ],
+     "know_before": [
+      "https://atomiccatstpete.com/"
+     ],
+     "local_tip": [
+      "https://atomiccatstpete.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJxXAWDgCl2YgRjgwndTs5qbk",
+   "name": "El Churrascaso Grill - Miami Lakes",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elchurrascasogrill.com/",
+     "source_name": "El Churrascaso Grill",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "El Churrascaso Grill serves picanha and ribeye.",
+      "El Churrascaso Grill serves churrasco flap meat.",
+      "Picanha is top sirloin.",
+      "El Churrascaso Grill serves grilled meats in Miami Lakes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for grilled meats, including picanha and ribeye",
+    "why_here": "Go for grilled meats in Miami Lakes, from picanha and ribeye to churrasco flap meat, when you want a meat-focused meal built around picanha, the top sirloin, and ribeye.",
+    "know_before": "Decide between picanha, ribeye, and churrasco flap meat before ordering.",
+    "local_tip": "Try the picanha, the top sirloin.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "El Churrascaso Grill serves picanha and ribeye.",
+      "source": "https://elchurrascasogrill.com/"
+     },
+     {
+      "claim": "El Churrascaso Grill serves churrasco flap meat.",
+      "source": "https://elchurrascasogrill.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://elchurrascasogrill.com/"
+     ],
+     "why_here": [
+      "https://elchurrascasogrill.com/"
+     ],
+     "know_before": [
+      "https://elchurrascasogrill.com/"
+     ],
+     "local_tip": [
+      "https://elchurrascasogrill.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJT2rHbuay2YgRfsErmiRgvMQ",
+   "name": "Mi Colombia cafeteria Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach",
+     "source_name": "Miami and Miami Beach (Greater Miami Convention & Visitors Bureau)",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mi Colombia is a family-owned Colombian cafeteria in North Beach.",
+      "The bandeja paisa arrives loaded with steak, rice, red beans, chicharron, sweet plantains and a fried egg.",
+      "Pandebono and coffee make Mi Colombia a good breakfast stop.",
+      "People have kept coming back to Mi Colombia for decades in North Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for bandeja paisa at a family-owned Colombian cafeteria in North Beach.",
+    "why_here": "Go for bandeja paisa loaded with steak, rice, red beans, chicharron, sweet plantains and a fried egg at a family-owned Colombian cafeteria in North Beach, where people have kept coming back for decades.",
+    "know_before": "Come hungry for the bandeja paisa, it arrives loaded and filling.",
+    "local_tip": "Order the bandeja paisa.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Mi Colombia is a family-owned Colombian cafeteria in North Beach.",
+      "source": "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach"
+     },
+     {
+      "claim": "The bandeja paisa arrives loaded with steak, rice, red beans, chicharron, sweet plantains and a fried egg.",
+      "source": "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach"
+     ],
+     "why_here": [
+      "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach"
+     ],
+     "know_before": [
+      "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach"
+     ],
+     "local_tip": [
+      "https://miamiandbeaches.com/plan-your-trip/insider-guides/guide-to-north-beach"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJnY-BzZS32YgRP-9tqv6E6xs",
+   "name": "domaselo",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://domaselo.com/",
+     "source_name": "Domaselo",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Domaselo is a Miami bakery making sourdough bread.",
+      "Domaselo sells sourdough loaves including a Bread Sampler in sandwich style.",
+      "Domaselo offers local delivery when selected bread is in stock at checkout.",
+      "Domaselo has locations across Miami.",
+      "Sourdough at Domaselo is naturally leavened bread made with wheat."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami bakery known for naturally leavened sourdough bread and sandwich loaves",
+    "why_here": "Go for sourdough baked in Miami, from sandwich loaves to a Bread Sampler, with local delivery when bread is in stock, and try naturally leavened bread made with wheat across Miami.",
+    "know_before": "Check stock at checkout, since local delivery appears only when selected bread is in stock.",
+    "local_tip": "Start with the Bread Sampler in sandwich style.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Domaselo is a Miami bakery making sourdough bread.",
+      "source": "https://domaselo.com/"
+     },
+     {
+      "claim": "Domaselo sells sourdough loaves including a Bread Sampler in sandwich style.",
+      "source": "https://domaselo.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://domaselo.com/"
+     ],
+     "why_here": [
+      "https://domaselo.com/"
+     ],
+     "know_before": [
+      "https://domaselo.com/"
+     ],
+     "local_tip": [
+      "https://domaselo.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+   "name": "SORSI Waterfront",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Italian coastal plates and spritz cocktails in the spirit of the Amalfi Coast",
+    "why_here": "Go for Italian coastal plates and refreshing spritz cocktails at Jackson's Bistro on Harbour Island, where the lounge serves spritzes and Italian small plates with waterfront views in Downtown Tampa.",
+    "know_before": "Find it at Jackson's Bistro on Harbour Island and expect a lounge setting rather than a full restaurant.",
+    "local_tip": "Order a spritz cocktail with Italian coastal small plates.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Sorsi Waterfront Lounge brings the spirit of the Amalfi Coast to Downtown Tampa.",
+      "source": "https://www.jacksonsbistro.com/sorsi-waterfront"
+     },
+     {
+      "claim": "Guests can savor Italian coastal plates and refreshing spritz cocktails.",
+      "source": "https://www.jacksonsbistro.com/sorsi-waterfront"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.jacksonsbistro.com/sorsi-waterfront"
+     ],
+     "why_here": [
+      "https://www.jacksonsbistro.com/sorsi-waterfront"
+     ],
+     "know_before": [
+      "https://www.jacksonsbistro.com/sorsi-waterfront"
+     ],
+     "local_tip": [
+      "https://www.jacksonsbistro.com/sorsi-waterfront"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonsbistro.com/sorsi-waterfront",
+     "source_name": "Jackson's Bistro — SORSI Waterfront",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sorsi Waterfront Lounge brings the spirit of the Amalfi Coast to Downtown Tampa.",
+      "Guests can savor Italian coastal plates and refreshing spritz cocktails.",
+      "Sorsi Waterfront Lounge is at Jackson's Bistro on Harbour Island.",
+      "The lounge serves spritzes and Italian small plates with waterfront views."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJQZRp15bDwogReY6sMTk-YWg",
+   "name": "Hyde Park Village",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Open-air shopping and dining with local boutiques and national retailers",
+    "why_here": "Go to browse local boutiques and national retailers and pick from restaurants in an open-air shopping and dining destination that spans over 270,000 square feet in Tampa's historic district.",
+    "know_before": "It is open-air, so plan for weather and wear walking shoes between shops and restaurants.",
+    "local_tip": "Browse local boutiques, then pick a Village restaurant for dinner.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Hyde Park Village is an open-air shopping and dining destination in Tampa.",
+      "source": "https://hydeparkvillage.com/"
+     },
+     {
+      "claim": "The Village brings together local boutiques, national retailers, and restaurants.",
+      "source": "https://hydeparkvillage.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://hydeparkvillage.com/"
+     ],
+     "why_here": [
+      "https://hydeparkvillage.com/"
+     ],
+     "know_before": [
+      "https://hydeparkvillage.com/"
+     ],
+     "local_tip": [
+      "https://hydeparkvillage.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://hydeparkvillage.com/",
+     "source_name": "Hyde Park Village",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Hyde Park Village is an open-air shopping and dining destination in Tampa.",
+      "The Village brings together local boutiques, national retailers, and restaurants.",
+      "Hyde Park Village spans over 270,000 square feet in Tampa's historic district.",
+      "Retailers include Anthropologie and lululemon alongside local shops."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ0Ts6lqTZwogRCYwOKw7pW2g",
+   "name": "Circles Waterfront Restaurant",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "fine_dining_restaurant",
+   "city": "Apollo Beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ0Ts6lqTZwogRCYwOKw7pW2g",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Waterfront seafood and steak dining overlooking the water in Apollo Beach",
+    "why_here": "Go for seafood and steak in a dining room that overlooks the water in Apollo Beach, choosing from dinner entrees, salads, and appetizers plus lunch menus at a waterfront restaurant.",
+    "know_before": "Waterfront seating fills first, so arrive ready to wait or book ahead for a water view.",
+    "local_tip": "Order a seafood entree and a salad to share by the water.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Circles Waterfront Restaurant is a waterfront restaurant in Apollo Beach.",
+      "source": "https://circleswaterfront.com/"
+     },
+     {
+      "claim": "Circles Waterfront is described as a seafood and steak restaurant.",
+      "source": "https://circleswaterfront.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://circleswaterfront.com/"
+     ],
+     "why_here": [
+      "https://circleswaterfront.com/"
+     ],
+     "know_before": [
+      "https://circleswaterfront.com/"
+     ],
+     "local_tip": [
+      "https://circleswaterfront.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://circleswaterfront.com/",
+     "source_name": "Circles Waterfront Restaurant",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Circles Waterfront Restaurant is a waterfront restaurant in Apollo Beach.",
+      "The menu offers dinner entrees, salads, and appetizers plus lunch menus.",
+      "Circles Waterfront is described as a seafood and steak restaurant.",
+      "The dining room overlooks the water in Apollo Beach."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJaRL0syxrw4gRHAo4CxKP9IY",
+   "name": "The St. Regis Longboat Key Resort",
+   "category": "hotels",
+   "metro": "manatee-sarasota",
+   "primary_type": "hotel",
+   "city": "Longboat Key",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJaRL0syxrw4gRHAo4CxKP9IY",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Beachfront resort with a saltwater lagoon, winding river, and private beach",
+    "why_here": "Go to relax on a private beach or in a poolside cabana, drift through the winding river, and snorkel in the saltwater lagoon at a beachfront resort in Longboat Key near Sarasota.",
+    "know_before": "Beach and pool areas are for guests, so plan lagoon and spa time after check-in.",
+    "local_tip": "Drift the winding river, then book a massage at The St. Regis Spa.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The St. Regis Longboat Key Resort is a beachfront resort in Longboat Key near Sarasota.",
+      "source": "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/"
+     },
+     {
+      "claim": "The resort features a winding river and a saltwater lagoon where guests can snorkel.",
+      "source": "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/srqls-the-st-regis-longboat-key-resort/overview/",
+     "source_name": "The St. Regis Longboat Key Resort — Marriott",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The St. Regis Longboat Key Resort is a beachfront resort in Longboat Key near Sarasota.",
+      "Guests can relax on a private beach or in a poolside cabana.",
+      "The resort features a winding river and a saltwater lagoon where guests can snorkel.",
+      "The St. Regis Spa offers massages, body treatments, and facials."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJI_OEjj7DwogRcWK3mnLt9fU",
+   "name": "Barcelona Wine Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "spanish_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJI_OEjj7DwogRcWK3mnLt9fU",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Spanish tapas bar serving rustic small plates and paella with bomba rice",
+    "why_here": "Go to share rustic small plate presentations and paella made with bomba rice in a tapas bar inspired by the culture of Spain, with clean flavors, seasonal ingredients, and specialties from Spain and the Mediterranean.",
+    "know_before": "Tapas arrive as small plates, so order several rounds to share across the table.",
+    "local_tip": "Order the paella and a round of Spanish tapas to share.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Barcelona Wine Bar is a tapas bar inspired by the culture of Spain.",
+      "source": "https://barcelonawinebar.com/location/tampa/"
+     },
+     {
+      "claim": "The Tampa menu includes paella made with bomba rice.",
+      "source": "https://barcelonawinebar.com/location/tampa/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://barcelonawinebar.com/location/tampa/"
+     ],
+     "why_here": [
+      "https://barcelonawinebar.com/location/tampa/"
+     ],
+     "know_before": [
+      "https://barcelonawinebar.com/location/tampa/"
+     ],
+     "local_tip": [
+      "https://barcelonawinebar.com/location/tampa/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://barcelonawinebar.com/location/tampa/",
+     "source_name": "Barcelona Wine Bar Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Barcelona Wine Bar is a tapas bar inspired by the culture of Spain.",
+      "The menu focuses on clean flavors, seasonal ingredients, and specialties from Spain and the Mediterranean.",
+      "The Tampa menu includes paella made with bomba rice.",
+      "Barcelona Wine Bar serves rustic small plate presentations."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ14hpXQDDwogRnzzMJmb0ylE",
+   "name": "Maru Rooftop Nikkei",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "cocktail_bar",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ14hpXQDDwogRnzzMJmb0ylE",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Rooftop Nikkei bar pairing Peruvian ingredients with Japanese tradition",
+    "why_here": "Go for a Nikkei menu reflecting Japanese tradition with Peruvian ingredients, plus Pisco cocktails, sparkling wines, and shareable plates at a rooftop cocktail bar in Tampa's Bayshore Gardens.",
+    "know_before": "Maru is a rooftop lounge, so expect shareable plates and cocktails rather than a full dinner menu.",
+    "local_tip": "Order the Ceviche Nikkei and a Pisco cocktail.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Maru serves a Nikkei menu reflecting Japanese tradition with Peruvian ingredients.",
+      "source": "https://www.marutampa.com/"
+     },
+     {
+      "claim": "The menu includes Ceviche Nikkei with yellowfin tuna and sesame ponzu.",
+      "source": "https://www.marutampa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.marutampa.com/"
+     ],
+     "why_here": [
+      "https://www.marutampa.com/"
+     ],
+     "know_before": [
+      "https://www.marutampa.com/"
+     ],
+     "local_tip": [
+      "https://www.marutampa.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.marutampa.com/",
+     "source_name": "Maru Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Maru is a rooftop cocktail bar in Tampa's Bayshore Gardens.",
+      "Maru serves a Nikkei menu reflecting Japanese tradition with Peruvian ingredients.",
+      "The menu includes Ceviche Nikkei with yellowfin tuna and sesame ponzu.",
+      "Maru offers Pisco cocktails, sparkling wines, and shareable plates."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJEeANUgDFwogRsSiGNytPdd0",
+   "name": "Riverwalk Terrace",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJEeANUgDFwogRsSiGNytPdd0",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Waterfront breakfast and brunch in the Water Street district of Tampa",
+    "why_here": "Go for breakfast and brunch with a waterfront backdrop at Tampa Marriott Water Street, where the menu blends traditional breakfast dishes with French and Italian flair in the Water Street district of Tampa.",
+    "know_before": "It focuses on breakfast and brunch, so plan a morning or midday visit on the waterfront.",
+    "local_tip": "Try a brunch plate with French and Italian flair.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Riverwalk Terrace is a breakfast and brunch restaurant in the Water Street district of Tampa.",
+      "source": "https://www.riverwalkterracetampa.com/"
+     },
+     {
+      "claim": "The restaurant offers a waterfront backdrop alongside a breakfast and brunch menu.",
+      "source": "https://www.riverwalkterracetampa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.riverwalkterracetampa.com/"
+     ],
+     "why_here": [
+      "https://www.riverwalkterracetampa.com/"
+     ],
+     "know_before": [
+      "https://www.riverwalkterracetampa.com/"
+     ],
+     "local_tip": [
+      "https://www.riverwalkterracetampa.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.riverwalkterracetampa.com/",
+     "source_name": "Riverwalk Terrace",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Riverwalk Terrace is a breakfast and brunch restaurant in the Water Street district of Tampa.",
+      "The restaurant offers a waterfront backdrop alongside a breakfast and brunch menu.",
+      "The menu blends traditional breakfast dishes with French and Italian flair.",
+      "Riverwalk Terrace is at Tampa Marriott Water Street."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ6VPPdiz3wogRjsClFdAJ504",
+   "name": "Latitude 28",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "city": "Clearwater Beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ6VPPdiz3wogRjsClFdAJ504",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Coastal cuisine with Gulf flavors and beachfront views in Clearwater Beach",
+    "why_here": "Go for coastal cuisine with fresh, locally sourced ingredients inspired by coastal regions and featuring Gulf flavors, with views of the beachfront in Clearwater Beach at breakfast and dinner with indoor and outdoor seating.",
+    "know_before": "Open for breakfast and dinner only, so plan around a morning or evening seating.",
+    "local_tip": "Order a coastal seafood dish with Gulf flavors at dinner.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Latitude 28 is the coastal cuisine restaurant at JW Marriott Clearwater Beach Resort & Spa.",
+      "source": "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/"
+     },
+     {
+      "claim": "The menu uses fresh, locally sourced ingredients inspired by coastal regions and featuring Gulf flavors.",
+      "source": "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/tpajw-jw-marriott-clearwater-beach-resort-and-spa/dining/",
+     "source_name": "JW Marriott Clearwater Beach — Latitude 28",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Latitude 28 is the coastal cuisine restaurant at JW Marriott Clearwater Beach Resort & Spa.",
+      "Latitude 28 is open for breakfast and dinner with indoor and outdoor seating.",
+      "The menu uses fresh, locally sourced ingredients inspired by coastal regions and featuring Gulf flavors.",
+      "Latitude 28 offers views of the beachfront in Clearwater Beach.",
+      "Latitude 28 serves seafood."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJWSwkNNXdwogRCJUtqnx7je0",
+   "name": "Salt Shack On The Bay",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "seafood_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJWSwkNNXdwogRCJUtqnx7je0",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Gulf-to-table seafood on Old Tampa Bay, from grouper to wild-caught Gulf shrimp",
+    "why_here": "Go for gulf-to-table fish and seafood caught by local fishermen, including grouper, snapper, shrimp, and oysters, at a waterfront restaurant overlooking Old Tampa Bay in Tampa at sunset.",
+    "know_before": "Waterfront seating is outdoors, so plan for sun and bay breezes by the water.",
+    "local_tip": "Order the grouper and wild-caught Gulf shrimp.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Salt Shack On The Bay is a waterfront restaurant overlooking Old Tampa Bay in Tampa at sunset.",
+      "source": "https://salt-shack.com/"
+     },
+     {
+      "claim": "The menu includes grouper, snapper, shrimp, and oysters.",
+      "source": "https://salt-shack.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://salt-shack.com/"
+     ],
+     "why_here": [
+      "https://salt-shack.com/"
+     ],
+     "know_before": [
+      "https://salt-shack.com/"
+     ],
+     "local_tip": [
+      "https://salt-shack.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://salt-shack.com/",
+     "source_name": "Salt Shack On The Bay",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Salt Shack On The Bay is a waterfront restaurant overlooking Old Tampa Bay in Tampa at sunset.",
+      "The menu serves gulf-to-table fish and seafood caught by local fishermen.",
+      "Salt Shack serves wild-caught Gulf shrimp as a member of the Southern Shrimp Alliance.",
+      "The menu includes grouper, snapper, shrimp, and oysters."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJCUsmv-rDwogRFLK0RwWg_LE",
+   "name": "The Sapphire Tampa",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJCUsmv-rDwogRFLK0RwWg_LE",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A modern supper club and lounge with nightly live music and DJs",
+    "why_here": "Go for dinner in a modern supper club and lounge in Tampa, where nightly live music and DJs with tableside artistry turn dinner, a performance and a drink into one evening, with small plates, steaks and seafood on the menu.",
+    "know_before": "Know the strict business and formal dress code before you go and book reservations ahead.",
+    "local_tip": "Order small plates and stay for the nightly live music and DJs.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Sapphire Tampa is a modern supper club and lounge in Tampa.",
+      "source": "https://thesapphiretampa.com/"
+     },
+     {
+      "claim": "The venue offers nightly live music and DJs with tableside artistry.",
+      "source": "https://thesapphiretampa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thesapphiretampa.com/"
+     ],
+     "why_here": [
+      "https://thesapphiretampa.com/"
+     ],
+     "know_before": [
+      "https://thesapphiretampa.com/"
+     ],
+     "local_tip": [
+      "https://thesapphiretampa.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://thesapphiretampa.com/",
+     "source_name": "The Sapphire Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Sapphire Tampa is a modern supper club and lounge in Tampa.",
+      "The venue offers nightly live music and DJs with tableside artistry.",
+      "Guests can have dinner, catch a performance and grab a drink.",
+      "The menu includes small plates, steaks and seafood.",
+      "The Sapphire Tampa upholds a strict business and formal dress code and offers reservations."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJZevb9ZHAwogROpUBDf-kHQ8",
+   "name": "Tate & Tilly",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "gift_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "A Tampa gift shop known for fine gifts, stylish clothing and home decor",
+    "why_here": "Go to browse a curated selection of fine gifts, stylish clothing and home decor items in one Tampa boutique stop, with gift bags and shopping totes, sports memorabilia and wedding gifts, plus bracelets and womens jewelry to choose from.",
+    "know_before": "Call ahead to ask about current inventory before a special trip.",
+    "local_tip": "Browse the bracelets and womens jewelry for a gift-ready find.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Tate & Tilly Boutique is a Tampa-based gift shop in Tampa.",
+      "source": "https://shoptateandtilly.com/"
+     },
+     {
+      "claim": "Tate & Tilly Boutique is known for its curated selection of fine gifts, stylish clothing, and home decor items.",
+      "source": "https://shoptateandtilly.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://shoptateandtilly.com/"
+     ],
+     "why_here": [
+      "https://shoptateandtilly.com/"
+     ],
+     "know_before": [
+      "https://shoptateandtilly.com/"
+     ],
+     "local_tip": [
+      "https://shoptateandtilly.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://shoptateandtilly.com/",
+     "source_name": "Tate & Tilly Boutique",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Tate & Tilly Boutique is a Tampa-based gift shop in Tampa.",
+      "Tate & Tilly Boutique is known for its curated selection of fine gifts, stylish clothing, and home decor items.",
+      "The shop provides gift bags and shopping totes, sports memorabilia and wedding gifts.",
+      "The shop offers bracelets and womens jewelry.",
+      "Shoppers can call the shop to inquire about inventory."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJERKjMobFwogRU-c43PevXB0",
+   "name": "The Tampa EDITION",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJERKjMobFwogRU-c43PevXB0",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Luxury hotel in the Water Street District with Lilac and a rooftop pool",
+    "why_here": "Go for a luxury stay in downtown Tampa in the Water Street District, with a Spa, a rooftop pool, a fitness center and room service, plus dining at Lilac and Azure at EDITION on the rooftop, where Azure at EDITION showcases fresh Greek cuisine.",
+    "know_before": "Book Lilac and Azure at EDITION ahead, as rooftop and Spa availability can change.",
+    "local_tip": "Dine at Lilac, then try Azure at EDITION for fresh Greek cuisine.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Tampa EDITION is a luxury hotel in downtown Tampa in the Water Street District.",
+      "source": "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/"
+     },
+     {
+      "claim": "The Tampa EDITION features 172 guest rooms and 30 spacious suites including one penthouse.",
+      "source": "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/tpaeb-the-tampa-edition/overview/",
+     "source_name": "The Tampa EDITION",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Tampa EDITION is a luxury hotel in downtown Tampa in the Water Street District.",
+      "The Tampa EDITION features 172 guest rooms and 30 spacious suites including one penthouse.",
+      "Dining includes the Michelin acclaimed restaurant Lilac and Azure at EDITION on the rooftop.",
+      "Azure at EDITION showcases fresh Greek cuisine from chef John Fraser.",
+      "The hotel offers a Spa, a rooftop pool, a fitness center and room service."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJD9Xl7lT8wogRJxFfsfNLji4",
+   "name": "Sculley's Seafood Restaurant",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJD9Xl7lT8wogRJxFfsfNLji4",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Waterfront dining in John's Pass for fresh catch seafood right off the boat",
+    "why_here": "Go for waterfront dining in the historic fishing village of John's Pass in Madeira Beach, with fresh catch seafood right off the boat, a Gulf to Table dining experience, seasonal food, seafood and American cuisine, and a make-your-own-seafood combo.",
+    "know_before": "Sculley's is located along the boardwalk in John's Pass in Madeira Beach.",
+    "local_tip": "Build the make-your-own-seafood combo with the fresh catch of the day.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Sculley's Seafood Restaurant is located in the historic fishing village of John's Pass in Madeira Beach, Florida.",
+      "source": "https://sculleys.com/"
+     },
+     {
+      "claim": "Sculley's offers waterfront dining and fresh catch seafood right off the boat.",
+      "source": "https://sculleys.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://sculleys.com/"
+     ],
+     "why_here": [
+      "https://sculleys.com/"
+     ],
+     "know_before": [
+      "https://sculleys.com/"
+     ],
+     "local_tip": [
+      "https://sculleys.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://sculleys.com/",
+     "source_name": "Sculley's Seafood Restaurant",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sculley's Seafood Restaurant is located in the historic fishing village of John's Pass in Madeira Beach, Florida.",
+      "Sculley's offers waterfront dining and fresh catch seafood right off the boat.",
+      "Sculley's is a Gulf to Table dining experience with fresh catch fish purchased from local fisherman.",
+      "The menu offers seasonal food that highlights the best seafood and American cuisine.",
+      "Guests can choose a make-your-own-seafood combo with seafood, seasonings and sides.",
+      "Sculley's is located along the boardwalk in John's Pass."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJQ4DLFKfrwogR-QrEqDFXpk8",
+   "name": "Southern Luv BBQ",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJQ4DLFKfrwogR-QrEqDFXpk8",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Southern barbecue smoked low and slow over pecan wood, with an award-winning Cuban",
+    "why_here": "Go for Southern-style barbecue smoked low and slow over pecan wood in Tampa, with brisket, pulled pork, ribs and smoked chicken, sauces and sides made from scratch every morning, and an award-winning Cuban sandwich to try.",
+    "know_before": "Pick your store first when ordering, as each location takes its own orders.",
+    "local_tip": "Try the award-winning Cuban sandwich with brisket or pulled pork.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Southern Luv BBQ serves Southern-style barbecue smoked low and slow over pecan wood in Tampa.",
+      "source": "https://southernluvbbq.com/"
+     },
+     {
+      "claim": "Specialties include brisket, pulled pork, ribs, smoked chicken and an award-winning Cuban sandwich.",
+      "source": "https://southernluvbbq.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://southernluvbbq.com/"
+     ],
+     "why_here": [
+      "https://southernluvbbq.com/"
+     ],
+     "know_before": [
+      "https://southernluvbbq.com/"
+     ],
+     "local_tip": [
+      "https://southernluvbbq.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://southernluvbbq.com/",
+     "source_name": "Southern Luv BBQ",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Southern Luv BBQ serves Southern-style barbecue smoked low and slow over pecan wood in Tampa.",
+      "Specialties include brisket, pulled pork, ribs, smoked chicken and an award-winning Cuban sandwich.",
+      "Brisket and chicken are hand-trimmed and smoked over pecan wood.",
+      "Sauces and sides are made from scratch every morning.",
+      "Southern Luv BBQ was founded by Chef Essi Tadrus in Tampa, Florida.",
+      "Each location takes its own orders, so pick your store first when ordering."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJn2Mfbv5654gRVPqvg4fcmlA",
+   "name": "Due Amici Pizza & Pasta Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJn2Mfbv5654gRVPqvg4fcmlA",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Hand-stretched pizza and scratch pasta on 7th Avenue in Ybor City",
+    "why_here": "Go for Italian food on 7th Avenue in Ybor City, with dough stretched by hand, sauce made in-house and everything cooked from scratch every day, plus pizza, pasta, calzone and stromboli for lunch and dinner.",
+    "know_before": "The oven is kept hot from 9AM to 3AM, seven days a week for late slices.",
+    "local_tip": "Try the Buffalo Chicken Pizza and finish with cannoli or tiramisu.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Due Amici Pizza & Pasta Bar serves Italian food on 7th Avenue in Ybor City, Tampa.",
+      "source": "https://dueamiciybor.com/"
+     },
+     {
+      "claim": "Due Amici is known for Buffalo Chicken Pizza, BBQ Chicken Pizza, lasagna, cannoli and tiramisu.",
+      "source": "https://dueamiciybor.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://dueamiciybor.com/"
+     ],
+     "why_here": [
+      "https://dueamiciybor.com/"
+     ],
+     "know_before": [
+      "https://dueamiciybor.com/"
+     ],
+     "local_tip": [
+      "https://dueamiciybor.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://dueamiciybor.com/",
+     "source_name": "Due Amici Pizza & Pasta Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Due Amici Pizza & Pasta Bar serves Italian food on 7th Avenue in Ybor City, Tampa.",
+      "Due Amici is known for Buffalo Chicken Pizza, BBQ Chicken Pizza, lasagna, cannoli and tiramisu.",
+      "The dough is stretched by hand and sauce is made in-house, with everything cooked from scratch every day.",
+      "The oven is kept hot from 9AM to 3AM, seven days a week.",
+      "Due Amici serves lunch and dinner with pizza, pasta, calzone and stromboli."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJpxuhmQ63wogRdyNj0LVyOco",
+   "name": "Hungry Crab Juicy Seafood & Bar",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJpxuhmQ63wogRdyNj0LVyOco",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Juicy seafood boils in Tampa, from King Crab and snow crab to crawfish",
+    "why_here": "Go for juicy seafood cooked with a unique blend of spices, choosing from King Crab, shrimp, blue crab, snow crab, crawfish, clams, oysters, mussels, Dungeness crab and lobster in a Seafood Boil served with corn and potato.",
+    "know_before": "Seafood Boil is served with corn and potato, so plan to share a mix.",
+    "local_tip": "Order a Seafood Boil mix with King Crab, shrimp and crawfish.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Hungry Crab Juicy Seafood & Bar in Tampa offers juicy seafood cooked with a unique blend of spices.",
+      "source": "https://hungrycrabseafood.com/tampa.html"
+     },
+     {
+      "claim": "The menu includes King Crab, shrimp, blue crab, snow crab, crawfish, clams, oysters, mussels, Dungeness crab and lobster.",
+      "source": "https://hungrycrabseafood.com/tampa.html"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://hungrycrabseafood.com/tampa.html"
+     ],
+     "why_here": [
+      "https://hungrycrabseafood.com/tampa.html"
+     ],
+     "know_before": [
+      "https://hungrycrabseafood.com/tampa.html"
+     ],
+     "local_tip": [
+      "https://hungrycrabseafood.com/tampa.html"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://hungrycrabseafood.com/tampa.html",
+     "source_name": "Hungry Crab Juicy Seafood & Bar Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Hungry Crab Juicy Seafood & Bar in Tampa offers juicy seafood cooked with a unique blend of spices.",
+      "The menu includes King Crab, shrimp, blue crab, snow crab, crawfish, clams, oysters, mussels, Dungeness crab and lobster.",
+      "Seafood Boil is served with corn and potato.",
+      "The Tampa location offers dine-in seafood boils."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJn38erTXDwogRb0CWRhZeTmc",
+   "name": "Jay Luigi",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJn38erTXDwogRb0CWRhZeTmc",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Fresh pasta and naturally fermented Roman-style and Neapolitan-style pizzas in SoHo",
+    "why_here": "Go for a lighter, healthier twist on traditional Italian cuisine in South Tampa in the SoHo district, with fresh pasta made in house with clean, quality ingredients and naturally fermented Roman-style and Neapolitan-style pizzas.",
+    "know_before": "Check the SoHo location details and hours on the official website before you go.",
+    "local_tip": "Try the fresh pasta with a Roman-style or Neapolitan-style pizza.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Jay Luigi is an Italian restaurant in South Tampa in the SoHo district.",
+      "source": "https://www.jayluigi.com/soho"
+     },
+     {
+      "claim": "Jay Luigi serves a lighter, healthier twist on traditional Italian cuisine.",
+      "source": "https://www.jayluigi.com/soho"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.jayluigi.com/soho"
+     ],
+     "why_here": [
+      "https://www.jayluigi.com/soho"
+     ],
+     "know_before": [
+      "https://www.jayluigi.com/soho"
+     ],
+     "local_tip": [
+      "https://www.jayluigi.com/soho"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.jayluigi.com/soho",
+     "source_name": "Jay Luigi",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Jay Luigi is an Italian restaurant in South Tampa in the SoHo district.",
+      "Jay Luigi serves a lighter, healthier twist on traditional Italian cuisine.",
+      "The menu features fresh pastas and naturally fermented Roman-style and Neapolitan-style pizzas.",
+      "Fresh pasta is made in house with clean, quality ingredients.",
+      "Pizzas include Roman-style and Neapolitan-style options with fresh salads and Italian small plates.",
+      "Location details and hours are listed on the official website."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
+   "name": "Weeki Wachee Springs State Park",
+   "category": "attractions",
+   "metro": "spring-hill-fl",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Live mermaid performances in a first-magnitude spring at a 400-seat theater",
+    "why_here": "Go to see live mermaid performances every day in a first-magnitude spring, viewed through the windows of a 400-seat theater embedded in the spring, then take a river boat tour on the Weeki Wachee River and swim at Buccaneer Bay.",
+    "know_before": "Tickets can only be purchased at the park upon arrival, and once the park is full tickets will no longer be sold.",
+    "local_tip": "See the mermaid performances, then swim in crystal-clear spring waters at Buccaneer Bay.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Weeki Wachee Springs State Park is home to live mermaid performances in a first-magnitude spring.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Mermaid performances take place every day and are viewed through the windows of a 400-seat theater embedded in the spring.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/weeki-wachee-springs-state-park/experiences-amenities",
+     "source_name": "Florida State Parks - Weeki Wachee Springs State Park",
+     "source_class": "government",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Weeki Wachee Springs State Park is home to live mermaid performances in a first-magnitude spring.",
+      "Mermaid performances take place every day and are viewed through the windows of a 400-seat theater embedded in the spring.",
+      "The park offers a river boat tour on the Weeki Wachee River and swimming at Buccaneer Bay.",
+      "Buccaneer Bay is a spring-fed waterpark with swimming in crystal-clear spring waters.",
+      "Once the park is full, tickets will no longer be sold, and tickets can only be purchased at the park upon arrival."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJFfA3AgDHwogRn2m2zxNrPpc",
+   "name": "Shanghai Dumpling House",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shanghaidumplingtpa.com/",
+     "source_name": "Shanghai Dumpling House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Shanghai Dumpling House serves handmade soup dumplings and authentic Chinese comfort food in Tampa.",
+      "Each soup dumpling features a translucent, hand-pleated skin with rich, savory broth and seasoned filling.",
+      "The menu includes Xiao Long Bao, dumplings, buns and noodles made with a handmade touch.",
+      "Shanghai Dumpling House is located in Tampa near USF."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade soup dumplings and authentic Chinese comfort food in Tampa near USF",
+    "why_here": "Go for handmade soup dumplings and authentic Chinese comfort food in Tampa near USF, with translucent, hand-pleated skin, rich, savory broth and seasoned filling, plus dumplings, buns and noodles made with a handmade touch.",
+    "know_before": "Plan for a dumpling focused meal near USF, and check the menu before you go for current choices.",
+    "local_tip": "Try the Xiao Long Bao, the signature soup dumplings with hand-pleated skin and savory broth.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Shanghai Dumpling House serves handmade soup dumplings and authentic Chinese comfort food in Tampa.",
+      "source": "https://www.shanghaidumplingtpa.com/"
+     },
+     {
+      "claim": "Each soup dumpling features a translucent, hand-pleated skin with rich, savory broth and seasoned filling.",
+      "source": "https://www.shanghaidumplingtpa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.shanghaidumplingtpa.com/"
+     ],
+     "why_here": [
+      "https://www.shanghaidumplingtpa.com/"
+     ],
+     "know_before": [
+      "https://www.shanghaidumplingtpa.com/"
+     ],
+     "local_tip": [
+      "https://www.shanghaidumplingtpa.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJu-FXshZ_54gR5hpIANd0t5w",
+   "name": "Akasaka Sushi korean Japanese restaurant",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJu-FXshZ_54gR5hpIANd0t5w",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.akasakasushi.net/menu",
+     "source_name": "Akasaka Sushi",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Akasaka Sushi serves Takoyaki, Japanese octopus fritters finished with Bonito flakes and house sauce.",
+      "The menu lists Pork Gyoza, steamed or crispy pork dumplings served with ponzu.",
+      "Akasaka Yuzu Ceviche Mixto combines white fish, octopus and shrimp marinated in citrus juice.",
+      "The menu includes DdukBokki, a popular Korean street food of rice cake and fish cake with cheese.",
+      "Nigiri and sashimi options include salmon, tuna, yellowtail and sweet shrimp."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese and Korean spot known for Takoyaki, gyoza and fresh nigiri",
+    "why_here": "Go to mix Japanese and Korean food in one meal, with Takoyaki, Pork Gyoza served with ponzu, DdukBokki with rice cake and fish cake with cheese, and nigiri and sashimi including salmon, tuna, yellowtail and sweet shrimp.",
+    "know_before": "Choose steamed or crispy for the pork dumplings, served with ponzu on the side.",
+    "local_tip": "Start with Takoyaki, Japanese octopus fritters with Bonito flakes and house sauce.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Akasaka Sushi serves Takoyaki, Japanese octopus fritters finished with Bonito flakes and house sauce.",
+      "source": "https://www.akasakasushi.net/menu"
+     },
+     {
+      "claim": "Akasaka Yuzu Ceviche Mixto combines white fish, octopus and shrimp marinated in citrus juice.",
+      "source": "https://www.akasakasushi.net/menu"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.akasakasushi.net/menu"
+     ],
+     "why_here": [
+      "https://www.akasakasushi.net/menu"
+     ],
+     "know_before": [
+      "https://www.akasakasushi.net/menu"
+     ],
+     "local_tip": [
+      "https://www.akasakasushi.net/menu"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJWSbk10Jx54gRdAMiYySqzL4",
+   "name": "Azal Coffee",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJWSbk10Jx54gRdAMiYySqzL4",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://azalcoffeeusa.com/",
+     "source_name": "Azal Coffee",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Azal Coffee is a premium Yemeni and Middle Eastern coffee house.",
+      "Azal serves authentic Yemeni coffee with complex, wine-like notes.",
+      "Traditional Adeni chai is spiced with cardamom and cinnamon.",
+      "Arabic qahwa is served the way it has been for centuries.",
+      "Modern favorites include a pistachio latte and ceremonial-grade matcha."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Premium Yemeni and Middle Eastern coffee house for Adeni chai and qahwa",
+    "why_here": "Go for authentic Yemeni coffee with complex, wine-like notes, Arabic qahwa served the way it has been for centuries, Traditional Adeni chai spiced with cardamom and cinnamon, a pistachio latte, and ceremonial-grade matcha.",
+    "know_before": "Expect traditional preparations, including chai spiced with cardamom and cinnamon.",
+    "local_tip": "Try the traditional Adeni chai spiced with cardamom and cinnamon.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Azal Coffee is a premium Yemeni and Middle Eastern coffee house.",
+      "source": "https://azalcoffeeusa.com/"
+     },
+     {
+      "claim": "Azal serves authentic Yemeni coffee with complex, wine-like notes.",
+      "source": "https://azalcoffeeusa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://azalcoffeeusa.com/"
+     ],
+     "why_here": [
+      "https://azalcoffeeusa.com/"
+     ],
+     "know_before": [
+      "https://azalcoffeeusa.com/"
+     ],
+     "local_tip": [
+      "https://azalcoffeeusa.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
+   "name": "Pisco Peruvian Gastrobar - Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piscoperuviangastrobar.com/",
+     "source_name": "Pisco Peruvian Gastrobar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Pisco Peruvian Gastrobar serves fresh ceviche, Paella Chola with shrimp and scallops, and Lomo Saltado wok-fired to order.",
+      "The bar program is built around Peru's signature spirit, with the Classic Pisco Sour.",
+      "Pisco Peruvian Gastrobar brings bold flavors, handcrafted pisco cocktails, and live Latin music to Central Florida.",
+      "Catering offers bold Peruvian dishes with generous portions for events and celebrations.",
+      "Pisco Peruvian Gastrobar has two locations in Central Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian gastrobar known for fresh ceviche and Classic Pisco Sour cocktails",
+    "why_here": "Go for fresh ceviche, Paella Chola with shrimp and scallops, and Lomo Saltado wok-fired to order, plus handcrafted pisco cocktails, bold flavors, and live Latin music in Central Florida.",
+    "know_before": "There are two locations in Central Florida, so confirm yours before going.",
+    "local_tip": "Try the Lomo Saltado, wok-fired to order, with a Classic Pisco Sour.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Pisco Peruvian Gastrobar serves fresh ceviche, Paella Chola with shrimp and scallops, and Lomo Saltado wok-fired to order.",
+      "source": "https://piscoperuviangastrobar.com/"
+     },
+     {
+      "claim": "Pisco Peruvian Gastrobar brings bold flavors, handcrafted pisco cocktails, and live Latin music to Central Florida.",
+      "source": "https://piscoperuviangastrobar.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://piscoperuviangastrobar.com/"
+     ],
+     "why_here": [
+      "https://piscoperuviangastrobar.com/"
+     ],
+     "know_before": [
+      "https://piscoperuviangastrobar.com/"
+     ],
+     "local_tip": [
+      "https://piscoperuviangastrobar.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJZeyB-C1x54gRGJeVf5x1ubs",
+   "name": "Woodhouse Spa - Altamonte Springs",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "spa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJZeyB-C1x54gRGJeVf5x1ubs",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/",
+     "source_name": "Woodhouse Spa - Altamonte Springs",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Woodhouse Spa - Altamonte Springs offers holistic treatments for the body and mind customized to you.",
+      "Treatments include the Himalayan Hot Stone Massage and Woodhouse Signature Hydrafacial Classic.",
+      "The Complete Transformation package lasts 100 Mins with nourishing services to revitalize mind, body, and mood.",
+      "Guests can slip into a plush robe and enjoy a hot tea or glass of champagne.",
+      "Couples massages include a warm robe and a glass of champagne in a plush relaxation room."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Day spa known for Himalayan Hot Stone Massage and Signature Hydrafacial",
+    "why_here": "Go for holistic treatments for the body and mind customized to you, including the Himalayan Hot Stone Massage and Woodhouse Signature Hydrafacial Classic, with nourishing services to revitalize mind, body, and mood.",
+    "know_before": "Guests slip into a plush robe with hot tea or champagne before treatment.",
+    "local_tip": "Book the Himalayan Hot Stone Massage for the signature treatment.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Woodhouse Spa - Altamonte Springs offers holistic treatments for the body and mind customized to you.",
+      "source": "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/"
+     },
+     {
+      "claim": "Treatments include the Himalayan Hot Stone Massage and Woodhouse Signature Hydrafacial Classic.",
+      "source": "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/"
+     ],
+     "why_here": [
+      "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/"
+     ],
+     "know_before": [
+      "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/"
+     ],
+     "local_tip": [
+      "https://locations.woodhousespas.com/florida/altamonte-springs/249-w-state-rd-436/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJwSyCK0Vx54gR3BRkV4e39L8",
+   "name": "Color Me Mine Altamonte Springs",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://altamontesprings.colormemine.com/how-it-works/",
+     "source_name": "Color Me Mine Altamonte Springs",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Guests at Color Me Mine Altamonte Springs choose a piece of pottery from hundreds of options.",
+      "Guests paint pottery with the help of skilled employees."
+     ]
+    },
+    {
+     "source": "https://altamontesprings.colormemine.com/visit-studio/",
+     "source_name": "Color Me Mine Altamonte Springs Visit Studio",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "There is a studio fee for each person painting at Color Me Mine Altamonte Springs.",
+      "All pottery is priced separately from the studio fee."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Paint-your-own pottery studio with hundreds of pottery pieces to choose and paint.",
+    "why_here": "Go to choose a piece of pottery from hundreds of options at Color Me Mine Altamonte Springs and paint pottery yourself, with the help of skilled employees who help with the painting in the studio.",
+    "know_before": "There is a studio fee for each person painting, and all pottery is priced separately.",
+    "local_tip": "Choose a piece of pottery and paint it with help from skilled employees.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Guests at Color Me Mine Altamonte Springs choose a piece of pottery from hundreds of options.",
+      "source": "https://altamontesprings.colormemine.com/how-it-works/"
+     },
+     {
+      "claim": "There is a studio fee for each person painting at Color Me Mine Altamonte Springs.",
+      "source": "https://altamontesprings.colormemine.com/visit-studio/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://altamontesprings.colormemine.com/how-it-works/"
+     ],
+     "why_here": [
+      "https://altamontesprings.colormemine.com/how-it-works/"
+     ],
+     "know_before": [
+      "https://altamontesprings.colormemine.com/visit-studio/"
+     ],
+     "local_tip": [
+      "https://altamontesprings.colormemine.com/how-it-works/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJC7huKWvFwogRBkI-LJuEHx8",
+   "name": "Tommy's Chophouse",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tommyschophouse.com/",
+     "source_name": "Tommy's Chophouse",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Tommy's Chophouse offers a fresh take on the classic American steakhouse in Historic Ybor City.",
+      "Tommy's Chophouse was created by restaurateur Kenneth Emery.",
+      "The menu includes Filet Mignon, New York Strip, and Ribeye, plus distinctive cuts such as Hanger Steak and Picanha.",
+      "Guests can reserve a table at Tommy's Chophouse."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic American steakhouse in Historic Ybor City serving Filet Mignon, Ribeye, and Picanha.",
+    "why_here": "Go for a fresh take on the classic American steakhouse in Historic Ybor City, with Filet Mignon, New York Strip, and Ribeye, plus distinctive cuts such as Hanger Steak and Picanha.",
+    "know_before": "Guests can reserve a table at Tommy's Chophouse before visiting in Historic Ybor City.",
+    "local_tip": "Try distinctive cuts such as Hanger Steak and Picanha alongside classic steaks.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Tommy's Chophouse offers a fresh take on the classic American steakhouse in Historic Ybor City.",
+      "source": "https://www.tommyschophouse.com/"
+     },
+     {
+      "claim": "The menu includes Filet Mignon, New York Strip, and Ribeye, plus distinctive cuts such as Hanger Steak and Picanha.",
+      "source": "https://www.tommyschophouse.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.tommyschophouse.com/"
+     ],
+     "why_here": [
+      "https://www.tommyschophouse.com/"
+     ],
+     "know_before": [
+      "https://www.tommyschophouse.com/"
+     ],
+     "local_tip": [
+      "https://www.tommyschophouse.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJeRlmXtXcwogRNCBj2ZRALCo",
+   "name": "Dairy Joy- Tampa Ice Cream",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dairyjoy.com/",
+     "source_name": "Dairy Joy",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Dairy Joy has served ice cream in South Tampa since 1958.",
+      "Dairy Joy serves ice cream in South Tampa, Seminole, and Jacksonville."
+     ]
+    },
+    {
+     "source": "https://dairyjoy.com/where-can-i-get-the-best-ice-cream-in-tampa/",
+     "source_name": "Dairy Joy Best Ice Cream in Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Dairy Joy is a South Tampa icon serving scoops, sundaes, and SpoonThicks.",
+      "SpoonThicks are thick, creamy shakes that require a spoon.",
+      "Popular SpoonThicks include the Nutty Buddy SpoonThick and the Chocolate Lovers SpoonThick."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "South Tampa ice cream icon serving scoops, sundaes, and SpoonThicks since 1958.",
+    "why_here": "Go for scoops, sundaes, and SpoonThicks at a South Tampa icon, where Dairy Joy has served ice cream in South Tampa since 1958 and also serves ice cream in Seminole and Jacksonville.",
+    "know_before": "SpoonThicks are thick and creamy enough to require a spoon, so grab one before digging in.",
+    "local_tip": "Try the Nutty Buddy SpoonThick or the Chocolate Lovers SpoonThick.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Dairy Joy is a South Tampa icon serving scoops, sundaes, and SpoonThicks.",
+      "source": "https://dairyjoy.com/where-can-i-get-the-best-ice-cream-in-tampa/"
+     },
+     {
+      "claim": "Dairy Joy has served ice cream in South Tampa since 1958.",
+      "source": "https://dairyjoy.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://dairyjoy.com/where-can-i-get-the-best-ice-cream-in-tampa/",
+      "https://dairyjoy.com/"
+     ],
+     "why_here": [
+      "https://dairyjoy.com/where-can-i-get-the-best-ice-cream-in-tampa/",
+      "https://dairyjoy.com/"
+     ],
+     "know_before": [
+      "https://dairyjoy.com/where-can-i-get-the-best-ice-cream-in-tampa/"
+     ],
+     "local_tip": [
+      "https://dairyjoy.com/where-can-i-get-the-best-ice-cream-in-tampa/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJQ47WSc232YgRAjB9GMNA6I8",
+   "name": "Takay",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://takaymiami.com/",
+     "source_name": "Takay Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Takay is an omakase sushi restaurant in Miami.",
+      "Takay serves a 17-course Omakase.",
+      "Takay offers two seatings Tuesday through Thursday.",
+      "Beachwear, athletic attire and baseball caps should be left behind at Takay."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami omakase sushi restaurant serving a 17-course Omakase at the counter",
+    "why_here": "Go for the 17-course Omakase at Takay, an omakase sushi restaurant in Miami, with two seatings Tuesday through Thursday, where each seating is built around the full 17-course Omakase service.",
+    "know_before": "Beachwear, athletic attire and baseball caps should be left behind to honor the counter.",
+    "local_tip": "Book the 17-course Omakase and let the counter set the pace.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Takay is an omakase sushi restaurant in Miami.",
+      "source": "https://takaymiami.com/"
+     },
+     {
+      "claim": "Takay serves a 17-course Omakase.",
+      "source": "https://takaymiami.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://takaymiami.com/"
+     ],
+     "why_here": [
+      "https://takaymiami.com/"
+     ],
+     "know_before": [
+      "https://takaymiami.com/"
+     ],
+     "local_tip": [
+      "https://takaymiami.com/"
+     ]
+    }
+   }
+  }
+ ]
+}

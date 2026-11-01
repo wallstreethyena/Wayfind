@@ -1,0 +1,2540 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for Creator Finds registry places with no verified editorial (pack 2). Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJpa-NKgDHwogRmxZEKSMTa2Q",
+   "name": "Aker Sweets",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "dessert_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJpa-NKgDHwogRmxZEKSMTa2Q",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://akersweetsusa.com/",
+     "source_name": "Aker Sweets",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Aker Sweets has served authentic Mediterranean and Middle Eastern desserts since 1946.",
+      "Aker Sweets serves Nabulsi kunafa, handcrafted baklava, bird's nest and ballouria in Temple Terrace.",
+      "Nabulsi kunafa is shredded pastry over warm sweet cheese, baked and finished with syrup and pistachio.",
+      "Every dessert at Aker Sweets is handcrafted in-house and made fresh daily.",
+      "Popular picks include the Build Your Own Small Box and baklava trays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Mediterranean and Middle Eastern desserts since 1946 in Temple Terrace",
+    "why_here": "Go for Nabulsi kunafa and handcrafted baklava made fresh daily, with generations of craftsmanship in every dessert since 1946.",
+    "know_before": "Order for pickup or local delivery in Temple Terrace, or have sweets shipped, packed fresh the day it ships.",
+    "local_tip": "Try the Nabulsi kunafa, shredded pastry over warm sweet cheese with syrup and pistachio.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Aker Sweets has served authentic Mediterranean and Middle Eastern desserts since 1946.",
+      "source": "https://akersweetsusa.com/"
+     },
+     {
+      "claim": "Nabulsi kunafa is shredded pastry over warm sweet cheese, baked and finished with syrup and pistachio.",
+      "source": "https://akersweetsusa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://akersweetsusa.com/"
+     ],
+     "why_here": [
+      "https://akersweetsusa.com/"
+     ],
+     "know_before": [
+      "https://akersweetsusa.com/"
+     ],
+     "local_tip": [
+      "https://akersweetsusa.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
+   "name": "Ichiban Sushi & Ramen",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "japanese_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://tampaichibansushi.com/",
+     "source_name": "Ichiban Sushi & Ramen",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ichiban Sushi & Ramen serves sushi, ramen, and other popular Japanese dishes in Tampa.",
+      "Ichiban Sushi & Ramen serves fresh rolls, sashimi and Tonkotsu ramen in Seminole Heights.",
+      "The menu includes the Monk Salmon Poke Bowl, Chirashi Bowl and Tuna Poke Bowl.",
+      "Ichiban Sushi & Ramen offers dine-in, takeout and delivery in a casual setting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sushi, ramen, and other popular Japanese dishes in Seminole Heights, Tampa",
+    "why_here": "Go for fresh rolls, sashimi and Tonkotsu ramen in a casual setting, with dine-in, takeout and delivery for Japanese dishes.",
+    "know_before": "Choose dine-in, takeout or delivery, and order online before you go to save time at pickup.",
+    "local_tip": "Try the Tonkotsu ramen with fresh rolls and sashimi in Seminole Heights.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Ichiban Sushi & Ramen serves sushi, ramen, and other popular Japanese dishes in Tampa.",
+      "source": "https://tampaichibansushi.com/"
+     },
+     {
+      "claim": "Ichiban Sushi & Ramen serves fresh rolls, sashimi and Tonkotsu ramen in Seminole Heights.",
+      "source": "https://tampaichibansushi.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://tampaichibansushi.com/"
+     ],
+     "why_here": [
+      "https://tampaichibansushi.com/"
+     ],
+     "know_before": [
+      "https://tampaichibansushi.com/"
+     ],
+     "local_tip": [
+      "https://tampaichibansushi.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJS-6V90LHwogRud1HjzRE0jQ",
+   "name": "Rosto Mediterranean Grill & Lounge",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rostogrill.com/",
+     "source_name": "Rosto Grill & Café",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Rosto Grill & Café is a Middle Eastern grill in Tampa serving charcoal chicken.",
+      "Rosto serves Syrian, Mediterranean, Arabic and Middle Eastern cooking with charcoal grilling at the center of the menu.",
+      "The menu features chicken shawarma shaved thin and wrapped with creamy garlic sauce and pickles.",
+      "Rosto is halal certified.",
+      "Pickup is ready in 15-25 minutes and dine-in is served fresh at your table."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa grill known for charcoal chicken and Syrian, Mediterranean cooking",
+    "why_here": "Go for charcoal grilling at the center of the menu, with Syrian and Middle Eastern cooking served fresh for dine-in or pickup.",
+    "know_before": "The cooking is halal certified, and pickup is ready in 15-25 minutes.",
+    "local_tip": "Try the chicken shawarma wrapped with creamy garlic sauce and pickles.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Rosto Grill & Café is a Middle Eastern grill in Tampa serving charcoal chicken.",
+      "source": "https://rostogrill.com/"
+     },
+     {
+      "claim": "Rosto serves Syrian, Mediterranean, Arabic and Middle Eastern cooking with charcoal grilling at the center of the menu.",
+      "source": "https://rostogrill.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://rostogrill.com/"
+     ],
+     "why_here": [
+      "https://rostogrill.com/"
+     ],
+     "know_before": [
+      "https://rostogrill.com/"
+     ],
+     "local_tip": [
+      "https://rostogrill.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
+   "name": "Teapioca Lounge",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "tea_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://teapiocalounge.com/",
+     "source_name": "Teapioca Lounge",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Teapioca Lounge serves boba tea described as authentic and refreshing drinks.",
+      "The Ruby Refresher and Amethyst Refresher are made with mulberry and premium Oolong tea.",
+      "Amethyst is smooth and floral, while Ruby adds a hibiscus topper for a brighter, tarter taste.",
+      "Teapioca offers a Cub Cup, a 12 oz. boba tea serving size that can be iced, blended, or hot.",
+      "New rewards members get $2 free in reward points when they join Teapioca Rewards."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Boba tea lounge known for mulberry and premium Oolong tea refreshers",
+    "why_here": "Go for authentic, refreshing boba tea with floral and tart options, plus sizes and styles for iced, blended or hot drinks.",
+    "know_before": "The Cub Cup is a smaller 12 oz. size, available iced, blended, or hot.",
+    "local_tip": "Try the Amethyst Refresher for a smooth and floral taste.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Ruby Refresher and Amethyst Refresher are made with mulberry and premium Oolong tea.",
+      "source": "https://teapiocalounge.com/"
+     },
+     {
+      "claim": "Teapioca offers a Cub Cup, a 12 oz. boba tea serving size that can be iced, blended, or hot.",
+      "source": "https://teapiocalounge.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://teapiocalounge.com/"
+     ],
+     "why_here": [
+      "https://teapiocalounge.com/"
+     ],
+     "know_before": [
+      "https://teapiocalounge.com/"
+     ],
+     "local_tip": [
+      "https://teapiocalounge.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJSZp-pxtp54gRsnthIK2yiWY",
+   "name": "Aurora at the Celeste",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJSZp-pxtp54gRsnthIK2yiWY",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecelestehotel.com/restaurant/",
+     "source_name": "The Celeste Hotel - Aurora Restaurant",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Aurora Restaurant at The Celeste Hotel emphasizes fresh, locally sourced food.",
+      "Aurora serves breakfast, brunch, lunch, dinner and bar service.",
+      "The menu lists a 3 Egg Omelet with Yukon Gold Breakfast Potatoes and toast.",
+      "Complimentary Valet Parking is offered with a $15.00 Food/Beverage Purchase at Aurora.",
+      "Aurora offers colorful flavors and refined service."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel restaurant known for fresh, locally sourced food and colorful flavors",
+    "why_here": "Go for a full-day restaurant inside a hotel, covering breakfast through dinner with locally sourced cooking and refined service.",
+    "know_before": "Complimentary Valet Parking comes with a $15.00 Food/Beverage Purchase.",
+    "local_tip": "Try the 3 Egg Omelet with Yukon Gold Breakfast Potatoes and toast.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Aurora Restaurant at The Celeste Hotel emphasizes fresh, locally sourced food.",
+      "source": "https://thecelestehotel.com/restaurant/"
+     },
+     {
+      "claim": "Aurora serves breakfast, brunch, lunch, dinner and bar service.",
+      "source": "https://thecelestehotel.com/restaurant/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thecelestehotel.com/restaurant/"
+     ],
+     "why_here": [
+      "https://thecelestehotel.com/restaurant/"
+     ],
+     "know_before": [
+      "https://thecelestehotel.com/restaurant/"
+     ],
+     "local_tip": [
+      "https://thecelestehotel.com/restaurant/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJF7KJye5-3YgR0mRAbGMtS10",
+   "name": "Morimoto Asia",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "asian_fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJF7KJye5-3YgR0mRAbGMtS10",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://morimotoasia.com/",
+     "source_name": "Morimoto Asia",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Morimoto Asia offers Pan-Asian cuisine led by Iron Chef Morimoto.",
+      "Japanese master chef Masaharu Morimoto is known for singular interpretations of Chinese, Japanese and Korean dishes.",
+      "Morimoto Asia is an OpenTable Diner's Choice Award Winner.",
+      "Morimoto Asia serves lunch, dinner and bar and lounge service.",
+      "Gift cards are available at Morimoto Asia."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pan-Asian restaurant led by Iron Chef Morimoto, an award winner",
+    "why_here": "Go for Pan-Asian cooking shaped by a Japanese master chef, interpreting Chinese, Japanese and Korean dishes in one place.",
+    "know_before": "Plan for separate lunch, dinner and bar and lounge service times.",
+    "local_tip": "Order across Chinese, Japanese and Korean dishes to taste the range.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Morimoto Asia offers Pan-Asian cuisine led by Iron Chef Morimoto.",
+      "source": "https://morimotoasia.com/"
+     },
+     {
+      "claim": "Japanese master chef Masaharu Morimoto is known for singular interpretations of Chinese, Japanese and Korean dishes.",
+      "source": "https://morimotoasia.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://morimotoasia.com/"
+     ],
+     "why_here": [
+      "https://morimotoasia.com/"
+     ],
+     "know_before": [
+      "https://morimotoasia.com/"
+     ],
+     "local_tip": [
+      "https://morimotoasia.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ4y3uJwAT54gRoKZ0xpPqeZ8",
+   "name": "Ace Cafe Sanford",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.acecafesanford.com/about",
+     "source_name": "Ace Cafe Sanford",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ace Cafe Sanford is a full-service restaurant and bar in Historic Downtown Sanford, Florida.",
+      "Ace Cafe Sanford brings legendary motor-diner and rock 'n' roll culture to Sanford.",
+      "The restaurant offers classic American diner fare and handcrafted cocktails with live music.",
+      "Ace hosts motorcycle nights, car meets and special events around the table.",
+      "Ace Cafe Sanford serves Fish and Chips and burgers as a Burger Joint and British Restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Motor-diner and rock 'n' roll restaurant and bar with live music",
+    "why_here": "Go for classic American diner fare and handcrafted cocktails, plus the motor culture and events happening around the table.",
+    "know_before": "Check for motorcycle nights, car meets and special events before visiting.",
+    "local_tip": "Try the Fish and Chips for the British side of the menu.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Ace Cafe Sanford is a full-service restaurant and bar in Historic Downtown Sanford, Florida.",
+      "source": "https://www.acecafesanford.com/about"
+     },
+     {
+      "claim": "The restaurant offers classic American diner fare and handcrafted cocktails with live music.",
+      "source": "https://www.acecafesanford.com/about"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.acecafesanford.com/about"
+     ],
+     "why_here": [
+      "https://www.acecafesanford.com/about"
+     ],
+     "know_before": [
+      "https://www.acecafesanford.com/about"
+     ],
+     "local_tip": [
+      "https://www.acecafesanford.com/about"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ9QVceAB754gRl7RP3Lw1eXY",
+   "name": "Parlor Doughnuts",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "donut_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ9QVceAB754gRl7RP3Lw1eXY",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.parlordoughnuts.com/",
+     "source_name": "Parlor Doughnuts",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Parlor Doughnuts is a craft doughnut and coffee shop offering Famous Layered Doughnuts.",
+      "The shop offers over 20 flavors of Famous Layered Doughnuts.",
+      "Flavors include Strawberry Shortcake, Maple Pecan, and Cookies n' Cream.",
+      "Parlor Doughnuts also serves coffee and breakfast."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for Famous Layered Doughnuts in over 20 flavors, from Strawberry Shortcake to Maple Pecan.",
+    "why_here": "Go for the Famous Layered Doughnuts, with over 20 flavors to choose from, plus coffee and breakfast in a craft doughnut shop setting.",
+    "know_before": "With over 20 flavors on offer, pick a first flavor before ordering coffee and breakfast.",
+    "local_tip": "Try the Strawberry Shortcake or Maple Pecan Famous Layered Doughnuts.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Parlor Doughnuts is a craft doughnut and coffee shop offering Famous Layered Doughnuts.",
+      "source": "https://www.parlordoughnuts.com/"
+     },
+     {
+      "claim": "Flavors include Strawberry Shortcake, Maple Pecan, and Cookies n' Cream.",
+      "source": "https://www.parlordoughnuts.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.parlordoughnuts.com/"
+     ],
+     "why_here": [
+      "https://www.parlordoughnuts.com/"
+     ],
+     "know_before": [
+      "https://www.parlordoughnuts.com/"
+     ],
+     "local_tip": [
+      "https://www.parlordoughnuts.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJi_amF81_54gRza4Kx7apFXc",
+   "name": "Baires Grill - Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJi_amF81_54gRza4Kx7apFXc",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bairesgrill.com/orlando",
+     "source_name": "Baires Grill Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Baires Grill Orlando brings the warmth of Argentina to every table in Orlando.",
+      "The restaurant serves perfectly grilled steaks and handmade empanadas.",
+      "The restaurant also serves carefully selected wines.",
+      "Visits are made to be shared, savored, and enjoyed at your own pace."
+     ]
+    },
+    {
+     "source": "https://www.bairesgrill.com/menu/orlando",
+     "source_name": "Baires Grill Orlando Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Orlando menu offers empanadas that are fried or grilled.",
+      "Empanada fillings include Beef, Chicken, and Ham & Cheese.",
+      "The Orlando menu includes grilled provolone cheese."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Argentine grilled steaks and handmade empanadas, served with carefully selected wines.",
+    "why_here": "Go to share perfectly grilled steaks, handmade empanadas, and carefully selected wines that bring the warmth of Argentina to Orlando.",
+    "know_before": "Visits are made to be shared and savored at your own pace, so plan to linger over steaks and wines.",
+    "local_tip": "Start with handmade empanadas, fried or grilled, in Beef or Chicken.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The restaurant serves perfectly grilled steaks and handmade empanadas.",
+      "source": "https://www.bairesgrill.com/orlando"
+     },
+     {
+      "claim": "Empanada fillings include Beef, Chicken, and Ham & Cheese.",
+      "source": "https://www.bairesgrill.com/menu/orlando"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.bairesgrill.com/orlando"
+     ],
+     "why_here": [
+      "https://www.bairesgrill.com/orlando"
+     ],
+     "know_before": [
+      "https://www.bairesgrill.com/orlando"
+     ],
+     "local_tip": [
+      "https://www.bairesgrill.com/orlando",
+      "https://www.bairesgrill.com/menu/orlando"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ1-ayjZx_54gRUeVTM6Su9lg",
+   "name": "Great Big Game Show Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://greatbiggameshow.com/orlando/how-it-works/",
+     "source_name": "Great Big Game Show Orlando",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Great Big Game Show studios can host 2 to 14 people at a time.",
+      "Players split into two teams and face off in head-to-head challenges.",
+      "Each game show includes 5 or more mini-games with rotating mini-games including strategy, trivia, and speed tests.",
+      "Groups larger than 14 may be split into two separate studios."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A live game show where two teams face off in rotating mini-games of strategy, trivia, and speed.",
+    "why_here": "Go to be on stage with friends, split into two teams, and face off in head-to-head challenges across rotating mini-games.",
+    "know_before": "Studios host 2 to 14 people, and groups larger than 14 may be split into two separate studios.",
+    "local_tip": "Face off in rotating mini-games of strategy, trivia, and speed tests.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Players split into two teams and face off in head-to-head challenges.",
+      "source": "https://greatbiggameshow.com/orlando/how-it-works/"
+     },
+     {
+      "claim": "Each game show includes 5 or more mini-games with rotating mini-games including strategy, trivia, and speed tests.",
+      "source": "https://greatbiggameshow.com/orlando/how-it-works/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://greatbiggameshow.com/orlando/how-it-works/"
+     ],
+     "why_here": [
+      "https://greatbiggameshow.com/orlando/how-it-works/"
+     ],
+     "know_before": [
+      "https://greatbiggameshow.com/orlando/how-it-works/"
+     ],
+     "local_tip": [
+      "https://greatbiggameshow.com/orlando/how-it-works/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJhWN4GB2B3YgRiAdIpY8_ghc",
+   "name": "Four Flamingos, A Richard Blais Florida Kitchen",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJhWN4GB2B3YgRiAdIpY8_ghc",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hyatt.com/hyatt-regency/en-US/vista-hyatt-regency-grand-cypress-resort/dining",
+     "source_name": "Hyatt Regency Grand Cypress Resort Dining",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Acclaimed celebrity chef Richard Blais combines Florida-fresh seafood with a tropical oasis at Four Flamingos.",
+      "Four Flamingos is an immersive dining and drinking experience at Hyatt Regency Grand Cypress Resort.",
+      "Four Flamingos is available for group and large party dining."
+     ]
+    },
+    {
+     "source": "https://www.hyatt.com/content/dam/hotel/propertysites/assets/regency/vista/documents/en_us/dining/four-flamingos/FF_Dinner_Menu_1_2025.pdf",
+     "source_name": "Four Flamingos Dinner Menu",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The dinner menu includes Florida Shrimp with guava and horseradish cocktail.",
+      "The dinner menu includes Florida Seafood Moqueca with coconut rice."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Richard Blais Florida kitchen combining Florida-fresh seafood with a tropical oasis setting.",
+    "why_here": "Go for Florida-fresh seafood by Richard Blais in an immersive tropical oasis dining and drinking experience at the resort.",
+    "know_before": "Four Flamingos is available for group and large party dining at Hyatt Regency Grand Cypress Resort.",
+    "local_tip": "Try the Florida Seafood Moqueca with coconut rice.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Acclaimed celebrity chef Richard Blais combines Florida-fresh seafood with a tropical oasis at Four Flamingos.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/vista-hyatt-regency-grand-cypress-resort/dining"
+     },
+     {
+      "claim": "The dinner menu includes Florida Seafood Moqueca with coconut rice.",
+      "source": "https://www.hyatt.com/content/dam/hotel/propertysites/assets/regency/vista/documents/en_us/dining/four-flamingos/FF_Dinner_Menu_1_2025.pdf"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.hyatt.com/hyatt-regency/en-US/vista-hyatt-regency-grand-cypress-resort/dining"
+     ],
+     "why_here": [
+      "https://www.hyatt.com/hyatt-regency/en-US/vista-hyatt-regency-grand-cypress-resort/dining"
+     ],
+     "know_before": [
+      "https://www.hyatt.com/hyatt-regency/en-US/vista-hyatt-regency-grand-cypress-resort/dining"
+     ],
+     "local_tip": [
+      "https://www.hyatt.com/content/dam/hotel/propertysites/assets/regency/vista/documents/en_us/dining/four-flamingos/FF_Dinner_Menu_1_2025.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJcR49vyR-54gREbUPNUjImmY",
+   "name": "Aquatica Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aquatica.com/orlando/rides/",
+     "source_name": "Aquatica Orlando Rides",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Aquatica Orlando offers heart-pounding thrill slides, calm drifting waters, and wide-open beaches.",
+      "Aquatica Orlando has giant side-by-side wave pools at Cutback Cove and Big Surf Shores.",
+      "Aquatica Orlando is packed with ways to play from thrill slides to beaches made for soaking up the sun."
+     ]
+    },
+    {
+     "source": "https://aquatica.com/orlando/faq/",
+     "source_name": "Aquatica Orlando FAQ",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Guests can save time and money by purchasing tickets or passes online before visiting Aquatica Orlando.",
+      "Tickets are required for all guests ages three and older at Aquatica Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterpark of thrill slides, giant side-by-side wave pools, and wide-open beaches for soaking up sun.",
+    "why_here": "Go for heart-pounding thrill slides, calm drifting waters, and wide-open beaches, from wave pools to sun-soaked shores in one waterpark day.",
+    "know_before": "Buy tickets or passes online before visiting, and note tickets are required for guests ages three and older.",
+    "local_tip": "Catch waves at Cutback Cove and Big Surf Shores, the giant side-by-side wave pools.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Aquatica Orlando offers heart-pounding thrill slides, calm drifting waters, and wide-open beaches.",
+      "source": "https://aquatica.com/orlando/rides/"
+     },
+     {
+      "claim": "Aquatica Orlando has giant side-by-side wave pools at Cutback Cove and Big Surf Shores.",
+      "source": "https://aquatica.com/orlando/rides/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://aquatica.com/orlando/rides/"
+     ],
+     "why_here": [
+      "https://aquatica.com/orlando/rides/"
+     ],
+     "know_before": [
+      "https://aquatica.com/orlando/faq/"
+     ],
+     "local_tip": [
+      "https://aquatica.com/orlando/rides/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJd-M9Fi1x54gRiGbH4lfFGrQ",
+   "name": "The Sage HeadSpa - Winter Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "spa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJd-M9Fi1x54gRiGbH4lfFGrQ",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thesageheadspa.com/locations/winter-park-fl",
+     "source_name": "The Sage HeadSpa Winter Park",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Sage HeadSpa in Winter Park offers clinical scalp treatments, head spa services, and scalp detox.",
+      "The Winter Park studio offers relaxation-focused treatments and hair and scalp wellness services by licensed professionals.",
+      "The Sage HeadSpa in Winter Park is located near Park Avenue.",
+      "Guests can book online for The Sage HeadSpa in Winter Park."
+     ]
+    },
+    {
+     "source": "https://thesageheadspa.com/services",
+     "source_name": "The Sage HeadSpa Treatments",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "HeadSpa services deeply cleanse and refresh the scalp with Halo Water Therapy, scalp massage, and neck and shoulder massage."
+     ]
+    },
+    {
+     "source": "https://thesageheadspa.com/contact",
+     "source_name": "The Sage HeadSpa Contact",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "For a first Sage experience, The Sage HeadSpa recommends starting with the Signature HeadSpa."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clinical scalp treatments, head spa services, and scalp detox near Park Avenue in Winter Park.",
+    "why_here": "Go for clinical scalp treatments and relaxation-focused scalp wellness by licensed professionals, with scalp massage and deep cleansing in one visit.",
+    "know_before": "Guests can book online before visiting The Sage HeadSpa in Winter Park.",
+    "local_tip": "For a first visit, start with the Signature HeadSpa.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Sage HeadSpa in Winter Park offers clinical scalp treatments, head spa services, and scalp detox.",
+      "source": "https://thesageheadspa.com/locations/winter-park-fl"
+     },
+     {
+      "claim": "HeadSpa services deeply cleanse and refresh the scalp with Halo Water Therapy, scalp massage, and neck and shoulder massage.",
+      "source": "https://thesageheadspa.com/services"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://thesageheadspa.com/locations/winter-park-fl"
+     ],
+     "why_here": [
+      "https://thesageheadspa.com/locations/winter-park-fl",
+      "https://thesageheadspa.com/services"
+     ],
+     "know_before": [
+      "https://thesageheadspa.com/locations/winter-park-fl"
+     ],
+     "local_tip": [
+      "https://thesageheadspa.com/contact"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJLUGQ6uHDwogR_71IE7912TY",
+   "name": "Howard & Platt",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://howardandplatt.com/",
+     "source_name": "Howard & Platt",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Howard & Platt is a refined South Tampa restaurant on South Howard Avenue.",
+      "The restaurant features chef-driven cuisine, handcrafted cocktails, and weekend brunch."
+     ]
+    },
+    {
+     "source": "https://howardandplatt.com/brunch/",
+     "source_name": "Howard & Platt Brunch",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Howard & Platt offers weekend brunch with handcrafted cocktails and bottomless mimosas.",
+      "Weekend brunch at Howard & Platt has a lively weekend atmosphere."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chef-driven cuisine, handcrafted cocktails, and weekend brunch on South Howard Avenue in South Tampa.",
+    "why_here": "Go for chef-driven cuisine and handcrafted cocktails in a refined South Tampa restaurant, from dinner to lively weekend brunch.",
+    "know_before": "Weekend brunch is a key draw, with bottomless mimosas and handcrafted cocktails on South Howard.",
+    "local_tip": "Come for weekend brunch and try the bottomless mimosas with handcrafted cocktails.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The restaurant features chef-driven cuisine, handcrafted cocktails, and weekend brunch.",
+      "source": "https://howardandplatt.com/"
+     },
+     {
+      "claim": "Howard & Platt offers weekend brunch with handcrafted cocktails and bottomless mimosas.",
+      "source": "https://howardandplatt.com/brunch/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://howardandplatt.com/"
+     ],
+     "why_here": [
+      "https://howardandplatt.com/"
+     ],
+     "know_before": [
+      "https://howardandplatt.com/brunch/"
+     ],
+     "local_tip": [
+      "https://howardandplatt.com/brunch/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJOQJ1sYnhwogRQIw5Iv-ioF4",
+   "name": "Zen Glass Studio & Gallery",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "event_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://zenglass.com/info/",
+     "source_name": "Zen Glass Studio & Gallery Info",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Zen Glass Studio & Gallery is a glass studio founded in 2002 by artists David Walker and Josh Poll.",
+      "Zen Glass Studio specializes in custom blown glass for private collections and public spaces.",
+      "Zen Glass Studio has been active in the St. Petersburg art community and teaches lampwork and flamework glass."
+     ]
+    },
+    {
+     "source": "https://zenglass.com/workshops/",
+     "source_name": "Zen Glass Studio Workshops",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Blow-Your-Own Pint Glass Workshop is a one-on-one experience in the Hotshop.",
+      "In the Blow-Your-Own Pint Glass Workshop, guests create a custom pint glass in roughly one hour.",
+      "Finished pint glasses are ready for pickup the next day, excluding Mondays when the studio is closed."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Glass studio and gallery for custom blown glass and hands-on glassblowing workshops in St. Petersburg.",
+    "why_here": "Go to see custom blown glass, shop the gallery, and try hands-on lampwork and flamework glass with artists in St. Petersburg.",
+    "know_before": "Finished pint glasses are ready for pickup the next day, excluding Mondays when the studio is closed.",
+    "local_tip": "Book the one-on-one Blow-Your-Own Pint Glass Workshop in the Hotshop.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Zen Glass Studio specializes in custom blown glass for private collections and public spaces.",
+      "source": "https://zenglass.com/info/"
+     },
+     {
+      "claim": "The Blow-Your-Own Pint Glass Workshop is a one-on-one experience in the Hotshop.",
+      "source": "https://zenglass.com/workshops/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://zenglass.com/info/",
+      "https://zenglass.com/workshops/"
+     ],
+     "why_here": [
+      "https://zenglass.com/info/"
+     ],
+     "know_before": [
+      "https://zenglass.com/workshops/"
+     ],
+     "local_tip": [
+      "https://zenglass.com/workshops/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJL2fGLbLFwogRPwat8C-e8hI",
+   "name": "DRIP YBOR, Do Really Inspirational Projects. Pottery memberships, Wheel thowing, Ceramic painting, Mosaic art, & T-shirts",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "educational_institution",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://drip-ybor.com/",
+     "source_name": "DRIP Ybor",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "DRIP Ybor offers pottery wheel classes for beginners.",
+      "Visitors create a pottery piece on the wheel and return to glaze and finish it.",
+      "The studio also offers ceramic painting and mosaic art.",
+      "A tourist package combines a pottery wheel session with ceramic painting."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pottery wheel classes for beginners, plus ceramic painting and mosaic art",
+    "why_here": "Go to try the pottery wheel and make a piece, then return to glaze and finish it. Ceramic painting and mosaic art give other hands-on options in one studio visit.",
+    "know_before": "Plan a return visit to glaze and finish your wheel piece before pickup.",
+    "local_tip": "Book the pottery wheel class and try throwing clay on the wheel.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "DRIP Ybor offers pottery wheel classes for beginners.",
+      "source": "https://drip-ybor.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://drip-ybor.com/"
+     ],
+     "why_here": [
+      "https://drip-ybor.com/"
+     ],
+     "know_before": [
+      "https://drip-ybor.com/"
+     ],
+     "local_tip": [
+      "https://drip-ybor.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ_8qUegDhwogRzpjJDDiY8Q4",
+   "name": "Forbici Modern Italian (St. Pete)",
+   "category": "Food",
+   "metro": "st-pete",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatforbici.com/files/fspdinnermenuwebsite7-3-26-pdf.pdf?render=full",
+     "source_name": "Forbici Modern Italian",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Forbici serves modern Italian food including handmade pastas.",
+      "The menu features Roman-style pizza described as a modern expression of the Roman classic.",
+      "Dinner includes antipasti, seafood, and steak alongside pasta and pizza.",
+      "House focaccia appears among the antipasti."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Italian known for handmade pastas and Roman-style pizza",
+    "why_here": "Go for modern Italian cooking built around handmade pastas and Roman-style pizza. Antipasti, seafood, and steak round out dinner for sharing or a full meal.",
+    "know_before": "Check the current menu before you go, as lunch and dinner offerings differ.",
+    "local_tip": "Order the Roman-style pizza and a handmade pasta to share.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Forbici serves modern Italian food including handmade pastas.",
+      "source": "https://www.eatforbici.com/files/fspdinnermenuwebsite7-3-26-pdf.pdf?render=full"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.eatforbici.com/files/fspdinnermenuwebsite7-3-26-pdf.pdf?render=full"
+     ],
+     "why_here": [
+      "https://www.eatforbici.com/files/fspdinnermenuwebsite7-3-26-pdf.pdf?render=full"
+     ],
+     "know_before": [
+      "https://www.eatforbici.com/files/fspdinnermenuwebsite7-3-26-pdf.pdf?render=full"
+     ],
+     "local_tip": [
+      "https://www.eatforbici.com/files/fspdinnermenuwebsite7-3-26-pdf.pdf?render=full"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJq9_svUThwogRG7K4WtuaWXY",
+   "name": "CALI - St. Pete",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatatcali.com/locations",
+     "source_name": "CALI",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "CALI has a St. Pete location listed among its restaurants.",
+      "CALI offers all day and brunch menus.",
+      "The restaurant group presents CALI under the tagline Real Food Only.",
+      "Online ordering is available."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All day and brunch menus under the Real Food Only banner",
+    "why_here": "Go for flexible all day dining with a separate brunch menu. Online ordering makes it an easy option for takeout as well as eating in.",
+    "know_before": "Check which menu is serving, all day or brunch, before ordering online.",
+    "local_tip": "Try the brunch menu when it is serving.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "CALI offers all day and brunch menus.",
+      "source": "https://www.eatatcali.com/locations"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.eatatcali.com/locations"
+     ],
+     "why_here": [
+      "https://www.eatatcali.com/locations"
+     ],
+     "know_before": [
+      "https://www.eatatcali.com/locations"
+     ],
+     "local_tip": [
+      "https://www.eatatcali.com/locations"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJBZ4zDADhwogRoA7MoF0zKaE",
+   "name": "OLIVIA",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oliviafl.com/",
+     "source_name": "OLIVIA",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "OLIVIA is a modern Italian restaurant with locations in Tampa and St. Pete.",
+      "OLIVIA offers authentic flavors of a traditional trattoria with a chef-inspired menu.",
+      "Diners can watch the team make pizza dough, fresh mozzarella, pasta and ravioli in a working dough room.",
+      "Hand-crafted pastas and wood-fired entrees are available for catering."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Italian trattoria with a working dough room making pasta and ravioli",
+    "why_here": "Go for modern Italian cooking with trattoria flavors and a chef-inspired menu. Watching pizza dough, fresh mozzarella, pasta and ravioli made in the dough room is part of dinner.",
+    "know_before": "Diners can watch the team make dough, mozzarella, pasta and ravioli while dining.",
+    "local_tip": "Order hand-crafted pastas made in the working dough room.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "OLIVIA is a modern Italian restaurant with locations in Tampa and St. Pete.",
+      "source": "https://www.oliviafl.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.oliviafl.com/"
+     ],
+     "why_here": [
+      "https://www.oliviafl.com/"
+     ],
+     "know_before": [
+      "https://www.oliviafl.com/"
+     ],
+     "local_tip": [
+      "https://www.oliviafl.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJDSP1V4PhwogRSo-PPfqZE0w",
+   "name": "Park & Rec DTSP",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitstpeteclearwater.com/profile/park-rec/138782",
+     "source_name": "Visit St. Pete Clearwater",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Park & Rec is a DTSP hangout that is part arcade, sports bar and live music venue.",
+      "The bar offers pinball, pool, arcade and outdoor games.",
+      "Cocktails and tallboys are served."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Part arcade, sports bar and live music hangout with pinball and pool",
+    "why_here": "Go to play pinball, pool, arcade and outdoor games while watching sports or live music. Cocktails and tallboys keep it firmly a bar night with games attached.",
+    "know_before": "Expect a bar setting with games, sports and live music, not a quiet dinner.",
+    "local_tip": "Play pinball and arcade games with a cocktail in hand.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Park & Rec is a DTSP hangout that is part arcade, sports bar and live music venue.",
+      "source": "https://www.visitstpeteclearwater.com/profile/park-rec/138782"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.visitstpeteclearwater.com/profile/park-rec/138782"
+     ],
+     "why_here": [
+      "https://www.visitstpeteclearwater.com/profile/park-rec/138782"
+     ],
+     "know_before": [
+      "https://www.visitstpeteclearwater.com/profile/park-rec/138782"
+     ],
+     "local_tip": [
+      "https://www.visitstpeteclearwater.com/profile/park-rec/138782"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJXYwN3-XlwogRa3yrxh22C7o",
+   "name": "Oou Cha",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "tea_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ooucha.com/",
+     "source_name": "Oou Cha",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Oou Cha is a modern tea house in Pinellas Park serving handcrafted beverages.",
+      "Beverages are made with care, creativity, and attention to detail.",
+      "The tea house serves specialty teas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern tea house serving handcrafted specialty teas",
+    "why_here": "Go for handcrafted specialty teas made with care and creativity. It is a tea-focused stop in Pinellas Park rather than a coffee shop.",
+    "know_before": "Come for tea, as the focus is handcrafted specialty beverages.",
+    "local_tip": "Order a handcrafted specialty tea.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Oou Cha is a modern tea house in Pinellas Park serving handcrafted beverages.",
+      "source": "https://ooucha.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://ooucha.com/"
+     ],
+     "why_here": [
+      "https://ooucha.com/"
+     ],
+     "know_before": [
+      "https://ooucha.com/"
+     ],
+     "local_tip": [
+      "https://ooucha.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ-Z1yo6_twogR5GJkLIFUAYE",
+   "name": "Craft Street Kitchen",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ-Z1yo6_twogR5GJkLIFUAYE",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftstreetkitchen.com/s/CSK-Edit-v9-FINAL-to-PRINT.pdf",
+     "source_name": "Craft Street Kitchen",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Craft Street Kitchen serves a Wagyu Smash Burger.",
+      "The menu includes fresh lemonade options such as Basil Mint Lemonade and Strawberry Mint Lemonade.",
+      "Blackboard specials rotate alongside the regular menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Known for the Wagyu Smash Burger and fresh lemonade",
+    "why_here": "Go for the Wagyu Smash Burger and fresh lemonade. Rotating blackboard specials give regulars a reason to check the menu again.",
+    "know_before": "Check blackboard specials, which rotate alongside the regular menu.",
+    "local_tip": "Order the Wagyu Smash Burger with Basil Mint Lemonade.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Craft Street Kitchen serves a Wagyu Smash Burger.",
+      "source": "https://www.craftstreetkitchen.com/s/CSK-Edit-v9-FINAL-to-PRINT.pdf"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.craftstreetkitchen.com/s/CSK-Edit-v9-FINAL-to-PRINT.pdf"
+     ],
+     "why_here": [
+      "https://www.craftstreetkitchen.com/s/CSK-Edit-v9-FINAL-to-PRINT.pdf"
+     ],
+     "know_before": [
+      "https://www.craftstreetkitchen.com/s/CSK-Edit-v9-FINAL-to-PRINT.pdf"
+     ],
+     "local_tip": [
+      "https://www.craftstreetkitchen.com/s/CSK-Edit-v9-FINAL-to-PRINT.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJnej4u9b2wogRAAYRwwkuB4A",
+   "name": "Starlite Horizon Dining Yacht",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "fine_dining_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.starlitecruises.com/starlite-dining-yachts/starlite-horizon-dining-yacht/",
+     "source_name": "Starlite Cruises",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Starlite Horizon is a 115-foot modern styled dining yacht.",
+      "The yacht features brass and mirrored interior design with large picture windows.",
+      "It can accommodate up to 280 passengers for sit-down meal functions.",
+      "Dining cruises offer sit-down service with selections prepared to order on board."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "115-foot dining yacht with sit-down meals prepared to order on board",
+    "why_here": "Go for a sit-down meal on the water aboard a modern dining yacht. Large picture windows and brass and mirrored interiors frame the cruise.",
+    "know_before": "Book the dining cruise in advance, as sailings are ticketed cruises.",
+    "local_tip": "Choose a sit-down dining cruise with selections prepared on board.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Starlite Horizon is a 115-foot modern styled dining yacht.",
+      "source": "https://www.starlitecruises.com/starlite-dining-yachts/starlite-horizon-dining-yacht/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.starlitecruises.com/starlite-dining-yachts/starlite-horizon-dining-yacht/"
+     ],
+     "why_here": [
+      "https://www.starlitecruises.com/starlite-dining-yachts/starlite-horizon-dining-yacht/"
+     ],
+     "know_before": [
+      "https://www.starlitecruises.com/starlite-dining-yachts/starlite-horizon-dining-yacht/"
+     ],
+     "local_tip": [
+      "https://www.starlitecruises.com/starlite-dining-yachts/starlite-horizon-dining-yacht/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ2cdLArvhwogRMMkAEPKsp2U",
+   "name": "Central Park St Pete Food Hall",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "food_court",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://centralparkstpete.com/about",
+     "source_name": "Central Park St. Pete",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Central Park St. Pete brings nine chef-driven food concepts and four beverage concepts under one roof.",
+      "The food hall reimagines the original Woolworth building in downtown St. Petersburg.",
+      "First floor concepts include Palm Avenue Deli, Constellation Burger, and Park Pie Pizza.",
+      "A rooftop and full service restaurant are among the upper level concepts."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Nine chef-driven food concepts and four beverage concepts under one roof",
+    "why_here": "Go when a group cannot agree, with nine food concepts and four beverage concepts in one downtown building. Deli, burger and pizza concepts anchor the first floor alone.",
+    "know_before": "Concepts span multiple levels, so check which level your pick is on.",
+    "local_tip": "Start with Palm Avenue Deli, Constellation Burger, or Park Pie Pizza.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Central Park St. Pete brings nine chef-driven food concepts and four beverage concepts under one roof.",
+      "source": "https://centralparkstpete.com/about"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://centralparkstpete.com/about"
+     ],
+     "why_here": [
+      "https://centralparkstpete.com/about"
+     ],
+     "know_before": [
+      "https://centralparkstpete.com/about"
+     ],
+     "local_tip": [
+      "https://centralparkstpete.com/about"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJactSz_zjwogRHv9F_yOCXlw",
+   "name": "Pin On Grand",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "asian_fusion_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinongrand.com/",
+     "source_name": "Pin On Grand",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Pin On Grand is an Asian fusion restaurant in St. Petersburg where culinary creativity meets tradition.",
+      "The kitchen is mostly Thai classics, with Vietnamese pho, Japanese ramen, udon, and specialty sushi.",
+      "Chinese lo mein and Japanese and Korean-inspired small plates are also served.",
+      "The menu also features curries and specialty drinks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian fusion mixing Thai classics with pho, ramen, udon and specialty sushi",
+    "why_here": "Go for a broad Asian fusion menu led by Thai classics. Vietnamese pho, Japanese ramen and udon, specialty sushi, and Chinese lo mein let one table order widely.",
+    "know_before": "The menu spans many cuisines, so narrow Thai, pho, ramen or sushi first.",
+    "local_tip": "Try specialty sushi alongside a Thai classic.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Pin On Grand is an Asian fusion restaurant in St. Petersburg where culinary creativity meets tradition.",
+      "source": "https://pinongrand.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://pinongrand.com/"
+     ],
+     "why_here": [
+      "https://pinongrand.com/"
+     ],
+     "know_before": [
+      "https://pinongrand.com/"
+     ],
+     "local_tip": [
+      "https://pinongrand.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJoWqi_IjjwogR34giX74JdM4",
+   "name": "Dirty Laundry",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitstpeteclearwater.com/profile/dirty-laundry/141093",
+     "source_name": "Visit St. Pete Clearwater",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Dirty Laundry looks like an ordinary laundromat with coffee and pastries available.",
+      "Under the glowing Talk Dirty To Me sign is an old payphone that grants entry.",
+      "Beyond entry is a vibrant bar and club featuring music, cocktails and food.",
+      "The cafe and speakeasy keep separate menus."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Laundromat cafe front hiding a bar and club behind a payphone entry",
+    "why_here": "Go for coffee and pastries by day, then the hidden bar and club beyond the payphone. Music, cocktails and food make the speakeasy the nighttime draw.",
+    "know_before": "The cafe and speakeasy keep separate menus, and entry is through the payphone.",
+    "local_tip": "Find the old payphone under the Talk Dirty To Me sign to enter.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Dirty Laundry looks like an ordinary laundromat with coffee and pastries available.",
+      "source": "https://www.visitstpeteclearwater.com/profile/dirty-laundry/141093"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.visitstpeteclearwater.com/profile/dirty-laundry/141093"
+     ],
+     "why_here": [
+      "https://www.visitstpeteclearwater.com/profile/dirty-laundry/141093"
+     ],
+     "know_before": [
+      "https://www.visitstpeteclearwater.com/profile/dirty-laundry/141093"
+     ],
+     "local_tip": [
+      "https://www.visitstpeteclearwater.com/profile/dirty-laundry/141093"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJMxRkEfbPwogRf7eSyMSsyOI",
+   "name": "Kungfu Kitchen - Brandon",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "chinese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJMxRkEfbPwogRf7eSyMSsyOI",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://kfkitchennyc.com/",
+     "source_name": "KungFu Kitchen",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "KungFu Kitchen serves soup dumplings, ramen and dim sum.",
+      "Signature Xiao Long Bao are hand-folded soup dumplings.",
+      "Noodles are hand-pulled.",
+      "The Brandon kitchen is listed among seven kitchens."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Soup dumplings, ramen and dim sum, with signature Xiao Long Bao",
+    "why_here": "Go for soup dumplings, ramen and dim sum in Brandon. Signature Xiao Long Bao and hand-pulled noodles are the core of the menu.",
+    "know_before": "The Brandon kitchen is one of seven kitchens, so confirm this location when ordering.",
+    "local_tip": "Order the signature Xiao Long Bao and hand-pulled noodles.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "KungFu Kitchen serves soup dumplings, ramen and dim sum.",
+      "source": "https://kfkitchennyc.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://kfkitchennyc.com/"
+     ],
+     "why_here": [
+      "https://kfkitchennyc.com/"
+     ],
+     "know_before": [
+      "https://kfkitchennyc.com/"
+     ],
+     "local_tip": [
+      "https://kfkitchennyc.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJo9ZVDI7BwogRQmX2pgDkJFk",
+   "name": "Agave Social",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJo9ZVDI7BwogRQmX2pgDkJFk",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.eatagavesocial.com/menu",
+     "source_name": "Agave Social",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Agave Social describes itself as Elevated Tacos, Scratch Kitchen & Tequila Bar in Carrollwood, FL.",
+      "Tacos are bold, inventive, and full of flavor with fresh, in-house tortillas.",
+      "The menu lists Volcano Shrimp Taco and Hot Honey Chicken Taco.",
+      "The menu lists Wagyu Cheeseburger Taco and vegetarian Wild Child tacos.",
+      "The menu gallery lists Birria Grilled Cheese and El Coco Loco."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Elevated tacos from a scratch kitchen and tequila bar in Carrollwood",
+    "why_here": "Go for chef-crafted tacos on fresh, in-house tortillas, from Volcano Shrimp Taco to Wagyu Cheeseburger Taco, in a social, shareable format built around a tequila bar.",
+    "know_before": "Expect inventive taco combinations rather than a traditional taqueria menu; vegetarian Wild Child tacos are listed alongside meat options.",
+    "local_tip": "Try the Volcano Shrimp Taco or Hot Honey Chicken Taco.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The menu lists Volcano Shrimp Taco and Hot Honey Chicken Taco.",
+      "source": "https://www.eatagavesocial.com/menu"
+     },
+     {
+      "claim": "Tacos are bold, inventive, and full of flavor with fresh, in-house tortillas.",
+      "source": "https://www.eatagavesocial.com/menu"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.eatagavesocial.com/menu"
+     ],
+     "why_here": [
+      "https://www.eatagavesocial.com/menu"
+     ],
+     "know_before": [
+      "https://www.eatagavesocial.com/menu"
+     ],
+     "local_tip": [
+      "https://www.eatagavesocial.com/menu"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJXQKnpwKx2YgRpmpajKBcSsM",
+   "name": "Madame Olivia Midtown",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://madameoliviamiami.com/midtown-miami",
+     "source_name": "Madame Olivia",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Madame Olivia Midtown Miami offers French pastries and a Mediterranean kitchen.",
+      "Madame Olivia describes its commitment as seed oil free.",
+      "The Midtown location serves Mediterranean Brunch & Dinner.",
+      "French pastries are made from scratch at Madame Olivia.",
+      "Madame Olivia is a French Bakery and Mediterranean Bistro in Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French pastries and a Mediterranean kitchen, seed oil free, in Midtown Miami",
+    "why_here": "Go for French pastries made from scratch alongside a Mediterranean kitchen, with Mediterranean Brunch & Dinner served in a bakery and bistro setting in Midtown.",
+    "know_before": "The kitchen is seed oil free, so expect that cooking approach across French pastries and Mediterranean dishes.",
+    "local_tip": "Start with French pastries made from scratch.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Madame Olivia Midtown Miami offers French pastries and a Mediterranean kitchen.",
+      "source": "https://madameoliviamiami.com/midtown-miami"
+     },
+     {
+      "claim": "Madame Olivia describes its commitment as seed oil free.",
+      "source": "https://madameoliviamiami.com/midtown-miami"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://madameoliviamiami.com/midtown-miami"
+     ],
+     "why_here": [
+      "https://madameoliviamiami.com/midtown-miami"
+     ],
+     "know_before": [
+      "https://madameoliviamiami.com/midtown-miami"
+     ],
+     "local_tip": [
+      "https://madameoliviamiami.com/midtown-miami"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJUaUivXS82YgRbT4THNosftc",
+   "name": "Sano Food Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "city": "Doral",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://doral.sanofood.com/Website/Order/?categoryId=909319",
+     "source_name": "Sano Food Doral",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sano Food Doral lists Tequeños as a healthier version of the classic Venezuelan cheese sticks.",
+      "Tequeños are cheese-filled bites made with yuca, sweet plantain, or whole wheat dough.",
+      "Sano Food Doral lists mini arepas made with plantain, yuca, quinoa, spinach, and beet dough.",
+      "Mini arepas are filled with reina pepiada.",
+      "Sano Food lists a Vanilla Protein Smoothie and a Chocolate Protein Smoothie."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Healthier Venezuelan cheese sticks and colorful mini arepas in Doral",
+    "why_here": "Go for lighter takes on Venezuelan favorites, including Tequeños in yuca, sweet plantain, or whole wheat dough and mini arepas filled with reina pepiada.",
+    "know_before": "Dough choices matter here: Tequeños and mini arepas come in yuca, sweet plantain, quinoa, spinach, and beet variations.",
+    "local_tip": "Try the Tequeños and mini arepas filled with reina pepiada.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Sano Food Doral lists Tequeños as a healthier version of the classic Venezuelan cheese sticks.",
+      "source": "https://doral.sanofood.com/Website/Order/?categoryId=909319"
+     },
+     {
+      "claim": "Mini arepas are filled with reina pepiada.",
+      "source": "https://doral.sanofood.com/Website/Order/?categoryId=909319"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://doral.sanofood.com/Website/Order/?categoryId=909319"
+     ],
+     "why_here": [
+      "https://doral.sanofood.com/Website/Order/?categoryId=909319"
+     ],
+     "know_before": [
+      "https://doral.sanofood.com/Website/Order/?categoryId=909319"
+     ],
+     "local_tip": [
+      "https://doral.sanofood.com/Website/Order/?categoryId=909319"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJSdJjH-Wy2YgRUDTeZcMZAYo",
+   "name": "7tyone Restaurant & Coffee Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "city": "Miami Beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://7tyonerestaurant.com/collections/desserts",
+     "source_name": "7TY ONE RESTAURANT",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "7TY ONE RESTAURANT is located at 1130 Normandy Dr in Miami Beach, Florida.",
+      "7TY ONE RESTAURANT lists a desserts collection on its official website."
+     ]
+    },
+    {
+     "source": "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141",
+     "source_name": "7tyone Restaurant & Coffee Bar Toast ordering",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The 7TYONE MENU lists AREPAS.",
+      "Mini arepitas are deep fried little arepitas served with a creamy & smooth Venezuelan cheese.",
+      "Arepas include shredded chicken with a creamy sauce based of mayonnaise and avocado.",
+      "The menu lists a Pistacho Croissant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Venezuelan arepas and mini arepitas at a restaurant and coffee bar",
+    "why_here": "Go for arepas and deep fried mini arepitas with Venezuelan cheese, plus coffee bar items and a Pistacho Croissant, in Miami Beach.",
+    "know_before": "The menu centers on arepas; mini arepitas are deep fried and served with creamy Venezuelan cheese.",
+    "local_tip": "Try mini arepitas with Venezuelan cheese and an arepa.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Mini arepitas are deep fried little arepitas served with a creamy & smooth Venezuelan cheese.",
+      "source": "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141"
+     },
+     {
+      "claim": "The 7TYONE MENU lists AREPAS.",
+      "source": "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141"
+     ],
+     "why_here": [
+      "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141"
+     ],
+     "know_before": [
+      "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141"
+     ],
+     "local_tip": [
+      "https://order.toasttab.com/online/7tyone-restaurant-coffee-1130-normandy-dr-miami-beach-fl-33141"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJc4yzjOmz2YgRZL2ZoQs9QlY",
+   "name": "Madame Olivia North Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "city": "North Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://madameoliviamiami.com/north-miami",
+     "source_name": "Madame Olivia North Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Madame Olivia North Miami specializes in French pastry trays and Mediterranean spreads.",
+      "Madame Olivia North Miami offers breakfast platters and custom menus.",
+      "Everything is seed oil free and prepared fresh from the North Miami kitchen.",
+      "Madame Olivia offers French pastries and Mediterranean cuisine in North Miami."
+     ]
+    },
+    {
+     "source": "https://madameoliviamiami.com/coffee",
+     "source_name": "Madame Olivia Coffee",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Coffee Drinks at Madame Olivia include classic espresso and hand brewed and iced coffee.",
+      "Madame Olivia offers organic matcha and cold brew.",
+      "Coffee is available at the North Miami location."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French pastry trays and Mediterranean spreads from a North Miami kitchen",
+    "why_here": "Go for French pastries, Mediterranean spreads, and breakfast platters prepared fresh in North Miami, with coffee, organic matcha, and cold brew to pair.",
+    "know_before": "Everything is seed oil free and prepared fresh from the North Miami kitchen; catering includes French pastry trays and Mediterranean spreads.",
+    "local_tip": "Try classic espresso or organic matcha with French pastries.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Everything is seed oil free and prepared fresh from the North Miami kitchen.",
+      "source": "https://madameoliviamiami.com/north-miami"
+     },
+     {
+      "claim": "Madame Olivia offers organic matcha and cold brew.",
+      "source": "https://madameoliviamiami.com/coffee"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://madameoliviamiami.com/north-miami"
+     ],
+     "why_here": [
+      "https://madameoliviamiami.com/north-miami",
+      "https://madameoliviamiami.com/coffee"
+     ],
+     "know_before": [
+      "https://madameoliviamiami.com/north-miami"
+     ],
+     "local_tip": [
+      "https://madameoliviamiami.com/coffee"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJYViXK5-12YgRqxd40YLsIDs",
+   "name": "San Marco Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "city": "Miami Beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sanmarcomiami.com",
+     "source_name": "San Marco Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "San Marco is an elegant Italian trattoria that combines a refined dining experience with the charm of a traditional Italian gastronomia."
+     ]
+    },
+    {
+     "source": "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405",
+     "source_name": "Miami and Beaches - Greater Miami Convention & Visitors Bureau",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "San Marco is a timeless Italian restaurant in South of Fifth, Miami.",
+      "San Marco is open all day and celebrates good food and warm hospitality at every hour.",
+      "San Marco is a neighborhood place to gather from morning to night.",
+      "The menu lists Cotoletta di pollo, rucola e pomodorini.",
+      "Cotoletta di pollo is Chicken Cutlet with Arugula and Cherry Tomatoes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian trattoria and gastronomia, open all day in South of Fifth",
+    "why_here": "Go for an Italian restaurant open all day in South of Fifth, designed as a neighborhood place to gather from morning to night.",
+    "know_before": "San Marco is open all day, so the experience shifts from morning gathering to evening dining.",
+    "local_tip": "Try Cotoletta di pollo, rucola e pomodorini.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "San Marco is a timeless Italian restaurant in South of Fifth, Miami.",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405"
+     },
+     {
+      "claim": "The menu lists Cotoletta di pollo, rucola e pomodorini.",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.sanmarcomiami.com",
+      "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/san-marco-miami/62405"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJjeUh8Tu32YgRY4P9OJblnB4",
+   "name": "STL Café",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "coffee_shop",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order",
+     "source_name": "STL Café Toast ordering",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "STL Café serves specialty coffee made from hand-selected beans, expertly roasted for bold, smooth flavor.",
+      "STL Café offers drip and filter brews, latte and 3D coffee art.",
+      "The menu features all-day breakfast, fresh lunch plates, and artisan sandwiches.",
+      "Menu items are made with high-quality ingredients and a chef-driven touch.",
+      "STL Café lists ACAI LOVE on its menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Specialty coffee with latte and 3D coffee art, plus all-day breakfast",
+    "why_here": "Go for specialty coffee made from hand-selected beans, from drip and filter brews to latte and 3D coffee art, alongside all-day breakfast and artisan sandwiches.",
+    "know_before": "The menu features all-day breakfast, fresh lunch plates, and artisan sandwiches with a chef-driven touch.",
+    "local_tip": "Try a latte with 3D coffee art and ACAI LOVE.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "STL Café serves specialty coffee made from hand-selected beans, expertly roasted for bold, smooth flavor.",
+      "source": "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order"
+     },
+     {
+      "claim": "The menu features all-day breakfast, fresh lunch plates, and artisan sandwiches.",
+      "source": "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order"
+     ],
+     "why_here": [
+      "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order"
+     ],
+     "know_before": [
+      "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order"
+     ],
+     "local_tip": [
+      "https://toast.app/r/stl-cafe-850-nw-42-ave-suite-101/order"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJJffET7632YgRolxzqJYaBcc",
+   "name": "AVA MediterrAegean Coconut Grove",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "greek_restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.avacoconutgrove.com/",
+     "source_name": "AVA MediterrAegean Coconut Grove",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "AVA MediterrAegean Coconut Grove is located in the historic Peacock Garden in Coconut Grove.",
+      "AVA is a modern Mediterranean social house rooted in the rhythm of the Aegean.",
+      "AVA Coconut Grove is a modern Mediterranean restaurant in the historic Peacock Garden on McFarlane Road in Coconut Grove, Miami.",
+      "Modern Greek and Mediterranean cooking includes spanakopita, Mykonos octopus, truffle cream spaghetti and lobster spaghetti."
+     ]
+    },
+    {
+     "source": "https://www.avacoconutgrove.com/menus",
+     "source_name": "AVA MediterrAegean Menus",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Our cuisine lies on traditional and modern flavors from the Mediterranean and the Cycladic Islands.",
+      "The cuisine uses ingredients, techniques, philosophy, and cultures of healthy and balanced eating of these regions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Greek and Mediterranean cooking in the historic Peacock Garden",
+    "why_here": "Go for modern Mediterranean cooking rooted in the Aegean and the Cycladic Islands, served in the historic Peacock Garden in Coconut Grove as a social house.",
+    "know_before": "AVA is in the historic Peacock Garden on McFarlane Road in Coconut Grove, Miami; expect a social house format.",
+    "local_tip": "Try spanakopita, Mykonos octopus, or lobster spaghetti.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Modern Greek and Mediterranean cooking includes spanakopita, Mykonos octopus, truffle cream spaghetti and lobster spaghetti.",
+      "source": "https://www.avacoconutgrove.com/"
+     },
+     {
+      "claim": "Our cuisine lies on traditional and modern flavors from the Mediterranean and the Cycladic Islands.",
+      "source": "https://www.avacoconutgrove.com/menus"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.avacoconutgrove.com/"
+     ],
+     "why_here": [
+      "https://www.avacoconutgrove.com/",
+      "https://www.avacoconutgrove.com/menus"
+     ],
+     "know_before": [
+      "https://www.avacoconutgrove.com/"
+     ],
+     "local_tip": [
+      "https://www.avacoconutgrove.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJz4Ucz5Lp2YgRG9sCckMPEQ0",
+   "name": "By Brothers",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "farm",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://by-brothers.com/discover-the-best-petting-farm-near-you-in-miami/",
+     "source_name": "By Brothers",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "By Brothers Family Park is a family park and petting farm in Miami.",
+      "The petting zoo features goats, ponies, and bunnies for children to meet and feed.",
+      "Visitors can explore an aviary with parrots, toucans, and exotic birds.",
+      "Activities include train rides, pedal go-karts, a corn pit, and a jump pad.",
+      "School field trips for students are available year-round from Monday through Friday."
+     ]
+    },
+    {
+     "source": "https://by-brothers.com/event-booking-family-park/",
+     "source_name": "By Brothers",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Activities include train rides, pedal go-karts, a corn pit, and a jump pad."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family petting farm in Miami with goats, ponies, bunnies, and an aviary of parrots and toucans",
+    "why_here": "Go for hands-on time at the petting zoo, where children can meet and feed goats, ponies, and bunnies, then explore the aviary with parrots, toucans, and exotic birds.",
+    "know_before": "School field trips for students run Monday through Friday, so weekday visits may share the park with student groups.",
+    "local_tip": "Start with a train ride, then try the pedal go-karts, corn pit, and jump pad.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The petting zoo features goats, ponies, and bunnies for children to meet and feed.",
+      "source": "https://by-brothers.com/discover-the-best-petting-farm-near-you-in-miami/"
+     },
+     {
+      "claim": "Visitors can explore an aviary with parrots, toucans, and exotic birds.",
+      "source": "https://by-brothers.com/discover-the-best-petting-farm-near-you-in-miami/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://by-brothers.com/discover-the-best-petting-farm-near-you-in-miami/"
+     ],
+     "why_here": [
+      "https://by-brothers.com/discover-the-best-petting-farm-near-you-in-miami/"
+     ],
+     "know_before": [
+      "https://by-brothers.com/discover-the-best-petting-farm-near-you-in-miami/"
+     ],
+     "local_tip": [
+      "https://by-brothers.com/event-booking-family-park/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJZ6cL0-e32YgRPRoWEZzYz88",
+   "name": "Lira House Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "lebanese_restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.liramiami.com/wynwood-location",
+     "source_name": "Lira House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Lira House Wynwood blends the energy of Wynwood in Miami with the culinary traditions of Lebanon.",
+      "Lira House serves authentic Lebanese cuisine in Miami.",
+      "Lira House Wynwood is a Lebanese restaurant, caterer, and event venue."
+     ]
+    },
+    {
+     "source": "https://www.liramiami.com/menu",
+     "source_name": "Lira House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The menu includes a Hummus Corner with hummus.",
+      "The menu includes Beef Kebab."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Lebanese cooking in Wynwood, rooted in the culinary traditions of Lebanon",
+    "why_here": "Go for authentic Lebanese food in Wynwood, where the culinary traditions of Lebanon shape the menu and the room carries the energy of the district.",
+    "know_before": "Lira House Wynwood is a restaurant, caterer, and event venue in one, so private events may share the space.",
+    "local_tip": "Order from the Hummus Corner and add the Beef Kebab.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Lira House serves authentic Lebanese cuisine in Miami.",
+      "source": "https://www.liramiami.com/wynwood-location"
+     },
+     {
+      "claim": "The menu includes Beef Kebab.",
+      "source": "https://www.liramiami.com/menu"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.liramiami.com/wynwood-location"
+     ],
+     "why_here": [
+      "https://www.liramiami.com/wynwood-location"
+     ],
+     "know_before": [
+      "https://www.liramiami.com/wynwood-location"
+     ],
+     "local_tip": [
+      "https://www.liramiami.com/menu"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJqU2oA4m32YgRYwF5JdM4I38",
+   "name": "Superblue Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tourist_attraction",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.superblue.com/miami",
+     "source_name": "Superblue Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Superblue Miami is an immersive art experience in Miami.",
+      "teamLab presents Massless Clouds Between Sculpture and Life, where visitors interact with clouds made of soap bubbles.",
+      "James Turrell presents a Ganzfeld light installation that challenges perception.",
+      "Rafael Lozano-Hemmer presents Pulse Topology, an interactive light installation.",
+      "Massless Clouds Between Sculpture and Life requires the purchase of an additional ticket alongside your general admission ticket."
+     ]
+    },
+    {
+     "source": "https://www.superblue.com/miami/teamlab-massless-clouds",
+     "source_name": "Superblue Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Massless Clouds Between Sculpture and Life requires the purchase of an additional ticket alongside your general admission ticket."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Immersive art in Miami, from teamLab soap-bubble clouds to a James Turrell Ganzfeld in light",
+    "why_here": "Go to step inside the artwork itself, interacting with soap-bubble clouds and room-sized light that challenges perception rather than viewing art from a distance.",
+    "know_before": "Massless Clouds needs an additional ticket alongside general admission, so buy both before you go.",
+    "local_tip": "Try Pulse Topology by Rafael Lozano-Hemmer and the teamLab Massless Clouds experience.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "teamLab presents Massless Clouds Between Sculpture and Life, where visitors interact with clouds made of soap bubbles.",
+      "source": "https://www.superblue.com/miami"
+     },
+     {
+      "claim": "James Turrell presents a Ganzfeld light installation that challenges perception.",
+      "source": "https://www.superblue.com/miami"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.superblue.com/miami"
+     ],
+     "why_here": [
+      "https://www.superblue.com/miami"
+     ],
+     "know_before": [
+      "https://www.superblue.com/miami/teamlab-massless-clouds"
+     ],
+     "local_tip": [
+      "https://www.superblue.com/miami"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJDYJ34TG32YgRL6OSt-0n5ss",
+   "name": "Le Specialita Café & Market by Ignazio and Maggio Cipriani",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miamiandbeaches.com/l/eat-and-drink/le-specialita-cafe-and-market/60506",
+     "source_name": "Miami and Miami Beach",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Le Specialita Café & Market is located within Mr. C Residences Coconut Grove in Miami.",
+      "Ignazio and Maggio Cipriani conceived the café from family heritage and extensive travels.",
+      "Le Specialita Café & Market showcases rustic Italian fare steeped in family tradition.",
+      "The tastes and presentation mirror the distinguished culinary experience of Mr. C."
+     ]
+    },
+    {
+     "source": "https://lespecialitacoconutgrove.com/",
+     "source_name": "Le Specialita Coconut Grove",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Le Specialita Coconut Grove offers a Pasticceria and a market.",
+      "The JETSET Bowl was created by Le Specialità Café & Market in collaboration with JETSET Coconut Grove."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rustic Italian fare in Coconut Grove, steeped in Cipriani family tradition",
+    "why_here": "Go for rustic Italian fare inside Mr. C Residences Coconut Grove, where family heritage and extensive travels shape a Cipriani café and market.",
+    "know_before": "Find it inside Mr. C Residences Coconut Grove, not in a standalone storefront, before you go looking.",
+    "local_tip": "Try the JETSET Bowl from the market at Le Specialità Café & Market.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Le Specialita Café & Market showcases rustic Italian fare steeped in family tradition.",
+      "source": "https://miamiandbeaches.com/l/eat-and-drink/le-specialita-cafe-and-market/60506"
+     },
+     {
+      "claim": "The JETSET Bowl was created by Le Specialità Café & Market in collaboration with JETSET Coconut Grove.",
+      "source": "https://lespecialitacoconutgrove.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://miamiandbeaches.com/l/eat-and-drink/le-specialita-cafe-and-market/60506"
+     ],
+     "why_here": [
+      "https://miamiandbeaches.com/l/eat-and-drink/le-specialita-cafe-and-market/60506"
+     ],
+     "know_before": [
+      "https://miamiandbeaches.com/l/eat-and-drink/le-specialita-cafe-and-market/60506"
+     ],
+     "local_tip": [
+      "https://lespecialitacoconutgrove.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJhe3DKSu32YgRVOWZEyWPqdo",
+   "name": "Mayami Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mayamiwynwood.com/",
+     "source_name": "Mayami Wynwood",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mayami Wynwood is a Mexican-Asian fusion restaurant and dinner show in Wynwood, Miami.",
+      "Mayami Wynwood offers live entertainment in an open-air courtyard for brunch, happy hour, and dinner.",
+      "Mayami Wynwood publishes a FAQ covering reservations, dress code, and hours.",
+      "The menu features Mexican-Asian fusion for brunch, happy hour, and dinner."
+     ]
+    },
+    {
+     "source": "https://mayamiwynwood.com/faq",
+     "source_name": "Mayami Wynwood",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mayami Wynwood publishes a FAQ covering reservations, dress code, and hours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mexican-Asian fusion and a dinner show in an open-air Wynwood courtyard",
+    "why_here": "Go for Mexican-Asian fusion with live entertainment, where brunch, happy hour, and dinner unfold in an open-air courtyard in Wynwood.",
+    "know_before": "Check the FAQ for reservations and dress code before an evening in the open-air courtyard.",
+    "local_tip": "Book dinner in the open-air courtyard and stay for the live entertainment dinner show.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Mayami Wynwood is a Mexican-Asian fusion restaurant and dinner show in Wynwood, Miami.",
+      "source": "https://www.mayamiwynwood.com/"
+     },
+     {
+      "claim": "Mayami Wynwood offers live entertainment in an open-air courtyard for brunch, happy hour, and dinner.",
+      "source": "https://www.mayamiwynwood.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.mayamiwynwood.com/"
+     ],
+     "why_here": [
+      "https://www.mayamiwynwood.com/"
+     ],
+     "know_before": [
+      "https://mayamiwynwood.com/faq"
+     ],
+     "local_tip": [
+      "https://www.mayamiwynwood.com/"
+     ]
+    }
+   }
+  }
+ ]
+}
