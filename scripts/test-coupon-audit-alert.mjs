@@ -6,7 +6,7 @@
 // build — production stuck on an old deploy. The guard is now pinned; this rule is where the
 // lapse is reported. Asserted by CALLING computeAlerts and gatherAlerts' wiring, not by regex.
 import { computeAlerts } from "../lib/commandCenter/alerts.js";
-import { COUPON_AUDIT_FUSES } from "../lib/couponAuditFuses.js";
+import { couponAuditFuses, fallOfferingEndFuse } from "../lib/couponAuditFuses.js";
 import { buildAlertsReport } from "../lib/commandCenter/alertsRun.js";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -17,6 +17,7 @@ import { offeringActive } from "../lib/fallEvidence.js";
 import { FALL_PLACE_IDS, FALL_OFFERING_SOURCES, FALL_PLACE_RAIL } from "../lib/fallPool.js";
 import { FALL_CARD_IDS } from "../lib/fallSkin.js";
 
+const COUPON_AUDIT_FUSES = couponAuditFuses("2026-11-01");
 let n = 0, bad = 0;
 const ok = (c, m) => { n++; if (!c) { bad++; console.error("  - " + m); } };
 const fuse = { id: "t_fuse", label: "Test fuse", expires: "2026-10-12" };
@@ -40,7 +41,7 @@ ok(run("2026-10-13", [{ id: "x", label: "x", expires: "soon" }, null]).length ==
 
 // The real registry fuses, called at a date past every one of them, must alert for each.
 const real = run("2099-01-01", COUPON_AUDIT_FUSES);
-ok(real.length === COUPON_AUDIT_FUSES.length && COUPON_AUDIT_FUSES.length >= 2, "every real fuse alerts when lapsed");
+ok(real.length === COUPON_AUDIT_FUSES.filter((f) => !f.autoRetires).length && COUPON_AUDIT_FUSES.length >= 2, "every unmanaged fuse alerts when lapsed; managed ends do not");
 
 // Family facts use their own registry and fail to unknown, rather than hiding
 // coupons or changing guide attribution. Exercise both notification paths.
@@ -69,14 +70,23 @@ ok(!!fallFuse && /^Fall offering: \S/.test(fallFuse.label), "the earliest fall e
 // entries are retired — Hashtag Café, ended 2026-10-30, was the first case).
 const shiftDay = (iso, n) => new Date(Date.parse(iso + "T12:00:00Z") + n * 86400000).toISOString().slice(0, 10);
 const fallEnd = fallFuse?.expires;
-for (const today of [shiftDay(fallEnd, -2), fallEnd, shiftDay(fallEnd, 1)]) {
+for (const today of [shiftDay(fallEnd, -2), fallEnd]) {
   const notice = run(today, [fallFuse])[0];
-  ok(notice && notice.id === "audit_fuse_fall_offering_end" && notice.severity === "warn", `fall notice preserves its stable cooldown identity (${today})`);
-  ok(notice && /lib\/fallPool\.js/.test(notice.detail) && /lib\/fallSkin\.js/.test(notice.detail) && /check-fall-registry-integrity/.test(notice.detail), `fall notice names the actual registries and build consequence (${today})`);
-  ok(notice && /Keep the verified end date/.test(notice.detail) && !/lib\/coupons\.js|untracked|guide CTA|Builds are NOT affected/.test(notice.detail), `fall notice does not fabricate coupon consequences or encourage invented renewal (${today})`);
+  ok(notice && notice.id === "audit_fuse_fall_offering_end" && notice.severity === "info", `enforced retirement is routine information, not owner work (${today})`);
+  ok(notice && /automatically/.test(notice.detail) && /Keep the verified end date/.test(notice.detail), `notice preserves the date and explains retirement (${today})`);
+  ok(notice && !/lib\/coupons\.js|untracked|blocks builds/.test(notice.detail), `automatic retirement does not invent coupon or build failures (${today})`);
 }
 ok(/ends today/.test(run(fallEnd, [fallFuse])[0]?.title), "the last local day is still live");
-ok(/ended/.test(run(shiftDay(fallEnd, 1), [fallFuse])[0]?.title), "the following local day requests retirement, not renewal");
+ok(run(shiftDay(fallEnd, 1), [fallFuse]).length === 0, "managed ended offering does not demand manual cleanup");
+ok(/Pinto/.test(fallOfferingEndFuse("2026-11-02").label), "a warm process advances from Dead Coconut to Pinto the next day");
+ok(fallOfferingEndFuse("2026-11-08").expires === "2026-11-08", "Pinto retains its own inclusive final day");
+ok(/Crema/.test(fallOfferingEndFuse("2026-11-09").label), "the next dated offering follows Pinto");
+ok(fallOfferingEndFuse("2026-11-30") === null, "all managed ends retired leaves no false warning");
+ok(fallOfferingEndFuse("2027-10-01") === null, "old dates cannot resurrect or mask a new season");
+const unmanaged = fallOfferingEndFuse("2026-11-02", { "unknown-place": { name: "Unmanaged", until: "2026-11-01" } });
+ok(unmanaged.autoRetires === false && run("2026-11-02", [unmanaged])[0]?.severity === "warn", "an expiry without a shared enforcement rule still demands repair");
+const drifted = fallOfferingEndFuse("2026-11-02", { "ChIJwZ_GK-d-54gRm5Ahg7PZYeY": { name: "Drift", until: "2026-10-31" } });
+ok(drifted.autoRetires === false && run("2026-11-02", [drifted])[0]?.severity === "warn", "mismatched published and client dates cannot claim automatic handling");
 
 // Wiring: the report builder must carry couponAudit through to computeAlerts (a rule nobody feeds is decoration).
 const stub = { source: { name: "s", connected: false }, data: null };
@@ -84,9 +94,9 @@ const rep = buildAlertsReport({ fractionOfDay: 0.5, todayKey: "2099-01-01", asOf
   dailyHist: stub, todayK: stub, signupHist: stub, signupToday: stub, cwvField: stub, lab: stub, err24: stub, boundary1h: stub,
   sentry: stub, syn: stub, deploys: stub, tpToday: stub, freshness: stub, photos: stub,
   couponAudit: { today: "2099-01-01", fuses: COUPON_AUDIT_FUSES } });
-ok(rep.alerts.filter((a) => /^(coupon_audit_|audit_fuse_)/.test(String(a.id))).length === COUPON_AUDIT_FUSES.length, "buildAlertsReport forwards couponAudit into the alert rules");
+ok(rep.alerts.filter((a) => /^(coupon_audit_|audit_fuse_)/.test(String(a.id))).length === COUPON_AUDIT_FUSES.length - 1, "buildAlertsReport forwards couponAudit into the alert rules");
 const run_src = readFileSync(new URL("../lib/commandCenter/alertsRun.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
-ok(/couponAudit:\s*\{\s*today:\s*siteTodayStr\(now\),\s*fuses:\s*COUPON_AUDIT_FUSES\s*\}/.test(run_src), "gatherAlerts passes the venue-local date and the real fuses (weaker, source-level check: gatherAlerts needs live providers)");
+ok(/couponAudit:\s*\{\s*today:\s*siteTodayStr\(now\),\s*fuses:\s*couponAuditFuses\(siteTodayStr\(now\)\)\s*\}/.test(run_src), "gatherAlerts passes the venue-local date and the real fuses (weaker, source-level check: gatherAlerts needs live providers)");
 
 
 // ── Runtime eligibility still follows the REAL (venue-local) day, proven at exact instants ───────────────

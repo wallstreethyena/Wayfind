@@ -18,7 +18,7 @@ import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SA
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
-import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide } from "./booClear.js";
+import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide } from "./booClear.js";
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -246,6 +246,11 @@ const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[ro
 // Words he must never park on (owner 2026-10-30: "make sure he is not hovering
 // in front of text"). Headings, paragraphs, list text, labels, prices, alerts.
 // Only where he rests and where his bubble goes; taps still use HIT_SEL.
+// Kept as its OWN rect list (ZERO tolerance) apart from controls (15%): see
+// controlRects and booClear.hitsText. Containers (li, td, ...) that hold their
+// own headings or paragraphs are skipped so the inner text counts, not the card.
+const BLOCK_TEXT = "li,td,th,dt,dd,blockquote,figcaption";
+const REST_MS = 250; // how often a resting Boo re-checks he is not on text after a scroll or page change
 const READ_SEL = "h1,h2,h3,h4,p,li,blockquote,figcaption,dt,dd,td,th,[role=status],[role=alert],[data-boo-clear]";
 // The ONLY pointer target on him is a small hit button. It is tappable only
 // while its padded box overlaps none of these (nothing navigational or
@@ -266,11 +271,6 @@ function clean(t) {
   return String(t || "").replace(/[–—]/g, " ").replace(/\s{2,}/g, " ").trim();
 }
 function rand(a, b) { return a + Math.random() * (b - a); }
-// Where he hovers to "touch" an element: perched on its top edge, or just
-// under it when there is no room above.
-function aimAt(r) {
-  return [r.left + r.width / 2 - SIZE / 2, r.top - SIZE + 18 >= 0 ? r.top - SIZE + 18 : r.bottom - 18];
-}
 // The glow for any other page element: a separate ring laid over it, so the
 // page's own styles and animations are never touched.
 function ringAround(el, st) {
@@ -448,6 +448,7 @@ input[data-boo-touch]{animation:boo-t-glow 1.2s ease-out both}
 .boo-ring{position:fixed;z-index:939;pointer-events:none;box-sizing:border-box;animation:boo-t-ring 1.2s ease-out both}
 @keyframes boo-t-ring{0%{box-shadow:0 0 0 0 rgba(249,115,22,0)}30%{box-shadow:0 0 0 3px rgba(249,115,22,.9),0 0 26px 6px rgba(249,115,22,.5)}100%{box-shadow:0 0 0 0 rgba(249,115,22,0)}}
 .boo-ty{color:transparent}
+body:has(.wf-map-explorer) .wf-boo-layer,body:has([data-analytics-page="map"]) .wf-boo-layer{display:none !important}
 @media (prefers-reduced-motion:reduce){.boo-ring{display:none !important}.boo-pi{animation:none !important}.boo-eye,.boo-lid,.boo-tr,.boo-sa *{animation:none !important}.boo-c-act,.boo-z,.boo-pk{animation:none !important}.boo-c-look,.boo-c-sway{animation:none !important;transform:none !important}.boo-zb,.boo-sm,.boo-sp{display:none !important}.boo-c-bob,.boo-c-bubble,.boo-s,.boo-s-back{animation:none}.boo-c-flip{transition:none}}
 `;
 
@@ -526,7 +527,9 @@ export default function BooCompanion() {
   const holdUntil = useRef(0);
   const driftRef = useRef(false);
   const gagBump = useRef(() => {});
-  const ctlRef = useRef({ t: 0, list: [] });
+  const ctlRef = useRef({ t: 0, list: [], text: [] });
+  const restDirty = useRef(true);
+  const restChk = useRef(0);
   const hitRef = useRef(null);
   const hitSt = useRef({ nodes: null, list: [], t: 0, fresh: false, dom: true, quiet: 0, prev: null, prevT: 0, spd: 0 });
   const relocUntil = useRef(0);
@@ -657,7 +660,7 @@ export default function BooCompanion() {
   const controlRects = (fresh) => {
     const c = ctlRef.current, now = performance.now();
     if (!fresh && c.t && now - c.t < 120) return c.list;
-    const vw = window.innerWidth, vh = window.innerHeight, me = elRef.current, out = [];
+    const vw = window.innerWidth, vh = window.innerHeight, me = elRef.current, out = [], txt = [];
     const nodes = document.querySelectorAll(CONTROL_SEL + "," + READ_SEL);
     for (let i = 0; i < nodes.length; i++) {
       const el = nodes[i];
@@ -666,11 +669,19 @@ export default function BooCompanion() {
       if (r.width < 4 || r.height < 4 || r.bottom <= 0 || r.top >= vh || r.right <= 0 || r.left >= vw) continue;
       if (r.width * r.height > vw * vh * 0.85) continue; // only a page sized link is a background, not a button
       try { if (el.checkVisibility && !el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) continue; } catch { /* ignore */ }
-      out.push({ left: r.left, top: r.top, right: r.right, bottom: r.bottom });
+      const rect = { left: r.left, top: r.top, right: r.right, bottom: r.bottom };
+      // Readable text (headings included, even though h1/h2 are also in CONTROL_SEL)
+      // goes to the zero tolerance list; everything else is a control (15%).
+      if (el.matches(READ_SEL)) {
+        if (el.matches(BLOCK_TEXT) && !el.hasAttribute("data-boo-clear") && el.querySelector(READ_SEL)) continue;
+        txt.push(rect);
+      } else out.push(rect);
     }
-    c.t = now; c.list = out;
+    c.t = now; c.list = out; c.text = txt;
     return out;
   };
+  // Controls and text, read together from one cache.
+  const restLists = (fresh) => { const ctl = controlRects(fresh); return [ctl, ctlRef.current.text || []]; };
   // Tap safety. Everything of his ignores pointers in CSS, always. Only the 44px
   // hit button can take a tap, and it is switched on (data-tap) only after a
   // fresh rect pass shows its padded box overlaps no control. Every move
@@ -748,7 +759,7 @@ export default function BooCompanion() {
   useEffect(() => {
     if (!eligible) return undefined;
     const c = hitSt.current;
-    const off = (quietMs) => { c.fresh = false; c.dom = true; if (quietMs) c.quiet = performance.now() + quietMs; hitSet(false); };
+    const off = (quietMs) => { restDirty.current = true; c.fresh = false; c.dom = true; if (quietMs) c.quiet = performance.now() + quietMs; hitSet(false); };
     const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; off(140); };
     const onResize = () => off(200);
     let mo = null;
@@ -781,14 +792,13 @@ export default function BooCompanion() {
   // (bottom nav, sticky CTA, page buttons) is under him.
   const settleReduced = () => {
     if (!elRef.current) return;
-    const b = bounds(), list = controlRects(true);
-    let pos = { x: b.minX, y: b.maxY };
-    outer: for (const x of [b.minX, b.maxX]) {
-      for (let y = b.maxY; y >= b.minY; y -= 16) if (isClear(x, y, SIZE, list)) { pos = { x, y }; break outer; }
-    }
-    redPos.current = pos;
-    place(pos.x, pos.y);
-    passCheck(pos);
+    const b = bounds(), [list, txt] = restLists(true);
+    // Bottom left gutter first, lifted until clear of controls AND text; the same
+    // tiers as roaming (gutter, grid, tucked at the edge) when the corner is words.
+    const sp = pickClearSpot(SIZE, b, list, { x: b.minX, y: b.maxY }, rand, 0, MAX_COVER, null, txt);
+    redPos.current = { x: sp.x, y: sp.y };
+    place(sp.x, sp.y);
+    passCheck(redPos.current);
   };
   // He is about to pause, speak, play a bit or zap: if he covers more than 15%
   // of any control, slide him to clear space first (8 random tries, else the
@@ -796,11 +806,14 @@ export default function BooCompanion() {
   const relocateIfCovered = (need) => {
     if (openRef.current || !elRef.current) return false;
     if (reducedRef.current) { const before = redPos.current; settleReduced(); return !!before && (before.x !== redPos.current.x || before.y !== redPos.current.y); }
-    const cur = posRef.current, list = controlRects(true), b = bounds();
+    const cur = posRef.current, [list, txt] = restLists(true), b = bounds();
     // need = { bw, bh }: a bubble is about to show, so its box must be clear too.
-    const bubbleOk = (x, y) => !need || !!bubbleSideIfClear(x, y, SIZE, need.bw, need.bh, { v: y < 150 ? "below" : "above", h: x + SIZE / 2 > b.vw / 2 ? "left" : "right" }, list, b.vw, b.vh);
-    if (isClear(cur.x, cur.y, SIZE, list) && bubbleOk(cur.x, cur.y)) { passCheck(cur); return false; }
-    const sp = pickClearSpot(SIZE, b, list, cur, rand, 8, MAX_COVER, bubbleOk);
+    const bubbleOk = (x, y) => !need || !!bubbleSideIfClear(x, y, SIZE, need.bw, need.bh, { v: y < 150 ? "below" : "above", h: x + SIZE / 2 > b.vw / 2 ? "left" : "right" }, list, b.vw, b.vh, txt);
+    if (isClear(cur.x, cur.y, SIZE, list, MAX_COVER, txt) && bubbleOk(cur.x, cur.y)) { passCheck(cur); return false; }
+    // Him off the words matters more than his bubble: if no spot fits both, drop the bubble condition.
+    let sp = pickClearSpot(SIZE, b, list, cur, rand, 8, MAX_COVER, bubbleOk, txt);
+    if (!sp.strict) sp = pickClearSpot(SIZE, b, list, cur, rand, 8, MAX_COVER, null, txt);
+    if (sp.x === cur.x && sp.y === cur.y) { passCheck(cur); return false; }
     posRef.current = { x: sp.x, y: sp.y };
     const el = elRef.current;
     el.style.transition = "transform .3s ease-out";
@@ -810,6 +823,7 @@ export default function BooCompanion() {
     clearTimeout(relocT.current);
     relocT.current = window.setTimeout(() => { if (el) el.style.transition = ""; }, 380);
     seg.current = { x0: sp.x, y0: sp.y, x1: sp.x, y1: sp.y, t: 0, dur: 1, pause: 0.3, target: null, free: false };
+    restDirty.current = false;
     passCheck(posRef.current);
     return true;
   };
@@ -817,9 +831,10 @@ export default function BooCompanion() {
   // He just arrived somewhere to rest: if that covers a control, glide on to
   // clear space instead of pausing there. True when a new leg started.
   const parkClear = () => {
-    const cur = posRef.current, list = controlRects(true);
-    if (isClear(cur.x, cur.y, SIZE, list)) return false;
-    const sp = pickClearSpot(SIZE, bounds(), list, cur, rand, 8);
+    const cur = posRef.current, [list, txt] = restLists(true);
+    restDirty.current = false;
+    if (isClear(cur.x, cur.y, SIZE, list, MAX_COVER, txt)) return false;
+    const sp = pickClearSpot(SIZE, bounds(), list, cur, rand, 8, MAX_COVER, null, txt);
     const dist = Math.max(1, Math.hypot(sp.x - cur.x, sp.y - cur.y));
     const dir = sp.x - cur.x;
     if (Math.abs(dir) > 20 && flipRef.current) { facing.current = dir > 0 ? 1 : -1; flipRef.current.style.transform = facing.current > 0 ? "scaleX(1)" : "scaleX(-1)"; }
@@ -830,10 +845,10 @@ export default function BooCompanion() {
   // Bubble side with no control under it, flipped to the other side or above/below when needed.
   const sideFor = (text) => {
     const cur = reducedRef.current ? corner() : posRef.current;
-    const b = bounds();
+    const b = bounds(), [ctl, txt] = restLists(true);
     const { bw, bh } = estimateBubble(text);
     const pref = { v: cur.y < 150 ? "below" : "above", h: cur.x + SIZE / 2 > b.vw / 2 ? "left" : "right" };
-    return chooseBubbleSide(cur.x, cur.y, SIZE, bw, bh, pref, controlRects(true), b.vw, b.vh);
+    return chooseBubbleSide(cur.x, cur.y, SIZE, bw, bh, pref, ctl, b.vw, b.vh, txt);
   };
   const freeBounds = (b) => ({ minX: b.minX, maxX: b.maxX, minY: 0, maxY: Math.max(0, b.vh - SIZE - 8) });
   // A tap meant for a control under him: hand it over instead of opening the chat.
@@ -854,15 +869,16 @@ export default function BooCompanion() {
     if (!list.length) return null;
     const vw = window.innerWidth, vh = window.innerHeight, ae = document.activeElement;
     const b = freeBounds(bounds());
-    let ctl = null;
+    let ctl = null, txt = null;
     for (let i = 0; i < 12; i++) {
       const el = list[Math.floor(Math.random() * list.length)];
       if (el === ae || (el.tagName === "INPUT" && ae && ae.tagName === "INPUT")) continue;
       const r = el.getBoundingClientRect();
       if (r.width < 4 || r.height < 4 || r.top < 0 || r.bottom > vh - 4 || r.left < 0 || r.right > vw) continue;
-      if (el.matches(PERCH_SEL)) return { el, r, spot: aimAt(r) };
-      if (!ctl) ctl = controlRects(true);
-      const spot = besideSpot(r, SIZE, b, ctl, MAX_COVER);
+      if (!ctl) [ctl, txt] = restLists(true);
+      // Perch on a bulb or the wordmark, but only where that is not on words.
+      if (el.matches(PERCH_SEL)) { const ps = perchSpot(r, SIZE, b, ctl, MAX_COVER, txt); if (ps) return { el, r, spot: ps }; }
+      const spot = besideSpot(r, SIZE, b, ctl, MAX_COVER, txt);
       if (spot) return { el, r, spot };
     }
     return null;
@@ -1033,7 +1049,8 @@ export default function BooCompanion() {
       const vh = window.innerHeight;
       const b0 = bounds();
       // Beside it, never on it: the visitor's finger or cursor is right there.
-      const spot = r.bottom > 0 && r.top < vh ? besideSpot(r, SIZE, freeBounds(b0), controlRects(true), MAX_COVER) : null;
+      const [rc, rt] = restLists(true);
+      const spot = r.bottom > 0 && r.top < vh ? besideSpot(r, SIZE, freeBounds(b0), rc, MAX_COVER, rt) : null;
       if (spot) {
         const b = b0;
         const from = posRef.current;
@@ -1082,6 +1099,14 @@ export default function BooCompanion() {
         setLean(0);
       } else if (g.pause > 0) {
         setLean(0);
+        // Resting is the only time he can be "in front of text": the page scrolls or
+        // changes under him while he waits. Re-check (cheap: only after a scroll,
+        // resize or page change, at most every REST_MS) and glide off the words.
+        const nowMs = performance.now();
+        if (restDirty.current && nowMs - restChk.current >= REST_MS && !g.say) {
+          restChk.current = nowMs;
+          if (parkClear()) { rafRef.current = requestAnimationFrame(frame); return; }
+        }
         g.pause -= dt;
         if (g.pause <= 0) nextLeg();
       } else {
@@ -1089,7 +1114,9 @@ export default function BooCompanion() {
         const u = Math.min(1, g.t / g.dur);
         const e = u * u * (3 - 2 * u);
         const b = bounds();
-        const x = Math.min(b.maxX, Math.max(b.minX, g.x0 + (g.x1 - g.x0) * e));
+        // A leg that starts or ends tucked at the screen edge (see pickClearSpot) may leave the safe box.
+        const xlo = Math.min(b.minX, g.x0, g.x1), xhi = Math.max(b.maxX, g.x0, g.x1);
+        const x = Math.min(xhi, Math.max(xlo, g.x0 + (g.x1 - g.x0) * e));
         const yy = g.y0 + (g.y1 - g.y0) * e;
         const y = g.free ? Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, yy)) : Math.min(b.maxY, Math.max(b.minY, yy));
         setLean(dt > 0 ? Math.max(-3, Math.min(3, ((x - posRef.current.x) / dt) / 45)) : leanRef.current);
@@ -1102,7 +1129,7 @@ export default function BooCompanion() {
           const touched = !!g.target;
           if (touched) { touchRef.current(g.target); g.target = null; }
           if (g.say) { const s = g.say; g.say = null; sayRef.current(s.text, s.pose, 280); }
-          else if (touched) g.pause = TOUCH_MS / 1000; // the 1.2s reaction, then he leaves
+          else if (touched) { if (!parkClear()) g.pause = TOUCH_MS / 1000; } // the 1.2s reaction, then he leaves (unless the page moved him onto words)
           else if (!parkClear()) g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
         }
       }

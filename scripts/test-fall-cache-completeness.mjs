@@ -15,7 +15,7 @@ const ok = (condition, message) => { assert.ok(condition, message); checks++; };
 const railIds = ["food", "farms", "theme-parks", "haunts", "family",
   "oktoberfest", "date-night", "festivals", "photos", "day-trips"];
 
-async function routeHarness({ dealError = null, pendingFailed = false, photoFailed = false, cachedValue } = {}) {
+async function routeHarness({ dealError = null, pendingFailed = false, photoFailed = false, cachedValue, wallTime = "2026-09-10T12:00" } = {}) {
   const observed = { usable: null, loaded: false };
   const inventory = [{
     place_id: "p1", name: "Fall Place", lat: 27.95, lng: -82.46, status: "OPERATIONAL",
@@ -54,10 +54,9 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
       fetchCuratedEvents: async () => [], isTrusted: () => false, eventOutboundUrl: () => null,
     },
     "../../../../lib/siteTime.js": { siteTodayStr: () => "2026-09-10" },
-    // Pin the wall clock to midday: overnightCacheBucket (real, below) shortens
-    // complete-answer CDN caching between 00:00–06:00 venue time by design, so
-    // an unpinned clock made the s-maxage=900 assertion fail every night.
-    "../../../../lib/overnightClose.js": { ...overnightClose, siteNowLocal: () => "2026-09-10T12:00" },
+    // Explicit wall time makes the normal, overnight and rollover policies
+    // independently reproducible at every real hour the guards run.
+    "../../../../lib/overnightClose.js": { ...overnightClose, siteNowLocal: () => wallTime },
     "../../../../lib/fallPool.js": {
       isFallEvent: () => true, fallEventLive: () => true, fallWhenLabel: () => "Tonight",
       fallScheduleChip: () => null, FALL_PLACE_IDS: { p1: "Verified fall offering" },
@@ -126,8 +125,23 @@ async function routeHarness({ dealError = null, pendingFailed = false, photoFail
   ok(h.observed.loaded && h.observed.usable === true, "healthy ten-rail answer is admitted to FastCache");
   ok(body.sourceFailures === 0 && body.rails.length === 10, "healthy response preserves its output and explicit source health");
   ok(windowRailAnswer(body).sourceFailures === 0, "the real wire serializer preserves health evidence for browser reuse");
-  ok(response.headers.get("cache-control") === "public, s-maxage=900, stale-while-revalidate=86400",
-    "complete Fall answer retains the existing public CDN policy");
+  ok(response.headers.get("cache-control") === "public, s-maxage=900, stale-while-revalidate=0",
+    "a healthy noon answer keeps its fifteen-minute CDN lifetime without stale replay");
+}
+
+for (const [wallTime, expectedPolicy] of [
+  ["2026-09-10T01:00", "public, s-maxage=60, stale-while-revalidate=0"],
+  ["2026-09-10T23:39", "public, s-maxage=900, stale-while-revalidate=0"],
+  ["2026-09-10T23:40", "no-store"],
+  ["2026-09-10T23:59", "no-store"],
+]) {
+  const h = await routeHarness({ wallTime });
+  const response = await h.GET(new Request("https://wayfind.test/api/events/fall?lat=27.95&lng=-82.46"));
+  const body = await response.json();
+  ok(body.sourceFailures === 0 && h.observed.usable === true,
+    `healthy answer retains internal FastCache admission at ${wallTime}`);
+  ok(response.headers.get("cache-control") === expectedPolicy,
+    `actual route CDN policy at ${wallTime}: ${expectedPolicy}`);
 }
 
 {

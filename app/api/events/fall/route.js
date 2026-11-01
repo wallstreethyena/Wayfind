@@ -478,10 +478,15 @@ export async function GET(request) {
       rails: composeHalloweenRails(filed.halloweenSource, today), collection: "halloween" } };
     else cached = { ...cached, value: { ...cached.value, rails: filed.fallRails } };
     const complete = cached.value?.sourceFailures === 0;
+    // The public URL has no date. Stop filling the CDN twenty local minutes
+    // before midnight so its prior fifteen-minute copy expires before dated
+    // offerings retire. Never serve stale copies across that boundary. The
+    // internal date/overnight-keyed FastCache still serves these requests.
+    const beforeDayRollover = nowLocal.slice(11) >= "23:40";
     const headers = {
       // After midnight a close can land any quarter hour: keep the CDN copy
       // short enough that it does not outlive the rail key above.
-      "cache-control": complete ? (overnightCacheBucket(nowLocal) ? "public, s-maxage=60, stale-while-revalidate=30" : "public, s-maxage=900, stale-while-revalidate=86400") : "no-store",
+      "cache-control": complete && !beforeDayRollover ? (overnightCacheBucket(nowLocal) ? "public, s-maxage=60, stale-while-revalidate=0" : "public, s-maxage=900, stale-while-revalidate=0") : "no-store",
       "x-wayfind-fast-cache": cached.state,
     };
     if (railId) {
