@@ -57,7 +57,7 @@ export function browseRowFor(card) {
     city: christmasCopy(card.city || ""),
     when: isPlace ? christmasCopy(card.seasonalWhen || "") : ticket ? ticket.when : christmasCopy(card.when || season || ""),
     price,
-    photos: ticket && Array.isArray(ticket.photos) && ticket.photos.length ? ticket.photos : browsePhotos(card),
+    photos: Array.isArray(card.photos) && card.photos.length ? card.photos.slice(0, 14) : (ticket && Array.isArray(ticket.photos) && ticket.photos.length ? ticket.photos.slice(0, 14) : browsePhotos(card)),
     placeholder: card.placeholder || null,
     cta: ticket ? ticket.cta : null,
     eventHref: card.detailHref || null,
