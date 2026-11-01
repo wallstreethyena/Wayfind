@@ -1,0 +1,1333 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for 29 creator-registry places newly carried into wf_inventory. Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ44JHW22nwogR8PZqJvgwjlg",
+   "name": "Sweetfields Farm",
+   "category": "activities",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sweetfieldsfarm.com/",
+     "source_name": "Sweetfields Farm — official site (sweetfieldsfarm.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sweetfields Farm is at 17250 Benes Roush Road, Brooksville, FL, USA.",
+      "Sunflower season blooms from late April to Memorial Day.",
+      "The Fall Fun Event runs the month of October with a corn maze and pumpkin patch.",
+      "Fall admission includes two corn mazes, a hayride, a hay play area and a visit with the animals."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seasonal sunflower maze in spring and corn maze with pumpkin patch each fall.",
+    "why_here": "Sweetfields Farm opens to visitors for two short seasons: a sunflower maze from late April to Memorial Day and a fall event in October with corn mazes and a pumpkin patch. Fall admission includes two corn mazes, a hayride, a hay play area and a visit with the animals.",
+    "know_before": "Open only during spring sunflower season and the October fall event; check the farm calendar before driving out.",
+    "local_tip": "Go in October for the corn maze and pumpkin patch in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sweetfieldsfarm.com/"
+     ],
+     "why_here": [
+      "https://www.sweetfieldsfarm.com/"
+     ],
+     "know_before": [
+      "https://www.sweetfieldsfarm.com/"
+     ],
+     "local_tip": [
+      "https://www.sweetfieldsfarm.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunflower season blooms from late April to Memorial Day.",
+      "source": "https://www.sweetfieldsfarm.com/"
+     },
+     {
+      "claim": "The Fall Fun Event runs the month of October with a corn maze and pumpkin patch.",
+      "source": "https://www.sweetfieldsfarm.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj2CAFaOVwogRF2YSVVe5Uvk",
+   "name": "The Vanilla Bean",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.vanillabeantampa.com/",
+     "source_name": "The Vanilla Bean — official site (vanillabeantampa.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Vanilla Bean Bakery & Coffee Cottage is at 16921 Gunn Hwy, Odessa FL 33556.",
+      "The cafe serves locally roasted coffee and house-made bakes.",
+      "The shop describes its style as old Florida charm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Odessa coffee cottage serving locally roasted coffee and house-made bakes.",
+    "why_here": "The Vanilla Bean Bakery & Coffee Cottage sits at 16921 Gunn Hwy in Odessa, serving locally roasted coffee and house-made bakes. Its old Florida charm gives the stop a quieter feel than the busier Tampa cafes to the south.",
+    "know_before": "The shop is on the north side of the building at 16921 Gunn Hwy.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.vanillabeantampa.com/"
+     ],
+     "why_here": [
+      "https://www.vanillabeantampa.com/"
+     ],
+     "know_before": [
+      "https://www.vanillabeantampa.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The cafe serves locally roasted coffee and house-made bakes.",
+      "source": "https://www.vanillabeantampa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjWvQ7k3HwogRqIGfmAUf-Bc",
+   "name": "Bakery 1908",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bakery1908.com/Location/",
+     "source_name": "Bakery 1908 — official site (bakery1908.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Bakery 1908 Tampa is at 2788 E Fowler Ave, Tampa, FL 33612.",
+      "Bakery 1908 has 4 locations across Florida, including two in Orlando, one in Gainesville, and one in Tampa."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa branch of a Florida bakery group with 4 locations across the state.",
+    "why_here": "Bakery 1908 lists its Tampa shop at 2788 E Fowler Ave, one of 4 locations across Florida alongside two in Orlando and one in Gainesville. The E Fowler Ave address puts it on the main road serving the university area in north Tampa.",
+    "know_before": "Confirm the Tampa location on the official locations page before ordering for pickup.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bakery1908.com/Location/"
+     ],
+     "why_here": [
+      "https://bakery1908.com/Location/"
+     ],
+     "know_before": [
+      "https://bakery1908.com/Location/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bakery 1908 has 4 locations across Florida, including two in Orlando, one in Gainesville, and one in Tampa.",
+      "source": "https://bakery1908.com/Location/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3TJxHZvHwogRwn4HI0koZbg",
+   "name": "Farooj Abo AlAbed",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aseertimegroupflorida.com/",
+     "source_name": "Farooj Abo AlAbed — official site (aseertimegroupflorida.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Farooj Abo Alabed is at 11401 N 56th St Suite 24, Temple Terrace, FL 33617.",
+      "We are a Lebanese charcoal grill serving charcoal chicken, kaak sandwiches and mixed grills.",
+      "The menu lists a Chicken Meal at $18.99 and a Grilled Tawouk Meal at $24.99."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lebanese charcoal grill known for charcoal chicken, kaak sandwiches and mixed grills.",
+    "why_here": "Farooj Abo Alabed is a Lebanese charcoal grill at 11401 N 56th St in Temple Terrace, serving charcoal chicken, kaak sandwiches and mixed grills. The posted menu lists a Chicken Meal at $18.99 and a Grilled Tawouk Meal at $24.99, giving first-time visitors two clear starting orders.",
+    "know_before": "The restaurant is in Suite 24 at 11401 N 56th St; look for the suite number in the plaza.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "why_here": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "know_before": [
+      "https://aseertimegroupflorida.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "We are a Lebanese charcoal grill serving charcoal chicken, kaak sandwiches and mixed grills.",
+      "source": "https://aseertimegroupflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlZFyCaC22YgRbFtPKFIFrRM",
+   "name": "Kaseya Center",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "stadium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us",
+     "source_name": "Kaseya Center — official site (kaseyacenter.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Kaseya Center is the home of the three-time NBA Champion Miami HEAT.",
+      "Kaseya Center is a 19,600-seat venue.",
+      "Kaseya Center is ranked the #1 arena in Florida according to Pollstar and Billboard.",
+      "Kaseya Center hosts Miami HEAT home games listed on its official events calendar."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "19,600-seat home of the three-time NBA Champion Miami HEAT",
+    "why_here": "Catch a Miami HEAT home game or a major concert in a 19,600-seat arena ranked the #1 arena in Florida by Pollstar and Billboard. The calendar runs year-round, so there is usually a game or show to plan around.",
+    "know_before": "Bag policies and entry rules vary by event; check the event page before you go.",
+    "local_tip": "Arrive early for HEAT games; downtown traffic builds before tip-off.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us"
+     ],
+     "why_here": [
+      "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us"
+     ],
+     "know_before": [
+      "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us"
+     ],
+     "local_tip": [
+      "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kaseya Center is the home of the three-time NBA Champion Miami HEAT.",
+      "source": "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us"
+     },
+     {
+      "claim": "Kaseya Center is a 19,600-seat venue.",
+      "source": "https://www.kaseyacenter.com/news/detail/kaseya-center-ranked-among-top-10-venues-in-the-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy7RVBQC52YgRvXZ6o8vXHq8",
+   "name": "La Macha Taqueria",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lamachataqueria.com/order",
+     "source_name": "La Macha Taqueria — official site (lamachataqueria.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "La Macha Taqueria in Doral serves authentic Sinaloa-style tacos, handmade tortillas and real ingredients.",
+      "Order birria, pastor and asada tacos online or visit us today.",
+      "La Macha Taqueria is located at 9619 NW 41st St, Doral, FL 33178."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sinaloa-style tacos with handmade tortillas in Doral",
+    "why_here": "La Macha Taqueria in Doral serves authentic Sinaloa-style tacos, handmade tortillas and real ingredients, with birria, pastor and asada tacos available to order.",
+    "know_before": "Order birria, pastor or asada tacos; handmade tortillas are central to the menu.",
+    "local_tip": "Start with birria and add pastor or asada to compare styles.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lamachataqueria.com/order"
+     ],
+     "why_here": [
+      "https://lamachataqueria.com/order"
+     ],
+     "know_before": [
+      "https://lamachataqueria.com/order"
+     ],
+     "local_tip": [
+      "https://lamachataqueria.com/order"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Macha Taqueria in Doral serves authentic Sinaloa-style tacos, handmade tortillas and real ingredients.",
+      "source": "https://lamachataqueria.com/order"
+     },
+     {
+      "claim": "Order birria, pastor and asada tacos online or visit us today.",
+      "source": "https://lamachataqueria.com/order"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcyAwPKy22YgRDQNU5lP6UVI",
+   "name": "Mister O1 Extraordinary Pizza",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mistero1.com/",
+     "source_name": "Mister O1 Extraordinary Pizza — official site (mistero1.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mister O1 is a modern, conceptual and trendy pizzeria.",
+      "Traditional and extraordinary Italian thin-crust style pizza, salads and antipasti are made with the finest and freshest ingredients, mostly imported from Italy or locally sourced.",
+      "Mister O1 Extraordinary Pizza Wynwood is at 2315 N Miami Ave, Miami, FL 33127."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian thin-crust pizza, salads and antipasti in Wynwood",
+    "why_here": "Mister O1 serves traditional and extraordinary Italian thin-crust style pizza, salads and antipasti made with ingredients mostly imported from Italy or locally sourced in Wynwood.",
+    "know_before": "Expect thin-crust pizza plus salads and antipasti; ingredients are mostly imported from Italy or locally sourced.",
+    "local_tip": "Choose a traditional pizza first, then an extraordinary style on a return visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mistero1.com/"
+     ],
+     "why_here": [
+      "https://www.mistero1.com/"
+     ],
+     "know_before": [
+      "https://www.mistero1.com/"
+     ],
+     "local_tip": [
+      "https://www.mistero1.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mister O1 is a modern, conceptual and trendy pizzeria.",
+      "source": "https://www.mistero1.com/"
+     },
+     {
+      "claim": "Traditional and extraordinary Italian thin-crust style pizza, salads and antipasti are made with the finest and freshest ingredients, mostly imported from Italy or locally sourced.",
+      "source": "https://www.mistero1.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz-3g0sDB2YgRO6WGPpqPHa0",
+   "name": "Inka Nikkei",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://inkanikkei.net/",
+     "source_name": "Inka Nikkei — official site (inkanikkei.net)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Inka Nikkei is located in Miami, FL at 14697 SW 104th St.",
+      "Inka Nikkei unites the richness of Peruvian ingredients with the elegance of Japanese technique.",
+      "Inka Nikkei is more than a restaurant; it is a tribute to the heritage of two great culinary traditions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ingredients meet Japanese technique in west Miami",
+    "why_here": "Inka Nikkei unites the richness of Peruvian ingredients with the elegance of Japanese technique, presenting the pairing as a tribute to two culinary traditions at its Miami restaurant.",
+    "know_before": "Plan for a Peruvian-Japanese menu that blends Peruvian ingredients with Japanese technique.",
+    "local_tip": "Ask which dishes best show the Peruvian and Japanese sides together.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://inkanikkei.net/"
+     ],
+     "why_here": [
+      "https://inkanikkei.net/"
+     ],
+     "know_before": [
+      "https://inkanikkei.net/"
+     ],
+     "local_tip": [
+      "https://inkanikkei.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Inka Nikkei is located in Miami, FL at 14697 SW 104th St.",
+      "source": "https://inkanikkei.net/"
+     },
+     {
+      "claim": "Inka Nikkei unites the richness of Peruvian ingredients with the elegance of Japanese technique.",
+      "source": "https://inkanikkei.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNa1-V2O12YgRAqLfC-1lsb0",
+   "name": "The Best Açaí",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebest.thebestacai.com/",
+     "source_name": "The Best Açaí — official site (thebest.thebestacai.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Best Acai - Lincoln Road is at 540 Lincoln Road, Miami Beach, FL 33139.",
+      "The Best Acai - Lincoln Road is open Monday through Sunday from 10:30 to 22:30.",
+      "The spot serves several varieties and flavors of gelato, acai, and acai mixes on Lincoln Road."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Acai, acai mixes and gelato on Lincoln Road",
+    "why_here": "The Best Acai on Lincoln Road serves several varieties and flavors of gelato, acai, and acai mixes, giving Lincoln Road visitors a cold, fruit-based stop in Miami Beach.",
+    "know_before": "Open Monday through Sunday from 10:30 to 22:30 at 540 Lincoln Road.",
+    "local_tip": "Compare an acai mix with gelato before choosing a full serving.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebest.thebestacai.com/"
+     ],
+     "why_here": [
+      "https://thebest.thebestacai.com/"
+     ],
+     "know_before": [
+      "https://thebest.thebestacai.com/"
+     ],
+     "local_tip": [
+      "https://thebest.thebestacai.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Best Acai - Lincoln Road is at 540 Lincoln Road, Miami Beach, FL 33139.",
+      "source": "https://thebest.thebestacai.com/"
+     },
+     {
+      "claim": "The Best Acai - Lincoln Road is open Monday through Sunday from 10:30 to 22:30.",
+      "source": "https://thebest.thebestacai.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2ZZybj-r2YgRzW-AJXm_GKU",
+   "name": "Sardelli's Italian Steakhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sardellis.com/",
+     "source_name": "Sardelli's Italian Steakhouse — official site (sardellis.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sardelli's Italian Steakhouse lists its address as 331 Van Buren Street, Hollywood, FL 33019.",
+      "Dinner hours are Monday through Thursday from 5:00 PM to 10:00 PM, Friday and Saturday from 5:00 PM to 11:00 PM, and Sunday from 5:30 PM to 9:30 PM.",
+      "The restaurant publishes dinner and wine list menus on its official site.",
+      "Parties of 8 or more are asked to make a group reservation request at least 72 hours in advance.",
+      "Reservations are offered through Resy, and the restaurant phone is (954) 921-8331."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian steakhouse dinner and wine lists in Hollywood, with evening service seven days a week",
+    "why_here": "Sardelli's works for a sit-down Italian steakhouse dinner in Hollywood. The official site publishes dinner and wine list menus and lists evening hours seven days a week, so the visit is a planned dinner rather than a walk-in lunch stop.",
+    "know_before": "Dinner only in the evening; parties of 8 or more should request at least 72 hours in advance.",
+    "local_tip": "Book through Resy or call (954) 921-8331 for larger parties.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sardellis.com/"
+     ],
+     "why_here": [
+      "https://sardellis.com/"
+     ],
+     "know_before": [
+      "https://sardellis.com/"
+     ],
+     "local_tip": [
+      "https://sardellis.com/"
+     ],
+     "best_time": [],
+     "facts": [
+      "https://sardellis.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sardelli's Italian Steakhouse lists its address as 331 Van Buren Street, Hollywood, FL 33019.",
+      "source": "https://sardellis.com/"
+     },
+     {
+      "claim": "Parties of 8 or more are asked to make a group reservation request at least 72 hours in advance.",
+      "source": "https://sardellis.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa8EUn-632YgRCPUPVpld-LI",
+   "name": "Sawa Restaurant & Lounge",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sawarestaurant.com/about-us/",
+     "source_name": "Sawa Restaurant & Lounge — official site (sawarestaurant.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sawa Restaurant & Lounge is at Shops at Merrick Park, 360 San Lorenzo Ave, Suite 1500, Coral Gables, FL 33146.",
+      "Ramzi Zahr launched Sawa Restaurant & Lounge in April 2010 in Merrick Park.",
+      "Sawa serves contemporary Mediterranean and Japanese cuisine with a dual-concept menu.",
+      "Hours are Monday through Thursday from 12:00pm to 10pm, Friday from 12:00pm to 11pm, Saturday from 11:30am to 11pm, and Sunday from 11:30am to 10pm.",
+      "Happy Hour is Monday through Friday from 4pm to 7pm, and services include dine-in, take-out, private events, a hookah lounge, and a doggy menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean and Japanese dual-concept restaurant and lounge at Merrick Park in Coral Gables",
+    "why_here": "Sawa pairs Mediterranean and Japanese cooking in one Coral Gables room at Merrick Park, with a lounge, hookah lounge, and private events alongside dinner. Ramzi Zahr launched Sawa in April 2010, and the official site still lists daily hours and Happy Hour.",
+    "know_before": "Happy Hour is Monday through Friday from 4pm to 7pm; Sunday service ends at 10pm.",
+    "local_tip": "Use the Monday through Friday Happy Hour from 4pm to 7pm at the bar.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sawarestaurant.com/about-us/"
+     ],
+     "why_here": [
+      "https://sawarestaurant.com/about-us/"
+     ],
+     "know_before": [
+      "https://sawarestaurant.com/about-us/"
+     ],
+     "local_tip": [
+      "https://sawarestaurant.com/about-us/"
+     ],
+     "best_time": [],
+     "facts": [
+      "https://sawarestaurant.com/about-us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sawa Restaurant & Lounge is at Shops at Merrick Park, 360 San Lorenzo Ave, Suite 1500, Coral Gables, FL 33146.",
+      "source": "https://sawarestaurant.com/about-us/"
+     },
+     {
+      "claim": "Sawa serves contemporary Mediterranean and Japanese cuisine with a dual-concept menu.",
+      "source": "https://sawarestaurant.com/about-us/"
+     },
+     {
+      "claim": "Happy Hour is Monday through Friday from 4pm to 7pm, and services include dine-in, take-out, private events, a hookah lounge, and a doggy menu.",
+      "source": "https://sawarestaurant.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhRdita6n2YgRAXGrnFK-BH0",
+   "name": "Southwest Ranches Farmer's Market",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://swrfmarket.com/",
+     "source_name": "Southwest Ranches Farmer's Market — official site (swrfmarket.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Southwest Ranches Farmers Market is located at 5150 S Flamingo Rd, Southwest Ranches, FL 33330.",
+      "The market lists hours of Tuesday through Friday from 10:00am to 7:00pm and Saturday from 10:00am to 5:30pm.",
+      "The market sells raw cow milk, raw buffalo milk, cheese, pork, and produce.",
+      "Southwest Ranches Farmers Market is licensed by the State of Florida as a pet food distributor."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Farm market for raw milk, cheese, pork, and produce on Flamingo Road",
+    "why_here": "Southwest Ranches Farmers Market sells raw cow milk, raw buffalo milk, cheese, pork, and produce from its store at 5150 S Flamingo Rd, giving Broward shoppers a single stop for farm dairy and meats without a trip to a supermarket.",
+    "know_before": "Check product labels before buying, since Southwest Ranches Farmers Market is licensed by the State of Florida as a pet food distributor.",
+    "local_tip": "Visit on Saturday between 10:00am and 5:30pm if weekday hours do not fit your schedule.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://swrfmarket.com/"
+     ],
+     "why_here": [
+      "https://swrfmarket.com/"
+     ],
+     "know_before": [
+      "https://swrfmarket.com/"
+     ],
+     "local_tip": [
+      "https://swrfmarket.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southwest Ranches Farmers Market is located at 5150 S Flamingo Rd, Southwest Ranches, FL 33330.",
+      "source": "https://swrfmarket.com/"
+     },
+     {
+      "claim": "The market lists hours of Tuesday through Friday from 10:00am to 7:00pm and Saturday from 10:00am to 5:30pm.",
+      "source": "https://swrfmarket.com/"
+     },
+     {
+      "claim": "The market sells raw cow milk, raw buffalo milk, cheese, pork, and produce.",
+      "source": "https://swrfmarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxV7_BnIJ2YgRx70VLv4ncu4",
+   "name": "Rosso Coffee Club",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://order.toasttab.com/online/rosso-coffee-club",
+     "source_name": "Rosso Coffee Club — official site (order.toasttab.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Rosso Coffee Club is located at 1975 South Flamingo Road, Davie, FL 33325.",
+      "Rosso Coffee Club specializes in specialty coffee, artisan pastries, and sandwiches.",
+      "The drinks menu includes a Tiramisú Latte and a Honey & Cinnamon Latte.",
+      "Rosso Coffee Club lists hours of 08:00 to 18:00 on Sunday through Saturday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Specialty coffee, artisan pastries, and sandwiches on Flamingo Road in Davie",
+    "why_here": "Rosso Coffee Club pours specialty coffee alongside artisan pastries and sandwiches at 1975 South Flamingo Road in Davie, with dessert-style drinks such as the Tiramisú Latte and the Honey & Cinnamon Latte on the drinks menu for a slower coffee stop.",
+    "know_before": "Rosso Coffee Club lists hours of 08:00 to 18:00 on Sunday through Saturday, so plan morning and afternoon visits only.",
+    "local_tip": "Order the Tiramisú Latte if you want a coffee-forward dessert drink in a cup.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://order.toasttab.com/online/rosso-coffee-club"
+     ],
+     "why_here": [
+      "https://order.toasttab.com/online/rosso-coffee-club"
+     ],
+     "know_before": [
+      "https://order.toasttab.com/online/rosso-coffee-club"
+     ],
+     "local_tip": [
+      "https://order.toasttab.com/online/rosso-coffee-club"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosso Coffee Club is located at 1975 South Flamingo Road, Davie, FL 33325.",
+      "source": "https://order.toasttab.com/online/rosso-coffee-club"
+     },
+     {
+      "claim": "Rosso Coffee Club specializes in specialty coffee, artisan pastries, and sandwiches.",
+      "source": "https://order.toasttab.com/online/rosso-coffee-club"
+     },
+     {
+      "claim": "The drinks menu includes a Tiramisú Latte and a Honey & Cinnamon Latte.",
+      "source": "https://order.toasttab.com/online/rosso-coffee-club"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo_QCg1-r2YgR68lZFkEcwBI",
+   "name": "ETARU",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://etarurestaurant.us/",
+     "source_name": "ETARU — official site (etarurestaurant.us)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "ETARU is located at 111 S Surf Rd, Hallandale Beach, FL 33009.",
+      "ETARU serves contemporary Japanese Robatayaki cuisine centered on a central robata grill.",
+      "The menu includes sashimi, maki rolls, and tataki served on plateware imported from Japan.",
+      "Signature dishes include yellowtail sashimi with yuzu truffle dressing and yellowfin tuna tataki."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese robata grill cooking near the ocean in Hallandale Beach",
+    "why_here": "ETARU centers dinner around a central robata grill in Hallandale Beach, serving contemporary Japanese Robatayaki cuisine with sashimi, maki rolls, and tataki on plateware imported from Japan for a shared, grill-focused meal by the coast.",
+    "know_before": "Start with signature dishes such as yellowtail sashimi with yuzu truffle dressing or yellowfin tuna tataki before robata-grilled plates.",
+    "local_tip": "Book dinner ahead on weekends, when the robata grill room fills fastest.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://etarurestaurant.us/"
+     ],
+     "why_here": [
+      "https://etarurestaurant.us/"
+     ],
+     "know_before": [
+      "https://etarurestaurant.us/"
+     ],
+     "local_tip": [
+      "https://etarurestaurant.us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ETARU serves contemporary Japanese Robatayaki cuisine centered on a central robata grill.",
+      "source": "https://etarurestaurant.us/"
+     },
+     {
+      "claim": "The menu includes sashimi, maki rolls, and tataki served on plateware imported from Japan.",
+      "source": "https://etarurestaurant.us/"
+     },
+     {
+      "claim": "Signature dishes include yellowtail sashimi with yuzu truffle dressing and yellowfin tuna tataki.",
+      "source": "https://etarurestaurant.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCSwptQKt2YgRYw-RZ3Xkl-8",
+   "name": "Lentrecote",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lentrecoteusa.com/",
+     "source_name": "Lentrecote",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Lentrecote is a French steak-frites bistro located at 18146 Collins Avenue, Sunny Isles Beach, Florida.",
+      "We serve a single fixed two-course menu: a Dijon mustard vinaigrette salad, sous-vide USDA top sirloin topped with our secret Lentrecote herb-butter sauce, and unlimited crispy frites.",
+      "Reservations are strongly recommended, especially on weekends.",
+      "We offer a vegetarian version of the two-course set menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French steak-frites bistro in Sunny Isles Beach known for one fixed menu and its secret herb-butter sauce",
+    "why_here": "Come for a single fixed two-course menu done the same way every night: a Dijon mustard vinaigrette salad, then sous-vide USDA top sirloin under a secret herb-butter sauce with unlimited crispy frites.",
+    "know_before": "Reservations are strongly recommended, especially on weekends.",
+    "best_time": null,
+    "local_tip": "Ask about the vegetarian version of the two-course set menu if someone skips steak.",
+    "facts": [
+     {
+      "claim": "Lentrecote is a French steak-frites bistro located at 18146 Collins Avenue, Sunny Isles Beach, Florida.",
+      "source": "https://www.lentrecoteusa.com/"
+     },
+     {
+      "claim": "We serve a single fixed two-course menu: a Dijon mustard vinaigrette salad, sous-vide USDA top sirloin topped with our secret Lentrecote herb-butter sauce, and unlimited crispy frites.",
+      "source": "https://www.lentrecoteusa.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.lentrecoteusa.com/"
+     ],
+     "why_here": [
+      "https://www.lentrecoteusa.com/"
+     ],
+     "know_before": [
+      "https://www.lentrecoteusa.com/"
+     ],
+     "local_tip": [
+      "https://www.lentrecoteusa.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJgfpf6Qm32YgRGTHIgOFBjW4",
+   "name": "Majestic Portuguese Bakehouse",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.majesticbakehouse.com/",
+     "source_name": "Majestic Portuguese Bakehouse",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Majestic Portuguese Bakehouse is at 3340 Coral Way, Miami, FL 33145.",
+      "Majestic Bakehouse is now open for takeout and delivery.",
+      "Get ready to dip yourself in a full Portuguese experience in Miami, taste new flavors and enjoy the gastronomic treasures our culture has to offer.",
+      "Majestic Portuguese Bakehouse lists hours Monday-Friday 7:30am to 7:00pm, Saturday 8:00am to 7:00pm and Sunday 8:00am to 6:00pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Portuguese bakehouse on Coral Way for a full Portuguese experience in Miami",
+    "why_here": "Stop in for a full Portuguese experience in Miami, where the bakehouse serves new flavors and the gastronomic treasures its culture has to offer, with takeout and delivery also available.",
+    "know_before": "Majestic Bakehouse is now open for takeout and delivery.",
+    "best_time": null,
+    "local_tip": "Check the listed opening hours before a Sunday visit.",
+    "facts": [
+     {
+      "claim": "Majestic Portuguese Bakehouse is at 3340 Coral Way, Miami, FL 33145.",
+      "source": "https://www.majesticbakehouse.com/"
+     },
+     {
+      "claim": "Majestic Bakehouse is now open for takeout and delivery.",
+      "source": "https://www.majesticbakehouse.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.majesticbakehouse.com/"
+     ],
+     "why_here": [
+      "https://www.majesticbakehouse.com/"
+     ],
+     "know_before": [
+      "https://www.majesticbakehouse.com/"
+     ],
+     "local_tip": [
+      "https://www.majesticbakehouse.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJw0TRvEat2YgROpFgeN-2rc4",
+   "name": "Signor Sassi",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://signorsassiusa.com/",
+     "source_name": "Signor Sassi — official site (signorsassiusa.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Founded in 1984 in Knightsbridge, London, Signor Sassi has become one of the world's most celebrated Italian restaurants.",
+      "The South Florida restaurant serves contemporary Italian cuisine with an outdoor terrace, a central bar and a private dining room in Hallandale Beach.",
+      "Signor Sassi is located at 1006 E Hallandale Beach Blvd, Units #4-101 to #4-103, Hallandale Beach, Florida, 33009.",
+      "Opening hours are Sunday to Wednesday 5:00 pm to 09:30 pm and Thursday to Saturday 5:00 pm to 10:30 pm.",
+      "The menu features classic Italian dishes alongside innovative creations, from the finest seafood to pasta, meat, and vegetarian dishes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "London-born Italian dining, founded in 1984 in Knightsbridge, now serving South Florida",
+    "why_here": "Signor Sassi brings its Knightsbridge dining room to Hallandale Beach with contemporary Italian cooking built on classic dishes, seafood, pasta, meat and vegetarian plates, plus a central bar and an outdoor terrace for slower evenings.",
+    "know_before": "Dinner only: Sunday to Wednesday ends 09:30 pm; Thursday to Saturday runs to 10:30 pm.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://signorsassiusa.com/"
+     ],
+     "why_here": [
+      "https://signorsassiusa.com/",
+      "https://signorsassiusa.com/",
+      "https://signorsassiusa.com/"
+     ],
+     "know_before": [
+      "https://signorsassiusa.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Founded in 1984 in Knightsbridge, London, Signor Sassi has become one of the world's most celebrated Italian restaurants.",
+      "source": "https://signorsassiusa.com/"
+     },
+     {
+      "claim": "The menu features classic Italian dishes alongside innovative creations, from the finest seafood to pasta, meat, and vegetarian dishes.",
+      "source": "https://signorsassiusa.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3Rit2Qq5wogRKv1xCNAklSs",
+   "name": "Station House BBQ",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.stationhousebbq.com/",
+     "source_name": "Station House BBQ — official site (stationhousebbq.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Station House BBQ is a firefighter-founded BBQ restaurant and catering service serving Tampa Bay, Florida.",
+      "Station House BBQ was founded by retired firefighter Anthony Fonseca and his wife, Allison, a local school teacher.",
+      "Restaurant pickup is at 5214 N Nebraska Ave, Tampa, FL 33603.",
+      "The menu centers on smoked meats and scratch-made sides, with Party Samplers feeding 10 to 50 people."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Firefighter-founded Tampa BBQ with smoked meats, scratch-made sides and Party Samplers",
+    "why_here": "Station House BBQ grew out of the firehouse: retired firefighter Anthony Fonseca and his wife Allison serve slow-smoked meats and scratch-made sides in Tampa, with Party Samplers built to feed crews of 10 to 50 without a full catering setup.",
+    "know_before": "Restaurant pickup is at 5214 N Nebraska Ave; Party Samplers feed 10 to 50 people.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.stationhousebbq.com/",
+      "https://www.stationhousebbq.com/"
+     ],
+     "why_here": [
+      "https://www.stationhousebbq.com/",
+      "https://www.stationhousebbq.com/"
+     ],
+     "know_before": [
+      "https://www.stationhousebbq.com/",
+      "https://www.stationhousebbq.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Station House BBQ is a firefighter-founded BBQ restaurant and catering service serving Tampa Bay, Florida.",
+      "source": "https://www.stationhousebbq.com/"
+     },
+     {
+      "claim": "The menu centers on smoked meats and scratch-made sides, with Party Samplers feeding 10 to 50 people.",
+      "source": "https://www.stationhousebbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo9jsaGTOwogRdOmdOfqbAxc",
+   "name": "Ploy Thai",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ploythairestaurant.com/",
+     "source_name": "Ploy Thai — official site (ploythairestaurant.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ploy Thai Restaurant serves authentic Thai food in Brandon, Florida.",
+      "Ploy Thai Restaurant is located at 1941 W. Brandon Blvd., Brandon, FL 33511.",
+      "Opening hours Monday - Friday are Lunch 11:30 AM - 3:00 PM and Dinner 5:00 PM - 9:00 PM; Saturday 12:00 PM - 9:00 PM."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Thai kitchen in Brandon with split lunch and dinner service on Brandon Blvd",
+    "why_here": "Ploy Thai is Brandon's long-running Thai stop on Brandon Blvd, serving authentic Thai food in a split day: lunch service, a mid-afternoon pause, then dinner — a rhythm regulars plan around for curries, noodles and Thai staples close to home.",
+    "know_before": "Split hours Monday - Friday: lunch ends 3:00 PM and dinner starts 5:00 PM.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ploythairestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.ploythairestaurant.com/",
+      "https://www.ploythairestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.ploythairestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ploy Thai Restaurant serves authentic Thai food in Brandon, Florida.",
+      "source": "https://www.ploythairestaurant.com/"
+     },
+     {
+      "claim": "Opening hours Monday - Friday are Lunch 11:30 AM - 3:00 PM and Dinner 5:00 PM - 9:00 PM; Saturday 12:00 PM - 9:00 PM.",
+      "source": "https://www.ploythairestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwZnbpBHpwogR3PZgkgesIoc",
+   "name": "alimento",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://alimento813.com/",
+     "source_name": "alimento — official site (alimento813.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Fresh Food in Tampa. Cooked Daily, Never Frozen.",
+      "A mom and son kitchen serving healthy, Latin-inspired food.",
+      "Dine in or pick up at our Dale Mabry location in Tampa, Florida.",
+      "Family Platters Mom-cooked platters by the pound"
+     ]
+    },
+    {
+     "source": "https://alimento813.com/contact",
+     "source_name": "alimento — official site (alimento813.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Visit Alimento in person, we're located at 2966 North Dale Mabry hwy Tampa, FL inside the Jeep dealership.",
+      "Located inside Located inside the Jeep Dealership!",
+      "Store Hours: Monday - Saturday: 10 AM to 8 PM | Sunday: 10 AM to 5 PM"
+     ]
+    },
+    {
+     "source": "https://alimento813.com/about",
+     "source_name": "alimento — official site (alimento813.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "As a family-owned Tampa kitchen, we create fresh, healthy, Latin-inspired meals that make eating well simple and enjoyable.",
+      "We specialize in weekly meal prep, providing balanced, nutrient rich meals with the authentic flavors of Latin cuisine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin-inspired meal prep cooked daily by a mom and son kitchen",
+    "why_here": "Alimento serves fresh, healthy, Latin-inspired meals from its Dale Mabry location in Tampa, Florida, with dine-in and pickup, weekly meal prep, family platters, and catering for people who want cooked food without the frozen shortcut.",
+    "know_before": "Find it inside the Jeep Dealership on Dale Mabry, and check the day before going because Sunday hours differ.",
+    "local_tip": "Order weekly meal prep ahead, then pick up at the Dale Mabry counter.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://alimento813.com/"
+     ],
+     "why_here": [
+      "https://alimento813.com/",
+      "https://alimento813.com/about"
+     ],
+     "know_before": [
+      "https://alimento813.com/contact"
+     ],
+     "local_tip": [
+      "https://alimento813.com/about",
+      "https://alimento813.com/contact"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fresh Food in Tampa. Cooked Daily, Never Frozen.",
+      "source": "https://alimento813.com/"
+     },
+     {
+      "claim": "A mom and son kitchen serving healthy, Latin-inspired food.",
+      "source": "https://alimento813.com/"
+     },
+     {
+      "claim": "We specialize in weekly meal prep, providing balanced, nutrient rich meals with the authentic flavors of Latin cuisine.",
+      "source": "https://alimento813.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd_ueXDW_2YgR_KpiHatf9mA",
+   "name": "Carvel",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue",
+     "source_name": "Carvel — official site (locations.carvel.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Welcome to Carvel Miami Meadows",
+      "Welcome to Carvel on 4226 SW 152nd Avenue.",
+      "Our shoppes have every kind of ice cream treat you can imagine: soft ice cream, scooped flavors, toppings, shakes, Sundae Dashers®, take-home treats, and our famous ice cream cakes.",
+      "Everything is made fresh, so no matter what kind of treat or design you want, we make it happen.",
+      "Make a splash at any party with the Crunchies-filled, cult classic, Fudgie the Whale"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Soft ice cream, Sundae Dashers and Fudgie the Whale cakes",
+    "why_here": "This Miami Carvel shoppe serves soft ice cream, scooped flavors, shakes and take-home treats, with ice cream cakes made fresh for a party or a weeknight dessert run in Miami Meadows.",
+    "know_before": "Expect soft ice cream, scooped flavors, toppings and shakes rather than a full restaurant menu.",
+    "local_tip": "Pick Fudgie the Whale for a party cake.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue"
+     ],
+     "why_here": [
+      "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue"
+     ],
+     "know_before": [
+      "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue"
+     ],
+     "local_tip": [
+      "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Welcome to Carvel on 4226 SW 152nd Avenue.",
+      "source": "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue"
+     },
+     {
+      "claim": "Everything is made fresh, so no matter what kind of treat or design you want, we make it happen.",
+      "source": "https://locations.carvel.com/fl/miami/4226-sw-152nd-avenue"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhw4bDvq22YgRt1rD2Am4AxY",
+   "name": "Sanguich",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sanguich.com/",
+     "source_name": "Sanguich — official site (sanguich.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sanguich is a Michelin Bib Gourmand-awarded Cuban restaurant brand in Miami, Florida, known for authentic Cuban sandwiches, croquetas, batidos, and coffee.",
+      "The current Cubano uses house-made city ham, garlic confit pork, mustard, Ammerlander Swiss cheese, Sanguich's own pickles, and preservative-free Cuban bread."
+     ]
+    },
+    {
+     "source": "https://miamiandbeaches.com/l/eat-and-drink/sanguich-de-miami/46855",
+     "source_name": "Sanguich — official site (miamiandbeaches.com)",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Traditional Cuban sandwiches are the specialty at Sanguich de Miami in Little Havana.",
+      "Sanguich de Miami is listed at 2057 SW 8TH ST, Miami, FL 33135."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Michelin Bib Gourmand Cuban sandwiches in Little Havana, built on house-made ham and pork",
+    "why_here": "Order the Cubano in Little Havana: house-made city ham, garlic confit pork, mustard, Ammerlander Swiss cheese, pickles, and preservative-free Cuban bread, plus croquetas, batidos, and coffee from a Bib Gourmand kitchen.",
+    "know_before": "Traditional Cuban sandwiches are the specialty at this Little Havana location on SW 8th St.",
+    "local_tip": "Start with the Cubano before adding croquetas or a batido.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sanguich.com/"
+     ],
+     "why_here": [
+      "https://sanguich.com/"
+     ],
+     "know_before": [
+      "https://miamiandbeaches.com/l/eat-and-drink/sanguich-de-miami/46855"
+     ],
+     "local_tip": [
+      "https://sanguich.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sanguich is a Michelin Bib Gourmand-awarded Cuban restaurant brand in Miami, Florida, known for authentic Cuban sandwiches, croquetas, batidos, and coffee.",
+      "source": "https://sanguich.com/"
+     },
+     {
+      "claim": "Traditional Cuban sandwiches are the specialty at Sanguich de Miami in Little Havana.",
+      "source": "https://miamiandbeaches.com/l/eat-and-drink/sanguich-de-miami/46855"
+     }
+    ]
+   }
+  }
+ ]
+}

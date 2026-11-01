@@ -38,3 +38,18 @@ update path; the rest are new inserts.
 After publish, 252 of 409 registry places hold a verified hook in
 `wf_editorial` (the rest of the previously speaking cards resolve through
 Atlas cards and inventory editorial-card rungs).
+
+## Addendum (same day, owner decision: verify + add the real ones)
+
+The 100 no-inventory places were verified individually. 29 were real,
+operating, Florida, address-matched businesses with publicly sourced
+coordinates; they were carried into `wf_inventory` by
+`scripts/ingest-verified-2026-10-31-creator.mjs` (batch
+`data/atlas/owner-batch-2026-10-31-creator.json`, insert-if-absent, no
+Google Places calls) and then published here as packs 07–08 (29 rows).
+The other 71 wrote nothing: 69 holds (no official source could confirm
+operation/address, coordinates not publicly sourced, or seasonal-past)
+and 2 rejects (a medical practice, a past pop-up). Their names and
+reasons are recorded in the batch JSON.
+
+Final state: 281 of 409 registry places hold a verified hook.
