@@ -160,4 +160,4 @@ try {
   }
   assert.equal(seasonalRenders, 288, 'all year, date, band and synthetic-promotion combinations rendered');
 } finally { globalThis.Date = NativeDate; }
-console.log('Rays campaign: status positive/negative controls, date boundaries, real 4-band render, duplicate suppression, first-load artwork, guide link and 288 seasonal promotion renders passed');
+console.log('Rays campaign: status positive/negative controls, date boundaries, real 4-band render, duplicate suppression, first-load artwork, guide link, 288 seasonal promotion renders, 2 detected mutations and forced Rays overlap passed');
