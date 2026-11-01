@@ -861,6 +861,7 @@ node scripts/test-session-map-parity.mjs
 
 # WF-006 / WF-008 / WF-009 / WF-010 / WF-011 — partner geo, sitemap membership, landmarks, nested interactives
 node scripts/test-partner-geo.mjs
+node scripts/test-partner-offer-health.mjs
 node scripts/check-sitemap.mjs
 # 2026-09-23 — guide-linked restaurant picks (47 of 50 across the food-city
 # guides) rendered noindex with no address; guide-pick content now counts as
