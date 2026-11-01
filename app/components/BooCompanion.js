@@ -18,7 +18,7 @@ import { SANTA, SANTA_CHIPS, SANTA_FINDER_CHIPS, SANTA_GAGS, SANTA_ZAP_LINES, SA
 import { openerFor } from "./booOpeners.js";
 import { coverageState, coverageLines, coverageSheetLine, unknownSheetLine, coverageButtonText, roundMiles } from "./booCoverage.js";
 import { pickLine, routeLine, timeLines } from "./booReactions.js";
-import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide } from "./booClear.js";
+import { MAX_COVER, rectOf, isClear, touchesAny, besideSpot, perchSpot, pickClearSpot, estimateBubble, bubbleSideIfClear, chooseBubbleSide, hitsText } from "./booClear.js";
 
 const HIDE_KEY = "wf_boo_hidden";
 // /group-plans: owner 2026-10-30, "get him out of the group pages". Friends
@@ -295,6 +295,8 @@ function readMs(text) {
 const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
 .boo-c,.boo-c *{pointer-events:none !important}
+.boo-c-body{transition:opacity .18s ease}
+.boo-c[data-ghost="1"] .boo-c-body{opacity:.22}
 .boo-c-body{display:block;box-sizing:border-box;width:${SIZE}px;height:${SIZE}px;position:relative;border-radius:50%}
 .boo-c .boo-c-hit{all:unset;box-sizing:border-box;position:absolute;left:${(SIZE - 44) / 2}px;top:${(SIZE - 44) / 2}px;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:none !important}
 .boo-c .boo-c-hit[data-tap="1"]{pointer-events:auto !important}
@@ -677,6 +679,31 @@ export default function BooCompanion() {
         txt.push(rect);
       } else out.push(rect);
     }
+    // THE WORDS THEMSELVES (owner 2026-11-01, measured live: Santa parked on the
+    // "Ask Santa" button label and on a card title, because those words sit in
+    // buttons and divs the selectors above do not treat as text). Every visible
+    // text node in the viewport adds its glyph boxes, so a word counts wherever
+    // it lives. Text inside him (his bubble, his sheet) is skipped.
+    try {
+      const NF = window.NodeFilter;
+      const walker = document.createTreeWalker(document.body, NF.SHOW_TEXT, {
+        acceptNode: (n) => (n.nodeValue && n.nodeValue.trim() && !(me && me.contains(n)) ? NF.FILTER_ACCEPT : NF.FILTER_REJECT),
+      });
+      const rg = document.createRange();
+      for (let n = walker.nextNode(); n; n = walker.nextNode()) {
+        const pe = n.parentElement;
+        if (!pe) continue;
+        const pr = pe.getBoundingClientRect();
+        if (pr.bottom <= 0 || pr.top >= vh || pr.right <= 0 || pr.left >= vw || pr.width < 2 || pr.height < 2) continue;
+        rg.selectNodeContents(n);
+        const lines = rg.getClientRects();
+        for (let j = 0; j < lines.length; j++) {
+          const q = lines[j];
+          if (q.width < 3 || q.height < 3 || q.bottom <= 0 || q.top >= vh) continue;
+          txt.push({ left: q.left, top: q.top, right: q.right, bottom: q.bottom });
+        }
+      }
+    } catch { /* ignore */ }
     c.t = now; c.list = out; c.text = txt;
     return out;
   };
@@ -1132,6 +1159,15 @@ export default function BooCompanion() {
           else if (touched) { if (!parkClear()) g.pause = TOUCH_MS / 1000; } // the 1.2s reaction, then he leaves (unless the page moved him onto words)
           else if (!parkClear()) g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
         }
+      }
+      // Wherever he is right now (flying across, sliding clear, holding still):
+      // if he is over words, fade so they stay readable. Lists re-read at most
+      // every 150ms; the overlap math runs on the cached rects.
+      if (elRef.current) {
+        const pp = posRef.current;
+        const fresh = performance.now() - (ctlRef.current.t || 0) > 150;
+        const over = hitsText(rectOf(pp.x + 12, pp.y + 8, SIZE - 24, SIZE - 14), restLists(fresh)[1]);
+        if (over !== (elRef.current.dataset.ghost === "1")) elRef.current.dataset.ghost = over ? "1" : "";
       }
       rafRef.current = requestAnimationFrame(frame);
     };
