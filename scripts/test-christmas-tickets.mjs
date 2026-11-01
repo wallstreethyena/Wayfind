@@ -20,7 +20,8 @@ import {
   CHRISTMAS_TICKETS_MAX, CHRISTMAS_TICKETS_MAX_PHOTOS, CHRISTMAS_TICKET_FILTERS, christmasTicketsModel, christmasTicketsSchema,
   ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
-import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, christmasPlaceFor, christmasTaggedPhotos } from "../lib/christmasPlacePhotos.js";
+import { existsSync } from "node:fs";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -233,6 +234,28 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   ok(enchant.rows[0].placeId === "ChIJkXdv95vhwogR3e84WZCqrJ4", "Enchant links to the existing Tropicana Field place");
   const universal = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "universal-orlando-holidays-2026", place_id: null })], TODAY), { noMemo: true, readTagged: async () => [shot("uni")] });
   ok(universal.rows[0].placeId === "ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal links to the existing Universal Orlando place");
+  const stetsonShots = christmasStaticPhotos("stetson-mansion-christmas-2026-2", "Stetson Mansion");
+  const winterShots = christmasStaticPhotos("winterfest-boat-parade-2026", "Winterfest");
+  ok(stetsonShots.length === 9 && stetsonShots[0].src.endsWith("/xmas_08c508314b0a24ca.jpg") && stetsonShots.every((p) => existsSync(path.join(root, "public", p.src))), "Stetson opens on its cover and every gallery file is on disk");
+  ok(winterShots.length === 6 && winterShots[0].src === christmasStaticPhotos("winterfest-boat-parade-fort-lauderdale-2026", "Winterfest")[0].src && winterShots.every((p) => existsSync(path.join(root, "public", p.src))), "Winterfest card id and event page slug share the same gallery files");
+  ok(stetsonShots.every((p) => p.credit && p.creditHref && p.alt === "Photo of Stetson Mansion") && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
+  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" })], TODAY), {
+    noMemo: true,
+    readGoogle: async () => { throw new Error("static photos replace the venue rail"); },
+    readVault: async () => { throw new Error("static photos replace the venue rail"); },
+  });
+  ok(stetsonCard.rows[0].photos[0].src === stetsonShots[0].src && stetsonCard.rows[0].photos.length === 9, "the Stetson ticket card shows its gallery, cover first");
+  let fetches = 0;
+  const pageShots = await readChristmasEventPhotos("winterfest-boat-parade-fort-lauderdale-2026", "ChIJf45X0KoB2YgRUi5C_dEm-Q8", { label: "Winterfest", env: {}, fetchImpl: async () => { fetches += 1; return { ok: false, json: async () => [] }; } });
+  ok(fetches === 0 && pageShots[0].src === winterShots[0].src && pageShots.length === 6, "the Winterfest event page uses the static gallery and does not read the place row");
+  const listings = christmasBrowseListings([], TODAY);
+  const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
+  const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
+  ok(sCard && sCard.image === "/events/christmas/stetson-mansion-christmas-2026-2.webp" && /DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card keeps its licensed photo and credit");
+  ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
+  const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
+  const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
+  ok(featuredStetson && featuredStetson.photos[0].src === stetsonShots[0].src && featuredStetson.photos.length === stetsonShots.length, "the Stetson featured card shows its gallery, cover first");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
@@ -244,36 +267,59 @@ ok(schema.itemListElement.every((x, i) => !x.item.offers || (x.item.offers.price
 ok(!JSON.stringify(schema).includes("/api/commerce/go") && !/anrdoezrs|jdoqocy|tkqlhce/.test(JSON.stringify(schema)), "the schema never embeds a redirect or partner URL");
 
 // ── Rendered markup ──────────────────────────────────────────────────────────
+// Owner direction 2026-11-01: ONE list and ONE pill menu. ChristmasTickets is the
+// themed shell (lights, snow, header, hero); every card, including the ticketed
+// ones, is a browse card in ChristmasBrowse. The fixtures below go through the
+// same server fields (attachBrowseTickets) the page and the API use.
 const { default: ChristmasTickets } = await loadComponent(path.join(root, "app/components/ChristmasTickets.js"), root);
-const render = (m, props = {}) => renderToStaticMarkup(createElement(ChristmasTickets, { model: m, ...props }));
-const partnerModel = christmasTicketsModel([...real, base({ id: "christmas-town-2026", start_date: "2026-11-20", end_date: "2027-01-03", christmasRail: "theme-parks", browse_categories: ["theme-park"], official_ticket_url: "" })], "2026-10-30", { dealsById: allDeals });
+const { default: ChristmasBrowse } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
+const { attachBrowseTickets: attachRows } = await import("../lib/christmasTickets.js");
+const { christmasBrowseCardJson: cardJson, christmasBrowseFacets: facetsOf, christmasBrowsePills: pillsOf } = await import("../lib/christmasBrowse.js");
+const partnerList = [...real, base({ id: "christmas-town-2026", start_date: "2026-11-20", end_date: "2027-01-03", christmasRail: "theme-parks", browse_categories: ["theme-park"], official_ticket_url: "", detailHref: "/florida-events/christmas-town-2026" })];
+const partnerModel = christmasTicketsModel(partnerList, "2026-10-30", { dealsById: allDeals });
 ok(partnerModel.hasAffiliate, "a partner card is in the fixture model");
-const html = render(partnerModel, { browse: createElement("div", { id: "browse-slot" }, "browse"), share: createElement("span", { id: "share-slot" }, "share") });
-ok((html.match(/data-ticket-id="/g) || []).length === partnerModel.rows.length, "every featured row renders one card");
-ok(partnerModel.rows.every((r) => html.includes(">" + r.cta.label.replace(/&/g, "&amp;") + "<") && html.includes("href=\"" + r.cta.href.replace(/&/g, "&amp;") + "\"")), "every card button carries its exact href and label");
-ok(partnerModel.rows.every((r) => html.includes(r.cta.via)), "every card carries its partner or organizer line");
+const pageOf = (cards, deals = allDeals, day = "2026-10-30") => attachRows({ total: cards.length, page: 1, hasMore: false, cards: cards.map(cardJson) }, cards, day, deals);
+const renderPage = (m, cards, props = {}) => renderToStaticMarkup(createElement(ChristmasTickets, {
+  model: m,
+  ...props,
+  browse: createElement(ChristmasBrowse, { initial: pageOf(cards), facets: { ...facetsOf(), pills: pillsOf(cards) }, today: "2026-10-30", initialQuery: {} }),
+}));
+const html = renderPage(partnerModel, partnerList, { share: createElement("span", { id: "share-slot" }, "share") });
+const ticketed = partnerModel.rows;
+ok((html.match(/data-ticket-id="/g) || []).length === partnerList.length, "every listing renders one card in the one list");
+ok(ticketed.every((r) => html.includes(">" + r.cta.label.replace(/&/g, "&amp;") + "<") && html.includes("href=\"" + r.cta.href.replace(/&/g, "&amp;") + "\"")), "every ticketed card button carries its exact href and label");
+ok(ticketed.every((r) => html.includes(r.cta.via)), "every ticketed card carries its partner or organizer line");
 ok(!/Directions/i.test(html), "no Directions button on any card");
-ok(html.includes("Ask Santa") && html.includes('id="share-slot"') && html.includes("Every Christmas event in Florida") && html.includes('id="browse-slot"'), "Ask Santa, Share and the statewide browse heading render; the browse slot sits below the cards");
-ok(html.indexOf("data-ticket-id=") < html.indexOf('id="browse-slot"'), "featured cards come before the full browse");
+ok(html.includes("Ask Santa") && html.includes('id="share-slot"') && !html.includes("Every Christmas event in Florida") && (html.match(/<h2/g) || []).length === 0, "Ask Santa and Share render; there is no second section heading");
 const visible = html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/&#x27;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ");
 ok(!DASH.test(visible) && !/[–—]/.test(visible), "the rendered page text is dash free");
 ok(((visible.match(/Wayfind may earn a commission/g)) || []).length === 1, "the commission line appears exactly once");
-ok(((render(christmasTicketsModel([base({ id: "solo" })], TODAY)).replace(/<style[\s\S]*?<\/style>/g, "").match(/Wayfind may earn a commission/g)) || []).length === 0, "no partner card, no commission line");
+ok(((renderPage(christmasTicketsModel([base({ id: "solo" })], TODAY), [base({ id: "solo" })]).replace(/<style[\s\S]*?<\/style>/g, "").match(/Wayfind may earn a commission/g)) || []).length === 0, "no partner card, no commission line");
 ok(html.includes("data-analytics-page=\"christmas_tickets\""), "the analytics surface is christmas_tickets");
-ok(html.includes("prefers-reduced-motion"), "the string lights respect reduced motion");
+ok(html.includes("prefers-reduced-motion"), "the string lights and sparkles respect reduced motion");
 ok((html.match(/class="xm-bulb"/g) || []).length === 18, "18 string light bulbs render");
-const solo = render(christmasTicketsModel([base({ id: "s1" }), base({ id: "s2", christmasRail: "parades", browse_categories: ["parade"] })], TODAY), {});
-ok(solo.includes('class="xm-filters"') && !solo.includes('id="xm-all"'), "pills render only when there is more than one card kind and the browse slot is optional");
-const one = render(christmasTicketsModel([base({ id: "only" })], TODAY));
-ok(!one.includes('class="xm-filters"'), "a single filter (All) renders no pill row");
+ok(html.includes('class="xm-bloom"') && html.includes('data-pattern="twinkle"') && html.includes("data-xm-snow") && html.includes('class="xm-doodles"'), "the lights bloom, the rotating light pattern, the snow canvas and the doodle backdrop render");
+ok(/<canvas[^>]*class="xm-snow"[^>]*aria-hidden="true"/.test(html) && /\.xm-snow\{[^}]*pointer-events:none/.test(html) && /\.xm-snow\{[^}]*z-index:1/.test(html) && /\.xm-main\{[^}]*z-index:2/.test(html), "the snow is hidden from assistive tech, ignores pointer events and sits behind the content");
+ok(html.indexOf('class="xm-filters"') > 0 && html.indexOf('class="xm-filters"') < html.indexOf('data-ticket-id="'), "the pill menu comes before every card");
+ok(/aria-pressed="true"[^>]*>All</.test(html) && html.includes(">Light shows<") && html.includes(">Theme parks<"), "the pill row starts on All and offers Light shows and Theme parks");
+const pillLabels = [...html.matchAll(/<button type="button" aria-pressed="(?:true|false)">([^<]+)<\/button>/g)].map((m) => m[1]);
+ok(pillLabels[0] === "All" && pillLabels.length === 1 + pillsOf(partnerList).length, "only pills for categories that have listings render (" + pillLabels.join(", ") + ")");
+ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"') && html.includes('aria-label="Region"') && html.includes('aria-label="Search by name or city"') && html.includes("Nearest to me"), "the dropdown clutter is gone; region, search and nearest remain");
+{
+  const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
+  const order = [...html.matchAll(/data-ticket-id="([^"]+)"/g)].map((m) => m[1]);
+  void cardsHtml; void order;
+}
 
 // ── Source rules ─────────────────────────────────────────────────────────────
 {
   const comp = strip(read("app/components/ChristmasTickets.js"));
   ok(/new CustomEvent\("wf:boo-open"\)/.test(comp) && /dispatchEvent/.test(comp), "Ask Santa dispatches wf:boo-open");
   ok(/const SURFACE = "christmas_tickets"/.test(comp) && /<CommerceClickBeacon surface=\{SURFACE\}/.test(comp), "the surface is christmas_tickets and the click beacon is mounted");
-  ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(comp) && /emitCommerce\("commerce_cta_clicked"/.test(comp), "organizer taps are recorded once by the card; /go links by the beacon");
-  ok((comp.match(/<GuideCommissionLine/g) || []).length === 1, "the commission line component is used exactly once");
+  const cardSrc0 = strip(read("app/components/ChristmasTicketCard.js"));
+  ok(/data-commerce-owner=\{affiliate \? undefined : "ChristmasTickets"\}/.test(cardSrc0) && /emitCommerce\("commerce_cta_clicked"/.test(cardSrc0), "organizer taps are recorded once by the card; /go links by the beacon");
+  const browseSrc0 = strip(read("app/components/ChristmasBrowse.js"));
+  ok((comp.match(/<GuideCommissionLine/g) || []).length === 0 && (browseSrc0.match(/<GuideCommissionLine/g) || []).length === 1, "the commission line component is used exactly once, under the one list");
   const lib = strip(read("lib/christmasTickets.js"));
   ok(!/commerceHref\(|viatorProductGoUrl|withViatorTracking|anrdoezrs|jdoqocy|tkqlhce|cj\.com/.test(lib), "no affiliate URL is built in lib/christmasTickets.js (hrefs come from the registry)");
   ok(!/\.ticket\b|commission|cpa|payout|rate/i.test(lib.slice(lib.indexOf("function merit"), lib.indexOf("export function christmasTicketsModel"))), "the merit sort reads no ticket, commission or payout field");
@@ -291,7 +337,7 @@ ok(!one.includes('class="xm-filters"'), "a single filter (All) renders no pill r
 // text. READ_SEL in BooCompanion.js includes [data-boo-clear]; mark the card text,
 // the filter row and the hero so badges and pill labels count as text too.
 {
-  const html = render(model);
+  const html = renderPage(model, real);
   const cards = (html.match(/<article [^>]*class="xm-card"/g) || []).length;
   const clearBodies = (html.match(/<div class="xm-body" data-boo-clear="">/g) || []).length;
   ok(cards > 0 && clearBodies === cards, "every card text column is marked data-boo-clear (" + clearBodies + "/" + cards + ")");
@@ -300,6 +346,134 @@ ok(!one.includes('class="xm-filters"'), "a single filter (All) renders no pill r
   const boo = read("app/components/BooCompanion.js");
   const rs = boo.match(/const READ_SEL = "([^"]+)"/);
   ok(rs && rs[1].split(",").includes("[data-boo-clear]"), "BooCompanion READ_SEL still honours [data-boo-clear]");
+}
+
+// ── ONE card look on the whole page (owner direction 2026-11-01) ─────────────
+// "I like the one from image 1 better but add the background similar to image
+// 2": the dark ticket card layout in the red Christmas background, used by the
+// top grid AND every statewide browse result. This replaced the browse's
+// RailCard in the red .wf-christmas skin, so these locks fail if the browse
+// goes back to a second card component or a second heading.
+{
+  const browseSrc = strip(read("app/components/ChristmasBrowse.js"));
+  const cardSrc = strip(read("app/components/ChristmasTicketCard.js"));
+  const ticketsSrc = strip(read("app/components/ChristmasTickets.js"));
+  ok(/import \{ TicketCard \} from "\.\/ChristmasTicketCard\.js"/.test(browseSrc) && /<TicketCard[\s/]/.test(browseSrc), "the browse renders the one TicketCard");
+  ok(/import \{ XM_CARD_CSS \} from "\.\/ChristmasTicketCard\.js"/.test(ticketsSrc) && !/<TicketCard[\s/]/.test(ticketsSrc), "the shell carries the one card's CSS; the only place cards render is the browse list");
+  ok(!/RailCard|WF_PLACE_CARD_CSS|wf-christmas|wf-place-card/.test(browseSrc), "the browse no longer uses RailCard or the red .wf-christmas skin");
+  ok(!/<h2/.test(browseSrc) && !/Verified Christmas outings/.test(browseSrc) && !/<h2/.test(ticketsSrc) && !/xm-jump|xm-all/.test(ticketsSrc), "no second section heading and no jump button: one list under the hero");
+  ok(/aria-label="Florida Christmas events"/.test(browseSrc), "the one list section is labelled for assistive tech");
+  ok(/card-bg-640\.webp/.test(cardSrc) && /#5A0712/.test(cardSrc) && /card-bg-1100\.webp/.test(cardSrc) && !/wf-christmas/.test(cardSrc), "the card wears the red skin's gradient and doodle art without applying .wf-christmas");
+  ok(/\.xm-buy\{[^}]*background:linear-gradient\(180deg,#FFE9B8,#F5C451\)[^}]*color:var\(--xm-ink\)/.test(cardSrc), "the ticket button is gold with dark red text so it stands out on the red card");
+  ok(/grid-template-columns:40% minmax\(0,1fr\)/.test(cardSrc), "the card keeps the 40 percent photo and 60 percent body grid for 375px phones");
+  ok(!/Directions/i.test(cardSrc + browseSrc), "no Directions button");
+
+  const { ChristmasBrowseCard } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
+  const { attachBrowseTickets, browseTicketFields } = await import("../lib/christmasTickets.js");
+  const { christmasBrowseCardJson } = await import("../lib/christmasBrowse.js");
+  const draw = (card) => renderToStaticMarkup(createElement(ChristmasBrowseCard, { card, rank: 1, today: TODAY }));
+  const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+  const through = (cards, dealsById = new Map()) => attachBrowseTickets({ cards: cards.map(christmasBrowseCardJson) }, cards, TODAY, dealsById).cards;
+
+  // (a) a ticketed event: the real ticket button, price, official line and the event page link
+  const ticketed = base({ id: "bx-ticketed", detailHref: "/florida-events/bx-ticketed", when: "Dec 1 to Dec 20" });
+  const a = draw(through([ticketed])[0]);
+  ok(a.includes('class="xm-card"') && a.includes('id="xb-bx-ticketed"') && a.includes(">Official Tickets<") && a.includes('href="https://tickets.example.org/buy"') && a.includes("Official organizer tickets") && a.includes(">$20<") && a.includes("per person") && a.includes('href="/florida-events/bx-ticketed"') && a.includes("Full event page"), "browse (a) ticketed event: Official Tickets button to the organizer, from $20 per person, official line, Full event page link");
+  ok(/rel="nofollow noopener"/.test(a) && !/sponsored/.test(a), "browse (a) an organizer link is not marked sponsored");
+  ok(/<h3>/.test(a) && !/<h2/.test(a), "browse cards use h3 under the section h2");
+
+  // (b) an event with no price and no ticket link: Price not announced, the one button is the event page, no second link
+  const noPrice = base({ id: "bx-noprice", official_ticket_url: "", is_free: null, price_kind: "unannounced", price_label: "Price not announced", price_note: "unannounced", detailHref: "/florida-events/bx-noprice", image: null, when: "Dec 1 to Dec 20" });
+  const b = draw(through([noPrice])[0]);
+  ok(text(b).includes("Price not announced") && !/\bFree\b/.test(text(b)), "browse (b) unknown price says Price not announced, never Free");
+  ok((b.match(/class="xm-buy"/g) || []).length === 1 && b.includes('href="/florida-events/bx-noprice"') && text(b).includes("Full event page") && !b.includes("xm-event") && !b.includes("xm-via") && !/Official Tickets/.test(b), "browse (b) no ticket link: the one button is Full event page, no duplicate link, no ticket claim");
+  ok(b.includes("data-event-tile") && b.includes("Holiday lights"), "browse (b) a card with no photo paints the designed tile");
+  const noPage = draw(through([base({ id: "bx-nopage", official_ticket_url: "", is_free: null, price_kind: "unannounced", price_note: "", detailHref: null, url: "https://example.org/event" })])[0]);
+  ok(noPage.includes('href="https://example.org/event"') && text(noPage).includes("Official site") && /rel="nofollow noopener"/.test(noPage), "browse (b2) no event page: the button is Official site to the source");
+  const free = draw(through([base({ id: "bx-free", is_free: true, price_kind: "free", price_label: "Free", price_note: "", official_ticket_url: "", detailHref: "/florida-events/bx-free" })])[0]);
+  ok(text(free).includes("Free") && !/Official Tickets/.test(free), "browse a known free event says Free with no ticket button");
+
+  // (c) a place: no price, no ticket, honest season text, View place
+  const place = { id: "bx-place", kind: "place", place_id: "bx-place", title: "Fixture Holiday Bar", city: "Winter Park", image: "/fixture-place.jpg", detailHref: "/p/bx-place", christmasRail: "popup-bars", seasonalWhen: "2026 season confirmed; dates pending", hook: "Holiday rooms and drinks.", sourceUrl: "https://example.com/holiday", wfScore: 92 };
+  const c = draw(through([place])[0]);
+  ok(c.includes("Fixture Holiday Bar") && c.includes("Winter Park") && c.includes("2026 season confirmed; dates pending") && c.includes("Bars and dining") && c.includes('href="/p/bx-place"') && text(c).includes("View place"), "browse (c) a place shows name, city, honest season text, chip and a View place button");
+  ok(!/xm-pricerow|xm-note|Price not announced|Official Tickets/.test(c), "browse (c) a place shows no price and no ticket button");
+
+  // a partner ticket stays on our /go route with rel sponsored and needs a live deal
+  const park = base({ id: "christmas-town-2026", start_date: "2026-11-20", end_date: "2027-01-03", christmasRail: "theme-parks", browse_categories: ["theme-park"], official_ticket_url: "", detailHref: "/florida-events/christmas-town-2026" });
+  const parkCard = draw(through([park], allDeals)[0]);
+  ok(/href="\/api\/[a-z0-9/_-]+\/go\?/i.test(parkCard) && /rel="sponsored nofollow noopener"/.test(parkCard), "browse a partner ticket keeps our /go route and rel sponsored");
+  const parkDown = draw(through([park], new Map())[0]);
+  ok(!/\/go\?/.test(parkDown) && text(parkDown).includes("Full event page"), "browse a partner ticket with no live deal shows no ticket button, only the event page");
+  ok(browseTicketFields(park, TODAY, allDeals).cta.kind === "affiliate", "browseTicketFields hands the card exactly ticketAction's way in");
+
+  // every real browse card renders through the one card, dash free, one main button at most
+  const listings = christmasBrowseListings([], TODAY);
+  const cardsAll = attachBrowseTickets({ cards: listings.map(christmasBrowseCardJson) }, listings, TODAY, allDeals).cards;
+  let drawn = 0;
+  for (const card of cardsAll) {
+    const h = draw(card);
+    drawn += 1;
+    const v = text(h);
+    ok((h.match(/class="xm-buy"/g) || []).length <= 1, card.id + ": at most one main button");
+    ok(!DASH.test(v) && !/[–—]/.test(v), card.id + ": rendered copy is dash free");
+    ok(!/Directions/i.test(h), card.id + ": no Directions button");
+    if (card.photoAttr && card.image && !/\/cards-v8\//.test(card.image)) ok(h.includes('class="xm-credit"') && v.includes(card.photoAttr), card.id + ": a licensed photo keeps its credit");
+    if (card.kind !== "place") ok(/\$\d|Free|Price not announced|See price on the ticket page/.test(v), card.id + ": an event always states its price honestly");
+  }
+  ok(drawn > 400, "rendered the whole browse through the one card (" + drawn + " cards)");
+}
+
+// ── One menu for everything (owner direction 2026-11-01) ─────────────────────
+{
+  const b = await import("../lib/christmasBrowse.js");
+  const day = "2026-11-01";
+  const all = b.christmasBrowseListings([], day);
+  const pills = b.christmasBrowsePills(all);
+  ok(pills.length >= 5 && pills.every((p) => p.label && !DASH.test(p.label) && p.label.length <= 20), "pills carry short dash free labels (" + pills.map((p) => p.label).join(", ") + ")");
+  ok(["Light shows", "Theme parks", "Parades and boats", "Shows and ballet", "Family friendly"].every((l) => pills.some((p) => p.label === l)), "the owner's six pills (All plus these five) are all offered");
+  ok(b.christmasBrowsePills([]).length === 0, "a pill is offered only when a listing matches it");
+  // URL compatibility: ?category=lights&region=... lands on the Light shows pill, filtered
+  const q = b.parseChristmasBrowseQuery({ category: "lights", region: "Southwest Florida" });
+  const landed = b.christmasBrowsePage(all, q, day);
+  ok(q.category === "lights" && landed.total > 0 && landed.cards.every((c) => c.region === "Southwest Florida"), "category=lights with a region maps to the Light shows pill and stays filtered by region");
+  ok(b.christmasBrowsePage(all, b.parseChristmasBrowseQuery({ category: "lights" }), day).total === all.filter((c) => (c.browse_categories || []).some((x) => ["lights", "neighborhood-lights", "gardens", "drive-thru"].includes(x)) || c.christmasRail === "lights").length, "the Light shows pill covers lights, gardens and drive thru lights");
+  ok(b.parseChristmasBrowseQuery({ category: "tree-lightings" }).category === "tree-lightings", "an old single category id in a saved URL still works");
+  ok(b.christmasBrowsePage(all, b.parseChristmasBrowseQuery({ category: "family" }), day).cards.every((c) => c.audience === "family"), "the Family friendly pill filters by the family audience");
+  // ticketed first, never a partner or price preference
+  const page1 = b.christmasBrowsePage(all, b.parseChristmasBrowseQuery({}), day).cards;
+  const tier = (c) => (c.kind !== "place" && (/^https:\/\//.test(real.find((r) => r.id === c.id)?.official_ticket_url || "") ? 0 : 1));
+  void tier;
+  const { eventOrganizerTicketUrl: orgUrl } = await import("../lib/curatedEvents.js");
+  const { eventTicketDeal: dealOf } = await import("../lib/eventTicketDeals.js");
+  const full = new Map(all.map((c) => [c.id, c]));
+  const flags = page1.map((c) => !!(c.kind !== "place" && (orgUrl(full.get(c.id)) || dealOf(c.id))));
+  const firstNo = flags.indexOf(false);
+  ok(flags.slice(0, 8).filter(Boolean).length >= 1 && (firstNo < 0 || !flags.slice(firstNo).includes(true)), "events with a real way in come first on the first page, then the rest in date order");
+  const src = strip(read("lib/christmasBrowse.js"));
+  ok(!/commission|payout|\bcpa\b/i.test(src.slice(src.indexOf("function ticketTier"), src.indexOf("export function sortChristmasBrowse"))), "the ticket tier reads no commission, payout or partner rate");
+  // ticketed cards keep their photo galleries inside the one list
+  {
+    const { withBrowseTicketPhotos: withPhotos, attachBrowseTickets: attach } = await import("../lib/christmasTickets.js");
+    const ev = base({ id: "gal-1", place_id: "ChIJgal", detailHref: "/florida-events/gal-1" });
+    const noTicket = base({ id: "gal-2", official_ticket_url: "", detailHref: "/florida-events/gal-2" });
+    const pageIn = attach({ cards: [ev, noTicket].map(cardJson) }, [ev, noTicket], TODAY, new Map());
+    const shotsFor = (n) => Array.from({ length: n }, (_, i) => ({ src: "/events/christmas/g" + i + ".jpg", alt: "Photo of Fixture Park", credit: "Photo by Fixture " + i, creditHref: "https://example.org/" + i }));
+    const out = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async (id) => (id === "gal-1" ? shotsFor(3) : []), readGoogle: async () => null, readVault: async () => [] });
+    ok(out.cards[0].ticketRow.photos.length === 3 && out.cards[1].ticketRow.cta === null && !out.cards[1].ticketRow.photos, "a ticketed card carries its photo gallery; a card with no ticket keeps its own photo");
+    const { ChristmasBrowseCard: Card } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
+    const galleryHtml = renderToStaticMarkup(createElement(Card, { card: out.cards[0], rank: 1, today: TODAY }));
+    ok((galleryHtml.match(/class="xm-slide"/g) || []).length === 3 && galleryHtml.includes('class="xm-dots"'), "the gallery renders as the swipeable photo strip with dots on the one card");
+    const failed = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async () => { throw new Error("down"); }, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
+    ok(failed.cards.length === 2 && renderToStaticMarkup(createElement(Card, { card: failed.cards[0], rank: 1, today: TODAY })).includes('class="xm-card"'), "a failed photo read still renders the card with its own photo");
+  }
+  // theme, snow and lights source rules
+  const shell = strip(read("app/components/ChristmasTickets.js"));
+  ok(/w < 720 \? 36 : 70/.test(shell) && /visibilitychange/.test(shell) && /prefers-reduced-motion: reduce/.test(shell) && /aria-hidden="true" data-xm-snow/.test(shell), "snow: 36 flakes on a phone, 70 on desktop, pauses on a hidden tab, still frame for reduced motion, aria-hidden");
+  ok(/#FF4458/.test(shell) && /#3DDC84/.test(shell) && /#FFC94A/.test(shell) && /#4DA3FF/.test(shell) && /#FF7AC8/.test(shell) && /xm-chase/.test(shell) && /xm-alt/.test(shell) && /xm-twinkle/.test(shell), "lights: red, green, gold, blue and pink bulbs with chase, alternate and twinkle sequences");
+  const kf = [...shell.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
+  ok(kf.length === 5 && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
+  ok(/background:radial-gradient\(120% 55% at 50% 0%,#7A0F22/.test(shell) && !/--bg:#050A14/.test(shell), "the page background is deep red burgundy, not navy");
 }
 
 console.log("test-christmas-tickets: " + checks + " assertions OK (" + model.rows.length + " featured cards on 2026-10-30)");

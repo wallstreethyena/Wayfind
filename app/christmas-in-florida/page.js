@@ -4,10 +4,10 @@ import ChristmasBrowse from "../components/ChristmasBrowse";
 import ChristmasTickets from "../components/ChristmasTickets";
 import ShareButton from "../components/ShareButton";
 import { pageShareUrl } from "../../lib/pageShareUrl";
-import { christmasTicketsModel, christmasTicketsSchema, fetchChristmasTicketDeals, withChristmasTicketPhotos } from "../../lib/christmasTickets";
+import { attachBrowseTickets, withBrowseTicketPhotos, christmasTicketsModel, christmasTicketsSchema, fetchChristmasTicketDeals, withChristmasTicketPhotos } from "../../lib/christmasTickets";
 import { fetchCuratedEvents } from "../../lib/curatedEvents";
 import { siteTodayStr } from "../../lib/siteTime";
-import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasWatchlist, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
+import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, christmasWatchlist, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
 // sharing, nav, schema, guide sections) plus the full statewide browse,
@@ -58,19 +58,23 @@ export default async function Page({ searchParams }) {
   // A failed side read (deals, stored photos) only means fewer buttons or
   // photos, never an empty page.
   let tickets;
+  let dealsById = new Map();
   try {
-    const dealsById = await fetchChristmasTicketDeals();
+    dealsById = await fetchChristmasTicketDeals();
     tickets = await withChristmasTicketPhotos(christmasTicketsModel(listings, today, { dealsById }));
   } catch {
     tickets = christmasTicketsModel([], today);
   }
+  // The statewide browse wears the same ticket card, so its cards carry the
+  // same server built ticket fields (way in, honest price, dates text).
+  first = await withBrowseTicketPhotos(attachBrowseTickets(first, listings, today, dealsById), listings, today, dealsById);
   const ticketsSchema = christmasTicketsSchema(tickets);
   const initialQuery = Object.fromEntries(Object.entries({ ...query, page: undefined, undated: query.undated || undefined }).filter(([, v]) => v !== undefined && v !== "" && v !== null && v !== false));
   return <>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ticketsSchema).replace(/</g, "\\u003c") }} />
     <ChristmasTickets model={tickets} share={<ShareButton url={pageShareUrl("/christmas-in-florida")} title={title} text={description} tone="dark" label="Share" />} browse={<>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
-      <ChristmasBrowse initial={first} facets={christmasBrowseFacets()} today={today} initialQuery={initialQuery} />
+      <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} initialQuery={initialQuery} />
       <details id="watchlist" style={{ margin: "0 0 28px", border: "1px solid rgba(232,180,138,.35)", borderRadius: 14, padding: "12px 16px" }}>
         <summary style={{ cursor: "pointer", fontWeight: 800, minHeight: 44, display: "flex", alignItems: "center" }}>Watchlist: {watch.length} traditions not confirmed for 2026 yet</summary>
         <p style={{ fontSize: 14 }}>These usually happen every year, but their 2026 edition is not confirmed on an official page yet. They are not in the listings above and not counted in any date filter. Each line says what is missing.</p>
