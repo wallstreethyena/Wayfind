@@ -2470,3 +2470,6 @@ node scripts/check-top-rated-badge.mjs
 
 # Dated fall associations expire across feed, card, share and metadata.
 node scripts/test-fall-offering-retirement.mjs
+
+# 2026-11-01: Vercel Ignored Build Step skips ONLY data/docs-only commits (photo batches); code PR previews, production and any doubt always build. Runs the real script against a temp git repo.
+node scripts/test-vercel-ignore-build.mjs
