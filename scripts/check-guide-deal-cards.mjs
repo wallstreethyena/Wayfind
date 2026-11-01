@@ -13,7 +13,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { GUIDES } from "../lib/guides.js";
 import { COUPONS, couponIsLive } from "../lib/coupons.js";
-import { COUPON_AUDIT_FUSES } from "../lib/couponAuditFuses.js";
+import { couponAuditFuses } from "../lib/couponAuditFuses.js";
 import { guidePrimaryCta } from "../lib/guideCta.js";
 import { GUIDE_DEAL_MAX, areasForRegion, guideDealIds } from "../lib/guideDeals.js";
 
@@ -28,6 +28,7 @@ const ok = (cond, msg) => { n++; if (!cond) { bad++; console.error("  - " + msg)
 // expiry is still asserted explicitly below by CALLING couponIsLive past each fuse.
 const FIXTURE_TODAY = "2026-09-27";
 const today = FIXTURE_TODAY;
+const COUPON_AUDIT_FUSES = couponAuditFuses(today);
 const src = readFileSync(new URL("../app/guides/[slug]/GuideDealCards.js", import.meta.url), "utf8");
 const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
 // Strip comments before matching, so this guard cannot pass on its own prose.

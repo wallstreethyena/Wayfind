@@ -50,18 +50,19 @@
 //     offering's OWN explicit dated window covers today.
 //
 // TWO LAYERS. The static checks below (set equality, rejected-id exclusion,
-// source/offering shape, verified-in-window-or-evergreen, dated-offering-not-
-// expired) run unconditionally — they need nothing but the source files
+// source/offering shape, verified-in-window-or-evergreen, expired-offering-
+// excluded-by-enforced-cutoff) run unconditionally — they need nothing but the source files
 // already in this repo. The LIVE checks (every member is still an OPERATIONAL,
 // non-excluded inventory row; the documented offering is not merely the
 // place's own name in a costume, checked against the place's REAL name) need
 // wf_inventory and SKIP loudly without credentials — matching
 // scripts/check-inventory-integrity.mjs's own pattern — rather than silently
 // reporting green on a check that never ran.
-import { FALL_CARD_IDS, fallSeasonEnd } from "../lib/fallSkin.js";
+import { FALL_CARD_IDS, fallSeasonEnd, fallCardClass } from "../lib/fallSkin.js";
 import { FALL_PLACE_IDS, FALL_PLACE_RAIL, FALL_REJECTED_IDS, FALL_OFFERING_SOURCES } from "../lib/fallPool.js";
 import { fallPlaceEvidenceCurrent } from "../lib/fallPlaceEvidence.js";
 import { YEAR_ROUND_EVERGREEN_IDS, verifiedInSeasonWindow, offeringActive, nameOnlyCandidate } from "../lib/fallEvidence.js";
+import { FALL_OFFERING_ENDS, fallOfferingDateLive, fallOfferingRetired } from "../lib/fallOfferingDates.js";
 import { siteTodayStr } from "../lib/siteTime.js";
 
 let pass = 0;
@@ -102,7 +103,8 @@ ok(!poolIds.has(HASHTAG_CAFE) && !cardIds.has(HASHTAG_CAFE) && !railIds.has(HASH
 
 // ── 3. every pool member: https source, real offering text, current-season
 // verification (or the documented evergreen exemption), and — for a DATED
-// offering — its own end date has not passed. Collected, not short-circuited,
+// offering — active dates match client enforcement; ended evidence is archived
+// only while both serving and presentation exclude it. Collected, not short-circuited,
 // so the report names every blocking entry in one run, per the task brief:
 // "report exactly which entries block it."
 const blockers = [];
@@ -126,13 +128,20 @@ for (const id of poolIds) {
   // re-verification time, before `verified` is written here; this guard only
   // confirms the date itself is real and current-season, for every entry.
   const evergreen = YEAR_ROUND_EVERGREEN_IDS.has(id);
-  const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified, today);
+  const until = entry.until || entry.ends;
+  const retired = fallOfferingRetired(id, today) && FALL_OFFERING_ENDS[id] === until;
+  // Archived dated evidence must have been verified in its own season.
+  // Active and undated claims still require the CURRENT season, unchanged.
+  const windowOk = !!entry.verified && verifiedInSeasonWindow(entry.verified, retired ? until : today);
+  if (until && FALL_OFFERING_ENDS[id] !== until) {
+    blockers.push(`${id}: dated source must match the client retirement deadline`);
+  }
   if (!windowOk) {
     blockers.push(`${id}: no 'verified' date inside the CURRENT fall season window (Aug 26 - Thanksgiving, as of today ${today})${entry.verified ? ` — verified=${entry.verified} is not inside it (a PRIOR season's own verification no longer counts)` : " — field is absent"}${evergreen ? " (evergreen id — needs a verified re-check that the theme is live, via lib/fallEvidence.evergreenThemeLive, not a fall-word match)" : ""}`);
   }
 
-  const until = entry.until || entry.ends;
-  if (until && !offeringActive({ ends: until, today })) {
+  if (until && !offeringActive({ ends: until, today })
+      && !(retired && !fallPlaceEvidenceCurrent(id, today) && !fallCardClass(id, today))) {
     blockers.push(`${id}: dated offering's own end date (${until}) has passed as of today (${today}) — it cannot remain listed as if still running`);
   }
 }
@@ -140,11 +149,17 @@ ok(blockers.length === 0, `${blockers.length} of ${poolIds.size} FALL_PLACE_IDS 
 // Runtime admission uses the same current registry and stronger current-season
 // re-check contract. A static build cannot keep last year's seasonal claims.
 for (const id of poolIds) {
-  ok(fallPlaceEvidenceCurrent(id, today), `${id}: current registry evidence also passes serve-time admission`);
+  const retired = fallOfferingRetired(id, today);
+  ok(fallPlaceEvidenceCurrent(id, today) === !retired, `${id}: active evidence is admitted and retired evidence is excluded at serve time`);
+  if (retired) ok(!fallCardClass(id, today), `${id}: retired evidence cannot keep its fall card or share treatment`);
   ok(!fallPlaceEvidenceCurrent(id, "2027-10-01"), `${id}: previous-season static evidence cannot survive into next fall`);
 }
 ok(!fallPlaceEvidenceCurrent("missing-fixture-id", today), "unknown IDs cannot borrow registry evidence");
 ok(!fallPlaceEvidenceCurrent([...poolIds][0], "2026-01-01"), "future verification cannot publish a place early");
+ok(Object.keys(FALL_OFFERING_ENDS).every((id) => poolIds.has(id)
+  && FALL_OFFERING_ENDS[id] === (FALL_OFFERING_SOURCES[id]?.until || FALL_OFFERING_SOURCES[id]?.ends)
+  && fallOfferingDateLive(id, FALL_OFFERING_ENDS[id])),
+  "retirement deadlines cannot name missing entries or drift from source dates");
 const datedId = Object.keys(FALL_OFFERING_SOURCES).find((id) => FALL_OFFERING_SOURCES[id].until);
 ok(!!datedId, "positive probe: the present registry has a dated offering");
 ok(!fallPlaceEvidenceCurrent(datedId, "2026-12-01"), "a dated offering is unavailable after its own end date");
@@ -186,7 +201,7 @@ const KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.SUPABASE_SERVIC
 if (!URL_ || !KEY) {
   console.log("check-fall-registry-integrity: live OPERATIONAL/excluded + name-only checks SKIPPED — no Supabase credentials in env (set SUPABASE_URL + a readable key to enforce)");
 } else {
-  const ids = [...poolIds];
+  const ids = [...poolIds].filter((id) => !fallOfferingRetired(id, today));
   const filter = ids.map((id) => encodeURIComponent(id)).join(",");
   const res = await fetch(`${URL_}/rest/v1/wf_inventory?select=place_id,name,status,excluded&place_id=in.(${filter})`, {
     headers: { apikey: KEY, Authorization: `Bearer ${KEY}` },

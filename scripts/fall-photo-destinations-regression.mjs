@@ -245,6 +245,6 @@ check(/const photoCalendars = photoInventory\.calendarFailed/.test(route)
   "the API combines all-status calendar rows with public source rows and applies its calendar-failure branch before composing");
 check(/Number\(!!photoInventory\.failed\)/.test(route)
   && /const complete = cached\.value\?\.sourceFailures === 0/.test(route)
-  && /"cache-control": complete \? [^\n]+ : "no-store"/.test(route),
+  && /"cache-control": complete && !beforeDayRollover \? [^\n]+ : "no-store"/.test(route),
   "lookup failure reaches the response completeness contract and disables public caching");
 console.log(`fall-photo-destinations-regression: OK — ${checks} assertions`);
