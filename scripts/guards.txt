@@ -2470,3 +2470,6 @@ node scripts/check-top-rated-badge.mjs
 
 # Dated fall associations expire across feed, card, share and metadata.
 node scripts/test-fall-offering-retirement.mjs
+
+# Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
+node scripts/test-locality-backfill-evidence.mjs

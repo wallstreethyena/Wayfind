@@ -1,7 +1,7 @@
 -- PENDING APPLY. Not applied by the agent that wrote it.
 -- Declared in scripts/migration-pending-apply.json.
 --
--- Fills wf_inventory.locality for 122 indexed places from OWNED
+-- Fills wf_inventory.locality for 118 indexed places from OWNED
 -- evidence only: wf_events.city, the venue city an editor typed from the
 -- organiser's or venue's own page. No Google content, no reverse geocoding,
 -- no coordinate read or written, no city inferred from metro or lat/lng.
@@ -10,9 +10,11 @@
 -- Audit (every row, with its evidence): docs/audits/20261031000000_wf_inventory_locality_from_owned_events.csv
 -- Reverse: supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql
 --
--- Tier A (122 rows): the event's own address text contains the city, so the
---   row corroborates itself. Tier B (36): unambiguous but uncorroborated.
+-- Tier A (118 rows): the event address's city slot IS the city, so the
+--   row corroborates itself. Tier B (38): unambiguous but uncorroborated.
 -- Excluded: 0 place(s) whose events disagree on the city.
+-- Never considered: 185 row(s) the Census pass resolved as
+--   unincorporated (county set, locality deliberately empty).
 --
 -- IDEMPOTENT and RESUMABLE: each statement requires the locality to still be
 -- empty, so re-running changes nothing and a partial apply simply continues.
@@ -44,9 +46,6 @@ update public.wf_inventory set locality = 'Bradenton'
 update public.wf_inventory set locality = 'Bradenton'
  where place_id = 'ChIJy76z4HY9w4gROaX_C6lQu8g'
    and btrim(coalesce(locality,'')) = '';  -- A Manatee Village Historical Park
-update public.wf_inventory set locality = 'Clearwater'
- where place_id = 'ChIJeYs9itH2wogRrCzlbripy1w'
-   and btrim(coalesce(locality,'')) = '';  -- A Frenchy''s Original Cafe
 update public.wf_inventory set locality = 'Clearwater'
  where place_id = 'ChIJiZrtZSvxwogRE9eu4Xpy9Yc'
    and btrim(coalesce(locality,'')) = '';  -- A Clearwater Marine Aquarium
@@ -92,9 +91,6 @@ update public.wf_inventory set locality = 'Jensen Beach'
 update public.wf_inventory set locality = 'Kissimmee'
  where place_id = 'ChIJv_Qs9IiD3YgR1uVLPQ4zkiM'
    and btrim(coalesce(locality,'')) = '';  -- A Krush Brau Park Portal Immersion Center
-update public.wf_inventory set locality = 'Lake Buena Vista'
- where place_id = 'ChIJBap9MoR_3YgRnzGmE9oTtYE'
-   and btrim(coalesce(locality,'')) = '';  -- A House of Blues Orlando
 update public.wf_inventory set locality = 'Lake Buena Vista'
  where place_id = 'ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek'
    and btrim(coalesce(locality,'')) = '';  -- A The Edison
@@ -266,12 +262,6 @@ update public.wf_inventory set locality = 'Pensacola'
 update public.wf_inventory set locality = 'Pensacola'
  where place_id = 'ChIJs79B6VTHkIgR_GrMBD-pkJk'
    and btrim(coalesce(locality,'')) = '';  -- A Vince J. Whibbs Sr. Community Maritime Park
-update public.wf_inventory set locality = 'Plant City'
- where place_id = 'ChIJ_5yVrBY13YgRwSgyH1hrRjg'
-   and btrim(coalesce(locality,'')) = '';  -- A Keel Farms Agrarian at Keel Farms
-update public.wf_inventory set locality = 'Plant City'
- where place_id = 'ChIJFwrRu7o33YgRIuZ-0QgeCVQ'
-   and btrim(coalesce(locality,'')) = '';  -- A Fox Squirrel Corn Maze
 update public.wf_inventory set locality = 'Ponte Vedra Beach'
  where place_id = 'ChIJRQw4SiI35IgRSAIrKfRvWEg'
    and btrim(coalesce(locality,'')) = '';  -- A 1912 Ocean Bar & Rooftop
@@ -393,7 +383,7 @@ do $$
 declare missing int;
 begin
   select count(*) into missing from public.wf_inventory
-   where place_id in ('ChIJaRU86ORx54gRK3zyCcF94hw','ChIJ550owHsXw4gR4L8ZcLVqA-M','ChIJ9Zr5_dEXw4gRWXr3bcnjiIQ','ChIJaWJirJcWw4gRboJr7F108HM','ChIJB-QyVtEXw4gRk5F8bn3YV28','ChIJhW6JF_MWw4gRUxIRevnpN4k','ChIJSzFosAERw4gRdoKp0B-JmGY','ChIJy76z4HY9w4gROaX_C6lQu8g','ChIJeYs9itH2wogRrCzlbripy1w','ChIJiZrtZSvxwogRE9eu4Xpy9Yc','ChIJ40ShwrcB3ogR38px18fDfss','ChIJu_e4BnTI2YgREAOg3GxMK8g','ChIJqQ1Avv5DkYgR19YWeQV8UiQ','ChIJZSzeKLDzwogRSwm6alxyabw','ChIJFzRAfooB2YgRtuvhmGrE7RY','ChIJ96iz9wdq24gRftTmyqbwI64','ChIJVVUNg8JB24gRo5VjblNO_c8','ChIJX0UJnszx3ogRKqv856yKO_s','ChIJKVDd7v_bkIgRv0FaG2bnP9g','ChIJK4Wkv7jb2YgRv7LTOSIRIRI','ChIJM6cv59Pn2YgRdXaKYZKWWms','ChIJYWfOURm35YgRZ6p-Om4KBNM','ChIJWTX7kWvn3ogRRjQhNzC11RQ','ChIJv_Qs9IiD3YgR1uVLPQ4zkiM','ChIJBap9MoR_3YgRnzGmE9oTtYE','ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek','ChIJJ4xUsMiB3YgRtioaCI7zFlY','ChIJk5xl2oZ_3YgRg7yR_vn87h4','ChIJOcKapod_3YgR90H_S_UKiMA','ChIJXSjMOWd_3YgR7IaYUVKFrms','ChIJ1dJMdEc43YgRmII076Tbhmg','ChIJ-WLCqkdw54gR5FyZzXYSoV4','ChIJI0Ja3y4E3ogRoNdEL3xe4Ek','ChIJBVShAmez2YgRvNWv6nIzzzY','ChIJI-aAsE-32YgRlQrq8LqdUa8','ChIJK69z3qO22YgROBJC2vDIXAI','ChIJo83NFCqx2YgRXsS12ziKrO8','ChIJoVWX_Rm02YgRllHsIZGN16c','ChIJUczTK5XC2YgRRt4Jp6N3B70','ChIJS2qQ6sw1w4gRUJfWmSdAvXE','ChIJhzWIGZUe24gRZ0qRx2ErnPI','ChIJIShSd5Yd24gRRu3n15Wfmmo','ChIJM5duwu3h2ogRw33TpV_VYtI','ChIJnU1-CO1554gRuvTm3EZVA9Y','ChIJ231qjvF754gRZX6vzhb2aCk','ChIJ7_PseA9n54gRpWhEjEiG3uo','ChIJ73yw37J954gRDwQad4ih7Wk','ChIJ7aIAgJd654gRjUN8WsPaaI4','ChIJ9RHZGx6H3YgRnWVYIWsHNPM','ChIJaybvA3N754gRTQX-9RlrMko','ChIJb2Fn68t554gRrVzqlpOn-hk','ChIJB4Zm1Ux-54gRmJPSvFL6DSM','ChIJbbY73up654gRsbf2dTWiCas','ChIJbVPT1f1654gRJvFabQEhowU','ChIJcQyYH85654gRPh6gV_UpsDY','ChIJEwDtLpl754gR0qE-zUCv6PQ','ChIJfyPWjCh-54gR1SvWozmef5k','ChIJHWBuq9p654gR5Pz28aJykCc','ChIJm-1TQ1N-54gRtKSCx6hQ8SU','ChIJMfdMl_5654gRpZP9kPXrotU','ChIJmy7U4VJ-54gRi1LoS6wwFj0','ChIJN9FTnbF754gRwLFDBN_ahJ4','ChIJncyg0v1654gRzcygkvMIsg0','ChIJo2bql5B654gR_ITN9PGhBbU','ChIJOWyInLF_54gRgRgjDQy9zhw','ChIJOZ6tqU5754gRmHz-pzzl33s','ChIJOzDmBvJ-54gR6XhJQHPs5KI','ChIJP1om-VJ-54gRAF-_k_y5cig','ChIJqxgi_-J654gRAUVO-nnoTgA','ChIJqZhP6z1_54gR8PAoaIuhp0w','ChIJU7bqHVV-54gRJAwZAp5qCpk','ChIJuQTH2xd754gRUV-O6arVOhQ','ChIJv4DsyFR-54gRKvbiUH1zlpo','ChIJVcr7Ufp654gRkJGTJZILyfc','ChIJz-NtNPx654gR5pilGxE8KDo','ChIJNwQxUnFDw4gRlEruVgcCmu0','ChIJHdRIEU2Mk4gRfAM5vKPoRxk','ChIJ______8sw4gRMudh58gsGMU','ChIJS4AH0B8vw4gRF1MVwsvmoK8','ChIJ86kIPeDFkIgRdsrbssu0Jwk','ChIJheIoirLAkIgRPxCpsjJZlYs','ChIJs79B6VTHkIgR_GrMBD-pkJk','ChIJ_5yVrBY13YgRwSgyH1hrRjg','ChIJFwrRu7o33YgRIuZ-0QgeCVQ','ChIJRQw4SiI35IgRSAIrKfRvWEg','ChIJ8QTtKHMT54gR_ucFCO6b4RE','ChIJ1YBgZHRAw4gRorfVkB1B6bY','ChIJ3VLBF5Jqw4gRkT1TfU3ULd8','ChIJ6_YRRRJAw4gRE5XF42pZOxo','ChIJ62qtuiVBw4gRFdwvl9Z4X_Y','ChIJ6y2dx9g_w4gRWoZIRhLk-JI','ChIJB_VL5xJAw4gRY58y23x1wBw','ChIJczkDFL04w4gRwfowcSv8Tro','ChIJew4bcA9Aw4gR3bU-SA7qAgU','ChIJHcu6u2BHw4gRDKuRC9sow20','ChIJhRwCTPZAw4gROrb2GkpgkGQ','ChIJhWqZvoVHw4gRehUSFsbZARo','ChIJLZ2vzRxBw4gRMOtW0ArhBhw','ChIJPWsUhY9Aw4gRoltOtGa3nPM','ChIJq6rO_XtAw4gRV_KGbfGfJ4g','ChIJRyOEfAo5w4gR664aD_YYBLU','ChIJtcnZQU9Bw4gROmYnVLnl0hE','ChIJTRfRfgpBw4gR-u488ol_SOw','ChIJv8qJUuIVw4gR3V0HYAQ2Ll4','ChIJK1nJH9xrw4gRIr9IhuzYVQI','ChIJSZdWvAlqw4gRo53EHrAL5gU','ChIJ0UaxcHon5IgRtIDfdNZ5UsQ','ChIJvwS00mgn5IgRdR5IlMxNUp0','ChIJWfHLuGMs5IgRZHXJPtNZCr0','ChIJn2JUR3Bf7IgRDoeGio3YFuE','ChIJT8lyCbL07IgR7bBS2PG4XQI','ChIJg1HuP9xbw4gRs9PHCFmC4VU','ChIJHYWhzLpbw4gR-dyWVALZtfw','ChIJJQVMQuJXw4gRhD0CpEOETGo','ChIJu73by6Rbw4gR857K3YRfLQo','ChIJB_x-d4nW2IgRA8KT7MrGCis','ChIJLd_uxonW2IgRCHBSV77RI9E','ChIJV8mRgbbX2IgRloAsUHzNI6s','ChIJ38rlfogN3YgRGic46M9dbLw','ChIJu5o2QZAN3YgRMruJ3jk1KG8','ChIJDahUeGJ654gRTbXyn3JDd0U','ChIJeYMYltVx54gRB4G-KKYiD8I')
+   where place_id in ('ChIJaRU86ORx54gRK3zyCcF94hw','ChIJ550owHsXw4gR4L8ZcLVqA-M','ChIJ9Zr5_dEXw4gRWXr3bcnjiIQ','ChIJaWJirJcWw4gRboJr7F108HM','ChIJB-QyVtEXw4gRk5F8bn3YV28','ChIJhW6JF_MWw4gRUxIRevnpN4k','ChIJSzFosAERw4gRdoKp0B-JmGY','ChIJy76z4HY9w4gROaX_C6lQu8g','ChIJiZrtZSvxwogRE9eu4Xpy9Yc','ChIJ40ShwrcB3ogR38px18fDfss','ChIJu_e4BnTI2YgREAOg3GxMK8g','ChIJqQ1Avv5DkYgR19YWeQV8UiQ','ChIJZSzeKLDzwogRSwm6alxyabw','ChIJFzRAfooB2YgRtuvhmGrE7RY','ChIJ96iz9wdq24gRftTmyqbwI64','ChIJVVUNg8JB24gRo5VjblNO_c8','ChIJX0UJnszx3ogRKqv856yKO_s','ChIJKVDd7v_bkIgRv0FaG2bnP9g','ChIJK4Wkv7jb2YgRv7LTOSIRIRI','ChIJM6cv59Pn2YgRdXaKYZKWWms','ChIJYWfOURm35YgRZ6p-Om4KBNM','ChIJWTX7kWvn3ogRRjQhNzC11RQ','ChIJv_Qs9IiD3YgR1uVLPQ4zkiM','ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek','ChIJJ4xUsMiB3YgRtioaCI7zFlY','ChIJk5xl2oZ_3YgRg7yR_vn87h4','ChIJOcKapod_3YgR90H_S_UKiMA','ChIJXSjMOWd_3YgR7IaYUVKFrms','ChIJ1dJMdEc43YgRmII076Tbhmg','ChIJ-WLCqkdw54gR5FyZzXYSoV4','ChIJI0Ja3y4E3ogRoNdEL3xe4Ek','ChIJBVShAmez2YgRvNWv6nIzzzY','ChIJI-aAsE-32YgRlQrq8LqdUa8','ChIJK69z3qO22YgROBJC2vDIXAI','ChIJo83NFCqx2YgRXsS12ziKrO8','ChIJoVWX_Rm02YgRllHsIZGN16c','ChIJUczTK5XC2YgRRt4Jp6N3B70','ChIJS2qQ6sw1w4gRUJfWmSdAvXE','ChIJhzWIGZUe24gRZ0qRx2ErnPI','ChIJIShSd5Yd24gRRu3n15Wfmmo','ChIJM5duwu3h2ogRw33TpV_VYtI','ChIJnU1-CO1554gRuvTm3EZVA9Y','ChIJ231qjvF754gRZX6vzhb2aCk','ChIJ7_PseA9n54gRpWhEjEiG3uo','ChIJ73yw37J954gRDwQad4ih7Wk','ChIJ7aIAgJd654gRjUN8WsPaaI4','ChIJ9RHZGx6H3YgRnWVYIWsHNPM','ChIJaybvA3N754gRTQX-9RlrMko','ChIJb2Fn68t554gRrVzqlpOn-hk','ChIJB4Zm1Ux-54gRmJPSvFL6DSM','ChIJbbY73up654gRsbf2dTWiCas','ChIJbVPT1f1654gRJvFabQEhowU','ChIJcQyYH85654gRPh6gV_UpsDY','ChIJEwDtLpl754gR0qE-zUCv6PQ','ChIJfyPWjCh-54gR1SvWozmef5k','ChIJHWBuq9p654gR5Pz28aJykCc','ChIJm-1TQ1N-54gRtKSCx6hQ8SU','ChIJMfdMl_5654gRpZP9kPXrotU','ChIJmy7U4VJ-54gRi1LoS6wwFj0','ChIJN9FTnbF754gRwLFDBN_ahJ4','ChIJncyg0v1654gRzcygkvMIsg0','ChIJo2bql5B654gR_ITN9PGhBbU','ChIJOWyInLF_54gRgRgjDQy9zhw','ChIJOZ6tqU5754gRmHz-pzzl33s','ChIJOzDmBvJ-54gR6XhJQHPs5KI','ChIJP1om-VJ-54gRAF-_k_y5cig','ChIJqxgi_-J654gRAUVO-nnoTgA','ChIJqZhP6z1_54gR8PAoaIuhp0w','ChIJU7bqHVV-54gRJAwZAp5qCpk','ChIJuQTH2xd754gRUV-O6arVOhQ','ChIJv4DsyFR-54gRKvbiUH1zlpo','ChIJVcr7Ufp654gRkJGTJZILyfc','ChIJz-NtNPx654gR5pilGxE8KDo','ChIJNwQxUnFDw4gRlEruVgcCmu0','ChIJHdRIEU2Mk4gRfAM5vKPoRxk','ChIJ______8sw4gRMudh58gsGMU','ChIJS4AH0B8vw4gRF1MVwsvmoK8','ChIJ86kIPeDFkIgRdsrbssu0Jwk','ChIJheIoirLAkIgRPxCpsjJZlYs','ChIJs79B6VTHkIgR_GrMBD-pkJk','ChIJRQw4SiI35IgRSAIrKfRvWEg','ChIJ8QTtKHMT54gR_ucFCO6b4RE','ChIJ1YBgZHRAw4gRorfVkB1B6bY','ChIJ3VLBF5Jqw4gRkT1TfU3ULd8','ChIJ6_YRRRJAw4gRE5XF42pZOxo','ChIJ62qtuiVBw4gRFdwvl9Z4X_Y','ChIJ6y2dx9g_w4gRWoZIRhLk-JI','ChIJB_VL5xJAw4gRY58y23x1wBw','ChIJczkDFL04w4gRwfowcSv8Tro','ChIJew4bcA9Aw4gR3bU-SA7qAgU','ChIJHcu6u2BHw4gRDKuRC9sow20','ChIJhRwCTPZAw4gROrb2GkpgkGQ','ChIJhWqZvoVHw4gRehUSFsbZARo','ChIJLZ2vzRxBw4gRMOtW0ArhBhw','ChIJPWsUhY9Aw4gRoltOtGa3nPM','ChIJq6rO_XtAw4gRV_KGbfGfJ4g','ChIJRyOEfAo5w4gR664aD_YYBLU','ChIJtcnZQU9Bw4gROmYnVLnl0hE','ChIJTRfRfgpBw4gR-u488ol_SOw','ChIJv8qJUuIVw4gR3V0HYAQ2Ll4','ChIJK1nJH9xrw4gRIr9IhuzYVQI','ChIJSZdWvAlqw4gRo53EHrAL5gU','ChIJ0UaxcHon5IgRtIDfdNZ5UsQ','ChIJvwS00mgn5IgRdR5IlMxNUp0','ChIJWfHLuGMs5IgRZHXJPtNZCr0','ChIJn2JUR3Bf7IgRDoeGio3YFuE','ChIJT8lyCbL07IgR7bBS2PG4XQI','ChIJg1HuP9xbw4gRs9PHCFmC4VU','ChIJHYWhzLpbw4gR-dyWVALZtfw','ChIJJQVMQuJXw4gRhD0CpEOETGo','ChIJu73by6Rbw4gR857K3YRfLQo','ChIJB_x-d4nW2IgRA8KT7MrGCis','ChIJLd_uxonW2IgRCHBSV77RI9E','ChIJV8mRgbbX2IgRloAsUHzNI6s','ChIJ38rlfogN3YgRGic46M9dbLw','ChIJu5o2QZAN3YgRMruJ3jk1KG8','ChIJDahUeGJ654gRTbXyn3JDd0U','ChIJeYMYltVx54gRB4G-KKYiD8I')
      and btrim(coalesce(locality,'')) = '';
   if missing > 0 then raise exception 'locality backfill left % row(s) empty', missing; end if;
 end $$;

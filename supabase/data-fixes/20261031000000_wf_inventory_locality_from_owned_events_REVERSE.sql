@@ -1,5 +1,5 @@
 -- Reverse of supabase/migrations/20261031000000_wf_inventory_locality_from_owned_events.sql
--- Clears ONLY the 122 localities that migration set, and only where the value
+-- Clears ONLY the 118 localities that migration set, and only where the value
 -- is still exactly what it wrote — so an owner edit made afterwards is never discarded.
 
 begin;
@@ -20,8 +20,6 @@ update public.wf_inventory set locality = null
  where place_id = 'ChIJSzFosAERw4gRdoKp0B-JmGY' and locality = 'Bradenton';
 update public.wf_inventory set locality = null
  where place_id = 'ChIJy76z4HY9w4gROaX_C6lQu8g' and locality = 'Bradenton';
-update public.wf_inventory set locality = null
- where place_id = 'ChIJeYs9itH2wogRrCzlbripy1w' and locality = 'Clearwater';
 update public.wf_inventory set locality = null
  where place_id = 'ChIJiZrtZSvxwogRE9eu4Xpy9Yc' and locality = 'Clearwater';
 update public.wf_inventory set locality = null
@@ -52,8 +50,6 @@ update public.wf_inventory set locality = null
  where place_id = 'ChIJWTX7kWvn3ogRRjQhNzC11RQ' and locality = 'Jensen Beach';
 update public.wf_inventory set locality = null
  where place_id = 'ChIJv_Qs9IiD3YgR1uVLPQ4zkiM' and locality = 'Kissimmee';
-update public.wf_inventory set locality = null
- where place_id = 'ChIJBap9MoR_3YgRnzGmE9oTtYE' and locality = 'Lake Buena Vista';
 update public.wf_inventory set locality = null
  where place_id = 'ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek' and locality = 'Lake Buena Vista';
 update public.wf_inventory set locality = null
@@ -168,10 +164,6 @@ update public.wf_inventory set locality = null
  where place_id = 'ChIJheIoirLAkIgRPxCpsjJZlYs' and locality = 'Pensacola';
 update public.wf_inventory set locality = null
  where place_id = 'ChIJs79B6VTHkIgR_GrMBD-pkJk' and locality = 'Pensacola';
-update public.wf_inventory set locality = null
- where place_id = 'ChIJ_5yVrBY13YgRwSgyH1hrRjg' and locality = 'Plant City';
-update public.wf_inventory set locality = null
- where place_id = 'ChIJFwrRu7o33YgRIuZ-0QgeCVQ' and locality = 'Plant City';
 update public.wf_inventory set locality = null
  where place_id = 'ChIJRQw4SiI35IgRSAIrKfRvWEg' and locality = 'Ponte Vedra Beach';
 update public.wf_inventory set locality = null

@@ -26,8 +26,11 @@
 //   * append-only to an EMPTY locality; never overwrites a value already held
 //   * exactly one distinct city across that place's events, else excluded
 //   * state/country words are never a city (same list as lib/placeCity.js)
-//   * rows are tiered: A = the event's own address text contains the city
-//     (self-corroborating), B = unambiguous but uncorroborated
+//   * never fills a row the Census pass resolved: county set + locality empty
+//     means "outside every incorporated place" (scripts/lib/localityEvidence.mjs)
+//   * rows are tiered: A = the event address's CITY SLOT equals the city
+//     (self-corroborating; a street name or a longer place name does not
+//     count), B = unambiguous but uncorroborated
 //   * idempotent: re-running changes nothing once applied
 //   * resumable: the WHERE clause is the resume condition, so a partial apply
 //     simply continues
@@ -36,6 +39,7 @@
 // READ-ONLY. This script never writes to the database. It emits a migration
 // for the OWNER to apply, per CLAUDE.md.
 import { writeFileSync, mkdirSync } from "node:fs";
+import { addressCorroboratesCity, localityIsFillable } from "./lib/localityEvidence.mjs";
 
 const STAMP = process.argv.find((a) => a.startsWith("--stamp="))?.slice(8);
 if (!STAMP || !/^\d{14}$/.test(STAMP)) {
@@ -72,9 +76,13 @@ async function pageAll(path, label) {
 
 // 1. Places with NO locality. `is.null` alone would miss empty strings, so the
 //    filter covers both and the JS re-checks.
-const invRows = await pageAll(`wf_inventory?select=place_id,name,locality&or=(locality.is.null,locality.eq.)`, "wf_inventory");
+const invRows = await pageAll(`wf_inventory?select=place_id,name,locality,county&or=(locality.is.null,locality.eq.)`, "wf_inventory");
 const needing = new Map();
-for (const r of invRows) if (!String(r.locality || "").trim()) needing.set(r.place_id, r.name);
+let censusResolved = 0;
+for (const r of invRows) {
+  if (localityIsFillable(r)) needing.set(r.place_id, r.name);
+  else if (!String(r.locality || "").trim()) censusResolved++;
+}
 
 // The allowlist /places/[id] gates on. Paged — see the note above.
 const allowed = new Set((await pageAll(`wf_place_ids?select=place_id`, "wf_place_ids")).map((r) => r.place_id));
@@ -97,7 +105,7 @@ for (const [place_id, evs] of byPlace) {
   const cities = [...new Set(evs.map((e) => e.city))];
   if (cities.length !== 1) { excluded.push({ place_id, reason: `ambiguous:${cities.length}_cities`, detail: cities.join(" | ") }); continue; }
   const city = cities[0];
-  const corroborating = evs.find((e) => e.address.toLowerCase().includes(city.toLowerCase()));
+  const corroborating = evs.find((e) => addressCorroboratesCity(e.address, city));
   picked.push({
     place_id, name: needing.get(place_id) || "", city,
     tier: corroborating ? "A" : "B",
@@ -126,9 +134,11 @@ const header = `-- PENDING APPLY. Not applied by the agent that wrote it.
 -- Audit (every row, with its evidence): docs/audits/${name}.csv
 -- Reverse: supabase/data-fixes/${name}_REVERSE.sql
 --
--- Tier A (${picked.filter((p) => p.tier === "A").length} rows): the event's own address text contains the city, so the
+-- Tier A (${picked.filter((p) => p.tier === "A").length} rows): the event address's city slot IS the city, so the
 --   row corroborates itself. Tier B (${picked.filter((p) => p.tier === "B").length}): unambiguous but uncorroborated.
 -- Excluded: ${excluded.length} place(s) whose events disagree on the city.
+-- Never considered: ${censusResolved} row(s) the Census pass resolved as
+--   unincorporated (county set, locality deliberately empty).
 --
 -- IDEMPOTENT and RESUMABLE: each statement requires the locality to still be
 -- empty, so re-running changes nothing and a partial apply simply continues.
