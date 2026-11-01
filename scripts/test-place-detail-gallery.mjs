@@ -171,6 +171,11 @@ ok(seenInit && !("cache" in seenInit) && seenInit.next && seenInit.next.revalida
     ok(busch.length === 2 && busch[0].src.endsWith("/cover.jpg") && busch.every((p) => !p.src.endsWith("/p2.jpg")), "the event page opens on the tagged cover and leaves other events out");
     const none = await loadEventDetailPhotos("/florida-events/some-other-parade-2026", { name: "Parade", placeId: "ChIJparadeplace01", env: creds, fetchImpl });
     ok(none.length === 0, "a place gallery with no tag for this event leaves the page rail empty");
+    const throwFetch = async () => { throw new Error("a static Christmas gallery must not read the place row"); };
+    const stetsonPage = await loadEventDetailPhotos("/florida-events/stetson-mansion-christmas-2026-2", { name: "Stetson Mansion", env: noCreds, fetchImpl: throwFetch });
+    const winterPage = await loadEventDetailPhotos("/florida-events/winterfest-boat-parade-fort-lauderdale-2026", { name: "Winterfest", placeId: "ChIJf45X0KoB2YgRUi5C_dEm-Q8", env: creds, fetchImpl: throwFetch });
+    ok(stetsonPage.length === 9 && stetsonPage[0].src.endsWith("/xmas_08c508314b0a24ca.jpg"), "the Stetson event page opens on its gallery cover");
+    ok(winterPage.length === 6 && winterPage[0].src.endsWith("/xmas_006bd9c9426d3fd2.jpg") && winterPage.every((p) => p.src.includes("/winterfest-boat-parade-fort-lauderdale-2026/")), "the Winterfest event page shows its parade gallery");
   } finally {
     globalThis.fetch = savedFetch;
   }

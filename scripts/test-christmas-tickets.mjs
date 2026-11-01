@@ -20,7 +20,8 @@ import {
   CHRISTMAS_TICKETS_MAX, CHRISTMAS_TICKETS_MAX_PHOTOS, CHRISTMAS_TICKET_FILTERS, christmasTicketsModel, christmasTicketsSchema,
   ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
-import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, christmasPlaceFor, christmasTaggedPhotos } from "../lib/christmasPlacePhotos.js";
+import { existsSync } from "node:fs";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -233,6 +234,28 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   ok(enchant.rows[0].placeId === "ChIJkXdv95vhwogR3e84WZCqrJ4", "Enchant links to the existing Tropicana Field place");
   const universal = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "universal-orlando-holidays-2026", place_id: null })], TODAY), { noMemo: true, readTagged: async () => [shot("uni")] });
   ok(universal.rows[0].placeId === "ChIJvRBCrN9-54gRGZuuaCLGrQE", "Universal links to the existing Universal Orlando place");
+  const stetsonShots = christmasStaticPhotos("stetson-mansion-christmas-2026-2", "Stetson Mansion");
+  const winterShots = christmasStaticPhotos("winterfest-boat-parade-2026", "Winterfest");
+  ok(stetsonShots.length === 9 && stetsonShots[0].src.endsWith("/xmas_08c508314b0a24ca.jpg") && stetsonShots.every((p) => existsSync(path.join(root, "public", p.src))), "Stetson opens on its cover and every gallery file is on disk");
+  ok(winterShots.length === 6 && winterShots[0].src === christmasStaticPhotos("winterfest-boat-parade-fort-lauderdale-2026", "Winterfest")[0].src && winterShots.every((p) => existsSync(path.join(root, "public", p.src))), "Winterfest card id and event page slug share the same gallery files");
+  ok(stetsonShots.every((p) => p.credit && p.creditHref && p.alt === "Photo of Stetson Mansion") && winterShots.every((p) => /^Photo by Seminole Hard Rock/.test(p.credit)), "static photos carry a credit and a source link");
+  const stetsonCard = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "stetson-mansion-christmas-2026-2", place_id: null, venue: "Stetson Mansion", image: "/events/christmas/stetson-mansion-christmas-2026-2.webp" })], TODAY), {
+    noMemo: true,
+    readGoogle: async () => { throw new Error("static photos replace the venue rail"); },
+    readVault: async () => { throw new Error("static photos replace the venue rail"); },
+  });
+  ok(stetsonCard.rows[0].photos[0].src === stetsonShots[0].src && stetsonCard.rows[0].photos.length === 9, "the Stetson ticket card shows its gallery, cover first");
+  let fetches = 0;
+  const pageShots = await readChristmasEventPhotos("winterfest-boat-parade-fort-lauderdale-2026", "ChIJf45X0KoB2YgRUi5C_dEm-Q8", { label: "Winterfest", env: {}, fetchImpl: async () => { fetches += 1; return { ok: false, json: async () => [] }; } });
+  ok(fetches === 0 && pageShots[0].src === winterShots[0].src && pageShots.length === 6, "the Winterfest event page uses the static gallery and does not read the place row");
+  const listings = christmasBrowseListings([], TODAY);
+  const sCard = listings.find((c) => c.id === "stetson-mansion-christmas-2026-2");
+  const wCard = listings.find((c) => c.id === "winterfest-boat-parade-2026");
+  ok(sCard && sCard.image === "/events/christmas/stetson-mansion-christmas-2026-2.webp" && /DanTD/.test(sCard.photoAttr || ""), "the Stetson browse card keeps its licensed photo and credit");
+  ok(wCard && wCard.image === winterShots[0].src && /Winterfest Boat Parade/.test(wCard.photoAttr || ""), "the Winterfest card shows the gallery cover and its credit");
+  const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
+  const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
+  ok(featuredStetson && featuredStetson.photos[0].src === stetsonShots[0].src && featuredStetson.photos.length === stetsonShots.length, "the Stetson featured card shows its gallery, cover first");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
