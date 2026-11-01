@@ -12,6 +12,7 @@
 // "Price not announced" and a ticket button exists only where the existing
 // data has a real ticket or official link.
 import { useEffect, useRef, useState } from "react";
+import ChristmasFilter from "./ChristmasFilter.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
@@ -57,7 +58,7 @@ export function browseRowFor(card) {
     city: christmasCopy(card.city || ""),
     when: isPlace ? christmasCopy(card.seasonalWhen || "") : ticket ? ticket.when : christmasCopy(card.when || season || ""),
     price,
-    photos: ticket && Array.isArray(ticket.photos) && ticket.photos.length ? ticket.photos : browsePhotos(card),
+    photos: Array.isArray(card.photos) && card.photos.length ? card.photos.slice(0, 14) : (ticket && Array.isArray(ticket.photos) && ticket.photos.length ? ticket.photos.slice(0, 14) : browsePhotos(card)),
     placeholder: card.placeholder || null,
     cta: ticket ? ticket.cta : null,
     eventHref: card.detailHref || null,
@@ -123,13 +124,11 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
       {pills.map((pill) => <button type="button" key={pill.id} aria-pressed={query.category === pill.id} onClick={() => set("category", query.category === pill.id ? "" : pill.id)}>{pill.label}</button>)}
     </div>
     <form role="search" className="xm-controls" onSubmit={(e) => e.preventDefault()}>
+      <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe}
+        onClearNear={() => setQuery((q) => ({ ...q, lat: "", lng: "" }))} />
       <input type="search" aria-label="Search by name or city" placeholder="Search by name or city" defaultValue={query.q || ""}
         onChange={(e) => { const v = e.target.value; clearTimeout(typing.current); typing.current = setTimeout(() => set("q", v), 300); }}
-        style={{ ...selectStyle, flex: "1 1 100%" }} />
-      <select aria-label="Region" value={query.region || ""} onChange={(e) => set("region", e.target.value)} style={{ ...selectStyle, flex: "1 1 160px" }}>
-        <option value="">All regions</option>{facets.regions.map((r) => <option key={r} value={r}>{r}</option>)}
-      </select>
-      <button type="button" onClick={nearMe} style={{ ...selectStyle, fontWeight: 800, flex: "1 1 160px" }}>{query.lat ? "Nearest first" : "Nearest to me"}</button>
+        style={{ ...selectStyle, flex: "1 1 180px", borderRadius: 999, minHeight: 46, padding: "0 16px" }} />
     </form>
     <p className="xm-count" role="status" aria-live="polite">
       {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "listing" : "listings"}`}
