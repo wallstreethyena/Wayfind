@@ -85,6 +85,22 @@ for (const def of CHRISTMAS_INTENT_RAIL_DEFS) {
       ["browse", renderToStaticMarkup(React.createElement(ChristmasBrowseCard, { card, rank: 1, today: TODAY }))],
     ]) {
       rendered++;
+      if (surface === "browse") {
+        // Owner direction 2026-11-01: the browse wears the one ticket card (.xm-card),
+        // so its photo slot is the card's own .xm-photo: the designed tile with no
+        // photo, a real <img> otherwise, a credit line for a licensed or Google photo,
+        // and never an empty slot.
+        const where2 = `${def.id} browse, ${label}`;
+        const slot = /<div class="xm-photo"[\s\S]*?(?=<div class="xm-body")/.exec(html)?.[0] || "";
+        ok(slot.length > 0, `${where2}: the ticket card photo slot rendered`);
+        if (!image) ok(/data-event-tile/.test(slot) && slot.includes(tile.label) && !/<img/.test(slot), `${where2}: the designed event tile, no image`);
+        else ok(/<img[^>]+src="/.test(slot) && slot.includes(image.replace(/&/g, "&amp;")), `${where2}: the photo renders in the slot`);
+        const credit = /<p class="xm-credit"[^>]*>([\s\S]*?)<\/p>/.exec(html)?.[1] || "";
+        if (image && attr) ok(credit.includes(attr), `${where2}: a licensed photo keeps its required credit`);
+        else if (image && image.startsWith("/api/photo")) ok(credit.includes("Photo from Google Maps"), `${where2}: a Google photo says so`);
+        else ok(!/[A-Za-z]/.test(credit.replace(/<[^>]+>/g, "").replace(/&nbsp;/g, "")), `${where2}: no credit without a photo`);
+        continue;
+      }
       const media = mediaOf(html);
       const where = `${def.id} ${surface}, ${label}`;
       ok(media.length > 0, `${where}: the media slot rendered`);
@@ -102,7 +118,8 @@ ok(placeHtml.includes("Nov 20 – Jan 3") && placeHtml.includes("Proof source") 
 ok(BADGE.test('<a class="wf-place-card-photo-attr">©</a>') && EMPTY_SPAN.test('<span data-card-photo-request="/api/photo?x"></span>'), "positive control: the badge and empty span probes match their markup");
 
 const rails = strip(read("app/components/ChristmasIntentRails.js")), browse = strip(read("app/components/ChristmasBrowse.js")), railCard = strip(read("app/components/RailCard.js"));
-ok(/photoFallbackCategory="christmas"/.test(rails) && /photoFallbackCategory="christmas"/.test(browse), "the rails and the browse pass the Christmas tile category (static)");
+ok(/photoFallbackCategory="christmas"/.test(rails), "the rails pass the Christmas tile category (static)");
+ok(/placeholder: card\.placeholder \|\| null/.test(browse) && /<TicketCard[\s/]/.test(browse), "the browse hands the card's designed tile to the one ticket card (static)");
 ok(/fallbackCategory=\{photoFallbackCategory\}/.test(railCard), "RailCard hands that category to CardPhoto (static)");
 ok(/\{photoAttr && shownPhoto && !creditedLane && imgFailed !== shownPhoto\s*\?/.test(railCard), "RailCard adds no credit on the credited lane and drops it when a direct photo fails (static)");
 

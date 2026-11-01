@@ -217,7 +217,7 @@ ok(!!rposes && ["poke", "cheer", "sales", "orb"].every((k) => rposes[1].includes
 ok(!!reactBody && /prefetch\("poke"\);\s*prefetch\("cheer"\);/.test(reactBody[1]), "react must prefetch its poses before he flies, so he never flashes invisible");
 const perch = comp.match(/const\s+PERCH_SEL\s*=\s*"([^"]*)"/);
 ok(!!perch && !/boo-buy|boo-ask|boo-goto|boo-picks|commerce|input|\ba\b/.test(perch[1]), "Boo may only perch on top of things nobody taps (bulbs, wordmark), never a ticket button, link or input");
-ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\}/.test(comp) && /\[tx,\s*ty\]\s*=\s*hit\.spot/.test(comp), "roaming touches park beside anything tappable (besideSpot), perched only on PERCH_SEL");
+ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX_COVER, txt\);\s*if \(ps\) return \{ el, r, spot: ps \}/.test(comp) && /\[tx,\s*ty\]\s*=\s*hit\.spot/.test(comp), "roaming touches park beside anything tappable (besideSpot), perched only on PERCH_SEL");
 
 // 12. Outside coverage (2026-10-28, owner: a visitor from an area Wayfind does
 // not cover must be told why it is empty, which Florida areas are covered, the
@@ -353,6 +353,82 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   ok(clear.bubbleSideIfClear(100, 380, 88, 200, 54, { v: "above", h: "right" }, [R(60, 320, 300, 66), R(60, 460, 300, 66)], 390, 844) === null, "bubbleSideIfClear is null when every side is covered");
   ok(chooseBubbleSide(100, 380, 88, 200, 54, { v: "above", h: "right" }, [], 390, 844).v === "above", "bubble keeps the preferred side when it is clear");
 
+  // TEXT RULE (owner 2026-10-30, screenshot 2026-11-01: Santa on the "Verified Christmas
+  // outings in Florida" h2 + paragraph). Text has its own list and ZERO tolerance.
+  const { hitsText, perchSpot, TEXT_SLOP, worstOverlap } = clear;
+  ok(hitsText(R(0, 0, 88, 88), [R(60, 60, 200, 40)]) && !hitsText(R(0, 0, 88, 88), [R(87, 0, 200, 40)]) && TEXT_SLOP <= 2, "hitsText: a corner of text counts, a sliver within TEXT_SLOP does not");
+  ok(!isClear(100, 100, 88, [], 0.15, [R(0, 90, 400, 20)]) && isClear(100, 100, 88, [], 0.15, [R(0, 300, 400, 20)]), "isClear: text under him (even a thin strip, far under 15%) is NOT clear, text elsewhere is");
+  // Phone fixtures: full width h2 + paragraph under it, at 375 and 960.
+  const textPage = (vw, vh) => {
+    const w = vw - 32;
+    return {
+      b: { minX: 12, maxX: vw - 12 - 88, minY: 70, maxY: vh - 96 - 88, vw, vh },
+      txt: [R(16, 300, w, 36), R(16, 344, w, 150)],
+    };
+  };
+  for (const [vw, vh] of [[375, 812], [960, 700]]) {
+    const { b: pb, txt } = textPage(vw, vh);
+    const label = vw + "px";
+    // A Boo sitting on the h2 + paragraph: 15% of him on text used to be tolerated; any text is a fail now.
+    ok(!isClear(100, 320, 88, [], 0.15, txt) && !isClear(100, 230, 88, [], 0.15, txt), "(" + label + ") Boo on the h2 / on the top of the paragraph is not a clear rest spot");
+    // Old behaviour reproduced: merged list + 15% would accept 13% on the h2; the split rule rejects it.
+    const sliver = R(100, 300 - 88 + 12, 88, 88); // 12px of him on the h2 = 13.6% of him
+    ok(overlapRatio(sliver, txt[0]) <= MAX_COVER && hitsText(sliver, txt), "(" + label + ") 13.6% on the h2 passed the old 15% rule but is on text for the new one");
+    // Rest spots: random tries that land on text are refused; whatever he returns is text free.
+    const rs = pickClearSpot(88, pb, [], { x: 100, y: 320 }, (lo, hi) => (lo === pb.minX ? 100 : 320), 8, MAX_COVER, null, txt);
+    ok(rs.strict && !hitsText(R(rs.x, rs.y, 88, 88), txt), "(" + label + ") pickClearSpot never returns a spot on the h2/paragraph (via " + rs.via + ")");
+    // besideSpot / perchSpot: right beside or above a target that sits against the text; never on it.
+    const target = R(16, 505, 140, 40); // a button right under the paragraph
+    const bs = besideSpot(target, 88, { ...pb, minY: 0, maxY: vh - 96 }, [target], MAX_COVER, txt);
+    ok(bs === null || !hitsText(R(bs[0], bs[1], 88, 88), txt), "(" + label + ") besideSpot beside a target under the paragraph never lands on the text");
+    const bulb = R(180, 322, 20, 20); // a bulb sitting inside the h2 band
+    const ps = perchSpot(bulb, 88, { ...pb, minY: 0 }, [bulb], MAX_COVER, txt);
+    ok(ps === null || !hitsText(R(ps[0], ps[1], 88, 88), txt), "(" + label + ") perchSpot never perches on text (old aimAt sat 18px into the target)");
+    ok(perchSpot(R(50, 100, 20, 20), 88, { ...pb, minY: 0 }, [], MAX_COVER, txt) !== null, "(" + label + ") perchSpot still perches on an open bulb");
+  }
+  // 375 wide, text wall to wall except side padding: no in-bounds spot is text free, so he TUCKS.
+  {
+    const vw = 375, vh = 812;
+    const b2 = { minX: 12, maxX: vw - 12 - 88, minY: 70, maxY: vh - 96 - 88, vw, vh };
+    const wall = []; for (let y = 60; y < vh - 20; y += 40) wall.push(R(16, y, vw - 32, 34)); // dense paragraphs, 16px side padding
+    const nav = R(0, vh - 64, vw, 64);
+    const sp = pickClearSpot(88, b2, [nav], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, wall);
+    const box = R(sp.x, sp.y, 88, 88);
+    ok(sp.via === "edge" && sp.strict && !hitsText(box, wall), "no text free spot in the viewport: he tucks into the margin, still no text under him (via " + sp.via + ")");
+    ok(sp.x < b2.minX || sp.x > b2.maxX, "the tuck spot is off the safe box sideways (partly off screen): x=" + sp.x);
+    const shown = Math.min(sp.x + 88, vw) - Math.max(sp.x, 0);
+    ok(shown >= 88 * (1 - 0.8) - 1e-6, "tucked Boo still shows at least 20% of himself on screen (" + Math.round(shown) + "px)");
+    ok(worstOverlap(box, [nav]) <= MAX_COVER, "the tuck spot also leaves the bottom nav alone");
+    // Nothing at all is text free (text edge to edge): the damage is the smallest possible, flagged not strict.
+    const slab = []; for (let y = 0; y < vh; y += 40) slab.push(R(0, y, vw, 38));
+    const sp3 = pickClearSpot(88, b2, [], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, slab);
+    ok(sp3.via === "least" && sp3.strict === false && (sp3.x <= -0.8 * 88 + 1 || sp3.x >= vw - 88 * 0.2 - 1), "edge to edge text: last resort hides him (80%) at the edge and says it is not strict (x=" + sp3.x + ")");
+    // Reduced motion settles with the same tiers (tries 0 = no random hop).
+    const rd = pickClearSpot(88, b2, [nav], { x: b2.minX, y: b2.maxY }, () => 0, 0, MAX_COVER, null, wall);
+    ok(!hitsText(R(rd.x, rd.y, 88, 88), wall) && rd.via !== "random", "reduced motion corner search also ends text free (via " + rd.via + ")");
+  }
+  // 960 desktop: plenty of room, he rests in the open and never on the h2/paragraph.
+  {
+    const { b: pb, txt } = textPage(960, 700);
+    let onText = 0;
+    for (let i = 0; i < 200; i++) {
+      let seed = i * 7919 + 13;
+      const r = (lo, hi) => { seed = (seed * 16807) % 2147483647; return lo + (seed / 2147483647) * (hi - lo); };
+      const sp = pickClearSpot(88, pb, [], { x: r(0, 800), y: r(70, 500) }, r, 8, MAX_COVER, null, txt);
+      if (hitsText(R(sp.x, sp.y, 88, 88), txt)) onText++;
+    }
+    ok(onText === 0, "200 seeded rests at 960 wide: never on the h2/paragraph (" + onText + " on text)");
+  }
+  // The bubble also avoids text when a side is free, and prefers the least text otherwise.
+  {
+    const txt = [R(0, 300, 390, 40)];
+    const bs2 = chooseBubbleSide(100, 380, 88, 200, 54, { v: "above", h: "right" }, [], 390, 844, txt);
+    const brx = bubbleRect(100, 380, 88, 200, 54, bs2.v, bs2.h);
+    ok(!hitsText(brx, txt) && bs2.v === "below", "bubble flips below when above would sit on a heading");
+  }
+
+  ok(/el\.matches\(READ_SEL\)/.test(comp) && /txt\.push\(rect\)/.test(comp) && /restLists = /.test(comp), "component keeps text (READ_SEL) in its own zero tolerance list apart from controls");
+  ok(/restDirty\.current && nowMs - restChk\.current >= REST_MS/.test(comp) && /parkClear\(\)/.test(comp.slice(comp.indexOf("restDirty.current && nowMs"), comp.indexOf("restDirty.current && nowMs") + 300)), "a resting Boo re-checks for text after a scroll or page change (not only on arrival)");
   // Wiring in the component (comments stripped).
   const fn = (name) => { const m = comp.match(new RegExp("const " + name + " = [^\\n]*\\{[\\s\\S]*?\\n  \\};")); return m ? m[0] : ""; };
   ok(/from\s+["']\.\/booClear\.js["']/.test(comp) && /\bbesideSpot\b/.test(comp) && /\bpickClearSpot\b/.test(comp) && /\bchooseBubbleSide\b/.test(comp), "BooCompanion imports the overlap helpers");
@@ -370,9 +446,9 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   // Cheap: the hit check is cached rect math per frame, with the layout read throttled to HIT_MS (100).
   ok(/const HIT_MS\s*=\s*100/.test(comp) && /now - c\.t >= HIT_MS/.test(comp) && /setInterval\(hitTick, HIT_MS\)/.test(comp), "hit check layout read is throttled to 100ms");
   // Touch target offset: beside it, never centred; bulbs may be perched.
-  ok(/besideSpot\(r, SIZE, b, ctl, MAX_COVER\)/.test(comp) && /PERCH_SEL\s*=\s*"\.boo-bulb,\.wf-wordmark-text"/.test(comp), "touch target offset logic: beside spot for controls, perch only on bulbs and the wordmark");
+  ok(/besideSpot\(r, SIZE, b, ctl, MAX_COVER, txt\)/.test(comp) && /PERCH_SEL\s*=\s*"\.boo-bulb,\.wf-wordmark-text"/.test(comp), "touch target offset logic: beside spot for controls, perch only on bulbs and the wordmark");
   ok(!/aimBeside/.test(comp), "the old beside-centre aim is gone");
-  ok(/touched\) g\.pause = TOUCH_MS \/ 1000/.test(comp), "after the 1.2s reaction he leaves");
+  ok(/touched\) \{ if \(!parkClear\(\)\) g\.pause = TOUCH_MS \/ 1000; \}/.test(comp), "after the 1.2s reaction he leaves");
   // Tap safety (owner rule): he cannot intercept navigation. Decorative parts are pointer-events:none in
   // CSS unconditionally; the only pointer target is a 44px real button that is tappable only after a clear check.
   const cssSrc = (comp.match(/const CSS = `([\s\S]*?)`;/) || [, ""])[1];
@@ -400,7 +476,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*return\s*\{\s*el,\s*r,\s*spot:\s*aimAt\(r\)\s*\
   ok(/e\.detail > 0 && underTap\(e\)/.test(comp) && /elementsFromPoint\(/.test(comp) && /__booBackstop/.test(comp), "backstop: a tap on the hit with a control under it goes to the control (counted in window.__booBackstop)");
   ok(/hitRef\.current\.focus\(/.test(comp.slice(comp.indexOf("const closeSheet"))), "closing the sheet returns focus to the hit button");
   // Reduced motion: bottom left, lifted clear of nav and sticky bars.
-  ok(/const settleReduced = /.test(comp) && /isClear\(x, y, SIZE, list\)/.test(comp), "reduced motion spot is checked clear of controls");
+  ok(/const settleReduced = /.test(comp) && /pickClearSpot\(SIZE, b, list, \{ x: b\.minX, y: b\.maxY \}, rand, 0, MAX_COVER, null, txt\)/.test(comp), "reduced motion spot is checked clear of controls and text");
 }
 
 if (fails) { console.error("check-boo-companion: " + fails + " failure(s)"); process.exit(1); }
