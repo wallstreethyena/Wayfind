@@ -1,0 +1,856 @@
+{
+ "batch": "2026-10-31-creator",
+ "source": "Creator registry places verified 2026-10-31 from official venue / DMO / government pages; coordinates from official pages or address-matched OpenStreetMap Nominatim. No Google Places calls.",
+ "places": [
+  {
+   "key": "creator01",
+   "status": "add",
+   "name": "Sweetfields Farm",
+   "placeId": "ChIJ44JHW22nwogR8PZqJvgwjlg",
+   "address": "17250 Benes Roush Rd, Brooksville, FL 34604",
+   "metro": "florida",
+   "wantCategory": "activities",
+   "primaryType": "tourist_attraction",
+   "types": [
+    "tourist_attraction"
+   ],
+   "lat": 28.4409474,
+   "lng": -82.4434125,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Seasonal sunflower maze in spring and corn maze with pumpkin patch each fall."
+  },
+  {
+   "key": "creator02",
+   "status": "add",
+   "name": "The Vanilla Bean",
+   "placeId": "ChIJj2CAFaOVwogRF2YSVVe5Uvk",
+   "address": "16921 Gunn Hwy, Odessa, FL 33556",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "cafe",
+   "types": [
+    "cafe"
+   ],
+   "lat": 28.1918211,
+   "lng": -82.5922633,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Odessa coffee cottage serving locally roasted coffee and house-made bakes."
+  },
+  {
+   "key": "creator03",
+   "status": "add",
+   "name": "Bakery 1908",
+   "placeId": "ChIJjWvQ7k3HwogRqIGfmAUf-Bc",
+   "address": "2788 E Fowler Ave, Tampa, FL 33612",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "bakery",
+   "types": [
+    "bakery"
+   ],
+   "lat": 28.0545671,
+   "lng": -82.429202,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Tampa branch of a Florida bakery group with 4 locations across the state."
+  },
+  {
+   "key": "creator04",
+   "status": "add",
+   "name": "Farooj Abo AlAbed",
+   "placeId": "ChIJ3TJxHZvHwogRwn4HI0koZbg",
+   "address": "11401 N 56th St Ste 24, Temple Terrace, FL 33617",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 28.0520443,
+   "lng": -82.393028,
+   "coordSource": "official page",
+   "ingestLine": "Lebanese charcoal grill known for charcoal chicken, kaak sandwiches and mixed grills."
+  },
+  {
+   "key": "creator05",
+   "status": "add",
+   "name": "The Bagel Nook",
+   "placeId": "ChIJb665ozDFwogRNrVsepGJrNY",
+   "address": "300 W Tyler St Ste 210, Tampa, FL 33602",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "bakery",
+   "types": [
+    "bakery"
+   ],
+   "lat": 27.95061,
+   "lng": -82.463176,
+   "coordSource": "official page",
+   "ingestLine": "Downtown Tampa bagel shop open from 7:00 am daily at 300 West Tyler St."
+  },
+  {
+   "key": "creator06",
+   "status": "add",
+   "name": "Sodough Square",
+   "placeId": "ChIJ25CTOATnwogRKwXjsYgh99I",
+   "address": "6925 4th St N, St. Petersburg, FL 33702",
+   "metro": "st-pete",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 27.8351915,
+   "lng": -82.638585,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Detroit-style square pizza with crispy cheese edges, baked in blue steel pans"
+  },
+  {
+   "key": "creator07",
+   "status": "add",
+   "name": "Kaseya Center",
+   "placeId": "ChIJlZFyCaC22YgRbFtPKFIFrRM",
+   "address": "601 Biscayne Blvd, Miami, FL 33132",
+   "metro": "miami-dade",
+   "wantCategory": "attractions",
+   "primaryType": "stadium",
+   "types": [
+    "stadium"
+   ],
+   "lat": 25.7813595,
+   "lng": -80.1879435,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "19,600-seat home of the three-time NBA Champion Miami HEAT"
+  },
+  {
+   "key": "creator08",
+   "status": "add",
+   "name": "La Macha Taqueria",
+   "placeId": "ChIJy7RVBQC52YgRvXZ6o8vXHq8",
+   "address": "9619 NW 41st St, Doral, FL 33178",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.8123773,
+   "lng": -80.3522032,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Sinaloa-style tacos with handmade tortillas in Doral"
+  },
+  {
+   "key": "creator09",
+   "status": "add",
+   "name": "Mister O1 Extraordinary Pizza",
+   "placeId": "ChIJcyAwPKy22YgRDQNU5lP6UVI",
+   "address": "2315 N Miami Ave, Miami, FL 33127",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.8017485,
+   "lng": -80.194943,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Italian thin-crust pizza, salads and antipasti in Wynwood"
+  },
+  {
+   "key": "creator10",
+   "status": "add",
+   "name": "Inka Nikkei",
+   "placeId": "ChIJz-3g0sDB2YgRO6WGPpqPHa0",
+   "address": "14697 SW 104th St, Miami, FL 33186",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.6702562,
+   "lng": -80.4308486,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Peruvian ingredients meet Japanese technique in west Miami"
+  },
+  {
+   "key": "creator11",
+   "status": "add",
+   "name": "The Best Açaí",
+   "placeId": "ChIJNa1-V2O12YgRAqLfC-1lsb0",
+   "address": "540 Lincoln Rd, Miami Beach, FL 33139",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "cafe",
+   "types": [
+    "cafe"
+   ],
+   "lat": 25.7904309,
+   "lng": -80.1340418,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "Acai, acai mixes and gelato on Lincoln Road"
+  },
+  {
+   "key": "creator12",
+   "status": "add",
+   "name": "Veganlitaly",
+   "placeId": "ChIJO5IyrXW32YgRnyXQP2MkKnE",
+   "address": "3808 SW 8th St, Coral Gables, FL 33134",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.7644387,
+   "lng": -80.2575608,
+   "coordSource": "OpenStreetMap Nominatim (address-matched)",
+   "ingestLine": "100% plant-based Italian pizza, pasta and gnocchi in Coral Gables"
+  },
+  {
+   "key": "creator13",
+   "status": "add",
+   "name": "Sardelli's Italian Steakhouse",
+   "placeId": "ChIJ2ZZybj-r2YgRzW-AJXm_GKU",
+   "address": "331 Van Buren St, Hollywood, FL 33019",
+   "metro": "broward",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 26.0106579,
+   "lng": -80.1168009,
+   "coordSource": "official page",
+   "ingestLine": "Italian steakhouse dinner and wine lists in Hollywood, with evening service seven days a week"
+  },
+  {
+   "key": "creator14",
+   "status": "add",
+   "name": "Niño Gordo",
+   "placeId": "ChIJeScTbwa32YgRwfibKQG-Bxg",
+   "address": "112 NW 28th St, Miami, FL 33127",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.8028154,
+   "lng": -80.1973626,
+   "coordSource": "official page",
+   "ingestLine": "Asian grill with Argentine soul in Wynwood, plus Dekotora behind a vintage cigarette machine"
+  },
+  {
+   "key": "creator15",
+   "status": "add",
+   "name": "Sawa Restaurant & Lounge",
+   "placeId": "ChIJa8EUn-632YgRCPUPVpld-LI",
+   "address": "360 San Lorenzo Ave #1500, Coral Gables, FL 33146",
+   "metro": "miami-dade",
+   "wantCategory": "nightlife",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.732031,
+   "lng": -80.262911,
+   "coordSource": "official page",
+   "ingestLine": "Mediterranean and Japanese dual-concept restaurant and lounge at Merrick Park in Coral Gables"
+  },
+  {
+   "key": "creator16",
+   "status": "add",
+   "name": "Southwest Ranches Farmer's Market",
+   "placeId": "ChIJhRdita6n2YgRAXGrnFK-BH0",
+   "address": "5150 S Flamingo Rd, Southwest Ranches, FL 33330",
+   "metro": "broward",
+   "wantCategory": "shopping",
+   "primaryType": "store",
+   "types": [
+    "store"
+   ],
+   "lat": 26.053442,
+   "lng": -80.315566,
+   "coordSource": "official page",
+   "ingestLine": "Farm market for raw milk, cheese, pork, and produce on Flamingo Road"
+  },
+  {
+   "key": "creator17",
+   "status": "add",
+   "name": "Rosso Coffee Club",
+   "placeId": "ChIJxV7_BnIJ2YgRx70VLv4ncu4",
+   "address": "1975 S Flamingo Rd, Davie, FL 33325",
+   "metro": "broward",
+   "wantCategory": "food",
+   "primaryType": "cafe",
+   "types": [
+    "cafe"
+   ],
+   "lat": 26.096257,
+   "lng": -80.314896,
+   "coordSource": "official page",
+   "ingestLine": "Specialty coffee, artisan pastries, and sandwiches on Flamingo Road in Davie"
+  },
+  {
+   "key": "creator18",
+   "status": "add",
+   "name": "ETARU",
+   "placeId": "ChIJo_QCg1-r2YgR68lZFkEcwBI",
+   "address": "111 S Surf Rd, Hallandale Beach, FL 33009",
+   "metro": "broward",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.9866542,
+   "lng": -80.1179138,
+   "coordSource": "official page",
+   "ingestLine": "Japanese robata grill cooking near the ocean in Hallandale Beach"
+  },
+  {
+   "key": "creator19",
+   "status": "add",
+   "name": "Lentrecote",
+   "placeId": "ChIJCSwptQKt2YgRYw-RZ3Xkl-8",
+   "address": "18146 Collins Ave, Sunny Isles Beach, FL 33160",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.9440912,
+   "lng": -80.1223276,
+   "coordSource": "official page",
+   "ingestLine": "French steak-frites bistro in Sunny Isles Beach known for one fixed menu and its secret herb-butter sauce"
+  },
+  {
+   "key": "creator20",
+   "status": "add",
+   "name": "Majestic Portuguese Bakehouse",
+   "placeId": "ChIJgfpf6Qm32YgRGTHIgOFBjW4",
+   "address": "3340 Coral Wy, Miami, FL 33145",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "bakery",
+   "types": [
+    "bakery"
+   ],
+   "lat": 25.7496991,
+   "lng": -80.2486254,
+   "coordSource": "official page",
+   "ingestLine": "Portuguese bakehouse on Coral Way for a full Portuguese experience in Miami"
+  },
+  {
+   "key": "creator21",
+   "status": "add",
+   "name": "Signor Sassi",
+   "placeId": "ChIJw0TRvEat2YgROpFgeN-2rc4",
+   "address": "1006 E Hallandale Beach Blvd, Hallandale Beach, FL 33009",
+   "metro": "broward",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.9812,
+   "lng": -80.1473,
+   "coordSource": "official page",
+   "ingestLine": "London-born Italian dining, founded in 1984 in Knightsbridge, now serving South Florida"
+  },
+  {
+   "key": "creator22",
+   "status": "add",
+   "name": "Sogna Napoli",
+   "placeId": "ChIJjVv1s8PBwogRKcHMfbnnYiQ",
+   "address": "12913 N Dale Mabry Hwy, Tampa, FL 33618",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 28.0640005,
+   "lng": -82.502792,
+   "coordSource": "official page",
+   "ingestLine": "Wood-fired Neapolitan pizza with imported Italian flour, tomatoes and olive oil in Carrollwood"
+  },
+  {
+   "key": "creator23",
+   "status": "add",
+   "name": "SoDough Square",
+   "placeId": "ChIJL3wQOF3DwogRspNmaImYNks",
+   "address": "138 S Dale Mabry Hwy A, Tampa, FL 33609",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 27.943319,
+   "lng": -82.505407,
+   "coordSource": "official page",
+   "ingestLine": "Detroit-style square pizza with crispy, golden Frico edges and 24-48 hour fermented dough"
+  },
+  {
+   "key": "creator24",
+   "status": "add",
+   "name": "Station House BBQ",
+   "placeId": "ChIJ3Rit2Qq5wogRKv1xCNAklSs",
+   "address": "5214 N Nebraska Ave, Tampa, FL 33603",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 27.9944024,
+   "lng": -82.4451927,
+   "coordSource": "official page",
+   "ingestLine": "Firefighter-founded Tampa BBQ with smoked meats, scratch-made sides and Party Samplers"
+  },
+  {
+   "key": "creator25",
+   "status": "add",
+   "name": "Ploy Thai",
+   "placeId": "ChIJo9jsaGTOwogRdOmdOfqbAxc",
+   "address": "1941 W Brandon Blvd, Brandon, FL 33511",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 27.9367697,
+   "lng": -82.3159618,
+   "coordSource": "official page",
+   "ingestLine": "Authentic Thai kitchen in Brandon with split lunch and dinner service on Brandon Blvd"
+  },
+  {
+   "key": "creator26",
+   "status": "add",
+   "name": "alimento",
+   "placeId": "ChIJwZnbpBHpwogR3PZgkgesIoc",
+   "address": "2966 N Dale Mabry Hwy, Tampa, FL 33607",
+   "metro": "tampa",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 27.965502,
+   "lng": -82.509305,
+   "coordSource": "official page",
+   "ingestLine": "Latin-inspired meal prep cooked daily by a mom and son kitchen"
+  },
+  {
+   "key": "creator27",
+   "status": "add",
+   "name": "Carvel",
+   "placeId": "ChIJd_ueXDW_2YgR_KpiHatf9mA",
+   "address": "4226 SW 152nd Ave, Miami, FL 33185",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "ice_cream_shop",
+   "types": [
+    "ice_cream_shop"
+   ],
+   "lat": 25.727579,
+   "lng": -80.441496,
+   "coordSource": "official page",
+   "ingestLine": "Soft ice cream, Sundae Dashers and Fudgie the Whale cakes"
+  },
+  {
+   "key": "creator28",
+   "status": "add",
+   "name": "Sanguich",
+   "placeId": "ChIJhw4bDvq22YgRt1rD2Am4AxY",
+   "address": "2057 SW 8th St, Miami, FL 33135",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.76552,
+   "lng": -80.228691,
+   "coordSource": "official page",
+   "ingestLine": "Michelin Bib Gourmand Cuban sandwiches in Little Havana, built on house-made ham and pork"
+  },
+  {
+   "key": "creator29",
+   "status": "add",
+   "name": "Humo Bodegon",
+   "placeId": "ChIJd24p_Wut2YgREj-DrhuLKEU",
+   "address": "2261 NE 164th St, North Miami Beach, FL 33160",
+   "metro": "miami-dade",
+   "wantCategory": "food",
+   "primaryType": "restaurant",
+   "types": [
+    "restaurant"
+   ],
+   "lat": 25.9274742,
+   "lng": -80.1547691,
+   "coordSource": "official page",
+   "ingestLine": "Argentine parrilla in North Miami Beach, with grill service starting at 4 PM"
+  }
+ ],
+ "holds": [
+  {
+   "name": "Lakewood Ranch Library",
+   "status": "hold",
+   "why": "Manatee County government site (mymanatee.org) confirms the library is open at 16410 Rangeland Parkway, but no coordinates were printed on the government page a"
+  },
+  {
+   "name": "Buddy Brew Coffee",
+   "status": "hold",
+   "why": "Buddy Brew official locations page confirms Sprouts Seminole at 7263 Seminole Blvd, Seminole, FL 33772, open daily 7am-5pm, but the page prints no coordinates f"
+  },
+  {
+   "name": "Zee's Barbeque",
+   "status": "hold",
+   "why": "Official site zeesbarbeque.com confirms wood-smoked BBQ operating at Foodie Labs, 515 22nd St S, St. Petersburg, but the site prints no coordinates and OpenStre"
+  },
+  {
+   "name": "Dolphin Racer",
+   "status": "hold",
+   "why": "StarLite Cruises official site and Visit St. Pete Clearwater confirm the Dolphin Racer departs 3400 Pasadena Ave South, South Pasadena, but neither prints coord"
+  },
+  {
+   "name": "Alfreds Bakery",
+   "status": "hold",
+   "why": "No official venue site, tourism DMO, or government page found in 3 searches; only delivery/directory listings (DoorDash, Roadtrippers) confirm 10201 NW 58th St."
+  },
+  {
+   "name": "Arepera Araguaney",
+   "status": "hold",
+   "why": "No official venue site, DMO, or government page found; only delivery/directory listings (Uber Eats, Postmates, Restaurantji) at 705 W Flagler St, with a conflic"
+  },
+  {
+   "name": "South Florida Off Road Tours",
+   "status": "hold",
+   "why": "Operating status and registry address ARE confirmed by official site southfloridaoffroadtours.com (17380 SW 168th Ave, Miami, FL 33187; day, sunset and night gu"
+  },
+  {
+   "name": "Aloha Catering",
+   "status": "hold",
+   "why": "No official page confirms the registry address: listings split between 7921 NW 66th St (Restaurantji) and 8240 NW 74th St (multiple directories citing alohaonth"
+  },
+  {
+   "name": "La Esquina del Chicharrón",
+   "status": "hold",
+   "why": "No official venue site, DMO, or government page found for the 169 NE 25th St location; only delivery listings (DoorDash, order.online). A separate same-name lis"
+  },
+  {
+   "name": "Manasota Key Resort",
+   "status": "hold",
+   "why": "Operating status and registry address ARE confirmed by official site manasotakeyresort.com (985 Gulf Blvd, Englewood, FL 34223; studio to three-bedroom suites b"
+  },
+  {
+   "name": "Rio Grande Churrascaria",
+   "status": "hold",
+   "why": "Operating status and registry address ARE confirmed by official site riograndechurrascaria.com (11995 SW 26th St, Miami, FL 33175; fixed-price rodizio carved ta"
+  },
+  {
+   "name": "Hakuna Matata Pizzeria",
+   "status": "hold",
+   "why": "Operating status and registry address ARE confirmed by official site hakunamatatapizzeria.com (8752 SW 40th St, Miami, FL 33165; Tues-Sun 11 AM-10 PM), but the "
+  },
+  {
+   "name": "Mister 11:11",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found; only delivery listings confirm the address, so operating status cannot be verified from official sou"
+  },
+  {
+   "name": "Fresh Salad Miami",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found; only delivery listings confirm the address, and Nominatim returned no address-matched result, so sta"
+  },
+  {
+   "name": "Hot Dog Maracay",
+   "status": "hold",
+   "why": "Venue page hotdogmaracaymiamifl.com confirms the address, but Nominatim was rate-limited (HTTP 429) on repeated attempts and no official page prints coordinates"
+  },
+  {
+   "name": "The Barking Bun",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found; only delivery listings confirm the address, so operating status cannot be verified from official sou"
+  },
+  {
+   "name": "El Lider",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found; only delivery and review listings confirm the address, so operating status cannot be verified from o"
+  },
+  {
+   "name": "Pal Perrero",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found in searches; only aggregator and delivery listings confirm the address, so current operation cannot b"
+  },
+  {
+   "name": "Forages",
+   "status": "hold",
+   "why": "Official site foragesfl.com is indexed with the registry address and hours, but the live site returns Account Suspended, so current operation cannot be verified"
+  },
+  {
+   "name": "Crete Frozen Yogurt",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found; only delivery aggregator listings appear, so current operation and the registry address cannot be ve"
+  },
+  {
+   "name": "Parrillada Familiar Da Silva",
+   "status": "hold",
+   "why": "Official site dasilvasteakhouse.com verifies the Doral location at the registry address with a current menu, but no coordinates are printed on an official page "
+  },
+  {
+   "name": "Oh Mamma",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found; only delivery and menu aggregator listings at the registry address, so current operation cannot be v"
+  },
+  {
+   "name": "Brutal Pepitos",
+   "status": "hold",
+   "why": "No official venue, tourism DMO, or government source found for the registry address; search results show only gift-card and inspection listings, including a dif"
+  },
+  {
+   "name": "Piacere Wood Fired Pizza",
+   "status": "hold",
+   "why": "Official ordering domain piacerepizza.online confirms the Piacere brand and other locations, but no official venue page found confirming the Doral street addres"
+  },
+  {
+   "name": "Mister Corn",
+   "status": "hold",
+   "why": "No official venue website, tourism DMO, or government page found for Mister Corn at 2005 NW 97th Ave; only delivery-platform listings (DoorDash/Postmates) confi"
+  },
+  {
+   "name": "El Sushi by Soya",
+   "status": "hold",
+   "why": "Official site elsushi.com confirms El Sushi Doral 114th Avenue at 11402 Northwest 41st Street, 101, Doral, FL 33178 and current ordering, but the official page "
+  },
+  {
+   "name": "Plant the Future",
+   "status": "hold",
+   "why": "Official site plantthefuture.com confirms the flagship gallery at 8484 NE 2nd Ave, Miami, FL 33138, but the official page prints no coordinates and OpenStreetMa"
+  },
+  {
+   "name": "305 Peruvian Modern Cuisine",
+   "status": "hold",
+   "why": "Official site 305peruvian.com confirms 305 Peruvian Modern Cuisine at 261 SW 8th St, Miami, FL 33130 and current operation, but the official page prints no coor"
+  },
+  {
+   "name": "PINCHO",
+   "status": "hold",
+   "why": "Official locations site locations.pincho.com confirms PINCHO at 9251 W Flagler St, Miami, FL 33174 with daily hours, but the official page prints no coordinates"
+  },
+  {
+   "name": "Rio Grande Churrascaria Hollywood",
+   "status": "hold",
+   "why": "Official site riograndechurrascaria.com confirms Rio Grande Churrascaria at 1655 S 21st Ave, Hollywood, FL 33020 with current lunch and dinner hours, but the of"
+  },
+  {
+   "name": "Parrilla Point",
+   "status": "hold",
+   "why": "Only delivery-platform listings (Uber Eats/Postmates) found; no official venue, tourism DMO or government source confirms current operation at 7921 NW 66th St."
+  },
+  {
+   "name": "Frenchies Calientes",
+   "status": "hold",
+   "why": "Only delivery-platform listings (Uber Eats/Postmates) found; no official venue, tourism DMO or government source confirms current operation at 5140 SW 208th Ln."
+  },
+  {
+   "name": "Na'guara hot dogs",
+   "status": "hold",
+   "why": "Only a DoorDash listing found; no official venue, tourism DMO or government source confirms current operation at 8490 NW 68th St."
+  },
+  {
+   "name": "Diyon Hotdogs",
+   "status": "hold",
+   "why": "Only delivery-platform and review listings (Uber Eats, DoorDash, Yelp) found; no official venue, tourism DMO or government source confirms current operation at "
+  },
+  {
+   "name": "Metro Caracas Hotdog",
+   "status": "hold",
+   "why": "Only delivery-platform listings (Uber Eats/Postmates, showing 148 NE 27th St) found; no official venue, tourism DMO or government source confirms current operat"
+  },
+  {
+   "name": "Casa Tua Cucina",
+   "status": "hold",
+   "why": "Wynwood opening at 2700 NW 2nd Ave (NW 27th Terrace & NW 2nd Ave) is reported in secondary coverage and the brand site casatualife.com is JavaScript-only with n"
+  },
+  {
+   "name": "Milagros Farm",
+   "status": "hold",
+   "why": "No official venue site found; only a Florida corporation record for Milagros Farm LLC at this address, directory listings, and event pages using it as a race ve"
+  },
+  {
+   "name": "Tu Sancocho Express",
+   "status": "hold",
+   "why": "No confirming listing found for Tu Sancocho Express at 7415 NW 54th St in official venue, tourism DMO or government sources; searches returned unrelated menus a"
+  },
+  {
+   "name": "El Ñaño",
+   "status": "hold",
+   "why": "Operating listings show 339 Miracle Mile, Coral Gables, but no official venue, DMO or government page confirming the Miami location was found (brand official si"
+  },
+  {
+   "name": "Mangiamo",
+   "status": "hold",
+   "why": "No official venue, DMO or government source found for Mangiamo in Doral; third-party listing gives 7356 NW 34th St, which does not match the registry street num"
+  },
+  {
+   "name": "Canta Corazón",
+   "status": "hold",
+   "why": "Official site cantacorazon.com confirms a Miami Wynwood venue with Wynwood menus, but no official/government page prints coordinates and Nominatim was rate-limi"
+  },
+  {
+   "name": "Bodega Bus",
+   "status": "hold",
+   "why": "News and a Tampa government business-tax listing confirm Bodega Bus at 505 N Franklin St, Tampa, but no official venue site with menu or hours was found to supp"
+  },
+  {
+   "name": "Ebisu",
+   "status": "hold",
+   "why": "News reports confirm Ebisu Life Store opened at 6234 Commerce Palms Dr, Tampa, but the official site usebisu.com does not list the Tampa store or its address, s"
+  },
+  {
+   "name": "Cairo Cravings",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "Naz's Halal Food",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "Perro Y Salsa",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "Marina Grille",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "The Red Bird",
+   "status": "hold",
+   "why": "Official brand site (hotredbird.com) confirms the operating hot-chicken concept but does not print the Temple Terrace street address, and OpenStreetMap Nominati"
+  },
+  {
+   "name": "Rock N Roll Sushi",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "Con Amor",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "Sea Worthy Fish Bar",
+   "status": "hold",
+   "why": "OpenStreetMap Nominatim returned HTTP 429 (rate-limited) on repeated spaced retries and the official page prints no coordinates, so lat/lng are null and the pla"
+  },
+  {
+   "name": "Miami Slice",
+   "status": "hold",
+   "why": "Verified operating at registry address on official site, but no official-page coordinates and OpenStreetMap Nominatim returned 429 rate-limit on repeated attemp"
+  },
+  {
+   "name": "Buccan Sandwich Shop",
+   "status": "hold",
+   "why": "Verified operating at registry address on official site, but official-page coordinates found were for the Palm Beach location, not Coral Gables, and Nominatim r"
+  },
+  {
+   "name": "PopUp Bagels",
+   "status": "hold",
+   "why": "Official PopUp Bagels Florida page lists an Aventura location, but no official-page coordinates and Nominatim returned 429, so coordinates could not be obtained"
+  },
+  {
+   "name": "Taco Mexico",
+   "status": "hold",
+   "why": "Cannot verify from official sources: no official venue, tourism DMO, or government page found for Taco Mexico at 28755 SW 142nd Ct, Homestead; searches surfaced"
+  },
+  {
+   "name": "Karyu",
+   "status": "hold",
+   "why": "Verified operating at registry address on official site, but no official-page coordinates for this address and Nominatim returned 429, so coordinates could not "
+  },
+  {
+   "name": "Voodoo Doughnut",
+   "status": "hold",
+   "why": "Verified operating at registry address on official Voodoo Doughnut site, but no official-page coordinates and Nominatim returned 429, so coordinates could not b"
+  },
+  {
+   "name": "Skinny Louie",
+   "status": "hold",
+   "why": "Verified operating at 6022 S Dixie Hwy on official site (official ZIP 33141 vs registry 33143, same street address), but no official-page coordinates and Nomina"
+  },
+  {
+   "name": "Delicious by Carlotta Gelati",
+   "status": "hold",
+   "why": "Verified operating at registry address on official Delicious Weston site, but no official-page coordinates and Nominatim returned 429, so coordinates could not "
+  },
+  {
+   "name": "My Cousin Nick",
+   "status": "hold",
+   "why": "Verified operating with registry address confirmed on official venue site mycousinnick.com, but coordinates unavailable: official page prints no coordinates and"
+  },
+  {
+   "name": "Wunderbar",
+   "status": "hold",
+   "why": "Verified operating on official venue site wunderbardavie.com (lists 4995 Southwest 148th Avenue, Davie, the 4995 address), but coordinates unavailable: official"
+  },
+  {
+   "name": "MYKA",
+   "status": "hold",
+   "why": "Verified operating at registry address on Greater Miami DMO miamiandbeaches.com food-truck listing (Myka, 777 Brickell Avenue, Greek yogurt truck), but coordina"
+  },
+  {
+   "name": "Francesco Martucci",
+   "status": "hold",
+   "why": "Verified operating with registry address confirmed on official venue site martuccimiami.com/contact (10 NE 27th Street, Miami), but coordinates unavailable: off"
+  },
+  {
+   "name": "Ghee",
+   "status": "hold",
+   "why": "Verified operating with registry address confirmed on Greater Miami DMO miamiandbeaches.com (Ghee Indian Kitchen - Wynwood, 63 NW 24th St), but coordinates unav"
+  },
+  {
+   "name": "Go Greek Yogurt",
+   "status": "hold",
+   "why": "Verified operating with registry address confirmed on official venue site gogreekyogurt.com/pages/miami-coconut-grove (3000 Florida Avenue Unit 114), but coordi"
+  },
+  {
+   "name": "Yauca",
+   "status": "hold",
+   "why": "Cannot verify from official sources: no official venue site, tourism DMO, or government page found confirming Yauca at 555 NW 29th St; only delivery listings an"
+  },
+  {
+   "name": "The Butcher Shop",
+   "status": "hold",
+   "why": "Cannot verify from official sources: no live official venue site, tourism DMO, or government page found confirming operation at the registry address; only deliv"
+  },
+  {
+   "name": "Papo Llega Y Pon",
+   "status": "hold",
+   "why": "Cannot verify from official sources: no official venue site, tourism DMO, or government page found confirming operation at the registry address; only directory,"
+  },
+  {
+   "name": "Splash Art",
+   "status": "hold",
+   "why": "Not in Florida (Liverpool, UK; official splashart.uk confirms 78 Duke St, Liverpool) and coordinates unavailable: official page prints no coordinates and Nomina"
+  },
+  {
+   "name": "New Power Medicine",
+   "status": "reject",
+   "why": "Official site (newpowermedicine.com) confirms this is a primary care medical facility at 5454 Central Avenue, Suite C, St. Petersburg - a medical clinic, not a "
+  },
+  {
+   "name": "Balloon Museum",
+   "status": "reject",
+   "why": "Past pop-up only: the Greater Miami DMO (miamiandbeaches.com) lists POP AIR - Art is Inflatable at Mana Wynwood through September 17, 2026, which has passed, an"
+  }
+ ]
+}

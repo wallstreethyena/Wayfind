@@ -1,0 +1,431 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Fix-up pack for the 7 remaining creator-ingest places. Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJb665ozDFwogRNrVsepGJrNY",
+   "name": "The Bagel Nook",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebagelnook.com/location/the-bagel-nook-tampa/",
+     "source_name": "The Bagel Nook — official site (thebagelnook.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Bagel Nook Tampa is at 300 West Tyler St, Tampa, FL 33602.",
+      "Tampa hours are Monday - Saturday 7:00 am - 3:00 pm and Sunday 7:00 am - 2:00 pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Bagel Nook brings a bagel bakery to Tampa",
+    "why_here": "The Bagel Nook's Tampa location is at 300 West Tyler St in downtown Tampa. Posted hours run Monday - Saturday 7:00 am - 3:00 pm and Sunday 7:00 am - 2:00 pm, making it a morning and lunch stop rather than an evening one.",
+    "know_before": "Sunday hours end at 2:00 pm, an hour earlier than Monday - Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thebagelnook.com/location/the-bagel-nook-tampa/"
+     ],
+     "why_here": [
+      "https://www.thebagelnook.com/location/the-bagel-nook-tampa/"
+     ],
+     "know_before": [
+      "https://www.thebagelnook.com/location/the-bagel-nook-tampa/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tampa hours are Monday - Saturday 7:00 am - 3:00 pm and Sunday 7:00 am - 2:00 pm.",
+      "source": "https://www.thebagelnook.com/location/the-bagel-nook-tampa/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ25CTOATnwogRKwXjsYgh99I",
+   "name": "Sodough Square",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sodoughsquare.com/st-pete",
+     "source_name": "Sodough Square — official site (sodoughsquare.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sodough Square lists its St. Pete address as 6925 4th St N, St. Petersburg, FL 33702.",
+      "The menu is built around authentic Detroit-style pizza with thick, airy crust and crispy cheese edges.",
+      "Each pie is baked in blue steel pans for that classic square shape and golden frico crust."
+     ]
+    },
+    {
+     "source": "https://sodoughsquare.com/",
+     "source_name": "Sodough Square — official site (sodoughsquare.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sodough Square serves Detroit-style pizza with 24-48 hour fermented dough.",
+      "Sodough Square serves square pies across five locations including St. Petersburg."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Detroit-style square pizza with crispy cheese edges, baked in blue steel pans",
+    "why_here": "Order a square Detroit-style pie built on 24-48 hour fermented dough, with thick, airy crust and crispy cheese edges from a blue steel pan. The St. Pete shop serves that format in St. Petersburg.",
+    "know_before": "Detroit-style only: thick square pies with edge-to-edge cheese; expect a crisp frico crust.",
+    "local_tip": "Ask for pepperoni with crispy edge-to-edge slices.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sodoughsquare.com/st-pete"
+     ],
+     "why_here": [
+      "https://sodoughsquare.com/st-pete",
+      "https://sodoughsquare.com/"
+     ],
+     "know_before": [
+      "https://sodoughsquare.com/st-pete"
+     ],
+     "local_tip": [
+      "https://sodoughsquare.com/st-pete"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Each pie is baked in blue steel pans for that classic square shape and golden frico crust.",
+      "source": "https://sodoughsquare.com/st-pete"
+     },
+     {
+      "claim": "Sodough Square serves Detroit-style pizza with 24-48 hour fermented dough.",
+      "source": "https://sodoughsquare.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJO5IyrXW32YgRnyXQP2MkKnE",
+   "name": "Veganlitaly",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.veganlitaly.com/",
+     "source_name": "Veganlitaly — official site (veganlitaly.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Veganlitaly is a vegan Italian restaurant in Miami at 3808 SW 8th St, Coral Gables, FL 33134.",
+      "The menu offers vegan pizza, vegan pasta, vegan sandwich, vegan desserts, chickpea meatballs, potato gnocchi, and avocado toast.",
+      "Veganlitaly is a 100% plant-based restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "100% plant-based Italian pizza, pasta and gnocchi in Coral Gables",
+    "why_here": "Veganlitaly serves vegan pizza, vegan pasta, vegan desserts, chickpea meatballs and potato gnocchi as a 100% plant-based Italian restaurant on SW 8th St in Coral Gables.",
+    "know_before": "The full menu is plant-based, including pizza, pasta, sandwiches and desserts.",
+    "local_tip": "Try potato gnocchi or chickpea meatballs for a cooked Italian option.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.veganlitaly.com/"
+     ],
+     "why_here": [
+      "https://www.veganlitaly.com/"
+     ],
+     "know_before": [
+      "https://www.veganlitaly.com/"
+     ],
+     "local_tip": [
+      "https://www.veganlitaly.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Veganlitaly is a vegan Italian restaurant in Miami at 3808 SW 8th St, Coral Gables, FL 33134.",
+      "source": "https://www.veganlitaly.com/"
+     },
+     {
+      "claim": "The menu offers vegan pizza, vegan pasta, vegan sandwich, vegan desserts, chickpea meatballs, potato gnocchi, and avocado toast.",
+      "source": "https://www.veganlitaly.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeScTbwa32YgRwfibKQG-Bxg",
+   "name": "Niño Gordo",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://niniogordo.us/",
+     "source_name": "Niño Gordo — official site (niniogordo.us)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Brought to life by Germán Sitz and Pedro Peña, Niño Gordo exploded onto the Buenos Aires dining scene as a genre-defying Asian grill with Argentine soul, earning a spot at #21 on Latin America's 50 Best.",
+      "Now in Miami, Niño Gordo brings that same spirit to Wynwood, fusing Japanese, Korean, and Southeast Asian techniques.",
+      "Tucked behind a vintage cigarette machine, Dekotora is Niño Gordo's craft cocktail bar, inspired by Japan's tricked-out trucks.",
+      "Niño Gordo Miami is at 112 NW 28th St, Miami, FL 33127.",
+      "Opening hours are Wednesday, Thursday and Sunday from 6:30 PM to 10 PM and Friday and Saturday from 6:30 PM to 11 PM."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian grill with Argentine soul in Wynwood, plus Dekotora behind a vintage cigarette machine",
+    "why_here": "Niño Gordo brings a genre-defying Asian grill with Argentine soul to Wynwood, fusing Japanese, Korean, and Southeast Asian techniques. Germán Sitz and Pedro Peña created the original, and the Miami room adds Dekotora for cocktails after dinner.",
+    "know_before": "Hours run Wednesday, Thursday and Sunday, and Friday and Saturday.",
+    "local_tip": "Look for Dekotora behind the vintage cigarette machine after dinner.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://niniogordo.us/"
+     ],
+     "why_here": [
+      "https://niniogordo.us/"
+     ],
+     "know_before": [
+      "https://niniogordo.us/"
+     ],
+     "local_tip": [
+      "https://niniogordo.us/"
+     ],
+     "best_time": [],
+     "facts": [
+      "https://niniogordo.us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brought to life by Germán Sitz and Pedro Peña, Niño Gordo exploded onto the Buenos Aires dining scene as a genre-defying Asian grill with Argentine soul, earning a spot at #21 on Latin America's 50 Best.",
+      "source": "https://niniogordo.us/"
+     },
+     {
+      "claim": "Tucked behind a vintage cigarette machine, Dekotora is Niño Gordo's craft cocktail bar, inspired by Japan's tricked-out trucks.",
+      "source": "https://niniogordo.us/"
+     },
+     {
+      "claim": "Opening hours are Wednesday, Thursday and Sunday from 6:30 PM to 10 PM and Friday and Saturday from 6:30 PM to 11 PM.",
+      "source": "https://niniogordo.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjVv1s8PBwogRKcHMfbnnYiQ",
+   "name": "Sogna Napoli",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sognanapoli.com/",
+     "source_name": "Sogna Napoli — official site (sognanapoli.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sogna Napoli Trattoria & Pizzeria serves authentic Neapolitan cuisine in the heart of Carrollwood at 12913 N Dale Mabry Hwy, Tampa, FL 33618.",
+      "Handcrafted Neapolitan pizzas are baked in a traditional wood-fired oven with imported Italian flour, tomatoes, and olive oil.",
+      "The menu also offers homemade pastas, classic entrees, desserts, and a full bar.",
+      "Hours are Sun - Thu 11:30 am - 9:30 pm and Fri - Sat 11:30 am - 10:30 pm."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wood-fired Neapolitan pizza with imported Italian flour, tomatoes and olive oil in Carrollwood",
+    "why_here": "Sogna Napoli serves authentic Neapolitan cuisine in Carrollwood: handcrafted Neapolitan pizzas from a traditional wood-fired oven, homemade pastas and classic entrees, finished with desserts and a full bar for family dinners on Dale Mabry.",
+    "know_before": "Hours run Sun - Thu 11:30 am - 9:30 pm; Fri - Sat stays open to 10:30 pm.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sognanapoli.com/",
+      "https://sognanapoli.com/"
+     ],
+     "why_here": [
+      "https://sognanapoli.com/",
+      "https://sognanapoli.com/"
+     ],
+     "know_before": [
+      "https://sognanapoli.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Handcrafted Neapolitan pizzas are baked in a traditional wood-fired oven with imported Italian flour, tomatoes, and olive oil.",
+      "source": "https://sognanapoli.com/"
+     },
+     {
+      "claim": "The menu also offers homemade pastas, classic entrees, desserts, and a full bar.",
+      "source": "https://sognanapoli.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL3wQOF3DwogRspNmaImYNks",
+   "name": "SoDough Square",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sodoughsquare.com/",
+     "source_name": "SoDough Square — official site (sodoughsquare.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "SoDough Square serves authentic Detroit-style pizza with 24-48 hour fermented dough baked in authentic blue steel pans.",
+      "Square pizzas feature signature crispy, golden Frico edges made with premium ingredients.",
+      "The Tampa location is at 138 South Dale Mabry Highway, Tampa, FL 33609.",
+      "SoDough Square brings Detroit-style pizza to Florida across five locations including Tampa and St. Petersburg."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Detroit-style square pizza with crispy, golden Frico edges and 24-48 hour fermented dough",
+    "why_here": "SoDough Square bakes Detroit-style pies in authentic blue steel pans, using 24-48 hour fermented dough for a thick, airy square with crispy, golden Frico edges — a Detroit-style format that stands apart from Tampa's usual round pizzas.",
+    "know_before": "Tampa shop sits at 138 South Dale Mabry Highway; the chain runs five Florida locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sodoughsquare.com/",
+      "https://sodoughsquare.com/"
+     ],
+     "why_here": [
+      "https://sodoughsquare.com/",
+      "https://sodoughsquare.com/"
+     ],
+     "know_before": [
+      "https://sodoughsquare.com/",
+      "https://sodoughsquare.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "SoDough Square serves authentic Detroit-style pizza with 24-48 hour fermented dough baked in authentic blue steel pans.",
+      "source": "https://sodoughsquare.com/"
+     },
+     {
+      "claim": "Square pizzas feature signature crispy, golden Frico edges made with premium ingredients.",
+      "source": "https://sodoughsquare.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd24p_Wut2YgREj-DrhuLKEU",
+   "name": "Humo Bodegon",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.humobodegon.com/",
+     "source_name": "Humo Bodegon — official site (humobodegon.com)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Humo Bodegon is located at 2261 NE 164th St, North Miami, FL 33160.",
+      "Humo Bodegon hours are Mon - Sat, 12 pm - 10pm, closed Sun.",
+      "Parrilla Argentina begins at 4 PM at Humo Bodegon."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Parrilla Argentina in North Miami, beginning at 4 PM",
+    "why_here": "Come for Parrilla Argentina in North Miami: Humo Bodegon lists its NE 164th St location open Mon - Sat, with Parrilla Argentina beginning at 4 PM.",
+    "know_before": "Open Mon - Sat, 12 pm - 10pm, closed Sun; Parrilla Argentina begins at 4 PM.",
+    "local_tip": "Arrive after 4 PM if the parrilla is the reason for the visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.humobodegon.com/"
+     ],
+     "why_here": [
+      "https://www.humobodegon.com/"
+     ],
+     "know_before": [
+      "https://www.humobodegon.com/"
+     ],
+     "local_tip": [
+      "https://www.humobodegon.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Humo Bodegon hours are Mon - Sat, 12 pm - 10pm, closed Sun.",
+      "source": "https://www.humobodegon.com/"
+     },
+     {
+      "claim": "Parrilla Argentina begins at 4 PM at Humo Bodegon.",
+      "source": "https://www.humobodegon.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

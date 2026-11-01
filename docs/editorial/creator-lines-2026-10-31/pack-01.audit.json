@@ -1,0 +1,175 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-01T15:39:41.632Z",
+  "pack": "docs/editorial/creator-lines-2026-10-31/pack-01.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-10-31",
+  "researched_at": "2026-10-31T12:00:00-04:00",
+  "replaced": [
+    {
+      "place_id": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+      "name": "T-Rex Cafe",
+      "prior_row": {
+        "place_id": "ChIJO3vjMIF_3YgRqb3SdwzbyII",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:5 PM"
+        ],
+        "written_at": "2026-08-06T00:55:50.577702+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T00:55:50.577702+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+      "name": "Hashtag Café",
+      "prior_row": {
+        "place_id": "ChIJEUEmzE1Bw4gRHHXe_oxJF7E",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-19T06:55:42.260542+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-19T06:55:42.260542+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+      "name": "Ro Hyde Park Sushi Bar & Asian Restaurant",
+      "prior_row": {
+        "place_id": "ChIJe_sgCQTFwogRzB1ctERShiI",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-20T08:55:02.860299+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-20T08:55:02.860299+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJw3vqvtndwogRobHwt-M78qw",
+      "name": "Rio Izakaya",
+      "prior_row": {
+        "place_id": "ChIJw3vqvtndwogRobHwt-M78qw",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "invented-source:facts:https://maps.google.com/?cid=12462088968117203361&g_mp=CiVnb29nbGUub"
+        ],
+        "written_at": "2026-08-06T20:15:38.9+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJzQJrFNfpwogRXVE296Q-hIM",
+      "name": "Palmette Brasserie & Bar",
+      "prior_row": {
+        "place_id": "ChIJzQJrFNfpwogRXVE296Q-hIM",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:7pm"
+        ],
+        "written_at": "2026-08-06T21:15:39.387+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ7aECsrzFwogRKra8aP0X5cE",
+      "name": "Predalina",
+      "prior_row": {
+        "place_id": "ChIJ7aECsrzFwogRKra8aP0X5cE",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:hook:Mediterranean",
+          "unsourced-entity:hook:Ybor",
+          "unsourced-entity:hook:City",
+          "unsourced-entity:know_before:Ybor",
+          "unsourced-entity:know_before:City"
+        ],
+        "written_at": "2026-08-12T15:55:43.767956+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-12T15:55:43.767956+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJl9A3H2PxwogRqvtZC7HHe_I",
+      "name": "Hog Island Fish Camp",
+      "prior_row": {
+        "place_id": "ChIJl9A3H2PxwogRqvtZC7HHe_I",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:1 PM"
+        ],
+        "written_at": "2026-08-06T15:15:02.407+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJJ1tmaHbDwogRxB86-j_tUjw",
+      "name": "Alessi Bakeries Food Market",
+      "prior_row": {
+        "place_id": "ChIJJ1tmaHbDwogRxB86-j_tUjw",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:why_here:200",
+          "unsourced-number:best_time:9 AM"
+        ],
+        "written_at": "2026-08-06T15:15:02.407+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJeS-mqN_PwogRYCTAjzN5_FI",
+      "name": "Frankie's Italian Deli",
+      "prior_row": {
+        "place_id": "ChIJeS-mqN_PwogRYCTAjzN5_FI",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:11 AM",
+          "unsourced-number:best_time:2 PM"
+        ],
+        "written_at": "2026-08-06T17:15:38.584+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}

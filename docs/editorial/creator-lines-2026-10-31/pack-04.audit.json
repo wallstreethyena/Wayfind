@@ -1,0 +1,99 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-01T15:39:48.268Z",
+  "pack": "docs/editorial/creator-lines-2026-10-31/pack-04.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-10-31",
+  "researched_at": "2026-10-31T12:00:00-04:00",
+  "replaced": [
+    {
+      "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+      "name": "Red Coconut Club",
+      "prior_row": {
+        "place_id": "ChIJwZ_GK-d-54gRm5Ahg7PZYeY",
+        "verified": false,
+        "issues": [
+          "RIDE-LEVEL — merge into parent park"
+        ],
+        "written_at": "2026-08-10T09:15:37.814+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJE8ib-7x_54gR3rj5fZw1BKM",
+      "name": "JoJo's Shake Bar - Orlando",
+      "prior_row": {
+        "place_id": "ChIJE8ib-7x_54gR3rj5fZw1BKM",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:Instagram"
+        ],
+        "written_at": "2026-08-23T05:15:21.461+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+      "name": "The Floridian Social",
+      "prior_row": {
+        "place_id": "ChIJKSOkH3XhwogROw34kxu5slM",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "banned-word:why_here:stunning"
+        ],
+        "written_at": "2026-08-13T02:55:42.766695+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-13T02:55:42.766695+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+      "name": "Cracker Barrel Old Country Store",
+      "prior_row": {
+        "place_id": "ChIJs8X39n07w4gR0NEp6j5PNdc",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:East",
+          "unsourced-number:best_time:9 AM",
+          "unsourced-entity:local_tip:Americana"
+        ],
+        "written_at": "2026-08-06T21:55:50.073834+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T21:55:50.073834+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+      "name": "ATRIA Cafe",
+      "prior_row": {
+        "place_id": "ChIJA-QkamE7w4gRfdzcxEHyPls",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-21T06:16:42.288+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}
