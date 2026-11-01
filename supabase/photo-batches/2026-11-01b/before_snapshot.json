@@ -1,0 +1,1602 @@
+[
+ {
+  "place_id": "ChIJCRCYGrx654gR3G9qoVbWlpY",
+  "name": "Harry P Leu Gardens",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJCRCYGrx654gR3G9qoVbWlpY/7097dddc96c9b29effd0fd35.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJCRCYGrx654gR3G9qoVbWlpY/2ad6ebb112c731e19ec544ba.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJCRCYGrx654gR3G9qoVbWlpY/34bbad9453a592981f8416e7.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJCRCYGrx654gR3G9qoVbWlpY/7097dddc96c9b29effd0fd35.jpg",
+    "bytes": 330474,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-3.0",
+    "source_ref": "File:Orlando_Mizell-Leu_House_Hist_Dist01.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/05/Orlando_Mizell-Leu_House_Hist_Dist01.jpg",
+    "storage_path": "ChIJCRCYGrx654gR3G9qoVbWlpY/7097dddc96c9b29effd0fd35.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Orlando_Mizell-Leu_House_Hist_Dist01.jpg",
+    "attribution_text": "Ebyabe \u2014 CC BY-SA 3.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJCRCYGrx654gR3G9qoVbWlpY/2ad6ebb112c731e19ec544ba.jpg",
+    "bytes": 254554,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:Epitheca princeps1.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/d/df/Epitheca_princeps1.jpg",
+    "storage_path": "ChIJCRCYGrx654gR3G9qoVbWlpY/2ad6ebb112c731e19ec544ba.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Epitheca_princeps1.jpg",
+    "attribution_text": "Eric Haley \u2014 CC BY-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJCRCYGrx654gR3G9qoVbWlpY/34bbad9453a592981f8416e7.jpg",
+    "bytes": 456280,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:Chambeyronia macrocarpa 02.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/f/f0/Chambeyronia_macrocarpa_02.jpg",
+    "storage_path": "ChIJCRCYGrx654gR3G9qoVbWlpY/34bbad9453a592981f8416e7.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Chambeyronia_macrocarpa_02.jpg",
+    "attribution_text": "KATHERINE WAGNER-REISS \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   }
+  ],
+  "christmas_photo_gallery": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_65883cbec6067716.jpg",
+    "cover": true,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://www.leugardens.org/files/assets/leugardens/v/1/the-woodlands-dno-2025-resized.jpg",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://www.leugardens.org/files/assets/leugardens/v/1/the-woodlands-dno-2025-resized.jpg",
+    "attribution_text": "Harry P. Leu Gardens official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_a6e6ab8b68f0ae0c.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/7f1021e7-e3e8-447e-9308-944566f52c99/20241125-_DSC4500-Enhanced-NR.jpg?format=1500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/7f1021e7-e3e8-447e-9308-944566f52c99/20241125-_DSC4500-Enhanced-NR.jpg?format=1500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_0b5923bc2641f2e8.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/f323315f-4581-4ccf-9b48-f0d5c2b0c692/twinkle-market.jpg?format=1500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/f323315f-4581-4ccf-9b48-f0d5c2b0c692/twinkle-market.jpg?format=1500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_41b33dc56d140934.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/3f4ec06f-2195-457f-be62-cc2987429ad0/DN26-web-polar.jpg?format=1500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/3f4ec06f-2195-457f-be62-cc2987429ad0/DN26-web-polar.jpg?format=1500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_62c0cdb15b21d337.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/a027696e-9fde-4e3f-99f0-f2354739d6c7/under-the-mistletoe.jpg?format=1500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/a027696e-9fde-4e3f-99f0-f2354739d6c7/under-the-mistletoe.jpg?format=1500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_67669f9c9338b518.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "source_ref": "https://watermarkoutnews.com/wp-content/uploads/2025/11/11-24-25-DazzlingLights-Media-Preview-by-DT-33-1-scaled.jpg",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://watermarkoutnews.com/wp-content/uploads/2025/11/11-24-25-DazzlingLights-Media-Preview-by-DT-33-1-scaled.jpg",
+    "attribution_text": "Watermark Out News, photo by Dylan Todd"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_998b7285b8344f62.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/f6575311-a19f-4ccb-886a-513eb41c3e42/DN26-web-sparkling.jpg?format=1500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/f6575311-a19f-4ccb-886a-513eb41c3e42/DN26-web-sparkling.jpg?format=1500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_f8ad637ce4e2e41f.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/ac525e45-e82f-41f3-a6cd-dd1d5760092f/glowing-forest.jpg?format=1500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/ac525e45-e82f-41f3-a6cd-dd1d5760092f/glowing-forest.jpg?format=1500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJCRCYGrx654gR3G9qoVbWlpY/xmas_036bf429e85bc049.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/2d9cea1c-b13d-4799-9398-9478d1fa7959/snowy-revue.jpg?format=2500w",
+    "christmas_keys": [
+     "dazzling-nights-leu-gardens-2026"
+    ],
+    "attribution_url": "https://images.squarespace-cdn.com/content/v1/5f4d37bcf6740c688b1ce110/2d9cea1c-b13d-4799-9398-9478d1fa7959/snowy-revue.jpg?format=2500w",
+    "attribution_text": "Dazzling Nights Orlando official media"
+   }
+  ]
+ },
+ {
+  "place_id": "ChIJdd8VlMN-54gRoaU0d_zYhfk",
+  "name": "Universal Studios Florida",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/f43435605c3e8632dd112421.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/c00e23c75e4253d67ef2ff28.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/a9838396cb2ecdcb34cc4930.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/f099938b6193ac9681aa7128.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/11e9c71171515c7e.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/a42587f5029a3b61.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/ec4273818cc59ce9.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/8707512bb96640dc.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/d5549371d6e5721d.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/6e5fcc9b04408739.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/4aed7b373e10b05a.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/f43435605c3e8632dd112421.jpg",
+    "bytes": 234019,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:USF_Entrance.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/5/52/USF_Entrance.jpg",
+    "storage_path": "ChIJdd8VlMN-54gRoaU0d_zYhfk/f43435605c3e8632dd112421.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:USF_Entrance.jpg",
+    "attribution_text": "endless autumn \u2014 CC BY 2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/c00e23c75e4253d67ef2ff28.jpg",
+    "bytes": 297718,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:Fear Factor Live Universal Florida.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Fear_Factor_Live_Universal_Florida.jpg",
+    "storage_path": "ChIJdd8VlMN-54gRoaU0d_zYhfk/c00e23c75e4253d67ef2ff28.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Fear_Factor_Live_Universal_Florida.jpg",
+    "attribution_text": "ZappaOMatic \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/a9838396cb2ecdcb34cc4930.jpg",
+    "bytes": 232429,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-4.0",
+    "source_ref": "File:T-800 endoskeleton display in the Terminator gift shop, Universal Studios Florida, June 2006 - ThrillZing.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/8/8f/T-800_endoskeleton_display_in_the_Terminator_gift_shop%2C_Universal_Studios_Florida%2C_June_2006_-_ThrillZing.jpg",
+    "storage_path": "ChIJdd8VlMN-54gRoaU0d_zYhfk/a9838396cb2ecdcb34cc4930.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:T-800_endoskeleton_display_in_the_Terminator_gift_shop,_Universal_Studios_Florida,_June_2006_-_ThrillZing.jpg",
+    "attribution_text": "ThrillZing \u2014 CC BY-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJdd8VlMN-54gRoaU0d_zYhfk/f099938b6193ac9681aa7128.jpg",
+    "bytes": 225943,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-4.0",
+    "source_ref": "File:Lincoln statue on the New York backlot street, Universal Studios Florida, June 2006 - ThrillZing.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/22/Lincoln_statue_on_the_New_York_backlot_street%2C_Universal_Studios_Florida%2C_June_2006_-_ThrillZing.jpg",
+    "storage_path": "ChIJdd8VlMN-54gRoaU0d_zYhfk/f099938b6193ac9681aa7128.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Lincoln_statue_on_the_New_York_backlot_street,_Universal_Studios_Florida,_June_2006_-_ThrillZing.jpg",
+    "attribution_text": "ThrillZing \u2014 CC BY-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/11e9c71171515c7e.jpg",
+    "bytes": 317516,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "sideshowObscura",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/08/10_Tribute-Store-scaled.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/10_Tribute-Store-scaled.jpg",
+    "storage_path": null,
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/10_Tribute-Store-scaled.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/a42587f5029a3b61.jpg",
+    "bytes": 186767,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "sideshowObscura",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/08/02_HHN-35-Merchandise-2048x1365.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/02_HHN-35-Merchandise-2048x1365.jpg",
+    "storage_path": null,
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/02_HHN-35-Merchandise-2048x1365.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/ec4273818cc59ce9.jpg",
+    "phash": "f0ec8ed1e326c073",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 2.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Jaws_-_Amity_Island_Buildings.jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Jaws_-_Amity_Island_Buildings.jpg",
+    "attribution_text": "Jared via Wikimedia Commons (CC BY 2.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/8707512bb96640dc.jpg",
+    "phash": "9fc8647dbc4a0339",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY-SA 4.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:The_Knight_Bus_and_Eros_Fountain_at_Universal_Studios_Florida.JPG",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:The_Knight_Bus_and_Eros_Fountain_at_Universal_Studios_Florida.JPG",
+    "attribution_text": "Eliedion via Wikimedia Commons (CC BY-SA 4.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/d5549371d6e5721d.jpg",
+    "phash": "96c0c959d6e4633d",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY-SA 3.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Universal_Studios,_FL_-_panoramio_(1).jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Universal_Studios,_FL_-_panoramio_(1).jpg",
+    "attribution_text": "Jacob Montgomery via Wikimedia Commons (CC BY-SA 3.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/6e5fcc9b04408739.jpg",
+    "phash": "f7922dbdd2462e80",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 2.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Men_In_Black_(15820009760).jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Men_In_Black_(15820009760).jpg",
+    "attribution_text": "Studio Sarah Lou via Wikimedia Commons (CC BY 2.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJdd8VlMN-54gRoaU0d_zYhfk/4aed7b373e10b05a.jpg",
+    "phash": "9e816561de326d4d",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 2.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Universal_Studios_-_Simpsons_(15821518907).jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Universal_Studios_-_Simpsons_(15821518907).jpg",
+    "attribution_text": "Studio Sarah Lou via Wikimedia Commons (CC BY 2.0)"
+   }
+  ],
+  "christmas_photo_gallery": null
+ },
+ {
+  "place_id": "ChIJfyPWjCh-54gR1SvWozmef5k",
+  "name": "SeaWorld Orlando",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJfyPWjCh-54gR1SvWozmef5k/8a2bd90b6d8193cb4a824da3.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJfyPWjCh-54gR1SvWozmef5k/0427c10d7205eda31fbaaeef.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJfyPWjCh-54gR1SvWozmef5k/afe7590f00c1f6940b45cec1.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/169bef4765139302.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/2ba817b9280c193d.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/d8a2704fccf736ef.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/ef112e53ab4ddd53.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/e09e4e56756b170f.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/04ecf8a83a16d44a.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/3aceed56a38effca.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/5dd433e7df9ef657.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/32a47b12a08c464c.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/73b0764b8f9e233c.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/9773857ac181744b.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/098992d8044093d1.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/02d61d664c1a4d60.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/c5c26dfb73d8030d.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJfyPWjCh-54gR1SvWozmef5k/8a2bd90b6d8193cb4a824da3.jpg",
+    "bytes": 381660,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-4.0",
+    "source_ref": "File:Ice Breaker's orange track, spike and top hat across the lake beside the lakeside buildings, SeaWorld Orlando, March 2021 - ThrillZing.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Ice_Breaker%27s_orange_track%2C_spike_and_top_hat_across_the_lake_beside_the_lakeside_buildings%2C_SeaWorld_Orlando%2C_March_2021_-_ThrillZing.jpg",
+    "storage_path": "ChIJfyPWjCh-54gR1SvWozmef5k/8a2bd90b6d8193cb4a824da3.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Ice_Breaker's_orange_track,_spike_and_top_hat_across_the_lake_beside_the_lakeside_buildings,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+    "attribution_text": "ThrillZing \u2014 CC BY-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJfyPWjCh-54gR1SvWozmef5k/0427c10d7205eda31fbaaeef.jpg",
+    "bytes": 351271,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-4.0",
+    "source_ref": "File:Kraken's loop and Mako's lift hill across the lake from the Waterfront, buoys in the water, SeaWorld Orlando, March 2021 - ThrillZing.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/9/97/Kraken%27s_loop_and_Mako%27s_lift_hill_across_the_lake_from_the_Waterfront%2C_buoys_in_the_water%2C_SeaWorld_Orlando%2C_March_2021_-_ThrillZing.jpg",
+    "storage_path": "ChIJfyPWjCh-54gR1SvWozmef5k/0427c10d7205eda31fbaaeef.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Kraken's_loop_and_Mako's_lift_hill_across_the_lake_from_the_Waterfront,_buoys_in_the_water,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+    "attribution_text": "ThrillZing \u2014 CC BY-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJfyPWjCh-54gR1SvWozmef5k/afe7590f00c1f6940b45cec1.jpg",
+    "bytes": 249411,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-4.0",
+    "source_ref": "File:Kraken's loop at left and Mako's lift hill at right across the lake beside a lakeside building, SeaWorld Orlando, March 2021 - ThrillZing.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/1d/Kraken%27s_loop_at_left_and_Mako%27s_lift_hill_at_right_across_the_lake_beside_a_lakeside_building%2C_SeaWorld_Orlando%2C_March_2021_-_ThrillZing.jpg",
+    "storage_path": "ChIJfyPWjCh-54gR1SvWozmef5k/afe7590f00c1f6940b45cec1.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Kraken's_loop_at_left_and_Mako's_lift_hill_at_right_across_the_lake_beside_a_lakeside_building,_SeaWorld_Orlando,_March_2021_-_ThrillZing.jpg",
+    "attribution_text": "ThrillZing \u2014 CC BY-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/169bef4765139302.jpg",
+    "bytes": 120235,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "license": "press image",
+    "haunt_key": "howlOrlando",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/08/howl-o-scream1.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://www.behindthesplash.com/wp-content/uploads/2026/08/howl-o-scream1.jpg",
+    "storage_path": null,
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/08/howl-o-scream1.jpg",
+    "attribution_text": "SeaWorld Orlando press image via Behind the Splash"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/2ba817b9280c193d.jpg",
+    "bytes": 167266,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "license": "press image",
+    "haunt_key": "howlOrlando",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/08/SWO_HOS_Show_MonsterStomp_9-2048x1368.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://www.behindthesplash.com/wp-content/uploads/2026/08/SWO_HOS_Show_MonsterStomp_9-2048x1368.jpg",
+    "storage_path": null,
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/08/SWO_HOS_Show_MonsterStomp_9-2048x1368.jpg",
+    "attribution_text": "SeaWorld Orlando press image via Behind the Splash"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/d8a2704fccf736ef.jpg",
+    "bytes": 176938,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "license": "press image",
+    "haunt_key": "howlOrlando",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_5.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_5.jpg",
+    "storage_path": null,
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_5.jpg",
+    "attribution_text": "Behind the Splash, Howl O Scream at SeaWorld Orlando"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/ef112e53ab4ddd53.jpg",
+    "bytes": 124300,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "license": "press image",
+    "haunt_key": "howlOrlando",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_6.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_6.jpg",
+    "storage_path": null,
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_6.jpg",
+    "attribution_text": "Behind the Splash, Howl O Scream at SeaWorld Orlando"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/e09e4e56756b170f.jpg",
+    "bytes": 250182,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "license": "press image",
+    "haunt_key": "howlOrlando",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_7.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_7.jpg",
+    "storage_path": null,
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_7.jpg",
+    "attribution_text": "Behind the Splash, Howl O Scream at SeaWorld Orlando"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/04ecf8a83a16d44a.jpg",
+    "bytes": 252163,
+    "width": 1280,
+    "height": 853,
+    "source": "press",
+    "license": "press image",
+    "haunt_key": "howlOrlando",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_8.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_8.jpg",
+    "storage_path": null,
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/hos-media-9-12-26_8.jpg",
+    "attribution_text": "Behind the Splash, Howl O Scream at SeaWorld Orlando"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/3aceed56a38effca.jpg",
+    "phash": "cd64c29e2f03d791",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 2.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Dolphins_-_SeaWorld_Orlando_(15240300294).jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Dolphins_-_SeaWorld_Orlando_(15240300294).jpg",
+    "attribution_text": "Christian Benseler via Wikimedia Commons (CC BY 2.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/5dd433e7df9ef657.jpg",
+    "phash": "f781ba882de340de",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY-SA 3.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Manta-SWO-Water.jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Manta-SWO-Water.jpg",
+    "attribution_text": "Stefan Scheer via Wikimedia Commons (CC BY-SA 3.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/32a47b12a08c464c.jpg",
+    "phash": "e49dc3ae83edc409",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 3.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Seaworld,_Orlando_-_panoramio_(1).jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Seaworld,_Orlando_-_panoramio_(1).jpg",
+    "attribution_text": "qwesy qwesy via Wikimedia Commons (CC BY 3.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/73b0764b8f9e233c.jpg",
+    "phash": "ecedbb0121b79c28",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 2.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:SeaWorld_Entrance_(33129763620).jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:SeaWorld_Entrance_(33129763620).jpg",
+    "attribution_text": "Chad Sparkes from Kissimmee,Florida, United States via Wikimedia Commons (CC BY 2.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/9773857ac181744b.jpg",
+    "phash": "b08b3ed24d84c6f6",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY-SA 4.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Manta_IMG_20230402_124353783_HDR.jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Manta_IMG_20230402_124353783_HDR.jpg",
+    "attribution_text": "Alex234 via Wikimedia Commons (CC BY-SA 4.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/098992d8044093d1.jpg",
+    "phash": "9ae957869cb0a1a7",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY-SA 4.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Manta_IMG_20230402_124429546_HDR.jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Manta_IMG_20230402_124429546_HDR.jpg",
+    "attribution_text": "Alex234 via Wikimedia Commons (CC BY-SA 4.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/02d61d664c1a4d60.jpg",
+    "phash": "bbc4578338d23c6a",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 4.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Penguin_Trek_and_the_Manta_March_2026.jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Penguin_Trek_and_the_Manta_March_2026.jpg",
+    "attribution_text": "Quxyz via Wikimedia Commons (CC BY 4.0)"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/c5c26dfb73d8030d.jpg",
+    "phash": "d3530d2a3e7c6f01",
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia_commons",
+    "license": "CC BY 2.0",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Penguin_Trek_4.jpg",
+    "storage_path": null,
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Penguin_Trek_4.jpg",
+    "attribution_text": "Jeremy Thompson via Wikimedia Commons (CC BY 2.0)"
+   }
+  ],
+  "christmas_photo_gallery": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/xmas_270b76764546169f.jpg",
+    "cover": true,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://seaworld.com/orlando/-/media/migrated-media/seaworld-orlando/images/events/christmas-celebration/2023/1800x900-swo-events-2023-christmas-sot.jpg",
+    "christmas_keys": [
+     "seaworld-orlando-christmas-celebration-2026"
+    ],
+    "attribution_url": "https://seaworld.com/orlando/-/media/migrated-media/seaworld-orlando/images/events/christmas-celebration/2023/1800x900-swo-events-2023-christmas-sot.jpg",
+    "attribution_text": "SeaWorld Orlando official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/xmas_631bb81063389326.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://seaworld.com/orlando/-/media/migrated-media/seaworld-orlando/images/events/christmas-celebration/380x237/380x237fireworks.jpg",
+    "christmas_keys": [
+     "seaworld-orlando-christmas-celebration-2026"
+    ],
+    "attribution_url": "https://seaworld.com/orlando/-/media/migrated-media/seaworld-orlando/images/events/christmas-celebration/380x237/380x237fireworks.jpg",
+    "attribution_text": "SeaWorld Orlando official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/xmas_117fa455e8faf455.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/09/IMG_5840-2048x1072.jpeg",
+    "christmas_keys": [
+     "seaworld-orlando-christmas-celebration-2026"
+    ],
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/09/IMG_5840-2048x1072.jpeg",
+    "attribution_text": "SeaWorld Orlando official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJfyPWjCh-54gR1SvWozmef5k/xmas_52d10cea273105df.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://www.behindthesplash.com/wp-content/uploads/2026/10/dff9bc5b-de66-4458-b1d7-7a4b558b6798-1200x343.jpg",
+    "christmas_keys": [
+     "seaworld-orlando-christmas-celebration-2026"
+    ],
+    "attribution_url": "https://www.behindthesplash.com/wp-content/uploads/2026/10/dff9bc5b-de66-4458-b1d7-7a4b558b6798-1200x343.jpg",
+    "attribution_text": "SeaWorld Orlando official website"
+   }
+  ]
+ },
+ {
+  "place_id": "ChIJgUulalN-3YgRGoTaWM2LawY",
+  "name": "Magic Kingdom Park",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/169947e0f7705293dd1e3334.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/f9175bef3173d3f9b4f32f1b.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/bc12ad5a54552bb9121685a4.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/187d7ea5397b360d.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/bd67fdbfb05b7bdc.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/ebd3af9abca1c6d4.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/f02a84047f4e76b9.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/af1ee63719e04021.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/b50fb6a15b5cbc82.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/bde9360d6173ceab.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/c690af6763abebfe.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/169947e0f7705293dd1e3334.jpg",
+    "bytes": 234409,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:Hocus Pocus Villain Spelltacular finale.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Hocus_Pocus_Villain_Spelltacular_finale.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/169947e0f7705293dd1e3334.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Hocus_Pocus_Villain_Spelltacular_finale.jpg",
+    "attribution_text": "Jedi94 \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/f9175bef3173d3f9b4f32f1b.jpg",
+    "bytes": 299229,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:MNSSHP Projection.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/1/17/MNSSHP_Projection.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/f9175bef3173d3f9b4f32f1b.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:MNSSHP_Projection.jpg",
+    "attribution_text": "Figment3009 \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/bc12ad5a54552bb9121685a4.jpg",
+    "bytes": 197816,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:Mickey's Not So Scary Halloween Party - Villians Stage Show (3).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/c2/Mickey%27s_Not_So_Scary_Halloween_Party_-_Villians_Stage_Show_%283%29.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/bc12ad5a54552bb9121685a4.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Mickey's_Not_So_Scary_Halloween_Party_-_Villians_Stage_Show_(3).jpg",
+    "attribution_text": "Jared \u2014 CC BY-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/187d7ea5397b360d.jpg",
+    "bytes": 250062,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0917ZN_1622AFN_xak_1-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0917ZN_1622AFN_xak_1-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/187d7ea5397b360d.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0917ZN_1622AFN_xak_1-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/bd67fdbfb05b7bdc.jpg",
+    "bytes": 299295,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0917ZN_5970AFN_mm_R2-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0917ZN_5970AFN_mm_R2-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/bd67fdbfb05b7bdc.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0917ZN_5970AFN_mm_R2-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/ebd3af9abca1c6d4.jpg",
+    "bytes": 231862,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0919ZN_6088AFN_xak_1-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0919ZN_6088AFN_xak_1-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/ebd3af9abca1c6d4.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0919ZN_6088AFN_xak_1-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/f02a84047f4e76b9.jpg",
+    "bytes": 250966,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0925ZO_0329CMG_xak-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0925ZO_0329CMG_xak-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/f02a84047f4e76b9.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0925ZO_0329CMG_xak-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/af1ee63719e04021.jpg",
+    "bytes": 254499,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0926ZO_2412RW_xak-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0926ZO_2412RW_xak-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/af1ee63719e04021.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/attraction-entertainment/0926ZO_2412RW_xak-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/b50fb6a15b5cbc82.jpg",
+    "bytes": 209353,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0729ZM_0906AFN_xak-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0729ZM_0906AFN_xak-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/b50fb6a15b5cbc82.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0729ZM_0906AFN_xak-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/bde9360d6173ceab.jpg",
+    "bytes": 224769,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0922ZN_5695AFN_R2_xak-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0922ZN_5695AFN_R2_xak-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/bde9360d6173ceab.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0922ZN_5695AFN_R2_xak-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJgUulalN-3YgRGoTaWM2LawY/c690af6763abebfe.jpg",
+    "bytes": 250216,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "mickey",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0922ZN_6603AFN_mm_R3-16x9.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0922ZN_6603AFN_mm_R3-16x9.jpg",
+    "storage_path": "ChIJgUulalN-3YgRGoTaWM2LawY/c690af6763abebfe.jpg",
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1280/720/85/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/mickeys-not-so-scary/experience/0922ZN_6603AFN_mm_R3-16x9.jpg",
+    "attribution_text": "Walt Disney World Magic Kingdom official website"
+   }
+  ],
+  "christmas_photo_gallery": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_2781756694825cd3.jpg",
+    "cover": true,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://disneyparksblog.com/app/uploads/2025/07/Mickey-and-Minnie-at-the-MVMCP-Parade-2048x1365.jpg",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://disneyparksblog.com/app/uploads/2025/07/Mickey-and-Minnie-at-the-MVMCP-Parade-2048x1365.jpg",
+    "attribution_text": "Walt Disney World official holidays page"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_29bce14b7f5daae7.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://disneyparksblog.com/app/uploads/2025/07/2025-Walt-Disney-World-Holidays-Magic-Kingdom-2-1536x1024.png",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://disneyparksblog.com/app/uploads/2025/07/2025-Walt-Disney-World-Holidays-Magic-Kingdom-2-1536x1024.png",
+    "attribution_text": "Walt Disney World official holidays page"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_32de89c4e91caf64.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1300/544/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/attractions/cinderella-castle/0109ZL_0316SD_JB_2-16x9.jpg?2026-06-23T16:51:40+00:00",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1300/544/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/attractions/cinderella-castle/0109ZL_0316SD_JB_2-16x9.jpg?2026-06-23T16:51:40+00:00",
+    "attribution_text": "Walt Disney World official holidays page"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_34b0e55a6e884eb9.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1024/576/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/holiday/hallmark/CM26_HC_HolidayEverAfter_Disney_LandingPage_1920x1080_V2-16x9.jpg?2026-06-04T16:21:27+00:00",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1024/576/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/holiday/hallmark/CM26_HC_HolidayEverAfter_Disney_LandingPage_1920x1080_V2-16x9.jpg?2026-06-04T16:21:27+00:00",
+    "attribution_text": "Walt Disney World official holidays page"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_0e25b176c463e549.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1200/675/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/holiday/entertainment/MVMCP_1219ZN_5617SD_mm_R2-16x9.jpg?2025-06-09T20:18:49+00:00",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://cdn1.parksmedia.wdprapps.disney.com/resize/mwImage/1/1200/675/75/vision-dam/digital/parks-platform/parks-global-assets/disney-world/events/holiday/entertainment/MVMCP_1219ZN_5617SD_mm_R2-16x9.jpg?2025-06-09T20:18:49+00:00",
+    "attribution_text": "Walt Disney World official holidays page"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_34dd372b48684622.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Mickey%27s_Most_Merriest_Celebration.jpg",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Mickey%27s_Most_Merriest_Celebration.jpg",
+    "attribution_text": "Figment3009, CC BY SA 4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_a11be611da4656ad.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Christmas_at_Magic_Kingdom_-_panoramio.jpg",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Christmas_at_Magic_Kingdom_-_panoramio.jpg",
+    "attribution_text": "Ivan Curra, CC BY SA 3.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_ff3020d4ba44af0f.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Magic_Kingdom_for_Christmas_2016_(30806629815).jpg",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Magic_Kingdom_for_Christmas_2016_(30806629815).jpg",
+    "attribution_text": "Theme Park Tourist, CC BY 2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJgUulalN-3YgRGoTaWM2LawY/xmas_e7fe693cb3678ebb.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Magic_Kingdom_for_Christmas_2016_(30806630335).jpg",
+    "christmas_keys": [
+     "mickeys-very-merry-christmas-party-2026",
+     "wdw-holiday-season-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Magic_Kingdom_for_Christmas_2016_(30806630335).jpg",
+    "attribution_text": "Theme Park Tourist, CC BY 2.0, via Wikimedia Commons"
+   }
+  ]
+ },
+ {
+  "place_id": "ChIJP7aCRLrX2IgRVLd7doYiJi0",
+  "name": "Palm Beach Zoo & Conservation Society",
+  "photos": null,
+  "photo_gallery": null,
+  "christmas_photo_gallery": null
+ },
+ {
+  "place_id": "ChIJRx6CYyd83YgRD_HjNqPO_7s",
+  "name": "Disney's Hollywood Studios",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/e3c281c592ab8f9bfe2f18e7.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/7620390dacd6bc15b63ea433.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/896afaa27ee377efe844ab26.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/5e917dfe86a39818754f6185.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/e3c281c592ab8f9bfe2f18e7.jpg",
+    "bytes": 325198,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:Hollywood Studios FriendShip Launch.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Hollywood_Studios_FriendShip_Launch.jpg",
+    "storage_path": "ChIJRx6CYyd83YgRD_HjNqPO_7s/e3c281c592ab8f9bfe2f18e7.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Hollywood_Studios_FriendShip_Launch.jpg",
+    "attribution_text": "Scoops929 \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/7620390dacd6bc15b63ea433.jpg",
+    "bytes": 155877,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-4.0",
+    "source_ref": "File:Hollywood Tower Hotel, Twilight Zone Tower of Terror facade, The Twilight Zone Tower of Terror, June 2006 - ThrillZing.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a4/Hollywood_Tower_Hotel%2C_Twilight_Zone_Tower_of_Terror_facade%2C_The_Twilight_Zone_Tower_of_Terror%2C_June_2006_-_ThrillZing.jpg",
+    "storage_path": "ChIJRx6CYyd83YgRD_HjNqPO_7s/7620390dacd6bc15b63ea433.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Hollywood_Tower_Hotel,_Twilight_Zone_Tower_of_Terror_facade,_The_Twilight_Zone_Tower_of_Terror,_June_2006_-_ThrillZing.jpg",
+    "attribution_text": "ThrillZing \u2014 CC BY-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/896afaa27ee377efe844ab26.jpg",
+    "bytes": 246319,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:Characters in Flight (4017490772).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/2f/Characters_in_Flight_%284017490772%29.jpg",
+    "storage_path": "ChIJRx6CYyd83YgRD_HjNqPO_7s/896afaa27ee377efe844ab26.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Characters_in_Flight_(4017490772).jpg",
+    "attribution_text": "Experience Kissimmee \u2014 CC BY-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJRx6CYyd83YgRD_HjNqPO_7s/5e917dfe86a39818754f6185.jpg",
+    "bytes": 250817,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-2.0",
+    "source_ref": "File:Disney's Hollywood Studios aerial photo (7426555140).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Disney%27s_Hollywood_Studios_aerial_photo_%287426555140%29.jpg",
+    "storage_path": "ChIJRx6CYyd83YgRD_HjNqPO_7s/5e917dfe86a39818754f6185.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Disney's_Hollywood_Studios_aerial_photo_(7426555140).jpg",
+    "attribution_text": "Greg Goebel from Loveland CO, USA \u2014 CC BY-SA-2.0, via Wikimedia Commons"
+   }
+  ],
+  "christmas_photo_gallery": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJRx6CYyd83YgRD_HjNqPO_7s/xmas_c8fa418ffb9dc142.jpg",
+    "cover": true,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Toy_Soldiers_(28540263060).jpg",
+    "christmas_keys": [
+     "disney-jollywood-nights-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Toy_Soldiers_(28540263060).jpg",
+    "attribution_text": "Sam Howzit, CC BY 2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJRx6CYyd83YgRD_HjNqPO_7s/xmas_77a9832e0b7f2b24.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:Entrance_Lights_(23913077862).jpg",
+    "christmas_keys": [
+     "disney-jollywood-nights-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Entrance_Lights_(23913077862).jpg",
+    "attribution_text": "Chad Sparkes from Kissimmee,Florida, United States, CC BY 2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJRx6CYyd83YgRD_HjNqPO_7s/xmas_359a7d717ff5a3dc.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "source_ref": "https://commons.wikimedia.org/wiki/File:It%27s_a_101_Dalmatian_Christmas_(23247288584).jpg",
+    "christmas_keys": [
+     "disney-jollywood-nights-2026"
+    ],
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:It%27s_a_101_Dalmatian_Christmas_(23247288584).jpg",
+    "attribution_text": "Chad Sparkes from Kissimmee,Florida, United States, CC BY 2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJRx6CYyd83YgRD_HjNqPO_7s/xmas_1e8f17ce387b2067.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://disneyparksblog.com/app/uploads/2025/07/2025-Walt-Disney-World-Holidays-Disneys-Hollywood-Studios.png",
+    "christmas_keys": [
+     "disney-jollywood-nights-2026"
+    ],
+    "attribution_url": "https://disneyparksblog.com/app/uploads/2025/07/2025-Walt-Disney-World-Holidays-Disneys-Hollywood-Studios.png",
+    "attribution_text": "Walt Disney World official holidays page"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJRx6CYyd83YgRD_HjNqPO_7s/xmas_353f85df6d9e7088.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://disneyparksblog.com/app/uploads/2025/07/2025-Walt-Disney-World-Holidays-Disneys-Hollywood-Studios-Toy-Story.jpg",
+    "christmas_keys": [
+     "disney-jollywood-nights-2026"
+    ],
+    "attribution_url": "https://disneyparksblog.com/app/uploads/2025/07/2025-Walt-Disney-World-Holidays-Disneys-Hollywood-Studios-Toy-Story.jpg",
+    "attribution_text": "Walt Disney World official holidays page"
+   }
+  ]
+ },
+ {
+  "place_id": "ChIJS3j7AnEn5IgRj0GbuJwbvpg",
+  "name": "St. Augustine Lighthouse & Maritime Museum",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/12c88b06da7c56d163a195d1.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/0464af8727dd2ecc828c7873.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/1c8381db1fff33fe424ae731.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/2cbb4aa634db471fd83a3b5c.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/a60e61028744a5d65ccf9c60.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/12c88b06da7c56d163a195d1.jpg",
+    "bytes": 205826,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-2.0",
+    "source_ref": "File:St. Augustine Lighthouse - The View From the Gallery - March 2016 (25832379470).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/c/c8/St._Augustine_Lighthouse_-_The_View_From_the_Gallery_-_March_2016_%2825832379470%29.jpg",
+    "storage_path": "ChIJS3j7AnEn5IgRj0GbuJwbvpg/12c88b06da7c56d163a195d1.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ASt._Augustine_Lighthouse_-_The_View_From_the_Gallery_-_March_2016_(25832379470).jpg",
+    "attribution_text": "Pete Markham from Loretto, USA \u2014 cc-by-sa-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/0464af8727dd2ecc828c7873.jpg",
+    "bytes": 128518,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:St. Augustine Lighthouse (223245759).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/2d/St._Augustine_Lighthouse_%28223245759%29.jpg",
+    "storage_path": "ChIJS3j7AnEn5IgRj0GbuJwbvpg/0464af8727dd2ecc828c7873.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ASt._Augustine_Lighthouse_(223245759).jpg",
+    "attribution_text": "Josh Hallett from Winter Haven, FL, USA \u2014 cc-by-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/1c8381db1fff33fe424ae731.jpg",
+    "bytes": 249001,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:St. Augustine Lighthouse (223257055).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/e/ee/St._Augustine_Lighthouse_%28223257055%29.jpg",
+    "storage_path": "ChIJS3j7AnEn5IgRj0GbuJwbvpg/1c8381db1fff33fe424ae731.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ASt._Augustine_Lighthouse_(223257055).jpg",
+    "attribution_text": "Josh Hallett from Winter Haven, FL, USA \u2014 cc-by-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/2cbb4aa634db471fd83a3b5c.jpg",
+    "bytes": 178037,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-2.0",
+    "source_ref": "File:St. Augustine Lighthouse - The View From the Gallery - March 2016 (26038872621).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/0/09/St._Augustine_Lighthouse_-_The_View_From_the_Gallery_-_March_2016_%2826038872621%29.jpg",
+    "storage_path": "ChIJS3j7AnEn5IgRj0GbuJwbvpg/2cbb4aa634db471fd83a3b5c.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ASt._Augustine_Lighthouse_-_The_View_From_the_Gallery_-_March_2016_(26038872621).jpg",
+    "attribution_text": "Pete Markham from Loretto, USA \u2014 cc-by-sa-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJS3j7AnEn5IgRj0GbuJwbvpg/a60e61028744a5d65ccf9c60.jpg",
+    "bytes": 350332,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-3.0",
+    "source_ref": "File:St. Augustine Lighthouse 3.JPG",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/ba/St._Augustine_Lighthouse_3.JPG",
+    "storage_path": "ChIJS3j7AnEn5IgRj0GbuJwbvpg/a60e61028744a5d65ccf9c60.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ASt._Augustine_Lighthouse_3.JPG",
+    "attribution_text": "\u201cJon Zander (Digon3)\u201d \u2014 cc-by-sa-3.0, via Wikimedia Commons"
+   }
+  ],
+  "christmas_photo_gallery": null
+ },
+ {
+  "place_id": "ChIJvRBCrN9-54gRGZuuaCLGrQE",
+  "name": "Universal Orlando Resort",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/17665bfac0bb5abe4505e5ff.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/2a02813b0919e31186404d6d.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/30ea7656d2b58f51f6fb855e.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/a31bbe084592ef691d4f9514.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/1ddc7edf127f7290c647c098.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/6715e50305d5a16b.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/63736845da5542a3.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/8de63d100ec9170b.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/5f6d750960d6833c.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/93a1bd1a9fcef220.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/26abb2b0220ede49.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/052da4e8725a5aea.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/13815d2564b8ee82.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/2202b01490f58cb1.jpg",
+   "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/2c897c33fab49568.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/17665bfac0bb5abe4505e5ff.jpg",
+    "bytes": 251039,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-2.0",
+    "source_ref": "File:20241129- B297135-HDR.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/67/20241129-_B297135-HDR.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/17665bfac0bb5abe4505e5ff.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:20241129-_B297135-HDR.jpg",
+    "attribution_text": "Eric A. Soto \u2014 CC BY-SA-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/2a02813b0919e31186404d6d.jpg",
+    "bytes": 237175,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:Big Fire American Fare.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Big_Fire_American_Fare.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/2a02813b0919e31186404d6d.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Big_Fire_American_Fare.jpg",
+    "attribution_text": "Farragutful \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/30ea7656d2b58f51f6fb855e.jpg",
+    "bytes": 354432,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:CityWalk.JPG",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a3/CityWalk.JPG",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/30ea7656d2b58f51f6fb855e.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:CityWalk.JPG",
+    "attribution_text": "Miosotis Jade \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/a31bbe084592ef691d4f9514.jpg",
+    "bytes": 295045,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:CityWalk\u2019s Rising Karaoke Star.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/f/f1/CityWalk%E2%80%99s_Rising_Karaoke_Star.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/a31bbe084592ef691d4f9514.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:CityWalk\u2019s_Rising_Karaoke_Star.jpg",
+    "attribution_text": "Farragutful \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/1ddc7edf127f7290c647c098.jpg",
+    "bytes": 276152,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-4.0",
+    "source_ref": "File:Fat Tuesday - Universal CityWalk, Orlando.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/2/21/Fat_Tuesday_-_Universal_CityWalk%2C_Orlando.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/1ddc7edf127f7290c647c098.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File:Fat_Tuesday_-_Universal_CityWalk,_Orlando.jpg",
+    "attribution_text": "Farragutful \u2014 CC BY-SA-4.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/6715e50305d5a16b.jpg",
+    "bytes": 326458,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/08/Universal-Orlando-Resort-Opens-the-Gates-to-Halloween-Horror-Nights-2026-scaled.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/Universal-Orlando-Resort-Opens-the-Gates-to-Halloween-Horror-Nights-2026-scaled.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/6715e50305d5a16b.jpg",
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/Universal-Orlando-Resort-Opens-the-Gates-to-Halloween-Horror-Nights-2026-scaled.jpg",
+    "attribution_text": "Universal Orlando Halloween Horror Nights official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/63736845da5542a3.jpg",
+    "bytes": 186727,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2024/08/Halloween-Horror-Nights-2024-at-Universal-Orlando-is-Now-Open-scaled.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2024/08/Halloween-Horror-Nights-2024-at-Universal-Orlando-is-Now-Open-scaled.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/63736845da5542a3.jpg",
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2024/08/Halloween-Horror-Nights-2024-at-Universal-Orlando-is-Now-Open-scaled.jpg",
+    "attribution_text": "Universal Orlando Halloween Horror Nights official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/8de63d100ec9170b.jpg",
+    "bytes": 274516,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2024/08/01_Halloween-Horror-Nights-2024-at-Universal-Orlando-Resort-scaled.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2024/08/01_Halloween-Horror-Nights-2024-at-Universal-Orlando-Resort-scaled.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/8de63d100ec9170b.jpg",
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2024/08/01_Halloween-Horror-Nights-2024-at-Universal-Orlando-Resort-scaled.jpg",
+    "attribution_text": "Universal Orlando Halloween Horror Nights official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/5f6d750960d6833c.jpg",
+    "bytes": 213008,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2023/09/Universal-Orlandos-Halloween-Horror-Nights-Opens-Tonight.png",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2023/09/Universal-Orlandos-Halloween-Horror-Nights-Opens-Tonight.png",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/5f6d750960d6833c.jpg",
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2023/09/Universal-Orlandos-Halloween-Horror-Nights-Opens-Tonight.png",
+    "attribution_text": "Universal Orlando Halloween Horror Nights official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/93a1bd1a9fcef220.jpg",
+    "bytes": 211599,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2022/09/Universal-Orlandos-Halloween-Horror-Nights-Opens-Tonight-.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2022/09/Universal-Orlandos-Halloween-Horror-Nights-Opens-Tonight-.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/93a1bd1a9fcef220.jpg",
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2022/09/Universal-Orlandos-Halloween-Horror-Nights-Opens-Tonight-.jpg",
+    "attribution_text": "Universal Orlando Halloween Horror Nights official website"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/ChIJvRBCrN9-54gRGZuuaCLGrQE/26abb2b0220ede49.jpg",
+    "bytes": 275061,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2019/12/HHN_Scare_RG1_0703.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2019/12/HHN_Scare_RG1_0703.jpg",
+    "storage_path": "ChIJvRBCrN9-54gRGZuuaCLGrQE/26abb2b0220ede49.jpg",
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2019/12/HHN_Scare_RG1_0703.jpg",
+    "attribution_text": "Universal Orlando Halloween Horror Nights official website"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/052da4e8725a5aea.jpg",
+    "bytes": 219247,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/03/04_Jack-the-Clown-at-Horror-Nights-at-Universal-Orlando-Resort-2048x1365.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/03/04_Jack-the-Clown-at-Horror-Nights-at-Universal-Orlando-Resort-2048x1365.jpg",
+    "storage_path": null,
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/03/04_Jack-the-Clown-at-Horror-Nights-at-Universal-Orlando-Resort-2048x1365.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/13815d2564b8ee82.jpg",
+    "bytes": 120347,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/03/03_Dr.-Oddfellow-at-Halloween-Horror-Nights-at-Universal-Orlando-Resort-1024x683.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/03/03_Dr.-Oddfellow-at-Halloween-Horror-Nights-at-Universal-Orlando-Resort-1024x683.jpg",
+    "storage_path": null,
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/03/03_Dr.-Oddfellow-at-Halloween-Horror-Nights-at-Universal-Orlando-Resort-1024x683.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/2202b01490f58cb1.jpg",
+    "bytes": 303004,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/08/03_Opening-Moment-2048x1365.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/03_Opening-Moment-2048x1365.jpg",
+    "storage_path": null,
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/03_Opening-Moment-2048x1365.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/2c897c33fab49568.jpg",
+    "bytes": 191821,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "license": "official venue website",
+    "haunt_key": "hhn",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/08/05_Downtown-Clowntown_Killer-Klowns-from-Outer-Space-1536x1024.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/05_Downtown-Clowntown_Killer-Klowns-from-Outer-Space-1536x1024.jpg",
+    "storage_path": null,
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/08/05_Downtown-Clowntown_Killer-Klowns-from-Outer-Space-1536x1024.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   }
+  ],
+  "christmas_photo_gallery": [
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_99ab6ac0e93a594d.jpg",
+    "cover": true,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2022/10/USH-Holidays-2022-1536x1025.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2022/10/USH-Holidays-2022-1536x1025.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_29b6a298d8ddf990.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2021/10/aec25ff521f15668_org-1536x1229.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2021/10/aec25ff521f15668_org-1536x1229.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_7587a140738382b1.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2023/11/Christmas-in-WWoHP-Holidays-at-USH-2023-2-2.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2023/11/Christmas-in-WWoHP-Holidays-at-USH-2023-2-2.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_325711d89ab74657.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2025/10/Christmas-in-the-WWofHP-Holidays-at-USH-2025-1536x1011.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2025/10/Christmas-in-the-WWofHP-Holidays-at-USH-2025-1536x1011.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_35be2ed231b575bb.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/10/02_Earl-the-Squirrel-1024x576.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/10/02_Earl-the-Squirrel-1024x576.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_821b915239404ee2.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2026/10/26-USH-10328553-HOL26-Toolkit-SNW_LS_CH_HOL_A8_KPH5339_120925_R1-1220x940-1-1024x789.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2026/10/26-USH-10328553-HOL26-Toolkit-SNW_LS_CH_HOL_A8_KPH5339_120925_R1-1220x940-1-1024x789.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   },
+   {
+    "url": "https://www.gowayfind.com/place-photos/batch-2026-11/ChIJvRBCrN9-54gRGZuuaCLGrQE/xmas_49686652eb44f273.jpg",
+    "cover": false,
+    "width": 1280,
+    "height": 853,
+    "source": "official_site",
+    "source_ref": "https://media.universalparksusa.com/wp-content/uploads/2024/11/Grinchmas-Holidays-at-USH-2024-1-1024x683.jpg",
+    "christmas_keys": [
+     "universal-orlando-holidays-2026"
+    ],
+    "attribution_url": "https://media.universalparksusa.com/wp-content/uploads/2024/11/Grinchmas-Holidays-at-USH-2024-1-1024x683.jpg",
+    "attribution_text": "Universal Orlando Resort official media site"
+   }
+  ]
+ },
+ {
+  "place_id": "wfadd_legoland_florida",
+  "name": "LEGOLAND Florida Resort",
+  "photos": [
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/c988da2b5e07018ef713d0a6.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/6b01f3f31999fa51b59c79e8.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/389efb9fd183ce0333bbb797.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/50794ddc6b889f510b939f98.jpg",
+   "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/4e646c37fe3689343b52c9b5.jpg"
+  ],
+  "photo_gallery": [
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/c988da2b5e07018ef713d0a6.jpg",
+    "bytes": 391187,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-2.0",
+    "source_ref": "File:Legoland Florida Entrance Welcome.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/a/a8/Legoland_Florida_Entrance_Welcome.jpg",
+    "storage_path": "wfadd_legoland_florida/c988da2b5e07018ef713d0a6.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALegoland_Florida_Entrance_Welcome.jpg",
+    "attribution_text": "Josh Hallett \u2014 cc-by-sa-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/6b01f3f31999fa51b59c79e8.jpg",
+    "bytes": 324549,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:LEGOLAND\u00ae Florida (8132540205).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/37/LEGOLAND%C2%AE_Florida_%288132540205%29.jpg",
+    "storage_path": "wfadd_legoland_florida/6b01f3f31999fa51b59c79e8.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALEGOLAND%C2%AE_Florida_(8132540205).jpg",
+    "attribution_text": "VisitCentralFL \u2014 cc-by-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/389efb9fd183ce0333bbb797.jpg",
+    "bytes": 325556,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-3.0",
+    "source_ref": "File:Lego Land - panoramio.jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/6/6a/Lego_Land_-_panoramio.jpg",
+    "storage_path": "wfadd_legoland_florida/389efb9fd183ce0333bbb797.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALego_Land_-_panoramio.jpg",
+    "attribution_text": "Jacob Montgomery \u2014 cc-by-sa-3.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/50794ddc6b889f510b939f98.jpg",
+    "bytes": 291965,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-sa-2.0",
+    "source_ref": "File:Legoland FL (8218674363).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/b/b9/Legoland_FL_%288218674363%29.jpg",
+    "storage_path": "wfadd_legoland_florida/50794ddc6b889f510b939f98.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALegoland_FL_(8218674363).jpg",
+    "attribution_text": "Lucy Gray from Chicago, USA \u2014 cc-by-sa-2.0, via Wikimedia Commons"
+   },
+   {
+    "url": "https://gbhtoehdxkzjsmmkisgu.supabase.co/storage/v1/object/public/place-photos/wfadd_legoland_florida/4e646c37fe3689343b52c9b5.jpg",
+    "bytes": 360622,
+    "width": 1280,
+    "height": 853,
+    "source": "wikimedia",
+    "license": "cc-by-2.0",
+    "source_ref": "File:Legoland Florida 1 (6827572795).jpg",
+    "content_type": "image/jpeg",
+    "original_url": "https://upload.wikimedia.org/wikipedia/commons/3/3f/Legoland_Florida_1_%286827572795%29.jpg",
+    "storage_path": "wfadd_legoland_florida/4e646c37fe3689343b52c9b5.jpg",
+    "attribution_url": "https://commons.wikimedia.org/wiki/File%3ALegoland_Florida_1_(6827572795).jpg",
+    "attribution_text": "Nathan Forget \u2014 cc-by-2.0, via Wikimedia Commons"
+   }
+  ],
+  "christmas_photo_gallery": null
+ }
+]
