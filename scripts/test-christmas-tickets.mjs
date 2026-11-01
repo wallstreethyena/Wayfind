@@ -11,7 +11,7 @@ import path from "node:path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
-import { christmasBrowseListings } from "../lib/christmasBrowse.js";
+import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery } from "../lib/christmasBrowse.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
@@ -21,7 +21,7 @@ import {
   ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
-import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
+import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
 
 const root = process.cwd();
 let checks = 0;
@@ -217,6 +217,16 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   ok(christmasTaggedPhotos("christmas-town-2026", [entry("town", ["busch-gardens-christmas-town-2026"])], "Busch").length === 1, "the Busch card event id reads photos tagged with the public slug");
   ok(christmasTaggedPhotos("enchant-christmas-st-petersburg-2026", [entry("ice", ["enchant-stpete-2026"])], "Enchant").length === 1, "the Enchant page slug reads photos tagged with the event id");
   ok(christmasTaggedPhotos("someone-else", gallery, "X").length === 0, "an event with no tagged photos gets nothing from this rail");
+  const legoArch = "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/" + LEGOLAND_ARCH_FILE;
+  const legoGallery = [
+    entry("venue", ["legoland-fl-holidays-2026"]),
+    { url: legoArch, attribution_text: "LEGOLAND Florida Resort official website", attribution_url: "https://www.legoland.com/florida/", width: 1280, height: 853, christmas_keys: ["legoland-fl-holidays-2026"], cover: true },
+  ];
+  const legoBySlug = christmasTaggedPhotos("holidays-at-legoland-florida-2026", legoGallery, "LEGOLAND Florida");
+  ok(legoBySlug.length === 2 && legoBySlug[0].src === legoArch, "the LEGOLAND event slug reads photos tagged legoland-fl-holidays-2026, arch first");
+  const archSecond = christmasCardRail([legoBySlug[1], legoBySlug[0]]);
+  ok(archSecond[0].src === legoArch && archSecond.length === 2, "the LEGO arch leads when it is not already first");
+  ok(christmasCardRail(legoBySlug, "/events/christmas/legoland-christmas-bricktacular-2026.webp")[0].src === legoArch, "the licensed entrance sign does not replace the LEGO arch");
   ok(christmasPlaceFor("christmas-town-2026", null) === CHRISTMAS_EVENT_PLACE["busch-gardens-christmas-town-2026"] && christmasPlaceFor("enchant-stpete-2026", "ChIJkeep") === "ChIJkeep", "a missing place id resolves to the existing venue, and a place id already on the row is kept");
   const shot = (name) => ({ src: V + name + ".jpg", alt: "Photo of Gaylord Palms", credit: "Photo by Park Photographer", source: "vault" });
   const gaylord = await withChristmasTicketPhotos(christmasTicketsModel([base({ id: "christmas-at-gaylord-palms-2026", place_id: null, venue: "Gaylord Palms" })], TODAY), {
@@ -256,6 +266,15 @@ for (const today of ["2026-10-30", "2026-12-20", "2027-01-01"]) {
   const featured = await withChristmasTicketPhotos(christmasTicketsModel(listings, TODAY), { noMemo: true, readGoogle: async () => null, readVault: async () => [] });
   const featuredStetson = featured.rows.find((r) => r.id === "stetson-mansion-christmas-2026-2");
   ok(featuredStetson && featuredStetson.photos[0].src === stetsonShots[0].src && featuredStetson.photos.length === stetsonShots.length, "the Stetson featured card shows its gallery, cover first");
+  let fantasyCard = null;
+  for (let page = 1; page < 40 && !fantasyCard; page++) {
+    const out = christmasBrowsePage(listings, parseChristmasBrowseQuery({ page: String(page) }), TODAY);
+    fantasyCard = out.cards.find((c) => c.id === "holiday-fantasy-of-lights-2026") || null;
+    if (!out.hasMore) break;
+  }
+  const fantasyShots = christmasStaticPhotos("holiday-fantasy-of-lights-2026", "Holiday Fantasy of Lights");
+  ok(fantasyCard && Array.isArray(fantasyCard.photos) && fantasyCard.photos.length === fantasyShots.length && fantasyCard.photos.length === 9 && fantasyCard.photos[0].src === fantasyShots[0].src, "Holiday Fantasy's guide card carries its 9 photo rail in the page data");
+  ok(fantasyShots.every((p) => existsSync(path.join(root, "public", p.src))), "every Holiday Fantasy rail file is on disk");
 }
 
 // ── Schema ───────────────────────────────────────────────────────────────────
@@ -472,8 +491,25 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
     const pageIn = attach({ cards: [ev, noTicket].map(cardJson) }, [ev, noTicket], TODAY, new Map());
     const shotsFor = (n) => Array.from({ length: n }, (_, i) => ({ src: "/events/christmas/g" + i + ".jpg", alt: "Photo of Fixture Park", credit: "Photo by Fixture " + i, creditHref: "https://example.org/" + i }));
     const out = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async (id) => (id === "gal-1" ? shotsFor(3) : []), readGoogle: async () => null, readVault: async () => [] });
-    ok(out.cards[0].ticketRow.photos.length === 3 && out.cards[1].ticketRow.cta === null && !out.cards[1].ticketRow.photos, "a ticketed card carries its photo gallery; a card with no ticket keeps its own photo");
+    ok(out.cards[0].ticketRow.photos.length === 3 && out.cards[1].ticketRow.cta === null && !out.cards[1].ticketRow.photos, "a ticketed card carries its photo gallery; a card whose reader returns nothing keeps its own photo");
+    const tropical = base({ id: "christmas-wonderland-miami-2026", slug: "christmas-wonderland-miami-2026", official_ticket_url: "", place_id: "ChIJcxJRMYe42YgRDSlj6Z_CDxk", image: "/api/photo?place=ChIJcxJRMYe42YgRDSlj6Z_CDxk&g=2&w=640", detailHref: "/florida-events/christmas-wonderland-miami-2026" });
+    const six = shotsFor(6);
+    const legoland = base({ id: "legoland-fl-holidays-2026", slug: "holidays-at-legoland-florida-2026", official_ticket_url: "", place_id: "wfadd_legoland_florida", image: "/events/christmas/legoland-christmas-bricktacular-2026.webp", photoAttr: "A. Heneen · CC BY-SA", detailHref: "/florida-events/holidays-at-legoland-florida-2026" });
+    const arch = { src: "https://www.gowayfind.com/place-photos/batch-2026-11b/wfadd_legoland_florida/" + LEGOLAND_ARCH_FILE, alt: "Photo of LEGOLAND Florida", credit: "Photo by LEGOLAND Florida Resort official website", creditHref: "https://www.legoland.com/florida/" };
+    const legoRail = [shotsFor(1)[0], arch, ...shotsFor(8).slice(1)];
+    const guide = await withPhotos(attach({ cards: [tropical, legoland].map(cardJson) }, [tropical, legoland], TODAY, new Map()), [tropical, legoland], TODAY, new Map(), {
+      noMemo: true,
+      readTagged: async (id) => (id === tropical.id ? six : (id === legoland.id ? legoRail : [])),
+      readGoogle: async () => null,
+      readVault: async () => [],
+    });
+    const tropicalOut = guide.cards.find((c) => c.id === tropical.id);
+    const legoOut = guide.cards.find((c) => c.id === legoland.id);
+    ok(tropicalOut.ticketRow.cta === null && tropicalOut.photos.length === 6 && tropicalOut.photos[0].src === six[0].src, "a guide card with no ticket still carries the event page rail");
+    ok(legoOut.photos.length === 9 && legoOut.photos[0].src === arch.src && legoOut.image === arch.src, "LEGOLAND's guide card shows the holiday rail with the arch as the cover");
     const { ChristmasBrowseCard: Card } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
+    const tropicalHtml = renderToStaticMarkup(createElement(Card, { card: tropicalOut, rank: 1, today: TODAY }));
+    ok((tropicalHtml.match(/class="xm-slide"/g) || []).length === 6, "the guide card renders all 6 Tropical Park photos");
     const galleryHtml = renderToStaticMarkup(createElement(Card, { card: out.cards[0], rank: 1, today: TODAY }));
     ok((galleryHtml.match(/class="xm-slide"/g) || []).length === 3 && galleryHtml.includes('class="xm-dots"'), "the gallery renders as the swipeable photo strip with dots on the one card");
     const failed = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async () => { throw new Error("down"); }, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
@@ -486,6 +522,16 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   const kf = [...shell.matchAll(/@keyframes (xm-(?:twinkle|chase|alt|bloom|sparkle))\{((?:[^{}]|\{[^{}]*\})*)\}/g)];
   ok(kf.length === 4 && !/xm-bloom/.test(shell) && kf.every((m) => !/box-shadow|filter|top:|left:|width:|height:|background/.test(m[2]) && /opacity/.test(m[2])), "light animations touch only opacity and transform (GPU cheap), " + kf.length + " keyframes checked");
   ok(/background:radial-gradient\(120% 55% at 50% 0%,#7A0F22/.test(shell) && !/--bg:#050A14/.test(shell), "the page background is deep red burgundy, not navy");
+}
+
+{
+  const dedupe = read("supabase/photo-batches/2026-11-01c/dedupe.sql");
+  const undo = read("supabase/photo-batches/2026-11-01c/dedupe_undo.sql");
+  ok(dedupe.includes("997fae3e") && dedupe.includes("21e49ca9") && dedupe.includes("ef957a84"), "the dedupe names the Myakka, Robinson Preserve and Volcano Bay repeats");
+  ok(/Myakka Canopy Walkway/.test(dedupe) && /Robinson Preserve/.test(dedupe) && /Universal Volcano Bay/.test(dedupe), "the dedupe names the three places");
+  ok(/wf_photo_url_dedupe_backup_20261101c/.test(dedupe) && /enable row level security/.test(dedupe) && /on conflict \(place_id\) do nothing/.test(dedupe), "the dedupe snapshots the rows once and locks the backup table");
+  ok(/jsonb_set/.test(dedupe) && dedupe.includes("'{photos}'") && dedupe.includes("'{photo_gallery}'") && /distinct on \(s\.key\)/.test(dedupe), "the dedupe removes a repeated url from photos and photo_gallery");
+  ok(/wf_photo_url_dedupe_backup_20261101c/.test(undo) && undo.includes("'{photos}'") && undo.includes("'{photo_gallery}'") && !/drop table/i.test(undo), "undo copies both arrays back and leaves the snapshot table");
 }
 
 console.log("test-christmas-tickets: " + checks + " assertions OK (" + model.rows.length + " featured cards on 2026-10-30)");
