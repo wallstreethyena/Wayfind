@@ -357,6 +357,13 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // outings in Florida" h2 + paragraph). Text has its own list and ZERO tolerance.
   const { hitsText, perchSpot, TEXT_SLOP, worstOverlap } = clear;
   ok(hitsText(R(0, 0, 88, 88), [R(60, 60, 200, 40)]) && !hitsText(R(0, 0, 88, 88), [R(87, 0, 200, 40)]) && TEXT_SLOP <= 2, "hitsText: a corner of text counts, a sliver within TEXT_SLOP does not");
+  // Owner 2026-11-01, measured live (27 of 50 phone samples on words, parked on
+  // the "Ask Santa" label and a card title): every visible text node counts as
+  // words, not only the READ_SEL elements, and he fades while he is over words.
+  ok(/createTreeWalker\(document\.body,\s*NF\.SHOW_TEXT/.test(comp) && /rg\.selectNodeContents\(n\)/.test(comp) && /txt\.push\(\{ left: q\.left/.test(comp),
+    "Santa collects the glyph boxes of every visible text node (button labels and card titles included) into the text list");
+  ok(/dataset\.ghost\s*=\s*over/.test(comp) && /hitsText\(rectOf\(pp\.x/.test(comp) && /\[data-ghost="1"\]\s*\.boo-c-body\{opacity:\.22\}/.test(comp),
+    "he fades to 22% whenever he is over words, in every frame state");
   ok(!isClear(100, 100, 88, [], 0.15, [R(0, 90, 400, 20)]) && isClear(100, 100, 88, [], 0.15, [R(0, 300, 400, 20)]), "isClear: text under him (even a thin strip, far under 15%) is NOT clear, text elsewhere is");
   // Phone fixtures: full width h2 + paragraph under it, at 375 and 960.
   const textPage = (vw, vh) => {
