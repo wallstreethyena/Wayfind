@@ -1,0 +1,54 @@
+{
+  "reviewed_at": "2026-11-01",
+  "method": "Owner-supplied Instagram reel links read in the owner's browser (native caption and account), venue identity confirmed on Google Maps (place ID resolves back to the named venue at the stated address), dates from the venue's own ticket calendar plus local press. Native embeds and original attribution only; captions are Wayfind's own words.",
+  "sources": [
+    {
+      "shortcode": "DfN3Hxph0jD",
+      "native_url": "https://www.instagram.com/reel/DfN3Hxph0jD/",
+      "creator": "life_withkaymarie",
+      "status": "verified",
+      "content_kind": "venue_feature",
+      "independent": true,
+      "christmas_event_id": "roberts-christmas-wonderland-2026",
+      "places": [
+        {
+          "key": "roberts-christmas-wonderland-clearwater",
+          "place_id": "ChIJYybWKcrvwogRT8I06QALhdI",
+          "name": "Robert's Christmas Wonderland",
+          "city": "Clearwater",
+          "state": "FL",
+          "address": "2951 Gulf to Bay Blvd, Clearwater, FL 33759",
+          "lat": 27.9602781,
+          "lng": -82.7153215,
+          "coordinate_source": "google_maps_place_page"
+        }
+      ],
+      "editorial_context": "Year round Christmas store in Clearwater. Holiday hours vary; the official site could not be read automatically, so no hours are published."
+    },
+    {
+      "shortcode": "DfN6mnuRbI6",
+      "native_url": "https://www.instagram.com/reel/DfN6mnuRbI6/",
+      "creator": "tampabayisawesome",
+      "status": "verified",
+      "content_kind": "dated_season_announcement",
+      "independent": false,
+      "christmas_event_id": "snowcat-ridge-2026",
+      "places": [
+        {
+          "key": "snowcat-ridge-dade-city",
+          "place_id": "ChIJF05ORfWpwogRI74PwJotNf4",
+          "name": "Snowcat Ridge",
+          "city": "Dade City",
+          "state": "FL",
+          "address": "27839 Saint Joe Rd, Dade City, FL 33525",
+          "lat": 28.3814926,
+          "lng": -82.3589411,
+          "coordinate_source": "google_maps_place_page"
+        }
+      ],
+      "supporting_source": "https://snowcatridge.com/buy-tickets/",
+      "schedule_note": "Venue ticket calendar lists November 14, 2026, 10 AM to 11 PM as opening day; 2026 closing date not published (prior seasons ran to early March).",
+      "editorial_context": "Florida's only alpine snow park; snow tubing, indoor snow igloo, ice skating, Santa through December 24."
+    }
+  ]
+}
