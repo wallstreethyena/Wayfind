@@ -5,19 +5,19 @@
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 77,
-    "retrievable_reported_source_total": 77,
-    "retrievable_reported_sources_mapped": 77,
-    "sources_with_place_association": 67,
-    "sources_with_event_association": 14,
-    "sources_with_any_association": 77,
-    "event_only_sources": 10,
+    "source_total": 79,
+    "retrievable_reported_source_total": 79,
+    "retrievable_reported_sources_mapped": 79,
+    "sources_with_place_association": 68,
+    "sources_with_event_association": 16,
+    "sources_with_any_association": 79,
+    "event_only_sources": 11,
     "remaining_unmapped_sources": 0,
-    "place_association_count": 88,
-    "unique_place_association_count": 78,
+    "place_association_count": 89,
+    "unique_place_association_count": 79,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 14,
+    "exact_event_association_count": 16,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -2309,6 +2309,60 @@
       "public_navigation": "/florida-events/snowcat-ridge-2026",
       "native_link_renderable": true,
       "evidence": "Owner submitted link read 2026-11-01: dedicated announcement that Snowcat Ridge returns November 14. The park's own ticket calendar lists November 14, 2026; Google Maps place ID resolves to the park at 27839 Saint Joe Rd."
+    },
+    {
+      "shortcode": "DfM3je6ptql",
+      "creator_handle": "hollybluffmarina",
+      "native_url": "https://www.instagram.com/reel/DfM3je6ptql/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "DeLand"
+      ],
+      "place_associations": [
+        {
+          "curated_key": "holly-bluff-resort-marina-deland",
+          "place_id": "ChIJD8q6NT8F54gRVOaRWoWT59g",
+          "name": "Holly Bluff Resort Marina",
+          "city": "DeLand",
+          "address": "2280 Hontoon Rd, DeLand, FL 32720",
+          "native_wayfind_surface": "/p/ChIJD8q6NT8F54gRVOaRWoWT59g",
+          "renderability": "hydrated_place_detail_and_creator_card"
+        }
+      ],
+      "event_associations": [
+        {
+          "event_id": "deland-christmas-boat-parade-2026",
+          "native_wayfind_surface": "/florida-events/deland-christmas-boat-parade-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/deland-christmas-boat-parade-2026",
+      "native_link_renderable": true,
+      "evidence": "Owner submitted link read 2026-11-01: Holly Bluff Resort Marina's own reel says parade weekend is December 11 to 13; hollybluff.com names the DeLand Christmas Boat Parade on Saturday December 12 and offers houseboats to join it."
+    },
+    {
+      "shortcode": "DeX0R1nFKDC",
+      "creator_handle": "oldcitrusestate",
+      "native_url": "https://www.instagram.com/p/DeX0R1nFKDC/",
+      "native_path_kind": "p",
+      "true_city": [
+        "Port St. Lucie"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "old-citrus-estate-whoville-2026",
+          "native_wayfind_surface": "/florida-events/old-citrus-estate-whoville-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/old-citrus-estate-whoville-2026",
+      "native_link_renderable": true,
+      "evidence": "Owner submitted link read 2026-11-01: The Old Citrus Estate's own post announcing Whoville for the Wholidays and Santa's Workshop, December 4 to 6 and 11 to 13; the farm's own event page lists the sessions, $18.95 price and 6730 Ideal Holding Rd, Port St. Lucie."
     }
   ]
 }
