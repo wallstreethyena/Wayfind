@@ -19666,7 +19666,7 @@
   "evidence_quote": "Saturday, December 19th @ 4:00PM - 8:00PM Sunday, December 20th @ 4:00PM - 8:00PM",
   "notes": "Page shows no year; weekdays match 2026 (Dec 19 is a Saturday). Note the page was first published 2024.",
   "id": "lwr-christmas-on-main-2026",
-  "place_id": "ChIJg2IFCAE5w4gRjoL2et_wuBw",
+  "place_id": null,
   "coord_approx": true
  },
  {
@@ -38668,7 +38668,7 @@
  "why": "Clearwater's year round Christmas store, open since 1972, with ornaments, trees and gifts. Walk in any day the shop is open.",
  "missing": "",
  "evidence_quote": "Robert's stays open year round with a selection of ornaments, collectibles and gifts numbering into the thousands.",
- "notes": "Official about page, read 2026-11-02. The store at this address was Christmas Wonderland until the 1990 merger. There is no separate Robert's Winter Wonderland. Listing window is the Christmas season; the schedule says the shop is open year round. Existing place ChIJYybWKcrvwogRT8I06QALhdI, no new place card.",
+  "notes": "Official about page, read 2026-11-02. Listing window is the Christmas season; the schedule says the shop is open year round. Existing place ChIJYybWKcrvwogRT8I06QALhdI, no new place card.",
  "id": "roberts-christmas-wonderland-2026",
  "place_id": "ChIJYybWKcrvwogRT8I06QALhdI",
  "coord_approx": false
