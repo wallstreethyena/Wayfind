@@ -145,7 +145,7 @@ ok(wrongPlace[0].image === null, "retained spot image from a different place is 
 
 
 // 6. The editorial branch never accepts a Google-hosted URL as "Wayfind art".
-const editorial = await guidePlaceFigureImage({ id: "ChIJ3SpvbYPhwogRS17En4FSzVI", name: "x", photo: lh3, photoAttr: "Some credit" }, { findFreePhoto: async () => null, findSamePlaceCachedPhoto: async () => null, findAlternative: async () => null });
+const editorial = await guidePlaceFigureImage({ id: "ChIJ3SpvbYPhwogRS17En4FSzVI", name: "x", photo: lh3, photoAttr: "Some credit" }, { findFreePhoto: async () => null, readStoredGooglePhoto: async () => null, findSamePlaceCachedPhoto: async () => null, findAlternative: async () => null });
 ok(editorial === null, "a Google-hosted place.photo with credit text is not treated as an editorial photo");
 const editorialLocal = await guidePlaceFigureImage({ id: "ChIJ3SpvbYPhwogRS17En4FSzVI", name: "x", photo: "/guides/verified/x.webp", photoAttr: "Wayfind" }, {});
 ok(editorialLocal && editorialLocal.src === "/guides/verified/x.webp", "positive control: a local editorial photo still wins");
