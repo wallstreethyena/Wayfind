@@ -445,6 +445,10 @@ const savedPaidAi = process.env.WF_PAID_AI_ENABLED;
 delete process.env.ANTHROPIC_API_KEY;
 delete process.env.LLM_API_KEY;
 delete process.env.WF_PAID_AI_ENABLED;
+// The route reads Date.now() for which haunts are still bookable. Pin a night
+// inside the 2026 season so this block does not go red the morning after Nov 1.
+const realDateNow = Date.now;
+Date.now = () => Date.parse("2026-10-30T22:00:00Z");
 try {
   const { POST } = await loadComponent(path.join(root, "app/api/bo-haunt/route.js"), root);
   const live = await POST(new Request("https://wayfind.test/api/bo-haunt", {
@@ -481,6 +485,7 @@ try {
   const wrapTalk = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "lol", turn: 4 }) }))).json();
   ok(wrapTalk.wrap === true && wrapTalk.cards.length > 0 && BO_WRAP_LINES.includes(wrapTalk.reply), "wrap turn is unchanged even after small talk");
 } finally {
+  Date.now = realDateNow;
   if (savedAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY;
   else process.env.ANTHROPIC_API_KEY = savedAnthropicKey;
   if (savedLlmKey === undefined) delete process.env.LLM_API_KEY;
