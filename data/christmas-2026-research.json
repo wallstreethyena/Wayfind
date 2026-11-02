@@ -15828,9 +15828,11 @@
   "official_url": "https://www.events1000.com/US/DeLand/155309511166114/DeLand-Christmas-Boat-Parade",
   "official_url_is_2026": true,
   "other_sources": [
-   "https://www.floridarambler.com/florida-festivals/holiday-boat-parades/"
+   "https://www.floridarambler.com/florida-festivals/holiday-boat-parades/",
+   "https://hollybluff.com/",
+   "https://www.instagram.com/reel/DfM3je6ptql/"
   ],
-  "last_checked": "2026-10-13",
+  "last_checked": "2026-11-01",
   "start_date": "2026-12-12",
   "end_date": "2026-12-12",
   "schedule": "Single night, second Saturday of December 2026",
@@ -15852,7 +15854,7 @@
   "why": "The long-running DeLand Christmas Boat Parade on the St. Johns River, ending with a party. Watch the lit boats from the riverbank.",
   "missing": "exact 2026 start time and public viewing spots",
   "evidence_quote": "SAVE THE DATE: We hope to see you all on the 2nd Saturday of December, 2026",
-  "notes": "Date derived from organizer statement 'second Saturday of December 2026' = Dec 12. Organizer is on Facebook; official site not read. No public spectator spot coordinate confirmed (viewing from Holly Bluff, Hontoon Landing, Beresford Yacht Club area per 2025 posts).",
+  "notes": "Date derived from organizer statement 'second Saturday of December 2026' = Dec 12. Organizer is on Facebook; official site not read. No public spectator spot coordinate confirmed (viewing from Holly Bluff, Hontoon Landing, Beresford Yacht Club area per 2025 posts). 2026-11-01: Holly Bluff Resort Marina (2280 Hontoon Rd, DeLand) states Saturday December 12 on hollybluff.com, rents houseboats to decorate and join the parade, start time and lineup still to be announced.",
   "id": "deland-christmas-boat-parade-2026",
   "place_id": null,
   "coord_approx": true
@@ -38723,6 +38725,55 @@
   "notes": "Year round Christmas store at 2951 Gulf to Bay Blvd, Clearwater. Phone (727) 797-1660.",
   "id": "roberts-christmas-wonderland-2026",
   "place_id": "ChIJYybWKcrvwogRT8I06QALhdI",
+  "coord_approx": false
+ },
+ {
+  "id_hint": "old-citrus-estate-whoville-2026",
+  "event_name": "Whoville for the Wholidays + Santa's Workshop at The Old Citrus Estate",
+  "organizer": "The Old Citrus Estate",
+  "venue_name": "The Old Citrus Estate",
+  "city": "Port St. Lucie",
+  "county": "St. Lucie",
+  "region": "Treasure Coast",
+  "categories": [
+   "santa",
+   "farm",
+   "family"
+  ],
+  "primary_rail": "shows-outings",
+  "state": "confirmed_dated",
+  "exclusion_reason": null,
+  "official_url": "https://www.theoldcitrusestate.com/event-details/whoville-for-the-wholidays-2026-12-13-16-30",
+  "official_url_is_2026": true,
+  "other_sources": [
+   "https://www.theoldcitrusestate.com/",
+   "https://www.instagram.com/p/DeX0R1nFKDC/"
+  ],
+  "last_checked": "2026-11-01",
+  "start_date": "2026-12-04",
+  "end_date": "2026-12-13",
+  "schedule": "Select dates only: December 4 to 6 and December 11 to 13, morning and evening sessions, 12 sessions in all",
+  "times": "Timed sessions, for example Fri Dec 4 7:00 PM, Sat Dec 5 9:30 AM and 4:30 PM, Sun Dec 13 4:30 to 6:00 PM",
+  "overnight": false,
+  "timed_entry": true,
+  "lat": 27.3504945,
+  "lng": -80.5138264,
+  "coord_kind": "venue",
+  "coord_source": "census_geocoder:6730 Ideal Holding Rd, Port St Lucie, FL 34987 (address from the farm's own site, 2026-11-01)",
+  "ticket_url": "https://www.theoldcitrusestate.com/event-details/whoville-for-the-wholidays-2026-12-13-16-30",
+  "price": "$18.95 per guest plus a small ticket fee; ages 1 and under free with a reservation",
+  "booking_required": "yes",
+  "age": "all ages",
+  "audience": "family",
+  "parking_access": "unannounced",
+  "accessibility": "unannounced",
+  "setting": "outdoor",
+  "why": "A small farm turns into Whoville and Santa's Workshop for six nights only. Limited reservations keep it calm: meet Santa without a line, write him a letter, catch snow flurries, visit the farm animals, and every ticket comes with hot cocoa and a Christmas cookie.",
+  "missing": "Parking details",
+  "evidence_quote": "Dec 13, 2026, 4:30 PM to 6:00 PM, 6730 Ideal Holding Rd, Port St. Lucie",
+  "notes": "Owner submitted Instagram post 2026-11-01 (@oldcitrusestate). Rain or shine, tickets non refundable, no pets. Farm is not open for walk in visits, so it is listed as this dated event only.",
+  "id": "old-citrus-estate-whoville-2026",
+  "place_id": null,
   "coord_approx": false
  }
 ]

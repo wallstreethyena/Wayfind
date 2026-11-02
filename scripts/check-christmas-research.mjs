@@ -82,8 +82,9 @@ const eligible = merged.filter((e) => isTrusted(e) && christmasEventRail(e)).map
 const cards = eligible.map((e) => christmasEventCard(e, { today: TODAY }));
 
 // ── 0. The data itself ───────────────────────────────────────────────────────
-// 844 researched rows + 2 owner submitted reels (Snowcat Ridge, Robert's Christmas Wonderland), 2026-11-01.
-ok(RAW.length === 846, `the research file holds the 846 researched rows (got ${RAW.length})`);
+// 844 researched rows + 2 owner submitted reels (Snowcat Ridge, Robert's Christmas Wonderland), 2026-11-01,
+// + Whoville at The Old Citrus Estate (owner submitted post, 2026-11-01).
+ok(RAW.length === 847, `the research file holds the 847 researched rows (got ${RAW.length})`);
 ok(new Set(RAW.map((r) => r.id)).size === RAW.length, "research ids are unique");
 ok(RAW.every((r) => ["confirmed_dated", "confirmed_season_undated", "recurring_unconfirmed", "excluded"].includes(r.state)), "every row carries one of the four states");
 ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/photo|places\/[A-Za-z0-9_-]+\/photos\//.test(JSON.stringify(r))), "the data stores no Google photo name or URL (PR #1697)");

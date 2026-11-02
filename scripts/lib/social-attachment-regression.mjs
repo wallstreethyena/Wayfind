@@ -130,9 +130,10 @@ export function checkSocialAttachments(repo) {
   // 47 prior mapped sources + 14 verified current sources + 4 formerly
   // unresolved identities + 6 exact DFB sources + 3 recovered Instagram backlog originals.
   // Plus the owner-submitted Rreal Tacos Tampa source reviewed 2026-10-22,
-  // and the two owner Christmas reels (Robert's, Snowcat Ridge) reviewed 2026-11-01.
-  ensure(audit.records.length === 77, `expected 77 audited sources, got ${audit.records.length}`);
-  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 77, "shortcodes must be unique");
+  // and the two owner Christmas reels (Robert's, Snowcat Ridge) reviewed 2026-11-01,
+  // and Holly Bluff (DeLand boat parade) + Old Citrus Estate (Whoville) owner posts 2026-11-01.
+  ensure(audit.records.length === 79, `expected 79 audited sources, got ${audit.records.length}`);
+  ensure(new Set(audit.records.map((row) => row.shortcode)).size === 79, "shortcodes must be unique");
   ensure(unresolved.length === 0, `the four historical identities are now resolved; got ${unresolved.length} still marked unresolved`);
   ensure(new Set([...audit.records, ...unresolved].map((row) => row.shortcode)).size === audit.records.length + unresolved.length, "mapped and unresolved shortcodes must be unique");
   for (const row of unresolved) {
@@ -184,7 +185,7 @@ export function checkSocialAttachments(repo) {
     const row = audit.records.find((candidate) => candidate.native_url === url);
     ensure(row?.venue_context_associations?.some((event) => event.event_id === eventId && event.association_kind === "venue_context"), `${eventId} venue-context post ${url} has no matching audit record`);
   }
-  ensure(audit.summary.sources_with_any_association === 77, "mapped source coverage drifted");
+  ensure(audit.summary.sources_with_any_association === 79, "mapped source coverage drifted");
   ensure(audit.summary.source_total === audit.records.length, "audited source total drifted");
   ensure(audit.summary.retrievable_reported_source_total === audit.records.length + unresolved.length, "retrievable intake total drifted");
   ensure(audit.summary.retrievable_reported_sources_mapped === audit.records.length, "retrievable mapped-source total drifted");
