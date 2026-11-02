@@ -250,6 +250,7 @@ const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[ro
 // controlRects and booClear.hitsText. Containers (li, td, ...) that hold their
 // own headings or paragraphs are skipped so the inner text counts, not the card.
 const BLOCK_TEXT = "li,td,th,dt,dd,blockquote,figcaption";
+const SCROLL_SETTLE_MS = 220; // the page counts as still moving until this long after the last scroll event
 const REST_MS = 250; // how often a resting Boo re-checks he is not on text after a scroll or page change
 const READ_SEL = "h1,h2,h3,h4,p,li,blockquote,figcaption,dt,dd,td,th,[role=status],[role=alert],[data-boo-clear]";
 // The ONLY pointer target on him is a small hit button. It is tappable only
@@ -531,6 +532,12 @@ export default function BooCompanion() {
   const gagBump = useRef(() => {});
   const ctlRef = useRef({ t: 0, list: [], text: [] });
   const restDirty = useRef(true);
+  // Until when the page counts as "still scrolling" (performance.now ms). While
+  // it scrolls the words slide under him every frame, so re-dodging them made
+  // him dart in a new direction every REST_MS and his fade flicker (owner
+  // 2026-11-01: "he glitches when page moves fast"). He holds his course faded
+  // instead, and makes one calm check once the page settles.
+  const scrollQuiet = useRef(0);
   const restChk = useRef(0);
   const hitRef = useRef(null);
   const hitSt = useRef({ nodes: null, list: [], t: 0, fresh: false, dom: true, quiet: 0, prev: null, prevT: 0, spd: 0 });
@@ -686,8 +693,19 @@ export default function BooCompanion() {
     // it lives. Text inside him (his bubble, his sheet) is skipped.
     try {
       const NF = window.NodeFilter;
-      const walker = document.createTreeWalker(document.body, NF.SHOW_TEXT, {
-        acceptNode: (n) => (n.nodeValue && n.nodeValue.trim() && !(me && me.contains(n)) ? NF.FILTER_ACCEPT : NF.FILTER_REJECT),
+      // Elements wholly off screen are rejected with their whole subtree, so the
+      // walk only touches what is in view (a long list costs the same as a short one).
+      const walker = document.createTreeWalker(document.body, NF.SHOW_TEXT | NF.SHOW_ELEMENT, {
+        acceptNode: (n) => {
+          if (me && (n === me || me.contains(n))) return NF.FILTER_REJECT;
+          if (n.nodeType === 1) {
+            const er = n.getBoundingClientRect();
+            const off = er.bottom <= 0 || er.top >= vh || er.right <= 0 || er.left >= vw;
+            // display:contents and other zero boxes still hold visible children: only reject a real box that is off screen.
+            return off && er.width > 0 && er.height > 0 && getComputedStyle(n).position !== "fixed" ? NF.FILTER_REJECT : NF.FILTER_SKIP;
+          }
+          return n.nodeValue && n.nodeValue.trim() ? NF.FILTER_ACCEPT : NF.FILTER_REJECT;
+        },
       });
       const rg = document.createRange();
       for (let n = walker.nextNode(); n; n = walker.nextNode()) {
@@ -787,7 +805,7 @@ export default function BooCompanion() {
     if (!eligible) return undefined;
     const c = hitSt.current;
     const off = (quietMs) => { restDirty.current = true; c.fresh = false; c.dom = true; if (quietMs) c.quiet = performance.now() + quietMs; hitSet(false); };
-    const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; off(140); };
+    const onScroll = (e) => { const t = e && e.target; if (t && t.closest && t.closest(".boo-c,.boo-s-back")) return; scrollQuiet.current = performance.now() + SCROLL_SETTLE_MS; off(140); };
     const onResize = () => off(200);
     let mo = null;
     try {
@@ -1130,7 +1148,7 @@ export default function BooCompanion() {
         // changes under him while he waits. Re-check (cheap: only after a scroll,
         // resize or page change, at most every REST_MS) and glide off the words.
         const nowMs = performance.now();
-        if (restDirty.current && nowMs - restChk.current >= REST_MS && !g.say) {
+        if (restDirty.current && nowMs >= scrollQuiet.current && nowMs - restChk.current >= REST_MS && !g.say) {
           restChk.current = nowMs;
           if (parkClear()) { rafRef.current = requestAnimationFrame(frame); return; }
         }
@@ -1164,9 +1182,11 @@ export default function BooCompanion() {
       // if he is over words, fade so they stay readable. Lists re-read at most
       // every 150ms; the overlap math runs on the cached rects.
       if (elRef.current) {
-        const pp = posRef.current;
-        const fresh = performance.now() - (ctlRef.current.t || 0) > 150;
-        const over = hitsText(rectOf(pp.x + 12, pp.y + 8, SIZE - 24, SIZE - 14), restLists(fresh)[1]);
+        const pp = posRef.current, nowF = performance.now();
+        // While the page is moving, words pass under him every frame: stay faded
+        // (no flicker) and skip the word scan entirely (no extra work mid scroll).
+        const scrolling = nowF < scrollQuiet.current;
+        const over = scrolling || hitsText(rectOf(pp.x + 12, pp.y + 8, SIZE - 24, SIZE - 14), restLists(nowF - (ctlRef.current.t || 0) > 150)[1]);
         if (over !== (elRef.current.dataset.ghost === "1")) elRef.current.dataset.ghost = over ? "1" : "";
       }
       rafRef.current = requestAnimationFrame(frame);
@@ -1433,7 +1453,9 @@ export default function BooCompanion() {
         const v = Math.abs(y - lastY) / Math.max(16, t - lastT) * 1000;
         lastY = y; lastT = t;
         fast = v > 3800 ? fast + 1 : 0;
-        if (fast >= 4) { fast = 0; reactRef.current("scrollFast", { antic: "shiver", pose: "panic" }); }
+        // No shiver here: a 1.5s side to side shake while the page is flying by
+        // read as a glitch (owner 2026-11-01). He keeps the line, not the shake.
+        if (fast >= 4) { fast = 0; reactRef.current("scrollFast", { pose: "panic" }); }
         if (y > vh * 1.5) deep = true;
         if (docH > vh * 2.2 && y + vh >= docH - 160) reactRef.current("bottom", { pose: "peek" });
         else if (deep && y < 80) { deep = false; reactRef.current("backTop", { pose: "up" }); }
