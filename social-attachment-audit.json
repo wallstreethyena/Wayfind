@@ -5,19 +5,19 @@
   "association_policy": "event_associations are dedicated event or organiser posts eligible for exact event surfaces. roundup_event_mentions preserve reviewed calendar/venue mentions as audit evidence only. venue_context_associations identify the event venue without proving the named event. Neither audit-only class is published as exact event media.",
   "public_entrypoint": "Home → select Creators Pick → Browse all creator finds. Place-linked posts open a Wayfind venue card; exact-ID venues can continue to full place details. Event-only posts render on the listed Florida event route.",
   "summary": {
-    "source_total": 79,
-    "retrievable_reported_source_total": 79,
-    "retrievable_reported_sources_mapped": 79,
+    "source_total": 80,
+    "retrievable_reported_source_total": 80,
+    "retrievable_reported_sources_mapped": 80,
     "sources_with_place_association": 68,
-    "sources_with_event_association": 16,
-    "sources_with_any_association": 79,
-    "event_only_sources": 11,
+    "sources_with_event_association": 17,
+    "sources_with_any_association": 80,
+    "event_only_sources": 12,
     "remaining_unmapped_sources": 0,
     "place_association_count": 89,
     "unique_place_association_count": 79,
     "sources_with_roundup_event_mentions": 2,
     "roundup_event_mention_count": 11,
-    "exact_event_association_count": 16,
+    "exact_event_association_count": 17,
     "sources_with_venue_context_association": 2,
     "venue_context_association_count": 2
   },
@@ -2363,6 +2363,27 @@
       "public_navigation": "/florida-events/old-citrus-estate-whoville-2026",
       "native_link_renderable": true,
       "evidence": "Owner submitted link read 2026-11-01: The Old Citrus Estate's own post announcing Whoville for the Wholidays and Santa's Workshop, December 4 to 6 and 11 to 13; the farm's own event page lists the sessions, $18.95 price and 6730 Ideal Holding Rd, Port St. Lucie."
+    },
+    {
+      "shortcode": "DfP2QPuBwvv",
+      "creator_handle": "flacoffeefestival",
+      "native_url": "https://www.instagram.com/reel/DfP2QPuBwvv/",
+      "native_path_kind": "reel",
+      "true_city": [
+        "Orlando"
+      ],
+      "place_associations": [],
+      "event_associations": [
+        {
+          "event_id": "florida-coffee-festival-2026",
+          "native_wayfind_surface": "/florida-events/florida-coffee-festival-orlando-2026",
+          "renderability": "server_rendered_creator_credit_and_native_link",
+          "association_kind": "exact_event"
+        }
+      ],
+      "association_status": "prepared",
+      "public_navigation": "/florida-events/florida-coffee-festival-orlando-2026",
+      "native_link_renderable": true
     }
   ]
 }
