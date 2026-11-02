@@ -65,7 +65,9 @@ export async function GET(request) {
     // v10 publishes the confirmed rows in lib/seasonalLiveAreaPending20261019.js
     // once each venue is in inventory with its own stored photo. A cached v9
     // payload was built before that venue existed, so it must not hide the card.
-    const key = `christmas-intents:v10:${today}:${geoCell(lat)}:${geoCell(lng)}`;
+    // v11 adds Snowcat Ridge, Robert's Christmas Wonderland and the Freedom
+    // Factory lights festival. A cached v10 payload was built without them.
+    const key = `christmas-intents:v11:${today}:${geoCell(lat)}:${geoCell(lng)}`;
     const cached = await fastCachedRail(key, async () => {
       if (!supabase) throw new Error("Supabase unavailable");
       const signal = AbortSignal.timeout(CHRISTMAS_DB_DEADLINE_MS);

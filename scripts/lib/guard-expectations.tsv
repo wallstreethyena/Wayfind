@@ -56,7 +56,7 @@ scripts/check-chef-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	cfaea31fa7ce
 scripts/check-christmas-browse-credit.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	19be5142d5a24b020114c0d4fc219e95f38d12ddcfa251dbf24d9c7f92013883
 scripts/check-christmas-card-photo-slot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	bc23f946fc58f2e3263f956fd695f2fcf2fedb17aaf45894b98ce6cb7975c9a6
 scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	3ba1bd393522d685ea99eb931914a694d9ac8e688dbf8a3245ad3ab0f636c9eb
-scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	257	0	0	cbbad01359756390f983641f40a3b8fdff778a556b142f5b85583542fe05c747
+scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	258	0	0	2dd59338ec2bbc2647f70664857e5145396936a4adc5c001e57405b66a00b140
 scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	159	0	0	1c4b158132b424297c294d76b8fa2a0671d5261e6e421108c5192f5f572d7532
 scripts/check-christmas-venue-matches.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	305e3ed2c79eaf6df673523cbf28226d057d15b0d46eae31a16b279bcb9a5203
 scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	0d8c182546f20762819ff16535323a8cde407967f6a41884e27dacdc18380d1a
