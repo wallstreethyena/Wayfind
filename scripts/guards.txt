@@ -274,6 +274,7 @@ node scripts/test-landing-tours.mjs
 node scripts/test-home-bookable.mjs
 node scripts/test-ranking-editorial.mjs
 node scripts/test-coverage-waitlist.mjs
+node scripts/test-coverage-gap-feed.mjs
 node scripts/test-deal-rails.mjs
 node scripts/test-deals-geo.mjs
 node scripts/test-coupon-geo.mjs
