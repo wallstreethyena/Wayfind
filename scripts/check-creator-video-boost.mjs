@@ -334,4 +334,25 @@ ok(stats.spotCount >= 30 && stats.creatorCount >= 5, `library stats stay real ($
   ok(/season has ended/.test(ended.editorial_context), "ended October 27 event cannot masquerade as an upcoming visit");
 }
 
+// Owner Christmas intake 2026-11-01: exact venue, original credit, native playback,
+// the Christmas event page post, and no leak onto a same-name different venue.
+{
+  const intake = JSON.parse(readFileSync(path.join(REPO, "docs/curation/owner-christmas-reels-2026-11-01.json"), "utf8"));
+  const { captionFor } = await import("../lib/creatorCaptions.js");
+  const { embedSrc } = await import("../lib/videoEmbed.js");
+  const { creatorCountFor } = await import("../lib/creatorVideos.js");
+  const { eventSocialPosts } = await import("../lib/eventSocial.js");
+  ok(intake.sources.length === 2, "both owner Christmas reels are accounted for");
+  for (const source of intake.sources) {
+    const place = source.places[0];
+    const matches = creatorVideosFor({ id: place.place_id }).filter((v) => v.url === source.native_url);
+    ok(matches.length === 1 && matches[0].creator === source.creator, `${source.shortcode} resolves once on its venue with original credit`);
+    ok(embedSrc("instagram", source.native_url) === source.native_url + "embed/", `${source.shortcode} keeps native playback`);
+    ok(captionFor(matches[0]).length > 40, `${source.shortcode} has original editorial context`);
+    ok(eventSocialPosts(source.christmas_event_id).some((p) => p.url === source.native_url && p.creator === source.creator), `${source.shortcode} shows on its Christmas event page`);
+    ok(!creatorVideosFor({ id: "ChIJwrongVerifiedIdentity123", name: place.name, city: place.city }).some((v) => v.url === source.native_url), `${source.shortcode} cannot leak through a same-name different Google ID`);
+    if (source.independent === false) ok(creatorCountFor({ id: place.place_id }) === 0, `${source.creator} cannot create independent corroboration`);
+  }
+}
+
 console.log(`check-creator-video-boost: PASS (${pass} assertions)`);
