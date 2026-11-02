@@ -360,7 +360,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // Owner 2026-11-01, measured live (27 of 50 phone samples on words, parked on
   // the "Ask Santa" label and a card title): every visible text node counts as
   // words, not only the READ_SEL elements, and he fades while he is over words.
-  ok(/createTreeWalker\(document\.body,\s*NF\.SHOW_TEXT/.test(comp) && /rg\.selectNodeContents\(n\)/.test(comp) && /txt\.push\(\{ left: q\.left/.test(comp),
+  ok(/createTreeWalker\(document\.body,\s*NF\.SHOW_TEXT \| NF\.SHOW_ELEMENT/.test(comp) && /rg\.selectNodeContents\(n\)/.test(comp) && /txt\.push\(\{ left: q\.left/.test(comp),
     "Santa collects the glyph boxes of every visible text node (button labels and card titles included) into the text list");
   ok(/dataset\.ghost\s*=\s*over/.test(comp) && /hitsText\(rectOf\(pp\.x/.test(comp) && /\[data-ghost="1"\]\s*\.boo-c-body\{opacity:\.22\}/.test(comp),
     "he fades to 22% whenever he is over words, in every frame state");
@@ -435,7 +435,14 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   }
 
   ok(/el\.matches\(READ_SEL\)/.test(comp) && /txt\.push\(rect\)/.test(comp) && /restLists = /.test(comp), "component keeps text (READ_SEL) in its own zero tolerance list apart from controls");
-  ok(/restDirty\.current && nowMs - restChk\.current >= REST_MS/.test(comp) && /parkClear\(\)/.test(comp.slice(comp.indexOf("restDirty.current && nowMs"), comp.indexOf("restDirty.current && nowMs") + 300)), "a resting Boo re-checks for text after a scroll or page change (not only on arrival)");
+  ok(/restDirty\.current && nowMs >= scrollQuiet\.current && nowMs - restChk\.current >= REST_MS/.test(comp) && /parkClear\(\)/.test(comp.slice(comp.indexOf("restDirty.current && nowMs"), comp.indexOf("restDirty.current && nowMs") + 300)), "a resting Boo re-checks for text after a scroll or page change (not only on arrival), once the page has settled");
+  // Owner 2026-11-01 ("he glitches when page moves fast"): mid scroll he holds his
+  // course faded (no darting every REST_MS, no fade flicker, no word scan), and a
+  // fast scroll no longer triggers the 1.5s side to side shiver.
+  ok(/scrollQuiet\.current = performance\.now\(\) \+ SCROLL_SETTLE_MS/.test(comp) && /const scrolling = nowF < scrollQuiet\.current/.test(comp) && /const over = scrolling \|\|/.test(comp),
+    "while the page is scrolling he stays faded and skips the word scan; scroll events push the settle time");
+  ok(/reactRef\.current\("scrollFast", \{ pose: "panic" \}\)/.test(comp) && !/"scrollFast", \{ antic: "shiver"/.test(comp), "a fast scroll keeps the panic line but not the shiver shake");
+  ok(/NF\.SHOW_TEXT \| NF\.SHOW_ELEMENT/.test(comp) && /NF\.FILTER_REJECT : NF\.FILTER_SKIP/.test(comp), "the word scan skips whole off screen subtrees");
   // Wiring in the component (comments stripped).
   const fn = (name) => { const m = comp.match(new RegExp("const " + name + " = [^\\n]*\\{[\\s\\S]*?\\n  \\};")); return m ? m[0] : ""; };
   ok(/from\s+["']\.\/booClear\.js["']/.test(comp) && /\bbesideSpot\b/.test(comp) && /\bpickClearSpot\b/.test(comp) && /\bchooseBubbleSide\b/.test(comp), "BooCompanion imports the overlap helpers");
