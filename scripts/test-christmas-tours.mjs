@@ -92,6 +92,15 @@ ok(!page.cards.some((c) => "tourRow" in c), "the server only tour row never reac
 const firstFutureTicket = page.cards.findIndex((c) => c.kind === "event" && c.start_date > TODAY);
 const lastTour = page.cards.map((c) => c.kind).lastIndexOf("tour");
 ok(firstFutureTicket === -1 || lastTour < firstFutureTicket, "tours sort with what is bookable today, ahead of events that start later");
+// Located readers: tours sit in their own distance ring, never dumped at the end,
+// and never outrank rated places on a Viator rating (no rating on the listing).
+ok(listings.filter((c) => c.kind === "tour").every((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng) && c.lat > 24 && c.lat < 31.1 && c.lng > -87.7 && c.lng < -80 && !("rating" in c) && !("wfScore" in c)), "every tour listing has a Florida start point and no rating of its own");
+const AUG = { lat: 29.8947, lng: -81.3145 };
+const { page: augPage } = await christmasBrowseCached(parseChristmasBrowseQuery({ lat: String(AUG.lat), lng: String(AUG.lng) }), TODAY, async () => [], { fetchPlaces: async () => [], fetchTours: async () => failed });
+const augTours = augPage.cards.filter((c) => c.kind === "tour");
+ok(augTours.length >= 3 && augTours.slice(0, 3).every((c) => c.city === "St. Augustine" && c.distMi != null && c.distMi < 5), "a St. Augustine reader gets the St. Augustine tours first, measured from where they start");
+const kwIdx = augPage.cards.findIndex((c) => c.id === CHRISTMAS_TOUR_ID_PREFIX + "5395P15");
+ok(kwIdx === -1 || augPage.cards.slice(kwIdx + 1).every((c) => c.distMi == null || c.distMi >= 300), "the Key West cruise sits in its far ring for a St. Augustine reader, not ahead of nearer cards");
 const lightsPill = christmasBrowsePills(listings).find((p) => p.id === "lights");
 ok(!!lightsPill, "the Light shows pill is offered");
 const { page: lightsPage } = await christmasBrowseCached(parseChristmasBrowseQuery({ category: "lights" }), TODAY, async () => [], { fetchPlaces: async () => [], fetchTours: async () => failed });
