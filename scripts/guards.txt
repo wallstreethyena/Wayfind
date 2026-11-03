@@ -754,6 +754,8 @@ node scripts/test-daily-trend-intelligence.mjs
 node scripts/check-quick-bite-identity.mjs
 node scripts/check-map-search-area.mjs
 node scripts/test-map-render-smoke.mjs
+# The on-screen unpinned count equals the accounting even while the Search-this-area pill is up (synthetic surface-parity-parrish-cafes: expected 19, got 0).
+node scripts/test-map-unpinned-note-render.mjs
 node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
 node scripts/check-no-sideways-scroll.mjs
