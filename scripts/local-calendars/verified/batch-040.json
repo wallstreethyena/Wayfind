@@ -27,7 +27,11 @@
       "county": "Hillsborough",
       "category": "music",
       "subcategory": "concert",
-      "tags": ["concert", "music", "stadium"],
+      "tags": [
+        "concert",
+        "music",
+        "stadium"
+      ],
       "audience": [],
       "event_name": "Ed Sheeran LOOP Tour Tampa",
       "short_title": "Ed Sheeran in Tampa",
@@ -48,8 +52,37 @@
     {
       "lead_key": "manual:noah-kahan-tampa",
       "event_name": "Noah Kahan: The Last of the Bugs World Tour",
-      "reason": "Not publishable under the row contract yet: only source is press (tbbwmag.com, 2026-10-29), no organizer or Ticketmaster event page found (noahkahan.com and the Ticketmaster artist page could not be fetched). Thu Apr 29 2027, Raymond James Stadium; presale registration to Nov 5, presale Nov 10 noon, general on sale Nov 12 noon via Ticketmaster per press. Recheck on or after Nov 12 for the Ticketmaster event URL.",
-      "url": "https://tbbwmag.com/2026/10/29/noah-kahan-tampa-concert/"
+      "reason": "Reconciled 2026-11-03. SUPPORTED by an official ticketer source: Ticketmaster's own tour announcement (blog.ticketmaster.com/noah-kahan-2027-tour-dates, dated 2026-10-29) lists 04/29/27 Tampa, FL (Raymond James Stadium) on The Last of the Bugs World Tour, artist presale signup deadline Thu Nov 5 2026 11:59 pm ET, artist presale Tue Nov 10 2026 12:00 pm local, general on sale Thu Nov 12 2026 12:00 pm local. Corroborated by the Buffalo Bills team site (venue side for the Buffalo show only) and WFTS Tampa Bay 28 (press, 2026-10-29). NOT FOUND: a Ticketmaster EVENT page for Tampa, the Tampa entry on noahkahan.com/tour, Live Nation, raymondjamesstadium.com or the Tampa Sports Authority (those fetches were refused, so their absence is untested, not disproved). The row contract needs an organizer or ticketing EVENT page before a public card; an announcement blog is not one. So: not published. Held as an UNANNOUNCED wf_events row (never displayable) with recheck_on 2026-11-10 so the daily event truth task rechecks on the presale date and again 2026-11-12 (general sale). No date is assumed to produce a Ticketmaster page.",
+      "url": "https://tbbwmag.com/2026/10/29/noah-kahan-tampa-concert/",
+      "status": "announced-by-ticketer-no-event-page",
+      "sources": [
+        {
+          "url": "https://blog.ticketmaster.com/noah-kahan-2027-tour-dates/",
+          "class": "official-ticketer announcement (not an event page)",
+          "dated": "2026-10-29"
+        },
+        {
+          "url": "https://www.buffalobills.com/news/noah-kahan-concert-world-tour-announcement-buffalo-highmark-stadium-june-2027/",
+          "class": "venue side, Buffalo show; secondary for Tampa",
+          "dated": null
+        },
+        {
+          "url": "https://www.tampabay28.com/news/region-hillsborough/noah-kahan-announces-2027-stadium-tour-with-stops-across-north-america",
+          "class": "press",
+          "dated": "2026-10-29"
+        },
+        {
+          "url": "https://tbbwmag.com/2026/10/29/noah-kahan-tampa-concert/",
+          "class": "press",
+          "dated": "2026-10-29"
+        }
+      ],
+      "recheck": {
+        "recheck_on": "2026-11-10",
+        "then": "2026-11-12",
+        "process": "Wayfind daily event truth scheduled task (08:07 ET), queue class 5 unannounced rows whose recheck_on has arrived",
+        "clears_when": "a Ticketmaster event page or an organizer/venue listing for Tampa Apr 29 2027 exists; then publish as scheduled with the official_ticket_url"
+      }
     }
   ]
 }
