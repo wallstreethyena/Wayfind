@@ -108,26 +108,49 @@ const MIGRATIONS_DIR = path.join(REPO, "supabase", "migrations");
     if (!verdict("d".repeat(64), [entry]).errors.length) { fails++; console.error("self-test FAIL — a baselined row whose ledger text changed again must fail"); }
     if (!verdict(hashes.get(file), [entry]).errors.some((e) => e.startsWith("stale content baseline"))) { fails++; console.error("self-test FAIL — a baseline entry for a row that now matches must be reported stale"); }
   }
-  // Paging: a PostgREST-like server that caps every response at 1,000 rows
-  // (the 2026-11-03 defect) must still yield every row; a missing exact count,
-  // or a server that stops short of its own count, must fail closed.
+  // Paging, against a server that behaves like PostgREST on an rpc POST:
+  // honours ?offset=&limit=, caps every response at max-rows, answers
+  // Content-Range "<from>-<to>/<exact count>" ("*/<count>" when empty).
+  // Each faulty variant is a way a read can look complete and not be.
   {
-    const all = Array.from({ length: 2349 }, (_, i) => ({ kind: i < 1000 ? "function" : "column", name: `obj_${i}` }));
-    const server = ({ cap = 1000, count = true, shortBy = 0, ignoreOffset = false } = {}) => async (url) => {
-      const q = new URL(url).searchParams;
-      const a = ignoreOffset ? 0 : Number(q.get("offset") || 0), b = a + Number(q.get("limit") || all.length) - 1;
-      const end = Math.min(b, a + cap - 1, all.length - 1 - shortBy);
-      const page = a > end ? [] : all.slice(a, end + 1);
-      return { ok: true, status: 206, json: async () => page, headers: { get: (h) => (count && h.toLowerCase() === "content-range" ? `${a}-${a + page.length - 1}/${all.length}` : null) } };
+    const mk = (n) => Array.from({ length: n }, (_, i) => ({ kind: i % 7 ? "column" : "function", name: `obj_${String(i).padStart(5, "0")}` }))
+      .sort((a, b) => (a.kind + ":" + a.name < b.kind + ":" + b.name ? -1 : 1));
+    const base = mk(2349);
+    const pgrst = ({ cap = 1000, data = () => base, ignoreOffset = false, lieRange = false, count = true, malformed = false, emptyAt = -1, shortBy = 0, extraCount = 0, dupFirst = false } = {}) => {
+      let calls = 0;
+      return async (url) => {
+        calls++;
+        const q = new URL(url).searchParams;
+        if (!q.get("order")) throw new Error("fixture: no order requested");
+        const rows = data(calls);
+        const all = dupFirst ? [rows[0], ...rows.slice(0, rows.length - 1)] : rows.slice(0, rows.length - shortBy);
+        const off = ignoreOffset ? 0 : Number(q.get("offset") || 0);
+        const lim = Math.min(Number(q.get("limit") || cap), cap);
+        let page = all.slice(off, off + lim);
+        if (emptyAt >= 0 && Number(q.get("offset")) >= emptyAt) page = [];
+        const reportedFrom = lieRange ? Number(q.get("offset") || 0) : off;
+        const totalStr = String(rows.length + extraCount);
+        const cr = malformed ? `rows ${reportedFrom}` : page.length ? `${reportedFrom}-${reportedFrom + page.length - 1}/${totalStr}` : `*/${totalStr}`;
+        return { ok: true, status: 206, json: async () => page, headers: { get: (h) => (count && h.toLowerCase() === "content-range" ? cr : null) } };
+      };
     };
-    const read = (s) => fetchAllRpcRows({ url: "https://fixture.invalid", key: "k", fn: "wf_schema_objects", order: "kind.asc,name.asc", fetchImpl: s });
-    const full = await read(server());
-    if (full.error || full.rows.length !== 2349 || !full.rows.some((r) => r.name === "obj_2341")) { fails++; console.error(`self-test FAIL — a 1,000-row cap must still read all 2,349 rows (${full.error || full.rows.length})`); }
-    const small = await read(server({ cap: 300 }));
-    if (small.error || small.rows.length !== 2349) { fails++; console.error("self-test FAIL — a smaller unknown cap (300) must still read every row"); }
-    if (!(await read(server({ count: false }))).error) { fails++; console.error("self-test FAIL — no exact count must fail closed, never pass as complete"); }
-    if (!(await read(server({ ignoreOffset: true }))).error) { fails++; console.error("self-test FAIL — a server that ignores the offset (returns page 1 again) must fail, not double-count"); }
-    if (!(await read(server({ shortBy: 5 }))).error) { fails++; console.error("self-test FAIL — a server that returns fewer rows than its own count must fail"); }
+    const read = (fetchImpl, extra = {}) => fetchAllRpcRows({ url: "https://fixture.invalid", key: "k", fn: "fixture_rpc", order: "kind.asc,name.asc", identity: (r) => `${r.kind}:${r.name}`, fetchImpl, ...extra });
+    const expectOk = async (label, f, n) => { const r = await read(f); if (r.error || r.rows.length !== n) { fails++; console.error(`self-test FAIL — paging: ${label} must read all ${n} rows (${r.error || r.rows.length})`); } };
+    const expectFail = async (label, f, extra) => { const r = await read(f, extra); if (!r.error) { fails++; console.error(`self-test FAIL — paging: ${label} must fail closed, it returned ${r.rows.length} rows as complete`); } };
+    await expectOk("a 1,000-row cap", pgrst(), 2349);
+    await expectOk("a smaller unknown cap (300)", pgrst({ cap: 300 }), 2349);
+    await expectOk("an exact multiple of the page size", pgrst({ data: () => mk(2000) }), 2000);
+    await expectOk("an empty result", pgrst({ data: () => [] }), 0);
+    await expectOk("one clean retry after the data changed mid-read", pgrst({ data: (c) => (c <= 2 ? mk(2349) : mk(2350)) }), 2350);
+    await expectFail("first page only (offset ignored, honest range)", pgrst({ ignoreOffset: true }));
+    await expectFail("offset ignored behind a range that echoes the request", pgrst({ ignoreOffset: true, lieRange: true }));
+    await expectFail("no exact count", pgrst({ count: false }));
+    await expectFail("a malformed Content-Range", pgrst({ malformed: true }));
+    await expectFail("an empty page before the total", pgrst({ emptyAt: 1000 }));
+    await expectFail("fewer rows than the server's own count", pgrst({ shortBy: 5 }));
+    await expectFail("a count larger than the rows served", pgrst({ extraCount: 3 }));
+    await expectFail("a dataset that keeps changing", pgrst({ data: (c) => mk(2349 + c) }));
+    await expectFail("a repeated identity in a unique key", pgrst({ dupFirst: true }), { unique: true });
   }
   if (fails) {
     console.error(`check-migration-reconciliation: FAIL — ${fails} comparator self-test(s) failed; the comparator itself is broken, its verdicts below cannot be trusted`);
@@ -145,8 +168,8 @@ if (!URL_ || !KEY) {
 
 
 const [ledgerResult, objectsResult] = await Promise.all([
-  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_migration_ledger_hashes", order: "version.asc" }),
-  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_schema_objects", order: "kind.asc,name.asc" }),
+  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_migration_ledger_hashes", order: "version.asc", identity: (r) => r && r.version, unique: true }),
+  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_schema_objects", order: "kind.asc,name.asc", identity: (r) => r && `${r.kind}:${r.name}` }),
 ]);
 if (ledgerResult.error || objectsResult.error) {
   console.error(`check-migration-reconciliation: FAIL — introspection RPC unreachable (wf_migration_ledger_hashes: ${ledgerResult.error || "ok"}; wf_schema_objects: ${objectsResult.error || "ok"}).`);
