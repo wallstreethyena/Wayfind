@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // The Christmas list's filter, built to look and behave like the one filter
 // every ranked collection uses (app/components/CollectionFilter.js): one pill
@@ -9,8 +9,12 @@ import { useState } from "react";
 // the page's own region <select> and "Nearest to me" button.
 //
 // Only choices the browse API already understands (lib/christmasBrowse.js
-// parseChristmasBrowseQuery): order (tickets first, or nearest from lat/lng),
-// a date window (`when`) and a region.
+// parseChristmasBrowseQuery): what to show (the category pills, owner
+// 2026-11-03: the scrolling chip rail "seems overwhelming, you don't even know
+// you can scroll through it", so the categories live in this one sheet now),
+// order (closest first from lat/lng, or tickets first), a date window (`when`)
+// and a region. The sheet and its backdrop sit above the companion (z 940) so
+// Santa never floats over a choice.
 const SORTS = [["tickets", "Tickets first"], ["near", "Closest first"]];
 
 const head = { color: "#9AA7BB", fontSize: 10.5, fontWeight: 900, letterSpacing: "1.25px", textTransform: "uppercase", margin: "2px 4px 7px" };
@@ -27,25 +31,40 @@ function Row({ on, text, onClick }) {
 
 export default function ChristmasFilter({ query, facets, onSet, onNear, onClearNear }) {
   const [open, setOpen] = useState(false);
+  // Tell the companion (Santa) to step aside while the sheet is open.
+  useEffect(() => {
+    if (typeof window === "undefined") return undefined;
+    try { window.dispatchEvent(new CustomEvent("wf:dialog", { detail: { open } })); } catch { /* ignore */ }
+    return () => { if (open) { try { window.dispatchEvent(new CustomEvent("wf:dialog", { detail: { open: false } })); } catch { /* ignore */ } } };
+  }, [open]);
   const near = query.lat != null && query.lat !== "";
   const dates = Array.isArray(facets.dates) ? facets.dates : [];
   const regions = Array.isArray(facets.regions) ? facets.regions : [];
-  const whenLabel = (dates.find((d) => d.id === query.when) || {}).label || "";
-  const label = near ? "Closest first" : whenLabel || query.region || "Tickets first";
-  const active = (near ? 1 : 0) + (query.when ? 1 : 0) + (query.region ? 1 : 0);
+  const pills = Array.isArray(facets.pills) ? facets.pills : [];
+  const catLabel = (pills.find((p) => p.id === query.category) || {}).label || "";
+  // The pill reads what is being shown ("Theme parks"), or "Filter" for the
+  // whole list; the badge counts the other choices in play (when, region).
+  const label = catLabel || "Filter";
+  const active = (query.when ? 1 : 0) + (query.region ? 1 : 0);
   const pick = (fn) => { fn(); setOpen(false); };
   return (
     <div data-christmas-filter="" data-collection-filter="" style={{ position: "relative", flex: "0 0 auto" }}>
       <button type="button" aria-expanded={open} aria-haspopup="dialog" onClick={() => setOpen((v) => !v)} style={{ minHeight: 46, display: "inline-flex", alignItems: "center", gap: 9, padding: "10px 16px", borderRadius: 999, border: "1px solid " + (open ? "#F97316" : "rgba(255,255,255,.14)"), background: "#161D2B", color: "#E5EAF2", fontSize: 14, fontWeight: 850, cursor: "pointer", whiteSpace: "nowrap" }}>
         <svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#F97316" strokeWidth="2.5" strokeLinecap="round"><path d="M3 6h18M6 12h12M10 18h4" /></svg>
         {label}
-        {active > 1 ? <span aria-label={active + " filters on"} style={{ minWidth: 20, height: 20, borderRadius: 999, background: "#F97316", color: "#0D1117", fontSize: 11.5, fontWeight: 900, display: "inline-grid", placeItems: "center", padding: "0 5px" }}>{active}</span> : null}
+        {active > 0 ? <span aria-label={active + " filters on"} style={{ minWidth: 20, height: 20, borderRadius: 999, background: "#F97316", color: "#0D1117", fontSize: 11.5, fontWeight: 900, display: "inline-grid", placeItems: "center", padding: "0 5px" }}>{active}</span> : null}
         <span aria-hidden="true" style={{ color: "#9AA5B7", transform: open ? "rotate(180deg)" : "none", transition: "transform .2s" }}>▾</span>
       </button>
       {open ? (
         <>
-          <button type="button" aria-label="Close filter" onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 39, border: 0, background: "transparent", cursor: "default" }} />
-          <div role="dialog" aria-label="Filter and sort Christmas events" style={{ position: "absolute", zIndex: 40, left: 0, top: 52, width: "min(356px,calc(100vw - 32px))", maxHeight: "min(70vh,560px)", overflowY: "auto", padding: 14, borderRadius: 17, border: "1px solid rgba(255,255,255,.16)", background: "#161B22", boxShadow: "0 18px 52px rgba(0,0,0,.58)" }}>
+          <button type="button" aria-label="Close filter" onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 949, border: 0, background: "rgba(3,2,8,.35)", cursor: "default" }} />
+          <div role="dialog" aria-label="Filter and sort Christmas events" style={{ position: "absolute", zIndex: 950, left: 0, top: 52, width: "min(356px,calc(100vw - 32px))", maxHeight: "min(72vh,620px)", overflowY: "auto", padding: 14, borderRadius: 17, border: "1px solid rgba(255,255,255,.16)", background: "#161B22", boxShadow: "0 18px 52px rgba(0,0,0,.58)" }}>
+            <div style={head}>Show</div>
+            <div role="radiogroup" aria-label="Show" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "2px 6px" }}>
+              <Row on={!query.category} text="Everything" onClick={() => pick(() => onSet("category", ""))} />
+              {pills.map((p) => <Row key={p.id} on={query.category === p.id} text={p.label} onClick={() => pick(() => onSet("category", p.id))} />)}
+            </div>
+            <div style={rule} />
             <div style={head}>Sort by</div>
             <div role="radiogroup" aria-label="Sort by">
               {SORTS.map(([key, text]) => (

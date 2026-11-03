@@ -27,22 +27,28 @@ export const SANTA_FINDER_CHIPS = ["Christmas lights near me?", "Brunch this wee
 export const SANTA_CHIPS = ["Best Christmas lights near Tampa?", "Kid friendly this weekend?", "Free holiday events?"];
 
 export const SANTA_GAGS = [
-  "Ho ho hold on, these lights sell out fast.",
-  "I checked the list twice. These dates are real.",
-  "Naughty or nice, tickets are easier online.",
-  "My sleigh skips traffic. Your drive might not.",
-  "Cocoa first, then lights. That is the order.",
-  "I know a few light shows. Pick your favorite.",
-  "Elves did the research. I just took credit.",
-  "Three light shows, three vibes. You choose.",
-  "Kids love the lights. Parents love the cocoa.",
-  "Free events exist. Santa approves of free.",
-  "Dress in layers. Florida Christmas is a mood.",
-  "Tap me. I am jolly, not ticklish. Mostly.",
+  "Ho ho hold on. These lights sell out faster than cookies at my house.",
+  "I checked this list twice. Every date on it is real.",
+  "Naughty or nice, you still need a ticket. I checked.",
+  "My sleigh skips traffic on I-4. Your car will not. Leave early.",
+  "Cocoa first, lights second. That is the law at the North Pole.",
+  "Elves did the research. I take the credit. Teamwork.",
+  "Florida Christmas: shorts on the bottom, sweater on top. Trust me.",
+  "Tap me. I am jolly, not ticklish. Okay, a little ticklish.",
   "Sleigh bells are optional. Tickets are not.",
-  "Tell me your budget and I will show options.",
-  "A night out beats another sweater. Just saying.",
-  "Reindeer need rest. Plan your night early.",
+  "Tell me your budget and I will find the lights. No judgment. Elves are cheap too.",
+  "A night out beats another ugly sweater party. Usually.",
+  "The reindeer are on strike until Dec 24. Drive yourself this time.",
+  "I have been up all night checking dates. Beard did not survive.",
+  "Snow in Florida? I bring my own. It is called a fog machine.",
+  "Rudolph wanted a brighter nose. I sent him to a light show instead.",
+  "I know every chimney in Florida. Most of them are decorative.",
+  "Mrs. Claus picked three of these. I am not allowed to say which.",
+  "Yule be sorry if you miss the boat parades. Yes, I said yule.",
+  "My elves rated the cocoa. Marshmallows were a tiebreaker.",
+  "Dasher found a drive thru light show. He is very into it.",
+  "Pro tip from the big guy: weeknights have shorter lines.",
+  "Keep scrolling. I put the good stuff everywhere.",
 ];
 
 export const SANTA_ZAP_LINES = [
@@ -52,6 +58,10 @@ export const SANTA_ZAP_LINES = [
   "Okay, that one had a kick.",
   "Tingly. Do not try this at home.",
   "My beard is standing on end.",
+  "That bulb is on the naughty list.",
+  "Ho ho OW. Who wired these?",
+  "I lit up like a tree. Fitting.",
+  "Elves said do not touch. Elves were right.",
 ];
 
 export const SANTA_REACT_LINES = {

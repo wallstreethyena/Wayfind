@@ -76,6 +76,7 @@ const selectStyle = { minHeight: 44, borderRadius: 12, border: "1px solid " + C.
 
 export default function ChristmasBrowse({ initial, facets, today, initialQuery = {} }) {
   const [query, setQuery] = useState(() => ({ ...initialQuery }));
+  const [draft, setDraft] = useState(initialQuery.q || ""); // what is typed in the search box (the query follows after a short pause)
   const [data, setData] = useState(initial);
   const [cards, setCards] = useState(initial.cards || []);
   const [loading, setLoading] = useState(false);
@@ -132,32 +133,40 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
     } catch {}
   };
 
-  // ONE list and ONE menu for the whole page (owner 2026-11-01): the pill row
-  // filters every Christmas listing, events with a real ticket first (server
-  // order, lib/christmasBrowse.js). There is no heading of its own here and no
-  // second section; the hero h1 names the page.
+  // ONE list and ONE control for the whole page (owner 2026-11-01, and
+  // 2026-11-03: the horizontal chip rail was overwhelming and did not look
+  // scrollable). The standard filter pill holds what to show, the order, the
+  // dates and the region; beside it the search box. Under them one plain line
+  // says what the list is showing right now, with a way to clear it.
   const pills = Array.isArray(facets.pills) ? facets.pills : [];
+  const dates = Array.isArray(facets.dates) ? facets.dates : [];
+  const catLabel = (pills.find((p) => p.id === query.category) || {}).label || "";
+  const whenLabel = (dates.find((d) => d.id === query.when) || {}).label || "";
+  const located = query.lat != null && query.lat !== "";
+  const anyFilter = !!(query.category || query.when || query.region || query.q);
+  const summary = [catLabel, whenLabel, query.region, located ? "closest first" : "tickets first"].filter(Boolean).join(" · ");
+  const clearAll = () => { clearTimeout(typing.current); setDraft(""); setQuery((q) => ({ ...q, category: "", when: "", date: "", undated: false, region: "", q: "" })); };
   const shownCards = cards.length;
   const hasPartner = cards.some((c) => c.ticketRow && c.ticketRow.cta && c.ticketRow.cta.kind === "affiliate");
   return <section id="browse" aria-label="Florida Christmas events" style={{ margin: "0 0 28px" }} data-christmas-browse="">
-    <div className="xm-filters" data-boo-clear="" role="toolbar" aria-label="Filter Christmas events">
-      <button type="button" aria-pressed={!query.category} onClick={() => set("category", "")}>All</button>
-      {pills.map((pill) => <button type="button" key={pill.id} aria-pressed={query.category === pill.id} onClick={() => set("category", query.category === pill.id ? "" : pill.id)}>{pill.label}</button>)}
-    </div>
-    <form role="search" className="xm-controls" onSubmit={(e) => e.preventDefault()}>
+    <form role="search" className="xm-controls" data-boo-clear="" onSubmit={(e) => e.preventDefault()}>
       <ChristmasFilter query={query} facets={facets} onSet={set} onNear={nearMe}
         onClearNear={() => setQuery((q) => ({ ...q, lat: "", lng: "" }))} />
-      <input type="search" aria-label="Search by name or city" placeholder="Search by name or city" defaultValue={query.q || ""}
-        onChange={(e) => { const v = e.target.value; clearTimeout(typing.current); typing.current = setTimeout(() => set("q", v), 300); }}
+      <input type="search" aria-label="Search by name or city" placeholder="Search by name or city" value={draft}
+        onChange={(e) => { const v = e.target.value; setDraft(v); clearTimeout(typing.current); typing.current = setTimeout(() => set("q", v), 300); }}
         style={{ ...selectStyle, flex: "1 1 180px", borderRadius: 999, minHeight: 46, padding: "0 16px" }} />
     </form>
-    <p className="xm-count" role="status" aria-live="polite">
-      {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : `${data.total} ${data.total === 1 ? "listing" : "listings"}`}
+    <p className="xm-count" role="status" aria-live="polite" data-boo-clear="">
+      {failed ? "We could not load these listings. Try again in a moment." : loading ? "Updating…" : <>
+        <b>{data.total} {data.total === 1 ? "listing" : "listings"}</b>
+        <span className="xm-count-what"> · {summary}</span>
+        {anyFilter ? <button type="button" className="xm-clear" onClick={clearAll}>Clear</button> : null}
+      </>}
     </p>
     <div className="xm-grid" data-browse-total={data.total} data-browse-shown={shownCards}>
       {cards.map((card, i) => <ChristmasBrowseCard key={card.id} card={card} rank={i + 1} today={today} />)}
     </div>
-    {!loading && !failed && !cards.length ? <p className="xm-empty">No Christmas events match this filter right now. Try another pill or region.</p> : null}
+    {!loading && !failed && !cards.length ? <p className="xm-empty">No Christmas events match this filter right now. Try another category or region.</p> : null}
     {data.hasMore ? <button type="button" className="xm-more" onClick={more} disabled={loading}>{loading ? "Loading…" : "Show more"}</button> : null}
     {hasPartner ? <div className="xm-foot"><GuideCommissionLine /></div> : null}
   </section>;

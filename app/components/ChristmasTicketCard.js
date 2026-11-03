@@ -176,7 +176,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
           {cta ? (
             <>
               <a
-                className="xm-buy"
+                className="xm-buy boo-buy"
                 href={cta.href}
                 target="_blank"
                 rel={affiliate ? "sponsored nofollow noopener" : "nofollow noopener"}
@@ -188,7 +188,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
             </>
           ) : fallback ? (
             <a
-              className="xm-buy"
+              className="xm-buy boo-buy"
               href={fallback.href}
               {...(fallback.external ? { target: "_blank", rel: "nofollow noopener" } : {})}
             >{fallback.label}</a>

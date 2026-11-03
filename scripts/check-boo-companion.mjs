@@ -111,7 +111,18 @@ ok((comp.match(/querySelectorAll\(\s*TOUCH_SEL\s*\)/g) || []).length === 1, "exa
 // everywhere on the page rapidly"): roaming never races over to poke things.
 {
   const nl = comp.slice(comp.indexOf("const nextLeg = useCallback"), comp.indexOf("// Corner spot for reduced motion."));
-  ok(nl.length > 200 && !/pickTarget\(\)/.test(nl) && /rand\(CALM_SPEED_MIN, CALM_SPEED_MAX\)/.test(nl), "roaming legs are calm drifts (no touch legs, no corner darts)");
+  ok(nl.length > 200 && /rand\(CALM_SPEED_MIN, CALM_SPEED_MAX\)/.test(nl) && !/DART/.test(nl), "roaming legs are calm drifts (no corner darts)");
+  // Owner 2026-11-03 ("he used to do some cool shit, even Boo would go up to the
+  // lights and get electrified"): touch legs are back, calm. A leg touches
+  // something only after the first rest, about one in three, at a glide pace
+  // that never reaches the old dart speed, and he rests beside it afterwards.
+  {
+    const tc = comp.match(/const TOUCH_CHANCE = ([\d.]+);/), ts = comp.match(/const TOUCH_SPEED_MIN = (\d+), TOUCH_SPEED_MAX = (\d+);/);
+    ok(!!tc && Number(tc[1]) > 0.2 && Number(tc[1]) <= 0.4, "TOUCH_CHANCE: between a fifth and two fifths of legs touch something");
+    ok(!!ts && Number(ts[2]) <= 160 && Number(ts[1]) >= 60, "TOUCH_SPEED: a glide, 60 to 160px/s at most");
+    ok(/legRef\.current > 1 && Math\.random\(\) < TOUCH_CHANCE\) \{\s*const hit = pickTarget\(\);/.test(nl) && /speed = rand\(TOUCH_SPEED_MIN, TOUCH_SPEED_MAX\)/.test(nl), "a touch leg picks a fully on screen target after the first rest and glides at TOUCH_SPEED");
+    ok(/if \(!target\) \{\s*const \[ctl, txt\] = restLists\(true\);/.test(nl), "without a target the leg is the calm drift");
+  }
   ok(/const CALM_SPEED_MIN = 40, CALM_SPEED_MAX = 70;/.test(comp) && /const REST_MIN_S = 6, REST_MAX_S = 14;/.test(comp), "calm speed 40 to 70 px/s, and he settles 6 to 14 s at each spot");
   ok(/for \(let k = 1; k <= 6 && clear; k\+\+\)/.test(nl) && /isClear\(from\.x \+ \(cx - from\.x\) \* u/.test(nl), "a calm leg samples its path so he does not drift across words");
   ok(/Math\.hypot\(spot\[0\] - posRef\.current\.x, spot\[1\] - posRef\.current\.y\) <= REACT_NEAR_PX/.test(comp) && /dist \/ CALM_REACT_SPEED/.test(comp), "reactions only drift over when close, at a calm pace; far away he speaks in place");
@@ -168,7 +179,8 @@ if (bk) {
   ok(/var\(--bc,currentColor\)/.test(bk[1]) && /brightness\(1\.9\)/.test(bk[1]), "bulb touch glow must use the bulb's own colour (--bc) and brightness 1.9");
 }
 ok(/\[data-boo-touch\]\.boo-bulb\{animation:boo-cycle/.test(comp), "touched bulb must keep its colour cycle animation running");
-ok(/--bc"?,\s*getComputedStyle\(t\)\.backgroundColor/.test(comp), "touch must read the bulb's computed colour into --bc");
+ok(/const bg = getComputedStyle\(t\)\.backgroundColor; if \(bg && bg !== "transparent" && !\/\^rgba\\\(0, 0, 0, 0\\\)\$\/\.test\(bg\)\) t\.style\.setProperty\("--bc", bg\)/.test(comp), "touch reads the bulb's computed colour into --bc, except a transparent one (the Christmas bulbs are gradients and keep their own --bc)");
+ok(/const holder = \(n\) => \(n && n\.parentElement && n\.parentElement\.classList\.contains\("xm-sway"\)/.test(comp) && /const bulbOf = \(h\) =>/.test(comp), "the zap ripple walks the Christmas strand's hanging holders as well as sibling bulbs");
 const zl = comp.match(/const\s+ZAP_LINES\s*=\s*\[([\s\S]*?)\n\];/);
 const zs = zl ? [...zl[1].matchAll(/"((?:[^"\\]|\\.)*)"/g)].map((x) => x[1]) : [];
 ok(zs.length === 6, "ZAP_LINES must hold 6 lines, found " + zs.length);
@@ -478,7 +490,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // Touch target offset: beside it, never centred; bulbs may be perched.
   ok(/besideSpot\(r, SIZE, b, ctl, MAX_COVER, txt\)/.test(comp) && /PERCH_SEL\s*=\s*"\.boo-bulb,\.wf-wordmark-text"/.test(comp), "touch target offset logic: beside spot for controls, perch only on bulbs and the wordmark");
   ok(!/aimBeside/.test(comp), "the old beside-centre aim is gone");
-  ok(/touched\) \{ if \(!parkClear\(\)\) g\.pause = TOUCH_MS \/ 1000; \}/.test(comp), "after the 1.2s reaction he leaves");
+  ok(/touched\) \{ if \(!parkClear\(\)\) g\.pause = TOUCH_MS \/ 1000 \+ rand\(REST_MIN_S, REST_MAX_S\) \* 0\.5; \}/.test(comp), "after the 1.2s reaction he rests beside it (calm), then drifts on");
   // PACE (owner 2026-11-03, "going everywhere on the page rapidly"): a real
   // rest after every leg, rare slow darts, fewer touch runs, and a resting
   // re-check no faster than once a second. Values locked, not just names.
@@ -488,7 +500,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
     // calm values replace the in-between pace (no darts, no touch runs at all).
     const restMs = num("REST_MS");
     ok(!!restMs && restMs[0] >= 1000, "REST_MS: a resting Santa re-checks the page at most once a second");
-    ok(!/DART_CHANCE|TOUCH_CHANCE|DART_SPEED/.test(comp), "no dart or touch-run pace is left in roaming");
+    ok(!/DART_CHANCE|DART_SPEED/.test(comp), "no dart pace is left in roaming");
     ok(/dist \/ CALM_REACT_SPEED/.test(comp) && /const REACT_NEAR_PX = 240, CALM_REACT_SPEED = 140;/.test(comp), "a reaction drift is capped at 140px/s and only when close");
     ok(/isPhotoCard\(el, r\)\) continue;/.test(comp) && /const isPhotoCard = \(el, r\) =>/.test(comp), "a card sized picture link is a resting place, not a control that blocks him");
   }
