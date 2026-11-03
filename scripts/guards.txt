@@ -2479,3 +2479,6 @@ node scripts/check-blog-redirect.mjs
 
 # WAYFIND-W: reading window.localStorage throws SecurityError in blocked-storage browsers; event page + layout closure must not read it unguarded.
 node scripts/test-safe-storage.mjs
+
+# /christmas-in-florida must not emit an /api/photo?place= image the route cannot serve (Goodwood 404); executes the real resolver on the Goodwood row.
+node scripts/test-christmas-unservable-photo.mjs
