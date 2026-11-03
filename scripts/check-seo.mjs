@@ -9,8 +9,8 @@
 // 3. Honest CTAs: "Book this experience" may not label related-product links.
 // 4. E-E-A-T surfaces stay: named attribution plus the site-level /about,
 //    /editorial-policy and /how-wayfind-ranks pages. Guide body copy stays experience-first.
-// 5. Thin utility pages (/events, /coupons, /map) stay noindexed until they
-//    render real crawlable inventory.
+// 5. Thin utility pages (/coupons, /map) stay noindexed until they render real
+//    crawlable inventory. (/events graduated 2026-11-03: it now renders curated listings.)
 import { readFileSync, readdirSync, statSync, existsSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
@@ -119,7 +119,7 @@ if (!page.includes('get("go")')) fail("go-param handoff missing");
 
 // 4. indexing rules per route class.
 for (const r of ["favorites", "itinerary"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " must be noindex (private)"); }
-for (const r of ["events", "coupons", "map", "search"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " is indexable but renders no crawlable inventory — noindex it or render real listings"); }
+for (const r of ["coupons", "map", "search"]) { const s = readFileSync(join(root, "app", r, "page.js"), "utf8"); if (!s.includes("index: false")) fail("/" + r + " is indexable but renders no crawlable inventory — noindex it or render real listings"); }
 // /search canonicalizes to the homepage: the search is homepage app state
 // (home.js restores /?q=), never a self-canonical hub an arbitrary query
 // combination could inherit.
@@ -129,7 +129,15 @@ for (const r of [["l", "[key]"], ["w"], ["s", "[code]"], ["p", "[id]"]]) { const
 // 5. sitemap lists only index-worthy routes.
 const sm = readFileSync(join(root, "app", "sitemap.js"), "utf8");
 for (const t of ['"/about"', '"/editorial-policy"', '"/how-wayfind-ranks"', '"/guides"']) if (!sm.includes(t)) fail("sitemap missing " + t);
-for (const t of ['"/events"', '"/map"']) if (sm.includes(t)) fail("sitemap lists noindexed route " + t);
+for (const t of ['"/map"']) if (sm.includes(t)) fail("sitemap lists noindexed route " + t);
+// /events is indexable and sitemapped because it renders real inventory. Assert the syntactic roles.
+{
+  const ev = readFileSync(join(root, "app", "events", "page.js"), "utf8").replace(/\/\/.*$/gm, "");
+  if (!/import\s*\{[^}]*\bfetchCuratedEvents\b[^}]*\}\s*from\s*["'][^"']*curatedEvents(?:\.js)?["']/.test(ev)) fail("/events must import fetchCuratedEvents: it is indexable only because it renders curated listings");
+  if (!/\bfetchCuratedEvents\(/.test(ev)) fail("/events imports fetchCuratedEvents but never calls it");
+  if (!/robots:\s*\{\s*index:\s*true\b/.test(ev)) fail("/events must declare robots index: true (it renders real inventory)");
+  if (!/\{\s*url:\s*SITE_URL\s*\+\s*p\s*\}/.test(sm) || !/"\/events"/.test(sm)) fail("/events is indexable but missing from the sitemap");
+}
 
 // 6. honest CTAs + E-E-A-T.
 const culture = readFileSync(join(root, "app", "culture", "[metro]", "page.js"), "utf8");

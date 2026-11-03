@@ -3,20 +3,20 @@
   "verifiedAt": "2026-11-03",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 319,
-    "usages": 334,
-    "verified": 319,
+    "files": 309,
+    "usages": 332,
+    "verified": 309,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 76,
-      "CC BY-SA 3.0": 73,
+      "CC BY-SA 4.0": 72,
+      "CC BY-SA 3.0": 72,
       "CC BY 4.0": 19,
       "CC BY 3.0": 16,
-      "CC BY 2.0": 79,
+      "CC BY 2.0": 75,
       "CC0 1.0 Universal": 25,
-      "CC BY-SA 2.0": 26,
-      "Unsplash License": 5
+      "Unsplash License": 5,
+      "CC BY-SA 2.0": 25
     },
     "replacementCandidates": [
       "/guides/picks/gatorland-vs-wild-florida/gatorland-mouth-entrance.webp",
@@ -793,36 +793,6 @@
       "verifiedAt": "2026-11-03"
     },
     {
-      "src": "/guides/picks/fall-events-orlando-2026/bill-frederick-park-turkey-lake-boathouse.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Orlando International Dragon Boat Festival & Asian Cultural Expo"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Bill_Frederick_Park%2C_Turkey_Lake.JPG",
-        "title": "Bill Frederick Park, Turkey Lake",
-        "author": "Miosotis jade",
-        "dateTaken": "2013-12-29 00:58:03",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Miosotis jade",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Bill_Frederick_Park%2C_Turkey_Lake.JPG",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
       "src": "/guides/picks/fall-events-orlando-2026/camping-world-stadium-aerial.webp",
       "usedBy": [
         {
@@ -846,37 +816,6 @@
         "license": "CC BY 4.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/4.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/candlelight-a-haunted-evening-of-halloween-classics.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Candlelight: A Haunted Evening of Halloween Classics"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/17525000@N00/3196407027",
-        "title": "Lake Eola Orlando, Fl",
-        "author": "Sharife",
-        "displayName": "Sharife",
-        "dateTaken": "2009-01-14 09:19:09",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
-      },
-      "wayfind": {
-        "credit": "Sharife",
-        "creditHref": "https://www.flickr.com/photos/17525000@N00/3196407027",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -913,36 +852,6 @@
       "verifiedAt": "2026-11-03"
     },
     {
-      "src": "/guides/picks/fall-events-orlando-2026/cinderella-castle-magic-kingdom.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Mickey's Not-So-Scary Halloween Party"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Cinderella_Castle,_Magic_Kingdom_Walt_Disney_World_(2024).jpg",
-        "title": "Cinderella Castle, Magic Kingdom Walt Disney World (2024)",
-        "author": "Jedi94",
-        "dateTaken": "2024-02-20 05:21:38",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Jedi94",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Cinderella_Castle,_Magic_Kingdom_Walt_Disney_World_(2024).jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
       "src": "/guides/picks/fall-events-orlando-2026/epcot-spaceship-earth-monorail.webp",
       "usedBy": [
         {
@@ -965,36 +874,6 @@
         "creditHref": "https://commons.wikimedia.org/wiki/File:Walt_Disney_World_Epcot_Spaceship_Earth_(50099574831).jpg",
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/gatorland-alligator.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Gators, Ghosts & Goblins at Gatorland"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Alligator_at_the_Gatorland.jpg",
-        "title": "Alligator at the Gatorland",
-        "author": "turtlemom4bacon",
-        "dateTaken": "2011-05-01",
-        "licence": "CC BY-SA 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/2.0"
-      },
-      "wayfind": {
-        "credit": "turtlemom4bacon",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Alligator_at_the_Gatorland.jpg",
-        "license": "CC BY-SA 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,
@@ -1033,66 +912,6 @@
       "verifiedAt": "2026-11-03"
     },
     {
-      "src": "/guides/picks/fall-events-orlando-2026/lake-eola-fountain-skyline.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Come Out With Pride"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Lake_Eola_Park_in_downtown_Orlando%2C_FL.jpg",
-        "title": "Lake Eola Park in downtown Orlando, FL",
-        "author": "LeonidasB",
-        "dateTaken": "2016-07-31",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "LeonidasB",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Lake_Eola_Park_in_downtown_Orlando%2C_FL.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/legoland-florida-entrance.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Brick-or-Treat at LEGOLAND Florida"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Winter_Haven,_Florida_-_Legoland_Florida.jpg",
-        "title": "Winter Haven, Florida - Legoland Florida",
-        "author": "Ziggymarley01",
-        "dateTaken": "2012-05-20",
-        "licence": "CC BY-SA 3.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
-      },
-      "wayfind": {
-        "credit": "Ziggymarley01",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Winter_Haven,_Florida_-_Legoland_Florida.jpg",
-        "license": "CC BY-SA 3.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
       "src": "/guides/picks/fall-events-orlando-2026/loch-haven-park-science-center-sign.webp",
       "usedBy": [
         {
@@ -1115,66 +934,6 @@
         "creditHref": "https://commons.wikimedia.org/wiki/File:Orlando_FL_Science_Center02.jpg",
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/seaworld-orlando-lighthouse-entrance.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "SeaWorld Halloween Spooktacular"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:SeaWorld_Entrance_(33129763620).jpg",
-        "title": "SeaWorld Entrance (33129763620)",
-        "author": "Chad Sparkes from Kissimmee,Florida, United States",
-        "dateTaken": "2017-02-28 00:00",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      "wayfind": {
-        "credit": "Chad Sparkes from Kissimmee,Florida, United States",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:SeaWorld_Entrance_(33129763620).jpg",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/seaworld-orlando-lighthouse-sign.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Howl-O-Scream at SeaWorld Orlando"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:SeaWorld_Orlando_lighthouse.jpg",
-        "title": "SeaWorld Orlando lighthouse",
-        "author": "Adog104",
-        "dateTaken": "Taken on 22 September 2018",
-        "licence": "CC BY-SA 4.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
-      },
-      "wayfind": {
-        "credit": "Adog104",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:SeaWorld_Orlando_lighthouse.jpg",
-        "license": "CC BY-SA 4.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,
@@ -1206,67 +965,6 @@
         "license": "CC BY-SA 3.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/universal-studios-florida-streetscape.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Halloween Horror Nights 35"
-        }
-      ],
-      "source": {
-        "kind": "commons",
-        "url": "https://commons.wikimedia.org/wiki/File:Universal_Studios_Florida.jpg",
-        "title": "Universal Studios Florida",
-        "author": "Jesse James",
-        "dateTaken": "2021-02-25 17:56:53",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
-      },
-      "wayfind": {
-        "credit": "Jesse James",
-        "creditHref": "https://commons.wikimedia.org/wiki/File:Universal_Studios_Florida.jpg",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
-      },
-      "commercialUse": true,
-      "authorMatchesCredit": true,
-      "status": "verified",
-      "verifiedAt": "2026-11-03"
-    },
-    {
-      "src": "/guides/picks/fall-events-orlando-2026/visit-orlando-s-magical-dining.webp",
-      "usedBy": [
-        {
-          "slug": "fall-events-orlando-2026",
-          "role": "pick",
-          "pick": "Visit Orlando's Magical Dining"
-        }
-      ],
-      "source": {
-        "kind": "flickr",
-        "url": "https://www.flickr.com/photos/53477219@N02/8413506032",
-        "title": "_DSC1505",
-        "author": "R9 Studios FL (Thanks to all the fans!!!)",
-        "displayName": "R9 Studios FL (Thanks to all the fans!!!)",
-        "dateTaken": "2013-01-24 19:36:17",
-        "licence": "CC BY 2.0",
-        "licenceUrl": "https://creativecommons.org/licenses/by/2.0/"
-      },
-      "wayfind": {
-        "credit": "R9 Studios FL (Thanks to all the fans!!!)",
-        "creditHref": "https://www.flickr.com/photos/53477219@N02/8413506032",
-        "license": "CC BY 2.0",
-        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
-        "modificationNotice": "Resized, cropped for display and converted to WebP."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -4798,6 +4496,11 @@
       "src": "/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp",
       "usedBy": [
         {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "The Bishop Museum of Science and Nature"
+        },
+        {
           "slug": "things-to-do-in-bradenton-florida",
           "role": "pick",
           "pick": "The Bishop Museum of Science and Nature"
@@ -5224,6 +4927,11 @@
     {
       "src": "/guides/picks/things-to-do-in-parrish-florida/florida-railroad-museum.webp",
       "usedBy": [
+        {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "Florida Railroad Museum"
+        },
         {
           "slug": "things-to-do-in-parrish-florida",
           "role": "pick",
@@ -5738,9 +5446,18 @@
       "src": "/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp",
       "usedBy": [
         {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "The John and Mable Ringling Museum of Art"
+        },
+        {
           "slug": "things-to-do-in-sarasota-florida",
           "role": "pick",
           "pick": "The Ringling"
+        },
+        {
+          "slug": "sarasota-rainy-day",
+          "role": "hero"
         }
       ],
       "source": {
@@ -6013,6 +5730,11 @@
       "src": "/guides/picks/things-to-do-in-tampa-florida/florida-aquarium.webp",
       "usedBy": [
         {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "The Florida Aquarium"
+        },
+        {
           "slug": "things-to-do-in-tampa-florida",
           "role": "pick",
           "pick": "The Florida Aquarium"
@@ -6170,9 +5892,18 @@
       "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-bay-history-center.webp",
       "usedBy": [
         {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "Tampa Bay History Center"
+        },
+        {
           "slug": "things-to-do-in-tampa-florida",
           "role": "pick",
           "pick": "Tampa Bay History Center"
+        },
+        {
+          "slug": "tampa-bay-rainy-day",
+          "role": "hero"
         }
       ],
       "source": {
@@ -6229,6 +5960,11 @@
     {
       "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-theatre.webp",
       "usedBy": [
+        {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "Tampa Theatre"
+        },
         {
           "slug": "things-to-do-in-tampa-florida",
           "role": "pick",
