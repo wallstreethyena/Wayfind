@@ -2,38 +2,193 @@
   "reviewed_at": "2026-11-02",
   "method": "Owner-submitted links. Native public posts read in a real browser (caption, author, location tag), exact wf_inventory identities queried, addresses confirmed against public listings. Native embeds and original attribution only; captions are Wayfind's own words.",
   "sources": [
-    { "shortcode": "DfQSCtPhkZL", "native_url": "https://www.instagram.com/reel/DfQSCtPhkZL/", "creator": "keep_it_lexy", "status": "verified", "independent": true,
-      "places": [{ "key": "willas-tampa", "place_id": "ChIJUQvP2fjDwogRfqNKGnJTG5w", "name": "Willa's", "city": "Tampa", "address": "1700 W Fig St, Tampa, FL 33606" }],
-      "evidence": "Caption pin names Willa's Tampa; holiday brunch framing." },
-    { "shortcode": "DfP2QPuBwvv", "native_url": "https://www.instagram.com/reel/DfP2QPuBwvv/", "creator": "flacoffeefestival", "status": "verified_event", "independent": false,
-      "event_id": "florida-coffee-festival-2026", "places": [],
-      "evidence": "Organizer countdown reel for the Florida Coffee Festival at Orlando Festival Park. Event row already verified: Sunday Nov 15 2026, 11 AM to 4 PM, VIP 10 AM, Eventbrite organizer page." },
-    { "shortcode": "DfDnBs7RjHs", "native_url": "https://www.instagram.com/reel/DfDnBs7RjHs/", "creator": "yourtampabestie", "status": "verified", "independent": false,
-      "places": [{ "key": "v-modern-italian-tampa", "place_id": "ChIJZx685RbDwogRMUoUeorzjiw", "name": "V Modern Italian", "city": "Tampa", "address": "1701 W North A St, Tampa, FL 33606" }],
-      "evidence": "Caption pin names V Modern Italian." },
-    { "shortcode": "DfP-Cc2A9u8", "native_url": "https://www.instagram.com/reel/DfP-Cc2A9u8/", "creator": "v_modernitalian_usa", "status": "verified", "independent": false,
-      "places": [{ "key": "v-modern-italian-tampa", "place_id": "ChIJZx685RbDwogRMUoUeorzjiw", "name": "V Modern Italian", "city": "Tampa", "address": "1701 W North A St, Tampa, FL 33606" }],
-      "evidence": "Restaurant's own New Year's Eve masquerade announcement. No time, price or ticket link published, so no event row is created; caption sends readers to the restaurant." },
-    { "shortcode": "DfQLQxRyu6F", "native_url": "https://www.instagram.com/reel/DfQLQxRyu6F/", "creator": "m.bird_tampa", "status": "verified", "independent": false,
-      "places": [{ "key": "m-bird-tampa", "place_id": "ChIJTY7XE2PFwogRDgMOQRLEAhw", "name": "M.Bird", "city": "Tampa", "address": "1903 Market St, Tampa, FL 33602" }],
-      "evidence": "Bar's own rooftop margarita Monday reel." },
-    { "shortcode": "DehiY-XAFOd", "native_url": "https://www.instagram.com/reel/DehiY-XAFOd/", "creator": "eatwithdami", "status": "verified", "independent": true,
-      "places": [{ "key": "tanuki-river-landing-miami", "place_id": "ChIJeU7uMTW32YgRjmffReuy-rc", "name": "Tanuki River Landing", "city": "Miami", "address": "1400 NW N River Dr, Miami, FL 33125" }],
-      "evidence": "Caption tags @tanuki_miamiriver; River Landing is Tanuki's Miami River location." },
-    { "shortcode": "DfIVNVWvO9L", "native_url": "https://www.instagram.com/reel/DfIVNVWvO9L/", "creator": "tampadatespots", "status": "verified", "independent": false,
-      "places": [{ "key": "v-modern-italian-tampa", "place_id": "ChIJZx685RbDwogRMUoUeorzjiw", "name": "V Modern Italian", "city": "Tampa", "address": "1701 W North A St, Tampa, FL 33606" }],
-      "evidence": "Caption names V Modern Italian for Halloween weekend." },
-    { "shortcode": "DfKUE8QxZic", "native_url": "https://www.instagram.com/reel/DfKUE8QxZic/", "creator": "livingeasyly", "status": "held_identity", "places": [],
-      "needed": "Kenikkei Sushi Truck is a mobile food truck with no fixed public address found. Wayfind never guesses coordinates; attach once a home base or regular stop is sourced." },
-    { "shortcode": "DfM4775Retf", "native_url": "https://www.instagram.com/reel/DfM4775Retf/", "creator": "traveling__bliss", "status": "held_owner_approval", "places": [],
-      "needed": "Rolf's, 281 3rd Ave, New York, NY 10010 (confirmed in caption, NYC Tourism, Infatuation, Time Out) has no wf_inventory row. Creating the venue record is a production data write that waits for owner approval." },
-    { "shortcode": "DfQO-ZvyoDc", "native_url": "https://www.instagram.com/reel/DfQO-ZvyoDc/", "creator": "tiffanygeovana", "status": "verified", "independent": true,
-      "places": [{ "key": "con-amor-tampa", "place_id": "ChIJj_gXZRrFwogRQGeho6l9TPk", "name": "Con Amor", "city": "Tampa", "address": "5240 N Florida Ave, Tampa, FL 33603" }],
-      "evidence": "Caption tags @conamor.fl in Seminole Heights." },
-    { "shortcode": "De8BhrtjsM9", "native_url": "https://www.instagram.com/p/De8BhrtjsM9/", "creator": "build.and.believe", "status": "rejected_not_a_venue", "places": [],
-      "needed": "Caption says Luna Cobalto is a design concept by a design studio. It is a rendering, not a real place, so it cannot become a place card." },
-    { "shortcode": "DfIKS3QyZoG", "native_url": "https://www.instagram.com/reel/DfIKS3QyZoG/", "creator": "tecontemiami", "status": "verified", "independent": false,
-      "places": [{ "key": "sofia-design-district-miami", "place_id": "ChIJAQBA3lax2YgRB7AIAB_GK_E", "name": "Sofia Design District", "city": "Miami", "address": "140 NE 39th St Suite 133, Miami, FL 33137" }],
-      "evidence": "Caption names Sofia; footage shows the Design District Palm Court dome. Inventory coordinates match the Palm Court address." }
+    {
+      "shortcode": "DfQSCtPhkZL",
+      "native_url": "https://www.instagram.com/reel/DfQSCtPhkZL/",
+      "creator": "keep_it_lexy",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "willas-tampa",
+          "place_id": "ChIJUQvP2fjDwogRfqNKGnJTG5w",
+          "name": "Willa's",
+          "city": "Tampa",
+          "address": "1700 W Fig St, Tampa, FL 33606"
+        }
+      ],
+      "evidence": "Caption pin names Willa's Tampa; holiday brunch framing."
+    },
+    {
+      "shortcode": "DfP2QPuBwvv",
+      "native_url": "https://www.instagram.com/reel/DfP2QPuBwvv/",
+      "creator": "flacoffeefestival",
+      "status": "verified_event",
+      "independent": false,
+      "event_id": "florida-coffee-festival-2026",
+      "places": [],
+      "evidence": "Organizer countdown reel for the Florida Coffee Festival at Orlando Festival Park. Event row already verified: Sunday Nov 15 2026, 11 AM to 4 PM, VIP 10 AM, Eventbrite organizer page."
+    },
+    {
+      "shortcode": "DfDnBs7RjHs",
+      "native_url": "https://www.instagram.com/reel/DfDnBs7RjHs/",
+      "creator": "yourtampabestie",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "v-modern-italian-tampa",
+          "place_id": "ChIJZx685RbDwogRMUoUeorzjiw",
+          "name": "V Modern Italian",
+          "city": "Tampa",
+          "address": "1701 W North A St, Tampa, FL 33606"
+        }
+      ],
+      "evidence": "Caption pin names V Modern Italian."
+    },
+    {
+      "shortcode": "DfP-Cc2A9u8",
+      "native_url": "https://www.instagram.com/reel/DfP-Cc2A9u8/",
+      "creator": "v_modernitalian_usa",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "v-modern-italian-tampa",
+          "place_id": "ChIJZx685RbDwogRMUoUeorzjiw",
+          "name": "V Modern Italian",
+          "city": "Tampa",
+          "address": "1701 W North A St, Tampa, FL 33606"
+        }
+      ],
+      "evidence": "Restaurant's own New Year's Eve masquerade announcement. No time, price or ticket link published, so no event row is created; caption sends readers to the restaurant."
+    },
+    {
+      "shortcode": "DfQLQxRyu6F",
+      "native_url": "https://www.instagram.com/reel/DfQLQxRyu6F/",
+      "creator": "m.bird_tampa",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "m-bird-tampa",
+          "place_id": "ChIJTY7XE2PFwogRDgMOQRLEAhw",
+          "name": "M.Bird",
+          "city": "Tampa",
+          "address": "1903 Market St, Tampa, FL 33602"
+        }
+      ],
+      "evidence": "Bar's own rooftop margarita Monday reel."
+    },
+    {
+      "shortcode": "DehiY-XAFOd",
+      "native_url": "https://www.instagram.com/reel/DehiY-XAFOd/",
+      "creator": "eatwithdami",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "tanuki-river-landing-miami",
+          "place_id": "ChIJeU7uMTW32YgRjmffReuy-rc",
+          "name": "Tanuki River Landing",
+          "city": "Miami",
+          "address": "1400 NW N River Dr, Miami, FL 33125"
+        }
+      ],
+      "evidence": "Caption tags @tanuki_miamiriver; River Landing is Tanuki's Miami River location."
+    },
+    {
+      "shortcode": "DfIVNVWvO9L",
+      "native_url": "https://www.instagram.com/reel/DfIVNVWvO9L/",
+      "creator": "tampadatespots",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "v-modern-italian-tampa",
+          "place_id": "ChIJZx685RbDwogRMUoUeorzjiw",
+          "name": "V Modern Italian",
+          "city": "Tampa",
+          "address": "1701 W North A St, Tampa, FL 33606"
+        }
+      ],
+      "evidence": "Caption names V Modern Italian for Halloween weekend."
+    },
+    {
+      "shortcode": "DfKUE8QxZic",
+      "native_url": "https://www.instagram.com/reel/DfKUE8QxZic/",
+      "creator": "livingeasyly",
+      "status": "verified",
+      "places": [
+        {
+          "key": "kenikkei-orlando",
+          "place_id": "wfadd_kenikkei_orlando",
+          "name": "Kenikkei",
+          "city": "Orlando",
+          "address": "601 W Taft Vineland Rd, Orlando, FL 32824"
+        }
+      ],
+      "independent": true,
+      "evidence": "The truck's own Instagram profile lists 601 W Taft Vineland Rd, Orlando, and Tuesday off. New venue row approved by owner 2026-11-03."
+    },
+    {
+      "shortcode": "DfM4775Retf",
+      "native_url": "https://www.instagram.com/reel/DfM4775Retf/",
+      "creator": "traveling__bliss",
+      "status": "verified",
+      "places": [
+        {
+          "key": "rolfs-new-york",
+          "place_id": "wfadd_rolfs_new_york",
+          "name": "Rolf's German Restaurant",
+          "city": "New York",
+          "address": "281 3rd Ave, New York, NY 10010"
+        }
+      ],
+      "independent": true,
+      "evidence": "Caption gives 281 3rd Ave and the phone; NYC Tourism lists the same address. New venue row approved by owner 2026-11-03."
+    },
+    {
+      "shortcode": "DfQO-ZvyoDc",
+      "native_url": "https://www.instagram.com/reel/DfQO-ZvyoDc/",
+      "creator": "tiffanygeovana",
+      "status": "verified",
+      "independent": true,
+      "places": [
+        {
+          "key": "con-amor-tampa",
+          "place_id": "ChIJj_gXZRrFwogRQGeho6l9TPk",
+          "name": "Con Amor",
+          "city": "Tampa",
+          "address": "5240 N Florida Ave, Tampa, FL 33603"
+        }
+      ],
+      "evidence": "Caption tags @conamor.fl in Seminole Heights."
+    },
+    {
+      "shortcode": "De8BhrtjsM9",
+      "native_url": "https://www.instagram.com/p/De8BhrtjsM9/",
+      "creator": "build.and.believe",
+      "status": "rejected_not_a_venue",
+      "places": [],
+      "needed": "Caption says Luna Cobalto is a design concept by a design studio. It is a rendering, not a real place, so it cannot become a place card."
+    },
+    {
+      "shortcode": "DfIKS3QyZoG",
+      "native_url": "https://www.instagram.com/reel/DfIKS3QyZoG/",
+      "creator": "tecontemiami",
+      "status": "verified",
+      "independent": false,
+      "places": [
+        {
+          "key": "sofia-design-district-miami",
+          "place_id": "ChIJAQBA3lax2YgRB7AIAB_GK_E",
+          "name": "Sofia Design District",
+          "city": "Miami",
+          "address": "140 NE 39th St Suite 133, Miami, FL 33137"
+        }
+      ],
+      "evidence": "Caption names Sofia; footage shows the Design District Palm Court dome. Inventory coordinates match the Palm Court address."
+    }
   ]
 }
