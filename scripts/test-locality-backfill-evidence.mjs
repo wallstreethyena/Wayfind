@@ -68,6 +68,13 @@ for (const f of mig) {
   ok(notEligible.length > 0, `${f}: control — there are non-eligible candidates to prove absent (${notEligible.length})`);
   for (const r of notEligible) ok(!written.has(r[0]), `${f}: ${r[1]} (${r[6]}) is not written`);
   ok(/raise exception 'locality backfill: % row\(s\) do not hold the gated value; rolled back'/.test(sql), `${f}: the closing assertion rolls the whole batch back on any skipped row`);
+  const tuples = [...sql.matchAll(/^    \('([^']+)','((?:[^']|'')*)'\)/gm)].map((m) => `${m[1]}|${m[2]}`).sort();
+  const upd = updates2.map((m) => `${m[2]}|${m[1]}`).sort();
+  ok(tuples.length > 0 && JSON.stringify(tuples) === JSON.stringify(upd), `${f}: the assertion checks exactly the (place_id, city) pairs the updates write (${tuples.length} vs ${upd.length})`);
+  ok(/left join public\.wf_inventory i using \(place_id\)/.test(sql), `${f}: the assertion LEFT joins, so a missing row counts as wrong`);
+  ok(/if wrong > 0 then raise exception/.test(sql), `${f}: the assertion tolerates zero wrong rows`);
+  const bi = sql.search(/^begin;$/m), ci = sql.search(/^commit;$/m), ai = sql.indexOf("do $$"), ui = sql.search(/^update /m);
+  ok(bi >= 0 && bi < ui && ui < ai && ai < ci, `${f}: begin; updates; assertion; commit; in that order`);
   const tierA = rows.filter((r) => r[3] === "A" && r[6] === "eligible");
   ok(tierA.length > 0, `${f}: the audit carries tier A rows (${tierA.length})`);
   for (const r of tierA) ok(addressCorroboratesCity(r[5], r[2]), `${f}: tier A row ${r[1]} -> ${r[2]} is corroborated by its address city slot ("${r[5]}")`);
