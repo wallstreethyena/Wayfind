@@ -1008,6 +1008,14 @@
     },
     "owner": "Revenue QA"
   },
+  "scripts/test-christmas-tours.mjs": {
+    "protects": "Every Viator Christmas light tour on /christmas-in-florida is a listing in the one list that books through /api/commerce/go by product code; dead or vanished rows drop, a date filter never claims a tour, and no viator.com URL or partner id reaches the page.",
+    "blastRadius": {
+      "category": "revenue",
+      "detail": "A tour button that skips /api/commerce/go sends the click with no commission and no provider_redirect record; a dead product sends readers to Viator's search page; a tour inside a date filter would claim nights nobody verified."
+    },
+    "owner": "Revenue QA"
+  },
   "scripts/test-halloween-tours.mjs": {
     "protects": "Every Halloween ghost tour card books through /api/commerce/go by product code, destination links use the destinations.js Viator URL with withViatorTracking and then /api/viator/go, and a bare or denied code never becomes an href.",
     "blastRadius": {
