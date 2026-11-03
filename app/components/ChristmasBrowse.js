@@ -13,6 +13,7 @@
 // data has a real ticket or official link.
 import { useEffect, useRef, useState } from "react";
 import ChristmasFilter from "./ChristmasFilter.js";
+import { storedPinFresh } from "../../lib/locationHonesty.js";
 import { TicketCard } from "./ChristmasTicketCard.js";
 import { GuideCommissionLine } from "./GuideCommissionLine.js";
 import { CHRISTMAS_CARD_LABELS, CHRISTMAS_PRICE_UNKNOWN_TEXT, CHRISTMAS_SEASON_UNDATED_TEXT, christmasCopy, christmasPriceLabel } from "../../lib/christmasCardCopy.js";
@@ -81,6 +82,26 @@ export default function ChristmasBrowse({ initial, facets, today, initialQuery =
   const [failed, setFailed] = useState(false);
   const first = useRef(true);
   const typing = useRef(null);
+
+  // The reader's own location, without a tap (owner 2026-11-03: "based on
+  // distance from the user current location, highest rated closest first").
+  // The pin the home page already keeps (wf_center, fresh within its TTL) is
+  // used at once with no prompt; otherwise the browser is asked once. A URL
+  // that already carries lat/lng, or a reader who picked "Tickets first" in
+  // this visit, is left alone.
+  useEffect(() => {
+    if (initialQuery.lat != null && initialQuery.lat !== "") return undefined;
+    let dead = false;
+    const use = (lat, lng) => { if (!dead && Number.isFinite(lat) && Number.isFinite(lng) && lat > 24 && lat < 31.2 && lng > -88 && lng < -79.5) setQuery((q) => (q.lat && q.lat !== "" ? q : { ...q, lat: lat.toFixed(3), lng: lng.toFixed(3) })); };
+    try {
+      const pin = JSON.parse(localStorage.getItem("wf_center") || "null");
+      if (storedPinFresh(pin)) { use(Number(pin.lat), Number(pin.lng)); return () => { dead = true; }; }
+    } catch { /* ignore */ }
+    try {
+      if (navigator.geolocation) navigator.geolocation.getCurrentPosition((pos) => use(pos.coords.latitude, pos.coords.longitude), () => {}, { timeout: 8000, maximumAge: 300000 });
+    } catch { /* ignore */ }
+    return () => { dead = true; };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (first.current) { first.current = false; return; }
