@@ -82,5 +82,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "place-page city coverage (PR #2069)",
     "reason": "DATA ONLY. Fills wf_inventory.locality for 118 indexed places from OWNED evidence: wf_events.city, the venue city an editor typed from the organiser/venue page, linked by place_id. No Google content, no reverse geocoding, no coordinate read or written, no city inferred from metro or lat/lng. Tier A only - unambiguous (one distinct city across that place events) AND the city slot of the event own address (the segment before FL) equals that city exactly, so each row corroborates itself - a street name or longer place name does not count (House of Blues Orlando / Lake Buena Vista Dr and Frenchy's / Clearwater Beach were wrongly admitted by the first draft's substring test); rows the 2026-10-14 Census pass resolved as unincorporated (county set, locality deliberately empty, e.g. Fox Squirrel Corn Maze, Keel Farms) are never considered; uncorroborated Tier B rows held back, 0 ambiguous. Idempotent (every statement requires locality still empty), resumable (that clause IS the resume condition), append-only (never overwrites a held value), reversible via supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql (clears only values still exactly as written). Audit with evidence per row: docs/audits/20261031000000_wf_inventory_locality_from_owned_events.csv. Generated read-only by scripts/backfill-locality-from-events.mjs. Lifts indexed coverage 17.2 to 17.9 pct; the remaining ~14,700 need the owner decision in docs/locality-backfill-proposal.md. Owner applies after review. Not applied."
+  },
+  {
+    "file": "supabase/migrations/20261103120000_indigenous_sarasota_closed_permanently.sql",
+    "sha256": "cca1fa29bbf622e16bf258bb4d0cc1615d5621718d8771c849e897611df4890d",
+    "decision_owner": "wallstreethyena",
+    "tracking": "Indigenous Restaurant closure 2026-11-03",
+    "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
   }
 ]
