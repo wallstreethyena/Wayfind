@@ -36,6 +36,10 @@
 //     simply continues
 //   * auditable: every row lands in docs/audits/ with its evidence
 //
+// SECOND GATE (2026-11-03): a mailing city is not a locality. The output of
+// this script is CANDIDATES; scripts/gate-locality-census.mjs keeps only rows
+// whose US Census place (for the row's own point) equals the city.
+//
 // READ-ONLY. This script never writes to the database. It emits a migration
 // for the OWNER to apply, per CLAUDE.md.
 import { writeFileSync, mkdirSync } from "node:fs";
@@ -122,7 +126,9 @@ mkdirSync("supabase/migrations", { recursive: true });
 mkdirSync("supabase/data-fixes", { recursive: true });
 mkdirSync("docs/audits", { recursive: true });
 
-const header = `-- PENDING APPLY. Not applied by the agent that wrote it.
+const header = `-- UNGATED CANDIDATES. Do not apply this output: run scripts/gate-locality-census.mjs
+-- --name=${name} first; it keeps only rows whose Census place matches.
+-- PENDING APPLY. Not applied by the agent that wrote it.
 -- Declared in scripts/migration-pending-apply.json.
 --
 -- Fills wf_inventory.locality for ${take.length} indexed places from OWNED
@@ -177,4 +183,4 @@ writeFileSync(`docs/audits/${name}.csv`, csv.join("\n") + "\n");
 console.log(`backfill-locality-from-events: ${take.length} row(s) to set (tiers ${TIERS}), ${excluded.length} excluded as ambiguous.`);
 console.log(`  indexed places still missing a locality: ${[...needing.keys()].filter((id) => allowed.has(id)).length}`);
 console.log(`  wrote supabase/migrations/${name}.sql, its REVERSE, and docs/audits/${name}.csv`);
-console.log(`  NOTHING WAS WRITTEN TO THE DATABASE — the owner applies this.`);
+console.log(`  NOTHING WAS WRITTEN TO THE DATABASE. Next: node scripts/gate-locality-census.mjs --name=${name} --lookup=<coords>`);
