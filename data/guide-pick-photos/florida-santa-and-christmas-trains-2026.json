@@ -1,0 +1,81 @@
+{
+ "slug": "florida-santa-and-christmas-trains-2026",
+ "picks": {
+  "North Pole Express": {
+   "src": "/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp",
+   "width": 1190,
+   "height": 893,
+   "alt": "A vintage silver train car at the Florida Railroad Museum in Parrish, with a sign reading \"Museum Gift Shop, Ticket Office, Welcome\" mounted on its side",
+   "caption": "The ticket office and gift shop car at the Florida Railroad Museum in Parrish. The event itself is not pictured.",
+   "credit": "Ebyabe",
+   "creditHref": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
+   "license": "CC BY-SA 3.0",
+   "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+   "sourceUrl": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
+   "author": "Ebyabe",
+   "position": "68% 55%",
+   "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+   "sourceKind": "commons",
+   "placeId": "ChIJ______8sw4gRMudh58gsGMU",
+   "verification": "This is the same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active): the car's own \"Museum Gift Shop / Ticket Office\" sign is an unambiguous match, and no different qualifying Commons file for this museum was found. Reused on 2026-11-03 for \"North Pole Express\", which the organizer lists at this same venue.",
+   "sameAsCardPhoto": true,
+   "reviewedAt": "2026-11-03"
+  }
+ },
+ "gaps": {
+  "Santa Express from Clewiston and Sebring": {
+   "reason": "no-verified-source",
+   "placeId": null,
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "North Pole Noir Christmas Murder Mystery Dinner Train": {
+   "reason": "google-only",
+   "placeId": "ChIJEyrKF49q24gRi1npcziO2eE",
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Conch Tour Train Holiday Sights and Festive Nights Tour": {
+   "reason": "no-verified-source",
+   "placeId": null,
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Tampa Santa Brunch Cruise": {
+   "reason": "google-only",
+   "placeId": "ChIJHxcB0vPEwogR3fFnuF_MWmg",
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Tasting Tours Magical Ride with Santa": {
+   "reason": "no-verified-source",
+   "placeId": null,
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Zoo Lights at Palm Beach Zoo": {
+   "reason": "no-verified-source",
+   "placeId": null,
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Santa in Space at MOSI": {
+   "reason": "google-only",
+   "placeId": "ChIJq6E9W8_HwogRUggO5759Ook",
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Surfing Santas of Cocoa Beach": {
+   "reason": "no-verified-source",
+   "placeId": null,
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  },
+  "Meet Santa in the Park": {
+   "reason": "google-only",
+   "placeId": "ChIJj7-A7nXhwogRGvQ_vcrP7uU",
+   "needsPermissionFrom": null,
+   "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+  }
+ }
+}
