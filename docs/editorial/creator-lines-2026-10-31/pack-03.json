@@ -1,0 +1,2390 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-10-31T12:00:00-04:00",
+ "scope_note": "Verified lines for Creator Finds registry places with no verified editorial (pack 3). Researched 2026-10-31 from official venue, tourism DMO and government pages only; no provider calls.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJsxvw2YvEwogRCqbQZ7wpHUE",
+   "name": "SoFresh - Healthy Salads, Wraps & Bowls",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJsxvw2YvEwogRCqbQZ7wpHUE",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sofresh.com/menu/",
+     "source_name": "SoFresh",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "SoFresh is a healthy food restaurant serving warm bowls, salads, wraps, and quesadillas.",
+      "The menu includes the Hawaiian Ginger Bowl among its warm bowls.",
+      "The menu includes the Signature Salad among its salads.",
+      "The menu includes the Supergreen Caesar Wrap among its wraps and quesadillas.",
+      "SoFresh makes healthy, cooked-to-order food fast with hot bowls, salads, and wraps."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Healthy warm bowls, salads, and wraps, from a Hawaiian Ginger Bowl to a Supergreen Caesar Wrap",
+    "why_here": "Go for healthy food made to order, with hot bowls, crisp salads, flavorful wraps, and quesadillas that feel fresh and fast for lunch or dinner.",
+    "know_before": "The menu spans warm bowls, salads, wraps, and quesadillas, so decide on a bowl or a wrap first.",
+    "local_tip": "Try the Hawaiian Ginger Bowl or the Supergreen Caesar Wrap.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The menu includes the Hawaiian Ginger Bowl among its warm bowls.",
+      "source": "https://sofresh.com/menu/"
+     },
+     {
+      "claim": "The menu includes the Supergreen Caesar Wrap among its wraps and quesadillas.",
+      "source": "https://sofresh.com/menu/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://sofresh.com/menu/"
+     ],
+     "why_here": [
+      "https://sofresh.com/menu/"
+     ],
+     "know_before": [
+      "https://sofresh.com/menu/"
+     ],
+     "local_tip": [
+      "https://sofresh.com/menu/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ9VVjJQA5w4gRgCmeYa3DAMM",
+   "name": "Ganges Restaurant & Bar",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "indian_restaurant",
+   "city": "Sarasota",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gangessarasota.com/about",
+     "source_name": "Ganges Restaurant & Bar",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ganges Restaurant & Bar is a modern Indian restaurant in Sarasota.",
+      "Ganges was born from the same spirit that shaped Tikka Indian Cuisine and Spice Indian Cuisine.",
+      "Ganges respects India's culinary heritage and shares stories of rivers and recipes.",
+      "Ganges brings timeless Indian flavors into a modern dining experience in Sarasota."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Indian dining in Sarasota, rooted in India's culinary heritage and river stories",
+    "why_here": "Go for timeless Indian flavors given a modern shape, from a team shaped by Tikka Indian Cuisine and Spice Indian Cuisine, with heritage at the center.",
+    "know_before": "Plan for modern Indian dining rather than a traditional menu, as Ganges flows timeless flavors into something modern.",
+    "local_tip": null,
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Ganges Restaurant & Bar is a modern Indian restaurant in Sarasota.",
+      "source": "https://gangessarasota.com/about"
+     },
+     {
+      "claim": "Ganges brings timeless Indian flavors into a modern dining experience in Sarasota.",
+      "source": "https://gangessarasota.com/about"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://gangessarasota.com/about"
+     ],
+     "why_here": [
+      "https://gangessarasota.com/about"
+     ],
+     "know_before": [
+      "https://gangessarasota.com/about"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ4VV6ppbDwogRbOl5NqhG6kA",
+   "name": "Sunda New Asian",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "asian_fusion_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ4VV6ppbDwogRbOl5NqhG6kA",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sundanewasian.com/tampa/menu/",
+     "source_name": "Sunda New Asian Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Sunda New Asian Tampa is an award-winning restaurant for modern Southeast Asian cuisine.",
+      "Sunda blends flavors of Japan, China, the Philippines, Thailand, Vietnam, and Indonesia through a modern lens.",
+      "The menu lists Signature Crispy Rice with Wagyu under New Asian Creations.",
+      "The menu lists Signature Crispy Rice with Spicy Tuna.",
+      "The menu includes Signature Sushi alongside New Asian Creations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern Southeast Asian cuisine in Tampa, blending Japan, China, the Philippines, Thailand, and Vietnam",
+    "why_here": "Go for an award-winning take on Southeast Asian cuisine, where flavors from Japan to Indonesia meet through a modern lens in Tampa.",
+    "know_before": "The menu spans New Asian Creations and Signature Sushi, so expect fusion plates alongside sushi when you order.",
+    "local_tip": "Order the Signature Crispy Rice with Wagyu or with Spicy Tuna.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The menu lists Signature Crispy Rice with Wagyu under New Asian Creations.",
+      "source": "https://sundanewasian.com/tampa/menu/"
+     },
+     {
+      "claim": "Sunda New Asian Tampa is an award-winning restaurant for modern Southeast Asian cuisine.",
+      "source": "https://sundanewasian.com/tampa/menu/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://sundanewasian.com/tampa/menu/"
+     ],
+     "why_here": [
+      "https://sundanewasian.com/tampa/menu/"
+     ],
+     "know_before": [
+      "https://sundanewasian.com/tampa/menu/"
+     ],
+     "local_tip": [
+      "https://sundanewasian.com/tampa/menu/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ3xGkbI3DwogRApmOd1WDFHA",
+   "name": "Happy Fish",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "peruvian_restaurant",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJ3xGkbI3DwogRApmOd1WDFHA",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://happyfishrestaurant.com/",
+     "source_name": "Happy Fish",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Happy Fish is an authentic Peruvian restaurant in Tampa, Florida.",
+      "Happy Fish was established over two decades ago with commitment and passion.",
+      "Happy Fish serves Peruvian dishes including ceviche and lomo saltado.",
+      "Happy Fish serves seafood and Peruvian classics in Tampa."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Peruvian cooking in Tampa, served by a restaurant established over two decades ago",
+    "why_here": "Go for authentic Peruvian food and seafood in Tampa, from a kitchen shaped by two decades of commitment and passion for Peruvian classics.",
+    "know_before": "Happy Fish focuses on Peruvian seafood and classics, so come ready for ceviche and hearty plates.",
+    "local_tip": "Start with the ceviche and follow it with lomo saltado.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Happy Fish is an authentic Peruvian restaurant in Tampa, Florida.",
+      "source": "https://happyfishrestaurant.com/"
+     },
+     {
+      "claim": "Happy Fish serves Peruvian dishes including ceviche and lomo saltado.",
+      "source": "https://happyfishrestaurant.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://happyfishrestaurant.com/"
+     ],
+     "why_here": [
+      "https://happyfishrestaurant.com/"
+     ],
+     "know_before": [
+      "https://happyfishrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://happyfishrestaurant.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJN55L42rGt4kRTHYc4QFZM3c",
+   "name": "International Plaza and Bay Street",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "city": "Tampa",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.simon.com/mall/international-plaza",
+     "source_name": "International Plaza - Simon",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "International Plaza is Tampa Bay's ultimate luxury shopping destination with vibrant dining experiences.",
+      "International Plaza is located in the heart of the Westshore district in Tampa.",
+      "International Plaza is Tampa's largest destination for luxury shopping, dining, and everyday convenience.",
+      "International Plaza sits just minutes from Tampa International Airport."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa Bay's luxury shopping destination in the Westshore district, with stores and dining together",
+    "why_here": "Go for luxury shopping and dining in one Tampa stop, with a large store lineup and everyday convenience in the Westshore district.",
+    "know_before": "It sits just minutes from Tampa International Airport, so airport timing and traffic can shape your trip.",
+    "local_tip": "Pair luxury shopping with the vibrant dining experiences in one visit.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "International Plaza is located in the heart of the Westshore district in Tampa.",
+      "source": "https://www.simon.com/mall/international-plaza"
+     },
+     {
+      "claim": "International Plaza is Tampa's largest destination for luxury shopping, dining, and everyday convenience.",
+      "source": "https://www.simon.com/mall/international-plaza"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.simon.com/mall/international-plaza"
+     ],
+     "why_here": [
+      "https://www.simon.com/mall/international-plaza"
+     ],
+     "know_before": [
+      "https://www.simon.com/mall/international-plaza"
+     ],
+     "local_tip": [
+      "https://www.simon.com/mall/international-plaza"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJE62csu632YgRyNLkXVYldRo",
+   "name": "Shops at Merrick Park",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "city": "Coral Gables",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shopsatmerrickpark.com/en/visit/",
+     "source_name": "Shops at Merrick Park",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Shops at Merrick Park is an outdoor shopping center in Coral Gables.",
+      "Valet parking is available at Nordstrom and Neiman Marcus.",
+      "A farmers market runs every Sunday on the garden level by Nordstrom.",
+      "Ride share drop-off is located at Nordstrom on San Lorenzo."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor shopping center in Coral Gables anchored by Nordstrom and Neiman Marcus",
+    "why_here": "Go for outdoor shopping in Coral Gables, with valet parking at Nordstrom and Neiman Marcus plus a farmers market on the garden level.",
+    "know_before": "Valet parking is available at Nordstrom and Neiman Marcus, and ride share drop-off is at Nordstrom on San Lorenzo.",
+    "local_tip": "Visit the farmers market every Sunday on the garden level by Nordstrom.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Shops at Merrick Park is an outdoor shopping center in Coral Gables.",
+      "source": "https://www.shopsatmerrickpark.com/en/visit/"
+     },
+     {
+      "claim": "Valet parking is available at Nordstrom and Neiman Marcus.",
+      "source": "https://www.shopsatmerrickpark.com/en/visit/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.shopsatmerrickpark.com/en/visit/"
+     ],
+     "why_here": [
+      "https://www.shopsatmerrickpark.com/en/visit/"
+     ],
+     "know_before": [
+      "https://www.shopsatmerrickpark.com/en/visit/"
+     ],
+     "local_tip": [
+      "https://www.shopsatmerrickpark.com/en/visit/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJO2jhb4m32YgRvulhfY9IMx0",
+   "name": "Venetian Pool",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "swimming_pool",
+   "city": "Coral Gables",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coralgables.com/attractions/venetian-pool",
+     "source_name": "City of Coral Gables",
+     "source_class": "government",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Venetian Pool opened in 1924 as the Venetian Casino.",
+      "The Venetian Pool was created from a coral rock quarry in Coral Gables.",
+      "The Venetian Pool is fed by spring water from an underground aquifer.",
+      "The Venetian Pool holds over 820,000 gallons of water refilled daily.",
+      "The Venetian Pool is listed in the National Register of Historic Places."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic pool created from a coral rock quarry and opened in 1924",
+    "why_here": "Go to swim in spring water from an underground aquifer in a historic Coral Gables pool listed in the National Register of Historic Places.",
+    "know_before": "The pool holds over 820,000 gallons of water refilled daily from an underground aquifer.",
+    "local_tip": "Swim the spring-fed pool created from a coral rock quarry.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Venetian Pool opened in 1924 as the Venetian Casino.",
+      "source": "https://www.coralgables.com/attractions/venetian-pool"
+     },
+     {
+      "claim": "The Venetian Pool was created from a coral rock quarry in Coral Gables.",
+      "source": "https://www.coralgables.com/attractions/venetian-pool"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.coralgables.com/attractions/venetian-pool"
+     ],
+     "why_here": [
+      "https://www.coralgables.com/attractions/venetian-pool"
+     ],
+     "know_before": [
+      "https://www.coralgables.com/attractions/venetian-pool"
+     ],
+     "local_tip": [
+      "https://www.coralgables.com/attractions/venetian-pool"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJF6pqghMB2YgRl7OIepJ4H0s",
+   "name": "MAASS Restaurant at The Four Seasons",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "city": "Fort Lauderdale",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maassftl.com/",
+     "source_name": "MAASS Fort Lauderdale",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "MAASS is a contemporary American restaurant in Fort Lauderdale.",
+      "MAASS embraces the open-fire hearth.",
+      "MAASS by Chef Ryan Ratino brings a MICHELIN-accoladed team to Fort Lauderdale.",
+      "MAASS serves craft cocktails and an award-winning wine list."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Contemporary American restaurant in Fort Lauderdale built around an open-fire hearth",
+    "why_here": "Go for contemporary American cooking from Chef Ryan Ratino and a MICHELIN-accoladed team, with craft cocktails and an award-winning wine list.",
+    "know_before": "MAASS embraces the open-fire hearth, so the menu centers on fire cooking.",
+    "local_tip": "Try a dish from the open-fire hearth with a craft cocktail.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "MAASS is a contemporary American restaurant in Fort Lauderdale.",
+      "source": "https://www.maassftl.com/"
+     },
+     {
+      "claim": "MAASS embraces the open-fire hearth.",
+      "source": "https://www.maassftl.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.maassftl.com/"
+     ],
+     "why_here": [
+      "https://www.maassftl.com/"
+     ],
+     "know_before": [
+      "https://www.maassftl.com/"
+     ],
+     "local_tip": [
+      "https://www.maassftl.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJN6KbW5kB2YgRADEpRSHNiU8",
+   "name": "Daniel's, A Florida Steakhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "steak_house",
+   "city": "Fort Lauderdale",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.danielssteak.com/fort-lauderdale/",
+     "source_name": "Daniel's Steakhouse Fort Lauderdale",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Daniel's highlights premium steaks and fresh seafood in Fort Lauderdale.",
+      "Daniel's serves Skipper Sweet oysters from Panacea.",
+      "Daniel's serves Snapper from the Florida Keys.",
+      "Daniel's serves Prime Steaks and American wagyu from Suwannee River, Providence Cattle and Arrowhead Beef."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida steakhouse for premium steaks, fresh seafood and American wagyu",
+    "why_here": "Go for premium steaks and fresh seafood sourced across Florida, from Skipper Sweet oysters to Snapper from the Florida Keys.",
+    "know_before": "The steak program features Prime Steaks and American wagyu from Suwannee River, Providence Cattle and Arrowhead Beef.",
+    "local_tip": "Order Prime Steaks or American wagyu with Skipper Sweet oysters.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Daniel's highlights premium steaks and fresh seafood in Fort Lauderdale.",
+      "source": "https://www.danielssteak.com/fort-lauderdale/"
+     },
+     {
+      "claim": "Daniel's serves Skipper Sweet oysters from Panacea.",
+      "source": "https://www.danielssteak.com/fort-lauderdale/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.danielssteak.com/fort-lauderdale/"
+     ],
+     "why_here": [
+      "https://www.danielssteak.com/fort-lauderdale/"
+     ],
+     "know_before": [
+      "https://www.danielssteak.com/fort-lauderdale/"
+     ],
+     "local_tip": [
+      "https://www.danielssteak.com/fort-lauderdale/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ21LFT4a32YgRyb1IpODQgs4",
+   "name": "Drinking Pig BBQ",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://drinkingpigbbq.com/",
+     "source_name": "Drinking Pig BBQ",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Drinking Pig BBQ started as a pop-up in Miami.",
+      "Drinking Pig BBQ serves slow-smoked barbecue of the American South.",
+      "Drinking Pig BBQ cooks brisket, ribs and pork patiently.",
+      "Drinking Pig BBQ adds vibrant Caribbean flavors and island-inspired sides.",
+      "Drinking Pig BBQ is walk-ins only and does not offer reservations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Slow-smoked barbecue of the American South with vibrant Caribbean flavors",
+    "why_here": "Go for brisket, ribs and pork cooked patiently in the American South tradition, lifted with Caribbean flavors and island-inspired sides.",
+    "know_before": "Drinking Pig BBQ is walk-ins only and does not offer reservations.",
+    "local_tip": "Order brisket, ribs and pork with island-inspired sides.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Drinking Pig BBQ started as a pop-up in Miami.",
+      "source": "https://drinkingpigbbq.com/"
+     },
+     {
+      "claim": "Drinking Pig BBQ serves slow-smoked barbecue of the American South.",
+      "source": "https://drinkingpigbbq.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://drinkingpigbbq.com/"
+     ],
+     "why_here": [
+      "https://drinkingpigbbq.com/"
+     ],
+     "know_before": [
+      "https://drinkingpigbbq.com/"
+     ],
+     "local_tip": [
+      "https://drinkingpigbbq.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJzwEW8bK32YgRoeQcKaBkwrs",
+   "name": "Over Under",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "cocktail_bar",
+   "city": "Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://overundermiami.com/",
+     "source_name": "Over Under Miami",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Over Under is a subtropical honky tonk cocktail bar and kitchen in downtown Miami.",
+      "Over Under serves Florida-sourced bar food and oysters.",
+      "Over Under serves frozen palomas and cocktails.",
+      "Over Under offers happy hour every day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Subtropical honky tonk cocktail bar and kitchen in downtown Miami",
+    "why_here": "Go for a subtropical honky tonk night with Florida-sourced bar food, oysters, frozen palomas and cocktails in downtown Miami.",
+    "know_before": "Over Under offers happy hour every day, with a kitchen serving Florida-sourced bar food.",
+    "local_tip": "Order oysters with a frozen paloma at happy hour.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Over Under is a subtropical honky tonk cocktail bar and kitchen in downtown Miami.",
+      "source": "https://overundermiami.com/"
+     },
+     {
+      "claim": "Over Under serves Florida-sourced bar food and oysters.",
+      "source": "https://overundermiami.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://overundermiami.com/"
+     ],
+     "why_here": [
+      "https://overundermiami.com/"
+     ],
+     "know_before": [
+      "https://overundermiami.com/"
+     ],
+     "local_tip": [
+      "https://overundermiami.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJPy3IMAKy2YgRfP0FgOWAG2U",
+   "name": "Edan Bistro",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "city": "North Miami",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.edanbistro.com/",
+     "source_name": "Edan Bistro",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Edan Bistro celebrates Spanish Basque cuisine in North Miami.",
+      "Edan Bistro is led by Chef Aitor Garate Berasaluze.",
+      "Edan Bistro serves tender steaks and fresh seafood.",
+      "The Basque cheesecake at Edan Bistro is a must-try.",
+      "Edan Bistro serves lunch and dinner with a tasting menu that changes seasonally."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish Basque cuisine in North Miami led by Chef Aitor Garate Berasaluze",
+    "why_here": "Go for Spanish Basque cuisine with tender steaks, fresh seafood and a tasting menu that changes seasonally in North Miami.",
+    "know_before": "Edan Bistro serves lunch and dinner, and its tasting menu changes seasonally.",
+    "local_tip": "Save room for the Basque cheesecake, a must-try at Edan Bistro.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Edan Bistro celebrates Spanish Basque cuisine in North Miami.",
+      "source": "https://www.edanbistro.com/"
+     },
+     {
+      "claim": "Edan Bistro is led by Chef Aitor Garate Berasaluze.",
+      "source": "https://www.edanbistro.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.edanbistro.com/"
+     ],
+     "why_here": [
+      "https://www.edanbistro.com/"
+     ],
+     "know_before": [
+      "https://www.edanbistro.com/"
+     ],
+     "local_tip": [
+      "https://www.edanbistro.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJA0WpTAG52YgRI9H50ZhfmqE",
+   "name": "Charlie's Ice Cream",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops",
+     "source_name": "Miami and Miami Beach - Charlie's Ice Cream",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Charlie's Ice Cream is a beloved soft-serve shop that was once a Dairy Queen.",
+      "Charlie's Ice Cream still has a drive-through window and outdoor tables in the back.",
+      "Charlie's Ice Cream has locations in Westchester and Hialeah.",
+      "Charlie's Ice Cream is known for classic soft-serve with vanilla, chocolate or vanilla and chocolate twist on tap."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic soft-serve shop that was once a Dairy Queen, still pouring vanilla and chocolate twist.",
+    "why_here": "Go for classic soft-serve the way the tourism board describes it, with vanilla, chocolate or a vanilla and chocolate twist, served from a former Dairy Queen.",
+    "know_before": "The shop still has a drive-through window and outdoor tables in the back, so you can order and sit outside.",
+    "local_tip": "Order the vanilla and chocolate twist, the classic soft-serve the shop is known for.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Charlie's Ice Cream is a beloved soft-serve shop that was once a Dairy Queen.",
+      "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     },
+     {
+      "claim": "Charlie's Ice Cream is known for classic soft-serve with vanilla, chocolate or vanilla and chocolate twist on tap.",
+      "source": "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/restaurants/ice-cream-shops"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJte0b2xux2YgRr8f-xaLb0jw",
+   "name": "Boia De",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.boiaderestaurant.com/menus/",
+     "source_name": "Boia De - Menus",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Boia De is an Italian Restaurant in Miami, FL.",
+      "The Boia De main menu lists Tagliolini Nero with king crab, truffle pate, vin jaune and herbs.",
+      "The Boia De main menu lists Pappardelle alla Lepre with florida rabbit, rosemary and tomato.",
+      "The Boia De main menu lists Crispy Polenta with marinated eggplant, ricotta salata and basil.",
+      "The Boia De main menu lists Crispy Tiramisu for dessert."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian cooking in Miami built around Tagliolini Nero with king crab and Pappardelle alla Lepre.",
+    "why_here": "Go for an Italian menu that pairs Tagliolini Nero with king crab and truffle pate against Pappardelle alla Lepre with florida rabbit, rosemary and tomato.",
+    "know_before": "Plan for a menu-led dinner in Miami and expect Italian dishes built for the table, not a quick counter stop.",
+    "local_tip": "Order the Tagliolini Nero with king crab, truffle pate, vin jaune and herbs.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Boia De main menu lists Tagliolini Nero with king crab, truffle pate, vin jaune and herbs.",
+      "source": "https://www.boiaderestaurant.com/menus/"
+     },
+     {
+      "claim": "The Boia De main menu lists Pappardelle alla Lepre with florida rabbit, rosemary and tomato.",
+      "source": "https://www.boiaderestaurant.com/menus/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.boiaderestaurant.com/menus/"
+     ],
+     "why_here": [
+      "https://www.boiaderestaurant.com/menus/"
+     ],
+     "know_before": [
+      "https://www.boiaderestaurant.com/menus/"
+     ],
+     "local_tip": [
+      "https://www.boiaderestaurant.com/menus/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ9d2y1ivFwogRU2MFLQrwqsc",
+   "name": "Blooming Floral Cafe",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf",
+     "source_name": "Blooming Floral Cafe - High Tea Experience",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Blooming Floral Cafe High Tea Experience includes three looseleaf tea selections.",
+      "The Blooming Floral Cafe High Tea Experience includes a small, beautifully wrapped floral bouquet, made fresh by our designer.",
+      "The Blooming Floral Cafe cafe menu lists Coffee including ESPRESSO, CAPPUCCINO, AMERICANO and CAFE CON LECHE."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "High Tea Experience pairing three looseleaf tea selections with a fresh floral bouquet.",
+    "why_here": "Go for the High Tea Experience, where three looseleaf tea selections come with a small, beautifully wrapped floral bouquet made fresh by the designer.",
+    "know_before": "The signature experience centers on looseleaf tea and a fresh floral bouquet, so book it as a tea occasion.",
+    "local_tip": "Book the High Tea Experience with three looseleaf tea selections and the floral bouquet.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Blooming Floral Cafe High Tea Experience includes three looseleaf tea selections.",
+      "source": "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf"
+     },
+     {
+      "claim": "The Blooming Floral Cafe High Tea Experience includes a small, beautifully wrapped floral bouquet, made fresh by our designer.",
+      "source": "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf"
+     ],
+     "why_here": [
+      "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf"
+     ],
+     "know_before": [
+      "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf"
+     ],
+     "local_tip": [
+      "https://www.thebloomingfloralcafe.com/uploads/b/4b0a07b0-3603-11f0-97a9-f198e943ce6c/1e2c71f0-85da-11f1-892b-f3ab23ec1dea.pdf"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJT4Y7OwDBwogRICfhJkopIHg",
+   "name": "NAZCA",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nazcarestaurants.com/",
+     "source_name": "NAZCA - Best Latin American Restaurant in Tampa",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "NAZCA is presented as Best Latin American Restaurant in Tampa, FL.",
+      "NAZCA lists Cuisine as Latin-american, Peruvian, Seafood, Colombian and Fusion-restaurant.",
+      "The NAZCA online menu lists Fried Pork Belly With Yucca Chicharron Con Yuca."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin American cooking in Tampa spanning Peruvian, Seafood and Colombian plates.",
+    "why_here": "Go for Latin-american cooking in Tampa that spans Peruvian, Seafood, Colombian and Fusion-restaurant plates on one menu.",
+    "know_before": "Expect a broad Latin-american menu spanning Peruvian, Seafood and Colombian choices, so scan the full menu first.",
+    "local_tip": "Try the Fried Pork Belly With Yucca Chicharron Con Yuca from the online menu.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "NAZCA lists Cuisine as Latin-american, Peruvian, Seafood, Colombian and Fusion-restaurant.",
+      "source": "https://nazcarestaurants.com/"
+     },
+     {
+      "claim": "The NAZCA online menu lists Fried Pork Belly With Yucca Chicharron Con Yuca.",
+      "source": "https://nazcarestaurants.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://nazcarestaurants.com/"
+     ],
+     "why_here": [
+      "https://nazcarestaurants.com/"
+     ],
+     "know_before": [
+      "https://nazcarestaurants.com/"
+     ],
+     "local_tip": [
+      "https://nazcarestaurants.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJYT6hEfvPwogRXtCm4bU3InA",
+   "name": "MilkShake Factory Brandon",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "ice_cream_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.milkshakefactory.com/locations/brandon-fl/",
+     "source_name": "MilkShake Factory Brandon",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "MilkShake Factory in Brandon, Florida serves handspun milkshakes made with homemade ice cream alongside our signature gourmet chocolates.",
+      "Customers enjoy favorites such as the Chocolate Cake Shake, non-dairy milkshake options, chocolate-covered fresh strawberries, and a variety of chocolate bark.",
+      "MilkShake Factory Brandon offers a welcoming spot to enjoy a sweet treat made fresh every day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handspun milkshakes made with homemade ice cream, served alongside signature gourmet chocolates.",
+    "why_here": "Go for handspun milkshakes made with homemade ice cream and signature gourmet chocolates, made fresh every day in Brandon.",
+    "know_before": "There are non-dairy milkshake options alongside the regular handspun milkshakes, so dairy-free guests have a choice.",
+    "local_tip": "Order the Chocolate Cake Shake, a customer favorite, with chocolate-covered fresh strawberries.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "MilkShake Factory in Brandon, Florida serves handspun milkshakes made with homemade ice cream alongside our signature gourmet chocolates.",
+      "source": "https://www.milkshakefactory.com/locations/brandon-fl/"
+     },
+     {
+      "claim": "Customers enjoy favorites such as the Chocolate Cake Shake, non-dairy milkshake options, chocolate-covered fresh strawberries, and a variety of chocolate bark.",
+      "source": "https://www.milkshakefactory.com/locations/brandon-fl/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.milkshakefactory.com/locations/brandon-fl/"
+     ],
+     "why_here": [
+      "https://www.milkshakefactory.com/locations/brandon-fl/"
+     ],
+     "know_before": [
+      "https://www.milkshakefactory.com/locations/brandon-fl/"
+     ],
+     "local_tip": [
+      "https://www.milkshakefactory.com/locations/brandon-fl/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek",
+   "name": "Brevard Zoo",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brevardzoo.org/",
+     "source_name": "Brevard Zoo - Home",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Brevard Zoo lush, open-air habitats are home to over 900+ animals from around the world."
+     ]
+    },
+    {
+     "source": "https://brevardzoo.org/adventures/",
+     "source_name": "Brevard Zoo - Adventures",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Enjoy a guided tour of the Nyami Nyami River as you float past giraffe, rhinos and more in Expedition Africa.",
+      "Kayaking is offered daily (weather/attendance permitting) from 10:30 AM–3:30 PM. Ages 5+. Guests under age 13 must be with a paid adult."
+     ]
+    },
+    {
+     "source": "https://brevardzoo.org/tips-for-a-great-visit/",
+     "source_name": "Brevard Zoo - Tips for a Great Visit",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Zoo is open daily from 9:30 AM – 5 PM with last admission at 4:15 PM.",
+      "For an additional fee, you can feed giraffe, kayak through Expedition Africa and much more."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air habitats home to over 900+ animals, with a guided kayak tour past giraffe and rhinos.",
+    "why_here": "Go to float the Nyami Nyami River past giraffe, rhinos and more in Expedition Africa, then wander lush, open-air habitats home to over 900+ animals.",
+    "know_before": "The Zoo is open daily from 9:30 AM – 5 PM with last admission at 4:15 PM, so arrive before last admission.",
+    "local_tip": "Take the guided tour of the Nyami Nyami River to float past giraffe and rhinos.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Enjoy a guided tour of the Nyami Nyami River as you float past giraffe, rhinos and more in Expedition Africa.",
+      "source": "https://brevardzoo.org/adventures/"
+     },
+     {
+      "claim": "The Zoo is open daily from 9:30 AM – 5 PM with last admission at 4:15 PM.",
+      "source": "https://brevardzoo.org/tips-for-a-great-visit/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://brevardzoo.org/",
+      "https://brevardzoo.org/adventures/"
+     ],
+     "why_here": [
+      "https://brevardzoo.org/",
+      "https://brevardzoo.org/adventures/"
+     ],
+     "know_before": [
+      "https://brevardzoo.org/tips-for-a-great-visit/"
+     ],
+     "local_tip": [
+      "https://brevardzoo.org/adventures/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+   "name": "@ The Diner",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "diner",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJuTGc8gN_54gRwRztnG7fJ-Y",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.atthediner.com/items/buttermilk-pancakes",
+     "source_name": "@ The Diner - Buttermilk Pancakes",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Buttermilk Pancakes are listed under Belgian Waffles or Buttermilk Pancakes - Breakfast at @ The Diner.",
+      "@ The Diner lists Oreo Crunch and Enzo's Cereal Pancakes on its Breakfast menu.",
+      "@ The Diner lists Florida Fruity under Belgian Waffles or Buttermilk Pancakes - Breakfast."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast built around Belgian Waffles or Buttermilk Pancakes, plus Oreo Crunch pancakes.",
+    "why_here": "Go for a Breakfast menu built around Belgian Waffles or Buttermilk Pancakes, with playful plates like Oreo Crunch and Enzo's Cereal Pancakes.",
+    "know_before": "This is a Breakfast-led menu of Belgian Waffles or Buttermilk Pancakes, so go in a breakfast mood.",
+    "local_tip": "Order the Buttermilk Pancakes, or try the Oreo Crunch from the Breakfast menu.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Buttermilk Pancakes are listed under Belgian Waffles or Buttermilk Pancakes - Breakfast at @ The Diner.",
+      "source": "https://www.atthediner.com/items/buttermilk-pancakes"
+     },
+     {
+      "claim": "@ The Diner lists Oreo Crunch and Enzo's Cereal Pancakes on its Breakfast menu.",
+      "source": "https://www.atthediner.com/items/buttermilk-pancakes"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ],
+     "why_here": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ],
+     "know_before": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ],
+     "local_tip": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJUTIu2jqB3YgR8YmZ3ILb4gk",
+   "name": "@ The Diner",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.atthediner.com/items/buttermilk-pancakes",
+     "source_name": "@ The Diner - Buttermilk Pancakes",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Buttermilk Pancakes are listed under Belgian Waffles or Buttermilk Pancakes - Breakfast at @ The Diner.",
+      "@ The Diner lists Oreo Crunch and Enzo's Cereal Pancakes on its Breakfast menu.",
+      "@ The Diner lists Florida Fruity under Belgian Waffles or Buttermilk Pancakes - Breakfast."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast built around Belgian Waffles or Buttermilk Pancakes, plus Oreo Crunch pancakes.",
+    "why_here": "Go for a Breakfast menu built around Belgian Waffles or Buttermilk Pancakes, with playful plates like Oreo Crunch and Enzo's Cereal Pancakes.",
+    "know_before": "This is a Breakfast-led menu of Belgian Waffles or Buttermilk Pancakes, so go in a breakfast mood.",
+    "local_tip": "Order the Buttermilk Pancakes, or try the Oreo Crunch from the Breakfast menu.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Buttermilk Pancakes are listed under Belgian Waffles or Buttermilk Pancakes - Breakfast at @ The Diner.",
+      "source": "https://www.atthediner.com/items/buttermilk-pancakes"
+     },
+     {
+      "claim": "@ The Diner lists Oreo Crunch and Enzo's Cereal Pancakes on its Breakfast menu.",
+      "source": "https://www.atthediner.com/items/buttermilk-pancakes"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ],
+     "why_here": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ],
+     "know_before": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ],
+     "local_tip": [
+      "https://www.atthediner.com/items/buttermilk-pancakes"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJBwQpZK_FwogRsoz9WgSYnOk",
+   "name": "JW Marriott Tampa Water Street",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJBwQpZK_FwogRsoz9WgSYnOk",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Tampa's highest public rooftop, Beacon, crowns the 27th floor",
+    "why_here": "Come for Beacon and its panoramic views of the city skyline and waterfront, then slow down with Spa by JW or a meal at SiX overlooking the rooftop pool.",
+    "know_before": "Beacon sits on the 27th floor, so allow time to reach the rooftop before your reservation.",
+    "best_time": null,
+    "local_tip": "Order modern American fare at SiX overlooking the rooftop pool.",
+    "facts": [
+     {
+      "claim": "Beacon sits on the 27th floor as Tampa's highest public rooftop cocktail and dining destination.",
+      "source": "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street"
+     },
+     {
+      "claim": "Spa by JW offers luxurious treatments and custom massages.",
+      "source": "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/tpajd-jw-marriott-tampa-water-street",
+     "source_name": "JW Marriott Tampa Water Street (Marriott)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Beacon sits on the 27th floor as Tampa's highest public rooftop cocktail and dining destination.",
+      "Beacon offers panoramic views of the city skyline and waterfront.",
+      "Spa by JW offers luxurious treatments and custom massages.",
+      "SiX overlooks the rooftop pool and serves modern American fare."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+   "name": "Raglan Road Irish Pub",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "irish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJOcKapod_3YgR90H_S_UKiMA",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Irish pub known for live Irish musicians and dancers at Disney Springs",
+    "why_here": "Go for a pub night built around Irish musicians and dancers, with hearty Irish pub cooking and a lively room at Disney Springs.",
+    "know_before": "Live Irish musicians and dancers are the draw, so book ahead and arrive ready for a show with dinner.",
+    "best_time": null,
+    "local_tip": "Order the famous beer battered Fish and Chips, then Ger's Bread and Butter Pudding.",
+    "facts": [
+     {
+      "claim": "The dinner menu lists Fish and Chips as famous beer battered fish and chips with fresh tartar sauce.",
+      "source": "https://www.raglanroad.com/dinner-menu-2"
+     },
+     {
+      "claim": "Raglan Road features Irish musicians and dancers.",
+      "source": "https://www.raglanroad.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.raglanroad.com"
+     ],
+     "why_here": [
+      "https://www.raglanroad.com"
+     ],
+     "know_before": [
+      "https://www.raglanroad.com"
+     ],
+     "local_tip": [
+      "https://www.raglanroad.com/dinner-menu-2"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.raglanroad.com/dinner-menu-2",
+     "source_name": "Raglan Road Irish Pub",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The dinner menu lists Fish and Chips as famous beer battered fish and chips with fresh tartar sauce.",
+      "The dinner menu lists Ger's Bread and Butter Pudding."
+     ]
+    },
+    {
+     "source": "https://www.raglanroad.com",
+     "source_name": "Raglan Road Irish Pub",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Raglan Road features Irish musicians and dancers.",
+      "Raglan Road is an Irish pub and restaurant at Disney Springs."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJIV9AOfbHwogR5SPjijvBLRM",
+   "name": "You Do the Dishes",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Paint-your-own pottery studio paired with a full-serve coffee and tea bar",
+    "why_here": "Come to paint pottery at your own pace, sip from the coffee and tea bar, and leave with a piece you made yourself in Tampa.",
+    "know_before": "Your pottery is glazed and fired for pickup 3 to 5 days later, and each painter pays a studio fee plus the bisque item.",
+    "best_time": null,
+    "local_tip": "Pick a bisque piece to paint and order a drink from the coffee and tea bar while you work.",
+    "facts": [
+     {
+      "claim": "You paint pottery and the studio glazes and fires it for pickup 3 to 5 days later.",
+      "source": "https://www.youdothedishes.com/"
+     },
+     {
+      "claim": "The studio has a full-serve coffee and tea bar.",
+      "source": "https://www.youdothedishes.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.youdothedishes.com/"
+     ],
+     "why_here": [
+      "https://www.youdothedishes.com/"
+     ],
+     "know_before": [
+      "https://www.youdothedishes.com/"
+     ],
+     "local_tip": [
+      "https://www.youdothedishes.com/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.youdothedishes.com/",
+     "source_name": "You Do The Dishes",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "You paint pottery and the studio glazes and fires it for pickup 3 to 5 days later.",
+      "The studio has a full-serve coffee and tea bar.",
+      "You Do The Dishes is a paint your own pottery studio and coffee house in Tampa.",
+      "Each painter pays a studio fee plus the cost of the chosen bisque item."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJRStTdYSD54gRhH5dTvKQLJI",
+   "name": "MANGONI Italian Market Pizza",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Wood-fired pizzas and handcrafted pastas in downtown Winter Garden",
+    "why_here": "Go for wood-fired pizza and handcrafted pasta made with fresh ingredients, in a warm Italian market setting in Winter Garden.",
+    "know_before": "Artisan pizza comes thin crust or Neapolitan style, and gluten-free crust is available if you need it.",
+    "best_time": null,
+    "local_tip": "Start with Wood Fired Garlic Knots, then a Neapolitan style pizza.",
+    "facts": [
+     {
+      "claim": "Mangoni serves wood-fired pizzas and handcrafted pastas with fresh, high-quality ingredients.",
+      "source": "https://mangoniwg.com/main-menu/"
+     },
+     {
+      "claim": "Artisan pizza comes in thin crust or Neapolitan style, with gluten-free crust available.",
+      "source": "https://mangoniwg.com/main-menu/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://mangoniwg.com/main-menu/"
+     ],
+     "why_here": [
+      "https://mangoniwg.com/main-menu/"
+     ],
+     "know_before": [
+      "https://mangoniwg.com/main-menu/"
+     ],
+     "local_tip": [
+      "https://mangoniwg.com/main-menu/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://mangoniwg.com/main-menu/",
+     "source_name": "MANGONI Italian Market Pizza",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Mangoni serves wood-fired pizzas and handcrafted pastas with fresh, high-quality ingredients.",
+      "Artisan pizza comes in thin crust or Neapolitan style, with gluten-free crust available.",
+      "The menu lists Wood Fired Garlic Knots.",
+      "Mangoni serves house-made desserts in Winter Garden."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJU-JqYJo5w4gRTKYuKEM5uH0",
+   "name": "The Breakfast Company",
+   "category": "food",
+   "metro": "manatee-sarasota",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJU-JqYJo5w4gRTKYuKEM5uH0",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Cast-Iron Griddle pancakes, Skillet Bowls and Chicken & Waffles for breakfast",
+    "why_here": "Come for a classic breakfast spread built on griddle pancakes, Egg Originals and Skillet Bowls, with lunch as a follow-up in Bradenton.",
+    "know_before": "This is a breakfast and lunch spot, so plan your visit for daytime and expect a breakfast-first menu.",
+    "best_time": null,
+    "local_tip": "Try the Buttermilk Pancakes or the Chicken & Waffles.",
+    "facts": [
+     {
+      "claim": "The menu lists Buttermilk Pancakes and Chocolate Chip Pancakes on the Cast-Iron Griddle.",
+      "source": "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf"
+     },
+     {
+      "claim": "The menu lists Chicken & Waffles.",
+      "source": "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf"
+     ],
+     "why_here": [
+      "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf"
+     ],
+     "know_before": [
+      "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf"
+     ],
+     "local_tip": [
+      "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebreakfastcompanyfl.com/menu/tbc-menu.pdf",
+     "source_name": "The Breakfast Company",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The menu lists Buttermilk Pancakes and Chocolate Chip Pancakes on the Cast-Iron Griddle.",
+      "The menu lists Egg Originals and Skillet Bowls.",
+      "The menu lists Chicken & Waffles.",
+      "The Breakfast Company serves breakfast and lunch in Bradenton."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJEyMWSOd-54gR-QBrGagmCHw",
+   "name": "Universal CityWalk Orlando",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Universal Orlando's dining, shopping and entertainment district outside the parks",
+    "why_here": "Go to eat, shop and linger between or after the parks, with full-service restaurants, bars and confectionary in one walkable district at Universal Orlando Resort.",
+    "know_before": "Separate theme park admission is required for the theme parks, so a CityWalk meal does not need a park day.",
+    "best_time": null,
+    "local_tip": "Try Toothsome for steak, seafood or all-day brunch with crepes and quiches.",
+    "facts": [
+     {
+      "claim": "Universal CityWalk is the dining, shopping and entertainment district at Universal Orlando Resort.",
+      "source": "https://www.universalorlando.com/web/en/us/theme-parks/citywalk"
+     },
+     {
+      "claim": "The Toothsome Chocolate Emporium & Savory Feast Kitchen is a full-service restaurant, bar and confectionary at Universal CityWalk.",
+      "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/citywalk"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/citywalk"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/theme-parks/citywalk"
+     ],
+     "local_tip": [
+      "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/theme-parks/citywalk",
+     "source_name": "Universal Orlando Resort",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Universal CityWalk is the dining, shopping and entertainment district at Universal Orlando Resort.",
+      "CityWalk restaurants include The Toothsome Chocolate Emporium & Savory Feast Kitchen and The Cowfish Sushi Burger Bar.",
+      "Separate theme park admission is required to enter the theme parks."
+     ]
+    },
+    {
+     "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations",
+     "source_name": "Universal Orlando Resort",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Toothsome Chocolate Emporium & Savory Feast Kitchen is a full-service restaurant, bar and confectionary at Universal CityWalk.",
+      "Toothsome serves steak and seafood and all-day brunch with crepes and quiches."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJ15lqd26D54gR0zik2zNTX4o",
+   "name": "Rosallie Le French Cafe",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "French cafe in Winter Garden serving Brunch All Day and Signature Lattes",
+    "why_here": "Come for a French cafe pause in Winter Garden, with brunch plates, croissant flatbreads and coffee drinks served through the day.",
+    "know_before": "Brunch is served All Day, so you do not need a morning start for Petit Déjeuner Français.",
+    "best_time": null,
+    "local_tip": "Try a French Croissant Flatbread with a Signature Latte.",
+    "facts": [
+     {
+      "claim": "Rosallie serves Brunch All Day in Winter Garden.",
+      "source": "https://www.atelierdining.com/rosallie-winter-garden/"
+     },
+     {
+      "claim": "The menu lists Petit Déjeuner Français and French Croissant Flatbreads.",
+      "source": "https://www.atelierdining.com/rosallie-winter-garden/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.atelierdining.com/rosallie-winter-garden/"
+     ],
+     "why_here": [
+      "https://www.atelierdining.com/rosallie-winter-garden/"
+     ],
+     "know_before": [
+      "https://www.atelierdining.com/rosallie-winter-garden/"
+     ],
+     "local_tip": [
+      "https://www.atelierdining.com/rosallie-winter-garden/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.atelierdining.com/rosallie-winter-garden/",
+     "source_name": "Rosallie Le French Cafe (Atelier Dining)",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Rosallie serves Brunch All Day in Winter Garden.",
+      "The menu lists Petit Déjeuner Français and French Croissant Flatbreads.",
+      "The menu lists Signature Lattes and Classic Coffee.",
+      "Rosallie is a French cafe in Winter Garden."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJQVp535WxwogR42W828PdPRw",
+   "name": "Haraz Coffee House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Yemeni coffee house pouring Adeni Chai with black tea, Haraz spice and cream",
+    "why_here": "Go for premium Yemeni coffee and spiced traditional drinks you will not find on a standard cafe menu, at the Wesley Chapel shop.",
+    "know_before": "Traditional Drinks lean spiced and tea-based, so expect Haraz spice and cream in the Adeni Chai.",
+    "best_time": null,
+    "local_tip": "Order the Adeni Chai with black tea, Haraz spice and cream.",
+    "facts": [
+     {
+      "claim": "Haraz Coffee House serves premium Yemeni coffee.",
+      "source": "https://harazcoffeehouse.com/pages/menu"
+     },
+     {
+      "claim": "Traditional Drinks include Adeni Chai made with black tea, Haraz spice and cream.",
+      "source": "https://harazcoffeehouse.com/pages/menu"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://harazcoffeehouse.com/pages/menu"
+     ],
+     "why_here": [
+      "https://harazcoffeehouse.com/pages/menu"
+     ],
+     "know_before": [
+      "https://harazcoffeehouse.com/pages/menu"
+     ],
+     "local_tip": [
+      "https://harazcoffeehouse.com/pages/menu"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://harazcoffeehouse.com/pages/menu",
+     "source_name": "Haraz Coffee House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Haraz Coffee House serves premium Yemeni coffee.",
+      "Traditional Drinks include Adeni Chai made with black tea, Haraz spice and cream.",
+      "Traditional Drinks include Saffron Adeni.",
+      "Haraz coffee beans are sun-dried and harvested by Yemeni farmers."
+     ]
+    },
+    {
+     "source": "https://harazcoffeehouse.com/pages/florida-locations",
+     "source_name": "Haraz Coffee House",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Haraz Coffee House lists a Wesley Chapel location among its Florida Locations."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJhbni_xFn54gR0p89LazzSD8",
+   "name": "All Fired Up (Waterford Lakes) Pottery Painting Orlando, FL",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Ceramic pottery painting studio inside Waterford Lakes Town Center",
+    "why_here": "Go to paint ceramic pottery while you are at Waterford Lakes Town Center, and turn a shopping trip into a hands-on break in Orlando.",
+    "know_before": "Finished pottery stays to be glazed and fired in a kiln before pickup, so plan a return trip to Waterford Lakes Town Center.",
+    "best_time": null,
+    "local_tip": "Choose a ceramic pottery piece and paint it at the studio.",
+    "facts": [
+     {
+      "claim": "All Fired Up Waterford Lakes offers ceramic pottery painting inside Waterford Lakes Town Center.",
+      "source": "https://allfireduponline.com/pages/all-fired-up-waterford-lakes"
+     },
+     {
+      "claim": "The Waterford Lakes studio is the newest studio location.",
+      "source": "https://allfireduponline.com/pages/all-fired-up-waterford-lakes"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://allfireduponline.com/pages/all-fired-up-waterford-lakes"
+     ],
+     "why_here": [
+      "https://allfireduponline.com/pages/all-fired-up-waterford-lakes"
+     ],
+     "know_before": [
+      "https://allfireduponline.com/pages/all-fired-up-waterford-lakes"
+     ],
+     "local_tip": [
+      "https://allfireduponline.com/pages/all-fired-up-waterford-lakes"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://allfireduponline.com/pages/all-fired-up-waterford-lakes",
+     "source_name": "All Fired Up Waterford Lakes",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "All Fired Up Waterford Lakes offers ceramic pottery painting inside Waterford Lakes Town Center.",
+      "The Waterford Lakes studio is the newest studio location.",
+      "Finished pottery is glazed and fired in a kiln before pickup.",
+      "Painters choose pottery pieces to paint at the studio."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+   "name": "Helena Modern Riviera",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": true,
+    "wf_editorial_prior": {
+     "place_id": "ChIJP1om-VJ-54gRAF-_k_y5cig",
+     "verified": false,
+     "hook": null,
+     "why_here": null,
+     "know_before": null,
+     "best_time": null,
+     "local_tip": null
+    },
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Mediterranean and American dining designed for sharing at ICON Park",
+    "why_here": "Come for a Mediterranean table built for sharing at ICON Park, with family-style plates and a Riviera-inspired night out in Orlando.",
+    "know_before": "The Helena Experience is family-style and designed for sharing, so order for the table rather than plate by plate.",
+    "best_time": null,
+    "local_tip": "Share the Helena Experience, starting with Hummus Trio toward Lamb Chops and Baklava.",
+    "facts": [
+     {
+      "claim": "The Helena Experience is a curated family-style dining experience designed for sharing.",
+      "source": "https://helenamodernriviera.com/menus/family-style/"
+     },
+     {
+      "claim": "Helena offers a fusion of Mediterranean and American cuisine.",
+      "source": "https://iconparkorlando.com/dining/helena-modern-riviera/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://iconparkorlando.com/dining/helena-modern-riviera/"
+     ],
+     "why_here": [
+      "https://helenamodernriviera.com/menus/family-style/",
+      "https://iconparkorlando.com/dining/helena-modern-riviera/"
+     ],
+     "know_before": [
+      "https://helenamodernriviera.com/menus/family-style/"
+     ],
+     "local_tip": [
+      "https://helenamodernriviera.com/menus/family-style/",
+      "https://helenamodernriviera.com/private-dining/"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://helenamodernriviera.com/menus/family-style/",
+     "source_name": "Helena Modern Riviera",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "The Helena Experience is a curated family-style dining experience designed for sharing."
+     ]
+    },
+    {
+     "source": "https://iconparkorlando.com/dining/helena-modern-riviera/",
+     "source_name": "Helena Modern Riviera at ICON Park",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Helena offers a fusion of Mediterranean and American cuisine.",
+      "Helena pays homage to contemporary Riviera restaurants along the Mediterranean coast.",
+      "Helena is located at ICON Park in Orlando."
+     ]
+    },
+    {
+     "source": "https://helenamodernriviera.com/private-dining/",
+     "source_name": "Helena Modern Riviera",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Menu highlights include Hummus Trio, Lamb Chops and Baklava.",
+      "Traditional Mediterranean appetizers include Hummus Trio.",
+      "Main courses include Lamb Chops and desserts include Baklava."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJRyvATuoD2okRJNZ_PpKp6GY",
+   "name": "Tim's Pumpkin Patch",
+   "category": "shopping",
+   "metro": "global",
+   "primary_type": "market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "editorial": {
+    "hook": "Fall farm with U-Pick pumpkin field, Corn Maze, Hay Fort and Animal Barn",
+    "why_here": "Go in September and October for a full fall farm day in Marietta, with pumpkins, a corn maze, wagon rides and farm animals in one visit.",
+    "know_before": "Pumpkins are not included with admission, and Apple Cannons run only Friday to Sunday on weekends.",
+    "best_time": null,
+    "local_tip": "Ride the wagon to the U-Pick pumpkin field and try the Apple Cannons on weekends.",
+    "facts": [
+     {
+      "claim": "Admission includes the wagon ride, U-Pick pumpkin field, Corn Maze, Hay Fort and Animal Barn.",
+      "source": "https://www.timspumpkinpatch.com/blank-2"
+     },
+     {
+      "claim": "Pumpkins are not included with admission to the U-Pick pumpkin field.",
+      "source": "https://www.timspumpkinpatch.com/blank-2"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.timspumpkinpatch.com/blank-2"
+     ],
+     "why_here": [
+      "https://www.timspumpkinpatch.com/blank-2"
+     ],
+     "know_before": [
+      "https://www.timspumpkinpatch.com/blank-2"
+     ],
+     "local_tip": [
+      "https://www.timspumpkinpatch.com/blank-2"
+     ]
+    }
+   },
+   "evidence": [
+    {
+     "source": "https://www.timspumpkinpatch.com/blank-2",
+     "source_name": "Tim's Pumpkin Patch",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Admission includes the wagon ride, U-Pick pumpkin field, Corn Maze, Hay Fort and Animal Barn.",
+      "Pumpkins are not included with admission to the U-Pick pumpkin field.",
+      "You do not need admission to enter the retail area with the Bakery and Gift Shop.",
+      "The farm runs in September and October in Marietta."
+     ]
+    },
+    {
+     "source": "https://www.timspumpkinpatch.com/blank-1",
+     "source_name": "Tim's Pumpkin Patch",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Apple Cannons run on weekends from Friday to Sunday.",
+      "Corn Maze is open every day during the season.",
+      "Wagon Rides run on weekends from Friday to Sunday."
+     ]
+    }
+   ]
+  },
+  {
+   "place_id": "ChIJt-i--GutwokRPyo0w5TWmfo",
+   "name": "Harvest Moon Farm & Orchard",
+   "category": "attractions",
+   "metro": "global",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://harvestmoonfarmandorchard.com/about",
+     "source_name": "Harvest Moon Farm & Orchard",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Harvest Moon Farm & Orchard is a family owned and operated apple orchard in North Salem.",
+      "The farm produces Hardscrabble Cider, its own hard cider.",
+      "The bakery makes apple cider donuts fresh every day.",
+      "The farm sells farm fresh free-range eggs, local honey, and maple syrup."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family apple orchard known for apple cider donuts and Hardscrabble Cider",
+    "why_here": "Go for an apple orchard day built around picking, fresh baking, and a farm store. The bakery, cider, and seasonal harvest make it a full outing rather than a quick stop.",
+    "know_before": "Check the official site before visiting for seasonal picking and event availability.",
+    "local_tip": "Try the apple cider donuts and a glass of Hardscrabble Cider.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The bakery makes apple cider donuts fresh every day.",
+      "source": "https://harvestmoonfarmandorchard.com/about"
+     },
+     {
+      "claim": "The farm produces Hardscrabble Cider, its own hard cider.",
+      "source": "https://harvestmoonfarmandorchard.com/about"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://harvestmoonfarmandorchard.com/about"
+     ],
+     "why_here": [
+      "https://harvestmoonfarmandorchard.com/about"
+     ],
+     "know_before": [
+      "https://harvestmoonfarmandorchard.com/about"
+     ],
+     "local_tip": [
+      "https://harvestmoonfarmandorchard.com/about"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJkSQPf539wokRMWt15Ub6os4",
+   "name": "Brother Bruno's Pizza, Deli & Bagels",
+   "category": "food",
+   "metro": "global",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://brotherbrunopizza.com/",
+     "source_name": "Brother Bruno's Pizza, Deli & Bagels",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Brother Bruno's Pizza, Deli & Bagels serves fresh bagels and artisan pizza in Wayne.",
+      "The menu serves pizza, Italian, deli, and bagels.",
+      "Featured items include Large Cheese Pizza and Chicken Parmigiana.",
+      "The shop offers online ordering and nationwide shipping."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wayne shop serving fresh bagels and artisan pizza under one roof",
+    "why_here": "Go when the group wants both a deli breakfast and pizza later in the day. One menu covers bagels, Italian plates, and slices without splitting the meal.",
+    "know_before": "Use online ordering ahead during busy meal times to skip the counter wait.",
+    "local_tip": "Order the Large Cheese Pizza or Chicken Parmigiana.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Brother Bruno's Pizza, Deli & Bagels serves fresh bagels and artisan pizza in Wayne.",
+      "source": "https://brotherbrunopizza.com/"
+     },
+     {
+      "claim": "Featured items include Large Cheese Pizza and Chicken Parmigiana.",
+      "source": "https://brotherbrunopizza.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://brotherbrunopizza.com/"
+     ],
+     "why_here": [
+      "https://brotherbrunopizza.com/"
+     ],
+     "know_before": [
+      "https://brotherbrunopizza.com/"
+     ],
+     "local_tip": [
+      "https://brotherbrunopizza.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJd8uvoLE6K4gRwluO461TMro",
+   "name": "Cake Your Way",
+   "category": "food",
+   "metro": "global",
+   "primary_type": "bakery",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cakeyourway.com/",
+     "source_name": "Cake Your Way",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Cake Your Way brings ideas to life with delicately and intricately designed cakes and treats.",
+      "Custom orders have a turnaround time of one week.",
+      "The bakery offers cakes and cookie pies.",
+      "The Vaughan location is appointment only on Sundays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Custom bakery known for intricately designed cakes and cookie pies",
+    "why_here": "Go for a celebration cake designed around your idea rather than picked from a case. The custom work suits birthdays and events that need a specific look.",
+    "know_before": "Allow one week for custom orders and note Vaughan is appointment only on Sundays.",
+    "local_tip": "Order a custom cake or a cookie pie for the celebration.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Cake Your Way brings ideas to life with delicately and intricately designed cakes and treats.",
+      "source": "https://www.cakeyourway.com/"
+     },
+     {
+      "claim": "Custom orders have a turnaround time of one week.",
+      "source": "https://www.cakeyourway.com/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.cakeyourway.com/"
+     ],
+     "why_here": [
+      "https://www.cakeyourway.com/"
+     ],
+     "know_before": [
+      "https://www.cakeyourway.com/"
+     ],
+     "local_tip": [
+      "https://www.cakeyourway.com/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ08paSdYAe0gR2ACKWXW3m6w",
+   "name": "Bates Farm",
+   "category": "attractions",
+   "metro": "global",
+   "primary_type": "farm",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://batesfarm.co.uk/pumpkin-patch/",
+     "source_name": "Bates Farm",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Bates Farm is a family run farm near Warrington.",
+      "The Pumpkin Patch lets visitors meet sheep, pigs, calves, and donkeys.",
+      "A farmer's corner is led by the farmers who answer questions.",
+      "The farm hosts seasonal events including pumpkin picking."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family farm near Warrington known for its Pumpkin Patch and farm animals",
+    "why_here": "Go for a hands-on farm visit where children meet animals and talk with farmers. Seasonal events give the working farm a clear reason to visit beyond shopping.",
+    "know_before": "Check the official site for event dates and booking before travelling.",
+    "local_tip": "Meet the sheep, pigs, calves, and donkeys at the farmer's corner.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "The Pumpkin Patch lets visitors meet sheep, pigs, calves, and donkeys.",
+      "source": "https://batesfarm.co.uk/pumpkin-patch/"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://batesfarm.co.uk/pumpkin-patch/"
+     ],
+     "why_here": [
+      "https://batesfarm.co.uk/pumpkin-patch/"
+     ],
+     "know_before": [
+      "https://batesfarm.co.uk/pumpkin-patch/"
+     ],
+     "local_tip": [
+      "https://batesfarm.co.uk/pumpkin-patch/"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJmR_bwGZV2YAR13jvyWxggPA",
+   "name": "Ryan Bros Coffee City Heights",
+   "category": "food",
+   "metro": "global",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ryan-bros-coffee.myshopify.com/pages/about-us",
+     "source_name": "Ryan Bros Coffee",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Ryan Bros Coffee has served the San Diego community since 1994.",
+      "Ryan Bros is a family owned and operated business specializing in craft coffee and tea.",
+      "The business was founded in 1994 as a coffee cart in Downtown San Diego.",
+      "Ryan Bros has grown into a coffee roaster with coffee shops across San Diego County."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family coffee roaster serving San Diego since 1994",
+    "why_here": "Go for locally roasted craft coffee from a family business with deep San Diego roots. The City Heights shop brings that roastery range to a neighborhood stop.",
+    "know_before": "Check the official site for the City Heights location details before visiting.",
+    "local_tip": "Try a craft coffee from the San Diego roastery.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Ryan Bros Coffee has served the San Diego community since 1994.",
+      "source": "https://ryan-bros-coffee.myshopify.com/pages/about-us"
+     },
+     {
+      "claim": "Ryan Bros has grown into a coffee roaster with coffee shops across San Diego County.",
+      "source": "https://ryan-bros-coffee.myshopify.com/pages/about-us"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://ryan-bros-coffee.myshopify.com/pages/about-us"
+     ],
+     "why_here": [
+      "https://ryan-bros-coffee.myshopify.com/pages/about-us"
+     ],
+     "know_before": [
+      "https://ryan-bros-coffee.myshopify.com/pages/about-us"
+     ],
+     "local_tip": [
+      "https://ryan-bros-coffee.myshopify.com/pages/about-us"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ31zKXVOeVogRYKJb06G_c7o",
+   "name": "Blackhawk Hardware and Garden Center",
+   "category": "shopping",
+   "metro": "global",
+   "primary_type": "hardware_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://blackhawkhardware.com",
+     "source_name": "Blackhawk Hardware",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Blackhawk Hardware is a locally owned hardware store and garden center in Charlotte.",
+      "Blackhawk Hardware has served Charlotte since 1977.",
+      "The store is located at Park Road Shopping Center.",
+      "Departments include tools, paint, garden center, housewares, pets, and toys."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Locally owned hardware store and garden center serving Charlotte since 1977",
+    "why_here": "Go for project help plus garden and home finds in one independent store. Long local tenure and broad departments make it useful beyond a basic hardware run.",
+    "know_before": "Head to Park Road Shopping Center and check departments online before a large project trip.",
+    "local_tip": "Browse the garden center and housewares alongside tools and paint.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Blackhawk Hardware has served Charlotte since 1977.",
+      "source": "https://blackhawkhardware.com"
+     },
+     {
+      "claim": "Departments include tools, paint, garden center, housewares, pets, and toys.",
+      "source": "https://blackhawkhardware.com"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://blackhawkhardware.com"
+     ],
+     "why_here": [
+      "https://blackhawkhardware.com"
+     ],
+     "know_before": [
+      "https://blackhawkhardware.com"
+     ],
+     "local_tip": [
+      "https://blackhawkhardware.com"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJ6REWkQ2VwoARTSEKn3Yu6eM",
+   "name": "Horror Vibes Coffee",
+   "category": "food",
+   "metro": "global",
+   "primary_type": "coffee_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://horror-vibes-coffee-los-angeles.cloveronline.com/menu/all",
+     "source_name": "Horror Vibes Coffee",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Horror Vibes Coffee lists signature drinks including the Candyman Latte.",
+      "The menu includes classic drinks such as lattes and cortados.",
+      "Signature drinks use horror-themed names.",
+      "The shop is a coffee shop in North Hollywood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Horror-themed coffee shop known for signature drinks like the Candyman Latte",
+    "why_here": "Go for coffee served with a horror theme rather than a standard cafe stop. Themed signature drinks make the visit part drink order, part novelty outing.",
+    "know_before": "Check the online menu before visiting, as signature drinks are the main draw.",
+    "local_tip": "Order the Candyman Latte from the signature drinks.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Horror Vibes Coffee lists signature drinks including the Candyman Latte.",
+      "source": "https://horror-vibes-coffee-los-angeles.cloveronline.com/menu/all"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://horror-vibes-coffee-los-angeles.cloveronline.com/menu/all"
+     ],
+     "why_here": [
+      "https://horror-vibes-coffee-los-angeles.cloveronline.com/menu/all"
+     ],
+     "know_before": [
+      "https://horror-vibes-coffee-los-angeles.cloveronline.com/menu/all"
+     ],
+     "local_tip": [
+      "https://horror-vibes-coffee-los-angeles.cloveronline.com/menu/all"
+     ]
+    }
+   }
+  },
+  {
+   "place_id": "ChIJzzgyJU--woARcZqceSdQ3dM",
+   "name": "Universal Studios Hollywood",
+   "category": "attractions",
+   "metro": "global",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalstudioshollywood.com/web/en/us",
+     "source_name": "Universal Studios Hollywood",
+     "source_class": "official_venue",
+     "checked_at": "2026-10-31",
+     "supports": [
+      "Universal Studios Hollywood features the world-famous Studio Tour.",
+      "SUPER NINTENDO WORLD takes visitors into the world of Super Mario.",
+      "Mario Kart: Bowser's Challenge is an attraction in SUPER NINTENDO WORLD.",
+      "The Wizarding World of Harry Potter is an attraction area."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Movie park known for the Studio Tour and SUPER NINTENDO WORLD",
+    "why_here": "Go to step inside film worlds and ride through them in one day. The Studio Tour adds behind-the-scenes access that separates it from a rides-only park.",
+    "know_before": "Plan the Studio Tour early and check the official site for attraction availability.",
+    "local_tip": "Ride Mario Kart: Bowser's Challenge in SUPER NINTENDO WORLD.",
+    "best_time": null,
+    "facts": [
+     {
+      "claim": "Universal Studios Hollywood features the world-famous Studio Tour.",
+      "source": "https://www.universalstudioshollywood.com/web/en/us"
+     },
+     {
+      "claim": "Mario Kart: Bowser's Challenge is an attraction in SUPER NINTENDO WORLD.",
+      "source": "https://www.universalstudioshollywood.com/web/en/us"
+     }
+    ],
+    "citations": {
+     "hook": [
+      "https://www.universalstudioshollywood.com/web/en/us"
+     ],
+     "why_here": [
+      "https://www.universalstudioshollywood.com/web/en/us"
+     ],
+     "know_before": [
+      "https://www.universalstudioshollywood.com/web/en/us"
+     ],
+     "local_tip": [
+      "https://www.universalstudioshollywood.com/web/en/us"
+     ]
+    }
+   }
+  }
+ ]
+}
