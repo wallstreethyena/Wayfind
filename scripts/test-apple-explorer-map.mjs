@@ -74,6 +74,18 @@ assert.equal(controller.map.annotations.find((a) => a.__wayfindId === "p-0").sub
 assert.match(controller.map.annotations.find((a) => a.__wayfindId === "p-0").accessibilityLabel, /score 9\.2 out of 10/, "the accessible label uses the same governed score as the visible subtitle");
 
 const placePins = controller.map.annotations.filter((a) => a.__wayfindId);
+
+// Sentry WAYFIND-12/1B/1C/1D/R: MapKit throws "undefined is not an object
+// (evaluating 'e.width')" in positionForCallout when a selected pin's Apple
+// callout is sized around an SVG data-URL image it cannot measure yet. No pin
+// this controller creates (place, event, origin) may ask for a callout, and
+// the selectedId pin (selected BEFORE it is added to the map) is the case that
+// used to throw.
+const imageAnnotations = controller.map.annotations.filter((a) => a instanceof MarkerAnnotation && !(a.factory));
+assert.ok(imageAnnotations.length >= 77, `probe finds the place, event and origin annotations (found ${imageAnnotations.length})`);
+assert.ok(imageAnnotations.some((a) => a.__wayfindId) && imageAnnotations.some((a) => a.__wayfindEvent) && imageAnnotations.some((a) => a.title === "Your location"), "probe covers a place, an event and the origin pin");
+assert.ok(imageAnnotations.every((a) => a.calloutEnabled === false), "no ImageAnnotation asks Apple Maps to position a callout it cannot measure");
+assert.equal(controller.map.annotations.find((a) => a.__wayfindId === "p-2").calloutEnabled, false, "the pin selected before it reaches the map has no callout");
 assert.ok(placePins.every((a) => a.image?.[1]?.startsWith("data:image/svg+xml")), "every place pin uses the shared vector teardrop");
 assert.equal(new Set(placePins.slice(0, 3).map((a) => a.image[1])).size, 3, "restaurant, cafe and stay pins retain distinct vector category designs");
 assert.ok(placePins.every((a) => a.clusteringIdentifier === "wayfind-places"), "all result annotations participate in native clustering");
@@ -111,6 +123,8 @@ assert.equal(controller.map.annotations.find((a) => a.__wayfindId === "p-4").sel
 controller.selectId("p-7");
 assert.equal(controller.map.annotations.find((a) => a.__wayfindId === "p-7").selected, true, "selection updates in place without rebuilding the full annotation set");
 
+controller.update({ center: { lat: 27.35, lng: -82.45 }, places: [{ ...places[3], id: "p-new" }, ...places.slice(0, 2)], category: "food", rings: false, showOrigin: true, fit: false });
+assert.ok(controller.map.annotations.filter((a) => a instanceof MarkerAnnotation && !a.factory).every((a) => a.calloutEnabled === false), "annotations added by a later update (new place, new origin) also have no callout");
 controller.update({ center: { lat: 27.3, lng: -82.5 }, places: places.slice(0, 2), category: "food", rings: false, showOrigin: false, fit: true });
 assert.equal(controller.map.annotations.length, 2, "updates replace stale annotations instead of accumulating them");
 assert.equal(controller.map.overlays.length, 0, "updates remove obsolete rings");

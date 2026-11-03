@@ -11,7 +11,7 @@ import { readCompleteMapArea } from "../../../lib/mapAreaRead.js";
 import { accountListOnMap } from "../../../lib/mapListAccounting.js";
 import { mapListSource, enteredMapFromList, mapListIdsOf, listScopeTruth, selectListMapPlaces, readMapList } from "../../../lib/mapListScope.js";
 import { NO_PERMITTED_COORDINATE, creditsForPins } from "../../../lib/coordProvenance.js";
-import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT } from "../../../lib/mapSafeArea.js";
+import { MAP_NOTE_OFFSET, MAPLIBRE_ATTRIBUTION_LIFT, SEARCH_PILL_NOTE_LIFT } from "../../../lib/mapSafeArea.js";
 import AppleExplorerMap from "../AppleExplorerMap";
 import IconicPlaceCard from "../IconicPlaceCard";
 import useMissingPlacePhotos from "../useMissingPlacePhotos";
@@ -213,7 +213,7 @@ export default function MapScreen({ ctx }) {
     : null), [mapMode, explicitList, listTruth, listInventory, mapStatus, contextualView, view, liveAreaPlaces, appleRecovery.stats]);
   const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
   const unpinnedNote = unpinnedForCoord > 0
-    ? `${unpinnedForCoord} of ${listAccounting.total} list places unpinned${explicitList ? " (still in your list)" : " (confirming map location)"}${appleRecovery.status === "loading" ? " · checking Apple Maps…" : ""}`
+    ? `${unpinnedForCoord} of ${listAccounting.total} places not pinned yet${explicitList ? ", still in your list" : ", confirming locations"}${appleRecovery.status === "loading" ? ". Checking Apple Maps…" : ""}`
     : null;
   // Licence credit for any independently sourced pin on screen (OpenStreetMap's
   // ODbL requires the credit wherever its coordinates are shown).
@@ -390,9 +390,9 @@ export default function MapScreen({ ctx }) {
                       the licence credit (ODbL) stacks directly above the unpinned note, and
                       sits alone at the same baseline when there is no note. Both clear the
                       collapsed results sheet (zIndex 18) and MapKit's attribution. */}
-                  {(mapCredits.length > 0 || (mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea))) && <div className="wf-map-note" data-wf-map-notes style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom, zIndex: 17, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, pointerEvents: "none" }}>
+                  {(mapCredits.length > 0 || (mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview)) && <div className="wf-map-note" data-wf-map-notes style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom + (mapMode !== "events" && areaOffer && searchMapArea ? SEARCH_PILL_NOTE_LIFT : 0), zIndex: 17, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, pointerEvents: "none" }}>
                     {mapCredits.length > 0 && <div data-wf-map-credit={mapCredits.join(" | ")} style={{ fontSize: 10, lineHeight: 1.3, color: "rgba(255,255,255,.92)", background: "rgba(15,23,35,.78)", borderRadius: 6, padding: "2px 6px", maxWidth: "100%" }}>{mapCredits.join(" · ")}</div>}
-                    {mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ maxWidth: "100%", background: "rgba(15,23,35,.86)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "4px 10px", fontSize: 10.5, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{unpinnedNote}</div>}
+                    {mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ maxWidth: "100%", background: "rgba(15,23,35,.86)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "4px 10px", fontSize: 10.5, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{unpinnedNote}</div>}
                   </div>}
                   {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
                       Cup out of season this container rendered as an EMPTY dark box
