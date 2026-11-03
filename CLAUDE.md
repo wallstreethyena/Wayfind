@@ -94,6 +94,19 @@ Revenue-audit detail: `docs/POSTMORTEM_2026-08-25_REVENUE_PATH.md`.
 - **A red guard is not a red repo.** Reproduce on a clean tree (`rm -rf .next && npx next
   build`) before reporting a broken `main`.
 
+## Production database changes — a repo file first, then the canonical apply
+
+- **No schema or data change reaches production without a committed
+  `supabase/migrations/<ts>_<name>.sql` on a PR.** The Supabase connector
+  (`apply_migration`, a writing `execute_sql`) and the Management API migrations
+  endpoint are an apply PATH, not a review: use them only to apply a merged file's
+  exact bytes, then commit the receipt (`scripts/migration-apply-log.jsonl`) or the
+  pending declaration (`scripts/migration-pending-apply.json`).
+- Scheduled and automation sessions follow the same rule. A production-only ledger
+  row turns the canary's `check-migration-reconciliation` red and can only be
+  accepted afterwards as a reviewed hash pin in `scripts/migration-historical-exceptions.json`
+  (2026-10-29/30: 14 rows, #2122; 2026-11-03 19:33Z: 3 `event_truth_integrity_*` rows, #2165).
+
 ## Writing guards & assertions — the check must answer the question you asked
 
 - **Assert the syntactic role, not the substring:** declaration →
