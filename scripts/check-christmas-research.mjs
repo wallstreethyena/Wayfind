@@ -28,7 +28,7 @@ import { floridaEventSitemapRows } from "../lib/curatedEvents.js";
 import { composeChristmasIntentRails, christmasEventRail, CHRISTMAS_LOCAL_ONLY_RAILS, CHRISTMAS_STATEWIDE_RAILS, christmasDistanceGroup } from "../lib/christmasIntentRails.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_CARD_LABELS, christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
-import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
+import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, sortChristmasBrowse, distanceBand, ratingRank, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
 import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow, CHRISTMAS_WATCHLIST_PAGE_LINE } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { isTrusted } from "../lib/curatedEvents.js";
@@ -187,7 +187,13 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   const railIds = new Set(cards.filter((c) => (c.season_undated ? true : (c.end_date || c.start_date || "") >= TODAY)).map((c) => c.id));
   ok([...railIds].every((id) => seen.includes(id)), "every card a rail could show is in the browse (hidden local rails hide nothing)");
   const nearTampa = christmasBrowsePage(listings, parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), TODAY).cards;
-  ok(nearTampa.every((c, i) => i === 0 || (c.distMi ?? Infinity) >= (nearTampa[i - 1].distMi ?? Infinity)), "with a location the browse runs nearest first");
+  // Owner 2026-11-03: rings of 20 miles nearest first, best rated leading inside a ring.
+  const ringOk = (list) => list.every((c, i) => i === 0 || distanceBand(c.distMi) >= distanceBand(list[i - 1].distMi));
+  const rateOk = (list) => list.every((c, i) => i === 0 || distanceBand(c.distMi) !== distanceBand(list[i - 1].distMi) || ratingRank(c) <= ratingRank(list[i - 1]));
+  ok(ringOk(nearTampa) && rateOk(nearTampa), "with a location the first page runs nearest ring first (20 mile rings), best rated leading inside a ring");
+  const allTampa = sortChristmasBrowse(filterChristmasBrowse(listings, parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), TODAY), parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), TODAY);
+  ok(ringOk(allTampa) && rateOk(allTampa) && Number.isFinite(allTampa[0].distMi) && allTampa.some((c) => distanceBand(c.distMi) > 0), "the whole located list keeps the ring order and reaches farther rings (" + allTampa.length + " cards)");
+  ok(ratingRank({ wfScore: 82, rating: 4.9 }) === 82 && ratingRank({ rating: 4.5 }) === 90 && ratingRank({}) === 0, "ratingRank: Wayfind score first, Google rating scaled, nothing is 0");
   ok(christmasBrowsePage(listings, parseChristmasBrowseQuery({ undated: "1" }), TODAY).total === listings.filter((c) => c.season_undated).length, "the Dates not announced toggle shows exactly the undated listings");
   ok(christmasBrowsePage(listings, parseChristmasBrowseQuery({ q: "nutcracker" }), TODAY).total >= 10, "search by name works");
   const json = JSON.stringify(christmasBrowsePage(listings, parseChristmasBrowseQuery({}), TODAY));
