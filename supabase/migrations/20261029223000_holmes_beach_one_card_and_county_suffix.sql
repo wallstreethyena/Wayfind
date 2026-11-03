@@ -25,6 +25,9 @@
 -- map, and activating it would make that map the free-lane fallback for a beach.
 --
 -- County rows: Pasco County -> Pasco, Hillsborough County -> Hillsborough.
+-- 2026-11-03: the Scream-A-Geddon name guard matches the stored, hyphenated
+-- name (the canary prints it that way too); the unhyphenated guard would have
+-- raised and rolled the whole block back.
 -- Repo seed copy for Sir Henry's already says Hillsborough. This only repairs
 -- the inventory rows the canary reads.
 --
@@ -136,7 +139,7 @@ begin
   update public.wf_inventory
      set county = 'Pasco'
    where place_id = 'ChIJ7zRUJ9CowogRM70pcoqrdUM'
-     and name = 'Scream A Geddon Horror Park'
+     and name = 'Scream-A-Geddon Horror Park'
      and county = 'Pasco County'
      and status = 'OPERATIONAL'
      and coalesce(excluded, false) = false;

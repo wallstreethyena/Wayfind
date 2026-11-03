@@ -71,10 +71,10 @@
   },
   {
     "file": "supabase/migrations/20261029223000_holmes_beach_one_card_and_county_suffix.sql",
-    "sha256": "f4a43a87902e22b2e6d1a10c7511703143c44b2a175f80081316b73cd4b280da",
+    "sha256": "7a3bccdb993666492d65b2b332ab761c155fc9319d4a471a05bdfe30a25edbf9",
     "decision_owner": "wallstreethyena",
     "tracking": "#2034",
-    "reason": "NOT APPLIED. Soft-excludes the Holmes Beach locality twin 164 m from the beach card and copies its Wikimedia locator map onto the keeper gallery. Strips the County suffix on Scream A Geddon (Pasco) and Sir Henry's Haunted Trail (Hillsborough). Owner applies via scripts/apply-migration.mjs. Does not write production from this commit."
+    "reason": "NOT APPLIED. Soft-excludes the Holmes Beach locality twin 164 m from the beach card and copies its Wikimedia locator map onto the keeper gallery. Strips the County suffix on Scream A Geddon (Pasco) and Sir Henry's Haunted Trail (Hillsborough). Owner applies via scripts/apply-migration.mjs. Does not write production from this commit. 2026-11-03: owner approved applying ('you have my permission to fix it'); name guard corrected to the stored hyphenated 'Scream-A-Geddon Horror Park' before apply, sha re-pinned."
   },
   {
     "file": "supabase/migrations/20261031000000_wf_inventory_locality_from_owned_events.sql",
