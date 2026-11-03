@@ -2484,3 +2484,4 @@ node scripts/test-refresh-selector-trap.mjs
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
 node scripts/check-schedule-note-days.mjs
+node scripts/check-event-assessment-policy.mjs
