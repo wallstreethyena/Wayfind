@@ -396,6 +396,7 @@ scripts/check-rpc-schema-contract.mjs	0	CALL	scheduled-monitoring-only	0	-	1	0	0
 scripts/check-ryans-cafe-sentinel.mjs	0	CALL	blocks-ci-and-deploy	1	-	13	0	0	14523b16a3993d52f06a1ebcf9fbe513c55f514594004c071a9990325528bd9d
 scripts/check-santa-companion.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	bd106c4989bfe65dfa97b60078cd3c643f82930b7d58ac7752c5304e877cae59
 scripts/check-scarcity-needs-an-answer.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	19	1	0	c78f894f358d7c7c03cea38c087b321027732c47255a00d4a55dd1a3e26febe8
+scripts/check-schedule-note-days.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	d11be794380015c16b4b1c7a5e45ddde4b5e85dc3234061fdb0b535fb02f3aa6
 scripts/check-schema-watch.mjs	0	CALL	blocks-ci-and-deploy	1	-	24	0	0	4243ce8ec7f26b5fe27abe9bf29924d7af77139c77611a33c2d11b1ff8071fa1
 scripts/check-score-badge-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	79b194ac75690151125d4d3cd8845efd8aa991eb613d1c513e0854d067f1af0e
 scripts/check-score-law.mjs	0	CALL	blocks-ci-and-deploy	1	-	103	0	0	da0c3f8c7ab86b4c88fbaa4c09f7ff16b6b0eb8869e41a8975612dcf3f1165f5
@@ -433,7 +434,7 @@ scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	189
 scripts/check-tampa-bay-region.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	ffae4749646c06fb87046402ffae8326645a1462dddb583d5237847fdfdde1ed
 scripts/check-temp-closed-recheck.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0	4f2736dad1893f43603ea91461aa8878993082c2aa941899a077d2c4e1973489
 scripts/check-theme-park-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	a69c3f13cf347bec80068f4a71ddd8d6acbeeb1bc88aba0a154c9a09af7536d7
-scripts/check-this-week-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	cfb3927b8402fffb04eafb8adcc025dc1f1b672ed203015b31f95781c0d82b31
+scripts/check-this-week-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	121	0	0	ace302be21c994a2083a0cf3a0251f70750d9cfb06a06d904dfcb065d64c810e
 scripts/check-top-rated-badge.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	34a09bdcf9ffcd5c3a3225565c1f6d05388f879d8aeca88830741f3db598d054
 scripts/check-top40-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	6da7946578d22d1499da707e2f933f1a466c5ec2fbe57018d0fe85546e12cb20
 scripts/check-tour-strip-redirect.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	ad1d90c40f2fcae1202af9302612c49ef28db9b5325bbd611054609bee0da14f
