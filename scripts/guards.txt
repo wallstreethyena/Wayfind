@@ -2483,3 +2483,5 @@ node scripts/test-refresh-selector-trap.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+node scripts/check-schedule-note-days.mjs
+node scripts/check-event-assessment-policy.mjs

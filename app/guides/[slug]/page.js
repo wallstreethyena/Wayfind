@@ -669,9 +669,15 @@ export default async function GuidePage({ params }) {
     // after the exact place's licensed media is exhausted do we illustrate
     // its topic, visibly labelled and credited under the shared figure.
     g.picks.forEach((pick, i) => {
-      fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc });
       if (!curatedPickImages[i] && !editorialImages.get(pickPlaceIds[i])) {
-        curatedPickImages[i] = fallbackPickImages[i];
+        const ctx = guideContextPhoto(params.slug, pick, g, { usedSrc });
+        curatedPickImages[i] = ctx;
+        fallbackPickImages[i] = ctx;
+      }
+    });
+    g.picks.forEach((pick, i) => {
+      if (!fallbackPickImages[i]) {
+        fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc: new Set(usedSrc) });
       }
     });
     for (const place of placeRail.places) {
