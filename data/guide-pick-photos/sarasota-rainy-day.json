@@ -60,15 +60,30 @@
       "verification": "This is the same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active): the car's own \"Museum Gift Shop / Ticket Office\" sign is an unambiguous match, and no different qualifying Commons file for this museum was found.",
       "sameAsCardPhoto": true,
       "reviewedAt": "2026-09-23"
+    },
+    "Mote Marine Laboratory": {
+      "src": "/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The modern curved-roof exterior of Mote Marine Laboratory in Sarasota with an entrance sign and flags out front",
+      "caption": "The Mote Marine Laboratory building in Sarasota, home to the aquarium and shark tank this guide recommends.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJrXZ3LLxqw4gRjYTBNBMgJnA",
+      "verification": "File title 'FL Sarasota Mote Marine Lab' and Commons category 'Mote Marine Laboratory' both confirm the exact place named in the pick. Not geotagged. Reused from the already-reviewed things-to-do-sarasota pick record (same exact venue, same licence-ledger row, no new image fetched); placeId bound from this guide's gap record.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23",
+      "reuseReason": "Same venue (Mote Marine Laboratory, Sarasota) already carries a reviewed, ledger-verified CC BY-SA 4.0 Commons photo in another published guide; reused file and record verbatim."
     }
   },
   "gaps": {
-    "Mote Marine Laboratory": {
-      "reason": "google-only",
-      "placeId": "ChIJrXZ3LLxqw4gRjYTBNBMgJnA",
-      "needsPermissionFrom": "Mote Marine Laboratory",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
     "Sarasota Art Museum": {
       "reason": "google-only",
       "placeId": "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4",
