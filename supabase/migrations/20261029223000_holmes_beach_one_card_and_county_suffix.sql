@@ -28,6 +28,12 @@
 -- Repo seed copy for Sir Henry's already says Hillsborough. This only repairs
 -- the inventory rows the canary reads.
 --
+-- 2026-11-03 correction (lane-f-canary): the county updates were keyed on the
+-- exact display name 'Scream A Geddon Horror Park', but Google's live name is
+-- 'Scream-A-Geddon Horror Park' (refreshed 2026-11-02), so this block would have
+-- raised at the county step and rolled the whole migration back. The place_id
+-- plus the exact 'X County' value are the identity here; the name is not.
+--
 -- REVERSE: supabase/data-fixes/20261029223000_holmes_beach_one_card_and_county_suffix_REVERSE.sql
 
 do $$
@@ -136,7 +142,6 @@ begin
   update public.wf_inventory
      set county = 'Pasco'
    where place_id = 'ChIJ7zRUJ9CowogRM70pcoqrdUM'
-     and name = 'Scream A Geddon Horror Park'
      and county = 'Pasco County'
      and status = 'OPERATIONAL'
      and coalesce(excluded, false) = false;
@@ -148,7 +153,6 @@ begin
   update public.wf_inventory
      set county = 'Hillsborough'
    where place_id = 'ChIJeZM_F1A23YgRFICuRhA_pIo'
-     and name = 'Sir Henry''s Haunted Trail'
      and county = 'Hillsborough County'
      and status = 'OPERATIONAL'
      and coalesce(excluded, false) = false;
