@@ -615,14 +615,19 @@ const LOCAL_HERO_CREDITS = Object.freeze({
     licenseUrl: "https://unsplash.com/license",
     width: 1200,
     height: 800,
+    contextual: true,
+    kind: "illustrative",
+    placeId: null,
+    alt: "Two goats resting in a grassy pasture in Bradenton; contextual photograph, not a photograph of Hunsader Farms",
+    caption: "Illustrative Bradenton farm photo.",
   },
   "/guides/verified/nature-parrish-railroad-museum.webp": {
-    credit: "Dllu",
-    creditHref: "https://commons.wikimedia.org/wiki/File:Florida_Railroad_Museum_2019_05.jpg",
-    license: "CC BY-SA 4.0",
-    licenseUrl: "https://creativecommons.org/licenses/by-sa/4.0/",
-    width: 1200,
-    height: 800,
+    credit: "Ebyabe",
+    creditHref: "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
+    license: "CC BY-SA 3.0",
+    licenseUrl: "https://creativecommons.org/licenses/by-sa/3.0/",
+    width: 1600,
+    height: 1200,
   },
 });
 
@@ -643,14 +648,15 @@ function eventImage(event, venuePhotos = null) {
   if (localHero) {
     return {
       src,
-      alt: resolved.image_alt || ((resolved.venue || resolved.event_name) + "; venue photo"),
+      alt: localHero.alt || resolved.image_alt || ((resolved.venue || resolved.event_name) + "; venue photo"),
       width: localHero.width,
       height: localHero.height,
-      caption: resolved.image_alt || ((resolved.venue || resolved.event_name) + " — photo"),
+      caption: localHero.caption || resolved.image_alt || ((resolved.venue || resolved.event_name) + " — photo"),
       credit: localHero.credit,
       creditHref: localHero.creditHref,
       license: localHero.license,
       licenseUrl: localHero.licenseUrl,
+      ...(localHero.contextual ? { contextual: true, kind: localHero.kind || "illustrative", placeId: null } : {}),
     };
   }
   const manifestFallback = EVENT_MANIFEST_FALLBACKS[event.event_id];
@@ -710,7 +716,7 @@ function EventMiniCard({ event, compact = false, rank = null, visual = true, ven
     "florida-fall-festivals-2026",
     { name: event.event_name, detail: [event.detail, event.card_hook, event.editorial_summary, event.schedule_note, event.guide_kind].filter(Boolean).join(" ") },
     { region: event.city || "Florida" },
-    usedSrc ? { usedSrc } : undefined
+    usedSrc ? { usedSrc: primaryImage ? new Set(usedSrc) : usedSrc } : undefined
   ) : null;
   const image = visual ? primaryImage || fallbackImage : null;
   return (
@@ -936,7 +942,9 @@ async function resolveFallGuideVenuePhotos() {
   for (const event of events) {
     const resolved = withFallVenueIdentity(event);
     const src = fallEventCardImageSrc(resolved, 900);
-    if (LOCAL_HERO_CREDITS[src] || EVENT_MANIFEST_FALLBACKS[event.event_id]) continue;
+    const manifest = EVENT_MANIFEST_FALLBACKS[event.event_id];
+    const hasManifestImg = Boolean(manifest && guidePickPhoto(manifest.slug, manifest.name));
+    if ((LOCAL_HERO_CREDITS[src] && !LOCAL_HERO_CREDITS[src].contextual) || hasManifestImg) continue;
     const placeId = resolved.place_id || EVENT_PHOTO_PLACE_IDS[event.event_id];
     if (placeId && !placeMap.has(placeId)) {
       placeMap.set(placeId, { id: placeId, name: resolved.venue || resolved.event_name });
@@ -968,7 +976,18 @@ async function FallMapExplorer(props) {
 
 export default async function FloridaFallGuide() {
   const venuePhotos = await resolveFallGuideVenuePhotos();
-  const usedSrc = new Set([hero.src]);
+  const usedSrc = new Set([hero.src, hero.creditHref].filter(Boolean));
+  for (const id of new Set([
+    ...FALL_GUIDE_STARTER_IDS,
+    ...FALL_GUIDE_OCTOBER_WEEKENDS.flatMap((w) => w.ids),
+    ...FALL_GUIDE_WEEKDAY_IDS,
+  ])) {
+    const primary = eventImage(findFallGuideEvent(id), venuePhotos);
+    if (primary) {
+      if (primary.src) usedSrc.add(primary.src);
+      if (primary.creditHref) usedSrc.add(primary.creditHref);
+    }
+  }
   return (
     <main className={styles.page}>
       <style dangerouslySetInnerHTML={{ __html: WF_PLACE_CARD_CSS }} />
