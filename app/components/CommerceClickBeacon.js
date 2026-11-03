@@ -57,6 +57,7 @@ import { emitCommerce, mintClickId } from "../../lib/commerce";
 import { forwardToGoogle, PARTNER_CLICK_EVENT } from "../../lib/analytics";
 import { planPartnerClick, planOrganizerClick } from "../../lib/partnerClick";
 import { analyticsSuppressionReason } from "../../lib/browserAnalytics";
+import { syncAdClickCookieFromWindow } from "../../lib/adClickCookie";
 
 // Two clicks on the same partner anchor closer together than this are one
 // double-activation, not two intents. Real re-clicks measured in production were
@@ -126,6 +127,10 @@ export default function CommerceClickBeacon({ surface }) {
         const lastMs = lastActivation.get(a);
         if (lastMs !== undefined && nowMs - lastMs < DOUBLE_ACTIVATION_MS) return;
         lastActivation.set(a, nowMs);
+        try { syncAdClickCookieFromWindow(typeof window !== "undefined" ? window : null); } catch (e) {}
+        if (plan.clickId) {
+          try { a.setAttribute("data-wf-click-id", plan.clickId); } catch (e) {}
+        }
         if (plan.rewriteHref) {
           try { a.setAttribute("href", plan.rewriteHref); } catch (e) {}
         }

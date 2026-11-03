@@ -45,6 +45,7 @@ import { isCrawler, isInternalVerifier } from "../../../../lib/crawler.js";
 import { gateRedirectTraffic, headResponse, noStoreHeaders, clickProof } from "../../../../lib/redirectTrafficClass.js";
 import { viatorCampaign, viatorPageHint } from "../../../../lib/affiliates.js";
 import { attributedTravelpayoutsDestination } from "../../../../lib/travelpayoutsAttribution.js";
+import { attributedViatorDestination } from "../../../../lib/viatorAttribution.js";
 
 const ATTRIBUTED_TP = new Set(["tiqets", "klook", "gocity"]);
 
@@ -185,6 +186,22 @@ export async function GET(req) {
         }));
       } catch {}
     }
+  } else if (provider === "viator") {
+    try {
+      const attributed = await attributedViatorDestination({
+        offerId,
+        destinationUrl: dest,
+        pageHint,
+        surface,
+        contentId,
+        clientClickId: clickId,
+        cookieHeader: req.headers.get("cookie") || "",
+      });
+      if (attributed && attributed.url) {
+        finalDest = attributed.url;
+        resolverPath = "viator-attributed";
+      }
+    } catch {}
   }
 
   try { emit("provider_redirect_started", resolverPath ? { resolver_path: resolverPath } : undefined); } catch {}

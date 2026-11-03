@@ -32,9 +32,24 @@ export function pickOfferHref(offer, slug, pickId, clickId) {
   return commerceHref({ provider: offer.provider, offerId: offer.offerId, surface: SURFACE, contentId: slug + ":" + pickId, clickId, page: "g-" + slug });
 }
 
-/** One tap: mint the click id, point the anchor at it, record ONE click. */
+function readExistingClickId(anchor) {
+  if (!anchor) return null;
+  try {
+    const stamped = typeof anchor.getAttribute === "function" ? anchor.getAttribute("data-wf-click-id") : null;
+    if (stamped && /^[a-z0-9_-]{4,80}$/i.test(stamped)) return stamped;
+    const rawHref = (typeof anchor.getAttribute === "function" && anchor.getAttribute("href")) || anchor.href || "";
+    const qi = String(rawHref).indexOf("?");
+    if (qi >= 0) {
+      const cid = new URLSearchParams(String(rawHref).slice(qi + 1)).get("click_id");
+      if (cid && /^[a-z0-9_-]{4,80}$/i.test(cid)) return cid;
+    }
+  } catch (e) {}
+  return null;
+}
+
+/** One tap: mint (or reuse) the click id, point the anchor at it, record ONE click. */
 export function onPickOfferClick({ offer, slug, pickId, anchor }) {
-  const clickId = mintClickId();
+  const clickId = readExistingClickId(anchor) || mintClickId();
   const href = pickOfferHref(offer, slug, pickId, clickId);
   if (href && anchor) anchor.href = href;
   try { emitCommerce("commerce_cta_clicked", { ...pickOfferContext(offer, slug, pickId), click_id: clickId }); } catch (e) {}
