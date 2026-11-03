@@ -46,8 +46,10 @@ function previewSanta() {
 function charFor(p) {
   return previewSanta() ? "santa" : pickCharacter(p, siteTodayStr());
 }
-function reservedPath(p) {
-  return RESERVED_PATHS.some((r) => p === r || p.startsWith(r + "/"));
+// Santa never rides along on a Hanukkah guide (owner approved release, 2026-11-03).
+const SANTA_OFF_RX = /^\/guides\/[^/]*(?:hanukkah|chanukah)/i;
+function reservedPath(p, ch) {
+  return RESERVED_PATHS.some((r) => p === r || p.startsWith(r + "/")) || (ch === "santa" && SANTA_OFF_RX.test(p));
 }
 // Which character this page gets, and whether that character is in season.
 // Boo keeps inSeason() exactly; Santa has his own window (Oct 1 through Jan 1).
@@ -622,10 +624,10 @@ export default function BooCompanion() {
   useEffect(() => {
     let ok = false;
     try {
-      ok = seasonFor(character) && !reservedPath(pathname);
+      ok = seasonFor(character) && !reservedPath(pathname, character);
       // Each character has its own hide key: hiding Boo never hides Santa.
       if (ok) ok = (santa ? sessionStorage.getItem(SANTA_HIDE_KEY) : sessionStorage.getItem(HIDE_KEY)) !== "1";
-    } catch { ok = seasonFor(character) && !reservedPath(pathname); }
+    } catch { ok = seasonFor(character) && !reservedPath(pathname, character); }
     setElig({ ok, ch: character });
   }, [pathname]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1711,7 +1713,7 @@ export default function BooCompanion() {
     const on = (e) => {
       let ok = false;
       const ch = charFor(pathRef.current);
-      try { ok = seasonFor(ch) && !reservedPath(pathRef.current); } catch { /* ignore */ }
+      try { ok = seasonFor(ch) && !reservedPath(pathRef.current, ch); } catch { /* ignore */ }
       if (!ok) return;
       try { if (ch === "santa") sessionStorage.removeItem(SANTA_HIDE_KEY); else sessionStorage.removeItem(HIDE_KEY); } catch { /* ignore */ }
       setElig({ ok: true, ch });

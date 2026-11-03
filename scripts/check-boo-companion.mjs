@@ -233,6 +233,7 @@ ok(/<TypeLine[^>]*instant=\{motionOff\}/.test(comp) && /setMotionOff\(mq\.matche
   ok(/const x = isClear\(peek, y, SIZE, \[\], MAX_COVER, txt\) \? peek : -SIZE - 6;/.test(ph), "phone dock: words under the dock send him fully off the edge, so no text is ever under him");
   ok(/if \(narrowRef\.current && !phoneBubbleOk\(text\)\) return;/.test(code) && /const phoneBubbleOk = \(text\) =>[\s\S]{0,400}bubbleSideIfClear\([^)]*txt\)/.test(code), "phone: a bubble shows only where it covers no words and no control");
   ok(/const PHONE_TUCK = 0\.(3|4|5)\d*;/.test(code), "phone dock keeps at least half of Santa on screen");
+  ok(/const SANTA_OFF_RX = \/\^\\\/guides\\\/\[\^\/\]\*\(\?:hanukkah\|chanukah\)\/i;/.test(code) && (code.match(/reservedPath\((?:pathname, character|pathRef\.current, ch)\)/g) || []).length === 3, "Santa stays off Hanukkah guides at every mount gate");
 }
 const rposes = comp.match(/const\s+REACT_POSES\s*=\s*\[([^\]]*)\]/);
 ok(!!rposes && ["poke", "cheer", "sales", "orb"].every((k) => rposes[1].includes('"' + k + '"')), "REACT_POSES must warm the poses reactions show first");
