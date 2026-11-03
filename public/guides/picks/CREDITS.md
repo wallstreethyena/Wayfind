@@ -68,6 +68,15 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/fall-events-orlando-2026/walt-disney-world-dolphin-hotel.webp` — fall-events-orlando-2026: Walt Disney World Swan and Dolphin Food & Wine Classic. [Eden, Janine and Jim](https://commons.wikimedia.org/wiki/File:Dolphin_Hotel_(49560737946).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/fall-events-orlando-2026/cinderella-castle-fireworks-hero.webp` — fall-events-orlando-2026: hero image. [Jorge Royan](https://commons.wikimedia.org/wiki/File:Disneyworld_fireworks_-_0219.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## florida-christmas-boat-parades-2026
+
+- `/guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp` — florida-christmas-boat-parades-2026: Jacksonville Light Boat Parade. [Agassiz830](https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## florida-holiday-nights-out-2026
+
+- `/guides/picks/florida-holiday-nights-out-2026/largo-central-park.webp` — florida-holiday-nights-out-2026: Holiday Lights in Largo Central Park. [Theo Worrall](https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- `/guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp` — florida-holiday-nights-out-2026: Lights in Bloom at Selby Gardens. [Joseph Corl](https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI); [Unsplash License](https://unsplash.com/license).
+
 ## florida-lovebug-season
 
 - `/guides/picks/florida-lovebug-season/lovebug-close-up-gainesville.webp` — florida-lovebug-season: Are lovebugs dangerous?. [Alex Abair](https://commons.wikimedia.org/wiki/File:Plecia_nearctica_271553494.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
@@ -79,6 +88,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/florida-lovebug-season/lovebug-mating-pair-felda.webp` — florida-lovebug-season: Why are lovebugs suddenly everywhere?. [Judy Gallagher](https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica,_Okaloacoochee_Slough_State_Forest,_Felda,_Florida.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/florida-lovebug-season/why-do-lovebugs-cover-cars.webp` — florida-lovebug-season: Why do lovebugs cover cars?. [Katja Schulz](https://www.flickr.com/photos/86548370@N00/29768255974); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## florida-santa-and-christmas-trains-2026
+
+- `/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp` — florida-santa-and-christmas-trains-2026: North Pole Express. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## florida-scalloping-crystal-river-homosassa
 
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/a-guided-scallop-trip-from-crystal-river-or-homosassa.webp` — florida-scalloping-crystal-river-homosassa: A guided scallop trip from Crystal River or Homosassa. [Kate Ter Haar](https://www.flickr.com/photos/8489692@N03/16888503408); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -86,6 +99,14 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/crystal-river-manatee-closeup.webp` — florida-scalloping-crystal-river-homosassa: Off-season, swim with the manatees instead. [David Hinkel / USFWS Endangered Species](https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-license-and-the-limits.webp` — florida-scalloping-crystal-river-homosassa: The license and the limits. [ChrisNovak](https://commons.wikimedia.org/wiki/File:Monkey_Island_on_Homosassa_River,_Florida_USA,_Jan_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-season-and-why-you-check-the-exact-dates.webp` — florida-scalloping-crystal-river-homosassa: The season, and why you check the exact dates. [eutrophication&hypoxia](https://www.flickr.com/photos/48722974@N07/5686916873); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
+## florida-winter-beaches-2026
+
+- `/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp` — florida-winter-beaches-2026: Bahia Honda State Park. [Matthew Wu](https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8); [Unsplash License](https://unsplash.com/license).
+
+## free-christmas-lights-florida-2026
+
+- `/guides/picks/free-christmas-lights-florida-2026/largo-central-park.webp` — free-christmas-lights-florida-2026: Holiday Lights in Largo Central Park. [Theo Worrall](https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 ## gatorland-vs-wild-florida
 
@@ -334,7 +355,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## things-to-do-in-venice-florida
 
 - `/guides/picks/things-to-do-in-venice-florida/caspersen-beach-sunset-rocks.webp` — things-to-do-in-venice-florida: Caspersen Beach Park. [Grendelkhan](https://commons.wikimedia.org/wiki/File:Sunset_at_Caspersen_Beach.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/things-to-do-in-venice-florida/venice-beach.webp` — things-to-do-in-venice-florida: Venice Beach. [Forest and Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg); [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/deed.en).
+- `/guides/picks/things-to-do-in-venice-florida/venice-beach.webp` — things-to-do-in-venice-florida: Venice Beach. [Forest and Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/us/deed.en).
 - `/guides/picks/things-to-do-in-venice-florida/triangle-inn-venice-museum.webp` — things-to-do-in-venice-florida: Venice Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Venice_FL_Triangle_Inn03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-key-west-summer-2026
@@ -486,10 +507,3 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/ybor-city-tampa-guide/seventh-avenue-ybor.webp` — ybor-city-tampa-guide: Seventh Avenue and the cigar legacy. [Richard Mc Neil](https://commons.wikimedia.org/wiki/File:Long_corridor_de_commerces_sur_la_7i%C3%A8me_Avenue_Est_%C3%A0_Ybor_City,_Tampa,_Florida,_USA_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/ybor-city-tampa-guide/columbia-restaurant.webp` — ybor-city-tampa-guide: The Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - `/guides/picks/ybor-city-tampa-guide/teco-streetcar-ybor.webp` — ybor-city-tampa-guide: The streetcar and the roosters. [Pokemonprime](https://commons.wikimedia.org/wiki/File:TECO_Line_Streetcar_No._430,_Ybor_City,_Florida.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-- **florida-winter-beaches-2026 — Bahia Honda State Park**: /guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp; [Matthew Wu](https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8); [Unsplash License](https://unsplash.com/license). The old Bahia Honda bridge at sunset. Photo published in 2020. Resized and converted to WebP for page loading; display may crop the photograph.
-
-- **florida-holiday-nights-out-2026 — Holiday Lights in Largo Central Park**: /guides/picks/florida-holiday-nights-out-2026/largo-central-park.webp; [Theo Worrall](https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Largo Central Park in March 2024. Holiday Lights is not pictured. Resized and converted to WebP for page loading; display may crop the photograph.
-- **florida-christmas-boat-parades-2026 — Jacksonville Light Boat Parade**: /guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp; [Agassiz830](https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Jacksonville’s Southbank Riverwalk in 2018, one of the parade viewing areas. The parade is not pictured. Resized and converted to WebP for page loading; display may crop the photograph. The photograph remains available under the same licence.
-
-- **florida-holiday-nights-out-2026 — Lights in Bloom at Selby Gardens**: /guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp; [Joseph Corl](https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI); [Unsplash License](https://unsplash.com/license). Holiday lights at Selby Gardens in a photo published in December 2025. Resized and converted to WebP for page loading; display may crop the photograph.
