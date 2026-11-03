@@ -82,5 +82,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "place-page city coverage (PR #2069)",
     "reason": "DATA ONLY. Fills wf_inventory.locality for 82 places. Each needs BOTH owned evidence (wf_events.city, event address city slot equal to it) AND the accepted rule: the US Census place containing the row's own point is that city (scripts/gate-locality-census.mjs; evidence docs/audits/20261031000000_wf_inventory_locality_from_owned_events.census.json). Of 118 candidates: 82 eligible, 10 conflicting (point inside a different Census place, e.g. Downtown Wellen Park in North Port), 26 unsupported (unincorporated, e.g. SeaWorld Orlando); none of those 36 is written. House of Blues Orlando, Frenchy's Original Cafe, Fox Squirrel Corn Maze and Keel Farms are not candidates. Row-level preconditions (locality AND county still empty); all-or-nothing assertion rolls back if any row was changed since the dry run. Reverse: supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql. Owner approved apply in-session 2026-11-03."
+  },
+  {
+    "file": "supabase/migrations/20261103120000_indigenous_sarasota_closed_permanently.sql",
+    "sha256": "cca1fa29bbf622e16bf258bb4d0cc1615d5621718d8771c849e897611df4890d",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2132 Indigenous Restaurant closure",
+    "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
   }
 ]
