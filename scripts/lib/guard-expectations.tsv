@@ -353,7 +353,7 @@ scripts/check-place-sitemap-parity.mjs	0	CALL	blocks-ci-and-deploy	1	-	56	0	0	9b
 scripts/check-popularity-attempt-ledger.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	8de50e593a9fd7c479dfc2fb117d3e0a8fe8c18b33233dc6428e0d15c28ee36b
 scripts/check-position-memory.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f04789d19e67d7c2a251f6f4d80790755fff4a0505287c0d9809d7a0c44e9371
 scripts/check-poster-open-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	1367c0b859f57615fcaae1920689ba1ec5c9d92cd8a86888c3e8d84bd0e62ca6
-scripts/check-poster-seasons.mjs	0	CALL	blocks-ci-and-deploy	1	-	60	0	0	b87b8f2f24a79c19efe1959a62b024b8aa5d0b6b28f9c17e305d916b70951a40
+scripts/check-poster-seasons.mjs	0	CALL	blocks-ci-and-deploy	1	-	66	0	0	6ee76b460c0d37da38c68b206da6070c244c0b401364e1fd1646cc2474f91925
 scripts/check-premium-event-card-system.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	30	1	0	8b13e2d427322f2c158c993f127554277b839e2b1336537a42b4fb1703da9c14
 scripts/check-price-badge.mjs	1	STRUCTURAL	blocks-ci-and-deploy	1	Qwen (Engineering)	15	1	0	2efcfdf2060564691567c6810388e2a57fd0e7731061c244dbf5acadfa5ca2c1
 scripts/check-promo-location-honesty.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	a4431a2c2b2b7f1ccac3913479a9dcdfdf4f8be16266b5129f4acc03b8c026a1
@@ -429,10 +429,11 @@ scripts/check-subfilter-experience-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	
 scripts/check-supabase-key-live.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	f559e6389e54dc2e46c6884de9bd7e2e9d278486f41661be6824ac660e42657e
 scripts/check-surface-parity-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	63	0	0	3a242756fd52716e044082e66bd927793d5078331d54457fd67d27560ece612b
 scripts/check-synthetic-map-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	ad596b716b664f5acb7d0e8b45b4eba3701ca3b6e3c5e4bc19d2ceed5c5f5018
-scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	187	0	0	7744fdf7e624b46929ca348f889e828b33c3e3c72c96a0671066f3302a913c04
+scripts/check-synthetic-monitor-hermetic.mjs	0	CALL	blocks-ci-and-deploy	1	-	189	0	0	c4b56e016209f7a73c5fa2a9afc80a2edf08f23cf6bc49197e3415ddf964ab6b
 scripts/check-tampa-bay-region.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	ffae4749646c06fb87046402ffae8326645a1462dddb583d5237847fdfdde1ed
 scripts/check-temp-closed-recheck.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	12	0	0	4f2736dad1893f43603ea91461aa8878993082c2aa941899a077d2c4e1973489
 scripts/check-theme-park-coverage.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	a69c3f13cf347bec80068f4a71ddd8d6acbeeb1bc88aba0a154c9a09af7536d7
+scripts/check-this-week-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	334d13640a7974ea68e21b24a6ba35c37e40d2954dc2065391befff21996e710
 scripts/check-top-rated-badge.mjs	0	CALL	blocks-ci-and-deploy	1	-	44	0	0	34a09bdcf9ffcd5c3a3225565c1f6d05388f879d8aeca88830741f3db598d054
 scripts/check-top40-rail.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	6da7946578d22d1499da707e2f933f1a466c5ec2fbe57018d0fe85546e12cb20
 scripts/check-tour-strip-redirect.mjs	0	RENDER	blocks-ci-and-deploy	1	-	20	0	0	ad1d90c40f2fcae1202af9302612c49ef28db9b5325bbd611054609bee0da14f
@@ -734,7 +735,7 @@ scripts/test-guide-discovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	65	0	0	292cb9
 scripts/test-guide-editorial-mode.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	1143cfcf22aa5141699214ff1ec91bd33f894c0e624c3806bf91cc86cddb631b
 scripts/test-guide-editorial-photos.mjs	0	RENDER	blocks-ci-and-deploy	1	-	46	0	0	84c3118d018c3b6497ff5d02225f53a9753d12fa29afe91c0ed849cd47fffc26
 scripts/test-guide-email.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	18a4fa0c52f478c7c67d7e4b9e12cbe677cde98b069cf243725e688705249fc2
-scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	4c24b43bf5556b3c6f06a5d6e653db81ac13e68196b85783d89f0d8e32a5b5d9
+scripts/test-guide-event-ticket-cta.mjs	0	CALL	blocks-ci-and-deploy	1	-	26	0	0	6f116e7dcfcf213c5cebc07643f6a39cec1bf8161dfcda8b3f58bc56d94adb3e
 scripts/test-guide-florida-trending.mjs	0	CALL	blocks-ci-and-deploy	1	-	41	0	0	3563db7f310be88a6f4163122414a4623829c3b476fd12286bf5919431eecc03
 scripts/test-guide-gulf-coast-world-series.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	ce58ce0d12f936d26a0f8012edf6f98bbf160b022ac5b64310a24af8a6de9330
 scripts/test-guide-inline-book.mjs	1	RENDER	blocks-ci-and-deploy	1	Revenue QA	25	0	0	fe5b1fca49aac46725311df93665ce7831177eb2b9055f84644dfbbe35afd533
