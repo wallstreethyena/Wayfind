@@ -2474,3 +2474,6 @@ node scripts/test-fall-offering-retirement.mjs
 
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
+
+# Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
+node scripts/test-hydrate-editorial-precedence.mjs

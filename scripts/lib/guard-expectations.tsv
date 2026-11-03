@@ -1,12 +1,12 @@
-# Reviewed guard expectations: one line per guard, sorted by path.
-# This file is committed; neither the checker nor the generator writes it.
-# Numeric fields match exactly in both directions, preserving assertion/honesty ratchets.
-# entry_sha256 locks EVERY canonical per-entry field, including full wiring, protects,
-# blastRadius, criticalReasons, honesty details, and any future schema fields.
-# The registry metadata digest locks its shared rule configuration; counts are checked live.
-# Object key order and registry entry order are non-semantic; nested array order is semantic.
-# For an intentional guard change, review its diff and use --suggest <path> to update its row.
 # "-" is only for unavailable numeric metadata or absent ownership; critical guards require owners.
+# For an intentional guard change, review its diff and use --suggest <path> to update its row.
+# Numeric fields match exactly in both directions, preserving assertion/honesty ratchets.
+# Object key order and registry entry order are non-semantic; nested array order is semantic.
+# Reviewed guard expectations: one line per guard, sorted by path.
+# The registry metadata digest locks its shared rule configuration; counts are checked live.
+# This file is committed; neither the checker nor the generator writes it.
+# blastRadius, criticalReasons, honesty details, and any future schema fields.
+# entry_sha256 locks EVERY canonical per-entry field, including full wiring, protects,
 # registry-meta-sha256: a3df4dac554232de3e0786b6c81554c3eb1a072a25592a97d6f92e6d70a841c2
 path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
@@ -765,6 +765,7 @@ scripts/test-hotel-card-cta.mjs	0	RENDER	blocks-ci-and-deploy	1	-	28	0	0	f615f69
 scripts/test-hotel-cta-impression.mjs	0	RENDER	blocks-ci-and-deploy	1	-	9	0	0	5caafc813520845839c8cbc998d1ff1719ea120e3fa0dcc7b70f4564f4b99306
 scripts/test-hotel-image-resolver.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	34	0	0	0f0c965c5ce408a6c85fe4401f6e10e6a447efc66d198319575fd1e7c33769f6
 scripts/test-house-card-photo.mjs	0	RENDER	blocks-ci-and-deploy	1	-	52	0	0	2ad4a866acba6fa3520517283f64059f9366e58a6535cfc0c555b0f467a31083
+scripts/test-hydrate-editorial-precedence.mjs	0	CALL	blocks-ci-and-deploy	1	-	5	0	0	291ab4d63339abaf24782a82efd3e272f281a62165402b07459a45604e2b0da9
 scripts/test-idle-defer.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	8feabfde61417041b34e6c57e33297d5f8adbc84944ee2f28b80f00587bfc3fd
 scripts/test-image-fallback.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	1dc194826a9b316fc079409203adf83e793789f9f162b5c045632ace442365a9
 scripts/test-image-health-report.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	b18e24ddc43c8019d3ddb3f02d8b437a48a20788ace1f54ceb34b3dc913c1e80
