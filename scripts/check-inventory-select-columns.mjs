@@ -14,8 +14,7 @@
  *   - REST URLs containing wf_inventory?select=<columns>
  * Each selected column (aliases `a:b` resolved to b; embeds `x(...)`, `*`,
  * `count` skipped) must be in WF_INVENTORY_COLUMNS, the live column list read
- * from Supabase information_schema on 2026-10-23 (postal_city and
- * postal_city_source added by 20261103230000). A migration that adds a
+ * from Supabase information_schema on 2026-10-23 (+2 by 20261103230000). A migration that adds a
  * column must add it here too.
  */
 // STRUCTURAL-ONLY: the truth is the live wf_inventory schema, which CI cannot reach, and a Next route.js may not export its column list; the scan carries negative, positive and REST controls.
