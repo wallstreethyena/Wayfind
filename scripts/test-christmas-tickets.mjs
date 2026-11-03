@@ -317,6 +317,9 @@ ok(((renderPage(christmasTicketsModel([base({ id: "solo" })], TODAY), [base({ id
 ok(html.includes("data-analytics-page=\"christmas_tickets\""), "the analytics surface is christmas_tickets");
 ok(html.includes("prefers-reduced-motion"), "the string lights and sparkles respect reduced motion");
 ok((html.match(/class="xm-bulb"/g) || []).length === 18, "18 string light bulbs render");
+// Cute lights (owner 2026-11-03): every bulb hangs from a swaying holder, red
+// bows sit on the wire, and phones get half the strand on a matching wire.
+ok((html.match(/class="xm-sway"/g) || []).length === 18 && (html.match(/class="xm-bow(?: xm-bow-desk)?"/g) || []).length === 6 && html.includes("xm-wire-phone") && /@keyframes xm-sway\{from\{rotate:-7deg\}to\{rotate:7deg\}\}/.test(html), "the lights sway on their holders, carry six bows, and have a phone wire");
 ok(!html.includes("xm-bloom") && html.includes('data-pattern="twinkle"') && html.includes("data-xm-snow") && html.includes('class="xm-doodles"'), "the rotating light pattern, the snow canvas and the doodle backdrop render, with no rainbow haze band under the lights (owner 2026-11-01: the lights looked ugly)");
 // Owner 2026-11-01: the top menu looked detached and its links (Food, ...) led
 // off the page. The header is the logo plus one way back to Wayfind, nothing else.

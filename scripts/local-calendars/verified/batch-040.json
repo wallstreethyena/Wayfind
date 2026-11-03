@@ -1,0 +1,55 @@
+{
+  "batch": 40,
+  "verified_by": "claude-lane-concert-events",
+  "verified_at": "2026-11-03T12:36:00Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "price_min": null,
+      "price_max": null,
+      "is_free": false,
+      "official_ticket_url": "https://www.ticketmaster.com/ed-sheeran-loop-tour-tampa-florida-11-07-2026/event/0D006331D60A3A7A",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-11-03T12:36:00Z",
+      "start_time": null,
+      "end_time": null,
+      "lead_key": "manual:ed-sheeran-loop-tour-tampa",
+      "event_id": "ed-sheeran-loop-tour-tampa-2026",
+      "event_series_id": "ed-sheeran-tampa",
+      "slug": "ed-sheeran-loop-tour-tampa-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "music",
+      "subcategory": "concert",
+      "tags": ["concert", "music", "stadium"],
+      "audience": [],
+      "event_name": "Ed Sheeran LOOP Tour Tampa",
+      "short_title": "Ed Sheeran in Tampa",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "schedule_note": "Sat Nov 7. Doors and start time per Ticketmaster.",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy, Tampa, FL 33607",
+      "lat": 27.977838,
+      "lng": -82.505423,
+      "card_hook": "Ed Sheeran brings the LOOP Tour to Raymond James Stadium in Tampa.",
+      "official_event_url": "https://www.edsheeran.com/tour",
+      "source_url": "https://www.ticketmaster.com/ed-sheeran-loop-tour-tampa-florida-11-07-2026/event/0D006331D60A3A7A",
+      "verify_note": "2026-11-03: Ticketmaster, the tour's official seller per the tour FAQ on edsheeran.com, lists Ed Sheeran LOOP Tour at Raymond James Stadium, Tampa, Sat Nov 7 2026. Start time sources disagree, so none is stated. Supporting acts not confirmed by an official source, so none are named. No price stated."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "manual:noah-kahan-tampa",
+      "event_name": "Noah Kahan: The Last of the Bugs World Tour",
+      "reason": "Not publishable under the row contract yet: only source is press (tbbwmag.com, 2026-10-29), no organizer or Ticketmaster event page found (noahkahan.com and the Ticketmaster artist page could not be fetched). Thu Apr 29 2027, Raymond James Stadium; presale registration to Nov 5, presale Nov 10 noon, general on sale Nov 12 noon via Ticketmaster per press. Recheck on or after Nov 12 for the Ticketmaster event URL.",
+      "url": "https://tbbwmag.com/2026/10/29/noah-kahan-tampa-concert/"
+    }
+  ]
+}
