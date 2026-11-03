@@ -127,7 +127,7 @@ let santaPoseCount = 0;
     ok(/>=\s*"10-01"\s*&&\s*md\s*<=\s*"10-31"/.test(gm[0]), "Boo's gate is 10-01 through 10-31 (Santa takes Nov 1)");
   }
   ok(/function seasonFor\(character\) \{\s*return character === "santa" \? santaSeasonOpen\(siteTodayStr\(\)\) : inSeason\(\);\s*\}/.test(comp), "Santa's gate reads the Eastern site date (siteTodayStr), Boo's stays inSeason()");
-  ok(/RESERVED_PATHS/.test(comp) && /seasonFor\(character\) && !reservedPath\(pathname\)/.test(comp), "reserved paths still apply to both characters");
+  ok(/RESERVED_PATHS\.some\(\(r\) => p === r \|\| p\.startsWith\(r \+ "\/"\)\) \|\| \(ch === "santa" && SANTA_OFF_RX\.test\(p\)\)/.test(comp) && /seasonFor\(character\) && !reservedPath\(pathname, character\)/.test(comp), "reserved paths still apply to both characters (the Hanukkah guide rule is Santa only)");
 }
 
 // ---- 4. Santa copy --------------------------------------------------------
