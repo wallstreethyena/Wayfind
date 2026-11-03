@@ -110,6 +110,7 @@ ok(classify("x-show-2026") === "shows-outings" && classify("x-party-2026") === "
 ok(christmasEventRail(ev("x-bad-rail", "Christmas Lights", "2026-12-01", "2026-12-02", { christmas_rail: "beaches" })) === null, "an explicit rail that is not one of the nine is refused, never guessed");
 ok(christmasEventRail(ev("x-spooky", "Halloween Trail", "2026-12-01", "2026-12-02", { christmas_rail: "lights" })) === null, "a Halloween name is refused even with an explicit rail");
 ok(CHRISTMAS_EVENT_RAIL["mvmcp-2026"] === "theme-parks" && CHRISTMAS_EVENT_RAIL["jollywood-nights-2026"] === "theme-parks" && !Object.values(CHRISTMAS_EVENT_RAIL).filter((r) => r === "parties").length && CHRISTMAS_EVENT_RAIL["cocoa-beach-holiday-boat-parade-2026"] === "boat-parades" && CHRISTMAS_EVENT_RAIL["winter-park-christmas-parade-2026"] === "parades", "existing wf_events rows carry an explicit rail");
+ok(CHRISTMAS_EVENT_RAIL["snowcat-ridge-2026"] === "theme-parks" && CHRISTMAS_EVENT_RAIL["christmas-town-2026"] === "theme-parks", "Snowcat Ridge shares the theme parks rail with Busch Gardens Christmas Town");
 ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "every mapped rail is one of the nine");
 ok(classify("sarasota-boat-parade-2026") === "boat-parades" && classify("lighted-regatta-2026") === "boat-parades", "an unmapped boat parade or regatta falls back to boat-parades");
 ok(classify("both-words-2026") === "boat-parades", "an event matching boat parade AND lights is claimed once, by boat-parades");
@@ -249,6 +250,17 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
 // ── 4c. The research data (EXECUTED; deep checks in check-christmas-research) ─
 {
   ok(CHRISTMAS_PUBLISHED_RESEARCH.length >= 450 && CHRISTMAS_PUBLISHED_RESEARCH.every((r) => SPEC_IDS.includes(christmasEventRail(r))), `every published research listing carries one of the nine rails (${CHRISTMAS_PUBLISHED_RESEARCH.length})`);
+  // Owner 2026-11-02: these ten stay on the Christmas poster for the default
+  // Parrish seed and for Tampa and Sarasota, without a location prompt.
+  const OWNER_TEN = ["snowcat-ridge-2026", "roberts-christmas-wonderland-2026", "utc-holidays-2026", "lwr-christmas-on-main-2026", "wellen-wonderland-2026", "bradenton-holiday-lights-festival-2026", "frrm-north-pole-express-2026", "king-fisher-christmas-light-canal-cruise-2026", "palma-sola-winter-nights-2026", "bradenton-winter-wonderland-2026"];
+  const snowcat = { event_id: "snowcat-ridge-2026", id: "snowcat-ridge-2026", event_name: "Snowcat Ridge Alpine Snow Park", city: "Dade City", state: "FL", start_date: "2026-11-14", end_date: "2027-02-28", lat: 28.3783258, lng: -82.3554245, place_id: "wfadd_snowcat_ridge_dade_city", tags: ["christmas"] };
+  const ownerPool = [...CHRISTMAS_PUBLISHED_RESEARCH, snowcat];
+  for (const [label, at] of [["Parrish", { lat: 27.5689, lng: -82.4393 }], ["Tampa", { lat: 27.9506, lng: -82.4572 }], ["Sarasota", SARASOTA]]) {
+    const out = composeChristmasIntentRails(ownerPool, [], { ...at, today: TODAY });
+    const ids = new Set(out.rails.flatMap((r) => r.cards.map((c) => c.id)));
+    const missing = OWNER_TEN.filter((id) => !ids.has(id));
+    ok(missing.length === 0, `${label} Christmas poster includes all ten owner listings (missing ${missing.join(", ")})`);
+  }
   ok(Object.keys(CHRISTMAS_CITY_POINTS).length > 200 && Object.values(CHRISTMAS_CITY_POINTS).every(([la, ln]) => la > 24.3 && la < 31.1 && ln > -87.7 && ln < -79.8), "the Census city points are all in Florida");
   ok(Object.values(CHRISTMAS_EVENT_RAIL).every((r) => SPEC_IDS.includes(r)), "the fallback rail map only names the nine rails");
 }
@@ -273,27 +285,23 @@ ok(composeChristmasIntentRails(events, placeFixture(), { today: TODAY }).rails.l
 
 // ── 6. Poster position ──────────────────────────────────────────────────────
 const ids = RAILS.map((r) => r.id);
-// Owner slot rule (2026-10-08): 2nd in the morning, lunch and at night, 3rd in
-// the afternoon (behind tonight); 1st all day from the morning after
-// Thanksgiving through Jan 1 (owner, 2026-10-14; was Jan 6).
-// Owner, 2026-10-14: the Halloween poster sits right of Fall in the raw order, so Christmas is one place
-// further right in it (slots 3/3/4/3); Halloween is hidden outside Oct 10-31 by lib/posterSeasons.js and the
-// old seats (2/2/3/2) are asserted on the visible track in scripts/check-poster-seasons.mjs. The Jan 6 end moved to Jan 1.
+// October keeps its owner-approved slots behind Fall and Halloween.
+// Owner, 2026-11-01: Christmas leads all day Nov 1 through Jan 1 annually.
 const LIVE_SLOT = { morning: 2, lunch: 2, afternoon: 3, night: 2 };
 for (const band of DAYPART_IDS) {
   const live = orderFor(band, ids, "2026-10-08");
   ok(live[0] === "augtober" && live.indexOf("christmas") === LIVE_SLOT[band], `${band}: while fall is live, christmas is poster ${LIVE_SLOT[band] + 1} (got ${live.slice(0, 4).join(", ")})`);
   const noDate = orderFor(band, ids);
   ok(noDate.indexOf("christmas") === LIVE_SLOT[band], `${band}: with no date the static order keeps the same slot`);
-  for (const d of ["2026-11-27", "2026-12-25", "2027-01-01"]) {
-    const after = orderFor(band, ids, d); // Thanksgiving 2026 is Nov 26
+  for (const d of ["2026-11-01", "2026-11-27", "2026-12-25", "2027-01-01"]) {
+    const after = orderFor(band, ids, d);
     ok(after[0] === "christmas", `${band} ${d}: christmas is the first poster (got ${after.slice(0, 3).join(", ")})`);
     ok(new Set(after).size === ids.length && after.length === ids.length, `${band} ${d}: nothing is dropped or duplicated`);
   }
   const thanksgiving = orderFor(band, ids, "2026-11-26");
-  ok(thanksgiving[0] === "augtober", `${band}: Thanksgiving Day itself still leads with fall`);
+  ok(thanksgiving[0] === "christmas", `${band}: Christmas stays first on Thanksgiving Day`);
 }
-ok(christmasLeads("2026-11-27") && !christmasLeads("2026-11-26") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && christmasLeads("2027-01-01") && !christmasLeads("2027-01-02") && !christmasLeads("2027-01-06") && christmasLeads("2025-11-28") && !christmasLeads("2025-11-27"), "christmasLeads follows the fall season law (Thanksgiving computed per year) through Jan 6");
+ok(christmasLeads("2026-11-01") && christmasLeads("2026-11-26") && !christmasLeads("2026-10-31") && !christmasLeads("2026-07-15") && christmasLeads("2026-12-31") && christmasLeads("2027-01-01") && !christmasLeads("2027-01-02") && !christmasLeads("2027-01-06") && christmasLeads("2025-11-01") && !christmasLeads("2025-10-31"), "christmasLeads runs Nov 1 through Jan 1 every year");
 
 // ── 6b. Revenue: ticketed events carry the affiliate CTA (EXECUTED) ────────
 // Healthy wf_deals rows for every UT entry, as the route would read them (a missing row means "not servable", exactly as in Fall).
@@ -518,7 +526,7 @@ const comp = read("app/components/ChristmasIntentRails.js");
 ok(/result\.rails\.length !== RAIL_COUNT/.test(comp) && /RAIL_COUNT = 9/.test(comp), "the component requires exactly nine rails");
 ok(/<RailGuideSlot railId=\{rail\.id\} guide=\{rail\.guide/.test(comp) && !/GuideRailCollection|<aside/.test(comp), "each rail puts its own guide third inside its own track, nothing between rails (static; owner rule 2026-10-08)");
 ok(/onTrack=\{onTrack\}/.test(comp) && /"guide_open", props/.test(read("app/components/RailGuideSlot.js")) && /rail: railId/.test(read("app/components/RailGuideSlot.js")), "a guide click is tracked as guide_open with the rail and slug (static)");
-ok(/christmas-intents:v10:/.test(route) && /mergeChristmasResearch\(rows \|\| \[\]\)/.test(route) && /mergedRows\.filter\(/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key, merges the research data at read time, enriches and attaches guides server side (static)");
+ok(/christmas-intents:v12:/.test(route) && /mergeChristmasResearch\(rows \|\| \[\]\)/.test(route) && /mergedRows\.filter\(/.test(route) && /enrichChristmasEvent\(e, inventoryById\)/.test(route) && /withChristmasGuides\(composed\.rails, today\)/.test(route), "the route bumps its cache key, merges the research data at read time, enriches and attaches guides server side (static)");
 ok(/christmasEventCard\(e, \{ today, inventory: inventoryById\.get\(e\.place_id\) \|\| null, pageSlugs, byDealId \}\)/.test(route), "every event card is built by the shared christmasEventCard (static; executed in check-christmas-research)");
 ok(/from "\.\.\/\.\.\/lib\/christmasCardCopy\.js"/.test(comp) && !/lib\/christmasIntentRails|lib\/christmasDiscoveries2026|lib\/christmasPool/.test(comp) && !/^\s*import/m.test(read("lib/christmasCardCopy.js")), "the client component imports only the client safe card copy, so the registry never ships to the browser (static; production chunks are swept after the build)");
 ok(!/directionsUrl|fallSkin|isSpookyCard|spookySkin|wf-fall/.test(comp), "the component wears no fall or spooky skin and no Directions button");

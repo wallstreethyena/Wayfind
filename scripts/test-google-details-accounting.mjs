@@ -108,6 +108,7 @@ try {
   const retry = promote.slice(promote.indexOf("async function details("), promote.indexOf('// cache: "no-store" IS LOAD-BEARING'));
   globalThis.__retryAccounting = { grants: 0, denied: false };
   const retryModule = await import("data:text/javascript," + encodeURIComponent(`
+    import { classifyDetailsFailure } from ${JSON.stringify(new URL("../lib/promoteDetails.js", import.meta.url).href)};
     const DETAILS_MASK = "id"; const PROMOTE_SKU = "details_pro";
     const sleep = async () => {}; const isTerminalStatus = (s) => s >= 400 && s < 500 && s !== 429;
     const spendAllowCapped = async (sku, cap) => { globalThis.__retryAccounting.grants++; if (sku !== "details_enterprise" || cap !== 950) throw new Error("retry changed SKU/ceiling"); return !globalThis.__retryAccounting.denied; };
@@ -123,6 +124,13 @@ try {
   providers = 0; globalThis.__retryAccounting.grants = 0;
   globalThis.fetch = async () => { providers++; return new Response("missing", { status: 404 }); };
   assert.equal((await retryModule.details("fixture", "ChIJfixture", "rating", "details_enterprise", 950)).terminal, true);
+  assert.equal(providers, 1); assert.equal(globalThis.__retryAccounting.grants, 0);
+  // Google quota 429 (2026-11-01): one provider call, no retry grant, flagged
+  // quota (the caller parks it with the attempt refunded), never terminal.
+  providers = 0; globalThis.__retryAccounting.grants = 0; globalThis.__retryAccounting.denied = false;
+  globalThis.fetch = async () => { providers++; return new Response("Quota exceeded for quota metric 'GetPlaceRequest' and limit 'GetPlaceRequest per day'", { status: 429 }); };
+  const q = await retryModule.details("fixture", "ChIJfixture", "rating", "details_enterprise", 950);
+  assert.equal(q.ok, false); assert.equal(q.quota, "quota_daily"); assert.equal(q.terminal, false);
   assert.equal(providers, 1); assert.equal(globalThis.__retryAccounting.grants, 0);
 
   // Production city POST with one accepted pull and the remainder denied.

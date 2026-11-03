@@ -71,7 +71,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse, budgetLimitNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating } from "../../../../lib/promoteDetails";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -92,6 +92,10 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // enough that an exhausted month does not cost 12 empty claim cycles an hour,
 // short enough that a raised month_cap is picked up the same day.
 const RELEASE_DELAY_MINUTES = 60;
+// A per-minute Google 429 parks the rest of the batch this long. A per-day 429
+// parks it until the quota resets (minutesUntilQuotaReset). Either way the claim
+// attempt is refunded: a quota answer says nothing about the place.
+const RATE_LIMIT_DELAY_MINUTES = 15;
 
 const COST_PER_RECORD = 0.017;
 const GKEY = () => (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
@@ -116,6 +120,12 @@ async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, mon
     });
     if (r.ok) return { ok: true, place: await r.json() };
     const body = (await r.text()).slice(0, 160);
+    // A 429 is never retried here: retrying a quota answer buys nothing and
+    // takes another ledger grant per try. The caller parks the batch.
+    const kind = classifyDetailsFailure(r.status, body);
+    if (kind === "quota_daily" || kind === "rate_limited") {
+      return { ok: false, terminal: false, quota: kind, error: `details ${r.status}: ${body}` };
+    }
     if (isTerminalStatus(r.status)) return { ok: false, terminal: true, error: `details ${r.status}: ${body}` };
     if (attempt === 2) return { ok: false, terminal: false, error: `details ${r.status}: ${body}` };
     await sleep(500 * (attempt + 1));
@@ -339,12 +349,15 @@ export async function GET(req) {
   const rejects = [];
   const retries = [];
   const released = [];
+  const quotaReleased = []; // Google 429: attempt refunded, parked until the quota frees
+  let quotaKind = null;     // "quota_daily" | "rate_limited" once Google says no
 
   let budgetExhausted = false;
   let ratingBought = 0; // places that had no index rating and bought it (Enterprise, its own free allowance)
   let ratingSkipped = 0; // ... and could not (Enterprise ledger said no) — promoted from CORE, no stars yet
   for (const item of claimed) {
     if (budgetExhausted) { released.push(item.place_id); continue; }
+    if (quotaKind) { quotaReleased.push(item.place_id); continue; }
     // THE MONEY GUARD. Exactly one atomic ledger grant per Google call, for the
     // SKU that call actually bills at, before the call:
     //   index has the stars (~88%)  -> CORE mask, one Pro grant.
@@ -371,6 +384,13 @@ export async function GET(req) {
       if (d.budget) {
         budgetExhausted = true;
         released.push(item.place_id);
+        continue;
+      }
+      if (d.quota) {
+        // Google's quota, not the place. Park this one and the rest of the
+        // batch with the attempt refunded, instead of burning toward a reject.
+        quotaKind = d.quota;
+        quotaReleased.push(item.place_id);
         continue;
       }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
@@ -452,9 +472,14 @@ export async function GET(req) {
   // migration. Deliberately NOT wf_promotion_complete(p_ok:false): that path
   // burns an attempt and would reject a good place after three empty months.
   for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()})` }));
+  if (quotaReleased.length) {
+    const delay = quotaKind === "quota_daily" ? minutesUntilQuotaReset(Date.now()) : RATE_LIMIT_DELAY_MINUTES;
+    const parkNote = `google ${quotaKind === "quota_daily" ? "daily" : "rate"} quota 429: parked ${delay}m, attempt refunded`;
+    for (const id of quotaReleased) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: delay, p_note: parkNote }));
+  }
   await Promise.allSettled(settle);
 
-  const attempted = claimed.length - released.length; // places we actually paid to look at
+  const attempted = claimed.length - released.length - quotaReleased.length; // places we actually paid to look at
   const succeeded = writeError ? 0 : written;
   // Real used/cap for the label; a failed ledger read falls back to the ceiling
   // (a refusal means used had reached it), never blocks the pulse.
@@ -467,6 +492,9 @@ export async function GET(req) {
     ? `upsert failed: ${writeError.slice(0, 120)}`
     : budgetExhausted
       ? `${budgetLimitNote(PROMOTE_SKU, budgetUsed, effectiveCap(PROMOTE_SKU, monthCap))}; ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()}); released ${released.length}/${claimed.length}`.slice(0, 200)
+      : quotaKind === "quota_daily"
+        // "quota:" is the jobPulse prefix that pages after ONE dead run (CLAUDE.md rule 2).
+        ? `quota: google places details per-day quota exhausted (429); parked ${quotaReleased.length}/${claimed.length} until reset`.slice(0, 200)
       : (succeeded === 0 && attempted > 0 ? `0/${attempted} promoted; top reject: ${(rejects[0] && rejects[0].error) || "none"}`.slice(0, 200) : null);
   // attempted counts only what was bought. A run that released its whole batch
   // pulses as attempted 0 with the budget note, so job-watch reads it as IDLE
@@ -480,7 +508,7 @@ export async function GET(req) {
   // `queueNonEmpty` is a proxy (a full claim), not a fresh COUNT query — see
   // the comment on nextBatchLimit for why that tradeoff is deliberate.
   const errors = retries.length + (writeError ? okIds.length : 0);
-  const sawRateLimit = retries.some((r) => /\b429\b/.test(r.error || ""));
+  const sawRateLimit = !!quotaKind || retries.some((r) => /\b429\b/.test(r.error || ""));
   const queueNonEmpty = claimed.length >= limit;
   // ledgerDenials is the throttle's own input for budget refusals: a batch that
   // was mostly released halves the NEXT claim, so an exhausted month costs a
@@ -498,6 +526,8 @@ export async function GET(req) {
     rejected: rejects.length,
     retrying: retries.length,
     released: released.length,
+    quotaParked: quotaReleased.length,
+    quota: quotaKind,
     ratingBought,
     ratingSkipped,
     budgetExhausted,

@@ -585,6 +585,15 @@ const histDays = (n, devices = 40, extra = {}) => Array.from({ length: n }, (_, 
     posthogModule.revenueHeartbeatCounts(qFrom, qTo, allOpts), posthogModule.revenueHeartbeatDaily(qFrom, qTo, allOpts),
     posthogModule.liveByMinute(allOpts), posthogModule.liveNow(allOpts), posthogModule.errorCount24h(allOpts), posthogModule.boundaryErrorsByBuild(allOpts),
   ]);
+  // 2026-10-31: the heartbeat's affiliate signal includes human partner redirects, so a
+  // surface whose ticket buttons fire no client CTA events (the Halloween page) cannot read
+  // as a silent zero while money is actually leaving for partners. Asserted on the query
+  // the CALL sent, both the current window and the baseline, so they stay comparable.
+  {
+    const hb = allQueries.filter((body) => /AS affiliate_activity/.test(body.query?.query || ""));
+    ok(hb.length === 2 && hb.every((body) => /event = 'provider_redirect_started' AND toString\(properties\.traffic_class\) = 'human'/.test(body.query.query) && /'commerce_impression', 'commerce_cta_clicked'/.test(body.query.query)),
+      "revenue heartbeat: current window and baseline both count commerce_impression/commerce_cta_clicked AND human provider_redirect_started (got " + hb.length + " heartbeat queries)");
+  }
   ok(allQueries.length === 19, `posthog scope: all 19 query helpers executed against the fake Query API (got ${allQueries.length})`);
   ok(allQueries.every((body) => body.query?.filters?.filterTestAccounts === true && /\$virt_is_bot/.test(body.query?.query || "") && /person_distinct_ids/.test(body.query?.query || "")), "posthog scope: every query applies project test filters plus bot/internal/linked-account exclusion at runtime");
   ok(allQueries.filter((body) => /FROM sessions/.test(body.query?.query || "")).every((body) => /\{filters\}/.test(body.query?.query || "")), "posthog scope: session helpers apply PostHog's project test-account predicate inside their bounded eligible-event subquery");

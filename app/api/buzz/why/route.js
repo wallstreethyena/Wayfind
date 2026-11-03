@@ -47,7 +47,7 @@ export async function POST(req) {
     const r = await paidAnthropicRequest({
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model: "claude-haiku-4-5", max_tokens: 120, temperature: 0.4, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(evidence) }] }),
+      body: JSON.stringify({ model: "claude-haiku-5-5", max_tokens: 120, system: SYSTEM, messages: [{ role: "user", content: JSON.stringify(evidence) }] }),
     });
     if (!r.ok) return Response.json({ line: null, error: true }, { status: 200 });
     const data = await r.json();

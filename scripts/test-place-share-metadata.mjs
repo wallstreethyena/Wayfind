@@ -17,7 +17,7 @@ const declaration=(name)=>{const node=ast.statements.find(n=>ts.isFunctionDeclar
 let metadataSource=declaration("generateMetadata");
 if(MUTATION){const recovery=/const identity = await getInventoryIdentity\(id, \{ freshOnly: true \}\);/;assert.ok(recovery.test(metadataSource),"mutation must find the real authoritative name lookup");metadataSource=metadataSource.replace(recovery,"const identity = null;");}
 let durableUrl=null;const durableAsked=[];
-const metadata=Function("getInventoryIdentity","SITE_URL","placeCanonical","FALL_CARD_IDS","fallSkinLive","siteTodayStr","durablePlaceUrl",`${declaration("s")}\n${metadataSource}\nreturn generateMetadata;`)(getInventoryIdentity,"https://www.gowayfind.com",()=>null,new Set(),()=>false,()=>"2026-10-04",async(id)=>{durableAsked.push(id);return durableUrl;});
+const metadata=Function("getInventoryIdentity","SITE_URL","placeCanonical","fallCardClass","siteTodayStr","durablePlaceUrl",`${declaration("s")}\n${metadataSource}\nreturn generateMetadata;`)(getInventoryIdentity,"https://www.gowayfind.com",()=>null,()=>"",()=>"2026-10-04",async(id)=>{durableAsked.push(id);return durableUrl;});
 const originalFetch=globalThis.fetch,originalNow=Date.now;
 const keys=["SUPABASE_URL","SUPABASE_SERVICE_ROLE_KEY","NEXT_PUBLIC_SUPABASE_URL","NEXT_PUBLIC_SUPABASE_ANON_KEY"];
 const now=Date.parse("2026-10-04T12:00:00Z"),DAY=86400000;

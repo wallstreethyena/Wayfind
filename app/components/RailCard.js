@@ -87,6 +87,7 @@ import { ownedPlacePhotoSrc } from "../../lib/placePhoto.js";
 import { usePhotoSrcFilter } from "./photoPolicyContext";
 import { useCardTapIntent } from "./useCardTapIntent.js";
 import { trendPulseClass, trendPulseLabel } from "../../lib/trendPulse.js";
+import { storedPlaceHeader } from "../../lib/locationHonesty.js";
 
 // Same glyphs as IconicPlaceCard's action row, so a thumb is one drawing in
 // this app rather than two that almost match.
@@ -604,6 +605,7 @@ export default function RailCard({
                 : <span className="wf-place-card-category">{shownEyebrow}</span>) : null; })()}
               <AwardListRank award={shownAward} rank={rank} />
               <div className="wf-place-card-name">{title}</div>
+              {place ? (() => { const where = storedPlaceHeader(place); return where ? <div className="wf-place-card-where">{where}</div> : null; })() : null}
             </div>
           </div>
 

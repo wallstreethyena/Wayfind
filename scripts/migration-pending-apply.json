@@ -52,7 +52,7 @@
     "file": "supabase/migrations/20261021180000_wf_apple_place_ids.sql",
     "sha256": "e48800727ae58370478ded154224fce8fbd394aa3ab30b19715a65e47aef908d",
     "decision_owner": "wallstreethyena",
-    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) \u2014 do not apply until the PR is reviewed",
+    "tracking": "#1877 free Apple pins (owner 2026-10-21: I want the pins, and I don't want to buy that) — do not apply until the PR is reviewed",
     "reason": "Additive wf_apple_place_ids (Apple Place IDs only; exempt from DPLA Attachment 6 section 2.5) with RLS on and no anon/authenticated grants, plus the apple_maps row in wf_source_registry (15,000 calls/day ceiling under Apple's free 25,000). Not applied to production project gbhtoehdxkzjsmmkisgu. Until applied, the list ships no Place IDs and the map makes no Place ID lookups. Rollback: delete the apple_maps registry row (after its usage rows), drop table public.wf_apple_place_ids."
   },
   {
@@ -75,5 +75,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2034",
     "reason": "NOT APPLIED. Soft-excludes the Holmes Beach locality twin 164 m from the beach card and copies its Wikimedia locator map onto the keeper gallery. Strips the County suffix on Scream A Geddon (Pasco) and Sir Henry's Haunted Trail (Hillsborough). Owner applies via scripts/apply-migration.mjs. Does not write production from this commit."
+  },
+  {
+    "file": "supabase/migrations/20261031000000_wf_inventory_locality_from_owned_events.sql",
+    "sha256": "0440b27d7f464c90437c34136fdd2888072958b62924e7462aaa7a796afd18ad",
+    "decision_owner": "wallstreethyena",
+    "tracking": "place-page city coverage (PR #2069)",
+    "reason": "DATA ONLY. Fills wf_inventory.locality for 118 indexed places from OWNED evidence: wf_events.city, the venue city an editor typed from the organiser/venue page, linked by place_id. No Google content, no reverse geocoding, no coordinate read or written, no city inferred from metro or lat/lng. Tier A only - unambiguous (one distinct city across that place events) AND the city slot of the event own address (the segment before FL) equals that city exactly, so each row corroborates itself - a street name or longer place name does not count (House of Blues Orlando / Lake Buena Vista Dr and Frenchy's / Clearwater Beach were wrongly admitted by the first draft's substring test); rows the 2026-10-14 Census pass resolved as unincorporated (county set, locality deliberately empty, e.g. Fox Squirrel Corn Maze, Keel Farms) are never considered; uncorroborated Tier B rows held back, 0 ambiguous. Idempotent (every statement requires locality still empty), resumable (that clause IS the resume condition), append-only (never overwrites a held value), reversible via supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql (clears only values still exactly as written). Audit with evidence per row: docs/audits/20261031000000_wf_inventory_locality_from_owned_events.csv. Generated read-only by scripts/backfill-locality-from-events.mjs. Lifts indexed coverage 17.2 to 17.9 pct; the remaining ~14,700 need the owner decision in docs/locality-backfill-proposal.md. Owner applies after review. Not applied."
   }
 ]

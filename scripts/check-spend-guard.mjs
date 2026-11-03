@@ -203,15 +203,19 @@ const paidAiProbe = (env) => {
   const code = `
     const calls = [];
     globalThis.fetch = async (url, init = {}) => {
-      const target = String(url); calls.push({ target, init: { method: init.method, redirect: init.redirect, cache: init.cache } });
+      const target = String(url); calls.push({ target, init: { method: init.method, redirect: init.redirect, cache: init.cache, body: target === "https://api.anthropic.com/v1/messages" ? init.body : undefined } });
       if (target.includes("/rest/v1/rpc/wf_spend_take")) return new Response(process.env.LEDGER === "true" ? "true" : "false", { status: 200, headers: { "content-type": "application/json" } });
       if (target === "https://api.anthropic.com/v1/messages") return new Response('{"content":[]}', { status: 200, headers: { "content-type": "application/json" } });
       throw new Error("unexpected network target: " + target);
     };
     const { paidAnthropicRequest } = await import("./lib/paidAi.js");
     const kind = process.env.PROBE_KIND;
+    const msg = [{ role: "user", content: "test" }];
     const payload = kind === "bad_shape"
       ? { model: "claude-haiku-4-5", max_tokens: 10, messages: [] }
+      : kind === "haiku55" ? { model: "claude-haiku-5-5", max_tokens: 40, temperature: 0.4, top_p: 0.9, top_k: 5, messages: msg }
+      : kind === "haiku55_explicit" ? { model: "claude-haiku-5-5", max_tokens: 40, thinking: { type: "adaptive" }, output_config: { effort: "medium" }, messages: msg }
+      : kind === "other_model" ? { model: "claude-sonnet-5", max_tokens: 40, temperature: 0.4, messages: msg }
       : { model: "claude-haiku-4-5", max_tokens: kind === "bad_max" ? 4097 : 10, messages: [{ role: "user", content: kind === "oversize" ? "x".repeat(65_537) : "test" }] };
     const response = await paidAnthropicRequest({
       method: "POST",
@@ -248,6 +252,22 @@ const denied = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "free", LEDGER: "false"
 ok(denied.status === 503 && denied.calls.length === 1 && /wf_spend_take$/.test(denied.calls[0].target), "paid AI: denied atomic ledger grant never reaches Anthropic");
 const granted = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "open", LEDGER: "true" });
 ok(granted.status === 200 && granted.calls.length === 2 && /wf_spend_take$/.test(granted.calls[0].target) && granted.calls[1].target === "https://api.anthropic.com/v1/messages" && granted.calls[1].init.redirect === "error" && granted.calls[1].init.cache === "no-store", "paid AI: granted request takes the ledger then reaches Anthropic with redirect:error and no-store");
+
+// Haiku 5.5 contract (2026-10-30): sampling params are HTTP 400 on this model and
+// default adaptive thinking can spend a small max_tokens budget with no text, so
+// lib/paidAi.js must rewrite the body it actually sends. Asserted on the bytes
+// that reach the provider, not on the caller's payload.
+const sentBody = (probe) => JSON.parse(probe.calls[1].init.body);
+const h55 = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "open", LEDGER: "true", PROBE_KIND: "haiku55" });
+const h55Body = h55.status === 200 && h55.calls.length === 2 ? sentBody(h55) : {};
+ok(!("temperature" in h55Body) && !("top_p" in h55Body) && !("top_k" in h55Body), "paid AI: claude-haiku-5-5 never receives temperature/top_p/top_k (HTTP 400 on that model)");
+ok(h55Body.thinking?.type === "disabled" && h55Body.output_config?.effort === "low" && h55Body.max_tokens === 40 && h55Body.model === "claude-haiku-5-5", "paid AI: claude-haiku-5-5 defaults to thinking disabled at effort low, leaving model and max_tokens unchanged");
+const h55x = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "open", LEDGER: "true", PROBE_KIND: "haiku55_explicit" });
+const h55xBody = h55x.calls.length === 2 ? sentBody(h55x) : {};
+ok(h55xBody.thinking?.type === "adaptive" && h55xBody.output_config?.effort === "medium", "paid AI: an explicit caller thinking/effort choice on claude-haiku-5-5 is respected, never overwritten");
+const other = paidAiProbe({ ...ledgerEnv, WAYFIND_GATE: "open", LEDGER: "true", PROBE_KIND: "other_model" });
+const otherBody = other.calls.length === 2 ? sentBody(other) : {};
+ok(otherBody.temperature === 0.4 && !("thinking" in otherBody) && !("output_config" in otherBody), "paid AI: other models' request bodies pass through byte-for-byte unchanged");
 
 if (failed) { console.error(`check-spend-guard: ${failed} failure(s)`); process.exit(1); }
 console.log("check-spend-guard: OK — Google and Anthropic requests are discovered, fail-closed, and capped");

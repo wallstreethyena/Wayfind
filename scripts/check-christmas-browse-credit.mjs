@@ -58,11 +58,13 @@ ok(!!railCard && railCard.photoAttr === byFile.get(railCard.image)?.credit && ra
 const { ChristmasBrowseCard } = await loadComponent(path.join(ROOT, "app/components/ChristmasBrowse.js"), ROOT);
 const nol = licensed.find((c) => /stetson/.test(c.image)) || licensed[0];
 const html = renderToStaticMarkup(React.createElement(ChristmasBrowseCard, { card: nol, rank: 1, today: TODAY }));
-const badge = /<a[^>]*class="wf-place-card-photo-attr"[^>]*>/.exec(html)?.[0] || "";
+// Owner direction 2026-11-01: the browse wears the one ticket card, so the
+// credit is the card's own xm-credit line (text plus a link to the source).
+const creditLine = /<p class="xm-credit">([\s\S]*?)<\/p>/.exec(html)?.[1] || "";
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/"/g, "&quot;");
-ok(badge.includes('title="' + esc("Photo: " + nol.photoAttr) + '"') && badge.includes('href="' + esc(nol.photoAttrHref) + '"'), `the browse card shows the credit badge "${nol.photoAttr}" linked to its source (${badge.slice(0, 160)})`);
+ok(creditLine.includes(esc(nol.photoAttr).replace(/&quot;/g, "&quot;")) && creditLine.includes('href="' + esc(nol.photoAttrHref) + '"'), `the browse card shows the credit "${nol.photoAttr}" linked to its source (${creditLine.slice(0, 160)})`);
 const bare = renderToStaticMarkup(React.createElement(ChristmasBrowseCard, { card: { ...nol, photoAttr: undefined, photoAttrHref: undefined }, rank: 1, today: TODAY }));
-ok(!/wf-place-card-photo-attr/.test(bare), "negative control: without the fields the badge is gone, so the probe sees the difference");
+ok(!(/<p class="xm-credit">([\s\S]*?)<\/p>/.exec(bare)?.[1] || "").includes(esc(nol.photoAttr)), "negative control: without the fields the credit is gone, so the probe sees the difference");
 
 // 4. A shadowed listing (wf_events keeps its own photo) shows no Wikimedia credit.
 for (const e of prov.filter((x) => x.shadowed_by_db_photo === true)) {
@@ -73,12 +75,11 @@ for (const e of prov.filter((x) => x.shadowed_by_db_photo === true)) {
   ok(merged && merged.hero_image.startsWith("/api/photo") && !merged.photoAttr, `${dbId}: keeps its own photo and carries no Wikimedia credit`);
 }
 
-// Hospitality remains an ordinary shared place card with working place actions.
+// Hospitality renders on the same ticket card (no price, no ticket button).
 const placeProps = { card: { id: "browse-place-fixture", place_id: "browse-place-fixture", kind: "place", title: "Fixture Holiday Bar", city: "Winter Park", image: "/fixture-place.jpg", detailHref: "/p/browse-place-fixture", christmasRail: "popup-bars", seasonalWhen: "2026 season confirmed; dates pending", hook: "Holiday rooms and drinks.", take: "Holiday rooms and drinks.", sourceUrl: "https://example.com/holiday", wfScore: 92, rating: 4.8, reviews: 300 }, rank: 1, today: TODAY };
 const placeMarkup = renderToStaticMarkup(React.createElement(ChristmasBrowseCard, placeProps));
-const placeElement = ChristmasBrowseCard(placeProps);
-ok(placeElement.props.href === "/p/browse-place-fixture" && placeElement.props.place.id === "browse-place-fixture" && placeMarkup.includes('data-place-id="browse-place-fixture"') && placeMarkup.includes("wf-place-card") && placeMarkup.includes("2026 season confirmed; dates pending"), "hospitality renders the shared card, canonical place link and honest season chip");
-ok(placeMarkup.includes("wf-place-card-score") && !placeMarkup.includes("Price not announced") && !placeMarkup.includes("Remind me"), "hospitality renders a real place score without event-only price or reminder controls");
+ok(placeMarkup.includes('href="/p/browse-place-fixture"') && placeMarkup.includes('class="xm-card"') && placeMarkup.includes("2026 season confirmed; dates pending"), "hospitality renders the one ticket card with its canonical place link and honest season text");
+ok(!placeMarkup.includes("Price not announced") && !placeMarkup.includes("Remind me") && !placeMarkup.includes("Official Tickets"), "hospitality shows no event-only price, reminder or ticket button");
 
 console.log(`\ncheck-christmas-browse-credit: ${fail ? "FAIL" : "OK"}: ${pass} assertions (${cards.length} browse cards serialized, ${licensed.length} with a licensed photo, ${prov.length - live.length} shadowed)`);
 process.exit(fail ? 1 : 0);

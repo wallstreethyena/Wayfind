@@ -82,7 +82,7 @@ import { laneRequestBody, extractLaneResult, identityProblems, dashProblems, den
 // safe to loop. Never fabricates: every facts[].claim cites a real source; if a
 // place can't be sourced it's stored issues=['PENDING SOURCE'] with empty facts.
 // Ride-level rows (individual rides inside a park) are stored as RIDE-LEVEL, not
-// written. NOTE: model is claude-haiku-4-5 by default (cheap/fast over ~2k rows);
+// written. NOTE: model is claude-haiku-5-5 by default (cheap/fast over ~2k rows);
 // set ATLAS_MODEL=claude-sonnet-5 in the env for higher editorial quality.
 //
 // v2 — sourced + verified. Two changes, both measured on an 8-place Orlando batch:
@@ -147,7 +147,7 @@ const CATS = ["food", "attractions", "beach", "nightlife", "hotels", "shopping"]
 const METROS = ["tampa", "orlando", "manatee-sarasota"];
 // ATLAS_MODEL is a VALUE override, not a presence flag — absent is correct and
 // means "use the default". The old form was
-//   const MODEL = () => (process.env.ATLAS_MODEL || "claude-haiku-4-5").trim();
+//   const MODEL = () => (process.env.ATLAS_MODEL || "claude-haiku-5-5").trim();
 // which appeared in NO env audit list at all. Set it to a retired or mistyped
 // model and this route hands that string to Anthropic, takes a 404, returns null
 // from writeEditorial, and stores the row as PENDING SOURCE — identical in the
@@ -446,7 +446,7 @@ export async function GET(req) {
 
   // THE CACHE HONESTY GATE, computed ONCE per invocation (both blocks are
   // place-independent — see lib/atlasCache.js). MODEL() here is the trickle
-  // path's own model (ATLAS_MODEL, default claude-haiku-4-5) — deliberately
+  // path's own model (ATLAS_MODEL, default claude-haiku-5-5) — deliberately
   // untouched by WO-D-atlas-cache-batch item 2: the batch path gets its own
   // ATLAS_BATCH_MODEL default (claude-sonnet-5) precisely so it can clear the
   // cache minimum without changing what runs here. sysInfo.eligible is

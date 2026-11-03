@@ -22,7 +22,9 @@ export function seasonalSearchMetadata(slug) {
   };
 }
 
-export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse = null }) {
+// seoOnly: a hub page that renders its own hero and browse above (the
+// Christmas ticket page) keeps only the guide content and schema here.
+export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse = null, seoOnly = false }) {
   const hub = seasonalSearchHub(slug);
   if (!hub) throw new Error("Unknown seasonal search hub: " + slug);
   const sections = seasonalSearchSections(hub, today);
@@ -66,9 +68,9 @@ export default function SeasonalSearchHub({ slug, today = siteTodayStr(), browse
   };
   return <div className={styles.page} data-seasonal-search={slug}>
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schema).replace(/</g, "\\u003c") }} />
-    <GuideArticleHero title={hub.title} description={hub.intro} category={hub.label} region="Florida"
+    {seoOnly ? null : <GuideArticleHero title={hub.title} description={hub.intro} category={hub.label} region="Florida"
       image={hero} jumpHref="#plan" jumpLabel="Choose your plan"
-      actions={<ShareButton url={shareUrl} title={hub.title} text={hub.description} tone="dark" event="page_share" meta={{ surface: "seasonal_search", slug }} />} />
+      actions={<ShareButton url={shareUrl} title={hub.title} text={hub.description} tone="dark" event="page_share" meta={{ surface: "seasonal_search", slug }} />} />}
     <SeasonalSearchNav />
     {/* Christmas v4: the statewide browse renders here when a hub page passes one. */}
     {browse ? <div style={{ maxWidth: 1180 }}>{browse}</div> : null}

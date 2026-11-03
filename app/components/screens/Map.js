@@ -99,20 +99,60 @@ export default function MapScreen({ ctx }) {
     const dLat = .36, dLng = .42;
     setViewport({ north: center.lat + dLat, south: center.lat - dLat, east: center.lng + dLng, west: center.lng - dLng });
   }, [center?.lat, center?.lng]);
+  const coveredAreaRef = useRef({ key: "", originKey: "", boxes: [] });
   useEffect(() => {
     if (!validMapBounds(viewport) || !center || explicitList) return undefined;
+    const originKey = `${center?.lat}|${center?.lng}|${areaRetry}|${curatorSnap.v}`;
+    const coverageKey = `${originKey}|${mapCategory || ""}|${sub || ""}|${searchMode ? "1" : "0"}`;
+    const originChanged = coveredAreaRef.current.originKey !== originKey;
+    if (coveredAreaRef.current.key !== coverageKey) {
+      coveredAreaRef.current = { key: coverageKey, originKey, boxes: [] };
+    }
+    const eps = 1e-4;
+    const isCovered = coveredAreaRef.current.boxes.some(
+      (cb) => viewport.north <= cb.north + eps && viewport.south >= cb.south - eps && viewport.east <= cb.east + eps && viewport.west >= cb.west - eps
+    );
+    if (isCovered) {
+      setAreaStatus("ready");
+      setSettledArea(areaReadKey);
+      return undefined;
+    }
     const controller = new AbortController();
     let dead = false;
     setAreaStatus("loading");
-    setAreaPlaces([]);
+    if (originChanged) {
+      setAreaPlaces([]);
+    }
     const timer = setTimeout(() => {
       readCompleteMapArea({ bounds: viewport, origin: center, signal: controller.signal,
-        onPage: (rows) => { if (!dead) setAreaPlaces(rows); } })
-        .then(() => { if (!dead) { setAreaStatus("ready"); setSettledArea(areaReadKey); } })
-        .catch(() => { if (!dead) setAreaStatus("error"); });
+        onPage: (rows) => {
+          if (dead || controller.signal.aborted) return;
+          setAreaPlaces((existing) => {
+            if (originChanged || !existing.length) return rows;
+            const byId = new Map(existing.map((r) => [r.id || r.place_id, r]));
+            for (const r of rows) byId.set(r.id || r.place_id, r);
+            return [...byId.values()];
+          });
+        } })
+        .then((rows) => {
+          if (dead || controller.signal.aborted || !Array.isArray(rows)) return;
+          if (coveredAreaRef.current.key === coverageKey) {
+            coveredAreaRef.current = {
+              key: coverageKey,
+              originKey,
+              boxes: [
+                ...coveredAreaRef.current.boxes,
+                { north: viewport.north, south: viewport.south, east: viewport.east, west: viewport.west },
+              ],
+            };
+          }
+          setAreaStatus("ready");
+          setSettledArea(areaReadKey);
+        })
+        .catch(() => { if (!dead && !controller.signal.aborted) setAreaStatus("error"); });
     }, 250);
     return () => { dead = true; clearTimeout(timer); controller.abort(); };
-  }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, explicitList]);
+  }, [viewport?.north, viewport?.south, viewport?.east, viewport?.west, center?.lat, center?.lng, areaRetry, curatorSnap.v, mapCategory, sub, searchMode, explicitList]);
   useEffect(() => {
     if (!center || !listKey) return undefined;
     const controller = new AbortController();
@@ -137,7 +177,7 @@ export default function MapScreen({ ctx }) {
   const appleRecovery = useAppleMapRecovery({ places: recoveryCandidates, existing: explicitList ? listInventory : inventoryAreaPlaces,
     bounds: viewport, origin: center, category: explicitList ? "all" : mapCategory, sub: explicitList || allCategories ? "all" : sub,
     mapkit: appleSDK?.mapkit, minScore: explicitList ? null : undefined,
-    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && mapMode === "places", ready: explicitList ? listStatus === "ready" : areaStatus === "ready" && settledArea === areaReadKey });
+    enabled: appleSDK?.attempt === rendererAttempt && !map3D && !appleMapFailed && mapMode === "places", ready: explicitList ? listStatus === "ready" : areaStatus === "ready" && (settledArea === areaReadKey || coveredAreaRef.current.boxes.length > 0) });
   const liveAreaPlaces = useMemo(() => {
     const owned = new Set(inventoryAreaPlaces.map((p) => p.id));
     return [...inventoryAreaPlaces, ...appleRecovery.places.filter((p) => !owned.has(p.id))];
@@ -159,7 +199,10 @@ export default function MapScreen({ ctx }) {
       return stableList.current.pins;
     }
     const selected = selectMapPlaces(applyCuratorPicks(liveAreaPlaces, curatorSnap), mapCategory, viewport, allCategories ? "all" : sub);
-    return mapMode === "fifa" ? selected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selected;
+    const areaPins = mapMode === "fifa" ? selected.filter((p) => Hol.fitFor("worldcup", p) >= 8) : selected;
+    const ak = areaPins.map((p) => `${p.id}|${p.lat}|${p.lng}|${p.governed_score}|${p.category}`).join(";");
+    if (stableList.current.k !== ak) stableList.current = { k: ak, pins: areaPins };
+    return stableList.current.pins;
   }, [liveAreaPlaces, curatorSnap, mapCategory, viewport, allCategories, sub, mapMode, Hol, explicitList, listIds, listInventory, appleRecovery.places]);
   // LIST/MAP ACCOUNTING (2026-10-14, lib/mapListAccounting.js): every card on
   // the list gets exactly one map status. A place the map may not pin (no
@@ -170,7 +213,7 @@ export default function MapScreen({ ctx }) {
     : null), [mapMode, explicitList, listTruth, listInventory, mapStatus, contextualView, view, liveAreaPlaces, appleRecovery.stats]);
   const unpinnedForCoord = listAccounting ? listAccounting.counts[NO_PERMITTED_COORDINATE] : 0;
   const unpinnedNote = unpinnedForCoord > 0
-    ? `${unpinnedForCoord} of ${listAccounting.total} list places still need a confirmed map location${explicitList ? ", so they stay in the list without a pin" : ""}.${appleRecovery.status === "loading" ? " Checking them with Apple Maps…" : ""}`
+    ? `${unpinnedForCoord} of ${listAccounting.total} list places unpinned${explicitList ? " (still in your list)" : " (confirming map location)"}${appleRecovery.status === "loading" ? " · checking Apple Maps…" : ""}`
     : null;
   // Licence credit for any independently sourced pin on screen (OpenStreetMap's
   // ODbL requires the credit wherever its coordinates are shown).
@@ -349,7 +392,7 @@ export default function MapScreen({ ctx }) {
                       collapsed results sheet (zIndex 18) and MapKit's attribution. */}
                   {(mapCredits.length > 0 || (mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea))) && <div className="wf-map-note" data-wf-map-notes style={{ position: "absolute", left: MAP_NOTE_OFFSET.left, right: MAP_NOTE_OFFSET.right, bottom: MAP_NOTE_OFFSET.bottom, zIndex: 17, display: "flex", flexDirection: "column", alignItems: "flex-start", gap: 6, pointerEvents: "none" }}>
                     {mapCredits.length > 0 && <div data-wf-map-credit={mapCredits.join(" | ")} style={{ fontSize: 10, lineHeight: 1.3, color: "rgba(255,255,255,.92)", background: "rgba(15,23,35,.78)", borderRadius: 6, padding: "2px 6px", maxWidth: "100%" }}>{mapCredits.join(" · ")}</div>}
-                    {mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ alignSelf: "stretch", background: "rgba(15,23,35,.94)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 14, padding: "8px 12px", fontSize: 11.5, lineHeight: 1.4 }}>{unpinnedNote}</div>}
+                    {mapMode === "places" && !appleMapFailed && unpinnedNote && mapStatus === "ready" && view.length > 0 && !mapDrawer && !mapPreview && !(areaOffer && searchMapArea) && <div role="note" data-wf-map-unpinned={unpinnedForCoord} style={{ maxWidth: "100%", background: "rgba(15,23,35,.86)", border: `1px solid ${C.border}`, color: C.muted, borderRadius: 999, padding: "4px 10px", fontSize: 10.5, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{unpinnedNote}</div>}
                   </div>}
                   {/* The Events/FIFA stack. With Events flagged off (ticket 1) and the World
                       Cup out of season this container rendered as an EMPTY dark box

@@ -366,7 +366,7 @@ for (const row of model.haunts) {
 }
 
 const prompt = boPrompt(model, "Scariest haunt in Tampa?");
-ok(prompt.model === "claude-haiku-4-5" && prompt.system.includes("BOO'S VIP TOUR") && prompt.user.includes("howlTampa"), "Claude prompt is Boo plus the grounded catalog");
+ok(prompt.model === "claude-haiku-5-5" && prompt.system.includes("BOO'S VIP TOUR") && prompt.user.includes("howlTampa"), "Claude prompt is Boo plus the grounded catalog");
 ok(!prompt.user.includes("/api/commerce/go"), "the prompt does not hand Claude a redirect URL to paste");
 
 
@@ -445,6 +445,10 @@ const savedPaidAi = process.env.WF_PAID_AI_ENABLED;
 delete process.env.ANTHROPIC_API_KEY;
 delete process.env.LLM_API_KEY;
 delete process.env.WF_PAID_AI_ENABLED;
+// The route reads Date.now() for which haunts are still bookable. Pin a night
+// inside the 2026 season so this block does not go red the morning after Nov 1.
+const realDateNow = Date.now;
+Date.now = () => Date.parse("2026-10-30T22:00:00Z");
 try {
   const { POST } = await loadComponent(path.join(root, "app/api/bo-haunt/route.js"), root);
   const live = await POST(new Request("https://wayfind.test/api/bo-haunt", {
@@ -481,6 +485,7 @@ try {
   const wrapTalk = await (await POST(new Request("https://wayfind.test/api/bo-haunt", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ message: "lol", turn: 4 }) }))).json();
   ok(wrapTalk.wrap === true && wrapTalk.cards.length > 0 && BO_WRAP_LINES.includes(wrapTalk.reply), "wrap turn is unchanged even after small talk");
 } finally {
+  Date.now = realDateNow;
   if (savedAnthropicKey === undefined) delete process.env.ANTHROPIC_API_KEY;
   else process.env.ANTHROPIC_API_KEY = savedAnthropicKey;
   if (savedLlmKey === undefined) delete process.env.LLM_API_KEY;
@@ -634,6 +639,32 @@ for (const f of ["commerce", "viator", "hotels", "ticketmaster"]) {
   ok(boCards(["mickey", "spooktacular"], model).map((c) => c.id).join(",") === "spooktacular", "boCards excludes bookable === false haunts");
   const nov1TampaFallback = boHauntFallback("Scariest haunt in Tampa?", nov1Model);
   ok(nov1TampaFallback.recommendedIds.length > 0 && nov1TampaFallback.recommendedIds.every((id) => nov1LiveIds.has(id)), "Nov 1 boHauntFallback falls back to live bookable haunts when primary Tampa haunts expired");
+}
+
+
+// 2026-10-30 owner ask: Boo's picks and lines never pitch an event that ended.
+{
+  const at = (now) => halloweenHauntModel({ now });
+  const names = { spookquarium: /Spookquarium/, howlTampa: /Howl O Scream Tampa|Busch Gardens/, zooTampa: /ZooTampa/, undead: /UNDead/, frightfest: /Frightfest/ };
+  for (const now of ["2026-10-30T12:00:00-04:00", "2026-10-30T20:30:00-04:00", "2026-10-31T21:00:00-04:00", "2026-11-01T09:00:00-04:00", "2026-11-02T09:00:00-05:00"]) {
+    const m = at(now);
+    const live = new Set(m.haunts.map((r) => r.id));
+    ok(m.lines.length >= 10, now + ": Boo still has at least 10 lines (" + m.lines.length + ")");
+    ok(hauntCopyProblems(m).length === 0, now + ": built pitches and lines are dash free and phrase safe");
+    for (const pick of m.picks) {
+      ok(pick.shortlistIds.length >= 1 && pick.shortlistIds.length <= 3, now + " " + pick.id + ": one to three options");
+      ok(pick.shortlistIds.every((id) => live.has(id)), now + " " + pick.id + ": every shortlisted haunt is live");
+      for (const [id, rx] of Object.entries(names)) if (!live.has(id)) ok(!rx.test(pick.pitch), now + " " + pick.id + ": pitch never names ended " + id);
+      ok(!/,\s*\.|:\s*\.|\band\s*\./.test(pick.pitch), now + " " + pick.id + ": pitch is a clean sentence");
+    }
+    if (!live.has("spookquarium")) ok(!m.lines.some((l) => /Spookquarium/.test(l)), now + ": Boo never talks up Spookquarium after it ends");
+  }
+  const tonight = at("2026-10-30T20:30:00-04:00").picks.find((p) => p.id === "tampa");
+  ok(tonight && tonight.shortlistIds.join() === "howlTampa,zooTampa,undead", "Tampa Bay Tonight after Spookquarium ends: Howl O Scream, ZooTampa, UNDead (" + (tonight && tonight.shortlistIds) + ")");
+  const morning = at("2026-10-30T12:00:00-04:00").picks.find((p) => p.id === "tampa");
+  ok(morning && morning.shortlistIds.length === 3, "Tampa Bay Tonight keeps three options while three are live");
+  const nov1 = at("2026-11-01T09:00:00-04:00").picks.find((p) => p.id === "tampa");
+  ok(nov1 && nov1.shortlistIds.join() === "frightfest" && /Frightfest/.test(nov1.pitch), "Nov 1: Tampa Bay Tonight falls back to Sarasota Frightfest");
 }
 
 console.log("test-halloween-haunt: " + checks + " assertions passed");

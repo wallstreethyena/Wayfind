@@ -97,7 +97,7 @@ try{
  const durableSource=compile(strip(file('lib/placePage.js')));
  const placeholder=()=>null;
  const data={id:A,name:'Durable Place',hours:[],category:'Food',lat:1,lng:2};
- const deps={React,notFound:()=>{throw new Error('unexpected404');},SITE_URL:'https://fixture.test',pageShareUrl:x=>x,ShareButton:placeholder,loadPlace:async()=>data,placePagePartner:()=>null,cityOf:()=>null,listEligiblePlaces:async()=>[],featuredInFor:()=>null,PlacePageBookLink:placeholder,PlaceParkingMap:placeholder,placeLocalBusinessLd:()=>({}),PlaceDetailPhotoHeader:'shared-header'};
+ const deps={React,notFound:()=>{throw new Error('unexpected404');},SITE_URL:'https://fixture.test',pageShareUrl:x=>x,ShareButton:placeholder,loadPlace:async()=>data,placePagePartner:()=>null,cityOf:()=>null,isIndexable:()=>false,badgeEligible:()=>false,listEligiblePlaces:async()=>[],featuredInFor:()=>null,PlacePageBookLink:placeholder,PlaceParkingMap:placeholder,placeLocalBusinessLd:()=>({}),PlaceDetailPhotoHeader:'shared-header'};
  const page=new Function(...Object.keys(deps),durableSource+';return PlacePage;')(...Object.values(deps));const durable=walk(await page({id:A}));
  const mounted=durable.find(n=>n.type==='shared-header');ok(mounted,'durable page actually mounts shared header');eq(mounted.props.placeId,A,'durable exact identity');eq(mounted.props.name,data.name,'durable headline retained');ok(!durable.some(n=>n.type==='h1'),'durable headline owned once by header');
  // Extract actual paid dialog JSX via AST and execute it with an active place.
@@ -144,5 +144,13 @@ try{
  eq(rail.nodes().filter(n=>n.type==='img').length,2,'the detail header shows both owned photos at once');
  ok(rail.nodes().some(n=>Object.prototype.hasOwnProperty.call(n.props,'data-place-detail-photo-rail')),'multiple photos sit in a horizontal rail');
  rail.unmount();
+ const stored=`/api/photo/stored/${A}?v=${'ab'.repeat(32)}`;
+ const withStored=host({placeId:A,name:'Stored rail',photos:[stored,'https://cdn.wayfind.test/vault.jpg','/api/photo?place='+A]});
+ await settle(withStored);
+ eq(calls.length,0,'a stored-photo rail does not ask for another photo');
+ const storedSrcs=withStored.nodes().filter(n=>n.type==='img').map(n=>n.props.src);
+ eq(storedSrcs,[stored,'https://cdn.wayfind.test/vault.jpg'],'the rail keeps the stored photo and the vault photo, and drops the live place proxy');
+ ok(withStored.nodes().some(n=>Object.prototype.hasOwnProperty.call(n.props,'data-place-detail-photo-rail')),'stored photos use the same horizontal rail');
+ withStored.unmount();
  console.log(`test-place-detail-photo-surfaces: OK — ${count} runtime assertions; durable/paid actual compositions, shared geometry, free-only exact source/credit, decode/miss/cancellation behavior and applied no-spend mutation`);
 }finally{globalThis.fetch=originalFetch;resetPhotoAnswers();}

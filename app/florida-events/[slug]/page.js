@@ -45,6 +45,7 @@ import VideoFacade from "../../components/VideoFacade.js";
 import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
 import CreatorVideoRail from "../../components/CreatorVideoRail.js";
 import { isEmbeddable } from "../../../lib/videoEmbed";
+import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -180,12 +181,15 @@ export default async function CuratedEventPage({ params }) {
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
+  // Same photos as the Halloween card for this event (cover first, event tag
+  // kept, the other SeaWorld event left out). Other events keep their own hero.
+  const detailPhotos = (await loadEventDetailPhotos("/florida-events/" + params.slug, { name: e.event_name, placeId: e.place_id || "" })) || [];
   // The photo this event's rail card already shows (lib/eventPageImage.js):
   // the venue's own photo by exact place_id when the row has no stored
   // hero_image. Without this rung the card showed the farm and the page it
   // opened showed only initials (owner, 2026-10-01).
   const venueImage = shots && shots.hero ? "" : (e.hero_image ? "" : eventVenueImageSrc(e));
-  const heroSrc = shots && shots.hero ? shots.hero.src : (e.hero_image || venueImage || null);
+  const heroSrc = (detailPhotos[0] && detailPhotos[0].src) || (shots && shots.hero ? shots.hero.src : (e.hero_image || venueImage || null));
   // SERVER-resolved, never window.location — on a preview deploy that is a host
   // the recipient cannot open (lib/site.js canonicalShareUrl).
   const shareUrl = SITE_URL + "/florida-events/" + params.slug;
@@ -369,7 +373,11 @@ export default async function CuratedEventPage({ params }) {
         </>}
         note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
         media={<>
-      {shots && shots.hero ? (
+      {detailPhotos.length ? detailPhotos.map((photo, i) => (
+        <div key={photo.src} className="wf-event-photo" data-detail-photo="">
+          <EventPlacePhoto hero={i === 0} priority={i === 0} src={photo.src} name={photo.alt || e.event_name} />
+        </div>
+      )) : shots && shots.hero ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
@@ -388,7 +396,7 @@ export default async function CuratedEventPage({ params }) {
         </div>
       )}
 
-      {shots && shots.photos.filter((p) => p.src !== shots.hero?.src).map((p) => (
+      {!detailPhotos.length && shots && shots.photos.filter((p) => p.src !== shots.hero?.src).map((p) => (
         <div key={p.src} className="wf-event-photo">
           <EventPlacePhoto src={p.src} name={p.alt || e.event_name} />
         </div>

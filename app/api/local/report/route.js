@@ -53,7 +53,7 @@ export async function POST(req) {
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
-        model: "claude-haiku-4-5",
+        model: "claude-haiku-5-5",
         max_tokens: 300,
         system,
         messages: [{ role: "user", content: JSON.stringify(facts) }],

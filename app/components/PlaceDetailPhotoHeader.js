@@ -30,13 +30,15 @@ function usableInitial(photo, placeId, name) {
     !/^\/(?:api|cards)\//.test(photo.src) ? photo : null;
 }
 
+const STORED_PHOTO_RX = /^\/api\/photo\/stored\/[A-Za-z0-9_-]+\?v=[a-f0-9]{64}$/;
+
 function railPhotos(photos) {
   if (!Array.isArray(photos) || photos.length < 2) return [];
   const out = [];
   for (const item of photos) {
     const raw = typeof item === "string" ? item : (item && (item._directUri || item.url || item.src || item.photo_url || item.photoUrl));
     const src = typeof raw === "string" ? raw.trim() : "";
-    if (src && isPlaceOwnedPhotoUrl(src) && out.indexOf(src) === -1) out.push(src);
+    if (src && (isPlaceOwnedPhotoUrl(src) || STORED_PHOTO_RX.test(src)) && out.indexOf(src) === -1) out.push(src);
   }
   return out.length > 1 ? out : [];
 }

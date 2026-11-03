@@ -116,7 +116,7 @@ function preparePoster(id) {
   if (load) load().catch(() => {});
 }
 
-import { DAYPARTS, partForHour, orderFor, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
+import { DAYPARTS, partForHour, orderFor, christmasLeads, railHref, dateNightIntentHref, LEGACY_HERO_EVENT } from "../../lib/dayparts.js";
 import { siteHourFloat, tzForPoint } from "../../lib/nowContext.js";
 import { siteTodayStr } from "../../lib/siteTime.js";
 import { useSiteToday } from "../../lib/siteDayClock.js";
@@ -670,7 +670,13 @@ export default function DaypartRail({
   const order = useMemo(() => {
     const base = orderFor(daypart, rails.map((r) => r.id), siteDay);
     const withSponsor = [...(raysPoster ? [raysPoster.id] : []), ...(sponsor ? [sponsor.id, ...base] : base)];
-    // The owner-approved Rays campaign leads during the World Series.
+    // Owner, 2026-11-01: Christmas is first all day Nov 1 through Jan 1,
+    // including ahead of synthetic promotions. Keep their relative order.
+    if (christmasLeads(siteDay)) {
+      const c = withSponsor.indexOf('christmas');
+      if (c > 0) { withSponsor.splice(c, 1); withSponsor.unshift('christmas'); }
+    }
+    // The owner-approved Rays campaign leads during the October World Series.
     // Other live posters retain their ordinary placement below.
     // WHERE THE LIVE POSTERS SIT (owner, 2026-09-17). Two reasons they are
     // NOT first:

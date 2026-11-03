@@ -11,7 +11,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { posterSeasonLive, posterSeasonWindow, railOnPosterTrack, POSTER_SEASONS } from "../lib/posterSeasons.js";
-import { DAYPARTS, DAYPART_IDS, orderFor, halloweenLeads } from "../lib/dayparts.js";
+import { DAYPARTS, DAYPART_IDS, orderFor, halloweenLeads, christmasLeads } from "../lib/dayparts.js";
 import { RAILS } from "../lib/rails.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -42,7 +42,15 @@ for (const y of [2026, 2027, 2028]) {
   ok(!posterSeasonLive("christmas", `${y}-01-02`) && posterSeasonLive("christmas", `${y}-01-01`), `${y}: the previous season's Jan 1 is live and Jan 2 is not`);
   ok(posterSeasonLive("breakfast", `${y}-03-03`) && posterSeasonLive("tonight", `${y}-07-04`), `${y}: non-seasonal rails are always live`);
   ok(!halloweenLeads(`${y}-10-24`) && halloweenLeads(`${y}-10-25`) && halloweenLeads(`${y}-10-31`) && !halloweenLeads(`${y}-11-01`), `${y}: halloweenLeads is active Oct 25..Oct 31 every year`);
+  ok(!christmasLeads(`${y}-10-31`) && christmasLeads(`${y}-11-01`) && christmasLeads(`${y}-12-31`) && christmasLeads(`${y + 1}-01-01`) && !christmasLeads(`${y + 1}-01-02`), `${y}: Christmas leads Nov 1 through Jan 1, inclusive`);
   for (const band of DAYPART_IDS) {
+    // Execute the exact ordered and filtered track on every date, including
+    // leap year, rather than checking only a helper or a few boundary dates.
+    for (let d = `${y}-01-01`; d.startsWith(String(y)); d = day(d, 1)) {
+      const t = track(band, d);
+      const expected = d.endsWith('-01-01') || d.slice(5) >= '11-01';
+      ok((t[0] === 'christmas') === expected, `${band} ${d}: Christmas first exactly Nov 1 through Jan 1 (got ${t[0]})`);
+    }
     const t24 = track(band, `${y}-10-24`);
     const t25 = track(band, `${y}-10-25`);
     const t31 = track(band, `${y}-10-31`);
@@ -52,6 +60,7 @@ for (const y of [2026, 2027, 2028]) {
   }
 }
 ok(posterSeasonLive("augtober", "garbage") && posterSeasonLive("halloween", ""), "a malformed date fails open (never blanks the track)");
+for (const invalid of [undefined, null, "", "garbage", "2026-1-01", "2026-11-1", "xxxx-11-01"]) ok(!christmasLeads(invalid), `invalid date ${String(invalid)} never promotes Christmas`);
 ok(Object.keys(POSTER_SEASONS).sort().join() === "augtober,christmas,halloween", "the window table holds exactly the three seasonal posters");
 
 // The specific calls from the request, through the real predicate
@@ -70,9 +79,7 @@ for (const band of DAYPART_IDS) {
   ok(t[0] === "augtober" && t[1] === "halloween" && t.includes("christmas") && t.indexOf("christmas") > 1, `${band} Oct 14 2026: track starts Fall, Halloween, Christmas behind (got ${t.slice(0, 4).join(", ")})`);
   const nov = track(band, "2026-11-01");
   ok(!nov.includes("halloween") && nov.includes("augtober") && nov.includes("christmas"), `${band}: halloween absent Nov 1, fall and christmas present`);
-  // Christmas returns to its old slot (2nd morning/lunch/night, 3rd afternoon) once Halloween is hidden
-  const slot = band === "afternoon" ? 2 : 1;
-  ok(nov[0] === "augtober" && nov.indexOf("christmas") === slot, `${band} Nov 1: christmas back in its owner slot ${slot + 1} (got ${nov.slice(0, 4).join(", ")})`);
+  ok(nov[0] === "christmas" && nov[1] === "augtober", `${band} Nov 1: Christmas first and Fall still visible immediately after it (got ${nov.slice(0, 4).join(", ")})`);
   ok(track(band, "2026-11-27")[0] === "christmas" && !track(band, "2026-11-27").includes("augtober"), `${band}: Christmas first all day Nov 27 2026, Fall gone`);
   ok(track(band, "2026-12-31")[0] === "christmas", `${band}: Christmas first Dec 31`);
   ok(track(band, "2027-01-01")[0] === "christmas", `${band}: Christmas still first Jan 1 2027`);
@@ -92,5 +99,5 @@ ok(!/\.seasonalThrough/.test(dr), "DaypartRail no longer carries its own hallowe
 const rl = strip(readFileSync(path.join(ROOT, "lib/rails.js"), "utf8"));
 ok(!/seasonalThrough\s*:\s*"20\d\d-/.test(rl), "lib/rails.js carries no dated seasonalThrough literal");
 
-console.log(`\ncheck-poster-seasons: ${fail ? "FAIL" : "OK"} - ${pass} assertions; windows computed for 2026/2027/2028 (Thanksgiving ${Object.values(THANKS).join(", ")}), Halloween pinned right of Fall in 4 bands, predicate executed; DaypartRail wiring is static`);
+console.log(`\ncheck-poster-seasons: ${fail ? "FAIL" : "OK"} - ${pass} assertions; windows computed for 2026/2027/2028 (Thanksgiving ${Object.values(THANKS).join(", ")}), annual Christmas-first Nov 1-Jan 1 and October Halloween priority executed in 4 bands, predicate executed; DaypartRail wiring is static`);
 process.exit(fail ? 1 : 0);

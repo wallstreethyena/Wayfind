@@ -145,7 +145,9 @@ for (const { card, facts } of [...dated.slice(0, 40), ...undated.slice(0, 20)]) 
   if (!facts) ok(rail === renderToStaticMarkup(h(RailCard, { ...railProps(card, null), remind: undefined, remindTicketHref: undefined })), `${card.id}: with no reminder the card markup is unchanged`);
   const browse = renderToStaticMarkup(h(ChristmasBrowseCard, { card, rank: 1, today: TODAY }));
   browseChecked++;
-  ok(live === /wf-place-card-remind/.test(browse), `${card.id}: the browse card ${live ? "has" : "has no"} Remind me button`);
+  // Owner direction 2026-11-01: the browse renders the one ticket card, which has no
+  // reaction row. Remind me stays on the event page (and the rails); the card links there.
+  ok(!/wf-place-card-remind|Remind me/.test(browse), `${card.id}: the browse ticket card carries no Remind me button (it lives on the event page)`);
 }
 ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked} rail, ${browseChecked} browse)`);
 
@@ -198,14 +200,14 @@ ok(railChecked >= 50 && browseChecked >= 50, `real cards rendered (${railChecked
 // ── wiring, static ─────────────────────────────────────────────────────────
 {
   const rails = strip(read("app/components/ChristmasIntentRails.js")), browse = strip(read("app/components/ChristmasBrowse.js")), card = strip(read("app/components/RailCard.js"));
-  ok(!/\bremind=|remindTicketHref=/.test(rails + browse), "the Christmas rails and browse pass no reminder props: RailCard derives the button for every event card itself");
+  ok(!/\bremind=|remindTicketHref=/.test(rails + browse) && !/RailCard/.test(browse.replace(/RailCard in the red/, "")), "the Christmas rails pass no reminder props (RailCard derives the button itself) and the browse no longer renders a RailCard");
   ok(/reminderFactsFor\(\{ name: title, \.\.\.visitFacts \}, \{ href: cardHref \|\| null \}\)/.test(card) && /visitFacts \? reminderFactsFor/.test(card), "RailCard derives reminder facts from the event row (visitFacts) and the card's own link");
   ok(/\{remind \? <RemindMe facts=\{remind\} variant="card" ticketHref=\{remindTicketHref\} surface="rail_card" \/> : null\}/.test(card), "RailCard renders the button only when facts exist");
   // Census: every file that hands RailCard an event row. A new event card surface must be added here on purpose.
   const consumers = [];
   const walk = (dir) => { for (const e of readdirSync(path.join(ROOT, dir), { withFileTypes: true })) { const rel = dir + "/" + e.name; if (e.isDirectory()) walk(rel); else if (/\.js$/.test(e.name) && /\bvisitFacts=\{/.test(read(rel))) consumers.push(rel); } };
   walk("app");
-  ok(consumers.sort().join() === ["app/components/ChristmasBrowse.js", "app/components/ChristmasIntentRails.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js", "app/components/screens/Events.js", "app/home.js"].join(), `every RailCard event surface is accounted for (${consumers.join(", ")})`);
+  ok(consumers.sort().join() === ["app/components/ChristmasIntentRails.js", "app/components/FallIntentRails.js", "app/components/PosterEventCard.js", "app/components/screens/Events.js", "app/home.js"].join(), `every RailCard event surface is accounted for (${consumers.join(", ")})`);
   const i = card.indexOf("<RemindMe"), disl = card.indexOf('className={"wf-place-card-dislike"'), share = card.indexOf('className="wf-place-card-share"');
   ok(disl > 0 && i > disl && i < share, "RailCard puts the button between the reactions and Share");
   const page = strip(read("app/florida-events/[slug]/page.js"));

@@ -8,7 +8,7 @@ import { aiKey } from "../../../../lib/aiKey.js";
 import { paidAnthropicRequest } from "../../../../lib/paidAi.js";
 import { jobCannotRun } from "../../../../lib/jobFail.js";
 
-const MODEL = "claude-haiku-4-5";
+const MODEL = "claude-haiku-5-5";
 const MAX_IMAGES = 8;
 
 function publicHttpUrl(value, base) {
@@ -51,7 +51,7 @@ async function matchesDish(imageUrl, restaurant, mustTry, key) {
     headers: { "content-type": "application/json", "x-api-key": key, "anthropic-version": "2023-06-01" },
     signal: AbortSignal.timeout(10000),
     body: JSON.stringify({
-      model: MODEL, max_tokens: 100, temperature: 0,
+      model: MODEL, max_tokens: 100,
       system: "Verify restaurant imagery conservatively. Return only compact JSON: {\"matches\":boolean,\"confidence\":number,\"reason\":string}. matches may be true only when the visible food is specifically consistent with the named must-try item, not merely any food, menu text, an interior, or a building. If uncertain, return false.",
       messages: [{ role: "user", content: [
         { type: "image", source: { type: "url", url: imageUrl } },

@@ -67,9 +67,9 @@ if (TONES.fall) {
 // ---- 3. decided from the id and the date, never from the URL --------------
 {
   const page = read("app/p/[id]/page.js");
-  ok(/FALL_CARD_IDS\.has\(id\)/.test(page),
+  ok(/fallCardClass\(id,/.test(page),
     "app/p/[id]/page.js decides the fall tone from the PLACE ID, using the same pool the card skin reads");
-  ok(/fallSkinLive\(siteTodayStr\(\)\)/.test(page),
+  ok(/fallCardClass\(id, siteTodayStr\(\)\)/.test(page),
     "…and from TODAY, so a link copied in October and opened in December arrives in the ordinary ink");
   ok(/og \+= "&tone=fall"/.test(page), "…and passes it to the share-card renderer");
   ok(!/searchParams\.tone|s\(searchParams\.tone\)/.test(page),

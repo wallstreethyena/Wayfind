@@ -128,8 +128,8 @@ export function timeLines(hour) {
 }
 
 // A line for a reaction kind that has not been said yet this page, else null.
-export function pickLine(kind, used, rnd = Math.random) {
-  const pool = (REACT_LINES[kind] || []).filter((t) => !used || !used.has(t));
+export function pickLine(kind, used, rnd = Math.random, lines = REACT_LINES) {
+  const pool = ((lines || REACT_LINES)[kind] || []).filter((t) => !used || !used.has(t));
   if (!pool.length) return null;
   const t = pool[Math.floor(rnd() * pool.length) % pool.length];
   if (used) used.add(t);

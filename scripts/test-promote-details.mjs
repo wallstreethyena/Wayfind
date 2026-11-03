@@ -1,7 +1,7 @@
 // scripts/test-promote-details.mjs — offline tests for lib/promoteDetails.js and
 // the gate-mode arithmetic of spendAllowCapped (lib/spendGate.js). NO network:
 // the ledger call is stubbed by pointing fetch at a local function.
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, maskTier, hasIndexRating } from "../lib/promoteDetails.js";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, maskTier, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../lib/promoteDetails.js";
 import { buildInventoryRow } from "../lib/seedPlaces.js";
 import { toWriteRow } from "../lib/promoteIndex.js";
 
@@ -108,5 +108,35 @@ globalThis.fetch = async () => { throw new Error("net"); };
 eq(await withMode("open", () => spendAllowCapped("details_pro", 7500)), false, "ledger network failure -> false (fail-closed)");
 globalThis.fetch = async () => ({ ok: true, json: async () => false });
 eq(await withMode("open", () => spendAllowCapped("details_pro", 7500)), false, "ledger says no -> false");
+
+// ── Google quota 429s never burn a place's attempts (2026-11-01) ───────────
+// The live body from the incident, verbatim prefix.
+const DAILY_429 = '{\n  "error": {\n    "code": 429,\n    "message": "Quota exceeded for quota metric \'GetPlaceRequest\' and limit \'GetPlaceRequest per day\' of service \'places.googlea';
+eq(classifyDetailsFailure(429, DAILY_429), "quota_daily", "the live per-day 429 is a daily quota, not a retry");
+eq(classifyDetailsFailure(429, "Quota exceeded for quota metric 'GetPlaceRequest' and limit 'GetPlaceRequest per minute'"), "rate_limited", "a per-minute 429 is a short backoff");
+eq(classifyDetailsFailure(429, ""), "rate_limited", "a bare 429 is a short backoff");
+eq(classifyDetailsFailure(404, "NOT_FOUND"), "terminal", "a 404 is still a verdict about the place");
+eq(classifyDetailsFailure(400, "INVALID_ARGUMENT"), "terminal", "a 400 is still terminal");
+eq(classifyDetailsFailure(503, "UNAVAILABLE"), "transient", "a 5xx is still a retry");
+// 17:25 UTC on 2026-11-01 is 09:25 PST (DST ended that morning): 14h35m to midnight PT, +10m buffer.
+eq(minutesUntilQuotaReset(Date.parse("2026-11-01T17:25:00Z")), 14 * 60 + 35 + 10, "parks until midnight Pacific plus buffer (PST)");
+// 2026-07-01 12:00 UTC = 05:00 PDT -> 19h to midnight, +10.
+eq(minutesUntilQuotaReset(Date.parse("2026-07-01T12:00:00Z")), 19 * 60 + 10, "DST-aware (PDT)");
+// 07:59 UTC Nov 2 = 23:59 PST -> 1m + 10.
+eq(minutesUntilQuotaReset(Date.parse("2026-11-02T07:59:00Z")), 11, "just before reset still waits for it");
+ok(minutesUntilQuotaReset(Date.parse("2026-11-02T08:00:30Z")) <= 1440, "never exceeds the release function's 1440m clamp");
+eq(minutesUntilQuotaReset(NaN), 60, "a bad clock falls back to an hour, never 0 or unbounded");
+
+// The cron must route a quota 429 to wf_promotion_release (attempt refunded),
+// never to wf_promotion_complete(p_ok:false) (attempt kept -> max attempts reject).
+{
+  const { readFileSync } = await import("node:fs");
+  const src = readFileSync(new URL("../app/api/cron/promote-index/route.js", import.meta.url), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(/classifyDetailsFailure\(\s*r\.status/.test(src), "details() classifies the Google failure before retrying");
+  ok(/if \(d\.quota\)\s*\{[^}]*quotaReleased\.push\(item\.place_id\)/.test(src), "a quota answer parks the place in quotaReleased");
+  ok(/for \(const id of quotaReleased\) settle\.push\(rpc\(s, "wf_promotion_release"/.test(src), "quota-parked places settle through wf_promotion_release (refund)");
+  ok(!/quotaReleased[\s\S]{0,80}wf_promotion_complete/.test(src), "quota-parked places never settle through wf_promotion_complete");
+}
 
 console.log(`test-promote-details: OK (${pass} checks)`);

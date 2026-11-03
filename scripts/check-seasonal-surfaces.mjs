@@ -94,14 +94,14 @@ for (const y of [2026, 2027, 2028]) {
     for (const d of [`${y}-11-01`, `${y}-11-10`, T]) {
       const s = seasonal(band, d);
       eq(s.slice().sort(), ["augtober", "christmas"], `${band} ${d}: Fall and Christmas only`);
-      ok(s[0] === "augtober", `${band} ${d}: Fall first until Thanksgiving ends`);
+      ok(track(band, d)[0] === "christmas", `${band} ${d}: Christmas first from Nov 1, Fall stays visible until Thanksgiving ends`);
     }
     const after = addDays(T, 1);
     for (const d of [after, `${y}-12-25`, `${y}-12-31`]) { eq(seasonal(band, d), ["christmas"], `${band} ${d}: Christmas alone`); ok(track(band, d)[0] === "christmas", `${band} ${d}: Christmas FIRST`); ok(christmasLeads(d), `${d}: christmasLeads`); }
     eq(seasonal(band, `${y + 1}-01-01`), ["christmas"], `${band} ${y + 1}-01-01: Christmas only`);
     ok(track(band, `${y + 1}-01-01`)[0] === "christmas", `${band}: Christmas first on Jan 1`);
     eq(seasonal(band, `${y + 1}-01-02`), [], `${band} ${y + 1}-01-02: none of the three`);
-    ok(!christmasLeads(`${y + 1}-01-02`) && !christmasLeads(T) && !christmasLeads(`${y}-07-01`), "christmasLeads off Jan 2, on Thanksgiving, in July");
+    ok(!christmasLeads(`${y + 1}-01-02`) && !christmasLeads(`${y}-10-31`) && !christmasLeads(`${y}-07-01`), "christmasLeads off Jan 2, Oct 31, and in July");
     eq(seasonal(band, `${y}-08-14`), [], `${band} ${y}-08-14: none`);
     eq(seasonal(band, `${y}-08-15`), ["augtober"], `${band} ${y}-08-15: Fall alone`);
     // no duplicate poster ids in any order, on any day of the year
@@ -187,7 +187,7 @@ for (const y of [2026, 2027, 2028]) {
   const preNov1 = siteTodayStr(new RealDate(`${y}-11-01T03:59:59Z`));
   const postNov1 = siteTodayStr(new RealDate(`${y}-11-01T04:00:00Z`));
   ok(preNov1 === `${y}-10-31` && halloweenLeads(preNov1) && track("morning", preNov1)[0] === "halloween", `${y}: 1s before Nov 1 midnight EDT is ${preNov1} with Halloween still leading`);
-  ok(postNov1 === `${y}-11-01` && !halloweenLeads(postNov1) && !track("morning", postNov1).includes("halloween") && track("morning", postNov1)[0] === "augtober", `${y}: at Nov 1 midnight EDT is ${postNov1} with Halloween gone and Fall leading`);
+  ok(postNov1 === `${y}-11-01` && !halloweenLeads(postNov1) && !track("morning", postNov1).includes("halloween") && track("morning", postNov1)[0] === "christmas", `${y}: at Nov 1 midnight EDT is ${postNov1} with Halloween gone and Christmas leading`);
   h = await hit(`${y}-11-01T04:01:00Z`, "s3cret");
   ok(h.body.skipped === false && h.body.today === `${y}-11-01` && JSON.stringify(h.calls) === JSON.stringify(["/", "/v8"]), `${y}: 00:01 EDT Nov 1 revalidates / and /v8`);
 }

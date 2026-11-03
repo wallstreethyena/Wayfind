@@ -146,7 +146,7 @@ ok(toHookLine(PLATE_LIST_ONLY, "X") === PLATE_LIST_ONLY,
 const OWNERS = ["lib/editorialHook.js"];
 for (const f of ["app/components/BestNearby.js", "app/components/TrendingNowClient.js",
                  "app/components/ThingsToDoList.js", "app/components/IntentPageClient.js",
-                 "app/components/IntentRail.js", "app/home.js"]) {
+                 "app/components/IntentRail.js", "app/components/CreatorFinds.js", "app/home.js"]) {
   ok(!/function toHookLine\s*\(/.test(code(f)),
     `${f} does not define its own toHookLine — it imports the shared one`);
 }
@@ -169,12 +169,34 @@ const SURFACES = [
   ["app/components/DaypartRail.js", "toHookLine", "the homepage rail drop — IconicPlaceCard take"],
   ["app/components/IntentRail.js", "toHookLine", "Tonight's Move / hidden gems / worth-the-drive / budget rails"],
   ["app/components/IconicPlaceCard.js", "toHookLine", "the canonical place card — global lock so a leaked host-page sentence cannot paint"],
+  // 2026-10-31 — the last two silent place-card surfaces. ThemeParkRail was
+  // the ONLY IconicPlaceCard caller passing no editorial at all (15 of its 17
+  // parks already had verified lines held); CreatorFinds named the creator
+  // but never said why the place is worth going to.
+  ["app/components/CreatorFinds.js", "toHookLine", "creator finds — pool rows and hydration-resolved registry spots"],
 ];
 for (const [f, fn, what] of SURFACES) {
   const src = code(f);
   ok(new RegExp(`import\\s*\\{[^}]*\\b${fn}\\b[^}]*\\}\\s*from\\s*["'][^"']*editorialHook`).test(src),
     `${f} imports ${fn} from the shared module (${what})`);
   ok(new RegExp(`\\b${fn}\\(`).test(src), `${f} CALLS ${fn} — an import nothing calls is decoration`);
+}
+
+// ThemeParkRail (2026-10-31): IconicPlaceCard compresses internally, so this
+// surface's contract is the resolver + the prop, not a local toHookLine call.
+// VERIFIED RUNG ONLY on both new surfaces: the line paints solely when its
+// tier is "wayfind" (researched), never from the generated pool.
+{
+  const tp = code("app/components/ThemeParkRail.js");
+  ok(/import useEditorialHooks from/.test(tp) && /\buseEditorialHooks\(rows\)/.test(tp),
+    "ThemeParkRail resolves editorial through the shared hook");
+  ok(/editorial=\{verifiedLine\(place\)\}/.test(tp) && /hooks\.tiers\[place\.id\] === "wayfind"/.test(tp),
+    "ThemeParkRail passes only verified-tier lines as the card editorial");
+  const cf = code("app/components/CreatorFinds.js");
+  ok(/\buseEditorialHooks\(hookItems\)/.test(cf) && /hooks\.tiers\[id\] === "wayfind"/.test(cf),
+    "CreatorFinds resolves editorial through the shared hook, verified tier only");
+  ok((cf.match(/take=\{verifiedTake\(/g) || []).length >= 2,
+    "CreatorFinds passes the verified take to BOTH its pool and registry RailCards");
 }
 
 // ── 4. the fabricated lines stay dead ───────────────────────────────────────

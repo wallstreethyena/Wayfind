@@ -10,13 +10,19 @@ export const dynamic = "force-dynamic";
 import { fetchCuratedEvents } from "../../../../lib/curatedEvents.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
 import { christmasBrowseCached, parseChristmasBrowseQuery } from "../../../../lib/christmasBrowse.js";
+import { attachBrowseTickets, fetchChristmasTicketDeals, withBrowseTicketPhotos } from "../../../../lib/christmasTickets.js";
 
 export async function GET(request) {
   const query = parseChristmasBrowseQuery(new URL(request.url).searchParams);
   const today = siteTodayStr();
   try {
-    const { page } = await christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000) }));
-    return Response.json({ today, ...page }, { headers: { "cache-control": "public, s-maxage=600, stale-while-revalidate=86400" } });
+    const { listings, page } = await christmasBrowseCached(query, today, () => fetchCuratedEvents({ signal: AbortSignal.timeout(4000) }));
+    // Every result is the one ticket card (owner 2026-11-01), so each event
+    // card carries its server built ticket fields. A failed deals read only
+    // means fewer partner buttons (fetchChristmasTicketDeals never throws).
+    const dealsById = await fetchChristmasTicketDeals();
+    const withTickets = await withBrowseTicketPhotos(attachBrowseTickets(page, listings, today, dealsById), listings, today, dealsById);
+    return Response.json({ today, ...withTickets }, { headers: { "cache-control": "public, s-maxage=600, stale-while-revalidate=86400" } });
   } catch (error) {
     console.error("[api/christmas/browse] unavailable", { message: String(error?.message || error) });
     return Response.json({ error: "Christmas listings are temporarily unavailable" }, { status: 503, headers: { "cache-control": "no-store" } });

@@ -39,7 +39,7 @@ globalThis.window = { localStorage, navigator: nav };
 globalThis.localStorage = localStorage;
 Object.defineProperty(globalThis, "navigator", { value: nav, configurable: true, writable: true });
 
-const { recordLikeEvent } = await import("../lib/likeSignal.js");
+const { recordLikeEvent, recordCommerceClick } = await import("../lib/likeSignal.js");
 const { INTERNAL_BROWSER_KEY, OWNER_EMAIL } = await import("../lib/browserAnalytics.js");
 
 function recorder() {
@@ -47,38 +47,44 @@ function recorder() {
   return { rows, from: (table) => ({ insert: (row) => { rows.push({ table, row }); return Promise.resolve({ error: null }); } }) };
 }
 const place = { id: "ChIJfixture", name: "Fixture Place" };
+const clickFields = { place_id: "ChIJfixture", provider: "stay22", merchant: "Stay22", offer_id: "ChIJfixture", surface: "event_stays", content_id: "event-1" };
 function scenario(name, setup, user = null) {
-  store.clear(); nav.userAgent = HUMAN_UA; nav.webdriver = false; delete window.__WF_ANALYTICS_SUPPRESSED;
+  store.clear(); nav.userAgent = HUMAN_UA; nav.webdriver = false; delete window.__WF_ANALYTICS_SUPPRESSED; delete window.location; delete globalThis.sessionStorage;
   setup();
   const sb = recorder();
   recordLikeEvent("like", place, { supabase: sb, user });
+  recordCommerceClick(clickFields, { supabase: sb, user });
   return sb.rows;
 }
 
 const human = scenario("human", () => {});
-ok(human.length === 1 && human[0].table === "events" && human[0].row.action === "like" && human[0].row.place_id === place.id,
-  `positive control: an ordinary visitor's like must write one events row, got ${JSON.stringify(human)}`);
-ok(human[0] && typeof human[0].row.device_id === "string" && human[0].row.device_id.length > 0, "positive control: the row carries the device_id");
+ok(human.length === 2 && human[0].table === "events" && human[0].row.action === "like" && human[1].row.action === "commerce_cta_clicked",
+  `positive control: an ordinary visitor's like and commerce click must write events rows, got ${JSON.stringify(human)}`);
+ok(human[0] && typeof human[0].row.device_id === "string" && human[0].row.device_id.length > 0 && human[1].row.device_id === human[0].row.device_id, "positive control: both rows carry the visitor device_id");
 
 const cases = [
   ["webdriver", () => { nav.webdriver = true; }],
   ["bot user agent", () => { nav.userAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"; }],
   ["internal-browser mark", () => { localStorage.setItem(INTERNAL_BROWSER_KEY, "1"); }],
   ["page-level suppression flag", () => { window.__WF_ANALYTICS_SUPPRESSED = true; }],
+  ["browser ?wf_test= query param", () => { window.location = { search: "?wf_test=playwright_qa" }; }],
+  ["browser wf_test_v1 sessionStorage marker", () => { globalThis.sessionStorage = { getItem: (k) => (k === "wf_test_v1" ? "qa_run" : null) }; }],
+  ["bare window stub without navigator.userAgent", () => { nav.userAgent = ""; }],
 ];
 for (const [name, setup] of cases) {
   const rows = scenario(name, setup);
-  ok(rows.length === 0, `${name}: recordLikeEvent must write nothing, wrote ${rows.length}`);
+  ok(rows.length === 0, `${name}: recordLikeEvent and recordCommerceClick must write nothing, wrote ${rows.length}`);
 }
 const owner = scenario("owner", () => {}, { id: "00000000-0000-0000-0000-000000000000", email: OWNER_EMAIL });
-ok(owner.length === 0, `owner account: recordLikeEvent must write nothing, wrote ${owner.length}`);
+ok(owner.length === 0, `owner account: recordLikeEvent and recordCommerceClick must write nothing, wrote ${owner.length}`);
 {
   const savedWin = globalThis.window;
   globalThis.window = undefined;
   try {
     const sb = recorder();
     recordLikeEvent("like", place, { supabase: sb, user: null });
-    ok(sb.rows.length === 0, `headless/no-window context: recordLikeEvent must write nothing, wrote ${sb.rows.length}`);
+    recordCommerceClick(clickFields, { supabase: sb, user: null });
+    ok(sb.rows.length === 0, `headless/no-window context: recordLikeEvent and recordCommerceClick must write nothing, wrote ${sb.rows.length}`);
   } finally {
     globalThis.window = savedWin;
   }
