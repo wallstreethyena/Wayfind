@@ -2476,3 +2476,6 @@ node scripts/test-locality-backfill-evidence.mjs
 
 # www /blog 404ed; it must permanently redirect to blog.gowayfind.com (executes next.config redirects).
 node scripts/check-blog-redirect.mjs
+
+# WAYFIND-W: reading window.localStorage throws SecurityError in blocked-storage browsers; event page + layout closure must not read it unguarded.
+node scripts/test-safe-storage.mjs

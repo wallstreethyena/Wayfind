@@ -31,6 +31,7 @@ import {
 import { readCrownCampaign } from "../../lib/crownCampaign.js";
 import { attributionProps, captureLanding, installBridge, readState, writeLandingCookie } from "../../lib/campaignAttribution.js";
 import { isNative } from "../../lib/native";
+import { safeLocalStorage } from "../../lib/safeStorage.js";
 
 export default function PostHogProvider({ children }) {
   const pathname = usePathname();
@@ -76,7 +77,7 @@ export default function PostHogProvider({ children }) {
     };
     const noteAuthUser = (user) => {
       if (!isOwnerUser(user)) return false;
-      markInternalBrowser(window.localStorage);
+      markInternalBrowser(safeLocalStorage());
       suppress("internal");
       return true;
     };
@@ -85,7 +86,7 @@ export default function PostHogProvider({ children }) {
     window.__WF_NOTE_AUTH_USER = noteAuthUser;
 
     const reason = (user) => analyticsSuppressionReason({
-      storage: window.localStorage,
+      storage: safeLocalStorage(),
       user,
       userAgent: window.navigator && window.navigator.userAgent,
       webdriver: !!(window.navigator && window.navigator.webdriver),
