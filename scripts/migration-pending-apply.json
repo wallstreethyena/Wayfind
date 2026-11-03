@@ -87,7 +87,7 @@
     "file": "supabase/migrations/20261103120000_indigenous_sarasota_closed_permanently.sql",
     "sha256": "cca1fa29bbf622e16bf258bb4d0cc1615d5621718d8771c849e897611df4890d",
     "decision_owner": "wallstreethyena",
-    "tracking": "Indigenous Restaurant closure 2026-11-03",
+    "tracking": "#2132 Indigenous Restaurant closure",
     "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
   }
 ]
