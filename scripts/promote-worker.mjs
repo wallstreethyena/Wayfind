@@ -38,7 +38,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../lib/promoteDetails.js";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../lib/promoteDetails.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -238,6 +238,12 @@ while (T.claimed < TOTAL) {
   const indexSignals = await fetchIndexSignals(claimed.map((c) => c.place_id));
   let budgetExhausted = false;
   let quotaKind = null;
+  // Promotion's share of the shared Enterprise line (lib/promoteDetails.js
+  // PROMOTE_RATING_SHARE), same rule as the cron: one ledger read per batch.
+  const { readLedgerUsage } = await import("../lib/jobPulse.js");
+  const ratingUsage = await readLedgerUsage(RATING_SKU);
+  const ratingFreeLine = effectiveCap(RATING_SKU, MONTH_CAP);
+  let ratingBought = 0;
   const results = await pmap(claimed, CONC, async (item) => {
     if (budgetExhausted) return { item, kind: "release" };
     if (quotaKind) return { item, kind: "quota" };
@@ -248,8 +254,8 @@ while (T.claimed < TOTAL) {
     // promotion budget running out; stop asking.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
-      mask = RATING_DETAILS_MASK;
+    if (!hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
+      mask = RATING_DETAILS_MASK; ratingBought++;
     } else if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
       budgetExhausted = true;
       return { item, kind: "release" };
