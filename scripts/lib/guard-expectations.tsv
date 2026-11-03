@@ -8,8 +8,8 @@
 # For an intentional guard change, review its diff and use --suggest <path> to update its row.
 # "-" is only for unavailable numeric metadata or absent ownership; critical guards require owners.
 # registry-meta-sha256: a3df4dac554232de3e0786b6c81554c3eb1a072a25592a97d6f92e6d70a841c2
-path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 npm:check:jsx	0	OTHER	blocks-ci-and-deploy	1	Qwen (Engineering)	-	0	-	c08a4641e40e3558f5dcbd0d7128cc1d7d16000dabef02e0e85fb503bec2526a
+path	critical	class	gating	guards_txt	owner	min_assertions	max_violations	max_unproven	entry_sha256
 scripts/check-affiliate-coverage.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	99	0	0	fe73e51e46ab1e5ed32df46031a2c7aa5e9c9ee01aee976930ed2c25000b19f5
 scripts/check-affiliate-opportunity-refresh.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	19	0	0	5e4e758b63777c1c64b4651e06c06741f0169f1352d3af3ba919801a778b194e
 scripts/check-anchor-events.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	74550830f3d6a6c95ab886c34a35c2deb66b4afde9839a700f9f2628d625f412
@@ -698,6 +698,7 @@ scripts/test-family-day-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	68	0	0	de20
 scripts/test-family-evidence-expiry.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	1e13ea62729b2c44fd2e869c83a1789216383d097247f3831ba5a6c29de6cc6d
 scripts/test-feedback-notification.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	3e87b13c6c0ee6a669edaa757c53c2763b264831f6f9d678ad2f662fd493cab2
 scripts/test-feedback-storage.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	67c47f49d57145f343d88c497bd1567cb06b3c14da729510c43a21fe297cd5cf
+scripts/test-fetch-socket-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	238ed17d1a910716ce8c5ae3427a031dc7550aada879358caf19198327664bd7
 scripts/test-first-screen.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	502018e993e95e537f88dcd67851a875f7b9adf9bb4e4951113779e0e1bc0018
 scripts/test-florida-catalog-location.mjs	0	CALL	blocks-ci-and-deploy	1	-	31	0	0	6bb29c934f7ce5d96324eb0bd9e0f3af318105bd35be674a4f95ddbcc0571cb8
 scripts/test-florida-venue-rule.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	1b8f5817064acf8436ac62cca837a38c543014752b913de7a1d2decd852b5de8
