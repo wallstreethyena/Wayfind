@@ -9111,6 +9111,35 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     try { if (scrollRef.current) scrollRef.current.scrollTo({ top: 0 }); } catch (e) {}
   }
 
+  // 2026-11-02 (owner: "fix it", Command Center no-result alert). An empty
+  // browse OUTSIDE coverage used to print "try another category / widen your
+  // search / a bigger city nearby", promises nothing could keep: free mode
+  // serves only owned Florida places, so 40 visitors in 15 days hit a dead end
+  // (112 of 114 places_none). Offer Boo's own Florida city options instead
+  // (booCoverage.js: one coverage law, one copy source). Shared by BOTH empty
+  // states (the in-place home browse and the explore list). Nothing moves until
+  // the reader taps; a tap is jumpToArea (manual pick, GPS never yanks it back).
+  function renderCoverageGap() {
+    const gap = feedGap;
+    if (!gap) return null;
+    return (
+      <div data-coverage-gap="1" style={{ textAlign: "center", padding: "36px 20px 44px", color: C.muted, maxWidth: 460, margin: "0 auto" }}>
+        <div style={{ display: "inline-flex", marginBottom: 10 }}><Critter size={46} /></div>
+        <strong style={{ display: "block", color: C.light, fontSize: 17 }}>Wayfind hasn&apos;t reached {gap.area || "your area"} yet</strong>
+        <span style={{ display: "block", fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 18px" }}>Right now we cover Florida. Planning a trip? Pick a city to see what&apos;s good there.</span>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
+          {gap.options.map((o, i) => (
+            <button key={o.slug} type="button"
+              onClick={() => { try { logEvent("coverage_city_jump", null, { city: o.slug, from_cell: gap.cell, cat }); } catch (e) {} jumpToArea({ name: o.label, lat: o.lat, lng: o.lng }); }}
+              style={{ minHeight: 44, padding: "10px 16px", borderRadius: 999, border: i === 0 ? "none" : `1px solid ${C.border}`, background: i === 0 ? C.accent : C.card, color: i === 0 ? "#fff" : C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
+              {o.text}
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   // Boo's "Explore <city>" buttons for visitors outside coverage. Same contract
   // as jumpToArea (manual pick, GPS never yanks it back); the event is
   // same-page only, and the payload is checked before it moves anything.
@@ -10022,28 +10051,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
       })()}
       {err && <div style={{ color: C.red, fontSize: 13, padding: "4px 2px 12px" }}>{err} <span onClick={() => setFeedRetry((t) => t + 1)} style={{ color: C.accent, fontWeight: 800, cursor: "pointer", marginLeft: 6 }}>Retry ↻</span></div>}
       {!loading && !err && view.length === 0 && (() => {
-        // 2026-11-02 — outside coverage, "try another category or a bigger
-        // city nearby" was a promise neither could keep (free mode only serves
-        // owned Florida places), so 40 visitors in 15 days hit a dead end.
-        // Offer the same Florida city options Boo offers (booCoverage.js, one
-        // law, one copy source). Nothing moves until the reader taps.
-        const gap = feedGap; // computed by the coverage law with the very places on screen
-        if (gap) return (
-          <div data-coverage-gap="1" style={{ textAlign: "center", padding: "40px 20px 48px", color: C.muted, maxWidth: 460, margin: "0 auto" }}>
-            <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
-            <strong style={{ display: "block", color: C.light, fontSize: 17 }}>Wayfind hasn&apos;t reached {gap.area || "your area"} yet</strong>
-            <span style={{ display: "block", fontSize: 13.5, lineHeight: 1.5, margin: "6px 0 18px" }}>Right now we cover Florida. Planning a trip? Pick a city to see what&apos;s good there.</span>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "center" }}>
-              {gap.options.map((o, i) => (
-                <button key={o.slug} type="button"
-                  onClick={() => { try { logEvent("coverage_city_jump", null, { city: o.slug, from_cell: gap.cell, cat }); } catch (e) {} jumpToArea({ name: o.label, lat: o.lat, lng: o.lng }); }}
-                  style={{ minHeight: 44, padding: "10px 16px", borderRadius: 999, border: i === 0 ? "none" : `1px solid ${C.border}`, background: i === 0 ? C.accent : C.card, color: i === 0 ? "#fff" : C.text, fontSize: 14, fontWeight: 800, cursor: "pointer" }}>
-                  {o.text}
-                </button>
-              ))}
-            </div>
-          </div>
-        );
+        // Outside coverage: the shared Florida city options (renderCoverageGap).
+        if (feedGap) return renderCoverageGap();
         return (
           <div style={{ textAlign: "center", padding: "48px 24px", color: C.muted }}>
             <div style={{ display: "flex", justifyContent: "center", marginBottom: 12 }}><NavIcon name={cat} color={C.muted} size={38} /></div>
@@ -11419,6 +11428,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <div className="wf-place-card-list" style={{ marginTop: 2 }} aria-busy="true" aria-label="Finding the best spots">
                       <PlaceCardSkeleton count={5} as="div" />
                     </div>
+                  ) : view.length === 0 && feedGap ? (
+                    renderCoverageGap()
                   ) : view.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "40px 24px", color: C.muted }}>
                       <div style={{ display: "inline-flex", animation: "wfbob 1.4s ease-in-out infinite", marginBottom: 10 }}><Critter size={46} /></div>

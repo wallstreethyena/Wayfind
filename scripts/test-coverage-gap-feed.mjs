@@ -55,23 +55,33 @@ ok(/bc\.coverageButtonText\(o, i === 0\)/.test(h), "button text comes from Boo's
 ok(/\}, \(\) => null\);/.test(h.slice(h.indexOf("const _gapP"), h.indexOf("const _gapP") + 600)), "a failed chunk load degrades to the normal path (gap = null), never blocks browsing");
 ok(/setFeedGap\(_gap\); setPlaces\(results\);/.test(h), "the gap is committed in the SAME update as the places it explains");
 
-// 2a. The empty-state branch: find the block that renders when view is empty.
+// 2a. ONE shared renderer for the city options (no second copy of the copy).
+const rs = h.indexOf("  function renderCoverageGap() {");
+ok(rs !== -1 && h.indexOf("function renderCoverageGap()", rs + 10) === -1, "exactly one renderCoverageGap definition");
+const gapBlock = rs === -1 ? "" : h.slice(rs, h.indexOf("\n  }\n", rs));
+ok(/const gap = feedGap;/.test(gapBlock) && /if \(!gap\) return null;/.test(gapBlock), "the renderer reads the verdict computed with the places on screen, and renders nothing when covered");
+ok(/gap\.options\.map\(/.test(gapBlock) && /\{o\.text\}/.test(gapBlock), "one button per Florida option, with Boo's button text");
+ok(/jumpToArea\(\{ name: o\.label, lat: o\.lat, lng: o\.lng \}\)/.test(gapBlock), "a city tap uses jumpToArea (manual pick, GPS never yanks it back)");
+ok(/logEvent\("coverage_city_jump"/.test(gapBlock), "a city tap is attributed (coverage_city_jump)");
+ok(/minHeight: 44/.test(gapBlock), "city buttons keep a 44px tap target");
+ok(/data-coverage-gap="1"/.test(gapBlock), "the block is addressable for render checks");
+const DEAD_END = /bigger city|another category|widen your search/;
+ok(!DEAD_END.test(gapBlock), "the gap renderer must not repeat the dead-end advice");
+
+// 2b. BOTH empty states route to it BEFORE their generic copy.
+//   (i) explore list: "Nothing here yet"
 const es = h.indexOf("{!loading && !err && view.length === 0 && (() => {");
 ok(es !== -1, "the explore empty state is an IIFE that can branch on coverage");
 const esBody = es === -1 ? "" : h.slice(es, h.indexOf("})()}", es));
-ok(/const gap = feedGap;/.test(esBody), "the empty state reads the coverage verdict computed with the places on screen");
-ok(esBody.indexOf("if (gap) return") !== -1 && esBody.indexOf("if (gap) return") < esBody.indexOf("Nothing here yet"), "outside coverage returns the city options BEFORE the generic 'Nothing here yet' copy");
-ok(/jumpToArea\(\{ name: o\.label, lat: o\.lat, lng: o\.lng \}\)/.test(esBody), "a city tap uses jumpToArea (manual pick, GPS never yanks it back)");
-ok(/minHeight: 44/.test(esBody), "city buttons keep a 44px tap target");
-const ga = esBody.indexOf("if (gap) return");
-const gapBlock = ga === -1 ? "" : esBody.slice(ga, esBody.indexOf("\n        return (", ga));
-ok(gapBlock.length > 200 && /gap\.options\.map\(/.test(gapBlock) && /\{o\.text\}/.test(gapBlock), "the gap branch renders one button per Florida option");
-const DEAD_END = /bigger city|another category/;
-ok(!DEAD_END.test(gapBlock), "the gap branch must not repeat the dead-end advice");
-// Positive control: the same pattern DOES find that advice in the covered
-// fallback branch right after it, so the absence above means something.
-const fallbackBlock = ga === -1 ? "" : esBody.slice(esBody.indexOf("\n        return (", ga));
-ok(DEAD_END.test(fallbackBlock), "positive control: DEAD_END detects the advice in the covered fallback branch");
+ok(/if \(feedGap\) return renderCoverageGap\(\);/.test(esBody) && esBody.indexOf("renderCoverageGap()") < esBody.indexOf("Nothing here yet"), "explore list: city options come BEFORE 'Nothing here yet'");
+//   (ii) in-place home browse (the screen the incident visitors actually saw): "Nothing here right now"
+const hb = h.indexOf(") : view.length === 0 && feedGap ? (");
+const hbBody = hb === -1 ? "" : h.slice(hb, hb + 900);
+ok(hb !== -1 && /renderCoverageGap\(\)/.test(hbBody) && hbBody.indexOf("renderCoverageGap()") < hbBody.indexOf("Nothing here right now"), "home browse: city options come BEFORE 'Nothing here right now'");
+// Positive controls: DEAD_END does find the advice in both covered fallbacks,
+// so the absence in the renderer above means something.
+ok(DEAD_END.test(esBody), "positive control: DEAD_END detects the explore list's covered fallback copy");
+ok(DEAD_END.test(hbBody), "positive control: DEAD_END detects the home browse's covered fallback copy");
 
 // 2b. Telemetry: coverage gaps are their own event; places_none stays for real search emptiness.
 const cg = h.indexOf('logEvent("coverage_gap"');
