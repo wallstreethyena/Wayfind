@@ -70,20 +70,6 @@
     "reason": "NOT APPLIED. New table wf_redirect_burst (RLS on, no policies, service role only) + RPC wf_redirect_burst_record, additive, rollback = drop both. Stores only truncated sha256 hashes of IP+UA and offer plus a timestamp. Only used when REDIRECT_BURST_GATE=1; the code fails open and falls back to an in-memory counter without it."
   },
   {
-    "file": "supabase/migrations/20261029223000_holmes_beach_one_card_and_county_suffix.sql",
-    "sha256": "e51bcea11bbd0658006ba18c3bc1762b49a8f52e3b4919bb8815d40e914393b7",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2034, revised before apply",
-    "reason": "DATA ONLY, revised 2026-11-03 before any apply (the #2034 draft keyed on a stale name and would have raised). Suppresses (status EXCLUDED, reversible, nothing deleted) the Holmes Beach MUNICIPALITY row ChIJ2VOdeTYQw4gRALlkLfzdBwc (primary_type locality, not in wf_place_ids), which rendered as a second 'Holmes Beach' card beside the beach ChIJaWeoBbURw4gRDYfwKuwOVW0; no photo copied. Strips the County suffix on ChIJ7zRUJ9CowogRM70pcoqrdUM (Pasco) and ChIJeZM_F1A23YgRFICuRhA_pIo (Hillsborough), Census-confirmed. Every write keyed on place_id plus exact before-value, one row each. Reverse: supabase/data-fixes/20261029223000_holmes_beach_one_card_and_county_suffix_REVERSE.sql. Owner approved applying in-session 2026-11-03."
-  },
-  {
-    "file": "supabase/migrations/20261031000000_wf_inventory_locality_from_owned_events.sql",
-    "sha256": "6139d976779517982db3d1bc93e64d3a352c1c9f00e44b605017709877901fa9",
-    "decision_owner": "wallstreethyena",
-    "tracking": "place-page city coverage (PR #2069)",
-    "reason": "DATA ONLY. Fills wf_inventory.locality for 82 places. Each needs BOTH owned evidence (wf_events.city, event address city slot equal to it) AND the accepted rule: the US Census place containing the row's own point is that city (scripts/gate-locality-census.mjs; evidence docs/audits/20261031000000_wf_inventory_locality_from_owned_events.census.json). Of 118 candidates: 82 eligible, 10 conflicting (point inside a different Census place, e.g. Downtown Wellen Park in North Port), 26 unsupported (unincorporated, e.g. SeaWorld Orlando); none of those 36 is written. House of Blues Orlando, Frenchy's Original Cafe, Fox Squirrel Corn Maze and Keel Farms are not candidates. Row-level preconditions (locality AND county still empty); all-or-nothing assertion rolls back if any row was changed since the dry run. Reverse: supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql. Owner approved apply in-session 2026-11-03."
-  },
-  {
     "file": "supabase/migrations/20261103120000_indigenous_sarasota_closed_permanently.sql",
     "sha256": "cca1fa29bbf622e16bf258bb4d0cc1615d5621718d8771c849e897611df4890d",
     "decision_owner": "wallstreethyena",
