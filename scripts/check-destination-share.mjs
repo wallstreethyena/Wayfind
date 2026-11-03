@@ -96,6 +96,8 @@ const STANDARD = {
   "app/l/[key]/page.js": "app/l/[key]/page.js",
   "app/summer-picks/page.js": "app/summer-picks/client.js",
   "app/beach-conditions/page.js": "app/beach-conditions/Conditions.js",
+  // 2026-11-03: linkable best-of pages (sunset spots, free this weekend).
+  "app/best/[topic]/[city]/page.js": "app/best/BestOfArticle.js",
 };
 
 // EQUIVALENT: page-level share controls that existed before this audit. Each
