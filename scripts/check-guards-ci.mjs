@@ -127,6 +127,8 @@ export function evaluateCanaryHeartbeat(src) {
   }
   const text = beat.join("\n");
   if (!/if:\s*always\(\)/.test(text)) failures.push("canary heartbeat must set if: always()");
+  const timeout = timeoutOf(beat);
+  if (timeout == null || timeout < 15) failures.push(`canary heartbeat timeout-minutes must be >= 15 (the 3 minute cap cancelled run 41684161308 before the pulse), got ${timeout}`);
   if (!/outcome=failure/.test(text) || !/jobs not green/.test(text)) {
     failures.push("canary heartbeat must record a failure pulse naming the jobs that were not green");
   }

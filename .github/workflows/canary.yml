@@ -168,7 +168,12 @@ jobs:
     needs: [incident-delivery, routes, inventory, promote-metros, deploy-contract]
     if: always()
     runs-on: ubuntu-latest
-    timeout-minutes: 3
+    # 2026-11-03 run 41684161308: this job was cancelled at timeout-minutes 3
+    # (17:31:00Z to 17:34:58Z) after the migration contract job had already
+    # failed, so the failure pulse was not recorded. Depth-1 checkout of this
+    # repo has been measured at 50s to 813s. 15 minutes covers that checkout
+    # plus the pulse write. A cancelled heartbeat is not a recorded failure.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

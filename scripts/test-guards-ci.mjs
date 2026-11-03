@@ -53,6 +53,12 @@ const skipGate = liveGuards.replace(
 const skipped = evaluateGuardsWorkflow(skipGate);
 ok(skipped.some((line) => /if: always\(\)/.test(line)), `red proof: skipping the required check after a cancel must fail, got ${skipped.join("; ")}`);
 
+const shortBeat = evaluateCanaryHeartbeat(liveCanary.replace(
+  "    runs-on: ubuntu-latest\n    # 2026-11-03 run 41684161308:",
+  "    runs-on: ubuntu-latest\n    timeout-minutes: 3\n    # 2026-11-03 run 41684161308:",
+));
+ok(shortBeat.some((line) => /timeout-minutes must be >= 15/.test(line)), `red proof: a 3 minute canary heartbeat must fail, got ${shortBeat.join("; ")}`);
+
 const beat = evaluateCanaryHeartbeat(liveCanary.replace(
   /(--note="jobs not green:\$FAILED"\n(?:.*\n)*?)\s*exit 1\n/,
   "$1",
