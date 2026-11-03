@@ -4,10 +4,11 @@
     "original": "https://images.unsplash.com/photo-1698292735561-07672acd9787?auto=format&fit=crop&w=1200&q=85",
     "creator": "Robin Teng (@probablyrobin)",
     "license": "Unsplash License — free commercial use",
-    "depicted_venue": "Hunsader Farms, County Road 675, Bradenton",
-    "description": "Resting goats at the named farm; venue image, not documentary coverage of the 2026 festival.",
+    "depicted_location": "Bradenton, Florida, United States (Unsplash location tag; specific farm not named on source page)",
+    "classification": "local_contextual",
+    "description": "Resting goats in a Bradenton pasture; local contextual farm image, not a verified photograph of Hunsader Farms.",
     "transformation": "Converted from 1200×800 JPEG to WebP at quality 86; no compositing.",
-    "verified_at": "2026-09-25"
+    "verified_at": "2026-11-03"
   },
   "nature-parrish-railroad-museum.webp": {
     "source": "https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg",
