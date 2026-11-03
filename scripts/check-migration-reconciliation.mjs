@@ -46,6 +46,7 @@ import {
   canonicalSingleStatementHash,
   verifyLedgerContent,
   resolvePendingDeclarations,
+  fetchAllRpcRows,
 } from "./lib/migrationReconciliation.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -107,6 +108,25 @@ const MIGRATIONS_DIR = path.join(REPO, "supabase", "migrations");
     if (!verdict("d".repeat(64), [entry]).errors.length) { fails++; console.error("self-test FAIL — a baselined row whose ledger text changed again must fail"); }
     if (!verdict(hashes.get(file), [entry]).errors.some((e) => e.startsWith("stale content baseline"))) { fails++; console.error("self-test FAIL — a baseline entry for a row that now matches must be reported stale"); }
   }
+  // Paging: a PostgREST-like server that caps every response at 1,000 rows
+  // (the 2026-11-03 defect) must still yield every row; a missing exact count,
+  // or a server that stops short of its own count, must fail closed.
+  {
+    const all = Array.from({ length: 2349 }, (_, i) => ({ kind: i < 1000 ? "function" : "column", name: `obj_${i}` }));
+    const server = ({ cap = 1000, count = true, shortBy = 0 } = {}) => async (_url, init) => {
+      const [a, b] = String(init.headers.Range).split("-").map(Number);
+      const end = Math.min(b, a + cap - 1, all.length - 1 - shortBy);
+      const page = a > end ? [] : all.slice(a, end + 1);
+      return { ok: true, status: 206, json: async () => page, headers: { get: (h) => (count && h.toLowerCase() === "content-range" ? `${a}-${a + page.length - 1}/${all.length}` : null) } };
+    };
+    const read = (s) => fetchAllRpcRows({ url: "https://fixture.invalid", key: "k", fn: "wf_schema_objects", order: "kind.asc,name.asc", fetchImpl: s });
+    const full = await read(server());
+    if (full.error || full.rows.length !== 2349 || !full.rows.some((r) => r.name === "obj_2341")) { fails++; console.error(`self-test FAIL — a 1,000-row cap must still read all 2,349 rows (${full.error || full.rows.length})`); }
+    const small = await read(server({ cap: 300 }));
+    if (small.error || small.rows.length !== 2349) { fails++; console.error("self-test FAIL — a smaller unknown cap (300) must still read every row"); }
+    if (!(await read(server({ count: false }))).error) { fails++; console.error("self-test FAIL — no exact count must fail closed, never pass as complete"); }
+    if (!(await read(server({ shortBy: 5 }))).error) { fails++; console.error("self-test FAIL — a server that returns fewer rows than its own count must fail"); }
+  }
   if (fails) {
     console.error(`check-migration-reconciliation: FAIL — ${fails} comparator self-test(s) failed; the comparator itself is broken, its verdicts below cannot be trusted`);
     process.exit(1);
@@ -121,20 +141,11 @@ if (!URL_ || !KEY) {
   process.exit(0);
 }
 
-async function callRpc(fn) {
-  const r = await fetch(`${URL_}/rest/v1/rpc/${fn}`, {
-    method: "POST",
-    headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
-    body: "{}",
-    cache: "no-store",
-  });
-  if (!r.ok) return { error: `${r.status} ${(await r.text().catch(() => "")).slice(0, 300)}` };
-  const rows = await r.json();
-  if (!Array.isArray(rows)) return { error: "non-array response" };
-  return { rows };
-}
 
-const [ledgerResult, objectsResult] = await Promise.all([callRpc("wf_migration_ledger_hashes"), callRpc("wf_schema_objects")]);
+const [ledgerResult, objectsResult] = await Promise.all([
+  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_migration_ledger_hashes", order: "version.asc" }),
+  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_schema_objects", order: "kind.asc,name.asc" }),
+]);
 if (ledgerResult.error || objectsResult.error) {
   console.error(`check-migration-reconciliation: FAIL — introspection RPC unreachable (wf_migration_ledger_hashes: ${ledgerResult.error || "ok"}; wf_schema_objects: ${objectsResult.error || "ok"}).`);
   console.error("  If this is a fresh deploy: apply the canonical wf_deploy_contract_audit and wf_migration_ledger_hashes migrations first — this check has no way to read the applied-migration ledger without it.");

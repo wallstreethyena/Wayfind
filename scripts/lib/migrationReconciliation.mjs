@@ -286,3 +286,41 @@ export function resolvePendingDeclarations({ unresolved, applied, pending, rawHa
   }
   return { errors, declared };
 }
+
+// ── Reading a whole RPC result through PostgREST ───────────────────────────
+// 2026-11-03: wf_schema_objects() returns 2,349 rows; PostgREST's max-rows cap
+// returned the first 1,000, so every object after row 1,000 (all of them
+// columns, positions 2,296-2,342 among them) looked absent and 9 correct
+// live-schema probes failed. A probe that cannot see the object it probes is
+// a blind check, not a strict one. This reads every page in a stable order
+// and FAILS CLOSED unless the rows read equal the server's exact count.
+export async function fetchAllRpcRows({ url, key, fn, order, fetchImpl = globalThis.fetch, pageSize = 1000 }) {
+  const base = `${url}/rest/v1/rpc/${fn}${order ? `?order=${order}` : ""}`;
+  const rows = [];
+  let total = null;
+  for (let guard = 0; guard < 1000; guard++) {
+    const start = rows.length;
+    let r;
+    try {
+      r = await fetchImpl(base, {
+        method: "POST",
+        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "count=exact", "Range-Unit": "items", Range: `${start}-${start + pageSize - 1}` },
+        body: "{}",
+        cache: "no-store",
+      });
+    } catch (e) { return { error: `${fn}: ${e.message}` }; }
+    if (!r || !r.ok) return { error: `${r ? r.status : "no response"} ${r && r.text ? (await r.text().catch(() => "")).slice(0, 300) : ""}` };
+    const page = await r.json();
+    if (!Array.isArray(page)) return { error: "non-array response" };
+    const cr = (r.headers && typeof r.headers.get === "function" && r.headers.get("content-range")) || "";
+    const m = /\/(\d+)\s*$/.exec(cr);
+    if (!m) return { error: `${fn}: no exact count in Content-Range (${cr || "missing"}), so a complete read cannot be proven` };
+    if (total !== null && Number(m[1]) !== total) return { error: `${fn}: row count changed between pages (${total} -> ${m[1]})` };
+    total = Number(m[1]);
+    rows.push(...page);
+    if (rows.length >= total) break;
+    if (page.length === 0) break;
+  }
+  if (rows.length !== total) return { error: `${fn}: read ${rows.length} of ${total} rows` };
+  return { rows, total };
+}
