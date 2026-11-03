@@ -107,7 +107,17 @@ ok(/const\s+TOUCH_SEL\s*=\s*"[^"]*\.boo-bulb[^"]*\.boo-photo[^"]*"/.test(comp), 
 ok(/setAttribute\(\s*"data-boo-touch"/.test(comp) && /removeAttribute\(\s*"data-boo-touch"/.test(comp), "touch must set and remove data-boo-touch");
 ok(/const\s+TOUCH_MS\s*=\s*1200/.test(comp), "TOUCH_MS must be 1200");
 ok((comp.match(/querySelectorAll\(\s*TOUCH_SEL\s*\)/g) || []).length === 1, "exactly one querySelectorAll(TOUCH_SEL) per hop");
-ok(/!openRef\.current\s*&&\s*!reducedRef\.current\s*&&\s*\(legRef\.current\s*<\s*2\s*\|\|\s*Math\.random\(\)\s*<\s*TOUCH_CHANCE\)/.test(comp), "touch legs must be gated on sheet closed and no reduced motion (first two legs always touch, then TOUCH_CHANCE)");
+// CALM (owner 2026-11-03: "I can't see him most of the time and he is going
+// everywhere on the page rapidly"): roaming never races over to poke things.
+{
+  const nl = comp.slice(comp.indexOf("const nextLeg = useCallback"), comp.indexOf("// Corner spot for reduced motion."));
+  ok(nl.length > 200 && !/pickTarget\(\)/.test(nl) && /rand\(CALM_SPEED_MIN, CALM_SPEED_MAX\)/.test(nl), "roaming legs are calm drifts (no touch legs, no corner darts)");
+  ok(/const CALM_SPEED_MIN = 40, CALM_SPEED_MAX = 70;/.test(comp) && /const REST_MIN_S = 6, REST_MAX_S = 14;/.test(comp), "calm speed 40 to 70 px/s, and he settles 6 to 14 s at each spot");
+  ok(/for \(let k = 1; k <= 6 && clear; k\+\+\)/.test(nl) && /isClear\(from\.x \+ \(cx - from\.x\) \* u/.test(nl), "a calm leg samples its path so he does not drift across words");
+  ok(/Math\.hypot\(spot\[0\] - posRef\.current\.x, spot\[1\] - posRef\.current\.y\) <= REACT_NEAR_PX/.test(comp) && /dist \/ CALM_REACT_SPEED/.test(comp), "reactions only drift over when close, at a calm pace; far away he speaks in place");
+  ok(/const CALM_ANTICS = \["wave", "spin", "nap", "bow", "juggle"\]/.test(comp) && /CALM_ANTICS\.indexOf\(name\) >= 0 \? name : CALM_ANTICS/.test(comp), "only calm antics play (no zoomies, peekaboo or shiver), even when asked by name");
+  ok(/g\.pause = rand\(REST_MIN_S, REST_MAX_S\)/.test(comp) && /playAnticRef\.current\(\)/.test(comp), "at each rest he settles and sometimes does a little act");
+}
 ok(/Search a haunt or city\.\.\./.test(comp), "spooky search placeholder must exist");
 
 // 7. Openers: call the module. 12 city lines + 6 generic, dash free, max 14 words.
@@ -217,7 +227,7 @@ ok(!!rposes && ["poke", "cheer", "sales", "orb"].every((k) => rposes[1].includes
 ok(!!reactBody && /prefetch\("poke"\);\s*prefetch\("cheer"\);/.test(reactBody[1]), "react must prefetch its poses before he flies, so he never flashes invisible");
 const perch = comp.match(/const\s+PERCH_SEL\s*=\s*"([^"]*)"/);
 ok(!!perch && !/boo-buy|boo-ask|boo-goto|boo-picks|commerce|input|\ba\b/.test(perch[1]), "Boo may only perch on top of things nobody taps (bulbs, wordmark), never a ticket button, link or input");
-ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX_COVER, txt\);\s*if \(ps\) return \{ el, r, spot: ps \}/.test(comp) && /\[tx,\s*ty\]\s*=\s*hit\.spot/.test(comp), "roaming touches park beside anything tappable (besideSpot), perched only on PERCH_SEL");
+ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX_COVER, txt\);\s*if \(ps\) return \{ el, r, spot: ps \}/.test(comp), "touch targets park beside anything tappable (besideSpot), perched only on PERCH_SEL");
 
 // 12. Outside coverage (2026-10-28, owner: a visitor from an area Wayfind does
 // not cover must be told why it is empty, which Florida areas are covered, the
@@ -362,8 +372,9 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // words, not only the READ_SEL elements, and he fades while he is over words.
   ok(/createTreeWalker\(document\.body,\s*NF\.SHOW_TEXT \| NF\.SHOW_ELEMENT/.test(comp) && /rg\.selectNodeContents\(n\)/.test(comp) && /txt\.push\(\{ left: q\.left/.test(comp),
     "Santa collects the glyph boxes of every visible text node (button labels and card titles included) into the text list");
-  ok(/dataset\.ghost\s*=\s*over/.test(comp) && /hitsText\(rectOf\(pp\.x/.test(comp) && /\[data-ghost="1"\]\s*\.boo-c-body\{opacity:\.45\}/.test(comp),
-    "he fades to 45% whenever he is over words, in every frame state (owner 2026-11-03: 22% read as invisible)");
+  // Owner 2026-11-03 ("I can't barely see him"): the fade is gone; he stays
+  // visible and keeps off words by where he goes instead.
+  ok(!/data-ghost/.test(comp) && !/dataset\.ghost/.test(comp), "he never fades out (no ghost opacity)");
   ok(!isClear(100, 100, 88, [], 0.15, [R(0, 90, 400, 20)]) && isClear(100, 100, 88, [], 0.15, [R(0, 300, 400, 20)]), "isClear: text under him (even a thin strip, far under 15%) is NOT clear, text elsewhere is");
   // Phone fixtures: full width h2 + paragraph under it, at 375 and 960.
   const textPage = (vw, vh) => {
@@ -401,24 +412,23 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
     const nav = R(0, vh - 64, vw, 64);
     const sp = pickClearSpot(88, b2, [nav], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, wall);
     const box = R(sp.x, sp.y, 88, 88);
-    // Owner 2026-11-03: a tuck never hides more than 60% of him, so on a page whose
-    // text runs to a 16px margin the margin cannot hold him and the least text
-    // spot is the answer (flagged not strict). A wider margin still tucks clean.
-    ok(sp.via === "least" && sp.strict === false, "no text free spot and a 16px margin: least text at the edge, flagged not strict (via " + sp.via + ")");
+    ok(sp.via === "edge" || sp.via === "least", "no text free spot in the viewport: he tucks a little at the edge (via " + sp.via + ")");
     ok(sp.x < b2.minX || sp.x > b2.maxX, "the tuck spot is off the safe box sideways (partly off screen): x=" + sp.x);
     const roomy = []; for (let y = 60; y < vh - 20; y += 40) roomy.push(R(40, y, vw - 80, 34)); // 40px side padding
     const sp4 = pickClearSpot(88, b2, [nav], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, roomy);
-    ok(sp4.via === "edge" && sp4.strict && !hitsText(R(sp4.x, sp4.y, 88, 88), roomy), "a 40px margin: he tucks into it with no text under him (via " + sp4.via + ")");
+    // Owner 2026-11-03: visible first. A tuck hides at most 30% of him, so even a
+    // 40px margin cannot hold him text free; he still keeps 70% on screen.
+    ok((sp4.via === "edge" || sp4.via === "least") && sp4.x >= -0.3 * 88 - 1 && sp4.x <= vw - 88 * 0.7 + 1, "a 40px margin: he tucks at most 30% at the edge (via " + sp4.via + ")");
     const shown = Math.min(sp.x + 88, vw) - Math.max(sp.x, 0);
-    ok(shown >= 88 * (1 - 0.6) - 1e-6, "tucked Boo still shows at least 40% of himself on screen (" + Math.round(shown) + "px)");
+    ok(shown >= 88 * 0.7 - 1e-6, "tucked Boo still shows at least 70% of himself on screen, face included (" + Math.round(shown) + "px)");
     ok(worstOverlap(box, [nav]) <= MAX_COVER, "the tuck spot also leaves the bottom nav alone");
     // Nothing at all is text free (text edge to edge): the damage is the smallest possible, flagged not strict.
     const slab = []; for (let y = 0; y < vh; y += 40) slab.push(R(0, y, vw, 38));
     const sp3 = pickClearSpot(88, b2, [], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, slab);
-    ok(sp3.via === "least" && sp3.strict === false && (sp3.x <= -0.6 * 88 + 1 || sp3.x >= vw - 88 * 0.4 - 1), "edge to edge text: last resort hides him (60% at most) at the edge and says it is not strict (x=" + sp3.x + ")");
+    ok(sp3.via === "least" && sp3.strict === false && sp3.x >= -0.3 * 88 - 1 && sp3.x <= vw - 88 * 0.7 + 1, "edge to edge text: last resort tucks him at most 30% at the edge and says it is not strict (x=" + sp3.x + ")");
     // Reduced motion settles with the same tiers (tries 0 = no random hop).
     const rd = pickClearSpot(88, b2, [nav], { x: b2.minX, y: b2.maxY }, () => 0, 0, MAX_COVER, null, wall);
-    ok(rd.via === "least" && rd.strict === false && rd.via !== "random", "reduced motion corner search ends at the least text spot on a 16px margin page (via " + rd.via + ")");
+    ok(rd.via !== "random" && rd.x >= -0.3 * 88 - 1 && rd.x <= vw - 88 * 0.7 + 1, "reduced motion corner search uses the same tiers and stays at least 70% on screen (via " + rd.via + ")");
   }
   // 960 desktop: plenty of room, he rests in the open and never on the h2/paragraph.
   {
@@ -445,8 +455,8 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // Owner 2026-11-01 ("he glitches when page moves fast"): mid scroll he holds his
   // course faded (no darting every REST_MS, no fade flicker, no word scan), and a
   // fast scroll no longer triggers the 1.5s side to side shiver.
-  ok(/scrollQuiet\.current = performance\.now\(\) \+ SCROLL_SETTLE_MS/.test(comp) && /const scrolling = nowF < scrollQuiet\.current/.test(comp) && /const over = scrolling \|\|/.test(comp),
-    "while the page is scrolling he stays faded and skips the word scan; scroll events push the settle time");
+  ok(/scrollQuiet\.current = performance\.now\(\) \+ SCROLL_SETTLE_MS/.test(comp) && /nowMs >= scrollQuiet\.current/.test(comp),
+    "while the page is scrolling he holds still (no re-dodging); scroll events push the settle time");
   ok(/reactRef\.current\("scrollFast", \{ pose: "panic" \}\)/.test(comp) && !/"scrollFast", \{ antic: "shiver"/.test(comp), "a fast scroll keeps the panic line but not the shiver shake");
   ok(/NF\.SHOW_TEXT \| NF\.SHOW_ELEMENT/.test(comp) && /NF\.FILTER_REJECT : NF\.FILTER_SKIP/.test(comp), "the word scan skips whole off screen subtrees");
   // Wiring in the component (comments stripped).
@@ -474,16 +484,12 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // re-check no faster than once a second. Values locked, not just names.
   {
     const num = (name) => { const m = comp.match(new RegExp("const " + name + " = \\[?([\\d.]+)(?:, ([\\d.]+))?\\]?;")); return m ? [Number(m[1]), m[2] == null ? null : Number(m[2])] : null; };
-    const rest = num("REST_PAUSE"), dart = num("DART_CHANCE"), ds = num("DART_SPEED"), drift = num("DRIFT_SPEED"), touch = num("TOUCH_CHANCE"), restMs = num("REST_MS");
-    ok(!!rest && rest[0] >= 2 && rest[1] >= 5, "REST_PAUSE: he rests at least 2s (up to 5s or more) after a leg");
-    ok(!!dart && dart[0] <= 0.1, "DART_CHANCE: at most 1 leg in 10 is a dart");
-    ok(!!ds && ds[1] <= 240, "DART_SPEED tops out at 240px/s");
-    ok(!!drift && drift[1] <= 100, "DRIFT_SPEED tops out at 100px/s");
-    ok(!!touch && touch[0] <= 0.5, "TOUCH_CHANCE: at most half the legs chase a target");
+    // Owner 2026-11-03, second pass ("I can barely see him ... glitching"): the
+    // calm values replace the in-between pace (no darts, no touch runs at all).
+    const restMs = num("REST_MS");
     ok(!!restMs && restMs[0] >= 1000, "REST_MS: a resting Santa re-checks the page at most once a second");
-    ok(/g\.pause = Math\.random\(\) < 0\.15 \? 0\.6 : rand\(REST_PAUSE\[0\], REST_PAUSE\[1\]\)/.test(comp), "the arrival pause uses REST_PAUSE (no 0.05s non-pause)");
-    ok(/speed = rand\(DART_SPEED\[0\], DART_SPEED\[1\]\)/.test(comp) && /speed = rand\(DRIFT_SPEED\[0\], DRIFT_SPEED\[1\]\)/.test(comp) && /speed = rand\(TOUCH_SPEED\[0\], TOUCH_SPEED\[1\]\)/.test(comp), "every roaming leg takes its speed from the named pace constants");
-    ok(/dist \/ 260\)/.test(comp), "a reaction whoosh is capped at 260px/s");
+    ok(!/DART_CHANCE|TOUCH_CHANCE|DART_SPEED/.test(comp), "no dart or touch-run pace is left in roaming");
+    ok(/dist \/ CALM_REACT_SPEED/.test(comp) && /const REACT_NEAR_PX = 240, CALM_REACT_SPEED = 140;/.test(comp), "a reaction drift is capped at 140px/s and only when close");
     ok(/isPhotoCard\(el, r\)\) continue;/.test(comp) && /const isPhotoCard = \(el, r\) =>/.test(comp), "a card sized picture link is a resting place, not a control that blocks him");
   }
   // Tap safety (owner rule): he cannot intercept navigation. Decorative parts are pointer-events:none in
