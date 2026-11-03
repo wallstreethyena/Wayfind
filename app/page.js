@@ -23,6 +23,9 @@ import { TOWN_HUBS } from "../lib/cultureHubs";
 import { GUIDES } from "../lib/guides";
 import { currentGuides } from "../lib/guideLifecycle";
 import { localEditIndex } from "../lib/localEdit";
+// "This week in Florida" strip: curated wf_events in the next 10 days, built on the server
+// once per revalidation and passed down like localEditGuides. See lib/thisWeekEvents.js.
+import { thisWeekEventsForHome } from "../lib/thisWeekEventsServer";
 // v8 — the rail menu's places are ranked HERE, on the server, at regeneration.
 // lib/railsData.js reaches lib/landing.js, which holds the Places call, the junk
 // filter, the quality floor and the Bayesian rank; none of that may ship to a
@@ -133,6 +136,7 @@ export default async function Page() {
   // ONE featured event first — see issue #219.
   const initialEvents = null;
   const railMenu = await railMenuData(null);
+  const thisWeekEvents = await thisWeekEventsForHome(siteTodayStr());
   return (
     <>
       {/* v5.38 a11y/SEO: one descriptive server-rendered H1, always present
@@ -142,7 +146,7 @@ export default async function Page() {
         Wayfind: find the best things to do, right now
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
-      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} railMenu={railMenu} />
+      <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} thisWeekEvents={thisWeekEvents} railMenu={railMenu} />
       {/* Suspense so the app shell streams immediately; the proof block
           follows without adding a byte to time-to-first-paint. ProofVeil keeps
           it in the DOM for crawlers but removes it from the interactive view
