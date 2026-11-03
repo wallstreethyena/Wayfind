@@ -49,24 +49,23 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## fall-events-orlando-2026
 
-- `/guides/picks/fall-events-orlando-2026/legoland-florida-entrance.webp` — fall-events-orlando-2026: Brick-or-Treat at LEGOLAND Florida. [Ziggymarley01](https://commons.wikimedia.org/wiki/File:Winter_Haven,_Florida_-_Legoland_Florida.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/candlelight-a-haunted-evening-of-halloween-classics.webp` — fall-events-orlando-2026: Candlelight: A Haunted Evening of Halloween Classics. [Sharife](https://www.flickr.com/photos/17525000@N00/3196407027); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
-- `/guides/picks/fall-events-orlando-2026/lake-eola-fountain-skyline.webp` — fall-events-orlando-2026: Come Out With Pride. [LeonidasB](https://commons.wikimedia.org/wiki/File:Lake_Eola_Park_in_downtown_Orlando%2C_FL.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/fall-events-orlando-2026/tinker-field-entrance.webp` — fall-events-orlando-2026: EDC Orlando. [Ebyabe](https://commons.wikimedia.org/wiki/File:Orlando_Tinker_Field05.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/fall-events-orlando-2026/epcot-spaceship-earth-monorail.webp` — fall-events-orlando-2026: EPCOT International Food & Wine Festival. [Anthony Quintano](https://commons.wikimedia.org/wiki/File:Walt_Disney_World_Epcot_Spaceship_Earth_(50099574831).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/fall-events-orlando-2026/kia-center-arena-exterior.webp` — fall-events-orlando-2026: Fall concerts at Kia Center. [Visitor7](https://commons.wikimedia.org/wiki/File:Amway_Center-2.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/fall-events-orlando-2026/camping-world-stadium-aerial.webp` — fall-events-orlando-2026: Florida Blue Florida Classic. [Quintin Soloviev](https://commons.wikimedia.org/wiki/File:Camping_World_Stadium.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - `/guides/picks/fall-events-orlando-2026/loch-haven-park-science-center-sign.webp` — fall-events-orlando-2026: FusionFest. [Ebyabe](https://commons.wikimedia.org/wiki/File:Orlando_FL_Science_Center02.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/gatorland-alligator.webp` — fall-events-orlando-2026: Gators, Ghosts & Goblins at Gatorland. [turtlemom4bacon](https://commons.wikimedia.org/wiki/File:Alligator_at_the_Gatorland.jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/universal-studios-florida-streetscape.webp` — fall-events-orlando-2026: Halloween Horror Nights 35. [Jesse James](https://commons.wikimedia.org/wiki/File:Universal_Studios_Florida.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
-- `/guides/picks/fall-events-orlando-2026/seaworld-orlando-lighthouse-sign.webp` — fall-events-orlando-2026: Howl-O-Scream at SeaWorld Orlando. [Adog104](https://commons.wikimedia.org/wiki/File:SeaWorld_Orlando_lighthouse.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/cinderella-castle-magic-kingdom.webp` — fall-events-orlando-2026: Mickey's Not-So-Scary Halloween Party. [Jedi94](https://commons.wikimedia.org/wiki/File:Cinderella_Castle,_Magic_Kingdom_Walt_Disney_World_(2024).jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/bill-frederick-park-turkey-lake-boathouse.webp` — fall-events-orlando-2026: Orlando International Dragon Boat Festival & Asian Cultural Expo. [Miosotis jade](https://commons.wikimedia.org/wiki/File:Bill_Frederick_Park%2C_Turkey_Lake.JPG); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/seaworld-orlando-lighthouse-entrance.webp` — fall-events-orlando-2026: SeaWorld Halloween Spooktacular. [Chad Sparkes from Kissimmee,Florida, United States](https://commons.wikimedia.org/wiki/File:SeaWorld_Entrance_(33129763620).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/fall-events-orlando-2026/warped-tour-stadium-exterior.webp` — fall-events-orlando-2026: Vans Warped Tour Orlando. [Ebyabe](https://commons.wikimedia.org/wiki/File:Orlando_FL_Citrus_Bowl01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/fall-events-orlando-2026/visit-orlando-s-magical-dining.webp` — fall-events-orlando-2026: Visit Orlando's Magical Dining. [R9 Studios FL (Thanks to all the fans!!!)](https://www.flickr.com/photos/53477219@N02/8413506032); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/fall-events-orlando-2026/walt-disney-world-dolphin-hotel.webp` — fall-events-orlando-2026: Walt Disney World Swan and Dolphin Food & Wine Classic. [Eden, Janine and Jim](https://commons.wikimedia.org/wiki/File:Dolphin_Hotel_(49560737946).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/fall-events-orlando-2026/cinderella-castle-fireworks-hero.webp` — fall-events-orlando-2026: hero image. [Jorge Royan](https://commons.wikimedia.org/wiki/File:Disneyworld_fireworks_-_0219.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## florida-christmas-boat-parades-2026
+
+- `/guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp` — florida-christmas-boat-parades-2026: Jacksonville Light Boat Parade. [Agassiz830](https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## florida-holiday-nights-out-2026
+
+- `/guides/picks/florida-holiday-nights-out-2026/largo-central-park.webp` — florida-holiday-nights-out-2026: Holiday Lights in Largo Central Park. [Theo Worrall](https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
+- `/guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp` — florida-holiday-nights-out-2026: Lights in Bloom at Selby Gardens. [Joseph Corl](https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI); [Unsplash License](https://unsplash.com/license).
 
 ## florida-lovebug-season
 
@@ -79,6 +78,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/florida-lovebug-season/lovebug-mating-pair-felda.webp` — florida-lovebug-season: Why are lovebugs suddenly everywhere?. [Judy Gallagher](https://commons.wikimedia.org/wiki/File:Lovebugs_-_Plecia_nearctica,_Okaloacoochee_Slough_State_Forest,_Felda,_Florida.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/florida-lovebug-season/why-do-lovebugs-cover-cars.webp` — florida-lovebug-season: Why do lovebugs cover cars?. [Katja Schulz](https://www.flickr.com/photos/86548370@N00/29768255974); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## florida-santa-and-christmas-trains-2026
+
+- `/guides/picks/florida-santa-and-christmas-trains-2026/florida-railroad-museum.webp` — florida-santa-and-christmas-trains-2026: North Pole Express. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## florida-scalloping-crystal-river-homosassa
 
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/a-guided-scallop-trip-from-crystal-river-or-homosassa.webp` — florida-scalloping-crystal-river-homosassa: A guided scallop trip from Crystal River or Homosassa. [Kate Ter Haar](https://www.flickr.com/photos/8489692@N03/16888503408); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
@@ -86,6 +89,14 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/crystal-river-manatee-closeup.webp` — florida-scalloping-crystal-river-homosassa: Off-season, swim with the manatees instead. [David Hinkel / USFWS Endangered Species](https://commons.wikimedia.org/wiki/File:Endangered_Florida_manatee_(Trichechus_manatus),_Crystal_River_National_Wildlife_Refuge,_Florida_(5104976921).jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-license-and-the-limits.webp` — florida-scalloping-crystal-river-homosassa: The license and the limits. [ChrisNovak](https://commons.wikimedia.org/wiki/File:Monkey_Island_on_Homosassa_River,_Florida_USA,_Jan_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-season-and-why-you-check-the-exact-dates.webp` — florida-scalloping-crystal-river-homosassa: The season, and why you check the exact dates. [eutrophication&hypoxia](https://www.flickr.com/photos/48722974@N07/5686916873); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+
+## florida-winter-beaches-2026
+
+- `/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp` — florida-winter-beaches-2026: Bahia Honda State Park. [Matthew Wu](https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8); [Unsplash License](https://unsplash.com/license).
+
+## free-christmas-lights-florida-2026
+
+- `/guides/picks/free-christmas-lights-florida-2026/largo-central-park.webp` — free-christmas-lights-florida-2026: Holiday Lights in Largo Central Park. [Theo Worrall](https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/).
 
 ## gatorland-vs-wild-florida
 
@@ -181,6 +192,12 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/sarasota-half-price-dining/clipp-half-price-certificates.webp` — sarasota-half-price-dining: Clipp half-price certificates. [Roger W](https://www.flickr.com/photos/24736216@N07/5033849130); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/sarasota-half-price-dining/pie-on-main.webp` — sarasota-half-price-dining: Pie On Main. [Roger W](https://www.flickr.com/photos/24736216@N07/5005430450); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
+## sarasota-rainy-day
+
+- `/guides/picks/things-to-do-in-parrish-florida/florida-railroad-museum.webp` — sarasota-rainy-day: Florida Railroad Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp` — sarasota-rainy-day: The Bishop Museum of Science and Nature. [Ebyabe](https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp` — sarasota-rainy-day: The John and Mable Ringling Museum of Art. [Wolfgang Moroder](https://commons.wikimedia.org/wiki/File:Ringling_Museum_main_entrance_Sarasota_Florida.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## siesta-key-drum-circle
 
 - `/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp` — siesta-key-drum-circle: Parking without the meltdown. [Ryan Gamma](https://commons.wikimedia.org/wiki/File:Siesta_Key_Beach_Pavilion_.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
@@ -212,6 +229,12 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/swim-with-manatees-crystal-river/the-summer-counterpart-bay-scalloping.webp` — swim-with-manatees-crystal-river: The summer counterpart: bay scalloping. [Plant Image Library](https://commons.wikimedia.org/wiki/File:Argopecten_irradians_(Atlantic_Bay_Scallop)_(26923439904).jpg); [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/swim-with-manatees-crystal-river/three-sisters-boardwalk-platforms.webp` — swim-with-manatees-crystal-river: Three Sisters Springs boardwalk, stay dry. [qwesy qwesy](https://commons.wikimedia.org/wiki/File:Three_Sisters_Springs,_Crystal_River_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/swim-with-manatees-crystal-river/three-sisters-springs-water.webp` — swim-with-manatees-crystal-river: Three Sisters Springs, from the water. [CityofCrystalRiver](https://commons.wikimedia.org/wiki/File:Three_Sister_Springs.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
+## tampa-bay-rainy-day
+
+- `/guides/picks/things-to-do-in-tampa-florida/tampa-bay-history-center.webp` — tampa-bay-rainy-day: Tampa Bay History Center. [James E. Scholz](https://commons.wikimedia.org/wiki/File:Tampa_Bay_History_Center_1.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-tampa-florida/tampa-theatre.webp` — tampa-bay-rainy-day: Tampa Theatre. [MatthewHoobin](https://commons.wikimedia.org/wiki/File:Tampa_Theatre_in_Tampa,_Florida,_US,_on_23_March_2021.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-in-tampa-florida/florida-aquarium.webp` — tampa-bay-rainy-day: The Florida Aquarium. [James E. Scholz](https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## tampa-restaurants
 
@@ -334,7 +357,7 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## things-to-do-in-venice-florida
 
 - `/guides/picks/things-to-do-in-venice-florida/caspersen-beach-sunset-rocks.webp` — things-to-do-in-venice-florida: Caspersen Beach Park. [Grendelkhan](https://commons.wikimedia.org/wiki/File:Sunset_at_Caspersen_Beach.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
-- `/guides/picks/things-to-do-in-venice-florida/venice-beach.webp` — things-to-do-in-venice-florida: Venice Beach. [Forest and Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg); [CC BY 3.0 US](https://creativecommons.org/licenses/by/3.0/us/deed.en).
+- `/guides/picks/things-to-do-in-venice-florida/venice-beach.webp` — things-to-do-in-venice-florida: Venice Beach. [Forest and Kim Starr](https://commons.wikimedia.org/wiki/File:Starr-031108-0294-Uniola_paniculata,_Venice_Beach,_Florida_(24674788775).jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/us/deed.en).
 - `/guides/picks/things-to-do-in-venice-florida/triangle-inn-venice-museum.webp` — things-to-do-in-venice-florida: Venice Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Venice_FL_Triangle_Inn03.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## things-to-do-key-west-summer-2026
@@ -486,10 +509,3 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/ybor-city-tampa-guide/seventh-avenue-ybor.webp` — ybor-city-tampa-guide: Seventh Avenue and the cigar legacy. [Richard Mc Neil](https://commons.wikimedia.org/wiki/File:Long_corridor_de_commerces_sur_la_7i%C3%A8me_Avenue_Est_%C3%A0_Ybor_City,_Tampa,_Florida,_USA_-_panoramio.jpg); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/ybor-city-tampa-guide/columbia-restaurant.webp` — ybor-city-tampa-guide: The Columbia Restaurant. [LittleT889](https://commons.wikimedia.org/wiki/File:Columbia,_Ybor_City.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 - `/guides/picks/ybor-city-tampa-guide/teco-streetcar-ybor.webp` — ybor-city-tampa-guide: The streetcar and the roosters. [Pokemonprime](https://commons.wikimedia.org/wiki/File:TECO_Line_Streetcar_No._430,_Ybor_City,_Florida.jpg); [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-
-- **florida-winter-beaches-2026 — Bahia Honda State Park**: /guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp; [Matthew Wu](https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8); [Unsplash License](https://unsplash.com/license). The old Bahia Honda bridge at sunset. Photo published in 2020. Resized and converted to WebP for page loading; display may crop the photograph.
-
-- **florida-holiday-nights-out-2026 — Holiday Lights in Largo Central Park**: /guides/picks/florida-holiday-nights-out-2026/largo-central-park.webp; [Theo Worrall](https://commons.wikimedia.org/wiki/File:Largo_Central_Park,_Largo,_Florida,_10_March_2024.jpg); [CC0 1.0 Universal](https://creativecommons.org/publicdomain/zero/1.0/). Largo Central Park in March 2024. Holiday Lights is not pictured. Resized and converted to WebP for page loading; display may crop the photograph.
-- **florida-christmas-boat-parades-2026 — Jacksonville Light Boat Parade**: /guides/picks/florida-christmas-boat-parades-2026/jacksonville-southbank-riverwalk.webp; [Agassiz830](https://commons.wikimedia.org/wiki/File:Southbank_Riverwalk.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Jacksonville’s Southbank Riverwalk in 2018, one of the parade viewing areas. The parade is not pictured. Resized and converted to WebP for page loading; display may crop the photograph. The photograph remains available under the same licence.
-
-- **florida-holiday-nights-out-2026 — Lights in Bloom at Selby Gardens**: /guides/picks/florida-holiday-nights-out-2026/selby-holiday-lights-joseph-corl.webp; [Joseph Corl](https://unsplash.com/photos/island-park-illuminated-with-colorful-lights-at-night-M0G1ofDC9eI); [Unsplash License](https://unsplash.com/license). Holiday lights at Selby Gardens in a photo published in December 2025. Resized and converted to WebP for page loading; display may crop the photograph.
