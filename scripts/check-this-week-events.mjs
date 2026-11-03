@@ -8,7 +8,7 @@
  * Off-box: the Supabase read (lib/thisWeekEventsServer.js) is NOT executed here.
  */
 import { readFileSync } from "node:fs";
-import { thisWeekEventCards, thisWeekDateLabel, addDaysStr, THIS_WEEK_WINDOW_DAYS, THIS_WEEK_MAX } from "../lib/thisWeekEvents.js";
+import { thisWeekEventCards, thisWeekDateLabel, addDaysStr, THIS_WEEK_WINDOW_DAYS, THIS_WEEK_MAX, THIS_WEEK_MAX_RUN_DAYS } from "../lib/thisWeekEvents.js";
 
 let pass = 0; const fail = [];
 const ok = (c, m) => { if (c) pass++; else fail.push(m); };
@@ -32,6 +32,13 @@ const rows = [
   row("not-scheduled", "2026-11-05", "2026-11-05", { event_status: "cancelled" }),
   row("low-confidence", "2026-11-05", "2026-11-05", { verification_confidence: "low" }),
   row("chicago", "2026-11-05", "2026-11-05", { state: "IL", lat: 41.8, lng: -87.6 }),
+  // Live 2026-11-03: season-long runs that started in August sorted ahead of this week's
+  // festivals. A run longer than THIS_WEEK_MAX_RUN_DAYS that is already under way is out.
+  row("season-long", "2026-08-27", "2026-11-21", { editorial_score: 95 }),
+  row("haunted-house-since-september", "2026-09-12", "2026-11-07", { editorial_score: 95 }),
+  // A season that OPENS on a day in the window is allowed, but loses that day's slot to a dated event.
+  row("christmas-party-opens-nov-7", "2026-11-07", "2027-01-05", { editorial_score: 99 }),
+  row("nov-10-market", "2026-11-10", "2026-11-10"),
 ];
 const cards = thisWeekEventCards(rows, TODAY);
 const slugs = cards.map((c) => c.slug);
@@ -45,13 +52,22 @@ ok(!slugs.includes("not-scheduled") && !slugs.includes("low-confidence") && !slu
 ok(slugs.filter((s) => s.startsWith("tomorrow-dup")).join() === "tomorrow-dup-b", "one card per event_series_id, keeping the higher editorial_score row");
 ok(cards.every((c) => c.href === "/florida-events/" + c.slug), "every card links /florida-events/<slug>");
 ok(JSON.stringify(cards).indexOf("price") === -1 && cards.every((c) => !("price" in c)), "no prices on cards");
-const starts = cards.map((c) => rows.find((r) => r.slug === c.slug).start_date);
-ok(starts.every((s, i) => i === 0 || starts[i - 1] <= s), "ordered by start_date");
+const dayOf = (c) => { const s = rows.find((r) => r.slug === c.slug).start_date; return s < TODAY ? TODAY : s; };
+const days = cards.map(dayOf);
+const distinctDays = new Set(days);
+const firstRound = days.slice(0, distinctDays.size);
+ok(firstRound.every((d, i) => i === 0 || firstRound[i - 1] < d) && new Set(firstRound).size === distinctDays.size, `first round deals one card per day, days ascending (got ${firstRound.join(" ")})`);
+ok(days.slice(distinctDays.size).every((d, i) => i === 0 || days[distinctDays.size + i - 1] <= d), "the second round is again in day order");
+ok(slugs[0] === "running-now", `a run already under way (ends Nov 5) leads as today, ahead of Nov 6 (got ${slugs[0]})`);
+ok(slugs.indexOf("siesta-key-crystal-classic") < slugs.indexOf("sarasota-medieval-fair"), "round one reaches Nov 13 (Crystal Classic) before Nov 7's second event (Medieval Fair): the weekend never gets crowded out by one busy day");
+ok(slugs.indexOf("savor-st-pete") < slugs.indexOf("christmas-party-opens-nov-7"), "a season opening Nov 7 (score 99) yields the Nov 7 slot to the dated festival (score 90)");
+ok(THIS_WEEK_MAX_RUN_DAYS === 30 && !slugs.includes("season-long") && !slugs.includes("haunted-house-since-september"), "season-long runs already under way (longer than 30 days) never reach the strip, whatever their score");
+ok(slugs.includes("sarasota-medieval-fair"), "a 30 day run that STARTS this week (Medieval Fair, Nov 7 to Dec 6) still shows: the cap is for runs already under way");
 const sameDay = cards.filter((c) => ["savor-st-pete", "sarasota-medieval-fair"].includes(c.slug)).map((c) => c.slug);
 ok(sameDay.join() === "savor-st-pete,sarasota-medieval-fair", "same start day: higher editorial_score first");
-ok(cards.length <= THIS_WEEK_MAX, "never more than 8 cards");
-const many = Array.from({ length: 12 }, (_, i) => row("e" + i, "2026-11-05", "2026-11-05"));
-ok(thisWeekEventCards(many, TODAY).length === 8, "12 qualifying events are capped at 8");
+ok(THIS_WEEK_MAX === 12 && cards.length <= THIS_WEEK_MAX, "never more than 12 cards (11 days in the window, every day gets its best event plus one)");
+const many = Array.from({ length: 15 }, (_, i) => row("e" + i, "2026-11-05", "2026-11-05"));
+ok(thisWeekEventCards(many, TODAY).length === 12, "15 qualifying events are capped at 12");
 ok(thisWeekEventCards([rows[0]], TODAY).length === 0 && thisWeekEventCards([], TODAY).length === 0, "fewer than 2 qualifying events renders nothing");
 ok(thisWeekEventCards(rows, "2026-11-13").some((c) => c.slug === "starts-day-11") && !thisWeekEventCards(rows, "2026-11-20").some((c) => c.slug === "siesta-key-crystal-classic"), "the window moves with the passed date, and Siesta Key is gone by Nov 20");
 let threw = false; try { thisWeekEventCards(rows, "tomorrow"); } catch { threw = true; }
