@@ -406,7 +406,7 @@ scripts/check-seasonal-movies-ui.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a310
 scripts/check-seasonal-movies.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	3d6ac4aad7109d32139fd067d71bf7c45d2653c228d2aaeef96ee543b179472c
 scripts/check-seasonal-rail-depth.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	a7af84063d56e22ef5103369c1381458b88e4111bdef296e7e2dcbb01456d2cd
 scripts/check-seasonal-surfaces.mjs	0	RENDER	blocks-ci-and-deploy	1	-	112	0	0	23fca7c24d1a70e591660ddd0ed3ac94e78e8d350079c03906835f9f3391cd03
-scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	63	1	0	b23fd93b05f825d0254f15ac6d1cf09b1a04578c3336c94410e5116939a5bebc
+scripts/check-seo.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	64	1	0	9d8a5f19d0690dce0fbb2a03206e40fc05134583bdb95f7841787ad2ed12be6e
 scripts/check-share-card.mjs	0	CALL	blocks-ci-and-deploy	1	-	91	0	0	9236820711658a41523c578ca14987d68d3219ccb18ae185b6e36df01153974c
 scripts/check-shell-decomposition.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	bf98fac42ecfff2c7d1f1adce7f523d961372ca9c39876cf526b9592e55590e0
 scripts/check-shell-routes.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	31c5df471508cd83960219c4624c3c2fd73821aded46a620b403026a0fde048d

@@ -139,7 +139,7 @@ export default async function Page() {
           (the proof block below is conditional on cached data and stays an
           h2 under it). Visually hidden so the app design is untouched. */}
       <h1 style={{ position: "absolute", width: 1, height: 1, padding: 0, margin: -1, overflow: "hidden", clip: "rect(0 0 0 0)", whiteSpace: "nowrap", border: 0 }}>
-        Wayfind — find the best things to do, right now
+        Wayfind: find the best things to do, right now
       </h1>
       <SiteDaySeed day={siteTodayStr()} />
       <Home initialEvents={initialEvents} localEditGuides={localEditIndex(currentGuides(GUIDES))} railMenu={railMenu} />
