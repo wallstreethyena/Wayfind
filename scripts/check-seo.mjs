@@ -242,4 +242,21 @@ for (const r of ["events", "coupons", "map"]) {
   if (!s.includes('canonical: "https://www.gowayfind.com/' + r + '"')) fail("/" + r + " lost its self-canonical");
 }
 
-console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean");
+// 12. The 2026-11-03 category hubs (#2153) rank on merit. Their titles do not
+//     say "best". Older search surfaces such as /best-beaches keep that word
+//     because people search it and the page states the method.
+const hubPages = ["beaches", "restaurants", "nightlife", "things-to-do"];
+for (const hub of hubPages) {
+  const src = readFileSync(join(root, "app", hub, "page.js"), "utf8").replace(/^\s*\/\/.*$/gm, "");
+  const title = src.match(/const TITLE = "([^"]+)"/);
+  const desc = src.match(/const DESC = "([^"]+)"/);
+  const intro = src.match(/intro="([^"]+)"/);
+  if (!title || !desc || !intro) fail("/" + hub + " lost its TITLE, DESC, or intro");
+  for (const [name, value] of [["title", title[1]], ["description", desc[1]], ["intro", intro[1]]]) {
+    if (/\bbest\b/i.test(value)) fail("/" + hub + " " + name + " says best; these hubs rank on merit and rankings are never for sale");
+  }
+  if (!src.includes("Rankings are never for sale") || !src.includes("on merit")) fail("/" + hub + " must say rankings are on merit and never for sale");
+  if (!src.includes('canonical: SITE_URL + "/' + hub + '"')) fail("/" + hub + " lost its self-canonical");
+}
+
+console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean, four category hubs rank on merit without saying best");
