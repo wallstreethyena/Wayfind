@@ -316,24 +316,30 @@ ok(((visible.match(/Wayfind may earn a commission/g)) || []).length === 1, "the 
 ok(((renderPage(christmasTicketsModel([base({ id: "solo" })], TODAY), [base({ id: "solo" })]).replace(/<style[\s\S]*?<\/style>/g, "").match(/Wayfind may earn a commission/g)) || []).length === 0, "no partner card, no commission line");
 ok(html.includes("data-analytics-page=\"christmas_tickets\""), "the analytics surface is christmas_tickets");
 ok(html.includes("prefers-reduced-motion"), "the string lights and sparkles respect reduced motion");
-ok((html.match(/class="xm-bulb"/g) || []).length === 18, "18 string light bulbs render");
+ok((html.match(/class="xm-bulb boo-bulb"/g) || []).length === 18, "18 string light bulbs render, each one a bulb Santa can perch on and zap (boo-bulb)");
 // Cute lights (owner 2026-11-03): every bulb hangs from a swaying holder, red
 // bows sit on the wire, and phones get half the strand on a matching wire.
 ok((html.match(/class="xm-sway"/g) || []).length === 18 && (html.match(/class="xm-bow(?: xm-bow-desk)?"/g) || []).length === 6 && html.includes("xm-wire-phone") && /@keyframes xm-sway\{from\{rotate:-7deg\}to\{rotate:7deg\}\}/.test(html), "the lights sway on their holders, carry six bows, and have a phone wire");
 ok(!html.includes("xm-bloom") && html.includes('data-pattern="twinkle"') && html.includes("data-xm-snow") && html.includes('class="xm-doodles"'), "the rotating light pattern, the snow canvas and the doodle backdrop render, with no rainbow haze band under the lights (owner 2026-11-01: the lights looked ugly)");
 // Owner 2026-11-01: the top menu looked detached and its links (Food, ...) led
 // off the page. The header is the logo plus one way back to Wayfind, nothing else.
-ok(html.includes('class="xm-goto" href="/"') && html.includes('class="wf-wordmark') && !/wf-navtab|wf-search-row|wf-dest/.test(html), "the header is only the logo and Go to Wayfind: no category tabs, search bar or shortcut row");
+ok(html.includes('class="xm-goto boo-goto" href="/"') && html.includes('class="wf-wordmark') && !/wf-navtab|wf-search-row|wf-dest/.test(html), "the header is only the logo and Go to Wayfind: no category tabs, search bar or shortcut row");
 ok(/<canvas[^>]*class="xm-snow"[^>]*aria-hidden="true"/.test(html) && /\.xm-snow\{[^}]*pointer-events:none/.test(html) && /\.xm-snow\{[^}]*z-index:1/.test(html) && /\.xm-main\{[^}]*z-index:2/.test(html), "the snow is hidden from assistive tech, ignores pointer events and sits behind the content");
-ok(html.indexOf('class="xm-filters"') > 0 && html.indexOf('class="xm-filters"') < html.indexOf('data-ticket-id="'), "the pill menu comes before every card");
-ok(/aria-pressed="true"[^>]*>All</.test(html) && html.includes(">Light shows<") && html.includes(">Theme parks<"), "the pill row starts on All and offers Light shows and Theme parks");
-const pillLabels = [...html.matchAll(/<button type="button" aria-pressed="(?:true|false)">([^<]+)<\/button>/g)].map((m) => m[1]);
-ok(pillLabels[0] === "All" && pillLabels.length === 1 + pillsOf(partnerList).length, "only pills for categories that have listings render (" + pillLabels.join(", ") + ")");
+// Owner 2026-11-03: the horizontal chip rail is gone ("overwhelming, you don't
+// even know you can scroll through it"). One standard filter pill holds the
+// categories, next to the search box, above every card; one line under them
+// says what is showing. The categories only appear once the sheet is open
+// (client state), so the server HTML carries the pill and no chip buttons.
+ok(!html.includes('class="xm-filters"') && !/aria-pressed="(?:true|false)">(?:All|Light shows|Theme parks)</.test(html), "no scrolling chip rail renders");
+ok(html.indexOf('data-christmas-filter=""') > 0 && html.indexOf('data-christmas-filter=""') < html.indexOf('data-ticket-id="'), "the one filter pill comes before every card");
+ok(/data-christmas-filter=""[\s\S]*?>\s*Filter\s*</.test(html.replace(/<svg[\s\S]*?<\/svg>/g, "")), "the pill reads Filter when nothing is chosen");
+ok(/class="xm-count"[^>]*>[\s\S]*?<b>\d+ listings<\/b><span class="xm-count-what"> · tickets first<\/span>/.test(html), "the results line names the count and the order");
+ok(pillsOf(partnerList).length >= 2 && pillsOf(partnerList).some((p) => p.label === "Light shows") && pillsOf(partnerList).some((p) => p.label === "Theme parks"), "the sheet still offers only categories with listings, Light shows and Theme parks among them (" + pillsOf(partnerList).map((p) => p.label).join(", ") + ")");
 ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"') && html.includes('aria-label="Search by name or city"'), "the dropdown clutter is gone; search remains");
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes("tickets first") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
   ok(/"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /stroke="#F97316"/.test(f) && /background: "#161D2B"/.test(f),
@@ -376,7 +382,7 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   const clearBodies = (html.match(/<div class="xm-body" data-boo-clear="">/g) || []).length;
   ok(cards > 0 && clearBodies === cards, "every card text column is marked data-boo-clear (" + clearBodies + "/" + cards + ")");
   ok(/<div class="xm-hero" id="xm-hero" data-boo-clear="">/.test(html), "the hero is marked data-boo-clear");
-  ok(/<div class="xm-filters" data-boo-clear=""/.test(html), "the filter pill row is marked data-boo-clear");
+  ok(/<form role="search" class="xm-controls" data-boo-clear=""/.test(html) && /<p class="xm-count" role="status" aria-live="polite" data-boo-clear=""/.test(html), "the filter row and the results line are marked data-boo-clear");
   const boo = read("app/components/BooCompanion.js");
   const rs = boo.match(/const READ_SEL = "([^"]+)"/);
   ok(rs && rs[1].split(",").includes("[data-boo-clear]"), "BooCompanion READ_SEL still honours [data-boo-clear]");
@@ -420,7 +426,7 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   const noPrice = base({ id: "bx-noprice", official_ticket_url: "", is_free: null, price_kind: "unannounced", price_label: "Price not announced", price_note: "unannounced", detailHref: "/florida-events/bx-noprice", image: null, when: "Dec 1 to Dec 20" });
   const b = draw(through([noPrice])[0]);
   ok(text(b).includes("Price not announced") && !/\bFree\b/.test(text(b)), "browse (b) unknown price says Price not announced, never Free");
-  ok((b.match(/class="xm-buy"/g) || []).length === 1 && b.includes('href="/florida-events/bx-noprice"') && text(b).includes("Full event page") && !b.includes("xm-event") && !b.includes("xm-via") && !/Official Tickets/.test(b), "browse (b) no ticket link: the one button is Full event page, no duplicate link, no ticket claim");
+  ok((b.match(/class="xm-buy boo-buy"/g) || []).length === 1 && b.includes('href="/florida-events/bx-noprice"') && text(b).includes("Full event page") && !b.includes("xm-event") && !b.includes("xm-via") && !/Official Tickets/.test(b), "browse (b) no ticket link: the one button is Full event page, no duplicate link, no ticket claim");
   ok(b.includes("data-event-tile") && b.includes("Holiday lights"), "browse (b) a card with no photo paints the designed tile");
   const noPage = draw(through([base({ id: "bx-nopage", official_ticket_url: "", is_free: null, price_kind: "unannounced", price_note: "", detailHref: null, url: "https://example.org/event" })])[0]);
   ok(noPage.includes('href="https://example.org/event"') && text(noPage).includes("Official site") && /rel="nofollow noopener"/.test(noPage), "browse (b2) no event page: the button is Official site to the source");
@@ -449,7 +455,7 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
     const h = draw(card);
     drawn += 1;
     const v = text(h);
-    ok((h.match(/class="xm-buy"/g) || []).length <= 1, card.id + ": at most one main button");
+    ok((h.match(/class="xm-buy boo-buy"/g) || []).length <= 1, card.id + ": at most one main button");
     ok(!DASH.test(v) && !/[–—]/.test(v), card.id + ": rendered copy is dash free");
     ok(!/Directions/i.test(h), card.id + ": no Directions button");
     if (card.photoAttr && card.image && !/\/cards-v8\//.test(card.image)) ok(h.includes('class="xm-credit"') && v.includes(card.photoAttr), card.id + ": a licensed photo keeps its credit");

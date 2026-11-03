@@ -235,6 +235,14 @@ const REST_MIN_S = 6, REST_MAX_S = 14; // how long he settles at each spot
 const CALM_SPEED_MIN = 40, CALM_SPEED_MAX = 70; // px per second, an unhurried drift
 const NEAR_LEG_PX = 220; // how far a calm leg looks for a spot with a clear path
 const REACT_NEAR_PX = 240, CALM_REACT_SPEED = 140; // he drifts over to react only when it is this close, at this pace
+// PERSONALITY (owner 2026-11-03: "he used to do some cool shit, even Boo would go
+// up to the lights and get electrified"). After a rest, about one leg in three
+// goes to touch something on screen (a bulb to zap, the search box, a buy
+// button) at TOUCH_SPEED, which is a purposeful glide, never a dart. The calm
+// rules still hold: the target must be fully on screen, he stops beside it,
+// never on words, and after the gag he rests again.
+const TOUCH_CHANCE = 0.34;
+const TOUCH_SPEED_MIN = 90, TOUCH_SPEED_MAX = 140;
 const ANTIC_MS = { wave: 1800, spin: 1500, peekaboo: 2600, shiver: 1500, zoomies: 2800, nap: 3200, bow: 1600, juggle: 2800 };
 // Zap pool for a bulb shock: dash free, short.
 const ZAP_LINES = [
@@ -310,6 +318,7 @@ function readMs(text) {
 
 const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
+.boo-c[data-yield="1"]{opacity:0;pointer-events:none;transition:opacity .2s ease}
 .boo-c,.boo-c *{pointer-events:none !important}
 .boo-c-body{display:block;box-sizing:border-box;width:${SIZE}px;height:${SIZE}px;position:relative;border-radius:50%}
 .boo-c .boo-c-hit{all:unset;box-sizing:border-box;position:absolute;left:${(SIZE - 44) / 2}px;top:${(SIZE - 44) / 2}px;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:none !important}
@@ -962,7 +971,7 @@ export default function BooCompanion() {
         st.timers.push(window.setTimeout(() => {
           try {
             if (!t.matches(KNOWN_TOUCH)) { ringAround(t, st); return; }
-            if (t.classList.contains("boo-bulb")) t.style.setProperty("--bc", getComputedStyle(t).backgroundColor);
+            if (t.classList.contains("boo-bulb")) { const bg = getComputedStyle(t).backgroundColor; if (bg && bg !== "transparent" && !/^rgba\(0, 0, 0, 0\)$/.test(bg)) t.style.setProperty("--bc", bg); }
             t.setAttribute("data-boo-touch", "1");
             st.els.add(t);
             st.timers.push(window.setTimeout(() => { t.removeAttribute("data-boo-touch"); st.els.delete(t); }, TOUCH_MS));
@@ -972,10 +981,15 @@ export default function BooCompanion() {
       on(el, 0);
       if (el.classList.contains("boo-bulb")) {
         // Ripple outward to the neighbours.
-        let a = el.previousElementSibling, b = el.nextElementSibling;
+        // Bulbs are siblings on the Halloween strand; on the Christmas strand each
+        // bulb hangs in its own swaying holder, so the ripple walks the holders.
+        const holder = (n) => (n && n.parentElement && n.parentElement.classList.contains("xm-sway") ? n.parentElement : n);
+        const bulbOf = (h) => (h && h.classList.contains("boo-bulb") ? h : h && h.querySelector ? h.querySelector(".boo-bulb") : null);
+        let a = holder(el).previousElementSibling, b = holder(el).nextElementSibling;
         for (let d = 1; d <= 4; d++) {
-          if (a && a.classList.contains("boo-bulb")) on(a, d * 110);
-          if (b && b.classList.contains("boo-bulb")) on(b, d * 110);
+          const ab = bulbOf(a), bb = bulbOf(b);
+          if (ab) on(ab, d * 110);
+          if (bb) on(bb, d * 110);
           a = a && a.previousElementSibling; b = b && b.nextElementSibling;
         }
       }
@@ -1020,12 +1034,21 @@ export default function BooCompanion() {
     const b = bounds();
     const from = posRef.current;
     let tx, ty, speed, target = null, free = false;
+    if (!openRef.current && !reducedRef.current && legRef.current > 1 && Math.random() < TOUCH_CHANCE) {
+      const hit = pickTarget();
+      if (hit) {
+        target = hit.el; free = true;
+        prefetch("poke"); prefetch("cheer"); prefetch("orb"); prefetch("swipe"); prefetch("up"); prefetch("panic"); prefetch("nap");
+        [tx, ty] = hit.spot;
+        speed = rand(TOUCH_SPEED_MIN, TOUCH_SPEED_MAX);
+      }
+    }
     // CALM (owner 2026-11-03: "I can't see him most of the time and he is going
     // everywhere on the page rapidly"). No racing over to poke things and no
     // corner darts: he drifts slowly to the next spot with no words under him
     // (the side gutter nearest him first, else tucked a little at the screen
     // edge, see booClear.pickClearSpot) and settles there for a while.
-    {
+    if (!target) {
       const [ctl, txt] = restLists(true);
       // First choice: a nearby spot with no words under him AND none along the
       // way (the path is sampled), so he never drifts across a line of text.
@@ -1206,7 +1229,7 @@ export default function BooCompanion() {
           const touched = !!g.target;
           if (touched) { touchRef.current(g.target); g.target = null; }
           if (g.say) { const s = g.say; g.say = null; sayRef.current(s.text, s.pose, 280); }
-          else if (touched) { if (!parkClear()) g.pause = TOUCH_MS / 1000; } // the 1.2s reaction, then he leaves (unless the page moved him onto words)
+          else if (touched) { if (!parkClear()) g.pause = TOUCH_MS / 1000 + rand(REST_MIN_S, REST_MAX_S) * 0.5; } // the 1.2s reaction, then a short rest beside it before he drifts on (calm: never straight into another leg)
           else if (!parkClear()) {
             // Settle, and show some personality while he rests (half the time).
             g.pause = rand(REST_MIN_S, REST_MAX_S);
@@ -1689,6 +1712,16 @@ export default function BooCompanion() {
     window.addEventListener("wf:santa-open", on);
     return () => { window.removeEventListener("wf:boo-open", on); window.removeEventListener("wf:santa-open", on); };
   }, [openSheet, send]);
+
+  // A page dialog (the Christmas filter sheet, say) lives inside the page's own
+  // stacking context, so no z-index of its own can get above him. The page
+  // dispatches wf:dialog with { open: true|false } and he steps out of the way
+  // (faded, untappable) until it closes.
+  useEffect(() => {
+    const on = (e) => { const el = elRef.current; if (!el) return; if (e && e.detail && e.detail.open) el.dataset.yield = "1"; else delete el.dataset.yield; };
+    window.addEventListener("wf:dialog", on);
+    return () => window.removeEventListener("wf:dialog", on);
+  }, []);
 
   // Opening line, focus, scroll lock, Escape and focus trap.
   useEffect(() => {

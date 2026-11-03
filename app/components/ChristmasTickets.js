@@ -42,7 +42,11 @@ const BULB_COLORS = [
   ["#FFF1D6", "#D8B27A", "rgba(255,241,214,.7)", "rgba(255,241,214,.28)"],
   ["#B98CFF", "#6A3FC2", "rgba(185,140,255,.72)", "rgba(185,140,255,.3)"],
 ];
-const LIGHT_PATTERNS = ["twinkle", "chase", "alt", "chase"];
+// Owner 2026-11-03: "the lights are not flickering anymore". #2147 softened
+// every dip to 60%, which reads as static next to the glow. Real dips again
+// (chase runs down the strand, alternate halves, random twinkle, a sparkle
+// burst that pops one bulb at a time), rotating every few seconds.
+const LIGHT_PATTERNS = ["twinkle", "chase", "sparkle", "alt", "chase"];
 
 // Faint festive doodles (gift, holly, candy cane, ornament, tree, snowflake) as
 // one tiling line drawing, plus a separate tile of gold sparkles that twinkles.
@@ -109,10 +113,12 @@ const CSS = XM_CARD_CSS + `
 [data-pattern="twinkle"] .xm-bulb{animation:xm-twinkle var(--f,3.2s) ease-in-out var(--d,0s) infinite}
 [data-pattern="chase"] .xm-bulb{animation:xm-chase 2s linear infinite;animation-delay:calc(var(--i) * -.11s)}
 [data-pattern="alt"] .xm-bulb{animation:xm-alt 1.5s ease-in-out infinite}
+[data-pattern="sparkle"] .xm-bulb{animation:xm-sparkle-bulb 2.4s steps(1,end) var(--d,0s) infinite}
 [data-pattern="alt"] .xm-sway:nth-of-type(even) .xm-bulb{animation-delay:-.75s}
-@keyframes xm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.93)}}
-@keyframes xm-chase{0%,100%{opacity:.6;transform:scale(.95)}14%,26%{opacity:1;transform:scale(1.06)}48%{opacity:.6;transform:scale(.95)}}
-@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.03)}50%{opacity:.62;transform:scale(.95)}}
+@keyframes xm-twinkle{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.35;transform:scale(.9)}}
+@keyframes xm-chase{0%,100%{opacity:.3;transform:scale(.9)}14%,26%{opacity:1;transform:scale(1.12)}48%{opacity:.3;transform:scale(.9)}}
+@keyframes xm-alt{0%,100%{opacity:1;transform:scale(1.06)}50%{opacity:.28;transform:scale(.9)}}
+@keyframes xm-sparkle-bulb{0%,100%{opacity:.45;transform:scale(.92)}8%{opacity:1;transform:scale(1.25)}16%{opacity:.45;transform:scale(.92)}54%{opacity:.45}62%{opacity:1;transform:scale(1.18)}70%{opacity:.45;transform:scale(.92)}}
 @media(prefers-reduced-motion:reduce){.xm-bulb,.xm-sway,.xm-sparkles{animation:none!important}.xm-sparkles{opacity:.4}}
 
 /* Wayfind header replica (home classes and values) */
@@ -136,16 +142,16 @@ const CSS = XM_CARD_CSS + `
 .xm-ask{margin-top:16px;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
 .xm-share{margin-top:8px;display:flex;justify-content:flex-start}
 .xm-share button,.xm-share a{min-height:44px}
-.xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
+.xm-ask:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
-.xm-filters{display:flex;flex-wrap:wrap;gap:8px}
-@media(max-width:719px){.xm-filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.xm-filters::-webkit-scrollbar{display:none}.xm-filters button{flex:0 0 auto;white-space:nowrap}}
-.xm-filters button{min-height:44px;padding:8px 14px;border-radius:999px;cursor:pointer;background:rgba(24,2,8,.5);color:#FFE9C8;border:1px solid rgba(232,180,138,.7);font-size:14px;font-weight:600}
-.xm-filters button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border-color:#F5C451;font-weight:800;box-shadow:0 0 12px rgba(245,196,81,.35)}
 .xm-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .xm-controls input::placeholder{color:#D9B3A3;opacity:1}
-.xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
+.xm-count{margin:14px 0 0;font-size:14px;color:var(--muted);display:flex;align-items:center;flex-wrap:wrap;gap:4px 0}
+.xm-count b{color:var(--cream);font-weight:700}
+.xm-count-what{text-transform:none}
+.xm-clear{all:unset;cursor:pointer;margin-left:10px;padding:2px 10px;border-radius:999px;border:1px solid rgba(232,180,138,.5);color:#FFE9C8;font-size:12.5px;font-weight:700;min-height:28px;display:inline-flex;align-items:center}
+.xm-clear:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media(min-width:720px){.xm-main{max-width:960px}.xm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .xm-more{margin-top:16px;min-height:48px;padding:0 22px;border-radius:12px;cursor:pointer;background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border:2px solid #E8B48A;font-size:15px;font-weight:800}
@@ -187,7 +193,7 @@ function FestivalLights() {
           }}
         >
           <span
-            className="xm-bulb"
+            className="xm-bulb boo-bulb"
             style={{
               "--i": i,
               "--bc": BULB_COLORS[i % BULB_COLORS.length][0],
@@ -291,7 +297,7 @@ function WayfindHeader({ seasonal }) {
           <a className={"wf-wordmark" + (seasonal ? " is-seasonal" : "")} href="/" aria-label="Wayfind home">
             <span className="wf-wordmark-text" aria-hidden="true" />
           </a>
-          <a className="xm-goto" href="/">Go to Wayfind<span aria-hidden="true">→</span></a>
+          <a className="xm-goto boo-goto" href="/">Go to Wayfind<span aria-hidden="true">→</span></a>
         </div>
       </div>
     </div>
@@ -319,7 +325,7 @@ export default function ChristmasTickets({ model, share = null, browse = null })
           <h1 id="xm-title">{chrome.title}</h1>
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
-          <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
+          <button type="button" className="xm-ask boo-ask" onClick={askSanta}>{chrome.ask}</button>
           {share ? <div className="xm-share">{share}</div> : null}
         </div>
 
