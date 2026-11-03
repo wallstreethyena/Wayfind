@@ -479,7 +479,7 @@ scripts/test-analytics.mjs	0	CALL	blocks-ci-and-deploy	1	-	133	0	0	8f74781ff9edb
 scripts/test-api-guard.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	f77aff098b3e24998acdc47c2b9998ff63440acbdccfdd64feaf338945895508
 scripts/test-app-rating.mjs	0	CALL	blocks-ci-and-deploy	1	-	42	0	0	5b4dc84cbd73a12c5c66af3e8f9048c363058a2ab5b4305956bd33ec217931eb
 scripts/test-apple-explorer-map.mjs	0	CALL	blocks-ci-and-deploy	1	-	38	0	0	d0fe6060b3f701b91332fa524c72f75043c9864c0912a8406dc4cd9860e64e79
-scripts/test-apple-free-pins.mjs	0	CALL	blocks-ci-and-deploy	1	-	107	0	0	ad4f03aa45ae087794ebbb4138881073a68b2b30f024459ce38c5253845b2cc7
+scripts/test-apple-free-pins.mjs	0	CALL	blocks-ci-and-deploy	1	-	114	0	0	bf93ea8e429ab282da0f81dae2fb0f6822d16b17b75e921d8c2294ccd09b4944
 scripts/test-apple-map-recovery-hook.mjs	0	RENDER	blocks-ci-and-deploy	1	-	95	0	0	574319297f2c469099d8e2e74464b0164a11bbce0d40023dd5faf8d88790041e
 scripts/test-apple-map-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	134	0	0	75fae08edc9da757bf5cc8a4f8c057dd31d50bfcfad9b4190d1ddd27b58b9dc9
 scripts/test-apple-parking.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	be2af2ae6a096577f98c1e582ed70a414c73d6279043509f1769c0cd7f5086e2
@@ -1034,7 +1034,7 @@ scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794c
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
 scripts/test-unified-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	1208d48586230b3046d5c8be69d1b5f33ad20b1a4ec97dc1dce1551819de528a
 scripts/test-unified-share-flow.mjs	0	RENDER	blocks-ci-and-deploy	1	-	80	0	0	62302e3a776f8d0a4cbf70991ab10ee7525699bdb4f43269378c92d718f794cb
-scripts/test-venue-anchor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	212fc2eeb7aa898c299627cfe354ac3a5c7632075a5869570a4303e16d787077
+scripts/test-venue-anchor.mjs	0	CALL	blocks-ci-and-deploy	1	-	46	0	0	b1637194e6027cff7cba765a3cfd264a466b5bbd8738faeb4ee47e6ad1f5d9a1
 scripts/test-venue-nearby.mjs	0	RENDER	blocks-ci-and-deploy	1	-	30	0	0	05ceee98375e4faad48616730652c086627d8c3659ee1bf51bcd156de0750841
 scripts/test-venue-parking-ui.mjs	0	RENDER	blocks-ci-and-deploy	1	-	50	0	0	abbdf6094c69ca2364115220cef73fe5de0a15f47f99c01b189e205fbd2feafa
 scripts/test-venue-resolution-store.mjs	0	CALL	blocks-ci-and-deploy	1	-	54	0	0	c60bca2c5b6f5c8ffe3d6e8f69eb16ec66d4a5883f261146f79434bc1dc0e021
