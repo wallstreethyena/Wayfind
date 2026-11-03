@@ -71,16 +71,23 @@
   },
   {
     "file": "supabase/migrations/20261029223000_holmes_beach_one_card_and_county_suffix.sql",
-    "sha256": "f4a43a87902e22b2e6d1a10c7511703143c44b2a175f80081316b73cd4b280da",
+    "sha256": "e51bcea11bbd0658006ba18c3bc1762b49a8f52e3b4919bb8815d40e914393b7",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2034",
-    "reason": "NOT APPLIED. Soft-excludes the Holmes Beach locality twin 164 m from the beach card and copies its Wikimedia locator map onto the keeper gallery. Strips the County suffix on Scream A Geddon (Pasco) and Sir Henry's Haunted Trail (Hillsborough). Owner applies via scripts/apply-migration.mjs. Does not write production from this commit."
+    "tracking": "#2034, revised before apply",
+    "reason": "DATA ONLY, revised 2026-11-03 before any apply (the #2034 draft keyed on a stale name and would have raised). Suppresses (status EXCLUDED, reversible, nothing deleted) the Holmes Beach MUNICIPALITY row ChIJ2VOdeTYQw4gRALlkLfzdBwc (primary_type locality, not in wf_place_ids), which rendered as a second 'Holmes Beach' card beside the beach ChIJaWeoBbURw4gRDYfwKuwOVW0; no photo copied. Strips the County suffix on ChIJ7zRUJ9CowogRM70pcoqrdUM (Pasco) and ChIJeZM_F1A23YgRFICuRhA_pIo (Hillsborough), Census-confirmed. Every write keyed on place_id plus exact before-value, one row each. Reverse: supabase/data-fixes/20261029223000_holmes_beach_one_card_and_county_suffix_REVERSE.sql. Owner approved applying in-session 2026-11-03."
   },
   {
     "file": "supabase/migrations/20261031000000_wf_inventory_locality_from_owned_events.sql",
-    "sha256": "0440b27d7f464c90437c34136fdd2888072958b62924e7462aaa7a796afd18ad",
+    "sha256": "6139d976779517982db3d1bc93e64d3a352c1c9f00e44b605017709877901fa9",
     "decision_owner": "wallstreethyena",
     "tracking": "place-page city coverage (PR #2069)",
-    "reason": "DATA ONLY. Fills wf_inventory.locality for 118 indexed places from OWNED evidence: wf_events.city, the venue city an editor typed from the organiser/venue page, linked by place_id. No Google content, no reverse geocoding, no coordinate read or written, no city inferred from metro or lat/lng. Tier A only - unambiguous (one distinct city across that place events) AND the city slot of the event own address (the segment before FL) equals that city exactly, so each row corroborates itself - a street name or longer place name does not count (House of Blues Orlando / Lake Buena Vista Dr and Frenchy's / Clearwater Beach were wrongly admitted by the first draft's substring test); rows the 2026-10-14 Census pass resolved as unincorporated (county set, locality deliberately empty, e.g. Fox Squirrel Corn Maze, Keel Farms) are never considered; uncorroborated Tier B rows held back, 0 ambiguous. Idempotent (every statement requires locality still empty), resumable (that clause IS the resume condition), append-only (never overwrites a held value), reversible via supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql (clears only values still exactly as written). Audit with evidence per row: docs/audits/20261031000000_wf_inventory_locality_from_owned_events.csv. Generated read-only by scripts/backfill-locality-from-events.mjs. Lifts indexed coverage 17.2 to 17.9 pct; the remaining ~14,700 need the owner decision in docs/locality-backfill-proposal.md. Owner applies after review. Not applied."
+    "reason": "DATA ONLY. Fills wf_inventory.locality for 82 places. Each needs BOTH owned evidence (wf_events.city, event address city slot equal to it) AND the accepted rule: the US Census place containing the row's own point is that city (scripts/gate-locality-census.mjs; evidence docs/audits/20261031000000_wf_inventory_locality_from_owned_events.census.json). Of 118 candidates: 82 eligible, 10 conflicting (point inside a different Census place, e.g. Downtown Wellen Park in North Port), 26 unsupported (unincorporated, e.g. SeaWorld Orlando); none of those 36 is written. House of Blues Orlando, Frenchy's Original Cafe, Fox Squirrel Corn Maze and Keel Farms are not candidates. Row-level preconditions (locality AND county still empty); all-or-nothing assertion rolls back if any row was changed since the dry run. Reverse: supabase/data-fixes/20261031000000_wf_inventory_locality_from_owned_events_REVERSE.sql. Owner approved apply in-session 2026-11-03."
+  },
+  {
+    "file": "supabase/migrations/20261103120000_indigenous_sarasota_closed_permanently.sql",
+    "sha256": "cca1fa29bbf622e16bf258bb4d0cc1615d5621718d8771c849e897611df4890d",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2132 Indigenous Restaurant closure",
+    "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
   }
 ]

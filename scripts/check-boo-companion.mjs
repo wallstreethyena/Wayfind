@@ -107,7 +107,7 @@ ok(/const\s+TOUCH_SEL\s*=\s*"[^"]*\.boo-bulb[^"]*\.boo-photo[^"]*"/.test(comp), 
 ok(/setAttribute\(\s*"data-boo-touch"/.test(comp) && /removeAttribute\(\s*"data-boo-touch"/.test(comp), "touch must set and remove data-boo-touch");
 ok(/const\s+TOUCH_MS\s*=\s*1200/.test(comp), "TOUCH_MS must be 1200");
 ok((comp.match(/querySelectorAll\(\s*TOUCH_SEL\s*\)/g) || []).length === 1, "exactly one querySelectorAll(TOUCH_SEL) per hop");
-ok(/!openRef\.current\s*&&\s*!reducedRef\.current\s*&&\s*\(legRef\.current\s*<\s*2\s*\|\|\s*Math\.random\(\)\s*<\s*0\.7\)/.test(comp), "touch legs must be gated on sheet closed and no reduced motion (first two legs always touch, then 70%)");
+ok(/!openRef\.current\s*&&\s*!reducedRef\.current\s*&&\s*\(legRef\.current\s*<\s*2\s*\|\|\s*Math\.random\(\)\s*<\s*TOUCH_CHANCE\)/.test(comp), "touch legs must be gated on sheet closed and no reduced motion (first two legs always touch, then TOUCH_CHANCE)");
 ok(/Search a haunt or city\.\.\./.test(comp), "spooky search placeholder must exist");
 
 // 7. Openers: call the module. 12 city lines + 6 generic, dash free, max 14 words.
@@ -362,8 +362,8 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // words, not only the READ_SEL elements, and he fades while he is over words.
   ok(/createTreeWalker\(document\.body,\s*NF\.SHOW_TEXT \| NF\.SHOW_ELEMENT/.test(comp) && /rg\.selectNodeContents\(n\)/.test(comp) && /txt\.push\(\{ left: q\.left/.test(comp),
     "Santa collects the glyph boxes of every visible text node (button labels and card titles included) into the text list");
-  ok(/dataset\.ghost\s*=\s*over/.test(comp) && /hitsText\(rectOf\(pp\.x/.test(comp) && /\[data-ghost="1"\]\s*\.boo-c-body\{opacity:\.22\}/.test(comp),
-    "he fades to 22% whenever he is over words, in every frame state");
+  ok(/dataset\.ghost\s*=\s*over/.test(comp) && /hitsText\(rectOf\(pp\.x/.test(comp) && /\[data-ghost="1"\]\s*\.boo-c-body\{opacity:\.45\}/.test(comp),
+    "he fades to 45% whenever he is over words, in every frame state (owner 2026-11-03: 22% read as invisible)");
   ok(!isClear(100, 100, 88, [], 0.15, [R(0, 90, 400, 20)]) && isClear(100, 100, 88, [], 0.15, [R(0, 300, 400, 20)]), "isClear: text under him (even a thin strip, far under 15%) is NOT clear, text elsewhere is");
   // Phone fixtures: full width h2 + paragraph under it, at 375 and 960.
   const textPage = (vw, vh) => {
@@ -401,18 +401,24 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
     const nav = R(0, vh - 64, vw, 64);
     const sp = pickClearSpot(88, b2, [nav], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, wall);
     const box = R(sp.x, sp.y, 88, 88);
-    ok(sp.via === "edge" && sp.strict && !hitsText(box, wall), "no text free spot in the viewport: he tucks into the margin, still no text under him (via " + sp.via + ")");
+    // Owner 2026-11-03: a tuck never hides more than 60% of him, so on a page whose
+    // text runs to a 16px margin the margin cannot hold him and the least text
+    // spot is the answer (flagged not strict). A wider margin still tucks clean.
+    ok(sp.via === "least" && sp.strict === false, "no text free spot and a 16px margin: least text at the edge, flagged not strict (via " + sp.via + ")");
     ok(sp.x < b2.minX || sp.x > b2.maxX, "the tuck spot is off the safe box sideways (partly off screen): x=" + sp.x);
+    const roomy = []; for (let y = 60; y < vh - 20; y += 40) roomy.push(R(40, y, vw - 80, 34)); // 40px side padding
+    const sp4 = pickClearSpot(88, b2, [nav], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, roomy);
+    ok(sp4.via === "edge" && sp4.strict && !hitsText(R(sp4.x, sp4.y, 88, 88), roomy), "a 40px margin: he tucks into it with no text under him (via " + sp4.via + ")");
     const shown = Math.min(sp.x + 88, vw) - Math.max(sp.x, 0);
-    ok(shown >= 88 * (1 - 0.8) - 1e-6, "tucked Boo still shows at least 20% of himself on screen (" + Math.round(shown) + "px)");
+    ok(shown >= 88 * (1 - 0.6) - 1e-6, "tucked Boo still shows at least 40% of himself on screen (" + Math.round(shown) + "px)");
     ok(worstOverlap(box, [nav]) <= MAX_COVER, "the tuck spot also leaves the bottom nav alone");
     // Nothing at all is text free (text edge to edge): the damage is the smallest possible, flagged not strict.
     const slab = []; for (let y = 0; y < vh; y += 40) slab.push(R(0, y, vw, 38));
     const sp3 = pickClearSpot(88, b2, [], { x: 150, y: 300 }, () => 150, 8, MAX_COVER, null, slab);
-    ok(sp3.via === "least" && sp3.strict === false && (sp3.x <= -0.8 * 88 + 1 || sp3.x >= vw - 88 * 0.2 - 1), "edge to edge text: last resort hides him (80%) at the edge and says it is not strict (x=" + sp3.x + ")");
+    ok(sp3.via === "least" && sp3.strict === false && (sp3.x <= -0.6 * 88 + 1 || sp3.x >= vw - 88 * 0.4 - 1), "edge to edge text: last resort hides him (60% at most) at the edge and says it is not strict (x=" + sp3.x + ")");
     // Reduced motion settles with the same tiers (tries 0 = no random hop).
     const rd = pickClearSpot(88, b2, [nav], { x: b2.minX, y: b2.maxY }, () => 0, 0, MAX_COVER, null, wall);
-    ok(!hitsText(R(rd.x, rd.y, 88, 88), wall) && rd.via !== "random", "reduced motion corner search also ends text free (via " + rd.via + ")");
+    ok(rd.via === "least" && rd.strict === false && rd.via !== "random", "reduced motion corner search ends at the least text spot on a 16px margin page (via " + rd.via + ")");
   }
   // 960 desktop: plenty of room, he rests in the open and never on the h2/paragraph.
   {
@@ -463,6 +469,23 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   ok(/besideSpot\(r, SIZE, b, ctl, MAX_COVER, txt\)/.test(comp) && /PERCH_SEL\s*=\s*"\.boo-bulb,\.wf-wordmark-text"/.test(comp), "touch target offset logic: beside spot for controls, perch only on bulbs and the wordmark");
   ok(!/aimBeside/.test(comp), "the old beside-centre aim is gone");
   ok(/touched\) \{ if \(!parkClear\(\)\) g\.pause = TOUCH_MS \/ 1000; \}/.test(comp), "after the 1.2s reaction he leaves");
+  // PACE (owner 2026-11-03, "going everywhere on the page rapidly"): a real
+  // rest after every leg, rare slow darts, fewer touch runs, and a resting
+  // re-check no faster than once a second. Values locked, not just names.
+  {
+    const num = (name) => { const m = comp.match(new RegExp("const " + name + " = \\[?([\\d.]+)(?:, ([\\d.]+))?\\]?;")); return m ? [Number(m[1]), m[2] == null ? null : Number(m[2])] : null; };
+    const rest = num("REST_PAUSE"), dart = num("DART_CHANCE"), ds = num("DART_SPEED"), drift = num("DRIFT_SPEED"), touch = num("TOUCH_CHANCE"), restMs = num("REST_MS");
+    ok(!!rest && rest[0] >= 2 && rest[1] >= 5, "REST_PAUSE: he rests at least 2s (up to 5s or more) after a leg");
+    ok(!!dart && dart[0] <= 0.1, "DART_CHANCE: at most 1 leg in 10 is a dart");
+    ok(!!ds && ds[1] <= 240, "DART_SPEED tops out at 240px/s");
+    ok(!!drift && drift[1] <= 100, "DRIFT_SPEED tops out at 100px/s");
+    ok(!!touch && touch[0] <= 0.5, "TOUCH_CHANCE: at most half the legs chase a target");
+    ok(!!restMs && restMs[0] >= 1000, "REST_MS: a resting Santa re-checks the page at most once a second");
+    ok(/g\.pause = Math\.random\(\) < 0\.15 \? 0\.6 : rand\(REST_PAUSE\[0\], REST_PAUSE\[1\]\)/.test(comp), "the arrival pause uses REST_PAUSE (no 0.05s non-pause)");
+    ok(/speed = rand\(DART_SPEED\[0\], DART_SPEED\[1\]\)/.test(comp) && /speed = rand\(DRIFT_SPEED\[0\], DRIFT_SPEED\[1\]\)/.test(comp) && /speed = rand\(TOUCH_SPEED\[0\], TOUCH_SPEED\[1\]\)/.test(comp), "every roaming leg takes its speed from the named pace constants");
+    ok(/dist \/ 260\)/.test(comp), "a reaction whoosh is capped at 260px/s");
+    ok(/isPhotoCard\(el, r\)\) continue;/.test(comp) && /const isPhotoCard = \(el, r\) =>/.test(comp), "a card sized picture link is a resting place, not a control that blocks him");
+  }
   // Tap safety (owner rule): he cannot intercept navigation. Decorative parts are pointer-events:none in
   // CSS unconditionally; the only pointer target is a 44px real button that is tappable only after a clear check.
   const cssSrc = (comp.match(/const CSS = `([\s\S]*?)`;/) || [, ""])[1];

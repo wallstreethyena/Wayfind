@@ -1,0 +1,389 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-01T15:41:20.553Z",
+  "pack": "docs/editorial/creator-lines-2026-10-31/pack-05.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-10-31",
+  "researched_at": "2026-10-31T12:00:00-04:00",
+  "replaced": [
+    {
+      "place_id": "ChIJ8w2n6UbDwogRGn3pnZEbbGQ",
+      "name": "Catrinas Tacos and Tequila Bar",
+      "prior_row": {
+        "place_id": "ChIJ8w2n6UbDwogRGn3pnZEbbGQ",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-24T18:55:34.406136+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-24T18:55:34.406136+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+      "name": "SORSI Waterfront",
+      "prior_row": {
+        "place_id": "ChIJJeuujrDFwogRZWZ69psQAa4",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-10T17:15:36.9+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ0Ts6lqTZwogRCYwOKw7pW2g",
+      "name": "Circles Waterfront Restaurant",
+      "prior_row": {
+        "place_id": "ChIJ0Ts6lqTZwogRCYwOKw7pW2g",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-06T09:55:18.164761+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T09:55:18.164761+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJaRL0syxrw4gRHAo4CxKP9IY",
+      "name": "The St. Regis Longboat Key Resort",
+      "prior_row": {
+        "place_id": "ChIJaRL0syxrw4gRHAo4CxKP9IY",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-12T10:15:07.024+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJI_OEjj7DwogRcWK3mnLt9fU",
+      "name": "Barcelona Wine Bar",
+      "prior_row": {
+        "place_id": "ChIJI_OEjj7DwogRcWK3mnLt9fU",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:American"
+        ],
+        "written_at": "2026-08-06T19:15:39.494+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ14hpXQDDwogRnzzMJmb0ylE",
+      "name": "Maru Rooftop Nikkei",
+      "prior_row": {
+        "place_id": "ChIJ14hpXQDDwogRnzzMJmb0ylE",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:know_before:Suite"
+        ],
+        "written_at": "2026-08-10T06:16:33.388+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJEeANUgDFwogRsSiGNytPdd0",
+      "name": "Riverwalk Terrace",
+      "prior_row": {
+        "place_id": "ChIJEeANUgDFwogRsSiGNytPdd0",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:Hillsborough",
+          "unsourced-entity:know_before:Google",
+          "unsourced-entity:know_before:Maps",
+          "unsourced-number:best_time:9 AM."
+        ],
+        "written_at": "2026-08-06T21:15:39.387+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ6VPPdiz3wogRjsClFdAJ504",
+      "name": "Latitude 28",
+      "prior_row": {
+        "place_id": "ChIJ6VPPdiz3wogRjsClFdAJ504",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:6:30 PM"
+        ],
+        "written_at": "2026-08-06T20:15:38.9+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJWSwkNNXdwogRCJUtqnx7je0",
+      "name": "Salt Shack On The Bay",
+      "prior_row": {
+        "place_id": "ChIJWSwkNNXdwogRCJUtqnx7je0",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-06T10:55:15.924344+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T10:55:15.924344+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJCUsmv-rDwogRFLK0RwWg_LE",
+      "name": "The Sapphire Tampa",
+      "prior_row": {
+        "place_id": "ChIJCUsmv-rDwogRFLK0RwWg_LE",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-05T09:16:07.894+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJERKjMobFwogRU-c43PevXB0",
+      "name": "The Tampa EDITION",
+      "prior_row": {
+        "place_id": "ChIJERKjMobFwogRU-c43PevXB0",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-18T20:55:47.787742+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-18T20:55:47.787742+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJD9Xl7lT8wogRJxFfsfNLji4",
+      "name": "Sculley's Seafood Restaurant",
+      "prior_row": {
+        "place_id": "ChIJD9Xl7lT8wogRJxFfsfNLji4",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:know_before:Google",
+          "unsourced-entity:know_before:Maps",
+          "invented-source:facts:https://maps.google.com/?cid=3354702282462531879"
+        ],
+        "written_at": "2026-08-08T01:55:39.549669+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-08T01:55:39.549669+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJQ4DLFKfrwogR-QrEqDFXpk8",
+      "name": "Southern Luv BBQ",
+      "prior_row": {
+        "place_id": "ChIJQ4DLFKfrwogR-QrEqDFXpk8",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:11:30 AM",
+          "unsourced-number:best_time:1 PM."
+        ],
+        "written_at": "2026-08-12T17:55:52.637795+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-12T17:55:52.637795+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJn2Mfbv5654gRVPqvg4fcmlA",
+      "name": "Due Amici Pizza & Pasta Bar",
+      "prior_row": {
+        "place_id": "ChIJn2Mfbv5654gRVPqvg4fcmlA",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:why_here:3,800",
+          "unsourced-number:why_here:2 AM",
+          "unsourced-number:best_time:11 PM",
+          "unsourced-number:best_time:2 AM"
+        ],
+        "written_at": "2026-08-06T16:15:50.083+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJpxuhmQ63wogRdyNj0LVyOco",
+      "name": "Hungry Crab Juicy Seafood & Bar",
+      "prior_row": {
+        "place_id": "ChIJpxuhmQ63wogRdyNj0LVyOco",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-24T04:55:32.821593+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-24T04:55:32.821593+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJn38erTXDwogRb0CWRhZeTmc",
+      "name": "Jay Luigi",
+      "prior_row": {
+        "place_id": "ChIJn38erTXDwogRb0CWRhZeTmc",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:Italian",
+          "unsourced-number:best_time:5:30 PM"
+        ],
+        "written_at": "2026-08-06T20:15:38.9+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
+      "name": "Weeki Wachee Springs State Park",
+      "prior_row": {
+        "place_id": "ChIJz3OOrDIg6IgRMKjzAPsV3NI",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:hook:72",
+          "unsourced-entity:why_here:Americana",
+          "unsourced-entity:know_before:River"
+        ],
+        "written_at": "2026-08-06T22:15:40.232+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJu-FXshZ_54gR5hpIANd0t5w",
+      "name": "Akasaka Sushi korean Japanese restaurant",
+      "prior_row": {
+        "place_id": "ChIJu-FXshZ_54gR5hpIANd0t5w",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-23T08:55:36.216691+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-23T08:55:36.216691+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJWSbk10Jx54gRdAMiYySqzL4",
+      "name": "Azal Coffee",
+      "prior_row": {
+        "place_id": "ChIJWSbk10Jx54gRdAMiYySqzL4",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-22T15:15:36.109+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
+      "name": "Pisco Peruvian Gastrobar - Orlando",
+      "prior_row": {
+        "place_id": "ChIJ0ZQFl2Bj54gRNGUh-uvNoM4",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:why_here:Central",
+          "unsourced-number:best_time:7 PM"
+        ],
+        "written_at": "2026-08-23T02:55:41.306335+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-23T02:55:41.306335+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJZeyB-C1x54gRGJeVf5x1ubs",
+      "name": "Woodhouse Spa - Altamonte Springs",
+      "prior_row": {
+        "place_id": "ChIJZeyB-C1x54gRGJeVf5x1ubs",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-07T01:15:48.223+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}
