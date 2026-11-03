@@ -29,3 +29,22 @@ Gabe asked for these to be added as Go Wayfind grows outside Florida. Each card 
 | reel/DfPmzYmtTT_ | shindigfarms | Shindig Farms, ID-45 and Scism Rd, Nampa, ID 83686 (Lost in Christmas, select nights Nov 20, 2026 to Jan 2, 2027, 5 PM to 10 PM) | wfadd_shindig_farms_nampa |
 | reel/DfQK3b0SM7w | schnepfchristmas | Schnepf Farms, 24810 S Rittenhouse Rd, Queen Creek, AZ 85142 | wfadd_schnepf_farms_queen_creek |
 | reel/DfSXfFYucEV | gauchogroup | Gaucho Covent Garden, 8 to 9 James St, London WC2E 8BT | wfadd_gaucho_covent_garden_london |
+
+## Batch 3
+
+| Native source | Creator | Place | Card |
+|---|---|---|---|
+| reel/DfQp4H5MT6F | spookycatorlando (own account) | Spooky Cat Press, 893 SR-436, Casselberry, FL 32707 | Inserted wfadd_spooky_cat_press_casselberry |
+| reel/DfQX7-9xjQK | daniiparedess | The Original Churro Man, 7011 W Waters Ave, Tampa, FL 33634 | Inserted wfadd_original_churro_man_tampa |
+| reel/DfSmwzdpPMU | matherssocialgathering (own account) | Mathers Social Gathering, Orlando | Existing ChIJj7u1zf1654gRlOTNe7y12Jo |
+| p/DfOOsjYDVHv | cottle.village (own account) | Farmstead Distillery at Cottle Village, 6470 State Route N, Cottleville, MO 63304 | Inserted wfadd_farmstead_distillery_cottleville |
+| reel/DfPy18PxTOs | seayathere_orlando | White Rabbit Dessert Experience, 153 Sugar Belle Dr, Winter Garden | Existing ChIJI3FtciZ93YgRxEblWRkyEPQ |
+| reel/DfSItDtB5eZ | runway84 (own account) | Anthony's Runway 84, 330 W State Road 84, Fort Lauderdale | Inserted wfadd_anthonys_runway_84_fort_lauderdale |
+| reel/DfQnk4MC2Bw | treasurevalley_treatsandeats | Press & Pony, 622 W Idaho St, Boise, ID 83702 | Inserted wfadd_press_and_pony_boise |
+| reel/De_uxGRCwE1 | whenintampa | Tower 10 Tacos, a roving taco truck with no fixed address | Held |
+| reel/DeuOjZpNIPJ | louisagrace | Unnamed Cotswolds pub | Unidentified |
+| reel/De4ivp3siwB | oggigelatous | Oggi Gelato, brand post with no branch named (four US shops) | Unidentified |
+| reel/DfQaHI2R46N | chantillysongs | Silver Dollar City, Branson, MO | Existing ChIJsTgOengDz4cRQdwCNeAv4eE |
+| reel/DcrwxAWAbD2 | the.introvertedsocial | Leopard Lounge beneath Dalia, 429 W Broadway, Boston, MA 02127 | Inserted wfadd_leopard_lounge_south_boston |
+| reel/DfPpqxavACC | thedcnative | Aspen mood reel, no place named | Unidentified |
+| reel/DfQbOAiu91t | samanthas_suitcase | Prestonfield House, Priestfield Road, Edinburgh EH16 5UT | Inserted wfadd_prestonfield_house_edinburgh |
