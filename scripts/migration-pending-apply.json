@@ -71,10 +71,10 @@
   },
   {
     "file": "supabase/migrations/20261029223000_holmes_beach_one_card_and_county_suffix.sql",
-    "sha256": "f4a43a87902e22b2e6d1a10c7511703143c44b2a175f80081316b73cd4b280da",
+    "sha256": "e51bcea11bbd0658006ba18c3bc1762b49a8f52e3b4919bb8815d40e914393b7",
     "decision_owner": "wallstreethyena",
-    "tracking": "#2034",
-    "reason": "NOT APPLIED. Soft-excludes the Holmes Beach locality twin 164 m from the beach card and copies its Wikimedia locator map onto the keeper gallery. Strips the County suffix on Scream A Geddon (Pasco) and Sir Henry's Haunted Trail (Hillsborough). Owner applies via scripts/apply-migration.mjs. Does not write production from this commit."
+    "tracking": "#2034, revised before apply",
+    "reason": "DATA ONLY, revised 2026-11-03 before any apply (the #2034 draft keyed on a stale name and would have raised). Suppresses (status EXCLUDED, reversible, nothing deleted) the Holmes Beach MUNICIPALITY row ChIJ2VOdeTYQw4gRALlkLfzdBwc (primary_type locality, not in wf_place_ids), which rendered as a second 'Holmes Beach' card beside the beach ChIJaWeoBbURw4gRDYfwKuwOVW0; no photo copied. Strips the County suffix on ChIJ7zRUJ9CowogRM70pcoqrdUM (Pasco) and ChIJeZM_F1A23YgRFICuRhA_pIo (Hillsborough), Census-confirmed. Every write keyed on place_id plus exact before-value, one row each. Reverse: supabase/data-fixes/20261029223000_holmes_beach_one_card_and_county_suffix_REVERSE.sql. Owner approved applying in-session 2026-11-03."
   },
   {
     "file": "supabase/migrations/20261031000000_wf_inventory_locality_from_owned_events.sql",
