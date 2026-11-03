@@ -233,6 +233,9 @@ ok(/<TypeLine[^>]*instant=\{motionOff\}/.test(comp) && /setMotionOff\(mq\.matche
   ok(/const x = isClear\(peek, y, SIZE, \[\], MAX_COVER, txt\) \? peek : -SIZE - 6;/.test(ph), "phone dock: words under the dock send him fully off the edge, so no text is ever under him");
   ok(/if \(narrowRef\.current && !phoneBubbleOk\(text\)\) return;/.test(code) && /const phoneBubbleOk = \(text\) =>[\s\S]{0,400}bubbleSideIfClear\([^)]*txt\)/.test(code), "phone: a bubble shows only where it covers no words and no control");
   ok(/const PHONE_TUCK = 0\.(3|4|5)\d*;/.test(code), "phone dock keeps at least half of Santa on screen");
+  ok(/const slide = !motionOffRef\.current && prev && prev\.y === y && prev\.x !== x;/.test(ph) && /slideT\.current = window\.setTimeout\(\(\) => \{ if \(elRef\.current\) elRef\.current\.style\.transition = ""; \}, 420\)/.test(ph), "phone dock slide never runs under reduced motion and is cleared after it plays");
+  ok(/if \(!eligible \|\| !reduced\) \{ redPos\.current = null; clearTimeout\(slideT\.current\); if \(elRef\.current\) \{ elRef\.current\.style\.transition = ""; elRef\.current\.dataset\.dock = ""; \}/.test(code), "leaving the dock (phone to desktop width) clears any slide transition and the dock hit offset");
+  ok(/\.boo-c\[data-dock="1"\] \.boo-c-hit\{left:\$\{SIZE - 44\}px\}/.test(code) && /const ox = reducedRef\.current && narrowRef\.current \? SIZE - HIT : o;/.test(code) && /rectOf\(p\.x \+ ox - pad, p\.y \+ o - pad,/.test(code), "phone dock: the 44px tap target sits on his visible edge and the tap check measures that same spot");
   ok(/const SANTA_OFF_RX = \/\^\\\/guides\\\/\[\^\/\]\*\(\?:hanukkah\|chanukah\)\/i;/.test(code) && (code.match(/reservedPath\((?:pathname, character|pathRef\.current, ch)\)/g) || []).length === 3, "Santa stays off Hanukkah guides at every mount gate");
 }
 const rposes = comp.match(/const\s+REACT_POSES\s*=\s*\[([^\]]*)\]/);

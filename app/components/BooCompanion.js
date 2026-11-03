@@ -321,6 +321,7 @@ const CSS = `
 .boo-c-body{display:block;box-sizing:border-box;width:${SIZE}px;height:${SIZE}px;position:relative;border-radius:50%}
 .boo-c .boo-c-hit{all:unset;box-sizing:border-box;position:absolute;left:${(SIZE - 44) / 2}px;top:${(SIZE - 44) / 2}px;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:none !important}
 .boo-c .boo-c-hit[data-tap="1"]{pointer-events:auto !important}
+.boo-c[data-dock="1"] .boo-c-hit{left:${SIZE - 44}px}
 .boo-c .boo-c-hit:focus-visible{outline:3px solid #F97316;outline-offset:4px;box-shadow:0 0 0 7px rgba(13,17,23,.85)}
 .boo-c-glow{position:absolute;inset:-14px;border-radius:50%;background:radial-gradient(closest-side,rgba(249,115,22,.26),rgba(249,115,22,0));pointer-events:none}
 .boo-c-flip{position:absolute;inset:0;transition:transform .35s ease}
@@ -490,6 +491,8 @@ export default function BooCompanion() {
   const [reduced, setReduced] = useState(false); // true = he stays docked (reduced motion, or a phone)
   const [motionOff, setMotionOff] = useState(false); // prefers-reduced-motion only
   const narrowRef = useRef(false);
+  const motionOffRef = useRef(false);
+  const slideT = useRef(0);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }
   const [pose, setPose] = useState("idle");
@@ -648,7 +651,7 @@ export default function BooCompanion() {
     try {
       mq = window.matchMedia("(prefers-reduced-motion: reduce)");
       nq = window.matchMedia(PHONE_MQ);
-      const on = () => { narrowRef.current = nq.matches; setMotionOff(mq.matches); setReduced(mq.matches || nq.matches); };
+      const on = () => { narrowRef.current = nq.matches; motionOffRef.current = mq.matches; setMotionOff(mq.matches); setReduced(mq.matches || nq.matches); };
       on();
       const add = (q) => (q.addEventListener ? q.addEventListener("change", on) : q.addListener(on));
       const rm = (q) => (q.removeEventListener ? q.removeEventListener("change", on) : q.removeListener(on));
@@ -823,7 +826,9 @@ export default function BooCompanion() {
     c.prev = { x: p.x, y: p.y }; c.prevT = now;
     const pad = HIT_PAD + Math.min(120, c.spd) * HIT_LEAD + Math.min(120, c.spd) * (now - c.t) / 1000;
     const o = (SIZE - HIT) / 2;
-    const box = rectOf(p.x + o - pad, p.y + o - pad, HIT + pad * 2, HIT + pad * 2);
+    // Phone dock: the hit button sits on his visible right edge (see data-dock CSS).
+    const ox = reducedRef.current && narrowRef.current ? SIZE - HIT : o;
+    const box = rectOf(p.x + ox - pad, p.y + o - pad, HIT + pad * 2, HIT + pad * 2);
     const clear = !touchesAny(box, c.list);
     hitSet(clear);
     if (clear) c.blockedAt = 0;
@@ -881,7 +886,13 @@ export default function BooCompanion() {
       // ever under him) and peeks back once the spot is clear again.
       const x = isClear(peek, y, SIZE, [], MAX_COVER, txt) ? peek : -SIZE - 6;
       const prev = redPos.current, el = elRef.current;
-      el.style.transition = prev && prev.y === y && prev.x !== x ? "transform 380ms ease-out" : "";
+      // The slide in or out is the only animation, never with reduced motion,
+      // and it is cleared right after so nothing else ever moves through it.
+      clearTimeout(slideT.current);
+      const slide = !motionOffRef.current && prev && prev.y === y && prev.x !== x;
+      el.style.transition = slide ? "transform 380ms ease-out" : "";
+      if (slide) slideT.current = window.setTimeout(() => { if (elRef.current) elRef.current.style.transition = ""; }, 420);
+      el.dataset.dock = "1";
       redPos.current = { x, y };
       place(x, y);
       passCheck(redPos.current);
@@ -923,7 +934,7 @@ export default function BooCompanion() {
     passCheck(posRef.current);
     return true;
   };
-  useEffect(() => () => clearTimeout(relocT.current), []);
+  useEffect(() => () => { clearTimeout(relocT.current); clearTimeout(slideT.current); }, []);
   // He just arrived somewhere to rest: if that covers a control, glide on to
   // clear space instead of pausing there. True when a new leg started.
   const parkClear = () => {
@@ -1123,6 +1134,7 @@ export default function BooCompanion() {
   sayRef.current = (text, p, delay) => {
     const go = () => {
       if (openRef.current || !eligibleRef.current) return;
+      if (narrowRef.current && !phoneBubbleOk(text)) return; // phone: no pose change when the line is skipped
       if (p) { prefetch(p); setPose(p); }
       showBubble(text);
     };
@@ -1273,7 +1285,7 @@ export default function BooCompanion() {
 
   // Keep the reduced motion spot in the corner on resize.
   useEffect(() => {
-    if (!eligible || !reduced) { redPos.current = null; return undefined; }
+    if (!eligible || !reduced) { redPos.current = null; clearTimeout(slideT.current); if (elRef.current) { elRef.current.style.transition = ""; elRef.current.dataset.dock = ""; } return undefined; }
     let t = 0;
     const on = () => { clearTimeout(t); t = window.setTimeout(() => { try { settleReduced(); } catch { /* ignore */ } }, 250); };
     settleReduced();
