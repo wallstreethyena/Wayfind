@@ -8228,7 +8228,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         coupons: "Local coupons & deals · Wayfind",
         map: "Map · Wayfind",
       };
-      document.title = titles[screen] || "Wayfind: Find the Best Things to Do Near You, Right Now";
+      document.title = titles[screen] || "Wayfind | One place worth leaving home for";
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, eventDate, eventCat]);
