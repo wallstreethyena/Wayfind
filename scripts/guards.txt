@@ -2301,6 +2301,8 @@ node scripts/test-detail-open-once.mjs
 node scripts/check-event-jsonld-offset.mjs
 node scripts/test-photo-inventory-audit.mjs
 node scripts/check-place-identity-contract.mjs
+# Counties are stored bare; trigger + helper + non-name-keyed data fix (canary County-suffix rows, 2026-11).
+node scripts/test-county-bare-name.mjs
 
 # Remind me (2026-10-14, owner: "add a reminder to the person's phone about the event because i would forget
 # ... and ask the user when they would like to be reminded."): a dated event gets a Remind me button
