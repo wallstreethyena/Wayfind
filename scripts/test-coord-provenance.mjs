@@ -414,7 +414,7 @@ async function main() {
     });
     await expectRed("cron lets already-checked rows back into the queue (wedge)", async () => {
       await checkNoBump({ patchMod: m.patchMod, cronMutate: (s) => {
-        const out = s.replace('    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff)\n', "");
+        const out = s.replace('    .or("signals->>google_checked_at.is.null,signals->>google_checked_at.lt." + cutoff + ",signals->>google_check_tier.is.null,signals->>google_check_tier.neq.enterprise")\n', "");
         assert.notEqual(out, s, "cron mutation applied"); return out; } });
     });
     await expectRed("a cached copy is dated now", async () => {

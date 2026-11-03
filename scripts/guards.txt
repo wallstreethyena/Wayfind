@@ -2288,6 +2288,7 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-christmas-tours.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
@@ -2473,3 +2474,9 @@ node scripts/test-fall-offering-retirement.mjs
 
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
+
+# Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
+node scripts/test-refresh-selector-trap.mjs
+# Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
+node scripts/test-hydrate-editorial-precedence.mjs
+node scripts/check-this-week-events.mjs
