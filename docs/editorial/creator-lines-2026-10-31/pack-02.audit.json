@@ -1,0 +1,219 @@
+{
+  "schema_version": "owned-editorial-replacement-audit-v1",
+  "recorded_at": "2026-11-01T15:39:43.769Z",
+  "pack": "docs/editorial/creator-lines-2026-10-31/pack-02.json",
+  "reviewed_by": "Gabriel (owner) via Muse research session 2026-10-31",
+  "researched_at": "2026-10-31T12:00:00-04:00",
+  "replaced": [
+    {
+      "place_id": "ChIJpa-NKgDHwogRmxZEKSMTa2Q",
+      "name": "Aker Sweets",
+      "prior_row": {
+        "place_id": "ChIJpa-NKgDHwogRmxZEKSMTa2Q",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:10 PM"
+        ],
+        "written_at": "2026-08-25T13:55:36.737679+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-25T13:55:36.737679+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
+      "name": "Ichiban Sushi & Ramen",
+      "prior_row": {
+        "place_id": "ChIJXze1LS_FwogRIeQKUSTt268",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-20T12:55:22.850502+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-20T12:55:22.850502+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
+      "name": "Teapioca Lounge",
+      "prior_row": {
+        "place_id": "ChIJeRyi7D5p54gRyScetdt6y6c",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-21T20:15:36.884+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJSZp-pxtp54gRsnthIK2yiWY",
+      "name": "Aurora at the Celeste",
+      "prior_row": {
+        "place_id": "ChIJSZp-pxtp54gRsnthIK2yiWY",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-24T21:55:34.891795+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-24T21:55:34.891795+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJF7KJye5-3YgR0mRAbGMtS10",
+      "name": "Morimoto Asia",
+      "prior_row": {
+        "place_id": "ChIJF7KJye5-3YgR0mRAbGMtS10",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-entity:hook:Disney",
+          "unsourced-entity:hook:Springs",
+          "banned-word:hook:stunning"
+        ],
+        "written_at": "2026-08-06T15:55:31.014613+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-06T15:55:31.014613+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJ9QVceAB754gRl7RP3Lw1eXY",
+      "name": "Parlor Doughnuts",
+      "prior_row": {
+        "place_id": "ChIJ9QVceAB754gRl7RP3Lw1eXY",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-20T21:55:02.569965+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-20T21:55:02.569965+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJi_amF81_54gRza4Kx7apFXc",
+      "name": "Baires Grill - Orlando",
+      "prior_row": {
+        "place_id": "ChIJi_amF81_54gRza4Kx7apFXc",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-08-19T13:55:07.810063+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-19T13:55:07.810063+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJhWN4GB2B3YgRiAdIpY8_ghc",
+      "name": "Four Flamingos, A Richard Blais Florida Kitchen",
+      "prior_row": {
+        "place_id": "ChIJhWN4GB2B3YgRiAdIpY8_ghc",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-24T00:55:32.50783+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-08-24T00:55:32.50783+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJd-M9Fi1x54gRiGbH4lfFGrQ",
+      "name": "The Sage HeadSpa - Winter Park",
+      "prior_row": {
+        "place_id": "ChIJd-M9Fi1x54gRiGbH4lfFGrQ",
+        "verified": false,
+        "issues": [
+          "PENDING SOURCE"
+        ],
+        "written_at": "2026-07-29T11:15:49.683+00:00",
+        "attempt_count": 1,
+        "last_attempted_at": "2026-07-29T11:15:49.683+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJ-Z1yo6_twogR5GJkLIFUAYE",
+      "name": "Craft Street Kitchen",
+      "prior_row": {
+        "place_id": "ChIJ-Z1yo6_twogR5GJkLIFUAYE",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:why_here:5,000"
+        ],
+        "written_at": "2026-08-23T08:55:36.468729+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-23T08:55:36.468729+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": "owner-row-supersedes"
+    },
+    {
+      "place_id": "ChIJMxRkEfbPwogRf7eSyMSsyOI",
+      "name": "Kungfu Kitchen - Brandon",
+      "prior_row": {
+        "place_id": "ChIJMxRkEfbPwogRf7eSyMSsyOI",
+        "verified": false,
+        "issues": [
+          "FAILED VERIFICATION",
+          "unsourced-number:best_time:1:30 PM"
+        ],
+        "written_at": "2026-08-05T01:16:04.906+00:00",
+        "attempt_count": 0,
+        "last_attempted_at": null,
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    },
+    {
+      "place_id": "ChIJo9ZVDI7BwogRQmX2pgDkJFk",
+      "name": "Agave Social",
+      "prior_row": {
+        "place_id": "ChIJo9ZVDI7BwogRQmX2pgDkJFk",
+        "verified": false,
+        "issues": [
+          "empty-published-row"
+        ],
+        "written_at": "2026-08-24T05:55:31.37574+00:00",
+        "attempt_count": 2,
+        "last_attempted_at": "2026-08-24T05:55:31.37574+00:00",
+        "standard_version": "atlas-590-v1",
+        "facts_count": 0
+      },
+      "inventory_editorial_disposition": ""
+    }
+  ]
+}
