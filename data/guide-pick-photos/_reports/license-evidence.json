@@ -3,14 +3,14 @@
   "verifiedAt": "2026-11-03",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 309,
-    "usages": 332,
-    "verified": 309,
+    "files": 310,
+    "usages": 333,
+    "verified": 310,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
       "CC BY-SA 4.0": 72,
-      "CC BY-SA 3.0": 72,
+      "CC BY-SA 3.0": 73,
       "CC BY 4.0": 19,
       "CC BY 3.0": 16,
       "CC BY 2.0": 75,
@@ -1573,6 +1573,36 @@
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-03"
+    },
+    {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-speedway-frontstretch.webp",
+      "usedBy": [
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "pick",
+          "pick": "Daytona Turkey Run"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+        "title": "2018 Coke Zero Sugar 400 fireworks from frontstretch",
+        "author": "Dough4872",
+        "dateTaken": "7 July 2018 (according to Exif data)",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Dough4872",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
