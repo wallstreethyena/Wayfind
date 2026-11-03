@@ -89,7 +89,7 @@ for (const rel of ["app/api/cron/promote-index/route.js", "scripts/promote-worke
   const src = read("app/api/cron/promote-index/route.js");
   const retryBody = src.slice(src.indexOf("async function details("), src.indexOf("async function rpc("));
   ok(/attempt > 0\s*&&\s*!\(await spendAllowCapped\(sku, monthCap\)\)/.test(retryBody), "promote-index: every retry requires its own same-SKU ledger grant");
-  ok(/details\(gkey, item.place_id, mask, requestSku, monthCap\)/.test(src), "promote-index passes the chosen SKU and operator ceiling into every retry");
+  ok(/details\(gkey, item.place_id, mask, requestSku, monthCap(?:, budget)?\)/.test(src), "promote-index passes the chosen SKU and operator ceiling into every retry");
 }
 // The ledger grant must happen BEFORE the Details fetch in the per-place path.
 for (const rel of ["app/api/cron/promote-index/route.js", "scripts/promote-worker.mjs"]) {
