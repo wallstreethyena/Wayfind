@@ -259,4 +259,12 @@ for (const hub of hubPages) {
   if (!src.includes('canonical: SITE_URL + "/' + hub + '"')) fail("/" + hub + " lost its self-canonical");
 }
 
+const HOME_TITLE = "Wayfind | One place worth leaving home for";
+const layNow = readFileSync(join(root, "app", "layout.js"), "utf8");
+const homeNow = readFileSync(join(root, "app", "home.js"), "utf8");
+if ((layNow.match(/Wayfind \| One place worth leaving home for/g) || []).length < 3) fail("homepage title must be on the document, Open Graph, and Twitter cards");
+if (!layNow.includes("Wayfind ranks places on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
+if (/Find the Best Things to Do/.test(layNow) || /Find the Best Things to Do/.test(homeNow)) fail("homepage still says Best");
+if (!homeNow.includes(HOME_TITLE)) fail("the home screen fallback title does not match the document title");
+
 console.log("check-seo: OK — canonical-or-noindex on " + pages.length + " routes, single H1, honest CTAs, named attribution, share-card rule, sitemap clean, four category hubs rank on merit without saying best");

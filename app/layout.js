@@ -42,8 +42,8 @@ export const metadata = {
   // GSC (owner-approved #4): paste the Search Console token into the
   // GOOGLE_SITE_VERIFICATION env var on Vercel — no code change needed.
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
-  title: "Wayfind: Find the Best Things to Do Near You, Right Now",
-  description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
+  title: "Wayfind | One place worth leaving home for",
+  description: "Wayfind ranks places on merit. Rankings are never for sale.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [
@@ -60,8 +60,8 @@ export const metadata = {
     title: "Wayfind",
   },
   openGraph: {
-    title: "Wayfind: Find the Best Things to Do Near You, Right Now",
-    description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
+    title: "Wayfind | One place worth leaving home for",
+    description: "Wayfind ranks places on merit. Rankings are never for sale.",
     url: SITE_URL,
     siteName: "Wayfind",
     type: "website",
@@ -70,14 +70,14 @@ export const metadata = {
         url: "/api/og",
         width: 1200,
         height: 630,
-        alt: "Wayfind — local recommendations for things to do, places to eat, and travel planning",
+        alt: "Wayfind. One place worth leaving home for.",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Wayfind: Find the Best Things to Do Near You, Right Now",
-    description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
+    title: "Wayfind | One place worth leaving home for",
+    description: "Wayfind ranks places on merit. Rankings are never for sale.",
     images: ["/api/og"],
   },
 };
