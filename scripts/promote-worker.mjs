@@ -91,7 +91,7 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // exactly the two names it needs, then import it. WAYFIND_GATE must be set
 // explicitly to free or open; an unset or mistyped value shuts spend down.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
-const { spendAllowCapped, effectiveCap, gateMode } = await import("../lib/spendGate.js");
+const { spendAllowCapped, effectiveCap, gateMode, refundToLedger } = await import("../lib/spendGate.js");
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -255,7 +255,8 @@ while (T.claimed < TOTAL) {
       return { item, kind: "release" };
     }
     const d = await details(item.place_id, mask);
-    if (!d.ok && d.quota) { quotaKind = d.quota; return { item, kind: "quota", error: d.error }; }
+    // A 429 is unbilled by Google: give the pre-call ledger grant back (same rule as the cron, 2026-11-03).
+    if (!d.ok && d.quota) { quotaKind = d.quota; await refundToLedger(mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU, 1); return { item, kind: "quota", error: d.error }; }
     if (!d.ok) return { item, kind: d.terminal ? "reject" : "retry", error: d.error };
     const place = withIndexSignals(d.place, sig);
     const v = decidePromotion(place, item.metro, new Date().toISOString(), null, METROS);

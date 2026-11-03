@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -389,8 +389,18 @@ export async function GET(req) {
       if (d.quota) {
         // Google's quota, not the place. Park this one and the rest of the
         // batch with the attempt refunded, instead of burning toward a reject.
+        // THE LEDGER GRANT IS REFUNDED TOO (2026-11-03). The grant above was
+        // taken before the call; Google bills OK / NOT_FOUND / INVALID_REQUEST
+        // only, never a 429 (lib/spendGate.js refund note). Leaving it counted
+        // is how details_enterprise read 950/950 and details_pro 5,6xx within
+        // the first hours of 2026-11-01 (promote ramped 5->50 places per 5-min
+        // run into the daily-quota 429, each unbilled answer keeping its
+        // grant), which starved user-facing enrichment (lib/placeDetails.js)
+        // and the inventory refresh for the rest of the month and paged
+        // spend-pacing with "capped by day 2".
         quotaKind = d.quota;
         quotaReleased.push(item.place_id);
+        await refundToLedger(requestSku, 1);
         continue;
       }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });
