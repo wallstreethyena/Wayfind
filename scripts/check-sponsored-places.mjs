@@ -333,11 +333,55 @@ ok(sponsoredHref(rio).includes("utm_medium=sponsored_card"), "…and still defau
 
 // The index.
 const idxHtml = renderToStaticMarkup(pageMod.PartnersIndexPage());
+const idxFlat = idxHtml.replace(/\s+/g, " ");
 ok(idxHtml.includes("Partners on Wayfind"), "the index renders its heading");
 ok(!/wayfind partner/i.test(idxHtml) && !/wayfind partner/i.test(pageHtml),
   "neither page uses the banned affiliation construction, in the RENDERED markup (the source scan cannot see JSX line breaks)");
 ok(idxHtml.includes("/partners/rio-body-wax-gastonia"), "…and links every partner page");
 ok(/does not buy a Wayfind Score|not buy a Wayfind Score/i.test(idxHtml), "…and states plainly what money does not buy");
+ok(idxFlat.includes("What You Get as a Wayfind Sponsored Partner"), "the index renders the Sponsored Partner package showcase");
+ok(idxFlat.includes("Featured Sponsored Card")
+  && idxFlat.includes("Unlimited Photos")
+  && idxFlat.includes("Direct Booking Link")
+  && idxFlat.includes("Seen by Visitors Planning Their Florida Trip"),
+  "the index renders all four Sponsored Partner package benefits");
+ok(/clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(idxFlat)
+  && !/stand out in search/i.test(idxFlat),
+  "Featured Sponsored Card copy states it is a clearly labeled card shown alongside Wayfind's picks outside ranked lists, never claiming to stand out in search");
+ok(idxFlat.includes("$99") && idxFlat.includes("/ week")
+  && idxFlat.includes("$199") && idxFlat.includes("/ month")
+  && idxFlat.includes("$299") && idxFlat.includes("/ quarter")
+  && /Holiday Promo/i.test(idxFlat),
+  "the index renders the $99/week, $199/month, and $299/quarter Holiday Promo pricing tiers");
+ok(!/Save\s+\d+%|at our best rate|0%\s+booking\s+commission/i.test(idxFlat),
+  "the index does not invent unapproved discount percentages, rate superlatives, or commission claims");
+ok(/Example Illustration/i.test(idxFlat) && /not an active sponsor or customer result/i.test(idxFlat),
+  "the phone mockup is explicitly labeled as an illustrative example, never implying an existing customer or performance result");
+ok(pageMod.PARTNER_CONTACT_EMAIL === "hello@gowayfind.com" && idxFlat.includes("hello@gowayfind.com") && /Send note without a mail app/.test(idxFlat),
+  "the index displays hello@gowayfind.com and provides an in-page contact fallback for visitors without a configured mail app");
+ok(Array.isArray(pageMod.PARTNER_PACKAGES) && pageMod.PARTNER_PACKAGES.length === 3, "PARTNER_PACKAGES defines the 3 approved packages");
+for (const pkg of pageMod.PARTNER_PACKAGES || []) {
+  const href = pageMod.partnerPackageMailto(pkg);
+  ok(href.startsWith("mailto:hello@gowayfind.com?subject="), `${pkg.id}: mailto targets hello@gowayfind.com`);
+  const q = href.slice("mailto:hello@gowayfind.com?".length);
+  ok(!/\s/.test(q), `${pkg.id}: mailto query string is URL-encoded with no raw whitespace`);
+  const params = new URLSearchParams(q);
+  const subj = params.get("subject") || "";
+  const body = params.get("body") || "";
+  ok(subj.includes(pkg.name) && subj.includes(pkg.priceDisplay) && subj.includes(pkg.period),
+    `${pkg.id}: decoded mailto subject identifies package name, price, and period — got ${JSON.stringify(subj)}`);
+  ok(body.includes(pkg.name) && body.includes(pkg.priceDisplay) && body.includes(pkg.period) && body.includes(pkg.durationLabel),
+    `${pkg.id}: decoded mailto body identifies package name, price, period, and duration`);
+  for (const other of pageMod.PARTNER_PACKAGES) {
+    if (other.id === pkg.id) continue;
+    ok(!subj.includes(other.name) && !subj.includes(other.priceDisplay) && !body.includes(other.name),
+      `${pkg.id}: mailto subject/body never leaks ${other.id} package copy`);
+  }
+  ok(/Inquire about /i.test(pkg.ctaLabel) && !/\b(?:Buy|Purchase|Claim|Start|Book)\b/i.test(pkg.ctaLabel),
+    `${pkg.id}: CTA label accurately describes an inquiry action (${JSON.stringify(pkg.ctaLabel)})`);
+  ok(idxHtml.includes(`data-wf-inquiry-package="${pkg.id}"`) && idxHtml.includes(esc(href)),
+    `${pkg.id}: package inquiry button renders with its exact encoded mailto href`);
+}
 
 /* ── 6c. THE PREMIUM CARD (v8.43.1) ────────────────────────────────────────
    "Premium" here is a set of decisions, not a mood, so each one is pinned. */
@@ -690,6 +734,17 @@ const RED = [
   ["a photo hosted without consent is detectable", () => {
     return hydrateSponsoredRailPlace({ ...mob, eventId: "unconsented" }, mob.center, DURING).place.photo === null
       && hydrateSponsoredRailPlace(mob, mob.center, DURING).place.photo !== null;
+  }],
+  ["prohibited 'stand out in search' copy on the Featured Sponsored Card is detectable", () => {
+    const mutated = idxFlat.replace(/clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/, "Stand out in search and discovery results");
+    const passes = /clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(mutated) && !/stand out in search/i.test(mutated);
+    return passes === false && /clearly labeled card shown alongside Wayfind[’']s picks, outside ranked lists/.test(idxFlat);
+  }],
+  ["a package mailto leaking another package's price or period is detectable", () => {
+    const weeklyHref = pageMod.partnerPackageMailto(pageMod.PARTNER_PACKAGES[0]);
+    const params = new URLSearchParams(weeklyHref.slice("mailto:hello@gowayfind.com?".length));
+    const corruptedSubj = (params.get("subject") || "") + " $299/quarter";
+    return corruptedSubj.includes("$299") && !(params.get("subject") || "").includes("$299");
   }],
 ];
 for (const [label, fn] of RED) ok(fn() === true, "RED PROOF failed to fail: " + label);
