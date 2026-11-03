@@ -69,7 +69,7 @@ if (!lay.includes("Quick plans")) fail("use-case links missing from server foote
 if (!lay.includes("affiliate links")) fail("affiliate disclosure missing from server footer");
 if (!lay.includes('rel="preconnect"')) fail("preconnect hints missing");
 if (/\n  title: "Wayfind",/.test(lay)) fail("homepage title must carry search intent, not just the brand");
-if (!lay.includes("Things to Do Near You")) fail("homepage title keywords missing");
+if (!lay.includes("One place worth leaving home for")) fail("homepage title lost the brand line");
 
 // 3. app shell: nav anchors + go-param handoff survive.
 const page = readFileSync(join(root, "app", "home.js"), "utf8");
@@ -263,7 +263,7 @@ const HOME_TITLE = "Wayfind | One place worth leaving home for";
 const layNow = readFileSync(join(root, "app", "layout.js"), "utf8");
 const homeNow = readFileSync(join(root, "app", "home.js"), "utf8");
 if ((layNow.match(/Wayfind \| One place worth leaving home for/g) || []).length < 3) fail("homepage title must be on the document, Open Graph, and Twitter cards");
-if (!layNow.includes("Wayfind ranks places on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
+if (!layNow.includes("Places are ranked on merit. Rankings are never for sale.")) fail("homepage description lost the on merit line");
 if (/Find the Best Things to Do/.test(layNow) || /Find the Best Things to Do/.test(homeNow)) fail("homepage still says Best");
 if (!homeNow.includes(HOME_TITLE)) fail("the home screen fallback title does not match the document title");
 
