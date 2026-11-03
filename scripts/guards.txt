@@ -2473,3 +2473,6 @@ node scripts/test-fall-offering-retirement.mjs
 
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
+
+# www /blog 404ed; it must permanently redirect to blog.gowayfind.com (executes next.config redirects).
+node scripts/check-blog-redirect.mjs

@@ -258,8 +258,15 @@ const nextConfig = {
     // reviewed before merge. They still publish canonical metadata pointing at
     // gowayfind.com; only the navigation bounce is skipped. Production builds
     // keep the stale *.vercel.app protection below.
-    if (process.env.VERCEL_ENV === "preview") return [];
+    // The blog lives on its own host. /blog on www used to 404; send it (and any
+    // sub path) to the real host. Kept in previews too: it is host-agnostic.
+    const blogRedirects = [
+      { source: "/blog", destination: "https://blog.gowayfind.com", permanent: true },
+      { source: "/blog/:path*", destination: "https://blog.gowayfind.com/:path*", permanent: true },
+    ];
+    if (process.env.VERCEL_ENV === "preview") return blogRedirects;
     return [
+      ...blogRedirects,
       {
         source: "/:path((?!api/cron|api/hooks).*)",
         has: [{ type: "host", value: "(?<sub>.*)\\.vercel\\.app" }],
