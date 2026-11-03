@@ -144,6 +144,9 @@ export function evaluateMonitorWorkflow(src) {
   if (!/schedule:/.test(code) || !/cron:/.test(code)) failures.push("guards-main-monitor must be scheduled");
   if (!/node scripts\/guards-main-run\.mjs/.test(code)) failures.push("guards-main-monitor must run node scripts/guards-main-run.mjs");
   if (!/actions:\s*read/.test(code)) failures.push("guards-main-monitor needs actions: read to see the main guards run");
+  if (!/!\/public\//.test(code)) failures.push("guards-main-monitor must skip public/ so a full-tree fetch cannot eat the job");
+  const timeout = code.match(/timeout-minutes:\s*(\d+)/);
+  if (!timeout || Number(timeout[1]) < 15) failures.push(`guards-main-monitor timeout-minutes must be >= 15 (a 5 minute cap cancelled a depth-1 checkout at 300s), got ${timeout ? timeout[1] : "none"}`);
   if (/continue-on-error:\s*true/.test(code)) failures.push("guards-main-monitor must not continue on error");
   return failures;
 }

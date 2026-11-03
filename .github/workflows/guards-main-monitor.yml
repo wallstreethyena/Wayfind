@@ -26,11 +26,17 @@ jobs:
   latest-main-guards:
     name: latest main guards run
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    # Depth-1 fetches of the full tree hit 300s on 2026-11-03 (canary run
+    # 41684161308 cancelled promote-metros at its 5 minute cap inside
+    # checkout). This job does not read public/ (~580MB). Skip it, and keep
+    # 15 minutes so a slow fetch of the rest still finishes the verdict.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          sparse-checkout: "/*\n!/public/\n"
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: 22
