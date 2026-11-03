@@ -19,3 +19,13 @@ Gabe supplied eleven Instagram posts in chat on 2026-11-03. The author and capti
 Urban Roast was inserted insert only with `on conflict do nothing`, source `owner_verified_official_source`, on 2026-11-03 19:50:58 UTC. Its address comes from the [official site](https://www.urbanroastdc.com/west-palm-beach-menu) and the Downtown West Palm Beach listing; coordinates come from the US Census geocoder. No paid Places calls were made.
 
 The venue and organizer accounts `urbanroastfl` and `enchantstpetersburg` join the non independent list. `whenintampa` notes that the creator's mother sells a handmade product at The Perfect Press; the account stays independent pending Gabe's call, which makes that cafe trend on two independent creators.
+
+## Out of state adds
+
+Gabe asked for these to be added as Go Wayfind grows outside Florida. Each card is a Wayfind-owned ID inserted insert only on 2026-11-03, and each post is the venue's own account, so none count as independent corroboration.
+
+| Native source | Creator | Place | Card |
+|---|---|---|---|
+| reel/DfPmzYmtTT_ | shindigfarms | Shindig Farms, ID-45 and Scism Rd, Nampa, ID 83686 (Lost in Christmas, select nights Nov 20, 2026 to Jan 2, 2027, 5 PM to 10 PM) | wfadd_shindig_farms_nampa |
+| reel/DfQK3b0SM7w | schnepfchristmas | Schnepf Farms, 24810 S Rittenhouse Rd, Queen Creek, AZ 85142 | wfadd_schnepf_farms_queen_creek |
+| reel/DfSXfFYucEV | gauchogroup | Gaucho Covent Garden, 8 to 9 James St, London WC2E 8BT | wfadd_gaucho_covent_garden_london |
