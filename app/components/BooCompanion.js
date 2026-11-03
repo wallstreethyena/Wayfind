@@ -251,7 +251,24 @@ const CONTROL_SEL = "a[href],button,input:not([type=hidden]),select,textarea,[ro
 // own headings or paragraphs are skipped so the inner text counts, not the card.
 const BLOCK_TEXT = "li,td,th,dt,dd,blockquote,figcaption";
 const SCROLL_SETTLE_MS = 220; // the page counts as still moving until this long after the last scroll event
-const REST_MS = 250; // how often a resting Boo re-checks he is not on text after a scroll or page change
+const REST_MS = 1000; // how often a resting Boo re-checks he is not on text after a scroll or page change (owner 2026-11-03: 250ms made Santa bounce "everywhere on the page rapidly" on a page whose lights and photo dots mutate every tick)
+// A card sized link with a picture in it (the list cards on /christmas-in-florida,
+// the home rails) is a PICTURE where he can rest, not a button he covers: its
+// words are already in the text list (zero tolerance) and its buttons are their
+// own controls. Before this (owner 2026-11-03, "I can't see him most of the
+// time") every card link blocked him whole, so a phone list had no spot at all
+// and he lived tucked off the screen edge, faded.
+const PHOTO_CARD_MIN_W = 160, PHOTO_CARD_MIN_H = 100;
+// PACE (owner 2026-11-03: "he is going everywhere on the page rapidly, I don't
+// like that"). He rests most of the time and moves like a float, not a fly:
+// a real pause after every leg, a dart to the far corner only now and then,
+// fewer touch runs, and no speed above DART_SPEED anywhere in roaming.
+const REST_PAUSE = [2.5, 6]; // seconds he stays put after a leg (85% of legs)
+const DART_CHANCE = 0.06; // legs that are a dart across the screen
+const DART_SPEED = [170, 230]; // px/s on a dart (was 240 to 340)
+const DRIFT_SPEED = [35, 90]; // px/s on an ordinary leg
+const TOUCH_SPEED = [70, 130]; // px/s heading to a thing he will touch
+const TOUCH_CHANCE = 0.45; // share of legs that go touch something (was 0.7)
 const READ_SEL = "h1,h2,h3,h4,p,li,blockquote,figcaption,dt,dd,td,th,[role=status],[role=alert],[data-boo-clear]";
 // The ONLY pointer target on him is a small hit button. It is tappable only
 // while its padded box overlaps none of these (nothing navigational or
@@ -297,7 +314,7 @@ const CSS = `
 .boo-c{position:fixed;left:0;top:0;width:${SIZE}px;height:${SIZE}px;z-index:940;will-change:transform;touch-action:manipulation}
 .boo-c,.boo-c *{pointer-events:none !important}
 .boo-c-body{transition:opacity .18s ease}
-.boo-c[data-ghost="1"] .boo-c-body{opacity:.22}
+.boo-c[data-ghost="1"] .boo-c-body{opacity:.45}
 .boo-c-body{display:block;box-sizing:border-box;width:${SIZE}px;height:${SIZE}px;position:relative;border-radius:50%}
 .boo-c .boo-c-hit{all:unset;box-sizing:border-box;position:absolute;left:${(SIZE - 44) / 2}px;top:${(SIZE - 44) / 2}px;width:44px;height:44px;border-radius:50%;cursor:pointer;-webkit-tap-highlight-color:transparent;pointer-events:none !important}
 .boo-c .boo-c-hit[data-tap="1"]{pointer-events:auto !important}
@@ -684,7 +701,8 @@ export default function BooCompanion() {
       if (el.matches(READ_SEL)) {
         if (el.matches(BLOCK_TEXT) && !el.hasAttribute("data-boo-clear") && el.querySelector(READ_SEL)) continue;
         txt.push(rect);
-      } else out.push(rect);
+      } else if (isPhotoCard(el, r)) continue; // the picture part of a card is a place to rest
+      else out.push(rect);
     }
     // THE WORDS THEMSELVES (owner 2026-11-01, measured live: Santa parked on the
     // "Ask Santa" button label and on a card title, because those words sit in
@@ -724,6 +742,13 @@ export default function BooCompanion() {
     } catch { /* ignore */ }
     c.t = now; c.list = out; c.text = txt;
     return out;
+  };
+  // A card sized link that carries a picture (see PHOTO_CARD_MIN_W). Taps on him
+  // over it still reach the card (HIT_SEL keeps every a[href], so the hit button
+  // stays off there and underTap hands the tap to the card).
+  const isPhotoCard = (el, r) => {
+    if (el.tagName !== "A" || r.width < PHOTO_CARD_MIN_W || r.height < PHOTO_CARD_MIN_H) return false;
+    try { return !!el.querySelector("img,picture,video,[data-photo],[style*='background-image']"); } catch { return false; }
   };
   // Controls and text, read together from one cache.
   const restLists = (fresh) => { const ctl = controlRects(fresh); return [ctl, ctlRef.current.text || []]; };
@@ -997,27 +1022,27 @@ export default function BooCompanion() {
     const b = bounds();
     const from = posRef.current;
     let tx, ty, speed, target = null, free = false;
-    if (!openRef.current && !reducedRef.current && (legRef.current < 2 || Math.random() < 0.7)) {
+    if (!openRef.current && !reducedRef.current && (legRef.current < 2 || Math.random() < TOUCH_CHANCE)) {
       const hit = pickTarget();
       if (hit) {
         target = hit.el; free = true;
         prefetch("poke"); prefetch("cheer"); prefetch("orb"); prefetch("swipe"); prefetch("up");
         [tx, ty] = hit.spot;
-        speed = rand(80, 160);
+        speed = rand(TOUCH_SPEED[0], TOUCH_SPEED[1]);
       }
     }
     if (target) { /* chosen above */ }
-    else if (Math.random() < 0.18) {
+    else if (Math.random() < DART_CHANCE) {
       tx = from.x + SIZE / 2 < b.vw / 2 ? b.maxX : b.minX;
       ty = from.y + SIZE / 2 < (b.minY + b.maxY) / 2 ? b.maxY : b.minY;
       tx += rand(-30, 30); ty += rand(-30, 30);
-      speed = rand(240, 340);
+      speed = rand(DART_SPEED[0], DART_SPEED[1]);
     } else {
       for (let i = 0; i < 6; i++) {
         tx = rand(b.minX, b.maxX); ty = rand(b.minY, b.maxY);
         if (Math.hypot(tx - from.x, ty - from.y) > 140) break;
       }
-      speed = rand(35, 115);
+      speed = rand(DRIFT_SPEED[0], DRIFT_SPEED[1]);
     }
     tx = Math.min(b.maxX, Math.max(b.minX, tx));
     ty = free ? Math.min(Math.max(0, b.vh - SIZE - 8), Math.max(0, ty)) : Math.min(b.maxY, Math.max(b.minY, ty));
@@ -1108,7 +1133,7 @@ export default function BooCompanion() {
         const dist = Math.max(1, Math.hypot(tx - from.x, ty - from.y));
         const darting = dist > 160;
         if (elRef.current) { elRef.current.dataset.dart = darting ? "1" : ""; elRef.current.style.setProperty("--tdir", String(facing.current)); }
-        seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: Math.min(0.9, dist / 420), pause: 0, target: el, free: true, say: { text, pose: o.pose } };
+        seg.current = { x0: from.x, y0: from.y, x1: tx, y1: ty, t: 0, dur: Math.min(1.2, dist / 260), pause: 0, target: el, free: true, say: { text, pose: o.pose } };
         hitDisarm();
         return true;
       }
@@ -1175,7 +1200,7 @@ export default function BooCompanion() {
           if (touched) { touchRef.current(g.target); g.target = null; }
           if (g.say) { const s = g.say; g.say = null; sayRef.current(s.text, s.pose, 280); }
           else if (touched) { if (!parkClear()) g.pause = TOUCH_MS / 1000; } // the 1.2s reaction, then he leaves (unless the page moved him onto words)
-          else if (!parkClear()) g.pause = Math.random() < 0.4 ? 0.05 : rand(0.7, 2.6);
+          else if (!parkClear()) g.pause = Math.random() < 0.15 ? 0.6 : rand(REST_PAUSE[0], REST_PAUSE[1]);
         }
       }
       // Wherever he is right now (flying across, sliding clear, holding still):

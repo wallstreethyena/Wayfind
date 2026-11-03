@@ -12,7 +12,7 @@ export const MAX_COVER = 0.15; // at most 15% of any control, and at most 15% of
 export const TEXT_SLOP = 2;
 // Fraction of him hanging off the screen edge when he has to tuck away.
 export const TUCK_MIN = 0.45;
-export const TUCK_MAX = 0.8;
+export const TUCK_MAX = 0.6; // at least 40% of him stays on screen (owner 2026-11-03: at 80% hidden "I can't see him")
 
 export function rectOf(x, y, w, h) {
   return { left: x, top: y, right: x + w, bottom: y + h };
