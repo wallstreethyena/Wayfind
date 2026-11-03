@@ -113,8 +113,9 @@ const MIGRATIONS_DIR = path.join(REPO, "supabase", "migrations");
   // or a server that stops short of its own count, must fail closed.
   {
     const all = Array.from({ length: 2349 }, (_, i) => ({ kind: i < 1000 ? "function" : "column", name: `obj_${i}` }));
-    const server = ({ cap = 1000, count = true, shortBy = 0 } = {}) => async (_url, init) => {
-      const [a, b] = String(init.headers.Range).split("-").map(Number);
+    const server = ({ cap = 1000, count = true, shortBy = 0, ignoreOffset = false } = {}) => async (url) => {
+      const q = new URL(url).searchParams;
+      const a = ignoreOffset ? 0 : Number(q.get("offset") || 0), b = a + Number(q.get("limit") || all.length) - 1;
       const end = Math.min(b, a + cap - 1, all.length - 1 - shortBy);
       const page = a > end ? [] : all.slice(a, end + 1);
       return { ok: true, status: 206, json: async () => page, headers: { get: (h) => (count && h.toLowerCase() === "content-range" ? `${a}-${a + page.length - 1}/${all.length}` : null) } };
@@ -125,6 +126,7 @@ const MIGRATIONS_DIR = path.join(REPO, "supabase", "migrations");
     const small = await read(server({ cap: 300 }));
     if (small.error || small.rows.length !== 2349) { fails++; console.error("self-test FAIL — a smaller unknown cap (300) must still read every row"); }
     if (!(await read(server({ count: false }))).error) { fails++; console.error("self-test FAIL — no exact count must fail closed, never pass as complete"); }
+    if (!(await read(server({ ignoreOffset: true }))).error) { fails++; console.error("self-test FAIL — a server that ignores the offset (returns page 1 again) must fail, not double-count"); }
     if (!(await read(server({ shortBy: 5 }))).error) { fails++; console.error("self-test FAIL — a server that returns fewer rows than its own count must fail"); }
   }
   if (fails) {

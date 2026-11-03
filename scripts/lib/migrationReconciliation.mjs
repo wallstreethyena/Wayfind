@@ -295,16 +295,16 @@ export function resolvePendingDeclarations({ unresolved, applied, pending, rawHa
 // a blind check, not a strict one. This reads every page in a stable order
 // and FAILS CLOSED unless the rows read equal the server's exact count.
 export async function fetchAllRpcRows({ url, key, fn, order, fetchImpl = globalThis.fetch, pageSize = 1000 }) {
-  const base = `${url}/rest/v1/rpc/${fn}${order ? `?order=${order}` : ""}`;
+  const base = `${url}/rest/v1/rpc/${fn}?${order ? `order=${order}&` : ""}`;
   const rows = [];
   let total = null;
   for (let guard = 0; guard < 1000; guard++) {
     const start = rows.length;
     let r;
     try {
-      r = await fetchImpl(base, {
+      r = await fetchImpl(`${base}offset=${start}&limit=${pageSize}`, {
         method: "POST",
-        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "count=exact", "Range-Unit": "items", Range: `${start}-${start + pageSize - 1}` },
+        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "count=exact" },
         body: "{}",
         cache: "no-store",
       });
@@ -313,10 +313,13 @@ export async function fetchAllRpcRows({ url, key, fn, order, fetchImpl = globalT
     const page = await r.json();
     if (!Array.isArray(page)) return { error: "non-array response" };
     const cr = (r.headers && typeof r.headers.get === "function" && r.headers.get("content-range")) || "";
-    const m = /\/(\d+)\s*$/.exec(cr);
+    const m = /^(?:(\d+)-\d+|\*)\/(\d+)\s*$/.exec(cr.trim());
     if (!m) return { error: `${fn}: no exact count in Content-Range (${cr || "missing"}), so a complete read cannot be proven` };
-    if (total !== null && Number(m[1]) !== total) return { error: `${fn}: row count changed between pages (${total} -> ${m[1]})` };
-    total = Number(m[1]);
+    // A server that ignores the offset hands back the same first page again
+    // (seen live 2026-11-03 with a Range header): the page must start where asked.
+    if (page.length && Number(m[1]) !== start) return { error: `${fn}: asked for rows from ${start}, got a page starting at ${m[1] ?? "?"}` };
+    if (total !== null && Number(m[2]) !== total) return { error: `${fn}: row count changed between pages (${total} -> ${m[2]})` };
+    total = Number(m[2]);
     rows.push(...page);
     if (rows.length >= total) break;
     if (page.length === 0) break;
