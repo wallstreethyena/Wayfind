@@ -278,6 +278,11 @@ const HIT_LEAD = 0.16; // seconds of travel added to that margin while he moves
 const HEADER_SEL = ".wf-topbar,.wf-navtabs,.wf-dests,.wf-dest,.wf-dest-row,.wf-dest-opener,.boo-buy,.boo-goto,.boo-picks,.boo-chip,.boo-tours";
 const HIT_SEL = CONTROL_SEL + ",summary,label,details,[role=link],[tabindex]:not([tabindex='-1']),[class*='chip' i]," + HEADER_SEL;
 const TOP = 70, BOTTOM = 96, SIDE = 12;
+// Phones (owner approved 2026-11-03): no room to float beside the text, so he
+// docks in one spot, tucked part way off the bottom left edge, and stays there.
+const PHONE_MQ = "(max-width: 640px)";
+const PHONE_TUCK = 0.45; // share of his width hidden past the left edge
+const PHONE_BOTTOM = 14;
 
 function track(event, props) {
   if (typeof window === "undefined") return;
@@ -480,7 +485,9 @@ export default function BooCompanion() {
   // character (Boo out of season on the Christmas page, Santa anywhere else).
   const [elig, setElig] = useState({ ok: false, ch: "" });
   const eligible = elig.ok && elig.ch === character;
-  const [reduced, setReduced] = useState(false);
+  const [reduced, setReduced] = useState(false); // true = he stays docked (reduced motion, or a phone)
+  const [motionOff, setMotionOff] = useState(false); // prefers-reduced-motion only
+  const narrowRef = useRef(false);
   const [open, setOpen] = useState(false);
   const [bubble, setBubble] = useState(null); // { text, v, h }
   const [pose, setPose] = useState("idle");
@@ -635,13 +642,16 @@ export default function BooCompanion() {
   }, [character]);
 
   useEffect(() => {
-    let mq;
+    let mq, nq;
     try {
       mq = window.matchMedia("(prefers-reduced-motion: reduce)");
-      setReduced(mq.matches);
-      const on = (e) => setReduced(e.matches);
-      mq.addEventListener ? mq.addEventListener("change", on) : mq.addListener(on);
-      return () => { mq.removeEventListener ? mq.removeEventListener("change", on) : mq.removeListener(on); };
+      nq = window.matchMedia(PHONE_MQ);
+      const on = () => { narrowRef.current = nq.matches; setMotionOff(mq.matches); setReduced(mq.matches || nq.matches); };
+      on();
+      const add = (q) => (q.addEventListener ? q.addEventListener("change", on) : q.addListener(on));
+      const rm = (q) => (q.removeEventListener ? q.removeEventListener("change", on) : q.removeListener(on));
+      add(mq); add(nq);
+      return () => { rm(mq); rm(nq); };
     } catch { /* ignore */ }
   }, []);
 
@@ -859,6 +869,22 @@ export default function BooCompanion() {
   const settleReduced = () => {
     if (!elRef.current) return;
     const b = bounds(), [list, txt] = restLists(true);
+    if (narrowRef.current) {
+      // Phone dock: one spot, never chasing text as the page scrolls under him.
+      // A control in the low spot (a sticky bar) lifts him to the second spot.
+      const peek = -Math.round(SIZE * PHONE_TUCK);
+      const low = Math.max(TOP, b.vh - SIZE - PHONE_BOTTOM);
+      const y = isClear(peek, low, SIZE, list, MAX_COVER, []) ? low : b.maxY;
+      // Words passing under the dock: he slips fully off the edge (no text is
+      // ever under him) and peeks back once the spot is clear again.
+      const x = isClear(peek, y, SIZE, [], MAX_COVER, txt) ? peek : -SIZE - 6;
+      const prev = redPos.current, el = elRef.current;
+      el.style.transition = prev && prev.y === y && prev.x !== x ? "transform 380ms ease-out" : "";
+      redPos.current = { x, y };
+      place(x, y);
+      passCheck(redPos.current);
+      return;
+    }
     // Bottom left gutter first, lifted until clear of controls AND text; the same
     // tiers as roaming (gutter, grid, tucked at the edge) when the corner is words.
     const sp = pickClearSpot(SIZE, b, list, { x: b.minX, y: b.maxY }, rand, 0, MAX_COVER, null, txt);
@@ -909,6 +935,14 @@ export default function BooCompanion() {
     seg.current = { x0: cur.x, y0: cur.y, x1: sp.x, y1: sp.y, t: 0, dur: dist / rand(70, 120), pause: 0, target: null, free: false };
     hitDisarm();
     return true;
+  };
+  // Phone: he is docked (or tucked away) and a bubble may only go where it
+  // covers no words and no control; otherwise he keeps the line to himself.
+  const phoneBubbleOk = (text) => {
+    const cur = redPos.current;
+    if (!cur || cur.x <= -SIZE) return false;
+    const b = bounds(), [ctl, txt] = restLists(true), { bw, bh } = estimateBubble(text);
+    return !!bubbleSideIfClear(cur.x, cur.y, SIZE, bw, bh, { v: "above", h: "right" }, ctl, b.vw, b.vh, txt);
   };
   // Bubble side with no control under it, flipped to the other side or above/below when needed.
   const sideFor = (text) => {
@@ -1076,6 +1110,7 @@ export default function BooCompanion() {
   // the hide timer, and records when he last spoke so reactions keep a gap.
   const showBubble = useCallback((text, ms) => {
     relocateIfCovered(estimateBubble(text));
+    if (narrowRef.current && !phoneBubbleOk(text)) return; // phone: a line only where it covers no words
     const { v, h } = sideFor(text);
     clearTimeout(bubbleT.current);
     lastSay.current = Date.now();
@@ -1799,7 +1834,7 @@ export default function BooCompanion() {
         <i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" /><i className="boo-tr" aria-hidden="true" />
         {bubble && !open ? (
           <div className="boo-c-bubble" data-v={bubble.v} data-h={bubble.h} role="status" aria-label={bubble.text}>
-            <TypeLine key={bubble.key || bubble.text} text={bubble.text} instant={reduced} />
+            <TypeLine key={bubble.key || bubble.text} text={bubble.text} instant={motionOff} />
           </div>
         ) : null}
       </div>
@@ -1817,7 +1852,7 @@ export default function BooCompanion() {
               {msgs.map((m, i) => (
                 <div key={i} className={"boo-m " + (m.role === "user" ? "u" : "b")}>
                   {m.role === "boo" && splitKicker(m.text)[0] ? <span className="boo-k">{splitKicker(m.text)[0]}</span> : null}
-                  {m.role === "boo" ? (m.fresh && i === msgs.length - 1 && !reduced ? <TypeLine text={splitKicker(m.text)[1]} /> : splitKicker(m.text)[1]) : m.text}
+                  {m.role === "boo" ? (m.fresh && i === msgs.length - 1 && !motionOff ? <TypeLine text={splitKicker(m.text)[1]} /> : splitKicker(m.text)[1]) : m.text}
                   {m.link ? <> <a href={listPath}>{santa ? SANTA.fallbackLink : "See the haunt list"}</a></> : null}
                 </div>
               ))}

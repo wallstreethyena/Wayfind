@@ -221,7 +221,19 @@ ok(/\(hover: hover\) and \(pointer: fine\)/.test(comp), "hover and cursor reacti
 ok(/\.boo-ring\{position:fixed;z-index:939;pointer-events:none/.test(comp) && /\.boo-ring\{display:none !important\}/.test(comp), "generic touch ring is a separate click through overlay, off under reduced motion");
 ok(/function\s+ringAround\s*\(/.test(comp) && /if\s*\(!t\.matches\(KNOWN_TOUCH\)\)\s*\{\s*ringAround\(t,\s*st\)/.test(comp), "page elements outside the Halloween set get the overlay ring, never a style change");
 ok(/function\s+TypeLine\s*\(/.test(comp) && /\.boo-ty\{color:transparent\}/.test(comp) && /aria-label=\{bubble\.text\}/.test(comp), "bubble types out with a stable size and a full aria label");
-ok(/<TypeLine[^>]*instant=\{reduced\}/.test(comp), "typing is instant under reduced motion");
+ok(/<TypeLine[^>]*instant=\{motionOff\}/.test(comp) && /setMotionOff\(mq\.matches\)/.test(comp) && /mq = window\.matchMedia\("\(prefers-reduced-motion: reduce\)"\)/.test(comp), "typing is instant under reduced motion (motionOff comes from the reduced motion query only)");
+// Phone dock (owner approved 2026-11-03): on a phone he does not roam over the
+// words; he docks tucked at the bottom left edge and never follows text on scroll.
+{
+  const code = comp.replace(/\/\/[^\n]*/g, "");
+  ok(/const PHONE_MQ = "\(max-width: 640px\)"/.test(code) && /nq = window\.matchMedia\(PHONE_MQ\)/.test(code) && /setReduced\(mq\.matches \|\| nq\.matches\)/.test(code), "a phone width keeps him docked (no roaming), same path as reduced motion");
+  const sr = code.slice(code.indexOf("const settleReduced = () =>"), code.indexOf("const relocateIfCovered"));
+  const ph = sr.slice(sr.indexOf("if (narrowRef.current)"), sr.indexOf("return;", sr.indexOf("if (narrowRef.current)")));
+  ok(ph.length > 0 && /const peek = -Math\.round\(SIZE \* PHONE_TUCK\)/.test(ph) && /isClear\(peek, low, SIZE, list, MAX_COVER, \[\]\)/.test(ph) && !/pickClearSpot/.test(ph), "phone dock: one spot tucked at the left edge, lifted only for controls, never re-picked around the page");
+  ok(/const x = isClear\(peek, y, SIZE, \[\], MAX_COVER, txt\) \? peek : -SIZE - 6;/.test(ph), "phone dock: words under the dock send him fully off the edge, so no text is ever under him");
+  ok(/if \(narrowRef\.current && !phoneBubbleOk\(text\)\) return;/.test(code) && /const phoneBubbleOk = \(text\) =>[\s\S]{0,400}bubbleSideIfClear\([^)]*txt\)/.test(code), "phone: a bubble shows only where it covers no words and no control");
+  ok(/const PHONE_TUCK = 0\.(3|4|5)\d*;/.test(code), "phone dock keeps at least half of Santa on screen");
+}
 const rposes = comp.match(/const\s+REACT_POSES\s*=\s*\[([^\]]*)\]/);
 ok(!!rposes && ["poke", "cheer", "sales", "orb"].every((k) => rposes[1].includes('"' + k + '"')), "REACT_POSES must warm the poses reactions show first");
 ok(!!reactBody && /prefetch\("poke"\);\s*prefetch\("cheer"\);/.test(reactBody[1]), "react must prefetch its poses before he flies, so he never flashes invisible");
@@ -311,7 +323,7 @@ ok(/el\.matches\(PERCH_SEL\)\)\s*\{\s*const ps = perchSpot\(r, SIZE, b, ctl, MAX
   // 5. Unknown selector: sheet only, once per tab session.
   ok(/UNK_SHOWN_KEY/.test(comp) && /sessionStorage\.setItem\(UNK_SHOWN_KEY/.test(comp) && !/UNK_SHOWN_KEY|unkRef|setUnk/.test(pathSeq), "unknown selector is session limited and never part of the bubble sequence");
   ok(/class="boo-s-cities"|className="boo-s-cities"/.test(comp) && !/boo-s-cities/.test(comp.slice(comp.indexOf('className="boo-c-bubble"'), comp.indexOf('className="boo-c-bubble"') + 400)), "city buttons render in the sheet, not inside the bubble");
-  ok(/@media \(prefers-reduced-motion:reduce\)/.test(comp) && /instant=\{reduced\}/.test(comp), "reduced motion: instant lines, no motion");
+  ok(/@media \(prefers-reduced-motion:reduce\)/.test(comp) && /instant=\{motionOff\}/.test(comp), "reduced motion: instant lines, no motion");
 }
 
 // 7. Never covers a control (owner rule). Pure helpers are CALLED with fixtures;
