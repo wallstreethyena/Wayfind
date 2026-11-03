@@ -245,12 +245,12 @@ ok(zooLightsFeed.url === zooLights.official_ticket_url && !zooLightsFeed.ticketV
   "Zoo Lights feed preserves the organizer ticket URL without a false affiliate claim");
 ok(zooLightsTicket?.kind === "organizer" && zooLightsTicket.href === zooLights.official_ticket_url,
   "Zoo Lights detail keeps the official ticket CTA while its affiliate product is unavailable");
-ok(eventAffiliateCoverage(zooLights, { today: "2026-11-01" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
+ok(eventAffiliateCoverage(zooLights, { today: "2026-11-17" }).status === COVERAGE.DECIDED_NO_EXACT_PRODUCT,
   "Zoo Lights decision remains current on its review-by boundary");
-const zooLightsExpired = tallyCoverage([zooLights], { today: "2026-11-02" });
+const zooLightsExpired = tallyCoverage([zooLights], { today: "2026-11-18" });
 ok(zooLightsExpired.unmapped.length === 1 && zooLightsExpired.decidedNoExactProduct === 0 && coveragePulseRow(zooLightsExpired).succeeded === 0,
   "the day after review-by, Zoo Lights returns to the leak alert and fails its coverage pulse");
-ok(staleNoProductDecisions("2026-11-02").some((r) => r.eventId === zooLights.event_id),
+ok(staleNoProductDecisions("2026-11-18").some((r) => r.eventId === zooLights.event_id),
   "the existing no-product review guard also detects an overdue Zoo Lights decision");
 ok(eventAffiliateCoverage({ event_id: "wfc:howl-o-scream-tampa-2026", official_event_url: "https://buschgardens.com/tampa/" }).status === COVERAGE.MAPPED, "the feed's wfc: prefix resolves like the bare id");
 
