@@ -146,4 +146,30 @@ eq(minutesUntilQuotaReset(NaN), 60, "a bad clock falls back to an hour, never 0 
   ok(/d\.quota\)\s*\{\s*quotaKind = d\.quota;\s*await refundToLedger\(/.test(worker), "the hand-run worker refunds the ledger grant on a 429 the same way");
 }
 
+// ── Promotion keeps half the Enterprise line for everyone else (2026-11-03) ──
+{
+  const { PROMOTE_RATING_SHARE, promoteRatingBudget, ratingBuyAllowed } = await import("../lib/promoteDetails.js");
+  eq(PROMOTE_RATING_SHARE, 0.5, "promotion's share of the shared details_enterprise line is one half");
+  eq(promoteRatingBudget(950), 475, "on the 950 free line promotion may buy at most 475 ratings a month");
+  eq(promoteRatingBudget(0), 0, "a zero or missing line yields no budget");
+  eq(promoteRatingBudget("nope"), 0, "a non-numeric line yields no budget");
+  ok(ratingBuyAllowed({ used: 0, cap: 950 }, 0, 950) === true, "fresh month: a rating buy is allowed");
+  ok(ratingBuyAllowed({ used: 474, cap: 950 }, 0, 950) === true, "one under the share: allowed");
+  ok(ratingBuyAllowed({ used: 474, cap: 950 }, 1, 950) === false, "the run's own buys count toward the share (474 read + 1 bought = 475, refused)");
+  ok(ratingBuyAllowed({ used: 475, cap: 950 }, 0, 950) === false, "at the share: refused, the other 475 stay for placeDetails and the refresh");
+  ok(ratingBuyAllowed({ used: 950, cap: 950 }, 0, 950) === false, "a full line is refused regardless");
+  ok(ratingBuyAllowed(null, 0, 950) === false, "an unreadable ledger fails CLOSED: no read, no buy (the place still promotes from CORE)");
+  ok(ratingBuyAllowed({ used: "x" }, 0, 950) === false, "a malformed ledger row fails closed too");
+  // Both callers consult the share BEFORE taking the ledger grant, so a refused
+  // share costs nothing — the `&&` order is the guard.
+  const { readFileSync } = await import("node:fs");
+  const strip = (t) => t.replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  const route = strip(readFileSync(new URL("../app/api/cron/promote-index/route.js", import.meta.url), "utf8"));
+  const worker = strip(readFileSync(new URL("./promote-worker.mjs", import.meta.url), "utf8"));
+  ok(/!hasIndexRating\(sig\) && ratingBuyAllowed\(ratingUsage, ratingBought, ratingFreeLine\) && \(await spendAllowCapped\(RATING_SKU, monthCap\)\)/.test(route), "cron: the share check runs before the Enterprise ledger take");
+  ok(/const ratingUsage = await readLedgerUsage\(RATING_SKU\)/.test(route), "cron: the ledger row is read once per run, not per place");
+  ok(/!hasIndexRating\(sig\) && ratingBuyAllowed\(ratingUsage, ratingBought, ratingFreeLine\) && \(await spendAllowCapped\(RATING_SKU, MONTH_CAP\)\)/.test(worker), "worker: the share check runs before the Enterprise ledger take");
+  ok(/mask = RATING_DETAILS_MASK; ratingBought\+\+;/.test(worker) && /mask = RATING_DETAILS_MASK; ratingBought\+\+;/.test(route), "both callers count their own buys toward the share");
+}
+
 console.log(`test-promote-details: OK (${pass} checks)`);

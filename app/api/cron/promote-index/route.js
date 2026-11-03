@@ -71,7 +71,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse, budgetLimitNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../../../../lib/promoteDetails";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -353,8 +353,13 @@ export async function GET(req) {
   let quotaKind = null;     // "quota_daily" | "rate_limited" once Google says no
 
   let budgetExhausted = false;
-  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, its own free allowance)
-  let ratingSkipped = 0; // ... and could not (Enterprise ledger said no) — promoted from CORE, no stars yet
+  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, within promotion's half of the line)
+  let ratingSkipped = 0; // ... and could not (promotion's share spent, or the Enterprise ledger said no) — promoted from CORE, no stars yet
+  // Promotion's share of the shared Enterprise line (lib/promoteDetails.js
+  // PROMOTE_RATING_SHARE): read the month's usage ONCE per run; past the share,
+  // no rating buys this run. The ledger's own cap still applies underneath.
+  const ratingUsage = await readLedgerUsage(RATING_SKU);
+  const ratingFreeLine = effectiveCap(RATING_SKU, monthCap);
   for (const item of claimed) {
     if (budgetExhausted) { released.push(item.place_id); continue; }
     if (quotaKind) { quotaReleased.push(item.place_id); continue; }
@@ -368,7 +373,7 @@ export async function GET(req) {
     // place in this batch would be refused too, so stop asking and hand them back.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, monthCap))) {
+    if (!hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine) && (await spendAllowCapped(RATING_SKU, monthCap))) {
       mask = RATING_DETAILS_MASK; ratingBought++;
     } else {
       if (!hasIndexRating(sig)) ratingSkipped++;
