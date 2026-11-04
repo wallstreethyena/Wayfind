@@ -60,15 +60,51 @@
       "verification": "This is the same Commons file already verified and stored in Wayfind's wf_place_photo table for this place (status active): the car's own \"Museum Gift Shop / Ticket Office\" sign is an unambiguous match, and no different qualifying Commons file for this museum was found.",
       "sameAsCardPhoto": true,
       "reviewedAt": "2026-09-23"
+    },
+    "Mote Marine Laboratory": {
+      "src": "/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The modern curved-roof exterior of Mote Marine Laboratory in Sarasota with an entrance sign and flags out front",
+      "caption": "The Mote Marine Laboratory building in Sarasota, home to the aquarium and shark tank this guide recommends.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJrXZ3LLxqw4gRjYTBNBMgJnA",
+      "verification": "File title 'FL Sarasota Mote Marine Lab' and Commons category 'Mote Marine Laboratory' both confirm the exact place named in the pick. Not geotagged. Reused from the already-reviewed things-to-do-sarasota pick record (same exact venue, same licence-ledger row, no new image fetched); placeId bound from this guide's gap record.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23",
+      "reuseReason": "Same venue (Mote Marine Laboratory, Sarasota) already carries a reviewed, ledger-verified CC BY-SA 4.0 Commons photo in another published guide; reused file and record verbatim."
+    },
+    "Van Wezel Performing Arts Hall": {
+      "src": "/guides/picks/sarasota-rainy-day/van-wezel-performing-arts-hall.webp",
+      "width": 1280,
+      "height": 853,
+      "alt": "The Van Wezel Performing Arts Hall in Sarasota, its lavender shell-shaped hall and tower carrying the Van Wezel Performing Arts Hall sign, with a metal sculpture to the right",
+      "caption": "The Van Wezel Performing Arts Hall on Sarasota's bayfront.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized to WebP",
+      "sourceKind": "commons",
+      "placeId": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
+      "verification": "The building carries a readable \"VAN WEZEL Performing Arts Hall\" sign, confirming the exact venue. Viewed directly 2026-11-03. Licence re-checked at Commons via the licence-evidence ledger.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-03",
+      "reuseReason": "Reuses the Commons file already recorded in the 2026-11-01 photo batch (supabase/photo-batches/2026-11-01/apply.sql, christmas_photo_gallery entry xmas_24cdf65b2a131be6.jpg for place ChIJew4bcA9Aw4gR3bU-SA7qAgU, attribution Ebyabe CC BY SA 3.0); the batch JPG was only resized to WebP, no new image fetched."
     }
   },
   "gaps": {
-    "Mote Marine Laboratory": {
-      "reason": "google-only",
-      "placeId": "ChIJrXZ3LLxqw4gRjYTBNBMgJnA",
-      "needsPermissionFrom": "Mote Marine Laboratory",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
     "Sarasota Art Museum": {
       "reason": "google-only",
       "placeId": "ChIJx1DBNl1Aw4gR6Zi9XjSh7r4",
@@ -91,12 +127,6 @@
       "reason": "google-only",
       "placeId": "ChIJVaN0nNZDw4gRZr-D4qxm-oo",
       "needsPermissionFrom": "Bowlero Gulf Gate",
-      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
-    },
-    "Van Wezel Performing Arts Hall": {
-      "reason": "google-only",
-      "placeId": "ChIJew4bcA9Aw4gR3bU-SA7qAgU",
-      "needsPermissionFrom": "Van Wezel Performing Arts Hall",
       "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
     },
     "Florida Studio Theatre": {
