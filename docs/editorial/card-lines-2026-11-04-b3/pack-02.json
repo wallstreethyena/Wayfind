@@ -1,0 +1,709 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJO82XwLSHk4gREot8bwSy8Q8",
+   "name": "St. Andrews State Park",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park",
+     "source_name": "St. Andrews State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St. Andrews State Park has the Gulf of America on one side and St. Andrews Bay on the other.",
+      "St. Andrews State Park is well-known for sugar white sands and emerald green waters, with over 1.5 miles of beaches on the Gulf of America and Grand Lagoon.",
+      "St. Andrews State Park is at 4607 State Park Lane, Panama City, FL 32408.",
+      "Swimming, snorkeling and surfing are activities at St. Andrews State Park.",
+      "Snorkeling at St. Andrews State Park uses an extensive shoreline and rock jetties to study marine life.",
+      "St. Andrews State Park offers a campground for overnight stays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sugar white sands and emerald green waters with 1.5 miles of beaches",
+    "why_here": "Go for sugar white sands and emerald green waters in Panama City, with swimming, snorkeling and surfing between the Gulf of America, St. Andrews Bay and Grand Lagoon at St. Andrews State Park.",
+    "know_before": "St. Andrews State Park is at 4607 State Park Lane, Panama City, FL 32408.",
+    "local_tip": "Try snorkeling along the extensive shoreline and rock jetties.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St. Andrews State Park has the Gulf of America on one side and St. Andrews Bay on the other.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     },
+     {
+      "claim": "St. Andrews State Park is well-known for sugar white sands and emerald green waters, with over 1.5 miles of beaches on the Gulf of America and Grand Lagoon.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     },
+     {
+      "claim": "St. Andrews State Park is at 4607 State Park Lane, Panama City, FL 32408.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     },
+     {
+      "claim": "Swimming, snorkeling and surfing are activities at St. Andrews State Park.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     },
+     {
+      "claim": "Snorkeling at St. Andrews State Park uses an extensive shoreline and rock jetties to study marine life.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     },
+     {
+      "claim": "St. Andrews State Park offers a campground for overnight stays.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/st-andrews-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpdVdw3h954gRyW8_8JZHsys",
+   "name": "Gatcha",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "video_arcade",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gatcha.us/orlando-fl",
+     "source_name": "Gatcha \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gatcha Orlando has an indoor soft-play gatchaland playground for kids.",
+      "Gatcha Orlando features PLAYPARK, CLAW and SHOP.",
+      "Gatcha is a claw machine arcade with a Clawcade, Playpark and Gatcha Shop in Orlando.",
+      "Gatcha Orlando is at 8001 S Orange Blossom TRL, Orlando, FL 32809.",
+      "Gatcha Orlando is in the Florida Mall in Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Claw machine arcade with an indoor soft-play playground in Orlando",
+    "why_here": "Go for a claw machine arcade in Orlando with a Clawcade, Playpark and Gatcha Shop, plus an indoor soft-play gatchaland playground for kids in the Florida Mall in Orlando.",
+    "know_before": "Gatcha Orlando is at 8001 S Orange Blossom TRL, Orlando, FL 32809.",
+    "local_tip": "Look for PLAYPARK, CLAW and SHOP in Gatcha Orlando.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gatcha.us/orlando-fl"
+     ],
+     "why_here": [
+      "https://www.gatcha.us/orlando-fl"
+     ],
+     "know_before": [
+      "https://www.gatcha.us/orlando-fl"
+     ],
+     "local_tip": [
+      "https://www.gatcha.us/orlando-fl"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gatcha Orlando has an indoor soft-play gatchaland playground for kids.",
+      "source": "https://www.gatcha.us/orlando-fl"
+     },
+     {
+      "claim": "Gatcha Orlando features PLAYPARK, CLAW and SHOP.",
+      "source": "https://www.gatcha.us/orlando-fl"
+     },
+     {
+      "claim": "Gatcha is a claw machine arcade with a Clawcade, Playpark and Gatcha Shop in Orlando.",
+      "source": "https://www.gatcha.us/orlando-fl"
+     },
+     {
+      "claim": "Gatcha Orlando is at 8001 S Orange Blossom TRL, Orlando, FL 32809.",
+      "source": "https://www.gatcha.us/orlando-fl"
+     },
+     {
+      "claim": "Gatcha Orlando is in the Florida Mall in Orlando.",
+      "source": "https://www.gatcha.us/orlando-fl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp1mNoYvB2YgR0grAgPqv3iw",
+   "name": "El Toro Loco Steakhouse Hammocks",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eltoroloco.com/",
+     "source_name": "El Toro Loco Steakhouse Hammocks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Toro Loco Steakhouse has six locations across Miami.",
+      "The Hammocks location is at 10201 Hammocks Blvd, Miami, FL 33196, open Daily 11 AM \u2013 11 PM.",
+      "El Toro Loco Steakhouse offers Signature Meats and In-House Cocktails.",
+      "El Toro Loco Steakhouse offers delivery or pickup.",
+      "El Toro Loco Steakhouse describes itself as serving the finest beef on earth at an affordable price."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steakhouse in Miami serving Signature Meats and In-House Cocktails",
+    "why_here": "Go for Signature Meats and In-House Cocktails at the Hammocks location in Miami, one of six locations across Miami, with the finest beef on earth at an affordable price for the meal.",
+    "know_before": "The Hammocks location is open Daily 11 AM \u2013 11 PM at 10201 Hammocks Blvd, Miami, FL 33196.",
+    "local_tip": "Order delivery or pickup from the Hammocks location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eltoroloco.com/"
+     ],
+     "why_here": [
+      "https://eltoroloco.com/"
+     ],
+     "know_before": [
+      "https://eltoroloco.com/"
+     ],
+     "local_tip": [
+      "https://eltoroloco.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Toro Loco Steakhouse has six locations across Miami.",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "The Hammocks location is at 10201 Hammocks Blvd, Miami, FL 33196, open Daily 11 AM \u2013 11 PM.",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "El Toro Loco Steakhouse offers Signature Meats and In-House Cocktails.",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "El Toro Loco Steakhouse offers delivery or pickup.",
+      "source": "https://eltoroloco.com/"
+     },
+     {
+      "claim": "El Toro Loco Steakhouse describes itself as serving the finest beef on earth at an affordable price.",
+      "source": "https://eltoroloco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiV8UhFDOwogRy63qc7NZ2S0",
+   "name": "Dave & Buster's Tampa - Brandon",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon",
+     "source_name": "Dave & Buster's Tampa - Brandon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dave & Buster's Tampa - Brandon is located at 10209 Estuary Lakes Drive, Tampa, FL 33619.",
+      "Dave & Buster's Tampa - Brandon is an arcade, sports bar and restaurant with a huge arcade.",
+      "Dave & Buster's Tampa - Brandon shows football, basketball and hockey games on screens and massive HDTVs.",
+      "The Eat & Play Combo pairs an entr\u00e9e and a $10 Power Card, starting at $19.99.",
+      "Dave & Buster's Tampa - Brandon offers a full-service bar and a menu for game-day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Arcade, sports bar and restaurant in Tampa with a huge arcade",
+    "why_here": "Go for an arcade, sports bar and restaurant in Tampa with a huge arcade, football, basketball and hockey on massive HDTVs, a full-service bar and a menu built for game-day viewing.",
+    "know_before": "Dave & Buster's Tampa - Brandon is at 10209 Estuary Lakes Drive, Tampa, FL 33619.",
+    "local_tip": "Pair an entr\u00e9e and a $10 Power Card with the Eat & Play Combo.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     ],
+     "why_here": [
+      "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     ],
+     "know_before": [
+      "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     ],
+     "local_tip": [
+      "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dave & Buster's Tampa - Brandon is located at 10209 Estuary Lakes Drive, Tampa, FL 33619.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     },
+     {
+      "claim": "Dave & Buster's Tampa - Brandon is an arcade, sports bar and restaurant with a huge arcade.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     },
+     {
+      "claim": "Dave & Buster's Tampa - Brandon shows football, basketball and hockey games on screens and massive HDTVs.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     },
+     {
+      "claim": "The Eat & Play Combo pairs an entr\u00e9e and a $10 Power Card, starting at $19.99.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     },
+     {
+      "claim": "Dave & Buster's Tampa - Brandon offers a full-service bar and a menu for game-day.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/tampa-brandon"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmToCpQ4J3YgRof6hhxcoTIM",
+   "name": "Bok Tower Gardens",
+   "category": "attractions",
+   "metro": "avon-park-fl",
+   "primary_type": "garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boktowergardens.org/",
+     "source_name": "Bok Tower Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bok Tower Gardens has offered experiences to more than 23 million visitors since 1929",
+      "Bok Tower Gardens is at 1151 Tower Boulevard, Lake Wales, Florida 33853, phone 863-676-1408",
+      "Features include The Singing Tower, Olmsted Gardens & Trails, El Retiro, and Hammock Hollow Children\u2019s Garden",
+      "Bok Tower Gardens is a tobacco free facility"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Singing Tower and Olmsted Gardens & Trails in Lake Wales since 1929",
+    "why_here": "Bok Tower Gardens in Lake Wales has welcomed more than 23 million visitors since 1929, with The Singing Tower, Olmsted Gardens & Trails, El Retiro, and Hammock Hollow Children\u2019s Garden to explore.",
+    "know_before": "Bok Tower Gardens is at 1151 Tower Boulevard, Lake Wales, Florida 33853; phone 863-676-1408.",
+    "local_tip": "See The Singing Tower and Olmsted Gardens & Trails in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boktowergardens.org/"
+     ],
+     "why_here": [
+      "https://boktowergardens.org/"
+     ],
+     "know_before": [
+      "https://boktowergardens.org/"
+     ],
+     "local_tip": [
+      "https://boktowergardens.org/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bok Tower Gardens has offered experiences to more than 23 million visitors since 1929",
+      "source": "https://boktowergardens.org/"
+     },
+     {
+      "claim": "Bok Tower Gardens is at 1151 Tower Boulevard, Lake Wales, Florida 33853, phone 863-676-1408",
+      "source": "https://boktowergardens.org/"
+     },
+     {
+      "claim": "Features include The Singing Tower, Olmsted Gardens & Trails, El Retiro, and Hammock Hollow Children\u2019s Garden",
+      "source": "https://boktowergardens.org/"
+     },
+     {
+      "claim": "Bok Tower Gardens is a tobacco free facility",
+      "source": "https://boktowergardens.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqRsqRJm32YgRFl-qezgIIz0",
+   "name": "Aromas del Peru",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aromasperu.com/",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aromas del Peru is a Peruvian restaurant with locations based out in South Florida",
+      "Aromas del Peru describes spreading gastronomy from Costa, Sierra and Selva abroad",
+      "Locations listed include Coral Gables, Kendall, West Miami, The Hammocks, Palmetto Bay, and Pompano Beach",
+      "Menu includes Ceviche Classico"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian restaurant in South Florida for Ceviche Classico",
+    "why_here": "Aromas del Peru is a Peruvian restaurant in South Florida spreading gastronomy from Costa, Sierra and Selva abroad, with Ceviche Classico on the menu and several locations listed.",
+    "know_before": "Locations listed include Coral Gables, Kendall, West Miami, The Hammocks, Palmetto Bay, and Pompano Beach.",
+    "local_tip": "Start with Ceviche Classico from the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aromasperu.com/"
+     ],
+     "why_here": [
+      "https://aromasperu.com/"
+     ],
+     "know_before": [
+      "https://aromasperu.com/"
+     ],
+     "local_tip": [
+      "https://aromasperu.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aromas del Peru is a Peruvian restaurant with locations based out in South Florida",
+      "source": "https://aromasperu.com/"
+     },
+     {
+      "claim": "Aromas del Peru describes spreading gastronomy from Costa, Sierra and Selva abroad",
+      "source": "https://aromasperu.com/"
+     },
+     {
+      "claim": "Locations listed include Coral Gables, Kendall, West Miami, The Hammocks, Palmetto Bay, and Pompano Beach",
+      "source": "https://aromasperu.com/"
+     },
+     {
+      "claim": "Menu includes Ceviche Classico",
+      "source": "https://aromasperu.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnYQbRWpw54gRG5yw0l4AU-8",
+   "name": "Loews Portofino Bay Hotel at Universal Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.loewshotels.com/portofino-bay-hotel",
+     "source_name": "Loews Portofino Bay Hotel at Universal Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Loews Portofino Bay Hotel at Universal Orlando is at 5601 Universal Boulevard, Orlando, 32819, phone 407-503-1000",
+      "Check in: 4PM and Check out: 11AM at Loews Portofino Bay Hotel",
+      "Hotel is Italian-themed after the seaside town of Portofino, Italy, with cobblestone streets and Italian cypress trees",
+      "Hotel has 750 guest rooms including 45 suites, 3 themed swimming pools, and 8 restaurants and lounges",
+      "Guests of the hotel receive exclusive theme park benefits at Universal Orlando",
+      "Harbor Piazza offers espresso, gelato and live music"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian-themed hotel in Orlando with 3 themed swimming pools",
+    "why_here": "Loews Portofino Bay Hotel at Universal Orlando is Italian-themed after Portofino, Italy, with cobblestone streets, Italian cypress trees, 3 themed swimming pools, and exclusive theme park benefits for guests.",
+    "know_before": "Check in: 4PM; Check out: 11AM; address 5601 Universal Boulevard, Orlando, 32819.",
+    "local_tip": "Enjoy espresso or gelato in Harbor Piazza with live music.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.loewshotels.com/portofino-bay-hotel"
+     ],
+     "why_here": [
+      "https://www.loewshotels.com/portofino-bay-hotel"
+     ],
+     "know_before": [
+      "https://www.loewshotels.com/portofino-bay-hotel"
+     ],
+     "local_tip": [
+      "https://www.loewshotels.com/portofino-bay-hotel"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Loews Portofino Bay Hotel at Universal Orlando is at 5601 Universal Boulevard, Orlando, 32819, phone 407-503-1000",
+      "source": "https://www.loewshotels.com/portofino-bay-hotel"
+     },
+     {
+      "claim": "Check in: 4PM and Check out: 11AM at Loews Portofino Bay Hotel",
+      "source": "https://www.loewshotels.com/portofino-bay-hotel"
+     },
+     {
+      "claim": "Hotel is Italian-themed after the seaside town of Portofino, Italy, with cobblestone streets and Italian cypress trees",
+      "source": "https://www.loewshotels.com/portofino-bay-hotel"
+     },
+     {
+      "claim": "Hotel has 750 guest rooms including 45 suites, 3 themed swimming pools, and 8 restaurants and lounges",
+      "source": "https://www.loewshotels.com/portofino-bay-hotel"
+     },
+     {
+      "claim": "Guests of the hotel receive exclusive theme park benefits at Universal Orlando",
+      "source": "https://www.loewshotels.com/portofino-bay-hotel"
+     },
+     {
+      "claim": "Harbor Piazza offers espresso, gelato and live music",
+      "source": "https://www.loewshotels.com/portofino-bay-hotel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf2LtZui20YgRGZXS-SvwkNI",
+   "name": "Blue Heaven",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://blueheavenkw.com/",
+     "source_name": "Blue Heaven \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Blue Heaven is located in historic Bahama Village in Key West",
+      "Blue Heaven is at 729 Thomas Street, Key West, Florida 33040, phone 305-296-8666, on the corner of Petronia and Thomas, just two blocks from Duval",
+      "Blue Heaven features indoor & outdoor dining, live entertainment and American, Caribbean and vegetarian cuisine",
+      "Breakfast and Lunch are first come, first served; Dinner walk-ins are welcome, limited reservations available",
+      "Blue Heaven is open daily except on Thanksgiving & Christmas Day, with Breakfast & Lunch 8am \u2013 2:30pm and Dinner 5pm \u2013 10pm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "American, Caribbean and vegetarian cuisine in historic Bahama Village, Key West",
+    "why_here": "Blue Heaven in historic Bahama Village, Key West features indoor & outdoor dining, live entertainment and American, Caribbean and vegetarian cuisine at 729 Thomas Street, just two blocks from Duval.",
+    "know_before": "Breakfast and Lunch are first come, first served at Blue Heaven.",
+    "local_tip": "Dinner walk-ins are welcome, limited reservations available; call 305-296-8666.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://blueheavenkw.com/"
+     ],
+     "why_here": [
+      "https://blueheavenkw.com/"
+     ],
+     "know_before": [
+      "https://blueheavenkw.com/"
+     ],
+     "local_tip": [
+      "https://blueheavenkw.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Blue Heaven is located in historic Bahama Village in Key West",
+      "source": "https://blueheavenkw.com/"
+     },
+     {
+      "claim": "Blue Heaven is at 729 Thomas Street, Key West, Florida 33040, phone 305-296-8666, on the corner of Petronia and Thomas, just two blocks from Duval",
+      "source": "https://blueheavenkw.com/"
+     },
+     {
+      "claim": "Blue Heaven features indoor & outdoor dining, live entertainment and American, Caribbean and vegetarian cuisine",
+      "source": "https://blueheavenkw.com/"
+     },
+     {
+      "claim": "Breakfast and Lunch are first come, first served; Dinner walk-ins are welcome, limited reservations available",
+      "source": "https://blueheavenkw.com/"
+     },
+     {
+      "claim": "Blue Heaven is open daily except on Thanksgiving & Christmas Day, with Breakfast & Lunch 8am \u2013 2:30pm and Dinner 5pm \u2013 10pm",
+      "source": "https://blueheavenkw.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd8hASNOB3YgR2qh0S4MfrWI",
+   "name": "Orlando World Center Marriott",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/",
+     "source_name": "Orlando World Center Marriott \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orlando World Center Marriott is at 8701 World Center Drive, Orlando, Florida, USA, 32821",
+      "Hotel water wonderland includes 7 thrilling water slides, a 575-foot lazy river, and poolside cabanas",
+      "River Falls Water Park features 3 multi-rider waterslides and a 575-foot tube lazy river by way of a zero-entry lagoon"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel in Orlando with River Falls Water Park and 575-foot lazy river",
+    "why_here": "Orlando World Center Marriott in Orlando includes 7 thrilling water slides, a 575-foot lazy river, poolside cabanas, and River Falls Water Park with 3 multi-rider waterslides and a zero-entry lagoon.",
+    "know_before": "Orlando World Center Marriott is at 8701 World Center Drive, Orlando, Florida, USA, 32821.",
+    "local_tip": "Float the 575-foot tube lazy river by way of a zero-entry lagoon.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orlando World Center Marriott is at 8701 World Center Drive, Orlando, Florida, USA, 32821",
+      "source": "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     },
+     {
+      "claim": "Hotel water wonderland includes 7 thrilling water slides, a 575-foot lazy river, and poolside cabanas",
+      "source": "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     },
+     {
+      "claim": "River Falls Water Park features 3 multi-rider waterslides and a 575-foot tube lazy river by way of a zero-entry lagoon",
+      "source": "https://www.marriott.com/en-us/hotels/mcowc-orlando-world-center-marriott/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtc0sYey20YgRhl72pVxdOnc",
+   "name": "Conch Republic Seafood Company",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://conchrepublicseafood.com/",
+     "source_name": "Conch Republic Seafood Company \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Conch Republic Seafood Company is at 631 Greene Street, Key West, FL 33040, phone 305-294-4403",
+      "Conch Republic Seafood Company serves fresh dock-to-dish dining and freshest seafood Key West has to offer",
+      "Building was formerly known as the Singleton Fish House and Ice Plant, where Key West Pink Shrimp were shipped",
+      "Conch Republic Seafood Company is Open Daily at 11:30am; closing times vary, so please call",
+      "Happy Hour Daily from 4-7pm at Bar & Patio Only"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh dock-to-dish seafood in Key West at Conch Republic Seafood Company",
+    "why_here": "Conch Republic Seafood Company in Key West serves fresh dock-to-dish dining in the building formerly known as the Singleton Fish House and Ice Plant, with freshest seafood Key West has to offer.",
+    "know_before": "Conch Republic Seafood Company is Open Daily at 11:30am; closing times vary, so please call.",
+    "local_tip": "Happy Hour Daily from 4-7pm, Bar & Patio Only.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://conchrepublicseafood.com/"
+     ],
+     "why_here": [
+      "https://conchrepublicseafood.com/"
+     ],
+     "know_before": [
+      "https://conchrepublicseafood.com/"
+     ],
+     "local_tip": [
+      "https://conchrepublicseafood.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Conch Republic Seafood Company is at 631 Greene Street, Key West, FL 33040, phone 305-294-4403",
+      "source": "https://conchrepublicseafood.com/"
+     },
+     {
+      "claim": "Conch Republic Seafood Company serves fresh dock-to-dish dining and freshest seafood Key West has to offer",
+      "source": "https://conchrepublicseafood.com/"
+     },
+     {
+      "claim": "Building was formerly known as the Singleton Fish House and Ice Plant, where Key West Pink Shrimp were shipped",
+      "source": "https://conchrepublicseafood.com/"
+     },
+     {
+      "claim": "Conch Republic Seafood Company is Open Daily at 11:30am; closing times vary, so please call",
+      "source": "https://conchrepublicseafood.com/"
+     },
+     {
+      "claim": "Happy Hour Daily from 4-7pm at Bar & Patio Only",
+      "source": "https://conchrepublicseafood.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
