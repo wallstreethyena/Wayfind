@@ -234,7 +234,14 @@ for (const s of SCENARIOS) {
 // payloads prove the exact decision functions it relies on are not a pleasant
 // report that always says green.
 {
-  const healthyMenu = posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2026-10-31");
+  // 2026-11-03: "season" (Summer Picks) is now windowed Jun 1 to Aug 31 in lib/posterSeasons.js, so the
+  // off-season fixtures below omit it and two summer controls prove it is required in June to August only.
+  const NO_SUMMER = EXPECTED_VISIBLE_POSTER_IDS.filter((id) => id !== "season");
+  ok(posterMenuDiff(NO_SUMMER, "2026-11-03").missingIds.length === 0 && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS, "2026-11-03").extraIds.includes("season"),
+    "Summer Picks is not required in November and an out of season Summer Picks tile is flagged as unexpected");
+  ok(posterMenuDiff(NO_SUMMER, "2026-07-15").missingIds.includes("season") && posterMenuDiff(EXPECTED_VISIBLE_POSTER_IDS.filter((id) => !["augtober", "christmas", "halloween"].includes(id)), "2026-07-15").missingIds.length === 0,
+    "Summer Picks is required in July");
+  const healthyMenu = posterMenuDiff(NO_SUMMER, "2026-10-31");
   ok(healthyMenu.missingIds.length === 0 && healthyMenu.extraIds.length === 0 && healthyMenu.duplicateIds.length === 0,
     "menu-poster positive control: every required static poster id is accepted");
 
@@ -247,7 +254,7 @@ for (const s of SCENARIOS) {
     "menu-poster contract includes the product-owned geo-gated Coconut Grove sponsor tile");
   ok(OPTIONAL_VISIBLE_POSTER_IDS.includes("rays-world-series-2026"),
     "menu-poster contract includes the product-owned Rays World Series 2026 campaign poster (#1834)");
-  const withOptional = posterMenuDiff([...EXPECTED_VISIBLE_POSTER_IDS, "live-sports", "sponsor-coconut-grove", "rays-world-series-2026"], "2026-10-28");
+  const withOptional = posterMenuDiff([...NO_SUMMER, "live-sports", "sponsor-coconut-grove", "rays-world-series-2026"], "2026-10-28");
   ok(withOptional.missingIds.length === 0 && withOptional.extraIds.length === 0
       && withOptional.optionalPresentIds.includes("live-sports")
       && withOptional.optionalPresentIds.includes("sponsor-coconut-grove")
