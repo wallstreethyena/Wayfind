@@ -13,7 +13,7 @@ import { siteTodayStr } from "../lib/siteTime";
 import ProofVeil from "./components/ProofVeil";
 import { homeProofCopy } from "../lib/locationHonesty";
 import { rankedFor, whyLine } from "../lib/landing";
-import { TOWN_PROFILES } from "../lib/culture";
+import { TOWN_PROFILES } from "../lib/cultureNotes";
 import { TOWN_HUBS } from "../lib/cultureHubs";
 // v7.29 PERF: the "Read the local edit" index is built HERE, on the server,
 // once per revalidation. app/components/LocalEdit.js used to import the whole
