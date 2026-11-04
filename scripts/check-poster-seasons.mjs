@@ -61,7 +61,7 @@ for (const y of [2026, 2027, 2028]) {
 }
 ok(posterSeasonLive("augtober", "garbage") && posterSeasonLive("halloween", ""), "a malformed date fails open (never blanks the track)");
 for (const invalid of [undefined, null, "", "garbage", "2026-1-01", "2026-11-1", "xxxx-11-01"]) ok(!christmasLeads(invalid), `invalid date ${String(invalid)} never promotes Christmas`);
-ok(Object.keys(POSTER_SEASONS).sort().join() === "augtober,christmas,halloween", "the window table holds exactly the three seasonal posters");
+ok(Object.keys(POSTER_SEASONS).sort().join() === "augtober,christmas,halloween,season", "the window table holds exactly the four seasonal posters (Fall, Halloween, Christmas, Summer Picks)");
 
 // The specific calls from the request, through the real predicate
 ok(!railOnPosterTrack(byId.get("augtober"), "2026-08-14") && railOnPosterTrack(byId.get("augtober"), "2026-08-15"), "Fall absent Aug 14, present Aug 15");
@@ -84,7 +84,8 @@ for (const band of DAYPART_IDS) {
   ok(track(band, "2026-12-31")[0] === "christmas", `${band}: Christmas first Dec 31`);
   ok(track(band, "2027-01-01")[0] === "christmas", `${band}: Christmas still first Jan 1 2027`);
   ok(!track(band, "2027-01-02").includes("christmas") && !track(band, "2027-01-02").includes("halloween") && !track(band, "2027-01-02").includes("augtober"), `${band}: all three seasonal posters gone Jan 2 2027`);
-  ok(!track(band, "2027-07-15").some((id) => POSTER_SEASONS[id]), `${band}: no seasonal poster in July`);
+  ok(track(band, "2027-07-15").filter((id) => POSTER_SEASONS[id]).join() === "season", `${band}: July carries only the Summer Picks seasonal poster`);
+  ok(!track(band, "2026-11-03").includes("season") && !track(band, "2027-05-31").includes("season") && track(band, "2027-06-01").includes("season") && track(band, "2027-08-31").includes("season") && !track(band, "2027-09-01").includes("season"), `${band}: Summer Picks absent in November and May 31, present Jun 1 through Aug 31, absent Sep 1`);
   // A mutated band list cannot break the Halloween adjacency
 }
 ok((() => { const o = orderFor("morning", ["a", "halloween", "b", "augtober", "c"]); return o.indexOf("halloween") === o.indexOf("augtober") + 1; })(), "orderFor re-seats halloween next to augtober even if a band list is edited wrongly");

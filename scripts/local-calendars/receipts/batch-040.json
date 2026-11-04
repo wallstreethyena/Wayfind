@@ -1,0 +1,24 @@
+{
+  "project": "gbhtoehdxkzjsmmkisgu",
+  "target": "public.wf_events",
+  "batch": 40,
+  "operation": "insert-only",
+  "sql_sha256": "b06a5d96b5ac327b92f017034b92c82eb6d94053e91d91a6de841b295b9dfad4",
+  "insert_tool_succeeded_at": "2026-11-03T17:10:00Z",
+  "expected_count": 1,
+  "readback_count": 1,
+  "mismatches": [],
+  "published_ids": [
+    "ed-sheeran-loop-tour-tampa-2026"
+  ],
+  "held_ids": [
+    "manual:noah-kahan-tampa"
+  ],
+  "method": "Canonical insert-only SQL (NOT EXISTS on event_id, slug, normalised name + start_date; ON CONFLICT DO NOTHING) run through the authenticated Supabase connector after PR #2154 merged. Readback by event_id returned the row with the Ticketmaster official_ticket_url. CLI --record not run (no Supabase key on the build box); ledger entry written by hand from the readback.",
+  "public_page_verification": {
+    "checked_at": "2026-11-03T17:12:00Z",
+    "url": "https://www.gowayfind.com/florida-events/ed-sheeran-loop-tour-tampa-2026",
+    "http_status": 200,
+    "scope": "HTTP 200 and event name in production HTML"
+  }
+}

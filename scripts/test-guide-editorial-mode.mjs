@@ -23,7 +23,10 @@ import { guideCommerceChrome, isEditorialGuide } from "../lib/guideEditorialMode
 
 const SLUG = "tonights-move-tampa-september-12-2026";
 const TAMPA = "things-to-do-in-tampa-florida";
-const TONIGHT_FILES = ["app/tonight/page.js", "app/tonight/client.js"];
+// 2026-11-03: app/tonight/page.js left this list on purpose. The SEO hubs lane
+// changed its METADATA only (canonical, follow:true, no em dash in the title);
+// the page body and client.js are still the ones the guide-mode work must not touch.
+const TONIGHT_FILES = ["app/tonight/client.js"];
 
 let checks = 0;
 const ok = (value, message) => { assert.ok(value, message); checks++; };
@@ -106,8 +109,8 @@ if (hasOriginMain) {
     ok(main && head && main === head, `${file} stays byte-identical to origin/main`);
     ok(main.length === 40, `${file}: got a real blob SHA, not an empty string`);
   }
-  const tonightDiff = execFileSync("git", ["diff", "--name-only", "origin/main", "--", "app/tonight"], { encoding: "utf8" }).trim();
-  ok(tonightDiff === "", "no app/tonight path differs from origin/main");
+  const tonightDiff = execFileSync("git", ["diff", "--name-only", "origin/main", "--", "app/tonight/client.js"], { encoding: "utf8" }).trim();
+  ok(tonightDiff === "", "app/tonight/client.js does not differ from origin/main");
 }
 
 console.log(`test-guide-editorial-mode: OK — ${checks} assertions; Tonight's Move is editorial; ${TAMPA} keeps commerce chrome; /tonight base comparison ${hasOriginMain ? "passed" : "deferred to GitHub release evidence"}`);

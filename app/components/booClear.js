@@ -10,9 +10,10 @@ export const MAX_COVER = 0.15; // at most 15% of any control, and at most 15% of
 // Text boxes are only allowed to touch him by TEXT_SLOP px (float noise and
 // the empty corner of a paragraph box), never more.
 export const TEXT_SLOP = 2;
-// Fraction of him hanging off the screen edge when he has to tuck away.
-export const TUCK_MIN = 0.45;
-export const TUCK_MAX = 0.8;
+// Fraction of him hanging off the screen edge when he has to tuck away. Kept
+// small (owner 2026-11-03: "I can't see him"): his face always stays on screen.
+export const TUCK_MIN = 0.2;
+export const TUCK_MAX = 0.3;
 
 export function rectOf(x, y, w, h) {
   return { left: x, top: y, right: x + w, bottom: y + h };
@@ -141,7 +142,7 @@ export function perchSpot(r, size, b, controls, max, texts) {
 //   random  up to `tries` random spots in the safe box
 //   gutter  the side gutter nearest `from`, at the clearest height, then the other
 //   grid    every 20px in the safe box, nearest to `from`
-//   edge    TUCKED: partly off the screen edge (45% then deeper, up to 80% of him
+//   edge    TUCKED: partly off the screen edge (20% then deeper, up to 30% of him
 //           hidden), x outside [minX, maxX]. Dense phone pages are text wall to
 //           wall, but text has side padding, so he can hide in the margin and
 //           still show his face. Least intrusive after the in-bounds options
