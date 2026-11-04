@@ -75,5 +75,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2132 Indigenous Restaurant closure",
     "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
+  },
+  {
+    "file": "supabase/migrations/20261103233000_wf_inventory_locality_census_conflicts.sql",
+    "sha256": "f8113000f1acbb476cdb463f83e17dd8c8575a74d4f60f04562f1f33d7e80ab5",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2128 conflict rows: canonical locality after postal_city + matchers (lane claude.exe, owner-approved 2026-11-03)",
+    "reason": "NOT APPLIED. Writes the Census place + county for the 10 #2128 conflict rows (keyed on null before-values, the verified postal_city and the exact point) and clears Scream-A-Geddon locality Dade City (point in no Census place) only where postal_city already holds Dade City. Apply only after 20261103230000 is applied and the postal_city matcher change is deployed. Reverse supabase/data-fixes/20261103233000_wf_inventory_locality_census_conflicts_REVERSE.sql."
   }
 ]
