@@ -48,6 +48,11 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(santaMessage("/events", true) === HOST_LINE && HOST_LINE === "I handle the nice list. Wayfind handles your next plan.", "the first page of a session gets the host line");
   ok(santaMessage("/events", false) === "", "an ordinary page later in the session gets no unsolicited line");
   ok(/3 Christmas picks/.test(santaMessage("/christmas-in-florida", false)) && /guide/.test(santaMessage("/guides/x", false)), "the Christmas page and guides get one line about their own action");
+  for (const full of [HOST_LINE, santaMessage("/christmas-in-florida", false), santaMessage("/guides/x", false)]) {
+    const sh = mod.shortMessage(full);
+    ok(sh !== full && sh.length <= 32 && !/[–—-]/.test(sh), "every unsolicited line has a short, dash free form for narrow docks: " + sh);
+  }
+  ok(mod.shortMessage("anything else") === "anything else", "an unknown line is kept as is");
   ok(SAID_MAX === 2 && MSG_MS <= 9000, "at most 2 unsolicited lines per session, each resting after a few seconds");
   for (const t of [HOST_LINE, santaMessage("/christmas-in-florida", false), santaMessage("/guides/x", false)]) {
     ok(!/[–—-]/.test(t) && !/\b(?:cheapest|discount|sold out|only \d|hurry|last chance|near you now)\b/i.test(t), "no dashes and no unverified urgency, price or availability claims: " + t);
@@ -100,6 +105,7 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(/timers\.current\.forEach\(\(id\) => clearTimeout\(id\)\)/.test(dock) && /return \(\) => \{ ids\.forEach/.test(dock), "every timer is tracked and cleared on unmount and on page change");
   ok(!/requestAnimationFrame|addEventListener\("scroll"/.test(dock), "no animation frame loop and no scroll listener: scrolling cannot move him");
   ok(/createPortal\(/.test(dock) && /document\.body\s*\)/.test(dock), "rendered into <body>, outside the page's scroll box");
+  ok(/el\.scrollHeight > el\.clientHeight \+ 1/.test(dock) && /msg=\{msg && tight \? shortMessage\(msg\) : msg\}/.test(dock) && /removeEventListener\("resize", onResize\)/.test(dock), "a line that overflows the dock is swapped for its short form (measured, with its one resize listener removed)");
   ok(/sessionStorage/.test(dock) && /SAID_KEY/.test(dock) && /said < SAID_MAX/.test(dock), "the unsolicited line cap is kept in the tab session, so it survives navigation");
   ok(/track\("santa_dock_cta_click"/.test(dock) && /track\("santa_dock_open"/.test(dock) && /captureOrQueue\(window/.test(dock) && !/track\("santa_dock_[a-z_]+", \{[^}]*\b(?:act|blink|antic)\b\s*[:,}]/.test(dock) && !/track\([^)]*doAct|doAct\([^)]*track/.test(dock), "engagement goes through the site's one capture path; animation cycles are never tracked");
   const boo = strip(read("app/components/BooCompanion.js"));
