@@ -90,6 +90,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-license-and-the-limits.webp` — florida-scalloping-crystal-river-homosassa: The license and the limits. [ChrisNovak](https://commons.wikimedia.org/wiki/File:Monkey_Island_on_Homosassa_River,_Florida_USA,_Jan_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-season-and-why-you-check-the-exact-dates.webp` — florida-scalloping-crystal-river-homosassa: The season, and why you check the exact dates. [eutrophication&hypoxia](https://www.flickr.com/photos/48722974@N07/5686916873); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## florida-thanksgiving-weekend-2026
+
+- `/guides/picks/florida-thanksgiving-weekend-2026/daytona-speedway-frontstretch.webp` — florida-thanksgiving-weekend-2026: Daytona Turkey Run. [Dough4872](https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## florida-winter-beaches-2026
 
 - `/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp` — florida-winter-beaches-2026: Bahia Honda State Park. [Matthew Wu](https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8); [Unsplash License](https://unsplash.com/license).

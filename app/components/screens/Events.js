@@ -4,7 +4,7 @@
 // they use stay in home.js — other surfaces share them — and arrive via ctx.
 import { useEffect, useRef, useState } from "react";
 import { C, TARGET } from "../kit";
-import * as Culture from "../../../lib/culture";
+import { resolveMetro } from "../../../lib/culture";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 import { eventPriceFact } from "../../../lib/eventPriceFact.js";
 import { fallSkinLive } from "../../../lib/fallSkin.js";
@@ -275,7 +275,7 @@ export default function EventsScreen({ ctx }) {
     <div>
       <div style={{ paddingTop: 4, marginBottom: 12 }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
-        {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
+        {(() => { const _cm = resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{seasonLive ? "Fall and Halloween plans, bookable tours, concerts, comedy, theater, sports, and local happenings near you" : "Bookable tours, concerts, comedy, theater, sports, and local happenings near you"}</div>
       </div>
 
