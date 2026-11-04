@@ -136,12 +136,12 @@ try {
     const bounds = await page.locator("#root").boundingBox();
     assert.ok(badge.x >= bounds.x && badge.x + badge.width <= bounds.x + bounds.width);
     assert.ok(badge.height <= 16, "credit remains a compact single line without box padding");
-    assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "12px", "credit preserves Google's minimum text size");
+    assert.equal(await page.locator("[data-card-photo-credit] a").evaluate((el) => getComputedStyle(el).fontSize), "9.5px", "credit is the tiny on-photo line");
     const creditStyle = await page.locator("[data-card-photo-credit] a").evaluate((el) => { const s = getComputedStyle(el); return { background: s.backgroundColor, color: s.color, padding: s.padding, halo: s.textShadow }; });
     assert.equal(creditStyle.background, "rgba(0, 0, 0, 0)", "source label has no background rectangle");
-    assert.equal(creditStyle.color, "rgb(255, 255, 255)", "source label stays white");
+    assert.equal(creditStyle.color, "rgba(255, 255, 255, 0.6)", "source label is muted white");
     assert.equal(creditStyle.padding, "0px", "source label has no box padding");
-    assert.match(creditStyle.halo, /rgb\(0, 0, 0\)/, "white credit has a dark text halo for photo contrast");
+    assert.match(creditStyle.halo, /rgba\(0, 0, 0, 0\.65\)/, "credit has a soft text shadow");
     const content = await page.locator("#card-content").boundingBox();
     await page.mouse.click(content.x + content.width / 2, content.y + content.height / 2);
     assert.equal(await page.evaluate(() => window.placeOpenActivations), 1, "ordinary card content still opens place details");
@@ -161,6 +161,16 @@ try {
     await linkedCredit.waitFor();
     assert.match(lastPhotoRequest, /nospend=1/);
     assert.equal(await linkedCredit.evaluate((el) => el.closest("a, [role=link]") === null && el.parentElement === document.body), true, "credit control never nests inside a navigation target");
+    const linkedPlace = await linkedCredit.evaluate((el) => {
+      const img = document.querySelector("#root img");
+      const c = el.getBoundingClientRect();
+      const i = img.getBoundingClientRect();
+      const s = getComputedStyle(el);
+      return { inside: c.top >= i.top && c.bottom <= i.bottom + 1 && c.left >= i.left - 1, bg: s.backgroundColor, size: s.fontSize };
+    });
+    assert.equal(linkedPlace.inside, true, "linked Google credit sits inside the photo");
+    assert.equal(linkedPlace.size, "9.5px", "linked Google credit is the tiny line");
+    assert.equal(linkedPlace.bg, "rgba(0, 0, 0, 0)", "linked Google credit has no background chip");
     assert.equal(await page.locator("#root a a, #root a button").count(), 0, "no nested interactive links/buttons");
     await page.locator("#root > a > img").click({ position: { x: 20, y: 20 } });
     assert.equal(await page.evaluate(() => linkedNavigations), 1, "image still follows the linked card");

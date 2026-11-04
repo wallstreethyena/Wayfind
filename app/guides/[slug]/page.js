@@ -393,6 +393,8 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
+import GuideNeutralFigure from "../../components/GuideNeutralFigure.js";
+import { guideFinalRung, guideUsesNeutralFallback } from "../../../lib/guideNeutralFallback.js";
 import { guideHero } from "../../../lib/guideHero";
 import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -640,7 +642,11 @@ export default async function GuidePage({ params }) {
   const curatedPickImages = g.picks.map((pick) => guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name));
   const fallbackPickImages = [];
   const editorialImages = new Map();
-  const missingPickPhotos = g.picks
+  // A guide that opted into the neutral fallback never reaches for a place photo
+  // it holds only through Google: no approved exact photo means the neutral tile.
+  const neutralGuide = guideUsesNeutralFallback(g);
+  const neutralPickFigures = [];
+  const missingPickPhotos = (neutralGuide ? [] : g.picks)
     .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
@@ -670,13 +676,15 @@ export default async function GuidePage({ params }) {
     // its topic, visibly labelled and credited under the shared figure.
     g.picks.forEach((pick, i) => {
       if (!curatedPickImages[i] && !editorialImages.get(pickPlaceIds[i])) {
-        const ctx = guideContextPhoto(params.slug, pick, g, { usedSrc });
-        curatedPickImages[i] = ctx;
-        fallbackPickImages[i] = ctx;
+        const rung = guideFinalRung(params.slug, pick, g, { usedSrc });
+        if (rung.kind === "neutral") { neutralPickFigures[i] = rung.media; return; }
+        curatedPickImages[i] = rung.media;
+        fallbackPickImages[i] = rung.media;
       }
     });
     g.picks.forEach((pick, i) => {
-      if (!fallbackPickImages[i]) {
+      // A neutral guide never swaps a failed exact photo for a context photo.
+      if (!fallbackPickImages[i] && !neutralGuide) {
         fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc: new Set(usedSrc) });
       }
     });
@@ -899,7 +907,7 @@ export default async function GuidePage({ params }) {
         .wf-gd-list{list-style:none;margin:0;padding:0}
         .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #2D3748;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
         .wf-gd-card:hover{border-color:#FBBF24}
-        .wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}
+        .wf-gd-photo{position:relative;display:block;width:fit-content}.wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}.wf-gd-credit{position:absolute;left:4px;right:4px;bottom:4px;margin:0;color:rgba(255,255,255,.6);font-size:9px;font-weight:500;line-height:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65)}
         .wf-gd-body{min-width:0}
         .wf-gd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
         .wf-gd-title{font-size:16px;font-weight:750;color:#F1F5F9;overflow-wrap:anywhere}
@@ -1149,6 +1157,7 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}

@@ -1,0 +1,2200 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJcUYRsd1-54gRCs-DHwnVg5s",
+   "name": "Hard Rock Cafe Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cafe.hardrock.com/orlando/",
+     "source_name": "Hard Rock Cafe Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at Universal Orlando Resort in the CityWalk entertainment complex",
+      "Hard Rock Cafe Orlando is the biggest HRC in the world",
+      "The site includes Hard Rock Live Orlando, a 3,000-person concert/party venue",
+      "Full menu hours are Mon - Sun 11:00 AM - 12:00 AM",
+      "Memorabilia includes the suit Elvis wore in the film Viva Las Vegas"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Biggest HRC in the world at Universal Orlando Resort in CityWalk",
+    "why_here": "Go for dining inside the biggest HRC in the world at Universal Orlando Resort in the CityWalk entertainment complex, with Hard Rock Live Orlando on site and memorabilia on display in the cafe.",
+    "know_before": "Full menu hours are Mon - Sun 11:00 AM - 12:00 AM.",
+    "local_tip": "Look for the suit Elvis wore in Viva Las Vegas while dining.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cafe.hardrock.com/orlando/"
+     ],
+     "why_here": [
+      "https://cafe.hardrock.com/orlando/"
+     ],
+     "know_before": [
+      "https://cafe.hardrock.com/orlando/"
+     ],
+     "local_tip": [
+      "https://cafe.hardrock.com/orlando/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at Universal Orlando Resort in the CityWalk entertainment complex",
+      "source": "https://cafe.hardrock.com/orlando/"
+     },
+     {
+      "claim": "Hard Rock Cafe Orlando is the biggest HRC in the world",
+      "source": "https://cafe.hardrock.com/orlando/"
+     },
+     {
+      "claim": "The site includes Hard Rock Live Orlando, a 3,000-person concert/party venue",
+      "source": "https://cafe.hardrock.com/orlando/"
+     },
+     {
+      "claim": "Full menu hours are Mon - Sun 11:00 AM - 12:00 AM",
+      "source": "https://cafe.hardrock.com/orlando/"
+     },
+     {
+      "claim": "Memorabilia includes the suit Elvis wore in the film Viva Las Vegas",
+      "source": "https://cafe.hardrock.com/orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ38vfqzOB3YgRl9gSUQ9WgUk",
+   "name": "The Loop Kissimmee",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.experiencetheloop.com/",
+     "source_name": "The Loop Kissimmee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Over 40 stores including 10 restaurants & Regal Cinema 16",
+      "Address is 3208 North John Young Parkway, Kissimmee, FL 34741",
+      "Hours are Mon. - Sat.: 10:00 a.m. to 9:30 p.m. and Sunday: 11:00 a.m. to 6:00 p.m.",
+      "Holiday hours vary per store"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 40 stores with 10 restaurants and Regal Cinema 16 in Kissimmee",
+    "why_here": "Go to shop at over 40 stores, eat at 10 restaurants, and see a film at Regal Cinema 16 in one outdoor stop at 3208 North John Young Parkway in Kissimmee.",
+    "know_before": "Hours are Mon. - Sat.: 10:00 a.m. to 9:30 p.m. and Sunday: 11:00 a.m. to 6:00 p.m.",
+    "local_tip": "Holiday hours vary per store, so check ahead on holidays.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.experiencetheloop.com/"
+     ],
+     "why_here": [
+      "https://www.experiencetheloop.com/"
+     ],
+     "know_before": [
+      "https://www.experiencetheloop.com/"
+     ],
+     "local_tip": [
+      "https://www.experiencetheloop.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Over 40 stores including 10 restaurants & Regal Cinema 16",
+      "source": "https://www.experiencetheloop.com/"
+     },
+     {
+      "claim": "Address is 3208 North John Young Parkway, Kissimmee, FL 34741",
+      "source": "https://www.experiencetheloop.com/"
+     },
+     {
+      "claim": "Hours are Mon. - Sat.: 10:00 a.m. to 9:30 p.m. and Sunday: 11:00 a.m. to 6:00 p.m.",
+      "source": "https://www.experiencetheloop.com/"
+     },
+     {
+      "claim": "Holiday hours vary per store",
+      "source": "https://www.experiencetheloop.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJayhIp7i12YgRW94lbHWSNas",
+   "name": "Caf\u00e9 Bastille Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cafebastilledowntown.com/",
+     "source_name": "Caf\u00e9 Bastille Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caf\u00e9 Bastille Miami Beach is at 538 Washington Ave. Miami Beach, 33139",
+      "Caf\u00e9 Bastille serves brunch and lunch with a French experience in Miami",
+      "Menu sections include FRENCH TOASTS, PANCAKES & WAFFLES, BENEDICTS and OMELETTE PLATTERS",
+      "Hours are Monday to Friday 8:00am - 4:00pm and Saturday & Sunday 8:00 am - 5:00pm",
+      "Walk-ins for brunch"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French brunch, FRENCH TOASTS and BENEDICTS in Miami Beach",
+    "why_here": "Come for brunch and lunch with a French experience in Miami, choosing from FRENCH TOASTS, PANCAKES & WAFFLES, BENEDICTS and OMELETTE PLATTERS at 538 Washington Ave. in Miami Beach.",
+    "know_before": "Walk-ins for brunch; hours are Monday to Friday 8:00am - 4:00pm.",
+    "local_tip": "Visit Saturday & Sunday until 5:00pm for brunch or lunch.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cafebastilledowntown.com/"
+     ],
+     "why_here": [
+      "https://cafebastilledowntown.com/"
+     ],
+     "know_before": [
+      "https://cafebastilledowntown.com/"
+     ],
+     "local_tip": [
+      "https://cafebastilledowntown.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caf\u00e9 Bastille Miami Beach is at 538 Washington Ave. Miami Beach, 33139",
+      "source": "https://cafebastilledowntown.com/"
+     },
+     {
+      "claim": "Caf\u00e9 Bastille serves brunch and lunch with a French experience in Miami",
+      "source": "https://cafebastilledowntown.com/"
+     },
+     {
+      "claim": "Menu sections include FRENCH TOASTS, PANCAKES & WAFFLES, BENEDICTS and OMELETTE PLATTERS",
+      "source": "https://cafebastilledowntown.com/"
+     },
+     {
+      "claim": "Hours are Monday to Friday 8:00am - 4:00pm and Saturday & Sunday 8:00 am - 5:00pm",
+      "source": "https://cafebastilledowntown.com/"
+     },
+     {
+      "claim": "Walk-ins for brunch",
+      "source": "https://cafebastilledowntown.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwZ_OzCTH2YgRhu2ty6WPdtU",
+   "name": "El Toro Loco Steakhouse Kendall",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eltorolocolocations.com/",
+     "source_name": "El Toro Loco Steakhouse Kendall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kendall location is 10501 SW 88 St Suite 101, Miami FL 33176",
+      "Kendall hours are Daily 11 AM - 11 PM",
+      "Kendall phone is (786) 615-4521",
+      "Menu includes Signature Meats and In-House Cocktails",
+      "Six locations across Miami"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kendall steakhouse serving Signature Meats and In-House Cocktails",
+    "why_here": "Go to the Kendall location at 10501 SW 88 St Suite 101 for Signature Meats and In-House Cocktails, at one of six locations across Miami serving lunch and dinner daily.",
+    "know_before": "Kendall hours are Daily 11 AM - 11 PM.",
+    "local_tip": "Call Kendall at (786) 615-4521 before visiting.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eltorolocolocations.com/"
+     ],
+     "why_here": [
+      "https://eltorolocolocations.com/"
+     ],
+     "know_before": [
+      "https://eltorolocolocations.com/"
+     ],
+     "local_tip": [
+      "https://eltorolocolocations.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kendall location is 10501 SW 88 St Suite 101, Miami FL 33176",
+      "source": "https://eltorolocolocations.com/"
+     },
+     {
+      "claim": "Kendall hours are Daily 11 AM - 11 PM",
+      "source": "https://eltorolocolocations.com/"
+     },
+     {
+      "claim": "Kendall phone is (786) 615-4521",
+      "source": "https://eltorolocolocations.com/"
+     },
+     {
+      "claim": "Menu includes Signature Meats and In-House Cocktails",
+      "source": "https://eltorolocolocations.com/"
+     },
+     {
+      "claim": "Six locations across Miami",
+      "source": "https://eltorolocolocations.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdUM1zGK12YgRGANjw8M5oFk",
+   "name": "Mama's Taco South Beach Mexican Restaurant Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mamastacosouthbeach.com/",
+     "source_name": "Mama's Taco South Beach Mexican Restaurant Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located in Miami Beach, FL at 710 Washington Ave Apt 3",
+      "Street Tacos & Mexican Food on Washington Ave, Miami Beach",
+      "Known for Birria Tacos, Fish Tacos and Guacamole",
+      "Serves Breakfast, Lunch, and Dinner",
+      "Offers Delivery and Takeout",
+      "Book your table online through OpenTable"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Street Tacos & Mexican Food on Washington Ave, Miami Beach",
+    "why_here": "Go for Street Tacos & Mexican Food on Washington Ave in Miami Beach, with Birria Tacos, Fish Tacos and Guacamole served for Breakfast, Lunch, and Dinner at a casual local stop.",
+    "know_before": "Offers Delivery and Takeout.",
+    "local_tip": "Book your table online through OpenTable.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mamastacosouthbeach.com/"
+     ],
+     "why_here": [
+      "https://mamastacosouthbeach.com/"
+     ],
+     "know_before": [
+      "https://mamastacosouthbeach.com/"
+     ],
+     "local_tip": [
+      "https://mamastacosouthbeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located in Miami Beach, FL at 710 Washington Ave Apt 3",
+      "source": "https://mamastacosouthbeach.com/"
+     },
+     {
+      "claim": "Street Tacos & Mexican Food on Washington Ave, Miami Beach",
+      "source": "https://mamastacosouthbeach.com/"
+     },
+     {
+      "claim": "Known for Birria Tacos, Fish Tacos and Guacamole",
+      "source": "https://mamastacosouthbeach.com/"
+     },
+     {
+      "claim": "Serves Breakfast, Lunch, and Dinner",
+      "source": "https://mamastacosouthbeach.com/"
+     },
+     {
+      "claim": "Offers Delivery and Takeout",
+      "source": "https://mamastacosouthbeach.com/"
+     },
+     {
+      "claim": "Book your table online through OpenTable",
+      "source": "https://mamastacosouthbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJYiDRgcx2YgRWQ9Vze8pUXk",
+   "name": "Lion Country Safari",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lioncountrysafari.com/",
+     "source_name": "Lion Country Safari \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Situated on over 300 acres of natural area and home to hundreds of animals",
+      "Hours are OPEN DAILY 10:00AM - 5:00PM, last car admitted into the preserve at 4:00PM",
+      "Closed Thanksgiving",
+      "Large herds of animals roam wide-open, naturalistic habitats in the drive-through wildlife park"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Drive-through safari on over 300 acres with hundreds of animals",
+    "why_here": "Go to drive through over 300 acres of natural area where large herds of animals roam wide-open, naturalistic habitats, and see hundreds of animals from the car in the preserve.",
+    "know_before": "Last car admitted into the preserve at 4:00PM; hours are 10:00AM - 5:00PM.",
+    "local_tip": "Closed Thanksgiving.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lioncountrysafari.com/"
+     ],
+     "why_here": [
+      "https://www.lioncountrysafari.com/"
+     ],
+     "know_before": [
+      "https://www.lioncountrysafari.com/"
+     ],
+     "local_tip": [
+      "https://www.lioncountrysafari.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Situated on over 300 acres of natural area and home to hundreds of animals",
+      "source": "https://www.lioncountrysafari.com/"
+     },
+     {
+      "claim": "Hours are OPEN DAILY 10:00AM - 5:00PM, last car admitted into the preserve at 4:00PM",
+      "source": "https://www.lioncountrysafari.com/"
+     },
+     {
+      "claim": "Closed Thanksgiving",
+      "source": "https://www.lioncountrysafari.com/"
+     },
+     {
+      "claim": "Large herds of animals roam wide-open, naturalistic habitats in the drive-through wildlife park",
+      "source": "https://www.lioncountrysafari.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ49bn4Vm32YgRh9MeU2fSIy0",
+   "name": "CASA NEOS",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.casa-neos.com/home",
+     "source_name": "CASA NEOS \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CASA NEOS is a Mediterranean waterfront restaurant and dock-and-dine destination on the Miami River",
+      "The address is 40 SW North River Dr, Miami, FL 33128",
+      "The venue has a two-level restaurant, an exclusive Beach Club, a Lounge, and a Members-only rooftop overlooking the Miami skyline",
+      "Chefs source ingredients from local and regional farms to create Mediterranean-inspired dishes with seasonal produce",
+      "The Beach Club is known for its signature Sunset Rituals weekend celebrations",
+      "CASA NEOS was named the No. 1 Best Hidden Gem Restaurant in the US"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean waterfront dining on the Miami River with a Beach Club and Lounge",
+    "why_here": "Go for Mediterranean-inspired dishes made with seasonal produce on the Miami River, with a two-level restaurant, a Beach Club, a Lounge and a rooftop in one waterfront setting.",
+    "know_before": "The address is 40 SW North River Dr, Miami, FL 33128.",
+    "local_tip": "Make reservations for the restaurant before visiting the waterfront destination.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.casa-neos.com/home"
+     ],
+     "why_here": [
+      "https://www.casa-neos.com/home"
+     ],
+     "know_before": [
+      "https://www.casa-neos.com/home"
+     ],
+     "local_tip": [
+      "https://www.casa-neos.com/home"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CASA NEOS is a Mediterranean waterfront restaurant and dock-and-dine destination on the Miami River",
+      "source": "https://www.casa-neos.com/home"
+     },
+     {
+      "claim": "The address is 40 SW North River Dr, Miami, FL 33128",
+      "source": "https://www.casa-neos.com/home"
+     },
+     {
+      "claim": "The venue has a two-level restaurant, an exclusive Beach Club, a Lounge, and a Members-only rooftop overlooking the Miami skyline",
+      "source": "https://www.casa-neos.com/home"
+     },
+     {
+      "claim": "Chefs source ingredients from local and regional farms to create Mediterranean-inspired dishes with seasonal produce",
+      "source": "https://www.casa-neos.com/home"
+     },
+     {
+      "claim": "The Beach Club is known for its signature Sunset Rituals weekend celebrations",
+      "source": "https://www.casa-neos.com/home"
+     },
+     {
+      "claim": "CASA NEOS was named the No. 1 Best Hidden Gem Restaurant in the US",
+      "source": "https://www.casa-neos.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEWSIMvT92IgRSeV6GRY6Xtw",
+   "name": "Aruba Beach Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.arubabeachcafe.com/",
+     "source_name": "Aruba Beach Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aruba Beach Cafe serves Caribbean Seafood located directly on the beach, described as Dining by the Sea",
+      "The cafe offers Live Music & Entertainment 7 days a week, with Caribbean-American cookery, tropical drinks and nightly live music",
+      "Sunday Brunch is served every Sunday from 10am to 12pm",
+      "The cafe is open 7 days a week, with Sunday hours from 10 am to 1 am",
+      "Happy Hour runs 7 Days a week at the bars only",
+      "The address is 1 Commercial Blvd. Lauderdale-by-the-Sea FL 33308"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean seafood directly on the beach with live music 7 days a week",
+    "why_here": "Sit directly on the beach for Caribbean-American food and tropical drinks, with nightly live music and a setting built around dining by the sea in Lauderdale-by-the-Sea.",
+    "know_before": "Sunday Brunch is served every Sunday from 10am to 12pm.",
+    "local_tip": "Happy Hour runs 7 Days a week at the bars only.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.arubabeachcafe.com/"
+     ],
+     "why_here": [
+      "https://www.arubabeachcafe.com/"
+     ],
+     "know_before": [
+      "https://www.arubabeachcafe.com/"
+     ],
+     "local_tip": [
+      "https://www.arubabeachcafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aruba Beach Cafe serves Caribbean Seafood located directly on the beach, described as Dining by the Sea",
+      "source": "https://www.arubabeachcafe.com/"
+     },
+     {
+      "claim": "The cafe offers Live Music & Entertainment 7 days a week, with Caribbean-American cookery, tropical drinks and nightly live music",
+      "source": "https://www.arubabeachcafe.com/"
+     },
+     {
+      "claim": "Sunday Brunch is served every Sunday from 10am to 12pm",
+      "source": "https://www.arubabeachcafe.com/"
+     },
+     {
+      "claim": "The cafe is open 7 days a week, with Sunday hours from 10 am to 1 am",
+      "source": "https://www.arubabeachcafe.com/"
+     },
+     {
+      "claim": "Happy Hour runs 7 Days a week at the bars only",
+      "source": "https://www.arubabeachcafe.com/"
+     },
+     {
+      "claim": "The address is 1 Commercial Blvd. Lauderdale-by-the-Sea FL 33308",
+      "source": "https://www.arubabeachcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQZMMfVP8wogRDILOvqAQOeA",
+   "name": "John's Pass",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://johnspass.com/",
+     "source_name": "John's Pass \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "John's Pass Village & Boardwalk is a waterfront fishing village located on the waterfront at Johns Pass",
+      "Over one hundred merchants inhabit the Village with unique retail shopping, a variety of restaurants, the local fishing fleet, dolphin watching and shelling tours, boat rentals, parasailing and jet skiing",
+      "The beach is a short stroll away from the Village",
+      "The Village is open daily",
+      "The site lists Cruises, Private Charters, Dolphin Watching, Dining, Boat & Jetski Rentals, Accommodations and Fun Shopping",
+      "The Village is conveniently located near St. Petersburg, Clearwater and Tampa"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront fishing village with over one hundred merchants, dining and boat rentals",
+    "why_here": "Walk a waterfront village with over one hundred merchants, restaurants and the local fishing fleet, plus dolphin watching, shelling tours, boat rentals, parasailing and jet skiing nearby.",
+    "know_before": "The Village is open daily, and the beach is a short stroll away.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://johnspass.com/"
+     ],
+     "why_here": [
+      "https://johnspass.com/"
+     ],
+     "know_before": [
+      "https://johnspass.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "John's Pass Village & Boardwalk is a waterfront fishing village located on the waterfront at Johns Pass",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "Over one hundred merchants inhabit the Village with unique retail shopping, a variety of restaurants, the local fishing fleet, dolphin watching and shelling tours, boat rentals, parasailing and jet skiing",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "The beach is a short stroll away from the Village",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "The Village is open daily",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "The site lists Cruises, Private Charters, Dolphin Watching, Dining, Boat & Jetski Rentals, Accommodations and Fun Shopping",
+      "source": "https://johnspass.com/"
+     },
+     {
+      "claim": "The Village is conveniently located near St. Petersburg, Clearwater and Tampa",
+      "source": "https://johnspass.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV7HGcGwH2YgR7S5oVm2oxTU",
+   "name": "Francisca Charcoal Chicken & Meats | Davie",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://franciscarestaurant.com/davie/",
+     "source_name": "Francisca Charcoal Chicken & Meats | Davie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Davie location serves flavors prepared over charcoal, with a smoky and traditional touch of chicken and meats",
+      "The restaurant has a Latin American influence for families and friends to enjoy",
+      "The address is 2258 S University Dr Davie FL 33324",
+      "Hours are Monday to Sunday: 11:30 am \u2013 10:00 pm",
+      "The Davie page offers VIEW MENU and ORDER ONLINE options",
+      "Francisca's story celebrates family, roots, travels and multiculturalism"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Charcoal chicken and meats with a Latin American influence in Davie",
+    "why_here": "Go to Davie for chicken and meats prepared over charcoal with a smoky, traditional touch, in a Latin American setting made for families and friends to share a meal.",
+    "know_before": "Hours are Monday to Sunday: 11:30 am \u2013 10:00 pm in Davie.",
+    "local_tip": "Check the menu and order online for the Davie location before visiting.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://franciscarestaurant.com/davie/"
+     ],
+     "why_here": [
+      "https://franciscarestaurant.com/davie/"
+     ],
+     "know_before": [
+      "https://franciscarestaurant.com/davie/"
+     ],
+     "local_tip": [
+      "https://franciscarestaurant.com/davie/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Davie location serves flavors prepared over charcoal, with a smoky and traditional touch of chicken and meats",
+      "source": "https://franciscarestaurant.com/davie/"
+     },
+     {
+      "claim": "The restaurant has a Latin American influence for families and friends to enjoy",
+      "source": "https://franciscarestaurant.com/davie/"
+     },
+     {
+      "claim": "The address is 2258 S University Dr Davie FL 33324",
+      "source": "https://franciscarestaurant.com/davie/"
+     },
+     {
+      "claim": "Hours are Monday to Sunday: 11:30 am \u2013 10:00 pm",
+      "source": "https://franciscarestaurant.com/davie/"
+     },
+     {
+      "claim": "The Davie page offers VIEW MENU and ORDER ONLINE options",
+      "source": "https://franciscarestaurant.com/davie/"
+     },
+     {
+      "claim": "Francisca's story celebrates family, roots, travels and multiculturalism",
+      "source": "https://franciscarestaurant.com/davie/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVQ9LYL-32YgRV9kFDwePb4g",
+   "name": "Sala'o Cuban Restaurant & Bar - Live music",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.salaorestaurant.com/",
+     "source_name": "Sala'o Cuban Restaurant & Bar - Live music \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sala'o Restaurant offers authentic Cuban flavors, handcrafted cocktails, live bands and tropical performances in Little Havana",
+      "The restaurant presents live music shows and a Tropicana Nights live dinner show",
+      "The menu lists Tabla de Carnes, Ceviche de Cojimar, Tuna Tartar and Empanada",
+      "The restaurant offers Cuban lunch and Happy Hour",
+      "The address is 1642 SW 8th St Miami Fl",
+      "Reservations can be made by phone at (305) 642 8989"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban food, handcrafted cocktails and live bands in Little Havana",
+    "why_here": "Come to Little Havana for authentic Cuban flavors and handcrafted cocktails while live bands and tropical performances turn dinner into a night built around music and food.",
+    "know_before": "The address is 1642 SW 8th St Miami Fl in Little Havana.",
+    "local_tip": "Reserve a table by phone before going for the live dinner show.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.salaorestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.salaorestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.salaorestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.salaorestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sala'o Restaurant offers authentic Cuban flavors, handcrafted cocktails, live bands and tropical performances in Little Havana",
+      "source": "https://www.salaorestaurant.com/"
+     },
+     {
+      "claim": "The restaurant presents live music shows and a Tropicana Nights live dinner show",
+      "source": "https://www.salaorestaurant.com/"
+     },
+     {
+      "claim": "The menu lists Tabla de Carnes, Ceviche de Cojimar, Tuna Tartar and Empanada",
+      "source": "https://www.salaorestaurant.com/"
+     },
+     {
+      "claim": "The restaurant offers Cuban lunch and Happy Hour",
+      "source": "https://www.salaorestaurant.com/"
+     },
+     {
+      "claim": "The address is 1642 SW 8th St Miami Fl",
+      "source": "https://www.salaorestaurant.com/"
+     },
+     {
+      "claim": "Reservations can be made by phone at (305) 642 8989",
+      "source": "https://www.salaorestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0wYVXRYd3ogR-Rwiu-rQx4M",
+   "name": "Coconuts on the Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coconutsonthebeach.com/",
+     "source_name": "Coconuts on the Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconuts On The Beach offers vibrant flavors, refreshing drinks, and live music right on the historic Cocoa Beach, FL",
+      "The restaurant serves fresh seafood sourced locally, perfectly grilled and seasoned",
+      "Signature cocktails feature tropical flavors and premium spirits, with sunset views over the ocean",
+      "Live music features local bands and artists all week long",
+      "The restaurant offers oceanfront dining right by the ocean, with ocean breeze during the meal",
+      "Online ordering is available"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront seafood and cocktails with live music on Cocoa Beach",
+    "why_here": "Dine right by the ocean in Cocoa Beach for fresh seafood sourced locally, tropical cocktails and live music from local bands and artists throughout the week.",
+    "know_before": "Online ordering is available at Coconuts On The Beach.",
+    "local_tip": "Check the live music schedule before visiting Cocoa Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coconutsonthebeach.com/"
+     ],
+     "why_here": [
+      "https://coconutsonthebeach.com/"
+     ],
+     "know_before": [
+      "https://coconutsonthebeach.com/"
+     ],
+     "local_tip": [
+      "https://coconutsonthebeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconuts On The Beach offers vibrant flavors, refreshing drinks, and live music right on the historic Cocoa Beach, FL",
+      "source": "https://coconutsonthebeach.com/"
+     },
+     {
+      "claim": "The restaurant serves fresh seafood sourced locally, perfectly grilled and seasoned",
+      "source": "https://coconutsonthebeach.com/"
+     },
+     {
+      "claim": "Signature cocktails feature tropical flavors and premium spirits, with sunset views over the ocean",
+      "source": "https://coconutsonthebeach.com/"
+     },
+     {
+      "claim": "Live music features local bands and artists all week long",
+      "source": "https://coconutsonthebeach.com/"
+     },
+     {
+      "claim": "The restaurant offers oceanfront dining right by the ocean, with ocean breeze during the meal",
+      "source": "https://coconutsonthebeach.com/"
+     },
+     {
+      "claim": "Online ordering is available",
+      "source": "https://coconutsonthebeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgWDDrIRx54gR1wif_EQlIZE",
+   "name": "Altamonte Mall",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.altamontemall.com/en.html",
+     "source_name": "Altamonte Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Altamonte Mall is at 451 East Altamonte Drive, Suite 2165, Altamonte Springs, FL 32701",
+      "Altamonte Mall is conveniently located off I-4",
+      "Altamonte Mall offers shopping, dining, and entertainment activities",
+      "Visitors can enjoy dinner and a movie or a shopping spree at Altamonte Mall"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping, dining, and entertainment off I-4 in Altamonte Springs",
+    "why_here": "Go for shopping, dining, and entertainment in one place off I-4 in Altamonte Springs, where visitors can enjoy dinner and a movie or a shopping spree at Altamonte Mall.",
+    "know_before": "Altamonte Mall is at 451 East Altamonte Drive, Suite 2165, Altamonte Springs, FL 32701",
+    "local_tip": "Enjoy dinner and a movie or a shopping spree at Altamonte Mall",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.altamontemall.com/en.html"
+     ],
+     "why_here": [
+      "https://www.altamontemall.com/en.html"
+     ],
+     "know_before": [
+      "https://www.altamontemall.com/en.html"
+     ],
+     "local_tip": [
+      "https://www.altamontemall.com/en.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Altamonte Mall is at 451 East Altamonte Drive, Suite 2165, Altamonte Springs, FL 32701",
+      "source": "https://www.altamontemall.com/en.html"
+     },
+     {
+      "claim": "Altamonte Mall is conveniently located off I-4",
+      "source": "https://www.altamontemall.com/en.html"
+     },
+     {
+      "claim": "Altamonte Mall offers shopping, dining, and entertainment activities",
+      "source": "https://www.altamontemall.com/en.html"
+     },
+     {
+      "claim": "Visitors can enjoy dinner and a movie or a shopping spree at Altamonte Mall",
+      "source": "https://www.altamontemall.com/en.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ__-vzJG02YgR4eGGriaeqpQ",
+   "name": "Coyote Taquer\u00eda",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coyotetaqueria.com/pages/menus",
+     "source_name": "Coyote Taquer\u00eda \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coyote Taqueria is a Mexican restaurant in Miami Beach",
+      "Coyote Taqueria is at 1351 Collins Ave, Miami Beach, FL 33139",
+      "Carne Asada Tacos use flour tortilla, dice steak, chihuahua cheese and avocado slice",
+      "Shrimp Ceviche is listed on the Coyote Taqueria menu"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mexican restaurant in Miami Beach for tacos on Collins Ave",
+    "why_here": "Go for a Mexican restaurant in Miami Beach at 1351 Collins Ave, where Carne Asada Tacos use flour tortilla, dice steak, chihuahua cheese and avocado slice.",
+    "know_before": "Coyote Taqueria is at 1351 Collins Ave, Miami Beach, FL 33139",
+    "local_tip": "Try Carne Asada Tacos with flour tortilla, dice steak, chihuahua cheese and avocado slice",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coyotetaqueria.com/pages/menus"
+     ],
+     "why_here": [
+      "https://coyotetaqueria.com/pages/menus"
+     ],
+     "know_before": [
+      "https://coyotetaqueria.com/pages/menus"
+     ],
+     "local_tip": [
+      "https://coyotetaqueria.com/pages/menus"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coyote Taqueria is a Mexican restaurant in Miami Beach",
+      "source": "https://coyotetaqueria.com/pages/menus"
+     },
+     {
+      "claim": "Coyote Taqueria is at 1351 Collins Ave, Miami Beach, FL 33139",
+      "source": "https://coyotetaqueria.com/pages/menus"
+     },
+     {
+      "claim": "Carne Asada Tacos use flour tortilla, dice steak, chihuahua cheese and avocado slice",
+      "source": "https://coyotetaqueria.com/pages/menus"
+     },
+     {
+      "claim": "Shrimp Ceviche is listed on the Coyote Taqueria menu",
+      "source": "https://coyotetaqueria.com/pages/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2XnYhD0G5YgRgzDgDmADKjk",
+   "name": "Interstate 95 Official Florida Welcome Center (I-95)",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "visitor_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/",
+     "source_name": "Interstate 95 Official Florida Welcome Center (I-95) \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Welcome Center (I-95) is in Yulee",
+      "Florida Welcome Center (I-95) is at 751829 I-95, 7 miles north of Yulee on I-95 South Yulee, FL 32097",
+      "Florida Welcome Center (I-95) phone is (904) 225-9182",
+      "Official Florida Welcome Centers are located on I-95 north of Yulee (near Jacksonville)"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Official Florida Welcome Center on I-95 north of Yulee near Jacksonville",
+    "why_here": "Go to the Florida Welcome Center (I-95) in Yulee on I-95 north of Yulee (near Jacksonville), at 751829 I-95, 7 miles north of Yulee on I-95 South Yulee, FL 32097.",
+    "know_before": "Florida Welcome Center (I-95) phone is (904) 225-9182",
+    "local_tip": "Florida Welcome Center (I-95) is 7 miles north of Yulee on I-95 South",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     ],
+     "why_here": [
+      "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     ],
+     "know_before": [
+      "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     ],
+     "local_tip": [
+      "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Welcome Center (I-95) is in Yulee",
+      "source": "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     },
+     {
+      "claim": "Florida Welcome Center (I-95) is at 751829 I-95, 7 miles north of Yulee on I-95 South Yulee, FL 32097",
+      "source": "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     },
+     {
+      "claim": "Florida Welcome Center (I-95) phone is (904) 225-9182",
+      "source": "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     },
+     {
+      "claim": "Official Florida Welcome Centers are located on I-95 north of Yulee (near Jacksonville)",
+      "source": "https://www.visitflorida.com/listing/florida-welcome-center-(i-95)/26790/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBVpsJmwt5ogRBsbq-vIlVqw",
+   "name": "Silver Springs State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/silversprings",
+     "source_name": "Silver Springs State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Silver Springs State Park hours are 8 a.m. to sunset, 365 days a year",
+      "One of America's largest springs is protected within Silver Springs State Park",
+      "Visitors can explore the area by boat, foot or horseback at Silver Springs State Park",
+      "Glass bottom boats were invented here and still provide a vantage point for this first-magnitude spring",
+      "Silver Springs State Park offers historic glass bottom boat tours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First-magnitude spring with glass bottom boats, open 365 days a year",
+    "why_here": "Go to explore one of America's largest springs by boat, foot or horseback, and take historic glass bottom boat tours at Silver Springs State Park, open 365 days a year.",
+    "know_before": "Silver Springs State Park hours are 8 a.m. to sunset, 365 days a year",
+    "local_tip": "Glass bottom boats were invented here at Silver Springs State Park",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/silversprings"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/silversprings"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/silversprings"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/silversprings"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Silver Springs State Park hours are 8 a.m. to sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/silversprings"
+     },
+     {
+      "claim": "One of America's largest springs is protected within Silver Springs State Park",
+      "source": "https://www.floridastateparks.org/silversprings"
+     },
+     {
+      "claim": "Visitors can explore the area by boat, foot or horseback at Silver Springs State Park",
+      "source": "https://www.floridastateparks.org/silversprings"
+     },
+     {
+      "claim": "Glass bottom boats were invented here and still provide a vantage point for this first-magnitude spring",
+      "source": "https://www.floridastateparks.org/silversprings"
+     },
+     {
+      "claim": "Silver Springs State Park offers historic glass bottom boat tours",
+      "source": "https://www.floridastateparks.org/silversprings"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFd5qTJC02YgRiuVRIcO43Ao",
+   "name": "IL Bolognese - Italian restaurant on Ocean Drive",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ilbologneserestaurant.com/pages/reservations",
+     "source_name": "IL Bolognese - Italian restaurant on Ocean Drive \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Il Bolognese is at 1400 Ocean Dr, Miami Beach, FL 33139",
+      "Il Bolognese serves real Italian cuisine made with fresh ingredients, including homemade pasta and classic Italian pizza",
+      "Il Bolognese is located on Ocean Drive in Miami Beach",
+      "Pasta Lobster uses pasta with whole Maine lobster"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian cuisine with homemade pasta and pizza on Ocean Drive",
+    "why_here": "Go for real Italian cuisine made with fresh ingredients on Ocean Drive in Miami Beach, including homemade pasta and classic Italian pizza at 1400 Ocean Dr, Miami Beach, FL 33139.",
+    "know_before": "Il Bolognese is at 1400 Ocean Dr, Miami Beach, FL 33139",
+    "local_tip": "Try homemade pasta and classic Italian pizza at Il Bolognese",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ilbologneserestaurant.com/pages/reservations"
+     ],
+     "why_here": [
+      "https://ilbologneserestaurant.com/pages/reservations"
+     ],
+     "know_before": [
+      "https://ilbologneserestaurant.com/pages/reservations"
+     ],
+     "local_tip": [
+      "https://ilbologneserestaurant.com/pages/reservations"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Il Bolognese is at 1400 Ocean Dr, Miami Beach, FL 33139",
+      "source": "https://ilbologneserestaurant.com/pages/reservations"
+     },
+     {
+      "claim": "Il Bolognese serves real Italian cuisine made with fresh ingredients, including homemade pasta and classic Italian pizza",
+      "source": "https://ilbologneserestaurant.com/pages/reservations"
+     },
+     {
+      "claim": "Il Bolognese is located on Ocean Drive in Miami Beach",
+      "source": "https://ilbologneserestaurant.com/pages/reservations"
+     },
+     {
+      "claim": "Pasta Lobster uses pasta with whole Maine lobster",
+      "source": "https://ilbologneserestaurant.com/pages/reservations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJkXdv95vhwogR3e84WZCqrJ4",
+   "name": "Tropicana Field",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "stadium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mlb.com/rays/ballpark",
+     "source_name": "Tropicana Field \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tropicana Field is at 1 Tropicana Dr St. Petersburg, FL 33705",
+      "Tropicana Field is home of the Rays",
+      "Rays tickets are available exclusively as mobile tickets via the free MLB Ballpark app",
+      "Tropicana Field offers Tropicana Field Tours and a Seating Map and Parking information"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home of the Rays at 1 Tropicana Dr in St. Petersburg",
+    "why_here": "Go to Tropicana Field, home of the Rays at 1 Tropicana Dr St. Petersburg, FL 33705, where Rays tickets are available exclusively as mobile tickets via the free MLB Ballpark app.",
+    "know_before": "Rays tickets are available exclusively as mobile tickets via the free MLB Ballpark app",
+    "local_tip": "Check the Seating Map and Parking information for Tropicana Field",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mlb.com/rays/ballpark"
+     ],
+     "why_here": [
+      "https://www.mlb.com/rays/ballpark"
+     ],
+     "know_before": [
+      "https://www.mlb.com/rays/ballpark"
+     ],
+     "local_tip": [
+      "https://www.mlb.com/rays/ballpark"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tropicana Field is at 1 Tropicana Dr St. Petersburg, FL 33705",
+      "source": "https://www.mlb.com/rays/ballpark"
+     },
+     {
+      "claim": "Tropicana Field is home of the Rays",
+      "source": "https://www.mlb.com/rays/ballpark"
+     },
+     {
+      "claim": "Rays tickets are available exclusively as mobile tickets via the free MLB Ballpark app",
+      "source": "https://www.mlb.com/rays/ballpark"
+     },
+     {
+      "claim": "Tropicana Field offers Tropicana Field Tours and a Seating Map and Parking information",
+      "source": "https://www.mlb.com/rays/ballpark"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb_UaEui32YgRfOvIVJcITas",
+   "name": "Cajun Boil Seafood Restaurant Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cajunboil.com/",
+     "source_name": "Cajun Boil Seafood Restaurant Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cajun Boil Brickell is at 141 SW 7th st, Miami, FL, 33130",
+      "Cajun Boil Brickell hours are Monday \u2013 Sunday: 12:30 p.m to 10:30 p.m",
+      "Cajun Boil is the First Cajun Seafood place in South Florida",
+      "Cajun Boil offers a taste of Louisiana in the Heart of Miami and Broward",
+      "Cajun Boil Brickell phone is (786) 292-7054"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "First Cajun Seafood place in South Florida, in Brickell, Miami",
+    "why_here": "Go for a taste of Louisiana in the Heart of Miami and Broward at Cajun Boil Brickell, the First Cajun Seafood place in South Florida, at 141 SW 7th st, Miami, FL, 33130.",
+    "know_before": "Cajun Boil Brickell hours are Monday \u2013 Sunday: 12:30 p.m to 10:30 p.m",
+    "local_tip": "Cajun Boil Brickell phone is (786) 292-7054",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cajunboil.com/"
+     ],
+     "why_here": [
+      "https://cajunboil.com/"
+     ],
+     "know_before": [
+      "https://cajunboil.com/"
+     ],
+     "local_tip": [
+      "https://cajunboil.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cajun Boil Brickell is at 141 SW 7th st, Miami, FL, 33130",
+      "source": "https://cajunboil.com/"
+     },
+     {
+      "claim": "Cajun Boil Brickell hours are Monday \u2013 Sunday: 12:30 p.m to 10:30 p.m",
+      "source": "https://cajunboil.com/"
+     },
+     {
+      "claim": "Cajun Boil is the First Cajun Seafood place in South Florida",
+      "source": "https://cajunboil.com/"
+     },
+     {
+      "claim": "Cajun Boil offers a taste of Louisiana in the Heart of Miami and Broward",
+      "source": "https://cajunboil.com/"
+     },
+     {
+      "claim": "Cajun Boil Brickell phone is (786) 292-7054",
+      "source": "https://cajunboil.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxVcTIQ7i0IgRgYa6c5TNrgk",
+   "name": "Bahia Honda State Park",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park",
+     "source_name": "Bahia Honda State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bahia Honda State Park is at 36850 Overseas Highway, Big Pine Key FL 33043",
+      "The park is open 8 a.m. to sunset, 365 days a year",
+      "The park is known for sandy beaches, gin-clear waters, magnificent sunsets and balmy sea breezes",
+      "Kayaks and snorkeling gear can be rented, and boat trips to the reef for snorkeling excursions are available",
+      "You can also enjoy near shore snorkeling right off the beach at Bahia Honda State Park; bring your own gear or rent some here"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sandy beaches, gin-clear waters and snorkeling right off the beach",
+    "why_here": "Go for sandy beaches, gin-clear waters and magnificent sunsets, then rent kayaks or snorkeling gear or take boat trips to the reef for snorkeling excursions in the park.",
+    "know_before": "The park is open 8 a.m. to sunset, 365 days a year.",
+    "local_tip": "Rent kayaks and snorkeling gear in the park, or bring your own gear for near shore snorkeling.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bahia Honda State Park is at 36850 Overseas Highway, Big Pine Key FL 33043",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     },
+     {
+      "claim": "The park is open 8 a.m. to sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     },
+     {
+      "claim": "The park is known for sandy beaches, gin-clear waters, magnificent sunsets and balmy sea breezes",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     },
+     {
+      "claim": "Kayaks and snorkeling gear can be rented, and boat trips to the reef for snorkeling excursions are available",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     },
+     {
+      "claim": "You can also enjoy near shore snorkeling right off the beach at Bahia Honda State Park; bring your own gear or rent some here",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bahia-honda-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzT50fZC12YgROnUj1Qf8DUU",
+   "name": "IT Italian Trattoria COLLINS",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://it-trattoria.com/miami-collins-avenue",
+     "source_name": "IT Italian Trattoria COLLINS \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "IT Italian Trattoria Collins is at 1656 Collins Avenue, Miami Beach, FL 33139",
+      "The menu includes handmade pasta and freshly baked pizzas",
+      "The menu includes Mediterranean-inspired salads and Italian desserts",
+      "Fresh pasta, handcrafted pizza, salads, desserts and Italian specialties can be delivered to your home, hotel, or office"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade pasta and freshly baked pizzas on Collins Avenue in Miami Beach",
+    "why_here": "Go to 1656 Collins Avenue in Miami Beach for handmade pasta and freshly baked pizzas, plus Mediterranean-inspired salads and Italian desserts from the menu for a sit-down meal.",
+    "know_before": "The address is 1656 Collins Avenue, Miami Beach, FL 33139.",
+    "local_tip": "Fresh pasta and Italian specialties can be delivered to your home, hotel, or office.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://it-trattoria.com/miami-collins-avenue"
+     ],
+     "why_here": [
+      "https://it-trattoria.com/miami-collins-avenue"
+     ],
+     "know_before": [
+      "https://it-trattoria.com/miami-collins-avenue"
+     ],
+     "local_tip": [
+      "https://it-trattoria.com/miami-collins-avenue"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "IT Italian Trattoria Collins is at 1656 Collins Avenue, Miami Beach, FL 33139",
+      "source": "https://it-trattoria.com/miami-collins-avenue"
+     },
+     {
+      "claim": "The menu includes handmade pasta and freshly baked pizzas",
+      "source": "https://it-trattoria.com/miami-collins-avenue"
+     },
+     {
+      "claim": "The menu includes Mediterranean-inspired salads and Italian desserts",
+      "source": "https://it-trattoria.com/miami-collins-avenue"
+     },
+     {
+      "claim": "Fresh pasta, handcrafted pizza, salads, desserts and Italian specialties can be delivered to your home, hotel, or office",
+      "source": "https://it-trattoria.com/miami-collins-avenue"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9aBMC4S22YgRbGgugfhBkbA",
+   "name": "Dolores But You Can Call Me Lolita",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/",
+     "source_name": "Dolores But You Can Call Me Lolita \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dolores But You Can Call Me Lolita is at 1000 South Miami Ave., Miami, FL 33130, in the heart of Brickell's financial district",
+      "The restaurant was once the site of Miami's fire station N\u00ba4 and the building is now listed on the National Register of Historic Places",
+      "Since 2007, Dolores But You Can Call Me Lolita has been offering a unique selection of international fusion cuisine",
+      "The restaurant boasts the only rooftop dining terrace in Brickell's Financial District, providing a panoramic view of the Miami skyline",
+      "The menu is a blend of Spanish, Italian, and American flavors",
+      "Menu items include Seafood & Chicken Paella and Argentinian Churrasco"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "International fusion cuisine and a rooftop dining terrace in Brickell",
+    "why_here": "Go for international fusion cuisine with Spanish, Italian, and American flavors, and sit on the rooftop dining terrace for a panoramic view of the Miami skyline in Brickell.",
+    "know_before": "The building is listed on the National Register of Historic Places.",
+    "local_tip": "Try the Seafood & Chicken Paella or an Argentinian Churrasco from the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     ],
+     "why_here": [
+      "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     ],
+     "know_before": [
+      "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     ],
+     "local_tip": [
+      "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dolores But You Can Call Me Lolita is at 1000 South Miami Ave., Miami, FL 33130, in the heart of Brickell's financial district",
+      "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     },
+     {
+      "claim": "The restaurant was once the site of Miami's fire station N\u00ba4 and the building is now listed on the National Register of Historic Places",
+      "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     },
+     {
+      "claim": "Since 2007, Dolores But You Can Call Me Lolita has been offering a unique selection of international fusion cuisine",
+      "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     },
+     {
+      "claim": "The restaurant boasts the only rooftop dining terrace in Brickell's Financial District, providing a panoramic view of the Miami skyline",
+      "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     },
+     {
+      "claim": "The menu is a blend of Spanish, Italian, and American flavors",
+      "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     },
+     {
+      "claim": "Menu items include Seafood & Chicken Paella and Argentinian Churrasco",
+      "source": "https://passionrestaurantgroup.com/restaurants/dolores-lolita/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJT6PHOUbK2YgRamANgVMeFqk",
+   "name": "Bill Baggs Cape Florida State Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park",
+     "source_name": "Bill Baggs Cape Florida State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bill Baggs Cape Florida State Park is at 1200 S. Crandon Blvd., Key Biscayne FL 33149",
+      "Just minutes from downtown Miami on the tip of Key Biscayne, the park offers breathtaking views of the Atlantic Ocean and Biscayne Bay from atop its historic 1825 lighthouse",
+      "Tours of the 95-foot lighthouse and the keeper's house museum are available",
+      "Hours are 8 a.m. until sunset, 365 days a year"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Historic 1825 lighthouse with views of the Atlantic Ocean and Biscayne Bay",
+    "why_here": "Go just minutes from downtown Miami to the tip of Key Biscayne for views of the Atlantic Ocean and Biscayne Bay from atop the historic 1825 lighthouse, and take a tour of the lighthouse.",
+    "know_before": "Hours are 8 a.m. until sunset, 365 days a year.",
+    "local_tip": "Take tours of the 95-foot lighthouse and the keeper's house museum during your visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bill Baggs Cape Florida State Park is at 1200 S. Crandon Blvd., Key Biscayne FL 33149",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     },
+     {
+      "claim": "Just minutes from downtown Miami on the tip of Key Biscayne, the park offers breathtaking views of the Atlantic Ocean and Biscayne Bay from atop its historic 1825 lighthouse",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     },
+     {
+      "claim": "Tours of the 95-foot lighthouse and the keeper's house museum are available",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     },
+     {
+      "claim": "Hours are 8 a.m. until sunset, 365 days a year",
+      "source": "https://www.floridastateparks.org/parks-and-trails/bill-baggs-cape-florida-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb986CJLAwogROE-q0CRPHuE",
+   "name": "Citrus Park Town Center",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitcitruspark.com/",
+     "source_name": "Citrus Park Town Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Citrus Park Town Center is at 8021 Citrus Park Town Center, Tampa, FL 33625",
+      "Mall hours are MON-THUR: 11AM - 8PM, FRI-SAT: 10AM - 9PM and SUN: 11AM - 6PM",
+      "The directory lists Dillard's, JCPenney and Macy's as department stores",
+      "Visitors can discover a variety of retail stores and tasty dining options at Citrus Park Town Center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail stores and tasty dining options in Tampa, with Dillard's, JCPenney and Macy's",
+    "why_here": "Go to 8021 Citrus Park Town Center in Tampa to discover a variety of retail stores and tasty dining options, including department stores Dillard's, JCPenney and Macy's in one mall trip.",
+    "know_before": "Mall hours are MON-THUR 11AM - 8PM, FRI-SAT 10AM - 9PM and SUN 11AM - 6PM.",
+    "local_tip": "Use the directory to find Dillard's, JCPenney and Macy's before you shop.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitcitruspark.com/"
+     ],
+     "why_here": [
+      "https://www.visitcitruspark.com/"
+     ],
+     "know_before": [
+      "https://www.visitcitruspark.com/"
+     ],
+     "local_tip": [
+      "https://www.visitcitruspark.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Citrus Park Town Center is at 8021 Citrus Park Town Center, Tampa, FL 33625",
+      "source": "https://www.visitcitruspark.com/"
+     },
+     {
+      "claim": "Mall hours are MON-THUR: 11AM - 8PM, FRI-SAT: 10AM - 9PM and SUN: 11AM - 6PM",
+      "source": "https://www.visitcitruspark.com/"
+     },
+     {
+      "claim": "The directory lists Dillard's, JCPenney and Macy's as department stores",
+      "source": "https://www.visitcitruspark.com/"
+     },
+     {
+      "claim": "Visitors can discover a variety of retail stores and tasty dining options at Citrus Park Town Center",
+      "source": "https://www.visitcitruspark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmf-KkYBEkYgR6mND-UmLEMo",
+   "name": "The Back Porch",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theback-porch.com/home",
+     "source_name": "The Back Porch \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Back Porch Seafood & Oyster House in Destin got started in a small A-frame building on the beach",
+      "A favorite with the locals since 1974, The Back Porch is a Gulf Coast Tradition for over 40 Years",
+      "The restaurant invented the Amberjack sandwich",
+      "The Back Porch is known for fresh Appalachicola oysters for over 40 years",
+      "Gulf seafood is delivered daily",
+      "The Destin location is at 1740 Scenic Hwy 98, Destin, FL 32541, open daily at 11AM, with HAPPY HOUR 3PM - 5PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gulf seafood and fresh Appalachicola oysters in Destin since 1974",
+    "why_here": "Go to the Destin location for Gulf seafood delivered daily, fresh Appalachicola oysters, and the Amberjack sandwich, in a beach setting that started in a small A-frame building.",
+    "know_before": "The Destin location opens daily at 11AM at 1740 Scenic Hwy 98, Destin, FL 32541.",
+    "local_tip": "Time a visit for HAPPY HOUR 3PM - 5PM at the Destin location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theback-porch.com/home"
+     ],
+     "why_here": [
+      "https://www.theback-porch.com/home"
+     ],
+     "know_before": [
+      "https://www.theback-porch.com/home"
+     ],
+     "local_tip": [
+      "https://www.theback-porch.com/home"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Back Porch Seafood & Oyster House in Destin got started in a small A-frame building on the beach",
+      "source": "https://www.theback-porch.com/home"
+     },
+     {
+      "claim": "A favorite with the locals since 1974, The Back Porch is a Gulf Coast Tradition for over 40 Years",
+      "source": "https://www.theback-porch.com/home"
+     },
+     {
+      "claim": "The restaurant invented the Amberjack sandwich",
+      "source": "https://www.theback-porch.com/home"
+     },
+     {
+      "claim": "The Back Porch is known for fresh Appalachicola oysters for over 40 years",
+      "source": "https://www.theback-porch.com/home"
+     },
+     {
+      "claim": "Gulf seafood is delivered daily",
+      "source": "https://www.theback-porch.com/home"
+     },
+     {
+      "claim": "The Destin location is at 1740 Scenic Hwy 98, Destin, FL 32541, open daily at 11AM, with HAPPY HOUR 3PM - 5PM",
+      "source": "https://www.theback-porch.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJiXUQDhez2YgRKSr6OKwsJPI",
+   "name": "Piola Italian Restaurant Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piolausa.com/locations-miami-mid-beach-fl/",
+     "source_name": "Piola Italian Restaurant Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Piola Miami Beach, FL is at 4000 Collins Ave Suite C, Miami Beach, FL 33140",
+      "Hours for Piola Miami Beach are Monday\u2013Sunday 12 PM\u201311 PM",
+      "The official Piola site says find your location, see its hours, and order online",
+      "Piola lists locations in South Florida and Texas on its official site"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian restaurant in Miami Beach for pizza and pasta",
+    "why_here": "Go to Piola Miami Beach at 4000 Collins Ave Suite C, Miami Beach, FL 33140 for a meal Monday\u2013Sunday 12 PM\u201311 PM, and order online on the official Piola site before you go.",
+    "know_before": "Hours are Monday\u2013Sunday 12 PM\u201311 PM at 4000 Collins Ave Suite C.",
+    "local_tip": "Order online before you go to Piola Miami Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://piolausa.com/locations-miami-mid-beach-fl/"
+     ],
+     "why_here": [
+      "https://piolausa.com/locations-miami-mid-beach-fl/"
+     ],
+     "know_before": [
+      "https://piolausa.com/locations-miami-mid-beach-fl/"
+     ],
+     "local_tip": [
+      "https://piolausa.com/locations-miami-mid-beach-fl/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Piola Miami Beach, FL is at 4000 Collins Ave Suite C, Miami Beach, FL 33140",
+      "source": "https://piolausa.com/locations-miami-mid-beach-fl/"
+     },
+     {
+      "claim": "Hours for Piola Miami Beach are Monday\u2013Sunday 12 PM\u201311 PM",
+      "source": "https://piolausa.com/locations-miami-mid-beach-fl/"
+     },
+     {
+      "claim": "The official Piola site says find your location, see its hours, and order online",
+      "source": "https://piolausa.com/locations-miami-mid-beach-fl/"
+     },
+     {
+      "claim": "Piola lists locations in South Florida and Texas on its official site",
+      "source": "https://piolausa.com/locations-miami-mid-beach-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaV0BmZK02YgRZW6hlXlHyNE",
+   "name": "On Ocean 7 Cafe",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://onocean7cafe.com/",
+     "source_name": "On Ocean 7 Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "On Ocean 7 Cafe is at 660 Ocean Dr, Miami Beach, Florida",
+      "On Ocean 7 blends fresh seafood, curated cocktails, and the energy of Ocean Drive",
+      "The menu is rooted in coastal ingredients and global inspiration",
+      "Menus include breakfast, lunch/dinner and happy hour",
+      "The beach is across the street from On Ocean 7"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh seafood and curated cocktails on Ocean Drive, with the beach across the street",
+    "why_here": "Go to 660 Ocean Dr in Miami Beach for fresh seafood and curated cocktails on Ocean Drive, where the menu is rooted in coastal ingredients and global inspiration and the beach is across the street.",
+    "know_before": "On Ocean 7 Cafe is at 660 Ocean Dr, Miami Beach, Florida.",
+    "local_tip": "Choose from breakfast, lunch/dinner and happy hour menus at On Ocean 7.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://onocean7cafe.com/"
+     ],
+     "why_here": [
+      "https://onocean7cafe.com/"
+     ],
+     "know_before": [
+      "https://onocean7cafe.com/"
+     ],
+     "local_tip": [
+      "https://onocean7cafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "On Ocean 7 Cafe is at 660 Ocean Dr, Miami Beach, Florida",
+      "source": "https://onocean7cafe.com/"
+     },
+     {
+      "claim": "On Ocean 7 blends fresh seafood, curated cocktails, and the energy of Ocean Drive",
+      "source": "https://onocean7cafe.com/"
+     },
+     {
+      "claim": "The menu is rooted in coastal ingredients and global inspiration",
+      "source": "https://onocean7cafe.com/"
+     },
+     {
+      "claim": "Menus include breakfast, lunch/dinner and happy hour",
+      "source": "https://onocean7cafe.com/"
+     },
+     {
+      "claim": "The beach is across the street from On Ocean 7",
+      "source": "https://onocean7cafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpZxuTRKq2YgRWwyNy0w6mxI",
+   "name": "Rustic Inn Crabhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rusticinn.com/",
+     "source_name": "Rustic Inn Crabhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The original Rustic Inn Crabhouse began as a roadhouse saloon in Fort Lauderdale, some 60 years ago.",
+      "Rustic Inn is the home of the World Famous Garlic Crabs and serves steamed crabs and seafood.",
+      "Rustic Inn is located at 4331 Anglers Avenue, Fort Lauderdale, FL 33312.",
+      "Hours are Monday \u2013 Saturday 11:30am \u2013 10 pm and Sunday Noon \u2013 9 pm, with lunch ending at 2:45 pm.",
+      "Rustic Inn sits on the banks of the Dania Cutt-Off Canal, and visitors can request to sit on the dock for waterfront dining.",
+      "Recommended attire is casual, with a bib, a mallet and paper covered tables."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Home of the World Famous Garlic Crabs in Fort Lauderdale",
+    "why_here": "Go for the World Famous Garlic Crabs and steamed crabs in Fort Lauderdale, with waterfront dining on the dock on the Dania Cutt-Off Canal and a bib and a mallet at paper covered tables.",
+    "know_before": "Hours are Monday \u2013 Saturday 11:30am \u2013 10 pm and Sunday Noon \u2013 9 pm.",
+    "local_tip": "Request to sit on the dock for waterfront dining.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rusticinn.com/"
+     ],
+     "why_here": [
+      "https://www.rusticinn.com/"
+     ],
+     "know_before": [
+      "https://www.rusticinn.com/"
+     ],
+     "local_tip": [
+      "https://www.rusticinn.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The original Rustic Inn Crabhouse began as a roadhouse saloon in Fort Lauderdale, some 60 years ago.",
+      "source": "https://www.rusticinn.com/"
+     },
+     {
+      "claim": "Rustic Inn is the home of the World Famous Garlic Crabs and serves steamed crabs and seafood.",
+      "source": "https://www.rusticinn.com/"
+     },
+     {
+      "claim": "Rustic Inn is located at 4331 Anglers Avenue, Fort Lauderdale, FL 33312.",
+      "source": "https://www.rusticinn.com/"
+     },
+     {
+      "claim": "Hours are Monday \u2013 Saturday 11:30am \u2013 10 pm and Sunday Noon \u2013 9 pm, with lunch ending at 2:45 pm.",
+      "source": "https://www.rusticinn.com/"
+     },
+     {
+      "claim": "Rustic Inn sits on the banks of the Dania Cutt-Off Canal, and visitors can request to sit on the dock for waterfront dining.",
+      "source": "https://www.rusticinn.com/"
+     },
+     {
+      "claim": "Recommended attire is casual, with a bib, a mallet and paper covered tables.",
+      "source": "https://www.rusticinn.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-xDdTwiK7ogRnix9ifo4zjo",
+   "name": "Wild Adventures",
+   "category": "attractions",
+   "metro": "georgia-usa",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wildadventures.com/",
+     "source_name": "Wild Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wild Adventures Theme Park is located in Valdosta, Ga., halfway between Atlanta and Orlando off I-75.",
+      "Wild Adventures is a 170-acre destination where families can ride, slide and explore in one place.",
+      "Wild Adventures is home to more than 35 rides and hundreds of exotic animals.",
+      "Wild Adventures includes Splash Island Waterpark.",
+      "Wild Adventures has a full calendar of concerts and special events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "170-acre park in Valdosta with 35 rides and Splash Island Waterpark",
+    "why_here": "Go for a 170-acre destination in Valdosta where families can ride, slide and explore in one place, with more than 35 rides, hundreds of exotic animals and Splash Island Waterpark.",
+    "know_before": "Wild Adventures is located in Valdosta, Ga., halfway between Atlanta and Orlando off I-75.",
+    "local_tip": "Check the calendar for concerts and special events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wildadventures.com/"
+     ],
+     "why_here": [
+      "https://www.wildadventures.com/"
+     ],
+     "know_before": [
+      "https://www.wildadventures.com/"
+     ],
+     "local_tip": [
+      "https://www.wildadventures.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wild Adventures Theme Park is located in Valdosta, Ga., halfway between Atlanta and Orlando off I-75.",
+      "source": "https://www.wildadventures.com/"
+     },
+     {
+      "claim": "Wild Adventures is a 170-acre destination where families can ride, slide and explore in one place.",
+      "source": "https://www.wildadventures.com/"
+     },
+     {
+      "claim": "Wild Adventures is home to more than 35 rides and hundreds of exotic animals.",
+      "source": "https://www.wildadventures.com/"
+     },
+     {
+      "claim": "Wild Adventures includes Splash Island Waterpark.",
+      "source": "https://www.wildadventures.com/"
+     },
+     {
+      "claim": "Wild Adventures has a full calendar of concerts and special events.",
+      "source": "https://www.wildadventures.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-53ST3Zn54gRGCa9XUlUPEA",
+   "name": "Waterford Lakes Town Center",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.waterfordlakestowncenter.com/",
+     "source_name": "Waterford Lakes Town Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Waterford Lakes Town Center is at 413 N Alafaya Trail Orlando, FL 32828",
+      "Waterford Lakes Town Center is Orlando\u2019s premier shopping destination offering market-exclusive brands and locally-owned specialty shops",
+      "Waterford Lakes Town Center hosts more than 15 events a year including Back to the Classics Car Show, Back to School Bash, and Movies on the Lawn Series"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "More than 15 events a year at Waterford Lakes Town Center",
+    "why_here": "Go for market-exclusive brands and locally-owned specialty shops, plus more than 15 events a year including the Back to the Classics Car Show and Back to School Bash at Waterford Lakes Town Center.",
+    "know_before": "Waterford Lakes Town Center is at 413 N Alafaya Trail Orlando, FL 32828.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.waterfordlakestowncenter.com/"
+     ],
+     "why_here": [
+      "https://www.waterfordlakestowncenter.com/"
+     ],
+     "know_before": [
+      "https://www.waterfordlakestowncenter.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Waterford Lakes Town Center is at 413 N Alafaya Trail Orlando, FL 32828",
+      "source": "https://www.waterfordlakestowncenter.com/"
+     },
+     {
+      "claim": "Waterford Lakes Town Center is Orlando\u2019s premier shopping destination offering market-exclusive brands and locally-owned specialty shops",
+      "source": "https://www.waterfordlakestowncenter.com/"
+     },
+     {
+      "claim": "Waterford Lakes Town Center hosts more than 15 events a year including Back to the Classics Car Show, Back to School Bash, and Movies on the Lawn Series",
+      "source": "https://www.waterfordlakestowncenter.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsQeCYpK02YgRSn7c430EGV4",
+   "name": "Mango's South Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miami.mangos.com/",
+     "source_name": "Mango's South Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mango's Tropical Cafe South Beach is at 900 Ocean Dr, Miami Beach, FL 33139.",
+      "Mango's Tropical Cafe is described as Miami Beach's #1 Dinner & Show on Ocean Drive.",
+      "The Dinner & Show is every night at 7:30 PM, and lunch is Mon-Sun 12:00 PM - 6:00 PM.",
+      "Mango's Nightclub includes the Mojito Room, the Jungle Room and the Vodou Room.",
+      "Hours are Mon-Sun: Bar: 12:00 PM - 5 AM.",
+      "Parking is validated after 5PM with a minimum spend of $130+."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner & Show and Nightclub on Ocean Drive in Miami Beach",
+    "why_here": "Go for the Dinner & Show on Ocean Drive in Miami Beach, with gourmet cuisine and live entertainment at night, then Mango's Nightclub with the Mojito Room, the Jungle Room and the Vodou Room.",
+    "know_before": "The Dinner & Show is every night at 7:30 PM at 900 Ocean Dr, Miami Beach, FL 33139.",
+    "local_tip": "Parking is validated after 5PM with a minimum spend of $130+.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://miami.mangos.com/"
+     ],
+     "why_here": [
+      "https://miami.mangos.com/"
+     ],
+     "know_before": [
+      "https://miami.mangos.com/"
+     ],
+     "local_tip": [
+      "https://miami.mangos.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mango's Tropical Cafe South Beach is at 900 Ocean Dr, Miami Beach, FL 33139.",
+      "source": "https://miami.mangos.com/"
+     },
+     {
+      "claim": "Mango's Tropical Cafe is described as Miami Beach's #1 Dinner & Show on Ocean Drive.",
+      "source": "https://miami.mangos.com/"
+     },
+     {
+      "claim": "The Dinner & Show is every night at 7:30 PM, and lunch is Mon-Sun 12:00 PM - 6:00 PM.",
+      "source": "https://miami.mangos.com/"
+     },
+     {
+      "claim": "Mango's Nightclub includes the Mojito Room, the Jungle Room and the Vodou Room.",
+      "source": "https://miami.mangos.com/"
+     },
+     {
+      "claim": "Hours are Mon-Sun: Bar: 12:00 PM - 5 AM.",
+      "source": "https://miami.mangos.com/"
+     },
+     {
+      "claim": "Parking is validated after 5PM with a minimum spend of $130+.",
+      "source": "https://miami.mangos.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -133,8 +133,8 @@ const CSS = XM_CARD_CSS + `
 .xm-hero h1{margin:0 0 6px;font-size:26px;line-height:1.2;font-weight:700;color:var(--cream);letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 10px rgba(30,0,6,.6)}
 .xm-lede{margin:0;font-size:15px;line-height:1.5;color:var(--muted)}
 .xm-honest{margin:8px 0 0;font-size:13px;line-height:1.5;color:var(--soft)}
-.xm-ask{margin-top:16px;width:100%;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
-.xm-share{margin-top:8px;display:flex;justify-content:flex-start}
+.xm-hero-actions{display:flex;align-items:center;gap:10px;margin-top:16px}.xm-ask{flex:1;min-width:0;min-height:48px;border-radius:12px;border:1px solid var(--line);cursor:pointer;background:linear-gradient(180deg,#E0303F,#B01728);color:#fff;font-size:15px;font-weight:700;box-shadow:0 0 14px rgba(232,180,138,.2)}
+.xm-share{display:flex;flex:0 0 auto;justify-content:flex-start}
 .xm-share button,.xm-share a{min-height:44px}
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
@@ -315,8 +315,10 @@ export default function ChristmasTickets({ model, share = null, browse = null })
           <h1 id="xm-title">{chrome.title}</h1>
           <p className="xm-lede">{chrome.lede}</p>
           <p className="xm-honest">{chrome.honest}</p>
-          <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
-          {share ? <div className="xm-share">{share}</div> : null}
+          <div className="xm-hero-actions">
+            <button type="button" className="xm-ask" onClick={askSanta}>{chrome.ask}</button>
+            {share ? <div className="xm-share">{share}</div> : null}
+          </div>
         </div>
 
         <div id="xm-tickets" data-ticket-grid="">{browse}</div>

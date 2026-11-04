@@ -13,12 +13,12 @@ import CreatorPlaybackDetails from "../components/CreatorPlaybackDetails.js";
 import CreatorVideoAction from "../components/CreatorVideoAction";
 import { isEmbeddable } from "../../lib/videoEmbed";
 import { seasonalCreatorVideos } from "../../lib/creatorVideos";
-import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, christmasWatchlist, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
+import { christmasBrowseCached, christmasBrowseListings, christmasBrowsePage, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery } from "../../lib/christmasBrowse";
 
 // Christmas v4 (lead packet, 2026-10-13): #1714's seasonal hub (metadata,
 // sharing, nav, schema, guide sections) plus the full statewide browse,
 // server rendered (first page, filters from the URL) and paged through
-// /api/christmas/browse. The watchlist lists traditions not yet confirmed for 2026.
+// /api/christmas/browse. Unconfirmed research stays out of this consumer page.
 export const revalidate = 3600;
 const seasonal = seasonalSearchMetadata("christmas-in-florida");
 const title = "Florida Christmas Lights, Shows and Event Tickets | Wayfind";
@@ -87,7 +87,6 @@ export default async function Page({ searchParams }) {
     listings = christmasBrowseListings([], today);
     first = christmasBrowsePage(listings, query, today);
   }
-  const watch = christmasWatchlist();
   const itemList = {
     "@context": "https://schema.org", "@type": "ItemList", name: "Christmas events in Florida, 2026 season",
     numberOfItems: listings.length,
@@ -117,13 +116,7 @@ export default async function Page({ searchParams }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemList).replace(/</g, "\\u003c") }} />
       <ChristmasBrowse initial={first} facets={{ ...christmasBrowseFacets(), pills: christmasBrowsePills(listings) }} today={today} initialQuery={initialQuery} />
       <ChristmasCreatorPosts posts={seasonalCreatorVideos("christmas")} />
-      <details id="watchlist" style={{ margin: "0 0 28px", border: "1px solid rgba(232,180,138,.35)", borderRadius: 14, padding: "12px 16px" }}>
-        <summary style={{ cursor: "pointer", fontWeight: 800, minHeight: 44, display: "flex", alignItems: "center" }}>Watchlist: {watch.length} traditions not confirmed for 2026 yet</summary>
-        <p style={{ fontSize: 14 }}>These usually happen every year, but their 2026 edition is not confirmed on an official page yet. They are not in the listings above and not counted in any date filter. Each line says what is missing.</p>
-        <ul style={{ paddingLeft: 18 }}>{watch.map((row) => <li key={row.id} style={{ marginBottom: 8, fontSize: 14 }}>
-          <strong>{row.event_name}</strong>, {row.city}. Not confirmed for 2026: {row.missing}{row.official_url ? <> <a href={row.official_url} rel="nofollow noopener" target="_blank">Official source</a></> : null}
-        </li>)}</ul>
-      </details>
+
     </>} />
     <SeasonalSearchHub slug="christmas-in-florida" today={today} seoOnly />
   </>;

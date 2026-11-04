@@ -359,7 +359,7 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   ok(!/\.ticket\b|commission|cpa|payout|rate/i.test(lib.slice(lib.indexOf("function merit"), lib.indexOf("export function christmasTicketsModel"))), "the merit sort reads no ticket, commission or payout field");
   const page = strip(read("app/christmas-in-florida/page.js"));
   ok(/export const revalidate = 3600/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
-  ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && /id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders the tickets with the browse, the watchlist and the existing ItemList");
+  ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && !/id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders tickets and browse without the internal research watchlist, preserving ItemList");
   ok(/<SeasonalSearchHub slug="christmas-in-florida" today=\{today\} seoOnly/.test(page), "the SEO guide content stays on the page");
   const strings = (page.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[–—]| - /.test(t) && !/RX|regex|replace/.test(t));
   ok(strings.length === 0, "the page copy has no punctuation dash");
@@ -492,8 +492,9 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const noTicket = base({ id: "no-ticket", official_ticket_url: "", popularity_score: 10 });
   const ranked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({}), day);
   ok(ranked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "default ranking puts ticketed choices first and popularity ahead of date within the ticket tier");
-  ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured zero remains distinct from unknown demand");
+  ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
   ok(!/storedPinFresh|wf_center|maximumAge/.test(strip(read("app/components/ChristmasBrowse.js"))), "saved location cannot automatically override Tickets");
+  ok(b.sortChristmasBrowse([unknown, base({ id: "zero-default", popularity_score: 0, start_date: "2026-12-20" })], b.parseChristmasBrowseQuery({}), day)[0].id === "unknown", "the database default curated zero is unassessed and uses the date fallback");
   // ticketed cards keep their photo galleries inside the one list
   {
     const { withBrowseTicketPhotos: withPhotos, attachBrowseTickets: attach } = await import("../lib/christmasTickets.js");
@@ -503,6 +504,9 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
     const shotsFor = (n) => Array.from({ length: n }, (_, i) => ({ src: "/events/christmas/g" + i + ".jpg", alt: "Photo of Fixture Park", credit: "Photo by Fixture " + i, creditHref: "https://example.org/" + i }));
     const out = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async (id) => (id === "gal-1" ? shotsFor(3) : []), readGoogle: async () => null, readVault: async () => [] });
     ok(out.cards[0].ticketRow.photos.length === 3 && out.cards[1].ticketRow.cta === null && !out.cards[1].ticketRow.photos, "a ticketed card carries its photo gallery; a card whose reader returns nothing keeps its own photo");
+    const singleton = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async (id) => id === "gal-2" ? [{ ...shotsFor(1)[0], context: "venue" }] : [], readGoogle: async () => null, readVault: async () => [] });
+    ok(singleton.cards[1].photos?.length === 1 && singleton.cards[1].ticketRow.photos?.length === 1 && singleton.cards[1].photos[0].context === "venue", "a local event with one exact tagged venue photo keeps it in the browse and ticket row");
+    ok(!pageIn.cards[1].photos && !pageIn.cards[1].ticketRow.photos, "attaching a single venue photo does not mutate the cached browse page");
     const tropical = base({ id: "christmas-wonderland-miami-2026", slug: "christmas-wonderland-miami-2026", official_ticket_url: "", place_id: "ChIJcxJRMYe42YgRDSlj6Z_CDxk", image: "/api/photo?place=ChIJcxJRMYe42YgRDSlj6Z_CDxk&g=2&w=640", detailHref: "/florida-events/christmas-wonderland-miami-2026" });
     const six = shotsFor(6);
     const legoland = base({ id: "legoland-fl-holidays-2026", slug: "holidays-at-legoland-florida-2026", official_ticket_url: "", place_id: "wfadd_legoland_florida", image: "/events/christmas/legoland-christmas-bricktacular-2026.webp", photoAttr: "A. Heneen · CC BY-SA", detailHref: "/florida-events/holidays-at-legoland-florida-2026" });
@@ -521,6 +525,8 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
     const { ChristmasBrowseCard: Card } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
     const tropicalHtml = renderToStaticMarkup(createElement(Card, { card: tropicalOut, rank: 1, today: TODAY }));
     ok((tropicalHtml.match(/class="xm-slide"/g) || []).length === 6, "the guide card renders all 6 Tropical Park photos");
+    const venueHtml = renderToStaticMarkup(createElement(Card, { card: singleton.cards[1], rank: 1, today: TODAY }));
+    ok(venueHtml.includes("Venue photo") && venueHtml.includes(shotsFor(1)[0].src) && !venueHtml.includes('class="xm-dots"'), "one venue photo renders with honest context and no empty swipe control");
     const galleryHtml = renderToStaticMarkup(createElement(Card, { card: out.cards[0], rank: 1, today: TODAY }));
     ok((galleryHtml.match(/class="xm-slide"/g) || []).length === 3 && galleryHtml.includes('class="xm-dots"'), "the gallery renders as the swipeable photo strip with dots on the one card");
     const failed = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async () => { throw new Error("down"); }, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
