@@ -8,9 +8,11 @@
 import CardPhoto from "./CardPhoto.js";
 import { C, TYPE } from "./kit";
 
-export default function ThisWeekEvents({ events }) {
-  const cards = Array.isArray(events) ? events : [];
-  if (cards.length < 2) return null;
+export default function ThisWeekEvents({ events, guide = null }) {
+  const evs = Array.isArray(events) ? events : [];
+  // The weekly trend guide (lib/thisWeekEvents.js weeklyTrendGuideCard) leads the strip.
+  const cards = guide && guide.href ? [guide, ...evs] : evs;
+  if (evs.length < 2 || cards.length < 2) return null;
   return (
     <section aria-label="This week in Florida" style={{ marginBottom: 12 }}>
       <div style={{ ...TYPE.eyebrow, fontSize: 10, color: C.muted, marginBottom: 4 }}>This week in Florida</div>
@@ -22,7 +24,8 @@ export default function ThisWeekEvents({ events }) {
         {cards.map((e) => (
           <a key={e.slug} href={e.href} style={{ flex: "0 0 168px", scrollSnapAlign: "start", textDecoration: "none", border: "1px solid " + C.border, borderRadius: 14, background: "#0B0E15", overflow: "hidden" }}>
             <div style={{ position: "relative", width: "100%", aspectRatio: "16 / 10", background: "#141A24" }}>
-              {e.image ? <CardPhoto inLink src={e.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} fallbackCategory="events" /> : null}
+              {e.image ? <CardPhoto inLink src={e.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: e.position || undefined, display: "block" }} fallbackCategory="events" /> : null}
+              {e.credit ? <span style={{ position: "absolute", left: 0, right: 0, bottom: 0, padding: "2px 6px", fontSize: 9, lineHeight: 1.3, color: "rgba(255,255,255,.85)", background: "linear-gradient(transparent, rgba(0,0,0,.55))", textAlign: "right", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Photo: {e.credit}</span> : null}
             </div>
             <div style={{ padding: "8px 10px 10px" }}>
               <div style={{ fontSize: 11, fontWeight: 800, color: "#FF8A3D", letterSpacing: 0.3 }}>{e.when}</div>
