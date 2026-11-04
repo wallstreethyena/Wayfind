@@ -2,12 +2,6 @@
   "slug": "trending-in-florida-this-week-nov-2-2026",
   "picks": {},
   "gaps": {
-    "Lightning vs. Detroit Red Wings": {
-      "reason": "no-verified-source",
-      "placeId": null,
-      "needsPermissionFrom": null,
-      "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
-    },
     "Hamilton": {
       "reason": "no-verified-source",
       "placeId": null,
@@ -44,7 +38,7 @@
       "needsPermissionFrom": null,
       "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
-    "Dalí: Disruption + Devotion panel discussion": {
+    "Dal\u00ed: Disruption + Devotion panel discussion": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
@@ -80,7 +74,7 @@
       "needsPermissionFrom": null,
       "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     },
-    "Le Marché Outdoor Marketplace": {
+    "Le March\u00e9 Outdoor Marketplace": {
       "reason": "no-verified-source",
       "placeId": null,
       "needsPermissionFrom": null,
@@ -229,6 +223,30 @@
       "placeId": null,
       "needsPermissionFrom": null,
       "note": "November 3, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
+    },
+    "St. Pete Night Market": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 4, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
+    },
+    "Meteor Shower": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 4, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
+    },
+    "Greensky Bluegrass": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 4, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
+    },
+    "Hungarian Festival": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "November 4, 2026 pass: no Creative Commons photograph of this exact dated event was verified for this guide. The page uses a labelled context photo and does not claim that picture is the event."
     }
   }
 }
