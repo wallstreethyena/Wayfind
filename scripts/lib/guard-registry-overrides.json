@@ -1047,5 +1047,13 @@
    "detail": "If siteReservedCap regresses to the raw CAPS, site detail reads re-consume the shared free lines within days of each monthly reset (November 2026: enterprise 988/950, pro 5,687/4,800) and refresh is denied all month \u2014 search silently loses every place whose content crosses the 30-day freshness ceiling."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/test-ticketmaster-gating.mjs": {
+  "protects": "The Ticketmaster earning link: only real Ticketmaster, Live Nation and TicketWeb hosts pass isTicketmasterFamily (our own Impact host and look-alike domains do not), the detail page links ONE /api/ticketmaster/go URL carrying the exact stored event URL, and no buy button renders when a row is sold out, off sale, cancelled or link_ok false.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A loose host test double-wraps already-wrapped links (unattributed clicks) and turns /api/ticketmaster/go into an open redirect; a missing status gate sends buyers to a sold-out page."
+  },
+  "owner": "Revenue QA"
  }
 }

@@ -862,6 +862,9 @@ export default function DetailSheet({ ctx }) {
                       <FallbackImg defer={i >= 2} fit={PLACE_DETAIL_PHOTO_STANDARD.image.objectFit} alt={detail.name} key={src} src={src} icon={detail._event ? "🎟️" : undefined} category={primaryCategory(detail)} onClick={() => setLightbox(src)} style={{ width: galleryPhotos.length > 1 ? "78%" : "100%", flexShrink: 0, height: "100%", background: C.bg, scrollSnapAlign: "start", cursor: "zoom-in" }} />
                     ))}
                     </div> : <div data-detail-photo-pending style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", color: C.muted, fontSize: 12 }}>Loading photo…</div>}
+                    {heroCredit ? <div data-detail-photo-credit style={{ position: "absolute", inset: 0, zIndex: 2, pointerEvents: "none" }}>
+                      <PhotoCredit onPhoto credit={heroCredit} />
+                    </div> : null}
                   </div>
                   {galleryPhotos.length > 1 && (
                     <>
@@ -883,10 +886,6 @@ export default function DetailSheet({ ctx }) {
               </div>
             </div>
             <div data-detail-body style={{ padding: "16px 16px calc(30px + env(safe-area-inset-bottom))" }}>
-              {/* Photo credit: plain text directly under the headline, never on the photo (owner rule 2026-10-13). */}
-              {(isLivePlaceId(liveId) || heroCredit) ? <div data-detail-photo-credit style={{ height: 17, marginTop: -6, marginBottom: 10 }}>
-                {heroCredit ? <PhotoCredit credit={heroCredit} style={{ color: C.muted }} /> : null}
-              </div> : null}
               {/* 1. Basics */}
 
               {(() => {
