@@ -85,6 +85,34 @@ const selectRun = curRow(9001, "2026-10-02", "2026-11-01", { select: true });
 ok(ev.eventRunsOn(running, TODAY) && ev.eventRunsOn(running, "2026-10-15"), "an every-day run appears under Today and later days of its run");
 ok(!ev.eventRunsOn(running, "2026-11-01"), "…but not after its last day");
 ok(ev.eventRunsOn(selectRun, "2026-10-02") && !ev.eventRunsOn(selectRun, "2026-10-09"), "a select-nights run is never claimed for a day it may be dark");
+// The note's day rule (owner, 2026-11-04): a CONTINUOUS run whose note restricts its days is
+// filed only under the days it is open. The rule is read on the server (compactDayRule) and
+// applied here by the screen's own inline reader; both must agree.
+{
+  const { compactDayRule, compactRuleAllows } = await import("../lib/scheduleNoteDays.js");
+  const feed = (start, end, note, select = false) => {
+    const row = { start_date: start, end_date: end, schedule_note: note, select_nights: select };
+    return { date: start, endDate: end, selectNights: select, scheduleNote: note, dayRule: compactDayRule(row) };
+  };
+  const pintos = feed("2026-09-19", "2026-11-08", "Thursdays and Fridays run 2–7 PM; Saturdays and Sundays run 9 AM–7 PM.");
+  ok(!ev.eventRunsOn(pintos, "2026-11-04") && ev.eventRunsOn(pintos, "2026-11-05") && ev.eventRunsOn(pintos, "2026-11-08") && !ev.eventRunsOn(pintos, "2026-11-09"), "Events tab: a Thu to Sun farm is not under Wednesday Nov 4, is under Thu Nov 5 and Sun Nov 8, not after its end");
+  ok(ev.effectiveEventDate(pintos, "2026-11-04") === "2026-11-05", "Events tab: on Wednesday the Thu to Sun farm sorts to Thursday, not today");
+  const sweet = feed("2026-09-26", "2026-11-08", "Sat 9am-5pm, Sun 11am-5pm; night maze Fri Oct 23 & 30, 6-10pm; closed weekdays");
+  ok(!ev.eventRunsOn(sweet, "2026-11-06") && ev.eventRunsOn(sweet, "2026-11-07"), "Events tab: 'closed weekdays' keeps the farm off Friday Nov 6");
+  const vague = feed("2026-09-12", "2026-11-20", "Select nights into early November.");
+  ok(ev.eventRunsOn(vague, "2026-09-12") && !ev.eventRunsOn(vague, "2026-11-04"), "Events tab: a continuous row whose note says 'select nights' is claimed only on its opening day");
+  const wonder = feed("2026-11-12", "2027-01-04", "Mon-Thu 5-11PM, Fri-Sat 5PM-midnight, Sun 4-10PM; closed Nov 16, Nov 30, Dec 7");
+  ok(ev.eventRunsOn(wonder, "2026-11-15") && !ev.eventRunsOn(wonder, "2026-11-16") && ev.eventRunsOn(wonder, "2026-11-17"), "Events tab: a stated closed date is skipped");
+  const plain = feed("2026-10-01", "2026-11-30", "Daily during restaurant hours");
+  ok(plain.dayRule === null && ev.eventRunsOn(plain, "2026-11-04"), "Events tab: an every-day run carries no rule and keeps every day");
+  let agree = 0, total = 0;
+  for (const f of [pintos, sweet, vague, wonder, plain]) for (let i = 0; i < 70; i++) {
+    const t = new Date(Date.UTC(2026, 8, 12 + i * 2)); const day = t.toISOString().slice(0, 10);
+    if (day < f.date || day > f.endDate) continue;
+    total++; if (ev.eventRunsOn(f, day) === compactRuleAllows(f.dayRule, day, f.date)) agree++;
+  }
+  ok(total > 100 && agree === total, `the screen's inline reader agrees with lib compactRuleAllows on every in-run day (${agree}/${total})`);
+}
 ok(ev.effectiveEventDate(running, TODAY) === TODAY && ev.effectiveEventDate(curated[50], TODAY) === curated[50].date, "a running event orders as today; a future event as its own date");
 
 const near = { id: "near", date: "2026-10-09", time: "", lat: 27.36, lng: -82.53 };

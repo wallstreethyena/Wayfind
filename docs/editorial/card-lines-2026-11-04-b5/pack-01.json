@@ -1,0 +1,1627 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 5. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ-56jVaG-2YgR5wVfAq8MMfM",
+   "name": "Soya Sushi Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.soyasushibar.com/",
+     "source_name": "Soya Sushi Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Soya Sushi Bar is at 11402 NW 41st St #116, Doral, FL 33178.",
+      "Soya Sushi Bar lists Monday to Thursday hours of 11:30 a.m. to 11 p.m., Friday 11:30 a.m. to 12 a.m., Saturday 12 p.m. to 12 a.m., and Sunday 12 p.m. to 10:30 p.m.",
+      "Soya Sushi Bar menus include Lunch Menu, Happy Hour, Desserts and Beverages.",
+      "Book your Soya Sushi Bar reservation on Resy."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Doral sushi bar with Lunch Menu and Happy Hour",
+    "why_here": "Soya Sushi Bar in Doral is a sushi restaurant and sushi bar with menus including Lunch Menu, Happy Hour, Desserts and Beverages, and reservations through Resy for visitors planning ahead.",
+    "know_before": "Monday to Thursday hours are 11:30 a.m. to 11 p.m.",
+    "local_tip": "book reservations through Resy",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.soyasushibar.com/"
+     ],
+     "why_here": [
+      "https://www.soyasushibar.com/"
+     ],
+     "know_before": [
+      "https://www.soyasushibar.com/"
+     ],
+     "local_tip": [
+      "https://www.soyasushibar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Soya Sushi Bar is at 11402 NW 41st St #116, Doral, FL 33178.",
+      "source": "https://www.soyasushibar.com/"
+     },
+     {
+      "claim": "Soya Sushi Bar lists Monday to Thursday hours of 11:30 a.m. to 11 p.m., Friday 11:30 a.m. to 12 a.m., Saturday 12 p.m. to 12 a.m., and Sunday 12 p.m. to 10:30 p.m.",
+      "source": "https://www.soyasushibar.com/"
+     },
+     {
+      "claim": "Soya Sushi Bar menus include Lunch Menu, Happy Hour, Desserts and Beverages.",
+      "source": "https://www.soyasushibar.com/"
+     },
+     {
+      "claim": "Book your Soya Sushi Bar reservation on Resy.",
+      "source": "https://www.soyasushibar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ96XKNOZ-3YgR21T9j0Kq8Qc",
+   "name": "Disney's Contemporary Resort",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.co.uk/guest-services/monorail-transportation/",
+     "source_name": "Disney's Contemporary Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Resort Monorail makes a stop at Disney's Contemporary Resort.",
+      "Guests staying at Disney's Contemporary Resort can enjoy convenient access to all monorail lines, right from their Disney Resort hotel."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort Monorail stop at a Disney Resort hotel",
+    "why_here": "Disney's Contemporary Resort is served by the Resort Monorail, and guests staying there can enjoy convenient access to all monorail lines right from their Disney Resort hotel during their stay.",
+    "know_before": "The Resort Monorail makes a stop at Disney's Contemporary Resort.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.co.uk/guest-services/monorail-transportation/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.co.uk/guest-services/monorail-transportation/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.co.uk/guest-services/monorail-transportation/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Resort Monorail makes a stop at Disney's Contemporary Resort.",
+      "source": "https://www.disneyworld.co.uk/guest-services/monorail-transportation/"
+     },
+     {
+      "claim": "Guests staying at Disney's Contemporary Resort can enjoy convenient access to all monorail lines, right from their Disney Resort hotel.",
+      "source": "https://www.disneyworld.co.uk/guest-services/monorail-transportation/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9X7aKWaz2YgR2SpQuFesw7k",
+   "name": "The Tavern - American Restaurant in Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hotelcroydonmiamibeach.com/thetavern/",
+     "source_name": "The Tavern - American Restaurant in Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Tavern at Hotel Croydon offers private events with custom menus, signature cocktails, and tailored service.",
+      "The Tavern offers catering with a custom menu crafted by its team.",
+      "An automatic 14% gratuity is added and paid to the assigned server, and a 6% service charge is also added."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel Croydon restaurant offering custom menus and signature cocktails",
+    "why_here": "The Tavern is the restaurant at Hotel Croydon in Miami Beach. Its official hotel page promotes private events with custom menus, signature cocktails and tailored service, plus catered gatherings crafted by The Tavern team.",
+    "know_before": "An automatic 14% gratuity is added and paid to the assigned server, and a 6% service charge is also added, per the official page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hotelcroydonmiamibeach.com/thetavern/"
+     ],
+     "why_here": [
+      "https://hotelcroydonmiamibeach.com/thetavern/"
+     ],
+     "know_before": [
+      "https://hotelcroydonmiamibeach.com/thetavern/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Tavern at Hotel Croydon offers private events with custom menus, signature cocktails, and tailored service.",
+      "source": "https://hotelcroydonmiamibeach.com/thetavern/"
+     },
+     {
+      "claim": "The Tavern offers catering with a custom menu crafted by its team.",
+      "source": "https://hotelcroydonmiamibeach.com/thetavern/"
+     },
+     {
+      "claim": "An automatic 14% gratuity is added and paid to the assigned server, and a 6% service charge is also added.",
+      "source": "https://hotelcroydonmiamibeach.com/thetavern/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUd8nd6W_2YgR_jl9soD1zv4",
+   "name": "El Toro Loco Steakhouse Tamiami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eltoroloco.com/pages/locations",
+     "source_name": "El Toro Loco Steakhouse Tamiami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Toro Loco Steakhouse has a Tamiami Location at 13800 SW 8 St, Miami FL 33184.",
+      "The Tamiami Location is open Daily from 10 a.m. to 11 p.m.",
+      "El Toro Loco Steakhouse has Six restaurants, five food trucks and more across Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tamiami steakhouse with restaurants and food trucks across Miami",
+    "why_here": "El Toro Loco Steakhouse has a Tamiami Location in Miami, with Six restaurants, five food trucks and more across Miami, giving meat-focused dining choices in several parts of the city.",
+    "know_before": "The Tamiami Location is open Daily from 10 a.m. to 11 p.m. at 13800 SW 8 St, Miami FL 33184.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eltoroloco.com/pages/locations"
+     ],
+     "why_here": [
+      "https://eltoroloco.com/pages/locations"
+     ],
+     "know_before": [
+      "https://eltoroloco.com/pages/locations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Toro Loco Steakhouse has a Tamiami Location at 13800 SW 8 St, Miami FL 33184.",
+      "source": "https://eltoroloco.com/pages/locations"
+     },
+     {
+      "claim": "The Tamiami Location is open Daily from 10 a.m. to 11 p.m.",
+      "source": "https://eltoroloco.com/pages/locations"
+     },
+     {
+      "claim": "El Toro Loco Steakhouse has Six restaurants, five food trucks and more across Miami.",
+      "source": "https://eltoroloco.com/pages/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc1J1OdK52YgRnY2YJOr2C1w",
+   "name": "Twin Peaks",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://twinpeaksrestaurant.com/",
+     "source_name": "Twin Peaks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Twin Peaks is a sports lodge with made-from-scratch food.",
+      "Twin Peaks serves signature 29\u00b0 draft beer in perfectly-frosted 22 oz. mugs.",
+      "Twin Peaks has wall-to-wall TVs for watching games and live sports."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "sports lodge serving 29\u00b0 draft beer in perfectly-frosted 22 oz. mugs",
+    "why_here": "Twin Peaks is a sports lodge with made-from-scratch food, signature 29\u00b0 draft beer in perfectly-frosted 22 oz. mugs, and wall-to-wall TVs for watching games and live sports with friends.",
+    "know_before": "Twin Peaks has wall-to-wall TVs for watching games and live sports.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "why_here": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "know_before": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Twin Peaks is a sports lodge with made-from-scratch food.",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks serves signature 29\u00b0 draft beer in perfectly-frosted 22 oz. mugs.",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks has wall-to-wall TVs for watching games and live sports.",
+      "source": "https://twinpeaksrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbxGtgHer2YgR_5Vs-_aDd_Q",
+   "name": "Caf\u00e9 Noir",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cafenoirusa.com/about/",
+     "source_name": "Caf\u00e9 Noir \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caf\u00e9 Noir is a Kosher Restaurant, Bar, and Coffee Roastery in Hollywood, Florida.",
+      "Caf\u00e9 Noir was founded by Chef Lior Hazan.",
+      "Caf\u00e9 Noir crafts pizzas, salads, and pasta combinations.",
+      "Caf\u00e9 Noir is at 3000 Stirling Road suite 112, Hollywood, Florida.",
+      "Caf\u00e9 Noir takes reservations by phone at (954) 584-5171."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kosher pizzas, salads, and pasta combinations in Hollywood",
+    "why_here": "Caf\u00e9 Noir is a Kosher Restaurant, Bar, and Coffee Roastery in Hollywood, Florida, founded by Chef Lior Hazan, and Caf\u00e9 Noir crafts pizzas, salads, and pasta combinations.",
+    "know_before": "Caf\u00e9 Noir is at 3000 Stirling Road suite 112, Hollywood, Florida.",
+    "local_tip": "Caf\u00e9 Noir takes reservations by phone at (954) 584-5171.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cafenoirusa.com/about/"
+     ],
+     "why_here": [
+      "https://cafenoirusa.com/about/"
+     ],
+     "know_before": [
+      "https://cafenoirusa.com/about/"
+     ],
+     "local_tip": [
+      "https://cafenoirusa.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caf\u00e9 Noir is a Kosher Restaurant, Bar, and Coffee Roastery in Hollywood, Florida.",
+      "source": "https://cafenoirusa.com/about/"
+     },
+     {
+      "claim": "Caf\u00e9 Noir was founded by Chef Lior Hazan.",
+      "source": "https://cafenoirusa.com/about/"
+     },
+     {
+      "claim": "Caf\u00e9 Noir crafts pizzas, salads, and pasta combinations.",
+      "source": "https://cafenoirusa.com/about/"
+     },
+     {
+      "claim": "Caf\u00e9 Noir is at 3000 Stirling Road suite 112, Hollywood, Florida.",
+      "source": "https://cafenoirusa.com/about/"
+     },
+     {
+      "claim": "Caf\u00e9 Noir takes reservations by phone at (954) 584-5171.",
+      "source": "https://cafenoirusa.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwbzRcrS12YgRP1frZ_2B7ME",
+   "name": "That's Amore",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thatsamorerestaurant.com/",
+     "source_name": "That's Amore \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "That's Amore is located at 620 Ocean Drive, Miami Beach, Fl 33139."
+     ]
+    },
+    {
+     "source": "https://thatsamorerestaurant.com/2024/08/23/hello-world/",
+     "source_name": "That's Amore \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "That's Amore has earned a reputation for serving pasta and pizza dishes, drawing inspiration from Nonna's kitchen."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian pasta and pizza on Ocean Drive in Miami Beach",
+    "why_here": "That's Amore is an Italian restaurant on Ocean Drive in Miami Beach. Its official site says it draws on Nonna's kitchen and has earned a reputation for pasta and pizza dishes.",
+    "know_before": "The official site lists the address as 620 Ocean Drive, Miami Beach, FL 33139.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thatsamorerestaurant.com/",
+      "https://thatsamorerestaurant.com/2024/08/23/hello-world/"
+     ],
+     "why_here": [
+      "https://thatsamorerestaurant.com/",
+      "https://thatsamorerestaurant.com/2024/08/23/hello-world/"
+     ],
+     "know_before": [
+      "https://thatsamorerestaurant.com/",
+      "https://thatsamorerestaurant.com/2024/08/23/hello-world/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "That's Amore is located at 620 Ocean Drive, Miami Beach, Fl 33139.",
+      "source": "https://thatsamorerestaurant.com/"
+     },
+     {
+      "claim": "That's Amore has earned a reputation for serving pasta and pizza dishes, drawing inspiration from Nonna's kitchen.",
+      "source": "https://thatsamorerestaurant.com/2024/08/23/hello-world/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJWfadVHA2YgRGSpDnNG2m4M",
+   "name": "Aromas del Peru",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aromasperu.com/story",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aromas del Peru started in 2003 as a single location in Kendall.",
+      "Lomo Saltado is a savory stir-fry of beef, onions, and cilantro.",
+      "Ceviche Classico is made with fresh fish, aji limo, and sweet potato."
+     ]
+    },
+    {
+     "source": "https://aromasperu.com/menu/hammocks-blvd",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu includes Ceviche Classico."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lomo Saltado and Ceviche Classico made with fresh fish",
+    "why_here": "Aromas del Peru started in 2003 as a single location in Kendall, and its menu highlights Lomo Saltado and Ceviche Classico made with fresh fish, aji limo, and sweet potato.",
+    "know_before": "Aromas del Peru started in 2003 as a single location in Kendall.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aromasperu.com/story"
+     ],
+     "why_here": [
+      "https://aromasperu.com/story"
+     ],
+     "know_before": [
+      "https://aromasperu.com/story"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aromas del Peru started in 2003 as a single location in Kendall.",
+      "source": "https://aromasperu.com/story"
+     },
+     {
+      "claim": "Lomo Saltado is a savory stir-fry of beef, onions, and cilantro.",
+      "source": "https://aromasperu.com/story"
+     },
+     {
+      "claim": "Ceviche Classico is made with fresh fish, aji limo, and sweet potato.",
+      "source": "https://aromasperu.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB2UYuVR-54gR7HtO8FZEkp8",
+   "name": "Ripley's Believe It or Not!",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando",
+     "source_name": "Ripley's Believe It or Not! \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ripley's Believe It or Not! Orlando is at 8201 International Drive, Orlando.",
+      "Ripley's Believe It or Not! Orlando hours list 10:00 a.m. to 11:00 p.m."
+     ]
+    },
+    {
+     "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando/hours",
+     "source_name": "Ripley's Believe It or Not! \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official hours page lists openings at 10 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor exhibits on International Drive in Orlando",
+    "why_here": "Ripley's Believe It or Not! Orlando is at 8201 International Drive, Orlando, where visitors can spend time exploring exhibits indoors and plan a visit around the listed opening hours for the day.",
+    "know_before": "Ripley's Believe It or Not! Orlando hours list 10:00 a.m. to 11:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando"
+     ],
+     "why_here": [
+      "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando"
+     ],
+     "know_before": [
+      "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ripley's Believe It or Not! Orlando is at 8201 International Drive, Orlando.",
+      "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando"
+     },
+     {
+      "claim": "Ripley's Believe It or Not! Orlando hours list 10:00 a.m. to 11:00 p.m.",
+      "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxQN8KTrK5YgRyp2QNs_TbQ4",
+   "name": "Breakout Games",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://breakoutgames.com/jacksonville",
+     "source_name": "Breakout Games \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "For 60 minutes, teams experience immersive entertainment at Breakout Games Jacksonville.",
+      "Jacksonville rooms listed include Mystery Mansion, Bomb Squad, Runaway Train, Island Escape, and Operation: Casino.",
+      "Breakout Games - Jacksonville is at 7999 Philips Highway, Jacksonville, FL 32256.",
+      "The site says you play with family, friends, or coworkers - but never strangers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sixty minutes to solve puzzles and escape the room",
+    "why_here": "Breakout Games Jacksonville offers immersive escape rooms where teams search for clues and solve puzzles to complete a mission before time expires. The Jacksonville page lists themed rooms including Mystery Mansion, Bomb Squad, Runaway Train, Island Escape, and Operation: Casino.",
+    "know_before": "Breakout Games - Jacksonville is at 7999 Philips Highway, Jacksonville, FL 32256.",
+    "local_tip": "The site says you play with family, friends, or coworkers - but never strangers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://breakoutgames.com/jacksonville"
+     ],
+     "why_here": [
+      "https://breakoutgames.com/jacksonville"
+     ],
+     "know_before": [
+      "https://breakoutgames.com/jacksonville"
+     ],
+     "local_tip": [
+      "https://breakoutgames.com/jacksonville"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "For 60 minutes, teams experience immersive entertainment at Breakout Games Jacksonville.",
+      "source": "https://breakoutgames.com/jacksonville"
+     },
+     {
+      "claim": "Jacksonville rooms listed include Mystery Mansion, Bomb Squad, Runaway Train, Island Escape, and Operation: Casino.",
+      "source": "https://breakoutgames.com/jacksonville"
+     },
+     {
+      "claim": "Breakout Games - Jacksonville is at 7999 Philips Highway, Jacksonville, FL 32256.",
+      "source": "https://breakoutgames.com/jacksonville"
+     },
+     {
+      "claim": "The site says you play with family, friends, or coworkers - but never strangers.",
+      "source": "https://breakoutgames.com/jacksonville"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAaHb6YcA2YgRJlrFdHvy3RE",
+   "name": "Lester's Diner",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "diner",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lestersdiner.com/",
+     "source_name": "Lester's Diner \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lester's is a traditional American Diner in South Florida.",
+      "Lester's has 4 restaurants in Sunrise, Fort Lauderdale, Margate, and Pompano Beach.",
+      "The Fort Lauderdale location is at 250 W. State RD. 84, Fort Lauderdale, FL 33315.",
+      "The Fort Lauderdale location is listed as open 24 hours, 7 days a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A traditional American diner open around the clock in Fort Lauderdale",
+    "why_here": "Lester's calls itself a traditional American Diner in South Florida, with a menu spanning breakfast, omelettes, appetizers, sandwiches, entrees, and desserts. It operates four South Florida restaurants in Sunrise, Fort Lauderdale, Margate, and Pompano Beach.",
+    "know_before": "The Fort Lauderdale location at 250 W. State RD. 84 is listed as open 24 hours, 7 days a week.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lestersdiner.com/"
+     ],
+     "why_here": [
+      "https://lestersdiner.com/"
+     ],
+     "know_before": [
+      "https://lestersdiner.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lester's is a traditional American Diner in South Florida.",
+      "source": "https://lestersdiner.com/"
+     },
+     {
+      "claim": "Lester's has 4 restaurants in Sunrise, Fort Lauderdale, Margate, and Pompano Beach.",
+      "source": "https://lestersdiner.com/"
+     },
+     {
+      "claim": "The Fort Lauderdale location is at 250 W. State RD. 84, Fort Lauderdale, FL 33315.",
+      "source": "https://lestersdiner.com/"
+     },
+     {
+      "claim": "The Fort Lauderdale location is listed as open 24 hours, 7 days a week.",
+      "source": "https://lestersdiner.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHWXmMdewwogRk8JI-PK3rS0",
+   "name": "The Shops at Wiregrass",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theshopsatwiregrass.com/about",
+     "source_name": "The Shops at Wiregrass \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Shops at Wiregrass is an open-air, village-style lifestyle center in Wesley Chapel, Florida.",
+      "The Shops at Wiregrass offers over 120 destinations, including Macy's, Dillard's, and JCPenney.",
+      "The Shops at Wiregrass is at 28211 Paseo Drive, Suite 100, Wesley Chapel, FL 33543.",
+      "The Shops at Wiregrass features curved, tree-lined streets and pocket parks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "open-air, village-style lifestyle center in Wesley Chapel",
+    "why_here": "The Shops at Wiregrass is an open-air, village-style lifestyle center in Wesley Chapel, Florida, with over 120 destinations including Macy's, Dillard's, and JCPenney alongside curved, tree-lined streets and pocket parks.",
+    "know_before": "The Shops at Wiregrass is at 28211 Paseo Drive, Suite 100, Wesley Chapel, FL 33543.",
+    "local_tip": "Walk the curved, tree-lined streets and pocket parks between destinations.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theshopsatwiregrass.com/about"
+     ],
+     "why_here": [
+      "https://www.theshopsatwiregrass.com/about"
+     ],
+     "know_before": [
+      "https://www.theshopsatwiregrass.com/about"
+     ],
+     "local_tip": [
+      "https://www.theshopsatwiregrass.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Shops at Wiregrass is an open-air, village-style lifestyle center in Wesley Chapel, Florida.",
+      "source": "https://www.theshopsatwiregrass.com/about"
+     },
+     {
+      "claim": "The Shops at Wiregrass offers over 120 destinations, including Macy's, Dillard's, and JCPenney.",
+      "source": "https://www.theshopsatwiregrass.com/about"
+     },
+     {
+      "claim": "The Shops at Wiregrass is at 28211 Paseo Drive, Suite 100, Wesley Chapel, FL 33543.",
+      "source": "https://www.theshopsatwiregrass.com/about"
+     },
+     {
+      "claim": "The Shops at Wiregrass features curved, tree-lined streets and pocket parks.",
+      "source": "https://www.theshopsatwiregrass.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwdp5-y4A2YgRAyE-5FGQ6xI",
+   "name": "Coconuts",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.coconutsfortlauderdale.com/about-us",
+     "source_name": "Coconuts \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconuts is a waterfront dining destination in Fort Lauderdale.",
+      "Coconuts has expansive, uninterrupted views of Fort Lauderdale's Intracoastal waterways.",
+      "Coconuts provides an upscale dining experience in a casual setting.",
+      "Coconuts is open 7 days a week, including brunch on Sundays.",
+      "Coconuts is at 429 Seabreeze Blvd., Fort Lauderdale, FL 33316."
+     ]
+    },
+    {
+     "source": "https://www.coconutsfortlauderdale.com/",
+     "source_name": "Coconuts \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconuts provides an upscale dining experience in a casual setting.",
+      "You can raft your boat at the Coconuts dock or bring your dog on a leash."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "expansive, uninterrupted views of Fort Lauderdale's Intracoastal waterways",
+    "why_here": "Coconuts is a waterfront dining destination in Fort Lauderdale with expansive, uninterrupted views of Fort Lauderdale's Intracoastal waterways. Coconuts provides an upscale dining experience in a casual setting.",
+    "know_before": "Coconuts is at 429 Seabreeze Blvd., Fort Lauderdale, FL 33316, and is open 7 days a week, including brunch on Sundays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.coconutsfortlauderdale.com/about-us"
+     ],
+     "why_here": [
+      "https://www.coconutsfortlauderdale.com/about-us"
+     ],
+     "know_before": [
+      "https://www.coconutsfortlauderdale.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconuts is a waterfront dining destination in Fort Lauderdale.",
+      "source": "https://www.coconutsfortlauderdale.com/about-us"
+     },
+     {
+      "claim": "Coconuts has expansive, uninterrupted views of Fort Lauderdale's Intracoastal waterways.",
+      "source": "https://www.coconutsfortlauderdale.com/about-us"
+     },
+     {
+      "claim": "Coconuts provides an upscale dining experience in a casual setting.",
+      "source": "https://www.coconutsfortlauderdale.com/about-us"
+     },
+     {
+      "claim": "Coconuts is open 7 days a week, including brunch on Sundays.",
+      "source": "https://www.coconutsfortlauderdale.com/about-us"
+     },
+     {
+      "claim": "Coconuts is at 429 Seabreeze Blvd., Fort Lauderdale, FL 33316.",
+      "source": "https://www.coconutsfortlauderdale.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYz_2uRXa5ogRi6ohGgHaaX8",
+   "name": "Hilton Daytona Beach Oceanfront Resort",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daytonahilton.com/",
+     "source_name": "Hilton Daytona Beach Oceanfront Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hilton Daytona Beach Oceanfront Resort is at 100 N Atlantic Ave., Daytona Beach, Florida, 32118.",
+      "The resort is just steps from the Boardwalk, Pier, and Ocean Walk Village.",
+      "The resort offers direct access to the World's Most Famous Beach.",
+      "The resort features pet-friendly cabanas and multiple pools."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Direct beach access steps from the Boardwalk and Pier",
+    "why_here": "Hilton Daytona Beach Oceanfront Resort sits in the heart of Daytona Beach with direct access to the beach and walkable access to the Boardwalk, Pier, and Ocean Walk Village. The resort highlights modern rooms, spacious suites with private terraces, pet-friendly cabanas, multiple pools, and ocean-view dining.",
+    "know_before": "The resort is at 100 N Atlantic Ave., Daytona Beach, Florida, 32118.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daytonahilton.com/"
+     ],
+     "why_here": [
+      "https://www.daytonahilton.com/"
+     ],
+     "know_before": [
+      "https://www.daytonahilton.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hilton Daytona Beach Oceanfront Resort is at 100 N Atlantic Ave., Daytona Beach, Florida, 32118.",
+      "source": "https://www.daytonahilton.com/"
+     },
+     {
+      "claim": "The resort is just steps from the Boardwalk, Pier, and Ocean Walk Village.",
+      "source": "https://www.daytonahilton.com/"
+     },
+     {
+      "claim": "The resort offers direct access to the World's Most Famous Beach.",
+      "source": "https://www.daytonahilton.com/"
+     },
+     {
+      "claim": "The resort features pet-friendly cabanas and multiple pools.",
+      "source": "https://www.daytonahilton.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJZxaq0a52YgReCCxH_ITWI0",
+   "name": "Beirut Doral Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "lebanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://beirutdoral.com/",
+     "source_name": "Beirut Doral Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beirut Doral is family owned and serves authentic home style Lebanese food, made fresh daily.",
+      "Beirut Doral offers indoor and outdoor seating.",
+      "Beirut Doral is at 2475 NW 95th Ave #10, Doral, FL 33172.",
+      "The belly dancer show is every Friday and Saturday at 9:00 p.m."
+     ]
+    },
+    {
+     "source": "https://beirutdoral.com/menu/",
+     "source_name": "Beirut Doral Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu includes a Shawarma Platter with beef, chicken, or mixed shawarma."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "family owned Lebanese food made fresh daily in Doral",
+    "why_here": "Beirut Doral is family owned and serves authentic home style Lebanese food, made fresh daily. Beirut Doral offers indoor and outdoor seating in Doral for a relaxed meal with food made fresh daily.",
+    "know_before": "The belly dancer show is every Friday and Saturday at 9:00 p.m.; Beirut Doral is at 2475 NW 95th Ave #10, Doral, FL 33172.",
+    "local_tip": "Choose indoor and outdoor seating when you visit.",
+    "best_time": "Friday or Saturday at 9 p.m. for the belly dancer show listed on the official site.",
+    "citations": {
+     "hook": [
+      "https://beirutdoral.com/"
+     ],
+     "why_here": [
+      "https://beirutdoral.com/"
+     ],
+     "know_before": [
+      "https://beirutdoral.com/"
+     ],
+     "local_tip": [
+      "https://beirutdoral.com/"
+     ],
+     "best_time": [
+      "https://beirutdoral.com/",
+      "https://beirutdoral.com/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beirut Doral is family owned and serves authentic home style Lebanese food, made fresh daily.",
+      "source": "https://beirutdoral.com/"
+     },
+     {
+      "claim": "Beirut Doral offers indoor and outdoor seating.",
+      "source": "https://beirutdoral.com/"
+     },
+     {
+      "claim": "Beirut Doral is at 2475 NW 95th Ave #10, Doral, FL 33172.",
+      "source": "https://beirutdoral.com/"
+     },
+     {
+      "claim": "The belly dancer show is every Friday and Saturday at 9:00 p.m.",
+      "source": "https://beirutdoral.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-dWuZs7B2YgRdkmymABfKy0",
+   "name": "Aromas del Peru",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aromasperu.com/88th-st",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aromas del Peru is known for Peruvian ceviche, seafood, and comforting classics alongside fusion sushi rolls, chaufa rice, and hearty meat dishes in Miami.",
+      "Aromas del Peru is at 13823 SW 88th St, Miami, FL 33186.",
+      "Traditional Peruvian dishes include Ceviche Citrico, Aji de Gallina, Seco de Cabrito, and Chaufa."
+     ]
+    },
+    {
+     "source": "https://aromasperu.com/coral-gables",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aromas del Peru grew from a small storefront in Coral Gables to five locations across Miami-Dade."
+     ]
+    },
+    {
+     "source": "https://aromasperu.com/menu/hammocks-blvd",
+     "source_name": "Aromas del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Aromas del Peru menu includes Ceviche Classico."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ceviche, seafood and chaufa rice in Miami",
+    "why_here": "Aromas del Peru is known for Peruvian ceviche, seafood, and comforting classics alongside fusion sushi rolls, chaufa rice, and hearty meat dishes in Miami, with traditional Peruvian dishes on offer.",
+    "know_before": "Aromas del Peru is at 13823 SW 88th St, Miami, FL 33186.",
+    "local_tip": "Try Ceviche Citrico, Aji de Gallina, Seco de Cabrito, and Chaufa.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aromasperu.com/88th-st"
+     ],
+     "why_here": [
+      "https://aromasperu.com/88th-st"
+     ],
+     "know_before": [
+      "https://aromasperu.com/88th-st"
+     ],
+     "local_tip": [
+      "https://aromasperu.com/88th-st"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aromas del Peru is known for Peruvian ceviche, seafood, and comforting classics alongside fusion sushi rolls, chaufa rice, and hearty meat dishes in Miami.",
+      "source": "https://aromasperu.com/88th-st"
+     },
+     {
+      "claim": "Aromas del Peru is at 13823 SW 88th St, Miami, FL 33186.",
+      "source": "https://aromasperu.com/88th-st"
+     },
+     {
+      "claim": "Traditional Peruvian dishes include Ceviche Citrico, Aji de Gallina, Seco de Cabrito, and Chaufa.",
+      "source": "https://aromasperu.com/88th-st"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp6V46ran2YgRiVGqpKb7Lss",
+   "name": "KPOT Korean BBQ & Hot Pot",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekpot.com/",
+     "source_name": "KPOT Korean BBQ & Hot Pot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KPOT blends the culinary traditions of Korean BBQ and Hot Pot into one dining experience.",
+      "At KPOT, guests grill premium cuts of meat at their table while also cooking Hot Pot ingredients in a chosen broth.",
+      "KPOT hot pot bases include Thai Tom Yum, Healthy Herbs, Japanese Miso, Mushroom Soup, Szechuan Spicy, and Korean Seafood Tofu.",
+      "KPOT lists a Miami-Flagler, FL location among its new locations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "grill premium cuts of meat at their table while cooking Hot Pot",
+    "why_here": "KPOT blends the culinary traditions of Korean BBQ and Hot Pot into one dining experience. At KPOT, guests grill premium cuts of meat at their table while also cooking Hot Pot ingredients in a chosen broth.",
+    "know_before": "KPOT lists a Miami-Flagler, FL location among its new locations.",
+    "local_tip": "Choose Thai Tom Yum, Japanese Miso, or Szechuan Spicy for the broth.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekpot.com/"
+     ],
+     "why_here": [
+      "https://thekpot.com/"
+     ],
+     "know_before": [
+      "https://thekpot.com/"
+     ],
+     "local_tip": [
+      "https://thekpot.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KPOT blends the culinary traditions of Korean BBQ and Hot Pot into one dining experience.",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "At KPOT, guests grill premium cuts of meat at their table while also cooking Hot Pot ingredients in a chosen broth.",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "KPOT hot pot bases include Thai Tom Yum, Healthy Herbs, Japanese Miso, Mushroom Soup, Szechuan Spicy, and Korean Seafood Tofu.",
+      "source": "https://thekpot.com/"
+     },
+     {
+      "claim": "KPOT lists a Miami-Flagler, FL location among its new locations.",
+      "source": "https://thekpot.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfRsZUyrh2YgRGW3Q2YUNHiE",
+   "name": "Robert Is Here Fruit Stand",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "grocery_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.robertishere.com/pages/about-us",
+     "source_name": "Robert Is Here Fruit Stand \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Robert Is Here is a family-owned and operated fruit stand in Homestead, Florida.",
+      "Robert Is Here specializes in Rare & Exotic fruits and vegetables, mostly grown on its farms.",
+      "Robert Is Here has an Animal Farm, Play Area and picnic tables, and live music on weekends and holidays.",
+      "Robert Is Here has been growing since 1959.",
+      "Store hours are 9:00 a.m. until 6:00 p.m. every day, closed Thanksgiving and Christmas Day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned fruit stand in Homestead with Rare & Exotic fruits since 1959",
+    "why_here": "Robert Is Here is a family-owned and operated fruit stand in Homestead, Florida specializing in Rare & Exotic fruits and vegetables mostly grown on its farms, with an Animal Farm, Play Area and picnic tables.",
+    "know_before": "Store hours are 9:00 a.m. until 6:00 p.m. every day; closed Thanksgiving and Christmas Day.",
+    "local_tip": "Live music plays on weekends and holidays.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.robertishere.com/pages/about-us"
+     ],
+     "why_here": [
+      "https://www.robertishere.com/pages/about-us"
+     ],
+     "know_before": [
+      "https://www.robertishere.com/pages/about-us"
+     ],
+     "local_tip": [
+      "https://www.robertishere.com/pages/about-us"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Robert Is Here is a family-owned and operated fruit stand in Homestead, Florida.",
+      "source": "https://www.robertishere.com/pages/about-us"
+     },
+     {
+      "claim": "Robert Is Here specializes in Rare & Exotic fruits and vegetables, mostly grown on its farms.",
+      "source": "https://www.robertishere.com/pages/about-us"
+     },
+     {
+      "claim": "Robert Is Here has an Animal Farm, Play Area and picnic tables, and live music on weekends and holidays.",
+      "source": "https://www.robertishere.com/pages/about-us"
+     },
+     {
+      "claim": "Robert Is Here has been growing since 1959.",
+      "source": "https://www.robertishere.com/pages/about-us"
+     },
+     {
+      "claim": "Store hours are 9:00 a.m. until 6:00 p.m. every day, closed Thanksgiving and Christmas Day.",
+      "source": "https://www.robertishere.com/pages/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJccxO6OB-54gRAJgvkHyOQDs",
+   "name": "The Toothsome Chocolate Emporium & Savory Feast Kitchen\u2122",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations",
+     "source_name": "The Toothsome Chocolate Emporium & Savory Feast Kitchen\u2122 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Toothsome Chocolate Emporium & Savory Feast Kitchen is a full-service restaurant, bar and confectionary at Universal CityWalk.",
+      "The Toothsome Chocolate Emporium & Savory Feast Kitchen serves classic dishes like steak and seafood.",
+      "The Toothsome Chocolate Emporium & Savory Feast Kitchen serves an all-day brunch featuring crepes and quiches.",
+      "Universal Orlando offers dining reservations for The Toothsome Chocolate Emporium & Savory Feast Kitchen."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steak and seafood with all-day brunch, crepes and quiches",
+    "why_here": "The Toothsome Chocolate Emporium & Savory Feast Kitchen is a full-service restaurant, bar and confectionary at Universal CityWalk serving classic dishes like steak and seafood and an all-day brunch featuring crepes and quiches.",
+    "know_before": "Universal Orlando offers dining reservations for The Toothsome Chocolate Emporium & Savory Feast Kitchen.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Toothsome Chocolate Emporium & Savory Feast Kitchen is a full-service restaurant, bar and confectionary at Universal CityWalk.",
+      "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     },
+     {
+      "claim": "The Toothsome Chocolate Emporium & Savory Feast Kitchen serves classic dishes like steak and seafood.",
+      "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     },
+     {
+      "claim": "The Toothsome Chocolate Emporium & Savory Feast Kitchen serves an all-day brunch featuring crepes and quiches.",
+      "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     },
+     {
+      "claim": "Universal Orlando offers dining reservations for The Toothsome Chocolate Emporium & Savory Feast Kitchen.",
+      "source": "https://www.universalorlando.com/web/en/us/plan-your-visit/dining-experiences/reservations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ_oeslBbkYgRMeqVGFOoAGA",
+   "name": "Crab Trap Destin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crabtrapflorida.com/destin",
+     "source_name": "Crab Trap Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Crab Trap Destin is the original Gulf front seafood restaurant located at James Lee Park.",
+      "The Crab Trap Destin is at 3500 Scenic Hwy 98 East, Destin, FL 32541.",
+      "The first Crab Trap restaurant opened in 1991 at James Lee Park in Destin.",
+      "The Crab Trap has 3 locations along the Florida panhandle."
+     ]
+    },
+    {
+     "source": "https://www.crabtrapflorida.com/locations",
+     "source_name": "Crab Trap Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The first Crab Trap opened in 1991 at James Lee Park in Destin, and there are now 3 locations along the Florida panhandle."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Original Gulf front seafood restaurant at James Lee Park since 1991",
+    "why_here": "The Crab Trap Destin is the original Gulf front seafood restaurant located at James Lee Park, where the first Crab Trap restaurant opened in 1991, now with 3 locations along the Florida panhandle.",
+    "know_before": "The Crab Trap Destin is at 3500 Scenic Hwy 98 East, Destin, FL 32541.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crabtrapflorida.com/destin"
+     ],
+     "why_here": [
+      "https://www.crabtrapflorida.com/destin"
+     ],
+     "know_before": [
+      "https://www.crabtrapflorida.com/destin"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Crab Trap Destin is the original Gulf front seafood restaurant located at James Lee Park.",
+      "source": "https://www.crabtrapflorida.com/destin"
+     },
+     {
+      "claim": "The Crab Trap Destin is at 3500 Scenic Hwy 98 East, Destin, FL 32541.",
+      "source": "https://www.crabtrapflorida.com/destin"
+     },
+     {
+      "claim": "The first Crab Trap restaurant opened in 1991 at James Lee Park in Destin.",
+      "source": "https://www.crabtrapflorida.com/destin"
+     },
+     {
+      "claim": "The Crab Trap has 3 locations along the Florida panhandle.",
+      "source": "https://www.crabtrapflorida.com/destin"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK0O5_HS12YgRHq9FtgfdmXE",
+   "name": "Esquina Cubana",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://esquinacubana.com/about",
+     "source_name": "Esquina Cubana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Esquina Cubana serves traditional Cuban food in Miami Beach.",
+      "Esquina Cubana is at 710 Washington Avenue, Miami Beach, FL 33139.",
+      "Esquina Cubana offers a Breakfast Menu and a Lunch, Dinner & Drinks Menu.",
+      "Esquina Cubana takes reservations on Resy."
+     ]
+    },
+    {
+     "source": "https://esquinacubana.com/pages/reservations/",
+     "source_name": "Esquina Cubana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Esquina Cubana is at 710 Washington Ave Suite #1, Miami Beach, FL 33139."
+     ]
+    },
+    {
+     "source": "https://esquinacubana.com/pages/our-menus",
+     "source_name": "Esquina Cubana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Esquina Cubana offers a Breakfast Menu and a Lunch, Dinner & Drinks Menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Cuban food in Miami Beach on Washington Avenue",
+    "why_here": "Esquina Cubana serves traditional Cuban food in Miami Beach, with a Breakfast Menu and a Lunch, Dinner & Drinks Menu offering Cuban food through the day in Miami Beach.",
+    "know_before": "Esquina Cubana is at 710 Washington Avenue, Miami Beach, FL 33139.",
+    "local_tip": "Reservations are taken on Resy.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://esquinacubana.com/about"
+     ],
+     "why_here": [
+      "https://esquinacubana.com/about"
+     ],
+     "know_before": [
+      "https://esquinacubana.com/about"
+     ],
+     "local_tip": [
+      "https://esquinacubana.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Esquina Cubana serves traditional Cuban food in Miami Beach.",
+      "source": "https://esquinacubana.com/about"
+     },
+     {
+      "claim": "Esquina Cubana is at 710 Washington Avenue, Miami Beach, FL 33139.",
+      "source": "https://esquinacubana.com/about"
+     },
+     {
+      "claim": "Esquina Cubana offers a Breakfast Menu and a Lunch, Dinner & Drinks Menu.",
+      "source": "https://esquinacubana.com/about"
+     },
+     {
+      "claim": "Esquina Cubana takes reservations on Resy.",
+      "source": "https://esquinacubana.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFUfcC1gp54gRCjo_UNkoyG4",
+   "name": "The Garlic",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thegarlic.net/",
+     "source_name": "The Garlic \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Garlic offers an authentic taste of the Tuscan countryside in New Smyrna Beach.",
+      "Executive Chef Michael Perri created the menu at The Garlic.",
+      "The Garlic has live entertainment every night.",
+      "The Garlic takes no reservations; all seating is first come first serve regardless of party size.",
+      "The Garlic is at 556 E. 3rd Avenue, New Smyrna Beach, FL 32169.",
+      "The Garlic is open daily at 4:00 p.m., open 364 days, closed Christmas Day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic taste of the Tuscan countryside with live entertainment every night",
+    "why_here": "The Garlic offers an authentic taste of the Tuscan countryside in New Smyrna Beach, with a menu created by Executive Chef Michael Perri and live entertainment every night.",
+    "know_before": "No reservations; all seating is first come first serve. Open daily at 4:00 p.m., closed Christmas Day.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thegarlic.net/"
+     ],
+     "why_here": [
+      "https://thegarlic.net/"
+     ],
+     "know_before": [
+      "https://thegarlic.net/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Garlic offers an authentic taste of the Tuscan countryside in New Smyrna Beach.",
+      "source": "https://thegarlic.net/"
+     },
+     {
+      "claim": "Executive Chef Michael Perri created the menu at The Garlic.",
+      "source": "https://thegarlic.net/"
+     },
+     {
+      "claim": "The Garlic has live entertainment every night.",
+      "source": "https://thegarlic.net/"
+     },
+     {
+      "claim": "The Garlic takes no reservations; all seating is first come first serve regardless of party size.",
+      "source": "https://thegarlic.net/"
+     },
+     {
+      "claim": "The Garlic is at 556 E. 3rd Avenue, New Smyrna Beach, FL 32169.",
+      "source": "https://thegarlic.net/"
+     },
+     {
+      "claim": "The Garlic is open daily at 4:00 p.m., open 364 days, closed Christmas Day.",
+      "source": "https://thegarlic.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe4rXvvC22YgRpjGQg1PlJmM",
+   "name": "BALL & CHAIN",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ballandchainmiami.com/calle-ocho-miami/",
+     "source_name": "BALL & CHAIN \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ball & Chain has been at 1513 SW 8th Street since 1935.",
+      "Ball & Chain is on Calle Ocho, Southwest 8th Street in Little Havana, Miami.",
+      "A live Latin band plays outdoors most nights of the week at Ball & Chain.",
+      "Ball & Chain is at 1513 SW 8th Street, Little Havana, Miami, FL 33135."
+     ]
+    },
+    {
+     "source": "https://ballandchainmiami.com/cuban-sandwich-miami/",
+     "source_name": "BALL & CHAIN \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ball & Chain reopened in 2014 with a Cuban kitchen, a full bar and live music every day."
+     ]
+    },
+    {
+     "source": "https://ballandchainmiami.com/the-305/",
+     "source_name": "BALL & CHAIN \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ball & Chain drinks include the Mojito Criollo and the Calle Ocho Old Fashioned."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live Latin band outdoors on Calle Ocho since 1935",
+    "why_here": "Ball & Chain has been at 1513 SW 8th Street since 1935 on Calle Ocho in Little Havana, Miami, where a live Latin band plays outdoors most nights of the week.",
+    "know_before": "Ball & Chain is at 1513 SW 8th Street, Little Havana, Miami, FL 33135.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ballandchainmiami.com/calle-ocho-miami/"
+     ],
+     "why_here": [
+      "https://ballandchainmiami.com/calle-ocho-miami/"
+     ],
+     "know_before": [
+      "https://ballandchainmiami.com/calle-ocho-miami/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ball & Chain has been at 1513 SW 8th Street since 1935.",
+      "source": "https://ballandchainmiami.com/calle-ocho-miami/"
+     },
+     {
+      "claim": "Ball & Chain is on Calle Ocho, Southwest 8th Street in Little Havana, Miami.",
+      "source": "https://ballandchainmiami.com/calle-ocho-miami/"
+     },
+     {
+      "claim": "A live Latin band plays outdoors most nights of the week at Ball & Chain.",
+      "source": "https://ballandchainmiami.com/calle-ocho-miami/"
+     },
+     {
+      "claim": "Ball & Chain is at 1513 SW 8th Street, Little Havana, Miami, FL 33135.",
+      "source": "https://ballandchainmiami.com/calle-ocho-miami/"
+     }
+    ]
+   }
+  }
+ ]
+}
