@@ -42,6 +42,7 @@ export const XM_CARD_CSS = `
 .xm-credit{position:absolute;left:6px;right:8px;bottom:6px;z-index:2;margin:0;padding:0;border:0;background:transparent;color:rgba(255,255,255,.6);font-size:9.5px;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65);pointer-events:auto}
 .xm-photo:has(.xm-dots) .xm-credit{bottom:16px}
 .xm-credit a{color:inherit;text-decoration:none}
+.xm-pitch{margin:0;font-size:13px;line-height:1.4;color:var(--xm-cream);text-shadow:0 1px 2px rgba(40,0,6,.65);overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
 .xm-line{display:flex;align-items:flex-start;gap:7px;margin:0;font-size:13px;line-height:1.4;color:var(--xm-warm);text-shadow:0 1px 2px rgba(40,0,6,.65);min-width:0;overflow-wrap:anywhere}
 .xm-line .xm-when{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.4em * 2)}
 .xm-line svg{flex:0 0 auto;width:15px;height:15px;margin-top:1px}
@@ -152,6 +153,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
       <div className="xm-body" data-boo-clear="">
         <span className="xm-chip">{row.chip}</span>
         <Heading>{row.name}</Heading>
+        {row.pitch ? <p className="xm-pitch">{row.pitch}</p> : null}
         {row.when ? (
           <p className="xm-line">
             <svg viewBox="0 0 16 16" {...ICON}><circle cx="8" cy="8" r="6.2" /><path d="M8 4.6V8l2.3 1.5" /></svg>
