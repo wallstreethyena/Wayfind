@@ -1,0 +1,21 @@
+{
+  "project": "gbhtoehdxkzjsmmkisgu",
+  "target": "public.wf_events",
+  "operation": "insert-only (held row, event_status unannounced, never displayable)",
+  "sql_file": "scripts/local-calendars/receipts/hold-noah-kahan-tampa-2027.sql",
+  "sql_sha256": "30f8adde84d14f31d0a6faf9cffb82c67fe6584810e4e35eaf4fa404730f8f20",
+  "reviewed_in": "PR #2187 (merged e92881c)",
+  "insert_tool_succeeded_at": "2026-11-03T23:46:00Z",
+  "readback": {
+    "event_id": "noah-kahan-last-of-the-bugs-tampa-2027",
+    "event_status": "unannounced",
+    "recheck_on": "2026-11-10"
+  },
+  "public_check": {
+    "url": "https://www.gowayfind.com/florida-events/noah-kahan-last-of-the-bugs-tampa-2027",
+    "http_status": 404,
+    "hub_mentions": 0
+  },
+  "recheck_process": "Wayfind daily event truth scheduled task (08:07 ET): wf_event_truth_queue class 5 (unannounced rows whose recheck_on has arrived). Not in today's queue (recheck_on is Nov 10); 1 unannounced row carries recheck_on 2026-11-10.",
+  "method": "Authenticated Supabase connector, NOT EXISTS on event_id, slug and name+date; readback by event_id."
+}
