@@ -2492,3 +2492,5 @@ node scripts/check-event-assessment-policy.mjs
 node scripts/check-place-city.mjs
 # 2026-11-01: Vercel Ignored Build Step skips ONLY data/docs-only commits (photo batches); code PR previews, production and any doubt always build. Runs the real script against a temp git repo.
 node scripts/test-vercel-ignore-build.mjs
+# 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
+node scripts/test-ticketmaster-gating.mjs
