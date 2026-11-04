@@ -1156,7 +1156,7 @@ export default async function GuidePage({ params }) {
               {(() => {
                 const facts = guidePickFacts(pick, g);
                 return facts.length ? (
-                  <dl className="wf-guide-facts" style={S.facts} aria-label={"Planning facts for " + pick.name}>
+                  <dl className="wf-guide-pick-facts" style={S.facts} aria-label={"Planning facts for " + pick.name}>
                     {facts.map((f) => (
                       <div key={f.label} style={{ display: "flex", alignItems: "baseline" }}>
                         <dt style={S.factLabel}>{f.label}</dt>
