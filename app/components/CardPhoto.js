@@ -62,11 +62,13 @@ function LinkedPhotoCredit({ anchor, photo, alt, open, compact }) {
     return () => { window.removeEventListener("scroll", update, true); window.removeEventListener("resize", update); observer?.disconnect(); };
   }, [anchor, photo]);
   if (!bounds) return null;
+  // Owner rule 2026-11-03: never print the credit ON the photo. It sits as small muted
+  // text just under the image, right aligned, and still opens the full credit viewer.
   return createPortal(<button type="button" data-linked-photo-credit aria-haspopup="dialog"
     aria-label={alt ? "View photo and photographer credit for " + alt : "View photo and photographer credit"}
     onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); }}
-    onClick={open} style={{ ...control, position: "fixed", zIndex: 30, left: bounds.left + 4, top: bounds.bottom - 32, maxWidth: bounds.right - bounds.left - 8, minHeight: 28, padding: 0, fontSize: 12, fontFamily: "Roboto, sans-serif", background: "transparent", border: 0, borderRadius: 0, textShadow: "0 1px 2px #000, 1px 0 1px #000, -1px 0 1px #000", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-    {compact ? "Photo credit" : "Google Maps · Photo credit"}
+    onClick={open} style={{ ...control, position: "fixed", zIndex: 30, right: window.innerWidth - bounds.right + 6, top: bounds.bottom + 1, maxWidth: bounds.right - bounds.left - 8, minHeight: 0, height: 13, lineHeight: "13px", padding: 0, fontSize: 9.5, fontFamily: "Roboto, sans-serif", color: "#8D9AAB", background: "transparent", border: 0, borderRadius: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+    Google Maps
   </button>, document.body);
 }
 
