@@ -1,0 +1,1016 @@
+{
+ "source": "US Census Bureau geocoder, geographies/coordinates, Public_AR_Current / Current_Current, layers Incorporated Places + Census Designated Places + Counties (public domain, free)",
+ "queried": "2026-11-03T11:49:19.218Z",
+ "rows": {
+  "ChIJaRU86ORx54gRK3zyCcF94hw": {
+   "inc": [
+    "Altamonte Springs"
+   ],
+   "cdp": [],
+   "county": [
+    "Seminole"
+   ]
+  },
+  "ChIJ550owHsXw4gR4L8ZcLVqA-M": {
+   "inc": [
+    "Bradenton"
+   ],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJ9Zr5_dEXw4gRWXr3bcnjiIQ": {
+   "inc": [
+    "Bradenton"
+   ],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJaWJirJcWw4gRboJr7F108HM": {
+   "inc": [
+    "Bradenton"
+   ],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJB-QyVtEXw4gRk5F8bn3YV28": {
+   "inc": [
+    "Bradenton"
+   ],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJhW6JF_MWw4gRUxIRevnpN4k": {
+   "inc": [
+    "Bradenton"
+   ],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJSzFosAERw4gRdoKp0B-JmGY": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJy76z4HY9w4gROaX_C6lQu8g": {
+   "inc": [
+    "Bradenton"
+   ],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJiZrtZSvxwogRE9eu4Xpy9Yc": {
+   "inc": [
+    "Clearwater"
+   ],
+   "cdp": [],
+   "county": [
+    "Pinellas"
+   ]
+  },
+  "ChIJ40ShwrcB3ogR38px18fDfss": {
+   "inc": [
+    "Cocoa"
+   ],
+   "cdp": [],
+   "county": [
+    "Brevard"
+   ]
+  },
+  "ChIJu_e4BnTI2YgREAOg3GxMK8g": {
+   "inc": [
+    "Coral Gables"
+   ],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJqQ1Avv5DkYgR19YWeQV8UiQ": {
+   "inc": [
+    "Destin"
+   ],
+   "cdp": [],
+   "county": [
+    "Okaloosa"
+   ]
+  },
+  "ChIJZSzeKLDzwogRSwm6alxyabw": {
+   "inc": [
+    "Dunedin"
+   ],
+   "cdp": [],
+   "county": [
+    "Pinellas"
+   ]
+  },
+  "ChIJFzRAfooB2YgRtuvhmGrE7RY": {
+   "inc": [
+    "Fort Lauderdale"
+   ],
+   "cdp": [],
+   "county": [
+    "Broward"
+   ]
+  },
+  "ChIJ96iz9wdq24gRftTmyqbwI64": {
+   "inc": [
+    "Fort Myers"
+   ],
+   "cdp": [],
+   "county": [
+    "Lee"
+   ]
+  },
+  "ChIJVVUNg8JB24gRo5VjblNO_c8": {
+   "inc": [
+    "Fort Myers"
+   ],
+   "cdp": [],
+   "county": [
+    "Lee"
+   ]
+  },
+  "ChIJX0UJnszx3ogRKqv856yKO_s": {
+   "inc": [
+    "Fort Pierce"
+   ],
+   "cdp": [],
+   "county": [
+    "St. Lucie"
+   ]
+  },
+  "ChIJKVDd7v_bkIgRv0FaG2bnP9g": {
+   "inc": [],
+   "cdp": [
+    "Woodlawn Beach"
+   ],
+   "county": [
+    "Santa Rosa"
+   ]
+  },
+  "ChIJK4Wkv7jb2YgRv7LTOSIRIRI": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJM6cv59Pn2YgRdXaKYZKWWms": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJYWfOURm35YgRZ6p-Om4KBNM": {
+   "inc": [
+    "Jacksonville"
+   ],
+   "cdp": [],
+   "county": [
+    "Duval"
+   ]
+  },
+  "ChIJWTX7kWvn3ogRRjQhNzC11RQ": {
+   "inc": [],
+   "cdp": [
+    "Jensen Beach"
+   ],
+   "county": [
+    "Martin"
+   ]
+  },
+  "ChIJv_Qs9IiD3YgR1uVLPQ4zkiM": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Osceola"
+   ]
+  },
+  "ChIJDVFcVYZ_3YgRU4PZ5Fw44Ek": {
+   "inc": [
+    "Lake Buena Vista"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJJ4xUsMiB3YgRtioaCI7zFlY": {
+   "inc": [
+    "Lake Buena Vista"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJk5xl2oZ_3YgRg7yR_vn87h4": {
+   "inc": [
+    "Lake Buena Vista"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJOcKapod_3YgR90H_S_UKiMA": {
+   "inc": [
+    "Lake Buena Vista"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJXSjMOWd_3YgR7IaYUVKFrms": {
+   "inc": [
+    "Lake Buena Vista"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJ1dJMdEc43YgRmII076Tbhmg": {
+   "inc": [
+    "Lakeland"
+   ],
+   "cdp": [],
+   "county": [
+    "Polk"
+   ]
+  },
+  "ChIJ-WLCqkdw54gR5FyZzXYSoV4": {
+   "inc": [
+    "Maitland"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJI0Ja3y4E3ogRoNdEL3xe4Ek": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Brevard"
+   ]
+  },
+  "ChIJBVShAmez2YgRvNWv6nIzzzY": {
+   "inc": [
+    "Miami Beach"
+   ],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJI-aAsE-32YgRlQrq8LqdUa8": {
+   "inc": [
+    "Miami"
+   ],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJK69z3qO22YgROBJC2vDIXAI": {
+   "inc": [
+    "Miami"
+   ],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJo83NFCqx2YgRXsS12ziKrO8": {
+   "inc": [
+    "Miami"
+   ],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJoVWX_Rm02YgRllHsIZGN16c": {
+   "inc": [
+    "Miami"
+   ],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJUczTK5XC2YgRRt4Jp6N3B70": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Miami-Dade"
+   ]
+  },
+  "ChIJS2qQ6sw1w4gRUJfWmSdAvXE": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJhzWIGZUe24gRZ0qRx2ErnPI": {
+   "inc": [],
+   "cdp": [
+    "Pelican Marsh"
+   ],
+   "county": [
+    "Collier"
+   ]
+  },
+  "ChIJIShSd5Yd24gRRu3n15Wfmmo": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Collier"
+   ]
+  },
+  "ChIJM5duwu3h2ogRw33TpV_VYtI": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Collier"
+   ]
+  },
+  "ChIJnU1-CO1554gRuvTm3EZVA9Y": {
+   "inc": [
+    "Ocoee"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJ231qjvF754gRZX6vzhb2aCk": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJ7_PseA9n54gRpWhEjEiG3uo": {
+   "inc": [],
+   "cdp": [
+    "Alafaya"
+   ],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJ73yw37J954gRDwQad4ih7Wk": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJ7aIAgJd654gRjUN8WsPaaI4": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJ9RHZGx6H3YgRnWVYIWsHNPM": {
+   "inc": [],
+   "cdp": [
+    "Southchase"
+   ],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJaybvA3N754gRTQX-9RlrMko": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJb2Fn68t554gRrVzqlpOn-hk": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJB4Zm1Ux-54gRmJPSvFL6DSM": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJbbY73up654gRsbf2dTWiCas": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJbVPT1f1654gRJvFabQEhowU": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJcQyYH85654gRPh6gV_UpsDY": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJEwDtLpl754gR0qE-zUCv6PQ": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJfyPWjCh-54gR1SvWozmef5k": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJHWBuq9p654gR5Pz28aJykCc": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJm-1TQ1N-54gRtKSCx6hQ8SU": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJMfdMl_5654gRpZP9kPXrotU": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJmy7U4VJ-54gRi1LoS6wwFj0": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJN9FTnbF754gRwLFDBN_ahJ4": {
+   "inc": [
+    "Edgewood"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJncyg0v1654gRzcygkvMIsg0": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJo2bql5B654gR_ITN9PGhBbU": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJOWyInLF_54gRgRgjDQy9zhw": {
+   "inc": [],
+   "cdp": [
+    "Doctor Phillips"
+   ],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJOZ6tqU5754gRmHz-pzzl33s": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJOzDmBvJ-54gR6XhJQHPs5KI": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJP1om-VJ-54gRAF-_k_y5cig": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJqxgi_-J654gRAUVO-nnoTgA": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJqZhP6z1_54gR8PAoaIuhp0w": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJU7bqHVV-54gRJAwZAp5qCpk": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJuQTH2xd754gRUV-O6arVOhQ": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJv4DsyFR-54gRKvbiUH1zlpo": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJVcr7Ufp654gRkJGTJZILyfc": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJz-NtNPx654gR5pilGxE8KDo": {
+   "inc": [
+    "Orlando"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJNwQxUnFDw4gRlEruVgcCmu0": {
+   "inc": [],
+   "cdp": [
+    "Osprey"
+   ],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJHdRIEU2Mk4gRfAM5vKPoRxk": {
+   "inc": [
+    "Panama City Beach"
+   ],
+   "cdp": [],
+   "county": [
+    "Bay"
+   ]
+  },
+  "ChIJ______8sw4gRMudh58gsGMU": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJS4AH0B8vw4gRF1MVwsvmoK8": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJ86kIPeDFkIgRdsrbssu0Jwk": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Escambia"
+   ]
+  },
+  "ChIJheIoirLAkIgRPxCpsjJZlYs": {
+   "inc": [
+    "Pensacola"
+   ],
+   "cdp": [],
+   "county": [
+    "Escambia"
+   ]
+  },
+  "ChIJs79B6VTHkIgR_GrMBD-pkJk": {
+   "inc": [
+    "Pensacola"
+   ],
+   "cdp": [],
+   "county": [
+    "Escambia"
+   ]
+  },
+  "ChIJRQw4SiI35IgRSAIrKfRvWEg": {
+   "inc": [],
+   "cdp": [
+    "Sawgrass"
+   ],
+   "county": [
+    "St. Johns"
+   ]
+  },
+  "ChIJ8QTtKHMT54gR_ucFCO6b4RE": {
+   "inc": [
+    "Sanford"
+   ],
+   "cdp": [],
+   "county": [
+    "Seminole"
+   ]
+  },
+  "ChIJ1YBgZHRAw4gRorfVkB1B6bY": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJ3VLBF5Jqw4gRkT1TfU3ULd8": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJ6_YRRRJAw4gRE5XF42pZOxo": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJ62qtuiVBw4gRFdwvl9Z4X_Y": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJ6y2dx9g_w4gRWoZIRhLk-JI": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJB_VL5xJAw4gRY58y23x1wBw": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJczkDFL04w4gRwfowcSv8Tro": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJew4bcA9Aw4gR3bU-SA7qAgU": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJHcu6u2BHw4gRDKuRC9sow20": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJhRwCTPZAw4gROrb2GkpgkGQ": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJhWqZvoVHw4gRehUSFsbZARo": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJLZ2vzRxBw4gRMOtW0ArhBhw": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJPWsUhY9Aw4gRoltOtGa3nPM": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJq6rO_XtAw4gRV_KGbfGfJ4g": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJRyOEfAo5w4gR664aD_YYBLU": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJtcnZQU9Bw4gROmYnVLnl0hE": {
+   "inc": [
+    "Sarasota"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJTRfRfgpBw4gR-u488ol_SOw": {
+   "inc": [],
+   "cdp": [
+    "Ridge Wood Heights"
+   ],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJv8qJUuIVw4gR3V0HYAQ2Ll4": {
+   "inc": [],
+   "cdp": [],
+   "county": [
+    "Manatee"
+   ]
+  },
+  "ChIJK1nJH9xrw4gRIr9IhuzYVQI": {
+   "inc": [],
+   "cdp": [
+    "Siesta Key"
+   ],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJSZdWvAlqw4gRo53EHrAL5gU": {
+   "inc": [],
+   "cdp": [
+    "Siesta Key"
+   ],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJ0UaxcHon5IgRtIDfdNZ5UsQ": {
+   "inc": [
+    "St. Augustine"
+   ],
+   "cdp": [],
+   "county": [
+    "St. Johns"
+   ]
+  },
+  "ChIJvwS00mgn5IgRdR5IlMxNUp0": {
+   "inc": [
+    "St. Augustine"
+   ],
+   "cdp": [],
+   "county": [
+    "St. Johns"
+   ]
+  },
+  "ChIJWfHLuGMs5IgRZHXJPtNZCr0": {
+   "inc": [],
+   "cdp": [
+    "World Golf Village"
+   ],
+   "county": [
+    "St. Johns"
+   ]
+  },
+  "ChIJn2JUR3Bf7IgRDoeGio3YFuE": {
+   "inc": [
+    "Tallahassee"
+   ],
+   "cdp": [],
+   "county": [
+    "Leon"
+   ]
+  },
+  "ChIJT8lyCbL07IgR7bBS2PG4XQI": {
+   "inc": [
+    "Tallahassee"
+   ],
+   "cdp": [],
+   "county": [
+    "Leon"
+   ]
+  },
+  "ChIJg1HuP9xbw4gRs9PHCFmC4VU": {
+   "inc": [
+    "Venice"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJHYWhzLpbw4gR-dyWVALZtfw": {
+   "inc": [
+    "Venice"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJJQVMQuJXw4gRhD0CpEOETGo": {
+   "inc": [
+    "North Port"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJu73by6Rbw4gR857K3YRfLQo": {
+   "inc": [
+    "Venice"
+   ],
+   "cdp": [],
+   "county": [
+    "Sarasota"
+   ]
+  },
+  "ChIJB_x-d4nW2IgRA8KT7MrGCis": {
+   "inc": [
+    "West Palm Beach"
+   ],
+   "cdp": [],
+   "county": [
+    "Palm Beach"
+   ]
+  },
+  "ChIJLd_uxonW2IgRCHBSV77RI9E": {
+   "inc": [
+    "West Palm Beach"
+   ],
+   "cdp": [],
+   "county": [
+    "Palm Beach"
+   ]
+  },
+  "ChIJV8mRgbbX2IgRloAsUHzNI6s": {
+   "inc": [
+    "West Palm Beach"
+   ],
+   "cdp": [],
+   "county": [
+    "Palm Beach"
+   ]
+  },
+  "ChIJ38rlfogN3YgRGic46M9dbLw": {
+   "inc": [
+    "Winter Haven"
+   ],
+   "cdp": [],
+   "county": [
+    "Polk"
+   ]
+  },
+  "ChIJu5o2QZAN3YgRMruJ3jk1KG8": {
+   "inc": [
+    "Winter Haven"
+   ],
+   "cdp": [],
+   "county": [
+    "Polk"
+   ]
+  },
+  "ChIJDahUeGJ654gRTbXyn3JDd0U": {
+   "inc": [
+    "Winter Park"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  },
+  "ChIJeYMYltVx54gRB4G-KKYiD8I": {
+   "inc": [
+    "Winter Park"
+   ],
+   "cdp": [],
+   "county": [
+    "Orange"
+   ]
+  }
+ }
+}

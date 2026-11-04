@@ -264,9 +264,21 @@ const nextConfig = {
       { source: "/blog", destination: "https://blog.gowayfind.com", permanent: true },
       { source: "/blog/:path*", destination: "https://blog.gowayfind.com/:path*", permanent: true },
     ];
-    if (process.env.VERCEL_ENV === "preview") return blogRedirects;
+    // Bare category URLs that used to 404 fold into the hub that serves them.
+    // Kept in preview too: they are plain path redirects with no host condition.
+    const categoryRedirects = [
+      { source: "/eat", destination: "/restaurants", permanent: true },
+      { source: "/go-out", destination: "/nightlife", permanent: true },
+      { source: "/shows", destination: "/florida-events", permanent: true },
+      { source: "/concerts", destination: "/florida-events", permanent: true },
+      { source: "/tours", destination: "/things-to-do", permanent: true },
+      { source: "/stay", destination: "/things-to-do", permanent: true },
+      { source: "/shop", destination: "/things-to-do", permanent: true },
+    ];
+    if (process.env.VERCEL_ENV === "preview") return [...blogRedirects, ...categoryRedirects];
     return [
       ...blogRedirects,
+      ...categoryRedirects,
       {
         source: "/:path((?!api/cron|api/hooks).*)",
         has: [{ type: "host", value: "(?<sub>.*)\\.vercel\\.app" }],

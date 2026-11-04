@@ -530,6 +530,7 @@ node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/test-guide-pick-offers.mjs
 node scripts/test-guide-pick-offers.mjs --red-prove
+node scripts/test-guide-pick-facts.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
@@ -754,6 +755,8 @@ node scripts/test-daily-trend-intelligence.mjs
 node scripts/check-quick-bite-identity.mjs
 node scripts/check-map-search-area.mjs
 node scripts/test-map-render-smoke.mjs
+# The on-screen unpinned count equals the accounting even while the Search-this-area pill is up (synthetic surface-parity-parrish-cafes: expected 19, got 0).
+node scripts/test-map-unpinned-note-render.mjs
 node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
 node scripts/check-no-sideways-scroll.mjs
@@ -2288,6 +2291,7 @@ node scripts/test-photo-dedupe.mjs
 node scripts/test-halloween-tours.mjs
 # 2026-10-30: Christmas ticket cards (premium Halloween style page): same listings as the browse, upcoming only, registry /go hrefs untouched, honest prices, dash free, merit order never reads commission.
 node scripts/test-christmas-tickets.mjs
+node scripts/test-christmas-tours.mjs
 
 node scripts/test-halloween-intent-rails.mjs
 node scripts/test-halloween-route.mjs
@@ -2485,3 +2489,10 @@ node scripts/test-christmas-unservable-photo.mjs
 
 # promote-index must bound its own wall clock (45s of 60) and return stopped: "deadline" instead of being killed; quota 429 handling untouched.
 node scripts/test-promote-deadline.mjs
+# Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
+node scripts/test-refresh-selector-trap.mjs
+# Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
+node scripts/test-hydrate-editorial-precedence.mjs
+node scripts/check-this-week-events.mjs
+node scripts/check-schedule-note-days.mjs
+node scripts/check-event-assessment-policy.mjs

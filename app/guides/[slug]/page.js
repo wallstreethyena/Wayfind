@@ -384,6 +384,7 @@ async function inventoryPlacesForRegion(region, limit = 80) {
 }
 
 import { guidePlaceFigureImage } from "../../../lib/guidePlaceFigureImage.js";
+import { guidePickFacts } from "../../../lib/guidePickFacts.js";
 import { withAttributableSpotPhotos } from "../../../lib/guideSpotPhotos.js";
 import GuideMapExplorer from "../../components/GuideMapExplorer";
 import { guidePickMayResolvePlaceCard, resolveGuidePickPlaceId } from "../../../lib/guidePlaceIdentity.js";
@@ -470,6 +471,9 @@ const S = {
   p: { fontSize: 16, color: "#CBD5E1", margin: "0 0 18px" },
   h2: { fontSize: 21, fontWeight: 800, color: "#FFFFFF", margin: "26px 0 6px" },
   tip: { fontSize: 14, color: "#8ED6C4", margin: "6px 0 0" },
+  facts: { display: "flex", flexWrap: "wrap", gap: "6px 18px", margin: "10px 0 2px", padding: "10px 14px", background: "#0B1220", border: "1px solid #22304A", borderRadius: 12 },
+  factLabel: { fontSize: 11, fontWeight: 800, letterSpacing: "1.2px", textTransform: "uppercase", color: "#F97316", marginRight: 6 },
+  factValue: { fontSize: 14, fontWeight: 700, color: "#F1F5F9" },
   btn: { display: "inline-block", marginTop: 10, padding: "9px 16px", borderRadius: 999, background: "#F97316", color: "#0D1117", fontWeight: 800, fontSize: 14, textDecoration: "none" },
   btnGhost: { display: "inline-block", marginTop: 10, marginLeft: 8, padding: "9px 16px", borderRadius: 999, border: "1.5px solid #F97316", color: "#F97316", fontWeight: 800, fontSize: 14, textDecoration: "none" },
   disclosure: { fontSize: 12, color: "#94A3B8", margin: "22px 0", padding: "10px 14px", background: "#161B22", borderRadius: 10 },
@@ -665,9 +669,15 @@ export default async function GuidePage({ params }) {
     // after the exact place's licensed media is exhausted do we illustrate
     // its topic, visibly labelled and credited under the shared figure.
     g.picks.forEach((pick, i) => {
-      fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc });
       if (!curatedPickImages[i] && !editorialImages.get(pickPlaceIds[i])) {
-        curatedPickImages[i] = fallbackPickImages[i];
+        const ctx = guideContextPhoto(params.slug, pick, g, { usedSrc });
+        curatedPickImages[i] = ctx;
+        fallbackPickImages[i] = ctx;
+      }
+    });
+    g.picks.forEach((pick, i) => {
+      if (!fallbackPickImages[i]) {
+        fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc: new Set(usedSrc) });
       }
     });
     for (const place of placeRail.places) {
@@ -1143,6 +1153,19 @@ export default async function GuidePage({ params }) {
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}
               <p style={S.p}>{pick.blurb}</p>
+              {(() => {
+                const facts = guidePickFacts(pick, g);
+                return facts.length ? (
+                  <dl className="wf-guide-facts" style={S.facts} aria-label={"Planning facts for " + pick.name}>
+                    {facts.map((f) => (
+                      <div key={f.label} style={{ display: "flex", alignItems: "baseline" }}>
+                        <dt style={S.factLabel}>{f.label}</dt>
+                        <dd style={{ margin: 0 }}><span style={S.factValue}>{f.value}</span></dd>
+                      </div>
+                    ))}
+                  </dl>
+                ) : null;
+              })()}
               {pick.tip ? <p className="wf-guide-tip" style={S.tip}>Insider note — {pick.tip}</p> : null}
               {/* guide-inline-book-v1 (lib/guideInlineBook.js): client-only
                   treatment; the server HTML and the control arm are unchanged. */}

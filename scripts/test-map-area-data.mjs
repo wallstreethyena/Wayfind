@@ -205,6 +205,10 @@ assert.match(screen, /controller\.abort\(\)/);
 // List-scoped and area maps share one status label (lib/mapListScope.js).
 assert.match(screen, /mapStatus === "error" \? "partial results"/);
 assert.match(screen, /const mapStatus = explicitList \? listStatus : areaStatus;/);
+assert.match(screen, /const reqId = \+\+areaReqSeq\.current;/, 'monotonic request counter prevents out-of-order area responses from overwriting newer state');
+assert.match(screen, /areaReqSeq\.current !== reqId/, 'stale in-flight page and completion callbacks are ignored');
+assert.match(screen, /const outside = existing\.filter\(\(r\) => !placeInMapBounds\(r, viewport\)\);/, 'completed viewport reads replace stale in-viewport rows while retaining out-of-viewport cache');
+assert.match(screen, /const activeSet = filterTrim && filteredView\.some\(\(x\) => x && x\.id === mp\.id\) \? filteredView : view;/, 'single-card preview pager and List (N) return button stay synchronized with the active drawer filter');
 assert.doesNotMatch(screen, /slice\(0, (40|60)\)/);
 const root = fileURLToPath(new URL('../', import.meta.url));
 const route = await loadComponent(path.join(root, 'app/api/places/map/route.js'), root, { onGraph(graph) {
