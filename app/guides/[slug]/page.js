@@ -393,6 +393,8 @@ import { WF_PLACE_CARD_CSS } from "../../components/css";
 import DiscoveryPaths from "../../components/DiscoveryPaths";
 import GuideArticleHero from "../../components/GuideArticleHero";
 import GuideFigure from "../../components/GuideFigureWithFallback.js";
+import GuideNeutralFigure from "../../components/GuideNeutralFigure.js";
+import { guideFinalRung, guideUsesNeutralFallback } from "../../../lib/guideNeutralFallback.js";
 import { guideHero } from "../../../lib/guideHero";
 import { HERO_CARD_DESIGN_V } from "../../../lib/heroCard.js";
 // The floating pill stays (it catches people who DO read to the end). This adds
@@ -640,7 +642,11 @@ export default async function GuidePage({ params }) {
   const curatedPickImages = g.picks.map((pick) => guidePickFigureImage(params.slug, pick) || guidePickPhoto(params.slug, pick.name));
   const fallbackPickImages = [];
   const editorialImages = new Map();
-  const missingPickPhotos = g.picks
+  // A guide that opted into the neutral fallback never reaches for a place photo
+  // it holds only through Google: no approved exact photo means the neutral tile.
+  const neutralGuide = guideUsesNeutralFallback(g);
+  const neutralPickFigures = [];
+  const missingPickPhotos = (neutralGuide ? [] : g.picks)
     .map((p, idx) => (!curatedPickImages[idx] && pickPlaceIds[idx]) ? (pickPlaces[idx] || { id: pickPlaceIds[idx], name: p.name }) : null)
     .filter(Boolean);
   await Promise.all([...new Map([...missingPickPhotos, ...placeRail.places].filter(Boolean).map((place) => [place.id, place])).values()].map(async (place) => {
@@ -670,13 +676,15 @@ export default async function GuidePage({ params }) {
     // its topic, visibly labelled and credited under the shared figure.
     g.picks.forEach((pick, i) => {
       if (!curatedPickImages[i] && !editorialImages.get(pickPlaceIds[i])) {
-        const ctx = guideContextPhoto(params.slug, pick, g, { usedSrc });
-        curatedPickImages[i] = ctx;
-        fallbackPickImages[i] = ctx;
+        const rung = guideFinalRung(params.slug, pick, g, { usedSrc });
+        if (rung.kind === "neutral") { neutralPickFigures[i] = rung.media; return; }
+        curatedPickImages[i] = rung.media;
+        fallbackPickImages[i] = rung.media;
       }
     });
     g.picks.forEach((pick, i) => {
-      if (!fallbackPickImages[i]) {
+      // A neutral guide never swaps a failed exact photo for a context photo.
+      if (!fallbackPickImages[i] && !neutralGuide) {
         fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc: new Set(usedSrc) });
       }
     });
@@ -1149,6 +1157,7 @@ export default async function GuidePage({ params }) {
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, letterSpacing: "1.4px", textTransform: "uppercase", color: "#F97316" }}>{pick.eyebrow || (i === 0 ? "The essential" : "The local edit")}</div>
               <h2 style={{ ...S.h2, marginTop: 5, fontFamily: "var(--wf-display)", fontSize: 28 }}>{pick.placeId ? <a href={guidePlacePath(pick.placeId)} style={{ color: "inherit", textDecoration: "underline", textUnderlineOffset: 4 }}>{pick.name}</a> : pick.name}</h2>
+              {neutralPickFigures[i] ? <GuideNeutralFigure name={pick.name} className="wf-guide-pick-figure" /> : null}
               {pickImage ? (
                 <GuideFigure role="pick" image={pickImage} fallbackImage={fallbackPickImages[i]} className="wf-guide-pick-figure" />
               ) : null}

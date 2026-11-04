@@ -2356,6 +2356,12 @@ node scripts/test-db-cursor-collation.mjs --red-prove
 # local context photograph after exact-place media, including source failures.
 node scripts/test-guide-context-photos.mjs
 
+# 2026-11-04: the two rainy day guides show either a pick's own approved photo or
+# Wayfind's neutral "Photo unavailable" tile, never a photograph of another place
+# and never an "Illustrative" caption on an exact photo. Calls the page's resolver
+# and renders the real figures for all 24 picks; red-proven by mutation.
+node scripts/check-guide-neutral-fallback.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
