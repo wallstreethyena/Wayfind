@@ -69,9 +69,12 @@ function organizerTap(row) {
 
 const ICON = { fill: "none", stroke: "#E9C3B0", strokeWidth: 1.5, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true };
 
-function PhotoStrip({ row, priority }) {
+// A photo that fails to load is dropped from the strip, and when every photo
+// fails the card shows its placeholder tile. `onPhotoState` reports each
+// photo's outcome so the credit line names only photos that really loaded.
+function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
   const [active, setActive] = useState(0);
-  const photos = row.photos;
+  const photos = (row.photos || []).filter((p) => p && !failed.has(p.src));
   const onScroll = (event) => {
     const el = event.currentTarget;
     if (!el.clientWidth) return;
@@ -102,6 +105,8 @@ function PhotoStrip({ row, priority }) {
               loading={i === 0 && priority ? "eager" : "lazy"}
               fallbackClassName="xm-ph"
               fallbackText={(row.placeholder && row.placeholder.label) || "Christmas event"}
+              onFailure={() => onPhotoState?.(photo.src, false)}
+              onLoaded={() => onPhotoState?.(photo.src, true)}
             />
           </div>
         ))}
@@ -115,9 +120,11 @@ function PhotoStrip({ row, priority }) {
   );
 }
 
-function PhotoCredit({ photos }) {
+function PhotoCredit({ photos, failed }) {
   const seen = new Set();
-  const lines = (photos || []).filter((p) => p && p.credit && !seen.has(p.credit) && seen.add(p.credit));
+  // The server HTML names every credit. A photo that fails to load leaves
+  // the strip and drops its line; one that has not reported yet keeps it.
+  const lines = (photos || []).filter((p) => p && p.credit && !(failed && failed.has(p.src)) && !seen.has(p.credit) && seen.add(p.credit));
   if (!lines.length) return <p className="xm-credit" aria-hidden="true">&nbsp;</p>;
   return (
     <p className="xm-credit">
@@ -142,13 +149,22 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
   const fallback = !cta
     ? (row.eventHref ? { href: row.eventHref, label: row.pageLabel || chrome.eventPage, external: false } : row.sourceHref ? { href: row.sourceHref, label: "Official site", external: true } : null)
     : null;
+  const [photoState, setPhotoState] = useState(() => ({ ok: new Set(), bad: new Set() }));
+  const onPhotoState = (src, ok) => setPhotoState((st) => {
+    const key = ok ? "ok" : "bad";
+    if (st[key].has(src)) return st;
+    const next = { ok: new Set(st.ok), bad: new Set(st.bad) };
+    next[key].add(src);
+    if (!ok) next.ok.delete(src);
+    return next;
+  });
   return (
     <article id={idPrefix + row.id} data-ticket-id={row.id} className="xm-card">
-      <PhotoStrip row={row} priority={priority} />
+      <PhotoStrip row={row} priority={priority} failed={photoState.bad} onPhotoState={onPhotoState} />
       <div className="xm-body" data-boo-clear="">
         <span className="xm-chip">{row.chip}</span>
         <Heading>{row.name}</Heading>
-        <PhotoCredit photos={row.photos} />
+        <PhotoCredit photos={row.photos} failed={photoState.bad} />
         {row.when ? (
           <p className="xm-line">
             <svg viewBox="0 0 16 16" {...ICON}><circle cx="8" cy="8" r="6.2" /><path d="M8 4.6V8l2.3 1.5" /></svg>
