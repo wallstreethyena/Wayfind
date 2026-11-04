@@ -573,12 +573,9 @@ export default function RailCard({
               : <div className="wf-place-card-monogram" aria-hidden="true">{initialsOf(title)}</div>}
           {rank ? <span className="wf-place-card-rank" aria-label={"Rank " + rank}>{rank}</span> : null}
           <AwardSticker award={shownAward} />
-          {/* v8.56.13 (#1188) — CC-license credit for the free permanent photo
-              lane (lib/freePhoto.js, wf_place_photo). Not decoration: Wikimedia
-              licenses REQUIRE a visible author + license credit. Bottom-right —
-              rank owns top-left, score owns the card's top-right corner
-              (outside this box entirely). Renders only when a caller actually
-              passes photoAttr; every existing call site is unaffected. */}
+          {/* CC-license credit for the free permanent photo lane. A tiny line
+              on the photo, bottom left. The full credit stays on title and
+              aria-label. Renders only when a caller passes photoAttr. */}
           {photoAttr && shownPhoto && !creditedLane && imgFailed !== shownPhoto
             ? (photoAttrHref
                 ? <a
@@ -589,8 +586,8 @@ export default function RailCard({
                     title={"Photo: " + photoAttr}
                     aria-label={"Photo credit: " + photoAttr + " (new tab)"}
                     onClick={(e) => e.stopPropagation()}
-                  >©</a>
-                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>©</span>)
+                  >{photoAttr}</a>
+                : <span className="wf-place-card-photo-attr" title={"Photo: " + photoAttr} aria-label={"Photo credit: " + photoAttr}>{photoAttr}</span>)
             : null}
         </div>
         <div className="wf-place-card-content" style={{ position: "relative" }}>

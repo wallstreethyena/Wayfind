@@ -2802,7 +2802,7 @@ function EventHeroBg({ image: imageProp, acc, venue, near }) {
   if (src) {
     return (<>
       <img src={src} alt="" fetchPriority="high" decoding="async" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      {usingAlt && altBy && <PhotoCredit credit={altBy} style={{ left: 8, right: 8, bottom: 6 }} />}
+      {usingAlt && altBy && <PhotoCredit onPhoto credit={altBy} />}
     </>);
   }
   return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
