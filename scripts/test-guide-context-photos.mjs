@@ -42,7 +42,8 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
   for (const pick of guide.picks || []) {
     const photo = guideContextPhoto(slug, pick, guide, { usedSrc });
     assert.ok(photo.src.startsWith("/guides/context/"), slug + " / " + pick.name + " has a local final rung");
-    assert.match(photo.caption, /^Illustrative .+ photo\.$/);
+    assert.match(photo.caption, /^Illustrative .+ photo, not .+\.$/);
+    assert.ok(photo.caption.endsWith(", not " + String(pick.name || pick.title || pick.event_name || "this section") + "."), "visible caption names the pick it is not a photo of");
     assert.ok(photo.alt.includes("not a photograph of " + pick.name), "context is never represented as the named venue");
     assert.equal(photo.placeId, null, "context never acquires a venue identity");
     picks++;
