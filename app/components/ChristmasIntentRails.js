@@ -27,6 +27,7 @@ import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 import SeasonalMoviesRail from "./SeasonalMoviesRail.js";
 import { withMoviesRail } from "../../lib/moviesRailSlot.js";
 import { CHRISTMAS_CARD_LABELS, christmasDistanceLabel, christmasCardChips } from "../../lib/christmasCardCopy.js";
+import { AFFILIATE_DISCLOSURE_TEXT } from "../../lib/affiliateDisclosure.js";
 
 const TICKET_SURFACE = "christmas_intent_rail";
 
@@ -157,6 +158,60 @@ function ChristmasRailSection({ rail, lat, lng, onOpenPlace, onTrack, city, isSa
   </section>;
 }
 
+// Viator Christmas light tours (owner, 2026-11-04: "Tours under Christmas").
+// One small rail right after Lights & Glowing Gardens, fed by the `tours`
+// field of /api/events/christmas (lib/christmasTours.js christmasTileTourCards):
+// nearest start point first, the same standard rail card, a See availability
+// button through /api/commerce/go and the affiliate sentence a phone can read.
+// Renders nothing when there are no tours.
+export const CHRISTMAS_TOUR_RAIL_ID = "christmas-intent-tours";
+export const CHRISTMAS_TOUR_RAIL_TITLE = "Christmas Light Tours";
+export const CHRISTMAS_TOUR_RAIL_DECK = "Boat, sailboat and golf cart light tours you can book.";
+const TOUR_SURFACE = "christmas_tile_tours";
+
+export function ChristmasTourRail({ tours, onTrack }) {
+  const cards = Array.isArray(tours) ? tours.filter((t) => t && t.id && t.href && t.title) : [];
+  if (!cards.length) return null;
+  return <section aria-label={CHRISTMAS_TOUR_RAIL_TITLE} style={{ marginTop: 22 }}>
+    <RailHeading title={CHRISTMAS_TOUR_RAIL_TITLE} description={CHRISTMAS_TOUR_RAIL_DECK}>
+      <RailNav railId={CHRISTMAS_TOUR_RAIL_ID} count={cards.length} total={cards.length} unit={cards.length === 1 ? "tour" : "tours"} />
+    </RailHeading>
+    <p style={{ margin: "0 0 8px", fontSize: 13, lineHeight: 1.45, color: COLORS.muted }}>{AFFILIATE_DISCLOSURE_TEXT}</p>
+    <div className="wf-rail wf-rail-exploding wf-christmas" data-rail={CHRISTMAS_TOUR_RAIL_ID} tabIndex={0} role="region" aria-label={CHRISTMAS_TOUR_RAIL_TITLE}>
+      {cards.map((card, index) => <RailCard key={card.id} className="wf-exploding-primary"
+        photo={card.image || null} photoFallbackCategory="christmas" eagerMedia={index < 3}
+        photoAttr={card.credit || null}
+        title={card.title} eyebrow="Light tour" rank={index + 1} score={null}
+        facts={[card.city || null, christmasDistanceLabel({ distMi: card.distMi, approxLocation: true }), card.price ? "from " + card.price : null].filter(Boolean)}
+        chips={card.chip ? [{ key: "type", icon: "🎄", label: card.chip }] : []}
+        take={card.when || null}
+        cta={{
+          label: card.label, href: card.href, external: true, sponsored: true,
+          onClick: () => {
+            try { onTrack?.("tickets_out", { kind: TOUR_SURFACE, id: card.id, name: card.title, deal: card.code }); } catch {}
+            import("../../lib/commerce.js").then(({ emitCommerce }) => {
+              try { emitCommerce("commerce_cta_clicked", { surface: TOUR_SURFACE, content_id: card.id, provider: "viator", merchant: card.via, offer_id: String(card.code) }); } catch {}
+            }).catch(() => {});
+          },
+        }}
+        ariaLabel={`See availability for ${card.title} on Viator`}
+        actionItem={{ id: card.id, type: "experience", title: card.title, image: card.image || null, url: card.href, provider: "viator" }} />)}
+    </div>
+    {cards.length > 1 ? <RailDots railId={CHRISTMAS_TOUR_RAIL_ID} count={cards.length} /> : null}
+  </section>;
+}
+
+/** The tour rail goes right after the Lights rail (or first, if Lights is missing). */
+export function withChristmasTourRail(nodes, rails, tourNode) {
+  const list = Array.isArray(nodes) ? nodes : [];
+  if (!tourNode) return list;
+  const lights = (Array.isArray(rails) ? rails : []).findIndex((rail) => rail && rail.id === "lights");
+  const anchorKey = lights >= 0 ? rails[lights].id : null;
+  const at = anchorKey ? list.findIndex((node) => node && typeof node.key === "string" && node.key.endsWith(":" + anchorKey)) : -1;
+  const pos = at >= 0 ? at + 1 : 0;
+  return [...list.slice(0, pos), tourNode, ...list.slice(pos)];
+}
+
 export default function ChristmasIntentRails({
   active = true, center = null, city = "", onOpenPlace = null, onTrack = null,
   isSaved, liked, disliked, isLiked, isDisliked, onSave, onLike, onDislike, onShare,
@@ -209,8 +264,9 @@ export default function ChristmasIntentRails({
   // Each rail links its OWN guide (owner, 2026-10-08), carried server side on
   // rail.guide and placed INSIDE that rail as its third card (RailGuideSlot,
   // lib/railGuideSlot.js): nothing renders between the rails.
-  return <>{withMoviesRail(payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
+  return <>{withChristmasTourRail(withMoviesRail(payload.rails.map((rail) => <ChristmasRailSection key={`${today}:${rail.id}`} rail={rail} lat={lat} lng={lng} onOpenPlace={onOpenPlace} onTrack={onTrack} city={city}
     isSaved={isSaved} liked={liked} disliked={disliked} isLiked={isLiked} isDisliked={isDisliked}
-    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection="christmas" active={active} onTrack={onTrack} />)}
+    onSave={onSave} onLike={onLike} onDislike={onDislike} onShare={onShare} />), <SeasonalMoviesRail key="seasonal-movies" collection="christmas" active={active} onTrack={onTrack} />),
+    payload.rails, Array.isArray(payload.tours) && payload.tours.length ? <ChristmasTourRail key="christmas-tours" tours={payload.tours} onTrack={onTrack} /> : null)}
   </>;
 }
