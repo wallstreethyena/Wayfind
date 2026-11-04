@@ -21,7 +21,10 @@ import {
   christmasTourHref,
   christmasTourListings,
   christmasTourRow,
+  christmasTileTourCards,
+  CHRISTMAS_TILE_TOUR_SURFACE,
 } from "../lib/christmasTours.js";
+import { readFileSync } from "node:fs";
 import { christmasBrowseCached, christmasBrowseFacets, christmasBrowsePills, parseChristmasBrowseQuery, withChristmasTourListings, christmasBrowseListings } from "../lib/christmasBrowse.js";
 import { attachBrowseTickets, christmasTicketsModel } from "../lib/christmasTickets.js";
 import { santaModelFromListings } from "../lib/santaChat.js";
@@ -130,5 +133,35 @@ const visible = html.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g
 ok(!DASH.test(visible), "the rendered list text is dash free");
 ok(!/sold out/i.test(visible), "no tour is labeled sold out");
 ok(!/<h2/.test(html), "no second section heading: tours live in the one list");
+
+// The homepage Christmas tile (owner 2026-11-04: "Tours under Christmas").
+const PARRISH = { lat: 27.5867, lng: -82.4251 };
+const tile = christmasTileTourCards(failed, PARRISH);
+ok(tile.length === codes.length, "the tile gets every live tour");
+ok(tile.every((c, i) => i === 0 || (c.distMi ?? Infinity) >= (tile[i - 1].distMi ?? Infinity)), "tile tours run nearest start point first (options, never a best pick)");
+ok(tile[0].city !== "Key West" && tile[tile.length - 1].city === "Key West", "a Parrish reader sees the Tampa Bay tours first and Key West last");
+for (const c of tile) {
+  const q = new URLSearchParams(c.href.split("?")[1]);
+  ok(/^\/api\/commerce\/go\?/.test(c.href) && q.get("provider") === "viator" && q.get("offer") === c.code && q.get("surface") === CHRISTMAS_TILE_TOUR_SURFACE && q.get("page") === "home-christmas", c.code + " tile button books through the go route with its own surface");
+  ok(!/viator\.com|pid=|mcid=/.test(JSON.stringify(c)), c.code + " tile card carries no partner URL or id");
+  ok(c.label === CHRISTMAS_TOUR_CTA && c.via === CHRISTMAS_TOUR_VIA && /^\$\d+$/.test(c.price), c.code + " tile card has the See availability button and a from price");
+}
+ok(christmasTileTourCards(failed.slice(0, 0), PARRISH).length === 0 && christmasTileTourCards(null).length === 0, "no tours, no tile cards");
+ok(christmasTileTourCards(failed, {}).every((c) => c.distMi === null), "no location, no distance claimed");
+const route = readFileSync(path.join(root, "app/api/events/christmas/route.js"), "utf8");
+ok(/christmasTourListings\(\)\.catch\(/.test(route) && /christmasTileTourCards\(await toursRead, \{ lat, lng \}\)/.test(route) && /\{ \.\.\.windowRailAnswer\(cached\.value, full\), tours \}/.test(route), "the rails API returns the tile tours beside the rails, outside the cached answer");
+const rails = await loadComponent(path.join(root, "app/components/ChristmasIntentRails.js"), root);
+const tileHtml = renderToStaticMarkup(createElement(rails.ChristmasTourRail, { tours: tile }));
+for (const c of tile) ok(tileHtml.includes('href="' + c.href.replace(/&/g, "&amp;") + '"'), c.code + " renders on the tile with its go href");
+ok((tileHtml.match(/>See availability ↗</g) || []).length === tile.length, "every tile tour shows See availability");
+ok(tileHtml.includes("Some links on this page are affiliate links."), "the tile tour rail carries the readable affiliate sentence");
+ok(/rel="sponsored nofollow noopener"/.test(tileHtml), "tile tour buttons are marked sponsored");
+const tileText = tileHtml.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
+ok(!DASH.test(tileText) && !/sold out|santa|\bbest\b/i.test(tileText), "tile tour text is dash free, never sold out, no Santa, no best");
+ok(renderToStaticMarkup(createElement(rails.ChristmasTourRail, { tours: [] })) === "", "no tours renders nothing");
+const node = (k) => ({ key: k });
+const order = rails.withChristmasTourRail([node("d:lights"), node("d:towns-markets"), node("seasonal-movies")], [{ id: "lights" }, { id: "towns-markets" }], node("christmas-tours")).map((n) => n.key);
+ok(order.join(",") === "d:lights,christmas-tours,d:towns-markets,seasonal-movies", "the tour rail sits right after Lights: " + order.join(","));
+ok(rails.withChristmasTourRail([node("d:x")], [{ id: "x" }], node("t"))[0].key === "t" && rails.withChristmasTourRail([node("d:lights")], [{ id: "lights" }], null).length === 1, "no Lights rail puts tours first; no tours adds nothing");
 
 console.log("test-christmas-tours: OK, " + checks + " assertions (" + codes.length + " Viator Christmas light tours in the one list, go route only)");
