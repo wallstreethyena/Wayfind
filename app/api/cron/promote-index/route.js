@@ -73,6 +73,7 @@ import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metr
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
 import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
+import { breakerOpen, tripBreaker, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -308,6 +309,15 @@ export async function GET(req) {
   const metro = metroParam || null;
   const nowIso = new Date().toISOString();
 
+  // A per-day Google quota 429 (tripped below, or by inventory-refresh) holds
+  // until the Pacific reset. Skip BEFORE the claim so a parked provider costs
+  // no claim, no release round trips and no Google probe every five minutes.
+  const dailyOpen = await breakerOpen(GOOGLE_DETAILS_DAILY_BREAKER);
+  if (dailyOpen) {
+    await recordPulse("promote-index", { attempted: 0, succeeded: 0, note: `quota: google places details per-day quota exhausted; breaker open, skipped until reset (${dailyOpen.reason || "429"})`.slice(0, 200) });
+    return Response.json({ ok: true, skipped: "breaker open", kind: dailyOpen.kind, claimed: 0, promoted: 0 });
+  }
+
   let claimed = [];
   try {
     claimed = await rpc(s, "wf_promotion_claim", { p_metro: metro, p_limit: limit, p_lease_minutes: 15 });
@@ -474,6 +484,7 @@ export async function GET(req) {
   for (const id of released) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: RELEASE_DELAY_MINUTES, p_note: `spend ledger: ${PROMOTE_SKU} ceiling ${effectiveCap(PROMOTE_SKU, monthCap)} reached (month_cap ${monthCap}, gate ${gateMode()})` }));
   if (quotaReleased.length) {
     const delay = quotaKind === "quota_daily" ? minutesUntilQuotaReset(Date.now()) : RATE_LIMIT_DELAY_MINUTES;
+    if (quotaKind === "quota_daily") await tripBreaker(GOOGLE_DETAILS_DAILY_BREAKER, "quota", "google 429 per day", delay * 60 * 1000);
     const parkNote = `google ${quotaKind === "quota_daily" ? "daily" : "rate"} quota 429: parked ${delay}m, attempt refunded`;
     for (const id of quotaReleased) settle.push(rpc(s, "wf_promotion_release", { p_place_id: id, p_delay_minutes: delay, p_note: parkNote }));
   }
