@@ -286,3 +286,94 @@ export function resolvePendingDeclarations({ unresolved, applied, pending, rawHa
   }
   return { errors, declared };
 }
+
+// ── Reading a whole RPC result through PostgREST ───────────────────────────
+// 2026-11-03: wf_schema_objects() returns ~2,350 rows; one POST came back with
+// PostgREST's max-rows cap (1,000), so every object after row 1,000 (columns)
+// looked absent and 9 correct live-schema probes failed. A Range header was
+// then ignored on the rpc POST (rows 0-999 served three times). The reader
+// below pages with offset/limit query parameters, which PostgREST honours on
+// rpc, and proves completeness from the live responses, never from a known
+// row count:
+//   - every response carries an exact count (Prefer: count=exact) whose
+//     Content-Range is "<from>-<to>/<total>" with from == the requested
+//     offset and to == from + rows - 1;
+//   - a page is never empty before the total is reached, never larger than
+//     asked, never byte-identical to the previous page;
+//   - order is deterministic: the caller's order key leaves ties only between
+//     rows that are entirely identical (so any tie order is the same multiset);
+//     `unique` identities (ledger versions) must not repeat;
+//   - the whole result is read TWICE and both reads must be the same multiset
+//     with the same total (a consistent read); if the data changed underneath,
+//     one clean retry, then an explicit failure.
+async function readAllPagesOnce({ url, key, fn, order, identity, unique, fetchImpl, pageSize }) {
+  const base = `${url}/rest/v1/rpc/${fn}?order=${order}&`;
+  const rows = [];
+  let total = null, prevPage = null;
+  for (let pages = 0; pages < 10000; pages++) {
+    const start = rows.length;
+    let r;
+    try {
+      r = await fetchImpl(`${base}offset=${start}&limit=${pageSize}`, {
+        method: "POST",
+        headers: { apikey: key, Authorization: `Bearer ${key}`, "Content-Type": "application/json", Prefer: "count=exact" },
+        body: "{}",
+        cache: "no-store",
+      });
+    } catch (e) { return { error: `${fn}: ${e.message}` }; }
+    if (!r || !r.ok) return { error: `${fn}: HTTP ${r ? r.status : "no response"} ${r && r.text ? (await r.text().catch(() => "")).slice(0, 300) : ""}` };
+    let page;
+    try { page = await r.json(); } catch (e) { return { error: `${fn}: unreadable JSON (${e.message})` }; }
+    if (!Array.isArray(page)) return { error: `${fn}: non-array response` };
+    const cr = String((r.headers && typeof r.headers.get === "function" && r.headers.get("content-range")) || "").trim();
+    const m = /^(?:(\d+)-(\d+)|\*)\/(\d+)$/.exec(cr);
+    if (!m) return { error: `${fn}: no exact count in Content-Range (${cr || "missing"}); completeness cannot be proven` };
+    const pageTotal = Number(m[3]);
+    if (total !== null && pageTotal !== total) return { changed: true, error: `${fn}: total changed between pages (${total} -> ${pageTotal})` };
+    total = pageTotal;
+    if (page.length > pageSize) return { error: `${fn}: asked for ${pageSize} rows, got ${page.length}` };
+    if (page.length === 0) {
+      if (start < total) return { error: `${fn}: empty page at offset ${start} before the total ${total} was reached` };
+      break;
+    }
+    if (m[1] === undefined || Number(m[1]) !== start || Number(m[2]) !== start + page.length - 1) {
+      return { error: `${fn}: asked for rows from ${start}, Content-Range says ${cr} for ${page.length} rows` };
+    }
+    const fp = JSON.stringify(page);
+    if (prevPage !== null && fp === prevPage) return { error: `${fn}: page at offset ${start} repeats the previous page` };
+    prevPage = fp;
+    rows.push(...page);
+    if (rows.length > total) return { error: `${fn}: read ${rows.length} rows, more than the total ${total}` };
+    if (rows.length === total) break;
+  }
+  if (total === null || rows.length !== total) return { error: `${fn}: read ${rows.length} of ${total} rows` };
+  const seen = new Map();
+  for (const row of rows) {
+    const id = identity(row);
+    if (typeof id !== "string" || !id) return { error: `${fn}: row without an identity` };
+    const prior = seen.get(id);
+    if (prior !== undefined) {
+      if (unique) return { error: `${fn}: duplicate identity ${id}` };
+      if (prior !== JSON.stringify(row)) return { error: `${fn}: two different rows share identity ${id}; order is not deterministic` };
+    } else seen.set(id, JSON.stringify(row));
+  }
+  return { rows, total };
+}
+
+const multiset = (rows) => rows.map((r) => JSON.stringify(r)).sort().join("\n");
+
+export async function fetchAllRpcRows({ url, key, fn, order, identity, unique = false, fetchImpl = globalThis.fetch, pageSize = 1000, attempts = 2 }) {
+  if (!order || typeof identity !== "function") return { error: `${fn}: a deterministic order and a row identity are required` };
+  let last = null;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    const a = await readAllPagesOnce({ url, key, fn, order, identity, unique, fetchImpl, pageSize });
+    if (a.error && !a.changed) return a;
+    if (!a.error) {
+      const b = await readAllPagesOnce({ url, key, fn, order, identity, unique, fetchImpl, pageSize });
+      if (b.error && !b.changed) return b;
+      if (!b.error && b.total === a.total && multiset(a.rows) === multiset(b.rows)) return { rows: a.rows, total: a.total, attempts: attempt };
+      last = b.error || `${fn}: two consecutive full reads differ (${a.total} vs ${b.total} rows)`;
+    } else last = a.error;
+  }
+  return { error: `${last}; still inconsistent after ${attempts} clean attempts` };
+}

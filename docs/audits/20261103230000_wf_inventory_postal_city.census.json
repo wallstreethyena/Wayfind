@@ -1,0 +1,309 @@
+{
+ "source": "US Census geocoder onelineaddress + coordinates, Public_AR_Current/Current_Current (public domain)",
+ "rows": [
+  {
+   "place_id": "ChIJKVDd7v_bkIgRv0FaG2bnP9g",
+   "name": "Gulf Breeze Zoo",
+   "listing_address": "5701 Gulf Breeze Pkwy, Gulf Breeze, FL 32563",
+   "evidence_event": "fl26-boo-at-the-zoo-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Woodlawn Beach"
+    ],
+    "county": [
+     "Santa Rosa"
+    ]
+   },
+   "census_matched_address": "5701 GULF BREEZE PKWY, GULF BREEZE, FL, 32563",
+   "census_address_city": "GULF BREEZE",
+   "census_address_zip": "32563",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Woodlawn Beach"
+    ],
+    "county": [
+     "Santa Rosa"
+    ]
+   },
+   "queried": "2026-11-03T21:31:37.230Z"
+  },
+  {
+   "place_id": "ChIJhzWIGZUe24gRZ0qRx2ErnPI",
+   "name": "Mercato",
+   "listing_address": "9110 Strada Place, Naples, FL 34108",
+   "evidence_event": "fl26-hallowine-at-mercato-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Pelican Marsh"
+    ],
+    "county": [
+     "Collier"
+    ]
+   },
+   "census_matched_address": "9110 STRADA PL, NAPLES, FL, 34108",
+   "census_address_city": "NAPLES",
+   "census_address_zip": "34108",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Pelican Marsh"
+    ],
+    "county": [
+     "Collier"
+    ]
+   },
+   "queried": "2026-11-03T21:31:37.511Z"
+  },
+  {
+   "place_id": "ChIJ7_PseA9n54gRpWhEjEiG3uo",
+   "name": "KEG SOCIAL ORLANDO",
+   "listing_address": "12850 Waterford Lakes Parkway, Orlando, FL 32828",
+   "evidence_event": "hw26-haunted-hollywood-halloween-at-keg-social-orlando-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Alafaya"
+    ],
+    "county": [
+     "Orange"
+    ]
+   },
+   "census_matched_address": "12850 WATERFORD LAKES PKWY, ORLANDO, FL, 32828",
+   "census_address_city": "ORLANDO",
+   "census_address_zip": "32828",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Alafaya"
+    ],
+    "county": [
+     "Orange"
+    ]
+   },
+   "queried": "2026-11-03T21:31:38.074Z"
+  },
+  {
+   "place_id": "ChIJ9RHZGx6H3YgRnWVYIWsHNPM",
+   "name": "Gatorland",
+   "listing_address": "14501 S Orange Blossom Trl, Orlando, FL 32837, USA",
+   "evidence_event": "gatorland-ghosts-goblins-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Southchase"
+    ],
+    "county": [
+     "Orange"
+    ]
+   },
+   "census_matched_address": "14501 S ORANGE BLOSSOM TRL, ORLANDO, FL, 32837",
+   "census_address_city": "ORLANDO",
+   "census_address_zip": "32837",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Southchase"
+    ],
+    "county": [
+     "Orange"
+    ]
+   },
+   "queried": "2026-11-03T21:31:38.432Z"
+  },
+  {
+   "place_id": "ChIJN9FTnbF754gRwLFDBN_ahJ4",
+   "name": "Children's Planet",
+   "listing_address": "4401 South Orange Avenue, Suite 120, Orlando, FL 32806",
+   "evidence_event": "hw26-little-pumpkins-fall-festival-at-childrens-orlando-2026",
+   "point": {
+    "inc": [
+     "Edgewood"
+    ],
+    "cdp": [],
+    "county": [
+     "Orange"
+    ]
+   },
+   "census_matched_address": "4401 S ORANGE AVE, ORLANDO, FL, 32806",
+   "census_address_city": "ORLANDO",
+   "census_address_zip": "32806",
+   "address_point_place": {
+    "inc": [
+     "Edgewood"
+    ],
+    "cdp": [],
+    "county": [
+     "Orange"
+    ]
+   },
+   "queried": "2026-11-03T21:31:38.804Z"
+  },
+  {
+   "place_id": "ChIJOWyInLF_54gRgRgjDQy9zhw",
+   "name": "American Social Orlando",
+   "listing_address": "7335 West Sand Lake Road, #101, Orlando, FL 32819",
+   "evidence_event": "hw26-halloween-bar-crawl-10-31-orlando-orlando-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Doctor Phillips"
+    ],
+    "county": [
+     "Orange"
+    ]
+   },
+   "census_matched_address": "7335 W SAND LAKE RD, ORLANDO, FL, 32819",
+   "census_address_city": "ORLANDO",
+   "census_address_zip": "32819",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Doctor Phillips"
+    ],
+    "county": [
+     "Orange"
+    ]
+   },
+   "queried": "2026-11-03T21:31:39.114Z"
+  },
+  {
+   "place_id": "ChIJRQw4SiI35IgRSAIrKfRvWEg",
+   "name": "1912 Ocean Bar & Rooftop",
+   "listing_address": "619 Ponte Vedra Blvd, Ponte Vedra Beach, FL 32082",
+   "evidence_event": "fl26-boos-brews-and-ocean-views-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Sawgrass"
+    ],
+    "county": [
+     "St. Johns"
+    ]
+   },
+   "census_matched_address": "619 PONTE VEDRA BLVD, PONTE VEDRA BEACH, FL, 32082",
+   "census_address_city": "PONTE VEDRA BEACH",
+   "census_address_zip": "32082",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Sawgrass"
+    ],
+    "county": [
+     "St. Johns"
+    ]
+   },
+   "queried": "2026-11-03T21:31:39.480Z"
+  },
+  {
+   "place_id": "ChIJTRfRfgpBw4gR-u488ol_SOw",
+   "name": "Riverview Performing Arts Center",
+   "listing_address": "1 Ram Way, Sarasota, FL 34231",
+   "evidence_event": "hocus-pocus-pops-ii-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "Ridge Wood Heights"
+    ],
+    "county": [
+     "Sarasota"
+    ]
+   },
+   "census_matched_address": "1 RAM WAY, SARASOTA, FL, 34231",
+   "census_address_city": "SARASOTA",
+   "census_address_zip": "34231",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "Ridge Wood Heights"
+    ],
+    "county": [
+     "Sarasota"
+    ]
+   },
+   "queried": "2026-11-03T21:31:39.851Z"
+  },
+  {
+   "place_id": "ChIJWfHLuGMs5IgRZHXJPtNZCr0",
+   "name": "World Golf Village Renaissance",
+   "listing_address": "500 S Legacy Trail, St. Augustine, FL 32092",
+   "evidence_event": "fl26-headless-bangers-costume-ball-2026",
+   "point": {
+    "inc": [],
+    "cdp": [
+     "World Golf Village"
+    ],
+    "county": [
+     "St. Johns"
+    ]
+   },
+   "census_matched_address": "500 S LEGACY TRL, ST AUGUSTINE, FL, 32092",
+   "census_address_city": "ST AUGUSTINE",
+   "census_address_zip": "32092",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [
+     "World Golf Village"
+    ],
+    "county": [
+     "St. Johns"
+    ]
+   },
+   "queried": "2026-11-03T21:31:40.131Z"
+  },
+  {
+   "place_id": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+   "name": "Downtown Wellen Park",
+   "listing_address": "19745 Wellen Park Blvd, Venice, FL 34293",
+   "evidence_event": "wellen-park-spooktacular-2026",
+   "point": {
+    "inc": [
+     "North Port"
+    ],
+    "cdp": [],
+    "county": [
+     "Sarasota"
+    ]
+   },
+   "census_matched_address": "19745 WELLEN PARK BLVD, VENICE, FL, 34293",
+   "census_address_city": "VENICE",
+   "census_address_zip": "34293",
+   "address_point_place": {
+    "inc": [
+     "North Port"
+    ],
+    "cdp": [],
+    "county": [
+     "Sarasota"
+    ]
+   },
+   "queried": "2026-11-03T21:31:40.413Z"
+  },
+  {
+   "place_id": "ChIJ7zRUJ9CowogRM70pcoqrdUM",
+   "name": "Scream-A-Geddon Horror Park",
+   "listing_address": "27839 Saint Joe Rd, Dade City, FL 33525",
+   "evidence_event": "screamageddon-2026",
+   "point": {
+    "inc": [],
+    "cdp": [],
+    "county": [
+     "Pasco"
+    ]
+   },
+   "census_matched_address": "27839 SAINT JOE RD, DADE CITY, FL, 33525",
+   "census_address_city": "DADE CITY",
+   "census_address_zip": "33525",
+   "address_point_place": {
+    "inc": [],
+    "cdp": [],
+    "county": [
+     "Pasco"
+    ]
+   },
+   "queried": "2026-11-03T21:31:40.690Z"
+  }
+ ]
+}
