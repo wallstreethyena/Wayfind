@@ -2485,3 +2485,7 @@ node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
 node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
+
+# Google Place Details per-DAY quota 429 (2026-11-03 audit): breakerCooldownMs holds to the
+# Pacific reset; promote-index and inventory-refresh skip before any claim/select/Google call.
+node scripts/test-google-daily-quota-breaker.mjs

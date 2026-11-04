@@ -35,7 +35,7 @@ import { normalizeDetails, PLACE_DETAILS_FIELDS, PLACE_DETAILS_CACHE_MS } from "
 import { cset } from "../../../../lib/serverCache.js";
 import { inventoryRefreshPatch, refreshSlice, REFRESH_WINDOW_SLOTS } from "../../../../lib/inventoryRefreshPatch.js";
 import { planCheck, planEnterprise, tierOrder, fetchGoogleCheck, ESSENTIALS_MASK, PRO_MASK, TIER_SKU } from "../../../../lib/inventoryGoogleCheck.js";
-import { classifyProviderFailure, breakerOpen, tripBreaker } from "../../../../lib/providerHealth.js";
+import { classifyProviderFailure, breakerOpen, tripBreaker, breakerCooldownMs, BREAKER_COOLDOWN_MS, GOOGLE_DETAILS_DAILY_BREAKER } from "../../../../lib/providerHealth.js";
 import { recordPulse, budgetGateNote, budgetLimitNote } from "../../../../lib/jobPulse";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail";
 
@@ -61,7 +61,7 @@ export async function GET(req) {
   const gkey = (process.env.GOOGLE_MAPS_SERVER_KEY || "").trim();
   if (!url || !svc) return jobCannotRun("inventory-refresh", "SUPABASE_SERVICE_ROLE_KEY or NEXT_PUBLIC_SUPABASE_URL is missing");
   if (!gkey) return jobCannotRun("inventory-refresh", "GOOGLE_MAPS_SERVER_KEY is missing");
-  const open = await breakerOpen(BREAKER);
+  const open = (await breakerOpen(BREAKER)) || (await breakerOpen(GOOGLE_DETAILS_DAILY_BREAKER));
   if (open) {
     await recordPulse("inventory-refresh", { attempted: 0, succeeded: 0, failed: 0, note: `${open.kind}: breaker open, skipped (${open.reason})` });
     return Response.json({ skipped: "breaker open", kind: open.kind });
@@ -146,7 +146,12 @@ export async function GET(req) {
         if (res.kind === "denied") {
           const kind = classifyProviderFailure(res.status, res.body);
           denied = { status: res.status, kind };
-          if (kind) await tripBreaker(BREAKER, kind, "google " + res.status);
+          if (kind) {
+            const cool = breakerCooldownMs(kind, res.status, res.body);
+            await tripBreaker(BREAKER, kind, "google " + res.status, cool);
+            // A per-day quota is shared with promote-index: park both until the reset.
+            if (cool !== BREAKER_COOLDOWN_MS) await tripBreaker(GOOGLE_DETAILS_DAILY_BREAKER, kind, "google " + res.status + " per day", cool);
+          }
           continue;
         }
         if (res.kind === "error") { failed++; continue; }
