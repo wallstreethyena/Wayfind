@@ -12,6 +12,7 @@ import CardPhoto from "../components/CardPhoto.js";
 import CommerceClickBeacon from "../components/CommerceClickBeacon";
 import { SITE_URL } from "../../lib/site";
 import { eventVenueImageSrc } from "../../lib/eventPageImage.js";
+import { eventStaticCover } from "../../lib/christmasPlacePhotos.js";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { isSsgBuild } from "../../lib/landingInventory";
 import { unstable_noStore as noStore } from "next/cache";
@@ -46,7 +47,7 @@ export const metadata = {
 // The same picture the event's own page and Fall rail card show: the stored
 // hero, else the venue's own photo by exact place_id (lib/eventPageImage.js).
 function cardImage(e) {
-  return e.hero_image || eventVenueImageSrc(e) || "";
+  return eventStaticCover(e) || e.hero_image || eventVenueImageSrc(e) || "";
 }
 
 const S = {
