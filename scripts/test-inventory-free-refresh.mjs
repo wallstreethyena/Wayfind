@@ -98,9 +98,20 @@ async function run(m) {
       assert.equal(granted, sub, `${sku}: refresh gets exactly its sub-cap (${sub}), no more`);
       assert.equal(L.used[sku], sub, `${sku}: the grants were counted on the SAME shared ledger row`);
       assert.equal(L.used["refresh_" + sku], sub, `${sku}: and on refresh's own counter`);
-      // the rest of the free line is still there for the site / promoter
+      // Owner 2026-11-03 (option b): refresh has FIRST claim. With refresh's
+      // sub-cap already taken on the shared row, discretionary site reads
+      // (siteReservedCap = free - sub) get nothing more this month...
       let others = 0; for (let i = 0; i < free; i++) if (await gate.spendAllow(sku)) others++;
-      assert.equal(others, free - sub, `${sku}: the site keeps the other half of the free line after refresh took its share`);
+      assert.equal(others, 0, `${sku}: refresh-first — site reads stop once refresh took its reserved share`);
+      assert.equal(L.used[sku], sub, `${sku}: shared row holds exactly refresh's share`);
+      // ...and in the other order the partition still sums to the free line:
+      // the site can always take its (free - sub), then refresh its full sub.
+      const L2 = fakeLedger(); globalThis.fetch = L2.fn; env({ WAYFIND_GATE: "free" });
+      let siteFirst = 0; for (let i = 0; i < free; i++) if (await gate.spendAllow(sku)) siteFirst++;
+      assert.equal(siteFirst, free - sub, `${sku}: site-first order still caps the site at free - sub`);
+      let refreshAfter = 0; for (let i = 0; i < sub + 50; i++) if (await gate.spendAllowRefresh(sku, NOV)) refreshAfter++;
+      assert.equal(refreshAfter, sub, `${sku}: refresh still gets its full sub-cap after the site took its share`);
+      assert.equal(L2.used[sku], free, `${sku}: combined total never passes the free line`);
     }
 
     // ── 1d. NEVER A PAID GRANT: promoter already past the free line, paid switch ON ──
