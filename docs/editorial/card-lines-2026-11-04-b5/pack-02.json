@@ -1,0 +1,286 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 5. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJcXUQt5wp5IgRplRokQNRtFE",
+   "name": "St. Augustine Premium Outlets",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.premiumoutlets.com/outlet/st-augustine/about",
+     "source_name": "St. Augustine Premium Outlets \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St Augustine Premium Outlets is at 2700 State Road 16, St Augustine, FL 32092.",
+      "The center features brands including Columbia Factory Store, kate spade new york, Michael Kors, Nike Factory Store, Under Armour and Vans Outlet.",
+      "Regular hours are Monday to Thursday 10:00 a.m. to 8:00 p.m., Friday to Saturday 10:00 a.m. to 9:00 p.m., and Sunday 12:00 p.m. to 6:00 p.m."
+     ]
+    },
+    {
+     "source": "https://www.premiumoutlets.com/outlet/st-augustine/stores/print",
+     "source_name": "St. Augustine Premium Outlets \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Regular hours are Monday to Thursday 10 a.m.\u20138 p.m., Friday to Saturday 10 a.m.\u20139 p.m., and Sunday 12 p.m.\u20136 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outlet brands include Michael Kors and Nike Factory Store",
+    "why_here": "St Augustine Premium Outlets features Columbia Factory Store, kate spade new york, Michael Kors, Nike Factory Store, Under Armour and Vans Outlet at 2700 State Road 16, St Augustine, FL 32092.",
+    "know_before": "Regular hours are Monday to Thursday 10:00 a.m. to 8:00 p.m., Friday to Saturday 10:00 a.m. to 9:00 p.m., and Sunday 12:00 p.m. to 6:00 p.m.",
+    "local_tip": "Brands include Columbia Factory Store and Vans Outlet.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     ],
+     "why_here": [
+      "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     ],
+     "know_before": [
+      "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     ],
+     "local_tip": [
+      "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St Augustine Premium Outlets is at 2700 State Road 16, St Augustine, FL 32092.",
+      "source": "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     },
+     {
+      "claim": "The center features brands including Columbia Factory Store, kate spade new york, Michael Kors, Nike Factory Store, Under Armour and Vans Outlet.",
+      "source": "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     },
+     {
+      "claim": "Regular hours are Monday to Thursday 10:00 a.m. to 8:00 p.m., Friday to Saturday 10:00 a.m. to 9:00 p.m., and Sunday 12:00 p.m. to 6:00 p.m.",
+      "source": "https://www.premiumoutlets.com/outlet/st-augustine/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYxGtrzGx0YgRO0FndRyfyLs",
+   "name": "Smathers Beach",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5",
+     "source_name": "Smathers Beach \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Smathers Beach is the largest public beach in Key West.",
+      "Smathers Beach is approximately a half mile long.",
+      "Amenities include beach volleyball nets, restrooms, and shower facilities.",
+      "Smathers Beach is on South Roosevelt Boulevard in Key West."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Largest public beach in Key West, about a half mile long",
+    "why_here": "Smathers Beach is the largest public beach in Key West and is approximately a half mile long on South Roosevelt Boulevard, with beach volleyball nets, restrooms, and shower facilities.",
+    "know_before": "Smathers Beach is on South Roosevelt Boulevard in Key West.",
+    "local_tip": "Use the beach volleyball nets, restrooms, and shower facilities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     ],
+     "why_here": [
+      "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     ],
+     "know_before": [
+      "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     ],
+     "local_tip": [
+      "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Smathers Beach is the largest public beach in Key West.",
+      "source": "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     },
+     {
+      "claim": "Smathers Beach is approximately a half mile long.",
+      "source": "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     },
+     {
+      "claim": "Amenities include beach volleyball nets, restrooms, and shower facilities.",
+      "source": "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     },
+     {
+      "claim": "Smathers Beach is on South Roosevelt Boulevard in Key West.",
+      "source": "https://www.cityofkeywest-fl.gov/facilities/facility/details/Smathers-Beach-5"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx-r_mZK02YgRkb5R4DklTs4",
+   "name": "News Cafe",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://newscafesouthbeach.com/brunch/",
+     "source_name": "News Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "News Cafe is at 800 Ocean Drive, Miami Beach, FL 33139.",
+      "The brunch menu includes Cafe Con Leche French Toast.",
+      "The brunch menu includes the News Cafe Big Breakfast.",
+      "The brunch menu includes the Ocean Drive Bacon, Eggs & Cheese Sandwich."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brunch menu includes Cafe Con Leche French Toast",
+    "why_here": "News Cafe on Ocean Drive serves a brunch menu that includes Cafe Con Leche French Toast, the News Cafe Big Breakfast, and the Ocean Drive Bacon, Eggs & Cheese Sandwich in Miami Beach.",
+    "know_before": "News Cafe is at 800 Ocean Drive, Miami Beach, FL 33139.",
+    "local_tip": "Try the News Cafe Big Breakfast from the brunch menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://newscafesouthbeach.com/brunch/"
+     ],
+     "why_here": [
+      "https://newscafesouthbeach.com/brunch/"
+     ],
+     "know_before": [
+      "https://newscafesouthbeach.com/brunch/"
+     ],
+     "local_tip": [
+      "https://newscafesouthbeach.com/brunch/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "News Cafe is at 800 Ocean Drive, Miami Beach, FL 33139.",
+      "source": "https://newscafesouthbeach.com/brunch/"
+     },
+     {
+      "claim": "The brunch menu includes Cafe Con Leche French Toast.",
+      "source": "https://newscafesouthbeach.com/brunch/"
+     },
+     {
+      "claim": "The brunch menu includes the News Cafe Big Breakfast.",
+      "source": "https://newscafesouthbeach.com/brunch/"
+     },
+     {
+      "claim": "The brunch menu includes the Ocean Drive Bacon, Eggs & Cheese Sandwich.",
+      "source": "https://newscafesouthbeach.com/brunch/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa2rMV0w_kYgRFLsynfeWKig",
+   "name": "Gulfarium Marine Adventure Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "aquarium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gulfarium.com/hours-schedule/",
+     "source_name": "Gulfarium Marine Adventure Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gulfarium is open daily from 9:00 a.m. to 4:30 p.m.",
+      "The schedule lists a Dolphin Presentation at Dolphin Oasis.",
+      "The schedule lists a Sea Lion Presentation at Shoreline Theater.",
+      "Admissions closes at 3:30 p.m."
+     ]
+    },
+    {
+     "source": "https://gulfarium.com/memberships/",
+     "source_name": "Gulfarium Marine Adventure Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Admissions closes at 3:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dolphin and sea lion presentations at Dolphin Oasis and Shoreline Theater",
+    "why_here": "Gulfarium lists a Dolphin Presentation at Dolphin Oasis and a Sea Lion Presentation at Shoreline Theater, and Gulfarium is open daily from 9:00 a.m. to 4:30 p.m. for visitors planning a visit.",
+    "know_before": "Gulfarium is open daily from 9:00 a.m. to 4:30 p.m., and admissions closes at 3:30 p.m.",
+    "local_tip": "Check the schedule for the Dolphin Presentation and Sea Lion Presentation before you go.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://gulfarium.com/hours-schedule/"
+     ],
+     "why_here": [
+      "https://gulfarium.com/hours-schedule/"
+     ],
+     "know_before": [
+      "https://gulfarium.com/hours-schedule/"
+     ],
+     "local_tip": [
+      "https://gulfarium.com/hours-schedule/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gulfarium is open daily from 9:00 a.m. to 4:30 p.m.",
+      "source": "https://gulfarium.com/hours-schedule/"
+     },
+     {
+      "claim": "The schedule lists a Dolphin Presentation at Dolphin Oasis.",
+      "source": "https://gulfarium.com/hours-schedule/"
+     },
+     {
+      "claim": "The schedule lists a Sea Lion Presentation at Shoreline Theater.",
+      "source": "https://gulfarium.com/hours-schedule/"
+     },
+     {
+      "claim": "Admissions closes at 3:30 p.m.",
+      "source": "https://gulfarium.com/hours-schedule/"
+     }
+    ]
+   }
+  }
+ ]
+}

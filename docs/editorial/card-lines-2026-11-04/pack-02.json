@@ -1,0 +1,659 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Batch 1: top Florida card-pool places by review count without verified editorial. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ__-_24W02YgRXJM6PONpVbM",
+   "name": "MILA",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mila-miami.com/",
+     "source_name": "MILA \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MILA describes itself as a multi-venue destination in Miami Beach with signature MediterrAsian cuisine drawing on the Mediterranean and Japan.",
+      "MILA includes a rooftop restaurant, a lounge, and MILA Omakase, described as a 12-seat enclosed room.",
+      "The official site describes the rooftop restaurant as combining dining and nightlife."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami Beach rooftop restaurant with MediterrAsian cuisine drawing on the Mediterranean and Japan",
+    "why_here": "Go for signature MediterrAsian cuisine drawing on the Mediterranean and Japan in Miami Beach, with a rooftop restaurant, a lounge, and MILA Omakase in a 12-seat enclosed room.",
+    "know_before": "MILA Omakase is described as a 12-seat enclosed room.",
+    "local_tip": "Choose the rooftop restaurant, lounge, or MILA Omakase.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mila-miami.com/"
+     ],
+     "why_here": [
+      "https://mila-miami.com/"
+     ],
+     "know_before": [
+      "https://mila-miami.com/"
+     ],
+     "local_tip": [
+      "https://mila-miami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MILA describes itself as a multi-venue destination in Miami Beach with signature MediterrAsian cuisine drawing on the Mediterranean and Japan.",
+      "source": "https://mila-miami.com/"
+     },
+     {
+      "claim": "MILA includes a rooftop restaurant, a lounge, and MILA Omakase, described as a 12-seat enclosed room.",
+      "source": "https://mila-miami.com/"
+     },
+     {
+      "claim": "The official site describes the rooftop restaurant as combining dining and nightlife.",
+      "source": "https://mila-miami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ35mkHd9-54gRFIJufii-u0E",
+   "name": "The Wizarding World of Harry Potter - Diagon Alley",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley",
+     "source_name": "The Wizarding World of Harry Potter - Diagon Alley \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Universal lists Harry Potter and the Escape from Gringotts and Hogwarts Express - King's Cross Station in Diagon Alley at Universal Studios Florida.",
+      "Universal's official guide describes Escape from Gringotts as a journey underground encountering Harry, Ron and Hermione.",
+      "Universal states a Park-to-Park admission ticket is needed to board the Hogwarts Express at King's Cross Station."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Universal Studios Florida land with Gringotts ride and Hogwarts Express station",
+    "why_here": "Go to walk Diagon Alley at Universal Studios Florida, ride Harry Potter and the Escape from Gringotts underground, and board the Hogwarts Express at King's Cross Station.",
+    "know_before": "Universal says Park-to-Park admission is required to ride the Hogwarts Express between parks.",
+    "local_tip": "Ride the Hogwarts Express both ways, as Universal notes each direction is a different experience.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     ],
+     "local_tip": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Universal lists Harry Potter and the Escape from Gringotts and Hogwarts Express - King's Cross Station in Diagon Alley at Universal Studios Florida.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     },
+     {
+      "claim": "Universal's official guide describes Escape from Gringotts as a journey underground encountering Harry, Ron and Hermione.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     },
+     {
+      "claim": "Universal states a Park-to-Park admission ticket is needed to board the Hogwarts Express at King's Cross Station.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/lands/the-wizarding-world-of-harry-potter-diagon-alley"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd9nFxyC02YgRVdtnh8Obwp8",
+   "name": "Bayfront Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "city_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bayfrontparkmiami.com/",
+     "source_name": "Bayfront Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayfront Park is a 32-acre waterfront park at 301 Biscayne Blvd, Miami, FL 33132.",
+      "The Bayfront Park Management Trust lists Bayfront Park as open daily 7:00 AM to 11:00 PM with free admission.",
+      "The park features the Mildred and Claude Pepper Fountain with choreographed water, music and light shows."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "32-acre downtown Miami waterfront park with the Pepper Fountain on Biscayne Bay",
+    "why_here": "Go for open green space and Biscayne Bay views in downtown Miami, public art and waterfront walks, and the Mildred and Claude Pepper Fountain shows, all in a 32-acre park at 301 Biscayne Boulevard.",
+    "know_before": "Listed hours are daily 7:00 AM to 11:00 PM and admission is free, per the Trust.",
+    "local_tip": "Check the fountain schedule before visiting, as shows are subject to maintenance and events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bayfrontparkmiami.com/"
+     ],
+     "why_here": [
+      "https://www.bayfrontparkmiami.com/"
+     ],
+     "know_before": [
+      "https://www.bayfrontparkmiami.com/"
+     ],
+     "local_tip": [
+      "https://www.bayfrontparkmiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayfront Park is a 32-acre waterfront park at 301 Biscayne Blvd, Miami, FL 33132.",
+      "source": "https://www.bayfrontparkmiami.com/"
+     },
+     {
+      "claim": "The Bayfront Park Management Trust lists Bayfront Park as open daily 7:00 AM to 11:00 PM with free admission.",
+      "source": "https://www.bayfrontparkmiami.com/"
+     },
+     {
+      "claim": "The park features the Mildred and Claude Pepper Fountain with choreographed water, music and light shows.",
+      "source": "https://www.bayfrontparkmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG2-9xp222YgRJ_Dqby74tmg",
+   "name": "Caf\u00e9 Bastille Downtown Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cafebastilledowntown.com/home",
+     "source_name": "Caf\u00e9 Bastille Downtown Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caf\u00e9 Bastille Downtown Miami is at 248 SE 1st St, Miami, FL 33131, inside The Atrium.",
+      "The official site describes it as an all-day French cafe serving breakfast, brunch and lunch, homemade the French style.",
+      "The official site states the Downtown Miami cafe is walk-in only with no reservations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-day French cafe in downtown Miami for breakfast, brunch and lunch",
+    "why_here": "Go for an all-day French cafe serving breakfast, brunch and lunch, homemade the French style, at 248 SE 1st St in Downtown Miami, inside The Atrium.",
+    "know_before": "Downtown Miami is walk-in only, no reservations, per the official site.",
+    "local_tip": "Inside The Atrium at 248 SE 1st St, Miami.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cafebastilledowntown.com/home"
+     ],
+     "why_here": [
+      "https://www.cafebastilledowntown.com/home"
+     ],
+     "know_before": [
+      "https://www.cafebastilledowntown.com/home"
+     ],
+     "local_tip": [
+      "https://www.cafebastilledowntown.com/home"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caf\u00e9 Bastille Downtown Miami is at 248 SE 1st St, Miami, FL 33131, inside The Atrium.",
+      "source": "https://www.cafebastilledowntown.com/home"
+     },
+     {
+      "claim": "The official site describes it as an all-day French cafe serving breakfast, brunch and lunch, homemade the French style.",
+      "source": "https://www.cafebastilledowntown.com/home"
+     },
+     {
+      "claim": "The official site states the Downtown Miami cafe is walk-in only with no reservations.",
+      "source": "https://www.cafebastilledowntown.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ5UOOwKux5YgRAmO1YNbhTc0",
+   "name": "Jacksonville Zoo and Botanical Gardens",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jacksonvillezoo.org/",
+     "source_name": "Jacksonville Zoo and Botanical Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at 370 Zoo Parkway, Jacksonville, FL 32218",
+      "Open daily 9 a.m. to 5 p.m., with last tickets sold at 4 p.m., except Thanksgiving and Christmas Day",
+      "Offers more than 100 acres of exhibits and gardens",
+      "A portion of ticket and membership proceeds supports more than 45 plant and animal conservation programs"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jacksonville zoo with 100-plus acres of animal exhibits and botanical gardens",
+    "why_here": "Go for a full day across more than 100 acres of animal exhibits and gardens in Jacksonville, with habitats, gardens, and conservation programs supported by ticket and membership proceeds.",
+    "know_before": "Hours are 9 a.m. to 5 p.m. daily with last tickets at 4 p.m.; closed Thanksgiving and Christmas Day.",
+    "local_tip": "Ticket and membership proceeds support more than 45 plant and animal conservation programs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jacksonvillezoo.org/"
+     ],
+     "why_here": [
+      "https://www.jacksonvillezoo.org/"
+     ],
+     "know_before": [
+      "https://www.jacksonvillezoo.org/"
+     ],
+     "local_tip": [
+      "https://www.jacksonvillezoo.org/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at 370 Zoo Parkway, Jacksonville, FL 32218",
+      "source": "https://www.jacksonvillezoo.org/"
+     },
+     {
+      "claim": "Open daily 9 a.m. to 5 p.m., with last tickets sold at 4 p.m., except Thanksgiving and Christmas Day",
+      "source": "https://www.jacksonvillezoo.org/"
+     },
+     {
+      "claim": "Offers more than 100 acres of exhibits and gardens",
+      "source": "https://www.jacksonvillezoo.org/"
+     },
+     {
+      "claim": "A portion of ticket and membership proceeds supports more than 45 plant and animal conservation programs",
+      "source": "https://www.jacksonvillezoo.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmSuujNu72YgRieZswLNZ1VA",
+   "name": "Bulla Gastrobar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bullagastrobar.com/",
+     "source_name": "Bulla Gastrobar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Popular tapas restaurant inspired by Spain's tapas scene, serving sharing plates as they are prepared",
+      "Serves paella in Valencia and Catalonia styles, plus chef's weekly bomba rice creations",
+      "Offers hand-crafted sangria made with red wine, cava, or beer",
+      "Florida locations include Aventura, Coral Gables, Doral, The Falls, Tampa, and Winter Park",
+      "Certified with the Restaurants from Spain quality seal awarded by ICEX"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Popular tapas restaurant with paella and hand-crafted sangria",
+    "why_here": "Go for Spanish sharing plates served as they are prepared, paellas in Valencia and Catalonia styles, and sangria crafted three ways, in a casual gastropub setting designed for dining with friends.",
+    "know_before": "Happy hour days and times vary by location, so check your specific Bulla location before visiting.",
+    "local_tip": "Try hand-crafted sangria made with red wine, cava, or beer.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bullagastrobar.com/"
+     ],
+     "why_here": [
+      "https://bullagastrobar.com/"
+     ],
+     "know_before": [
+      "https://bullagastrobar.com/"
+     ],
+     "local_tip": [
+      "https://bullagastrobar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Popular tapas restaurant inspired by Spain's tapas scene, serving sharing plates as they are prepared",
+      "source": "https://bullagastrobar.com/"
+     },
+     {
+      "claim": "Serves paella in Valencia and Catalonia styles, plus chef's weekly bomba rice creations",
+      "source": "https://bullagastrobar.com/"
+     },
+     {
+      "claim": "Offers hand-crafted sangria made with red wine, cava, or beer",
+      "source": "https://bullagastrobar.com/"
+     },
+     {
+      "claim": "Florida locations include Aventura, Coral Gables, Doral, The Falls, Tampa, and Winter Park",
+      "source": "https://bullagastrobar.com/"
+     },
+     {
+      "claim": "Certified with the Restaurants from Spain quality seal awarded by ICEX",
+      "source": "https://bullagastrobar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc2PcMM612YgR_kdEdDDuTrQ",
+   "name": "Rusty Pelican Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14",
+     "source_name": "Rusty Pelican Miami \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Key Biscayne waterfront eatery located in Rickenbacker Marina",
+      "Offers views of the Miami skyline and sunset views over the water",
+      "Menu is contemporary cuisine with a subtle Latin twist, including raw bar and seafood entrees",
+      "Seafood options include Chilean sea bass with smoked sweet plantain mash, grilled peppers, and mango-papaya salsa",
+      "Serves brunch, lunch, and dinner, with a happy hour from 4 p.m. to 7 p.m. during the week"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key Biscayne waterfront restaurant with Miami skyline and sunset views",
+    "why_here": "Go for waterfront dining in Rickenbacker Marina with views of the Miami skyline at sunset, a raw bar and seafood entrees, and contemporary dishes with a subtle Latin twist for brunch, lunch, or dinner.",
+    "know_before": "The restaurant offers outdoor seating and serves brunch, lunch, dinner, and weekday happy hour.",
+    "local_tip": "Time a weekday visit for the 4 p.m. to 7 p.m. happy hour appetizer and drink specials.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     ],
+     "local_tip": [
+      "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Key Biscayne waterfront eatery located in Rickenbacker Marina",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     },
+     {
+      "claim": "Offers views of the Miami skyline and sunset views over the water",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     },
+     {
+      "claim": "Menu is contemporary cuisine with a subtle Latin twist, including raw bar and seafood entrees",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     },
+     {
+      "claim": "Seafood options include Chilean sea bass with smoked sweet plantain mash, grilled peppers, and mango-papaya salsa",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     },
+     {
+      "claim": "Serves brunch, lunch, and dinner, with a happy hour from 4 p.m. to 7 p.m. during the week",
+      "source": "https://www.miamiandbeaches.com/l/eat-and-drink/rusty-pelican/2397?category=14"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFeW4-Tyr2YgRkZ1DfjmCLmc",
+   "name": "Margaritaville Beach Resort Hollywood Beach",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.margaritavillehollywoodbeachresort.com/",
+     "source_name": "Margaritaville Beach Resort Hollywood Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at 1111 N Ocean Dr, Hollywood, FL 33019, between the Atlantic Ocean and Intracoastal Waterway",
+      "Offers 369 guest rooms with waterfront views",
+      "On-site dining includes JWB Prime Steak and Seafood, LandShark Bar & Grill, Margaritaville Restaurant, and 5 o'Clock Somewhere Bar & Grill",
+      "Resort activities listed include pools and cabanas, FlowRider, kayaking, paddleboarding, and jetski rentals"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hollywood Beach resort between the Atlantic and Intracoastal with 369 rooms",
+    "why_here": "Go for a beachfront stay between the Atlantic Ocean and the Intracoastal Waterway, with waterfront-view rooms, several on-site restaurants and bars, pools, and water activities including kayaking and paddleboarding.",
+    "know_before": "The resort is at 1111 N Ocean Drive in Hollywood; check its FAQ and resort guide to plan your stay.",
+    "local_tip": "Try pools and cabanas, FlowRider, kayaking, paddleboarding, and jetski rentals.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.margaritavillehollywoodbeachresort.com/"
+     ],
+     "why_here": [
+      "https://www.margaritavillehollywoodbeachresort.com/"
+     ],
+     "know_before": [
+      "https://www.margaritavillehollywoodbeachresort.com/"
+     ],
+     "local_tip": [
+      "https://www.margaritavillehollywoodbeachresort.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at 1111 N Ocean Dr, Hollywood, FL 33019, between the Atlantic Ocean and Intracoastal Waterway",
+      "source": "https://www.margaritavillehollywoodbeachresort.com/"
+     },
+     {
+      "claim": "Offers 369 guest rooms with waterfront views",
+      "source": "https://www.margaritavillehollywoodbeachresort.com/"
+     },
+     {
+      "claim": "On-site dining includes JWB Prime Steak and Seafood, LandShark Bar & Grill, Margaritaville Restaurant, and 5 o'Clock Somewhere Bar & Grill",
+      "source": "https://www.margaritavillehollywoodbeachresort.com/"
+     },
+     {
+      "claim": "Resort activities listed include pools and cabanas, FlowRider, kayaking, paddleboarding, and jetski rentals",
+      "source": "https://www.margaritavillehollywoodbeachresort.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFY7wCsjD2YgRn8R_2IMRjtw",
+   "name": "Zoo Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.zoomiami.org/faq",
+     "source_name": "Zoo Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located at 12400 SW 152 Street, Miami, FL 33177",
+      "Open daily from 10 a.m. to 5 p.m., with the last ticket sold at 4 p.m.",
+      "Home to over 2,000 animals representing 375 species, including amphibians, birds, fish, mammals, and reptiles",
+      "Comprises 740 acres, with 346 developed acres housing the zoo and over three miles of walkways",
+      "Parking is free; admission listed as $30 for adults and $26 for ages 3 to 12, with children 2 and under free"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami zoo with over 2,000 animals across 740 acres in a subtropical setting",
+    "why_here": "Go to see over 2,000 animals from 375 species across 346 developed acres with more than three miles of walkways, with giraffe and parrot feedings and keeper talks available during the visit.",
+    "know_before": "Open 10 a.m. to 5 p.m. daily, last ticket at 4 p.m.; parking is free and outside food is not allowed inside.",
+    "local_tip": "Allow four to five hours to explore, the average time the zoo says guests spend on a visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.zoomiami.org/faq"
+     ],
+     "why_here": [
+      "https://www.zoomiami.org/faq"
+     ],
+     "know_before": [
+      "https://www.zoomiami.org/faq"
+     ],
+     "local_tip": [
+      "https://www.zoomiami.org/faq"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located at 12400 SW 152 Street, Miami, FL 33177",
+      "source": "https://www.zoomiami.org/faq"
+     },
+     {
+      "claim": "Open daily from 10 a.m. to 5 p.m., with the last ticket sold at 4 p.m.",
+      "source": "https://www.zoomiami.org/faq"
+     },
+     {
+      "claim": "Home to over 2,000 animals representing 375 species, including amphibians, birds, fish, mammals, and reptiles",
+      "source": "https://www.zoomiami.org/faq"
+     },
+     {
+      "claim": "Comprises 740 acres, with 346 developed acres housing the zoo and over three miles of walkways",
+      "source": "https://www.zoomiami.org/faq"
+     },
+     {
+      "claim": "Parking is free; admission listed as $30 for adults and $26 for ages 3 to 12, with children 2 and under free",
+      "source": "https://www.zoomiami.org/faq"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH9758boB2YgRrs8O7f55ATA",
+   "name": "Caf\u00e9 Bastille Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cafebastilledowntown.com/",
+     "source_name": "Caf\u00e9 Bastille Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caf\u00e9 Bastille Fort Lauderdale location is at 704 SE 1st Street, Fort Lauderdale, FL 33301",
+      "Caf\u00e9 Bastille is a French cafe and bakery serving breakfast, brunch, and lunch, with French toasts, pancakes, waffles, benedicts, and omelette platters",
+      "Caf\u00e9 Bastille hours are Monday to Friday 8:00 a.m. to 4:00 p.m. and Saturday to Sunday 8:00 a.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French cafe and bakery in Fort Lauderdale for breakfast and brunch",
+    "why_here": "Go for breakfast, brunch and lunch at a French cafe and bakery, with French toasts, pancakes, waffles, benedicts and omelette platters served at the Fort Lauderdale location.",
+    "know_before": "Hours are Monday to Friday 8:00 a.m. to 4:00 p.m. and Saturday to Sunday 8:00 a.m. to 5:00 p.m.",
+    "local_tip": "Come for brunch and try the French toasts and pancakes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cafebastilledowntown.com/"
+     ],
+     "why_here": [
+      "https://cafebastilledowntown.com/"
+     ],
+     "know_before": [
+      "https://cafebastilledowntown.com/"
+     ],
+     "local_tip": [
+      "https://cafebastilledowntown.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caf\u00e9 Bastille Fort Lauderdale location is at 704 SE 1st Street, Fort Lauderdale, FL 33301",
+      "source": "https://cafebastilledowntown.com/"
+     },
+     {
+      "claim": "Caf\u00e9 Bastille is a French cafe and bakery serving breakfast, brunch, and lunch, with French toasts, pancakes, waffles, benedicts, and omelette platters",
+      "source": "https://cafebastilledowntown.com/"
+     },
+     {
+      "claim": "Caf\u00e9 Bastille hours are Monday to Friday 8:00 a.m. to 4:00 p.m. and Saturday to Sunday 8:00 a.m. to 5:00 p.m.",
+      "source": "https://cafebastilledowntown.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
