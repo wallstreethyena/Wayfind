@@ -55,7 +55,7 @@ if (holiday) {
 }
 
 const page = readFileSync(new URL("../app/guides/[slug]/page.js", import.meta.url), "utf8");
-ok(page.includes("guidePickFacts") && page.includes("wf-guide-facts"), "guide template must import guidePickFacts and render the wf-guide-facts strip");
+ok(page.includes("guidePickFacts") && page.includes("wf-guide-pick-facts"), "guide template must import guidePickFacts and render the wf-guide-pick-facts strip");
 
 if (fail.length) {
   console.error(`test-guide-pick-facts: FAIL — ${fail.length} assertion(s)`);
