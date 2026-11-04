@@ -29,6 +29,7 @@ const a = eventDetailTicketAction(row());
 ok(a && a.kind === "affiliate" && a.provider === "ticketmaster", `an on-sale Ticketmaster row gets the earning action (got ${JSON.stringify(a)})`);
 const goUrl = a && new URL(a.href, "https://www.gowayfind.com");
 ok(goUrl && goUrl.pathname === "/api/ticketmaster/go" && goUrl.searchParams.get("url") === TM, "the action is ONE /api/ticketmaster/go link whose url= is the exact stored event URL");
+ok(/evyy/.test("https://ticketmaster.evyy.net/c/7475855/264167/4272?u=x"), "probe control: the wrapper pattern matches a real Impact link");
 ok(goUrl && !/evyy/.test(a.href), "the page link carries no affiliate wrapper of its own (the route adds the one wrapper)");
 for (const [label, extra] of [["event_status sold_out", { event_status: "sold_out" }], ["ticket_status sold_out", { ticket_status: "sold_out" }], ["ticket_status 'Off sale'", { ticket_status: "Off sale" }], ["ticket_status cancelled", { ticket_status: "cancelled" }], ["link_ok false", { link_ok: false }]]) {
   ok(eventDetailTicketAction(row(extra)) === null, `no buy button when ${label}`);
