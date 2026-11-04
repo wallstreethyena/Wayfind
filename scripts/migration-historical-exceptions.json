@@ -1,5 +1,48 @@
 [
   {
+    "version": "20261103193355",
+    "name": "event_truth_integrity_scan_and_enforce",
+    "statements_sha256": "575f4ed88f8cd2a31804476f7f1cd99a0cecdfe04b740a4930333d6b008efaf5",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_event_truth_integrity"
+      },
+      {
+        "kind": "function",
+        "name": "wf_event_truth_integrity_enforce"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly to production 2026-11-03T19:33-19:35Z under the owner account (supabase_migrations.schema_migrations.created_by), ledger name and hash read from wf_migration_ledger_hashes(). Reviewed 2026-11-03 against the live ledger text, wf_schema_objects(), pg_proc grants and cron.job. Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live objects on every canary run. Reviewed purpose: Event Truth integrity: wf_event_truth_integrity() scans wf_events (read-only report); wf_event_truth_integrity_enforce() is additive only: sets wf_events.timezone from county (America/Chicago for the 9 Central-time panhandle counties, else America/New_York, Gulf excluded) for rows the scan flags as timezone_mismatch, and schedules recheck_on = tomorrow for flagged rows with no recheck pending (7-day throttle). No deletes, no status changes. EXECUTE revoked from public/anon/authenticated, granted to service_role (verified live: anon/authenticated EXECUTE false).",
+    "reviewed_by": "Claude (claude.exe lane), Wayfind data-integrity handoff 2026-11-03 (canary check-migration-reconciliation; owner-approved in-session)"
+  },
+  {
+    "version": "20261103193512",
+    "name": "event_truth_integrity_case_insensitive_times",
+    "statements_sha256": "27319871e3cd37b3fd0eefd0fb5c44f3cefb10d0e67d779ba89f2180c4ce1366",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_event_truth_integrity"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly to production 2026-11-03T19:33-19:35Z under the owner account (supabase_migrations.schema_migrations.created_by), ledger name and hash read from wf_migration_ledger_hashes(). Reviewed 2026-11-03 against the live ledger text, wf_schema_objects(), pg_proc grants and cron.job. Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live objects on every canary run. Reviewed purpose: Replaces wf_event_truth_integrity() (same signature, read-only scan) so time-text matching is case-insensitive. Grants unchanged (verified live).",
+    "reviewed_by": "Claude (claude.exe lane), Wayfind data-integrity handoff 2026-11-03 (canary check-migration-reconciliation; owner-approved in-session)"
+  },
+  {
+    "version": "20261103193547",
+    "name": "event_truth_integrity_cron_and_status",
+    "statements_sha256": "c99e18ac68da266268df941d217f89475b398e843d0f30b3ba991ad356f52d3b",
+    "probes": [
+      {
+        "kind": "function",
+        "name": "wf_event_truth_status"
+      }
+    ],
+    "reason": "Production-only record with no repo file, applied directly to production 2026-11-03T19:33-19:35Z under the owner account (supabase_migrations.schema_migrations.created_by), ledger name and hash read from wf_migration_ledger_hashes(). Reviewed 2026-11-03 against the live ledger text, wf_schema_objects(), pg_proc grants and cron.job. Per scripts/apply-migration.mjs policy (never reconstruct a migration file from guesses) and the owner's 2026-09-09 rule (already-live unauthorized migrations are recorded and reviewed as deployed, never rolled back): pin the exact ledger hash and probe the live objects on every canary run. Reviewed purpose: Schedules pg_cron job wf-event-truth-integrity ('41 10 * * *', active) that runs the enforce function and writes a wf_job_pulse row (job event-truth-integrity), and replaces wf_event_truth_status() to report it. anon/authenticated EXECUTE false on wf_event_truth_status (verified live).",
+    "reviewed_by": "Claude (claude.exe lane), Wayfind data-integrity handoff 2026-11-03 (canary check-migration-reconciliation; owner-approved in-session)"
+  },
+  {
     "version": "20260718024003",
     "name": "wayfind_command_center_rpcs_v1",
     "statements_sha256": "7a4e97ddd32193d20e73f5cb8502372b7b4ca40f4b9c74304b59a6a8d17a56a0",
