@@ -3,14 +3,14 @@
   "verifiedAt": "2026-11-03",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 309,
-    "usages": 332,
-    "verified": 309,
+    "files": 310,
+    "usages": 333,
+    "verified": 310,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
       "CC BY-SA 4.0": 72,
-      "CC BY-SA 3.0": 72,
+      "CC BY-SA 3.0": 73,
       "CC BY 4.0": 19,
       "CC BY 3.0": 16,
       "CC BY 2.0": 75,
@@ -1109,7 +1109,7 @@
         "licenceUrl": "https://unsplash.com/license",
         "publishedDate": "2025-12-09",
         "evidence": "Primary Unsplash source, free-license statement and downloaded photo visually reviewed on 2026-10-15; this is the same exact natural photo already verified for the Wayfind Google Ads asset.",
-        "verification": "The exact Unsplash source identifies Joseph Corl and Sarasota’s Marie Selby Botanical Gardens Christmas lights, states the free Unsplash License, and was published December 9, 2025. Visually inspected the downloaded aerial photograph: illuminated garden paths and palms on the Sarasota bayfront, the Selby campus, downtown skyline and holiday light displays. This is a previously published holiday display, not evidence of the 2026 layout.",
+        "verification": "The exact Unsplash source identifies Joseph Corl and Sarasota\u2019s Marie Selby Botanical Gardens Christmas lights, states the free Unsplash License, and was published December 9, 2025. Visually inspected the downloaded aerial photograph: illuminated garden paths and palms on the Sarasota bayfront, the Selby campus, downtown skyline and holiday light displays. This is a previously published holiday display, not evidence of the 2026 layout.",
         "downloadSha256": "e9aec0765d45306d15d4e4084cd21741bc45838ff7b9d0376365f7e051cef405",
         "outputSha256": "6ea447f7118ec75f3deedb103e0829b41d6f87faec058676616891ee76539cb3"
       },
@@ -1812,7 +1812,7 @@
         {
           "slug": "orlando-restaurants",
           "role": "pick",
-          "pick": "Otto’s High Dive"
+          "pick": "Otto\u2019s High Dive"
         },
         {
           "slug": "magical-dining-orlando-2026",
@@ -1822,7 +1822,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Otto%E2%80%99s_Rum_Bar.jpg",
-        "title": "Otto’s Rum Bar",
+        "title": "Otto\u2019s Rum Bar",
         "author": "Dclemens1971",
         "dateTaken": "2026-02-15 09:35:25",
         "licence": "CC BY 4.0",
@@ -1882,7 +1882,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:%EA%BD%83_(Cote),_Design_District,_Miami,_Florida.jpg",
-        "title": "꽃 (Cote), Design District, Miami, Florida",
+        "title": "\uaf43 (Cote), Design District, Miami, Florida",
         "author": "Sharon Hahn Darlin",
         "dateTaken": "2021-06-05 19:29:35",
         "licence": "CC BY 2.0",
@@ -2863,14 +2863,14 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG",
-        "title": "SEA LIFE Orlando Aquarium en février 2022",
-        "author": "Benoît Prieur",
+        "title": "SEA LIFE Orlando Aquarium en f\u00e9vrier 2022",
+        "author": "Beno\u00eet Prieur",
         "dateTaken": "2022-02-03 10:29:42",
         "licence": "CC0 1.0 Universal",
         "licenceUrl": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
       },
       "wayfind": {
-        "credit": "Benoît Prieur",
+        "credit": "Beno\u00eet Prieur",
         "creditHref": "https://commons.wikimedia.org/wiki/File:SEA_LIFE_Orlando_Aquarium_en_f%C3%A9vrier_2022.JPG",
         "license": "CC0 1.0 Universal",
         "licenseUrl": "https://creativecommons.org/publicdomain/zero/1.0/",
@@ -3343,6 +3343,36 @@
         "license": "CC BY-SA 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by-sa/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-03"
+    },
+    {
+      "src": "/guides/picks/sarasota-rainy-day/van-wezel-performing-arts-hall.webp",
+      "usedBy": [
+        {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "Van Wezel Performing Arts Hall"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg",
+        "title": "Sarasota FL Van Wezel Arts Center01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-06-19 14:39:03",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized to WebP"
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -4743,13 +4773,13 @@
         {
           "slug": "things-to-do-in-miami-florida",
           "role": "pick",
-          "pick": "Pérez Art Museum Miami"
+          "pick": "P\u00e9rez Art Museum Miami"
         }
       ],
       "source": {
         "kind": "flickr",
         "url": "https://www.flickr.com/photos/southbeachcars/22601118889",
-        "title": "Pérez Art Museum Miami",
+        "title": "P\u00e9rez Art Museum Miami",
         "author": "Phillip Pessar",
         "displayName": "Phillip Pessar",
         "dateTaken": "2015-11-13 13:23:08",
@@ -5873,7 +5903,7 @@
         "licence": "Unsplash License",
         "licenceUrl": "https://unsplash.com/license",
         "evidence": "Primary photo page identifies the named location and explicitly states Free to use under the Unsplash License. Source page and actual downloaded photograph independently reviewed on 2026-09-24.",
-        "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides’ Shell Key paddle trip; no generic substitute or identifiable face."
+        "verification": "Unsplash source uploaded by the Tampa Bay Estuary Program explicitly identifies Shell Key, Florida, and photographer Joe Whalen, with the free Unsplash License. Downloaded and visually inspected 1400px image: clear kayaks with rear-facing paddlers, calm blue water and dense green mangrove shore. Subject directly matches the guides\u2019 Shell Key paddle trip; no generic substitute or identifiable face."
       },
       "wayfind": {
         "credit": "Joe Whalen / Tampa Bay Estuary Program",
@@ -7880,7 +7910,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:C%C3%A0_d%27Zan_bayside_fa%C3%A7ade.jpg",
-        "title": "Cà d'Zan bayside façade",
+        "title": "C\u00e0 d'Zan bayside fa\u00e7ade",
         "author": "McGhiever",
         "dateTaken": "2013-03-28",
         "licence": "CC BY-SA 4.0",
@@ -8541,13 +8571,13 @@
         {
           "slug": "things-to-do-st-petersburg-clearwater-summer-2026",
           "role": "pick",
-          "pick": "The Dalí Museum"
+          "pick": "The Dal\u00ed Museum"
         }
       ],
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
-        "title": "Salvador Dalí Museum",
+        "title": "Salvador Dal\u00ed Museum",
         "author": "Taty2007",
         "dateTaken": "Taken on 13 March 2011 (according to Exi",
         "licence": "CC BY 3.0",
@@ -8817,7 +8847,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Red_sky_over_the_boardwalk_at_Madeira_Beach%2C_florida._Quand_le_ciel_rougit_la_journ%C3%A9e_qui_ach%C3%A8ve..._-_panoramio.jpg",
-        "title": "Red sky over the boardwalk at Madeira Beach, florida. Quand le ciel rougit la journée qui achève... - panoramio",
+        "title": "Red sky over the boardwalk at Madeira Beach, florida. Quand le ciel rougit la journ\u00e9e qui ach\u00e8ve... - panoramio",
         "author": "Richard Mc Neil",
         "dateTaken": "Taken on 16 December 2012",
         "licence": "CC BY 3.0",
@@ -9023,7 +9053,7 @@
         {
           "slug": "tonights-move-tampa-september-12-2026",
           "role": "pick",
-          "pick": "Bruno Mars — The Romantic Tour"
+          "pick": "Bruno Mars \u2014 The Romantic Tour"
         }
       ],
       "source": {
@@ -9427,7 +9457,7 @@
       "source": {
         "kind": "commons",
         "url": "https://commons.wikimedia.org/wiki/File:Long_corridor_de_commerces_sur_la_7i%C3%A8me_Avenue_Est_%C3%A0_Ybor_City,_Tampa,_Florida,_USA_-_panoramio.jpg",
-        "title": "Long corridor de commerces sur la 7ième Avenue Est à Ybor City, Tampa, Florida, USA - panoramio",
+        "title": "Long corridor de commerces sur la 7i\u00e8me Avenue Est \u00e0 Ybor City, Tampa, Florida, USA - panoramio",
         "author": "Richard Mc Neil",
         "dateTaken": "Taken on 1 January 2013",
         "licence": "CC BY 3.0",
