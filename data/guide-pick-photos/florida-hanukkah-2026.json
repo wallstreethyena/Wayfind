@@ -1,0 +1,36 @@
+{
+  "slug": "florida-hanukkah-2026",
+  "picks": {},
+  "gaps": {
+    "Menorah Lighting Celebration": {
+      "reason": "google-only",
+      "placeId": "ChIJMZ2NFvQB2YgRCwcJecybdGY",
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+    },
+    "Grand Chanukah Klezmer Festival and Menorah Lighting": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+    },
+    "Memorial Park Menorah Lighting": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+    },
+    "Chanukah at Wellen Park": {
+      "reason": "google-only",
+      "placeId": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+    },
+    "Grand Menorah Lighting and Fire Show": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event has been sourced yet (Wikimedia Commons, Openverse and Flickr checked 2026-11-03, with Commons heavily rate limited). Guide pages never store or show cached Google photos, so this pick shows a reviewed, credited topic photo captioned \"Illustrative\" (lib/guideContextPhotos.js), never presented as this place. Licensed photo sourcing backlog."
+    }
+  }
+}
