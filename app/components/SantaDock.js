@@ -18,7 +18,7 @@
 // anchored to fixed points in the SVG's own coordinates, so his scale and
 // position never change. Reduced motion: a still, smiling Santa, no gestures.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SantaSvg } from "./santaArt.js";
 import { CHRISTMAS_PATH, isChristmasPath } from "./companionCharacter.js";
@@ -68,6 +68,17 @@ export function santaMessage(path, firstOfSession) {
   if (isChristmasPath(path)) return "Want a shortlist? I can pull 3 Christmas picks with tickets.";
   if (isGuidePath(path)) return "Enjoying this guide? I can pull a few picks like it.";
   return "";
+}
+
+/** The same line, shorter, for when the full one does not fit the dock
+ * (the narrowest phones, where the Feedback button shares the row). */
+export const SHORT_LINES = {
+  [HOST_LINE]: "Wayfind handles your next plan.",
+  "Want a shortlist? I can pull 3 Christmas picks with tickets.": "Want 3 Christmas picks?",
+  "Enjoying this guide? I can pull a few picks like it.": "Want picks like this?",
+};
+export function shortMessage(line) {
+  return SHORT_LINES[line] || line;
 }
 
 function track(event, props) {
@@ -165,6 +176,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   const [act, setAct] = useState(null); // greet | point | delight | null
   const [blink, setBlink] = useState(false);
   const [msg, setMsg] = useState(""); // the unsolicited line on screen, or ""
+  const [tight, setTight] = useState(false); // the full line does not fit: say the short one
   const [rise, setRise] = useState(false);
   const timers = useRef(new Set());
   const actRef = useRef(null);
@@ -227,6 +239,21 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
     return () => { ids.forEach((id) => { clearTimeout(id); timers.current.delete(id); }); };
   }, [path, doAct, later]);
 
+  // Fit: if the full line overflows the dock, swap to its short form, so a
+  // message is never cut off. One resize listener while a line is showing.
+  useLayoutEffect(() => {
+    setTight(false);
+    if (!msg) return undefined;
+    const check = () => {
+      const el = document.querySelector(".wf-sd-msg");
+      setTight(Boolean(el && el.scrollHeight > el.clientHeight + 1));
+    };
+    check();
+    const onResize = () => { setTight(false); later(check, 80); };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [msg, later]);
+
   // Blinks keep him alive between gestures; skipped mid action and when hidden.
   useEffect(() => {
     if (reduced) return undefined;
@@ -268,7 +295,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   if (typeof document === "undefined" || !document.body) return null;
   return createPortal(
     <DockView
-      action={action} msg={msg} act={act} face={face} arm={arm} reduced={reduced} rise={rise}
+      action={action} msg={msg && tight ? shortMessage(msg) : msg} act={act} face={face} arm={arm} reduced={reduced} rise={rise}
       onTap={tapSanta} onCta={runAction} onDismiss={() => setMsg("")} onFeedback={openFeedback}
     />,
     document.body
