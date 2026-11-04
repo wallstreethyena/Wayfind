@@ -46,6 +46,7 @@ import {
   canonicalSingleStatementHash,
   verifyLedgerContent,
   resolvePendingDeclarations,
+  fetchAllRpcRows,
 } from "./lib/migrationReconciliation.mjs";
 
 const REPO = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -107,6 +108,50 @@ const MIGRATIONS_DIR = path.join(REPO, "supabase", "migrations");
     if (!verdict("d".repeat(64), [entry]).errors.length) { fails++; console.error("self-test FAIL — a baselined row whose ledger text changed again must fail"); }
     if (!verdict(hashes.get(file), [entry]).errors.some((e) => e.startsWith("stale content baseline"))) { fails++; console.error("self-test FAIL — a baseline entry for a row that now matches must be reported stale"); }
   }
+  // Paging, against a server that behaves like PostgREST on an rpc POST:
+  // honours ?offset=&limit=, caps every response at max-rows, answers
+  // Content-Range "<from>-<to>/<exact count>" ("*/<count>" when empty).
+  // Each faulty variant is a way a read can look complete and not be.
+  {
+    const mk = (n) => Array.from({ length: n }, (_, i) => ({ kind: i % 7 ? "column" : "function", name: `obj_${String(i).padStart(5, "0")}` }))
+      .sort((a, b) => (a.kind + ":" + a.name < b.kind + ":" + b.name ? -1 : 1));
+    const base = mk(2349);
+    const pgrst = ({ cap = 1000, data = () => base, ignoreOffset = false, lieRange = false, count = true, malformed = false, emptyAt = -1, shortBy = 0, extraCount = 0, dupFirst = false } = {}) => {
+      let calls = 0;
+      return async (url) => {
+        calls++;
+        const q = new URL(url).searchParams;
+        if (!q.get("order")) throw new Error("fixture: no order requested");
+        const rows = data(calls);
+        const all = dupFirst ? [rows[0], ...rows.slice(0, rows.length - 1)] : rows.slice(0, rows.length - shortBy);
+        const off = ignoreOffset ? 0 : Number(q.get("offset") || 0);
+        const lim = Math.min(Number(q.get("limit") || cap), cap);
+        let page = all.slice(off, off + lim);
+        if (emptyAt >= 0 && Number(q.get("offset")) >= emptyAt) page = [];
+        const reportedFrom = lieRange ? Number(q.get("offset") || 0) : off;
+        const totalStr = String(rows.length + extraCount);
+        const cr = malformed ? `rows ${reportedFrom}` : page.length ? `${reportedFrom}-${reportedFrom + page.length - 1}/${totalStr}` : `*/${totalStr}`;
+        return { ok: true, status: 206, json: async () => page, headers: { get: (h) => (count && h.toLowerCase() === "content-range" ? cr : null) } };
+      };
+    };
+    const read = (fetchImpl, extra = {}) => fetchAllRpcRows({ url: "https://fixture.invalid", key: "k", fn: "fixture_rpc", order: "kind.asc,name.asc", identity: (r) => `${r.kind}:${r.name}`, fetchImpl, ...extra });
+    const expectOk = async (label, f, n) => { const r = await read(f); if (r.error || r.rows.length !== n) { fails++; console.error(`self-test FAIL — paging: ${label} must read all ${n} rows (${r.error || r.rows.length})`); } };
+    const expectFail = async (label, f, extra) => { const r = await read(f, extra); if (!r.error) { fails++; console.error(`self-test FAIL — paging: ${label} must fail closed, it returned ${r.rows.length} rows as complete`); } };
+    await expectOk("a 1,000-row cap", pgrst(), 2349);
+    await expectOk("a smaller unknown cap (300)", pgrst({ cap: 300 }), 2349);
+    await expectOk("an exact multiple of the page size", pgrst({ data: () => mk(2000) }), 2000);
+    await expectOk("an empty result", pgrst({ data: () => [] }), 0);
+    await expectOk("one clean retry after the data changed mid-read", pgrst({ data: (c) => (c <= 2 ? mk(2349) : mk(2350)) }), 2350);
+    await expectFail("first page only (offset ignored, honest range)", pgrst({ ignoreOffset: true }));
+    await expectFail("offset ignored behind a range that echoes the request", pgrst({ ignoreOffset: true, lieRange: true }));
+    await expectFail("no exact count", pgrst({ count: false }));
+    await expectFail("a malformed Content-Range", pgrst({ malformed: true }));
+    await expectFail("an empty page before the total", pgrst({ emptyAt: 1000 }));
+    await expectFail("fewer rows than the server's own count", pgrst({ shortBy: 5 }));
+    await expectFail("a count larger than the rows served", pgrst({ extraCount: 3 }));
+    await expectFail("a dataset that keeps changing", pgrst({ data: (c) => mk(2349 + c) }));
+    await expectFail("a repeated identity in a unique key", pgrst({ dupFirst: true }), { unique: true });
+  }
   if (fails) {
     console.error(`check-migration-reconciliation: FAIL — ${fails} comparator self-test(s) failed; the comparator itself is broken, its verdicts below cannot be trusted`);
     process.exit(1);
@@ -121,20 +166,11 @@ if (!URL_ || !KEY) {
   process.exit(0);
 }
 
-async function callRpc(fn) {
-  const r = await fetch(`${URL_}/rest/v1/rpc/${fn}`, {
-    method: "POST",
-    headers: { apikey: KEY, Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" },
-    body: "{}",
-    cache: "no-store",
-  });
-  if (!r.ok) return { error: `${r.status} ${(await r.text().catch(() => "")).slice(0, 300)}` };
-  const rows = await r.json();
-  if (!Array.isArray(rows)) return { error: "non-array response" };
-  return { rows };
-}
 
-const [ledgerResult, objectsResult] = await Promise.all([callRpc("wf_migration_ledger_hashes"), callRpc("wf_schema_objects")]);
+const [ledgerResult, objectsResult] = await Promise.all([
+  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_migration_ledger_hashes", order: "version.asc", identity: (r) => r && r.version, unique: true }),
+  fetchAllRpcRows({ url: URL_, key: KEY, fn: "wf_schema_objects", order: "kind.asc,name.asc", identity: (r) => r && `${r.kind}:${r.name}` }),
+]);
 if (ledgerResult.error || objectsResult.error) {
   console.error(`check-migration-reconciliation: FAIL — introspection RPC unreachable (wf_migration_ledger_hashes: ${ledgerResult.error || "ok"}; wf_schema_objects: ${objectsResult.error || "ok"}).`);
   console.error("  If this is a fresh deploy: apply the canonical wf_deploy_contract_audit and wf_migration_ledger_hashes migrations first — this check has no way to read the applied-migration ledger without it.");
