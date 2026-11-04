@@ -23,6 +23,8 @@ import { createPortal } from "react-dom";
 import { SantaSvg } from "./santaArt.js";
 import { CHRISTMAS_PATH, isChristmasPath } from "./companionCharacter.js";
 import { captureOrQueue } from "../../lib/browserAnalytics.js";
+import { siteTodayParts } from "../../lib/siteTime.js";
+import { siteHourFloat, bucketForHour, BUCKET_EDGES } from "../../lib/nowContext.js";
 
 export const DOCK_H = 64; // px, the dock's height above the safe area (phones)
 export const DOCK_H_WIDE = 68; // px, from 720px wide
@@ -31,11 +33,13 @@ export const SAID_MAX = 2; // at most this many per session, across navigation
 export const SHOWN_KEY = "wf_santa_dock_shown"; // one "shown" event per session
 export const GREETED_KEY = "wf_santa_greeted"; // the hello wave, once per session
 export const MSG_MS = 8000; // how long an unsolicited message stays before it rests
-export const ACT_MS = Object.freeze({ greet: 1700, point: 1500, delight: 560 });
+export const ACT_MS = Object.freeze({ greet: 1700, point: 1500, delight: 560, chuckle: 1200, peek: 1500 });
 export const POINT_GAP = [32000, 48000]; // ms between gestures toward his button
 export const POINT_MAX = 3; // per page
 export const BLINK_GAP = [3600, 6200];
 export const BLINK_MS = 150;
+export const QUIP_GAP = [22000, 30000]; // ms between his idle quips
+export const QUIP_MAX = 3; // idle quips per page (calm, never chatter)
 
 export const HOST_LINE = "I handle the nice list. Wayfind handles your next plan.";
 export const REST_LINE = "Santa, Wayfind's holiday host";
@@ -79,6 +83,48 @@ export const SHORT_LINES = {
 };
 export function shortMessage(line) {
   return SHORT_LINES[line] || line;
+}
+
+// PERSONALITY BETWEEN MESSAGES (owner 2026-11-04: "more personality, keep him
+// where he is"). After his line rests, the name tag becomes his voice: one
+// short quip under his name, changed at most every QUIP_GAP and at most
+// QUIP_MAX times a page. Every quip is either a joke that claims nothing about
+// a place, or a true fact (the Eastern-calendar countdown, the time of day).
+// Quips are not announced to screen readers (aria-live off at rest); only his
+// real messages are.
+/** Whole days from today (site calendar, Eastern) to this year's Dec 25; negative after it. */
+export function daysToChristmas(now = new Date()) {
+  const { y, m, d } = siteTodayParts(now);
+  return Math.round((Date.UTC(y, 11, 25) - Date.UTC(y, m - 1, d)) / 86400000);
+}
+export function countdownQuip(now = new Date()) {
+  const n = daysToChristmas(now);
+  if (n > 1) return n + " sleeps till Christmas.";
+  if (n === 1) return "One more sleep!";
+  if (n === 0) return "Merry Christmas! Go somewhere nice.";
+  return "Still in the holiday spirit.";
+}
+export function timeQuip(now = new Date()) {
+  // The one site clock (lib/nowContext.js): its bucket, and late night inside it.
+  const h = siteHourFloat(now);
+  const b = bucketForHour(h);
+  if (b === "morning") return "Morning! Elves are on coffee.";
+  if (b === "afternoon") return "Sleigh's parked. Where to?";
+  return h >= 22 || h < BUCKET_EDGES.morningStart ? "Up late? Busy season for me too." : "Lights look best after dark.";
+}
+export function pageQuip(path) {
+  const p = cleanPath(path);
+  if (isChristmasPath(p)) return "I checked this list twice.";
+  if (isGuidePath(p)) return "Good guide. I'm taking notes.";
+  if (/^\/(?:places|p)\//.test(p)) return "Nice pick. It's on my list.";
+  if (/^\/(?:events|florida-events)(?:\/|$)/.test(p)) return "Tickets fit nicely in a stocking.";
+  if (/^\/map(?:\/|$)/.test(p)) return "I know these roads. From above.";
+  if (p === "/") return "Checking my list. You're nice.";
+  return "Ho ho. Need a plan?";
+}
+/** His idle quips for this page, in order: the page, the countdown, the hour. */
+export function santaQuips(path, now = new Date()) {
+  return [pageQuip(path), countdownQuip(now), timeQuip(now)];
 }
 
 function track(event, props) {
@@ -139,9 +185,19 @@ html.wf-santa-docked:has(.wf-bottom-nav) body{padding-bottom:calc(var(--wf-santa
 @keyframes wf-sd-point{0%,100%{transform:rotate(0)}18%{transform:rotate(-4deg)}45%,70%{transform:rotate(13deg)}}
 @keyframes wf-sd-glint{0%,100%{transform:scale(1)}45%,70%{transform:scale(1.28)}}
 .wf-sd-fig[data-act="delight"]{animation:wf-sd-hop .52s cubic-bezier(.3,.7,.35,1) both}
+.wf-sd-fig[data-act="chuckle"] svg .s-body{animation:wf-sd-jiggle 1.1s ease-in-out both}
+.wf-sd-fig[data-act="chuckle"] svg .s-head{animation:wf-sd-nod 1.1s ease-in-out both}
+@keyframes wf-sd-jiggle{0%,100%{transform:none}15%{transform:scale(1.035,.965)}30%{transform:scale(.985,1.02)}45%{transform:scale(1.03,.97)}62%{transform:scale(.99,1.012)}80%{transform:scale(1.015,.985)}}
+@keyframes wf-sd-nod{0%,100%{transform:rotate(0)}20%{transform:rotate(-3deg)}45%{transform:rotate(2.2deg)}70%{transform:rotate(-1.6deg)}}
+.wf-sd-fig[data-act="peek"] svg .s-head{animation:wf-sd-peek 1.4s cubic-bezier(.45,0,.3,1) both}
+.wf-sd-fig[data-act="peek"] svg .s-star{animation:wf-sd-glint 1.4s ease-in-out both}
+@keyframes wf-sd-peek{0%,100%{transform:rotate(0)}25%,72%{transform:rotate(7deg)}}
 .wf-sd-msg{flex:1 1 auto;min-width:0;margin:0;color:#E7EDF5;font-size:13px;font-weight:600;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .wf-sd-msg b{color:#fff;font-weight:800}
 .wf-sd-msg.is-said{color:#FFF3DF}
+.wf-sd-q{color:#DCE4EE;font-weight:600}
+.wf-sd-msg .wf-sd-q{animation:wf-sd-qin .45s ease-out both}
+@keyframes wf-sd-qin{from{opacity:0}to{opacity:1}}
 .wf-sd-msg.is-said span{animation:wf-sd-fade .35s ease-out both}
 @keyframes wf-sd-fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 .wf-sd-x{all:unset;box-sizing:border-box;flex:0 0 auto;width:32px;height:32px;display:grid;place-items:center;border-radius:50%;color:#8B97AA;font-size:18px;line-height:1;cursor:pointer}
@@ -178,6 +234,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   const [msg, setMsg] = useState(""); // the unsolicited line on screen, or ""
   const [tight, setTight] = useState(false); // the full line does not fit: say the short one
   const [rise, setRise] = useState(false);
+  const [quip, setQuip] = useState(""); // his idle quip at rest, or ""
   const timers = useRef(new Set());
   const actRef = useRef(null);
   const points = useRef(0);
@@ -215,6 +272,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   useEffect(() => {
     points.current = 0;
     setMsg("");
+    setQuip("");
     const page = cleanPath(path);
     const first = ss(GREETED_KEY) !== "1";
     const said = Number(ss(SAID_KEY)) || 0;
@@ -230,6 +288,21 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
         at(() => setMsg(""), MSG_MS);
       }, first ? 900 : 2500);
     }
+    // Idle quips: the first once his line (if any) has rested, then a few
+    // more, slowly. A hidden tab skips its turn. Each quip brings a small
+    // matching gesture (a chuckle or a peek at his button), never a burst.
+    const quips = santaQuips(page, new Date());
+    let q = 0;
+    const nextQuip = (ms) => at(() => {
+      if (q >= Math.min(QUIP_MAX, quips.length)) return;
+      if (!document.hidden) {
+        setQuip(quips[q]);
+        doAct(q % 2 ? "peek" : "chuckle");
+        q += 1;
+      }
+      nextQuip(between(QUIP_GAP[0], QUIP_GAP[1]));
+    }, ms);
+    nextQuip(line ? (first ? 900 : 2500) + MSG_MS + 1800 : 4000);
     const nextPoint = () => at(() => {
       if (points.current >= POINT_MAX) return;
       if (doAct("point")) points.current += 1;
@@ -243,7 +316,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   // message is never cut off. One resize listener while a line is showing.
   useLayoutEffect(() => {
     setTight(false);
-    if (!msg) return undefined;
+    if (!msg && !quip) return undefined;
     const check = () => {
       const el = document.querySelector(".wf-sd-msg");
       setTight(Boolean(el && el.scrollHeight > el.clientHeight + 1));
@@ -252,7 +325,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
     const onResize = () => { setTight(false); later(check, 80); };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, [msg, later]);
+  }, [msg, quip, later]);
 
   // Blinks keep him alive between gestures; skipped mid action and when hidden.
   useEffect(() => {
@@ -281,7 +354,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
     if (action.kind === "ask") { e.preventDefault(); if (onAsk) onAsk(action.prompt, "dock-cta"); }
   };
 
-  const face = blink ? "blink" : act === "point" ? "wink" : act === "delight" ? "grin" : "happy";
+  const face = blink ? "blink" : act === "point" || act === "peek" ? "wink" : act === "delight" || act === "chuckle" ? "grin" : "happy";
   // The wand never leaves his hand: the hello waves the free arm ("both"), so
   // no prop pops in or out between gestures.
   const arm = act === "greet" || act === "delight" ? "both" : "wand";
@@ -295,7 +368,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
   if (typeof document === "undefined" || !document.body) return null;
   return createPortal(
     <DockView
-      action={action} msg={msg && tight ? shortMessage(msg) : msg} act={act} face={face} arm={arm} reduced={reduced} rise={rise}
+      action={action} msg={msg && tight ? shortMessage(msg) : msg} quip={quip} tight={tight} act={act} face={face} arm={arm} reduced={reduced} rise={rise}
       onTap={tapSanta} onCta={runAction} onDismiss={() => setMsg("")} onFeedback={openFeedback}
     />,
     document.body
@@ -303,7 +376,7 @@ export default function SantaDock({ path, reduced = false, onOpen, onAsk }) {
 }
 
 /** The dock's markup, pure (no DOM reads), so a guard can render it. */
-export function DockView({ action, msg, act, face = "happy", arm = "wand", reduced = false, rise = false, onTap, onCta, onDismiss, onFeedback }) {
+export function DockView({ action, msg, quip = "", tight = false, act, face = "happy", arm = "wand", reduced = false, rise = false, onTap, onCta, onDismiss, onFeedback }) {
   const label = (
     <>
       <span className="wf-sd-l">{action.label}</span>
@@ -320,8 +393,12 @@ export function DockView({ action, msg, act, face = "happy", arm = "wand", reduc
               <SantaSvg face={face} arm={arm} glow={false} />
             </span>
           </button>
-          <p className={"wf-sd-msg" + (msg ? " is-said" : "")} role="status" aria-live="polite">
-            {msg ? <span key={msg}>{msg}</span> : <span><b>Santa</b>, Wayfind&apos;s holiday host</span>}
+          <p className={"wf-sd-msg" + (msg ? " is-said" : "")} role="status" aria-live={msg ? "polite" : "off"}>
+            {msg
+              ? <span key={msg}>{msg}</span>
+              : quip
+                ? <span>{tight ? null : <><b>Santa:</b> </>}<span className="wf-sd-q" key={quip}>{quip}</span></span>
+                : <span><b>Santa</b>, Wayfind&apos;s holiday host</span>}
           </p>
           {msg ? <button type="button" className="wf-sd-x" aria-label="Dismiss Santa's message" onClick={onDismiss}>{"×"}</button> : null}
           {action.kind === "link"
