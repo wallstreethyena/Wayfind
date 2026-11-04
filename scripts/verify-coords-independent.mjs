@@ -50,7 +50,7 @@ export function wayfindOwnedNames() {
     const [, name, address, pid] = line.split("\t");
     if (pid) add(pid.trim(), "atlas-owner-sheet", name, "data/atlas/atlas-590.tsv", { address: /^\d/.test(address || "") ? address : null });
   }
-  const files = ["guides.js", "guidesGulfCoast2026.js", "guidesSummer2026.js", "guidesPintosFarm2026.js", "guidesCoverage2026.js", "guidesFallOrlando2026.js", "guidesFoodCities2026.js", "localPicks.js", "chefPicks.js", "culture.js", "summerUniverse.js", "birthdayUniverse.js", "wayfindAwards.js"];
+  const files = ["guides.js", "guidesGulfCoast2026.js", "guidesSummer2026.js", "guidesPintosFarm2026.js", "guidesCoverage2026.js", "guidesFallOrlando2026.js", "guidesFoodCities2026.js", "localPicks.js", "chefPicks.js", "culture.js", "cultureNotes.js", "summerUniverse.js", "birthdayUniverse.js", "wayfindAwards.js"];
   for (const f of files) {
     const p = path.join(ROOT, "lib", f);
     if (!existsSync(p)) continue;
