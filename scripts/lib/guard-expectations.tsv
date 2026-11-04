@@ -36,7 +36,7 @@ scripts/check-auth.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	c36a57c0cebdfa25c0
 scripts/check-awin-links.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	47	0	0	ea027d2072ad4a48c15f6b2d1e9011e0b1c3b9b0fa1234869d1dac2aeb409789
 scripts/check-banned-art.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	4	1	0	37c50cf1e182ae88ef166a5a23140b2719db54eaacb630edffcfcf5cf882ac0c
 scripts/check-bare-path-redirects.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	5	0	0	cdf7f4a91c5695995e79c38c9a59c3d428e59c2f5503132a3ce3370599c79079
-scripts/check-bestof-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	44	0	0	8c258550775f31bc569b2d66e5a290157a119c47b430faeecb8dbcef5da95d13
+scripts/check-bestof-pages.mjs	0	RENDER	blocks-ci-and-deploy	1	-	49	0	0	974d26087e556efc503c381c61587ded9693301d90bddaf1866290e7d1f38fb5
 scripts/check-boo-companion.mjs	0	CALL	blocks-ci-and-deploy	1	-	285	0	0	d36c604d0e07a2488f0eb36ad52f2ec1b3698d2c78c2f126be82206c55440c2c
 scripts/check-book-cta-needs-a-seller.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	26	0	0	e4e3109563307cbff87fb4ae2a2e662a993c26776ed8828b4e0662fd938048c3
 scripts/check-booking-cta.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	16	0	0	02a459236ddc495476ff62024a08d845b2c6c7c20fe112d146705af9f89769d4
