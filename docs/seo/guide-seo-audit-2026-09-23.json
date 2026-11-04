@@ -2610,7 +2610,7 @@
       "url": "https://www.gowayfind.com/guides/trending-in-florida-this-week-nov-2-2026",
       "primary_query": "trending in florida this week",
       "geography": "Tampa Bay",
-      "decision": "Week of November 2, 2026 in the Tampa, St. Pete and Sarasota area: 19 verified things that are moving, then 19 relative Google Trends phrases.",
+      "decision": "Week of November 2, 2026 in the Tampa, St. Pete and Sarasota area: 22 verified things that are moving, then 19 relative Google Trends phrases.",
       "checks": {
         "source_route": {
           "status": "pass",
@@ -4635,7 +4635,7 @@
       "url": "https://www.gowayfind.com/guides/florida-thanksgiving-weekend-2026",
       "primary_query": "things to do in florida thanksgiving weekend 2026",
       "geography": "Florida",
-      "decision": "Ten Florida things to do Nov 26 to 30, 2026, from the Miami and Brevard Zoo turkey trots to the Daytona Turkey Run and Stuart's tree lighting.",
+      "decision": "Ten Florida things to do Nov 25 to 29, 2026, from the Miami and Brevard Zoo turkey trots to the Daytona Turkey Run and Stuart's tree lighting.",
       "checks": {
         "source_route": {
           "status": "pass",
