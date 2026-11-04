@@ -1,0 +1,2059 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 13. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJc96gkhH5wogRwG8NGL4hGFQ",
+   "name": "Caddy's Indian Shores",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://caddys.com/indian-shores/",
+     "source_name": "Caddy's Indian Shores \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dine on the Intracoastal at Caddy's Indian Shores.",
+      "Caddy's Indian Shores is between the Gulf of America and the Intracoastal.",
+      "Caddy's Indian Shores serves fresh seafood.",
+      "Hours are Sunday to Thursday 11 a.m. to 9 p.m.",
+      "Hours are Friday to Saturday 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dine on the Intracoastal with fresh seafood by the Gulf of America",
+    "why_here": "Caddy's Indian Shores sits between the Gulf of America and the Intracoastal, where guests can dine on the Intracoastal and order fresh seafood in view of the water.",
+    "know_before": "Hours are Sunday to Thursday 11 a.m. to 9 p.m. and Friday to Saturday 11 a.m. to 10 p.m.",
+    "local_tip": "Fresh seafood is served while you dine on the Intracoastal.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://caddys.com/indian-shores/"
+     ],
+     "why_here": [
+      "https://caddys.com/indian-shores/"
+     ],
+     "know_before": [
+      "https://caddys.com/indian-shores/"
+     ],
+     "local_tip": [
+      "https://caddys.com/indian-shores/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dine on the Intracoastal at Caddy's Indian Shores.",
+      "source": "https://caddys.com/indian-shores/"
+     },
+     {
+      "claim": "Caddy's Indian Shores is between the Gulf of America and the Intracoastal.",
+      "source": "https://caddys.com/indian-shores/"
+     },
+     {
+      "claim": "Caddy's Indian Shores serves fresh seafood.",
+      "source": "https://caddys.com/indian-shores/"
+     },
+     {
+      "claim": "Hours are Sunday to Thursday 11 a.m. to 9 p.m.",
+      "source": "https://caddys.com/indian-shores/"
+     },
+     {
+      "claim": "Hours are Friday to Saturday 11 a.m. to 10 p.m.",
+      "source": "https://caddys.com/indian-shores/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ06kN_FYA2YgRulZc3sJuIQc",
+   "name": "YOLO Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://yolorestaurant.com/dinner/",
+     "source_name": "YOLO Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "YOLO is located at 333 East Las Olas Boulevard, Fort Lauderdale.",
+      "The YOLO dinner menu includes Szechuan Calamari with garlic chili sauce, peanuts, sesame and miso aioli.",
+      "The YOLO dinner menu includes Pan-Roasted Sea Bass.",
+      "Dinner hours are Monday to Thursday 4 p.m. to 11 p.m.",
+      "Dinner hours are Friday to Saturday 4 p.m. to 12 a.m. and Sunday 4 p.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner on Las Olas Boulevard with Szechuan Calamari and Pan-Roasted Sea Bass",
+    "why_here": "YOLO serves dinner on East Las Olas Boulevard in Fort Lauderdale, with a dinner menu that includes Szechuan Calamari and Pan-Roasted Sea Bass for guests dining in the evening.",
+    "know_before": "Dinner hours are Monday to Thursday 4 p.m. to 11 p.m., Friday to Saturday 4 p.m. to 12 a.m., and Sunday 4 p.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://yolorestaurant.com/dinner/"
+     ],
+     "why_here": [
+      "https://yolorestaurant.com/dinner/"
+     ],
+     "know_before": [
+      "https://yolorestaurant.com/dinner/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "YOLO is located at 333 East Las Olas Boulevard, Fort Lauderdale.",
+      "source": "https://yolorestaurant.com/dinner/"
+     },
+     {
+      "claim": "The YOLO dinner menu includes Szechuan Calamari with garlic chili sauce, peanuts, sesame and miso aioli.",
+      "source": "https://yolorestaurant.com/dinner/"
+     },
+     {
+      "claim": "The YOLO dinner menu includes Pan-Roasted Sea Bass.",
+      "source": "https://yolorestaurant.com/dinner/"
+     },
+     {
+      "claim": "Dinner hours are Monday to Thursday 4 p.m. to 11 p.m.",
+      "source": "https://yolorestaurant.com/dinner/"
+     },
+     {
+      "claim": "Dinner hours are Friday to Saturday 4 p.m. to 12 a.m. and Sunday 4 p.m. to 10 p.m.",
+      "source": "https://yolorestaurant.com/dinner/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb--dMmqT2YgRq3AIHx2L4zU",
+   "name": "Coopertown The Original Airboat Tour of Everglades National Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coopertownairboats.com/tickets.php",
+     "source_name": "Coopertown The Original Airboat Tour of Everglades National Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coopertown has taken visitors into the heart of the River of Grass since 1947.",
+      "The Original Airboat Tour includes a live educational alligator presentation.",
+      "Hours are 9 a.m. to 5 p.m., 365 days a year, with the last boat departing at 4:30 p.m.",
+      "Adult ticket for The Original Airboat Tour is $39.00 with sales tax included.",
+      "Children 6 and under ride free."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Airboat tours into the River of Grass since 1947 with an alligator presentation",
+    "why_here": "Coopertown has taken visitors into the heart of the River of Grass since 1947, and The Original Airboat Tour includes a live educational alligator presentation, open 365 days a year.",
+    "know_before": "Hours are 9 a.m. to 5 p.m., with the last boat departing at 4:30 p.m.",
+    "local_tip": "Children 6 and under ride free.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coopertownairboats.com/tickets.php"
+     ],
+     "why_here": [
+      "https://coopertownairboats.com/tickets.php"
+     ],
+     "know_before": [
+      "https://coopertownairboats.com/tickets.php"
+     ],
+     "local_tip": [
+      "https://coopertownairboats.com/tickets.php"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coopertown has taken visitors into the heart of the River of Grass since 1947.",
+      "source": "https://coopertownairboats.com/tickets.php"
+     },
+     {
+      "claim": "The Original Airboat Tour includes a live educational alligator presentation.",
+      "source": "https://coopertownairboats.com/tickets.php"
+     },
+     {
+      "claim": "Hours are 9 a.m. to 5 p.m., 365 days a year, with the last boat departing at 4:30 p.m.",
+      "source": "https://coopertownairboats.com/tickets.php"
+     },
+     {
+      "claim": "Adult ticket for The Original Airboat Tour is $39.00 with sales tax included.",
+      "source": "https://coopertownairboats.com/tickets.php"
+     },
+     {
+      "claim": "Children 6 and under ride free.",
+      "source": "https://coopertownairboats.com/tickets.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1fj1THwC2YgRKYRMJe9WmsA",
+   "name": "Miyako Japanese Buffet",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miyakobuffet.com/",
+     "source_name": "Miyako Japanese Buffet \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miyako offers over 100 sushi rolls in addition to hot food, Chinese, sushi, seafood, hibachi grill, cold bar and desserts.",
+      "Adult lunch buffet is listed at $18.99.",
+      "Adult dinner buffet is listed at $30.99.",
+      "Lobster with Ginger and Scallion Sauce is available Friday, Saturday and Sunday dinner.",
+      "Miyako Japanese Buffet is at 1157 S Federal Hwy, Pompano Beach, Florida 33062."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 100 sushi rolls plus hibachi, seafood and a cold bar in Pompano Beach",
+    "why_here": "Miyako Japanese Buffet in Pompano Beach serves Japanese, seafood, hibachi and Chinese dishes in buffet format. The official site lists over 100 sushi rolls alongside hot food, a hibachi grill, cold bar and desserts.",
+    "know_before": "Adult lunch buffet is listed at $18.99 and adult dinner buffet at $30.99 on the official price list; holiday prices may change without notice.",
+    "local_tip": "Lobster with Ginger and Scallion Sauce is listed as available Friday to Sunday dinner.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://miyakobuffet.com/"
+     ],
+     "why_here": [
+      "https://miyakobuffet.com/"
+     ],
+     "know_before": [
+      "https://miyakobuffet.com/"
+     ],
+     "local_tip": [
+      "https://miyakobuffet.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miyako offers over 100 sushi rolls in addition to hot food, Chinese, sushi, seafood, hibachi grill, cold bar and desserts.",
+      "source": "https://miyakobuffet.com/"
+     },
+     {
+      "claim": "Adult lunch buffet is listed at $18.99.",
+      "source": "https://miyakobuffet.com/"
+     },
+     {
+      "claim": "Adult dinner buffet is listed at $30.99.",
+      "source": "https://miyakobuffet.com/"
+     },
+     {
+      "claim": "Lobster with Ginger and Scallion Sauce is available Friday, Saturday and Sunday dinner.",
+      "source": "https://miyakobuffet.com/"
+     },
+     {
+      "claim": "Miyako Japanese Buffet is at 1157 S Federal Hwy, Pompano Beach, Florida 33062.",
+      "source": "https://miyakobuffet.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB91mn3Wy2YgRNWDBhM0NGjE",
+   "name": "Little Havana Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://littlehavanarestaurant.com/tags/dinner",
+     "source_name": "Little Havana Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Havana Restaurant serves Cuban food at its North Miami location.",
+      "Little Havana Restaurant's dinner menu features traditional dishes from ropa vieja to picadillo.",
+      "The North Miami location is at 12727 Biscayne Blvd, North Miami, FL 33181.",
+      "Sunday hours are 11:30 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Traditional Cuban dishes from ropa vieja to picadillo in North Miami",
+    "why_here": "Little Havana Restaurant serves Cuban food in North Miami, where the dinner menu features traditional dishes from ropa vieja to picadillo and other Cuban dinner plates for the evening.",
+    "know_before": "Sunday hours are 11:30 a.m. to 10 p.m. at the North Miami location.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://littlehavanarestaurant.com/tags/dinner"
+     ],
+     "why_here": [
+      "https://littlehavanarestaurant.com/tags/dinner"
+     ],
+     "know_before": [
+      "https://littlehavanarestaurant.com/tags/dinner"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Little Havana Restaurant serves Cuban food at its North Miami location.",
+      "source": "https://littlehavanarestaurant.com/tags/dinner"
+     },
+     {
+      "claim": "Little Havana Restaurant's dinner menu features traditional dishes from ropa vieja to picadillo.",
+      "source": "https://littlehavanarestaurant.com/tags/dinner"
+     },
+     {
+      "claim": "The North Miami location is at 12727 Biscayne Blvd, North Miami, FL 33181.",
+      "source": "https://littlehavanarestaurant.com/tags/dinner"
+     },
+     {
+      "claim": "Sunday hours are 11:30 a.m. to 10 p.m.",
+      "source": "https://littlehavanarestaurant.com/tags/dinner"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD7N8FBO12YgR09awI5gDtYg",
+   "name": "Little Havana - Cuban Restaurant in Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://littlehavanamiamibeach.com/story",
+     "source_name": "Little Havana - Cuban Restaurant in Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Havana describes itself as a little piece of Cuba on Collins Avenue.",
+      "At Little Havana, every dish carries the warmth and bold flavors of Cuba, served in the heart of South Beach.",
+      "The restaurant is at 1051 Collins Ave in the heart of South Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A little piece of Cuba on Collins Avenue in South Beach",
+    "why_here": "Little Havana brings a little piece of Cuba to Collins Avenue in South Beach, where every dish carries flavors of Cuba and the restaurant sits in the heart of South Beach.",
+    "know_before": "The address is 1051 Collins Ave in the heart of South Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://littlehavanamiamibeach.com/story"
+     ],
+     "why_here": [
+      "https://littlehavanamiamibeach.com/story"
+     ],
+     "know_before": [
+      "https://littlehavanamiamibeach.com/story"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Little Havana describes itself as a little piece of Cuba on Collins Avenue.",
+      "source": "https://littlehavanamiamibeach.com/story"
+     },
+     {
+      "claim": "At Little Havana, every dish carries the warmth and bold flavors of Cuba, served in the heart of South Beach.",
+      "source": "https://littlehavanamiamibeach.com/story"
+     },
+     {
+      "claim": "The restaurant is at 1051 Collins Ave in the heart of South Beach.",
+      "source": "https://littlehavanamiamibeach.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCVj4hF5_54gR63DS1stJONA",
+   "name": "Sandbox VR",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sandboxvr.com/orlando/pointe-orlando",
+     "source_name": "Sandbox VR \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sandbox VR at Pointe Orlando is room-scale, multiplayer, full-body VR.",
+      "Experiences listed include Squid Game Virtuals and Stranger Things: Catalyst.",
+      "Weekday tickets are listed from $50.",
+      "Hours are listed as 11 a.m. to 11 p.m. Monday to Thursday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full-body VR experiences including Squid Game Virtuals at Pointe Orlando",
+    "why_here": "Sandbox VR at Pointe Orlando offers room-scale, multiplayer, full-body VR, with experiences listed including Squid Game Virtuals and Stranger Things: Catalyst for groups playing together in one room.",
+    "know_before": "Weekday tickets are listed from $50, and hours are 11 a.m. to 11 p.m. Monday to Thursday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sandboxvr.com/orlando/pointe-orlando"
+     ],
+     "why_here": [
+      "https://sandboxvr.com/orlando/pointe-orlando"
+     ],
+     "know_before": [
+      "https://sandboxvr.com/orlando/pointe-orlando"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sandbox VR at Pointe Orlando is room-scale, multiplayer, full-body VR.",
+      "source": "https://sandboxvr.com/orlando/pointe-orlando"
+     },
+     {
+      "claim": "Experiences listed include Squid Game Virtuals and Stranger Things: Catalyst.",
+      "source": "https://sandboxvr.com/orlando/pointe-orlando"
+     },
+     {
+      "claim": "Weekday tickets are listed from $50.",
+      "source": "https://sandboxvr.com/orlando/pointe-orlando"
+     },
+     {
+      "claim": "Hours are listed as 11 a.m. to 11 p.m. Monday to Thursday.",
+      "source": "https://sandboxvr.com/orlando/pointe-orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIeFjL1Sx2YgR_K_UxHKqgYY",
+   "name": "Lagniappe",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lagniappehouse.com/",
+     "source_name": "Lagniappe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Live music is offered every night.",
+      "No reservations are taken.",
+      "Live music hours are listed as 9 p.m. to 12 a.m.",
+      "Sunday to Thursday hours are listed as 6:00 p.m. to 2:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Live music every night in Miami, with no reservations taken.",
+    "why_here": "Lagniappe's official site lists live music every night and a no-reservations policy. Its hours and music schedule make it an evening venue rather than a daytime stop.",
+    "know_before": "The venue states no reservations are taken.",
+    "local_tip": "Live music is listed from 9 p.m. to 12 a.m. on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lagniappehouse.com/"
+     ],
+     "why_here": [
+      "https://www.lagniappehouse.com/"
+     ],
+     "know_before": [
+      "https://www.lagniappehouse.com/"
+     ],
+     "local_tip": [
+      "https://www.lagniappehouse.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Live music is offered every night.",
+      "source": "https://www.lagniappehouse.com/"
+     },
+     {
+      "claim": "No reservations are taken.",
+      "source": "https://www.lagniappehouse.com/"
+     },
+     {
+      "claim": "Live music hours are listed as 9 p.m. to 12 a.m.",
+      "source": "https://www.lagniappehouse.com/"
+     },
+     {
+      "claim": "Sunday to Thursday hours are listed as 6:00 p.m. to 2:00 a.m.",
+      "source": "https://www.lagniappehouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB2kDVVT8wogRiXCpT77NpbA",
+   "name": "Friendly Fisherman Restaurant",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://friendlyfisherman.com/menu/",
+     "source_name": "Friendly Fisherman Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Captain Hubbard's Famous Friendly Clam Chowder is on the menu.",
+      "Fresh market items can be prepared Fried, Cajun Fried, Blackened, Grilled or Broiled.",
+      "Marked lunch portions are available only until 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront menu built around Captain Hubbard's market-fresh catch.",
+    "why_here": "The Friendly Fisherman menu centers on fresh-caught seafood, with platters that can be prepared fried, Cajun fried, blackened, grilled or broiled. Starters include Captain Hubbard's Famous Friendly Clam Chowder and locally sourced smoked fish spread.",
+    "know_before": "Lunch portions on marked market items are available only until 4 p.m., per the official menu.",
+    "local_tip": "Fresh market items offer a choice of fried, Cajun fried, blackened, grilled or broiled preparation.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://friendlyfisherman.com/menu/"
+     ],
+     "why_here": [
+      "https://friendlyfisherman.com/menu/"
+     ],
+     "know_before": [
+      "https://friendlyfisherman.com/menu/"
+     ],
+     "local_tip": [
+      "https://friendlyfisherman.com/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Captain Hubbard's Famous Friendly Clam Chowder is on the menu.",
+      "source": "https://friendlyfisherman.com/menu/"
+     },
+     {
+      "claim": "Fresh market items can be prepared Fried, Cajun Fried, Blackened, Grilled or Broiled.",
+      "source": "https://friendlyfisherman.com/menu/"
+     },
+     {
+      "claim": "Marked lunch portions are available only until 4 p.m.",
+      "source": "https://friendlyfisherman.com/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK8NZGZYn5IgRA91RrGETwrQ",
+   "name": "Meehan's Irish Pub & Seafood House",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "irish_pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.meehansirishpub.com/",
+     "source_name": "Meehan's Irish Pub & Seafood House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Meehan's is located on the waterfront in downtown Saint Augustine, Florida.",
+      "Traditional Irish food and signature seafood dishes include Corned Beef & Cabbage, Fish & Chips, and Shepherd's Pie.",
+      "Johnny's Oyster Bar upstairs has a deck where you can overlook the Matanzas River.",
+      "Sunday to Thursday kitchen hours run until 10 p.m.; Friday and Saturday kitchen hours run until 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Irish pub on the waterfront with Corned Beef & Cabbage and Fish & Chips",
+    "why_here": "Meehan's is located on the waterfront in downtown Saint Augustine, Florida, with traditional Irish food and signature seafood dishes including Corned Beef & Cabbage, Fish & Chips, and Shepherd's Pie, and Johnny's Oyster Bar upstairs overlooks the Matanzas River.",
+    "know_before": "Sunday to Thursday kitchen hours run until 10 p.m.; Friday and Saturday kitchen hours run until 11 p.m.",
+    "local_tip": "Johnny's Oyster Bar upstairs has a deck overlooking the Matanzas River.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.meehansirishpub.com/"
+     ],
+     "why_here": [
+      "https://www.meehansirishpub.com/"
+     ],
+     "know_before": [
+      "https://www.meehansirishpub.com/"
+     ],
+     "local_tip": [
+      "https://www.meehansirishpub.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Meehan's is located on the waterfront in downtown Saint Augustine, Florida.",
+      "source": "https://www.meehansirishpub.com/"
+     },
+     {
+      "claim": "Traditional Irish food and signature seafood dishes include Corned Beef & Cabbage, Fish & Chips, and Shepherd's Pie.",
+      "source": "https://www.meehansirishpub.com/"
+     },
+     {
+      "claim": "Johnny's Oyster Bar upstairs has a deck where you can overlook the Matanzas River.",
+      "source": "https://www.meehansirishpub.com/"
+     },
+     {
+      "claim": "Sunday to Thursday kitchen hours run until 10 p.m.; Friday and Saturday kitchen hours run until 11 p.m.",
+      "source": "https://www.meehansirishpub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ39cNgMCW3YgRa8PQUlL7ukg",
+   "name": "Canoe Creek Service Plaza",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "rest_stop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridasturnpike.com/traveler-resources/service-plazas/",
+     "source_name": "Canoe Creek Service Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Canoe Creek is listed at Milepost 229.",
+      "Service plazas on Florida's Turnpike Mainline are open 24 hours a day, 7 days a week.",
+      "Each service plaza offers dining options, gift shops, and other amenities.",
+      "Overnight parking is prohibited at service plazas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Milepost 229 stop on Florida's Turnpike Mainline",
+    "why_here": "Canoe Creek is listed at Milepost 229 on Florida's Turnpike Mainline, where service plazas are open 24 hours a day, 7 days a week. Each service plaza offers dining options, gift shops, and other amenities.",
+    "know_before": "Overnight parking is prohibited at service plazas.",
+    "local_tip": "Service plazas are open 24 hours a day, 7 days a week.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     ],
+     "why_here": [
+      "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     ],
+     "know_before": [
+      "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     ],
+     "local_tip": [
+      "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Canoe Creek is listed at Milepost 229.",
+      "source": "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     },
+     {
+      "claim": "Service plazas on Florida's Turnpike Mainline are open 24 hours a day, 7 days a week.",
+      "source": "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     },
+     {
+      "claim": "Each service plaza offers dining options, gift shops, and other amenities.",
+      "source": "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     },
+     {
+      "claim": "Overnight parking is prohibited at service plazas.",
+      "source": "https://floridasturnpike.com/traveler-resources/service-plazas/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIRMuTZzX5ogRcirIuAD1lY0",
+   "name": "Cracked Egg Diner",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thecrackedeggdiner.com/",
+     "source_name": "Cracked Egg Diner \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Cracked Egg Diner serves breakfast and lunch in Daytona Beach Shores.",
+      "The menu includes Southern Scramble and Eggs Benedict.",
+      "The menu includes loaded omelets and croissant French toast.",
+      "Hours are 7 a.m. to 3 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast and lunch diner in Daytona Beach Shores",
+    "why_here": "The Cracked Egg Diner serves breakfast and lunch in Daytona Beach Shores. Its official site highlights Southern Scramble and Eggs Benedict, plus loaded omelets, stacked Benedicts and croissant French toast.",
+    "know_before": "Hours are 7 a.m. to 3 p.m. daily, according to the official site.",
+    "local_tip": "The official menu slideshow highlights fresh apple fritters and croissant French toast.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thecrackedeggdiner.com/"
+     ],
+     "why_here": [
+      "https://www.thecrackedeggdiner.com/"
+     ],
+     "know_before": [
+      "https://www.thecrackedeggdiner.com/"
+     ],
+     "local_tip": [
+      "https://www.thecrackedeggdiner.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Cracked Egg Diner serves breakfast and lunch in Daytona Beach Shores.",
+      "source": "https://www.thecrackedeggdiner.com/"
+     },
+     {
+      "claim": "The menu includes Southern Scramble and Eggs Benedict.",
+      "source": "https://www.thecrackedeggdiner.com/"
+     },
+     {
+      "claim": "The menu includes loaded omelets and croissant French toast.",
+      "source": "https://www.thecrackedeggdiner.com/"
+     },
+     {
+      "claim": "Hours are 7 a.m. to 3 p.m. daily.",
+      "source": "https://www.thecrackedeggdiner.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOyHa-ex-54gR1TBLeTvOpK8",
+   "name": "International Drive Value Center",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.enjoyidrive.com/shops-spas",
+     "source_name": "International Drive Value Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "International Drive Value Center is located at 5295 International Drive in Orlando.",
+      "The center is anchored by Ross, TJ Maxx, Ulta, Dollar Tree, Five Below, and DD's Discounts.",
+      "The center is near Premium Outlets and Interstate-4."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Value shopping anchored by Ross, Ulta, and Five Below near Interstate-4",
+    "why_here": "International Drive Value Center is located at 5295 International Drive in Orlando near Premium Outlets and Interstate-4. The center is anchored by Ross, TJ Maxx, Ulta, Dollar Tree, Five Below, and DD's Discounts.",
+    "know_before": "The center is located at 5295 International Drive in Orlando.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.enjoyidrive.com/shops-spas"
+     ],
+     "why_here": [
+      "https://www.enjoyidrive.com/shops-spas"
+     ],
+     "know_before": [
+      "https://www.enjoyidrive.com/shops-spas"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "International Drive Value Center is located at 5295 International Drive in Orlando.",
+      "source": "https://www.enjoyidrive.com/shops-spas"
+     },
+     {
+      "claim": "The center is anchored by Ross, TJ Maxx, Ulta, Dollar Tree, Five Below, and DD's Discounts.",
+      "source": "https://www.enjoyidrive.com/shops-spas"
+     },
+     {
+      "claim": "The center is near Premium Outlets and Interstate-4.",
+      "source": "https://www.enjoyidrive.com/shops-spas"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM47eEpQn5IgRsxOMPGD46qE",
+   "name": "Lightner Museum",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lightnermuseum.org/",
+     "source_name": "Lightner Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Lightner Museum occupies the former Hotel Alcazar, a Gilded Age resort hotel commissioned by Standard Oil executive Henry Flagler.",
+      "The Lightner Museum is at the heart of historic St. Augustine.",
+      "The museum offers art, architecture, history, and design.",
+      "Ceramics: Selections from the Otto C. Lightner Collection is on view.",
+      "The museum address is 75 King Street in St. Augustine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gilded Age museum inside the former Hotel Alcazar in St. Augustine",
+    "why_here": "The Lightner Museum occupies the former Hotel Alcazar, a Gilded Age resort hotel commissioned by Standard Oil executive Henry Flagler in historic St. Augustine. The museum offers art, architecture, history, and design, with Ceramics: Selections from the Otto C. Lightner Collection on view.",
+    "know_before": "The museum address is 75 King Street in St. Augustine.",
+    "local_tip": "Ceramics: Selections from the Otto C. Lightner Collection is on view.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lightnermuseum.org/"
+     ],
+     "why_here": [
+      "https://lightnermuseum.org/"
+     ],
+     "know_before": [
+      "https://lightnermuseum.org/"
+     ],
+     "local_tip": [
+      "https://lightnermuseum.org/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Lightner Museum occupies the former Hotel Alcazar, a Gilded Age resort hotel commissioned by Standard Oil executive Henry Flagler.",
+      "source": "https://lightnermuseum.org/"
+     },
+     {
+      "claim": "The Lightner Museum is at the heart of historic St. Augustine.",
+      "source": "https://lightnermuseum.org/"
+     },
+     {
+      "claim": "The museum offers art, architecture, history, and design.",
+      "source": "https://lightnermuseum.org/"
+     },
+     {
+      "claim": "Ceramics: Selections from the Otto C. Lightner Collection is on view.",
+      "source": "https://lightnermuseum.org/"
+     },
+     {
+      "claim": "The museum address is 75 King Street in St. Augustine.",
+      "source": "https://lightnermuseum.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBWvigk4414gRyeEs5npOlGo",
+   "name": "Theater of the Sea",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theaterofthesea.com/attractions/hours-show-schedule/",
+     "source_name": "Theater of the Sea \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Theater of the Sea has been family owned and operated since 1946.",
+      "The park is in Islamorada, Florida Keys, halfway between Miami and Key West.",
+      "Park hours are 9:15 a.m. to 5:00 p.m.",
+      "Parking is free.",
+      "Shows include Dolphin Show, Sea Lion Show, and Parrot Show.",
+      "Well behaved, leashed dogs are allowed in the park if you clean up after them."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park in Islamorada, family owned and operated since 1946",
+    "why_here": "Theater of the Sea has been family owned and operated since 1946 in Islamorada, halfway between Miami and Key West. Park hours are 9:15 a.m. to 5:00 p.m., parking is free, and shows include Dolphin Show, Sea Lion Show, and Parrot Show.",
+    "know_before": "Park hours are 9:15 a.m. to 5:00 p.m. and parking is free.",
+    "local_tip": "Well behaved, leashed dogs are allowed in the park if you clean up after them.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     ],
+     "why_here": [
+      "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     ],
+     "know_before": [
+      "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     ],
+     "local_tip": [
+      "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Theater of the Sea has been family owned and operated since 1946.",
+      "source": "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     },
+     {
+      "claim": "The park is in Islamorada, Florida Keys, halfway between Miami and Key West.",
+      "source": "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     },
+     {
+      "claim": "Park hours are 9:15 a.m. to 5:00 p.m.",
+      "source": "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     },
+     {
+      "claim": "Parking is free.",
+      "source": "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     },
+     {
+      "claim": "Shows include Dolphin Show, Sea Lion Show, and Parrot Show.",
+      "source": "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     },
+     {
+      "claim": "Well behaved, leashed dogs are allowed in the park if you clean up after them.",
+      "source": "https://theaterofthesea.com/attractions/hours-show-schedule/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_1EOeJrFwogR3FwZdANqM_w",
+   "name": "Escapology Escape Rooms Tampa",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.escapology.com/en/tampa-armature-works-fl",
+     "source_name": "Escapology Escape Rooms Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Escapology Tampa offers private escape rooms at Armature Works.",
+      "Players spend 60 minutes finding clues, deciphering codes, and solving puzzles to escape.",
+      "Kids Mode games are designed for kids aged 7-14.",
+      "Games include Antidote and Mansion Murder.",
+      "The address is 102 W Oak Ave, Tampa FL 33602."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private escape rooms at Armature Works",
+    "why_here": "Escapology Tampa offers private escape rooms at Armature Works where players spend 60 minutes finding clues, deciphering codes, and solving puzzles to escape together.",
+    "know_before": "Games are always private for just your group.",
+    "local_tip": "Kids Mode games are designed for kids aged 7-14.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.escapology.com/en/tampa-armature-works-fl"
+     ],
+     "why_here": [
+      "https://www.escapology.com/en/tampa-armature-works-fl"
+     ],
+     "know_before": [
+      "https://www.escapology.com/en/tampa-armature-works-fl"
+     ],
+     "local_tip": [
+      "https://www.escapology.com/en/tampa-armature-works-fl"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Escapology Tampa offers private escape rooms at Armature Works.",
+      "source": "https://www.escapology.com/en/tampa-armature-works-fl"
+     },
+     {
+      "claim": "Players spend 60 minutes finding clues, deciphering codes, and solving puzzles to escape.",
+      "source": "https://www.escapology.com/en/tampa-armature-works-fl"
+     },
+     {
+      "claim": "Kids Mode games are designed for kids aged 7-14.",
+      "source": "https://www.escapology.com/en/tampa-armature-works-fl"
+     },
+     {
+      "claim": "Games include Antidote and Mansion Murder.",
+      "source": "https://www.escapology.com/en/tampa-armature-works-fl"
+     },
+     {
+      "claim": "The address is 102 W Oak Ave, Tampa FL 33602.",
+      "source": "https://www.escapology.com/en/tampa-armature-works-fl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ00gr96Z_54gROHVl5Pr0lXs",
+   "name": "Plaza Venezia",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia",
+     "source_name": "Plaza Venezia \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Plaza Venezia is at West Sand Lake Road and Dr. Phillips Boulevard in Orlando.",
+      "Publix is a tenant at Plaza Venezia.",
+      "Eddie V's is a tenant at Plaza Venezia.",
+      "Rocco's Tacos is a tenant at Plaza Venezia.",
+      "Season's 52 is a tenant at Plaza Venezia.",
+      "The property is 202,722 square feet, according to Regency Centers."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Publix anchored shopping on West Sand Lake Road",
+    "why_here": "Plaza Venezia is a Regency Centers shopping centre on West Sand Lake Road at Dr. Phillips Boulevard in Orlando with tenants including Publix, Eddie V's, Rocco's Tacos and Season's 52.",
+    "know_before": "The property is 202,722 square feet, according to Regency Centers.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     ],
+     "why_here": [
+      "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     ],
+     "know_before": [
+      "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Plaza Venezia is at West Sand Lake Road and Dr. Phillips Boulevard in Orlando.",
+      "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     },
+     {
+      "claim": "Publix is a tenant at Plaza Venezia.",
+      "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     },
+     {
+      "claim": "Eddie V's is a tenant at Plaza Venezia.",
+      "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     },
+     {
+      "claim": "Rocco's Tacos is a tenant at Plaza Venezia.",
+      "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     },
+     {
+      "claim": "Season's 52 is a tenant at Plaza Venezia.",
+      "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     },
+     {
+      "claim": "The property is 202,722 square feet, according to Regency Centers.",
+      "source": "https://www.regencycenters.com/property/detail/60810/PlazaVenezia"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhQe371TywogRRSFo_ozJBws",
+   "name": "Ozona Blue Grilling Co",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ozonabluegrill.com/",
+     "source_name": "Ozona Blue Grilling Co \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ozona Blue is located at Home Port Marina in Palm Harbor.",
+      "Ozona Blue overlooks St. Josephs Sound.",
+      "Ozona Blue has been bringing families and friends together since 2003.",
+      "Happy hour is daily from 3 p.m. to 6 p.m.",
+      "The restaurant offers valet parking."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining by a pool at Home Port Marina in Palm Harbor",
+    "why_here": "Ozona Blue Grilling Co. is a waterfront restaurant at Home Port Marina in Palm Harbor, overlooking St. Josephs Sound. The official site describes poolside dining, a tiki hut bar and a terrace with live music.",
+    "know_before": "The restaurant offers valet parking, according to its official site.",
+    "local_tip": "The swimming pool and hot tub are open until 6 p.m. daily, according to the official site.",
+    "best_time": "Happy hour is daily from 3 p.m. to 6 p.m., according to the official site.",
+    "citations": {
+     "hook": [
+      "https://www.ozonabluegrill.com/"
+     ],
+     "why_here": [
+      "https://www.ozonabluegrill.com/"
+     ],
+     "know_before": [
+      "https://www.ozonabluegrill.com/"
+     ],
+     "local_tip": [
+      "https://www.ozonabluegrill.com/"
+     ],
+     "best_time": [
+      "https://www.ozonabluegrill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ozona Blue is located at Home Port Marina in Palm Harbor.",
+      "source": "https://www.ozonabluegrill.com/"
+     },
+     {
+      "claim": "Ozona Blue overlooks St. Josephs Sound.",
+      "source": "https://www.ozonabluegrill.com/"
+     },
+     {
+      "claim": "Ozona Blue has been bringing families and friends together since 2003.",
+      "source": "https://www.ozonabluegrill.com/"
+     },
+     {
+      "claim": "Happy hour is daily from 3 p.m. to 6 p.m.",
+      "source": "https://www.ozonabluegrill.com/"
+     },
+     {
+      "claim": "The restaurant offers valet parking.",
+      "source": "https://www.ozonabluegrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsd0FdMV654gR6Ow6As5ho5A",
+   "name": "Colonial Plaza",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300",
+     "source_name": "Colonial Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Colonial Plaza has 497,416 SF of gross leasable area.",
+      "Colonial Plaza lists 2,134 parking spaces.",
+      "Colonial Plaza is located at 2728 E. Colonial Dr. in Orlando, Florida.",
+      "Tenant mix includes Sprouts, Ross, Marshalls, Hobby Lobby, Ulta, Total Wine.",
+      "Colonial Plaza sits between downtown Orlando, the Milk District and Baldwin Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Power center with 2,134 parking spaces in Orlando",
+    "why_here": "Colonial Plaza is located at 2728 E. Colonial Dr. in Orlando, Florida with tenant mix including Sprouts, Ross, Marshalls, Hobby Lobby, Ulta and Total Wine in one stop.",
+    "know_before": "Colonial Plaza lists 2,134 parking spaces.",
+    "local_tip": "Colonial Plaza sits between downtown Orlando, the Milk District and Baldwin Park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     ],
+     "why_here": [
+      "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     ],
+     "know_before": [
+      "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     ],
+     "local_tip": [
+      "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Colonial Plaza has 497,416 SF of gross leasable area.",
+      "source": "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     },
+     {
+      "claim": "Colonial Plaza lists 2,134 parking spaces.",
+      "source": "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     },
+     {
+      "claim": "Colonial Plaza is located at 2728 E. Colonial Dr. in Orlando, Florida.",
+      "source": "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     },
+     {
+      "claim": "Tenant mix includes Sprouts, Ross, Marshalls, Hobby Lobby, Ulta, Total Wine.",
+      "source": "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     },
+     {
+      "claim": "Colonial Plaza sits between downtown Orlando, the Milk District and Baldwin Park.",
+      "source": "https://eu2allwebext.blob.core.windows.net/kimcorealty/www/resources/documents/marketing-package/118340-colonial-plaza-marketing-package.pdf?v=20240207091300"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRfPBKCriwogR4yaS_ccI5so",
+   "name": "Bodega on Central",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatatbodega.com/",
+     "source_name": "Bodega on Central \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bodega is in the Edge District of St. Petersburg.",
+      "Bodega is renowned for the Cuban sandwich and the fresh juice bar.",
+      "Bodega offers vegetarian and vegan options.",
+      "Hours are Monday to Wednesday 11 a.m. to 9 p.m., Thursday to Saturday 11 a.m. to 11 p.m., and Sunday 11 a.m. to 9 p.m.",
+      "Bodega serves Latin street food on Central Avenue in St. Petersburg."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban sandwiches and fresh juice in the Edge District",
+    "why_here": "Bodega serves Latin street food on Central Avenue in St. Petersburg and is renowned for the Cuban sandwich and the fresh juice bar, with vegetarian and vegan options.",
+    "know_before": "Hours are Monday to Wednesday 11 a.m. to 9 p.m., Thursday to Saturday 11 a.m. to 11 p.m., and Sunday 11 a.m. to 9 p.m.",
+    "local_tip": "Bodega offers vegetarian and vegan options.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatatbodega.com/"
+     ],
+     "why_here": [
+      "https://eatatbodega.com/"
+     ],
+     "know_before": [
+      "https://eatatbodega.com/"
+     ],
+     "local_tip": [
+      "https://eatatbodega.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bodega is in the Edge District of St. Petersburg.",
+      "source": "https://eatatbodega.com/"
+     },
+     {
+      "claim": "Bodega is renowned for the Cuban sandwich and the fresh juice bar.",
+      "source": "https://eatatbodega.com/"
+     },
+     {
+      "claim": "Bodega offers vegetarian and vegan options.",
+      "source": "https://eatatbodega.com/"
+     },
+     {
+      "claim": "Hours are Monday to Wednesday 11 a.m. to 9 p.m., Thursday to Saturday 11 a.m. to 11 p.m., and Sunday 11 a.m. to 9 p.m.",
+      "source": "https://eatatbodega.com/"
+     },
+     {
+      "claim": "Bodega serves Latin street food on Central Avenue in St. Petersburg.",
+      "source": "https://eatatbodega.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFd_nBVgb2YgRYdijfoO46o0",
+   "name": "Promenade at Coconut Creek",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://promenadeatcoconutcreek.com/stores/silverspot-cinema",
+     "source_name": "Promenade at Coconut Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Silverspot Cinema at Promenade operates an 11-screen luxury theater.",
+      "Silverspot screens first-run blockbuster, 3D, foreign and independent films."
+     ]
+    },
+    {
+     "source": "https://promenadeatcoconutcreek.com/",
+     "source_name": "Promenade at Coconut Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Promenade directory lists DSW Shoes, Chico's, Guitar Center and Cooper's Hawk Winery & Restaurants."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air shopping anchored by an 11-screen luxury cinema",
+    "why_here": "Promenade at Coconut Creek is an open-air shopping and dining center in Coconut Creek. Its directory mixes national retailers, boutiques, restaurants and a cinema.",
+    "know_before": "Individual store hours vary, so check the store directory before going.",
+    "local_tip": "Pair shopping with dinner and a movie at Silverspot Cinema in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://promenadeatcoconutcreek.com/stores/silverspot-cinema",
+      "https://promenadeatcoconutcreek.com/"
+     ],
+     "why_here": [
+      "https://promenadeatcoconutcreek.com/stores/silverspot-cinema",
+      "https://promenadeatcoconutcreek.com/"
+     ],
+     "know_before": [
+      "https://promenadeatcoconutcreek.com/stores/silverspot-cinema",
+      "https://promenadeatcoconutcreek.com/"
+     ],
+     "local_tip": [
+      "https://promenadeatcoconutcreek.com/stores/silverspot-cinema",
+      "https://promenadeatcoconutcreek.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Silverspot Cinema at Promenade operates an 11-screen luxury theater.",
+      "source": "https://promenadeatcoconutcreek.com/stores/silverspot-cinema"
+     },
+     {
+      "claim": "Silverspot screens first-run blockbuster, 3D, foreign and independent films.",
+      "source": "https://promenadeatcoconutcreek.com/stores/silverspot-cinema"
+     },
+     {
+      "claim": "The Promenade directory lists DSW Shoes, Chico's, Guitar Center and Cooper's Hawk Winery & Restaurants.",
+      "source": "https://promenadeatcoconutcreek.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ77bhimi32YgRf-unf-l_hbg",
+   "name": "Catch of the Day",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.catchofthedayrestaurant.com/",
+     "source_name": "Catch of the Day \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Catch of the Day opened on May 20, 1998.",
+      "Catch of the Day is at 1050 NW 42nd Avenue, minutes from Miami International Airport.",
+      "Free parking is available at Catch of the Day.",
+      "Menu fresh fish includes Snapper, Mahi, Salmon, Grouper and Corvina.",
+      "Happy hour runs 3 p.m. to 7 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami seafood landmark minutes from the airport since 1998",
+    "why_here": "Catch of the Day has served fresh seafood in Miami since 1998, near Miami International Airport. The menu centers on fresh fish, raw bar items and shareable seafood platters.",
+    "know_before": "Free parking is available at the restaurant.",
+    "local_tip": "Order oysters on the half shell, shucked to order over ice.",
+    "best_time": "Happy hour runs 3 p.m. to 7 p.m. daily.",
+    "citations": {
+     "hook": [
+      "https://www.catchofthedayrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.catchofthedayrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.catchofthedayrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.catchofthedayrestaurant.com/"
+     ],
+     "best_time": [
+      "https://www.catchofthedayrestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Catch of the Day opened on May 20, 1998.",
+      "source": "https://www.catchofthedayrestaurant.com/"
+     },
+     {
+      "claim": "Catch of the Day is at 1050 NW 42nd Avenue, minutes from Miami International Airport.",
+      "source": "https://www.catchofthedayrestaurant.com/"
+     },
+     {
+      "claim": "Free parking is available at Catch of the Day.",
+      "source": "https://www.catchofthedayrestaurant.com/"
+     },
+     {
+      "claim": "Menu fresh fish includes Snapper, Mahi, Salmon, Grouper and Corvina.",
+      "source": "https://www.catchofthedayrestaurant.com/"
+     },
+     {
+      "claim": "Happy hour runs 3 p.m. to 7 p.m. daily.",
+      "source": "https://www.catchofthedayrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM9EbYkPa5ogRVbXxSnO5Sz8",
+   "name": "Hard Rock Hotel Daytona Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hotel.hardrock.com/daytona-beach/",
+     "source_name": "Hard Rock Hotel Daytona Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hard Rock Hotel Daytona Beach is at 918 N Atlantic Ave., Daytona Beach.",
+      "The hotel has 200 rooms with ocean views.",
+      "Amenities include Rock Spa & Salon and an oceanfront pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "200 rooms with ocean views and an oceanfront pool",
+    "why_here": "Hard Rock Hotel Daytona Beach is at 918 N Atlantic Ave., Daytona Beach and has 200 rooms with ocean views plus amenities including Rock Spa & Salon and an oceanfront pool.",
+    "know_before": "Amenities include Rock Spa & Salon and an oceanfront pool.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hotel.hardrock.com/daytona-beach/"
+     ],
+     "why_here": [
+      "https://hotel.hardrock.com/daytona-beach/"
+     ],
+     "know_before": [
+      "https://hotel.hardrock.com/daytona-beach/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hard Rock Hotel Daytona Beach is at 918 N Atlantic Ave., Daytona Beach.",
+      "source": "https://hotel.hardrock.com/daytona-beach/"
+     },
+     {
+      "claim": "The hotel has 200 rooms with ocean views.",
+      "source": "https://hotel.hardrock.com/daytona-beach/"
+     },
+     {
+      "claim": "Amenities include Rock Spa & Salon and an oceanfront pool.",
+      "source": "https://hotel.hardrock.com/daytona-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3_3mLh_J54gREI0ltG4xmQ4",
+   "name": "Gator Joe's Beach Bar & Grill",
+   "category": "food",
+   "metro": "ocala-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gatorjoesocala.com/about/",
+     "source_name": "Gator Joe's Beach Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator Joe's was established in 1926 on the water's edge of Lake Weir.",
+      "Gator Joe's got its name from an alligator known as Old Joe who lived in Lake Weir from approximately 1930 to 1952."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lake Weir waterfront dining established in 1926",
+    "why_here": "Gator Joe's was established in 1926 on the water's edge of Lake Weir and got its name from an alligator known as Old Joe who lived in Lake Weir from approximately 1930 to 1952.",
+    "know_before": "Gator Joe's was established in 1926.",
+    "local_tip": "Gator Joe's got its name from Old Joe.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gatorjoesocala.com/about/"
+     ],
+     "why_here": [
+      "https://www.gatorjoesocala.com/about/"
+     ],
+     "know_before": [
+      "https://www.gatorjoesocala.com/about/"
+     ],
+     "local_tip": [
+      "https://www.gatorjoesocala.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator Joe's was established in 1926 on the water's edge of Lake Weir.",
+      "source": "https://www.gatorjoesocala.com/about/"
+     },
+     {
+      "claim": "Gator Joe's got its name from an alligator known as Old Joe who lived in Lake Weir from approximately 1930 to 1952.",
+      "source": "https://www.gatorjoesocala.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu_e4BnTI2YgREAOg3GxMK8g",
+   "name": "Fairchild Tropical Botanic Garden",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fairchildgarden.org/mission-history/",
+     "source_name": "Fairchild Tropical Botanic Garden \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fairchild Tropical Botanic Garden opened its 83 acres to the public in 1938.",
+      "Fairchild gets its name from David Fairchild.",
+      "Fairchild Tropical Botanic Garden is at 10901 Old Cutler Road Miami, Florida 33156.",
+      "Many plants still growing in the Garden were collected by Dr. Fairchild, including a giant African baobab tree by the Gate House."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "83 acres opened to the public in 1938",
+    "why_here": "Fairchild Tropical Botanic Garden opened its 83 acres to the public in 1938 and gets its name from David Fairchild. Many plants still growing in the Garden were collected by Dr. Fairchild.",
+    "know_before": "Fairchild Tropical Botanic Garden is at 10901 Old Cutler Road Miami, Florida 33156.",
+    "local_tip": "See the giant African baobab tree by the Gate House.",
+    "best_time": "Weekday visits offer the best value.",
+    "citations": {
+     "hook": [
+      "https://fairchildgarden.org/mission-history/"
+     ],
+     "why_here": [
+      "https://fairchildgarden.org/mission-history/"
+     ],
+     "know_before": [
+      "https://fairchildgarden.org/mission-history/"
+     ],
+     "local_tip": [
+      "https://fairchildgarden.org/mission-history/"
+     ],
+     "best_time": [
+      "https://fairchildgarden.org/mission-history/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fairchild Tropical Botanic Garden opened its 83 acres to the public in 1938.",
+      "source": "https://fairchildgarden.org/mission-history/"
+     },
+     {
+      "claim": "Fairchild gets its name from David Fairchild.",
+      "source": "https://fairchildgarden.org/mission-history/"
+     },
+     {
+      "claim": "Fairchild Tropical Botanic Garden is at 10901 Old Cutler Road Miami, Florida 33156.",
+      "source": "https://fairchildgarden.org/mission-history/"
+     },
+     {
+      "claim": "Many plants still growing in the Garden were collected by Dr. Fairchild, including a giant African baobab tree by the Gate House.",
+      "source": "https://fairchildgarden.org/mission-history/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB4im44-02YgR5BMCzymF7Ks",
+   "name": "Moshi Moshi Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://moshimoshi.fun/about/",
+     "source_name": "Moshi Moshi Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Moshi Moshi was established in 1997.",
+      "Moshi Moshi serves sushi, sashimi, fried rice, ramen and teriyaki dishes."
+     ]
+    },
+    {
+     "source": "https://moshimoshi.fun/locations/",
+     "source_name": "Moshi Moshi Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The SoBe location is at 1448 Washington Ave., Miami Beach, FL 33139."
+     ]
+    },
+    {
+     "source": "https://moshimoshi.fun/",
+     "source_name": "Moshi Moshi Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Moshi Moshi menu is available till 5 a.m."
+     ]
+    },
+    {
+     "source": "https://moshimoshi.fun/menu/",
+     "source_name": "Moshi Moshi Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu categories include Ramen, Robata Grill and Moshi Moshi Taco."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Late-night sushi and sake spot on Washington Avenue",
+    "why_here": "Moshi Moshi is an izakaya-style Japanese restaurant in Miami Beach, established in 1997. The menu spans sushi, sashimi, ramen, robata grill items and small plates, with sake and Japanese drinks.",
+    "know_before": "The SoBe location is at 1448 Washington Ave., Miami Beach.",
+    "local_tip": "Order across sushi, robata grill and Moshi Moshi tacos to share izakaya-style.",
+    "best_time": "Go late, since the menu is available till 5 a.m.",
+    "citations": {
+     "hook": [
+      "https://moshimoshi.fun/about/",
+      "https://moshimoshi.fun/locations/",
+      "https://moshimoshi.fun/",
+      "https://moshimoshi.fun/menu/"
+     ],
+     "why_here": [
+      "https://moshimoshi.fun/about/",
+      "https://moshimoshi.fun/locations/",
+      "https://moshimoshi.fun/",
+      "https://moshimoshi.fun/menu/"
+     ],
+     "know_before": [
+      "https://moshimoshi.fun/about/",
+      "https://moshimoshi.fun/locations/",
+      "https://moshimoshi.fun/",
+      "https://moshimoshi.fun/menu/"
+     ],
+     "local_tip": [
+      "https://moshimoshi.fun/about/",
+      "https://moshimoshi.fun/locations/",
+      "https://moshimoshi.fun/",
+      "https://moshimoshi.fun/menu/"
+     ],
+     "best_time": [
+      "https://moshimoshi.fun/about/",
+      "https://moshimoshi.fun/locations/",
+      "https://moshimoshi.fun/",
+      "https://moshimoshi.fun/menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Moshi Moshi was established in 1997.",
+      "source": "https://moshimoshi.fun/about/"
+     },
+     {
+      "claim": "The SoBe location is at 1448 Washington Ave., Miami Beach, FL 33139.",
+      "source": "https://moshimoshi.fun/locations/"
+     },
+     {
+      "claim": "Moshi Moshi menu is available till 5 a.m.",
+      "source": "https://moshimoshi.fun/"
+     },
+     {
+      "claim": "Menu categories include Ramen, Robata Grill and Moshi Moshi Taco.",
+      "source": "https://moshimoshi.fun/menu/"
+     },
+     {
+      "claim": "Moshi Moshi serves sushi, sashimi, fried rice, ramen and teriyaki dishes.",
+      "source": "https://moshimoshi.fun/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb3VDF7rW3ogRTKctGjuXzJM",
+   "name": "Animal EDventure Park & Safari",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "zoo",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://animaledventures.com/",
+     "source_name": "Animal EDventure Park & Safari \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Guided Walking Tour is a 1 hour walkthrough safari tour of our private farm by reservation only.",
+      "Guided Walking Tour is $25.",
+      "The safari includes sloth encounters and kangaroo encounters.",
+      "Animal EDventures is in Boynton Beach, FL.",
+      "Sloth Holding is $75 and Kangaroo Kuddles is $15 and holdings fill up quickly."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1 hour walkthrough safari tour with sloth encounters and kangaroo encounters",
+    "why_here": "Animal EDventures offers a Guided Walking Tour as a 1 hour walkthrough safari tour of our private farm by reservation only. The safari includes sloth encounters and kangaroo encounters in Boynton Beach, FL.",
+    "know_before": "Guided Walking Tour is $25 and is by reservation only.",
+    "local_tip": "Add Sloth Holding or Kangaroo Kuddles when you book, as holdings fill up quickly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://animaledventures.com/"
+     ],
+     "why_here": [
+      "https://animaledventures.com/"
+     ],
+     "know_before": [
+      "https://animaledventures.com/"
+     ],
+     "local_tip": [
+      "https://animaledventures.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Guided Walking Tour is a 1 hour walkthrough safari tour of our private farm by reservation only.",
+      "source": "https://animaledventures.com/"
+     },
+     {
+      "claim": "Guided Walking Tour is $25.",
+      "source": "https://animaledventures.com/"
+     },
+     {
+      "claim": "The safari includes sloth encounters and kangaroo encounters.",
+      "source": "https://animaledventures.com/"
+     },
+     {
+      "claim": "Animal EDventures is in Boynton Beach, FL.",
+      "source": "https://animaledventures.com/"
+     },
+     {
+      "claim": "Sloth Holding is $75 and Kangaroo Kuddles is $15 and holdings fill up quickly.",
+      "source": "https://animaledventures.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjRbW3J-22YgRU0WyAtXRx7c",
+   "name": "Island Queen Cruises & Tours",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/",
+     "source_name": "Island Queen Cruises & Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Island Queen Cruises & Tours Millionaire's Row cruise is a 90-minute boat tour.",
+      "The cruise is a fully-narrated bilingual sightseeing cruise along Biscayne Bay.",
+      "The cruise passes the downtown Miami skyline, the Port of Miami, Fisher Island, Miami Beach and Millionaire's Row.",
+      "Bayside Marketplace at 401 Biscayne Blvd, Miami is the departure point."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute narrated cruise past Millionaire's Row on Biscayne Bay",
+    "why_here": "Island Queen Cruises & Tours offers a fully-narrated bilingual sightseeing cruise along Biscayne Bay on a 90-minute boat tour. The cruise passes the downtown Miami skyline, the Port of Miami, Fisher Island, Miami Beach and Millionaire's Row.",
+    "know_before": "Bayside Marketplace at 401 Biscayne Blvd, Miami is the departure point.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     ],
+     "why_here": [
+      "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     ],
+     "know_before": [
+      "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Island Queen Cruises & Tours Millionaire's Row cruise is a 90-minute boat tour.",
+      "source": "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     },
+     {
+      "claim": "The cruise is a fully-narrated bilingual sightseeing cruise along Biscayne Bay.",
+      "source": "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     },
+     {
+      "claim": "The cruise passes the downtown Miami skyline, the Port of Miami, Fisher Island, Miami Beach and Millionaire's Row.",
+      "source": "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     },
+     {
+      "claim": "Bayside Marketplace at 401 Biscayne Blvd, Miami is the departure point.",
+      "source": "https://islandqueencruises.com/cruises/millionaires-row-sightseeing-cruise/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdSszJei20YgRerKAzIt1VbA",
+   "name": "Better Than Sex - A Dessert Restaurant",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "dessert_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.betterthansexdesserts.com/",
+     "source_name": "Better Than Sex - A Dessert Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Better Than Sex has a location in Key West, FL.",
+      "The restaurants are adults-only dessert restaurants serving house-made desserts and chocolate-rimmed wines."
+     ]
+    },
+    {
+     "source": "https://www.betterthansexdesserts.com/reservations",
+     "source_name": "Better Than Sex - A Dessert Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The largest table accommodates only up to 4 adults."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Adults-only dessert bar with chocolate-rimmed wines and house-made desserts",
+    "why_here": "Better Than Sex is an adults-only dessert restaurant with a Key West location among its four sites. The menu centers on house-made desserts, chocolate-rimmed wines and craft cocktails in an intimate speakeasy-style room.",
+    "know_before": "The largest table accommodates only up to 4 adults, per the reservations page.",
+    "local_tip": "Reserve ahead for date nights, as dining rooms are kept intimate with walls and curtains between most tables.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.betterthansexdesserts.com/",
+      "https://www.betterthansexdesserts.com/reservations"
+     ],
+     "why_here": [
+      "https://www.betterthansexdesserts.com/",
+      "https://www.betterthansexdesserts.com/reservations"
+     ],
+     "know_before": [
+      "https://www.betterthansexdesserts.com/",
+      "https://www.betterthansexdesserts.com/reservations"
+     ],
+     "local_tip": [
+      "https://www.betterthansexdesserts.com/",
+      "https://www.betterthansexdesserts.com/reservations"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Better Than Sex has a location in Key West, FL.",
+      "source": "https://www.betterthansexdesserts.com/"
+     },
+     {
+      "claim": "The restaurants are adults-only dessert restaurants serving house-made desserts and chocolate-rimmed wines.",
+      "source": "https://www.betterthansexdesserts.com/"
+     },
+     {
+      "claim": "The largest table accommodates only up to 4 adults.",
+      "source": "https://www.betterthansexdesserts.com/reservations"
+     }
+    ]
+   }
+  }
+ ]
+}
