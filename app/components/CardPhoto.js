@@ -52,7 +52,7 @@ function LinkedPhotoCredit({ anchor, photo, alt, open, compact }) {
         if (/(hidden|clip|auto|scroll)/.test(css.overflowX)) { left = Math.max(left, box.left); right = Math.min(right, box.right); }
         if (/(hidden|clip|auto|scroll)/.test(css.overflowY)) { top = Math.max(top, box.top); bottom = Math.min(bottom, box.bottom); }
       }
-      setBounds(right - left >= 44 && bottom - top >= 32 ? { left, right, bottom } : null);
+      setBounds(right - left >= 44 && bottom - top >= 32 ? { left, right, top, bottom } : null);
     };
     update();
     window.addEventListener("scroll", update, true);
@@ -62,12 +62,13 @@ function LinkedPhotoCredit({ anchor, photo, alt, open, compact }) {
     return () => { window.removeEventListener("scroll", update, true); window.removeEventListener("resize", update); observer?.disconnect(); };
   }, [anchor, photo]);
   if (!bounds) return null;
-  // Owner rule 2026-11-03: never print the credit ON the photo. It sits as small muted
-  // text just under the image, right aligned, and still opens the full credit viewer.
+  // Owner rule 2026-11-04: the credit is a tiny line on the photo, bottom left.
+  // It stays a portal so the control never nests inside the card's link, and it
+  // still opens the full credit viewer. No pill, badge, or background.
   return createPortal(<button type="button" data-linked-photo-credit aria-haspopup="dialog"
     aria-label={alt ? "View photo and photographer credit for " + alt : "View photo and photographer credit"}
     onKeyDown={(e) => { e.stopPropagation(); if (e.key === "Enter" || e.key === " ") open(e); }}
-    onClick={open} style={{ ...control, position: "fixed", zIndex: 30, right: window.innerWidth - bounds.right + 6, top: bounds.bottom + 1, maxWidth: bounds.right - bounds.left - 8, minHeight: 0, height: 13, lineHeight: "13px", padding: 0, fontSize: 9.5, fontFamily: "Roboto, sans-serif", color: "#8D9AAB", background: "transparent", border: 0, borderRadius: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+    onClick={open} style={{ ...control, position: "fixed", zIndex: 30, left: bounds.left + 6, top: Math.max(bounds.top + 2, bounds.bottom - 18), maxWidth: Math.max(44, bounds.right - bounds.left - 12), minHeight: 0, height: 12, lineHeight: "12px", padding: 0, fontSize: 9.5, fontWeight: 500, fontFamily: "Roboto, sans-serif", color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", background: "transparent", border: 0, borderRadius: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textAlign: "left" }}>
     Google Maps
   </button>, document.body);
 }
@@ -161,7 +162,7 @@ export default function CardPhoto({ src, alt = "", onError, onLoad, onClick, sty
           <PhotoFallbackTile pending={failed !== request} name={alt} icon={fallbackIcon} category={fallbackCategory} compact={compact} />
         </span>}
     {visible && !compact && !inLink && photo.source === "google" && photo.credit ? <div data-card-photo-credit onKeyDown={(e) => e.stopPropagation()} style={{ position: "absolute", bottom: 4, left: 4, right: 4, zIndex: 8, display: "flex", alignItems: "flex-start", pointerEvents: "none" }}>
-      <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", color: "#fff", textShadow: "-1px -1px 0 #000, 0 -1px 0 #000, 1px -1px 0 #000, -1px 0 0 #000, 1px 0 0 #000, -1px 1px 0 #000, 0 1px 0 #000, 1px 1px 0 #000, 0 1px 2px #000", whiteSpace: "nowrap", fontFamily: "Roboto, sans-serif", fontSize: 12, lineHeight: "16px", fontWeight: 400, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
+      <PhotoCreditLink href={safe(photo.credit.mapsUri)} target="_blank" rel="noopener noreferrer" translate="no" onClick={(e) => e.stopPropagation()} style={{ display: "inline-block", maxWidth: "100%", color: "rgba(255,255,255,.6)", textShadow: "0 1px 2px rgba(0,0,0,.65)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", fontFamily: "Roboto, sans-serif", fontSize: 9.5, lineHeight: "12px", fontWeight: 500, fontStyle: "normal", letterSpacing: "normal", textDecoration: "none", pointerEvents: "auto" }}>Google Maps</PhotoCreditLink>
     </div> : null}
     {visible && inLink && photo.source === "google" && photo.credit ? <LinkedPhotoCredit anchor={anchor} photo={photo} alt={alt} open={open} compact={compact} /> : null}
     {viewer && viewer.request === request && viewer.photo === photo && visible ? <PhotoViewer photo={viewer.photo} alt={alt} close={() => setViewer(null)} /> : null}
