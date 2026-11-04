@@ -58,9 +58,16 @@ ok(losers.length > 0, "NEGATIVE CONTROL: at least one place lost the floor (prob
 
 // Independent of the exclusion helper (which also feeds the loop above): these
 // venues' second "creator" is their own account, so they must NOT trend.
-for (const [nm, ct] of [["Nueva Cantina", "Tampa"], ["The Perfect Press Coffee Co.", "Tampa"]]) {
+// The Perfect Press Coffee Co. left this list on 2026-11-03: a second
+// independent creator (whenintampa) posted it, alongside tampavida. Its own
+// account (perfectpresscoffeeco) still never counts; that is asserted below.
+for (const [nm, ct] of [["Nueva Cantina", "Tampa"]]) {
   const e = LEAN_CURATED.find((x) => x[1] === nm && x[2] === ct);
   ok(e && corroborationTrend({ id: e[0], name: e[1], city: e[2] }, ct).trending === false, `${nm} (${ct}) must not trend on its own account`);
+}
+{
+  const e = LEAN_CURATED.find((x) => x[1] === "The Perfect Press Coffee Co." && x[2] === "Tampa");
+  ok(e && creatorCountFor({ id: e[0], name: e[1] }, "Tampa") === 2, "The Perfect Press Coffee Co. counts only its two independent creators, never its own account");
 }
 
 console.log(`creator-independence: ${losers.length} places lost the 2-creator floor: ${losers.join("; ")}`);
