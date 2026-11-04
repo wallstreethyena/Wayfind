@@ -74,7 +74,7 @@ const ICON = { fill: "none", stroke: "#E9C3B0", strokeWidth: 1.5, strokeLinecap:
 // photo's outcome so the credit line names only photos that really loaded.
 function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
   const [active, setActive] = useState(0);
-  const photos = row.photos.filter((p) => p && !failed.has(p.src));
+  const photos = (row.photos || []).filter((p) => p && !failed.has(p.src));
   const onScroll = (event) => {
     const el = event.currentTarget;
     if (!el.clientWidth) return;
@@ -120,9 +120,11 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
   );
 }
 
-function PhotoCredit({ photos, loaded }) {
+function PhotoCredit({ photos, failed }) {
   const seen = new Set();
-  const lines = (photos || []).filter((p) => p && p.credit && loaded && loaded.has(p.src) && !seen.has(p.credit) && seen.add(p.credit));
+  // The server HTML names every credit. A photo that fails to load leaves
+  // the strip and drops its line; one that has not reported yet keeps it.
+  const lines = (photos || []).filter((p) => p && p.credit && !(failed && failed.has(p.src)) && !seen.has(p.credit) && seen.add(p.credit));
   if (!lines.length) return <p className="xm-credit" aria-hidden="true">&nbsp;</p>;
   return (
     <p className="xm-credit">
@@ -162,7 +164,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
       <div className="xm-body" data-boo-clear="">
         <span className="xm-chip">{row.chip}</span>
         <Heading>{row.name}</Heading>
-        <PhotoCredit photos={row.photos} loaded={photoState.ok} />
+        <PhotoCredit photos={row.photos} failed={photoState.bad} />
         {row.when ? (
           <p className="xm-line">
             <svg viewBox="0 0 16 16" {...ICON}><circle cx="8" cy="8" r="6.2" /><path d="M8 4.6V8l2.3 1.5" /></svg>
