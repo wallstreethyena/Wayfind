@@ -1,0 +1,684 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 6. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJN8FbxTZ-54gRRok2kpIBBpQ",
+   "name": "Rosen Centre",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rosencentre.com/about-us/hotel-fact-sheet/",
+     "source_name": "Rosen Centre \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosen Centre Hotel is centrally located on International Drive and connected to the Orange County Convention Center.",
+      "Rosen Centre has 1,334 sleeping rooms and suites and nine dining options.",
+      "Meeting space totals more than 160,000 square feet.",
+      "The hotel is at 9840 International Drive, Orlando, Florida 32819, 12 minutes from Orlando International Airport."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 1,334-room hotel connected to the Orange County Convention Center",
+    "why_here": "Rosen Centre Hotel is centrally located on International Drive and connected to the Orange County Convention Center, with 1,334 rooms and suites and nine dining options. More than 160,000 square feet of meeting space makes it a base for conventions and large events.",
+    "know_before": "The hotel is at 9840 International Drive, Orlando, Florida 32819, 12 minutes from Orlando International Airport.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     ],
+     "why_here": [
+      "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     ],
+     "know_before": [
+      "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosen Centre Hotel is centrally located on International Drive and connected to the Orange County Convention Center.",
+      "source": "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     },
+     {
+      "claim": "Rosen Centre has 1,334 sleeping rooms and suites and nine dining options.",
+      "source": "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     },
+     {
+      "claim": "Meeting space totals more than 160,000 square feet.",
+      "source": "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     },
+     {
+      "claim": "The hotel is at 9840 International Drive, Orlando, Florida 32819, 12 minutes from Orlando International Airport.",
+      "source": "https://www.rosencentre.com/about-us/hotel-fact-sheet/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJMZYy4rK22YgRM_O-D2pKGDw",
+   "name": "MIAM CAFE-WYNWOOD",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamcafe.com/our-story",
+     "source_name": "MIAM CAFE-WYNWOOD \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miam is the French equivalent to yum.",
+      "Miam Caf\u00e9 & Boutique is located on the corner of the iconic Wynwood Building in Miami's edgy arts district.",
+      "The cafe serves a simple, fresh menu with fresh and homemade food and drinks all day long.",
+      "Dishes are made-to-order and homemade from organic and locally sourced ingredients for breakfast, lunch or an afternoon snack.",
+      "The boutique area showcases fine grocery products like wines, honeys, and oils."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A French-inspired cafe on the corner of the Wynwood Building",
+    "why_here": "Located on the corner of the iconic Wynwood Building in Miami's edgy arts district, this cafe serves a simple, fresh menu with homemade food and drinks all day long. Dishes are made-to-order from organic and locally sourced ingredients for breakfast, lunch or an afternoon snack.",
+    "know_before": "The boutique area showcases fine grocery products like wines, honeys, and oils.",
+    "local_tip": "Dishes are made-to-order and homemade from organic and locally sourced ingredients.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamcafe.com/our-story"
+     ],
+     "why_here": [
+      "https://www.miamcafe.com/our-story"
+     ],
+     "know_before": [
+      "https://www.miamcafe.com/our-story"
+     ],
+     "local_tip": [
+      "https://www.miamcafe.com/our-story"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miam is the French equivalent to yum.",
+      "source": "https://www.miamcafe.com/our-story"
+     },
+     {
+      "claim": "Miam Caf\u00e9 & Boutique is located on the corner of the iconic Wynwood Building in Miami's edgy arts district.",
+      "source": "https://www.miamcafe.com/our-story"
+     },
+     {
+      "claim": "The cafe serves a simple, fresh menu with fresh and homemade food and drinks all day long.",
+      "source": "https://www.miamcafe.com/our-story"
+     },
+     {
+      "claim": "Dishes are made-to-order and homemade from organic and locally sourced ingredients for breakfast, lunch or an afternoon snack.",
+      "source": "https://www.miamcafe.com/our-story"
+     },
+     {
+      "claim": "The boutique area showcases fine grocery products like wines, honeys, and oils.",
+      "source": "https://www.miamcafe.com/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQYkdRiba0IgRqUnb3B7oxu0",
+   "name": "The Island Fish Co. Restaurant & Tiki Bar",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://islandfishco.com/",
+     "source_name": "The Island Fish Co. Restaurant & Tiki Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Island Fish Company is located at Mile Marker 54 bayside in Marathon, Florida Keys, and offers fresh seafood, steaks, sandwiches, handcrafted cocktails, and a tiki bar.",
+      "The restaurant is open every day from 8 a.m. to 10 p.m., with breakfast from 8 a.m. to 11 a.m. and lunch and dinner from 11 a.m. to 10 p.m.",
+      "Daily happy hour runs from 3 p.m. to 5 p.m.",
+      "Mexican Sundays run from 11 a.m. to 4 p.m. on Sunday.",
+      "Reservations are not accepted."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront seafood and a tiki bar at Mile Marker 54 bayside in Marathon",
+    "why_here": "Island Fish Company is located at Mile Marker 54 bayside in Marathon, offering fresh seafood, steaks, sandwiches, and handcrafted cocktails with waterfront views. It serves breakfast, lunch, and dinner daily, with a raw bar and daily happy hour in the afternoon.",
+    "know_before": "Open every day from 8 a.m. to 10 p.m.; breakfast from 8 a.m. to 11 a.m., and reservations are not accepted.",
+    "local_tip": "Daily happy hour runs from 3 p.m. to 5 p.m., and Mexican Sundays run from 11 a.m. to 4 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://islandfishco.com/"
+     ],
+     "why_here": [
+      "https://islandfishco.com/"
+     ],
+     "know_before": [
+      "https://islandfishco.com/"
+     ],
+     "local_tip": [
+      "https://islandfishco.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Island Fish Company is located at Mile Marker 54 bayside in Marathon, Florida Keys, and offers fresh seafood, steaks, sandwiches, handcrafted cocktails, and a tiki bar.",
+      "source": "https://islandfishco.com/"
+     },
+     {
+      "claim": "The restaurant is open every day from 8 a.m. to 10 p.m., with breakfast from 8 a.m. to 11 a.m. and lunch and dinner from 11 a.m. to 10 p.m.",
+      "source": "https://islandfishco.com/"
+     },
+     {
+      "claim": "Daily happy hour runs from 3 p.m. to 5 p.m.",
+      "source": "https://islandfishco.com/"
+     },
+     {
+      "claim": "Mexican Sundays run from 11 a.m. to 4 p.m. on Sunday.",
+      "source": "https://islandfishco.com/"
+     },
+     {
+      "claim": "Reservations are not accepted.",
+      "source": "https://islandfishco.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi6K8mAwB2YgRuOxEAQPCaKQ",
+   "name": "Hatch",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hatchbrunch.com/",
+     "source_name": "Hatch \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hatch serves brunch Monday to Friday from 7 a.m. to 3 p.m.",
+      "Hatch serves brunch Saturday and Sunday from 7 a.m. to 4 p.m.",
+      "Hatch has locations in Huntington and Fort Lauderdale.",
+      "Hatch serves surprising takes on brunch classics and focuses on connecting with friends and community.",
+      "Parties can be hosted on weekdays starting at 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Surprising takes on brunch classics in Fort Lauderdale and Huntington",
+    "why_here": "Hatch serves surprising takes on brunch classics, with locations in Huntington and Fort Lauderdale. The focus is on connecting with friends and community at the start of a great day, with brunch served through the morning and into the early afternoon each day.",
+    "know_before": "Brunch is served Monday to Friday from 7 a.m. to 3 p.m., and Saturday and Sunday from 7 a.m. to 4 p.m.",
+    "local_tip": "Parties can be hosted on weekdays starting at 4 p.m., after regular brunch hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hatchbrunch.com/"
+     ],
+     "why_here": [
+      "https://www.hatchbrunch.com/"
+     ],
+     "know_before": [
+      "https://www.hatchbrunch.com/"
+     ],
+     "local_tip": [
+      "https://www.hatchbrunch.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hatch serves brunch Monday to Friday from 7 a.m. to 3 p.m.",
+      "source": "https://www.hatchbrunch.com/"
+     },
+     {
+      "claim": "Hatch serves brunch Saturday and Sunday from 7 a.m. to 4 p.m.",
+      "source": "https://www.hatchbrunch.com/"
+     },
+     {
+      "claim": "Hatch has locations in Huntington and Fort Lauderdale.",
+      "source": "https://www.hatchbrunch.com/"
+     },
+     {
+      "claim": "Hatch serves surprising takes on brunch classics and focuses on connecting with friends and community.",
+      "source": "https://www.hatchbrunch.com/"
+     },
+     {
+      "claim": "Parties can be hosted on weekdays starting at 4 p.m.",
+      "source": "https://www.hatchbrunch.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJo6xqs1-l2YgR7xHnXZL0ZCE",
+   "name": "Yarumba Restaurant & Lounge",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://yarumbarestaurant.com/",
+     "source_name": "Yarumba Restaurant & Lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Yarumba serves authentic Dominican food, fresh seafood, and signature cocktails in Miami Gardens, FL.",
+      "Yarumba offers Happy Hour Monday-Friday from 4 p.m. to 7 p.m.",
+      "The menu includes Mofongo and Fried Chicken dishes.",
+      "The lounge features live music and signature cocktails, with a festive atmosphere inspired by the streets of Santo Domingo."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dominican flavors, seafood and cocktails in Miami Gardens",
+    "why_here": "Yarumba serves authentic Dominican food, fresh seafood and signature cocktails in Miami Gardens. By day it focuses on Dominican cuisine, and by night the lounge adds live music and a festive atmosphere inspired by Santo Domingo for a lively night out.",
+    "know_before": "Happy Hour runs Monday through Friday from 4 p.m. to 7 p.m.",
+    "local_tip": "The menu highlights include Mofongo and Fried Chicken dishes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://yarumbarestaurant.com/"
+     ],
+     "why_here": [
+      "https://yarumbarestaurant.com/"
+     ],
+     "know_before": [
+      "https://yarumbarestaurant.com/"
+     ],
+     "local_tip": [
+      "https://yarumbarestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Yarumba serves authentic Dominican food, fresh seafood, and signature cocktails in Miami Gardens, FL.",
+      "source": "https://yarumbarestaurant.com/"
+     },
+     {
+      "claim": "Yarumba offers Happy Hour Monday-Friday from 4 p.m. to 7 p.m.",
+      "source": "https://yarumbarestaurant.com/"
+     },
+     {
+      "claim": "The menu includes Mofongo and Fried Chicken dishes.",
+      "source": "https://yarumbarestaurant.com/"
+     },
+     {
+      "claim": "The lounge features live music and signature cocktails, with a festive atmosphere inspired by the streets of Santo Domingo.",
+      "source": "https://yarumbarestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ_3WRVN-54gR2mMdWDLIJ2s",
+   "name": "Lockbusters Escape Game",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lockbustersgame.com/",
+     "source_name": "Lockbusters Escape Game \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lockbusters offers private, multi-room escape games in Orlando.",
+      "Lockbusters games feature cinematic sets and movie-quality storytelling.",
+      "Every Lockbusters game is built in-house.",
+      "Lockbusters is located on International Drive, minutes from ICON Park.",
+      "Each room is designed for 2 to 10 players and lasts 60 minutes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private, multi-room escape games in Orlando",
+    "why_here": "Lockbusters offers private, multi-room escape games in Orlando with cinematic sets and movie-quality storytelling. Every game is built in-house, and the venue sits on International Drive minutes from ICON Park.",
+    "know_before": "Each room is designed for 2 to 10 players and lasts 60 minutes.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lockbustersgame.com/"
+     ],
+     "why_here": [
+      "https://www.lockbustersgame.com/"
+     ],
+     "know_before": [
+      "https://www.lockbustersgame.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lockbusters offers private, multi-room escape games in Orlando.",
+      "source": "https://www.lockbustersgame.com/"
+     },
+     {
+      "claim": "Lockbusters games feature cinematic sets and movie-quality storytelling.",
+      "source": "https://www.lockbustersgame.com/"
+     },
+     {
+      "claim": "Every Lockbusters game is built in-house.",
+      "source": "https://www.lockbustersgame.com/"
+     },
+     {
+      "claim": "Lockbusters is located on International Drive, minutes from ICON Park.",
+      "source": "https://www.lockbustersgame.com/"
+     },
+     {
+      "claim": "Each room is designed for 2 to 10 players and lasts 60 minutes.",
+      "source": "https://www.lockbustersgame.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGQGEDINbkYgRKp4pQU9wYIA",
+   "name": "Pompano Joe's",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pompano-joes.com/home",
+     "source_name": "Pompano Joe's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pompano Joe's is known for fresh affordable Gulf seafood prepared with a Caribbean flavor.",
+      "Pompano Joe's seafood is delivered daily.",
+      "Pompano Joe's is on the beach in Destin.",
+      "A second Pompano Joe's at Pier Park in Panama City Beach opened in 2013."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gulf seafood with Caribbean flavor in Destin",
+    "why_here": "Pompano Joe's is known for fresh affordable Gulf seafood prepared with a Caribbean flavor, with seafood delivered daily. The restaurant sits on the beach in Destin, serving coastal seafood in a beachfront setting.",
+    "know_before": "A second location at Pier Park in Panama City Beach opened in 2013.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pompano-joes.com/home"
+     ],
+     "why_here": [
+      "https://www.pompano-joes.com/home"
+     ],
+     "know_before": [
+      "https://www.pompano-joes.com/home"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pompano Joe's is known for fresh affordable Gulf seafood prepared with a Caribbean flavor.",
+      "source": "https://www.pompano-joes.com/home"
+     },
+     {
+      "claim": "Pompano Joe's seafood is delivered daily.",
+      "source": "https://www.pompano-joes.com/home"
+     },
+     {
+      "claim": "Pompano Joe's is on the beach in Destin.",
+      "source": "https://www.pompano-joes.com/home"
+     },
+     {
+      "claim": "A second Pompano Joe's at Pier Park in Panama City Beach opened in 2013.",
+      "source": "https://www.pompano-joes.com/home"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR19hxhqt2YgRwX-lgH27Jh4",
+   "name": "Duffy's Sports Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.duffysmvp.com/",
+     "source_name": "Duffy's Sports Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The original Duffy's Drafthouse was founded in Lake Park, Florida in 1985.",
+      "Duffy's Drafthouse changed to Duffy's Sports Grill in 2003.",
+      "Duffy's Sports Grill menu includes Starters, Salads and Sandwiches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports grill founded as Duffy's Drafthouse in 1985",
+    "why_here": "Duffy's began as Duffy's Drafthouse, founded in Lake Park, Florida in 1985, and changed to Duffy's Sports Grill in 2003. The menu includes Starters, Salads and Sandwiches for game-day dining with a group.",
+    "know_before": "The original Duffy's Drafthouse was founded in Lake Park, Florida in 1985.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.duffysmvp.com/"
+     ],
+     "why_here": [
+      "https://www.duffysmvp.com/"
+     ],
+     "know_before": [
+      "https://www.duffysmvp.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The original Duffy's Drafthouse was founded in Lake Park, Florida in 1985.",
+      "source": "https://www.duffysmvp.com/"
+     },
+     {
+      "claim": "Duffy's Drafthouse changed to Duffy's Sports Grill in 2003.",
+      "source": "https://www.duffysmvp.com/"
+     },
+     {
+      "claim": "Duffy's Sports Grill menu includes Starters, Salads and Sandwiches.",
+      "source": "https://www.duffysmvp.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYzOIJF7OwogRYAgySR6o_BY",
+   "name": "Regency Square",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.regencycenters.com/property/detail/18/Regency-Square",
+     "source_name": "Regency Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Regency Square totals 361,785 square feet.",
+      "Regency Square is located at 2400-2578 W Brandon Blvd, Brandon, FL 33511.",
+      "Retailers at Regency Square include AMC Theatre, Michaels, PETCO, ULTA and MARSHALLS."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brandon shopping center anchored by an AMC Theatre",
+    "why_here": "Regency Square in Brandon totals 361,785 square feet at 2400-2578 W Brandon Blvd. Retailers include AMC Theatre, Michaels, PETCO, ULTA and MARSHALLS, giving shoppers a large single-center stop in Brandon.",
+    "know_before": "Regency Square is located at 2400-2578 W Brandon Blvd, Brandon, FL 33511.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.regencycenters.com/property/detail/18/Regency-Square"
+     ],
+     "why_here": [
+      "https://www.regencycenters.com/property/detail/18/Regency-Square"
+     ],
+     "know_before": [
+      "https://www.regencycenters.com/property/detail/18/Regency-Square"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Regency Square totals 361,785 square feet.",
+      "source": "https://www.regencycenters.com/property/detail/18/Regency-Square"
+     },
+     {
+      "claim": "Regency Square is located at 2400-2578 W Brandon Blvd, Brandon, FL 33511.",
+      "source": "https://www.regencycenters.com/property/detail/18/Regency-Square"
+     },
+     {
+      "claim": "Retailers at Regency Square include AMC Theatre, Michaels, PETCO, ULTA and MARSHALLS.",
+      "source": "https://www.regencycenters.com/property/detail/18/Regency-Square"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtdT-ATl63YgRVrvPfarcWHU",
+   "name": "Omni Orlando Resort at ChampionsGate",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas",
+     "source_name": "Omni Orlando Resort at ChampionsGate \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Omni Orlando Resort at ChampionsGate has two Greg Norman-designed championship golf courses.",
+      "The resort features an 850-foot lazy river.",
+      "The resort features a heated family pool with a water slide.",
+      "The resort has a 10,000-square-foot European-style spa and fitness facility.",
+      "The resort features a formal pool with private cabanas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "850-foot lazy river and golf by Greg Norman",
+    "why_here": "Omni Orlando Resort at ChampionsGate pairs two Greg Norman-designed championship golf courses with an 850-foot lazy river and a heated family pool with a water slide. A formal pool with private cabanas and a spa round out the resort stay.",
+    "know_before": "The resort features a heated family pool with a water slide and an 850-foot lazy river.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     ],
+     "why_here": [
+      "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     ],
+     "know_before": [
+      "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Omni Orlando Resort at ChampionsGate has two Greg Norman-designed championship golf courses.",
+      "source": "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     },
+     {
+      "claim": "The resort features an 850-foot lazy river.",
+      "source": "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     },
+     {
+      "claim": "The resort features a heated family pool with a water slide.",
+      "source": "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     },
+     {
+      "claim": "The resort has a 10,000-square-foot European-style spa and fitness facility.",
+      "source": "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     },
+     {
+      "claim": "The resort features a formal pool with private cabanas.",
+      "source": "https://cms.omnihotels.com/hotels/orlando-championsgate/accommodations/villas"
+     }
+    ]
+   }
+  }
+ ]
+}
