@@ -1,0 +1,136 @@
+{
+  "slug": "tampa-bay-rainy-day",
+  "picks": {
+    "The Florida Aquarium": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/florida-aquarium.webp",
+      "width": 720,
+      "height": 960,
+      "alt": "The Florida Aquarium's glass-domed entrance building with its blue wordmark sign, palm trees and a manta ray sculpture out front",
+      "caption": "The Florida Aquarium's glass-domed entrance on the Channelside waterfront.",
+      "credit": "James E. Scholz",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg",
+      "author": "James E. Scholz",
+      "position": "50% 60%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJCXAq5_DEwogRjTPE2xlsZtE",
+      "verification": "Same file as Wayfind's own verified wf_place_photo record for this place; the building's glass dome and the readable \"THE FLORIDA AQUARIUM\" sign confirm the exact venue. Not geotagged; identified by the sign and architecture.",
+      "sameAsCardPhoto": true,
+      "reviewedAt": "2026-09-23"
+    },
+    "Tampa Bay History Center": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-bay-history-center.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The Tampa Bay History Center's waterfront building, with its name in large letters, seen across the Hillsborough River",
+      "caption": "The Tampa Bay History Center on the Riverwalk, seen from across the water.",
+      "credit": "James E. Scholz",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Bay_History_Center_1.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Bay_History_Center_1.jpg",
+      "author": "James E. Scholz",
+      "position": "50% 40%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJJboiAY3EwogRJCLbox7T-70",
+      "verification": "The building carries a visible \"TAMPA BAY HISTORY CENTER\" sign, confirming the exact venue; used instead of Wayfind's card photo (a different Christopher Hollis file) because that file's licence (plain \"Public domain\") is not in this contract's allowed CC set. Not geotagged; identified by the sign.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "Tampa Theatre": {
+      "src": "/guides/picks/things-to-do-in-tampa-florida/tampa-theatre.webp",
+      "width": 1012,
+      "height": 1799,
+      "alt": "The Tampa Theatre's lit marquee reading TAMPA and WELCOME TO THE SHOW beneath the historic building's brick facade",
+      "caption": "Tampa Theatre's marquee, reading \"Welcome to the Show,\" beneath the 1926 building's facade.",
+      "credit": "MatthewHoobin",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_Theatre_in_Tampa,_Florida,_US,_on_23_March_2021.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Tampa_Theatre_in_Tampa,_Florida,_US,_on_23_March_2021.jpg",
+      "author": "MatthewHoobin",
+      "position": "50% 62%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": "ChIJ98cKiInEwogRfyDonUPi2bc",
+      "verification": "The marquee reads \"TAMPA\" and \"WELCOME TO THE SHOW,\" confirming the exact venue; used instead of Wayfind's card photo (Ebyabe, CC BY 2.5) because 2.5 is not in this contract's allowed licence set (only 2.0/3.0/4.0). One passerby seen from behind is incidental. Not geotagged; identified by the marquee text.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23"
+    },
+    "The Dalí Museum": {
+      "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/dali-museum-exterior.webp",
+      "width": 1400,
+      "height": 933,
+      "alt": "The Salvador Dalí Museum in St. Petersburg, a concrete building wrapped by a faceted glass geodesic bubble facade, palm trees in front",
+      "caption": "The Salvador Dalí Museum in St. Petersburg, with its geodesic glass bubble facade.",
+      "credit": "Taty2007",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
+      "license": "CC BY 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG",
+      "author": "Taty2007",
+      "position": "38% 55%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP.",
+      "sourceKind": "commons",
+      "placeId": "ChIJyaCQzpHhwogRBdPcZI6UOyc",
+      "verification": "Downloaded the original (4752x3168) from Wikimedia Commons and inspected it directly: the concrete-and-glass building with its distinctive faceted geodesic glass bubble, described on the file page as 'Salvador Dalí Museum (2011) at St. Petersburg, Florida' -- exactly the 'famous geodesic glass bubble' the pick's blurb names. Reused from the already-reviewed things-to-do-st-petersburg-clearwater-summer-2026 pick record (same exact venue, same licence-ledger row, no new image fetched); placeId bound from this guide's gap record.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-09-23",
+      "reuseReason": "Same venue (The Dalí Museum, St. Petersburg) already carries a reviewed, ledger-verified CC BY 3.0 Commons photo in another published guide; reused file and record verbatim."
+    }
+  },
+  "gaps": {
+    "Imagine Museum": {
+      "reason": "google-only",
+      "placeId": "ChIJyzrZADLiwogRDSaWoWljzTE",
+      "needsPermissionFrom": "Imagine Museum",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "The Great Escape Room Tampa": {
+      "reason": "google-only",
+      "placeId": "ChIJL0bExYvEwogRWA4X9n0d7MA",
+      "needsPermissionFrom": "The Great Escape Room Tampa",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "Sandbox VR St. Pete": {
+      "reason": "google-only",
+      "placeId": "ChIJYVYFKETjwogRol57F48FMxc",
+      "needsPermissionFrom": "Sandbox VR St. Pete",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "The Escape Game Tampa": {
+      "reason": "google-only",
+      "placeId": "ChIJgb8MYx3DwogR70_o9aWhkrQ",
+      "needsPermissionFrom": "The Escape Game Tampa",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "Straz Center for the Performing Arts": {
+      "reason": "google-only",
+      "placeId": "ChIJce6XFIjEwogRaNJA6ZKu31c",
+      "needsPermissionFrom": "Straz Center for the Performing Arts",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "Zubrick Magic Theatre": {
+      "reason": "google-only",
+      "placeId": "ChIJG365UJ_jwogRAIblIxnwvzU",
+      "needsPermissionFrom": "Zubrick Magic Theatre",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "Glazer Children's Museum": {
+      "reason": "google-only",
+      "placeId": "ChIJ-6lKAInEwogRVnf5NBtjZss",
+      "needsPermissionFrom": "Glazer Children's Museum",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    },
+    "Kids Empire Tampa Citrus Park": {
+      "reason": "google-only",
+      "placeId": "ChIJZQ__1N_rwogRkz34m52_aHo",
+      "needsPermissionFrom": "Kids Empire Tampa Citrus Park",
+      "note": "Wayfind holds a stored Google photo of this place, but Google availability alone grants no reuse rights. No licensed or permitted photo has been sourced yet, so a labelled illustrative topic photo renders instead."
+    }
+  }
+}
