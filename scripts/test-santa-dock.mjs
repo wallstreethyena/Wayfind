@@ -98,6 +98,30 @@ function fsExists(rel) { try { readFileSync(path.join(root, rel)); return true; 
   ok(ACT_MS.greet >= 1400 && ACT_MS.point >= 1200 && POINT_MAX <= 3 && POINT_GAP[0] >= 30000, "gestures get time to finish, and the point toward his action is rare");
 }
 
+// 5b. Personality between messages (owner 2026-11-04): idle quips, honest and calm.
+{
+  const { santaQuips, pageQuip, countdownQuip, timeQuip, daysToChristmas, QUIP_GAP, QUIP_MAX } = mod;
+  const at = (iso) => new Date(iso);
+  ok(daysToChristmas(at("2026-11-04T13:00:00Z")) === 51 && countdownQuip(at("2026-11-04T13:00:00Z")) === "51 sleeps till Christmas.", "the countdown is the real number of Eastern-calendar days to Dec 25");
+  ok(countdownQuip(at("2026-11-04T03:00:00Z")) === "52 sleeps till Christmas.", "10 pm Eastern on Nov 3 is still Nov 3 (52), never the UTC date");
+  ok(countdownQuip(at("2026-12-24T15:00:00Z")) === "One more sleep!" && /^Merry Christmas/.test(countdownQuip(at("2026-12-26T04:00:00Z"))) && countdownQuip(at("2026-12-26T06:00:00Z")) === "Still in the holiday spirit.", "Christmas Eve, Christmas night (Eastern) and after");
+  ok(timeQuip(at("2026-11-04T13:00:00Z")).startsWith("Morning") && timeQuip(at("2026-11-04T18:00:00Z")).startsWith("Sleigh") && timeQuip(at("2026-11-04T23:00:00Z")).startsWith("Lights") && timeQuip(at("2026-11-04T05:00:00Z")).startsWith("Up late"), "the hour line follows the one site clock (lib/nowContext.js buckets, Eastern)");
+  ok(pageQuip("/christmas-in-florida") !== pageQuip("/guides/x") && pageQuip("/places/abc") !== pageQuip("/") && pageQuip("/anything") === "Ho ho. Need a plan?", "each kind of page gets its own line; anything else gets his default");
+  const all = ["/", "/christmas-in-florida", "/guides/x", "/places/a", "/events", "/map", "/stays"].flatMap((p) => santaQuips(p, at("2026-11-04T13:00:00Z")));
+  ok(all.every((q) => q.length <= 36), "every quip is short enough for the dock (longest " + Math.max(...all.map((q) => q.length)) + " chars)");
+  ok(all.every((q) => !/\b(open|closed|best|cheapest|rated|tonight only|free)\b/i.test(q)), "no quip makes a claim about a place, a price or hours");
+  ok(QUIP_MAX <= 3 && QUIP_GAP[0] >= 20000, "at most 3 quips a page, at least 20 s apart");
+  const rest = renderToStaticMarkup(createElement(DockView, { action: santaAction("/"), msg: "", quip: "Nice pick. It's on my list." }));
+  ok(/role="status" aria-live="off"/.test(rest) && /<b>Santa:<\/b> <span class="wf-sd-q">Nice pick\. It&#x27;s on my list\.<\/span>/.test(rest), "at rest the quip sits under his name and is not announced");
+  const tightRest = renderToStaticMarkup(createElement(DockView, { action: santaAction("/"), msg: "", quip: "Nice pick. It's on my list.", tight: true }));
+  ok(!/<b>Santa:<\/b>/.test(tightRest) && /class="wf-sd-q"/.test(tightRest), "when the quip would not fit, his name gives way, never the words");
+  const said = renderToStaticMarkup(createElement(DockView, { action: santaAction("/"), msg: HOST_LINE, quip: "x" }));
+  ok(/aria-live="polite"/.test(said) && !/class="wf-sd-q"/.test(said), "a real message wins over a quip and is announced");
+  ok(/\.wf-sd-fig\[data-act="chuckle"\] svg \.s-body\{animation:wf-sd-jiggle/.test(CSS) && /\.wf-sd-fig\[data-act="peek"\] svg \.s-head\{animation:wf-sd-peek/.test(CSS) && ACT_MS.chuckle >= 1000 && ACT_MS.peek >= 1200, "each quip brings a matching gesture (a chuckle or a peek at his button) that has time to finish");
+  const dock = strip(read("app/components/SantaDock.js"));
+  ok(/if \(!document\.hidden\) \{\s*setQuip\(quips\[q\]\);\s*doAct\(q % 2 \? "peek" : "chuckle"\);/.test(dock) && /if \(q >= Math\.min\(QUIP_MAX, quips\.length\)\) return;/.test(dock), "quips go through doAct, skip a hidden tab, and stop at the per-page cap");
+}
+
 // 6. One owner, and the old roaming machinery is off for Santa.
 {
   const dock = strip(read("app/components/SantaDock.js"));
