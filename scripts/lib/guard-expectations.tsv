@@ -1025,6 +1025,7 @@ scripts/test-taxonomy.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	436a1c75313e7ad
 scripts/test-theme-park-core.mjs	0	CALL	blocks-ci-and-deploy	1	Revenue QA	79	0	0	4ef98d3b45db30f5e3fd859d84a58fa4f765512880fac0fe6db030b26a27d992
 scripts/test-theme-park-surfaces.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	4b35de719bf42f4f1db964009ce4d73d5e45a28f4be4801d627d9caa7aa79e98
 scripts/test-things-to-do.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	1	1	fd1b2786b6e0577ac7c8b9cadee3a084123167c64cbcb7e1455ec1ef8ba2079e
+scripts/test-ticketmaster-gating.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	9	0	0	d03ecd6b6aa48f118f79cc3c5bb2a0b208ff9bf55fae000e6a1b64a255cbc636
 scripts/test-today-discovery-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	64	0	0	78b79ce56715460967accc3c933a576aa2a90de9a2372f0001c12656267af6dc
 scripts/test-todays-best.mjs	0	CALL	blocks-ci-and-deploy	1	-	105	0	0	73942dbfccbb268cb1fc9a1fc59e6e6d7cf58e7cfff8c557377935902ed414c3
 scripts/test-top-rated.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	db48447f08bf3cb527b4f4dd9a87396d55dda47f4284accb98c786ce5cdfd8f2
