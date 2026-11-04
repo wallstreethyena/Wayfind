@@ -14,7 +14,7 @@
 import { readFileSync } from "node:fs";
 import {
   placeCity, placeCityPick, cityOf, cityValue, structuredAddressCity,
-  placePageTitle, placeShareText,
+  placePageTitle, placeShareText, nameCarriesCity,
 } from "../lib/placeCity.js";
 import { placePostalAddress, placeLocalBusinessLd } from "../lib/placeSchema.js";
 import { storedPlaceHeader, detailLocationLine } from "../lib/locationHonesty.js";
@@ -64,7 +64,7 @@ ok(CONFLICTS.length === 10, "all ten conflict rows are covered");
 for (const [name, locality, postal] of CONFLICTS) {
   const row = { name, locality, postal_city: postal, county: "X" };
   eq(placeCity(row), postal, `${name}: postal_city outranks the Census locality`);
-  eq(placePageTitle(row), `${name} in ${postal} | Wayfind`, `${name}: title names the postal city`);
+  eq(placePageTitle(row), nameCarriesCity(name, postal) ? `${name} | Wayfind` : `${name} in ${postal} | Wayfind`, `${name}: title names the postal city (unless the name already does)`);
   eq(placePostalAddress(row)?.addressLocality, postal, `${name}: PostalAddress addressLocality is the same postal city`);
 }
 const scream = { name: "Scream-A-Geddon", locality: null, county: "Pasco", postal_city: "Dade City", metro: "tampa-bay" };
@@ -114,6 +114,24 @@ eq(storedPlaceHeader({ ...ORL, locality: "Southchase", postal_city: "Orlando" })
 eq(storedPlaceHeader({ ...ORL, locality: "Southchase" }), "Southchase, FL", "locality alone still heads the card");
 eq(storedPlaceHeader({ ...ORL, city: "florida" }), "", "a coverage slug never heads a card");
 eq(detailLocationLine({ lat: 27.47, lng: -82.70, address: "Gulf Drive", locality: "Holmes Beach" }), "Holmes Beach, FL", "detail line: a bare street yields to the stored city");
+
+// 2026-11-04 live check: "Holmes Beach in Holmes Beach". A name that already
+// names the city drops the "in <City>" prose; the PostalAddress keeps it.
+eq(placePageTitle({ name: "Holmes Beach", locality: "Holmes Beach" }), "Holmes Beach | Wayfind", "a beach named after its town does not repeat the town");
+eq(placeShareText({ name: "Holmes Beach", locality: "Holmes Beach" }), "Holmes Beach. Found on Wayfind.", "share text drops the repeat too");
+eq(placePageTitle({ name: "KEG SOCIAL ORLANDO - Dining & Entertainment", postal_city: "Orlando" }), "KEG SOCIAL ORLANDO - Dining & Entertainment | Wayfind", "a name carrying its city (any case) does not repeat it");
+eq(placePageTitle({ name: "World Golf Village Renaissance St. Augustine Resort", postal_city: "St. Augustine" }), "World Golf Village Renaissance St. Augustine Resort | Wayfind", "St./Saint spelling is the same city");
+eq(placePageTitle({ name: "Scream-A-Geddon Horror Park", postal_city: "Dade City" }), "Scream-A-Geddon Horror Park in Dade City | Wayfind", "a name without the city keeps it");
+eq(placePageTitle({ name: "Sarasotan Cafe", locality: "Sarasota" }), "Sarasotan Cafe in Sarasota | Wayfind", "only whole words count: Sarasotan is not Sarasota");
+ok(nameCarriesCity("Holmes Beach", "Holmes Beach") && !nameCarriesCity("Gatorland", "Orlando") && !nameCarriesCity("x", ""), "nameCarriesCity: whole-word match, empty city never matches");
+eq(placePostalAddress({ name: "Holmes Beach", locality: "Holmes Beach" })?.addressLocality, "Holmes Beach", "the PostalAddress still names the city");
+// The page model gets the inventory city even when its skeleton is the
+// wf_place_ids index row (which has neither field): source check on the one
+// place that fills it, because loadPlace needs a live database to execute.
+{
+  const src = readFileSync(new URL("../lib/placeData.js", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
+  ok(/if \(page && !page\.postalCity && !page\.inventoryCity\) \{[\s\S]{0,200}const row = inv \|\| await getInventoryIdentity\(id\);[\s\S]{0,200}page\.postalCity = row\.postal_city;[\s\S]{0,120}page\.inventoryCity = row\.locality;/.test(src), "loadPlace fills postalCity/inventoryCity from wf_inventory when the skeleton lacks them (STRUCTURAL: loadPlace needs a live database)");
+}
 
 if (fail.length) {
   console.error(`check-place-city: ${pass} passed, ${fail.length} FAILED`);
