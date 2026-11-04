@@ -444,26 +444,23 @@ for (const { f, src } of ogPages) {
 
 // ── 12. CITY RESOLUTION IS PER-PLACE, NEVER ONE HARDCODED TEST CITY ─────────
 // Audit (2026-09-23): verify against two REAL places named in the audit —
-// La Natural (Miami) and Bern's Steak House (Tampa) — that lib/placeData.js's
-// cityOf() actually resolves a different city per address rather than
-// returning something constant. cityOf is the pure function
-// placePageMetadata feeds into the hero URL's &loc=, asserted in section 10.
+// La Natural (Miami) and Bern's Steak House (Tampa) — that cityOf() actually
+// resolves a different city per address rather than returning something
+// constant. placeCity (same module) is what placePageMetadata feeds into the
+// hero URL's &loc=, asserted in section 10.
 //
-// EXTRACTED FROM SOURCE rather than imported: lib/placeData.js's own imports
-// (`from "./site"`, `from "./socialMeta"`, …) omit the .js extension, which
-// Next's webpack bundler resolves but plain Node ESM — every guard here runs
-// under plain `node`, not the Next build — cannot. cityOf itself has zero
-// external references (verified below), so it is extracted and evaluated in
-// isolation rather than dragging that unrelated, pre-existing extension gap
-// into scope for this PR.
+// IMPORTED AND CALLED, not extracted from source. cityOf used to live in
+// lib/placeData.js, whose react/Next imports a plain-node guard cannot load,
+// so this block had to regex it out and `new Function` it. It now lives in
+// lib/placeCity.js, import-free ON PURPOSE (asserted below) so the real export
+// is exercised here. The full city ladder is locked by scripts/check-place-city.mjs.
 {
-  const placeDataSrc = read("lib/placeData.js");
-  const m = placeDataSrc.match(/export function cityOf\(address\) \{[\s\S]*?\n\}/);
-  ok(!!m, "lib/placeData.js#cityOf must exist in the expected shape to test in isolation");
-  const body = m ? m[0] : "";
-  ok(!/\bimport\b|[^.\w]require\(/.test(body), "cityOf must stay a PURE function with no external reference — that is the only reason extracting it for isolated testing here is safe");
-  // eslint-disable-next-line no-new-func
-  const cityOf = m ? new Function("return (" + body.replace("export function", "function") + ")")() : () => null;
+  const cityModuleSrc = read("lib/placeCity.js");
+  ok(!/^\s*import\s|[^.\w]require\(/m.test(cityModuleSrc),
+     "lib/placeCity.js must stay import-free — plain-node guards and lib/placeSchema.js depend on loading it");
+  const { cityOf, placeCity } = await import("../lib/placeCity.js");
+  ok(placeCity({ address: "7289 NW 2nd Ave, Miami, FL 33150", guideCity: "Florida" }) === "Miami",
+     "placeCity (the hero &loc= source) must resolve per place from the address, never a statewide guide region");
   const laNatural = cityOf("7289 NW 2nd Ave, Miami, FL 33150");
   const berns = cityOf("1208 S Howard Ave, Tampa, FL 33606");
   ok(laNatural === "Miami", `cityOf must resolve La Natural's address to "Miami", got "${laNatural}"`);

@@ -137,7 +137,7 @@ const key = (r) => norm(r.resolvedName).replace(/\s+/g, "-") + (r.city ? "-" + n
 const CAT = (types) => {
   const t = (types || []).join(" ");
   if (/restaurant|cafe|coffee|bakery|bar|food|meal/.test(t)) return "Food";
-  if (/night_club|bar/.test(t)) return "Nightlife";
+  if (/night_club|bar/.test(t)) return "Night out";
   if (/lodging|hotel/.test(t)) return "Stays";
   if (/store|shopping/.test(t)) return "Shopping";
   return "Activities";
