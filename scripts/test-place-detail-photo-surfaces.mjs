@@ -61,7 +61,7 @@ try{
  eq(media(ready).props.style.aspectRatio,'16 / 9','shared landscape ratio');eq(media(ready).props.style.minHeight,220,'shared min');eq(media(ready).props.style.maxHeight,420,'shared max');
  eq(credit(ready),undefined,'credit waits for decoded visible image');
  image(ready).props.onLoad();ready.render();eq(credit(ready).props.credit.name,photo(A).credit.name,'credit paired with loaded exact source');
- const nodes=ready.nodes();ok(nodes.findIndex(n=>n.type==='h1')<nodes.findIndex(n=>n.type==='credit'),'credit follows headline');
+ const nodes=ready.nodes();ok(nodes.findIndex(n=>'data-place-detail-photo-media'in n.props)<nodes.findIndex(n=>n.type==='credit')&&nodes.findIndex(n=>n.type==='credit')<nodes.findIndex(n=>n.type==='h1'),'credit sits inside the photo, before the headline');eq(credit(ready).props.onPhoto,true,'credit uses the on-photo line');
  const open=nodes.find(n=>n.type==='button'&&n.props['aria-label']?.startsWith('View full'));
  open.props.onClick();ready.render();const viewer=ready.nodes().find(n=>typeof n.type==='function'&&n.type.name==='FullPhoto');
  eq(viewer.props.photo.src,image(ready).props.src,'viewer reuses source; no second API lookup');eq(viewer.props.photo.credit.name,credit(ready).props.credit.name,'viewer reuses matching credit');

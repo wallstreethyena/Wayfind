@@ -899,7 +899,7 @@ export default async function GuidePage({ params }) {
         .wf-gd-list{list-style:none;margin:0;padding:0}
         .wf-gd-card{display:grid;grid-template-columns:96px minmax(0,1fr);gap:14px;align-items:start;text-decoration:none;color:inherit;background:#141c27;border:1px solid #2D3748;border-radius:14px;padding:12px;margin:0 0 10px;transition:border-color .15s ease}
         .wf-gd-card:hover{border-color:#FBBF24}
-        .wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}
+        .wf-gd-photo{position:relative;display:block;width:fit-content}.wf-gd-img{width:96px;height:96px;object-fit:cover;border-radius:10px;display:block;background:#0d131b}.wf-gd-credit{position:absolute;left:4px;right:4px;bottom:4px;margin:0;color:rgba(255,255,255,.6);font-size:9px;font-weight:500;line-height:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65)}
         .wf-gd-body{min-width:0}
         .wf-gd-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
         .wf-gd-title{font-size:16px;font-weight:750;color:#F1F5F9;overflow-wrap:anywhere}
