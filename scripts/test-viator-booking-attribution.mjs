@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 // scripts/test-viator-booking-attribution.mjs — End-to-end verification of
-// Viator per-click opaque attribution, stale-attribution merge prevention,
-// client-to-redirect click_id continuity, /partner/bookings/modified-since
-// ingestion & PGlite SQL reconciliation, 4-way financial separation, and
-// Google Data Manager offline conversion upload lifecycle.
+// Viator per-click opaque attribution, campaign trust-boundary separation,
+// visitor context isolation, multi-click anchor non-reuse,
+// /partner/bookings/modified-since contract & PGlite SQL reconciliation,
+// sync lease & stale-epoch protection, 4-way financial separation,
+// Google Data Manager + Google Ads ConversionAdjustmentUploadService
+// (`RETRACTION` / `RESTATEMENT`), 90-day redaction, and role access controls.
 
 import fs from "node:fs";
 import path from "node:path";
@@ -20,6 +22,7 @@ import {
   readState,
 } from "../lib/campaignAttribution.js";
 import { planPartnerClick } from "../lib/partnerClick.js";
+import { withViatorTracking } from "../lib/affiliates.js";
 import {
   mintViatorClickToken,
   isValidViatorClickToken,
@@ -27,6 +30,7 @@ import {
   extractViatorClickToken,
   extractPlacementFromCampaignValue,
   deriveTrustedGoogleCampaignId,
+  resolveGoogleCampaignObservation,
   buildAdClickContext,
   encodeAdClickCookie,
   readAdClickContextFromCookieHeader,
@@ -34,13 +38,17 @@ import {
   AD_CTX_COOKIE,
 } from "../lib/viatorAttribution.js";
 import {
+  normalizeBookingStatus,
   normalizeViatorBookingEvent,
   syncViatorBookings,
 } from "../lib/viatorBookings.js";
 import {
   buildGoogleDataManagerEventPayload,
+  buildGoogleAdsConversionAdjustmentPayload,
   submitGoogleConversionUpload,
+  processGoogleConversionUploadQueue,
   UPLOAD_STATES,
+  ADJUSTMENT_STATES,
 } from "../lib/googleOfflineConversions.js";
 import { assertViatorRedirectShape } from "../lib/viatorSmokeAssert.js";
 import { loadComponent } from "./lib/jsxLoad.mjs";
@@ -67,6 +75,7 @@ const {
   forwardToGoogle,
   PARTNER_CLICK_EVENT,
   classify,
+  ga4Id,
   _resetDedupe,
 } = await import("../lib/analytics.js");
 
@@ -78,7 +87,7 @@ function ok(cond, msg) {
 }
 
 // ---------------------------------------------------------------------------
-// Scenario 6: Stale campaign metadata must NEVER merge onto a new click ID
+// 1. Stale campaign metadata prevention & campaign trust boundary
 // ---------------------------------------------------------------------------
 {
   const backing = new Map();
@@ -95,7 +104,7 @@ function ok(cond, msg) {
   };
   globalThis.window = { localStorage: localStore, sessionStorage: sessStore };
 
-  // Visit 1: Paid Google click on campaign 24380159401
+  // Visit 1: Paid Google click with URL parameter utm_campaign=24380159401
   clearAttribution();
   const v1 = captureAttribution(
     "?gclid=gclid_visit_1&utm_source=google&utm_medium=cpc&utm_campaign=24380159401",
@@ -112,6 +121,31 @@ function ok(cond, msg) {
   ok(
     v1.gclid === "gclid_visit_1" && v1.utm_campaign === "24380159401",
     "visit 1 captures gclid_visit_1 and utm_campaign=24380159401",
+  );
+
+  // Verify trust boundary on Visit 1: URL utm_campaign is recorded as unverified
+  // observed_utm_campaign, while verified_google_campaign_id remains null!
+  const st1 = readState({
+    local: localStore,
+    session: sessStore,
+    now: Date.parse("2026-11-01T10:00:05.000Z"),
+  });
+  const ctx1 = buildAdClickContext({
+    sessionRecord: st1.sess,
+    firstTouchRecord: st1.ft,
+    legacyRecord: readAttribution(),
+  });
+  ok(
+    ctx1.observed_utm_campaign === "24380159401" &&
+      ctx1.verified_google_campaign_id === null &&
+      ctx1.campaign_metadata_provenance === "url_utm_unverified" &&
+      ctx1.campaign_verification_status === "unverified",
+    `URL utm_campaign is tagged as url_utm_unverified and never populates verified_google_campaign_id (${JSON.stringify(ctx1)})`,
+  );
+  ok(
+    ctx1.consent_ad_user_data === "UNKNOWN" &&
+      ctx1.consent_ad_personalization === "UNKNOWN",
+    "omitted consent in browser storage defaults to UNKNOWN, never assumed GRANTED from gclid",
   );
 
   // Visit 2 (later click): Bare ?gclid=gclid_visit_2 with NO utm_campaign
@@ -152,7 +186,10 @@ function ok(cond, msg) {
     legacyRecord: readAttribution(),
   });
   ok(
-    ctx2.gclid === "gclid_visit_2" && ctx2.google_campaign_id === null,
+    ctx2.gclid === "gclid_visit_2" &&
+      ctx2.observed_utm_campaign === null &&
+      ctx2.verified_google_campaign_id === null &&
+      ctx2.google_campaign_id === null,
     "buildAdClickContext does not infer campaign 24380159401 for bare gclid_visit_2",
   );
   ok(
@@ -183,8 +220,8 @@ function ok(cond, msg) {
 }
 
 // ---------------------------------------------------------------------------
-// Red Proof: Campaign 24380159401 is NEVER inferred from bare gclid, landing
-// page, or product code alone
+// 2. Red Proof: Campaign 24380159401 is NEVER inferred from bare gclid,
+//    landing page, or product code alone; authoritative verification is distinct
 // ---------------------------------------------------------------------------
 {
   ok(
@@ -194,22 +231,41 @@ function ok(cond, msg) {
     }) === null,
     "red proof: bare gclid + Orlando guide path does not infer 24380159401",
   );
+  const obs = resolveGoogleCampaignObservation({
+    gclid: "EAIaIQobChMI_paid_click",
+    sessionAttribution: {
+      utm_source: "google",
+      utm_medium: "cpc",
+      utm_campaign: "24380159401",
+    },
+  });
   ok(
-    deriveTrustedGoogleCampaignId({
-      gclid: "EAIaIQobChMI_paid_click",
-      sessionAttribution: {
-        utm_source: "google",
-        utm_medium: "cpc",
-        utm_campaign: "24380159401",
-      },
-    }) === "24380159401",
-    "trusted utm_campaign=24380159401 on a Google click records 24380159401",
+    obs.observed_utm_campaign === "24380159401" &&
+      obs.verified_google_campaign_id === null &&
+      obs.campaign_metadata_provenance === "url_utm_unverified" &&
+      obs.campaign_verification_status === "unverified",
+    "resolveGoogleCampaignObservation marks URL utm_campaign as unverified until Google Ads verification",
+  );
+  const authObs = resolveGoogleCampaignObservation({
+    gclid: "EAIaIQobChMI_paid_click",
+    sessionAttribution: {
+      utm_source: "google",
+      utm_medium: "cpc",
+      utm_campaign: "24380159401",
+    },
+    authoritativeCampaignId: "24380159401",
+  });
+  ok(
+    authObs.verified_google_campaign_id === "24380159401" &&
+      authObs.campaign_metadata_provenance === "google_ads_api_verified" &&
+      authObs.campaign_verification_status === "verified",
+    "resolveGoogleCampaignObservation records verified_google_campaign_id only when authoritativeCampaignId is provided",
   );
 }
 
 // ---------------------------------------------------------------------------
-// Scenario 1 (Part A): Client click_id continuity & single Google Ads click
-// conversion (CommerceClickBeacon capture phase + GuidePickOffer bubble phase)
+// 3. Client click_id continuity on single click AND fresh click_id minting on
+//    later independent click on the same DOM anchor + GA4 unset reconciliation
 // ---------------------------------------------------------------------------
 {
   const rsOffer =
@@ -232,34 +288,89 @@ function ok(cond, msg) {
       attrs.set(k, String(v));
       if (k === "href") anchor.href = String(v);
     },
+    removeAttribute: (k) => {
+      attrs.delete(k);
+    },
   };
 
-  // Step 1: Capture-phase CommerceClickBeacon plans partner click on owned anchor
+  // Activation #1 (t = 1000ms): Capture-phase CommerceClickBeacon + Bubble-phase GuidePickOffer
   const { mintClickId } = await import("../lib/commerce.js");
-  const plan = planPartnerClick({
+  const plan1 = planPartnerClick({
     href: anchor.getAttribute("href"),
     owned: true,
     locationHost: "gowayfind.com",
     fallbackSurface: "guide_body",
     mint: mintClickId,
   });
-  ok(plan && plan.emitPostHog === false && plan.rewriteHref === null, "beacon leaves owned GuidePickOffer PostHog emit to owner");
-  anchor.setAttribute("data-wf-click-id", plan.clickId);
+  ok(
+    plan1 && plan1.emitPostHog === false && plan1.rewriteHref === null,
+    "beacon leaves owned GuidePickOffer PostHog emit to owner",
+  );
+  anchor.setAttribute("data-wf-click-id", plan1.clickId);
+  anchor.setAttribute("data-wf-click-ts", "1000");
 
-  // Step 2: Bubble-phase GuidePickOffer onPickOfferClick reuses data-wf-click-id
-  const rewrittenHref = onPickOfferClick({
+  const rewrittenHref1 = onPickOfferClick({
     offer: rsOffer,
     slug: "things-to-do-orlando-not-theme-parks",
     pickId: "rock-springs-run-kayak",
     anchor,
+    nowMs: 1005,
   });
-  const rewrittenClickId = new URL(rewrittenHref, "https://gowayfind.com").searchParams.get("click_id");
+  const rewrittenClickId1 = new URL(rewrittenHref1, "https://gowayfind.com").searchParams.get("click_id");
   ok(
-    rewrittenClickId === plan.clickId,
-    `GuidePickOffer reuses CommerceClickBeacon's exact clickId (${rewrittenClickId} === ${plan.clickId})`,
+    rewrittenClickId1 === plan1.clickId,
+    `Activation #1: GuidePickOffer consumes CommerceClickBeacon's exact clickId (${rewrittenClickId1} === ${plan1.clickId})`,
+  );
+  ok(
+    anchor.getAttribute("data-wf-click-id") === null,
+    "Activation #1: GuidePickOffer immediately clears data-wf-click-id after consuming it",
   );
 
-  // Step 3: Verify Google conversion bridge fires ONCE for partner_click and NEVER for commerce_cta_clicked
+  // Activation #2 (t = 6000ms, 5 seconds later on the same target="_blank" anchor,
+  // whose href now contains click_id=rewrittenClickId1 from Activation #1):
+  const plan2 = planPartnerClick({
+    href: anchor.getAttribute("href"),
+    owned: true,
+    locationHost: "gowayfind.com",
+    fallbackSurface: "guide_body",
+    mint: mintClickId,
+  });
+  ok(
+    plan2 && plan2.clickId && plan2.clickId !== plan1.clickId,
+    `Activation #2 on same owned anchor mints a brand-new clickId (${plan2?.clickId} !== ${plan1.clickId}) instead of reusing click #1's href click_id`,
+  );
+  anchor.setAttribute("data-wf-click-id", plan2.clickId);
+  anchor.setAttribute("data-wf-click-ts", "6000");
+
+  const rewrittenHref2 = onPickOfferClick({
+    offer: rsOffer,
+    slug: "things-to-do-orlando-not-theme-parks",
+    pickId: "rock-springs-run-kayak",
+    anchor,
+    nowMs: 6005,
+  });
+  const rewrittenClickId2 = new URL(rewrittenHref2, "https://gowayfind.com").searchParams.get("click_id");
+  ok(
+    rewrittenClickId2 === plan2.clickId && rewrittenClickId2 !== rewrittenClickId1,
+    `Activation #2: GuidePickOffer writes the new clickId (${rewrittenClickId2}) onto anchor.href`,
+  );
+
+  // Activation #3 (standalone bubble click without capture stamp): must ALSO
+  // mint a fresh click_id rather than reading click #2's click_id from anchor.href!
+  const rewrittenHref3 = onPickOfferClick({
+    offer: rsOffer,
+    slug: "things-to-do-orlando-not-theme-parks",
+    pickId: "rock-springs-run-kayak",
+    anchor,
+    nowMs: 12000,
+  });
+  const rewrittenClickId3 = new URL(rewrittenHref3, "https://gowayfind.com").searchParams.get("click_id");
+  ok(
+    rewrittenClickId3 && rewrittenClickId3 !== rewrittenClickId2 && rewrittenClickId3 !== rewrittenClickId1,
+    `Activation #3 without beacon stamp mints a fresh click_id (${rewrittenClickId3}) instead of reading stale click_id from anchor.href`,
+  );
+
+  // Verify Google conversion bridge fires ONCE for partner_click and NEVER for commerce_cta_clicked
   const gtagCalls = [];
   const fakeGtag = (...args) => gtagCalls.push(args);
   _resetDedupe();
@@ -276,13 +387,13 @@ function ok(cond, msg) {
   forwardToGoogle(
     PARTNER_CLICK_EVENT,
     { provider: "viator", surface: "guide_pick" },
-    { gtag: fakeGtag, dedupeKey: "partner_click|" + plan.clickId },
+    { gtag: fakeGtag, dedupeKey: "partner_click|" + plan1.clickId },
   );
   // Duplicate call with same clickId must be suppressed
   forwardToGoogle(
     PARTNER_CLICK_EVENT,
     { provider: "viator", surface: "guide_pick" },
-    { gtag: fakeGtag, dedupeKey: "partner_click|" + plan.clickId },
+    { gtag: fakeGtag, dedupeKey: "partner_click|" + plan1.clickId },
   );
 
   const adsConversions = gtagCalls.filter(
@@ -293,11 +404,23 @@ function ok(cond, msg) {
       adsConversions[0][2]?.send_to === "AW-18342267447/19gpCKCx8NccELeUo6pE",
     `exactly ONE Google Ads conversion fired for the outbound click (got ${adsConversions.length})`,
   );
+
+  // Verify how lib/analytics.js handles NEXT_PUBLIC_GA4_MEASUREMENT_ID:
+  // ga4Id() validates RAW.ga4 via isValidGa4Id(); when unset in production,
+  // isValidGa4Id(undefined) is false, so analytics-tier events (commerce_cta_clicked)
+  // emit neither GA4 nor Google Ads calls.
+  const { isValidGa4Id } = await import("../lib/analytics.js");
+  ok(
+    isValidGa4Id(undefined) === false &&
+      isValidGa4Id("") === false &&
+      classify("commerce_cta_clicked") === "analytics",
+    "when NEXT_PUBLIC_GA4_MEASUREMENT_ID is unset in production, isValidGa4Id is false and analytics-tier commerce_cta_clicked emits to neither GA4 nor Ads",
+  );
 }
 
 // ---------------------------------------------------------------------------
-// Scenario 1 (Part B): Outbound Viator token minting, URL contract, privacy,
-// and retry reuse
+// 4. Outbound Viator URL contract (ordinary medium=link AND API medium=api),
+//    token round-trip, and visitor context isolation
 // ---------------------------------------------------------------------------
 {
   const token = mintViatorClickToken();
@@ -325,39 +448,46 @@ function ok(cond, msg) {
     "placement-only campaign tag returns null token (never guessed)",
   );
 
-  // Verify cookie round-trip and private click persistence + retry reuse
-  const cookieVal = encodeAdClickCookie({
-    gclid: "EAIaIQobChMI_rock_springs_click",
+  // Verify Partner API productUrl (medium=api&api_version=2.0, as stored in wf_experiences)
+  // AND ordinary affiliate link (medium=link) both preserve affiliate parameters and attach campaign cleanly
+  const apiProductUrl =
+    "https://www.viator.com/tours/Orlando/Clear-Kayak-Tours-in-Rock-Springs/d663-123164P1?mcid=42383&pid=P00320881&medium=api&api_version=2.0";
+  const trackedApiUrl = withViatorTracking(apiProductUrl, undefined, { campaign: camp });
+  const parsedApiUrl = new URL(trackedApiUrl);
+  ok(
+    parsedApiUrl.searchParams.get("pid") === "P00320881" &&
+      parsedApiUrl.searchParams.get("mcid") === "42383" &&
+      parsedApiUrl.searchParams.get("medium") === "api" &&
+      parsedApiUrl.searchParams.get("api_version") === "2.0" &&
+      parsedApiUrl.searchParams.get("campaign") === camp &&
+      extractViatorClickToken(parsedApiUrl.searchParams.get("campaign")) === token,
+    "withViatorTracking preserves Partner API medium=api&api_version=2.0 parameters while attaching the attributed campaign token",
+  );
+
+  // Verify visitor context isolation: Visitor A vs Visitor B
+  const cookieVisitorA = `${AD_CTX_COOKIE}=${encodeAdClickCookie({
+    gclid: "EAIaIQobChMI_visitor_A_click",
+    visitorId: "visitor_nonce_aaaaaaaa1111",
     consentAdUserData: "GRANTED",
     consentAdPersonalization: "GRANTED",
     sessionRecord: {
-      p: {
-        utm_source: "google",
-        utm_medium: "cpc",
-        utm_campaign: "24380159401",
-      },
+      p: { utm_source: "google", utm_medium: "cpc", utm_campaign: "24380159401" },
       ct: "gclid",
       lp: "/guides/things-to-do-orlando-not-theme-parks",
     },
-    firstTouchRecord: {
-      p: {
-        utm_source: "google",
-        utm_medium: "cpc",
-        utm_campaign: "24380159401",
-      },
+  })}`;
+
+  const cookieVisitorB = `${AD_CTX_COOKIE}=${encodeAdClickCookie({
+    gclid: "EAIaIQobChMI_visitor_B_click",
+    visitorId: "visitor_nonce_bbbbbbbb2222",
+    consentAdUserData: "DENIED",
+    consentAdPersonalization: "DENIED",
+    sessionRecord: {
+      p: { utm_source: "google", utm_medium: "cpc", utm_campaign: "99999999999" },
       ct: "gclid",
       lp: "/guides/things-to-do-orlando-not-theme-parks",
     },
-  });
-  const cookieHeader = `${AD_CTX_COOKIE}=${cookieVal}`;
-  const decodedCtx = readAdClickContextFromCookieHeader(cookieHeader);
-  ok(
-    decodedCtx &&
-      decodedCtx.gclid === "EAIaIQobChMI_rock_springs_click" &&
-      decodedCtx.google_campaign_id === "24380159401" &&
-      decodedCtx.consent_ad_user_data === "GRANTED",
-    "wf_ad_ctx cookie round-trips gclid, google_campaign_id=24380159401, and consent",
-  );
+  })}`;
 
   const storedRows = [];
   const mockFetch = async (url, init = {}) => {
@@ -381,16 +511,19 @@ function ok(cond, msg) {
   };
 
   const baseDest =
-    "https://www.viator.com/tours/Orlando/Rock-Springs-Clear-Kayak/d663-123164P1?pid=P00320881&mcid=42383&medium=link";
-  const firstHop = await attributedViatorDestination(
+    "https://www.viator.com/tours/Orlando/Clear-Kayak-Tours-in-Rock-Springs/d663-123164P1?mcid=42383&pid=P00320881&medium=api&api_version=2.0&campaign=wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1";
+
+  const firstHopA = await attributedViatorDestination(
     {
       offerId: "123164P1",
       destinationUrl: baseDest,
       pageHint: "g-things-to-do-orlando-not-theme-parks",
       surface: "guide_pick",
       contentId: "things-to-do-orlando-not-theme-parks:rock-springs-run-kayak",
-      clientClickId: "wf-client-click-retry-1",
-      cookieHeader,
+      clientClickId: "wf-shared-click-id-1",
+      cookieHeader: cookieVisitorA,
+      distinctId: "ph_visitor_A",
+      now: new Date("2026-11-03T14:00:00Z"),
     },
     {
       sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
@@ -399,30 +532,40 @@ function ok(cond, msg) {
   );
 
   ok(
-    firstHop.url && firstHop.clickToken && firstHop.reused === false,
-    "first outbound click mints and stores a new Viator click token",
+    firstHopA.url && firstHopA.clickToken && firstHopA.reused === false,
+    "Visitor A first outbound click mints and stores a new Viator click token",
+  );
+  ok(
+    storedRows[0].observed_utm_campaign === "24380159401" &&
+      storedRows[0].verified_google_campaign_id === null &&
+      storedRows[0].campaign_metadata_provenance === "url_utm_unverified",
+    "stored click row separates observed_utm_campaign from verified_google_campaign_id",
   );
 
-  // Verify outbound URL passes Viator redirect smoke assertion & leaks zero ad IDs
-  const smokeRes = assertViatorRedirectShape(firstHop.url);
-  ok(smokeRes && smokeRes.ok === true, `stamped Viator URL passes assertViatorRedirectShape (${JSON.stringify(smokeRes)})`);
+  const smokeRes = assertViatorRedirectShape(firstHopA.url);
   ok(
-    !firstHop.url.includes("EAIaIQobChMI") &&
-      !firstHop.url.includes("wf-client-click-retry-1") &&
-      !firstHop.url.includes("24380159401"),
+    smokeRes && smokeRes.ok === true,
+    `stamped Viator URL passes assertViatorRedirectShape (${JSON.stringify(smokeRes)})`,
+  );
+  ok(
+    !firstHopA.url.includes("EAIaIQobChMI") &&
+      !firstHopA.url.includes("wf-shared-click-id-1") &&
+      !firstHopA.url.includes("24380159401"),
     "outbound Viator URL contains zero raw gclid, client_click_id, or Google campaign ID",
   );
 
-  // Retry the exact same click (same clientClickId + offerId)
-  const retryHop = await attributedViatorDestination(
+  // Same Visitor A retries within 15 minutes -> reuses firstHopA.clickToken
+  const retryHopA = await attributedViatorDestination(
     {
       offerId: "123164P1",
       destinationUrl: baseDest,
       pageHint: "g-things-to-do-orlando-not-theme-parks",
       surface: "guide_pick",
       contentId: "things-to-do-orlando-not-theme-parks:rock-springs-run-kayak",
-      clientClickId: "wf-client-click-retry-1",
-      cookieHeader,
+      clientClickId: "wf-shared-click-id-1",
+      cookieHeader: cookieVisitorA,
+      distinctId: "ph_visitor_A",
+      now: new Date("2026-11-03T14:02:00Z"),
     },
     {
       sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
@@ -430,15 +573,90 @@ function ok(cond, msg) {
     },
   );
   ok(
-    retryHop.reused === true &&
-      retryHop.clickToken === firstHop.clickToken &&
+    retryHopA.reused === true &&
+      retryHopA.clickToken === firstHopA.clickToken &&
       storedRows.length === 1,
-    "retrying the same outbound click reuses the identical click_token without inserting a duplicate row",
+    "same visitor retrying within 15 minutes reuses the identical click_token",
+  );
+
+  // Visitor B sends the EXACT SAME client_click_id ("wf-shared-click-id-1") ->
+  // MUST NOT reuse Visitor A's token or overwrite Visitor A's attribution!
+  const forgedHopB = await attributedViatorDestination(
+    {
+      offerId: "123164P1",
+      destinationUrl: baseDest,
+      pageHint: "g-things-to-do-orlando-not-theme-parks",
+      surface: "guide_pick",
+      contentId: "things-to-do-orlando-not-theme-parks:rock-springs-run-kayak",
+      clientClickId: "wf-shared-click-id-1",
+      cookieHeader: cookieVisitorB,
+      distinctId: "ph_visitor_B",
+      now: new Date("2026-11-03T14:03:00Z"),
+    },
+    {
+      sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+      fetch: mockFetch,
+    },
+  );
+  ok(
+    forgedHopB.reused === false &&
+      forgedHopB.clickToken !== firstHopA.clickToken &&
+      storedRows.length === 2 &&
+      storedRows[0].gclid === "EAIaIQobChMI_visitor_A_click" &&
+      storedRows[1].gclid === "EAIaIQobChMI_visitor_B_click" &&
+      storedRows[1].client_click_id === null,
+    "forged/reused client_click_id from Visitor B cannot retrieve or rebind Visitor A's click_token",
   );
 }
 
 // ---------------------------------------------------------------------------
-// Scenarios 1, 2, 3, 4, 5 in Real PostgreSQL (PGlite) + Sync Cursor Discipline
+// 5. Viator /partner/bookings/modified-since raw eventType contract tests
+// ---------------------------------------------------------------------------
+{
+  // Verify all 5 documented Viator raw eventType values + unfamiliar event handling
+  const c1 = normalizeBookingStatus(null, "CONFIRMATION");
+  const c2 = normalizeBookingStatus(null, "REJECTION");
+  const c3 = normalizeBookingStatus(null, "AMENDMENT");
+  const c4 = normalizeBookingStatus(null, "CANCELLATION");
+  const c5 = normalizeBookingStatus(null, "CUSTOMER_CANCELLATION");
+  const cUnknown = normalizeBookingStatus("HOLD_PENDING_REVIEW", "CHARGEBACK_HOLD");
+
+  ok(
+    c1.raw_event_type === "CONFIRMATION" && c1.status === "confirmed" && !c1.needs_investigation,
+    "Viator CONFIRMATION maps to status=confirmed while preserving raw_event_type=CONFIRMATION",
+  );
+  ok(
+    c2.raw_event_type === "REJECTION" && c2.status === "rejected" && !c2.needs_investigation,
+    "Viator REJECTION maps to status=rejected while preserving raw_event_type=REJECTION",
+  );
+  ok(
+    c3.raw_event_type === "AMENDMENT" && c3.status === "amended" && !c3.needs_investigation,
+    "Viator AMENDMENT maps to status=amended while preserving raw_event_type=AMENDMENT",
+  );
+  ok(
+    c4.raw_event_type === "CANCELLATION" &&
+      c4.status === "cancelled" &&
+      c4.cancellation_actor === "provider_or_operator",
+    "Viator CANCELLATION maps to status=cancelled with cancellation_actor=provider_or_operator",
+  );
+  ok(
+    c5.raw_event_type === "CUSTOMER_CANCELLATION" &&
+      c5.status === "cancelled" &&
+      c5.cancellation_actor === "customer",
+    "Viator CUSTOMER_CANCELLATION maps to status=cancelled with cancellation_actor=customer",
+  );
+  ok(
+    cUnknown.raw_event_type === "CHARGEBACK_HOLD" &&
+      cUnknown.status === "unrecognized" &&
+      cUnknown.event_type === "UNRECOGNIZED" &&
+      cUnknown.needs_investigation === true,
+    "unfamiliar Viator eventType is marked status=unrecognized, needs_investigation=true",
+  );
+}
+
+// ---------------------------------------------------------------------------
+// 6. Real PostgreSQL (PGlite) Reconciliation, Lease/Epoch Concurrency,
+//    In-Flight Cancellation Race, Google Ads Adjustment API, Redaction, & RLS
 // ---------------------------------------------------------------------------
 {
   const db = new PGlite();
@@ -464,27 +682,126 @@ function ok(cond, msg) {
     "utf8",
   );
   await db.exec(testSql);
-  ok(true, "PGlite executed migration + supabase/tests/wf_viator_booking_attribution.sql with 0 errors");
 
-  // Verify financial summary view separates cancelled vs active bookings
-  const summaryRes = await db.query(`
-    SELECT attribution_status, google_campaign_id, gross_bookings_count, active_bookings_count,
-           cancelled_bookings_count, active_gross_booking_value, active_confirmed_commission
-      FROM public.wf_viator_financial_summary
-     WHERE attribution_status = 'matched' AND google_campaign_id = '24380159401'
-  `);
-  const row = summaryRes.rows[0];
+  const eventCountRes = await db.query(
+    `SELECT count(*)::int AS cnt FROM public.wf_viator_booking_events`,
+  );
   ok(
-    row &&
-      Number(row.gross_bookings_count) === 2 &&
-      Number(row.active_bookings_count) === 1 &&
-      Number(row.cancelled_bookings_count) === 1 &&
-      Number(row.active_gross_booking_value) === 119.0 &&
-      Number(row.active_confirmed_commission) === 9.52,
-    `wf_viator_financial_summary separates gross (2), active (1), and cancelled (1) bookings: ${JSON.stringify(row)}`,
+    eventCountRes.rows[0].cnt === 8,
+    `PGlite executed migration + supabase/tests/wf_viator_booking_attribution.sql and recorded 8 immutable booking events (got ${eventCountRes.rows[0].cnt})`,
   );
 
-  // Verify syncViatorBookings cursor discipline against PGlite-backed REST bridge:
+  // Verify financial summary view separates cancelled, active, and unrecognized/investigation bookings
+  const summaryRes = await db.query(`
+    SELECT attribution_status, observed_utm_campaign, verified_google_campaign_id,
+           gross_bookings_count, active_bookings_count,
+           cancelled_bookings_count, investigation_required_count,
+           active_gross_booking_value, active_confirmed_commission
+      FROM public.wf_viator_financial_summary
+     WHERE attribution_status = 'matched' AND observed_utm_campaign = '24380159401'
+     ORDER BY verified_google_campaign_id NULLS LAST
+  `);
+  ok(
+    summaryRes.rows.length === 2,
+    `wf_viator_financial_summary groups verified vs unverified campaign rows separately (got ${summaryRes.rows.length} groups)`,
+  );
+
+  // Verify non-privileged role access controls (anon and authenticated MUST be denied; service_role allowed)
+  let anonDenied = false;
+  try {
+    await db.exec(`
+      BEGIN;
+      SET LOCAL ROLE anon;
+      SELECT count(*) FROM public.wf_viator_clicks;
+      COMMIT;
+    `);
+  } catch {
+    anonDenied = true;
+    await db.exec(`ROLLBACK;`);
+  }
+  ok(anonDenied, "RLS/ACL: anon role is denied SELECT on public.wf_viator_clicks");
+
+  let authDenied = false;
+  try {
+    await db.exec(`
+      BEGIN;
+      SET LOCAL ROLE authenticated;
+      SELECT count(*) FROM public.wf_viator_financial_summary;
+      COMMIT;
+    `);
+  } catch {
+    authDenied = true;
+    await db.exec(`ROLLBACK;`);
+  }
+  ok(
+    authDenied,
+    "RLS/ACL: authenticated role is denied SELECT on public.wf_viator_financial_summary",
+  );
+
+  let authRpcDenied = false;
+  try {
+    await db.exec(`
+      BEGIN;
+      SET LOCAL ROLE authenticated;
+      SELECT public.wf_viator_reconcile('[]'::jsonb, null, null, now(), null, null);
+      COMMIT;
+    `);
+  } catch {
+    authRpcDenied = true;
+    await db.exec(`ROLLBACK;`);
+  }
+  ok(
+    authRpcDenied,
+    "RLS/ACL: authenticated role is denied EXECUTE on public.wf_viator_reconcile",
+  );
+
+  await db.exec(`
+    BEGIN;
+    SET LOCAL ROLE service_role;
+    SELECT count(*) FROM public.wf_viator_financial_summary;
+    COMMIT;
+  `);
+  const svcCheck = await db.query(`SELECT count(*)::int AS cnt FROM public.wf_viator_bookings`);
+  ok(
+    svcCheck.rows[0].cnt === 6,
+    "RLS/ACL: service_role is permitted to query private attribution tables and views",
+  );
+
+  // Seed fresh unredacted click wfv_4444... to test syncViatorBookings + upload queue end-to-end
+  await db.exec(`
+    INSERT INTO public.wf_viator_clicks (
+      click_token, client_click_id, visitor_context_hash, provider, offer_id, page_key, surface, content_id,
+      placement_campaign, attributed_campaign,
+      gclid, observed_utm_campaign, verified_google_campaign_id,
+      campaign_metadata_provenance, campaign_verification_status, google_campaign_id,
+      consent_ad_user_data, consent_ad_personalization,
+      clicked_at, expires_at, redact_after
+    ) VALUES (
+      'wfv_44444444444444444444444444444444',
+      'wf-click-live-4',
+      'dddddddddddddddddddddddddddddddd',
+      'viator',
+      '123164P1',
+      'g-things-to-do-orlando-not-theme-parks',
+      'guide_pick',
+      'things-to-do-orlando-not-theme-parks:rock-springs-run-kayak',
+      'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1',
+      'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-44444444444444444444444444444444',
+      'EAIaIQobChMI_fresh_click_4',
+      '24380159401',
+      null,
+      'url_utm_unverified',
+      'unverified',
+      '24380159401',
+      'GRANTED',
+      'GRANTED',
+      '2026-11-03T18:00:00Z'::timestamptz,
+      '2026-12-03T18:00:00Z'::timestamptz,
+      '2027-02-01T18:00:00Z'::timestamptz
+    );
+  `);
+
+  // Verify syncViatorBookings cursor discipline & lease handling against PGlite-backed REST bridge:
   // Red Proof: if page 2 fails with 503, page 1's cursor stays committed and page 2's cursor is NOT advanced.
   let apiCalls = 0;
   const pgliteRestFetch = async (url, init = {}) => {
@@ -498,15 +815,16 @@ function ok(cond, msg) {
             bookings: [
               {
                 bookingRef: "BR-2001",
-                eventType: "CONFIRMED",
+                eventType: "CONFIRMATION",
                 status: "CONFIRMED",
                 productCode: "123164P1",
                 campaignValue:
-                  "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-11111111111111111111111111111111",
+                  "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-44444444444444444444444444444444",
                 grossBookingValue: 238.0,
                 estimatedCommission: 19.04,
                 confirmedCommission: 19.04,
                 currency: "USD",
+                bookingDate: "2026-11-03T19:00:00Z",
                 transactionDate: "2026-11-03T19:00:00Z",
                 lastModified: "2026-11-03T19:05:00Z",
               },
@@ -517,31 +835,77 @@ function ok(cond, msg) {
         );
       }
       // Page 2 fails upstream
-      return new Response("Service Unavailable", { status: 503 });
+      return new Response(JSON.stringify({ message: "Service Unavailable" }), { status: 503 });
     }
     if (u.includes("/rest/v1/wf_viator_sync_state") && method === "GET") {
       const r = await db.query(
-        `SELECT next_cursor, modified_since_watermark FROM public.wf_viator_sync_state WHERE id = 1`,
+        `SELECT next_cursor, modified_since_watermark, sync_epoch, lease_owner, lease_expires_at FROM public.wf_viator_sync_state WHERE id = 1`,
       );
       return new Response(JSON.stringify(r.rows), { status: 200 });
     }
     if (u.includes("/rest/v1/wf_viator_sync_state") && method === "PATCH") {
       const b = JSON.parse(init.body);
       await db.query(
-        `UPDATE public.wf_viator_sync_state SET last_error = $1, last_attempt_at = $2 WHERE id = 1`,
-        [b.last_error, b.last_attempt_at],
+        `UPDATE public.wf_viator_sync_state SET last_error = $1, last_attempt_at = $2, lease_expires_at = COALESCE($3::timestamptz, lease_expires_at) WHERE id = 1`,
+        [b.last_error, b.last_attempt_at, b.lease_expires_at || null],
       );
       return new Response("", { status: 204 });
+    }
+    if (u.includes("/rest/v1/rpc/wf_viator_acquire_sync_lease") && method === "POST") {
+      const b = JSON.parse(init.body);
+      const r = await db.query(
+        `SELECT public.wf_viator_acquire_sync_lease($1::text, $2::timestamptz, $3::integer) AS res`,
+        [b.p_worker_id, b.p_now, b.p_ttl_seconds],
+      );
+      return new Response(JSON.stringify(r.rows[0].res), { status: 200 });
     }
     if (u.includes("/rest/v1/rpc/wf_viator_reconcile") && method === "POST") {
       const b = JSON.parse(init.body);
       const r = await db.query(
-        `SELECT public.wf_viator_reconcile($1::jsonb, $2::text, $3::timestamptz, $4::timestamptz) AS res`,
+        `SELECT public.wf_viator_reconcile($1::jsonb, $2::text, $3::timestamptz, $4::timestamptz, $5::bigint, $6::text) AS res`,
         [
           JSON.stringify(b.p_events),
           b.p_next_cursor,
           b.p_watermark,
           b.p_synced_at,
+          b.p_expected_epoch ?? null,
+          b.p_worker_id ?? null,
+        ],
+      );
+      return new Response(JSON.stringify(r.rows[0].res), { status: 200 });
+    }
+    if (u.includes("/rest/v1/wf_google_conversion_uploads") && method === "GET") {
+      const r = await db.query(
+        `SELECT * FROM public.wf_google_conversion_uploads WHERE upload_status = 'awaiting_upload' ORDER BY created_at ASC`,
+      );
+      return new Response(JSON.stringify(r.rows), { status: 200 });
+    }
+    if (u.includes("/rest/v1/rpc/wf_google_begin_upload") && method === "POST") {
+      const b = JSON.parse(init.body);
+      const r = await db.query(
+        `SELECT public.wf_google_begin_upload($1::bigint, $2::timestamptz) AS res`,
+        [b.p_upload_id, b.p_now],
+      );
+      return new Response(JSON.stringify(r.rows[0].res), { status: 200 });
+    }
+    if (u.includes("/rest/v1/rpc/wf_google_finalize_upload") && method === "POST") {
+      const b = JSON.parse(init.body);
+      const r = await db.query(
+        `SELECT public.wf_google_finalize_upload($1::bigint, $2::text, $3::boolean, $4::text, $5::integer, $6::numeric, $7::text, $8::text, $9::boolean, $10::jsonb, $11::jsonb, $12::text, $13::timestamptz) AS res`,
+        [
+          b.p_upload_id,
+          b.p_outcome_status,
+          b.p_validate_only,
+          b.p_request_id,
+          b.p_http_status,
+          b.p_conversion_value,
+          b.p_value_basis,
+          b.p_adjustment_state,
+          b.p_retraction_required,
+          b.p_payload ? JSON.stringify(b.p_payload) : null,
+          b.p_response_summary ? JSON.stringify(b.p_response_summary) : null,
+          b.p_error,
+          b.p_now,
         ],
       );
       return new Response(JSON.stringify(r.rows[0].res), { status: 200 });
@@ -554,6 +918,7 @@ function ok(cond, msg) {
       apiKey: "viator_test_key",
       sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
       maxPages: 3,
+      now: new Date("2026-12-16T00:00:00Z"),
     },
     { fetch: pgliteRestFetch },
   );
@@ -573,67 +938,143 @@ function ok(cond, msg) {
     "cursor advances to page 1's reconciled cursor and records page 2's error without losing page 2",
   );
 
-  // Verify BR-2001 from page 1 is reconciled and ready for Google Data Manager validateOnly upload
+  // Verify both BR-1001 cancellation_restatement (via Google Ads API ConversionAdjustmentUploadService)
+  // and BR-2001 initial_booking (via Google Data Manager API) are processed through processGoogleConversionUploadQueue
+  const queueRes = await processGoogleConversionUploadQueue(
+    {
+      sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+      uploadMode: "validate_only",
+      accessToken: "ya29.test_oauth_token",
+      developerToken: "gads_dev_token_test",
+      operatingAccountId: "553-622-6713",
+      conversionActionId: "7999000111",
+      now: new Date("2026-12-16T00:05:00Z"),
+    },
+    {
+      fetch: async (url, init) => {
+        const u = String(url);
+        if (u.startsWith("https://datamanager.googleapis.com")) {
+          const body = JSON.parse(init.body);
+          ok(
+            body.validateOnly === true &&
+              body.destinations[0].operatingAccount.accountId === "5536226713",
+            "Data Manager payload sent by queue processor carries validateOnly=true and account 5536226713",
+          );
+          return new Response(JSON.stringify({ requestId: "dm_val_req_queue" }), {
+            status: 200,
+          });
+        }
+        if (u.startsWith("https://googleads.googleapis.com")) {
+          const body = JSON.parse(init.body);
+          ok(
+            body.validateOnly === true &&
+              body.conversionAdjustments[0].adjustmentType === "RETRACTION" &&
+              body.conversionAdjustments[0].orderId === "BR-1001",
+            "Google Ads API adjustment payload sent by queue processor carries validateOnly=true, RETRACTION, and orderId=BR-1001",
+          );
+          return new Response(JSON.stringify({ requestId: "gads_val_req_queue" }), {
+            status: 200,
+          });
+        }
+        return pgliteRestFetch(url, init);
+      },
+    },
+  );
+  ok(
+    queueRes.ok === true && queueRes.attempted === 2 && queueRes.succeeded === 2,
+    `processGoogleConversionUploadQueue validated both BR-1001 retraction and BR-2001 initial upload cleanly (${JSON.stringify(queueRes)})`,
+  );
+
+  const ul2001After = (
+    await db.query(
+      `SELECT * FROM public.wf_google_conversion_uploads WHERE booking_ref = 'BR-2001' AND upload_kind = 'initial_booking'`,
+    )
+  ).rows[0];
+  ok(
+    ul2001After.upload_status === UPLOAD_STATES.VALIDATED_ONLY &&
+      ul2001After.validate_only === true,
+    "BR-2001 upload row transitions to validated_only (never submitted or accepted)",
+  );
+
+  // Verify Google Ads API ConversionAdjustmentUploadService RETRACTION vs Data Manager zero-restatement
   const br2001 = (
     await db.query(
       `SELECT * FROM public.wf_viator_bookings WHERE booking_ref = 'BR-2001'`,
     )
   ).rows[0];
-  const ul2001 = (
-    await db.query(
-      `SELECT * FROM public.wf_google_conversion_uploads WHERE booking_ref = 'BR-2001' AND upload_kind = 'initial_booking'`,
-    )
-  ).rows[0];
 
-  // Note: click 1 was NOT redacted because its redact_after is 2027-02-01
+  const gadsRetractPayload = buildGoogleAdsConversionAdjustmentPayload({
+    booking: br2001,
+    uploadKind: "cancellation_restatement",
+    operatingAccountId: "553-622-6713",
+    conversionActionId: "7999000111",
+    validateOnly: false,
+  });
   ok(
-    br2001.attribution_status === "matched" &&
-      br2001.google_campaign_id === "24380159401" &&
-      ul2001.upload_status === UPLOAD_STATES.AWAITING_UPLOAD,
-    "BR-2001 is matched to campaign 24380159401 and queued as awaiting_upload",
+    gadsRetractPayload.eligible === true &&
+      gadsRetractPayload.adjustmentType === "RETRACTION" &&
+      gadsRetractPayload.adjustmentState === ADJUSTMENT_STATES.RETRACTED_COUNT_AND_VALUE &&
+      gadsRetractPayload.retractionRequired === false &&
+      gadsRetractPayload.body.conversionAdjustments[0].orderId === "BR-2001",
+    "buildGoogleAdsConversionAdjustmentPayload builds a RETRACTION keyed by orderId=BR-2001 that retracts both count and value",
   );
 
-  const dmUpload = await submitGoogleConversionUpload(
+  const dmCancelRes = await submitGoogleConversionUpload(
     {
-      uploadRow: ul2001,
-      bookingRow: br2001,
+      uploadRow: { upload_kind: "cancellation_restatement" },
+      bookingRow: { ...br2001, status: "cancelled" },
       accessToken: "ya29.test_oauth_token",
+      developerToken: null, // Data Manager fallback (no Google Ads API developerToken)
       operatingAccountId: "553-622-6713",
       conversionActionId: "7999000111",
-      validateOnly: true,
+      validateOnly: false,
     },
     {
-      fetch: async (url, init) => {
-        const body = JSON.parse(init.body);
-        ok(
-          body.validateOnly === true &&
-            body.destinations[0].operatingAccount.accountId === "5536226713" &&
-            body.events[0].transactionId === "BR-2001" &&
-            body.events[0].conversionValue === 19.04 &&
-            body.events[0].consent.adUserData === "GRANTED",
-          "Google Data Manager payload carries validateOnly=true, account 5536226713, transactionId=BR-2001, and confirmed commission 19.04",
-        );
-        return new Response(JSON.stringify({ requestId: "dm_val_req_2001" }), {
-          status: 200,
-        });
-      },
+      fetch: async () =>
+        new Response(JSON.stringify({ requestId: "dm_cancel_zero" }), { status: 200 }),
     },
   );
   ok(
-    dmUpload.ok === true &&
-      dmUpload.upload_status === UPLOAD_STATES.VALIDATED_ONLY &&
-      dmUpload.validate_only === true,
-    "validateOnly=true upload records validated_only (never submitted or accepted)",
+    dmCancelRes.ok === true &&
+      dmCancelRes.adjustment_state ===
+        ADJUSTMENT_STATES.VALUE_RESTATED_ZERO_COUNT_UNRETRACTED &&
+      dmCancelRes.retraction_required === true,
+    "Data Manager cancellation restatement explicitly records value_restated_zero_count_unretracted and retraction_required=true",
+  );
+
+  const gadsCancelRes = await submitGoogleConversionUpload(
+    {
+      uploadRow: { upload_kind: "cancellation_restatement" },
+      bookingRow: { ...br2001, status: "cancelled" },
+      accessToken: "ya29.test_oauth_token",
+      developerToken: "gads_dev_token_test",
+      operatingAccountId: "553-622-6713",
+      conversionActionId: "7999000111",
+      validateOnly: false,
+    },
+    {
+      fetch: async () =>
+        new Response(JSON.stringify({ requestId: "gads_retract_ok" }), { status: 200 }),
+    },
+  );
+  ok(
+    gadsCancelRes.ok === true &&
+      gadsCancelRes.adjustment_state ===
+        ADJUSTMENT_STATES.RETRACTED_COUNT_AND_VALUE &&
+      gadsCancelRes.retraction_required === false,
+    "Google Ads API ConversionAdjustmentUploadService cancellation records retracted_count_and_value and retraction_required=false",
   );
 
   // Verify denied consent booking (BR-1005) is blocked by buildGoogleDataManagerEventPayload
-  const br1005 = (
-    await db.query(
-      `SELECT * FROM public.wf_viator_bookings WHERE booking_ref = 'BR-1005'`,
-    )
-  ).rows[0];
   const deniedPayload = buildGoogleDataManagerEventPayload({
-    booking: br1005,
+    booking: {
+      booking_ref: "BR-1005",
+      gclid: "EAIaIQobChMI_denied_click_3",
+      consent_ad_user_data: "DENIED",
+      consent_ad_personalization: "DENIED",
+      confirmed_commission: 9.52,
+      currency: "USD",
+    },
     conversionActionId: "7999000111",
   });
   ok(
@@ -645,6 +1086,7 @@ function ok(cond, msg) {
   // Verify commission-less booking never invents a commission %
   const normNoComm = normalizeViatorBookingEvent({
     bookingRef: "BR-NOCOMM",
+    eventType: "CONFIRMATION",
     status: "CONFIRMED",
     grossBookingValue: 200.0,
     currency: "USD",
@@ -667,5 +1109,5 @@ if (fail.length > 0) {
   process.exit(1);
 }
 console.log(
-  `test-viator-booking-attribution: OK (${pass} assertions across all 6 scenarios + PGlite SQL + red proofs)`,
+  `test-viator-booking-attribution: OK (${pass} assertions across all scenarios + PGlite SQL + RLS + red proofs)`,
 );

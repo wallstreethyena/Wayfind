@@ -1,5 +1,6 @@
 // app/api/cron/viator-bookings/route.js — Scheduled Viator booking ingestion,
-// attribution reconciliation, and Google Ads offline conversion queue sync.
+// attribution reconciliation, 90-day identifier redaction, and staged Google
+// Ads offline conversion & adjustment queue processor.
 //
 // FAIL-CLOSED & HONESTY INVARIANTS
 // --------------------------------
@@ -8,9 +9,18 @@
 // 2. If `VIATOR_API_KEY` or Supabase admin credentials are absent, returns
 //    503 via `jobCannotRun` and records a `cannot-run` pulse in `wf_job_pulse`
 //    so a missing credential never looks like "0 bookings".
-// 3. Advances the `/partner/bookings/modified-since` cursor only after each
-//    batch is durably reconciled into `wf_viator_booking_events` and
-//    `wf_viator_bookings`.
+// 3. Supports `?dry_run=1` for a secret-safe read-only contract probe against
+//    Viator `/partner/bookings/modified-since`.
+// 4. Executes all 4 operational phases on each scheduled run:
+//    - Phase 1: Lease-protected Viator `/partner/bookings/modified-since` sync
+//      & reconciliation (`syncViatorBookings`).
+//    - Phase 2: 90-day click identifier & JSONB snapshot redaction
+//      (`wf_viator_redact_expired_clicks`).
+//    - Phase 3: Staged Google Ads offline conversion & cancellation/amendment
+//      adjustment queue (`processGoogleConversionUploadQueue`, gated by
+//      `WF_VIATOR_GOOGLE_UPLOAD_MODE`, default `"off"`).
+//    - Phase 4: Job pulse telemetry (`recordPulse`) surfacing stalled polling,
+//      unrecognized provider events, or rejected uploads to `job-watch`.
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 export const maxDuration = 60;
@@ -18,8 +28,12 @@ export const maxDuration = 60;
 import { sbAdmin } from "../../../../lib/commandCenter/supabaseAdmin.js";
 import { credential } from "../../../../lib/envPlaceholder.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
-import { recordPulseDetailed as recordPulse } from "../../../../lib/jobPulse.js";
+import { recordPulse } from "../../../../lib/jobPulse.js";
 import { syncViatorBookings } from "../../../../lib/viatorBookings.js";
+import {
+  processGoogleConversionUploadQueue,
+  WAYFIND_GOOGLE_ADS_ACCOUNT_ID,
+} from "../../../../lib/googleOfflineConversions.js";
 
 const JOB = "viator-bookings";
 
@@ -44,7 +58,39 @@ export async function GET(req) {
     );
   }
 
+  const url = new URL(req.url);
+  const dryRun = url.searchParams.get("dry_run") === "1";
+
   try {
+    if (dryRun) {
+      const probe = await syncViatorBookings({
+        apiKey,
+        sb,
+        dryRun: true,
+      });
+      if (!probe.ok) {
+        return jobFailed(JOB, probe.reason || "viator_dry_run_probe_failed", {
+          startedAt,
+          extra: {
+            dry_run: true,
+            upstream_status: probe.http_status ?? null,
+            provider_error_code: probe.provider_error_code ?? null,
+          },
+        });
+      }
+      await recordPulse(JOB, {
+        attempted: 1,
+        succeeded: 1,
+        failed: 0,
+        note: `dry_run ok status=${probe.http_status} bookings=${probe.raw_booking_count}`,
+      });
+      return Response.json(
+        { status: "ok", job: JOB, ...probe },
+        { status: 200, headers: { "Cache-Control": "no-store" } },
+      );
+    }
+
+    // Phase 1: Lease-protected Viator booking sync and reconciliation.
     const result = await syncViatorBookings({
       apiKey,
       sb,
@@ -56,14 +102,101 @@ export async function GET(req) {
         startedAt,
         extra: {
           upstream_status: result.status ?? null,
+          provider_error_code: result.provider_error_code ?? null,
           pages_processed: result.pagesProcessed ?? 0,
         },
       });
     }
 
+    // Phase 2: 90-day identifier & JSONB snapshot redaction across all 3 tables.
+    let redactedClicks = 0;
+    let redactionError = null;
+    if (!result.skipped_locked) {
+      try {
+        const redactRes = await fetch(
+          `${sb.url}/rest/v1/rpc/wf_viator_redact_expired_clicks`,
+          {
+            method: "POST",
+            cache: "no-store",
+            headers: {
+              apikey: sb.key,
+              Authorization: `Bearer ${sb.key}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ p_now: new Date().toISOString() }),
+          },
+        );
+        if (redactRes.ok) {
+          const n = await redactRes.json();
+          if (Number.isFinite(Number(n))) redactedClicks = Number(n);
+        } else {
+          redactionError = `redact_rpc_http_${redactRes.status}`;
+        }
+      } catch (e) {
+        redactionError = `redact_rpc_error:${e?.message || "err"}`;
+      }
+    }
+
+    // Phase 3: Staged Google Ads offline conversion & cancellation/amendment queue.
+    const uploadMode = String(
+      process.env["WF_VIATOR_GOOGLE_UPLOAD_MODE"] || "off",
+    )
+      .trim()
+      .toLowerCase();
+    const uploadQueueResult = result.skipped_locked
+      ? { ok: true, mode: uploadMode, attempted: 0, succeeded: 0, failed: 0, skipped_before_upload: 0 }
+      : await processGoogleConversionUploadQueue({
+          sb,
+          uploadMode,
+          accessToken: credential(process.env["GOOGLE_ADS_OAUTH_ACCESS_TOKEN"]),
+          developerToken: credential(process.env["GOOGLE_ADS_DEVELOPER_TOKEN"]),
+          loginCustomerId: credential(process.env["GOOGLE_ADS_LOGIN_CUSTOMER_ID"]),
+          operatingAccountId:
+            credential(process.env["GOOGLE_ADS_OPERATING_ACCOUNT_ID"]) ||
+            WAYFIND_GOOGLE_ADS_ACCOUNT_ID,
+          conversionActionId: credential(
+            process.env["GOOGLE_ADS_VIATOR_CONVERSION_ACTION_ID"],
+          ),
+        });
+
+    const unrecognizedCount = Number(result.unrecognized_events || 0);
+    const uploadFailures = Number(uploadQueueResult.failed || 0);
+    const totalFailures =
+      unrecognizedCount + uploadFailures + (redactionError ? 1 : 0);
+
+    if (totalFailures > 0) {
+      return jobFailed(
+        JOB,
+        unrecognizedCount > 0
+          ? `unrecognized_viator_events:${unrecognizedCount}`
+          : redactionError || uploadQueueResult.reason || `google_upload_failures:${uploadFailures}`,
+        {
+          startedAt,
+          extra: {
+            pages_processed: result.pages_processed,
+            events_inserted: result.events_inserted,
+            unrecognized_events: unrecognizedCount,
+            redacted_clicks: redactedClicks,
+            redaction_error: redactionError,
+            upload_queue: uploadQueueResult,
+          },
+        },
+      );
+    }
+
+    const attemptedCount =
+      Math.max(1, Number(result.pages_processed || 0)) +
+      Number(uploadQueueResult.attempted || 0);
+    const succeededCount = attemptedCount;
+    const pulseNote = result.skipped_locked
+      ? `skipped_locked owner=${result.active_lease_owner || "other"}`
+      : `pages=${result.pages_processed} events=${result.events_inserted} matched=${result.matched} redacted=${redactedClicks} uploads=${uploadQueueResult.succeeded}/${uploadQueueResult.attempted} (${uploadQueueResult.mode})`;
+
     const summary = {
       status: "ok",
       job: JOB,
+      skipped_locked: Boolean(result.skipped_locked),
+      sync_epoch: result.sync_epoch ?? null,
       pages_processed: result.pages_processed,
       events_normalized: result.events_normalized,
       events_inserted: result.events_inserted,
@@ -71,11 +204,19 @@ export async function GET(req) {
       unmatched_no_token: result.unmatched_no_token,
       unmatched_unknown_token: result.unmatched_unknown_token,
       unmatched_expired: result.unmatched_expired,
-      next_cursor: result.next_cursor,
-      watermark: result.watermark,
+      unrecognized_events: unrecognizedCount,
+      redacted_clicks: redactedClicks,
+      upload_queue: uploadQueueResult,
+      next_cursor: result.next_cursor ?? null,
+      watermark: result.watermark ?? null,
     };
 
-    await recordPulse(JOB, summary, { startedAt });
+    await recordPulse(JOB, {
+      attempted: attemptedCount,
+      succeeded: succeededCount,
+      failed: 0,
+      note: pulseNote.slice(0, 240),
+    });
     return Response.json(summary, {
       status: 200,
       headers: { "Cache-Control": "no-store" },

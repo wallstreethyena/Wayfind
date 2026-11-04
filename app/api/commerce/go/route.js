@@ -196,6 +196,7 @@ export async function GET(req) {
         contentId,
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
+        distinctId: cookieDistinctId || null,
       });
       if (attributed && attributed.url) {
         finalDest = attributed.url;

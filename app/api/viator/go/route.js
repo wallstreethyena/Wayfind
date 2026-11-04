@@ -370,6 +370,7 @@ export async function GET(req) {
             contentId: contentId || placeId,
             clientClickId: clickId,
             cookieHeader: req.headers.get("cookie") || "",
+            distinctId: cookieDistinctId || null,
           });
           if (attributed && attributed.url) finalLocation = attributed.url;
         } catch {}
@@ -467,6 +468,7 @@ export async function GET(req) {
         contentId: contentId || placeId,
         clientClickId: clickId,
         cookieHeader: req.headers.get("cookie") || "",
+        distinctId: cookieDistinctId || null,
       });
       if (attributed && attributed.url) finalResolvedLocation = attributed.url;
     } catch {}
