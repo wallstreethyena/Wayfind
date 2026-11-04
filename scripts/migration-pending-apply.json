@@ -75,5 +75,19 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2132 Indigenous Restaurant closure",
     "reason": "Data only, one row: wf_inventory ChIJZUZzwm5Aw4gR1qnftvzg0lg (Indigenous Restaurant, Sarasota) to status CLOSED_PERMANENTLY, locked, with a closure reason. Closure confirmed 2026-11-03 by Sarasota Magazine (2026-09-15, closed after 15 years) and the restaurant's OpenTable page (Permanently Closed). Guarded DO block, nothing deleted, replay raises. Reverse supabase/data-fixes/20261103120000_indigenous_sarasota_closed_permanently_REVERSE.sql. Not applied: the agent's direct apply was refused, so the owner applies via scripts/apply-migration.mjs."
+  },
+  {
+    "file": "supabase/migrations/20261103210000_wf_inventory_county_and_identity_followups.sql",
+    "sha256": "a4fe4634fec741693f4a689e7946a6e60e7a826bfa34dd62f5aa85e1edcdff94",
+    "decision_owner": "wallstreethyena",
+    "tracking": "lane claude.exe county + identity follow-ups to #2128/#2129",
+    "reason": "NOT APPLIED. Data only, 84 wf_inventory rows: Census county (bare BASENAME) for the 82 rows #2128 gave a locality; Holmes Beach beach card locality Holmes Beach / county Manatee (Census for its point); Sir Henry's Haunted Trail metro tampa-bay -> tampa (no reader knows tampa-bay). Each update keyed on place_id plus the exact before-values and point; closing assertion rolls back on any skip. The 10 Census-conflicting rows and Scream-A-Geddon are NOT touched (owner decision). Reverse supabase/data-fixes/20261103210000_wf_inventory_county_and_identity_followups_REVERSE.sql."
+  },
+  {
+    "file": "supabase/migrations/20261103230000_wf_inventory_postal_city.sql",
+    "sha256": "e26149abe0ebf62cd5bb88f7ca7bcb8cbef5406ce68e6e14e85d2c27d5a16565",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2128 conflict rows: postal city model (lane claude.exe, owner-approved 2026-11-03)",
+    "reason": "NOT APPLIED. Adds nullable wf_inventory.postal_city + postal_city_source (verified mailing/public city beside the Census locality) and fills them for the 11 rows where Census geography and the mailing city differ, each from the venue listing address city slot agreeing with the US Census address match. locality unchanged here. Reverse supabase/data-fixes/20261103230000_wf_inventory_postal_city_REVERSE.sql."
   }
 ]
