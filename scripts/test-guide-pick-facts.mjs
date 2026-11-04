@@ -40,8 +40,8 @@ for (const [slug, g] of Object.entries(GUIDES)) {
 }
 ok(picks >= 600, `expected the full guide corpus (>=600 picks), saw ${picks}`);
 ok(anyFact / picks >= 0.95, `facts coverage ${anyFact}/${picks} fell below 95% — picks are losing their planning facts`);
-ok(whens >= 150, `only ${whens} picks surface a When date (floor 150)`);
-ok(times >= 100, `only ${times} picks surface Times (floor 100)`);
+ok(whens >= 235, `only ${whens} picks surface a When date (floor 235)`);
+ok(times >= 195, `only ${times} picks surface Times (floor 195)`);
 
 const holiday = GUIDES["florida-holiday-nights-out-2026"];
 ok(!!holiday, "the reported guide (florida-holiday-nights-out-2026) must exist");
