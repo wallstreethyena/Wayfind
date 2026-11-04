@@ -60,6 +60,18 @@ if (!existsSync(INSTALLED)) {
     if (!rx.test(src)) die(`.github/workflows/canary.yml no longer runs the ${label} step — one of the three jobs this workflow exists for was removed or edited away from the real script.`);
   }
 
+  // 3b. Every checkout skips public/ (2026-11-03: a full-tree fetch of ~640 MB,
+  // ~580 MB of it public/ images no canary check reads, ran past the 3 and 5
+  // minute job caps, so heartbeat and promote-metros were cancelled before
+  // their checks ran). A checkout that drops the exclusion re-arms that.
+  const checkouts = src.match(/^\s*- uses: actions\/checkout@[^\n]*\n(?:\s+with:[^\n]*\n)?/gm) || [];
+  if (checkouts.length < 6) die(`.github/workflows/canary.yml has ${checkouts.length} checkout steps; expected one per job (6).`);
+  for (const step of checkouts) {
+    if (!/sparse-checkout:\s*"\/\*\\n!\/public\/\\n"/.test(step) || !/sparse-checkout-cone-mode:\s*false/.test(step)) {
+      die(`a canary checkout step does not skip public/: ${step.trim().split("\n")[0]} — every job must use \`with: { sparse-checkout: "/*\\n!/public/\\n", sparse-checkout-cone-mode: false }\`.`);
+    }
+  }
+
   // 4. Every scripts/*.mjs this workflow's `run:` lines name must actually
   // exist — a canary step that "runs" a deleted script is decoration.
   const scriptRefs = [...src.matchAll(/run:\s*node (scripts\/[\w.-]+\.mjs)/g)].map((m) => m[1]);
