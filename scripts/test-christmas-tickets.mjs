@@ -8,7 +8,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { createElement } from "react";
+import { act, createElement, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery } from "../lib/christmasBrowse.js";
@@ -325,19 +325,19 @@ ok(!html.includes("xm-bloom") && html.includes('data-pattern="twinkle"') && html
 // off the page. The header is the logo plus one way back to Wayfind, nothing else.
 ok(html.includes('class="xm-goto" href="/"') && html.includes('class="wf-wordmark') && !/wf-navtab|wf-search-row|wf-dest/.test(html), "the header is only the logo and Go to Wayfind: no category tabs, search bar or shortcut row");
 ok(/<canvas[^>]*class="xm-snow"[^>]*aria-hidden="true"/.test(html) && /\.xm-snow\{[^}]*pointer-events:none/.test(html) && /\.xm-snow\{[^}]*z-index:1/.test(html) && /\.xm-main\{[^}]*z-index:2/.test(html), "the snow is hidden from assistive tech, ignores pointer events and sits behind the content");
-ok(html.indexOf('class="xm-filters"') > 0 && html.indexOf('class="xm-filters"') < html.indexOf('data-ticket-id="'), "the pill menu comes before every card");
-ok(/aria-pressed="true"[^>]*>All</.test(html) && html.includes(">Light shows<") && html.includes(">Theme parks<"), "the pill row starts on All and offers Light shows and Theme parks");
-const pillLabels = [...html.matchAll(/<button type="button" aria-pressed="(?:true|false)">([^<]+)<\/button>/g)].map((m) => m[1]);
-ok(pillLabels[0] === "All" && pillLabels.length === 1 + pillsOf(partnerList).length, "only pills for categories that have listings render (" + pillLabels.join(", ") + ")");
-ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"') && html.includes('aria-label="Search by name or city"'), "the dropdown clutter is gone; search remains");
+ok(html.indexOf('class="xm-controls"') > 0 && html.indexOf('class="xm-controls"') < html.indexOf('data-ticket-id="'), "one compact control precedes the ticket cards");
+ok(!html.includes('class="xm-filters"'), "the hidden horizontal category rail is removed");
+ok(!html.includes('type="search"') && !html.includes('role="search"') && !html.includes('Search by name or city'), "search is absent from the rendered Christmas menu");
+ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"'), "extra dropdown clutter stays removed");
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
-  ok(/"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /stroke="#F97316"/.test(f) && /background: "#161D2B"/.test(f),
-    "the filter offers order (tickets first, closest), when and region, in the CollectionFilter pill style");
+  ok(/"Tickets"/.test(f) && /"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
+    "Tickets is the default and the one menu offers categories, date, region and optional distance");
+  ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
@@ -376,7 +376,7 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   const clearBodies = (html.match(/<div class="xm-body" data-boo-clear="">/g) || []).length;
   ok(cards > 0 && clearBodies === cards, "every card text column is marked data-boo-clear (" + clearBodies + "/" + cards + ")");
   ok(/<div class="xm-hero" id="xm-hero" data-boo-clear="">/.test(html), "the hero is marked data-boo-clear");
-  ok(/<div class="xm-filters" data-boo-clear=""/.test(html), "the filter pill row is marked data-boo-clear");
+  ok(/<div class="xm-controls" data-boo-clear=""/.test(html), "the compact menu is marked data-boo-clear");
   const boo = read("app/components/BooCompanion.js");
   const rs = boo.match(/const READ_SEL = "([^"]+)"/);
   ok(rs && rs[1].split(",").includes("[data-boo-clear]"), "BooCompanion READ_SEL still honours [data-boo-clear]");
@@ -486,6 +486,14 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   ok(flags.slice(0, 8).filter(Boolean).length >= 1 && (firstNo < 0 || !flags.slice(firstNo).includes(true)), "events with a real way in come first on the first page, then the rest in date order");
   const src = strip(read("lib/christmasBrowse.js"));
   ok(!/commission|payout|\bcpa\b/i.test(src.slice(src.indexOf("function ticketTier"), src.indexOf("export function sortChristmasBrowse"))), "the ticket tier reads no commission, payout or partner rate");
+  const popular = base({ id: "popular", popularity_score: 9, start_date: "2026-12-10" });
+  const quieter = base({ id: "quieter", popularity_score: 3, start_date: "2026-12-01" });
+  const unknown = base({ id: "unknown", popularity_score: null });
+  const noTicket = base({ id: "no-ticket", official_ticket_url: "", popularity_score: 10 });
+  const ranked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({}), day);
+  ok(ranked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "default ranking puts ticketed choices first and popularity ahead of date within the ticket tier");
+  ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured zero remains distinct from unknown demand");
+  ok(!/storedPinFresh|wf_center|maximumAge/.test(strip(read("app/components/ChristmasBrowse.js"))), "saved location cannot automatically override Tickets");
   // ticketed cards keep their photo galleries inside the one list
   {
     const { withBrowseTicketPhotos: withPhotos, attachBrowseTickets: attach } = await import("../lib/christmasTickets.js");
@@ -535,6 +543,46 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   ok(/wf_photo_url_dedupe_backup_20261101c/.test(dedupe) && /enable row level security/.test(dedupe) && /on conflict \(place_id\) do nothing/.test(dedupe), "the dedupe snapshots the rows once and locks the backup table");
   ok(/jsonb_set/.test(dedupe) && dedupe.includes("'{photos}'") && dedupe.includes("'{photo_gallery}'") && /distinct on \(s\.key\)/.test(dedupe), "the dedupe removes a repeated url from photos and photo_gallery");
   ok(/wf_photo_url_dedupe_backup_20261101c/.test(undo) && undo.includes("'{photos}'") && undo.includes("'{photo_gallery}'") && !/drop table/i.test(undo), "undo copies both arrays back and leaves the snapshot table");
+}
+
+// Exercise the actual holiday sheet, including keyboard and touch-style choices.
+{
+  const { JSDOM } = await import("jsdom");
+  const { createRoot } = await import("react-dom/client");
+  const { default: Filter } = await loadComponent(path.join(root, "app/components/ChristmasFilter.js"), root);
+  const prior = Object.fromEntries(["window", "document", "CustomEvent", "IS_REACT_ACT_ENVIRONMENT"].map((k) => [k, globalThis[k]]));
+  const dom = new JSDOM('<div id="menu-test"></div>', { url: "https://example.org/christmas-in-florida" });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, CustomEvent: dom.window.CustomEvent, IS_REACT_ACT_ENVIRONMENT: true });
+  let queryNow;
+  function Harness() {
+    const [query, set] = useState({}); queryNow = query;
+    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, lat: 27.9, lng: -82.4 })), onClearNear: () => set((q) => ({ ...q, lat: "", lng: "" })), onReset: () => set({}) });
+  }
+  const uiRoot = createRoot(document.getElementById("menu-test"));
+  const click = async (selector) => act(async () => document.querySelector(selector).click());
+  const pick = async (text) => act(async () => [...document.querySelectorAll("button")].find((b) => b.textContent === text).click());
+  try {
+    await act(async () => uiRoot.render(createElement(Harness)));
+    ok(/Tickets/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Tickets with no search field");
+    await click(".xm-filter-trigger");
+    ok(document.querySelector('[role="dialog"]').getAttribute("aria-modal") === "true" && document.querySelector(".xm-menu-overlay").parentNode === document.body, "the sheet is a body-level modal above page stacking contexts");
+    ok(document.activeElement.className === "xm-menu-close" && document.body.style.overflow === "hidden", "opening focuses Close and locks background scrolling");
+    await pick("Light shows"); await pick("This weekend");
+    await act(async () => { const select = document.querySelector("select"); select.value = "Tampa Bay"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
+    ok(queryNow.category === "lights" && queryNow.when === "weekend" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
+    await pick("Closest first"); ok(queryNow.lat === 27.9, "distance requires an explicit choice");
+    await pick("Tickets first"); ok(queryNow.lat === "", "Tickets restores popularity ordering");
+    document.querySelector(".xm-menu-done").focus();
+    await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true })));
+    ok(document.activeElement.className === "xm-menu-close", "Tab wraps within the modal");
+    await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true })));
+    ok(document.activeElement.className === "xm-menu-done", "Shift Tab wraps within the modal");
+    await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    ok(!document.querySelector('[role="dialog"]') && document.activeElement.className === "xm-filter-trigger" && document.body.style.overflow === "", "Escape closes, restores focus and releases background scrolling");
+    await click(".xm-filter-trigger"); await click(".xm-menu-reset");
+    ok(Object.keys(queryNow).length === 0, "Reset clears every active filter");
+    await click(".xm-menu-done"); ok(!document.querySelector('[role="dialog"]'), "Show Christmas plans closes the sheet");
+  } finally { await act(async () => uiRoot.unmount()); dom.window.close(); Object.assign(globalThis, prior); }
 }
 
 console.log("test-christmas-tickets: " + checks + " assertions OK (" + model.rows.length + " featured cards on 2026-10-30)");

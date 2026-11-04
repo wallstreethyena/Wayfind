@@ -139,12 +139,8 @@ const CSS = XM_CARD_CSS + `
 .xm-ask:focus-visible,.xm-filters button:focus-visible,.xm-more:focus-visible{outline:2px solid #FFD9AE;outline-offset:2px}
 
 #xm-tickets{margin-top:22px;scroll-margin-top:12px}
-.xm-filters{display:flex;flex-wrap:wrap;gap:8px}
-@media(max-width:719px){.xm-filters{flex-wrap:nowrap;overflow-x:auto;margin:0 -16px;padding:2px 16px 6px;scrollbar-width:none;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}.xm-filters::-webkit-scrollbar{display:none}.xm-filters button{flex:0 0 auto;white-space:nowrap}}
-.xm-filters button{min-height:44px;padding:8px 14px;border-radius:999px;cursor:pointer;background:rgba(24,2,8,.5);color:#FFE9C8;border:1px solid rgba(232,180,138,.7);font-size:14px;font-weight:600}
-.xm-filters button[aria-pressed="true"]{background:linear-gradient(180deg,#FFE9B8,#F5C451);color:#4A0610;border-color:#F5C451;font-weight:800;box-shadow:0 0 12px rgba(245,196,81,.35)}
-.xm-controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.xm-controls input::placeholder{color:#D9B3A3;opacity:1}
+.xm-controls{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:18px;padding-bottom:16px;border-bottom:1px solid rgba(232,180,138,.22)}
+.xm-sort-note{font-size:13px;color:#E1C6B6;line-height:1.4}.xm-clear{min-height:44px;margin-left:auto;padding:8px 4px;border:0;background:transparent;color:#E8B48A;cursor:pointer;font:inherit;font-size:13px}.xm-clear:focus-visible{outline:2px solid #FFE9C8;outline-offset:3px}
 .xm-count{margin:14px 0 0;font-size:14px;color:var(--muted)}
 .xm-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
 @media(min-width:720px){.xm-main{max-width:960px}.xm-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
