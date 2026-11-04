@@ -1,0 +1,88 @@
+{
+  "batch": 40,
+  "verified_by": "claude-lane-concert-events",
+  "verified_at": "2026-11-03T12:36:00Z",
+  "publish": [
+    {
+      "year": 2026,
+      "timezone": "America/New_York",
+      "event_status": "scheduled",
+      "state": "FL",
+      "select_nights": false,
+      "price_min": null,
+      "price_max": null,
+      "is_free": false,
+      "official_ticket_url": "https://www.ticketmaster.com/ed-sheeran-loop-tour-tampa-florida-11-07-2026/event/0D006331D60A3A7A",
+      "source_type": "official-organizer",
+      "source_tier": 1,
+      "verification_confidence": "high",
+      "last_verified_at": "2026-11-03T12:36:00Z",
+      "start_time": null,
+      "end_time": null,
+      "lead_key": "manual:ed-sheeran-loop-tour-tampa",
+      "event_id": "ed-sheeran-loop-tour-tampa-2026",
+      "event_series_id": "ed-sheeran-tampa",
+      "slug": "ed-sheeran-loop-tour-tampa-2026",
+      "city": "Tampa",
+      "county": "Hillsborough",
+      "category": "music",
+      "subcategory": "concert",
+      "tags": [
+        "concert",
+        "music",
+        "stadium"
+      ],
+      "audience": [],
+      "event_name": "Ed Sheeran LOOP Tour Tampa",
+      "short_title": "Ed Sheeran in Tampa",
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-07",
+      "schedule_note": "Sat Nov 7. Doors and start time per Ticketmaster.",
+      "venue": "Raymond James Stadium",
+      "address": "4201 N Dale Mabry Hwy, Tampa, FL 33607",
+      "lat": 27.977838,
+      "lng": -82.505423,
+      "card_hook": "Ed Sheeran brings the LOOP Tour to Raymond James Stadium in Tampa.",
+      "official_event_url": "https://www.edsheeran.com/tour",
+      "source_url": "https://www.ticketmaster.com/ed-sheeran-loop-tour-tampa-florida-11-07-2026/event/0D006331D60A3A7A",
+      "verify_note": "2026-11-03: Ticketmaster, the tour's official seller per the tour FAQ on edsheeran.com, lists Ed Sheeran LOOP Tour at Raymond James Stadium, Tampa, Sat Nov 7 2026. Start time sources disagree, so none is stated. Supporting acts not confirmed by an official source, so none are named. No price stated."
+    }
+  ],
+  "hold": [
+    {
+      "lead_key": "manual:noah-kahan-tampa",
+      "event_name": "Noah Kahan: The Last of the Bugs World Tour",
+      "reason": "Reconciled 2026-11-03. SUPPORTED by an official ticketer source: Ticketmaster's own tour announcement (blog.ticketmaster.com/noah-kahan-2027-tour-dates, dated 2026-10-29) lists 04/29/27 Tampa, FL (Raymond James Stadium) on The Last of the Bugs World Tour, artist presale signup deadline Thu Nov 5 2026 11:59 pm ET, artist presale Tue Nov 10 2026 12:00 pm local, general on sale Thu Nov 12 2026 12:00 pm local. Corroborated by the Buffalo Bills team site (venue side for the Buffalo show only) and WFTS Tampa Bay 28 (press, 2026-10-29). NOT FOUND: a Ticketmaster EVENT page for Tampa, the Tampa entry on noahkahan.com/tour, Live Nation, raymondjamesstadium.com or the Tampa Sports Authority (those fetches were refused, so their absence is untested, not disproved). The row contract needs an organizer or ticketing EVENT page before a public card; an announcement blog is not one. So: not published. Held as an UNANNOUNCED wf_events row (never displayable) with recheck_on 2026-11-10 so the daily event truth task rechecks on the presale date and again 2026-11-12 (general sale). No date is assumed to produce a Ticketmaster page.",
+      "url": "https://tbbwmag.com/2026/10/29/noah-kahan-tampa-concert/",
+      "status": "announced-by-ticketer-no-event-page",
+      "sources": [
+        {
+          "url": "https://blog.ticketmaster.com/noah-kahan-2027-tour-dates/",
+          "class": "official-ticketer announcement (not an event page)",
+          "dated": "2026-10-29"
+        },
+        {
+          "url": "https://www.buffalobills.com/news/noah-kahan-concert-world-tour-announcement-buffalo-highmark-stadium-june-2027/",
+          "class": "venue side, Buffalo show; secondary for Tampa",
+          "dated": null
+        },
+        {
+          "url": "https://www.tampabay28.com/news/region-hillsborough/noah-kahan-announces-2027-stadium-tour-with-stops-across-north-america",
+          "class": "press",
+          "dated": "2026-10-29"
+        },
+        {
+          "url": "https://tbbwmag.com/2026/10/29/noah-kahan-tampa-concert/",
+          "class": "press",
+          "dated": "2026-10-29"
+        }
+      ],
+      "recheck": {
+        "recheck_on": "2026-11-10",
+        "then": "2026-11-12",
+        "process": "Wayfind daily event truth scheduled task (08:07 ET), queue class 5 unannounced rows whose recheck_on has arrived",
+        "clears_when": "a Ticketmaster event page or an organizer/venue listing for Tampa Apr 29 2027 exists; then publish as scheduled with the official_ticket_url"
+      }
+    }
+  ]
+}

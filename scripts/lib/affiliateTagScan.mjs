@@ -421,7 +421,10 @@ export function contentFiles(root) {
   for (const rel of ["app/guides", "app/events", "app/florida-events", "app/culture"]) {
     walk(path.join(root, rel), files, text);
   }
-  walk(path.join(root, "data"), files, (p) => /guide|event/i.test(p) && text(p));
+  // Match on the path INSIDE the repo, never the absolute path: a checkout in a
+  // folder named like "rainy-guides" or "concert-events" used to drag every
+  // data/*.json into the scan and fail on files no lane touched (2026-11-03).
+  walk(path.join(root, "data"), files, (p) => /guide|event/i.test(path.relative(root, p)) && text(p));
   return files;
 }
 
