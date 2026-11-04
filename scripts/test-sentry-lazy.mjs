@@ -7,8 +7,8 @@
 //   - layout.js carries the tiny inline early-error buffer + renders SentryClient.
 //   - CSP allows the ingest host; withSentryConfig wraps; Next 15 loads the
 //     root instrumentation.js convention without the removed experimental flag.
-//   - check-bundle.mjs enforces the measured homepage ratchet (501KB as of
-//     2026-10-26, after the live brand-collapse and detail photo gallery).
+//   - check-bundle.mjs enforces the measured homepage ratchet (503KB as of
+//     2026-11-03, owner decision after creator data drift blocked deploys).
 import { readFileSync, existsSync } from "fs";
 import { baseSentryOptions, shouldDropBrowserNoise } from "../lib/sentryShared.js";
 
@@ -55,7 +55,7 @@ ok(/process\.env\.SENTRY_DSN/.test(read("sentry.server.config.js")), "server con
 
 // 6. The measured full-homepage bundle ratchet remains enforced.
 const cb = read("scripts/check-bundle.mjs");
-ok(/const TOTAL_BUDGET_KB = 501;/.test(cb), "check-bundle enforces the documented 501KB homepage ceiling");
+ok(/const TOTAL_BUDGET_KB = 503;/.test(cb), "check-bundle enforces the documented 503KB homepage ceiling");
 
 // 7. THIRD-PARTY FRAMES ARE NOT OUR ERRORS (v8.29.7). The Vercel Toolbar's
 // feedback bundle threw InvalidNodeTypeError in its own text-selection code and
