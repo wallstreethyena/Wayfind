@@ -149,6 +149,9 @@ export async function GET(req) {
           sb,
           uploadMode,
           accessToken: credential(process.env["GOOGLE_ADS_OAUTH_ACCESS_TOKEN"]),
+          clientId: credential(process.env["GOOGLE_ADS_OAUTH_CLIENT_ID"]),
+          clientSecret: credential(process.env["GOOGLE_ADS_OAUTH_CLIENT_SECRET"]),
+          refreshToken: credential(process.env["GOOGLE_ADS_OAUTH_REFRESH_TOKEN"]),
           developerToken: credential(process.env["GOOGLE_ADS_DEVELOPER_TOKEN"]),
           loginCustomerId: credential(process.env["GOOGLE_ADS_LOGIN_CUSTOMER_ID"]),
           operatingAccountId:
@@ -176,6 +179,8 @@ export async function GET(req) {
             pages_processed: result.pages_processed,
             events_inserted: result.events_inserted,
             unrecognized_events: unrecognizedCount,
+            unmatched_missing_booking_timestamp:
+              result.unmatched_missing_booking_timestamp || 0,
             redacted_clicks: redactedClicks,
             redaction_error: redactionError,
             upload_queue: uploadQueueResult,
@@ -204,6 +209,8 @@ export async function GET(req) {
       unmatched_no_token: result.unmatched_no_token,
       unmatched_unknown_token: result.unmatched_unknown_token,
       unmatched_expired: result.unmatched_expired,
+      unmatched_missing_booking_timestamp:
+        result.unmatched_missing_booking_timestamp || 0,
       unrecognized_events: unrecognizedCount,
       redacted_clicks: redactedClicks,
       upload_queue: uploadQueueResult,

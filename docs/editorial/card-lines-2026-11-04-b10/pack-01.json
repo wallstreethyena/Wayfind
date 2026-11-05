@@ -1,0 +1,1796 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 10. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJhWYGm0wD2YgRFcw6YoMU1P4",
+   "name": "Butterfly World",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://butterflyworld.com/plan-your-visit-admission-rates/",
+     "source_name": "Butterfly World \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Butterfly World operates Monday to Saturday from 9 a.m. to 5 p.m. and Sunday from 11 a.m. to 5 p.m.",
+      "All tickets are available in person upon arrival, with no pre-orders or reservations needed.",
+      "Butterfly World is located at 3600 W. Sample Road in Coconut Creek, inside Tradewinds Park.",
+      "The last entry at Butterfly World is at 4 p.m.",
+      "A Tradewinds Park gate fee applies on weekends and county-observed holidays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Inside Tradewinds Park in Coconut Creek, with walk-up tickets on arrival",
+    "why_here": "Butterfly World sits inside Tradewinds Park in Coconut Creek for a daytime walk-through visit, open Monday to Saturday from 9 a.m. to 5 p.m. and Sunday from 11 a.m. to 5 p.m.",
+    "know_before": "All tickets are available in person upon arrival, with no pre-orders or reservations needed.",
+    "local_tip": "A Tradewinds Park gate fee applies on weekends and county-observed holidays.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     ],
+     "why_here": [
+      "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     ],
+     "know_before": [
+      "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     ],
+     "local_tip": [
+      "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Butterfly World operates Monday to Saturday from 9 a.m. to 5 p.m. and Sunday from 11 a.m. to 5 p.m.",
+      "source": "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     },
+     {
+      "claim": "All tickets are available in person upon arrival, with no pre-orders or reservations needed.",
+      "source": "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     },
+     {
+      "claim": "Butterfly World is located at 3600 W. Sample Road in Coconut Creek, inside Tradewinds Park.",
+      "source": "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     },
+     {
+      "claim": "The last entry at Butterfly World is at 4 p.m.",
+      "source": "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     },
+     {
+      "claim": "A Tradewinds Park gate fee applies on weekends and county-observed holidays.",
+      "source": "https://butterflyworld.com/plan-your-visit-admission-rates/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRYnDU4Gt2YgRs1HYPleyK0g",
+   "name": "Motek Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://motek.com/aventura/",
+     "source_name": "Motek Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Motek Aventura is located on the lower level of Aventura Mall, just steps from the Aventura Slide Tower and across from the Apple Store.",
+      "Motek Aventura offers both indoor and outdoor seating.",
+      "Motek offers Mediterranean dining for brunch, lunch, or dinner.",
+      "The house-made White Wine Pomegranate Sangria is a staple at the Aventura location.",
+      "Motek Aventura serves happy hour Monday to Friday from 2 p.m. to 5 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mediterranean dining on the lower level of Aventura Mall",
+    "why_here": "Motek Aventura is a Mediterranean spot on the lower level of Aventura Mall, across from the Apple Store and near the Slide Tower, with indoor and outdoor seating for brunch, lunch, and dinner.",
+    "know_before": "Happy hour runs Monday to Friday from 2 p.m. to 5 p.m. at Motek Aventura.",
+    "local_tip": "Try the house-made White Wine Pomegranate Sangria, a staple at Aventura.",
+    "best_time": "Monday to Friday from 2 p.m. to 5 p.m. for happy hour.",
+    "citations": {
+     "hook": [
+      "https://motek.com/aventura/"
+     ],
+     "why_here": [
+      "https://motek.com/aventura/"
+     ],
+     "know_before": [
+      "https://motek.com/aventura/"
+     ],
+     "local_tip": [
+      "https://motek.com/aventura/"
+     ],
+     "best_time": [
+      "https://motek.com/aventura/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Motek Aventura is located on the lower level of Aventura Mall, just steps from the Aventura Slide Tower and across from the Apple Store.",
+      "source": "https://motek.com/aventura/"
+     },
+     {
+      "claim": "Motek Aventura offers both indoor and outdoor seating.",
+      "source": "https://motek.com/aventura/"
+     },
+     {
+      "claim": "Motek offers Mediterranean dining for brunch, lunch, or dinner.",
+      "source": "https://motek.com/aventura/"
+     },
+     {
+      "claim": "The house-made White Wine Pomegranate Sangria is a staple at the Aventura location.",
+      "source": "https://motek.com/aventura/"
+     },
+     {
+      "claim": "Motek Aventura serves happy hour Monday to Friday from 2 p.m. to 5 p.m.",
+      "source": "https://motek.com/aventura/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_Rku9mqz2YgRm0nT6LCp6os",
+   "name": "Eden Roc Miami Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.edenrochotelmiami.com/about/our-story",
+     "source_name": "Eden Roc Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eden Roc Miami Beach was designed in 1955 by architect Morris Lapidus, in the Miami Modern style.",
+      "Eden Roc houses three pristine pools, Ocean Social restaurant, and Nobu Miami Restaurant.",
+      "Ocean Social at Eden Roc is a restaurant at the hotel.",
+      "Nobu Miami at Eden Roc is a restaurant at the hotel."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 1955 Morris Lapidus icon with three pools",
+    "why_here": "Eden Roc is a Miami Beach hotel designed by Morris Lapidus in 1955 in the Miami Modern style, today housing three pristine pools alongside Ocean Social restaurant and Nobu Miami Restaurant on site.",
+    "know_before": "Eden Roc houses three pristine pools, Ocean Social restaurant, and Nobu Miami Restaurant.",
+    "local_tip": "Try Ocean Social or Nobu Miami for dinner without leaving the hotel.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.edenrochotelmiami.com/about/our-story"
+     ],
+     "why_here": [
+      "https://www.edenrochotelmiami.com/about/our-story"
+     ],
+     "know_before": [
+      "https://www.edenrochotelmiami.com/about/our-story"
+     ],
+     "local_tip": [
+      "https://www.edenrochotelmiami.com/about/our-story"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eden Roc Miami Beach was designed in 1955 by architect Morris Lapidus, in the Miami Modern style.",
+      "source": "https://www.edenrochotelmiami.com/about/our-story"
+     },
+     {
+      "claim": "Eden Roc houses three pristine pools, Ocean Social restaurant, and Nobu Miami Restaurant.",
+      "source": "https://www.edenrochotelmiami.com/about/our-story"
+     },
+     {
+      "claim": "Ocean Social at Eden Roc is a restaurant at the hotel.",
+      "source": "https://www.edenrochotelmiami.com/about/our-story"
+     },
+     {
+      "claim": "Nobu Miami at Eden Roc is a restaurant at the hotel.",
+      "source": "https://www.edenrochotelmiami.com/about/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZcTxw5DW2IgREnhgYXc3igo",
+   "name": "The Breakers Palm Beach",
+   "category": "hotels",
+   "metro": "palm-beach",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thebreakers.com/about/",
+     "source_name": "The Breakers Palm Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Breakers was founded on the sands of Palm Beach in 1896.",
+      "Founder Henry M. Flagler started the trend of grand properties on the island of Palm Beach.",
+      "The Breakers offers a Beach Club, spa, golf, and racquet facilities."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Founded in 1896, an oceanfront resort tied to Henry Flagler",
+    "why_here": "The Breakers is a Palm Beach oceanfront resort founded in 1896 by Henry M. Flagler, whose Beach Club, spa, golf, and racquet facilities make it a self-contained resort stay by the water.",
+    "know_before": "The Breakers was founded in 1896 by Henry M. Flagler on Palm Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thebreakers.com/about/"
+     ],
+     "why_here": [
+      "https://www.thebreakers.com/about/"
+     ],
+     "know_before": [
+      "https://www.thebreakers.com/about/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Breakers was founded on the sands of Palm Beach in 1896.",
+      "source": "https://www.thebreakers.com/about/"
+     },
+     {
+      "claim": "Founder Henry M. Flagler started the trend of grand properties on the island of Palm Beach.",
+      "source": "https://www.thebreakers.com/about/"
+     },
+     {
+      "claim": "The Breakers offers a Beach Club, spa, golf, and racquet facilities.",
+      "source": "https://www.thebreakers.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJld9wKK3U54gRm_rYgXDguus",
+   "name": "Harry's Seafood,Bar & Grille",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hookedonharrys.com/",
+     "source_name": "Harry's Seafood,Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harry's first opened its doors on June 24, 1987.",
+      "Harry's serves Cajun, Creole and Southern flavors.",
+      "Chicken Jolie Blonde is sauteed chicken breast with Parmesan basil cream sauce served over a crispy grit cake."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun, Creole and Southern flavors served since 1987",
+    "why_here": "Harry's serves Cajun, Creole and Southern flavors in dishes dating to 1987, when it first opened its doors, bringing those flavors together in classic plates served in a lively dining room setting.",
+    "know_before": "Chicken Jolie Blonde is sauteed chicken breast with Parmesan basil cream sauce over a crispy grit cake.",
+    "local_tip": "Try Chicken Jolie Blonde with Parmesan basil cream sauce over a crispy grit cake.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hookedonharrys.com/"
+     ],
+     "why_here": [
+      "https://hookedonharrys.com/"
+     ],
+     "know_before": [
+      "https://hookedonharrys.com/"
+     ],
+     "local_tip": [
+      "https://hookedonharrys.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harry's first opened its doors on June 24, 1987.",
+      "source": "https://hookedonharrys.com/"
+     },
+     {
+      "claim": "Harry's serves Cajun, Creole and Southern flavors.",
+      "source": "https://hookedonharrys.com/"
+     },
+     {
+      "claim": "Chicken Jolie Blonde is sauteed chicken breast with Parmesan basil cream sauce served over a crispy grit cake.",
+      "source": "https://hookedonharrys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyUNodGgd3ogRZStEhTD8fAs",
+   "name": "Lori Wilson Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark",
+     "source_name": "Lori Wilson Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lori Wilson Park is a 32.43-acre regional oceanfront park in Cocoa Beach, featuring a 3,155-foot nature boardwalk through a maritime hammock.",
+      "Lori Wilson Park offers beach access with lifeguards, an off-leash dog park, picnic pavilions, a playground, and restrooms.",
+      "Parking is free at Lori Wilson Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront park with a boardwalk through a maritime hammock",
+    "why_here": "Lori Wilson Park is a regional oceanfront park in Cocoa Beach with beach access, a nature boardwalk through a maritime hammock, picnic pavilions, a playground, and an off-leash dog park for shade and sand.",
+    "know_before": "Parking is free at Lori Wilson Park.",
+    "local_tip": "Use the 3,155-foot boardwalk for a hammock walk between beach sessions.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     ],
+     "why_here": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     ],
+     "know_before": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     ],
+     "local_tip": [
+      "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lori Wilson Park is a 32.43-acre regional oceanfront park in Cocoa Beach, featuring a 3,155-foot nature boardwalk through a maritime hammock.",
+      "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     },
+     {
+      "claim": "Lori Wilson Park offers beach access with lifeguards, an off-leash dog park, picnic pavilions, a playground, and restrooms.",
+      "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     },
+     {
+      "claim": "Parking is free at Lori Wilson Park.",
+      "source": "https://www.brevardfl.gov/ParksAndRecreation/ParkDirectory/LoriWilsonPark"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVdT9P3jEwogRaJV9QTenmCg",
+   "name": "Rick's on the River",
+   "category": "nightlife",
+   "metro": "tampa",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ricksontheriver.com/",
+     "source_name": "Rick's on the River \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rick's on the River is family-owned and operated since 1994.",
+      "Rick's on the River is described as Tampa's only Dock & Dine restaurant.",
+      "Visitors can arrive by boat or jet ski and tie up at the marina.",
+      "The menu includes fresh daily oysters and famous wings, with draft beer and signature drinks.",
+      "Rick's on the River has three bars and live music.",
+      "Seating is first-come, first-served, with no reservations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tampa's only Dock & Dine restaurant with a marina",
+    "why_here": "Family-owned and operated since 1994, Rick's on the River is described as Tampa's only Dock & Dine restaurant. Visitors can arrive by boat or jet ski and tie up at the marina, with three bars and live music.",
+    "know_before": "Seating is first-come, first-served, with no reservations.",
+    "local_tip": "Fresh daily oysters and famous wings come with draft beer.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ricksontheriver.com/"
+     ],
+     "why_here": [
+      "https://www.ricksontheriver.com/"
+     ],
+     "know_before": [
+      "https://www.ricksontheriver.com/"
+     ],
+     "local_tip": [
+      "https://www.ricksontheriver.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rick's on the River is family-owned and operated since 1994.",
+      "source": "https://www.ricksontheriver.com/"
+     },
+     {
+      "claim": "Rick's on the River is described as Tampa's only Dock & Dine restaurant.",
+      "source": "https://www.ricksontheriver.com/"
+     },
+     {
+      "claim": "Visitors can arrive by boat or jet ski and tie up at the marina.",
+      "source": "https://www.ricksontheriver.com/"
+     },
+     {
+      "claim": "The menu includes fresh daily oysters and famous wings, with draft beer and signature drinks.",
+      "source": "https://www.ricksontheriver.com/"
+     },
+     {
+      "claim": "Rick's on the River has three bars and live music.",
+      "source": "https://www.ricksontheriver.com/"
+     },
+     {
+      "claim": "Seating is first-come, first-served, with no reservations.",
+      "source": "https://www.ricksontheriver.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGUeh9rMD2YgRnaVorA8IRkk",
+   "name": "Beehive Kitchen",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://beehive-kitchen.com/menu",
+     "source_name": "Beehive Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beehive Kitchen offers a Build Your Own Bowl format.",
+      "The Classic Bowl includes 2 bases, 2 veggies, 2 proteins and 2 sauces.",
+      "The Small Bowl includes 2 bases, 1 veggie, 1 protein and 1 sauce.",
+      "Buzz Bowls include BBQ Pork Bowl, Burrito Bowl, and Chicken & Hummus Bowl."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Build Your Own Bowl with 2 bases, 2 veggies, 2 proteins and 2 sauces",
+    "why_here": "Beehive Kitchen centers on a Build Your Own Bowl format, with a Classic Bowl of 2 bases, 2 veggies, 2 proteins and 2 sauces. Buzz Bowls include BBQ Pork Bowl, Burrito Bowl, and Chicken & Hummus Bowl.",
+    "know_before": "The Small Bowl includes 2 bases, 1 veggie, 1 protein and 1 sauce.",
+    "local_tip": "Burrito Bowl is a Buzz Bowls option to consider.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://beehive-kitchen.com/menu"
+     ],
+     "why_here": [
+      "https://beehive-kitchen.com/menu"
+     ],
+     "know_before": [
+      "https://beehive-kitchen.com/menu"
+     ],
+     "local_tip": [
+      "https://beehive-kitchen.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beehive Kitchen offers a Build Your Own Bowl format.",
+      "source": "https://beehive-kitchen.com/menu"
+     },
+     {
+      "claim": "The Classic Bowl includes 2 bases, 2 veggies, 2 proteins and 2 sauces.",
+      "source": "https://beehive-kitchen.com/menu"
+     },
+     {
+      "claim": "The Small Bowl includes 2 bases, 1 veggie, 1 protein and 1 sauce.",
+      "source": "https://beehive-kitchen.com/menu"
+     },
+     {
+      "claim": "Buzz Bowls include BBQ Pork Bowl, Burrito Bowl, and Chicken & Hummus Bowl.",
+      "source": "https://beehive-kitchen.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJzZWD1PX2IgREC3NijoLNd8",
+   "name": "Skinny Louie",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skinnylouie.com/louiespot/westpalmbeach",
+     "source_name": "Skinny Louie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The West Palm Beach location of Skinny Louie is in Downtown West Palm Beach.",
+      "Skinny Louie serves smashed burgers made with 100% fresh Black Angus beef.",
+      "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles and Louie sauce.",
+      "The menu includes milkshakes and a sub impossible burger option.",
+      "Store hours are Sunday to Thursday from 11:00 a.m. to 2:00 a.m. and Friday and Saturday from 11:00 a.m. to 4:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smashed burgers made with 100% fresh Black Angus beef in Downtown West Palm Beach",
+    "why_here": "Skinny Louie in Downtown West Palm Beach serves smashed burgers made with 100% fresh Black Angus beef. The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles and Louie sauce, with milkshakes also on the menu.",
+    "know_before": "Store hours are Sunday to Thursday from 11:00 a.m. to 2:00 a.m. and Friday and Saturday from 11:00 a.m. to 4:00 a.m.",
+    "local_tip": "The menu lists a sub impossible burger option.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     ],
+     "why_here": [
+      "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     ],
+     "know_before": [
+      "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     ],
+     "local_tip": [
+      "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The West Palm Beach location of Skinny Louie is in Downtown West Palm Beach.",
+      "source": "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     },
+     {
+      "claim": "Skinny Louie serves smashed burgers made with 100% fresh Black Angus beef.",
+      "source": "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     },
+     {
+      "claim": "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles and Louie sauce.",
+      "source": "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     },
+     {
+      "claim": "The menu includes milkshakes and a sub impossible burger option.",
+      "source": "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     },
+     {
+      "claim": "Store hours are Sunday to Thursday from 11:00 a.m. to 2:00 a.m. and Friday and Saturday from 11:00 a.m. to 4:00 a.m.",
+      "source": "https://www.skinnylouie.com/louiespot/westpalmbeach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJmXnYM4q12YgRZU4eLiX3Q_M",
+   "name": "CRAFT South Beach - Espa\u00f1ola Way",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftmiami.us/",
+     "source_name": "CRAFT South Beach - Espa\u00f1ola Way \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CRAFT lists Miami Beach among its locations.",
+      "CRAFT describes a modern and casual atmosphere.",
+      "CRAFT is presented as ideal for breakfast, lunch meetings, a bite after work, or a family get together for brunch any weekend.",
+      "CRAFT offers reservations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast, lunch and weekend brunch in a modern and casual atmosphere",
+    "why_here": "CRAFT in Miami Beach offers a modern and casual atmosphere presented as ideal for breakfast, lunch meetings, a bite after work, or a family get together for brunch any weekend.",
+    "know_before": "CRAFT offers reservations.",
+    "local_tip": "Brunch any weekend suits a family get together.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftmiami.us/"
+     ],
+     "why_here": [
+      "https://www.craftmiami.us/"
+     ],
+     "know_before": [
+      "https://www.craftmiami.us/"
+     ],
+     "local_tip": [
+      "https://www.craftmiami.us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CRAFT lists Miami Beach among its locations.",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT describes a modern and casual atmosphere.",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT is presented as ideal for breakfast, lunch meetings, a bite after work, or a family get together for brunch any weekend.",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT offers reservations.",
+      "source": "https://www.craftmiami.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa07ILTyr2YgR_w2VrI-cqYM",
+   "name": "GG's Waterfront",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ggswaterfront.com/menu/dinner/",
+     "source_name": "GG's Waterfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "GG's Waterfront is a seafood restaurant in Hollywood, Florida.",
+      "The dinner menu includes a raw bar with Florida Stone Crab Claws listed as seasonal.",
+      "Starters include Crunchy Ahi Tuna Tacos.",
+      "Mains include Florida Grouper and Chilean Sea Bass.",
+      "A service fee of 18% will be added to all checks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront seafood with a raw bar in Hollywood",
+    "why_here": "GG's Waterfront is a seafood restaurant in Hollywood, Florida, with a dinner menu that includes a raw bar. Starters include Crunchy Ahi Tuna Tacos, and mains include Florida Grouper and Chilean Sea Bass.",
+    "know_before": "A service fee of 18% will be added to all checks.",
+    "local_tip": "The raw bar lists Florida Stone Crab Claws as seasonal.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ggswaterfront.com/menu/dinner/"
+     ],
+     "why_here": [
+      "https://www.ggswaterfront.com/menu/dinner/"
+     ],
+     "know_before": [
+      "https://www.ggswaterfront.com/menu/dinner/"
+     ],
+     "local_tip": [
+      "https://www.ggswaterfront.com/menu/dinner/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "GG's Waterfront is a seafood restaurant in Hollywood, Florida.",
+      "source": "https://www.ggswaterfront.com/menu/dinner/"
+     },
+     {
+      "claim": "The dinner menu includes a raw bar with Florida Stone Crab Claws listed as seasonal.",
+      "source": "https://www.ggswaterfront.com/menu/dinner/"
+     },
+     {
+      "claim": "Starters include Crunchy Ahi Tuna Tacos.",
+      "source": "https://www.ggswaterfront.com/menu/dinner/"
+     },
+     {
+      "claim": "Mains include Florida Grouper and Chilean Sea Bass.",
+      "source": "https://www.ggswaterfront.com/menu/dinner/"
+     },
+     {
+      "claim": "A service fee of 18% will be added to all checks.",
+      "source": "https://www.ggswaterfront.com/menu/dinner/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtaM_HB602YgRWEIQVSrIQnY",
+   "name": "Maurice A. Ferr\u00e9 Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/",
+     "source_name": "Maurice A. Ferr\u00e9 Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Formerly called Museum Park, the 21-acre Maurice A. Ferr\u00e9 Park is home to the Per\u00e9z Art Museum Miami and the Patricia and Phillip Frost Museum of Science.",
+      "The park is open daily from 7:00 a.m. to 10:00 p.m.",
+      "The park features a Dogs and Cats Walkway with 52 sculptures of dogs and cats.",
+      "The park sits right on Biscayne Bay and has an outdoor amphitheater and Plaza de la Marina Espa\u00f1ola."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 21-acre bayfront park that is now an open-air museum by Biscayne Bay",
+    "why_here": "Formerly called Museum Park, Maurice A. Ferr\u00e9 Park sits right on Biscayne Bay north of the arena. It is home to the P\u00e9rez Art Museum Miami and the Patricia and Phillip Frost Museum of Science, with public art including the Dogs and Cats Walkway.",
+    "know_before": "Open daily from 7:00 a.m. to 10:00 p.m., per the park site.",
+    "local_tip": "Walk the baywalk for skyline vistas and sea breezes, per the park site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     ],
+     "why_here": [
+      "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     ],
+     "know_before": [
+      "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     ],
+     "local_tip": [
+      "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Formerly called Museum Park, the 21-acre Maurice A. Ferr\u00e9 Park is home to the Per\u00e9z Art Museum Miami and the Patricia and Phillip Frost Museum of Science.",
+      "source": "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     },
+     {
+      "claim": "The park is open daily from 7:00 a.m. to 10:00 p.m.",
+      "source": "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     },
+     {
+      "claim": "The park features a Dogs and Cats Walkway with 52 sculptures of dogs and cats.",
+      "source": "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     },
+     {
+      "claim": "The park sits right on Biscayne Bay and has an outdoor amphitheater and Plaza de la Marina Espa\u00f1ola.",
+      "source": "https://www.bayfrontparkmiami.com/maurice-a-ferre-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0XiHxYJx54gRpLzDNEGdyV0",
+   "name": "Cranes Roost Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.altamonte.org/367/Cranes-Roost-Park",
+     "source_name": "Cranes Roost Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cranes Roost Park is at the heart of Uptown Altamonte surrounding Cranes Roost Lake.",
+      "Cranes Roost Lake is encircled by one mile of continuous walkway with benches and covered seating areas.",
+      "Within the 45-acre park is a European-style plaza including a choreographed fountain show and a 62-foot picturesque tower.",
+      "The park includes the Eddie Rose Amphitheater, which features stadium-style seating and a floating stage.",
+      "Park hours are from 7 a.m. until 11 p.m. Sunday through Thursday and 7 a.m. until midnight on Friday and Saturday.",
+      "Park rentals are available."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "One mile of continuous walkway encircles Cranes Roost Lake",
+    "why_here": "Cranes Roost Park is at the heart of Uptown Altamonte surrounding Cranes Roost Lake. Within the 45-acre park is a European-style plaza with a choreographed fountain show, a 62-foot tower, and the Eddie Rose Amphitheater with a floating stage.",
+    "know_before": "Park hours are from 7 a.m. until 11 p.m. Sunday through Thursday and 7 a.m. until midnight on Friday and Saturday.",
+    "local_tip": "Park rentals are available.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.altamonte.org/367/Cranes-Roost-Park"
+     ],
+     "why_here": [
+      "https://www.altamonte.org/367/Cranes-Roost-Park"
+     ],
+     "know_before": [
+      "https://www.altamonte.org/367/Cranes-Roost-Park"
+     ],
+     "local_tip": [
+      "https://www.altamonte.org/367/Cranes-Roost-Park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cranes Roost Park is at the heart of Uptown Altamonte surrounding Cranes Roost Lake.",
+      "source": "https://www.altamonte.org/367/Cranes-Roost-Park"
+     },
+     {
+      "claim": "Cranes Roost Lake is encircled by one mile of continuous walkway with benches and covered seating areas.",
+      "source": "https://www.altamonte.org/367/Cranes-Roost-Park"
+     },
+     {
+      "claim": "Within the 45-acre park is a European-style plaza including a choreographed fountain show and a 62-foot picturesque tower.",
+      "source": "https://www.altamonte.org/367/Cranes-Roost-Park"
+     },
+     {
+      "claim": "The park includes the Eddie Rose Amphitheater, which features stadium-style seating and a floating stage.",
+      "source": "https://www.altamonte.org/367/Cranes-Roost-Park"
+     },
+     {
+      "claim": "Park hours are from 7 a.m. until 11 p.m. Sunday through Thursday and 7 a.m. until midnight on Friday and Saturday.",
+      "source": "https://www.altamonte.org/367/Cranes-Roost-Park"
+     },
+     {
+      "claim": "Park rentals are available.",
+      "source": "https://www.altamonte.org/367/Cranes-Roost-Park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf4ZV54yr2YgRP7zbl4JP8FA",
+   "name": "Twin Peaks",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://twinpeaksrestaurant.com/",
+     "source_name": "Twin Peaks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Twin Peaks offers a scratch menu from lunch to late night.",
+      "Twin Peaks serves its signature 29\u00b0 draft beer in perfectly-frosted 22 oz. mugs, with a rotating selection and in-house brews.",
+      "Twin Peaks has wall-to-wall TVs for sports viewing.",
+      "Twin Peaks offers UFC fights, from undercards to title fights."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature 29\u00b0 draft beer served in perfectly-frosted 22 oz. mugs",
+    "why_here": "Twin Peaks pairs a scratch menu served from lunch to late night with wall-to-wall TVs for sports viewing. Its signature 29\u00b0 draft beer is served in perfectly-frosted 22 oz. mugs alongside a rotating selection and in-house brews.",
+    "know_before": "Twin Peaks offers UFC fights, from undercards to title fights.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "why_here": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "know_before": [
+      "https://twinpeaksrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Twin Peaks offers a scratch menu from lunch to late night.",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks serves its signature 29\u00b0 draft beer in perfectly-frosted 22 oz. mugs, with a rotating selection and in-house brews.",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks has wall-to-wall TVs for sports viewing.",
+      "source": "https://twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks offers UFC fights, from undercards to title fights.",
+      "source": "https://twinpeaksrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9Uy7tPJbkYgR7IV354kZzFw",
+   "name": "Surf Hut",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.surfhutdestin.com/menu",
+     "source_name": "Surf Hut \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Surf Hut is in Miramar Beach, in Destin, Florida.",
+      "Surf Hut features fresh from the Gulf seafood and shoreline tacos.",
+      "The menu includes St. Louis Style BBQ Ribs.",
+      "The menu includes Fried Gulf Seafood, including Fried Shrimp and Fried Oysters.",
+      "Hours are 11:00 a.m. to 10:00 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh from the Gulf seafood and shoreline tacos in Miramar Beach",
+    "why_here": "Surf Hut in Miramar Beach features fresh from the Gulf seafood and shoreline tacos, plus St. Louis Style BBQ Ribs. The menu also includes Fried Gulf Seafood, including Fried Shrimp and Fried Oysters, in Destin, Florida.",
+    "know_before": "Hours are 11:00 a.m. to 10:00 p.m. daily.",
+    "local_tip": "Fried Gulf Seafood includes Fried Shrimp.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.surfhutdestin.com/menu"
+     ],
+     "why_here": [
+      "https://www.surfhutdestin.com/menu"
+     ],
+     "know_before": [
+      "https://www.surfhutdestin.com/menu"
+     ],
+     "local_tip": [
+      "https://www.surfhutdestin.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Surf Hut is in Miramar Beach, in Destin, Florida.",
+      "source": "https://www.surfhutdestin.com/menu"
+     },
+     {
+      "claim": "Surf Hut features fresh from the Gulf seafood and shoreline tacos.",
+      "source": "https://www.surfhutdestin.com/menu"
+     },
+     {
+      "claim": "The menu includes St. Louis Style BBQ Ribs.",
+      "source": "https://www.surfhutdestin.com/menu"
+     },
+     {
+      "claim": "The menu includes Fried Gulf Seafood, including Fried Shrimp and Fried Oysters.",
+      "source": "https://www.surfhutdestin.com/menu"
+     },
+     {
+      "claim": "Hours are 11:00 a.m. to 10:00 p.m. daily.",
+      "source": "https://www.surfhutdestin.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaZIgCwa6wogRAZ1C0IjUStY",
+   "name": "Cheddar's Scratch Kitchen",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cheddars.com/chicken-tenders",
+     "source_name": "Cheddar's Scratch Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cheddar's Scratch Kitchen calls its hand-breaded Chicken Tenders its signature dish.",
+      "Hand-breaded Chicken Tenders are dipped twice in house-made batter, then tossed in seasoned flour.",
+      "The signature dish is breaded by hand.",
+      "Dipping sauce choices include homemade ranch and creamy honey mustard."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-breaded Chicken Tenders dipped twice in house-made batter",
+    "why_here": "Cheddar's Scratch Kitchen centers on hand-breaded Chicken Tenders dipped twice in house-made batter and tossed in seasoned flour. The signature dish is breaded by hand for a scratch-made plate.",
+    "know_before": "Dipping sauce choices include homemade ranch and creamy honey mustard.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cheddars.com/chicken-tenders"
+     ],
+     "why_here": [
+      "https://www.cheddars.com/chicken-tenders"
+     ],
+     "know_before": [
+      "https://www.cheddars.com/chicken-tenders"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cheddar's Scratch Kitchen calls its hand-breaded Chicken Tenders its signature dish.",
+      "source": "https://www.cheddars.com/chicken-tenders"
+     },
+     {
+      "claim": "Hand-breaded Chicken Tenders are dipped twice in house-made batter, then tossed in seasoned flour.",
+      "source": "https://www.cheddars.com/chicken-tenders"
+     },
+     {
+      "claim": "The signature dish is breaded by hand.",
+      "source": "https://www.cheddars.com/chicken-tenders"
+     },
+     {
+      "claim": "Dipping sauce choices include homemade ranch and creamy honey mustard.",
+      "source": "https://www.cheddars.com/chicken-tenders"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI_xgjdUD2YgR5OnjgSs2oBg",
+   "name": "Catfish Deweys",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.catfishdeweys.com/menu-card",
+     "source_name": "Catfish Deweys \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Catfish Deweys is South Florida seafood since 1984.",
+      "Catfish Deweys offers all-you-can-eat fried USA catfish fillets daily.",
+      "All-you-can-eat shrimp is offered Monday and Tuesday.",
+      "All-you-can-eat prices are per-person.",
+      "Fresh Florida stone crabs are on the menu during stone crab season"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-you-can-eat fried catfish fillets served daily",
+    "why_here": "Catfish Deweys is South Florida seafood since 1984, built around all-you-can-eat fried USA catfish fillets daily. All-you-can-eat shrimp is offered Monday and Tuesday for a different plate.",
+    "know_before": "All-you-can-eat prices are per-person.",
+    "local_tip": "Fresh Florida stone crabs are on the menu during stone crab season.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.catfishdeweys.com/menu-card"
+     ],
+     "why_here": [
+      "https://www.catfishdeweys.com/menu-card"
+     ],
+     "know_before": [
+      "https://www.catfishdeweys.com/menu-card"
+     ],
+     "local_tip": [
+      "https://www.catfishdeweys.com/menu-card"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Catfish Deweys is South Florida seafood since 1984.",
+      "source": "https://www.catfishdeweys.com/menu-card"
+     },
+     {
+      "claim": "Catfish Deweys offers all-you-can-eat fried USA catfish fillets daily.",
+      "source": "https://www.catfishdeweys.com/menu-card"
+     },
+     {
+      "claim": "All-you-can-eat shrimp is offered Monday and Tuesday.",
+      "source": "https://www.catfishdeweys.com/menu-card"
+     },
+     {
+      "claim": "All-you-can-eat prices are per-person.",
+      "source": "https://www.catfishdeweys.com/menu-card"
+     },
+     {
+      "claim": "Fresh Florida stone crabs are on the menu during stone crab season",
+      "source": "https://www.catfishdeweys.com/menu-card"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvdhY0hu35YgR1jJrfNz4aaA",
+   "name": "Hyatt Regency Jacksonville Riverfront",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/",
+     "source_name": "Hyatt Regency Jacksonville Riverfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hyatt Regency Jacksonville Riverfront is adjacent to the Main Street Bridge.",
+      "Hyatt Regency Jacksonville Riverfront provides panoramic river views and walkable access to downtown Jacksonville.",
+      "Rooftop pool is offered at the hotel.",
+      "The hotel provides panoramic views of the St. Johns River."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rooftop pool beside the Main Street Bridge on the St. Johns River",
+    "why_here": "Hyatt Regency Jacksonville Riverfront is adjacent to the Main Street Bridge, providing panoramic river views and walkable access to downtown Jacksonville. Rooftop pool is offered at the hotel above the river.",
+    "know_before": "The hotel is adjacent to the Main Street Bridge.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     ],
+     "why_here": [
+      "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     ],
+     "know_before": [
+      "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hyatt Regency Jacksonville Riverfront is adjacent to the Main Street Bridge.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     },
+     {
+      "claim": "Hyatt Regency Jacksonville Riverfront provides panoramic river views and walkable access to downtown Jacksonville.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     },
+     {
+      "claim": "Rooftop pool is offered at the hotel.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     },
+     {
+      "claim": "The hotel provides panoramic views of the St. Johns River.",
+      "source": "https://www.hyatt.com/hyatt-regency/en-US/jaxrj-hyatt-regency-jacksonville-riverfront/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCdkPgXXswogRmWF_s0X92HU",
+   "name": "Oldsmar Flea Market",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://oldsmarfleamarket.com/",
+     "source_name": "Oldsmar Flea Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The market spreads over 28 acres.",
+      "The market has 280 vendors.",
+      "Parking is free to visitors.",
+      "Hours are Saturday and Sunday from 8 a.m. to 3 p.m.",
+      "Dogs are welcome but must be carried or in a stroller."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "28 acres of covered shopping with 280 vendors in Oldsmar",
+    "why_here": "Oldsmar Flea Market spreads over 28 acres with acres of covered shopping and 280 vendors. Visitors browse produce, furniture, clothing, electronics and more across its aisles.",
+    "know_before": "Parking is free to visitors; the market is open Saturday and Sunday from 8 a.m. to 3 p.m.",
+    "local_tip": "Dogs are welcome but must be carried or in a stroller, per the shopper FAQ.",
+    "best_time": "Saturday or Sunday between 8 a.m. and 3 p.m., the market's stated hours.",
+    "citations": {
+     "hook": [
+      "https://oldsmarfleamarket.com/"
+     ],
+     "why_here": [
+      "https://oldsmarfleamarket.com/"
+     ],
+     "know_before": [
+      "https://oldsmarfleamarket.com/"
+     ],
+     "local_tip": [
+      "https://oldsmarfleamarket.com/"
+     ],
+     "best_time": [
+      "https://oldsmarfleamarket.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The market spreads over 28 acres.",
+      "source": "https://oldsmarfleamarket.com/"
+     },
+     {
+      "claim": "The market has 280 vendors.",
+      "source": "https://oldsmarfleamarket.com/"
+     },
+     {
+      "claim": "Parking is free to visitors.",
+      "source": "https://oldsmarfleamarket.com/"
+     },
+     {
+      "claim": "Hours are Saturday and Sunday from 8 a.m. to 3 p.m.",
+      "source": "https://oldsmarfleamarket.com/"
+     },
+     {
+      "claim": "Dogs are welcome but must be carried or in a stroller.",
+      "source": "https://oldsmarfleamarket.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7c8YB4Rn54gRXK6bdtwq2ec",
+   "name": "The Escape Ventures Orlando - Waterford Lakes",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theescapeventures.com/escape-room-orlando/",
+     "source_name": "The Escape Ventures Orlando - Waterford Lakes \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The location is at 570 N Alafaya Trail Suite 109-110, Orlando, Florida 32828.",
+      "It offers fully immersive, live-action escape room experiences.",
+      "All bookings are private, no matter the size.",
+      "Neighborhood Watcher is 9/10 difficulty for 2-8 players over 60 minutes.",
+      "Outage: No Vacancy is 10/10 difficulty for 2-6 players over 60 minutes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Immersive escape rooms near UCF at Waterford Lakes",
+    "why_here": "The Escape Ventures Orlando in Waterford Lakes offers immersive, live-action escape rooms near UCF. Rooms include Neighborhood Watcher and Outage: No Vacancy, with story-driven puzzles and time limits.",
+    "know_before": "All bookings are private, no matter the group size, per the official site.",
+    "local_tip": "Neighborhood Watcher is listed at 9/10 difficulty for 2-8 players over 60 minutes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theescapeventures.com/escape-room-orlando/"
+     ],
+     "why_here": [
+      "https://theescapeventures.com/escape-room-orlando/"
+     ],
+     "know_before": [
+      "https://theescapeventures.com/escape-room-orlando/"
+     ],
+     "local_tip": [
+      "https://theescapeventures.com/escape-room-orlando/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The location is at 570 N Alafaya Trail Suite 109-110, Orlando, Florida 32828.",
+      "source": "https://theescapeventures.com/escape-room-orlando/"
+     },
+     {
+      "claim": "It offers fully immersive, live-action escape room experiences.",
+      "source": "https://theescapeventures.com/escape-room-orlando/"
+     },
+     {
+      "claim": "All bookings are private, no matter the size.",
+      "source": "https://theescapeventures.com/escape-room-orlando/"
+     },
+     {
+      "claim": "Neighborhood Watcher is 9/10 difficulty for 2-8 players over 60 minutes.",
+      "source": "https://theescapeventures.com/escape-room-orlando/"
+     },
+     {
+      "claim": "Outage: No Vacancy is 10/10 difficulty for 2-6 players over 60 minutes.",
+      "source": "https://theescapeventures.com/escape-room-orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_6ecL3e35YgRC8tiZniNqDs",
+   "name": "River & Post",
+   "category": "food",
+   "metro": "jacksonville-fl",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.riverandpostjax.com/",
+     "source_name": "River & Post \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "River and Post opened its doors on November 20, 2017.",
+      "Reservations are for the first-floor dining room only.",
+      "The Rooftop Lounge is first come, first served.",
+      "Brunch is Saturday and Sunday from 11 a.m. to 4 p.m.",
+      "The address is 1000 Riverside Avenue, Jacksonville, FL 32204."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Riverside restaurant with rooftop lounge in Jacksonville",
+    "why_here": "River & Post is a culinary-driven restaurant in Jacksonville's Riverside area, opened November 20, 2017. It pairs a first-floor dining room with a rooftop lounge overlooking the river.",
+    "know_before": "Reservations are for the first-floor dining room only; the Rooftop Lounge is first come, first served.",
+    "local_tip": "Brunch is served Saturday and Sunday from 11 a.m. to 4 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.riverandpostjax.com/"
+     ],
+     "why_here": [
+      "https://www.riverandpostjax.com/"
+     ],
+     "know_before": [
+      "https://www.riverandpostjax.com/"
+     ],
+     "local_tip": [
+      "https://www.riverandpostjax.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "River and Post opened its doors on November 20, 2017.",
+      "source": "https://www.riverandpostjax.com/"
+     },
+     {
+      "claim": "Reservations are for the first-floor dining room only.",
+      "source": "https://www.riverandpostjax.com/"
+     },
+     {
+      "claim": "The Rooftop Lounge is first come, first served.",
+      "source": "https://www.riverandpostjax.com/"
+     },
+     {
+      "claim": "Brunch is Saturday and Sunday from 11 a.m. to 4 p.m.",
+      "source": "https://www.riverandpostjax.com/"
+     },
+     {
+      "claim": "The address is 1000 Riverside Avenue, Jacksonville, FL 32204.",
+      "source": "https://www.riverandpostjax.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLTuXIcJBkYgRkjatW4ZAgr4",
+   "name": "The Edge Seafood Restaurant & SkyBar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://edgeseafood.com/",
+     "source_name": "The Edge Seafood Restaurant & SkyBar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Over the water on the Destin Harbor Boardwalk, The Edge Seafood Restaurant is built directly over the water.",
+      "Skybar is an adults-only harborside rooftop bar above the seafood restaurant.",
+      "Skybar offers weekday Happy Hour specials from 2 p.m. to 5 p.m.",
+      "Live music plays 7 nights a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over-water seafood dining on the Destin Harbor Boardwalk",
+    "why_here": "The Edge Seafood Restaurant is built directly over the water on the Destin Harbor Boardwalk. Skybar is an adults-only harborside rooftop bar above the seafood restaurant, adding a second level.",
+    "know_before": "Live music plays 7 nights a week.",
+    "local_tip": "Skybar offers weekday Happy Hour specials from 2 p.m. to 5 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://edgeseafood.com/"
+     ],
+     "why_here": [
+      "https://edgeseafood.com/"
+     ],
+     "know_before": [
+      "https://edgeseafood.com/"
+     ],
+     "local_tip": [
+      "https://edgeseafood.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Over the water on the Destin Harbor Boardwalk, The Edge Seafood Restaurant is built directly over the water.",
+      "source": "https://edgeseafood.com/"
+     },
+     {
+      "claim": "Skybar is an adults-only harborside rooftop bar above the seafood restaurant.",
+      "source": "https://edgeseafood.com/"
+     },
+     {
+      "claim": "Skybar offers weekday Happy Hour specials from 2 p.m. to 5 p.m.",
+      "source": "https://edgeseafood.com/"
+     },
+     {
+      "claim": "Live music plays 7 nights a week.",
+      "source": "https://edgeseafood.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqSK3ZX9DkYgRMtS6M78wxgQ",
+   "name": "The Track - Destin",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://funatthetrack.com/pages/destin-location",
+     "source_name": "The Track - Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Track in Destin features 5 Go-Kart Tracks and 2 Mini Golf Courses.",
+      "The Wild Woody is a 3-level track.",
+      "The Track in Destin features Blaster Boats and Bumper Cars.",
+      "Children 5 years old and under play mini golf for free with an adult.",
+      "Fat Daddy's Arcade has over 50 games."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "5 Go-Kart Tracks and 2 Mini Golf Courses in Destin",
+    "why_here": "The Track in Destin features 5 Go-Kart Tracks and 2 Mini Golf Courses, plus Blaster Boats and Bumper Cars. The Wild Woody is a 3-level track, and Fat Daddy's Arcade has over 50 games.",
+    "know_before": "Children 5 years old and under play mini golf for free with an adult.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://funatthetrack.com/pages/destin-location"
+     ],
+     "why_here": [
+      "https://funatthetrack.com/pages/destin-location"
+     ],
+     "know_before": [
+      "https://funatthetrack.com/pages/destin-location"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Track in Destin features 5 Go-Kart Tracks and 2 Mini Golf Courses.",
+      "source": "https://funatthetrack.com/pages/destin-location"
+     },
+     {
+      "claim": "The Wild Woody is a 3-level track.",
+      "source": "https://funatthetrack.com/pages/destin-location"
+     },
+     {
+      "claim": "The Track in Destin features Blaster Boats and Bumper Cars.",
+      "source": "https://funatthetrack.com/pages/destin-location"
+     },
+     {
+      "claim": "Children 5 years old and under play mini golf for free with an adult.",
+      "source": "https://funatthetrack.com/pages/destin-location"
+     },
+     {
+      "claim": "Fat Daddy's Arcade has over 50 games.",
+      "source": "https://funatthetrack.com/pages/destin-location"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq81qhSUA2YgReR6zm924wNI",
+   "name": "Jungle Queen Riverboat",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/",
+     "source_name": "Jungle Queen Riverboat \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Jungle Queen Riverboat has been enjoyed by many since 1935.",
+      "The sightseeing cruise lasts approximately 90 minutes and is fully narrated.",
+      "All cruises sail from the Bahia Mar Yachting Center on A1A.",
+      "Tickets must be purchased in advance."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "90-minute narrated sightseeing cruise since 1935",
+    "why_here": "The Jungle Queen Riverboat has been enjoyed by many since 1935, with a sightseeing cruise that lasts approximately 90 minutes and is fully narrated. All cruises sail from the Bahia Mar Yachting Center.",
+    "know_before": "Tickets must be purchased in advance.",
+    "local_tip": "All cruises sail from the Bahia Mar Yachting Center on A1A.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     ],
+     "why_here": [
+      "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     ],
+     "know_before": [
+      "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     ],
+     "local_tip": [
+      "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Jungle Queen Riverboat has been enjoyed by many since 1935.",
+      "source": "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     },
+     {
+      "claim": "The sightseeing cruise lasts approximately 90 minutes and is fully narrated.",
+      "source": "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     },
+     {
+      "claim": "All cruises sail from the Bahia Mar Yachting Center on A1A.",
+      "source": "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     },
+     {
+      "claim": "Tickets must be purchased in advance.",
+      "source": "https://junglequeen.com/fort-lauderdale-sightseeing-cruise/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfbGFlZ6y2YgR7CYFiAeb9QE",
+   "name": "Bal Harbour Shops",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.balharbourshops.com/",
+     "source_name": "Bal Harbour Shops \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bal Harbour Shops is a premier open-air luxury shopping destination in Bal Harbour, FL featuring 100+ boutiques, fine dining, and world-class fashion since 1965.",
+      "The official site lists dining options including Carpaccio and Makoto.",
+      "The official site provides a Store Directory for Bal Harbour Shops."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air luxury shopping with 100+ boutiques since 1965.",
+    "why_here": "Bal Harbour Shops is an open-air luxury shopping destination in Bal Harbour. Its official site lists more than 100 boutiques alongside fine dining, with a store directory and dining listings to plan a visit.",
+    "know_before": "Check the official site for today's hours before going; it posts a daily hours line.",
+    "local_tip": "Use the official Store Directory and Dining listings to map boutiques and restaurants before arriving.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.balharbourshops.com/"
+     ],
+     "why_here": [
+      "https://www.balharbourshops.com/"
+     ],
+     "know_before": [
+      "https://www.balharbourshops.com/"
+     ],
+     "local_tip": [
+      "https://www.balharbourshops.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bal Harbour Shops is a premier open-air luxury shopping destination in Bal Harbour, FL featuring 100+ boutiques, fine dining, and world-class fashion since 1965.",
+      "source": "https://www.balharbourshops.com/"
+     },
+     {
+      "claim": "The official site lists dining options including Carpaccio and Makoto.",
+      "source": "https://www.balharbourshops.com/"
+     },
+     {
+      "claim": "The official site provides a Store Directory for Bal Harbour Shops.",
+      "source": "https://www.balharbourshops.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbTKt7NTvwogRLx7rLJypoeI",
+   "name": "Lenny\u2019s Restaurant",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lennysclearwater.com/",
+     "source_name": "Lenny\u2019s Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lenny's Restaurant has been curing hunger one meal at a time for over 30 years.",
+      "breakfasts at Lenny's Restaurant can come with a side of buttermilk pancakes and fresh squeezed juice.",
+      "lunch at Lenny's Restaurant includes a stacked pastrami sandwich.",
+      "lunch at Lenny's Restaurant includes a half salad or half sandwich and soup."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "buttermilk pancakes and fresh squeezed juice with breakfast",
+    "why_here": "the diner has been curing hunger one meal at a time for over 30 years, with breakfasts served with buttermilk pancakes and fresh squeezed juice and lunch built around a stacked pastrami sandwich.",
+    "know_before": "lunch can also pair a half salad or half sandwich and soup.",
+    "local_tip": "start with breakfast and a side of buttermilk pancakes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lennysclearwater.com/"
+     ],
+     "why_here": [
+      "https://lennysclearwater.com/"
+     ],
+     "know_before": [
+      "https://lennysclearwater.com/"
+     ],
+     "local_tip": [
+      "https://lennysclearwater.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lenny's Restaurant has been curing hunger one meal at a time for over 30 years.",
+      "source": "https://lennysclearwater.com/"
+     },
+     {
+      "claim": "breakfasts at Lenny's Restaurant can come with a side of buttermilk pancakes and fresh squeezed juice.",
+      "source": "https://lennysclearwater.com/"
+     },
+     {
+      "claim": "lunch at Lenny's Restaurant includes a stacked pastrami sandwich.",
+      "source": "https://lennysclearwater.com/"
+     },
+     {
+      "claim": "lunch at Lenny's Restaurant includes a half salad or half sandwich and soup.",
+      "source": "https://lennysclearwater.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

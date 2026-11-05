@@ -1,0 +1,1955 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 11. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJU0fVOYqt2YgRQAYYvFqmjeY",
+   "name": "Flanigan's Seafood Bar and Grill",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flanigans.net/menu/",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official menu lists Award Winning Chicken Wings.",
+      "The official menu lists Award Winning Baby Back Ribs.",
+      "The official menu includes Ribs and Seafood sections.",
+      "Flanigan's states it serves responsibly-sourced seafood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Award Winning Chicken Wings and Award Winning Baby Back Ribs",
+    "why_here": "Flanigan's states it serves responsibly-sourced seafood, and the official menu lists Award Winning Chicken Wings and Award Winning Baby Back Ribs in Ribs and Seafood sections.",
+    "know_before": "The official menu includes Ribs and Seafood sections.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "why_here": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "know_before": [
+      "https://www.flanigans.net/menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official menu lists Award Winning Chicken Wings.",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "The official menu lists Award Winning Baby Back Ribs.",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "The official menu includes Ribs and Seafood sections.",
+      "source": "https://www.flanigans.net/menu/"
+     },
+     {
+      "claim": "Flanigan's states it serves responsibly-sourced seafood.",
+      "source": "https://www.flanigans.net/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3UAjfQcD2YgRAFQ7EPy0ChU",
+   "name": "Harrah's Pompano Beach - A Caesars Rewards Destination",
+   "category": "beach",
+   "metro": "broward",
+   "primary_type": "casino",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.caesars.com/harrahs-pompano-beach",
+     "source_name": "Harrah's Pompano Beach - A Caesars Rewards Destination \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harrah's Pompano Beach is home to over 1,200 slot machines and electronic table games.",
+      "Harrah's Pompano Beach has 40+ live action poker tables."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1,200 slot machines and electronic table games plus 40+ live action poker tables",
+    "why_here": "Harrah's Pompano Beach is home to over 1,200 slot machines and electronic table games, and Harrah's Pompano Beach has 40+ live action poker tables for poker play.",
+    "know_before": "Harrah's Pompano Beach has 40+ live action poker tables.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.caesars.com/harrahs-pompano-beach"
+     ],
+     "why_here": [
+      "https://www.caesars.com/harrahs-pompano-beach"
+     ],
+     "know_before": [
+      "https://www.caesars.com/harrahs-pompano-beach"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harrah's Pompano Beach is home to over 1,200 slot machines and electronic table games.",
+      "source": "https://www.caesars.com/harrahs-pompano-beach"
+     },
+     {
+      "claim": "Harrah's Pompano Beach has 40+ live action poker tables.",
+      "source": "https://www.caesars.com/harrahs-pompano-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJa1kHd4Vp24gRj7H2MiIoSwo",
+   "name": "Manatee Park",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.leegov.com/parks/parks/manateepark",
+     "source_name": "Manatee Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Manatee Park is a non-captive warm water refuge for the Florida Manatee.",
+      "The optimum viewing months are late December, January and February.",
+      "Manatees visit in search of warm water during cooler winter days."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A non-captive warm water refuge for the Florida Manatee",
+    "why_here": "Manatee Park is a non-captive warm water refuge for the Florida Manatee. Manatees visit in search of warm water during cooler winter days, and the optimum viewing months are late December, January and February.",
+    "know_before": "The optimum viewing months are late December, January and February.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.leegov.com/parks/parks/manateepark"
+     ],
+     "why_here": [
+      "https://www.leegov.com/parks/parks/manateepark"
+     ],
+     "know_before": [
+      "https://www.leegov.com/parks/parks/manateepark"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Manatee Park is a non-captive warm water refuge for the Florida Manatee.",
+      "source": "https://www.leegov.com/parks/parks/manateepark"
+     },
+     {
+      "claim": "The optimum viewing months are late December, January and February.",
+      "source": "https://www.leegov.com/parks/parks/manateepark"
+     },
+     {
+      "claim": "Manatees visit in search of warm water during cooler winter days.",
+      "source": "https://www.leegov.com/parks/parks/manateepark"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg92fimLkwogRAxuqTT5z2Gs",
+   "name": "Cheddar's Scratch Kitchen",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cheddars.com/menus",
+     "source_name": "Cheddar's Scratch Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Cheddar's official menu categories include Weekday Lunch, Chicken, Steaks & Ribs, and Seafood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Weekday Lunch, Chicken, Steaks & Ribs, and Seafood",
+    "why_here": "Cheddar's official menu categories include Weekday Lunch, Chicken, Steaks & Ribs, and Seafood. The categories cover weekday lunch, chicken, steaks, ribs, and seafood choices for guests.",
+    "know_before": "Cheddar's official menu categories include Weekday Lunch, Chicken, Steaks & Ribs, and Seafood.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cheddars.com/menus"
+     ],
+     "why_here": [
+      "https://www.cheddars.com/menus"
+     ],
+     "know_before": [
+      "https://www.cheddars.com/menus"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Cheddar's official menu categories include Weekday Lunch, Chicken, Steaks & Ribs, and Seafood.",
+      "source": "https://www.cheddars.com/menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJF4DsqywA2YgR7CYjC65wVKM",
+   "name": "Casablanca Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casablancacafeonline.com/lunch-menu/",
+     "source_name": "Casablanca Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casablanca Cafe offers oceanfront lunch on Fort Lauderdale Beach.",
+      "The lunch menu features Mediterranean and American-inspired dishes, fresh seafood, signature sandwiches, and coastal favorites served with ocean views.",
+      "Lunch is available everyday from 8:30 a.m. to 4 p.m.",
+      "No reservations are required and seating is available on a first-come, first-served basis."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront lunch on Fort Lauderdale Beach with Mediterranean and American-inspired dishes",
+    "why_here": "Casablanca Cafe offers oceanfront lunch on Fort Lauderdale Beach. The lunch menu features Mediterranean and American-inspired dishes, fresh seafood, signature sandwiches, and coastal favorites served with ocean views.",
+    "know_before": "Lunch is available everyday from 8:30 a.m. to 4 p.m. and no reservations are required.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casablancacafeonline.com/lunch-menu/"
+     ],
+     "why_here": [
+      "https://casablancacafeonline.com/lunch-menu/"
+     ],
+     "know_before": [
+      "https://casablancacafeonline.com/lunch-menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casablanca Cafe offers oceanfront lunch on Fort Lauderdale Beach.",
+      "source": "https://casablancacafeonline.com/lunch-menu/"
+     },
+     {
+      "claim": "The lunch menu features Mediterranean and American-inspired dishes, fresh seafood, signature sandwiches, and coastal favorites served with ocean views.",
+      "source": "https://casablancacafeonline.com/lunch-menu/"
+     },
+     {
+      "claim": "Lunch is available everyday from 8:30 a.m. to 4 p.m.",
+      "source": "https://casablancacafeonline.com/lunch-menu/"
+     },
+     {
+      "claim": "No reservations are required and seating is available on a first-come, first-served basis.",
+      "source": "https://casablancacafeonline.com/lunch-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTS1E5a6n2YgR1_BWvrHt8Jk",
+   "name": "The Juicy Crab",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thejuicycrab.com/menu/seafood-combo/",
+     "source_name": "The Juicy Crab \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The seafood combo menu describes loaded boils with crab, lobster, shrimp, mussels, and more by the bag.",
+      "Clams are a delicious addition to any of your Cajun seafood boil.",
+      "Menu availability may vary by location."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun seafood boils by the bag with crab, lobster, shrimp and mussels",
+    "why_here": "The seafood combo menu describes loaded boils with crab, lobster, shrimp, mussels, and more by the bag. Clams are a delicious addition to any of your Cajun seafood boil, and menu availability may vary by location.",
+    "know_before": "Menu availability may vary by location.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thejuicycrab.com/menu/seafood-combo/"
+     ],
+     "why_here": [
+      "https://www.thejuicycrab.com/menu/seafood-combo/"
+     ],
+     "know_before": [
+      "https://www.thejuicycrab.com/menu/seafood-combo/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The seafood combo menu describes loaded boils with crab, lobster, shrimp, mussels, and more by the bag.",
+      "source": "https://www.thejuicycrab.com/menu/seafood-combo/"
+     },
+     {
+      "claim": "Clams are a delicious addition to any of your Cajun seafood boil.",
+      "source": "https://www.thejuicycrab.com/menu/seafood-combo/"
+     },
+     {
+      "claim": "Menu availability may vary by location.",
+      "source": "https://www.thejuicycrab.com/menu/seafood-combo/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm1ucwhix2YgRCHTljoxMJjU",
+   "name": "Talkin' Tacos Miramar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "taco_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://talkintacos.net/menu/miramar",
+     "source_name": "Talkin' Tacos Miramar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Birria Tacos are three tacos with corn tortilla, Chihuahua cheese, beef birria, onions, cilantro, and consomm\u00e9.",
+      "Birria Tacos are listed among the most ordered items on the Talkin' Tacos Miramar menu."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Birria Tacos with Chihuahua cheese, beef birria and consomm\u00e9 in Miramar",
+    "why_here": "Birria Tacos are listed among the most ordered items on the Talkin' Tacos Miramar menu. Birria Tacos are three tacos with corn tortilla, Chihuahua cheese, beef birria, onions, cilantro, and consomm\u00e9.",
+    "know_before": "Birria Tacos are listed among the most ordered items on the Talkin' Tacos Miramar menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://talkintacos.net/menu/miramar"
+     ],
+     "why_here": [
+      "https://talkintacos.net/menu/miramar"
+     ],
+     "know_before": [
+      "https://talkintacos.net/menu/miramar"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Birria Tacos are three tacos with corn tortilla, Chihuahua cheese, beef birria, onions, cilantro, and consomm\u00e9.",
+      "source": "https://talkintacos.net/menu/miramar"
+     },
+     {
+      "claim": "Birria Tacos are listed among the most ordered items on the Talkin' Tacos Miramar menu.",
+      "source": "https://talkintacos.net/menu/miramar"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJaywE7Jan4IgR43QHBGkTrts",
+   "name": "Westgate Cocoa Beach Pier",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cocoabeachpier.com/",
+     "source_name": "Westgate Cocoa Beach Pier \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Westgate Cocoa Beach Pier stretches 800 feet over the Atlantic Ocean.",
+      "Westgate Cocoa Beach Pier is a historic landmark on Florida's Space Coast.",
+      "The pier offers beach rentals, fresh water showers, and regulation beach volleyball courts.",
+      "Regular hours are Monday to Thursday and Sunday from 11:00 a.m. to 9:00 p.m. and Friday and Saturday from 11:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "800 feet over the Atlantic Ocean on Florida's Space Coast",
+    "why_here": "Westgate Cocoa Beach Pier is a historic landmark on Florida's Space Coast and stretches 800 feet over the Atlantic Ocean. The pier offers beach rentals, fresh water showers, and regulation beach volleyball courts.",
+    "know_before": "Regular hours are Monday to Thursday and Sunday from 11:00 a.m. to 9:00 p.m. and Friday and Saturday from 11:00 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cocoabeachpier.com/"
+     ],
+     "why_here": [
+      "https://www.cocoabeachpier.com/"
+     ],
+     "know_before": [
+      "https://www.cocoabeachpier.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Westgate Cocoa Beach Pier stretches 800 feet over the Atlantic Ocean.",
+      "source": "https://www.cocoabeachpier.com/"
+     },
+     {
+      "claim": "Westgate Cocoa Beach Pier is a historic landmark on Florida's Space Coast.",
+      "source": "https://www.cocoabeachpier.com/"
+     },
+     {
+      "claim": "The pier offers beach rentals, fresh water showers, and regulation beach volleyball courts.",
+      "source": "https://www.cocoabeachpier.com/"
+     },
+     {
+      "claim": "Regular hours are Monday to Thursday and Sunday from 11:00 a.m. to 9:00 p.m. and Friday and Saturday from 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.cocoabeachpier.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ5TC-Dyr2YgRYFjxO1O7Fas",
+   "name": "Le Tub",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.le-tub.com/menus/",
+     "source_name": "Le Tub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Le Tub's menu lists The Original as a 13 oz. hand-pattied, cooked to order burger, seasoned, char-grilled, served on a Kaiser roll with onion, tomato and lettuce.",
+      "The menu lists Chili with cheddar, sour cream and fritos.",
+      "A service fee of 18% will be added to all parties of 5 or more.",
+      "Le Tub is at 1100 N Ocean Dr. in Hollywood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Original, a 13 oz. hand-pattied, char-grilled burger on a Kaiser roll",
+    "why_here": "Le Tub's menu lists The Original as a 13 oz. hand-pattied, cooked to order burger, seasoned, char-grilled, served on a Kaiser roll with onion, tomato and lettuce in Hollywood. The menu lists Chili with cheddar, sour cream and fritos.",
+    "know_before": "A service fee of 18% will be added to all parties of 5 or more.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.le-tub.com/menus/"
+     ],
+     "why_here": [
+      "https://www.le-tub.com/menus/"
+     ],
+     "know_before": [
+      "https://www.le-tub.com/menus/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Le Tub's menu lists The Original as a 13 oz. hand-pattied, cooked to order burger, seasoned, char-grilled, served on a Kaiser roll with onion, tomato and lettuce.",
+      "source": "https://www.le-tub.com/menus/"
+     },
+     {
+      "claim": "The menu lists Chili with cheddar, sour cream and fritos.",
+      "source": "https://www.le-tub.com/menus/"
+     },
+     {
+      "claim": "A service fee of 18% will be added to all parties of 5 or more.",
+      "source": "https://www.le-tub.com/menus/"
+     },
+     {
+      "claim": "Le Tub is at 1100 N Ocean Dr. in Hollywood.",
+      "source": "https://www.le-tub.com/menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2eb1zAHK5YgRxX7Ntx9Ppqc",
+   "name": "K1 Speed Jacksonville",
+   "category": "attractions",
+   "metro": "jacksonville-fl",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.k1speed.com/jacksonville-location.html",
+     "source_name": "K1 Speed Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "K1 Speed Jacksonville is located at 6601 Executive Park Court N, Jacksonville, FL 32216.",
+      "K1 Speed Jacksonville offers Arrive & Drive indoor go-kart racing.",
+      "K1 Speed Jacksonville hours are Monday to Thursday 12:00 p.m. to 10:00 p.m., Friday 12:00 p.m. to 12:00 a.m., Saturday 10:00 a.m. to 12:00 a.m., and Sunday 10:00 a.m. to 10:00 p.m.",
+      "The center includes arcade, food and drinks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor go-kart racing with Arrive & Drive in Jacksonville",
+    "why_here": "K1 Speed Jacksonville offers Arrive & Drive indoor go-kart racing at an entertainment center that also includes arcade, food and drinks for visitors between races.",
+    "know_before": "Hours are Monday to Thursday 12:00 p.m. to 10:00 p.m., Friday 12:00 p.m. to 12:00 a.m., Saturday 10:00 a.m. to 12:00 a.m., and Sunday 10:00 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.k1speed.com/jacksonville-location.html"
+     ],
+     "why_here": [
+      "https://www.k1speed.com/jacksonville-location.html"
+     ],
+     "know_before": [
+      "https://www.k1speed.com/jacksonville-location.html"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "K1 Speed Jacksonville is located at 6601 Executive Park Court N, Jacksonville, FL 32216.",
+      "source": "https://www.k1speed.com/jacksonville-location.html"
+     },
+     {
+      "claim": "K1 Speed Jacksonville offers Arrive & Drive indoor go-kart racing.",
+      "source": "https://www.k1speed.com/jacksonville-location.html"
+     },
+     {
+      "claim": "K1 Speed Jacksonville hours are Monday to Thursday 12:00 p.m. to 10:00 p.m., Friday 12:00 p.m. to 12:00 a.m., Saturday 10:00 a.m. to 12:00 a.m., and Sunday 10:00 a.m. to 10:00 p.m.",
+      "source": "https://www.k1speed.com/jacksonville-location.html"
+     },
+     {
+      "claim": "The center includes arcade, food and drinks.",
+      "source": "https://www.k1speed.com/jacksonville-location.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxVWRafgc2YgRptgZY5nu1A4",
+   "name": "El Balc\u00f3n de las Am\u00e9ricas - Deerfield Beach",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elbalcondelasamericas.com/",
+     "source_name": "El Balc\u00f3n de las Am\u00e9ricas - Deerfield Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Balc\u00f3n de las Am\u00e9ricas is a Colombian and Latin restaurant in South Florida.",
+      "The Deerfield Beach location is at 246 S Powerline Rd, Deerfield Beach, FL 33442.",
+      "The menu has 16 categories, from breakfast to dessert.",
+      "House favorites include Bandeja Paisa.",
+      "El Balc\u00f3n de las Am\u00e9ricas has 8 locations in South Florida since 1997."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Colombian and Latin dishes in Deerfield Beach, from breakfast to dessert",
+    "why_here": "El Balc\u00f3n de las Am\u00e9ricas is a Colombian and Latin restaurant in South Florida with a location in Deerfield Beach. The menu has 16 categories, from breakfast to dessert.",
+    "know_before": "The Deerfield Beach menu has 16 categories, from breakfast to dessert.",
+    "local_tip": "Bandeja Paisa is listed among house favorites.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "why_here": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "know_before": [
+      "https://elbalcondelasamericas.com/"
+     ],
+     "local_tip": [
+      "https://elbalcondelasamericas.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Balc\u00f3n de las Am\u00e9ricas is a Colombian and Latin restaurant in South Florida.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "The Deerfield Beach location is at 246 S Powerline Rd, Deerfield Beach, FL 33442.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "The menu has 16 categories, from breakfast to dessert.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "House favorites include Bandeja Paisa.",
+      "source": "https://elbalcondelasamericas.com/"
+     },
+     {
+      "claim": "El Balc\u00f3n de las Am\u00e9ricas has 8 locations in South Florida since 1997.",
+      "source": "https://elbalcondelasamericas.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1ZdJ2WS32YgRUzj7gS9nYeY",
+   "name": "MIAM CAFE - BISCAYNE",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamcafe.com/",
+     "source_name": "MIAM CAFE - BISCAYNE \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MIAM Cafe lists a Biscayne location at 1040 Biscayne Blvd.",
+      "MIAM Cafe hours are Monday to Sunday 8:00 a.m. to 4:00 p.m.",
+      "MIAM Cafe invites guests to gather around and enjoy good food."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cafe on Biscayne Blvd, open Monday to Sunday",
+    "why_here": "MIAM Cafe lists a Biscayne location at 1040 Biscayne Blvd and invites guests to gather around and enjoy good food during its daily hours at that site.",
+    "know_before": "Hours at the Biscayne location are Monday to Sunday 8:00 a.m. to 4:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamcafe.com/"
+     ],
+     "why_here": [
+      "https://www.miamcafe.com/"
+     ],
+     "know_before": [
+      "https://www.miamcafe.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MIAM Cafe lists a Biscayne location at 1040 Biscayne Blvd.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe hours are Monday to Sunday 8:00 a.m. to 4:00 p.m.",
+      "source": "https://www.miamcafe.com/"
+     },
+     {
+      "claim": "MIAM Cafe invites guests to gather around and enjoy good food.",
+      "source": "https://www.miamcafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJB9oXhprX5ogRePfiKzIhmjk",
+   "name": "Our Deck Down Under",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ourdeckdownunder.com/dock",
+     "source_name": "Our Deck Down Under \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Our Deck Down Under is a Port Orange seafood restaurant.",
+      "Our Deck Down Under is located just six miles south of Daytona Beach.",
+      "Our Deck Down Under sits at the south eastern corner under the Dunlawton Bridge at the water's edge of the Halifax River.",
+      "The address is 78 Dunlawton Ave., Port Orange, FL 32127.",
+      "Dock slips are available on a first come, first serve basis, and no reservation is required for dock slips."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood under the Dunlawton Bridge on the Halifax River",
+    "why_here": "Our Deck Down Under is a Port Orange seafood restaurant at the water's edge of the Halifax River, under the Dunlawton Bridge and just six miles south of Daytona Beach.",
+    "know_before": "No reservation is required for dock slips, and dock slips are available on a first come, first serve basis.",
+    "local_tip": "Dock slips are available on a first come, first serve basis.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ourdeckdownunder.com/dock"
+     ],
+     "why_here": [
+      "https://www.ourdeckdownunder.com/dock"
+     ],
+     "know_before": [
+      "https://www.ourdeckdownunder.com/dock"
+     ],
+     "local_tip": [
+      "https://www.ourdeckdownunder.com/dock"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Our Deck Down Under is a Port Orange seafood restaurant.",
+      "source": "https://www.ourdeckdownunder.com/dock"
+     },
+     {
+      "claim": "Our Deck Down Under is located just six miles south of Daytona Beach.",
+      "source": "https://www.ourdeckdownunder.com/dock"
+     },
+     {
+      "claim": "Our Deck Down Under sits at the south eastern corner under the Dunlawton Bridge at the water's edge of the Halifax River.",
+      "source": "https://www.ourdeckdownunder.com/dock"
+     },
+     {
+      "claim": "The address is 78 Dunlawton Ave., Port Orange, FL 32127.",
+      "source": "https://www.ourdeckdownunder.com/dock"
+     },
+     {
+      "claim": "Dock slips are available on a first come, first serve basis, and no reservation is required for dock slips.",
+      "source": "https://www.ourdeckdownunder.com/dock"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJhQA_6R232YgR5eyL0E5zOJA",
+   "name": "Burgermeister",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://burgermeistermiami.com/about-us/",
+     "source_name": "Burgermeister \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burgermeister has two locations, South Beach and Brickell.",
+      "Burgermeister was born in Miami Beach and is a family-owned business in Miami.",
+      "Burgermeister burgers use an 8oz handcrafted beef patty made from chuck, brisket, and short rib.",
+      "Burgermeister offers vegan options and crispy chicken sandwiches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Burgers in Miami with South Beach and Brickell locations",
+    "why_here": "Burgermeister was born in Miami Beach and is a family-owned business in Miami with two locations, South Beach and Brickell. Burgers use a handcrafted beef patty, with vegan options also offered.",
+    "know_before": "Burgermeister has two locations, South Beach and Brickell, so confirm the location before ordering.",
+    "local_tip": "Vegan options and crispy chicken sandwiches are also offered.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://burgermeistermiami.com/about-us/"
+     ],
+     "why_here": [
+      "https://burgermeistermiami.com/about-us/"
+     ],
+     "know_before": [
+      "https://burgermeistermiami.com/about-us/"
+     ],
+     "local_tip": [
+      "https://burgermeistermiami.com/about-us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burgermeister has two locations, South Beach and Brickell.",
+      "source": "https://burgermeistermiami.com/about-us/"
+     },
+     {
+      "claim": "Burgermeister was born in Miami Beach and is a family-owned business in Miami.",
+      "source": "https://burgermeistermiami.com/about-us/"
+     },
+     {
+      "claim": "Burgermeister burgers use an 8oz handcrafted beef patty made from chuck, brisket, and short rib.",
+      "source": "https://burgermeistermiami.com/about-us/"
+     },
+     {
+      "claim": "Burgermeister offers vegan options and crispy chicken sandwiches.",
+      "source": "https://burgermeistermiami.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW3Wm6B4f6IgR0pS78E6IEN0",
+   "name": "Cheddar's Scratch Kitchen",
+   "category": "food",
+   "metro": "spring-hill-fl",
+   "primary_type": "chicken_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173",
+     "source_name": "Cheddar's Scratch Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Brooksville location is at 12280 Cortez Blvd, Brooksville, FL 34613.",
+      "Cheddar's Scratch Kitchen menu categories include Chicken, Steaks and Ribs, and Seafood.",
+      "Cheddar's Scratch Kitchen menu categories include Weekday Lunch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chicken, Steaks and Ribs, and Seafood on Cortez Blvd in Brooksville",
+    "why_here": "Cheddar's Scratch Kitchen in Brooksville lists menu categories including Chicken, Steaks and Ribs, and Seafood, plus Weekday Lunch, at its Cortez Blvd location for everyday dining.",
+    "know_before": "The Brooksville location is at 12280 Cortez Blvd, Brooksville, FL 34613.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173"
+     ],
+     "why_here": [
+      "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173"
+     ],
+     "know_before": [
+      "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Brooksville location is at 12280 Cortez Blvd, Brooksville, FL 34613.",
+      "source": "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173"
+     },
+     {
+      "claim": "Cheddar's Scratch Kitchen menu categories include Chicken, Steaks and Ribs, and Seafood.",
+      "source": "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173"
+     },
+     {
+      "claim": "Cheddar's Scratch Kitchen menu categories include Weekday Lunch.",
+      "source": "https://www.cheddars.com/locations/fl/brooksville/brooksville/2173"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHXFXRXOA3YgRPA65eJ4q9rY",
+   "name": "Hilton Grand Vacations Club Parc Soleil Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/",
+     "source_name": "Hilton Grand Vacations Club Parc Soleil Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Parc Soleil by Hilton Grand Vacations is located on 52 acres off of Palm Parkway in the heart of the attractions area of Orlando.",
+      "The resort offers outdoor pools, a water slide, a kids' activity center, tennis, basketball, and more."
+     ]
+    },
+    {
+     "source": "https://www.hiltongrandvacations.com/en/plan-your-vacation/where-to/tour-orlandos-parc-soleil-a-hilton-grand-vacations-club",
+     "source_name": "Hilton Grand Vacations Club Parc Soleil Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Parc Soleil sprawls across 52 acres, according to Hilton Grand Vacations."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 52-acre resort off Palm Parkway in Orlando's attractions area",
+    "why_here": "Parc Soleil is a Hilton Grand Vacations resort set on 52 acres in the heart of Orlando's attractions area. It offers outdoor pools, a water slide, a kids' activity center, tennis and basketball for guests staying near the theme parks.",
+    "know_before": "The resort is located off Palm Parkway in Orlando's attractions area.",
+    "local_tip": "Suites include balconies with expansive views, noted on the Hilton Grand Vacations tour page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/",
+      "https://www.hiltongrandvacations.com/en/plan-your-vacation/where-to/tour-orlandos-parc-soleil-a-hilton-grand-vacations-club"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/",
+      "https://www.hiltongrandvacations.com/en/plan-your-vacation/where-to/tour-orlandos-parc-soleil-a-hilton-grand-vacations-club"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/",
+      "https://www.hiltongrandvacations.com/en/plan-your-vacation/where-to/tour-orlandos-parc-soleil-a-hilton-grand-vacations-club"
+     ],
+     "local_tip": [
+      "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/",
+      "https://www.hiltongrandvacations.com/en/plan-your-vacation/where-to/tour-orlandos-parc-soleil-a-hilton-grand-vacations-club"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Parc Soleil by Hilton Grand Vacations is located on 52 acres off of Palm Parkway in the heart of the attractions area of Orlando.",
+      "source": "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/"
+     },
+     {
+      "claim": "The resort offers outdoor pools, a water slide, a kids' activity center, tennis, basketball, and more.",
+      "source": "https://www.hilton.com/en/hotels/mcomdgv-hilton-grand-vacations-club-parc-soleil-orlando/"
+     },
+     {
+      "claim": "Parc Soleil sprawls across 52 acres, according to Hilton Grand Vacations.",
+      "source": "https://www.hiltongrandvacations.com/en/plan-your-vacation/where-to/tour-orlandos-parc-soleil-a-hilton-grand-vacations-club"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJCfNufqsT3YgRwY5Sh1K8lCg",
+   "name": "Harborside",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.harborsidefl.com/",
+     "source_name": "Harborside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harborside Restaurant in Winter Haven has views of Lake Shipp.",
+      "Harborside is at 2435 7th St SW, Winter Haven, FL 33880.",
+      "The menu lists oysters on the half shell served raw with cocktail sauce and horseradish.",
+      "The menu lists Baked Oysters topped with parmesan aioli and panko bread crumbs.",
+      "The menu lists a Grouper Sandwich."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining with views of Lake Shipp in Winter Haven",
+    "why_here": "Harborside Restaurant in Winter Haven has views of Lake Shipp, and the menu lists oysters on the half shell, Baked Oysters and a Grouper Sandwich for seafood dining.",
+    "know_before": "Harborside is at 2435 7th St SW, Winter Haven, FL 33880.",
+    "local_tip": "Try Baked Oysters topped with parmesan aioli and panko bread crumbs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.harborsidefl.com/"
+     ],
+     "why_here": [
+      "https://www.harborsidefl.com/"
+     ],
+     "know_before": [
+      "https://www.harborsidefl.com/"
+     ],
+     "local_tip": [
+      "https://www.harborsidefl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harborside Restaurant in Winter Haven has views of Lake Shipp.",
+      "source": "https://www.harborsidefl.com/"
+     },
+     {
+      "claim": "Harborside is at 2435 7th St SW, Winter Haven, FL 33880.",
+      "source": "https://www.harborsidefl.com/"
+     },
+     {
+      "claim": "The menu lists oysters on the half shell served raw with cocktail sauce and horseradish.",
+      "source": "https://www.harborsidefl.com/"
+     },
+     {
+      "claim": "The menu lists Baked Oysters topped with parmesan aioli and panko bread crumbs.",
+      "source": "https://www.harborsidefl.com/"
+     },
+     {
+      "claim": "The menu lists a Grouper Sandwich.",
+      "source": "https://www.harborsidefl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOxQutvvA2YgR46vbVNpsujo",
+   "name": "Flanigan's Seafood Bar and Grill",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.flanigans.net/our-story",
+     "source_name": "Flanigan's Seafood Bar and Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Flanigan's is a laidback family-run restaurant.",
+      "Flanigan's has been a South Florida institution since 1959.",
+      "Flanigan's welcomes guests every day of the year.",
+      "Flanigan's serves continuously from lunch to late night.",
+      "The design reflects South Florida roots with fishing, diving, beaching and boating."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-run restaurant and South Florida institution since 1959",
+    "why_here": "Flanigan's is a laidback family-run restaurant and a South Florida institution since 1959, welcoming guests every day of the year and serving continuously from lunch to late night.",
+    "know_before": "Flanigan's welcomes guests every day of the year.",
+    "local_tip": "Look for fishing, diving, beaching and boating themes in the design.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.flanigans.net/our-story"
+     ],
+     "why_here": [
+      "https://www.flanigans.net/our-story"
+     ],
+     "know_before": [
+      "https://www.flanigans.net/our-story"
+     ],
+     "local_tip": [
+      "https://www.flanigans.net/our-story"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Flanigan's is a laidback family-run restaurant.",
+      "source": "https://www.flanigans.net/our-story"
+     },
+     {
+      "claim": "Flanigan's has been a South Florida institution since 1959.",
+      "source": "https://www.flanigans.net/our-story"
+     },
+     {
+      "claim": "Flanigan's welcomes guests every day of the year.",
+      "source": "https://www.flanigans.net/our-story"
+     },
+     {
+      "claim": "Flanigan's serves continuously from lunch to late night.",
+      "source": "https://www.flanigans.net/our-story"
+     },
+     {
+      "claim": "The design reflects South Florida roots with fishing, diving, beaching and boating.",
+      "source": "https://www.flanigans.net/our-story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIRrrFGgA2YgR5q2J3bzE8xs",
+   "name": "Southport Raw Bar & Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.southportrawbar.com/",
+     "source_name": "Southport Raw Bar & Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Southport Raw Bar offers casual waterfront dining in Fort Lauderdale.",
+      "Southport Raw Bar offers waterfront patio dining with 100 seats on deck.",
+      "Southport Raw Bar is pet friendly and includes wi-fi with a full liquor bar.",
+      "Southport Raw Bar features live music and seafood each evening.",
+      "Southport Raw Bar offers inside seating."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual waterfront dining in Fort Lauderdale",
+    "why_here": "Southport Raw Bar offers casual waterfront dining in Fort Lauderdale, with waterfront patio dining, live music and seafood each evening, plus inside seating for guests.",
+    "know_before": "The restaurant is pet friendly and includes wi-fi with a full liquor bar.",
+    "local_tip": "Waterfront patio dining has 100 seats on deck.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.southportrawbar.com/"
+     ],
+     "why_here": [
+      "https://www.southportrawbar.com/"
+     ],
+     "know_before": [
+      "https://www.southportrawbar.com/"
+     ],
+     "local_tip": [
+      "https://www.southportrawbar.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Southport Raw Bar offers casual waterfront dining in Fort Lauderdale.",
+      "source": "https://www.southportrawbar.com/"
+     },
+     {
+      "claim": "Southport Raw Bar offers waterfront patio dining with 100 seats on deck.",
+      "source": "https://www.southportrawbar.com/"
+     },
+     {
+      "claim": "Southport Raw Bar is pet friendly and includes wi-fi with a full liquor bar.",
+      "source": "https://www.southportrawbar.com/"
+     },
+     {
+      "claim": "Southport Raw Bar features live music and seafood each evening.",
+      "source": "https://www.southportrawbar.com/"
+     },
+     {
+      "claim": "Southport Raw Bar offers inside seating.",
+      "source": "https://www.southportrawbar.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYWAVz2HfkogR1C_ap5AI570",
+   "name": "Florida Caverns State Park",
+   "category": "attractions",
+   "metro": "panama-city-florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park",
+     "source_name": "Florida Caverns State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Caverns is one of Florida's first state parks, according to Florida State Parks.",
+      "Cave tours are offered seven days a week from 9 a.m. to 4 p.m. CST.",
+      "The park is open 8 a.m. to sunset.",
+      "Visitors can explore underground caves filled with stalactites, stalagmites and flowstones.",
+      "Guided cavern tour tickets are offered on a first-come, first-served basis."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Guided cave tours through underground caverns",
+    "why_here": "Florida Caverns is one of Florida's first state parks, and visitors can explore underground caves filled with stalactites, stalagmites and flowstones on cave tours.",
+    "know_before": "Cave tours are offered seven days a week from 9 a.m. to 4 p.m. CST, and the park is open 8 a.m. to sunset.",
+    "local_tip": "Guided cavern tour tickets are offered on a first-come, first-served basis.",
+    "best_time": "Cave tours are offered seven days a week from 9 a.m. to 4 p.m. CST.",
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     ],
+     "best_time": [
+      "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Caverns is one of Florida's first state parks, according to Florida State Parks.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     },
+     {
+      "claim": "Cave tours are offered seven days a week from 9 a.m. to 4 p.m. CST.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     },
+     {
+      "claim": "The park is open 8 a.m. to sunset.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     },
+     {
+      "claim": "Visitors can explore underground caves filled with stalactites, stalagmites and flowstones.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     },
+     {
+      "claim": "Guided cavern tour tickets are offered on a first-come, first-served basis.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/florida-caverns-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsdwQzKcCw4gRxMHIcCCvNo4",
+   "name": "RumFish Beach at TradeWinds",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tradewindsresort.com/rumfish",
+     "source_name": "RumFish Beach at TradeWinds \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "RumFish Beach at TradeWinds is at 6000 Gulf Blvd, St Pete Beach, FL 33706.",
+      "RumFish Beach lists 12 beachfront acres.",
+      "RumFish Beach lists a 33,500-gallon aquarium.",
+      "RumFish Beach lists 352 rooms and villas and 4 pools.",
+      "RumFish Beach has an adult only pool."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront resort with a 33,500-gallon aquarium",
+    "why_here": "RumFish Beach at TradeWinds lists 12 beachfront acres, 352 rooms and villas, 4 pools and a 33,500-gallon aquarium, with beachfront rooms and villas at the resort.",
+    "know_before": "RumFish Beach at TradeWinds is at 6000 Gulf Blvd, St Pete Beach, FL 33706.",
+    "local_tip": "The resort lists an adult only pool among its amenities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tradewindsresort.com/rumfish"
+     ],
+     "why_here": [
+      "https://www.tradewindsresort.com/rumfish"
+     ],
+     "know_before": [
+      "https://www.tradewindsresort.com/rumfish"
+     ],
+     "local_tip": [
+      "https://www.tradewindsresort.com/rumfish"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "RumFish Beach at TradeWinds is at 6000 Gulf Blvd, St Pete Beach, FL 33706.",
+      "source": "https://www.tradewindsresort.com/rumfish"
+     },
+     {
+      "claim": "RumFish Beach lists 12 beachfront acres.",
+      "source": "https://www.tradewindsresort.com/rumfish"
+     },
+     {
+      "claim": "RumFish Beach lists a 33,500-gallon aquarium.",
+      "source": "https://www.tradewindsresort.com/rumfish"
+     },
+     {
+      "claim": "RumFish Beach lists 352 rooms and villas and 4 pools.",
+      "source": "https://www.tradewindsresort.com/rumfish"
+     },
+     {
+      "claim": "RumFish Beach has an adult only pool.",
+      "source": "https://www.tradewindsresort.com/rumfish"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJffgOemb92IgRvDxe4fWGsSo",
+   "name": "Beach House",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://beachhousepompano.com/",
+     "source_name": "Beach House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Beach House sits directly on the shoreline in Pompano Beach.",
+      "Beach House offers fresh seafood, wood-fired specialties and coastal flavors.",
+      "The menu features fresh seafood, oysters and sushi.",
+      "Beach House offers weekend brunch.",
+      "Brunch starts at 11 a.m. on Saturdays and 10 a.m. on Sundays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront dining on the shoreline in Pompano Beach",
+    "why_here": "Beach House sits directly on the shoreline in Pompano Beach and offers fresh seafood, wood-fired specialties and coastal flavors, with a menu that features oysters and sushi.",
+    "know_before": "Brunch starts at 11 a.m. on Saturdays and 10 a.m. on Sundays.",
+    "local_tip": "Try weekend brunch by the shoreline.",
+    "best_time": "Weekend, for brunch served by the ocean",
+    "citations": {
+     "hook": [
+      "https://beachhousepompano.com/"
+     ],
+     "why_here": [
+      "https://beachhousepompano.com/"
+     ],
+     "know_before": [
+      "https://beachhousepompano.com/"
+     ],
+     "local_tip": [
+      "https://beachhousepompano.com/"
+     ],
+     "best_time": [
+      "https://beachhousepompano.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Beach House sits directly on the shoreline in Pompano Beach.",
+      "source": "https://beachhousepompano.com/"
+     },
+     {
+      "claim": "Beach House offers fresh seafood, wood-fired specialties and coastal flavors.",
+      "source": "https://beachhousepompano.com/"
+     },
+     {
+      "claim": "The menu features fresh seafood, oysters and sushi.",
+      "source": "https://beachhousepompano.com/"
+     },
+     {
+      "claim": "Beach House offers weekend brunch.",
+      "source": "https://beachhousepompano.com/"
+     },
+     {
+      "claim": "Brunch starts at 11 a.m. on Saturdays and 10 a.m. on Sundays.",
+      "source": "https://beachhousepompano.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNedJ7ZzuwogRu87yMl96Ing",
+   "name": "Philippe Park",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/parks/philippe-park",
+     "source_name": "Philippe Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Philippe Park is 92 acres and is the oldest park in Pinellas County.",
+      "Philippe Park is located in Safety Harbor.",
+      "The Temple Mound at Philippe Park was built by Native Americans known as the Tocobaga.",
+      "The Temple Mound is the largest remaining mound in the Tampa Bay region and is listed in the National Register of Historic Landmarks.",
+      "Philippe Park has eight picnic shelters with grills and a boat ramp with a fee charged.",
+      "Philippe Park is open 7 days a week from 7 a.m. to sunset."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oldest park in Pinellas County with a Temple Mound built by the Tocobaga",
+    "why_here": "Philippe Park covers 92 acres in Safety Harbor and is the oldest park in Pinellas County. Its Temple Mound was built by the Tocobaga and is listed in the National Register of Historic Landmarks, with eight picnic shelters with grills.",
+    "know_before": "Philippe Park is open 7 days a week from 7 a.m. to sunset, and a fee is charged for the boat ramp.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/parks/philippe-park"
+     ],
+     "why_here": [
+      "https://pinellas.gov/parks/philippe-park"
+     ],
+     "know_before": [
+      "https://pinellas.gov/parks/philippe-park"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Philippe Park is 92 acres and is the oldest park in Pinellas County.",
+      "source": "https://pinellas.gov/parks/philippe-park"
+     },
+     {
+      "claim": "Philippe Park is located in Safety Harbor.",
+      "source": "https://pinellas.gov/parks/philippe-park"
+     },
+     {
+      "claim": "The Temple Mound at Philippe Park was built by Native Americans known as the Tocobaga.",
+      "source": "https://pinellas.gov/parks/philippe-park"
+     },
+     {
+      "claim": "The Temple Mound is the largest remaining mound in the Tampa Bay region and is listed in the National Register of Historic Landmarks.",
+      "source": "https://pinellas.gov/parks/philippe-park"
+     },
+     {
+      "claim": "Philippe Park has eight picnic shelters with grills and a boat ramp with a fee charged.",
+      "source": "https://pinellas.gov/parks/philippe-park"
+     },
+     {
+      "claim": "Philippe Park is open 7 days a week from 7 a.m. to sunset.",
+      "source": "https://pinellas.gov/parks/philippe-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXbaMLSj3wogREtvIGIBeIzI",
+   "name": "Frenchy's South Beach Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://frenchysonline.com/frenchys-restaurants/",
+     "source_name": "Frenchy's South Beach Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frenchy's South Beach Cafe is situated on Beach Walk with open-air dining and a large sidewalk patio.",
+      "Frenchy's South Beach Cafe has a Key West bistro atmosphere.",
+      "Menu favorites include the Super Grouper sandwich.",
+      "Menu favorites include tropical chicken walnut salad, BBQ bacon-wrapped scallops, and grouper eggrolls.",
+      "Frenchy's restaurants are on Clearwater Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air dining on Beach Walk with the Super Grouper sandwich",
+    "why_here": "Frenchy's South Beach Cafe sits on Beach Walk with open-air dining, a large sidewalk patio and a Key West bistro atmosphere. Menu favorites include the Super Grouper sandwich, tropical chicken walnut salad, BBQ bacon-wrapped scallops and grouper eggrolls.",
+    "know_before": "Frenchy's South Beach Cafe offers open-air dining and a large sidewalk patio on Beach Walk.",
+    "local_tip": "Try the grouper eggrolls alongside the Super Grouper sandwich.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://frenchysonline.com/frenchys-restaurants/"
+     ],
+     "why_here": [
+      "https://frenchysonline.com/frenchys-restaurants/"
+     ],
+     "know_before": [
+      "https://frenchysonline.com/frenchys-restaurants/"
+     ],
+     "local_tip": [
+      "https://frenchysonline.com/frenchys-restaurants/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frenchy's South Beach Cafe is situated on Beach Walk with open-air dining and a large sidewalk patio.",
+      "source": "https://frenchysonline.com/frenchys-restaurants/"
+     },
+     {
+      "claim": "Frenchy's South Beach Cafe has a Key West bistro atmosphere.",
+      "source": "https://frenchysonline.com/frenchys-restaurants/"
+     },
+     {
+      "claim": "Menu favorites include the Super Grouper sandwich.",
+      "source": "https://frenchysonline.com/frenchys-restaurants/"
+     },
+     {
+      "claim": "Menu favorites include tropical chicken walnut salad, BBQ bacon-wrapped scallops, and grouper eggrolls.",
+      "source": "https://frenchysonline.com/frenchys-restaurants/"
+     },
+     {
+      "claim": "Frenchy's restaurants are on Clearwater Beach.",
+      "source": "https://frenchysonline.com/frenchys-restaurants/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqXGhh8rDwogRTE-NYOzFyMk",
+   "name": "WestShore Plaza",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://westshoreplaza.com/",
+     "source_name": "WestShore Plaza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "WestShore Plaza offers retail, dining, and entertainment experiences at one location.",
+      "WestShore Plaza is located at 250 WestShore Plaza in Tampa, FL 33609.",
+      "WestShore Plaza has a store directory, restaurant listings, and deals."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retail, dining and entertainment experiences at one location in Tampa",
+    "why_here": "WestShore Plaza brings retail, dining and entertainment experiences together at one location in Tampa. The official site provides a store directory, restaurant listings and deals for planning a visit.",
+    "know_before": "WestShore Plaza is located at 250 WestShore Plaza in Tampa.",
+    "local_tip": "Check the store directory and deals before a visit to plan stops.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://westshoreplaza.com/"
+     ],
+     "why_here": [
+      "https://westshoreplaza.com/"
+     ],
+     "know_before": [
+      "https://westshoreplaza.com/"
+     ],
+     "local_tip": [
+      "https://westshoreplaza.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "WestShore Plaza offers retail, dining, and entertainment experiences at one location.",
+      "source": "https://westshoreplaza.com/"
+     },
+     {
+      "claim": "WestShore Plaza is located at 250 WestShore Plaza in Tampa, FL 33609.",
+      "source": "https://westshoreplaza.com/"
+     },
+     {
+      "claim": "WestShore Plaza has a store directory, restaurant listings, and deals.",
+      "source": "https://westshoreplaza.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTfknmdQB2YgRB2xqlllSsqI",
+   "name": "The Westin Fort Lauderdale Beach Resort",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/",
+     "source_name": "The Westin Fort Lauderdale Beach Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The resort offers direct beach access via a private skywalk.",
+      "The skywalk is directly connected from the pool deck to the beach.",
+      "The resort has a full-service spa.",
+      "On-site dining includes Lona Cocina Tequileria for Mexican flavors and Tinta for breakfast.",
+      "On-site dining includes Waves Bar & Grill for poolside dining."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A private skywalk connects the pool deck directly to the beach",
+    "why_here": "The resort offers direct beach access via a private skywalk directly connected from the pool deck to the beach. Guests can also use the full-service spa and dine on site at Lona Cocina Tequileria for Mexican flavors or at Tinta for breakfast.",
+    "know_before": "Direct beach access is via a private skywalk connected from the pool deck.",
+    "local_tip": "Cross the skywalk from the pool deck to reach the beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The resort offers direct beach access via a private skywalk.",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     },
+     {
+      "claim": "The skywalk is directly connected from the pool deck to the beach.",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     },
+     {
+      "claim": "The resort has a full-service spa.",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     },
+     {
+      "claim": "On-site dining includes Lona Cocina Tequileria for Mexican flavors and Tinta for breakfast.",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     },
+     {
+      "claim": "On-site dining includes Waves Bar & Grill for poolside dining.",
+      "source": "https://www.marriott.com/en-us/hotels/flllw-the-westin-fort-lauderdale-beach-resort/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAZwIUMpB6IgRjk1R9o3UJRA",
+   "name": "Hunter Springs Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "city_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation",
+     "source_name": "Hunter Springs Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hunter Springs Park has a kayak launch area.",
+      "Hunter Springs Park charges a fee for parking.",
+      "Hunter Springs Park charges launch fees.",
+      "Hunter Springs Park is a City of Crystal River park listed among parks and boat ramps."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kayak launch area at a City of Crystal River park",
+    "why_here": "Hunter Springs Park is a City of Crystal River park with a kayak launch area. Visitors pay a fee for parking at Hunter Springs Park and pay launch fees to use the kayak launch area.",
+    "know_before": "A fee is charged for parking at Hunter Springs Park, and launch fees apply.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     ],
+     "why_here": [
+      "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     ],
+     "know_before": [
+      "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hunter Springs Park has a kayak launch area.",
+      "source": "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     },
+     {
+      "claim": "Hunter Springs Park charges a fee for parking.",
+      "source": "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     },
+     {
+      "claim": "Hunter Springs Park charges launch fees.",
+      "source": "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     },
+     {
+      "claim": "Hunter Springs Park is a City of Crystal River park listed among parks and boat ramps.",
+      "source": "https://www.crystalriverfl.org/comserv/page/parks-boat-ramps-recreation"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwwoQ8s7P54gRCmZOQjxUvmk",
+   "name": "Market of Marion",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/",
+     "source_name": "Market of Marion \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Friday hours are 8 a.m. to 3 p.m.",
+      "Saturday hours are 8 a.m. to 4 p.m.",
+      "Sunday hours are 8 a.m. to 4 p.m.",
+      "The Market of Marion is in Belleview, FL 34491.",
+      "The Market of Marion publishes market hours for Friday, Saturday and Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Market hours on Friday, Saturday and Sunday in Belleview",
+    "why_here": "The Market of Marion in Belleview publishes separate market hours for Friday, Saturday and Sunday. Friday hours end earlier, at 3 p.m., while Saturday and Sunday hours run to 4 p.m.",
+    "know_before": "Hours are Friday 8 a.m. to 3 p.m., Saturday 8 a.m. to 4 p.m. and Sunday 8 a.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": "Saturday or Sunday, when market hours run to 4 p.m.",
+    "citations": {
+     "hook": [
+      "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     ],
+     "why_here": [
+      "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     ],
+     "know_before": [
+      "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Friday hours are 8 a.m. to 3 p.m.",
+      "source": "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     },
+     {
+      "claim": "Saturday hours are 8 a.m. to 4 p.m.",
+      "source": "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     },
+     {
+      "claim": "Sunday hours are 8 a.m. to 4 p.m.",
+      "source": "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     },
+     {
+      "claim": "The Market of Marion is in Belleview, FL 34491.",
+      "source": "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     },
+     {
+      "claim": "The Market of Marion publishes market hours for Friday, Saturday and Sunday.",
+      "source": "https://themarketofmarion.com/event/sunday-market-hours/2027-12-19/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJt2r1XLmpxIgRFREl2LLvGUY",
+   "name": "Farlow's on the Water",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.farlowsonthewater.com/",
+     "source_name": "Farlow's on the Water \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Farlow's On The Water is a waterfront restaurant in Englewood.",
+      "The official site lists Ahi Tuna, American Red Snapper, Black Grouper, Hogfish, Mahi and Yellowtail Snapper.",
+      "The official site lists lunch Monday to Saturday from 11 a.m. to 3 p.m.",
+      "The official site lists live entertainment Wednesday to Sunday.",
+      "The official site says food is made fresh daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront restaurant in Englewood listing Ahi Tuna and Hogfish",
+    "why_here": "Farlow's On The Water is a waterfront restaurant in Englewood. The official site lists Ahi Tuna, American Red Snapper, Black Grouper, Hogfish, Mahi and Yellowtail Snapper, and says food is made fresh daily.",
+    "know_before": "Lunch runs Monday to Saturday from 11 a.m. to 3 p.m.",
+    "local_tip": "Live entertainment runs Wednesday to Sunday.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.farlowsonthewater.com/"
+     ],
+     "why_here": [
+      "https://www.farlowsonthewater.com/"
+     ],
+     "know_before": [
+      "https://www.farlowsonthewater.com/"
+     ],
+     "local_tip": [
+      "https://www.farlowsonthewater.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Farlow's On The Water is a waterfront restaurant in Englewood.",
+      "source": "https://www.farlowsonthewater.com/"
+     },
+     {
+      "claim": "The official site lists Ahi Tuna, American Red Snapper, Black Grouper, Hogfish, Mahi and Yellowtail Snapper.",
+      "source": "https://www.farlowsonthewater.com/"
+     },
+     {
+      "claim": "The official site lists lunch Monday to Saturday from 11 a.m. to 3 p.m.",
+      "source": "https://www.farlowsonthewater.com/"
+     },
+     {
+      "claim": "The official site lists live entertainment Wednesday to Sunday.",
+      "source": "https://www.farlowsonthewater.com/"
+     },
+     {
+      "claim": "The official site says food is made fresh daily.",
+      "source": "https://www.farlowsonthewater.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

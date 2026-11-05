@@ -527,5 +527,249 @@ begin
   if (v_u.request_payload #> '{events,0,adIdentifiers}') is not null or v_u.redacted_at is null then
     raise exception 'expected wf_google_conversion_uploads request_payload adIdentifiers redacted, got %', row_to_json(v_u);
   end if;
+
+  -- Additional contract & rollout verification under worker-gamma (epoch 2):
+  -- Seed click wfv_5555... for missing-timestamp, missing-commission, and out-of-order tests
+  insert into public.wf_viator_clicks (
+    click_token, client_click_id, visitor_context_hash, provider, offer_id, page_key, surface, content_id,
+    placement_campaign, attributed_campaign,
+    gclid, observed_utm_campaign, verified_google_campaign_id,
+    campaign_metadata_provenance, campaign_verification_status, google_campaign_id,
+    consent_ad_user_data, consent_ad_personalization,
+    clicked_at, expires_at, redact_after
+  ) values (
+    'wfv_55555555555555555555555555555555',
+    'wf-click-5',
+    'eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee',
+    'viator',
+    '123164P1',
+    'g-things-to-do-orlando-not-theme-parks',
+    'guide_pick',
+    'things-to-do-orlando-not-theme-parks:rock-springs-run-kayak',
+    'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1',
+    'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-55555555555555555555555555555555',
+    'EAIaIQobChMI_click_5',
+    '24380159401',
+    null,
+    'url_utm_unverified',
+    'unverified',
+    '24380159401',
+    'GRANTED',
+    'GRANTED',
+    '2026-11-03T18:00:00Z'::timestamptz,
+    '2026-12-03T18:00:00Z'::timestamptz,
+    '2027-05-01T18:00:00Z'::timestamptz
+  );
+
+  -- Test:
+  -- 1) BR-1007: Matching click_token but ALL provider timestamps missing (acknowledge_by present).
+  --    Timestamps must remain visibly NULL (never now()), and attribution_status must be
+  --    'unmatched_missing_booking_timestamp' with needs_investigation = true.
+  -- 2) BR-1008: Confirmed booking with gross_booking_value = 238.00 but NO commission yet.
+  --    Commission must remain NULL (never using gross_booking_value = 238.00),
+  --    value_basis = 'commission_unknown', upload_status = 'ineligible_missing_commission'.
+  -- 3) BR-1009: Out-of-order events in the same batch (AMENDMENT at 19:30 listed BEFORE
+  --    CONFIRMATION at 19:00) must be applied chronologically so final status is 'amended'
+  --    and final transaction_ref is 'TX-1009-2'.
+  v_res := public.wf_viator_reconcile(
+    jsonb_build_array(
+      jsonb_build_object(
+        'event_key', 'BR-1007|CONFIRMATION|TX-1007-1|ts_unknown|238.00|19.04|19.04|na',
+        'booking_ref', 'BR-1007',
+        'transaction_ref', 'TX-1007-1',
+        'partner_booking_ref', 'BK-PARTNER-1007',
+        'acknowledge_by', '2026-11-10T00:00:00Z',
+        'raw_event_type', 'CONFIRMATION',
+        'event_type', 'CONFIRMED',
+        'status', 'confirmed',
+        'product_code', '123164P1',
+        'campaign_value', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-55555555555555555555555555555555',
+        'click_token', 'wfv_55555555555555555555555555555555',
+        'placement_campaign', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1',
+        'gross_booking_value', 238.00,
+        'estimated_commission', 19.04,
+        'confirmed_commission', 19.04,
+        'paid_commission', null,
+        'currency', null,
+        'original_booking_at', null,
+        'transaction_at', null,
+        'provider_modified_at', null
+      ),
+      jsonb_build_object(
+        'event_key', 'BR-1008|CONFIRMATION|TX-1008-1|2026-11-03T19:00:00.000Z|238.00|na|na|na',
+        'booking_ref', 'BR-1008',
+        'transaction_ref', 'TX-1008-1',
+        'partner_booking_ref', 'BK-PARTNER-1008',
+        'raw_event_type', 'CONFIRMATION',
+        'event_type', 'CONFIRMED',
+        'status', 'confirmed',
+        'product_code', '123164P1',
+        'campaign_value', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-55555555555555555555555555555555',
+        'click_token', 'wfv_55555555555555555555555555555555',
+        'placement_campaign', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1',
+        'gross_booking_value', 238.00,
+        'estimated_commission', null,
+        'confirmed_commission', null,
+        'paid_commission', null,
+        'currency', 'USD',
+        'original_booking_at', '2026-11-03T19:00:00Z',
+        'transaction_at', '2026-11-03T19:00:00Z',
+        'provider_modified_at', '2026-11-03T19:00:00Z'
+      ),
+      jsonb_build_object(
+        'event_key', 'BR-1009|AMENDMENT|TX-1009-2|2026-11-03T19:30:00.000Z|357.00|28.56|28.56|na',
+        'booking_ref', 'BR-1009',
+        'transaction_ref', 'TX-1009-2',
+        'raw_event_type', 'AMENDMENT',
+        'event_type', 'AMENDED',
+        'status', 'amended',
+        'product_code', '123164P1',
+        'campaign_value', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-55555555555555555555555555555555',
+        'click_token', 'wfv_55555555555555555555555555555555',
+        'placement_campaign', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1',
+        'gross_booking_value', 357.00,
+        'estimated_commission', 28.56,
+        'confirmed_commission', 28.56,
+        'paid_commission', null,
+        'currency', 'USD',
+        'original_booking_at', null,
+        'transaction_at', '2026-11-03T19:30:00Z',
+        'provider_modified_at', '2026-11-03T19:30:00Z'
+      ),
+      jsonb_build_object(
+        'event_key', 'BR-1009|CONFIRMATION|TX-1009-1|2026-11-03T19:00:00.000Z|238.00|19.04|19.04|na',
+        'booking_ref', 'BR-1009',
+        'transaction_ref', 'TX-1009-1',
+        'raw_event_type', 'CONFIRMATION',
+        'event_type', 'CONFIRMED',
+        'status', 'confirmed',
+        'product_code', '123164P1',
+        'campaign_value', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-55555555555555555555555555555555',
+        'click_token', 'wfv_55555555555555555555555555555555',
+        'placement_campaign', 'wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1',
+        'gross_booking_value', 238.00,
+        'estimated_commission', 19.04,
+        'confirmed_commission', 19.04,
+        'paid_commission', null,
+        'currency', 'USD',
+        'original_booking_at', '2026-11-03T19:00:00Z',
+        'transaction_at', '2026-11-03T19:00:00Z',
+        'provider_modified_at', '2026-11-03T19:00:00Z'
+      )
+    ),
+    'cursor_page_4',
+    '2026-11-03T19:30:00Z'::timestamptz,
+    '2026-12-15T18:10:00Z'::timestamptz,
+    2,
+    'worker-gamma'
+  );
+
+  if (v_res->>'ok')::boolean is not true or (v_res->>'unmatched_missing_booking_timestamp')::int <> 1 then
+    raise exception 'expected unmatched_missing_booking_timestamp=1 in batch 4, got %', v_res;
+  end if;
+
+  -- Check BR-1007: missing timestamps remain visibly NULL (never now()), acknowledge_by preserved separately
+  select * into v_b from public.wf_viator_bookings where booking_ref = 'BR-1007';
+  if v_b.original_booking_at is not null
+     or v_b.transaction_at is not null
+     or v_b.provider_modified_at is not null
+     or v_b.currency is not null
+     or v_b.acknowledge_by <> '2026-11-10T00:00:00Z'::timestamptz
+     or v_b.attribution_status <> 'unmatched_missing_booking_timestamp'
+     or v_b.needs_investigation is not true then
+    raise exception 'BR-1007 missing timestamp handling failed: %', row_to_json(v_b);
+  end if;
+
+  -- Check BR-1008: missing commission remains NULL and never uses gross_booking_value (238.00)
+  select * into v_b from public.wf_viator_bookings where booking_ref = 'BR-1008';
+  if v_b.gross_booking_value <> 238.00
+     or v_b.estimated_commission is not null
+     or v_b.confirmed_commission is not null then
+    raise exception 'BR-1008 commission separation failed: %', row_to_json(v_b);
+  end if;
+  select * into v_u from public.wf_google_conversion_uploads where booking_ref = 'BR-1008' and upload_kind = 'initial_booking';
+  if v_u.conversion_value is not null
+     or v_u.value_basis <> 'commission_unknown'
+     or v_u.upload_status <> 'ineligible_missing_commission' then
+    raise exception 'BR-1008 upload row must have conversion_value=null, value_basis=commission_unknown, status=ineligible_missing_commission: %', row_to_json(v_u);
+  end if;
+
+  -- Check BR-1009: out-of-order batch sorted chronologically so final status is 'amended' ($357.00 / $28.56)
+  select * into v_b from public.wf_viator_bookings where booking_ref = 'BR-1009';
+  if v_b.status <> 'amended'
+     or v_b.last_transaction_ref <> 'TX-1009-2'
+     or v_b.gross_booking_value <> 357.00
+     or v_b.confirmed_commission <> 28.56
+     or v_b.original_booking_at <> '2026-11-03T19:00:00Z'::timestamptz then
+    raise exception 'BR-1009 chronological ordering failed: %', row_to_json(v_b);
+  end if;
+
+  -- Now test an AMENDMENT on BR-1009 that changes gross_booking_value to $476.00 WITHOUT supplying new commission:
+  -- stale commission ($28.56) must be invalidated to NULL and upload_status must become ineligible_missing_commission!
+  v_res := public.wf_viator_reconcile(
+    jsonb_build_array(
+      jsonb_build_object(
+        'event_key', 'BR-1009|AMENDMENT|TX-1009-3|2026-11-03T20:00:00.000Z|476.00|na|na|na',
+        'booking_ref', 'BR-1009',
+        'transaction_ref', 'TX-1009-3',
+        'raw_event_type', 'AMENDMENT',
+        'event_type', 'AMENDED',
+        'status', 'amended',
+        'product_code', '123164P1',
+        'gross_booking_value', 476.00,
+        'estimated_commission', null,
+        'confirmed_commission', null,
+        'paid_commission', null,
+        'currency', 'USD',
+        'provider_modified_at', '2026-11-03T20:00:00Z'
+      )
+    ),
+    'cursor_page_5',
+    '2026-11-03T20:00:00Z'::timestamptz,
+    '2026-12-15T18:12:00Z'::timestamptz,
+    2,
+    'worker-gamma'
+  );
+  select * into v_b from public.wf_viator_bookings where booking_ref = 'BR-1009';
+  if v_b.gross_booking_value <> 476.00
+     or v_b.confirmed_commission is not null
+     or v_b.estimated_commission is not null then
+    raise exception 'BR-1009 amendment with changed gross_booking_value and missing commission must invalidate stale commission: %', row_to_json(v_b);
+  end if;
+  select * into v_u from public.wf_google_conversion_uploads where booking_ref = 'BR-1009' and upload_kind = 'initial_booking';
+  if v_u.upload_status <> 'ineligible_missing_commission' or v_u.conversion_value is not null then
+    raise exception 'BR-1009 upload row must become ineligible_missing_commission when amendment invalidates commission: %', row_to_json(v_u);
+  end if;
+
+  -- When BR-1008 subsequently receives confirmed_commission = 19.04, its upload row transitions to awaiting_upload
+  v_res := public.wf_viator_reconcile(
+    jsonb_build_array(
+      jsonb_build_object(
+        'event_key', 'BR-1008|AMENDMENT|TX-1008-2|2026-11-03T20:05:00.000Z|238.00|19.04|19.04|na',
+        'booking_ref', 'BR-1008',
+        'transaction_ref', 'TX-1008-2',
+        'raw_event_type', 'AMENDMENT',
+        'event_type', 'AMENDED',
+        'status', 'amended',
+        'product_code', '123164P1',
+        'gross_booking_value', 238.00,
+        'estimated_commission', 19.04,
+        'confirmed_commission', 19.04,
+        'paid_commission', null,
+        'currency', 'USD',
+        'provider_modified_at', '2026-11-03T20:05:00Z'
+      )
+    ),
+    'cursor_page_6',
+    '2026-11-03T20:05:00Z'::timestamptz,
+    '2026-12-15T18:15:00Z'::timestamptz,
+    2,
+    'worker-gamma'
+  );
+  select * into v_u from public.wf_google_conversion_uploads where booking_ref = 'BR-1008' and upload_kind = 'initial_booking';
+  if v_u.upload_status <> 'awaiting_upload' or v_u.conversion_value <> 19.04 or v_u.value_basis <> 'confirmed_commission' then
+    raise exception 'BR-1008 upload row must transition to awaiting_upload once commission is known: %', row_to_json(v_u);
+  end if;
 end;
 $$;
+

@@ -40,9 +40,21 @@ import {
 import {
   normalizeBookingStatus,
   normalizeViatorBookingEvent,
+  redactViatorRawBookingSample,
   syncViatorBookings,
 } from "../lib/viatorBookings.js";
 import {
+  GOOGLE_ADS_API_VERSION,
+  GOOGLE_ADS_MIN_SUPPORTED_MAJOR_VERSION,
+  WAYFIND_GOOGLE_ADS_ACCOUNT_ID,
+  WAYFIND_GOOGLE_ADS_TAG_ID,
+  DISALLOWED_GOOGLE_ADS_ACCOUNT_IDS,
+  DISALLOWED_GOOGLE_ADS_TAG_IDS,
+  assertSupportedGoogleAdsApiVersion,
+  validateBookingConversionDestination,
+  validateGoogleAdsConversionAdjustmentPayload,
+  resolveGoogleOAuthAccessToken,
+  resetGoogleOAuthTokenCache,
   buildGoogleDataManagerEventPayload,
   buildGoogleAdsConversionAdjustmentPayload,
   submitGoogleConversionUpload,
@@ -610,7 +622,7 @@ function ok(cond, msg) {
 }
 
 // ---------------------------------------------------------------------------
-// 5. Viator /partner/bookings/modified-since raw eventType contract tests
+// 5. Viator /partner/bookings/modified-since official response & event contract
 // ---------------------------------------------------------------------------
 {
   // Verify all 5 documented Viator raw eventType values + unfamiliar event handling
@@ -652,6 +664,83 @@ function ok(cond, msg) {
       cUnknown.needs_investigation === true,
     "unfamiliar Viator eventType is marked status=unrecognized, needs_investigation=true",
   );
+
+  // Official Viator /partner/bookings/modified-since sample payload from docs.viator.com
+  const officialViatorSample = {
+    transactionRef: "1234",
+    eventType: "CANCELLATION",
+    acknowledgeBy: "2022-04-08T09:22:48Z",
+    bookingRef: "BR-204104077",
+    partnerBookingRef: "BK2041040771234567",
+    lastUpdated: "2022-04-07T13:25:00Z",
+    bookedItem: {
+      productCode: "281620P2",
+      productOptionCode: "TG3",
+      travelDate: "2022-11-30",
+      travelTime: "10:00",
+    },
+    cancellation: {
+      cancellationReasonCode: "Customer_Service.Weather",
+      refundDetails: {
+        itemPrice: 120,
+        refundAmount: 120,
+        refundPercentage: 100,
+        currencyCode: "AUD",
+      },
+    },
+  };
+  const normOfficial = normalizeViatorBookingEvent(officialViatorSample);
+  ok(
+    normOfficial.booking_ref === "BR-204104077" &&
+      normOfficial.transaction_ref === "1234" &&
+      normOfficial.partner_booking_ref === "BK2041040771234567" &&
+      normOfficial.campaign_value === null &&
+      normOfficial.product_code === "281620P2" &&
+      normOfficial.raw_summary.travel_date === "2022-11-30" &&
+      normOfficial.raw_summary.travel_time === "10:00" &&
+      normOfficial.currency === "AUD" &&
+      normOfficial.currency_explicit === true &&
+      normOfficial.provider_modified_at === "2022-04-07T13:25:00.000Z" &&
+      normOfficial.acknowledge_by === "2022-04-08T09:22:48.000Z" &&
+      normOfficial.original_booking_at === null,
+    `official Viator /bookings/modified-since sample normalizes bookingRef, transactionRef, partnerBookingRef, bookedItem, cancellation.refundDetails.currencyCode, lastUpdated, and acknowledgeBy accurately (${JSON.stringify(normOfficial)})`,
+  );
+
+  // Verify redactViatorRawBookingSample preserves structural fields and hashes/redacts identifiers
+  const redactedSample = redactViatorRawBookingSample({
+    ...officialViatorSample,
+    campaignValue:
+      "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-44444444444444444444444444444444",
+    bookerEmail: "traveler@example.com",
+  });
+  ok(
+    redactedSample.eventType === "CANCELLATION" &&
+      redactedSample.has_campaignValue === true &&
+      redactedSample.bookingRef_prefix === "BR-204***" &&
+      !String(redactedSample.bookingRef_prefix).includes("204104077") &&
+      !JSON.stringify(redactedSample).includes("44444444444444444444444444444444") &&
+      !JSON.stringify(redactedSample).includes("traveler@example.com"),
+    "redactViatorRawBookingSample strips PII and raw click tokens while preserving contract structure",
+  );
+
+  // Verify missing provider timestamps and missing currencies remain visibly null (never now() or USD)
+  const normMissingTs = normalizeViatorBookingEvent({
+    bookingRef: "BR-MISSING-TS",
+    transactionRef: "TX-999",
+    eventType: "CONFIRMATION",
+    acknowledgeBy: "2026-11-10T00:00:00Z",
+    grossBookingValue: 150.0,
+  });
+  ok(
+    normMissingTs.original_booking_at === null &&
+      normMissingTs.transaction_at === null &&
+      normMissingTs.provider_modified_at === null &&
+      normMissingTs.acknowledge_by === "2026-11-10T00:00:00.000Z" &&
+      normMissingTs.currency === null &&
+      normMissingTs.currency_explicit === false &&
+      normMissingTs.event_key.includes("|missing_ts|"),
+    "missing provider timestamps and currency remain visibly null and acknowledgeBy is never used as provider_modified_at",
+  );
 }
 
 // ---------------------------------------------------------------------------
@@ -687,14 +776,15 @@ function ok(cond, msg) {
     `SELECT count(*)::int AS cnt FROM public.wf_viator_booking_events`,
   );
   ok(
-    eventCountRes.rows[0].cnt === 8,
-    `PGlite executed migration + supabase/tests/wf_viator_booking_attribution.sql and recorded 8 immutable booking events (got ${eventCountRes.rows[0].cnt})`,
+    eventCountRes.rows[0].cnt === 14,
+    `PGlite executed migration + supabase/tests/wf_viator_booking_attribution.sql and recorded 14 immutable booking events (got ${eventCountRes.rows[0].cnt})`,
   );
 
-  // Verify financial summary view separates cancelled, active, and unrecognized/investigation bookings
+  // Verify financial summary view separates cancelled, active, missing-commission, and investigation bookings
   const summaryRes = await db.query(`
     SELECT attribution_status, observed_utm_campaign, verified_google_campaign_id,
            gross_bookings_count, active_bookings_count,
+           active_bookings_missing_commission_count,
            cancelled_bookings_count, investigation_required_count,
            active_gross_booking_value, active_confirmed_commission
       FROM public.wf_viator_financial_summary
@@ -702,8 +792,9 @@ function ok(cond, msg) {
      ORDER BY verified_google_campaign_id NULLS LAST
   `);
   ok(
-    summaryRes.rows.length === 2,
-    `wf_viator_financial_summary groups verified vs unverified campaign rows separately (got ${summaryRes.rows.length} groups)`,
+    summaryRes.rows.length === 2 &&
+      Number(summaryRes.rows[1].active_bookings_missing_commission_count) === 1,
+    `wf_viator_financial_summary groups verified vs unverified campaign rows and tracks active_bookings_missing_commission_count (${JSON.stringify(summaryRes.rows)})`,
   );
 
   // Verify non-privileged role access controls (anon and authenticated MUST be denied; service_role allowed)
@@ -763,8 +854,8 @@ function ok(cond, msg) {
   `);
   const svcCheck = await db.query(`SELECT count(*)::int AS cnt FROM public.wf_viator_bookings`);
   ok(
-    svcCheck.rows[0].cnt === 6,
-    "RLS/ACL: service_role is permitted to query private attribution tables and views",
+    svcCheck.rows[0].cnt === 9,
+    `RLS/ACL: service_role is permitted to query private attribution tables and views (got ${svcCheck.rows[0].cnt})`,
   );
 
   // Seed fresh unredacted click wfv_4444... to test syncViatorBookings + upload queue end-to-end
@@ -815,18 +906,23 @@ function ok(cond, msg) {
             bookings: [
               {
                 bookingRef: "BR-2001",
+                transactionRef: "TX-2001-1",
                 eventType: "CONFIRMATION",
                 status: "CONFIRMED",
-                productCode: "123164P1",
+                bookedItem: {
+                  productCode: "123164P1",
+                  travelDate: "2026-11-15",
+                  travelTime: "09:30",
+                },
                 campaignValue:
                   "wf-g-things-to-do-orlando-not-theme-parks-pick-123164p1-wfv-44444444444444444444444444444444",
                 grossBookingValue: 238.0,
                 estimatedCommission: 19.04,
                 confirmedCommission: 19.04,
-                currency: "USD",
+                currencyCode: "USD",
                 bookingDate: "2026-11-03T19:00:00Z",
                 transactionDate: "2026-11-03T19:00:00Z",
-                lastModified: "2026-11-03T19:05:00Z",
+                lastUpdated: "2026-11-03T19:05:00Z",
               },
             ],
             nextCursor: "cursor_after_br_2001",
@@ -875,16 +971,26 @@ function ok(cond, msg) {
       return new Response(JSON.stringify(r.rows[0].res), { status: 200 });
     }
     if (u.includes("/rest/v1/wf_google_conversion_uploads") && method === "GET") {
+      const sp = new URL(u).searchParams;
+      const statusFilter = sp.get("upload_status") || "eq.awaiting_upload";
+      let statuses = ["awaiting_upload"];
+      const inMatch = /^in\.\(([^)]+)\)$/.exec(statusFilter);
+      if (inMatch) {
+        statuses = inMatch[1].split(",").map((s) => s.trim());
+      } else if (statusFilter.startsWith("eq.")) {
+        statuses = [statusFilter.slice(3)];
+      }
       const r = await db.query(
-        `SELECT * FROM public.wf_google_conversion_uploads WHERE upload_status = 'awaiting_upload' ORDER BY created_at ASC`,
+        `SELECT * FROM public.wf_google_conversion_uploads WHERE upload_status = ANY($1::text[]) ORDER BY created_at ASC`,
+        [statuses],
       );
       return new Response(JSON.stringify(r.rows), { status: 200 });
     }
     if (u.includes("/rest/v1/rpc/wf_google_begin_upload") && method === "POST") {
       const b = JSON.parse(init.body);
       const r = await db.query(
-        `SELECT public.wf_google_begin_upload($1::bigint, $2::timestamptz) AS res`,
-        [b.p_upload_id, b.p_now],
+        `SELECT public.wf_google_begin_upload($1::bigint, $2::timestamptz, $3::integer) AS res`,
+        [b.p_upload_id, b.p_now, b.p_stale_in_flight_seconds ?? 300],
       );
       return new Response(JSON.stringify(r.rows[0].res), { status: 200 });
     }
@@ -938,8 +1044,9 @@ function ok(cond, msg) {
     "cursor advances to page 1's reconciled cursor and records page 2's error without losing page 2",
   );
 
-  // Verify both BR-1001 cancellation_restatement (via Google Ads API ConversionAdjustmentUploadService)
-  // and BR-2001 initial_booking (via Google Data Manager API) are processed through processGoogleConversionUploadQueue
+  // Verify BR-1001 cancellation_restatement (via Google Ads API v26 ConversionAdjustmentUploadService),
+  // BR-1008 initial_booking, and BR-2001 initial_booking (via Google Data Manager API) are validated
+  // in validate_only mode
   const queueRes = await processGoogleConversionUploadQueue(
     {
       sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
@@ -965,12 +1072,17 @@ function ok(cond, msg) {
           });
         }
         if (u.startsWith("https://googleads.googleapis.com")) {
+          ok(
+            u.includes(`/${GOOGLE_ADS_API_VERSION}/customers/5536226713:uploadConversionAdjustments`),
+            `Google Ads adjustment request targets supported ${GOOGLE_ADS_API_VERSION} endpoint (${u})`,
+          );
           const body = JSON.parse(init.body);
           ok(
             body.validateOnly === true &&
               body.conversionAdjustments[0].adjustmentType === "RETRACTION" &&
-              body.conversionAdjustments[0].orderId === "BR-1001",
-            "Google Ads API adjustment payload sent by queue processor carries validateOnly=true, RETRACTION, and orderId=BR-1001",
+              body.conversionAdjustments[0].orderId === "BR-1001" &&
+              body.conversionAdjustments[0].gclidDateTimePair === undefined,
+            "Google Ads API v26 adjustment payload sets orderId=BR-1001 and omits gclidDateTimePair (preventing GCLID_DATE_TIME_PAIR_AND_ORDER_ID_BOTH_SET)",
           );
           return new Response(JSON.stringify({ requestId: "gads_val_req_queue" }), {
             status: 200,
@@ -981,8 +1093,8 @@ function ok(cond, msg) {
     },
   );
   ok(
-    queueRes.ok === true && queueRes.attempted === 2 && queueRes.succeeded === 2,
-    `processGoogleConversionUploadQueue validated both BR-1001 retraction and BR-2001 initial upload cleanly (${JSON.stringify(queueRes)})`,
+    queueRes.ok === true && queueRes.attempted === 3 && queueRes.succeeded === 3,
+    `processGoogleConversionUploadQueue validated BR-1001 retraction, BR-1008 initial upload, and BR-2001 initial upload cleanly (${JSON.stringify(queueRes)})`,
   );
 
   const ul2001After = (
@@ -992,9 +1104,297 @@ function ok(cond, msg) {
   ).rows[0];
   ok(
     ul2001After.upload_status === UPLOAD_STATES.VALIDATED_ONLY &&
-      ul2001After.validate_only === true,
-    "BR-2001 upload row transitions to validated_only (never submitted or accepted)",
+      ul2001After.validate_only === true &&
+      ul2001After.attempt_count === 1,
+    "BR-2001 upload row transitions to validated_only with attempt_count=1 (never submitted or accepted)",
   );
+
+  // ---------------------------------------------------------------------------
+  // 7. Rollout Promotion (`validated_only` -> `live`), OAuth2 Token Refresh,
+  //    401 Expired Credential Recovery, Timeout Recovery, Abandoned `in_flight`
+  //    Claim Recovery, and Rejected Submission Recovery
+  // ---------------------------------------------------------------------------
+  {
+    // Simulate:
+    // - BR-1008 upload row stuck in abandoned `in_flight` claim from 10 minutes ago (> 300s stale threshold)
+    // - BR-2001 upload row in `validated_only` from rollout validation
+    // - BR-1001 cancellation_restatement in `timed_out_indeterminate`
+    await db.query(
+      `UPDATE public.wf_google_conversion_uploads
+          SET upload_status = 'in_flight',
+              in_flight_at = '2026-12-16T00:01:00Z'::timestamptz,
+              updated_at = '2026-12-16T00:01:00Z'::timestamptz
+        WHERE booking_ref = 'BR-1008' AND upload_kind = 'initial_booking'`,
+    );
+    await db.query(
+      `UPDATE public.wf_google_conversion_uploads
+          SET upload_status = 'timed_out_indeterminate',
+              updated_at = '2026-12-16T00:02:00Z'::timestamptz
+        WHERE booking_ref = 'BR-1001' AND upload_kind = 'cancellation_restatement'`,
+    );
+
+    resetGoogleOAuthTokenCache();
+    let oauthTokenCalls = 0;
+    let dmUploadCalls = 0;
+    let forcedFirst401 = false;
+
+    const liveQueueRes = await processGoogleConversionUploadQueue(
+      {
+        sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+        uploadMode: "live",
+        accessToken: "ya29.expired_static_access_token",
+        clientId: "test_oauth_client_id.apps.googleusercontent.com",
+        clientSecret: "test_oauth_client_secret",
+        refreshToken: "1//0test_refresh_token_durable",
+        developerToken: "gads_dev_token_test",
+        operatingAccountId: "553-622-6713",
+        conversionActionId: "7999000111",
+        now: new Date("2026-12-16T00:15:00Z"),
+      },
+      {
+        fetch: async (url, init = {}) => {
+          const u = String(url);
+          if (u === "https://oauth2.googleapis.com/token") {
+            oauthTokenCalls++;
+            return new Response(
+              JSON.stringify({
+                access_token: `ya29.refreshed_live_token_${oauthTokenCalls}`,
+                expires_in: 3599,
+                token_type: "Bearer",
+              }),
+              { status: 200 },
+            );
+          }
+          if (u.startsWith("https://datamanager.googleapis.com")) {
+            dmUploadCalls++;
+            const authHeader =
+              init.headers?.authorization || init.headers?.Authorization || "";
+            // Simulate first upload call encountering an expired token (401), triggering refresh + retry
+            if (!forcedFirst401) {
+              forcedFirst401 = true;
+              return new Response(
+                JSON.stringify({ error: { code: 401, status: "UNAUTHENTICATED" } }),
+                { status: 401 },
+              );
+            }
+            ok(
+              authHeader === `Bearer ya29.refreshed_live_token_${oauthTokenCalls}`,
+              `live upload uses freshly minted OAuth2 access token after 401 refresh (${authHeader})`,
+            );
+            const body = JSON.parse(init.body);
+            ok(
+              body.validateOnly === false,
+              "live mode promotes validated_only / recovered rows with validateOnly=false",
+            );
+            return new Response(JSON.stringify({ requestId: `dm_live_req_${dmUploadCalls}` }), {
+              status: 200,
+            });
+          }
+          if (u.startsWith("https://googleads.googleapis.com")) {
+            const body = JSON.parse(init.body);
+            ok(
+              body.validateOnly === false,
+              "live mode sends Google Ads API v26 adjustment with validateOnly=false",
+            );
+            return new Response(JSON.stringify({ requestId: "gads_live_req_1" }), {
+              status: 200,
+            });
+          }
+          return pgliteRestFetch(url, init);
+        },
+      },
+    );
+
+    ok(
+      liveQueueRes.ok === true &&
+        liveQueueRes.attempted === 3 &&
+        liveQueueRes.succeeded === 3 &&
+        oauthTokenCalls === 2,
+      `live mode promoted validated_only (BR-2001), reclaimed abandoned in_flight (BR-1008), recovered timed_out_indeterminate (BR-1001), and refreshed OAuth token on 401 (${JSON.stringify(liveQueueRes)})`,
+    );
+
+    const ulAfterLive = await db.query(
+      `SELECT booking_ref, upload_kind, upload_status, validate_only, attempt_count
+         FROM public.wf_google_conversion_uploads
+        WHERE booking_ref IN ('BR-1001', 'BR-1008', 'BR-2001')
+          AND upload_status = 'submitted'
+        ORDER BY booking_ref ASC`,
+    );
+    ok(
+      ulAfterLive.rows.length === 3 &&
+        ulAfterLive.rows.every((r) => r.upload_status === "submitted" && r.validate_only === false),
+      `all 3 rows (BR-1001, BR-1008, BR-2001) reached upload_status=submitted with validate_only=false (${JSON.stringify(ulAfterLive.rows)})`,
+    );
+
+    // Also verify rejected submission recovery and timeout classification
+    await db.query(
+      `UPDATE public.wf_google_conversion_uploads
+          SET upload_status = 'rejected'
+        WHERE booking_ref = 'BR-2001' AND upload_kind = 'initial_booking'`,
+    );
+    const timeoutRes = await submitGoogleConversionUpload(
+      {
+        uploadRow: { upload_kind: "initial_booking" },
+        bookingRow: (
+          await db.query(`SELECT * FROM public.wf_viator_bookings WHERE booking_ref = 'BR-2001'`)
+        ).rows[0],
+        accessToken: "ya29.refreshed_live_token_2",
+        operatingAccountId: "553-622-6713",
+        conversionActionId: "7999000111",
+        validateOnly: false,
+      },
+      {
+        fetch: async () => {
+          const err = new Error("The operation was aborted");
+          err.name = "AbortError";
+          throw err;
+        },
+      },
+    );
+    ok(
+      timeoutRes.ok === false &&
+        timeoutRes.upload_status === UPLOAD_STATES.TIMED_OUT_INDETERMINATE,
+      "network timeout / AbortError is classified as timed_out_indeterminate for safe retry",
+    );
+
+    const rejectedRecoveryRes = await processGoogleConversionUploadQueue(
+      {
+        sb: { url: "https://viator-attr-test.supabase.co", key: "test_key" },
+        uploadMode: "live",
+        accessToken: "ya29.refreshed_live_token_2",
+        operatingAccountId: "553-622-6713",
+        conversionActionId: "7999000111",
+        now: new Date("2026-12-16T00:25:00Z"),
+      },
+      {
+        fetch: async (url, init) => {
+          const u = String(url);
+          if (u.startsWith("https://datamanager.googleapis.com")) {
+            return new Response(JSON.stringify({ requestId: "dm_recovered_from_rejected" }), {
+              status: 200,
+            });
+          }
+          return pgliteRestFetch(url, init);
+        },
+      },
+    );
+    ok(
+      rejectedRecoveryRes.ok === true &&
+        rejectedRecoveryRes.attempted === 1 &&
+        rejectedRecoveryRes.succeeded === 1,
+      "rejected upload row is reclaimed and transitions to submitted once transient/config error is resolved",
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // 8. Google Ads API Version Guard, Adjustment Contract Validation, and
+  //    Tag/Account Destination Reconciliation
+  // ---------------------------------------------------------------------------
+  {
+    const googleOfflineSource = fs.readFileSync(
+      path.join(REPO, "lib/googleOfflineConversions.js"),
+      "utf8",
+    );
+    const retiredUrlMatches = googleOfflineSource.match(
+      /googleads\.googleapis\.com\/v(?:1[0-9]|2[0-2]|[1-9])\b/g,
+    );
+    ok(
+      !retiredUrlMatches &&
+        GOOGLE_ADS_API_VERSION === "v26" &&
+        GOOGLE_ADS_MIN_SUPPORTED_MAJOR_VERSION >= 23,
+      `source guard: zero retired Google Ads API versions (v1-v22) in lib/googleOfflineConversions.js; active version is ${GOOGLE_ADS_API_VERSION}`,
+    );
+
+    const v18Check = assertSupportedGoogleAdsApiVersion("v18");
+    const v22Check = assertSupportedGoogleAdsApiVersion("v22");
+    const v26Check = assertSupportedGoogleAdsApiVersion("v26");
+    ok(
+      v18Check.ok === false &&
+        v18Check.reason.startsWith("retired_google_ads_api_version:v18") &&
+        v22Check.ok === false &&
+        v26Check.ok === true &&
+        v26Check.version === "v26",
+      "assertSupportedGoogleAdsApiVersion rejects retired v18/v22 and accepts supported v26",
+    );
+
+    // Verify GCLID_DATE_TIME_PAIR_AND_ORDER_ID_BOTH_SET and ADJUSTMENT_PRECEDES_CONVERSION contract guards
+    const invalidBothSet = validateGoogleAdsConversionAdjustmentPayload(
+      {
+        conversionAdjustments: [
+          {
+            conversionAction: "customers/5536226713/conversionActions/7999000111",
+            adjustmentType: "RETRACTION",
+            orderId: "BR-2001",
+            gclidDateTimePair: {
+              gclid: "EAIaIQobChMI_fresh_click_4",
+              conversionDateTime: "2026-11-03 19:00:00+00:00",
+            },
+            adjustmentDateTime: "2026-11-04 19:00:00+00:00",
+          },
+        ],
+        partialFailure: true,
+        validateOnly: true,
+      },
+      { conversionTimestamp: "2026-11-03 19:00:00+00:00" },
+    );
+    ok(
+      invalidBothSet.ok === false &&
+        invalidBothSet.reason === "GCLID_DATE_TIME_PAIR_AND_ORDER_ID_BOTH_SET",
+      "validateGoogleAdsConversionAdjustmentPayload rejects setting both orderId and gclidDateTimePair",
+    );
+
+    const invalidPrecedes = validateGoogleAdsConversionAdjustmentPayload(
+      {
+        conversionAdjustments: [
+          {
+            conversionAction: "customers/5536226713/conversionActions/7999000111",
+            adjustmentType: "RETRACTION",
+            orderId: "BR-2001",
+            adjustmentDateTime: "2026-11-03 18:00:00+00:00",
+          },
+        ],
+        partialFailure: true,
+        validateOnly: true,
+      },
+      { conversionTimestamp: "2026-11-03 19:00:00+00:00" },
+    );
+    ok(
+      invalidPrecedes.ok === false &&
+        invalidPrecedes.reason === "ADJUSTMENT_PRECEDES_CONVERSION",
+      "validateGoogleAdsConversionAdjustmentPayload rejects adjustmentDateTime <= conversionDateTime",
+    );
+
+    // Verify destination reconciliation:
+    // Wayfind's account is 553-622-6713 (tag AW-18342267447).
+    // Disallowed account 505-826-0233, disallowed tag AW-18092784888, and primary click/signup actions are rejected.
+    const badAcct = validateBookingConversionDestination({
+      operatingAccountId: "505-826-0233",
+      conversionActionId: "7999000111",
+    });
+    const badTag = validateBookingConversionDestination({
+      operatingAccountId: "553-622-6713",
+      conversionActionId: "AW-18092784888/jt9fCM7R35wcEPj3rLND",
+    });
+    const badPrimaryClick = validateBookingConversionDestination({
+      operatingAccountId: "553-622-6713",
+      conversionActionId: "19gpCKCx8NccELeUo6pE",
+    });
+    const goodSecondary = validateBookingConversionDestination({
+      operatingAccountId: "553-622-6713",
+      conversionActionId: "7999000111",
+    });
+    ok(
+      badAcct.ok === false &&
+        badTag.ok === false &&
+        badPrimaryClick.ok === false &&
+        goodSecondary.ok === true &&
+        WAYFIND_GOOGLE_ADS_ACCOUNT_ID === "5536226713" &&
+        WAYFIND_GOOGLE_ADS_TAG_ID === "AW-18342267447" &&
+        DISALLOWED_GOOGLE_ADS_ACCOUNT_IDS.includes("5058260233") &&
+        DISALLOWED_GOOGLE_ADS_TAG_IDS.includes("AW-18092784888"),
+      "validateBookingConversionDestination enforces account 553-622-6713 and blocks 505-826-0233, AW-18092784888, and primary website conversion labels",
+    );
+  }
 
   // Verify Google Ads API ConversionAdjustmentUploadService RETRACTION vs Data Manager zero-restatement
   const br2001 = (
@@ -1012,11 +1412,13 @@ function ok(cond, msg) {
   });
   ok(
     gadsRetractPayload.eligible === true &&
+      gadsRetractPayload.apiVersion === "v26" &&
       gadsRetractPayload.adjustmentType === "RETRACTION" &&
       gadsRetractPayload.adjustmentState === ADJUSTMENT_STATES.RETRACTED_COUNT_AND_VALUE &&
       gadsRetractPayload.retractionRequired === false &&
-      gadsRetractPayload.body.conversionAdjustments[0].orderId === "BR-2001",
-    "buildGoogleAdsConversionAdjustmentPayload builds a RETRACTION keyed by orderId=BR-2001 that retracts both count and value",
+      gadsRetractPayload.body.conversionAdjustments[0].orderId === "BR-2001" &&
+      gadsRetractPayload.body.conversionAdjustments[0].gclidDateTimePair === undefined,
+    "buildGoogleAdsConversionAdjustmentPayload builds a v26 RETRACTION keyed exclusively by orderId=BR-2001",
   );
 
   const dmCancelRes = await submitGoogleConversionUpload(
@@ -1083,7 +1485,29 @@ function ok(cond, msg) {
     "denied consent booking is blocked from Google Data Manager upload with ineligible_missing_consent",
   );
 
-  // Verify commission-less booking never invents a commission %
+  // Verify commission-less booking is blocked with ineligible_missing_commission and never uses gross_booking_value
+  const missingCommPayload = buildGoogleDataManagerEventPayload({
+    booking: {
+      booking_ref: "BR-NOCOMM",
+      gclid: "EAIaIQobChMI_fresh_click_4",
+      consent_ad_user_data: "GRANTED",
+      consent_ad_personalization: "GRANTED",
+      gross_booking_value: 238.0,
+      estimated_commission: null,
+      confirmed_commission: null,
+      currency: "USD",
+      currency_explicit: true,
+    },
+    conversionActionId: "7999000111",
+  });
+  ok(
+    missingCommPayload.eligible === false &&
+      missingCommPayload.status === UPLOAD_STATES.INELIGIBLE_MISSING_COMMISSION &&
+      missingCommPayload.valueBasis === "commission_unknown" &&
+      missingCommPayload.conversionValue === null,
+    "buildGoogleDataManagerEventPayload blocks missing commission with ineligible_missing_commission and never substitutes gross_booking_value",
+  );
+
   const normNoComm = normalizeViatorBookingEvent({
     bookingRef: "BR-NOCOMM",
     eventType: "CONFIRMATION",
@@ -1111,3 +1535,4 @@ if (fail.length > 0) {
 console.log(
   `test-viator-booking-attribution: OK (${pass} assertions across all scenarios + PGlite SQL + RLS + red proofs)`,
 );
+

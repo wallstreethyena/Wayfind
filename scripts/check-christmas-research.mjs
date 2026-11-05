@@ -15,7 +15,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import RAW from "../data/christmas-2026-research.json" with { type: "json" };
+import { CHRISTMAS_RESEARCH_ROWS as RAW } from "../lib/christmasResearch.js";
 import {
   CHRISTMAS_RESEARCH_ALIASES, CHRISTMAS_DB_RESEARCH_IDS, CHRISTMAS_RESEARCH_CANONICAL, CHRISTMAS_PUBLISHED_RESEARCH, CHRISTMAS_WATCHLIST_2026,
   CHRISTMAS_RESEARCH_CORRECTIONS, CHRISTMAS_SEASON_UNDATED_LINE, mergeChristmasResearch, researchPrice, parseSelectNights, parseResearchTimes,
@@ -430,7 +430,7 @@ function CITIES() {
   const canon = new Map(CHRISTMAS_RESEARCH_CANONICAL.map((r) => [r.id, r]));
   const twinIds = Object.entries(CHRISTMAS_DB_RESEARCH_IDS).filter(([, rid]) => { const r = canon.get(CHRISTMAS_RESEARCH_ALIASES[rid] || rid); return r && !CHRISTMAS_PUBLISHED_STATES.includes(r.state); }).map(([dbId]) => dbId);
   // 2026-10-28: ZooTampa and the Auburndale Wonderland left the watchlist (organizer pages now state 2026 dates), so 6 twins remain.
-  ok(twinIds.length >= 6 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && twinIds.includes("lights-4-hope-drive-thru-light-show-2026") && !twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach, Lights 4 Hope among them; ZooTampa is published now)`);
+  ok(twinIds.length === 5 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && !twinIds.includes("lights-4-hope-drive-thru-light-show-2026") && !twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach remains; Lights 4 Hope and ZooTampa are published)`);
   const twinRow = (id) => ({ ...fmbDb, event_id: id, slug: id === "zootampa-christmas-wild-2026" ? "zootampa-christmas-in-the-wild-2026" : id, event_name: "Twin " + id + " 2026", year: 2026, start_date: "2026-12-05", end_date: "2026-12-06", last_verified_at: "2026-10-06T00:00:00Z" });
   const twins = twinIds.map(twinRow);
   for (const db of twins) {
