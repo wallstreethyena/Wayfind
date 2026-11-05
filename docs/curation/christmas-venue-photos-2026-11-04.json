@@ -428,7 +428,7 @@
       ],
       "venue": "Mizner Park",
       "city": "Boca Raton",
-      "local_path": "/place-photos/batch-2026-11o/venue-ffe8c00d9baef0e6.webp",
+      "local_path": "/place-photos/batch-2026-11o/venue-6959ccda30aa2430.webp",
       "source_url": "https://commons.wikimedia.org/wiki/File:Mizner_Park.jpg",
       "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Mizner_Park.jpg",
       "author": "Elfguy at English Wikipedia",
@@ -446,7 +446,10 @@
       "sha256": "6959ccda30aa2430e196c6369393b1fa4796b990959ef36e4fd07e2466befb7e",
       "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
       "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
-      "checked_at": "2026-11-04"
+      "checked_at": "2026-11-04",
+      "legacy_paths": [
+        "/place-photos/batch-2026-11o/venue-ffe8c00d9baef0e6.webp"
+      ]
     },
     {
       "event_ids": [
@@ -454,7 +457,7 @@
       ],
       "venue": "Key West Museum of Art & History",
       "city": "Key West",
-      "local_path": "/place-photos/batch-2026-11o/venue-bd2cccb4a5f0d078.webp",
+      "local_path": "/place-photos/batch-2026-11o/venue-b5b7eedb8af9b1d5.webp",
       "source_url": "https://commons.wikimedia.org/wiki/File:Customshouse_98.JPG",
       "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Customshouse_98.JPG",
       "author": "Gillfoto from Juneau, Alaska, United States",
@@ -472,7 +475,10 @@
       "sha256": "b5b7eedb8af9b1d593fefabac3b2573331ca9e84a32aacbffc5c2ebbfd28c0c6",
       "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
       "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
-      "checked_at": "2026-11-04"
+      "checked_at": "2026-11-04",
+      "legacy_paths": [
+        "/place-photos/batch-2026-11o/venue-bd2cccb4a5f0d078.webp"
+      ]
     },
     {
       "event_ids": [
@@ -506,7 +512,7 @@
       ],
       "venue": "Knowles Memorial Chapel",
       "city": "Winter Park",
-      "local_path": "/place-photos/batch-2026-11o/venue-49961b05a7fdaa56.webp",
+      "local_path": "/place-photos/batch-2026-11o/venue-bb06949e71218035.webp",
       "source_url": "https://commons.wikimedia.org/wiki/File:Rollins_College_Knowles_Chapel04.jpg",
       "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Rollins_College_Knowles_Chapel04.jpg",
       "author": "Ebyabe",
@@ -524,7 +530,10 @@
       "sha256": "bb06949e7121803596fc7982cfac4879f6f839838b3f1222f2c389b38fdd897f",
       "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
       "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
-      "checked_at": "2026-11-04"
+      "checked_at": "2026-11-04",
+      "legacy_paths": [
+        "/place-photos/batch-2026-11o/venue-49961b05a7fdaa56.webp"
+      ]
     },
     {
       "event_ids": [
@@ -553,5 +562,6 @@
       "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
       "checked_at": "2026-11-04"
     }
-  ]
+  ],
+  "cache_repair": "2026-11-05: the three repaired images use content SHA-256 filenames so returning browsers bypass cached empty responses. legacy_paths remain available with the same reviewed bytes and license."
 }
