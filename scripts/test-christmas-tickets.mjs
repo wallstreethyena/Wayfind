@@ -8,8 +8,14 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { act, createElement, useState } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+// act() is a test-only React API. Vercel invokes guards with NODE_ENV=production;
+// select the test runtime before React loads, as the coupon and reanchor guards do.
+// This only changes this guard process, never the build process that launched it.
+process.env.NODE_ENV = "test";
+const { act, createElement, useState } = await import("react");
+const { renderToStaticMarkup } = await import("react-dom/server");
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery } from "../lib/christmasBrowse.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
@@ -589,6 +595,17 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
     ok(Object.keys(queryNow).length === 0, "Reset clears every active filter");
     await click(".xm-menu-done"); ok(!document.querySelector('[role="dialog"]'), "Show Christmas plans closes the sheet");
   } finally { await act(async () => uiRoot.unmount()); dom.window.close(); Object.assign(globalThis, prior); }
+}
+
+// Exercise the deployment invocation even when a developer runs this guard without
+// NODE_ENV. The child runs the entire same contract; the marker only prevents recursion.
+if (!process.argv.includes("--production-runtime-probe")) {
+  const expected = `test-christmas-tickets: ${checks} assertions OK (`;
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "--production-runtime-probe"], {
+    cwd: root, env: { ...process.env, NODE_ENV: "production" }, encoding: "utf8", timeout: 60000,
+  });
+  ok(child.status === 0 && child.stdout.includes(expected),
+    `production invocation executes all ${checks} assertions, including the interactive modal: ${child.error || ""}\n${child.stdout}\n${child.stderr}`);
 }
 
 console.log("test-christmas-tickets: " + checks + " assertions OK (" + model.rows.length + " featured cards on 2026-10-30)");
