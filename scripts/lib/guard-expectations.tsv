@@ -54,10 +54,13 @@ scripts/check-census-tos-boundary.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	15	1
 scripts/check-cget-envelope.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	0	1	0	5a0d77cd258d6d90ffb56e42fca30fec553217b8f7beb03c947a1da70a49cf7b
 scripts/check-chef-picks.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	cfaea31fa7cef2129f202e3c5d81dbbff369ad0438567b2530f2cdd68f74ad50
 scripts/check-christmas-browse-credit.mjs	0	RENDER	blocks-ci-and-deploy	1	-	11	0	0	19be5142d5a24b020114c0d4fc219e95f38d12ddcfa251dbf24d9c7f92013883
+scripts/check-christmas-card-distance.mjs	0	CALL	blocks-ci-and-deploy	1	-	12	0	0	8618b43cdc39a422942fc3ce785950bffc281dd7a6a7838a9f323ed3cc4c7bd2
+scripts/check-christmas-card-line.mjs	0	CALL	blocks-ci-and-deploy	1	-	8	0	0	66398e3a6523fadfdaa9b13df0f962ee31d11662ddf1f0a6df2172dd4526dabc
 scripts/check-christmas-card-photo-slot.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	bc23f946fc58f2e3263f956fd695f2fcf2fedb17aaf45894b98ce6cb7975c9a6
 scripts/check-christmas-photo-provenance.mjs	0	CALL	blocks-ci-and-deploy	1	-	0	0	0	3ba1bd393522d685ea99eb931914a694d9ac8e688dbf8a3245ad3ab0f636c9eb
 scripts/check-christmas-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	260	0	0	4e65df21516e5a83aeed3a1a31f919f5e6c7a7e55fff9e15d0abfd8bb1e3ac28
 scripts/check-christmas-research.mjs	0	CALL	blocks-ci-and-deploy	1	-	161	0	0	a19363d26330e5f1ea85643e1b69fa87a779c9e209284210aaa21f1e7d917749
+scripts/check-christmas-treats-rail.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	8812634010a3162b8cad7985dd3d2b0eaa859b49f21fd05d3050e2e3f14c93b8
 scripts/check-christmas-venue-matches.mjs	0	CALL	blocks-ci-and-deploy	1	-	14	0	0	305e3ed2c79eaf6df673523cbf28226d057d15b0d46eae31a16b279bcb9a5203
 scripts/check-citypass.mjs	0	CALL	blocks-ci-and-deploy	1	-	34	0	0	0d8c182546f20762819ff16535323a8cde407967f6a41884e27dacdc18380d1a
 scripts/check-client-writes-have-policies.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	3	1	0	46db82c5841a98f27be9cd3ba7aea88b3b802145534e092603ed9b0d608cd0da
@@ -559,6 +562,7 @@ scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8
 scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
+scripts/test-christmas-card-gallery.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	adfb1a305654a4809fbb69a11e8d279648cea29dfbecffe56ade7da846da857c
 scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	222	0	0	1bd4a4e1bc40223c4ad9375ff11ca5dc36dc1126a80a79c5e292be41cd8436c8
 scripts/test-christmas-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	Revenue QA	65	0	0	2b2f280f171f97df33138fa035e752bef3999d95e69267a5c63b69cf9698d20a
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
