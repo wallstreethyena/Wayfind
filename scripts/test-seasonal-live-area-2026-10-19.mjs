@@ -4,7 +4,7 @@
 // Halloween regroup, the Christmas research merge and the Christmas composer.
 // A row that loses its place_id, its date, or its rail fails here.
 import assert from "node:assert/strict";
-import RAW from "../data/christmas-2026-research.json" with { type: "json" };
+import { CHRISTMAS_RESEARCH_ROWS as RAW } from "../lib/christmasResearch.js";
 import { FALL_LIVE_AREA_2026_10_19 } from "../lib/fallLiveArea20261019.js";
 import { FALL_DISCOVERY_RAIL } from "../lib/fallDiscoveries2026.js";
 import { fallEventRail, composeFallIntentRails, nextFallOccurrence, hasUpcomingFallOccurrence } from "../lib/fallIntentRails.js";

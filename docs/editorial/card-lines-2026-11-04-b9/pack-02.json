@@ -1,0 +1,546 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 9. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJcfrfSRaMk4gR1MwRYltxBqo",
+   "name": "Local Steamer Seafood Market",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seafoodmarketpcb.com/",
+     "source_name": "Local Steamer Seafood Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Local Steamer Seafood Market is in Open Sands Plaza on Front Beach Road in Panama City Beach.",
+      "The market sells steamed seafood platters and also has a full raw menu.",
+      "Menu highlights include HUGE Snow Crab, Royal Red Shrimp, Fresh Bay Scallops, and Tuna Dip.",
+      "The market is open Monday through Sunday from 11:30 a.m. to 11 p.m.",
+      "The Steamed Family Platter for Four is listed among its favorite seafood options."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steamed seafood platters and a full raw menu in Panama City Beach",
+    "why_here": "Local Steamer Seafood Market is in Open Sands Plaza on Front Beach Road in Panama City Beach, sells steamed seafood platters and a full raw menu, and offers Snow Crab, Royal Red Shrimp, Fresh Bay Scallops, and Tuna Dip.",
+    "know_before": "The market is open Monday through Sunday from 11:30 a.m. to 11 p.m.",
+    "local_tip": "Order the Steamed Family Platter for Four for a group.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.seafoodmarketpcb.com/"
+     ],
+     "why_here": [
+      "https://www.seafoodmarketpcb.com/"
+     ],
+     "know_before": [
+      "https://www.seafoodmarketpcb.com/"
+     ],
+     "local_tip": [
+      "https://www.seafoodmarketpcb.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Local Steamer Seafood Market is in Open Sands Plaza on Front Beach Road in Panama City Beach.",
+      "source": "https://www.seafoodmarketpcb.com/"
+     },
+     {
+      "claim": "The market sells steamed seafood platters and also has a full raw menu.",
+      "source": "https://www.seafoodmarketpcb.com/"
+     },
+     {
+      "claim": "Menu highlights include HUGE Snow Crab, Royal Red Shrimp, Fresh Bay Scallops, and Tuna Dip.",
+      "source": "https://www.seafoodmarketpcb.com/"
+     },
+     {
+      "claim": "The market is open Monday through Sunday from 11:30 a.m. to 11 p.m.",
+      "source": "https://www.seafoodmarketpcb.com/"
+     },
+     {
+      "claim": "The Steamed Family Platter for Four is listed among its favorite seafood options.",
+      "source": "https://www.seafoodmarketpcb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx4Tb6Uvn2YgRFretDTn0eCE",
+   "name": "Florida Keys Outlet Marketplace",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace",
+     "source_name": "Florida Keys Outlet Marketplace \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Keys Outlet Marketplace is a shopping center in Florida City, FL.",
+      "Florida Keys Outlet Marketplace is at 250 E Palm Dr, Florida City, FL 33034.",
+      "Center hours are Monday to Thursday 11 a.m. to 8 p.m., Friday to Saturday 10 a.m. to 9 p.m., and Sunday 11 a.m. to 7 p.m.",
+      "Florida Keys Outlet Marketplace is a Simon Mall in Florida City, FL."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outlet shopping center in Florida City, FL",
+    "why_here": "Florida Keys Outlet Marketplace is a shopping center in Florida City, FL, at 250 E Palm Dr, and is listed as a Simon Mall, with center hours across Monday, Friday, Saturday, and Sunday for outlet shopping visits.",
+    "know_before": "Center hours are Monday to Thursday from 11 a.m. to 8 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     ],
+     "why_here": [
+      "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     ],
+     "know_before": [
+      "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Keys Outlet Marketplace is a shopping center in Florida City, FL.",
+      "source": "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     },
+     {
+      "claim": "Florida Keys Outlet Marketplace is at 250 E Palm Dr, Florida City, FL 33034.",
+      "source": "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     },
+     {
+      "claim": "Center hours are Monday to Thursday 11 a.m. to 8 p.m., Friday to Saturday 10 a.m. to 9 p.m., and Sunday 11 a.m. to 7 p.m.",
+      "source": "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     },
+     {
+      "claim": "Florida Keys Outlet Marketplace is a Simon Mall in Florida City, FL.",
+      "source": "https://www.premiumoutlets.com/outlet/florida-keys-outlet-marketplace"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbTdu29E_24gRK68-KIMT5iw",
+   "name": "Lakes Park",
+   "category": "attractions",
+   "metro": "immokalee-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lakespark.org/park-info",
+     "source_name": "Lakes Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lakes Park is open daily from sunrise to sunset.",
+      "Parking is $1 per hour or $5 per day per vehicle, with no entrance fee.",
+      "The Farmers Market runs on Wednesday from 9 a.m. to 1 p.m. from October to June, and parking is free during the market.",
+      "Water activities at Lakes Park include canoeing, kayaking, and fishing.",
+      "Lakes Park offers trails, boardwalks, gardens, and bird watching."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Canoeing, kayaking, and fishing at Lakes Park",
+    "why_here": "Lakes Park offers trails, boardwalks, gardens, and bird watching, with water activities including canoeing, kayaking, and fishing. The Farmers Market adds a Wednesday stop from October to June.",
+    "know_before": "Lakes Park is open daily from sunrise to sunset, with parking at $1 per hour or $5 per day and no entrance fee.",
+    "local_tip": "Visit on Wednesday from 9 a.m. to 1 p.m. for the Farmers Market and free parking during the market.",
+    "best_time": "Wednesdays from 9 a.m. to 1 p.m. (October to June) for the Lakes Park Farmers Market, when parking is free.",
+    "citations": {
+     "hook": [
+      "https://www.lakespark.org/park-info"
+     ],
+     "why_here": [
+      "https://www.lakespark.org/park-info"
+     ],
+     "know_before": [
+      "https://www.lakespark.org/park-info"
+     ],
+     "local_tip": [
+      "https://www.lakespark.org/park-info"
+     ],
+     "best_time": [
+      "https://www.lakespark.org/park-info"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lakes Park is open daily from sunrise to sunset.",
+      "source": "https://www.lakespark.org/park-info"
+     },
+     {
+      "claim": "Parking is $1 per hour or $5 per day per vehicle, with no entrance fee.",
+      "source": "https://www.lakespark.org/park-info"
+     },
+     {
+      "claim": "The Farmers Market runs on Wednesday from 9 a.m. to 1 p.m. from October to June, and parking is free during the market.",
+      "source": "https://www.lakespark.org/park-info"
+     },
+     {
+      "claim": "Water activities at Lakes Park include canoeing, kayaking, and fishing.",
+      "source": "https://www.lakespark.org/park-info"
+     },
+     {
+      "claim": "Lakes Park offers trails, boardwalks, gardens, and bird watching.",
+      "source": "https://www.lakespark.org/park-info"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ54VrbhEX24gRM9qiRvpFv_8",
+   "name": "Coconut Point",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.simon.com/mall/coconut-point",
+     "source_name": "Coconut Point \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconut Point is a picturesque outdoor mall in Estero.",
+      "Coconut Point features over 110 stores surrounding several acres of lakes with a boardwalk.",
+      "Hours are Monday to Saturday from 10:00 a.m. to 8 p.m. and Sunday from 11:00 a.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor mall with over 110 stores around lakes and a boardwalk",
+    "why_here": "Coconut Point is a picturesque outdoor mall featuring over 110 stores surrounding several acres of lakes with a boardwalk. The outdoor layout puts shopping around the lakes, so visitors can stroll between stores in the open air.",
+    "know_before": "Hours are Monday to Saturday from 10:00 a.m. to 8 p.m. and Sunday from 11:00 a.m. to 6 p.m.",
+    "local_tip": "Stroll the boardwalk around the lakes between stores.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.simon.com/mall/coconut-point"
+     ],
+     "why_here": [
+      "https://www.simon.com/mall/coconut-point"
+     ],
+     "know_before": [
+      "https://www.simon.com/mall/coconut-point"
+     ],
+     "local_tip": [
+      "https://www.simon.com/mall/coconut-point"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconut Point is a picturesque outdoor mall in Estero.",
+      "source": "https://www.simon.com/mall/coconut-point"
+     },
+     {
+      "claim": "Coconut Point features over 110 stores surrounding several acres of lakes with a boardwalk.",
+      "source": "https://www.simon.com/mall/coconut-point"
+     },
+     {
+      "claim": "Hours are Monday to Saturday from 10:00 a.m. to 8 p.m. and Sunday from 11:00 a.m. to 6 p.m.",
+      "source": "https://www.simon.com/mall/coconut-point"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf0Jv4Ug_kYgRQ2SYnSVrAmE",
+   "name": "The Gulf",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thegulf.com/okaloosa-island/",
+     "source_name": "The Gulf \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Gulf on Okaloosa Island is located in Fort Walton Beach.",
+      "The Gulf uses shipping containers, reclaimed, recycled and salvaged building materials.",
+      "The Gulf menu changes with the seasons and emphasizes local ingredients."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining built from shipping containers on Okaloosa Island",
+    "why_here": "The Gulf on Okaloosa Island in Fort Walton Beach uses shipping containers and reclaimed, recycled and salvaged building materials. Its seasonal menus emphasize local ingredients, pairing food and drinks with an outdoor waterfront setting.",
+    "know_before": "The menu changes with the seasons and emphasizes local ingredients, so check the seasonal menu before ordering.",
+    "local_tip": "Choose a seasonal dish to match the local ingredients focus.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thegulf.com/okaloosa-island/"
+     ],
+     "why_here": [
+      "https://thegulf.com/okaloosa-island/"
+     ],
+     "know_before": [
+      "https://thegulf.com/okaloosa-island/"
+     ],
+     "local_tip": [
+      "https://thegulf.com/okaloosa-island/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Gulf on Okaloosa Island is located in Fort Walton Beach.",
+      "source": "https://thegulf.com/okaloosa-island/"
+     },
+     {
+      "claim": "The Gulf uses shipping containers, reclaimed, recycled and salvaged building materials.",
+      "source": "https://thegulf.com/okaloosa-island/"
+     },
+     {
+      "claim": "The Gulf menu changes with the seasons and emphasizes local ingredients.",
+      "source": "https://thegulf.com/okaloosa-island/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJRza3INOC5ogRWk0oNr5bVOE",
+   "name": "Florida Water Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://floridawatertour.com/",
+     "source_name": "Florida Water Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Water Tours offers a Dolphin and Wildlife Adventure cruise.",
+      "The Dolphin and Wildlife Adventure lasts 90 minutes.",
+      "The Sunset Cruise lasts 90 minutes and runs during sunset.",
+      "A portion of every ticket purchased goes to the non-profit Florida Water Warriors."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dolphin and wildlife cruises lasting 90 minutes",
+    "why_here": "Florida Water Tours offers a Dolphin and Wildlife Adventure cruise and a Sunset Cruise, each lasting 90 minutes. A portion of every ticket purchased goes to Florida Water Warriors, linking the cruises to that non-profit effort.",
+    "know_before": "Both listed cruises last 90 minutes, and a portion of every ticket purchased goes to Florida Water Warriors.",
+    "local_tip": "Pick the Sunset Cruise for a cruise that runs during sunset.",
+    "best_time": "During sunset for the Sunset Cruise",
+    "citations": {
+     "hook": [
+      "https://floridawatertour.com/"
+     ],
+     "why_here": [
+      "https://floridawatertour.com/"
+     ],
+     "know_before": [
+      "https://floridawatertour.com/"
+     ],
+     "local_tip": [
+      "https://floridawatertour.com/"
+     ],
+     "best_time": [
+      "https://floridawatertour.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Water Tours offers a Dolphin and Wildlife Adventure cruise.",
+      "source": "https://floridawatertour.com/"
+     },
+     {
+      "claim": "The Dolphin and Wildlife Adventure lasts 90 minutes.",
+      "source": "https://floridawatertour.com/"
+     },
+     {
+      "claim": "The Sunset Cruise lasts 90 minutes and runs during sunset.",
+      "source": "https://floridawatertour.com/"
+     },
+     {
+      "claim": "A portion of every ticket purchased goes to the non-profit Florida Water Warriors.",
+      "source": "https://floridawatertour.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdVaJiUCMk4gRMlWTJKXrwqQ",
+   "name": "Shuckums Oyster Pub & Seafood Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shuckums.com/",
+     "source_name": "Shuckums Oyster Pub & Seafood Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shuckums has served seafood, steaks, chicken, burgers and oysters since 1967.",
+      "Shuckums has karaoke every night starting at 5 p.m.",
+      "Hours are 11 a.m. to 9 p.m. Sunday through Thursday.",
+      "Hours are 11 a.m. to 10 p.m. Friday and Saturday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oyster pub serving seafood and oysters since 1967",
+    "why_here": "Shuckums has served seafood, steaks, chicken, burgers and oysters since 1967, building a menu that goes beyond oysters alone. Karaoke every night adds an evening draw after dinner service.",
+    "know_before": "Hours are 11 a.m. to 9 p.m. Sunday through Thursday and 11 a.m. to 10 p.m. Friday and Saturday.",
+    "local_tip": "Karaoke starts at 5 p.m. nightly, so plan an evening visit around 5 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shuckums.com/"
+     ],
+     "why_here": [
+      "https://shuckums.com/"
+     ],
+     "know_before": [
+      "https://shuckums.com/"
+     ],
+     "local_tip": [
+      "https://shuckums.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shuckums has served seafood, steaks, chicken, burgers and oysters since 1967.",
+      "source": "https://shuckums.com/"
+     },
+     {
+      "claim": "Shuckums has karaoke every night starting at 5 p.m.",
+      "source": "https://shuckums.com/"
+     },
+     {
+      "claim": "Hours are 11 a.m. to 9 p.m. Sunday through Thursday.",
+      "source": "https://shuckums.com/"
+     },
+     {
+      "claim": "Hours are 11 a.m. to 10 p.m. Friday and Saturday.",
+      "source": "https://shuckums.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR1Ngh3Em5IgR2jYjBC4VHOY",
+   "name": "Cap's On the Water",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.capsonthewater.com/",
+     "source_name": "Cap's On the Water \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cap's is on the Intracoastal Waterway and has a large outdoor deck.",
+      "Cap's serves new coastal cuisine pairing fresh local seafood with traditional Southern and Mediterranean flavors.",
+      "Cap's wine list has over 500 selections.",
+      "Hours are 4 p.m. to close Monday through Friday and 11:30 a.m. to close Saturday and Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coastal seafood and a large deck on the Intracoastal Waterway",
+    "why_here": "Cap's on the Water in St. Augustine serves new coastal cuisine pairing fresh local seafood with Southern and Mediterranean flavors. It sits on the Intracoastal Waterway with a large outdoor deck, dock and pavilion.",
+    "know_before": "Hours are 4 p.m. to close Monday through Friday and 11:30 a.m. to close Saturday and Sunday; closing hours are weather permitting.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.capsonthewater.com/"
+     ],
+     "why_here": [
+      "https://www.capsonthewater.com/"
+     ],
+     "know_before": [
+      "https://www.capsonthewater.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cap's is on the Intracoastal Waterway and has a large outdoor deck.",
+      "source": "https://www.capsonthewater.com/"
+     },
+     {
+      "claim": "Cap's serves new coastal cuisine pairing fresh local seafood with traditional Southern and Mediterranean flavors.",
+      "source": "https://www.capsonthewater.com/"
+     },
+     {
+      "claim": "Cap's wine list has over 500 selections.",
+      "source": "https://www.capsonthewater.com/"
+     },
+     {
+      "claim": "Hours are 4 p.m. to close Monday through Friday and 11:30 a.m. to close Saturday and Sunday.",
+      "source": "https://www.capsonthewater.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

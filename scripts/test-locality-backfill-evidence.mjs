@@ -2,7 +2,7 @@
 // #2075 locality backfill (see scripts/lib/localityEvidence.mjs), by CALLING
 // the rules and by checking the committed migration + audit they produced.
 import { readFileSync, readdirSync } from "node:fs";
-import { addressCitySlot, addressCorroboratesCity, localityIsFillable } from "./lib/localityEvidence.mjs";
+import { addressCitySlot, addressCorroboratesCity, localityIsFillable, censusLocality, censusCorroboratesCity, censusDisposition } from "./lib/localityEvidence.mjs";
 
 let n = 0;
 const ok = (c, m) => { n++; if (!c) { console.error(`test-locality-backfill-evidence: FAIL — ${m}`); process.exit(1); } };
@@ -21,6 +21,18 @@ ok(!addressCorroboratesCity("", "Tampa") && !addressCorroboratesCity("1 Main St,
 ok(!localityIsFillable({ locality: null, county: "Hillsborough" }), "county set + locality empty is a Census decision (Fox Squirrel, Keel Farms)");
 ok(!localityIsFillable({ locality: "Tampa", county: null }), "a held locality is never overwritten");
 ok(localityIsFillable({ locality: "  ", county: "" }), "a truly unknown row is fillable");
+
+// 2b. A mailing city is not a locality: the Census place containing the point decides.
+ok(censusLocality({ inc: ["North Port"], cdp: [] }) === "North Port", "incorporated place wins");
+ok(censusLocality({ inc: [], cdp: ["Siesta Key"] }) === "Siesta Key", "a Census-designated place is used when no incorporated place contains the point");
+ok(censusLocality({ inc: [], cdp: [] }) === null, "unincorporated point has no locality");
+ok(censusLocality({ inc: ["A", "B"], cdp: [] }) === null, "two places is ambiguous, not a pick");
+ok(censusCorroboratesCity({ inc: ["Sarasota"], cdp: [] }, "Sarasota"), "control: Census place equal to the city corroborates");
+ok(!censusCorroboratesCity({ inc: ["North Port"], cdp: [] }, "Venice"), "a Venice mailing address inside North Port does not corroborate Venice (Downtown Wellen Park)");
+ok(!censusCorroboratesCity({ inc: [], cdp: [] }, "Orlando"), "an Orlando mailing address in unincorporated Orange County does not corroborate Orlando (SeaWorld)");
+ok(censusCorroboratesCity({ inc: ["St. Augustine"], cdp: [] }, "Saint Augustine"), "St./Saint spelling is the same city");
+ok(censusDisposition({ inc: [], cdp: ["Southchase"] }, "Orlando") === "conflicting", "a different Census place is a conflict, never silently rewritten");
+ok(censusDisposition({ inc: [], cdp: [] }, "Orlando") === "unsupported", "no Census place is unsupported");
 
 // 3. The generator uses the rules in their roles (not merely imports them).
 const gen = readFileSync(new URL("./backfill-locality-from-events.mjs", import.meta.url), "utf8");
@@ -42,11 +54,32 @@ for (const f of mig) {
   const csvPath = new URL(`../docs/audits/${f.replace(/\.sql$/, ".csv")}`, import.meta.url);
   const rows = readFileSync(csvPath, "utf8").trim().split("\n").slice(1)
     .map((l) => l.match(/"((?:[^"]|"")*)"|[^,]+/g).map((v) => v.replace(/^"|"$/g, "").replace(/""/g, '"')));
-  const tierA = rows.filter((r) => r[3] === "A");
+  ok(sql.includes("Census-gated by scripts/gate-locality-census.mjs"), `${f}: the committed migration is the Census-gated output, not the raw generator output`);
+  const ev = JSON.parse(readFileSync(new URL(`../docs/audits/${f.replace(/\.sql$/, ".census.json")}`, import.meta.url), "utf8"));
+  const updates2 = [...sql.matchAll(/update public\.wf_inventory set locality = '((?:[^']|'')*)'\n where place_id = '([^']+)'\n   and btrim\(coalesce\(locality,''\)\) = ''\n   and btrim\(coalesce\(county,''\)\) = '';/g)];
+  ok(updates2.length > 0, `${f}: control — the update probe finds the guarded statement shape (${updates2.length})`);
+  ok(updates2.length === (sql.match(/^update public\.wf_inventory/gm) || []).length, `${f}: every update carries BOTH row-level preconditions (locality and county still empty)`);
+  for (const [, city, id] of updates2) ok(censusCorroboratesCity(ev.rows[id], city.replace(/''/g, "'")), `${f}: ${id} -> ${city} is the Census place containing the point`);
+  const dispo = rows.filter((r) => r[6]);
+  ok(dispo.length === rows.length, `${f}: every candidate has a disposition (${dispo.length}/${rows.length})`);
+  for (const r of dispo) ok(r[6] === censusDisposition(ev.rows[r[0]], r[2]), `${f}: ${r[0]} disposition ${r[6]} matches the Census evidence`);
+  const written = new Set(updates2.map((m) => m[2]));
+  const notEligible = dispo.filter((r) => r[6] !== "eligible");
+  ok(notEligible.length > 0, `${f}: control — there are non-eligible candidates to prove absent (${notEligible.length})`);
+  for (const r of notEligible) ok(!written.has(r[0]), `${f}: ${r[1]} (${r[6]}) is not written`);
+  ok(/raise exception 'locality backfill: % row\(s\) do not hold the gated value; rolled back'/.test(sql), `${f}: the closing assertion rolls the whole batch back on any skipped row`);
+  const tuples = [...sql.matchAll(/^    \('([^']+)','((?:[^']|'')*)'\)/gm)].map((m) => `${m[1]}|${m[2]}`).sort();
+  const upd = updates2.map((m) => `${m[2]}|${m[1]}`).sort();
+  ok(tuples.length > 0 && JSON.stringify(tuples) === JSON.stringify(upd), `${f}: the assertion checks exactly the (place_id, city) pairs the updates write (${tuples.length} vs ${upd.length})`);
+  ok(/left join public\.wf_inventory i using \(place_id\)/.test(sql), `${f}: the assertion LEFT joins, so a missing row counts as wrong`);
+  ok(/if wrong > 0 then raise exception/.test(sql), `${f}: the assertion tolerates zero wrong rows`);
+  const bi = sql.search(/^begin;$/m), ci = sql.search(/^commit;$/m), ai = sql.indexOf("do $$"), ui = sql.search(/^update /m);
+  ok(bi >= 0 && bi < ui && ui < ai && ai < ci, `${f}: begin; updates; assertion; commit; in that order`);
+  const tierA = rows.filter((r) => r[3] === "A" && r[6] === "eligible");
   ok(tierA.length > 0, `${f}: the audit carries tier A rows (${tierA.length})`);
   for (const r of tierA) ok(addressCorroboratesCity(r[5], r[2]), `${f}: tier A row ${r[1]} -> ${r[2]} is corroborated by its address city slot ("${r[5]}")`);
   const updates = (sql.match(/^update public\.wf_inventory set locality/gm) || []).length;
-  ok(updates === tierA.length, `${f}: one update per audited tier A row (${updates} vs ${tierA.length})`);
+  ok(updates === tierA.length, `${f}: one update per eligible tier A row (${updates} vs ${tierA.length})`);
 }
 
-console.log(`test-locality-backfill-evidence: OK — ${n} assertions (city slot not substring, Census empties held, generator wired, committed migration clean)`);
+console.log(`test-locality-backfill-evidence: OK — ${n} assertions (city slot not substring, Census place not mailing city, Census empties held, generator wired, committed migration clean)`);
