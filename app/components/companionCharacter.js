@@ -29,6 +29,14 @@ export function isChristmasPath(p) {
 
 /** "santa" on the Christmas page, and everywhere from Nov 1 when the Eastern
  * date d is given; "boo" otherwise. Without d it is the path rule alone. */
+// Santa stays off Hanukkah content (owner approved, 2026-11-05). Wayfind names
+// its Hanukkah pages with the holiday in the URL slug, guides and posts alike;
+// scripts/test-santa-dock.mjs fails if a Hanukkah guide ships without it.
+export const SANTA_OFF_RX = /(?:^|[/-])(?:hanukkah|chanukah)(?:[/-]|$)/i;
+export function santaOffPath(p) {
+  return SANTA_OFF_RX.test(cleanPath(p));
+}
+
 export function pickCharacter(p, d) {
   if (isChristmasPath(p)) return "santa";
   return d && santaEverywhere(d) ? "santa" : "boo";
