@@ -1,0 +1,47 @@
+# The required `guards` check on a pull request can be green and the push to
+# main can still be cancelled (timeout or a newer push). That is what happened
+# on 2026-11-03: PR runs for #2155, #2156, and #2157 succeeded, and the main
+# pushes were cancelled at timeout-minutes. Nothing paged.
+#
+# This workflow asks one question of the Actions API: the newest completed
+# guards run for a push to main must have conclusion success. cancelled,
+# failure, skipped, timed_out, and a run that is still going after 45 minutes
+# fail this job. It does not merge, deploy, or write to the database.
+name: guards-main-monitor
+on:
+  schedule:
+    # Hourly, off the top of the hour so it is not in the same stampede as
+    # the */30 canary. GitHub may delay scheduled runs; a miss here is visible
+    # as the absence of this workflow, and the next run still judges the
+    # latest completed main guards run.
+    - cron: "17 * * * *"
+  workflow_dispatch:
+permissions:
+  actions: read
+  contents: read
+concurrency:
+  group: guards-main-monitor
+  cancel-in-progress: false
+jobs:
+  latest-main-guards:
+    name: latest main guards run
+    runs-on: ubuntu-latest
+    # Depth-1 fetches of the full tree hit 300s on 2026-11-03 (canary run
+    # 41684161308 cancelled promote-metros at its 5 minute cap inside
+    # checkout). This job does not read public/ (~580MB). Skip it, and keep
+    # 15 minutes so a slow fetch of the rest still finishes the verdict.
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          sparse-checkout: "/*\n!/public/\n"
+          sparse-checkout-cone-mode: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Latest completed main guards run must be success
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: node scripts/guards-main-run.mjs
