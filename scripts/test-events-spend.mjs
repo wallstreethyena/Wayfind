@@ -49,6 +49,7 @@ async function routeWith({ cacheValue = null, spendAllowed = false }) {
     const curatedFeedEventsWithFall = () => [];
     const FALL_FEED_CACHE_VERSION = "test";
     const CURATED_REACH_MI = 60;
+    const refreshCuratedDayFields = (e) => e; // day-field refresh is covered by check-schedule-note-days
     const CURATED_SOURCE = "Wayfind curated";
     const stockPhotoPool = async () => [];
     const fromPool = () => null;

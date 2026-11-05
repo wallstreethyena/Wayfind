@@ -9,7 +9,7 @@ export const EVENT_EXPERIENCE_CSS = `
 .wf-event-brand img{width:145px;height:auto}
 .wf-event-hero{display:block;margin:24px auto 40px;max-width:980px;border:1px solid #27313d;border-radius:24px;background:#111821;overflow:hidden}
 /* The wrapper owns portrait geometry; intrinsic image dimensions cannot stretch the rail. */
-.wf-event-media{min-width:0;max-width:100%}.wf-event-media>p{padding:0 24px}
+.wf-event-media{position:relative;min-width:0;max-width:100%}.wf-event-media>p{padding:0 24px}.wf-event-media [data-event-hero-credit]{position:absolute;left:6px;right:8px;bottom:6px;z-index:3;margin:0!important;padding:0!important;border:0;background:transparent;color:rgba(255,255,255,.6)!important;font-size:9.5px!important;font-weight:500;line-height:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 1px 2px rgba(0,0,0,.65)}
 .wf-event-media h2{font-size:20px;font-weight:600;margin:0 0 16px}
 .wf-event-photo-rail{display:flex;align-items:flex-start;gap:16px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x proximity;padding:0 0 16px;max-width:100%;border-radius:18px}
 .wf-event-photo-rail:focus-visible{outline:3px solid #ff782f;outline-offset:4px}

@@ -84,7 +84,7 @@ const markup = renderToStaticMarkup(React.createElement(RailCard, props));
 ok(!markup.includes('Plan your visit') && !markup.includes('wf-rail-card-links') && (markup.match(/wf-rail-card-cta/g)||[]).length===1, 'real card renders exactly one CTA, no second planning link or link grid');
 ok(!markup.includes('Official details'), 'cards never carry an Official details link');
 ok(!markup.includes('wf-event-card-cost') && !markup.includes('Free admission · $10 parking'), 'cost is not a card control (it lives on the detail page)');
-ok(markup.includes('wf-place-card-photo-attr') && markup.includes('>©<') && !markup.includes('>Photographer'), 'photo credit is the small chip, author only in title/aria');
+ok(markup.includes('wf-place-card-photo-attr') && markup.includes('>Photographer · CC BY 4.0<') && !markup.includes('>©<'), 'photo credit is the tiny line on the photo');
 ok(!markup.includes('Venue photo') && !markup.includes('wf-event-photo-caption') && !markup.includes('wf-event-card-backdrop') && !markup.includes('wf-event-photo-led'), 'no venue caption, backdrop or photo-led treatment on the card');
 for (const file of ['RailCard','FallIntentRails','PosterEventCard']) { const src=readFileSync(path.join(ROOT,'app/components',file+'.js'),'utf8'); ok(!/Official details|Venue photo|wf-event-card-backdrop|wf-rail-card-links/.test(src), file+' source holds none of the removed card pieces'); }
 ok(!existsSync(path.join(ROOT,'app/components/EventVisitDetails.js')), 'the unreachable visit dialog stays deleted');

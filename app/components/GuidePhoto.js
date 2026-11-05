@@ -16,6 +16,7 @@ function PhotoForSource({
   fallbackText = "Explore the guide",
   style,
   onFailure,
+  onLoaded,
 }) {
   const [failed, setFailed] = useState(false);
   const fail = useCallback(() => {
@@ -26,7 +27,8 @@ function PhotoForSource({
   // Inspect the achieved image state when React attaches, too.
   const imageRef = useCallback((image) => {
     if (image?.complete && image.naturalWidth === 0) fail();
-  }, [fail]);
+    else if (image?.complete && image.naturalWidth > 0) onLoaded?.();
+  }, [fail, onLoaded]);
 
   if (!src || failed) {
     return (
@@ -38,6 +40,7 @@ function PhotoForSource({
 
   function handleLoad(event) {
     const image = event.currentTarget;
+    if (image.naturalWidth > 0) onLoaded?.();
     if (typeof image.decode !== "function") return;
     image.decode().catch(() => {
       // A decode may settle after navigation. Only update the still-mounted,

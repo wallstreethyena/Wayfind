@@ -58,6 +58,17 @@ map, nearby picks and affiliate links around it.
 * The publisher now prints every skip (id, name+date, same event), so the skip
   count always matches the printed list.
 
+## Scores at publish time (policy, 2026-11-03)
+
+Published rows land with `editorial_score`, `uniqueness_score` and `popularity_score` at the
+column default 0. That is correct: a score is only written by an editorial pass that also
+writes `editorial_summary`, `why_go` and `wayfind_verdict` (docs/editorial-standard.md), and
+the publisher does not do that pass. 0 therefore means **not yet assessed**, never "assessed
+as poor". Every ranking surface reads scores through `lib/eventAssessment.js`
+(`assessedScore`), which gives an unassessed row a neutral prior (editorial 7, uniqueness 5,
+popularity 5) instead of the bottom. Do not set a score on a row to make it appear somewhere;
+write the editorial pass, and the score with it.
+
 ## How to run
 
 ```bash

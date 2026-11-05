@@ -1,0 +1,497 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 14. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJPUWBGFK15YgRlp6imcQOpwc",
+   "name": "Topgolf Jacksonville",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://topgolf.com/us/jacksonville/",
+     "source_name": "Topgolf Jacksonville \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Topgolf Jacksonville has 3 floors and 100+ all-weather bays.",
+      "Topgolf Jacksonville has a 14-hole mini golf course.",
+      "Topgolf Jacksonville offers Toptracer games.",
+      "Hitting bays have cooling fans in summer and are heated in winter.",
+      "Topgolf Jacksonville has a rooftop terrace and a bar and restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "3 floors with 100+ all-weather bays and a 14-hole mini golf course",
+    "why_here": "Topgolf Jacksonville combines 3 floors of 100+ all-weather bays with Toptracer games and a 14-hole mini golf course. Hitting bays have cooling fans in summer and are heated in winter, so play continues in varied weather.",
+    "know_before": "Hitting bays have cooling fans in summer and are heated in winter.",
+    "local_tip": "Try the 14-hole mini golf course between bay sessions.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://topgolf.com/us/jacksonville/"
+     ],
+     "why_here": [
+      "https://topgolf.com/us/jacksonville/"
+     ],
+     "know_before": [
+      "https://topgolf.com/us/jacksonville/"
+     ],
+     "local_tip": [
+      "https://topgolf.com/us/jacksonville/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Topgolf Jacksonville has 3 floors and 100+ all-weather bays.",
+      "source": "https://topgolf.com/us/jacksonville/"
+     },
+     {
+      "claim": "Topgolf Jacksonville has a 14-hole mini golf course.",
+      "source": "https://topgolf.com/us/jacksonville/"
+     },
+     {
+      "claim": "Topgolf Jacksonville offers Toptracer games.",
+      "source": "https://topgolf.com/us/jacksonville/"
+     },
+     {
+      "claim": "Hitting bays have cooling fans in summer and are heated in winter.",
+      "source": "https://topgolf.com/us/jacksonville/"
+     },
+     {
+      "claim": "Topgolf Jacksonville has a rooftop terrace and a bar and restaurant.",
+      "source": "https://topgolf.com/us/jacksonville/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf9MKQU3U2IgR0Rp4MD467xw",
+   "name": "Manatee Lagoon",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://visitmanateelagoon.com/visit/",
+     "source_name": "Manatee Lagoon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Manatee Lagoon has a dedicated area for viewing manatees up close.",
+      "The 16,000-square-foot center features engaging, hands-on exhibits about manatees and the surrounding Lake Worth Lagoon.",
+      "Florida manatee season runs from November 15 to March 31.",
+      "Manatee Lagoon is free to visit, and free onsite parking is available.",
+      "Hours of operation are 9 a.m. to 4 p.m.",
+      "On cold winter days, the observation deck is a spot to view manatee herds basking in warm-water outflows."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free manatee viewing at a 16,000-square-foot center with hands-on exhibits",
+    "why_here": "Manatee Lagoon offers a dedicated area for viewing manatees up close, plus a 16,000-square-foot center with engaging, hands-on exhibits about manatees. On cold winter days, the observation deck is a spot to view manatee herds basking in warm-water outflows.",
+    "know_before": "Manatee Lagoon is free to visit, with free onsite parking and hours from 9 a.m. to 4 p.m.",
+    "local_tip": "Visit on cold winter days during Florida manatee season for a chance to see manatee herds.",
+    "best_time": "Florida manatee season runs from November 15 to March 31, when dozens may gather within view of the deck.",
+    "citations": {
+     "hook": [
+      "https://visitmanateelagoon.com/visit/"
+     ],
+     "why_here": [
+      "https://visitmanateelagoon.com/visit/"
+     ],
+     "know_before": [
+      "https://visitmanateelagoon.com/visit/"
+     ],
+     "local_tip": [
+      "https://visitmanateelagoon.com/visit/"
+     ],
+     "best_time": [
+      "https://visitmanateelagoon.com/visit/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Manatee Lagoon has a dedicated area for viewing manatees up close.",
+      "source": "https://visitmanateelagoon.com/visit/"
+     },
+     {
+      "claim": "The 16,000-square-foot center features engaging, hands-on exhibits about manatees and the surrounding Lake Worth Lagoon.",
+      "source": "https://visitmanateelagoon.com/visit/"
+     },
+     {
+      "claim": "Florida manatee season runs from November 15 to March 31.",
+      "source": "https://visitmanateelagoon.com/visit/"
+     },
+     {
+      "claim": "Manatee Lagoon is free to visit, and free onsite parking is available.",
+      "source": "https://visitmanateelagoon.com/visit/"
+     },
+     {
+      "claim": "Hours of operation are 9 a.m. to 4 p.m.",
+      "source": "https://visitmanateelagoon.com/visit/"
+     },
+     {
+      "claim": "On cold winter days, the observation deck is a spot to view manatee herds basking in warm-water outflows.",
+      "source": "https://visitmanateelagoon.com/visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzeUma4PHwogRP66QntGgtiU",
+   "name": "Adventures Excape Tampa - Escape Rooms",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.adventuresescapes.com/",
+     "source_name": "Adventures Excape Tampa - Escape Rooms \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Adventures Excape offers 3 escape rooms in Tampa Bay.",
+      "Players must use teamwork and race against the clock to solve uniquely created puzzles.",
+      "Players have 60 minutes to solve the riddles and beat the clock.",
+      "Adventures Excape is located at 2830 E Bearss Ave, Tampa, FL 33613."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Three Tampa escape rooms where teams race a 60-minute clock",
+    "why_here": "Adventures Excape Tampa creates themed escape rooms where players use teamwork to solve puzzles against the clock. The official site offers three rooms in Tampa Bay for families, dates, friends, team building and birthdays.",
+    "know_before": "Players have 60 minutes to solve the riddles and escape, per the official site.",
+    "local_tip": "The site markets rooms for all ages and experience levels; book ahead for groups and events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.adventuresescapes.com/"
+     ],
+     "why_here": [
+      "https://www.adventuresescapes.com/"
+     ],
+     "know_before": [
+      "https://www.adventuresescapes.com/"
+     ],
+     "local_tip": [
+      "https://www.adventuresescapes.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Adventures Excape offers 3 escape rooms in Tampa Bay.",
+      "source": "https://www.adventuresescapes.com/"
+     },
+     {
+      "claim": "Players must use teamwork and race against the clock to solve uniquely created puzzles.",
+      "source": "https://www.adventuresescapes.com/"
+     },
+     {
+      "claim": "Players have 60 minutes to solve the riddles and beat the clock.",
+      "source": "https://www.adventuresescapes.com/"
+     },
+     {
+      "claim": "Adventures Excape is located at 2830 E Bearss Ave, Tampa, FL 33613.",
+      "source": "https://www.adventuresescapes.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJwU7ibxWz2YgRTKykha4Qp18",
+   "name": "Grand Beach Hotel",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.grandbeachhotel.com/miami-beach",
+     "source_name": "Grand Beach Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grand Beach Hotel Miami Beach is an all-suite oceanfront retreat set directly along the shoreline in Miami Beach.",
+      "The hotel overlooks more than 200 feet of white sand along the Atlantic Ocean.",
+      "Each all-suite accommodation features separate living and sleeping areas and private balconies.",
+      "Guests enjoy direct beach access and multiple pools."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-suite oceanfront retreat overlooking more than 200 feet of white sand",
+    "why_here": "Grand Beach Hotel Miami Beach is an all-suite oceanfront retreat set directly along the shoreline in Miami Beach. Each accommodation features separate living and sleeping areas and private balconies, and guests enjoy direct beach access and multiple pools.",
+    "know_before": "The hotel overlooks more than 200 feet of white sand along the Atlantic Ocean.",
+    "local_tip": "Choose private balconies for direct beach access and multiple pools nearby.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.grandbeachhotel.com/miami-beach"
+     ],
+     "why_here": [
+      "https://www.grandbeachhotel.com/miami-beach"
+     ],
+     "know_before": [
+      "https://www.grandbeachhotel.com/miami-beach"
+     ],
+     "local_tip": [
+      "https://www.grandbeachhotel.com/miami-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grand Beach Hotel Miami Beach is an all-suite oceanfront retreat set directly along the shoreline in Miami Beach.",
+      "source": "https://www.grandbeachhotel.com/miami-beach"
+     },
+     {
+      "claim": "The hotel overlooks more than 200 feet of white sand along the Atlantic Ocean.",
+      "source": "https://www.grandbeachhotel.com/miami-beach"
+     },
+     {
+      "claim": "Each all-suite accommodation features separate living and sleeping areas and private balconies.",
+      "source": "https://www.grandbeachhotel.com/miami-beach"
+     },
+     {
+      "claim": "Guests enjoy direct beach access and multiple pools.",
+      "source": "https://www.grandbeachhotel.com/miami-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl0GFEoSSwogRb7MlzSodqVc",
+   "name": "Tarpon Turtle Waterfront Grill & Marina",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tarponturtle.com/",
+     "source_name": "Tarpon Turtle Waterfront Grill & Marina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tarpon Turtle serves casual American fare, fresh seafood, and handcrafted cocktails just steps from the water on Lake Tarpon.",
+      "Tarpon Turtle has operated for over 20 years as a spot for lakeside dining for locals, families, and boaters.",
+      "Tarpon Turtle is at 1513 Lake Tarpon Avenue, Tarpon Springs, FL 34689."
+     ]
+    },
+    {
+     "source": "https://www.tarponturtle.com/waterfront-dining",
+     "source_name": "Tarpon Turtle Waterfront Grill & Marina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The restaurant has dedicated private docks just steps from the restaurant, allowing guests to pull up and dine without leaving the water."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dock-and-dine waterfront grill on Lake Tarpon with sunset views",
+    "why_here": "Tarpon Turtle is a waterfront grill and marina on Lake Tarpon in Tarpon Springs serving casual American fare and fresh seafood. Boaters can use dedicated private docks steps from the restaurant. It also hosts live music and large-group dining.",
+    "know_before": "The restaurant offers dedicated private docks just steps away, allowing guests to pull up by boat and dine.",
+    "local_tip": "Arrive by boat and use the dock-and-dine access, or time dinner for sunset over Lake Tarpon.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tarponturtle.com/",
+      "https://www.tarponturtle.com/waterfront-dining"
+     ],
+     "why_here": [
+      "https://www.tarponturtle.com/",
+      "https://www.tarponturtle.com/waterfront-dining"
+     ],
+     "know_before": [
+      "https://www.tarponturtle.com/",
+      "https://www.tarponturtle.com/waterfront-dining"
+     ],
+     "local_tip": [
+      "https://www.tarponturtle.com/",
+      "https://www.tarponturtle.com/waterfront-dining"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tarpon Turtle serves casual American fare, fresh seafood, and handcrafted cocktails just steps from the water on Lake Tarpon.",
+      "source": "https://www.tarponturtle.com/"
+     },
+     {
+      "claim": "The restaurant has dedicated private docks just steps from the restaurant, allowing guests to pull up and dine without leaving the water.",
+      "source": "https://www.tarponturtle.com/waterfront-dining"
+     },
+     {
+      "claim": "Tarpon Turtle has operated for over 20 years as a spot for lakeside dining for locals, families, and boaters.",
+      "source": "https://www.tarponturtle.com/"
+     },
+     {
+      "claim": "Tarpon Turtle is at 1513 Lake Tarpon Avenue, Tarpon Springs, FL 34689.",
+      "source": "https://www.tarponturtle.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg5mjBX7jwogR2g7AYVTA6ws",
+   "name": "Pepe's Cantina St. Petersburg",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pepescantina.com/st-petersburg",
+     "source_name": "Pepe's Cantina St. Petersburg \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pepe's Cantina St. Petersburg is located at 3118 3rd Ave N, St. Petersburg, FL 33713.",
+      "Sunday through Thursday hours are 11:30 a.m. to 9 p.m.",
+      "Friday through Saturday hours are 11:30 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "St. Petersburg cantina with Friday and Saturday hours to 10 p.m.",
+    "why_here": "Pepe's Cantina St. Petersburg is located at 3118 3rd Ave N in St. Petersburg. Sunday through Thursday hours are 11:30 a.m. to 9 p.m., and Friday through Saturday hours are 11:30 a.m. to 10 p.m. for lunch and dinner across the week.",
+    "know_before": "Friday through Saturday hours are 11:30 a.m. to 10 p.m.; Sunday through Thursday hours end at 9 p.m.",
+    "local_tip": "Visit on Friday or Saturday for the later 10 p.m. close.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pepescantina.com/st-petersburg"
+     ],
+     "why_here": [
+      "https://www.pepescantina.com/st-petersburg"
+     ],
+     "know_before": [
+      "https://www.pepescantina.com/st-petersburg"
+     ],
+     "local_tip": [
+      "https://www.pepescantina.com/st-petersburg"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pepe's Cantina St. Petersburg is located at 3118 3rd Ave N, St. Petersburg, FL 33713.",
+      "source": "https://www.pepescantina.com/st-petersburg"
+     },
+     {
+      "claim": "Sunday through Thursday hours are 11:30 a.m. to 9 p.m.",
+      "source": "https://www.pepescantina.com/st-petersburg"
+     },
+     {
+      "claim": "Friday through Saturday hours are 11:30 a.m. to 10 p.m.",
+      "source": "https://www.pepescantina.com/st-petersburg"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvUFrk05BkYgRDBSl7ygD6jM",
+   "name": "Dewey Destin's Seafood Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.destinseafood.com/",
+     "source_name": "Dewey Destin's Seafood Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dewey Destin's Seafood Restaurant is the original location, where guests order at the window and take in the view of Crab Island.",
+      "Dewey Destin's Seafood Restaurant at 9 Calhoun Avenue, Destin is open daily 11 a.m. to 8 p.m.",
+      "The Destin family serves fresh, sustainable seafood in family owned restaurants in three locations along the Gulf Coast including two in Destin and one in Navarre."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Original location with window ordering and a view of Crab Island",
+    "why_here": "Dewey Destin's Seafood Restaurant is the original location, where guests order at the window and take in the view of Crab Island. The family serves fresh, sustainable seafood at three locations along the Gulf Coast, including two in Destin and one in Navarre.",
+    "know_before": "The original location at 9 Calhoun Avenue in Destin is open daily 11 a.m. to 8 p.m.",
+    "local_tip": "Order at the window and take in the view of Crab Island.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.destinseafood.com/"
+     ],
+     "why_here": [
+      "https://www.destinseafood.com/"
+     ],
+     "know_before": [
+      "https://www.destinseafood.com/"
+     ],
+     "local_tip": [
+      "https://www.destinseafood.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dewey Destin's Seafood Restaurant is the original location, where guests order at the window and take in the view of Crab Island.",
+      "source": "https://www.destinseafood.com/"
+     },
+     {
+      "claim": "Dewey Destin's Seafood Restaurant at 9 Calhoun Avenue, Destin is open daily 11 a.m. to 8 p.m.",
+      "source": "https://www.destinseafood.com/"
+     },
+     {
+      "claim": "The Destin family serves fresh, sustainable seafood in family owned restaurants in three locations along the Gulf Coast including two in Destin and one in Navarre.",
+      "source": "https://www.destinseafood.com/"
+     }
+    ]
+   }
+  }
+ ]
+}
