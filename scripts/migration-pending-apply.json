@@ -96,5 +96,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2170 postal_city model: CDP backfill (owner approve all 2026-11-05)",
     "reason": "NOT APPLIED. Data only, 1 wf_inventory row: postal_city Tampa for The Orpheum (Census locality University CDP), from its wf_events listing address agreeing with the US Census address match TAMPA 33613. Survey found no other row with owned address evidence of a differing mailing city. Reverse supabase/data-fixes/20261105120000_wf_inventory_postal_city_orpheum_REVERSE.sql."
+  },
+  {
+    "file": "supabase/migrations/20261105120035_event_truth_held_recheck_renewal_cap.sql",
+    "sha256": "f47491ca6e20338dc65c60fe48cbe184a7418be4d7a37f04a8f21aac126447cf",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2245 follow-up: owner-authorized held-event recurrence hardening 2026-11-05",
+    "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120000_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
   }
 ]
