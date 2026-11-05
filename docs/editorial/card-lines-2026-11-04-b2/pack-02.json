@@ -1,0 +1,771 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ8aLBaJYn5IgR60p2CS_RHIw",
+   "name": "Harry's Seafood, Bar & Grille",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hookedonharrys.com/location/st-augustine/",
+     "source_name": "Harry's Seafood, Bar & Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harry's Seafood, Bar & Grille overlooks the bayfront in historic downtown St. Augustine.",
+      "Harry's Seafood, Bar & Grille serves the flavors of New Orleans.",
+      "Harry's Seafood, Bar & Grille lists its address as 46 Avenida Menendez, St. Augustine, FL 32084.",
+      "Harry's Seafood, Bar & Grille lists lunch as 11AM to 4PM and dinner on Friday and Saturday until 11PM.",
+      "Harry's Seafood, Bar & Grille highlights nightly live music in its courtyard."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New Orleans flavors on the bayfront in historic downtown St. Augustine",
+    "why_here": "Go for the flavors of New Orleans facing the bayfront in historic downtown St. Augustine, then stay for nightly live music in the courtyard after the meal.",
+    "know_before": "Lunch is 11AM to 4PM; dinner on Friday and Saturday runs until 11PM at 46 Avenida Menendez.",
+    "local_tip": "Ask for a courtyard table for the nightly live music.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hookedonharrys.com/location/st-augustine/"
+     ],
+     "why_here": [
+      "https://hookedonharrys.com/location/st-augustine/"
+     ],
+     "know_before": [
+      "https://hookedonharrys.com/location/st-augustine/"
+     ],
+     "local_tip": [
+      "https://hookedonharrys.com/location/st-augustine/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harry's Seafood, Bar & Grille overlooks the bayfront in historic downtown St. Augustine.",
+      "source": "https://hookedonharrys.com/location/st-augustine/"
+     },
+     {
+      "claim": "Harry's Seafood, Bar & Grille serves the flavors of New Orleans.",
+      "source": "https://hookedonharrys.com/location/st-augustine/"
+     },
+     {
+      "claim": "Harry's Seafood, Bar & Grille lists its address as 46 Avenida Menendez, St. Augustine, FL 32084.",
+      "source": "https://hookedonharrys.com/location/st-augustine/"
+     },
+     {
+      "claim": "Harry's Seafood, Bar & Grille lists lunch as 11AM to 4PM and dinner on Friday and Saturday until 11PM.",
+      "source": "https://hookedonharrys.com/location/st-augustine/"
+     },
+     {
+      "claim": "Harry's Seafood, Bar & Grille highlights nightly live music in its courtyard.",
+      "source": "https://hookedonharrys.com/location/st-augustine/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ53JwGVGt2YgRpp5FDrhoDd8",
+   "name": "Pollos & Jarras",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pollosyjarras.com/site/menu/food.html",
+     "source_name": "Pollos & Jarras \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pollos & Jarras lists 1 Pollo a la Brasa as rotisserie chicken accompanied with crunchy fries, salad, and all the dressings.",
+      "Pollos & Jarras describes yucas as soft inside and crispy outside, served with huanca\u00edna sauce."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pollo a la Brasa rotisserie chicken with crunchy fries and salad",
+    "why_here": "Go for 1 Pollo a la Brasa, described as rotisserie chicken accompanied with crunchy fries, salad, and all the dressings, plus yucas that are soft inside and crispy outside with huanca\u00edna sauce.",
+    "know_before": "The menu lists yucas with huanca\u00edna sauce and rotisserie chicken with fries, salad, and dressings.",
+    "local_tip": "Start with yucas in huanca\u00edna sauce, then share the rotisserie chicken and dressings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ],
+     "why_here": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ],
+     "know_before": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ],
+     "local_tip": [
+      "https://www.pollosyjarras.com/site/menu/food.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pollos & Jarras lists 1 Pollo a la Brasa as rotisserie chicken accompanied with crunchy fries, salad, and all the dressings.",
+      "source": "https://www.pollosyjarras.com/site/menu/food.html"
+     },
+     {
+      "claim": "Pollos & Jarras describes yucas as soft inside and crispy outside, served with huanca\u00edna sauce.",
+      "source": "https://www.pollosyjarras.com/site/menu/food.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1bgx61u12YgRC6hfGKv_0sU",
+   "name": "Limoncello Miami beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.limoncellomiamibeach.com/",
+     "source_name": "Limoncello Miami beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Limoncello is described on its site as an Authentic Italian Restaurant in Miami Beach.",
+      "Limoncello lists its address as 1334 Washington Ave., Miami Beach, FL, 33139.",
+      "Limoncello lists open hours including Monday: 12pm to 11:45pm.",
+      "The Limoncello site links to Our Menu and Book a Table pages."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Authentic Italian Restaurant in Miami Beach",
+    "why_here": "Go for an authentic Italian meal in Miami Beach, with menu and table-booking pages on the site so dishes can be checked and a table booked before visiting the restaurant.",
+    "know_before": "The address is 1334 Washington Ave., Miami Beach, FL, 33139; Monday hours are listed as 12pm to 11:45pm.",
+    "local_tip": "Use the Book a Table page on the site before an evening visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.limoncellomiamibeach.com/"
+     ],
+     "why_here": [
+      "https://www.limoncellomiamibeach.com/"
+     ],
+     "know_before": [
+      "https://www.limoncellomiamibeach.com/"
+     ],
+     "local_tip": [
+      "https://www.limoncellomiamibeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Limoncello is described on its site as an Authentic Italian Restaurant in Miami Beach.",
+      "source": "https://www.limoncellomiamibeach.com/"
+     },
+     {
+      "claim": "Limoncello lists its address as 1334 Washington Ave., Miami Beach, FL, 33139.",
+      "source": "https://www.limoncellomiamibeach.com/"
+     },
+     {
+      "claim": "Limoncello lists open hours including Monday: 12pm to 11:45pm.",
+      "source": "https://www.limoncellomiamibeach.com/"
+     },
+     {
+      "claim": "The Limoncello site links to Our Menu and Book a Table pages.",
+      "source": "https://www.limoncellomiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrweVTfZ-3YgR49VIwRxjdvM",
+   "name": "Disney's Coronado Springs Resort",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/",
+     "source_name": "Disney's Coronado Springs Resort \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Disney's Coronado Springs Resort lists Villa del Lago as a collection of buildings set in the middle of Lago Dorado.",
+      "Disney's Coronado Springs Resort lists its address as 1001 West Buena Vista Drive, Lake Buena Vista, Florida 32830-8403."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Resort buildings around Lago Dorado, with Villa del Lago in the middle",
+    "why_here": "Stay for a resort set around Lago Dorado, where Villa del Lago sits in the middle of the lake, and use the address at 1001 West Buena Vista Drive when planning the arrival.",
+    "know_before": "The listed address is 1001 West Buena Vista Drive, Lake Buena Vista, Florida 32830-8403.",
+    "local_tip": "Look for Villa del Lago in the middle of Lago Dorado.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/"
+     ],
+     "local_tip": [
+      "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Disney's Coronado Springs Resort lists Villa del Lago as a collection of buildings set in the middle of Lago Dorado.",
+      "source": "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/"
+     },
+     {
+      "claim": "Disney's Coronado Springs Resort lists its address as 1001 West Buena Vista Drive, Lake Buena Vista, Florida 32830-8403.",
+      "source": "https://www.disneyworld.co.uk/en-gb/resorts/coronado-springs-resort/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS3j7AnEn5IgRj0GbuJwbvpg",
+   "name": "St. Augustine Lighthouse & Maritime Museum",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.staugustinelighthouse.org/visit/",
+     "source_name": "St. Augustine Lighthouse & Maritime Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors can climb the 1874 Lighthouse Tower for breathtaking 360\u00b0 views of St. Augustine.",
+      "The 1876 Keepers' House has Victorian architecture and shipwreck discoveries from the American Revolution.",
+      "The site includes the 1942 WWII Barracks and Heritage Boatworks, where volunteers craft old world wooden boats.",
+      "The Maritime Hammock Nature Area is on the grounds, and climbing the tower is included with admission."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Climb the 1874 Lighthouse Tower for 360 views of St. Augustine.",
+    "why_here": "Climb the 1874 tower, explore the 1876 Keepers' House and its shipwreck discoveries, see volunteers craft wooden boats at Heritage Boatworks, and learn about WWII history on one historic site.",
+    "know_before": "Climbing the tower is included with admission, along with the 1876 Keepers' House and the 1942 WWII Barracks.",
+    "local_tip": "Enjoy a quiet moment in the Maritime Hammock Nature Area after climbing the tower.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.staugustinelighthouse.org/visit/"
+     ],
+     "why_here": [
+      "https://www.staugustinelighthouse.org/visit/"
+     ],
+     "know_before": [
+      "https://www.staugustinelighthouse.org/visit/"
+     ],
+     "local_tip": [
+      "https://www.staugustinelighthouse.org/visit/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors can climb the 1874 Lighthouse Tower for breathtaking 360\u00b0 views of St. Augustine.",
+      "source": "https://www.staugustinelighthouse.org/visit/"
+     },
+     {
+      "claim": "The 1876 Keepers' House has Victorian architecture and shipwreck discoveries from the American Revolution.",
+      "source": "https://www.staugustinelighthouse.org/visit/"
+     },
+     {
+      "claim": "The site includes the 1942 WWII Barracks and Heritage Boatworks, where volunteers craft old world wooden boats.",
+      "source": "https://www.staugustinelighthouse.org/visit/"
+     },
+     {
+      "claim": "The Maritime Hammock Nature Area is on the grounds, and climbing the tower is included with admission.",
+      "source": "https://www.staugustinelighthouse.org/visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJyVX8ZJu02YgR1Q-Psp8kj28",
+   "name": "Maxine's Bistro and Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.catalinahotel.com/drinking-dining",
+     "source_name": "Maxine's Bistro and Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Maxine's Bistro & Bar is a neighborhood staple known for its all-day menu, vibrant bar scene and nightly live music and DJs.",
+      "Maxine's Bistro & Bar serves everything from hearty breakfasts and bottomless mimosas to homemade burgers and signature cocktails.",
+      "Maxine's Bistro & Bar appears on the Catalina Hotel & Beach Club dining page."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-day menu, vibrant bar scene and nightly live music and DJs.",
+    "why_here": "Go for hearty breakfasts and bottomless mimosas, homemade burgers and signature cocktails, plus nightly live music and DJs in a vibrant bar scene, all from an all-day menu.",
+    "know_before": "Maxine's Bistro & Bar appears on the Catalina Hotel dining page; check that page for current details before visiting.",
+    "local_tip": "Pair hearty breakfasts or bottomless mimosas by day with nightly live music and DJs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.catalinahotel.com/drinking-dining"
+     ],
+     "why_here": [
+      "https://www.catalinahotel.com/drinking-dining"
+     ],
+     "know_before": [
+      "https://www.catalinahotel.com/drinking-dining"
+     ],
+     "local_tip": [
+      "https://www.catalinahotel.com/drinking-dining"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Maxine's Bistro & Bar is a neighborhood staple known for its all-day menu, vibrant bar scene and nightly live music and DJs.",
+      "source": "https://www.catalinahotel.com/drinking-dining"
+     },
+     {
+      "claim": "Maxine's Bistro & Bar serves everything from hearty breakfasts and bottomless mimosas to homemade burgers and signature cocktails.",
+      "source": "https://www.catalinahotel.com/drinking-dining"
+     },
+     {
+      "claim": "Maxine's Bistro & Bar appears on the Catalina Hotel & Beach Club dining page.",
+      "source": "https://www.catalinahotel.com/drinking-dining"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ32l5iEzPwogRqkIdFatiAxc",
+   "name": "Hard Rock Cafe",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://casino.hardrock.com/tampa/dining/hard-rock-cafe",
+     "source_name": "Hard Rock Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hard Rock Cafe Tampa features classic American fare, a high-energy atmosphere, and live music on an elevated stage.",
+      "Guests can combine a Legendary Burger with live music and rare memorabilia.",
+      "Located inside Seminole Hard Rock Hotel & Casino Tampa at 5223 Orient Road, Tampa, FL 33610.",
+      "An on-site Rock Shop sells Hard Rock limited-edition merchandise."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "American cafe with live music on an elevated stage inside Seminole Hard Rock Tampa",
+    "why_here": "Go for classic American fare and a Legendary Burger inside Seminole Hard Rock Hotel & Casino Tampa, where tables face an elevated stage for live music and the room is filled with rare memorabilia.",
+    "know_before": "It sits inside the casino at 5223 Orient Road in Tampa; check the official page for current restaurant and Rock Shop hours.",
+    "local_tip": "Allow time after eating to browse the Rock Shop for limited-edition merchandise, as suggested on the official page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     ],
+     "why_here": [
+      "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     ],
+     "know_before": [
+      "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     ],
+     "local_tip": [
+      "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hard Rock Cafe Tampa features classic American fare, a high-energy atmosphere, and live music on an elevated stage.",
+      "source": "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     },
+     {
+      "claim": "Guests can combine a Legendary Burger with live music and rare memorabilia.",
+      "source": "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     },
+     {
+      "claim": "Located inside Seminole Hard Rock Hotel & Casino Tampa at 5223 Orient Road, Tampa, FL 33610.",
+      "source": "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     },
+     {
+      "claim": "An on-site Rock Shop sells Hard Rock limited-edition merchandise.",
+      "source": "https://casino.hardrock.com/tampa/dining/hard-rock-cafe"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI_ydBmsA2YgR9OkziNe7adM",
+   "name": "Shooters Waterfront",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.shooterswaterfront.com/",
+     "source_name": "Shooters Waterfront \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Shooters Waterfront is located on the Intracoastal Waterway at 3033 NE 32 Ave, Fort Lauderdale, FL 33308.",
+      "Since 1982, Shooters Waterfront has been a destination for dockside views, fresh seafood, and weekend brunch.",
+      "The official site lists brunch, lunch, dinner and happy hour times, with brunch from 10:00am to 4:00pm.",
+      "Shooters Waterfront is accessible by Water Taxi at stop nine, just steps from the dock, and saving 10% on the bill is offered when Water Taxi tickets are purchased through Shooters."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dockside views and fresh seafood on the water since 1982 in Fort Lauderdale.",
+    "why_here": "Go for dockside views, fresh seafood and weekend brunch in Fort Lauderdale, with lunch, dinner and happy hour also listed at a waterfront destination operating since 1982.",
+    "know_before": "Weekend brunch is listed from 10:00am to 4:00pm; check the official site for current hours before visiting.",
+    "local_tip": "Take the Water Taxi to stop nine and save 10% on your bill when tickets are purchased through Shooters.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.shooterswaterfront.com/"
+     ],
+     "why_here": [
+      "https://www.shooterswaterfront.com/"
+     ],
+     "know_before": [
+      "https://www.shooterswaterfront.com/"
+     ],
+     "local_tip": [
+      "https://www.shooterswaterfront.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Shooters Waterfront is located on the Intracoastal Waterway at 3033 NE 32 Ave, Fort Lauderdale, FL 33308.",
+      "source": "https://www.shooterswaterfront.com/"
+     },
+     {
+      "claim": "Since 1982, Shooters Waterfront has been a destination for dockside views, fresh seafood, and weekend brunch.",
+      "source": "https://www.shooterswaterfront.com/"
+     },
+     {
+      "claim": "The official site lists brunch, lunch, dinner and happy hour times, with brunch from 10:00am to 4:00pm.",
+      "source": "https://www.shooterswaterfront.com/"
+     },
+     {
+      "claim": "Shooters Waterfront is accessible by Water Taxi at stop nine, just steps from the dock, and saving 10% on the bill is offered when Water Taxi tickets are purchased through Shooters.",
+      "source": "https://www.shooterswaterfront.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc0608_7twogRHYblYH7BRwU",
+   "name": "Countryside Mall",
+   "category": "shopping",
+   "metro": "tampa",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.countrysidemallfl.com/",
+     "source_name": "Countryside Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Countryside Mall describes itself as the destination for dining, entertainment and shopping in Clearwater, FL.",
+      "It has over 100 stores, family-friendly entertainment options, and numerous eateries.",
+      "Retailers cover everyday essentials, gifts, and special-occasion shopping."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clearwater mall with over 100 stores, dining and family entertainment in one place",
+    "why_here": "Go to combine shopping, a meal and family entertainment in a single Clearwater stop, with over 100 stores for everyday essentials, gifts and special occasions alongside numerous eateries.",
+    "know_before": "Check the mall's official site for today's hours before visiting, as hours are posted there and can change.",
+    "local_tip": "Use the official directory on the mall site to plan store and dining stops before you arrive.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.countrysidemallfl.com/"
+     ],
+     "why_here": [
+      "https://www.countrysidemallfl.com/"
+     ],
+     "know_before": [
+      "https://www.countrysidemallfl.com/"
+     ],
+     "local_tip": [
+      "https://www.countrysidemallfl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Countryside Mall describes itself as the destination for dining, entertainment and shopping in Clearwater, FL.",
+      "source": "https://www.countrysidemallfl.com/"
+     },
+     {
+      "claim": "It has over 100 stores, family-friendly entertainment options, and numerous eateries.",
+      "source": "https://www.countrysidemallfl.com/"
+     },
+     {
+      "claim": "Retailers cover everyday essentials, gifts, and special-occasion shopping.",
+      "source": "https://www.countrysidemallfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV-KL_SC02YgR386MTNlyvVs",
+   "name": "Big Bus Tours Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bigbustours.com/en/miami/",
+     "source_name": "Big Bus Tours Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Big Bus Tours Miami offers sightseeing tours of Miami on open-top, double-decker buses.",
+      "Its bus tours operate over 3 different routes, with stops near Miami landmarks and attractions.",
+      "Tickets include hop-on, hop-off sightseeing options such as 24-hour and 48-hour passes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-top double-decker hop-on hop-off sightseeing tours across Miami",
+    "why_here": "Go to see Miami from an open-top double-decker bus and hop off at stops near major landmarks, using the multi-route service to move between attractions at your own pace instead of driving and parking.",
+    "know_before": "Check the official Miami page for current routes, timetables and service information before buying a ticket.",
+    "local_tip": "Choose the ticket length that matches your stay; the official site lists both 24-hour and 48-hour options.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bigbustours.com/en/miami/"
+     ],
+     "why_here": [
+      "https://www.bigbustours.com/en/miami/"
+     ],
+     "know_before": [
+      "https://www.bigbustours.com/en/miami/"
+     ],
+     "local_tip": [
+      "https://www.bigbustours.com/en/miami/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Big Bus Tours Miami offers sightseeing tours of Miami on open-top, double-decker buses.",
+      "source": "https://www.bigbustours.com/en/miami/"
+     },
+     {
+      "claim": "Its bus tours operate over 3 different routes, with stops near Miami landmarks and attractions.",
+      "source": "https://www.bigbustours.com/en/miami/"
+     },
+     {
+      "claim": "Tickets include hop-on, hop-off sightseeing options such as 24-hour and 48-hour passes.",
+      "source": "https://www.bigbustours.com/en/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp6chQZe32YgRJBwcJ8qFH0M",
+   "name": "Bulla Gastrobar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "spanish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bullagastrobar.com/locations/coral-gables/",
+     "source_name": "Bulla Gastrobar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bulla Gastrobar Coral Gables was the very first Bulla location, in downtown Coral Gables near Miracle Mile and Ponce de Leon.",
+      "The menu features authentic paella, cured meats, grilled octopus salad, and shareable tapas plates.",
+      "It serves lunch Monday through Friday, dinner nightly, weekend brunch, and a daily happy hour.",
+      "Drinks include Spanish wines, local beers, craft cocktails and sangria."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The first Bulla location, serving Spanish tapas near Miracle Mile in Coral Gables",
+    "why_here": "Go for Spanish tapas in the original Bulla dining room in downtown Coral Gables, sharing paella, cured meats and grilled octopus salad with Spanish wine or sangria in a communal, energetic setting.",
+    "know_before": "The official page lists lunch Monday to Friday and dinner nightly; check it for current happy hour and brunch details.",
+    "local_tip": "Order several shareable tapas plates for the table rather than a single entree, as the menu is designed for sharing.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bullagastrobar.com/locations/coral-gables/"
+     ],
+     "why_here": [
+      "https://bullagastrobar.com/locations/coral-gables/"
+     ],
+     "know_before": [
+      "https://bullagastrobar.com/locations/coral-gables/"
+     ],
+     "local_tip": [
+      "https://bullagastrobar.com/locations/coral-gables/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bulla Gastrobar Coral Gables was the very first Bulla location, in downtown Coral Gables near Miracle Mile and Ponce de Leon.",
+      "source": "https://bullagastrobar.com/locations/coral-gables/"
+     },
+     {
+      "claim": "The menu features authentic paella, cured meats, grilled octopus salad, and shareable tapas plates.",
+      "source": "https://bullagastrobar.com/locations/coral-gables/"
+     },
+     {
+      "claim": "It serves lunch Monday through Friday, dinner nightly, weekend brunch, and a daily happy hour.",
+      "source": "https://bullagastrobar.com/locations/coral-gables/"
+     },
+     {
+      "claim": "Drinks include Spanish wines, local beers, craft cocktails and sangria.",
+      "source": "https://bullagastrobar.com/locations/coral-gables/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-cylLpl_3YgRLc_XNEh9I2I",
+   "name": "Disney's Typhoon Lagoon Water Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/",
+     "source_name": "Disney's Typhoon Lagoon Water Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Disney's Typhoon Lagoon Water Park is a tropical paradise transformed by a legendary storm into an oasis of pure excitement.",
+      "Attractions listed include Miss Adventure Falls, Crush 'n' Gusher, Typhoon Lagoon Surf Pool, Gangplank Falls and Castaway Creek.",
+      "Ways to chill listed include Castaway Creek and Sandy Beaches, and dining options listed include Leaning Palms and Happy Landings Ice Cream.",
+      "Ketchakiddee Creek offers pint-sized waterslides and splashy fun for kids, and the official page says the water park is currently closed for refurbishment."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tropical water park with a surf pool, water slides and Castaway Creek.",
+    "why_here": "Go for Miss Adventure Falls and Crush 'n' Gusher, try the Typhoon Lagoon Surf Pool, then slow down on Castaway Creek and Sandy Beaches during a tropical water park day.",
+    "know_before": "The official page says the water park is currently closed for refurbishment; check back for updates before planning a visit.",
+    "local_tip": "Balance Crush 'n' Gusher with Castaway Creek and Leaning Palms for food during the day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     ],
+     "why_here": [
+      "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     ],
+     "know_before": [
+      "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     ],
+     "local_tip": [
+      "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Disney's Typhoon Lagoon Water Park is a tropical paradise transformed by a legendary storm into an oasis of pure excitement.",
+      "source": "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     },
+     {
+      "claim": "Attractions listed include Miss Adventure Falls, Crush 'n' Gusher, Typhoon Lagoon Surf Pool, Gangplank Falls and Castaway Creek.",
+      "source": "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     },
+     {
+      "claim": "Ways to chill listed include Castaway Creek and Sandy Beaches, and dining options listed include Leaning Palms and Happy Landings Ice Cream.",
+      "source": "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     },
+     {
+      "claim": "Ketchakiddee Creek offers pint-sized waterslides and splashy fun for kids, and the official page says the water park is currently closed for refurbishment.",
+      "source": "https://www.disneyworld.co.uk/destinations/typhoon-lagoon/"
+     }
+    ]
+   }
+  }
+ ]
+}

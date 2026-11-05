@@ -272,7 +272,7 @@ for (const row of model.haunts) {
   for (const ph of prow.photos) {
     ok(/^(https:\/\/|\/)/.test(ph.src) && ph.alt && !DASH.test(ph.alt), row.id + " photo has an absolute or site path and dash free alt");
     ok(ph.source !== "google" || (ph.credit && /^\/api\/photo\/stored\//.test(ph.src)), row.id + " Google photo carries its author credit");
-    if (ph.credit) ok(html.includes(ph.credit), row.id + " photo credit renders under the headline");
+    if (ph.credit) ok(html.includes(ph.credit), row.id + " photo credit renders on the photo");
   }
   if (row.photo) ok(prow.photos[0].src === row.photo.src, row.id + " existing photo stays photo 1");
   ok(html.includes(row.timing), "renders " + row.timing);

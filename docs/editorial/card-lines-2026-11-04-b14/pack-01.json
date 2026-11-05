@@ -1,0 +1,2031 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 14. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJv0XBvvmtwogR8L1Xfu4DxHY",
+   "name": "Epperson Lagoon",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel",
+     "source_name": "Epperson Lagoon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Epperson Lagoon is in Wesley Chapel.",
+      "Epperson Lagoon offers over seven acres of clear blue waters made for swimming and sliding, playing and paddling.",
+      "Epperson Lagoon has sandy beaches.",
+      "All Day Tickets must be purchased for guests 4 years of age and older.",
+      "Day Tickets include free parking and complimentary beach loungers, subject to availability.",
+      "The Sandbar at Epperson Lagoon is a swim-up bar."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over seven acres of clear blue water for swimming and sliding in Wesley Chapel",
+    "why_here": "Epperson Lagoon in Wesley Chapel offers over seven acres of clear blue waters made for swimming and sliding, playing and paddling, with sandy beaches alongside the water for sunning and relaxing on shore.",
+    "know_before": "All Day Tickets must be purchased for guests 4 years of age and older.",
+    "local_tip": "Use the complimentary beach loungers included with Day Tickets, subject to availability.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     ],
+     "why_here": [
+      "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     ],
+     "know_before": [
+      "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     ],
+     "local_tip": [
+      "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Epperson Lagoon is in Wesley Chapel.",
+      "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     },
+     {
+      "claim": "Epperson Lagoon offers over seven acres of clear blue waters made for swimming and sliding, playing and paddling.",
+      "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     },
+     {
+      "claim": "Epperson Lagoon has sandy beaches.",
+      "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     },
+     {
+      "claim": "All Day Tickets must be purchased for guests 4 years of age and older.",
+      "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     },
+     {
+      "claim": "Day Tickets include free parking and complimentary beach loungers, subject to availability.",
+      "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     },
+     {
+      "claim": "The Sandbar at Epperson Lagoon is a swim-up bar.",
+      "source": "https://www.metrolagoons.com/epperson-lagoon-wesley-chapel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJG_mKuiMA2YgR2V26_kiV9RU",
+   "name": "Fort Lauderdale Marriott Harbor Beach Resort & Spa",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/",
+     "source_name": "Fort Lauderdale Marriott Harbor Beach Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fort Lauderdale Marriott Harbor Beach Resort & Spa is along a quarter-mile stretch of private beachfront in Fort Lauderdale.",
+      "The hotel has a 22,000-square-foot full-service spa.",
+      "The spa offers massage, facial and body scrub treatments."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A quarter-mile of private beachfront with a 22,000-square-foot spa",
+    "why_here": "Fort Lauderdale Marriott Harbor Beach Resort & Spa sits along a quarter-mile stretch of private beachfront in Fort Lauderdale, with a 22,000-square-foot full-service spa offering massage, facial and body scrub treatments on site.",
+    "know_before": "The spa offers massage, facial and body scrub treatments.",
+    "local_tip": "Book a massage, facial or body scrub treatment at the full-service spa.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     ],
+     "why_here": [
+      "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     ],
+     "know_before": [
+      "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     ],
+     "local_tip": [
+      "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fort Lauderdale Marriott Harbor Beach Resort & Spa is along a quarter-mile stretch of private beachfront in Fort Lauderdale.",
+      "source": "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     },
+     {
+      "claim": "The hotel has a 22,000-square-foot full-service spa.",
+      "source": "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     },
+     {
+      "claim": "The spa offers massage, facial and body scrub treatments.",
+      "source": "https://www.marriott.com/en-us/hotels/fllsb-fort-lauderdale-marriott-harbor-beach-resort-and-spa/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4xqrxNCx2YgRBKYKPKdKaDY",
+   "name": "El Turco Turkish Food",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "turkish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elturcoturkishfood.com/menu",
+     "source_name": "El Turco Turkish Food \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Turco Turkish Food is in Miami.",
+      "The menu includes Menemen (Shakshuka).",
+      "The menu includes Lahmacun.",
+      "The menu includes Traditional Turkish Breakfast.",
+      "Kavurma-Braised beef is listed under Traditional Main Dishes and is braised beef served with rice."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Turkish breakfast dishes and lahmacun on the menu in Miami",
+    "why_here": "El Turco Turkish Food in Miami lists Menemen (Shakshuka) and Lahmacun on its menu, along with Kavurma-Braised beef under Traditional Main Dishes, served with rice for a hearty meal at the table.",
+    "know_before": "Kavurma-Braised beef is braised beef served with rice.",
+    "local_tip": "Try the Lahmacun alongside Menemen (Shakshuka) for breakfast.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elturcoturkishfood.com/menu"
+     ],
+     "why_here": [
+      "https://elturcoturkishfood.com/menu"
+     ],
+     "know_before": [
+      "https://elturcoturkishfood.com/menu"
+     ],
+     "local_tip": [
+      "https://elturcoturkishfood.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Turco Turkish Food is in Miami.",
+      "source": "https://elturcoturkishfood.com/menu"
+     },
+     {
+      "claim": "The menu includes Menemen (Shakshuka).",
+      "source": "https://elturcoturkishfood.com/menu"
+     },
+     {
+      "claim": "The menu includes Lahmacun.",
+      "source": "https://elturcoturkishfood.com/menu"
+     },
+     {
+      "claim": "The menu includes Traditional Turkish Breakfast.",
+      "source": "https://elturcoturkishfood.com/menu"
+     },
+     {
+      "claim": "Kavurma-Braised beef is listed under Traditional Main Dishes and is braised beef served with rice.",
+      "source": "https://elturcoturkishfood.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw7CdGLoJ2YgRoDckHUQtDIs",
+   "name": "The Escape Game Sunrise",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theescapegame.com/sunrise/",
+     "source_name": "The Escape Game Sunrise \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Escape Game Sunrise is at Sawgrass Mills in Sunrise.",
+      "The Escape Game Sunrise offers 60-minute escape rooms.",
+      "Multiple rooms are included in every game.",
+      "The games are for all ages and skill levels, for families, friends, first-timers and enthusiasts.",
+      "Hints are unlimited with no limits and no penalties."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "60-minute escape rooms at Sawgrass Mills with unlimited hints",
+    "why_here": "The Escape Game Sunrise at Sawgrass Mills runs 60-minute escape rooms for all ages and skill levels, with multiple rooms in every game so another room opens as play progresses through the story.",
+    "know_before": "Games are 60-minute escape rooms, with unlimited hints and no penalties.",
+    "local_tip": "Ask for as many hints as you like; hints are unlimited with no penalties.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theescapegame.com/sunrise/"
+     ],
+     "why_here": [
+      "https://theescapegame.com/sunrise/"
+     ],
+     "know_before": [
+      "https://theescapegame.com/sunrise/"
+     ],
+     "local_tip": [
+      "https://theescapegame.com/sunrise/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Escape Game Sunrise is at Sawgrass Mills in Sunrise.",
+      "source": "https://theescapegame.com/sunrise/"
+     },
+     {
+      "claim": "The Escape Game Sunrise offers 60-minute escape rooms.",
+      "source": "https://theescapegame.com/sunrise/"
+     },
+     {
+      "claim": "Multiple rooms are included in every game.",
+      "source": "https://theescapegame.com/sunrise/"
+     },
+     {
+      "claim": "The games are for all ages and skill levels, for families, friends, first-timers and enthusiasts.",
+      "source": "https://theescapegame.com/sunrise/"
+     },
+     {
+      "claim": "Hints are unlimited with no limits and no penalties.",
+      "source": "https://theescapegame.com/sunrise/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTZDpDXG35YgR5Qe_XQ7_-AI",
+   "name": "Riverside Arts Market",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "farmers_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://riversideartsmarket.org/",
+     "source_name": "Riverside Arts Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Riverside Arts Market is held every Saturday from 10 a.m. to 3 p.m., rain or shine.",
+      "The market is held under the Fuller Warren Bridge.",
+      "The market is produced by Riverside Avondale Preservation.",
+      "The market features more than 150 artists, farmers, makers and entrepreneurs from the immediate region."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A Saturday market under the Fuller Warren Bridge with more than 150 artists",
+    "why_here": "Produced by Riverside Avondale Preservation, the Riverside Arts Market is held every Saturday under the Fuller Warren Bridge and features more than 150 artists, farmers, makers and entrepreneurs from the immediate region.",
+    "know_before": "The market is held every Saturday from 10 a.m. to 3 p.m., rain or shine.",
+    "local_tip": "Arrive on Saturday to browse more than 150 artists, farmers and makers during a visit.",
+    "best_time": "Every Saturday from 10 a.m. - 3 p.m., rain or shine, per the official site.",
+    "citations": {
+     "hook": [
+      "https://riversideartsmarket.org/"
+     ],
+     "why_here": [
+      "https://riversideartsmarket.org/"
+     ],
+     "know_before": [
+      "https://riversideartsmarket.org/"
+     ],
+     "local_tip": [
+      "https://riversideartsmarket.org/"
+     ],
+     "best_time": [
+      "https://riversideartsmarket.org/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Riverside Arts Market is held every Saturday from 10 a.m. to 3 p.m., rain or shine.",
+      "source": "https://riversideartsmarket.org/"
+     },
+     {
+      "claim": "The market is held under the Fuller Warren Bridge.",
+      "source": "https://riversideartsmarket.org/"
+     },
+     {
+      "claim": "The market is produced by Riverside Avondale Preservation.",
+      "source": "https://riversideartsmarket.org/"
+     },
+     {
+      "claim": "The market features more than 150 artists, farmers, makers and entrepreneurs from the immediate region.",
+      "source": "https://riversideartsmarket.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2SZlJu4H2YgRrNF4wygtIGg",
+   "name": "Lockbox Escape Room",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lockboxescaperoom.com/",
+     "source_name": "Lockbox Escape Room \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lockbox Escape Room is at 8490 W. State Road 84 in Davie.",
+      "Lockbox Escape Room originated from two brothers after watching the movie Saw 2.",
+      "Players work together to solve different clues and puzzles to escape the room.",
+      "The venue offers different themed experiences that incorporate adventure with intellect.",
+      "How to play is book your experience, arrive at location, get briefed on rules and strategies, then work together to solve different clues and puzzles."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A Davie escape room born from a late-night Saw 2 conversation",
+    "why_here": "Lockbox Escape Room in Davie offers different themed experiences that incorporate adventure with intellect, as players work together to solve different clues and puzzles to escape the room during the game.",
+    "know_before": "Players work together to solve different clues and puzzles to escape the room.",
+    "local_tip": "Book, arrive and get briefed on rules, then work together to solve clues and puzzles.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lockboxescaperoom.com/"
+     ],
+     "why_here": [
+      "https://lockboxescaperoom.com/"
+     ],
+     "know_before": [
+      "https://lockboxescaperoom.com/"
+     ],
+     "local_tip": [
+      "https://lockboxescaperoom.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lockbox Escape Room is at 8490 W. State Road 84 in Davie.",
+      "source": "https://lockboxescaperoom.com/"
+     },
+     {
+      "claim": "Lockbox Escape Room originated from two brothers after watching the movie Saw 2.",
+      "source": "https://lockboxescaperoom.com/"
+     },
+     {
+      "claim": "Players work together to solve different clues and puzzles to escape the room.",
+      "source": "https://lockboxescaperoom.com/"
+     },
+     {
+      "claim": "The venue offers different themed experiences that incorporate adventure with intellect.",
+      "source": "https://lockboxescaperoom.com/"
+     },
+     {
+      "claim": "How to play is book your experience, arrive at location, get briefed on rules and strategies, then work together to solve different clues and puzzles.",
+      "source": "https://lockboxescaperoom.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJA0-35Cc_kYgRlSwhaF27qK8",
+   "name": "The Shack",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.theshackpb.com/",
+     "source_name": "The Shack \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Shack Riverfront Restaurant & Outback Tiki Bar is located along the Indian River in Palm Bay.",
+      "The Shack has been a Palm Bay landmark since the 1950s.",
+      "The restaurant features 299 seats across two distinct dining experiences.",
+      "Guests enjoy complimentary valet service.",
+      "The Shack regularly hosts live music, karaoke, and bingo.",
+      "Indoors there is a private dining room and outdoors the Tiki Bar offers an open-air vibe with a dock for boaters."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Palm Bay riverfront dining on the Indian River since the 1950s",
+    "why_here": "The Shack Riverfront Restaurant & Outback Tiki Bar is a Palm Bay landmark on the Indian River, with indoors dining and an outdoors Tiki Bar, plus live music, karaoke and bingo hosted on a regular schedule.",
+    "know_before": "Guests enjoy complimentary valet service.",
+    "local_tip": "Choose the outdoors Tiki Bar for open-air seating by the dock for boaters.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.theshackpb.com/"
+     ],
+     "why_here": [
+      "https://www.theshackpb.com/"
+     ],
+     "know_before": [
+      "https://www.theshackpb.com/"
+     ],
+     "local_tip": [
+      "https://www.theshackpb.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Shack Riverfront Restaurant & Outback Tiki Bar is located along the Indian River in Palm Bay.",
+      "source": "https://www.theshackpb.com/"
+     },
+     {
+      "claim": "The Shack has been a Palm Bay landmark since the 1950s.",
+      "source": "https://www.theshackpb.com/"
+     },
+     {
+      "claim": "The restaurant features 299 seats across two distinct dining experiences.",
+      "source": "https://www.theshackpb.com/"
+     },
+     {
+      "claim": "Guests enjoy complimentary valet service.",
+      "source": "https://www.theshackpb.com/"
+     },
+     {
+      "claim": "The Shack regularly hosts live music, karaoke, and bingo.",
+      "source": "https://www.theshackpb.com/"
+     },
+     {
+      "claim": "Indoors there is a private dining room and outdoors the Tiki Bar offers an open-air vibe with a dock for boaters.",
+      "source": "https://www.theshackpb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJazQhFN-54gR_n5Y2DX8_Zg",
+   "name": "Charley's Steak House",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.charleyssteakhouse.com/orlando",
+     "source_name": "Charley's Steak House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Charley's Steak House in Orlando's menu features prime steaks, market fresh seafood, hand-crafted cocktails and fine wines.",
+      "Steaks are aged for four to six weeks for tenderness and flavor.",
+      "Steaks are hand cut daily by managers.",
+      "Wagyu Tomahawk Ribeye for two is carved tableside and served with choice of truffle or garlic butter.",
+      "A 21% service charge applies and no separate checks on parties of five or more."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Orlando steakhouse serving prime steaks aged four to six weeks",
+    "why_here": "Charley's Steak House in Orlando serves prime steaks, market fresh seafood, hand-crafted cocktails and fine wines. Steaks are aged for four to six weeks and hand cut daily by managers for tenderness and flavor.",
+    "know_before": "A 21% service charge applies, with no separate checks on parties of five or more.",
+    "local_tip": "Try the Wagyu Tomahawk Ribeye for two, carved tableside with truffle or garlic butter.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ],
+     "why_here": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ],
+     "know_before": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ],
+     "local_tip": [
+      "https://www.charleyssteakhouse.com/orlando"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Charley's Steak House in Orlando's menu features prime steaks, market fresh seafood, hand-crafted cocktails and fine wines.",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "Steaks are aged for four to six weeks for tenderness and flavor.",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "Steaks are hand cut daily by managers.",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "Wagyu Tomahawk Ribeye for two is carved tableside and served with choice of truffle or garlic butter.",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     },
+     {
+      "claim": "A 21% service charge applies and no separate checks on parties of five or more.",
+      "source": "https://www.charleyssteakhouse.com/orlando"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJNRN0rles2YgRBNnnLhyp06Y",
+   "name": "Novecento",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://novecento.com/",
+     "source_name": "Novecento \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Novecento locations include Aventura, Brickell, Delray Beach, Doral and Key Biscayne.",
+      "Novecento offers a Medio Tiempo lunch for $27 Monday through Friday from 11 a.m. to 3 p.m. at select locations.",
+      "Novecento Club members enjoy a welcome empanada on the next visit.",
+      "Novecento offers food with an Argentine twist."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brickell dining with a Medio Tiempo lunch Monday through Friday",
+    "why_here": "Novecento locations include Brickell, Aventura, Doral and Key Biscayne, and the group offers a Medio Tiempo lunch at select locations. Novecento Club members enjoy a welcome empanada on the next visit, with an Argentine twist.",
+    "know_before": "Medio Tiempo lunch is $27 Monday through Friday from 11 a.m. to 3 p.m. at select locations.",
+    "local_tip": "Join Novecento Club for a welcome empanada on the next visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://novecento.com/"
+     ],
+     "why_here": [
+      "https://novecento.com/"
+     ],
+     "know_before": [
+      "https://novecento.com/"
+     ],
+     "local_tip": [
+      "https://novecento.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Novecento locations include Aventura, Brickell, Delray Beach, Doral and Key Biscayne.",
+      "source": "https://novecento.com/"
+     },
+     {
+      "claim": "Novecento offers a Medio Tiempo lunch for $27 Monday through Friday from 11 a.m. to 3 p.m. at select locations.",
+      "source": "https://novecento.com/"
+     },
+     {
+      "claim": "Novecento Club members enjoy a welcome empanada on the next visit.",
+      "source": "https://novecento.com/"
+     },
+     {
+      "claim": "Novecento offers food with an Argentine twist.",
+      "source": "https://novecento.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQW5IcPr-5IgR4NTTRvNOduE",
+   "name": "Salty Pelican Bar & Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thesaltypelicanamelia.com/",
+     "source_name": "Salty Pelican Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Partners Al Waldis and T.J. Pelletier started The Salty Pelican Bar & Grill in 2012.",
+      "Located in heart of downtown Fernandina Beach.",
+      "Menu ranges from seafood to chicken wings.",
+      "Phone is (904) 277-3811."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fernandina Beach seafood bar and grill started in 2012",
+    "why_here": "The Salty Pelican Bar & Grill in Fernandina Beach was started in 2012 by Al Waldis and T.J. Pelletier. It serves seafood to chicken wings in downtown Fernandina Beach with a harbor view.",
+    "know_before": "Phone is (904) 277-3811.",
+    "local_tip": "The upstairs bar area offers a harbor view, per the official site's guest reviews section.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thesaltypelicanamelia.com/"
+     ],
+     "why_here": [
+      "https://www.thesaltypelicanamelia.com/"
+     ],
+     "know_before": [
+      "https://www.thesaltypelicanamelia.com/"
+     ],
+     "local_tip": [
+      "https://www.thesaltypelicanamelia.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Partners Al Waldis and T.J. Pelletier started The Salty Pelican Bar & Grill in 2012.",
+      "source": "https://www.thesaltypelicanamelia.com/"
+     },
+     {
+      "claim": "Located in heart of downtown Fernandina Beach.",
+      "source": "https://www.thesaltypelicanamelia.com/"
+     },
+     {
+      "claim": "Menu ranges from seafood to chicken wings.",
+      "source": "https://www.thesaltypelicanamelia.com/"
+     },
+     {
+      "claim": "Phone is (904) 277-3811.",
+      "source": "https://www.thesaltypelicanamelia.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKz1uv-q20YgRHfCT5Jq9aqg",
+   "name": "Schooner Wharf Bar",
+   "category": "nightlife",
+   "metro": "keys",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.schoonerwharf.com/",
+     "source_name": "Schooner Wharf Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Schooner Wharf Bar is at the foot of William Street on the Historic Harbor Walk.",
+      "An island institution since 1984.",
+      "Located on the site of the old Singleton Shrimp factory.",
+      "Breakfast served Fri. & Sat. 8:00 am - 11:00 am & Sun 8 am till Noon.",
+      "Address is 202 William Street, Key West, Florida 33040."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West open-air bar on the Historic Harbor Walk since 1984",
+    "why_here": "Schooner Wharf Bar is at the foot of William Street on the Historic Harbor Walk in Key West. An island institution since 1984 on the site of the old Singleton Shrimp factory, it offers live music, special events and local seafood.",
+    "know_before": "Breakfast is served Fri. and Sat. 8:00 a.m. to 11:00 a.m. and Sun. 8:00 a.m. till noon.",
+    "local_tip": "Site lists a buy-one-get-one-free draft or well drinks internet coupon.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.schoonerwharf.com/"
+     ],
+     "why_here": [
+      "https://www.schoonerwharf.com/"
+     ],
+     "know_before": [
+      "https://www.schoonerwharf.com/"
+     ],
+     "local_tip": [
+      "https://www.schoonerwharf.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Schooner Wharf Bar is at the foot of William Street on the Historic Harbor Walk.",
+      "source": "https://www.schoonerwharf.com/"
+     },
+     {
+      "claim": "An island institution since 1984.",
+      "source": "https://www.schoonerwharf.com/"
+     },
+     {
+      "claim": "Located on the site of the old Singleton Shrimp factory.",
+      "source": "https://www.schoonerwharf.com/"
+     },
+     {
+      "claim": "Breakfast served Fri. & Sat. 8:00 am - 11:00 am & Sun 8 am till Noon.",
+      "source": "https://www.schoonerwharf.com/"
+     },
+     {
+      "claim": "Address is 202 William Street, Key West, Florida 33040.",
+      "source": "https://www.schoonerwharf.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIU_PARFU5IgR1BUK642d7Xc",
+   "name": "Omni Amelia Island Resort & Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.omnihotels.com/hotels/amelia-island",
+     "source_name": "Omni Amelia Island Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Omni Amelia Island Resort & Spa welcomes guests overlooking the white sands of Fernandina Beach and the Atlantic Ocean.",
+      "Resort has the largest pool deck in northeast Florida, including an adults-only pool, family pool and splash pad.",
+      "Resort offers 36 holes of championship golf.",
+      "The resort has 401 guest rooms and suites.",
+      "Address is 39 Beach Lagoon Road, Fernandina Beach, Florida 32034."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront resort overlooking Fernandina Beach and the Atlantic",
+    "why_here": "Omni Amelia Island Resort & Spa overlooks the white sands of Fernandina Beach and the Atlantic Ocean. It has the largest pool deck in northeast Florida, 36 holes of championship golf, clay tennis courts, a spa, and 401 guest rooms and suites with furnished balconies and ocean views.",
+    "know_before": "Address is 39 Beach Lagoon Road, Fernandina Beach, Florida 32034.",
+    "local_tip": "Pool deck includes an adults-only pool, family pool and splash pad.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.omnihotels.com/hotels/amelia-island"
+     ],
+     "why_here": [
+      "https://www.omnihotels.com/hotels/amelia-island"
+     ],
+     "know_before": [
+      "https://www.omnihotels.com/hotels/amelia-island"
+     ],
+     "local_tip": [
+      "https://www.omnihotels.com/hotels/amelia-island"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Omni Amelia Island Resort & Spa welcomes guests overlooking the white sands of Fernandina Beach and the Atlantic Ocean.",
+      "source": "https://www.omnihotels.com/hotels/amelia-island"
+     },
+     {
+      "claim": "Resort has the largest pool deck in northeast Florida, including an adults-only pool, family pool and splash pad.",
+      "source": "https://www.omnihotels.com/hotels/amelia-island"
+     },
+     {
+      "claim": "Resort offers 36 holes of championship golf.",
+      "source": "https://www.omnihotels.com/hotels/amelia-island"
+     },
+     {
+      "claim": "The resort has 401 guest rooms and suites.",
+      "source": "https://www.omnihotels.com/hotels/amelia-island"
+     },
+     {
+      "claim": "Address is 39 Beach Lagoon Road, Fernandina Beach, Florida 32034.",
+      "source": "https://www.omnihotels.com/hotels/amelia-island"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJI8Yp8eG32YgRRe4dDEEpURQ",
+   "name": "Earls Kitchen + Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://earls.ca/locations/dadeland",
+     "source_name": "Earls Kitchen + Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Earls Dadeland is at 7535 N Kendall Drive, Unit 2510, Miami, FL.",
+      "Happy Hour is Monday through Friday from 4 p.m. to 7 p.m. and every day from 10 p.m. to close, lounge and patio only.",
+      "Brunch hours are weekends and holidays from open to 3 p.m.",
+      "Free and valet parking are listed for Earls Dadeland, with free wifi and a patio."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Miami restaurant at Dadeland with patio, brunch and happy hour",
+    "why_here": "Earls Dadeland is at 7535 N Kendall Drive, Unit 2510 in Miami, with a patio, free wifi and brunch on weekends and holidays. Happy Hour runs in the lounge and patio only, with free and valet parking listed.",
+    "know_before": "Brunch hours are weekends and holidays from open to 3 p.m.; free and valet parking are listed.",
+    "local_tip": "Happy Hour is Monday through Friday from 4 p.m. to 7 p.m., lounge and patio only.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://earls.ca/locations/dadeland"
+     ],
+     "why_here": [
+      "https://earls.ca/locations/dadeland"
+     ],
+     "know_before": [
+      "https://earls.ca/locations/dadeland"
+     ],
+     "local_tip": [
+      "https://earls.ca/locations/dadeland"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Earls Dadeland is at 7535 N Kendall Drive, Unit 2510, Miami, FL.",
+      "source": "https://earls.ca/locations/dadeland"
+     },
+     {
+      "claim": "Happy Hour is Monday through Friday from 4 p.m. to 7 p.m. and every day from 10 p.m. to close, lounge and patio only.",
+      "source": "https://earls.ca/locations/dadeland"
+     },
+     {
+      "claim": "Brunch hours are weekends and holidays from open to 3 p.m.",
+      "source": "https://earls.ca/locations/dadeland"
+     },
+     {
+      "claim": "Free and valet parking are listed for Earls Dadeland, with free wifi and a patio.",
+      "source": "https://earls.ca/locations/dadeland"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKwAoDPgS3YgRHZf9Lv8zg-w",
+   "name": "Red Lobster",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr",
+     "source_name": "Red Lobster \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "All entrees come with two warm, house-made Cheddar Bay Biscuits.",
+      "A Half Dozen Cheddar Bay Biscuits is listed at $4.99 with 970 calories on the official menu page."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Every entree comes with two warm, house-made Cheddar Bay Biscuits",
+    "why_here": "Red Lobster is a seafood restaurant chain known for Cheddar Bay Biscuits served with entrees. Extra biscuits are sold by the half dozen and dozen for takeout orders.",
+    "know_before": "Every To Go entree comes with two warm Cheddar Bay Biscuits.",
+    "local_tip": "Add a half dozen Cheddar Bay Biscuits to a takeout order if two per entree is not enough.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr"
+     ],
+     "why_here": [
+      "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr"
+     ],
+     "know_before": [
+      "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr"
+     ],
+     "local_tip": [
+      "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "All entrees come with two warm, house-made Cheddar Bay Biscuits.",
+      "source": "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr"
+     },
+     {
+      "claim": "A Half Dozen Cheddar Bay Biscuits is listed at $4.99 with 970 calories on the official menu page.",
+      "source": "https://www.redlobster.com/menu/biscuits-extras/half-dozen-cheddar-bay-biscuitsr"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1ah_XBar2YgRNNN9fJCqhLU",
+   "name": "Skinny Louie",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skinnylouie.com/louiespot/fortlauderdale",
+     "source_name": "Skinny Louie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The smashed burgers are made with 100% fresh Black Angus beef.",
+      "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles, and Louie Sauce.",
+      "The Classic Burger includes American cheese, tomato, lettuce, onions, ketchup and mustard.",
+      "The Applewood Bacon Burger includes crispy Applewood smoked bacon, American cheese and Louie Sauce.",
+      "Milkshake flavors include cookies & cream, choco brownie, and strawberry bliss.",
+      "An Impossible burger substitution and a gluten-free bun substitution are offered."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smash burgers made with 100% fresh Black Angus beef",
+    "why_here": "Skinny Louie serves smashed burgers made with 100% fresh Black Angus beef, including the Skinny Louie Cheeseburger with Louie Sauce. The Classic Burger and Applewood Bacon Burger add more choices alongside milkshakes.",
+    "know_before": "An Impossible burger substitution and a gluten-free bun substitution are offered.",
+    "local_tip": "Try milkshakes in cookies & cream, choco brownie, or strawberry bliss flavors.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     ],
+     "why_here": [
+      "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     ],
+     "know_before": [
+      "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     ],
+     "local_tip": [
+      "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The smashed burgers are made with 100% fresh Black Angus beef.",
+      "source": "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     },
+     {
+      "claim": "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles, and Louie Sauce.",
+      "source": "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     },
+     {
+      "claim": "The Classic Burger includes American cheese, tomato, lettuce, onions, ketchup and mustard.",
+      "source": "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     },
+     {
+      "claim": "The Applewood Bacon Burger includes crispy Applewood smoked bacon, American cheese and Louie Sauce.",
+      "source": "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     },
+     {
+      "claim": "Milkshake flavors include cookies & cream, choco brownie, and strawberry bliss.",
+      "source": "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     },
+     {
+      "claim": "An Impossible burger substitution and a gluten-free bun substitution are offered.",
+      "source": "https://www.skinnylouie.com/louiespot/fortlauderdale"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ75oUiD6r2YgRgRcdagjXWU4",
+   "name": "Billy's Stone Crab Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crabs.com/",
+     "source_name": "Billy's Stone Crab Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Billy's Stone Crab is a waterfront seafood restaurant and market in Hollywood Beach, FL.",
+      "The two-story restaurant has floor-to-ceiling views of the Intracoastal Waterway in the main dining room.",
+      "Florida Stone Crab Claws are sold with mustard sauce and bibs included.",
+      "Nationwide shipping is delivered overnight via FedEx, and free pickup is available from the market in the Hollywood restaurant."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two-story waterfront dining with views of the Intracoastal Waterway",
+    "why_here": "Billy's Stone Crab is a waterfront seafood restaurant and market in Hollywood Beach known for Florida stone crab claws. The two-story dining room has floor-to-ceiling views of the Intracoastal Waterway, and the on-site market sells stone crabs for pickup or shipping.",
+    "know_before": "Free pickup is available from the fresh market located in the restaurant in Hollywood, FL.",
+    "local_tip": "Dine upstairs or on the dock for the Intracoastal and marina views described on the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crabs.com/"
+     ],
+     "why_here": [
+      "https://crabs.com/"
+     ],
+     "know_before": [
+      "https://crabs.com/"
+     ],
+     "local_tip": [
+      "https://crabs.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Billy's Stone Crab is a waterfront seafood restaurant and market in Hollywood Beach, FL.",
+      "source": "https://crabs.com/"
+     },
+     {
+      "claim": "The two-story restaurant has floor-to-ceiling views of the Intracoastal Waterway in the main dining room.",
+      "source": "https://crabs.com/"
+     },
+     {
+      "claim": "Florida Stone Crab Claws are sold with mustard sauce and bibs included.",
+      "source": "https://crabs.com/"
+     },
+     {
+      "claim": "Nationwide shipping is delivered overnight via FedEx, and free pickup is available from the market in the Hollywood restaurant.",
+      "source": "https://crabs.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDTUi27je0IgR2CcOLyLY49o",
+   "name": "Florida Keys Steak and Lobster House",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flkeyssteakandlobster.com/welcome/main-menu/",
+     "source_name": "Florida Keys Steak and Lobster House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Florida Keys Steak and Lobster House's main menu includes Steaks, Chops, and Ribs and Seafood Entrees sections.",
+      "Conch Fritters are ground conch battered and fried, served with cocktail sauce.",
+      "Coconut Shrimp is five jumbo coconut-encrusted shrimp served with a Pina Colada sauce.",
+      "The official site lists separate Lunch, Sushi, Early Bird Special, and Happy Hour menus.",
+      "Steaks are hand-selected and wet-aged for 21 days, and dinners are served with a choice of two sides."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steaks, seafood entrees, and sushi menus with conch fritters",
+    "why_here": "Florida Keys Steak and Lobster House serves steaks, chops, ribs and seafood entrees, with steaks wet-aged for 21 days. Appetizers include conch fritters and coconut shrimp, and separate lunch and sushi menus are also listed.",
+    "know_before": "Dinners are served with a choice of two sides; steaks are wet-aged for 21 days.",
+    "local_tip": "Try the conch fritters, ground conch battered and fried with cocktail sauce.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     ],
+     "why_here": [
+      "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     ],
+     "know_before": [
+      "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     ],
+     "local_tip": [
+      "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Florida Keys Steak and Lobster House's main menu includes Steaks, Chops, and Ribs and Seafood Entrees sections.",
+      "source": "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     },
+     {
+      "claim": "Conch Fritters are ground conch battered and fried, served with cocktail sauce.",
+      "source": "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     },
+     {
+      "claim": "Coconut Shrimp is five jumbo coconut-encrusted shrimp served with a Pina Colada sauce.",
+      "source": "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     },
+     {
+      "claim": "The official site lists separate Lunch, Sushi, Early Bird Special, and Happy Hour menus.",
+      "source": "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     },
+     {
+      "claim": "Steaks are hand-selected and wet-aged for 21 days, and dinners are served with a choice of two sides.",
+      "source": "https://flkeyssteakandlobster.com/welcome/main-menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS9riv49bkYgRAi47KF4bXaY",
+   "name": "The Whale's Tail Beach Bar & Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill",
+     "source_name": "The Whale's Tail Beach Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Whale's Tail Beach Bar & Grill is located directly on the beach at Seascape Resort.",
+      "The restaurant opens at 7:00 a.m. and serves breakfast, lunch and dinner every day.",
+      "Guests can dine indoors in climate controlled comfort or on the deck with ocean breezes.",
+      "The Whale's Tail has been a Destin landmark for over thirty years."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront bar and grill directly on the beach at Seascape Resort",
+    "why_here": "The Whale's Tail Beach Bar & Grill sits directly on the beach at Seascape Resort and has been a Destin landmark for over thirty years. It serves breakfast, lunch, and dinner daily, with indoor dining or deck seating.",
+    "know_before": "The restaurant opens at 7:00 a.m. and serves breakfast, lunch and dinner every day.",
+    "local_tip": "Choose the deck for ocean breezes or indoor dining in climate controlled comfort.",
+    "best_time": "Breakfast from opening at 7:00 a.m., per the resort's official page.",
+    "citations": {
+     "hook": [
+      "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     ],
+     "why_here": [
+      "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     ],
+     "know_before": [
+      "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     ],
+     "local_tip": [
+      "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     ],
+     "best_time": [
+      "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Whale's Tail Beach Bar & Grill is located directly on the beach at Seascape Resort.",
+      "source": "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     },
+     {
+      "claim": "The restaurant opens at 7:00 a.m. and serves breakfast, lunch and dinner every day.",
+      "source": "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     },
+     {
+      "claim": "Guests can dine indoors in climate controlled comfort or on the deck with ocean breezes.",
+      "source": "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     },
+     {
+      "claim": "The Whale's Tail has been a Destin landmark for over thirty years.",
+      "source": "https://www.seascape-resort.com/experiences/things-to-do/dining/whales-tail-bar-grill"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw_ZNxwa52YgRL_JvG1Dsbbw",
+   "name": "Super Machi",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://supermachirestaurante.com/",
+     "source_name": "Super Machi \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Mes\u00f3n de Super Machi is at 7931 NW 2nd St, Miami, FL 33126.",
+      "The restaurant serves traditional Spanish-Cuban food.",
+      "Cochinillo Segoviano is listed among the special dishes.",
+      "Hours are Monday to Thursday 11:00 a.m. to 10:00 p.m. and Friday to Sunday 11:00 a.m. to 2:00 a.m.",
+      "A buffet-style lunch special runs Monday to Friday from 11:00 a.m. to 4:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spanish-Cuban kitchen known for Cochinillo Segoviano",
+    "why_here": "El Mes\u00f3n de Super Machi in Miami serves traditional Spanish-Cuban food, with Cochinillo Segoviano listed among the special dishes. The buffet-style lunch special runs Monday to Friday.",
+    "know_before": "Hours are Monday to Thursday 11:00 a.m. to 10:00 p.m. and Friday to Sunday 11:00 a.m. to 2:00 a.m.",
+    "local_tip": "The buffet-style lunch special runs Monday to Friday from 11:00 a.m. to 4:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://supermachirestaurante.com/"
+     ],
+     "why_here": [
+      "https://supermachirestaurante.com/"
+     ],
+     "know_before": [
+      "https://supermachirestaurante.com/"
+     ],
+     "local_tip": [
+      "https://supermachirestaurante.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Mes\u00f3n de Super Machi is at 7931 NW 2nd St, Miami, FL 33126.",
+      "source": "https://supermachirestaurante.com/"
+     },
+     {
+      "claim": "The restaurant serves traditional Spanish-Cuban food.",
+      "source": "https://supermachirestaurante.com/"
+     },
+     {
+      "claim": "Cochinillo Segoviano is listed among the special dishes.",
+      "source": "https://supermachirestaurante.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 11:00 a.m. to 10:00 p.m. and Friday to Sunday 11:00 a.m. to 2:00 a.m.",
+      "source": "https://supermachirestaurante.com/"
+     },
+     {
+      "claim": "A buffet-style lunch special runs Monday to Friday from 11:00 a.m. to 4:00 p.m.",
+      "source": "https://supermachirestaurante.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIRNKYhIO3ogRN-Vo27YzNBw",
+   "name": "Hemingway's Tavern",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hemingwaystavern.com/menus/",
+     "source_name": "Hemingway's Tavern \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hemingway's Tavern is at 1800 W Hibiscus Blvd., Suite 115, Melbourne, FL 32901.",
+      "Menu includes Cuban Pork Empanadas served with guava BBQ sauce.",
+      "Menu includes Bahamian Conch Chowder.",
+      "Menu includes Conch Fritters served with island remoulade.",
+      "Menu includes Caribbean Black Bean Soup."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Conch Fritters and Bahamian Conch Chowder in Melbourne",
+    "why_here": "Hemingway's Tavern in Melbourne lists Cuban Pork Empanadas served with guava BBQ sauce, Bahamian Conch Chowder, and Conch Fritters served with island remoulade on its menu.",
+    "know_before": "Hemingway's Tavern is at 1800 W Hibiscus Blvd., Suite 115, Melbourne, FL 32901.",
+    "local_tip": "Start with the Conch Fritters served with island remoulade.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hemingwaystavern.com/menus/"
+     ],
+     "why_here": [
+      "https://www.hemingwaystavern.com/menus/"
+     ],
+     "know_before": [
+      "https://www.hemingwaystavern.com/menus/"
+     ],
+     "local_tip": [
+      "https://www.hemingwaystavern.com/menus/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hemingway's Tavern is at 1800 W Hibiscus Blvd., Suite 115, Melbourne, FL 32901.",
+      "source": "https://www.hemingwaystavern.com/menus/"
+     },
+     {
+      "claim": "Menu includes Cuban Pork Empanadas served with guava BBQ sauce.",
+      "source": "https://www.hemingwaystavern.com/menus/"
+     },
+     {
+      "claim": "Menu includes Bahamian Conch Chowder.",
+      "source": "https://www.hemingwaystavern.com/menus/"
+     },
+     {
+      "claim": "Menu includes Conch Fritters served with island remoulade.",
+      "source": "https://www.hemingwaystavern.com/menus/"
+     },
+     {
+      "claim": "Menu includes Caribbean Black Bean Soup.",
+      "source": "https://www.hemingwaystavern.com/menus/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg8xZdmb92IgR-8aLCbCT9jM",
+   "name": "Pompano Beach Fisher Family Pier",
+   "category": "beach",
+   "metro": "broward",
+   "primary_type": "fishing_pier",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://parks.pompanobeachfl.gov/fisher-family-pier",
+     "source_name": "Pompano Beach Fisher Family Pier \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fisher Family Pier stretches nearly 900 feet into the Atlantic Ocean.",
+      "The pier end has a Pompano fish-shaped design.",
+      "The pier offers space for sightseeing, fishing, and enjoying sweeping ocean views.",
+      "Amenities such as a bike rack add to its accessibility."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pier stretching nearly 900 feet into the Atlantic, ending in a Pompano fish shape",
+    "why_here": "The Fisher Family Pier stretches nearly 900 feet into the Atlantic Ocean and offers space for sightseeing, fishing, and enjoying sweeping ocean views over the water.",
+    "know_before": "Amenities such as a bike rack add to its accessibility.",
+    "local_tip": "End the walk at the Pompano fish-shaped design at the pier end.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     ],
+     "why_here": [
+      "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     ],
+     "know_before": [
+      "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     ],
+     "local_tip": [
+      "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fisher Family Pier stretches nearly 900 feet into the Atlantic Ocean.",
+      "source": "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     },
+     {
+      "claim": "The pier end has a Pompano fish-shaped design.",
+      "source": "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     },
+     {
+      "claim": "The pier offers space for sightseeing, fishing, and enjoying sweeping ocean views.",
+      "source": "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     },
+     {
+      "claim": "Amenities such as a bike rack add to its accessibility.",
+      "source": "https://parks.pompanobeachfl.gov/fisher-family-pier"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-XPbuWXI2YgRQk_qbsYfAx4",
+   "name": "Matheson Hammock Park & Marina",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "city_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850",
+     "source_name": "Matheson Hammock Park & Marina \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The atoll pool is located within the 462-acre Matheson Hammock Park.",
+      "The park was acquired in 1931 and named for Miami-Dade pioneer W.J. Matheson.",
+      "The atoll pool is flushed naturally with the tidal action of nearby Biscayne Bay.",
+      "The park houses a full-service marina, picnic pavilions, a scenic lake and nature trails."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "462-acre park with a tidal atoll pool flushed by Biscayne Bay",
+    "why_here": "Matheson Hammock Park was acquired in 1931 and named for Miami-Dade pioneer W.J. Matheson, and its atoll pool is flushed naturally with the tidal action of nearby Biscayne Bay.",
+    "know_before": "The park houses a full-service marina, picnic pavilions, a scenic lake and nature trails.",
+    "local_tip": "Pair the atoll pool with the nature trails and scenic lake.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     ],
+     "local_tip": [
+      "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The atoll pool is located within the 462-acre Matheson Hammock Park.",
+      "source": "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     },
+     {
+      "claim": "The park was acquired in 1931 and named for Miami-Dade pioneer W.J. Matheson.",
+      "source": "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     },
+     {
+      "claim": "The atoll pool is flushed naturally with the tidal action of nearby Biscayne Bay.",
+      "source": "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     },
+     {
+      "claim": "The park houses a full-service marina, picnic pavilions, a scenic lake and nature trails.",
+      "source": "https://www.miamidade.gov/global/news-item.page?Mduid_news=news1648839642502850"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9WiKf4zuwogRV6-aTmKbEAg",
+   "name": "Safety Harbor Resort and Spa",
+   "category": "hotels",
+   "metro": "tampa",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.safetyharborspa.com/spa",
+     "source_name": "Safety Harbor Resort and Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Safety Harbor Resort and Spa showcases a newly-renovated 50,000-square-foot spa and fitness center.",
+      "Florida's only Natural Mineral Springs Spa was first established here in 1925, utilizing the waters from the Espiritu Santo Springs.",
+      "Signature spa treatments, three swimming pools and whirlpools use mineral springs water.",
+      "Advance reservations are required for all spa services, and walk-ins are not accommodated.",
+      "When you come for a spa service, you can stay for the entire day enjoying resort amenities and facilities."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Natural Mineral Springs Spa first established in 1925",
+    "why_here": "Safety Harbor Resort and Spa showcases a newly-renovated 50,000-square-foot spa and fitness center, and Florida's only Natural Mineral Springs Spa was first established here in 1925.",
+    "know_before": "Advance reservations are required for all spa services, and walk-ins are not accommodated.",
+    "local_tip": "Stay for the entire day after a spa service, enjoying resort amenities and facilities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.safetyharborspa.com/spa"
+     ],
+     "why_here": [
+      "https://www.safetyharborspa.com/spa"
+     ],
+     "know_before": [
+      "https://www.safetyharborspa.com/spa"
+     ],
+     "local_tip": [
+      "https://www.safetyharborspa.com/spa"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Safety Harbor Resort and Spa showcases a newly-renovated 50,000-square-foot spa and fitness center.",
+      "source": "https://www.safetyharborspa.com/spa"
+     },
+     {
+      "claim": "Florida's only Natural Mineral Springs Spa was first established here in 1925, utilizing the waters from the Espiritu Santo Springs.",
+      "source": "https://www.safetyharborspa.com/spa"
+     },
+     {
+      "claim": "Signature spa treatments, three swimming pools and whirlpools use mineral springs water.",
+      "source": "https://www.safetyharborspa.com/spa"
+     },
+     {
+      "claim": "Advance reservations are required for all spa services, and walk-ins are not accommodated.",
+      "source": "https://www.safetyharborspa.com/spa"
+     },
+     {
+      "claim": "When you come for a spa service, you can stay for the entire day enjoying resort amenities and facilities.",
+      "source": "https://www.safetyharborspa.com/spa"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-eAq3Ny20YgRDwU3nV05Sq0",
+   "name": "Banana Cafe",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bananacafekw.com/breakfast-lunch-menu",
+     "source_name": "Banana Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Banana Cafe serves all-natural pasture-raised eggs.",
+      "Menu includes Eggs Benedict with key lime hollandaise sauce.",
+      "Menu includes Banana Fosters Waffle with caramelized banana and toasted almonds.",
+      "Menu includes Inside Out French Benedict with key lime hollandaise.",
+      "Menu includes La Seafood with shrimp and scallops.",
+      "Eggs Benedict is served with breakfast potatoes."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eggs Benedict with key lime hollandaise for breakfast",
+    "why_here": "Banana Cafe serves all-natural pasture-raised eggs, and its menu includes Eggs Benedict with key lime hollandaise sauce, Banana Fosters Waffle with caramelized banana, and La Seafood with shrimp and scallops.",
+    "know_before": "Eggs Benedict is served with breakfast potatoes.",
+    "local_tip": "Try the Inside Out French Benedict, which pairs key lime hollandaise with a cr\u00eape.",
+    "best_time": "Go in the morning for the full breakfast and cr\u00eape menu.",
+    "citations": {
+     "hook": [
+      "https://bananacafekw.com/breakfast-lunch-menu"
+     ],
+     "why_here": [
+      "https://bananacafekw.com/breakfast-lunch-menu"
+     ],
+     "know_before": [
+      "https://bananacafekw.com/breakfast-lunch-menu"
+     ],
+     "local_tip": [
+      "https://bananacafekw.com/breakfast-lunch-menu"
+     ],
+     "best_time": [
+      "https://bananacafekw.com/breakfast-lunch-menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Banana Cafe serves all-natural pasture-raised eggs.",
+      "source": "https://bananacafekw.com/breakfast-lunch-menu"
+     },
+     {
+      "claim": "Menu includes Eggs Benedict with key lime hollandaise sauce.",
+      "source": "https://bananacafekw.com/breakfast-lunch-menu"
+     },
+     {
+      "claim": "Menu includes Banana Fosters Waffle with caramelized banana and toasted almonds.",
+      "source": "https://bananacafekw.com/breakfast-lunch-menu"
+     },
+     {
+      "claim": "Menu includes Inside Out French Benedict with key lime hollandaise.",
+      "source": "https://bananacafekw.com/breakfast-lunch-menu"
+     },
+     {
+      "claim": "Menu includes La Seafood with shrimp and scallops.",
+      "source": "https://bananacafekw.com/breakfast-lunch-menu"
+     },
+     {
+      "claim": "Eggs Benedict is served with breakfast potatoes.",
+      "source": "https://bananacafekw.com/breakfast-lunch-menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_6vIjTqA3YgR6OrI6D7hw_s",
+   "name": "Landry's Seafood House",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.landrysseafood.com/location/landrys-seafood-orlando/",
+     "source_name": "Landry's Seafood House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Landry's Seafood House is in Orlando.",
+      "The Orlando menu includes Landry's Gumbo and clam chowder.",
+      "The Orlando location serves fresh Gulf Coast seafood and hand-cut steaks.",
+      "Happy hour is Monday through Friday 3 p.m. to 5:30 p.m. in the bar and lounge only."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Gulf Coast seafood and hand-cut steaks in Orlando",
+    "why_here": "Landry's Seafood House in Orlando serves fresh Gulf Coast seafood and hand-cut steaks, with a menu that includes Landry's Gumbo and clam chowder for a coastal lunch or dinner.",
+    "know_before": "Happy hour is Monday through Friday 3 p.m. to 5:30 p.m. in the bar and lounge only.",
+    "local_tip": "Happy hour seating is in the bar and lounge only.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     ],
+     "why_here": [
+      "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     ],
+     "know_before": [
+      "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     ],
+     "local_tip": [
+      "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Landry's Seafood House is in Orlando.",
+      "source": "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     },
+     {
+      "claim": "The Orlando menu includes Landry's Gumbo and clam chowder.",
+      "source": "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     },
+     {
+      "claim": "The Orlando location serves fresh Gulf Coast seafood and hand-cut steaks.",
+      "source": "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     },
+     {
+      "claim": "Happy hour is Monday through Friday 3 p.m. to 5:30 p.m. in the bar and lounge only.",
+      "source": "https://www.landrysseafood.com/location/landrys-seafood-orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGxd5HsCy2YgR6OWONdwRdmk",
+   "name": "North Beach Oceanside Park",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/",
+     "source_name": "North Beach Oceanside Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "North Beach Oceanside Park is open Monday through Sunday, sunrise to sunset.",
+      "Amenities include beach access, bench seating, and parking.",
+      "The playground is for ages 5 to 12 with shaded climbing and rope components.",
+      "Eleven outdoor fitness stations are located along the interior walking path from 82 to 85 Street."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach access with a playground and outdoor fitness stations",
+    "why_here": "North Beach Oceanside Park offers beach access, bench seating and parking, plus a playground for ages 5 to 12 and outdoor fitness stations along an interior walking path for active visits.",
+    "know_before": "The park is open Monday through Sunday, sunrise to sunset.",
+    "local_tip": "Eleven outdoor fitness stations run from 82 to 85 Street along the walking path.",
+    "best_time": "Sunrise to sunset, the park's posted open hours.",
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     ],
+     "local_tip": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     ],
+     "best_time": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "North Beach Oceanside Park is open Monday through Sunday, sunrise to sunset.",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     },
+     {
+      "claim": "Amenities include beach access, bench seating, and parking.",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     },
+     {
+      "claim": "The playground is for ages 5 to 12 with shaded climbing and rope components.",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     },
+     {
+      "claim": "Eleven outdoor fitness stations are located along the interior walking path from 82 to 85 Street.",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/north-beach-oceanside-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9ejcxuu20YgRzJQFn8SVbbc",
+   "name": "Caroline's Cafe",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://carolinescafe.com/",
+     "source_name": "Caroline's Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caroline's Cafe is at 310 Duval Street, Key West, Florida.",
+      "Caroline's Cafe opened in 1999 in the shadow of the historic Porter House.",
+      "The menu includes Caribbean Steak and Fisherman's Fresh Catch.",
+      "Caroline's Cafe offers a taste of Key West cuisine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Duval Street cafe open since 1999 beside the Porter House",
+    "why_here": "Caroline's Cafe on Duval Street in Key West has served since 1999 in the shadow of the historic Porter House, with Caribbean Steak and Fisherman's Fresh Catch on the menu.",
+    "know_before": "Caroline's Cafe is at 310 Duval Street in Key West; check the menu before going.",
+    "local_tip": "Try Caribbean Steak or Fisherman's Fresh Catch for Key West cuisine.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://carolinescafe.com/"
+     ],
+     "why_here": [
+      "https://carolinescafe.com/"
+     ],
+     "know_before": [
+      "https://carolinescafe.com/"
+     ],
+     "local_tip": [
+      "https://carolinescafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caroline's Cafe is at 310 Duval Street, Key West, Florida.",
+      "source": "https://carolinescafe.com/"
+     },
+     {
+      "claim": "Caroline's Cafe opened in 1999 in the shadow of the historic Porter House.",
+      "source": "https://carolinescafe.com/"
+     },
+     {
+      "claim": "The menu includes Caribbean Steak and Fisherman's Fresh Catch.",
+      "source": "https://carolinescafe.com/"
+     },
+     {
+      "claim": "Caroline's Cafe offers a taste of Key West cuisine.",
+      "source": "https://carolinescafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFfxfdiKT2YgRPMtHpNSo2fM",
+   "name": "Gator Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.gatorpark.com/",
+     "source_name": "Gator Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator Park offers airboat rides in the Everglades.",
+      "Gator Park offers private airboat tours and a wildlife show.",
+      "Airboat rides depart every few minutes.",
+      "No reservations are required for airboat tours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Airboat rides in the Everglades departing every few minutes",
+    "why_here": "Gator Park in the Everglades offers airboat rides, private airboat tours and a wildlife show, with rides departing every few minutes for viewing wildlife from the water during the day.",
+    "know_before": "No reservations are required for airboat tours at Gator Park.",
+    "local_tip": "Private airboat tours are offered alongside regular airboat rides at Gator Park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.gatorpark.com/"
+     ],
+     "why_here": [
+      "https://www.gatorpark.com/"
+     ],
+     "know_before": [
+      "https://www.gatorpark.com/"
+     ],
+     "local_tip": [
+      "https://www.gatorpark.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator Park offers airboat rides in the Everglades.",
+      "source": "https://www.gatorpark.com/"
+     },
+     {
+      "claim": "Gator Park offers private airboat tours and a wildlife show.",
+      "source": "https://www.gatorpark.com/"
+     },
+     {
+      "claim": "Airboat rides depart every few minutes.",
+      "source": "https://www.gatorpark.com/"
+     },
+     {
+      "claim": "No reservations are required for airboat tours.",
+      "source": "https://www.gatorpark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJzR4b3G8t5ogRPsLjAS-ar1Q",
+   "name": "Silver Springs State Park Glass Bottom Boat Tours",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park",
+     "source_name": "Silver Springs State Park Glass Bottom Boat Tours \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Glass bottom boats were invented at Silver Springs.",
+      "Silver Springs State Park protects Silver Springs, one of America's largest springs and a first-magnitude spring.",
+      "Visitors can explore the park by boat, foot, or horseback.",
+      "Park hours are 8 a.m. to sunset, open 7 days a week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Glass bottom boats were invented at Silver Springs",
+    "why_here": "Silver Springs State Park protects one of America's largest springs, explored by boat, foot or horseback, with glass bottom boats invented here offering views over the first-magnitude spring.",
+    "know_before": "Park hours are 8 a.m. to sunset, open 7 days a week.",
+    "local_tip": "Explore by boat, foot, or horseback to see the spring from different views.",
+    "best_time": "During park hours, 8:00 a.m. to sunset.",
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     ],
+     "best_time": [
+      "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Glass bottom boats were invented at Silver Springs.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     },
+     {
+      "claim": "Silver Springs State Park protects Silver Springs, one of America's largest springs and a first-magnitude spring.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     },
+     {
+      "claim": "Visitors can explore the park by boat, foot, or horseback.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     },
+     {
+      "claim": "Park hours are 8 a.m. to sunset, open 7 days a week.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/silver-springs-state-park"
+     }
+    ]
+   }
+  }
+ ]
+}

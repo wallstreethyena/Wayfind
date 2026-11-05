@@ -1,0 +1,623 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 11. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJj4_6qNwG2YgRbcbc3n9dRMQ",
+   "name": "Lauderhill Mall",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lauderhillmall.net/about-us.html",
+     "source_name": "Lauderhill Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lauderhill Mall is located in the heart of Broward County, Florida, on State Road 7 in Lauderhill.",
+      "Visitors can explore over 100 stores.",
+      "Retailers include Ashley Stewart, Foot Locker, Fresco y M\u00e1s and Rainbow, as well as many local merchants.",
+      "Mall hours are Monday to Saturday 10 a.m. to 8 p.m. and Sunday 11 a.m. to 6 p.m.",
+      "Lauderhill Mall is open seven days a week and hosts free monthly events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 100 stores on State Road 7 in Broward County",
+    "why_here": "Lauderhill Mall is located in the heart of Broward County, Florida, on State Road 7 in Lauderhill. Visitors can explore over 100 stores, including Ashley Stewart, Foot Locker, Fresco y M\u00e1s and Rainbow, plus local merchants.",
+    "know_before": "Mall hours are Monday to Saturday 10 a.m. to 8 p.m. and Sunday 11 a.m. to 6 p.m.",
+    "local_tip": "Lauderhill Mall is open seven days a week and hosts free monthly events.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lauderhillmall.net/about-us.html"
+     ],
+     "why_here": [
+      "https://www.lauderhillmall.net/about-us.html"
+     ],
+     "know_before": [
+      "https://www.lauderhillmall.net/about-us.html"
+     ],
+     "local_tip": [
+      "https://www.lauderhillmall.net/about-us.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lauderhill Mall is located in the heart of Broward County, Florida, on State Road 7 in Lauderhill.",
+      "source": "https://www.lauderhillmall.net/about-us.html"
+     },
+     {
+      "claim": "Visitors can explore over 100 stores.",
+      "source": "https://www.lauderhillmall.net/about-us.html"
+     },
+     {
+      "claim": "Retailers include Ashley Stewart, Foot Locker, Fresco y M\u00e1s and Rainbow, as well as many local merchants.",
+      "source": "https://www.lauderhillmall.net/about-us.html"
+     },
+     {
+      "claim": "Mall hours are Monday to Saturday 10 a.m. to 8 p.m. and Sunday 11 a.m. to 6 p.m.",
+      "source": "https://www.lauderhillmall.net/about-us.html"
+     },
+     {
+      "claim": "Lauderhill Mall is open seven days a week and hosts free monthly events.",
+      "source": "https://www.lauderhillmall.net/about-us.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQR0CdIhqw4gR-BqidycQm8o",
+   "name": "Lido Key Beach",
+   "category": "beach",
+   "metro": "manatee-sarasota",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach",
+     "source_name": "Lido Key Beach \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lido Beach is the main public beach on Lido Key.",
+      "Lido Beach is within walking distance of St. Armands Circle.",
+      "Visit Sarasota County lists free parking, a concession stand, washrooms and lifeguards on duty at Lido Beach.",
+      "On the beach itself, enjoy plenty of free parking, a concession stand with refreshments and washrooms, and lifeguards on duty."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free parking and lifeguards within walking distance of St. Armands Circle",
+    "why_here": "Lido Beach is the main public beach on Lido Key, within walking distance of St. Armands Circle. Visit Sarasota County lists free parking, a concession stand, washrooms and lifeguards on duty at Lido Beach.",
+    "know_before": "Parking is free at Lido Beach.",
+    "local_tip": "Free parking is available at Lido Beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     ],
+     "why_here": [
+      "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     ],
+     "know_before": [
+      "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     ],
+     "local_tip": [
+      "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lido Beach is the main public beach on Lido Key.",
+      "source": "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     },
+     {
+      "claim": "Lido Beach is within walking distance of St. Armands Circle.",
+      "source": "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     },
+     {
+      "claim": "Visit Sarasota County lists free parking, a concession stand, washrooms and lifeguards on duty at Lido Beach.",
+      "source": "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     },
+     {
+      "claim": "On the beach itself, enjoy plenty of free parking, a concession stand with refreshments and washrooms, and lifeguards on duty.",
+      "source": "https://www.visitsarasota.com/article/best-award-every-sarasota-county-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX1lEDGmn2YgR5Kx3mite1yo",
+   "name": "Keik Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keikrestaurant.com/pages/contact-pembroke-pines",
+     "source_name": "Keik Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Keik has three locations: Doral, Kendall, and Pembroke Pines.",
+      "The Pembroke Pines address is 11033 Pines Blvd, Pembroke Pines, FL 33026.",
+      "KEIK is a full pink restaurant that also serves cakes and desserts.",
+      "The all-day menu is available from open to close at every KEIK location."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A pink all-day restaurant in Pembroke Pines known for its cakes",
+    "why_here": "Keik Restaurant's Pembroke Pines location serves an all-day menu with brunch, lunch, dinner and burgers alongside cakes and desserts. The official site describes Keik as a full pink restaurant that began as a bakery concept.",
+    "know_before": "The Pembroke Pines location is at 11033 Pines Blvd, Pembroke Pines, FL 33026.",
+    "local_tip": "The all-day menu is available from open to close, so brunch items are served beyond morning hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     ],
+     "why_here": [
+      "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     ],
+     "know_before": [
+      "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     ],
+     "local_tip": [
+      "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Keik has three locations: Doral, Kendall, and Pembroke Pines.",
+      "source": "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     },
+     {
+      "claim": "The Pembroke Pines address is 11033 Pines Blvd, Pembroke Pines, FL 33026.",
+      "source": "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     },
+     {
+      "claim": "KEIK is a full pink restaurant that also serves cakes and desserts.",
+      "source": "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     },
+     {
+      "claim": "The all-day menu is available from open to close at every KEIK location.",
+      "source": "https://www.keikrestaurant.com/pages/contact-pembroke-pines"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJva4JdYl_3YgRg1IBbeWhSOY",
+   "name": "World of Disney\u00ae",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "gift_shop",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.disneysprings.com/shops/world-of-disney/",
+     "source_name": "World of Disney\u00ae \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "World of Disney offers the world's largest collection of Disney merchandise.",
+      "World of Disney is a centerpiece of Disney Springs.",
+      "World of Disney is a shopping destination for Disney fans of all ages."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "World's largest collection of Disney merchandise at Disney Springs",
+    "why_here": "World of Disney offers the world's largest collection of Disney merchandise. World of Disney is a centerpiece of Disney Springs and a shopping destination for Disney fans of all ages.",
+    "know_before": "World of Disney is a centerpiece of Disney Springs.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.disneysprings.com/shops/world-of-disney/"
+     ],
+     "why_here": [
+      "https://www.disneysprings.com/shops/world-of-disney/"
+     ],
+     "know_before": [
+      "https://www.disneysprings.com/shops/world-of-disney/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "World of Disney offers the world's largest collection of Disney merchandise.",
+      "source": "https://www.disneysprings.com/shops/world-of-disney/"
+     },
+     {
+      "claim": "World of Disney is a centerpiece of Disney Springs.",
+      "source": "https://www.disneysprings.com/shops/world-of-disney/"
+     },
+     {
+      "claim": "World of Disney is a shopping destination for Disney fans of all ages.",
+      "source": "https://www.disneysprings.com/shops/world-of-disney/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc7K5Gnu12YgRMXPWvBcju30",
+   "name": "Skyviews Miami Observation Wheel",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "ferris_wheel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://skyviewsmiami.com/",
+     "source_name": "Skyviews Miami Observation Wheel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Skyviews Miami offers views from 200 feet high.",
+      "Skyviews Miami overlooks the Atlantic Ocean and Biscayne Bay.",
+      "Golden hour views include downtown buildings and Miami Beach.",
+      "Skyviews Miami is an observation wheel in Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Views from 200 feet high over Biscayne Bay and the Atlantic Ocean",
+    "why_here": "Skyviews Miami is an observation wheel in Miami offering views from 200 feet high. Skyviews Miami overlooks the Atlantic Ocean and Biscayne Bay, with golden hour views of downtown buildings and Miami Beach.",
+    "know_before": "Skyviews Miami offers views from 200 feet high over Biscayne Bay.",
+    "local_tip": "Golden hour views include downtown buildings and Miami Beach.",
+    "best_time": "Golden hour, highlighted on the official site for downtown and Miami Beach views.",
+    "citations": {
+     "hook": [
+      "https://skyviewsmiami.com/"
+     ],
+     "why_here": [
+      "https://skyviewsmiami.com/"
+     ],
+     "know_before": [
+      "https://skyviewsmiami.com/"
+     ],
+     "local_tip": [
+      "https://skyviewsmiami.com/"
+     ],
+     "best_time": [
+      "https://skyviewsmiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Skyviews Miami offers views from 200 feet high.",
+      "source": "https://skyviewsmiami.com/"
+     },
+     {
+      "claim": "Skyviews Miami overlooks the Atlantic Ocean and Biscayne Bay.",
+      "source": "https://skyviewsmiami.com/"
+     },
+     {
+      "claim": "Golden hour views include downtown buildings and Miami Beach.",
+      "source": "https://skyviewsmiami.com/"
+     },
+     {
+      "claim": "Skyviews Miami is an observation wheel in Miami.",
+      "source": "https://skyviewsmiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFeD8QYnW2IgRDgV9X2zp1S0",
+   "name": "E.R. Bradley's Saloon",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.erbradleys.com/",
+     "source_name": "E.R. Bradley's Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "E.R. Bradley's offers live music 365 days a year.",
+      "The venue is a landmark bar and restaurant on the West Palm Beach Waterfront.",
+      "E.R. Bradley's was established in 1984.",
+      "Parking includes complimentary valet with entrance on Datura St.",
+      "Sunday hours are 8:00 a.m. to 2:00 a.m., with brunch from 8:00 a.m. to 3:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront landmark with live music 365 days a year",
+    "why_here": "E.R. Bradley's is a landmark bar and restaurant on the West Palm Beach waterfront, described by the venue as the city's backyard. It serves brunch through late night and hosts legendary live music 365 days a year.",
+    "know_before": "Complimentary valet is offered, with entrance on Datura St.",
+    "local_tip": "Sunday brunch runs from 8:00 a.m. to 3:00 p.m., per the official hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.erbradleys.com/"
+     ],
+     "why_here": [
+      "https://www.erbradleys.com/"
+     ],
+     "know_before": [
+      "https://www.erbradleys.com/"
+     ],
+     "local_tip": [
+      "https://www.erbradleys.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "E.R. Bradley's offers live music 365 days a year.",
+      "source": "https://www.erbradleys.com/"
+     },
+     {
+      "claim": "The venue is a landmark bar and restaurant on the West Palm Beach Waterfront.",
+      "source": "https://www.erbradleys.com/"
+     },
+     {
+      "claim": "E.R. Bradley's was established in 1984.",
+      "source": "https://www.erbradleys.com/"
+     },
+     {
+      "claim": "Parking includes complimentary valet with entrance on Datura St.",
+      "source": "https://www.erbradleys.com/"
+     },
+     {
+      "claim": "Sunday hours are 8:00 a.m. to 2:00 a.m., with brunch from 8:00 a.m. to 3:00 p.m.",
+      "source": "https://www.erbradleys.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1wNIe6LlwogRDwbsEut7BgE",
+   "name": "Bascom's Chop House",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bascoms.com/",
+     "source_name": "Bascom's Chop House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bascom's Chop House has been operating since 2001.",
+      "The menu includes USDA Prime steaks, fresh seafood and signature wagyu beef.",
+      "Bascom's is located at 3665 Ulmerton Rd., Clearwater, FL 33762.",
+      "Bascom's has six private dining rooms for groups from 10 to 200 guests."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steaks, chops and seafood served since 2001 on Ulmerton Road",
+    "why_here": "Bascom's Chop House has served steaks, chops and seafood since 2001. Its menus feature USDA Prime steaks, fresh seafood and signature wagyu beef, plus an award-winning wine and cocktail list on the official site.",
+    "know_before": "The restaurant is at 3665 Ulmerton Rd., Clearwater, FL 33762, per its official site.",
+    "local_tip": "Private dining uses six rooms for groups from 10 to 200 guests, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bascoms.com/"
+     ],
+     "why_here": [
+      "https://bascoms.com/"
+     ],
+     "know_before": [
+      "https://bascoms.com/"
+     ],
+     "local_tip": [
+      "https://bascoms.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bascom's Chop House has been operating since 2001.",
+      "source": "https://bascoms.com/"
+     },
+     {
+      "claim": "The menu includes USDA Prime steaks, fresh seafood and signature wagyu beef.",
+      "source": "https://bascoms.com/"
+     },
+     {
+      "claim": "Bascom's is located at 3665 Ulmerton Rd., Clearwater, FL 33762.",
+      "source": "https://bascoms.com/"
+     },
+     {
+      "claim": "Bascom's has six private dining rooms for groups from 10 to 200 guests.",
+      "source": "https://bascoms.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEUy3R3S52YgR2DNs43rsKe0",
+   "name": "La Boulangerie Boul'Mich",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laboulangerieusa.com/about",
+     "source_name": "La Boulangerie Boul'Mich \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Boulangerie Boul'Mich has been rooted in Florida for over 20 years.",
+      "The concept brings together French baking and Latin culture.",
+      "The bakery cafe is known for artisan croissants and savory empanadas.",
+      "For over 20 years, the bakery has served communities across South Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French baking and Latin culture in Florida for over 20 years",
+    "why_here": "La Boulangerie Boul'Mich has been rooted in Florida for over 20 years, bringing together French baking and Latin culture. The bakery cafe is known for artisan croissants and savory empanadas.",
+    "know_before": "La Boulangerie Boul'Mich has been rooted in Florida for over 20 years.",
+    "local_tip": "Artisan croissants and savory empanadas are known here.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laboulangerieusa.com/about"
+     ],
+     "why_here": [
+      "https://www.laboulangerieusa.com/about"
+     ],
+     "know_before": [
+      "https://www.laboulangerieusa.com/about"
+     ],
+     "local_tip": [
+      "https://www.laboulangerieusa.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Boulangerie Boul'Mich has been rooted in Florida for over 20 years.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "The concept brings together French baking and Latin culture.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "The bakery cafe is known for artisan croissants and savory empanadas.",
+      "source": "https://www.laboulangerieusa.com/about"
+     },
+     {
+      "claim": "For over 20 years, the bakery has served communities across South Florida.",
+      "source": "https://www.laboulangerieusa.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ79iHfuy20YgRPRrMNtoPag4",
+   "name": "Hog's Breath Saloon",
+   "category": "nightlife",
+   "metro": "keys",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hogsbreath.com/keywest/menu",
+     "source_name": "Hog's Breath Saloon \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Florida Keys Smoked Fish Dip made with hickory smoked Mahi Mahi.",
+      "Menu includes a Hog Half Pound Burger with brisket and short rib blend patties.",
+      "Menu includes house-made Key Lime Pie.",
+      "Hog's Breath Saloon is at 400 Front Street, Key West, FL 33040, with hours 10:00 a.m. to 1:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Key West menu built on smoked fish dip and house-made Key lime pie",
+    "why_here": "Hog's Breath Saloon in Key West serves Florida Keys starters, burgers, sandwiches and specialty cocktails. Its official menu lists Florida Keys Smoked Fish Dip and a house-made Key lime pie to finish.",
+    "know_before": "Hours listed on the official menu page are 10:00 a.m. to 1:00 a.m., at 400 Front Street, Key West, FL 33040.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hogsbreath.com/keywest/menu"
+     ],
+     "why_here": [
+      "https://www.hogsbreath.com/keywest/menu"
+     ],
+     "know_before": [
+      "https://www.hogsbreath.com/keywest/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu includes Florida Keys Smoked Fish Dip made with hickory smoked Mahi Mahi.",
+      "source": "https://www.hogsbreath.com/keywest/menu"
+     },
+     {
+      "claim": "Menu includes a Hog Half Pound Burger with brisket and short rib blend patties.",
+      "source": "https://www.hogsbreath.com/keywest/menu"
+     },
+     {
+      "claim": "Menu includes house-made Key Lime Pie.",
+      "source": "https://www.hogsbreath.com/keywest/menu"
+     },
+     {
+      "claim": "Hog's Breath Saloon is at 400 Front Street, Key West, FL 33040, with hours 10:00 a.m. to 1:00 a.m.",
+      "source": "https://www.hogsbreath.com/keywest/menu"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,2044 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 6. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJqe5ORP-n2YgROwXe86-Od1I",
+   "name": "Sufrat Mediterranean Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "mediterranean_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sufratgrill.com/contact",
+     "source_name": "Sufrat Mediterranean Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sufrat Mediterranean Grill's contact page says to find it at one of three South Florida locations.",
+      "The official contact page lists a Pembroke Pines location at 10430 Pines Boulevard, C 101, Pembroke Pines, FL 33026.",
+      "The official contact page says each location offers easy parking."
+     ]
+    },
+    {
+     "source": "https://www.sufratgrill.com/items/family-combo",
+     "source_name": "Sufrat Mediterranean Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Family Combo on the official menu includes a large Greek salad, basmati rice, chicken kebab skewers, beef kebab skewers, kafta skewers, and a portion of chicken shawarma."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-style kebab and shawarma combos anchor this Mediterranean grill",
+    "why_here": "Sufrat Mediterranean Grill lists three South Florida locations, including Pembroke Pines in Broward. Its official menu lists sharing-style combos built around kebab skewers and shawarma, making it a group-friendly Mediterranean stop.",
+    "know_before": "The official contact page says each location offers easy parking.",
+    "local_tip": "Order a sharing combo to sample chicken, beef and kofta kebabs together, per the official menu description.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sufratgrill.com/contact",
+      "https://www.sufratgrill.com/items/family-combo"
+     ],
+     "why_here": [
+      "https://sufratgrill.com/contact",
+      "https://www.sufratgrill.com/items/family-combo"
+     ],
+     "know_before": [
+      "https://sufratgrill.com/contact",
+      "https://www.sufratgrill.com/items/family-combo"
+     ],
+     "local_tip": [
+      "https://sufratgrill.com/contact",
+      "https://www.sufratgrill.com/items/family-combo"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sufrat Mediterranean Grill's contact page says to find it at one of three South Florida locations.",
+      "source": "https://sufratgrill.com/contact"
+     },
+     {
+      "claim": "The official contact page lists a Pembroke Pines location at 10430 Pines Boulevard, C 101, Pembroke Pines, FL 33026.",
+      "source": "https://sufratgrill.com/contact"
+     },
+     {
+      "claim": "The official contact page says each location offers easy parking.",
+      "source": "https://sufratgrill.com/contact"
+     },
+     {
+      "claim": "The Family Combo on the official menu includes a large Greek salad, basmati rice, chicken kebab skewers, beef kebab skewers, kafta skewers, and a portion of chicken shawarma.",
+      "source": "https://www.sufratgrill.com/items/family-combo"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4y1VMZ292YgRzkAvVZyoUDc",
+   "name": "Nando Grill \u2013 Carne en Vara & Steakhouse",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.nandogrillcarneenvara.com/doral.php",
+     "source_name": "Nando Grill \u2013 Carne en Vara & Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Nando Grill says its chefs use USDA-certified beef grilled over an open flame.",
+      "The Doral page says steaks are hand-selected and grilled with seasoning.",
+      "Beyond steaks, the menu offers seafood and savory sides made from fresh, locally sourced ingredients.",
+      "The Doral location lists live shows Fridays to Sundays.",
+      "Doral hours are Monday to Friday from 6 p.m. to 11:30 p.m. and Saturday to Sunday from 12 p.m. to 11:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "USDA-certified steaks grilled over an open flame in Doral",
+    "why_here": "Nando Grill's Doral page describes a steakhouse specializing in premium cuts grilled over an open flame. Beyond steaks, the official page notes seafood and savory sides made from fresh, locally sourced ingredients, plus live shows on Fridays to Sundays at Doral.",
+    "know_before": "Doral hours listed are Monday to Friday from 6 p.m. to 11:30 p.m. and Saturday to Sunday from 12 p.m. to 11:30 p.m.",
+    "local_tip": "Time a Friday-to-Sunday visit for the Doral live shows listed on the official page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.nandogrillcarneenvara.com/doral.php"
+     ],
+     "why_here": [
+      "https://www.nandogrillcarneenvara.com/doral.php"
+     ],
+     "know_before": [
+      "https://www.nandogrillcarneenvara.com/doral.php"
+     ],
+     "local_tip": [
+      "https://www.nandogrillcarneenvara.com/doral.php"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Nando Grill says its chefs use USDA-certified beef grilled over an open flame.",
+      "source": "https://www.nandogrillcarneenvara.com/doral.php"
+     },
+     {
+      "claim": "The Doral page says steaks are hand-selected and grilled with seasoning.",
+      "source": "https://www.nandogrillcarneenvara.com/doral.php"
+     },
+     {
+      "claim": "Beyond steaks, the menu offers seafood and savory sides made from fresh, locally sourced ingredients.",
+      "source": "https://www.nandogrillcarneenvara.com/doral.php"
+     },
+     {
+      "claim": "The Doral location lists live shows Fridays to Sundays.",
+      "source": "https://www.nandogrillcarneenvara.com/doral.php"
+     },
+     {
+      "claim": "Doral hours are Monday to Friday from 6 p.m. to 11:30 p.m. and Saturday to Sunday from 12 p.m. to 11:30 p.m.",
+      "source": "https://www.nandogrillcarneenvara.com/doral.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ87HbhCV-54gRjkLgHC9XPs4",
+   "name": "Dolphin Theater",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "aquarium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://seaworld.com/orlando/shows/dolphin-adventures/",
+     "source_name": "Dolphin Theater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dolphin Adventures is located in Dolphin Stadium at SeaWorld Orlando.",
+      "The presentation explores the world of bottlenose dolphins, described as smart, playful, and found right off the coast of Florida.",
+      "The show covers dolphins' natural behaviors and the threats they face.",
+      "Guests using wheelchairs may enter the theater through the left or right entrances, with seating along the front row."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bottlenose dolphins leap and play in SeaWorld Orlando's Dolphin Adventures",
+    "why_here": "Listed at SeaWorld Orlando, this dolphin venue is where the park stages Dolphin Adventures at Dolphin Stadium. The official SeaWorld page says the presentation explores bottlenose dolphins' natural behaviors, playfulness and the threats they face in the ocean.",
+    "know_before": "SeaWorld lists reserved seating for popular shows and notes wheelchair seating along the front row at the theater.",
+    "local_tip": "Expect some splashes; the official page rates the splash level as some splashes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     ],
+     "why_here": [
+      "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     ],
+     "know_before": [
+      "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     ],
+     "local_tip": [
+      "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dolphin Adventures is located in Dolphin Stadium at SeaWorld Orlando.",
+      "source": "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     },
+     {
+      "claim": "The presentation explores the world of bottlenose dolphins, described as smart, playful, and found right off the coast of Florida.",
+      "source": "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     },
+     {
+      "claim": "The show covers dolphins' natural behaviors and the threats they face.",
+      "source": "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     },
+     {
+      "claim": "Guests using wheelchairs may enter the theater through the left or right entrances, with seating along the front row.",
+      "source": "https://seaworld.com/orlando/shows/dolphin-adventures/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE-uqEqu-2YgRLHOKY1_PKnI",
+   "name": "Divieto Ristorante - Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.divietoristorante.com/doral",
+     "source_name": "Divieto Ristorante - Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Divieto Doral is home to the first Divieto opened in 2012 and is its flagship restaurant.",
+      "The restaurant serves Italian food fused with a classic American touch.",
+      "Top picks named on the official page include Ruota di Parmigiano, a 40 oz. Tomahawk Steak and Caramello al Latte for dessert.",
+      "Divieto's full bar offers a wide selection of wines, plus signature and classical cocktails.",
+      "Doral hours include Monday to Wednesday from 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The first Divieto, opened in 2012, known for its Ruota di Parmigiano",
+    "why_here": "Divieto's Doral page calls this its flagship and the first Divieto opened in 2012, serving Italian food fused with a classic American touch. Named top picks include the Ruota di Parmigiano, a 40 oz. Tomahawk Steak and Caramello al Latte for dessert, with a full bar of wines and cocktails.",
+    "know_before": "Hours listed for Doral include Monday to Wednesday from 11 a.m. to 10 p.m.; check the official page for later weekend hours and dining guidelines.",
+    "local_tip": "Review the dining guidelines linked on the official Doral page before your visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.divietoristorante.com/doral"
+     ],
+     "why_here": [
+      "https://www.divietoristorante.com/doral"
+     ],
+     "know_before": [
+      "https://www.divietoristorante.com/doral"
+     ],
+     "local_tip": [
+      "https://www.divietoristorante.com/doral"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Divieto Doral is home to the first Divieto opened in 2012 and is its flagship restaurant.",
+      "source": "https://www.divietoristorante.com/doral"
+     },
+     {
+      "claim": "The restaurant serves Italian food fused with a classic American touch.",
+      "source": "https://www.divietoristorante.com/doral"
+     },
+     {
+      "claim": "Top picks named on the official page include Ruota di Parmigiano, a 40 oz. Tomahawk Steak and Caramello al Latte for dessert.",
+      "source": "https://www.divietoristorante.com/doral"
+     },
+     {
+      "claim": "Divieto's full bar offers a wide selection of wines, plus signature and classical cocktails.",
+      "source": "https://www.divietoristorante.com/doral"
+     },
+     {
+      "claim": "Doral hours include Monday to Wednesday from 11 a.m. to 10 p.m.",
+      "source": "https://www.divietoristorante.com/doral"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJh8tU9ty20YgR_AeKVyGB8Hk",
+   "name": "The Key West Butterfly and Nature Conservatory",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keywestbutterfly.com/",
+     "source_name": "The Key West Butterfly and Nature Conservatory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors can walk among hundreds of free flying butterflies, exotic birds and 2 flamingos inside a glass-domed tropical butterfly habitat.",
+      "The conservatory observes over 50-60 varieties of butterfly species from around the world in a rainforest-like setting."
+     ]
+    },
+    {
+     "source": "https://www.keywestbutterfly.com/plan-your-visit",
+     "source_name": "The Key West Butterfly and Nature Conservatory \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Key West Butterfly & Nature Conservatory is open 365 days a year.",
+      "Conservatory hours are 9 a.m. to 5 p.m. daily with last admission at 4:30 p.m.",
+      "Paid admission allows re-entry through the Conservatory as many times as you want until 4:30 p.m. on the same date."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hundreds of free-flying butterflies, exotic birds and two flamingos under glass",
+    "why_here": "The conservatory invites visitors to walk among hundreds of free-flying butterflies, exotic birds and two flamingos inside a glass-domed tropical habitat. The official site says it holds 50 to 60 varieties of butterfly species from around the world in a rainforest-like setting, plus a gallery and gift shop.",
+    "know_before": "Open 365 days a year; conservatory hours are 9 a.m. to 5 p.m. daily with last admission at 4:30 p.m., per the official visit page.",
+    "local_tip": "Paid admission allows re-entry through the conservatory as many times as you want until 4:30 p.m. on the same day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.keywestbutterfly.com/",
+      "https://www.keywestbutterfly.com/plan-your-visit"
+     ],
+     "why_here": [
+      "https://www.keywestbutterfly.com/",
+      "https://www.keywestbutterfly.com/plan-your-visit"
+     ],
+     "know_before": [
+      "https://www.keywestbutterfly.com/",
+      "https://www.keywestbutterfly.com/plan-your-visit"
+     ],
+     "local_tip": [
+      "https://www.keywestbutterfly.com/",
+      "https://www.keywestbutterfly.com/plan-your-visit"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Visitors can walk among hundreds of free flying butterflies, exotic birds and 2 flamingos inside a glass-domed tropical butterfly habitat.",
+      "source": "https://www.keywestbutterfly.com/"
+     },
+     {
+      "claim": "The conservatory observes over 50-60 varieties of butterfly species from around the world in a rainforest-like setting.",
+      "source": "https://www.keywestbutterfly.com/"
+     },
+     {
+      "claim": "The Key West Butterfly & Nature Conservatory is open 365 days a year.",
+      "source": "https://www.keywestbutterfly.com/plan-your-visit"
+     },
+     {
+      "claim": "Conservatory hours are 9 a.m. to 5 p.m. daily with last admission at 4:30 p.m.",
+      "source": "https://www.keywestbutterfly.com/plan-your-visit"
+     },
+     {
+      "claim": "Paid admission allows re-entry through the Conservatory as many times as you want until 4:30 p.m. on the same date.",
+      "source": "https://www.keywestbutterfly.com/plan-your-visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb1WNR88B2YgRFWC77AHLzBU",
+   "name": "The Galleria at Fort Lauderdale",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://galleriamall-fl.com/",
+     "source_name": "The Galleria at Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Galleria Fort Lauderdale is located at 2414 East Sunrise Boulevard, Fort Lauderdale, FL 33304.",
+      "Center hours are Monday to Saturday from 10 a.m. to 8 p.m. and Sunday from 12 p.m. to 6 p.m.",
+      "The official site provides a directory of stores plus eat and drink listings."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fort Lauderdale shopping and dining on East Sunrise Boulevard",
+    "why_here": "The Galleria at Fort Lauderdale's official site lists stores, dining, a directory map and events at its East Sunrise Boulevard address. It publishes weekly center hours and tenant hours, making it a planned shopping and dining stop in Fort Lauderdale.",
+    "know_before": "Center hours are Monday to Saturday from 10 a.m. to 8 p.m. and Sunday from 12 p.m. to 6 p.m., per the official site.",
+    "local_tip": "Check tenant hours on the official hours page, since individual stores may differ from center hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://galleriamall-fl.com/"
+     ],
+     "why_here": [
+      "https://galleriamall-fl.com/"
+     ],
+     "know_before": [
+      "https://galleriamall-fl.com/"
+     ],
+     "local_tip": [
+      "https://galleriamall-fl.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Galleria Fort Lauderdale is located at 2414 East Sunrise Boulevard, Fort Lauderdale, FL 33304.",
+      "source": "https://galleriamall-fl.com/"
+     },
+     {
+      "claim": "Center hours are Monday to Saturday from 10 a.m. to 8 p.m. and Sunday from 12 p.m. to 6 p.m.",
+      "source": "https://galleriamall-fl.com/"
+     },
+     {
+      "claim": "The official site provides a directory of stores plus eat and drink listings.",
+      "source": "https://galleriamall-fl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUaibLmz9wogR0wA9Qgw7Qls",
+   "name": "Caddy's Treasure Island",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://caddys.com/caddys-treasure-island/",
+     "source_name": "Caddy's Treasure Island \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caddy's Treasure Island is the original Caddy's beach bar.",
+      "Caddy's Treasure Island is located on Sunset Beach in Treasure Island, Florida.",
+      "Treasure Island hours are Sunday to Thursday from 10 a.m. to 9 p.m. and Friday to Saturday from 10 a.m. to 10 p.m.",
+      "All cabanas are complimentary with a minimum spend on food, beverage or retail.",
+      "No coolers, outside food and beverage are allowed at Caddy's Treasure Island."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The original Caddy's beach bar on Sunset Beach in Treasure Island",
+    "why_here": "Caddy's calls its Treasure Island site the original Caddy's beach bar, located on Sunset Beach. The official page lists cabana rentals, private events and waterfront dining, with a menu spanning shareables, bowls, salads and handhelds at its other locations.",
+    "know_before": "Treasure Island hours are Sunday to Thursday from 10 a.m. to 9 p.m. and Friday to Saturday from 10 a.m. to 10 p.m.; no coolers or outside food and beverage are allowed.",
+    "local_tip": "Cabanas are complimentary with a minimum spend on food, beverage or retail, per the official page.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://caddys.com/caddys-treasure-island/"
+     ],
+     "why_here": [
+      "https://caddys.com/caddys-treasure-island/"
+     ],
+     "know_before": [
+      "https://caddys.com/caddys-treasure-island/"
+     ],
+     "local_tip": [
+      "https://caddys.com/caddys-treasure-island/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caddy's Treasure Island is the original Caddy's beach bar.",
+      "source": "https://caddys.com/caddys-treasure-island/"
+     },
+     {
+      "claim": "Caddy's Treasure Island is located on Sunset Beach in Treasure Island, Florida.",
+      "source": "https://caddys.com/caddys-treasure-island/"
+     },
+     {
+      "claim": "Treasure Island hours are Sunday to Thursday from 10 a.m. to 9 p.m. and Friday to Saturday from 10 a.m. to 10 p.m.",
+      "source": "https://caddys.com/caddys-treasure-island/"
+     },
+     {
+      "claim": "All cabanas are complimentary with a minimum spend on food, beverage or retail.",
+      "source": "https://caddys.com/caddys-treasure-island/"
+     },
+     {
+      "claim": "No coolers, outside food and beverage are allowed at Caddy's Treasure Island.",
+      "source": "https://caddys.com/caddys-treasure-island/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJSDL7L4n5IgR56CZiERtCPE",
+   "name": "Ripley's Believe It or Not!",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/",
+     "source_name": "Ripley's Believe It or Not! \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ripley's Believe It or Not! in St. Augustine is located at 19 San Marco Avenue.",
+      "The official site lists hours today from 10 a.m. to 9 p.m.",
+      "Sideshow Curioddities is a limited-time exhibit featuring talent and oddities Robert Ripley originally featured at the World Fair Expo.",
+      "Cryptids \u2013 Where Legends Live covers Bigfoot, Mothman, and other legendary creatures."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sideshow oddities and legendary creatures including Bigfoot and Mothman",
+    "why_here": "Ripley's Believe It or Not! in St. Augustine sits at 19 San Marco Avenue and brings together Sideshow oddities and Cryptids \u2013 Where Legends Live, an exhibit covering Bigfoot, Mothman, and other legendary creatures.",
+    "know_before": "The official site lists hours today from 10 a.m. to 9 p.m.; check before visiting.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     ],
+     "why_here": [
+      "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     ],
+     "know_before": [
+      "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ripley's Believe It or Not! in St. Augustine is located at 19 San Marco Avenue.",
+      "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     },
+     {
+      "claim": "The official site lists hours today from 10 a.m. to 9 p.m.",
+      "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     },
+     {
+      "claim": "Sideshow Curioddities is a limited-time exhibit featuring talent and oddities Robert Ripley originally featured at the World Fair Expo.",
+      "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     },
+     {
+      "claim": "Cryptids \u2013 Where Legends Live covers Bigfoot, Mothman, and other legendary creatures.",
+      "source": "https://www.ripleys.com/attractions/ripleys-believe-it-or-not-st-augustine/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcxJRXuvH5YgRwiUwwRpPoAk",
+   "name": "Orange Park Mall",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orangeparkmall.com/visit",
+     "source_name": "Orange Park Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orange Park Mall is described as Northeast Florida's go-to shopping destination, with national brands and locally owned boutiques.",
+      "The mall hosts more than 100 events each year, including free monthly Kids Club events.",
+      "The Mall Walking program opens doors 2\u00bd hours prior to mall opening time.",
+      "The property holds IREM Certified Sustainable Property (CSP) certification.",
+      "The mall is located at 1910 Wells Rd., Orange Park, FL 32073."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Northeast Florida shopping with more than 100 events each year",
+    "why_here": "Orange Park Mall is described as Northeast Florida's go-to shopping destination, mixing national brands with locally owned boutiques and hosting more than 100 events each year, including free monthly Kids Club events each year.",
+    "know_before": "Mall Walking doors open 2\u00bd hours before mall opening time, per the official site.",
+    "local_tip": "Arrive early for Mall Walking before stores open for the day.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orangeparkmall.com/visit"
+     ],
+     "why_here": [
+      "https://orangeparkmall.com/visit"
+     ],
+     "know_before": [
+      "https://orangeparkmall.com/visit"
+     ],
+     "local_tip": [
+      "https://orangeparkmall.com/visit"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orange Park Mall is described as Northeast Florida's go-to shopping destination, with national brands and locally owned boutiques.",
+      "source": "https://orangeparkmall.com/visit"
+     },
+     {
+      "claim": "The mall hosts more than 100 events each year, including free monthly Kids Club events.",
+      "source": "https://orangeparkmall.com/visit"
+     },
+     {
+      "claim": "The Mall Walking program opens doors 2\u00bd hours prior to mall opening time.",
+      "source": "https://orangeparkmall.com/visit"
+     },
+     {
+      "claim": "The property holds IREM Certified Sustainable Property (CSP) certification.",
+      "source": "https://orangeparkmall.com/visit"
+     },
+     {
+      "claim": "The mall is located at 1910 Wells Rd., Orange Park, FL 32073.",
+      "source": "https://orangeparkmall.com/visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW3QVPLe12YgR0KU7s72boRI",
+   "name": "Historic Virginia Key Beach Park",
+   "category": "beach",
+   "metro": "miami-dade",
+   "primary_type": "city_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://virginiakeybeachpark.net/",
+     "source_name": "Historic Virginia Key Beach Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Historic Virginia Key Beach Park was established in 1945 as a beach for African Americans during segregation.",
+      "Recreation hours are 7 a.m. to sunset, seven days a week except Thanksgiving Day and Christmas Day.",
+      "The park is located off the Rickenbacker Causeway, minutes from downtown Miami.",
+      "All venues at the park are available to rent for private and corporate events such as weddings, children's parties, reunions, and picnics."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Established in 1945 as a beach for African Americans",
+    "why_here": "Historic Virginia Key Beach Park was established in 1945 as a beach for African Americans during segregation and now sits off the Rickenbacker Causeway near downtown Miami, with venues available to rent for private and corporate events such as weddings and reunions.",
+    "know_before": "Recreation hours are 7 a.m. to sunset, seven days a week except Thanksgiving Day and Christmas Day.",
+    "local_tip": "Venues are available to rent for weddings, reunions, and picnics.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://virginiakeybeachpark.net/"
+     ],
+     "why_here": [
+      "https://virginiakeybeachpark.net/"
+     ],
+     "know_before": [
+      "https://virginiakeybeachpark.net/"
+     ],
+     "local_tip": [
+      "https://virginiakeybeachpark.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Historic Virginia Key Beach Park was established in 1945 as a beach for African Americans during segregation.",
+      "source": "https://virginiakeybeachpark.net/"
+     },
+     {
+      "claim": "Recreation hours are 7 a.m. to sunset, seven days a week except Thanksgiving Day and Christmas Day.",
+      "source": "https://virginiakeybeachpark.net/"
+     },
+     {
+      "claim": "The park is located off the Rickenbacker Causeway, minutes from downtown Miami.",
+      "source": "https://virginiakeybeachpark.net/"
+     },
+     {
+      "claim": "All venues at the park are available to rent for private and corporate events such as weddings, children's parties, reunions, and picnics.",
+      "source": "https://virginiakeybeachpark.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7RaDDT632YgRI0_pc0_OYYE",
+   "name": "Manta Wynwood",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mantaflorida.com/",
+     "source_name": "Manta Wynwood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Manta serves Peruvian fusion cuisine with Nikkei influence, blending Peruvian ingredients with Japanese precision.",
+      "Menu items listed on the official site include Lomo Saltado, Tiradito, and Trilog\u00eda de Cebiches.",
+      "The restaurant offers private dining for birthdays, corporate gatherings, and special celebrations.",
+      "The restaurant is located in Wynwood, Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian fusion with Nikkei influence in Wynwood",
+    "why_here": "Manta Wynwood serves Peruvian fusion cuisine with Nikkei influence, blending Peruvian ingredients with Japanese technique. The official menu lists dishes including Lomo Saltado, Tiradito, and a Trilog\u00eda de Cebiches. The restaurant also offers private dining for birthdays, corporate gatherings, and celebrations.",
+    "know_before": "Reservations and online ordering are available through the official site.",
+    "local_tip": "Book the private dining room for birthdays or corporate gatherings, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mantaflorida.com/"
+     ],
+     "why_here": [
+      "https://mantaflorida.com/"
+     ],
+     "know_before": [
+      "https://mantaflorida.com/"
+     ],
+     "local_tip": [
+      "https://mantaflorida.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Manta serves Peruvian fusion cuisine with Nikkei influence, blending Peruvian ingredients with Japanese precision.",
+      "source": "https://mantaflorida.com/"
+     },
+     {
+      "claim": "Menu items listed on the official site include Lomo Saltado, Tiradito, and Trilog\u00eda de Cebiches.",
+      "source": "https://mantaflorida.com/"
+     },
+     {
+      "claim": "The restaurant offers private dining for birthdays, corporate gatherings, and special celebrations.",
+      "source": "https://mantaflorida.com/"
+     },
+     {
+      "claim": "The restaurant is located in Wynwood, Miami.",
+      "source": "https://mantaflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE1158xWa3YgRyxYmba83M0o",
+   "name": "Boggy Creek Airboat Adventures",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bcairboats.com/",
+     "source_name": "Boggy Creek Airboat Adventures \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The park is open 7 days a week from 9 a.m. to 5 p.m., with rides from $34.",
+      "Tours include 1-hour, sunset, night, and private VIP airboat options.",
+      "Tours explore the headwaters of the Everglades near Kissimmee, about 35 minutes from Disney.",
+      "Park attractions include a 70-foot gem mine, a butterfly garden, and a gator pond.",
+      "The combo ticket pairs a 1-hour airboat ride with Mini Moo Land Highland cow admission and saves $10 compared with purchasing separately."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Airboat rides through the headwaters of the Everglades",
+    "why_here": "Guided airboat tours explore the headwaters of the Everglades near Kissimmee, about 35 minutes from Disney, with 1-hour, sunset, night, and private VIP options, plus a 70-foot gem mine, a butterfly garden, and a gator pond.",
+    "know_before": "The park is open 7 days a week from 9 a.m. to 5 p.m., with rides from $34.",
+    "local_tip": "The combo ticket pairs a 1-hour ride with Mini Moo Land Highland cow admission and saves $10.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bcairboats.com/"
+     ],
+     "why_here": [
+      "https://bcairboats.com/"
+     ],
+     "know_before": [
+      "https://bcairboats.com/"
+     ],
+     "local_tip": [
+      "https://bcairboats.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The park is open 7 days a week from 9 a.m. to 5 p.m., with rides from $34.",
+      "source": "https://bcairboats.com/"
+     },
+     {
+      "claim": "Tours include 1-hour, sunset, night, and private VIP airboat options.",
+      "source": "https://bcairboats.com/"
+     },
+     {
+      "claim": "Tours explore the headwaters of the Everglades near Kissimmee, about 35 minutes from Disney.",
+      "source": "https://bcairboats.com/"
+     },
+     {
+      "claim": "Park attractions include a 70-foot gem mine, a butterfly garden, and a gator pond.",
+      "source": "https://bcairboats.com/"
+     },
+     {
+      "claim": "The combo ticket pairs a 1-hour airboat ride with Mini Moo Land Highland cow admission and saves $10 compared with purchasing separately.",
+      "source": "https://bcairboats.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTTHiI8w_6IgR89hvVjSS-vc",
+   "name": "Ellie Schiller Homosassa Springs Wildlife State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park",
+     "source_name": "Ellie Schiller Homosassa Springs Wildlife State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hours are 9 a.m. to 5:30 p.m., 365 days a year.",
+      "Manatee programs are offered daily at 11 a.m. and 1 p.m.",
+      "The Fish Bowl underwater observatory floats in the main spring and allows an up-close view of the spring and the fish and manatees.",
+      "The park includes endangered Florida panther, red wolf, manatee and whooping crane, plus black bear and bobcat."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Watch manatees from an underwater observatory in the spring bowl",
+    "why_here": "This state park pairs a wildlife walk with close views of Florida wildlife, including endangered Florida panther, red wolf, manatee and black bear. The Fish Bowl underwater observatory floats in the main spring for an up-close view of fish and manatees.",
+    "know_before": "Hours are 9 a.m. to 5:30 p.m., 365 days a year.",
+    "local_tip": null,
+    "best_time": "Arrive for a daily manatee program at 11 a.m. or 1 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hours are 9 a.m. to 5:30 p.m., 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     },
+     {
+      "claim": "Manatee programs are offered daily at 11 a.m. and 1 p.m.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     },
+     {
+      "claim": "The Fish Bowl underwater observatory floats in the main spring and allows an up-close view of the spring and the fish and manatees.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     },
+     {
+      "claim": "The park includes endangered Florida panther, red wolf, manatee and whooping crane, plus black bear and bobcat.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/ellie-schiller-homosassa-springs-wildlife-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2SKGmlVBkYgRz2_p5RJWFmY",
+   "name": "Boshamps Seafood and Oyster House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boshamps.com/",
+     "source_name": "Boshamps Seafood and Oyster House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boshamps Seafood & Oyster House is located on the Destin Harbor.",
+      "Boshamps Seafood & Oyster House is at 414 Harbor Boulevard, Destin, Florida 32541.",
+      "The family's presence on this property dates to 1985.",
+      "Menu includes Oysters Boshamps baked with caramelized Vidalia onion, feta cheese and bacon marmalade.",
+      "Hours are 11 a.m. to 9:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Baked oysters with caramelized onion, feta cheese and bacon marmalade",
+    "why_here": "Boshamps Seafood & Oyster House sits on the Destin Harbor, with the family's presence on this property dating to 1985. The menu includes Oysters Boshamps baked with caramelized Vidalia onion, feta cheese and bacon marmalade.",
+    "know_before": "Hours are 11 a.m. to 9:30 p.m., per the official site.",
+    "local_tip": "Try the Oysters Boshamps baked with caramelized Vidalia onion, feta cheese and bacon marmalade.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boshamps.com/"
+     ],
+     "why_here": [
+      "https://boshamps.com/"
+     ],
+     "know_before": [
+      "https://boshamps.com/"
+     ],
+     "local_tip": [
+      "https://boshamps.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boshamps Seafood & Oyster House is located on the Destin Harbor.",
+      "source": "https://boshamps.com/"
+     },
+     {
+      "claim": "Boshamps Seafood & Oyster House is at 414 Harbor Boulevard, Destin, Florida 32541.",
+      "source": "https://boshamps.com/"
+     },
+     {
+      "claim": "The family's presence on this property dates to 1985.",
+      "source": "https://boshamps.com/"
+     },
+     {
+      "claim": "Menu includes Oysters Boshamps baked with caramelized Vidalia onion, feta cheese and bacon marmalade.",
+      "source": "https://boshamps.com/"
+     },
+     {
+      "claim": "Hours are 11 a.m. to 9:30 p.m.",
+      "source": "https://boshamps.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz1qgRzKGk4gRzfMyohHsPf4",
+   "name": "Schooners",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://schooners.com/about/",
+     "source_name": "Schooners \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Schooners is on the historic East End of Panama City Beach, right on the beach.",
+      "Schooners, the Last Local Beach Club, is open 7 days a week for lunch and dinner.",
+      "Schooners does not accept reservations.",
+      "Schooners opens daily at 11 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Last Local Beach Club, right on Panama City Beach sand",
+    "why_here": "Schooners is on the historic East End of Panama City Beach, right on the beach. Called the Last Local Beach Club, Schooners is open 7 days a week for lunch and dinner.",
+    "know_before": "Schooners does not accept reservations; Schooners opens daily at 11 a.m.",
+    "local_tip": null,
+    "best_time": "Stay toward sunset, when the cannon tradition marks the evening",
+    "citations": {
+     "hook": [
+      "https://schooners.com/about/"
+     ],
+     "why_here": [
+      "https://schooners.com/about/"
+     ],
+     "know_before": [
+      "https://schooners.com/about/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://schooners.com/about/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Schooners is on the historic East End of Panama City Beach, right on the beach.",
+      "source": "https://schooners.com/about/"
+     },
+     {
+      "claim": "Schooners, the Last Local Beach Club, is open 7 days a week for lunch and dinner.",
+      "source": "https://schooners.com/about/"
+     },
+     {
+      "claim": "Schooners does not accept reservations.",
+      "source": "https://schooners.com/about/"
+     },
+     {
+      "claim": "Schooners opens daily at 11 a.m.",
+      "source": "https://schooners.com/about/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw_fDiUW12YgRcL8rV7CpygY",
+   "name": "Don Sombrero",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://donsombreromiamibeach.com/",
+     "source_name": "Don Sombrero \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Don Sombrero is at 808 Collins Avenue, Miami Beach.",
+      "Don Sombrero is a Mexican restaurant in Miami Beach, a Tequila and Taco Bar.",
+      "The menu includes tacos and fajitas.",
+      "The menu includes Tequilas and Margaritas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Tacos and fajitas at a Tequila and Taco Bar",
+    "why_here": "Don Sombrero is a Mexican restaurant in Miami Beach, described as a Tequila and Taco Bar. At 808 Collins Avenue, its menu includes tacos and fajitas, plus Tequilas and Margaritas.",
+    "know_before": "Find Don Sombrero at 808 Collins Avenue in Miami Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://donsombreromiamibeach.com/"
+     ],
+     "why_here": [
+      "https://donsombreromiamibeach.com/"
+     ],
+     "know_before": [
+      "https://donsombreromiamibeach.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Don Sombrero is at 808 Collins Avenue, Miami Beach.",
+      "source": "https://donsombreromiamibeach.com/"
+     },
+     {
+      "claim": "Don Sombrero is a Mexican restaurant in Miami Beach, a Tequila and Taco Bar.",
+      "source": "https://donsombreromiamibeach.com/"
+     },
+     {
+      "claim": "The menu includes tacos and fajitas.",
+      "source": "https://donsombreromiamibeach.com/"
+     },
+     {
+      "claim": "The menu includes Tequilas and Margaritas.",
+      "source": "https://donsombreromiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9dEx8oi22YgRqAK7bJI7m0I",
+   "name": "Moshi Moshi Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.moshimoshi.fun/",
+     "source_name": "Moshi Moshi Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Moshi Moshi serves creative sushi rolls, small plates, sake and Japanese eats until 5 a.m.",
+      "Moshi Moshi has locations in Brickell, MiMo and South Beach on Espanola Way."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sushi, sake and small plates served until 5 a.m.",
+    "why_here": "Moshi Moshi describes itself as a cozy, chill hangout for locals, with creative sushi rolls, small plates, sake and broader Japanese dishes. The Brickell outpost is one of three Miami locations alongside MiMo and South Beach on Espanola Way.",
+    "know_before": "Late-night menu runs until 5 a.m. per the official site",
+    "local_tip": null,
+    "best_time": "Late night, when most Brickell kitchens have closed",
+    "citations": {
+     "hook": [
+      "https://www.moshimoshi.fun/"
+     ],
+     "why_here": [
+      "https://www.moshimoshi.fun/"
+     ],
+     "know_before": [
+      "https://www.moshimoshi.fun/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.moshimoshi.fun/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Moshi Moshi serves creative sushi rolls, small plates, sake and Japanese eats until 5 a.m.",
+      "source": "https://www.moshimoshi.fun/"
+     },
+     {
+      "claim": "Moshi Moshi has locations in Brickell, MiMo and South Beach on Espanola Way.",
+      "source": "https://www.moshimoshi.fun/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD-ctkihA24gR9CT1VfJtBxk",
+   "name": "Edison Mall",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shopedisonmall.com/about-us",
+     "source_name": "Edison Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Located in Fort Myers, Florida, Edison Mall serves as the central shopping hub for Southwest Florida.",
+      "Edison Mall offers more than 160 unique stores and diverse dining options, featuring top national brands and local favorites.",
+      "Edison Mall hosts seasonal Pop Up Markets and holiday photo opportunities.",
+      "Edison Mall is at 4125 Cleveland Ave, Fort Myers, FL 33901."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "More than 160 unique stores and diverse dining options",
+    "why_here": "Located in Fort Myers, Florida, Edison Mall serves as the central shopping hub for Southwest Florida. It offers more than 160 unique stores and diverse dining options, and hosts seasonal Pop Up Markets and holiday photo opportunities.",
+    "know_before": "Edison Mall is at 4125 Cleveland Ave in Fort Myers.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shopedisonmall.com/about-us"
+     ],
+     "why_here": [
+      "https://shopedisonmall.com/about-us"
+     ],
+     "know_before": [
+      "https://shopedisonmall.com/about-us"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Located in Fort Myers, Florida, Edison Mall serves as the central shopping hub for Southwest Florida.",
+      "source": "https://shopedisonmall.com/about-us"
+     },
+     {
+      "claim": "Edison Mall offers more than 160 unique stores and diverse dining options, featuring top national brands and local favorites.",
+      "source": "https://shopedisonmall.com/about-us"
+     },
+     {
+      "claim": "Edison Mall hosts seasonal Pop Up Markets and holiday photo opportunities.",
+      "source": "https://shopedisonmall.com/about-us"
+     },
+     {
+      "claim": "Edison Mall is at 4125 Cleveland Ave, Fort Myers, FL 33901.",
+      "source": "https://shopedisonmall.com/about-us"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXyodyL2Ik4gRMKXwvfvC0s0",
+   "name": "Dat Cajun Place Cafe",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "cajun_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://datcajunplace.com/menu",
+     "source_name": "Dat Cajun Place Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dat Cajun Place Cafe is located in Panama City at 2705 Navy Blvd.",
+      "Menu includes Gumbo Ya Ya.",
+      "Menu includes crawfish etouffee and boudin balls.",
+      "Saturday and Sunday brunch runs 10 a.m. to 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Gumbo Ya Ya and crawfish etouffee on Navy Blvd",
+    "why_here": "Dat Cajun Place Cafe in Panama City serves Gumbo Ya Ya and crawfish etouffee, with boudin balls also on the menu. Saturday and Sunday brunch runs 10 a.m. to 2 p.m. at 2705 Navy Blvd.",
+    "know_before": "Saturday and Sunday brunch runs 10 a.m. to 2 p.m.",
+    "local_tip": null,
+    "best_time": "Weekend brunch, 10 a.m. to 2 p.m. on Saturday and Sunday",
+    "citations": {
+     "hook": [
+      "https://datcajunplace.com/menu"
+     ],
+     "why_here": [
+      "https://datcajunplace.com/menu"
+     ],
+     "know_before": [
+      "https://datcajunplace.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://datcajunplace.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dat Cajun Place Cafe is located in Panama City at 2705 Navy Blvd.",
+      "source": "https://datcajunplace.com/menu"
+     },
+     {
+      "claim": "Menu includes Gumbo Ya Ya.",
+      "source": "https://datcajunplace.com/menu"
+     },
+     {
+      "claim": "Menu includes crawfish etouffee and boudin balls.",
+      "source": "https://datcajunplace.com/menu"
+     },
+     {
+      "claim": "Saturday and Sunday brunch runs 10 a.m. to 2 p.m.",
+      "source": "https://datcajunplace.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2_NgzlEA2YgR2BypcR5K5V0",
+   "name": "Louie Bossi's Ristorante Bar Pizzeria",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.louiebossi.com/fortlauderdale",
+     "source_name": "Louie Bossi's Ristorante Bar Pizzeria \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Cacio e Pepe.",
+      "Menu includes Tagliarini Al Limone.",
+      "Menu includes Pizza Al Forno.",
+      "The Fort Lauderdale location is at 1032 East Las Olas Boulevard.",
+      "The Fort Lauderdale location is open 7 days a week.",
+      "Monday to Friday, the Fort Lauderdale location opens at 11:30 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cacio e Pepe, Tagliarini Al Limone and Pizza Al Forno",
+    "why_here": "In Fort Lauderdale, the menu lists Cacio e Pepe and Tagliarini Al Limone, plus Pizza Al Forno. The Fort Lauderdale location at 1032 East Las Olas Boulevard is open 7 days a week for pasta or pizza.",
+    "know_before": "Open 7 days a week; Monday to Friday, it opens at 11:30 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.louiebossi.com/fortlauderdale"
+     ],
+     "why_here": [
+      "https://www.louiebossi.com/fortlauderdale"
+     ],
+     "know_before": [
+      "https://www.louiebossi.com/fortlauderdale"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu includes Cacio e Pepe.",
+      "source": "https://www.louiebossi.com/fortlauderdale"
+     },
+     {
+      "claim": "Menu includes Tagliarini Al Limone.",
+      "source": "https://www.louiebossi.com/fortlauderdale"
+     },
+     {
+      "claim": "Menu includes Pizza Al Forno.",
+      "source": "https://www.louiebossi.com/fortlauderdale"
+     },
+     {
+      "claim": "The Fort Lauderdale location is at 1032 East Las Olas Boulevard.",
+      "source": "https://www.louiebossi.com/fortlauderdale"
+     },
+     {
+      "claim": "The Fort Lauderdale location is open 7 days a week.",
+      "source": "https://www.louiebossi.com/fortlauderdale"
+     },
+     {
+      "claim": "Monday to Friday, the Fort Lauderdale location opens at 11:30 a.m.",
+      "source": "https://www.louiebossi.com/fortlauderdale"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqcxoSRO52YgRXRyWrAyzwjY",
+   "name": "Red Lobster",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.redlobster.com/menu/signature-feasts",
+     "source_name": "Red Lobster \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Red Lobster menu includes Signature Feasts.",
+      "Ultimate Feast includes Maine lobster tail, snow crab, Walt's Favorite Shrimp and garlic shrimp scampi.",
+      "Ultimate Feast is served with choice of two sides."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ultimate Feast with Maine lobster tail and snow crab",
+    "why_here": "The menu includes Signature Feasts, and the Ultimate Feast combines Maine lobster tail, snow crab, Walt's Favorite Shrimp and garlic shrimp scampi with a choice of two sides for sharing at the table.",
+    "know_before": "Ultimate Feast is served with choice of two sides.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.redlobster.com/menu/signature-feasts"
+     ],
+     "why_here": [
+      "https://www.redlobster.com/menu/signature-feasts"
+     ],
+     "know_before": [
+      "https://www.redlobster.com/menu/signature-feasts"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Red Lobster menu includes Signature Feasts.",
+      "source": "https://www.redlobster.com/menu/signature-feasts"
+     },
+     {
+      "claim": "Ultimate Feast includes Maine lobster tail, snow crab, Walt's Favorite Shrimp and garlic shrimp scampi.",
+      "source": "https://www.redlobster.com/menu/signature-feasts"
+     },
+     {
+      "claim": "Ultimate Feast is served with choice of two sides.",
+      "source": "https://www.redlobster.com/menu/signature-feasts"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqSZjQwHZ2IgRchlF4a-XR38",
+   "name": "Old Key Lime House",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.oldkeylimehouse.com/about-us/4123806",
+     "source_name": "Old Key Lime House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Old Key Lime House describes itself as Florida's oldest waterfront restaurant.",
+      "Happy Hour is Mon - Fri from 4 p.m. to 7 p.m. in the bar area.",
+      "Old Key Lime House has a view of the South Florida Intracoastal Waterway."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida's oldest waterfront restaurant on the South Florida Intracoastal Waterway",
+    "why_here": "Old Key Lime House describes itself as Florida's oldest waterfront restaurant, with a view of the South Florida Intracoastal Waterway and a bar area for waterfront dining and drinks by the water.",
+    "know_before": "Happy Hour is Mon - Fri from 4 p.m. to 7 p.m. in the bar area.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.oldkeylimehouse.com/about-us/4123806"
+     ],
+     "why_here": [
+      "https://www.oldkeylimehouse.com/about-us/4123806"
+     ],
+     "know_before": [
+      "https://www.oldkeylimehouse.com/about-us/4123806"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Old Key Lime House describes itself as Florida's oldest waterfront restaurant.",
+      "source": "https://www.oldkeylimehouse.com/about-us/4123806"
+     },
+     {
+      "claim": "Happy Hour is Mon - Fri from 4 p.m. to 7 p.m. in the bar area.",
+      "source": "https://www.oldkeylimehouse.com/about-us/4123806"
+     },
+     {
+      "claim": "Old Key Lime House has a view of the South Florida Intracoastal Waterway.",
+      "source": "https://www.oldkeylimehouse.com/about-us/4123806"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7Qy9bDqm4IgRcKewsg5m_lg",
+   "name": "Fishlips Waterfront Bar & Grill",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fishlipswaterfront.com/",
+     "source_name": "Fishlips Waterfront Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fishlips Waterfront Bar & Grill is a Port Canaveral restaurant.",
+      "Fishlips serves lunch, dinner and brunch.",
+      "Monday hours are 11:00 a.m. to 9:00 p.m.",
+      "Sunday hours are 10:00 a.m. to 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront lunch, dinner and brunch in Port Canaveral",
+    "why_here": "Fishlips Waterfront Bar & Grill is a Port Canaveral restaurant serving lunch, dinner and brunch by the water, with daily hours listed on the official site for planning a visit before you go.",
+    "know_before": "Monday hours are 11:00 a.m. to 9:00 p.m.; Sunday hours are 10:00 a.m. to 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fishlipswaterfront.com/"
+     ],
+     "why_here": [
+      "https://www.fishlipswaterfront.com/"
+     ],
+     "know_before": [
+      "https://www.fishlipswaterfront.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fishlips Waterfront Bar & Grill is a Port Canaveral restaurant.",
+      "source": "https://www.fishlipswaterfront.com/"
+     },
+     {
+      "claim": "Fishlips serves lunch, dinner and brunch.",
+      "source": "https://www.fishlipswaterfront.com/"
+     },
+     {
+      "claim": "Monday hours are 11:00 a.m. to 9:00 p.m.",
+      "source": "https://www.fishlipswaterfront.com/"
+     },
+     {
+      "claim": "Sunday hours are 10:00 a.m. to 8:00 p.m.",
+      "source": "https://www.fishlipswaterfront.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJb11GwPN83YgRK560YsCA6dk",
+   "name": "Hilton Vacation Club Aqua Sol Orlando West",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/",
+     "source_name": "Hilton Vacation Club Aqua Sol Orlando West \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hilton Vacation Club Aqua Sol Orlando West offers one, two, and three-bedroom suites with full kitchens.",
+      "Amenities include pools with a children's play area and a fitness center.",
+      "Amenities include a bar and grill."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "One, two and three-bedroom suites with full kitchens and pools",
+    "why_here": "Hilton Vacation Club Aqua Sol Orlando West offers one, two, and three-bedroom suites with full kitchens, plus pools with a children's play area, a fitness center and a bar and grill for stays.",
+    "know_before": "Suites include full kitchens; amenities include pools and a fitness center.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hilton Vacation Club Aqua Sol Orlando West offers one, two, and three-bedroom suites with full kitchens.",
+      "source": "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/"
+     },
+     {
+      "claim": "Amenities include pools with a children's play area and a fitness center.",
+      "source": "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/"
+     },
+     {
+      "claim": "Amenities include a bar and grill.",
+      "source": "https://www.hilton.com/en/hotels/mcotkgv-hilton-vacation-club-aqua-sol-orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnWQG6dHvwogR1CJ5iH46M4U",
+   "name": "Clearwater Mall",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://properties.brixmor.com/properties/clearwatermall",
+     "source_name": "Clearwater Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Clearwater Mall is a Lowe's, SuperTarget & Costco-anchored center.",
+      "Retailers include Ross Dress for Less, Ulta Beauty, Michaels, PetSmart and Burlington.",
+      "Retailers include Five Below and Golf Galaxy."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Costco, SuperTarget and Lowe's shopping with national retailers",
+    "why_here": "Clearwater Mall is a Lowe's, SuperTarget & Costco-anchored center with retailers including Ross Dress for Less, Ulta Beauty, Michaels, PetSmart, Burlington, Five Below and Golf Galaxy for shopping.",
+    "know_before": "Retailers include Ross Dress for Less, Ulta Beauty and Michaels.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://properties.brixmor.com/properties/clearwatermall"
+     ],
+     "why_here": [
+      "https://properties.brixmor.com/properties/clearwatermall"
+     ],
+     "know_before": [
+      "https://properties.brixmor.com/properties/clearwatermall"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Clearwater Mall is a Lowe's, SuperTarget & Costco-anchored center.",
+      "source": "https://properties.brixmor.com/properties/clearwatermall"
+     },
+     {
+      "claim": "Retailers include Ross Dress for Less, Ulta Beauty, Michaels, PetSmart and Burlington.",
+      "source": "https://properties.brixmor.com/properties/clearwatermall"
+     },
+     {
+      "claim": "Retailers include Five Below and Golf Galaxy.",
+      "source": "https://properties.brixmor.com/properties/clearwatermall"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1zHKWAlC3ogRtZKNI2d_kG0",
+   "name": "Sebastian Inlet State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park",
+     "source_name": "Sebastian Inlet State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sebastian Inlet State Park offers surfing, swimming, snorkeling and beachcombing.",
+      "All 51 campsites have water and electrical hook-ups, a fire ring with grill and a picnic table.",
+      "The Sebastian Fishing Museum is open 10 a.m. to 4 p.m., seven days a week, except major holidays."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Surfing, swimming, snorkeling and beachcombing at the inlet",
+    "why_here": "Sebastian Inlet State Park offers surfing, swimming, snorkeling and beachcombing, with 51 campsites by the inlet and the Sebastian Fishing Museum covering local fishing history for visitors to explore.",
+    "know_before": "The Sebastian Fishing Museum is open 10 a.m. to 4 p.m., seven days a week, except major holidays.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sebastian Inlet State Park offers surfing, swimming, snorkeling and beachcombing.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park"
+     },
+     {
+      "claim": "All 51 campsites have water and electrical hook-ups, a fire ring with grill and a picnic table.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park"
+     },
+     {
+      "claim": "The Sebastian Fishing Museum is open 10 a.m. to 4 p.m., seven days a week, except major holidays.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/sebastian-inlet-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbwaMiUkf2YgRoYv8NYsqRlE",
+   "name": "CVI.CHE 105 Boca Raton",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ceviche105.com/site/menu/food.html",
+     "source_name": "CVI.CHE 105 Boca Raton \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Cl\u00e1sico De Toda La Vida ceviche.",
+      "Menu includes Ceviche Pimentel."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Ceviche including Cl\u00e1sico De Toda La Vida on the menu",
+    "why_here": "Menu lists ceviches including Cl\u00e1sico De Toda La Vida and Ceviche Pimentel, giving diners a focused starting point for choosing a ceviche dish at the table on a first visit here.",
+    "know_before": "Menu includes Ceviche Pimentel and Cl\u00e1sico De Toda La Vida ceviche.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ],
+     "why_here": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ],
+     "know_before": [
+      "https://www.ceviche105.com/site/menu/food.html"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu includes Cl\u00e1sico De Toda La Vida ceviche.",
+      "source": "https://www.ceviche105.com/site/menu/food.html"
+     },
+     {
+      "claim": "Menu includes Ceviche Pimentel.",
+      "source": "https://www.ceviche105.com/site/menu/food.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIX9RqHW12YgRha535Rv515w",
+   "name": "Abuela's Tacos",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.abuelastacosmiamibeach.com/pages/our-menus",
+     "source_name": "Abuela's Tacos \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Breakfast tacos include scrambled eggs, pico de gallo, chipotle mayo, cotija cheese and cilantro, served with potatoes and melted cheese.",
+      "Veggie tacos include roasted green and red peppers, white onions, mushroom, street corn and crispy brussels."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast tacos with scrambled eggs and chipotle mayo",
+    "why_here": "Breakfast tacos on the menu include scrambled eggs, pico de gallo, chipotle mayo, cotija cheese and cilantro, plus veggie tacos with roasted peppers, onions, mushroom and street corn for different tastes.",
+    "know_before": "Breakfast tacos are served with potatoes and melted cheese.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.abuelastacosmiamibeach.com/pages/our-menus"
+     ],
+     "why_here": [
+      "https://www.abuelastacosmiamibeach.com/pages/our-menus"
+     ],
+     "know_before": [
+      "https://www.abuelastacosmiamibeach.com/pages/our-menus"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Breakfast tacos include scrambled eggs, pico de gallo, chipotle mayo, cotija cheese and cilantro, served with potatoes and melted cheese.",
+      "source": "https://www.abuelastacosmiamibeach.com/pages/our-menus"
+     },
+     {
+      "claim": "Veggie tacos include roasted green and red peppers, white onions, mushroom, street corn and crispy brussels.",
+      "source": "https://www.abuelastacosmiamibeach.com/pages/our-menus"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE7CJBHv6wogRgU_CnoymVIY",
+   "name": "Largo Central Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.largo.com/facility_detail_T64_R49.php",
+     "source_name": "Largo Central Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Largo Central Park is a 28-acre destination in Largo featuring open green spaces, shaded walking paths, and year-round events.",
+      "The park surrounds the Central Park Performing Arts Center and sits directly across from the Largo Public Library.",
+      "The Largo Central Railroad miniature train runs the first full weekend of each month.",
+      "The Rainbow Rotary Playground has over 117 play events for children ages 2 to 12.",
+      "The park has over one million annual visitors and includes seven picnic pavilions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 28-acre park with open green spaces and shaded walking paths",
+    "why_here": "Largo Central Park offers open green spaces, shaded walking paths, and year-round events in a 28-acre setting. The park surrounds the Central Park Performing Arts Center and sits directly across from the Largo Public Library, with monthly miniature train rides adding a family draw.",
+    "know_before": "The Largo Central Railroad miniature train runs the first full weekend of each month.",
+    "local_tip": "The Rainbow Rotary Playground has over 117 play events for children ages 2 to 12.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.largo.com/facility_detail_T64_R49.php"
+     ],
+     "why_here": [
+      "https://www.largo.com/facility_detail_T64_R49.php"
+     ],
+     "know_before": [
+      "https://www.largo.com/facility_detail_T64_R49.php"
+     ],
+     "local_tip": [
+      "https://www.largo.com/facility_detail_T64_R49.php"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Largo Central Park is a 28-acre destination in Largo featuring open green spaces, shaded walking paths, and year-round events.",
+      "source": "https://www.largo.com/facility_detail_T64_R49.php"
+     },
+     {
+      "claim": "The park surrounds the Central Park Performing Arts Center and sits directly across from the Largo Public Library.",
+      "source": "https://www.largo.com/facility_detail_T64_R49.php"
+     },
+     {
+      "claim": "The Largo Central Railroad miniature train runs the first full weekend of each month.",
+      "source": "https://www.largo.com/facility_detail_T64_R49.php"
+     },
+     {
+      "claim": "The Rainbow Rotary Playground has over 117 play events for children ages 2 to 12.",
+      "source": "https://www.largo.com/facility_detail_T64_R49.php"
+     },
+     {
+      "claim": "The park has over one million annual visitors and includes seven picnic pavilions.",
+      "source": "https://www.largo.com/facility_detail_T64_R49.php"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOw0AivLe0IgR1QVqkYlmQD8",
+   "name": "Porky's Bayside Restaurant and Marina",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://porkysbaysidebbq.com/",
+     "source_name": "Porky's Bayside Restaurant and Marina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Porky's Bayside Restaurant and Marina is a waterfront restaurant in Marathon on the Gulf side.",
+      "BBQ is smoked daily on-site, with fresh local seafood, sushi, and lobster served for breakfast, lunch, and dinner.",
+      "Porky's Bayside is open daily from 8 a.m. to 10 p.m.",
+      "Live music is from 6 p.m. to 9 p.m.",
+      "Guests can arrive by car or boat, and the restaurant is pet friendly."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining with BBQ smoked daily on-site in Marathon",
+    "why_here": "Porky's Bayside Restaurant and Marina is a waterfront restaurant in Marathon on the Gulf side, serving BBQ smoked daily on-site alongside fresh local seafood, sushi, and lobster. It covers breakfast, lunch, and dinner in a relaxed waterfront setting for a full day of dining.",
+    "know_before": "Open daily from 8 a.m. to 10 p.m., with live music from 6 p.m. to 9 p.m.",
+    "local_tip": "Guests can arrive by car or boat, and the restaurant is pet friendly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://porkysbaysidebbq.com/"
+     ],
+     "why_here": [
+      "https://porkysbaysidebbq.com/"
+     ],
+     "know_before": [
+      "https://porkysbaysidebbq.com/"
+     ],
+     "local_tip": [
+      "https://porkysbaysidebbq.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Porky's Bayside Restaurant and Marina is a waterfront restaurant in Marathon on the Gulf side.",
+      "source": "https://porkysbaysidebbq.com/"
+     },
+     {
+      "claim": "BBQ is smoked daily on-site, with fresh local seafood, sushi, and lobster served for breakfast, lunch, and dinner.",
+      "source": "https://porkysbaysidebbq.com/"
+     },
+     {
+      "claim": "Porky's Bayside is open daily from 8 a.m. to 10 p.m.",
+      "source": "https://porkysbaysidebbq.com/"
+     },
+     {
+      "claim": "Live music is from 6 p.m. to 9 p.m.",
+      "source": "https://porkysbaysidebbq.com/"
+     },
+     {
+      "claim": "Guests can arrive by car or boat, and the restaurant is pet friendly.",
+      "source": "https://porkysbaysidebbq.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

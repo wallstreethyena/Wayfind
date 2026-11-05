@@ -1,0 +1,2259 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 12. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJt8Bg1KKGk4gRXkQ8SNUkixQ",
+   "name": "Uncle Ernie's",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://uncleerniesbayfrontgrill.com/",
+     "source_name": "Uncle Ernie's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Uncle Ernie's Bayfront Grill is located in historic St. Andrews in Panama City.",
+      "The restaurant sources fresh, never frozen, wild-caught Gulf Grouper from Greg Abrams Seafood with daily deliveries.",
+      "Uncle Ernie's offers live entertainment and indoor and outdoor waterfront views.",
+      "Uncle Ernie's has a sunset view of the Panama City harbor."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront grill in historic St. Andrews with harbor sunset views",
+    "why_here": "Uncle Ernie's Bayfront Grill sits in historic St. Andrews in Panama City, with indoor and outdoor waterfront views and live entertainment. Gulf Grouper is sourced fresh, never frozen and wild-caught from Greg Abrams Seafood.",
+    "know_before": "Check the official site for current live-music and menu listings before going.",
+    "local_tip": "Grouper is sourced from Greg Abrams Seafood with daily deliveries.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://uncleerniesbayfrontgrill.com/"
+     ],
+     "why_here": [
+      "https://uncleerniesbayfrontgrill.com/"
+     ],
+     "know_before": [
+      "https://uncleerniesbayfrontgrill.com/"
+     ],
+     "local_tip": [
+      "https://uncleerniesbayfrontgrill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Uncle Ernie's Bayfront Grill is located in historic St. Andrews in Panama City.",
+      "source": "https://uncleerniesbayfrontgrill.com/"
+     },
+     {
+      "claim": "The restaurant sources fresh, never frozen, wild-caught Gulf Grouper from Greg Abrams Seafood with daily deliveries.",
+      "source": "https://uncleerniesbayfrontgrill.com/"
+     },
+     {
+      "claim": "Uncle Ernie's offers live entertainment and indoor and outdoor waterfront views.",
+      "source": "https://uncleerniesbayfrontgrill.com/"
+     },
+     {
+      "claim": "Uncle Ernie's has a sunset view of the Panama City harbor.",
+      "source": "https://uncleerniesbayfrontgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUd5p47LlwogRYf9gHKLY6dk",
+   "name": "Mr. & Mrs. Crab Juicy Seafood & Bar - Pinellas Park",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mmcseafood.com/pinellas-park",
+     "source_name": "Mr. & Mrs. Crab Juicy Seafood & Bar - Pinellas Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Pinellas Park location is at 7550 US Highway 19 N., Pinellas Park, FL 33781.",
+      "The Pinellas Park location is open Sunday through Thursday from 12 p.m. to 10 p.m.",
+      "The Pinellas Park location is open Friday through Saturday from 12 p.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood-boil restaurant on U.S. Highway 19 in Pinellas Park",
+    "why_here": "This Pinellas Park location of Mr. & Mrs. Crab is listed on the chain's official site with its own ordering and contact page. Go for a seafood-boil meal at a location the official site keeps open later on Friday and Saturday.",
+    "know_before": "The Pinellas Park location is open Sunday through Thursday from 12 p.m. to 10 p.m. and Friday through Saturday from 12 p.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": "Friday or Saturday if you want the later closing time stated on the official page.",
+    "citations": {
+     "hook": [
+      "https://mmcseafood.com/pinellas-park"
+     ],
+     "why_here": [
+      "https://mmcseafood.com/pinellas-park"
+     ],
+     "know_before": [
+      "https://mmcseafood.com/pinellas-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://mmcseafood.com/pinellas-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Pinellas Park location is at 7550 US Highway 19 N., Pinellas Park, FL 33781.",
+      "source": "https://mmcseafood.com/pinellas-park"
+     },
+     {
+      "claim": "The Pinellas Park location is open Sunday through Thursday from 12 p.m. to 10 p.m.",
+      "source": "https://mmcseafood.com/pinellas-park"
+     },
+     {
+      "claim": "The Pinellas Park location is open Friday through Saturday from 12 p.m. to 11 p.m.",
+      "source": "https://mmcseafood.com/pinellas-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx9O_qA_9wogR5t6y9DhX1mI",
+   "name": "Sloppy Joe's on the Beach",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.sloppyjoesonthebeach.com/",
+     "source_name": "Sloppy Joe's on the Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sloppy Joe's on the Beach is located directly on the beach next to Bilmar Beach Resort in Treasure Island, Florida.",
+      "Sloppy Joe's has indoor seating, three outdoor decks, and a beachfront bar.",
+      "Sloppy Joe's is open Sunday through Thursday from 8 a.m. to 9 p.m.",
+      "Sloppy Joe's is open Friday through Saturday from 8 a.m. to 10 p.m.",
+      "Sloppy Joe's brings the relaxed spirit of Key West to Treasure Island.",
+      "Dogs are welcome on the outdoor patio at Sloppy Joe's."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront decks and a bar directly on the sand in Treasure Island",
+    "why_here": "Located directly on the beach next to Bilmar Beach Resort, Sloppy Joe's brings the relaxed spirit of Key West to Treasure Island. Indoor seating, three outdoor decks and a beachfront bar serve food and drinks beside the sand.",
+    "know_before": "Hours are Sunday through Thursday from 8 a.m. to 9 p.m. and Friday through Saturday from 8 a.m. to 10 p.m.",
+    "local_tip": "Dogs are welcome on the outdoor patio.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.sloppyjoesonthebeach.com/"
+     ],
+     "why_here": [
+      "https://www.sloppyjoesonthebeach.com/"
+     ],
+     "know_before": [
+      "https://www.sloppyjoesonthebeach.com/"
+     ],
+     "local_tip": [
+      "https://www.sloppyjoesonthebeach.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sloppy Joe's on the Beach is located directly on the beach next to Bilmar Beach Resort in Treasure Island, Florida.",
+      "source": "https://www.sloppyjoesonthebeach.com/"
+     },
+     {
+      "claim": "Sloppy Joe's has indoor seating, three outdoor decks, and a beachfront bar.",
+      "source": "https://www.sloppyjoesonthebeach.com/"
+     },
+     {
+      "claim": "Sloppy Joe's is open Sunday through Thursday from 8 a.m. to 9 p.m.",
+      "source": "https://www.sloppyjoesonthebeach.com/"
+     },
+     {
+      "claim": "Sloppy Joe's is open Friday through Saturday from 8 a.m. to 10 p.m.",
+      "source": "https://www.sloppyjoesonthebeach.com/"
+     },
+     {
+      "claim": "Sloppy Joe's brings the relaxed spirit of Key West to Treasure Island.",
+      "source": "https://www.sloppyjoesonthebeach.com/"
+     },
+     {
+      "claim": "Dogs are welcome on the outdoor patio at Sloppy Joe's.",
+      "source": "https://www.sloppyjoesonthebeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZ3JrxAO32YgRbPAUfW6-19Q",
+   "name": "Claudie",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "french_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.claudierestaurant.com/",
+     "source_name": "Claudie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Claudie is inspired by the sun-soaked coastlines that stretch from Saint-Tropez to Portofino.",
+      "At Claudie, South of France and Italian flavors, fresh seafood, and seasonal ingredients come together.",
+      "Claudie is located at 1101 Brickell Avenue, Miami, FL 33131.",
+      "Claudie was created as a love letter to Riviera living.",
+      "Meals at Claudie are designed to be shared and savored."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Riviera-inspired dining on Brickell Avenue in Miami",
+    "why_here": "Claudie draws on the coastlines from Saint-Tropez to Portofino, pairing South of France and Italian flavors with fresh seafood and seasonal ingredients. Meals are designed to be shared and savored in Brickell.",
+    "know_before": "Claudie is at 1101 Brickell Avenue in Miami; reservations are offered through its official site.",
+    "local_tip": "Meals at Claudie are designed to be shared and savored.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.claudierestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.claudierestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.claudierestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.claudierestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Claudie is inspired by the sun-soaked coastlines that stretch from Saint-Tropez to Portofino.",
+      "source": "https://www.claudierestaurant.com/"
+     },
+     {
+      "claim": "At Claudie, South of France and Italian flavors, fresh seafood, and seasonal ingredients come together.",
+      "source": "https://www.claudierestaurant.com/"
+     },
+     {
+      "claim": "Claudie is located at 1101 Brickell Avenue, Miami, FL 33131.",
+      "source": "https://www.claudierestaurant.com/"
+     },
+     {
+      "claim": "Claudie was created as a love letter to Riviera living.",
+      "source": "https://www.claudierestaurant.com/"
+     },
+     {
+      "claim": "Meals at Claudie are designed to be shared and savored.",
+      "source": "https://www.claudierestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz2WvQIS22YgRIKiSUakT5uc",
+   "name": "Mary Brickell Village",
+   "category": "shopping",
+   "metro": "miami-dade",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://marybrickellvillage.com/stores/dine",
+     "source_name": "Mary Brickell Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mary Brickell Village lists center hours Monday through Thursday from 10 a.m. to 9 p.m.",
+      "Mary Brickell Village lists center hours Friday through Saturday from 10 a.m. to 11 p.m.",
+      "Mary Brickell Village lists center hours Sunday from 11 a.m. to 7 p.m.",
+      "Individual store, services, and restaurant hours at Mary Brickell Village may vary.",
+      "Mary Brickell Village is in Miami.",
+      "The dine directory at Mary Brickell Village lists North Italia, Shake Shack, and Starbucks."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air dining and shopping in Brickell at Mary Brickell Village",
+    "why_here": "Mary Brickell Village lists dining and stores in Brickell in Miami, with a dine directory that includes North Italia, Shake Shack, and Starbucks. Center hours run later on Friday and Saturday, while individual hours may vary.",
+    "know_before": "Center hours are Monday through Thursday from 10 a.m. to 9 p.m., Friday through Saturday from 10 a.m. to 11 p.m., and Sunday from 11 a.m. to 7 p.m.",
+    "local_tip": "Check the individual store page first, because individual hours may vary.",
+    "best_time": "Friday or Saturday for the later center hours stated on the official site.",
+    "citations": {
+     "hook": [
+      "https://marybrickellvillage.com/stores/dine"
+     ],
+     "why_here": [
+      "https://marybrickellvillage.com/stores/dine"
+     ],
+     "know_before": [
+      "https://marybrickellvillage.com/stores/dine"
+     ],
+     "local_tip": [
+      "https://marybrickellvillage.com/stores/dine"
+     ],
+     "best_time": [
+      "https://marybrickellvillage.com/stores/dine"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mary Brickell Village lists center hours Monday through Thursday from 10 a.m. to 9 p.m.",
+      "source": "https://marybrickellvillage.com/stores/dine"
+     },
+     {
+      "claim": "Mary Brickell Village lists center hours Friday through Saturday from 10 a.m. to 11 p.m.",
+      "source": "https://marybrickellvillage.com/stores/dine"
+     },
+     {
+      "claim": "Mary Brickell Village lists center hours Sunday from 11 a.m. to 7 p.m.",
+      "source": "https://marybrickellvillage.com/stores/dine"
+     },
+     {
+      "claim": "Individual store, services, and restaurant hours at Mary Brickell Village may vary.",
+      "source": "https://marybrickellvillage.com/stores/dine"
+     },
+     {
+      "claim": "Mary Brickell Village is in Miami.",
+      "source": "https://marybrickellvillage.com/stores/dine"
+     },
+     {
+      "claim": "The dine directory at Mary Brickell Village lists North Italia, Shake Shack, and Starbucks.",
+      "source": "https://marybrickellvillage.com/stores/dine"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqYRvETe_2YgRnOJTSr0CNHg",
+   "name": "Tamiami Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/recreation/park/tamiami-park.page",
+     "source_name": "Tamiami Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami-Dade County lists Tamiami Park office hours Monday through Friday from 8:30 a.m. to 5 p.m.",
+      "Tamiami Park's pool facility is open year-round.",
+      "Tamiami Park's Tennis Center offers adult programs, clinics, and private lessons.",
+      "Tamiami Park lists summer camps and an afterschool program.",
+      "Tamiami Pool programming is relocated to Tropical Estates Pool during construction."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Year-round pool and tennis center with adult programs and clinics",
+    "why_here": "Miami-Dade County describes Tamiami Park with a pool facility open year-round and a Tennis Center offering adult programs, clinics, and private lessons. Summer camps and an afterschool program are also listed for the park.",
+    "know_before": "Park office hours are Monday through Friday from 8:30 a.m. to 5 p.m., according to the county page.",
+    "local_tip": "Check before a pool visit, because programming is relocated to Tropical Estates Pool during construction.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     ],
+     "local_tip": [
+      "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami-Dade County lists Tamiami Park office hours Monday through Friday from 8:30 a.m. to 5 p.m.",
+      "source": "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     },
+     {
+      "claim": "Tamiami Park's pool facility is open year-round.",
+      "source": "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     },
+     {
+      "claim": "Tamiami Park's Tennis Center offers adult programs, clinics, and private lessons.",
+      "source": "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     },
+     {
+      "claim": "Tamiami Park lists summer camps and an afterschool program.",
+      "source": "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     },
+     {
+      "claim": "Tamiami Pool programming is relocated to Tropical Estates Pool during construction.",
+      "source": "https://www.miamidade.gov/global/recreation/park/tamiami-park.page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu9t9SjOq2YgR-Z0wXSYU-bI",
+   "name": "T.Y. (Topeekeegee Yugnee) Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.broward.org/parks/thingstodo/Camping",
+     "source_name": "T.Y. (Topeekeegee Yugnee) Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "T.Y. (Topeekeegee Yugnee) Park has 61 full hook-up RV sites.",
+      "The campgrounds at T.Y. (Topeekeegee Yugnee) Park are open year-round.",
+      "T.Y. (Topeekeegee Yugnee) Park is in Hollywood, Florida.",
+      "Broward County lists Castaway Island water park at T.Y. (Topeekeegee Yugnee) Park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Park in Hollywood with a 61-site RV campground and water park",
+    "why_here": "Broward County lists T.Y. (Topeekeegee Yugnee) Park in Hollywood among its year-round campgrounds, with 61 full hook-up RV sites. Castaway Island water park is also at the park, giving campers a second reason to stay.",
+    "know_before": "The campground is open year-round; call the park for current water-park hours before visiting.",
+    "local_tip": "Use the county camping page for campground details before booking.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.broward.org/parks/thingstodo/Camping"
+     ],
+     "why_here": [
+      "https://www.broward.org/parks/thingstodo/Camping"
+     ],
+     "know_before": [
+      "https://www.broward.org/parks/thingstodo/Camping"
+     ],
+     "local_tip": [
+      "https://www.broward.org/parks/thingstodo/Camping"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "T.Y. (Topeekeegee Yugnee) Park has 61 full hook-up RV sites.",
+      "source": "https://www.broward.org/parks/thingstodo/Camping"
+     },
+     {
+      "claim": "The campgrounds at T.Y. (Topeekeegee Yugnee) Park are open year-round.",
+      "source": "https://www.broward.org/parks/thingstodo/Camping"
+     },
+     {
+      "claim": "T.Y. (Topeekeegee Yugnee) Park is in Hollywood, Florida.",
+      "source": "https://www.broward.org/parks/thingstodo/Camping"
+     },
+     {
+      "claim": "Broward County lists Castaway Island water park at T.Y. (Topeekeegee Yugnee) Park.",
+      "source": "https://www.broward.org/parks/thingstodo/Camping"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjXkdbsK32YgR2QpGYq5DuK4",
+   "name": "CRAFT Bayside",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftbar.us/",
+     "source_name": "CRAFT Bayside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CRAFT Miami lists Bayside among its locations.",
+      "CRAFT offers a modern and casual atmosphere, ideal for breakfast, lunch meetings, a bite after work or a family get together for brunch any weekend.",
+      "CRAFT says it seeks to make everyone feel like regulars.",
+      "CRAFT offers reservations through its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Modern, casual spot for breakfast, lunch and weekend brunch",
+    "why_here": "CRAFT describes a modern and casual atmosphere ideal for breakfast, lunch meetings, a bite after work or a family get together for brunch any weekend. CRAFT Miami lists Bayside among its locations and seeks to make everyone feel like regulars.",
+    "know_before": "Reservations are offered through the official site; check the Bayside location listing before going.",
+    "local_tip": "Brunch any weekend is highlighted for a family get together.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftbar.us/"
+     ],
+     "why_here": [
+      "https://www.craftbar.us/"
+     ],
+     "know_before": [
+      "https://www.craftbar.us/"
+     ],
+     "local_tip": [
+      "https://www.craftbar.us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CRAFT Miami lists Bayside among its locations.",
+      "source": "https://www.craftbar.us/"
+     },
+     {
+      "claim": "CRAFT offers a modern and casual atmosphere, ideal for breakfast, lunch meetings, a bite after work or a family get together for brunch any weekend.",
+      "source": "https://www.craftbar.us/"
+     },
+     {
+      "claim": "CRAFT says it seeks to make everyone feel like regulars.",
+      "source": "https://www.craftbar.us/"
+     },
+     {
+      "claim": "CRAFT offers reservations through its official site.",
+      "source": "https://www.craftbar.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw_s-_Dq32YgRBwqwKmdLMi0",
+   "name": "Skinny Louie",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skinnylouie.com/",
+     "source_name": "Skinny Louie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Skinny Louie makes every burger with 100% fresh Black Angus beef patties.",
+      "The menu includes three smash burgers, three milkshakes, fries, and sodas.",
+      "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles and Louie sauce.",
+      "Skinny Louie describes its menu as perfect for lunch, dinner, or a late-night craving."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smash burgers made with 100% fresh Black Angus beef",
+    "why_here": "Skinny Louie keeps a simple menu of three smash burgers, three milkshakes, fries, and sodas, made fast for lunch, dinner, or a late-night craving. Every burger uses 100% fresh Black Angus beef patties with fresh ingredients.",
+    "know_before": "The menu keeps to three smash burgers, three milkshakes, fries, and sodas.",
+    "local_tip": "Try the Skinny Louie Cheeseburger with grilled onions, double American cheese, pickles and Louie sauce.",
+    "best_time": "Visit for lunch, dinner, or a late-night craving, as stated on the official site.",
+    "citations": {
+     "hook": [
+      "https://www.skinnylouie.com/"
+     ],
+     "why_here": [
+      "https://www.skinnylouie.com/"
+     ],
+     "know_before": [
+      "https://www.skinnylouie.com/"
+     ],
+     "local_tip": [
+      "https://www.skinnylouie.com/"
+     ],
+     "best_time": [
+      "https://www.skinnylouie.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Skinny Louie makes every burger with 100% fresh Black Angus beef patties.",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "The menu includes three smash burgers, three milkshakes, fries, and sodas.",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles and Louie sauce.",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "Skinny Louie describes its menu as perfect for lunch, dinner, or a late-night craving.",
+      "source": "https://www.skinnylouie.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV-TaAULB2YgROSzcqj6O5LM",
+   "name": "Keik Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keikrestaurant.com/",
+     "source_name": "Keik Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Keik serves brunch, burgers, coffee and viral cakes in Kendall, Doral and Pembroke Pines.",
+      "Keik is a full pink restaurant that also serves cakes and desserts.",
+      "Keik began as a bakery concept and today offers an all-day restaurant menu with brunch, lunch, dinner, burgers and viral cakes.",
+      "The all-day menu is available from open to close at every Keik location."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pink restaurant serving brunch, burgers, coffee and viral cakes",
+    "why_here": "Keik is a full pink restaurant that also serves cakes and desserts. It began as a bakery concept and now offers an all-day menu with brunch, lunch, dinner and burgers. Locations listed on the official site include Doral, Kendall and Pembroke Pines.",
+    "know_before": "The all-day menu is available from open to close at every Keik location.",
+    "local_tip": "Check the Locations page for exact opening and closing times for your preferred location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Keik serves brunch, burgers, coffee and viral cakes in Kendall, Doral and Pembroke Pines.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "Keik is a full pink restaurant that also serves cakes and desserts.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "Keik began as a bakery concept and today offers an all-day restaurant menu with brunch, lunch, dinner, burgers and viral cakes.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "The all-day menu is available from open to close at every Keik location.",
+      "source": "https://www.keikrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ91Cm7I_92IgRuF6niwx_B_I",
+   "name": "Lucky Fish Beach Bar + Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.luckyfishbeachbar.com/frequently-asked-questions",
+     "source_name": "Lucky Fish Beach Bar + Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lucky Fish has locations in Pompano and Dania Beach.",
+      "Pompano welcomes walk-ins and Dania Beach accepts reservations.",
+      "Leashed, well-behaved dogs are welcome on the outdoor patio at both Lucky Fish locations.",
+      "Lucky Fish offers a Happy Hour with select drinks and food specials.",
+      "Both Lucky Fish locations can accommodate large parties and private events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach bar and grill with live music and a dog-friendly patio",
+    "why_here": "Lucky Fish Beach Bar + Grill has locations in Pompano and Dania Beach, per its official FAQ. Both locations welcome leashed, well-behaved dogs on the outdoor patio and can accommodate large parties and private events. The FAQ also lists a Happy Hour with select drinks and food specials.",
+    "know_before": "Pompano welcomes walk-ins; Dania Beach accepts reservations.",
+    "local_tip": "Leashed, well-behaved dogs are welcome on the outdoor patio at both locations.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     ],
+     "why_here": [
+      "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     ],
+     "know_before": [
+      "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     ],
+     "local_tip": [
+      "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lucky Fish has locations in Pompano and Dania Beach.",
+      "source": "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     },
+     {
+      "claim": "Pompano welcomes walk-ins and Dania Beach accepts reservations.",
+      "source": "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     },
+     {
+      "claim": "Leashed, well-behaved dogs are welcome on the outdoor patio at both Lucky Fish locations.",
+      "source": "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     },
+     {
+      "claim": "Lucky Fish offers a Happy Hour with select drinks and food specials.",
+      "source": "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     },
+     {
+      "claim": "Both Lucky Fish locations can accommodate large parties and private events.",
+      "source": "https://www.luckyfishbeachbar.com/frequently-asked-questions"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6X2Ibppf7IgR21niNM-3lM0",
+   "name": "Governor\u2019s Square",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.governorssquare.com/en/visit/",
+     "source_name": "Governor\u2019s Square \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Governor's Square Mall's address is 1500 Apalachee Parkway, Tallahassee, FL 32301.",
+      "Individual store and restaurant hours may vary.",
+      "Pets are not allowed but service animals are permitted at Governor's Square Mall.",
+      "Governor's Square supports mall walkers and opens its doors one hour early for them.",
+      "Restrooms at Governor's Square are located by the food court and next to the mall management office.",
+      "Family restrooms at Governor's Square are located by the food court restrooms."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Shopping mall with mall walkers, a food court, and family restrooms",
+    "why_here": "Governor's Square is a shopping mall in Tallahassee on Apalachee Parkway, with mall hours, store and restaurant information, and visitor details on its official visit page. Restrooms and family restrooms are located by the food court.",
+    "know_before": "Pets are not allowed, but service animals are permitted.",
+    "local_tip": "Mall walkers are supported and doors open one hour early for them.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.governorssquare.com/en/visit/"
+     ],
+     "why_here": [
+      "https://www.governorssquare.com/en/visit/"
+     ],
+     "know_before": [
+      "https://www.governorssquare.com/en/visit/"
+     ],
+     "local_tip": [
+      "https://www.governorssquare.com/en/visit/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Governor's Square Mall's address is 1500 Apalachee Parkway, Tallahassee, FL 32301.",
+      "source": "https://www.governorssquare.com/en/visit/"
+     },
+     {
+      "claim": "Individual store and restaurant hours may vary.",
+      "source": "https://www.governorssquare.com/en/visit/"
+     },
+     {
+      "claim": "Pets are not allowed but service animals are permitted at Governor's Square Mall.",
+      "source": "https://www.governorssquare.com/en/visit/"
+     },
+     {
+      "claim": "Governor's Square supports mall walkers and opens its doors one hour early for them.",
+      "source": "https://www.governorssquare.com/en/visit/"
+     },
+     {
+      "claim": "Restrooms at Governor's Square are located by the food court and next to the mall management office.",
+      "source": "https://www.governorssquare.com/en/visit/"
+     },
+     {
+      "claim": "Family restrooms at Governor's Square are located by the food court restrooms.",
+      "source": "https://www.governorssquare.com/en/visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoZfKYcy32YgR4ROg8Mdxtnw",
+   "name": "Chug's Diner",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://chugsdiner.com/",
+     "source_name": "Chug's Diner \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Chug's Diner is a Coconut Grove staple and part of the Ariete Hospitality Group.",
+      "Chug's Diner is known for its scratch-made dishes.",
+      "Chug's is recognized with a Michelin Bib Gourmand (2021-Present) for its high-quality, value-driven cuisine.",
+      "Standout menu items include the Cast Iron Pancake, the Cuban-American Sandwich, homemade Croquetas, and fresh Pastelitos.",
+      "Regular hours are Mon and Tues 7:30 a.m. - 3:00 p.m., Wed - Sat 7:30 a.m. - 10:00 p.m., and Sun 7:30 a.m. - 7:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban-American diner in Coconut Grove with scratch-made dishes",
+    "why_here": "Chug's Diner is a Coconut Grove staple in the Ariete Hospitality Group, recognized with a Michelin Bib Gourmand for high-quality, value-driven cuisine and known for scratch-made dishes including the Cast Iron Pancake and Cuban-American Sandwich.",
+    "know_before": "Regular hours are Mon and Tues 7:30 a.m. to 3:00 p.m. and Wed to Sat 7:30 a.m. to 10:00 p.m.",
+    "local_tip": "Try homemade Croquetas and fresh Pastelitos, both listed as standout items.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://chugsdiner.com/"
+     ],
+     "why_here": [
+      "https://chugsdiner.com/"
+     ],
+     "know_before": [
+      "https://chugsdiner.com/"
+     ],
+     "local_tip": [
+      "https://chugsdiner.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Chug's Diner is a Coconut Grove staple and part of the Ariete Hospitality Group.",
+      "source": "https://chugsdiner.com/"
+     },
+     {
+      "claim": "Chug's Diner is known for its scratch-made dishes.",
+      "source": "https://chugsdiner.com/"
+     },
+     {
+      "claim": "Chug's is recognized with a Michelin Bib Gourmand (2021-Present) for its high-quality, value-driven cuisine.",
+      "source": "https://chugsdiner.com/"
+     },
+     {
+      "claim": "Standout menu items include the Cast Iron Pancake, the Cuban-American Sandwich, homemade Croquetas, and fresh Pastelitos.",
+      "source": "https://chugsdiner.com/"
+     },
+     {
+      "claim": "Regular hours are Mon and Tues 7:30 a.m. - 3:00 p.m., Wed - Sat 7:30 a.m. - 10:00 p.m., and Sun 7:30 a.m. - 7:00 p.m.",
+      "source": "https://chugsdiner.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDVTeduAh6IgRbe2K7oiOEkg",
+   "name": "Get Up And Go Kayaking - Weeki Wachee",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/",
+     "source_name": "Get Up And Go Kayaking - Weeki Wachee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Get Up and Go Kayaking offers a guided clear kayak ecotour on the Weeki Wachee River in 100% clear kayaks.",
+      "Get Up and Go Kayaking donates a portion of each tour to manatee conservation.",
+      "Manatees call the Weeki Wachee River home all year long.",
+      "The public max group size is 10 paddlers, with private parties of up to 20 people accommodated.",
+      "Booking a tour guarantees access to the Weeki Wachee River."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Guided ecotour of the Weeki Wachee River in a 100% clear kayak",
+    "why_here": "Get Up and Go Kayaking offers a guided clear kayak ecotour on the Weeki Wachee River, where manatees live all year long. Tours use 100% clear kayaks, and the company donates a portion of each tour to manatee conservation.",
+    "know_before": "Public group size is capped at 10 paddlers; private parties of up to 20 can be accommodated.",
+    "local_tip": "Book ahead, because booking a tour guarantees access to the Weeki Wachee River.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     ],
+     "why_here": [
+      "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     ],
+     "know_before": [
+      "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     ],
+     "local_tip": [
+      "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Get Up and Go Kayaking offers a guided clear kayak ecotour on the Weeki Wachee River in 100% clear kayaks.",
+      "source": "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     },
+     {
+      "claim": "Get Up and Go Kayaking donates a portion of each tour to manatee conservation.",
+      "source": "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     },
+     {
+      "claim": "Manatees call the Weeki Wachee River home all year long.",
+      "source": "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     },
+     {
+      "claim": "The public max group size is 10 paddlers, with private parties of up to 20 people accommodated.",
+      "source": "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     },
+     {
+      "claim": "Booking a tour guarantees access to the Weeki Wachee River.",
+      "source": "https://getupandgokayaking.com/locations/florida/weeki-wachee/clear-kayak-tour/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1QO47_G02YgRU_bfxQeW7D4",
+   "name": "Santorini by Georgios",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "greek_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.santorinibygeorgios.com/",
+     "source_name": "Santorini by Georgios \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Santorini by Georgios is owned and operated by a Greek family.",
+      "Santorini by Georgios serves fresh seafood, colorful mezze, and classic Greek favorites.",
+      "Santorini by Georgios is poolside and just steps from the ocean in Miami Beach.",
+      "Santorini by Georgios is in the South of Fifth area of Miami Beach.",
+      "The Georgios Table includes whole fish, mezze spread, saganaki, octopus and lamb chops.",
+      "Santorini by Georgios recommends making a reservation ahead of time."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek restaurant in Miami Beach, poolside and steps from the ocean",
+    "why_here": "Santorini by Georgios is a Greek family-owned restaurant in the South of Fifth area of Miami Beach, serving fresh seafood, colorful mezze and classic Greek favorites poolside and just steps from the ocean.",
+    "know_before": "Santorini by Georgios recommends making a reservation ahead of time.",
+    "local_tip": "The Georgios Table includes whole fish, mezze spread, saganaki, octopus and lamb chops.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.santorinibygeorgios.com/"
+     ],
+     "why_here": [
+      "https://www.santorinibygeorgios.com/"
+     ],
+     "know_before": [
+      "https://www.santorinibygeorgios.com/"
+     ],
+     "local_tip": [
+      "https://www.santorinibygeorgios.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Santorini by Georgios is owned and operated by a Greek family.",
+      "source": "https://www.santorinibygeorgios.com/"
+     },
+     {
+      "claim": "Santorini by Georgios serves fresh seafood, colorful mezze, and classic Greek favorites.",
+      "source": "https://www.santorinibygeorgios.com/"
+     },
+     {
+      "claim": "Santorini by Georgios is poolside and just steps from the ocean in Miami Beach.",
+      "source": "https://www.santorinibygeorgios.com/"
+     },
+     {
+      "claim": "Santorini by Georgios is in the South of Fifth area of Miami Beach.",
+      "source": "https://www.santorinibygeorgios.com/"
+     },
+     {
+      "claim": "The Georgios Table includes whole fish, mezze spread, saganaki, octopus and lamb chops.",
+      "source": "https://www.santorinibygeorgios.com/"
+     },
+     {
+      "claim": "Santorini by Georgios recommends making a reservation ahead of time.",
+      "source": "https://www.santorinibygeorgios.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJicR9SqOGk4gRI2Vuj9yVNlM",
+   "name": "Hunt's Oyster Bar and Seafood",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "oyster_bar_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.huntsoysterbarpc.com/",
+     "source_name": "Hunt's Oyster Bar and Seafood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hunt's Oyster Bar & Seafood is located at 1150 Beck Ave., Panama City, FL 32401.",
+      "Hunt's serves oysters and fresh seafood from Tarpon Dock Seafood Market.",
+      "The menu includes freshly shucked oysters fried to a golden crisp.",
+      "The menu includes fresh local Gulf of Mexico grouper served with freshly shucked oysters.",
+      "Hours are Monday through Thursday 11:00 a.m. to 9:30 p.m. and Friday through Saturday 11:00 a.m. to 10:00 p.m.",
+      "Hunt's is closed on Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Freshly shucked oysters fried to a golden crisp in Panama City",
+    "why_here": "Hunt's Oyster Bar & Seafood in Panama City serves oysters and fresh seafood from Tarpon Dock Seafood Market, including freshly shucked oysters fried to a golden crisp and fresh local Gulf of Mexico grouper.",
+    "know_before": "Hours are Monday through Thursday 11:00 a.m. to 9:30 p.m. and Friday through Saturday 11:00 a.m. to 10:00 p.m.",
+    "local_tip": "Hunt's is closed on Sunday, so plan a Monday through Saturday visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.huntsoysterbarpc.com/"
+     ],
+     "why_here": [
+      "https://www.huntsoysterbarpc.com/"
+     ],
+     "know_before": [
+      "https://www.huntsoysterbarpc.com/"
+     ],
+     "local_tip": [
+      "https://www.huntsoysterbarpc.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hunt's Oyster Bar & Seafood is located at 1150 Beck Ave., Panama City, FL 32401.",
+      "source": "https://www.huntsoysterbarpc.com/"
+     },
+     {
+      "claim": "Hunt's serves oysters and fresh seafood from Tarpon Dock Seafood Market.",
+      "source": "https://www.huntsoysterbarpc.com/"
+     },
+     {
+      "claim": "The menu includes freshly shucked oysters fried to a golden crisp.",
+      "source": "https://www.huntsoysterbarpc.com/"
+     },
+     {
+      "claim": "The menu includes fresh local Gulf of Mexico grouper served with freshly shucked oysters.",
+      "source": "https://www.huntsoysterbarpc.com/"
+     },
+     {
+      "claim": "Hours are Monday through Thursday 11:00 a.m. to 9:30 p.m. and Friday through Saturday 11:00 a.m. to 10:00 p.m.",
+      "source": "https://www.huntsoysterbarpc.com/"
+     },
+     {
+      "claim": "Hunt's is closed on Sunday.",
+      "source": "https://www.huntsoysterbarpc.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxQ7i2J-x2YgR4VgRLlrYkNs",
+   "name": "Pasta e Basta",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pastaebasta.us/",
+     "source_name": "Pasta e Basta \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pasta e Basta is at 30 NW 34th St Ste 110, Miami, FL.",
+      "Pasta e Basta serves authentic Italian pasta, handmade with tradition and passion.",
+      "Pasta e Basta uses family recipes, select ingredients, and sauces.",
+      "Hours are Sunday through Thursday 12:00 p.m. to 10:00 p.m. and Friday through Saturday 12:00 p.m. to 11:00 p.m.",
+      "Brunch is Saturday and Sunday 12:00 p.m. to 5:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Handmade authentic Italian pasta in Miami with family recipes",
+    "why_here": "Pasta e Basta in Miami serves authentic Italian pasta handmade with tradition and passion, using family recipes, select ingredients and sauces, with brunch available on Saturday and Sunday for a slower midday meal.",
+    "know_before": "Hours are Sunday through Thursday 12:00 p.m. to 10:00 p.m. and Friday through Saturday 12:00 p.m. to 11:00 p.m.",
+    "local_tip": "Save room for brunch on Saturday and Sunday from 12:00 p.m. to 5:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pastaebasta.us/"
+     ],
+     "why_here": [
+      "https://pastaebasta.us/"
+     ],
+     "know_before": [
+      "https://pastaebasta.us/"
+     ],
+     "local_tip": [
+      "https://pastaebasta.us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pasta e Basta is at 30 NW 34th St Ste 110, Miami, FL.",
+      "source": "https://pastaebasta.us/"
+     },
+     {
+      "claim": "Pasta e Basta serves authentic Italian pasta, handmade with tradition and passion.",
+      "source": "https://pastaebasta.us/"
+     },
+     {
+      "claim": "Pasta e Basta uses family recipes, select ingredients, and sauces.",
+      "source": "https://pastaebasta.us/"
+     },
+     {
+      "claim": "Hours are Sunday through Thursday 12:00 p.m. to 10:00 p.m. and Friday through Saturday 12:00 p.m. to 11:00 p.m.",
+      "source": "https://pastaebasta.us/"
+     },
+     {
+      "claim": "Brunch is Saturday and Sunday 12:00 p.m. to 5:00 p.m.",
+      "source": "https://pastaebasta.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ25Ru2738wogR_z3-8AxwqMI",
+   "name": "Cody's Original Roadhouse- Bay Pines",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.codysoriginalroadhouse.com/baypines",
+     "source_name": "Cody's Original Roadhouse- Bay Pines \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cody's Original Roadhouse Bay Pines is in St. Petersburg, Florida.",
+      "Cody's Original Roadhouse Bay Pines offers hand-cut steaks, ribs, fajitas, burgers, happy hour, and weekly specials.",
+      "Tuesday is Kids Eat Free and Wednesday is Buy One, Get One Free Fajitas.",
+      "Thursday is a 10 oz USDA Choice Sirloin Special.",
+      "Sunday Specials are $14.99 until 4 p.m. on Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-cut steaks, ribs, and fajitas at the Bay Pines roadhouse",
+    "why_here": "Cody's Original Roadhouse Bay Pines in St. Petersburg offers hand-cut steaks, ribs, fajitas and burgers, with weekly specials including Tuesday Kids Eat Free and Wednesday Buy One, Get One Free Fajitas.",
+    "know_before": "Tuesday is Kids Eat Free and Wednesday is Buy One, Get One Free Fajitas.",
+    "local_tip": "Thursday features a 10 oz USDA Choice Sirloin Special.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.codysoriginalroadhouse.com/baypines"
+     ],
+     "why_here": [
+      "https://www.codysoriginalroadhouse.com/baypines"
+     ],
+     "know_before": [
+      "https://www.codysoriginalroadhouse.com/baypines"
+     ],
+     "local_tip": [
+      "https://www.codysoriginalroadhouse.com/baypines"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cody's Original Roadhouse Bay Pines is in St. Petersburg, Florida.",
+      "source": "https://www.codysoriginalroadhouse.com/baypines"
+     },
+     {
+      "claim": "Cody's Original Roadhouse Bay Pines offers hand-cut steaks, ribs, fajitas, burgers, happy hour, and weekly specials.",
+      "source": "https://www.codysoriginalroadhouse.com/baypines"
+     },
+     {
+      "claim": "Tuesday is Kids Eat Free and Wednesday is Buy One, Get One Free Fajitas.",
+      "source": "https://www.codysoriginalroadhouse.com/baypines"
+     },
+     {
+      "claim": "Thursday is a 10 oz USDA Choice Sirloin Special.",
+      "source": "https://www.codysoriginalroadhouse.com/baypines"
+     },
+     {
+      "claim": "Sunday Specials are $14.99 until 4 p.m. on Sunday.",
+      "source": "https://www.codysoriginalroadhouse.com/baypines"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4zTrIO4724gRXLL9jRwQBcs",
+   "name": "Pink Shell Beach Resort & Marina",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.pinkshell.com/experience/beaches-pools",
+     "source_name": "Pink Shell Beach Resort & Marina \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pink Shell Beach Resort & Marina is in Fort Myers Beach.",
+      "Pink Shell Beach Resort & Marina has a secluded 12-acre white sand beach.",
+      "Pink Shell Beach Resort & Marina has three resort-style pools facing the ocean.",
+      "Beach lounge chairs and umbrellas are available for the duration of a stay."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "12-acre white sand beach and three pools on Fort Myers Beach",
+    "why_here": "Pink Shell Beach Resort & Marina in Fort Myers Beach pairs a secluded 12-acre white sand beach with three resort-style pools facing the ocean for a full beach stay.",
+    "know_before": "Beach lounge chairs and umbrellas are available for the duration of a stay.",
+    "local_tip": "Use the beach lounge chairs and umbrellas provided during your stay.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.pinkshell.com/experience/beaches-pools"
+     ],
+     "why_here": [
+      "https://www.pinkshell.com/experience/beaches-pools"
+     ],
+     "know_before": [
+      "https://www.pinkshell.com/experience/beaches-pools"
+     ],
+     "local_tip": [
+      "https://www.pinkshell.com/experience/beaches-pools"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pink Shell Beach Resort & Marina is in Fort Myers Beach.",
+      "source": "https://www.pinkshell.com/experience/beaches-pools"
+     },
+     {
+      "claim": "Pink Shell Beach Resort & Marina has a secluded 12-acre white sand beach.",
+      "source": "https://www.pinkshell.com/experience/beaches-pools"
+     },
+     {
+      "claim": "Pink Shell Beach Resort & Marina has three resort-style pools facing the ocean.",
+      "source": "https://www.pinkshell.com/experience/beaches-pools"
+     },
+     {
+      "claim": "Beach lounge chairs and umbrellas are available for the duration of a stay.",
+      "source": "https://www.pinkshell.com/experience/beaches-pools"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr7cVdyff2IgRc2hoGHXLVQc",
+   "name": "Two Georges Waterfront Grille",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.twogeorgesrestaurant.com/menu-boynton",
+     "source_name": "Two Georges Waterfront Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Two Georges Waterfront Grille is in Boynton Beach.",
+      "The Boynton menu lists Garlic Basil Middleneck Clams.",
+      "The menu describes Coconut Shrimp as four fried coconut encrusted jumbo shrimp with Thai Chili dipping sauce.",
+      "The menu lists a Two Georges Waterfront Salad."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront grille in Boynton Beach with clams and coconut shrimp",
+    "why_here": "Two Georges Waterfront Grille in Boynton Beach serves Garlic Basil Middleneck Clams and Coconut Shrimp with Thai Chili dipping sauce, plus a Two Georges Waterfront Salad on its menu.",
+    "know_before": "Coconut Shrimp is four fried coconut encrusted jumbo shrimp, per the menu.",
+    "local_tip": "Start with Garlic Basil Middleneck Clams or Coconut Shrimp.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.twogeorgesrestaurant.com/menu-boynton"
+     ],
+     "why_here": [
+      "https://www.twogeorgesrestaurant.com/menu-boynton"
+     ],
+     "know_before": [
+      "https://www.twogeorgesrestaurant.com/menu-boynton"
+     ],
+     "local_tip": [
+      "https://www.twogeorgesrestaurant.com/menu-boynton"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Two Georges Waterfront Grille is in Boynton Beach.",
+      "source": "https://www.twogeorgesrestaurant.com/menu-boynton"
+     },
+     {
+      "claim": "The Boynton menu lists Garlic Basil Middleneck Clams.",
+      "source": "https://www.twogeorgesrestaurant.com/menu-boynton"
+     },
+     {
+      "claim": "The menu describes Coconut Shrimp as four fried coconut encrusted jumbo shrimp with Thai Chili dipping sauce.",
+      "source": "https://www.twogeorgesrestaurant.com/menu-boynton"
+     },
+     {
+      "claim": "The menu lists a Two Georges Waterfront Salad.",
+      "source": "https://www.twogeorgesrestaurant.com/menu-boynton"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJs1e8QsW32YgR2n6XDREEhNk",
+   "name": "Greenstreet Cafe",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.greenstreetcafe.net/",
+     "source_name": "Greenstreet Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "GreenStreet Cafe was founded in 1990 by Sylvano and Maida Bignon.",
+      "GreenStreet Cafe is a lounge and restaurant in Coconut Grove.",
+      "GreenStreet Cafe is open Sunday to Thursday from 7 a.m. to midnight.",
+      "GreenStreet Cafe is open Friday and Saturday from 7 a.m. to 2 a.m.",
+      "Brunch is served Saturday and Sunday from 7 a.m. to 3 p.m.",
+      "GreenStreet Cafe serves breakfast, lunch, dinner and brunch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coconut Grove cafe founded in 1990 by Sylvano and Maida Bignon",
+    "why_here": "GreenStreet Cafe is a lounge and restaurant in Coconut Grove founded in 1990 by Sylvano and Maida Bignon, serving breakfast, lunch, dinner and brunch throughout the day.",
+    "know_before": "Open Sunday to Thursday from 7 a.m. to midnight, and Friday and Saturday from 7 a.m. to 2 a.m.",
+    "local_tip": "Brunch is served Saturday and Sunday from 7 a.m. to 3 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.greenstreetcafe.net/"
+     ],
+     "why_here": [
+      "https://www.greenstreetcafe.net/"
+     ],
+     "know_before": [
+      "https://www.greenstreetcafe.net/"
+     ],
+     "local_tip": [
+      "https://www.greenstreetcafe.net/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "GreenStreet Cafe was founded in 1990 by Sylvano and Maida Bignon.",
+      "source": "https://www.greenstreetcafe.net/"
+     },
+     {
+      "claim": "GreenStreet Cafe is a lounge and restaurant in Coconut Grove.",
+      "source": "https://www.greenstreetcafe.net/"
+     },
+     {
+      "claim": "GreenStreet Cafe is open Sunday to Thursday from 7 a.m. to midnight.",
+      "source": "https://www.greenstreetcafe.net/"
+     },
+     {
+      "claim": "GreenStreet Cafe is open Friday and Saturday from 7 a.m. to 2 a.m.",
+      "source": "https://www.greenstreetcafe.net/"
+     },
+     {
+      "claim": "Brunch is served Saturday and Sunday from 7 a.m. to 3 p.m.",
+      "source": "https://www.greenstreetcafe.net/"
+     },
+     {
+      "claim": "GreenStreet Cafe serves breakfast, lunch, dinner and brunch.",
+      "source": "https://www.greenstreetcafe.net/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSyV70OZGw4gR24GvPAAirZs",
+   "name": "Walmart Supercenter",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "department_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.walmart.com/store/2459-sarasota-fl",
+     "source_name": "Walmart Supercenter \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Walmart Supercenter #2459 is in Sarasota.",
+      "The store page lists Grocery among its departments.",
+      "The store page lists Electronics among its departments.",
+      "The store page lists Pharmacy, Health & Wellness among its departments."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Walmart Supercenter #2459 in Sarasota with Grocery and Pharmacy",
+    "why_here": "Walmart Supercenter #2459 in Sarasota lists Grocery, Electronics and Pharmacy, Health & Wellness among its departments, making it a one-stop stop for food, home goods and health needs.",
+    "know_before": "Department availability is listed on the official store page, so check there before a trip.",
+    "local_tip": "Check the Grocery department listing on the store page before going.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.walmart.com/store/2459-sarasota-fl"
+     ],
+     "why_here": [
+      "https://www.walmart.com/store/2459-sarasota-fl"
+     ],
+     "know_before": [
+      "https://www.walmart.com/store/2459-sarasota-fl"
+     ],
+     "local_tip": [
+      "https://www.walmart.com/store/2459-sarasota-fl"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Walmart Supercenter #2459 is in Sarasota.",
+      "source": "https://www.walmart.com/store/2459-sarasota-fl"
+     },
+     {
+      "claim": "The store page lists Grocery among its departments.",
+      "source": "https://www.walmart.com/store/2459-sarasota-fl"
+     },
+     {
+      "claim": "The store page lists Electronics among its departments.",
+      "source": "https://www.walmart.com/store/2459-sarasota-fl"
+     },
+     {
+      "claim": "The store page lists Pharmacy, Health & Wellness among its departments.",
+      "source": "https://www.walmart.com/store/2459-sarasota-fl"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk-pfWuMH2YgR1HGkjWVLIZc",
+   "name": "Off The Wall Davie",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.offthewallgamezone.com/attractions/davie",
+     "source_name": "Off The Wall Davie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Off The Wall Gamezone in Davie features massive trampoline courts and a fully-loaded arcade game room packed with prizes.",
+      "Attractions include Trampoline Open Jump across wall-to-wall trampolines.",
+      "Attractions include Trampoline Dodgeball and Trampoline Slam Dunk.",
+      "Official OTW Grip Socks are strictly required for all participants on trampoline courts and attraction surfaces.",
+      "Once signed, liability waivers remain valid in the system for five years."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Davie gamezone with wall-to-wall trampolines and a prize arcade",
+    "why_here": "Off The Wall Gamezone in Davie combines massive trampoline courts with a fully-loaded arcade game room packed with prizes, plus Trampoline Open Jump, Trampoline Dodgeball and Trampoline Slam Dunk.",
+    "know_before": "Official OTW Grip Socks are required for trampoline courts and attraction surfaces.",
+    "local_tip": "Once signed, liability waivers remain valid in the system for five years.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.offthewallgamezone.com/attractions/davie"
+     ],
+     "why_here": [
+      "https://www.offthewallgamezone.com/attractions/davie"
+     ],
+     "know_before": [
+      "https://www.offthewallgamezone.com/attractions/davie"
+     ],
+     "local_tip": [
+      "https://www.offthewallgamezone.com/attractions/davie"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Off The Wall Gamezone in Davie features massive trampoline courts and a fully-loaded arcade game room packed with prizes.",
+      "source": "https://www.offthewallgamezone.com/attractions/davie"
+     },
+     {
+      "claim": "Attractions include Trampoline Open Jump across wall-to-wall trampolines.",
+      "source": "https://www.offthewallgamezone.com/attractions/davie"
+     },
+     {
+      "claim": "Attractions include Trampoline Dodgeball and Trampoline Slam Dunk.",
+      "source": "https://www.offthewallgamezone.com/attractions/davie"
+     },
+     {
+      "claim": "Official OTW Grip Socks are strictly required for all participants on trampoline courts and attraction surfaces.",
+      "source": "https://www.offthewallgamezone.com/attractions/davie"
+     },
+     {
+      "claim": "Once signed, liability waivers remain valid in the system for five years.",
+      "source": "https://www.offthewallgamezone.com/attractions/davie"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvdxS5h1_54gRnoauBjozmtg",
+   "name": "Skull Island: Reign of Kong",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong",
+     "source_name": "Skull Island: Reign of Kong \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Skull Island: Reign of Kong is at Universal's Islands of Adventure.",
+      "Universal describes Skull Island: Reign of Kong as a wild expedition to a mysterious island.",
+      "King Kong is the hope against prehistoric predators on the expedition.",
+      "Universal lists the minimum height for Skull Island: Reign of Kong as 36 inches."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Expedition ride to a mysterious island at Islands of Adventure",
+    "why_here": "Skull Island: Reign of Kong at Universal's Islands of Adventure sends riders on a wild expedition to a mysterious island, where King Kong is the hope against prehistoric predators.",
+    "know_before": "Universal lists the minimum height as 36 inches.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Skull Island: Reign of Kong is at Universal's Islands of Adventure.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     },
+     {
+      "claim": "Universal describes Skull Island: Reign of Kong as a wild expedition to a mysterious island.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     },
+     {
+      "claim": "King Kong is the hope against prehistoric predators on the expedition.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     },
+     {
+      "claim": "Universal lists the minimum height for Skull Island: Reign of Kong as 36 inches.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/skull-island-reign-of-kong"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfYGwoAa35YgR_p69KBriAW0",
+   "name": "The Bearded Pig",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thebeardedpigbbq.com/",
+     "source_name": "The Bearded Pig \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Bearded Pig is a smokehouse BBQ and full bar in San Marco, Jacksonville.",
+      "Barbecue is dry-rubbed and smoked low and slow.",
+      "The menu pairs Texas-Style Brisket with Carolina Pulled Pork and house-made sausage.",
+      "The full bar features twelve rotating draft beers.",
+      "The restaurant offers five homemade signature sauces."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "San Marco smokehouse pairing Texas brisket with Carolina pulled pork",
+    "why_here": "The Bearded Pig is a smokehouse BBQ and full bar in San Marco, Jacksonville, where barbecue is dry-rubbed and smoked low and slow with Texas-Style Brisket, Carolina Pulled Pork and house-made sausage.",
+    "know_before": "Barbecue here is dry-rubbed and smoked low and slow.",
+    "local_tip": "The restaurant offers five homemade signature sauces.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thebeardedpigbbq.com/"
+     ],
+     "why_here": [
+      "https://thebeardedpigbbq.com/"
+     ],
+     "know_before": [
+      "https://thebeardedpigbbq.com/"
+     ],
+     "local_tip": [
+      "https://thebeardedpigbbq.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Bearded Pig is a smokehouse BBQ and full bar in San Marco, Jacksonville.",
+      "source": "https://thebeardedpigbbq.com/"
+     },
+     {
+      "claim": "Barbecue is dry-rubbed and smoked low and slow.",
+      "source": "https://thebeardedpigbbq.com/"
+     },
+     {
+      "claim": "The menu pairs Texas-Style Brisket with Carolina Pulled Pork and house-made sausage.",
+      "source": "https://thebeardedpigbbq.com/"
+     },
+     {
+      "claim": "The full bar features twelve rotating draft beers.",
+      "source": "https://thebeardedpigbbq.com/"
+     },
+     {
+      "claim": "The restaurant offers five homemade signature sauces.",
+      "source": "https://thebeardedpigbbq.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJez_t_o-32YgRxib2jWYnDsA",
+   "name": "BELLILLO - A Taste of Napoli",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bellillo.com/miami",
+     "source_name": "BELLILLO - A Taste of Napoli \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bellillo Miami is at 881 South Miami Avenue, Miami, FL 33130.",
+      "Hours Sunday to Wednesday are 12:00 p.m. to 1:00 a.m.",
+      "Hours Thursday to Saturday are 12:00 p.m. to 2:30 a.m.",
+      "Co-founder Francesco Vigna oversees every ingredient.",
+      "Bellillo describes its way as organic, seasonal and rooted in sustainability."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Neapolitan spot on South Miami Avenue sourcing from its own lands",
+    "why_here": "Bellillo's Miami page presents it as A Taste of Napoli, with a mission of sourcing ingredients and bringing authentic tastes to the plate. Co-founder Francesco Vigna oversees every ingredient, in a way the site calls organic, seasonal and rooted in sustainability.",
+    "know_before": "Hours are Sunday to Wednesday 12:00 p.m. to 1:00 a.m., and Thursday to Saturday 12:00 p.m. to 2:30 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bellillo.com/miami"
+     ],
+     "why_here": [
+      "https://www.bellillo.com/miami"
+     ],
+     "know_before": [
+      "https://www.bellillo.com/miami"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bellillo Miami is at 881 South Miami Avenue, Miami, FL 33130.",
+      "source": "https://www.bellillo.com/miami"
+     },
+     {
+      "claim": "Hours Sunday to Wednesday are 12:00 p.m. to 1:00 a.m.",
+      "source": "https://www.bellillo.com/miami"
+     },
+     {
+      "claim": "Hours Thursday to Saturday are 12:00 p.m. to 2:30 a.m.",
+      "source": "https://www.bellillo.com/miami"
+     },
+     {
+      "claim": "Co-founder Francesco Vigna oversees every ingredient.",
+      "source": "https://www.bellillo.com/miami"
+     },
+     {
+      "claim": "Bellillo describes its way as organic, seasonal and rooted in sustainability.",
+      "source": "https://www.bellillo.com/miami"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlw3z3Zy02YgRaHW6jcbhJ6M",
+   "name": "Riviera Hotel South Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rivierahotelsouthbeach.com/",
+     "source_name": "Riviera Hotel South Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Riviera is just steps from the beach and Convention Center.",
+      "The hotel has twin pool decks, including a courtyard pool and a rooftop retreat with private daybeds.",
+      "The hotel is pet-friendly.",
+      "Suites include in-suite kitchenettes and complimentary Wi-Fi."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "South Beach boutique hideaway with courtyard and rooftop pool decks",
+    "why_here": "The Riviera combines city energy with residential tranquility just steps from the beach and Convention Center, according to its official site. It offers twin pool decks, in-suite kitchenettes and complimentary Wi-Fi.",
+    "know_before": "The hotel is pet-friendly, according to its official site.",
+    "local_tip": "Amenities include a courtyard pool and a rooftop retreat with private daybeds.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rivierahotelsouthbeach.com/"
+     ],
+     "why_here": [
+      "https://rivierahotelsouthbeach.com/"
+     ],
+     "know_before": [
+      "https://rivierahotelsouthbeach.com/"
+     ],
+     "local_tip": [
+      "https://rivierahotelsouthbeach.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Riviera is just steps from the beach and Convention Center.",
+      "source": "https://rivierahotelsouthbeach.com/"
+     },
+     {
+      "claim": "The hotel has twin pool decks, including a courtyard pool and a rooftop retreat with private daybeds.",
+      "source": "https://rivierahotelsouthbeach.com/"
+     },
+     {
+      "claim": "The hotel is pet-friendly.",
+      "source": "https://rivierahotelsouthbeach.com/"
+     },
+     {
+      "claim": "Suites include in-suite kitchenettes and complimentary Wi-Fi.",
+      "source": "https://rivierahotelsouthbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9-g8WvHG2YgRGyNQNwYDA8A",
+   "name": "La Boulangerie Boul'Mich",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cafe",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.laboulangerieusa.com/locations",
+     "source_name": "La Boulangerie Boul'Mich \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept that has been in existence for over 20 years in Miami.",
+      "La Boulangerie Boul'Mich lists locations including Key Biscayne, Aventura and Coral Way.",
+      "La Boulangerie Boul'Mich has served communities across South Florida for over 20 years."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "French artisanal bakery with a latin twist in Miami for over 20 years",
+    "why_here": "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept in Miami, in existence for over 20 years, with locations including Key Biscayne, Aventura and Coral Way.",
+    "know_before": "Check the locations list before going, because several locations are listed on the official site.",
+    "local_tip": "Pick a location from the locations list before ordering for pickup or delivery.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "why_here": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "know_before": [
+      "https://www.laboulangerieusa.com/locations"
+     ],
+     "local_tip": [
+      "https://www.laboulangerieusa.com/locations"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Boulangerie Boul'Mich is a French artisanal bakery with a latin twist concept that has been in existence for over 20 years in Miami.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     },
+     {
+      "claim": "La Boulangerie Boul'Mich lists locations including Key Biscayne, Aventura and Coral Way.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     },
+     {
+      "claim": "La Boulangerie Boul'Mich has served communities across South Florida for over 20 years.",
+      "source": "https://www.laboulangerieusa.com/locations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJITZX6a-32YgRwvkiSFrCaS0",
+   "name": "Sushi KONG",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sushikong.com/about-us/",
+     "source_name": "Sushi KONG \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sushi KONG opened its doors in Coral Gables in 2016.",
+      "Sushi KONG blends traditional Japanese cuisine with Latin flavors.",
+      "The menu at Sushi KONG includes handcrafted sushi rolls, signature fusion dishes and desserts.",
+      "Sushi KONG offers reservations and online ordering through its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coral Gables dining blending Japanese cuisine with Latin flavors since 2016",
+    "why_here": "Sushi KONG opened in Coral Gables in 2016, blending traditional Japanese cuisine with Latin flavors across handcrafted sushi rolls, signature fusion dishes and desserts made for sharing.",
+    "know_before": "Reservations and online ordering are offered through the official site, so book or order ahead.",
+    "local_tip": "Start with handcrafted sushi rolls and a signature fusion dish to share.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sushikong.com/about-us/"
+     ],
+     "why_here": [
+      "https://sushikong.com/about-us/"
+     ],
+     "know_before": [
+      "https://sushikong.com/about-us/"
+     ],
+     "local_tip": [
+      "https://sushikong.com/about-us/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sushi KONG opened its doors in Coral Gables in 2016.",
+      "source": "https://sushikong.com/about-us/"
+     },
+     {
+      "claim": "Sushi KONG blends traditional Japanese cuisine with Latin flavors.",
+      "source": "https://sushikong.com/about-us/"
+     },
+     {
+      "claim": "The menu at Sushi KONG includes handcrafted sushi rolls, signature fusion dishes and desserts.",
+      "source": "https://sushikong.com/about-us/"
+     },
+     {
+      "claim": "Sushi KONG offers reservations and online ordering through its official site.",
+      "source": "https://sushikong.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoSBh8Kcc2YgRTTxLCFI8v_Q",
+   "name": "ethos Greek Bistro",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ethosbistro.com/",
+     "source_name": "ethos Greek Bistro \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "ethos Greek Bistro serves Greek and Mediterranean food in Fort Lauderdale and Coconut Creek.",
+      "ethos Greek Bistro cooking is based on the Greek Islands, more specifically the island of Crete, and family recipes passed down through generations.",
+      "Uncorked Tuesdays at ethos Greek Bistro offers 50% off wines all day.",
+      "ethos Greek Bistro offers vegan, vegetarian and gluten-free options, with lunch, dinner and brunch menus.",
+      "ethos Greek Bistro serves meze style plating with appetizer-like courses best sampled by all."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Greek and Mediterranean plates rooted in Crete and family recipes",
+    "why_here": "ethos Greek Bistro serves Greek and Mediterranean food in Fort Lauderdale and Coconut Creek, with cooking based on Crete and family recipes passed down through generations, plus lunch, dinner and brunch.",
+    "know_before": "Uncorked Tuesdays offers 50% off wines all day at ethos Greek Bistro.",
+    "local_tip": "Order several small plates to share and sample across the menu.",
+    "best_time": "Tuesday for the all-day wine offer.",
+    "citations": {
+     "hook": [
+      "https://www.ethosbistro.com/"
+     ],
+     "why_here": [
+      "https://www.ethosbistro.com/"
+     ],
+     "know_before": [
+      "https://www.ethosbistro.com/"
+     ],
+     "local_tip": [
+      "https://www.ethosbistro.com/"
+     ],
+     "best_time": [
+      "https://www.ethosbistro.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "ethos Greek Bistro serves Greek and Mediterranean food in Fort Lauderdale and Coconut Creek.",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "ethos Greek Bistro cooking is based on the Greek Islands, more specifically the island of Crete, and family recipes passed down through generations.",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "Uncorked Tuesdays at ethos Greek Bistro offers 50% off wines all day.",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "ethos Greek Bistro offers vegan, vegetarian and gluten-free options, with lunch, dinner and brunch menus.",
+      "source": "https://www.ethosbistro.com/"
+     },
+     {
+      "claim": "ethos Greek Bistro serves meze style plating with appetizer-like courses best sampled by all.",
+      "source": "https://www.ethosbistro.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE2I7euLAwogRFLTDuuToq_o",
+   "name": "Cheddar's Scratch Kitchen",
+   "category": "food",
+   "metro": "tampa",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cheddars.com/",
+     "source_name": "Cheddar's Scratch Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cheddar's Scratch Kitchen serves homestyle comfort food, including Homemade Chicken Pot Pie and Country Fried Steak.",
+      "Honey Butter Croissants at Cheddar's Scratch Kitchen are served one for every guest.",
+      "Weekday lunch specials at Cheddar's Scratch Kitchen start at $8.79 Monday-Friday until 3 p.m.",
+      "Cheddar's Scratch Kitchen menu favorites include Homemade Chicken Pot Pie, Country Fried Steak and Grilled Salmon."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homemade Chicken Pot Pie and homestyle comfort plates for every guest",
+    "why_here": "Cheddar's Scratch Kitchen serves homestyle comfort food including Homemade Chicken Pot Pie and Country Fried Steak, with Honey Butter Croissants served one for every guest at the table.",
+    "know_before": "Weekday lunch specials start at $8.79 Monday-Friday until 3 p.m.",
+    "local_tip": "Honey Butter Croissants are served one for every guest at the table.",
+    "best_time": "Weekday lunch before 3 p.m. for lunch specials.",
+    "citations": {
+     "hook": [
+      "https://www.cheddars.com/"
+     ],
+     "why_here": [
+      "https://www.cheddars.com/"
+     ],
+     "know_before": [
+      "https://www.cheddars.com/"
+     ],
+     "local_tip": [
+      "https://www.cheddars.com/"
+     ],
+     "best_time": [
+      "https://www.cheddars.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cheddar's Scratch Kitchen serves homestyle comfort food, including Homemade Chicken Pot Pie and Country Fried Steak.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Honey Butter Croissants at Cheddar's Scratch Kitchen are served one for every guest.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Weekday lunch specials at Cheddar's Scratch Kitchen start at $8.79 Monday-Friday until 3 p.m.",
+      "source": "https://www.cheddars.com/"
+     },
+     {
+      "claim": "Cheddar's Scratch Kitchen menu favorites include Homemade Chicken Pot Pie, Country Fried Steak and Grilled Salmon.",
+      "source": "https://www.cheddars.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE2CNl3652YgRGh3Qym5KaWc",
+   "name": "Miyako Doral Japanese Restaurant & Sushi Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miyakodoral.com/about-us",
+     "source_name": "Miyako Doral Japanese Restaurant & Sushi Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miyako serves modern Japanese-Peruvian Nikkei cuisine in Doral, South Florida.",
+      "Miyako has nearly two decades dedicated to the new Nikkei cuisine, melding Japanese cuisine with Peruvian freshness and spice.",
+      "Seating at Miyako includes a sushi bar and traditional Japanese tatami-style booths.",
+      "Nikkei cuisine at Miyako combines fresh fish with limes, corn, aji peppers and yucca."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese-Peruvian Nikkei cuisine and a sushi bar in Doral",
+    "why_here": "Miyako serves modern Japanese-Peruvian Nikkei cuisine in Doral, melding Japanese cuisine with Peruvian freshness and spice, with seating at a sushi bar or in traditional Japanese tatami-style booths.",
+    "know_before": "Seating includes a sushi bar and traditional Japanese tatami-style booths.",
+    "local_tip": "Try dishes built around fresh fish, limes and aji peppers for the fusion in one plate.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miyakodoral.com/about-us"
+     ],
+     "why_here": [
+      "https://www.miyakodoral.com/about-us"
+     ],
+     "know_before": [
+      "https://www.miyakodoral.com/about-us"
+     ],
+     "local_tip": [
+      "https://www.miyakodoral.com/about-us"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miyako serves modern Japanese-Peruvian Nikkei cuisine in Doral, South Florida.",
+      "source": "https://www.miyakodoral.com/about-us"
+     },
+     {
+      "claim": "Miyako has nearly two decades dedicated to the new Nikkei cuisine, melding Japanese cuisine with Peruvian freshness and spice.",
+      "source": "https://www.miyakodoral.com/about-us"
+     },
+     {
+      "claim": "Seating at Miyako includes a sushi bar and traditional Japanese tatami-style booths.",
+      "source": "https://www.miyakodoral.com/about-us"
+     },
+     {
+      "claim": "Nikkei cuisine at Miyako combines fresh fish with limes, corn, aji peppers and yucca.",
+      "source": "https://www.miyakodoral.com/about-us"
+     }
+    ]
+   }
+  }
+ ]
+}

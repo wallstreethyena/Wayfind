@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { CHRISTMAS_RESEARCH_ROWS } from "../lib/christmasResearch.js";
 // scripts/check-christmas-venue-matches.mjs: every Christmas venue matched to a
 // wf_inventory place (data/christmas-venue-matches.json) is that venue, in the
 // same city, and its card really asks for that place's photo.
@@ -15,7 +16,8 @@
 //   4. the research row (or its correction) carries exactly that place_id, and
 //      the evidence holds no photo name or URL
 //   5. a wf_events row with no place_id takes it through the merge, and the
-//      card's image is that place's credited photo request
+//      card shows that place's credited photo request, or the cover of this
+//      event's own static gallery. Any other image fails.
 // Positive and negative controls run the same checker on known bad records.
 import { readFileSync } from "node:fs";
 import path from "node:path";
@@ -23,6 +25,7 @@ import { fileURLToPath } from "node:url";
 import { CHRISTMAS_RESEARCH_CORRECTIONS, CHRISTMAS_DB_RESEARCH_IDS, CHRISTMAS_RESEARCH_ALIASES, CHRISTMAS_PUBLISHED_RESEARCH, mergeChristmasResearch } from "../lib/christmasResearch.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
+import { christmasStaticPhotos } from "../lib/christmasPlacePhotos.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
@@ -30,7 +33,7 @@ let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
 
 const DOC = JSON.parse(read("data/christmas-venue-matches.json"));
-const RAW = JSON.parse(read("data/christmas-2026-research.json"));
+const RAW = CHRISTMAS_RESEARCH_ROWS;
 const byId = new Map(RAW.map((r) => [r.id, r]));
 
 const miles = (a, b) => {
@@ -43,6 +46,18 @@ const words = (s) => String(s || "").toLowerCase().normalize("NFKD").replace(/[^
 const distinct = (s) => words(s).filter((w) => !STOP.has(w));
 const norm = (s) => words(s).join(" ");
 const sameCity = (a, b) => norm(a) === norm(b);
+
+// The matched place's photo request, or this event's own hosted cover.
+// A batch photo of a different event is not this place's photo.
+function cardPhotoIsThisPlace(card, placeId, eventIds) {
+  const image = String(card?.image || "");
+  if (image.startsWith("/api/photo?place=" + placeId + "&")) return true;
+  const ids = [...new Set((eventIds || []).filter(Boolean).map(String))];
+  return ids.some((id) => {
+    const cover = christmasStaticPhotos(id)[0]?.src;
+    return !!cover && image === cover;
+  });
+}
 
 // The rule, as one function the controls also run.
 export function venueMatchProblems(m) {
@@ -100,13 +115,13 @@ for (const m of matches) {
     if (merged?.christmas_excluded) continue;
     dbChecked++;
     const card = merged && christmasEventCard(enrichChristmasEvent(merged, new Map()), { today: "2026-10-14" });
-    ok(merged?.place_id === m.place_id && String(card?.image || "").startsWith("/api/photo?place=" + m.place_id + "&"), `${dbId}: the wf_events row takes ${m.place_id} and its card asks for that place's photo (${card?.image})`);
+    ok(merged?.place_id === m.place_id && cardPhotoIsThisPlace(card, m.place_id, [dbId, m.research_id, merged?.slug, merged?.event_id]), `${dbId}: the wf_events row takes ${m.place_id} and its card shows that place's photo (${card?.image})`);
   } else {
     const pub = CHRISTMAS_PUBLISHED_RESEARCH.find((e) => e.event_id === m.research_id);
     if (!pub) continue;
     researchChecked++;
     const card = christmasEventCard(enrichChristmasEvent(pub, new Map()), { today: "2026-10-14" });
-    ok(card.place_id === m.place_id && String(card.image || "").startsWith("/api/photo?place=" + m.place_id + "&"), `${m.research_id}: the card asks for ${m.place_id}'s photo (${card.image})`);
+    ok(card.place_id === m.place_id && cardPhotoIsThisPlace(card, m.place_id, [m.research_id, pub?.slug, pub?.event_id]), `${m.research_id}: the card shows ${m.place_id}'s photo (${card.image})`);
   }
 }
 ok(dbChecked >= 10 && researchChecked >= 15, `executed both paths (${dbChecked} wf_events rows, ${researchChecked} research listings)`);
