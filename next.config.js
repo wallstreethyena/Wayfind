@@ -265,6 +265,9 @@ const nextConfig = {
       { source: "/go-out", destination: "/nightlife", permanent: true },
       { source: "/shows", destination: "/florida-events", permanent: true },
       { source: "/concerts", destination: "/florida-events", permanent: true },
+      // 2026-11-04 audit: /christmas 404s; the hub is /christmas-in-florida.
+      // Temporary (307): a seasonal hub URL may become its own page later.
+      { source: "/christmas", destination: "/christmas-in-florida", permanent: false },
       { source: "/tours", destination: "/things-to-do", permanent: true },
       { source: "/stay", destination: "/things-to-do", permanent: true },
       { source: "/shop", destination: "/things-to-do", permanent: true },
