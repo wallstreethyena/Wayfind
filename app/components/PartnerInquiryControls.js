@@ -74,14 +74,14 @@ export function PartnerEmailFallback({
   };
 
   return (
-    <div className="wfp-email-fallback" role="region" aria-label="Direct email and web message fallback">
+    <div className="wfp-email-fallback" role="region" aria-label="Email us if you have no mail app">
       <div className="wfp-email-fallback-row">
         <div className="wfp-email-fallback-text">
-          <strong style={{ color: "#F1F5F9" }}>No mail app configured?</strong>{" "}
-          Email us directly at{" "}
-          <code className="wfp-email-code">{email}</code>{" "}
-          with your selected package (<strong>$99/week</strong>, <strong>$199/month</strong>, or{" "}
-          <strong>$299/quarter Holiday Promo</strong>), your business name, city/address, and booking link — or send a note right here on the page.
+          <strong style={{ color: "#F1F5F9" }}>No mail app?</strong>{" "}
+          Email us at{" "}
+          <code className="wfp-email-code">{email}</code>.
+          Name the plan you want ($99 a week, $199 a month, or $299 a quarter, Holiday Promo), your business name, your city, and your booking link.
+          Or send a note on this page.
         </div>
         <button
           type="button"
@@ -90,7 +90,7 @@ export function PartnerEmailFallback({
           className="wfp-copy-email-btn"
           data-wf-fallback-toggle={placement}
         >
-          <span>{formOpen ? "Close message form" : "Send note without a mail app"}</span>
+          <span>{formOpen ? "Close message form" : "Send a note on this page"}</span>
         </button>
       </div>
       {formOpen ? (

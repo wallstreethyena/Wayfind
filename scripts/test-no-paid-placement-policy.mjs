@@ -51,14 +51,20 @@ const rio = renderToStaticMarkup(pageMod.SponsorPage({ slug: "rio-body-wax-gasto
 
 policySurface("/editorial-policy", editorial);
 policySurface("/how-wayfind-ranks", ranks);
-policySurface("/partners", partners);
 policySurface("/partners/rio-body-wax-gastonia", rio);
 
+// The partners index states that same policy once, in plain words. It does not
+// repeat the dotted label or the longer disclaimer. The Rio page still does.
+const RANKINGS_LINE = "Rankings, list order, guide picks, and the Wayfind Score are never paid for, and a commission on a booking does not change them.";
+ok(idx.split(RANKINGS_LINE).length - 1 === 1, "/partners states the rankings policy in exactly one line");
+ok(meta.description.includes(RANKINGS_LINE), "/partners search description keeps that same policy line");
+ok(/Sponsored paid partner/.test(idx) && !/Sponsored · Paid partner/.test(idx),
+  "/partners names the label in plain words and does not use the dotted separator");
+ok(!ABSOLUTE.test(partners), "/partners does not claim there are no ads and no paid placement, or that anyone pays to be featured");
 ok(!/(?<!not )sells? (a small number of )?(local )?placements?/i.test(partners), "/partners no longer offers placements for sale");
 ok(!/want your business here/i.test(partners), "/partners carries no sales pitch to advertisers");
-ok(/does not sell placement in its lists, guides or rankings/i.test(idx), "/partners states placement in lists/guides/rankings is not for sale");
-ok(/not buy a place on any Wayfind list, guide or ranking/i.test(idx), "/partners states what a sponsorship never buys");
-ok(/Rio Body Wax in Gastonia/.test(idx) && /Rio Body Wax in Gastonia/.test(meta.description), "/partners names the live Rio Body Wax Gastonia sponsorship");
+ok(!/Rio Body Wax|Möbius|Mobius/i.test(idx + " " + meta.title + " " + meta.description), "/partners names no current advertiser");
+ok(/Rio Body Wax/.test(rio), "PROBE: the Rio page still names the business, so the index absence check is not vacuous");
 ok(idx.includes('href="/editorial-policy"') && idx.includes('href="/how-wayfind-ranks"'), "/partners links the editorial policy and ranking method");
 ok(rio.includes('href="/editorial-policy"') && rio.includes('href="/how-wayfind-ranks"'), "the Rio page links the editorial policy and ranking method");
 ok(!/highest-rated/i.test(rio), "the Rio partner page does not claim to be the highest-rated waxing room");
