@@ -45,10 +45,10 @@ const getSitemapEvents = cachedCuratedEventList("sitemapEvents", ["sitemap-curat
 const getSitemapPlaceIds = unstable_cache(() => listIndexedIds(500), ["sitemap-place-ids-v1"], { revalidate: 3600 });
 
 export default async function sitemap() {
-  // /events /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
+  // /coupons /map /best-of /p/ stay out: thin noindex hubs, personal
   // query variants, or infinite share-state. Durable events live at
   // /events/{city}/{window}. Durable places live at /places/{id}.
-  const core = ["", "/guides", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p }));
+  const core = ["", "/guides", "/events", "/restaurants", "/things-to-do", "/nightlife", "/beaches", "/about", "/editorial-policy", "/how-wayfind-ranks", "/privacy", "/terms"].map((p) => ({ url: SITE_URL + p }));
   const guides = Object.keys(currentGuides(GUIDES)).map((slug) => {
     const updated = GUIDES[slug] && GUIDES[slug].updated;
     const row = { url: `${SITE_URL}/guides/${slug}` };

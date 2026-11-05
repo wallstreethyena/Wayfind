@@ -42,7 +42,7 @@ export const metadata = {
   // GSC (owner-approved #4): paste the Search Console token into the
   // GOOGLE_SITE_VERIFICATION env var on Vercel — no code change needed.
   ...(process.env.GOOGLE_SITE_VERIFICATION ? { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } } : {}),
-  title: "Wayfind — Find the Best Things to Do Near You, Right Now",
+  title: "Wayfind: Find the Best Things to Do Near You, Right Now",
   description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
   manifest: "/manifest.webmanifest",
   icons: {
@@ -60,7 +60,7 @@ export const metadata = {
     title: "Wayfind",
   },
   openGraph: {
-    title: "Wayfind — Find the Best Things to Do Near You, Right Now",
+    title: "Wayfind: Find the Best Things to Do Near You, Right Now",
     description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
     url: SITE_URL,
     siteName: "Wayfind",
@@ -76,7 +76,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Wayfind — Find the Best Things to Do Near You, Right Now",
+    title: "Wayfind: Find the Best Things to Do Near You, Right Now",
     description: "Wayfind decides what's actually worth your time — who you're with, when you go, your budget, and how far you'll drive. Payment never changes a score.",
     images: ["/api/og"],
   },

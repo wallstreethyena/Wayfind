@@ -15,7 +15,7 @@
 import { readFileSync, existsSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import RAW from "../data/christmas-2026-research.json" with { type: "json" };
+import { CHRISTMAS_RESEARCH_ROWS as RAW } from "../lib/christmasResearch.js";
 import {
   CHRISTMAS_RESEARCH_ALIASES, CHRISTMAS_DB_RESEARCH_IDS, CHRISTMAS_RESEARCH_CANONICAL, CHRISTMAS_PUBLISHED_RESEARCH, CHRISTMAS_WATCHLIST_2026,
   CHRISTMAS_RESEARCH_CORRECTIONS, CHRISTMAS_SEASON_UNDATED_LINE, mergeChristmasResearch, researchPrice, parseSelectNights, parseResearchTimes,
@@ -28,7 +28,7 @@ import { floridaEventSitemapRows } from "../lib/curatedEvents.js";
 import { composeChristmasIntentRails, christmasEventRail, CHRISTMAS_LOCAL_ONLY_RAILS, CHRISTMAS_STATEWIDE_RAILS, christmasDistanceGroup } from "../lib/christmasIntentRails.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_CARD_LABELS, christmasHonestyChips, christmasCardChips, christmasWhenBadge, christmasCopy, CHRISTMAS_DASH_RX, CHRISTMAS_SEASON_UNDATED_TEXT, CHRISTMAS_PRICE_UNKNOWN_TEXT } from "../lib/christmasCardCopy.js";
-import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
+import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery, filterChristmasBrowse, sortChristmasBrowse, distanceBand, ratingRank, christmasWatchlist, CHRISTMAS_BROWSE_DATES, christmasBrowseCached, CHRISTMAS_BROWSE_TTL_MS } from "../lib/christmasBrowse.js";
 import { christmasAwareEventBySlug, christmasPageRow, christmasEventPageRow, CHRISTMAS_WATCHLIST_PAGE_LINE } from "../lib/christmasEventPage.js";
 import { enrichChristmasEvent } from "../lib/christmasPool.js";
 import { isTrusted } from "../lib/curatedEvents.js";
@@ -187,7 +187,13 @@ ok(!RAW.some((r) => /googleusercontent|maps\.googleapis\.com\/maps\/api\/place\/
   const railIds = new Set(cards.filter((c) => (c.season_undated ? true : (c.end_date || c.start_date || "") >= TODAY)).map((c) => c.id));
   ok([...railIds].every((id) => seen.includes(id)), "every card a rail could show is in the browse (hidden local rails hide nothing)");
   const nearTampa = christmasBrowsePage(listings, parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), TODAY).cards;
-  ok(nearTampa.every((c, i) => i === 0 || (c.distMi ?? Infinity) >= (nearTampa[i - 1].distMi ?? Infinity)), "with a location the browse runs nearest first");
+  // Owner 2026-11-03: rings of 20 miles nearest first, best rated leading inside a ring.
+  const ringOk = (list) => list.every((c, i) => i === 0 || distanceBand(c.distMi) >= distanceBand(list[i - 1].distMi));
+  const rateOk = (list) => list.every((c, i) => i === 0 || distanceBand(c.distMi) !== distanceBand(list[i - 1].distMi) || ratingRank(c) <= ratingRank(list[i - 1]));
+  ok(ringOk(nearTampa) && rateOk(nearTampa), "with a location the first page runs nearest ring first (20 mile rings), best rated leading inside a ring");
+  const allTampa = sortChristmasBrowse(filterChristmasBrowse(listings, parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), TODAY), parseChristmasBrowseQuery({ lat: "27.95", lng: "-82.46" }), TODAY);
+  ok(ringOk(allTampa) && rateOk(allTampa) && Number.isFinite(allTampa[0].distMi) && allTampa.some((c) => distanceBand(c.distMi) > 0), "the whole located list keeps the ring order and reaches farther rings (" + allTampa.length + " cards)");
+  ok(ratingRank({ wfScore: 82, rating: 4.9 }) === 82 && ratingRank({ rating: 4.5 }) === 90 && ratingRank({}) === 0, "ratingRank: Wayfind score first, Google rating scaled, nothing is 0");
   ok(christmasBrowsePage(listings, parseChristmasBrowseQuery({ undated: "1" }), TODAY).total === listings.filter((c) => c.season_undated).length, "the Dates not announced toggle shows exactly the undated listings");
   ok(christmasBrowsePage(listings, parseChristmasBrowseQuery({ q: "nutcracker" }), TODAY).total >= 10, "search by name works");
   const json = JSON.stringify(christmasBrowsePage(listings, parseChristmasBrowseQuery({}), TODAY));
@@ -424,7 +430,7 @@ function CITIES() {
   const canon = new Map(CHRISTMAS_RESEARCH_CANONICAL.map((r) => [r.id, r]));
   const twinIds = Object.entries(CHRISTMAS_DB_RESEARCH_IDS).filter(([, rid]) => { const r = canon.get(CHRISTMAS_RESEARCH_ALIASES[rid] || rid); return r && !CHRISTMAS_PUBLISHED_STATES.includes(r.state); }).map(([dbId]) => dbId);
   // 2026-10-28: ZooTampa and the Auburndale Wonderland left the watchlist (organizer pages now state 2026 dates), so 6 twins remain.
-  ok(twinIds.length >= 6 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && twinIds.includes("lights-4-hope-drive-thru-light-show-2026") && !twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach, Lights 4 Hope among them; ZooTampa is published now)`);
+  ok(twinIds.length === 5 && twinIds.includes("fort-myers-beach-christmas-boat-parade-2026") && !twinIds.includes("lights-4-hope-drive-thru-light-show-2026") && !twinIds.includes("zootampa-christmas-wild-2026"), `the twin probe finds the known twins (${twinIds.length}: Fort Myers Beach remains; Lights 4 Hope and ZooTampa are published)`);
   const twinRow = (id) => ({ ...fmbDb, event_id: id, slug: id === "zootampa-christmas-wild-2026" ? "zootampa-christmas-in-the-wild-2026" : id, event_name: "Twin " + id + " 2026", year: 2026, start_date: "2026-12-05", end_date: "2026-12-06", last_verified_at: "2026-10-06T00:00:00Z" });
   const twins = twinIds.map(twinRow);
   for (const db of twins) {

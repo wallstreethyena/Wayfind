@@ -45,7 +45,10 @@ ok(!sm.includes('"/p/"') && !sm.includes("${SITE_URL}/p/") && !sm.includes('"/p"
   "/p/ share URLs stay out (infinite query space, noindex)");
 ok(!/best-of\?city/.test(sm) && !sm.includes('"/best-of"'),
   "/best-of and personalized ?city= variants stay out (dynamic + personal, noindex; another worker owns the canonical)");
-ok(!sm.includes('"/events"'), "/events hub stays out while it is a thin noindex GoScreen page — event WINDOWS are the durable product routes");
+// 2026-11-03: /events graduated from a thin noindex GoScreen shell to a page that renders
+// the next 14 days of curated listings (index: true; check-seo asserts it imports
+// fetchCuratedEvents). It is now listed; the window lists remain asserted below.
+ok(sm.includes('"/events"'), "/events renders real curated inventory and must be in the sitemap");
 ok(!sm.includes('"/map"'), "/map hub stays out while it is a thin noindex GoScreen page");
 ok(!sm.includes('"/coupons"'), "/coupons hub stays out while it is a thin noindex GoScreen page (do not invent deals)");
 ok(sm.includes("EVENT_WINDOWS") && sm.includes("/events/${c}/${w}"),

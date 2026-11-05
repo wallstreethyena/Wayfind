@@ -1,0 +1,65 @@
+{
+  "slug": "florida-hanukkah-2026",
+  "picks": {
+    "Memorial Park Menorah Lighting": {
+      "src": "/guides/picks/florida-hanukkah-2026/memorial-park-menorah-lighting.webp",
+      "width": 1300,
+      "height": 975,
+      "alt": "A shaded paved path and lawn under live oaks leading toward the St. Johns River at Memorial Park in Jacksonville, with a few distant visitors",
+      "caption": "Memorial Park on the St. Johns River in Jacksonville's Riverside neighborhood. The menorah lighting is not pictured.",
+      "credit": "Ebyabe",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Jax_FL_Memorial_Park01.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jax_FL_Memorial_Park01.jpg",
+      "author": "Ebyabe",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file description 'Memorial Park (Jacksonville)', category Memorial Park (Jacksonville) (NRHP, Parks in Jacksonville), author Ebyabe, taken 2018. Licence CC BY-SA 4.0 read from the file page. Source 4288x3216, viewed at 1600 wide: sharp, river visible, visitors tiny and unrecognisable, no watermark. Same named park as the pick (Riverside area); no Chabad event photo.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    },
+    "Grand Menorah Lighting and Fire Show": {
+      "src": "/guides/picks/florida-hanukkah-2026/grand-menorah-lighting-and-fire-show.webp",
+      "width": 1400,
+      "height": 1050,
+      "alt": "The bronze lion fountain at San Marco Square in Jacksonville at dusk, with a yellow Mediterranean revival building and a coffee shop behind",
+      "caption": "The lion fountain at San Marco Square in Jacksonville at dusk. The menorah lighting and fire show are not pictured.",
+      "credit": "Cuchullain",
+      "creditHref": "https://commons.wikimedia.org/wiki/File:Jacksonville_San_Marco_Square.JPG",
+      "license": "CC BY-SA 3.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Jacksonville_San_Marco_Square.JPG",
+      "author": "Cuchullain",
+      "position": "50% 50%",
+      "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence.",
+      "sourceKind": "commons",
+      "placeId": null,
+      "verification": "Commons file description 'San Marco Square Lions statue, Jacksonville', category San Marco (Jacksonville), author Cuchullain. Licence CC BY-SA 3.0 read from the file page. Source 2592x1936 (iPhone 4), viewed at 1600 wide: sharp enough, no watermark, one person partly hidden behind the lion statue at the base, not a subject. Cafe signage incidental. Same named square as the pick.",
+      "sameAsCardPhoto": false,
+      "reviewedAt": "2026-11-05"
+    }
+  },
+  "gaps": {
+    "Menorah Lighting Celebration": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJMZ2NFvQB2YgRCwcJecybdGY",
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Grand Chanukah Klezmer Festival and Menorah Lighting": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    },
+    "Chanukah at Wellen Park": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJJQVMQuJXw4gRhD0CpEOETGo",
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this exact place or event was found (Wikimedia Commons categories and file pages and Flickr single photo pages checked 2026-11-05). This guide uses Wayfind's neutral fallback, so the pick shows the \"Photo unavailable\" tile, never a context or Google photo. Licensed photo sourcing backlog."
+    }
+  }
+}
