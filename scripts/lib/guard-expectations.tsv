@@ -559,7 +559,7 @@ scripts/test-cc-alert-drill.mjs	0	CALL	blocks-ci-and-deploy	1	-	48	0	0	c3b2c94d8
 scripts/test-cc-partner-click-predicate.mjs	0	CALL	blocks-ci-and-deploy	1	-	27	0	0	b464f63601a7fb6627829311be46571844c0f4951a2a692fa9d33383a968dd00
 scripts/test-cc-stale-cache-shape.mjs	0	CALL	blocks-ci-and-deploy	1	-	9	0	0	4b85015ef776258c3041f5fc30a1258207ea8f4d748192974201e94eda7cb694
 scripts/test-chip-contracts.mjs	0	CALL	blocks-ci-and-deploy	1	-	82	0	0	58e675164312b60944182e83e4b1d7353f67b6951e5964dd418ebae12ebd0804
-scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	199	0	0	be9a81e0bf231c746a2d6fefb8f351a8b43902df9ea597711e8f6bd80e909c87
+scripts/test-christmas-tickets.mjs	0	RENDER	blocks-ci-and-deploy	1	-	218	0	0	413558a4449d6659419ddda981733c95b91e8531d063923065a38e1660e2ae1b
 scripts/test-christmas-tours.mjs	0	RENDER	blocks-ci-and-deploy	1	Revenue QA	65	0	0	2b2f280f171f97df33138fa035e752bef3999d95e69267a5c63b69cf9698d20a
 scripts/test-chunk-recovery.mjs	0	RENDER	blocks-ci-and-deploy	1	-	77	0	0	d3a442fc69ea5673ca33b6090c435ee81b03498f796d36e40a3fd6b681032086
 scripts/test-cindy-reel-identities.mjs	0	RENDER	blocks-ci-and-deploy	1	-	40	0	0	15985941dc12e50780e9b03a7e6fbc82fb7a343843a3d163cb7493f66f3fe7ec
