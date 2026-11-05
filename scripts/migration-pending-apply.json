@@ -89,5 +89,12 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 held event recheck guard (owner approved 2026-11-05)",
     "reason": "Write-time guard for held events (postponed / uncertain / unannounced with a start_date today or later): a write leaving no recheck_on sets today (ET) + 2 in the same statement, and a still-future recheck_on can be moved earlier but never later or cleared. Owner approved applying it 2026-11-05; this session's apply_migration call was refused by its automatic permission check ([Production Deploy]) and the session has no Management API credential for scripts/apply-migration.mjs, so it is declared pending until applied with the runner."
+  },
+  {
+    "file": "supabase/migrations/20261105120035_event_truth_held_recheck_renewal_cap.sql",
+    "sha256": "f47491ca6e20338dc65c60fe48cbe184a7418be4d7a37f04a8f21aac126447cf",
+    "decision_owner": "wallstreethyena",
+    "tracking": "#2245 follow-up: owner-authorized held-event recurrence hardening 2026-11-05",
+    "reason": "NOT APPLIED. Forward function-only repair for the reproduced due-held-row update recheck_on=today -> today+30: if the old deadline is absent/due, cap an explicitly supplied later renewal at ET today+2. NULL renewal still gets ET+2; preserve existing future deadlines and metadata, permit earlier proposals, and leave past/undated/displayable rows unchanged. Requires the enabled trigger from 20261105120000_event_truth_held_recheck_guard.sql; changes no rows, triggers, grants or RLS at apply time. Complete SQL payload executed twice in PGlite with a missing-prerequisite control, original-failure proof and healthy controls. Pending canonical scripts/apply-migration.mjs application; this session has no Management API/PostgREST credentials and performed no production writes."
   }
 ]
