@@ -96,15 +96,17 @@ ok(licBad.length === 0, "CHRISTMAS_LICENSED_PHOTOS serves no rejected photo: " +
 const curDir = path.join(root, "docs/curation");
 const manifests = fs.existsSync(curDir) ? fs.readdirSync(curDir).filter((f) => /^christmas-.*photos.*\.json$/.test(f)) : [];
 let manifestImages = 0;
+const manifestBad = [];
 for (const f of manifests) {
   const m = JSON.parse(fs.readFileSync(path.join(curDir, f), "utf8"));
   for (const img of m.images || []) {
     manifestImages += 1;
     const p = index.byHash.get(img.sha256) || index.byHref.get(img.source_url || img.source_href || "");
-    if (p && p.scope !== "event") assert.fail(`${f}: ${img.local_path} is the rejected photo ${p.files[0]}`);
+    if (p && p.scope !== "event") manifestBad.push(`${f}: ${img.local_path} is the rejected photo ${p.files[0]}`);
   }
 }
-ok(true, "reviewed manifests carry no rejected photo (" + manifests.length + " manifests, " + manifestImages + " images)");
+ok(manifestImages > 0, "the reviewed venue manifests were read (" + manifests.length + " manifests, " + manifestImages + " images)");
+ok(manifestBad.length === 0, "reviewed manifests carry no rejected photo: " + manifestBad.join("; "));
 // 4. Bytes anywhere under public/: global and Christmas scoped rejections must not exist at all;
 //    an event scoped one must not sit in that event's folder.
 let scanned = 0;

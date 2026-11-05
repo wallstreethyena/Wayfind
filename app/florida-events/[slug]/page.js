@@ -46,6 +46,8 @@ import CreatorPlaybackDetails from "../../components/CreatorPlaybackDetails.js";
 import CreatorVideoRail from "../../components/CreatorVideoRail.js";
 import { isEmbeddable } from "../../../lib/videoEmbed";
 import { loadEventDetailPhotos } from "../../../lib/placeDetailGallery.js";
+import { eventRailPhotoCredit } from "../../../lib/christmasPlacePhotos.js";
+import PhotoCreditLink from "../../components/PhotoCreditLink.js";
 
 // Same two-letter monogram convention as RailCard/IconicPlaceCard's card
 // fallback (app/components/css.js .wf-place-card-monogram) — the letters an
@@ -385,11 +387,13 @@ export default async function CuratedEventPage({ params }) {
         </>}
         note={e.is_free ? "Confirm dates and availability on the official listing." : "Confirm availability and booking terms with the ticket provider before paying."}
         media={<>
-      {detailPhotos.length ? detailPhotos.map((photo, i) => (
-        <div key={photo.src} className="wf-event-photo" data-detail-photo="">
+      {detailPhotos.length ? detailPhotos.map((photo, i) => {
+        const credit = eventRailPhotoCredit(photo);
+        return <div key={photo.src} className="wf-event-photo" data-detail-photo="">
           <EventPlacePhoto hero={i === 0} priority={i === 0} src={photo.src} name={photo.alt || e.event_name} />
-        </div>
-      )) : shots && shots.hero ? (
+          {credit ? <span className="wf-event-photo-credit" data-event-photo-credit="">{credit.href ? <PhotoCreditLink href={credit.href} rel="nofollow noopener noreferrer">{credit.text}</PhotoCreditLink> : credit.text}</span> : null}
+        </div>;
+      }) : shots && shots.hero ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={shots.hero.src} name={shots.hero.alt || e.event_name} /></div>
       ) : e.hero_image ? (
         <div className="wf-event-photo"><EventPlacePhoto hero priority src={e.hero_image} name={e.image_alt || `${e.event_name} at ${e.venue || e.city}`} /></div>
@@ -414,7 +418,7 @@ export default async function CuratedEventPage({ params }) {
         </div>
       ))}
         </>}
-        credit={<EventHeroCredit
+        credit={eventRailPhotoCredit(detailPhotos[0]) ? null : <EventHeroCredit
           eventName={e.event_name}
           isVenue={eventImageIsVenue(e, heroSrc)}
           registryCredit={shots && shots.credit ? shots.credit : null}
