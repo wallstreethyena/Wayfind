@@ -790,6 +790,8 @@ node scripts/check-curated-events.mjs
 # used to ISR-cache "Nothing verified…" + numberOfItems:0 while detail
 # pages and /api/events still had the same rows.
 node scripts/check-curated-events-read.mjs
+# A merged Christmas research id redirects to the listing it became, never into a 404.
+node scripts/check-christmas-retired-redirects.mjs
 # 2026-10-09: /florida-events served a pinned >2 MB-refused cache entry with legacy Google photo names
 node scripts/test-curated-events-cache.mjs
 # The Events tab feed reads every curated row still running today, paged;
@@ -2332,6 +2334,8 @@ node scripts/test-photo-not-place-id.mjs
 node scripts/test-image-publication-gate.mjs
 node scripts/check-new-content-images.mjs
 node scripts/check-christmas-photo-provenance.mjs
+# A photo rejected in review never comes back: path, source URL or identical bytes (data/christmas-rejected-photos.json).
+node scripts/check-christmas-rejected-photos.mjs
 node scripts/test-area-twins.mjs
 node scripts/check-map-note-attribution.mjs
 node scripts/test-cc-alert-drill.mjs

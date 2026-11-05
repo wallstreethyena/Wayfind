@@ -1,7 +1,7 @@
 import CommerceClickBeacon from "../../components/CommerceClickBeacon";
 import { eventCostSummary, eventRestrictions } from "../../../lib/eventVisitFacts.js";
 import { eventImageIsVenue } from "../../../lib/fallEventImage.js";
-import { christmasEventPageRow } from "../../../lib/christmasEventPage.js";
+import { christmasEventPageRow, retiredChristmasEventTarget } from "../../../lib/christmasEventPage.js";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 // v7.45 — The individual event page. Google is explicit that Event structured
 // data belongs on a single-event page with its own URL, not on a roundup, and
@@ -17,7 +17,7 @@ import { EventHeroPhotoProvider, EventHeroCredit } from "../../components/EventH
 import EventDetailShell from "../../components/EventDetailShell.js";
 import EventSectionNav from "../../components/EventSectionNav.js";
 import EventExperienceStyles from "../../components/EventExperienceStyles.js";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { safeUrl } from "../../../lib/links.js";
 import { SITE_URL } from "../../../lib/site";
 import { fetchCuratedEvents, fetchCuratedEventBySlug, eventJsonLd, dateRangeLabel, eventWebsiteUrl, eventDetailTicketAction } from "../../../lib/curatedEvents";
@@ -174,10 +174,22 @@ const S = {
   pmeta: { fontSize: 12.5, color: "#8B949E", fontWeight: 600 },
 };
 
+// Throws on a failed read like the page itself: an outage never becomes a
+// redirect or a 404. Returns normally when there is nowhere valid to go.
+async function redirectRetiredChristmasEvent(slug) {
+  const moved = retiredChristmasEventTarget(slug);
+  if (!moved) return;
+  const landing = await fetchCuratedEventBySlug(moved).then((row) => christmasEventPageRow(row, moved));
+  if (landing) permanentRedirect("/florida-events/" + moved);
+}
+
 export default async function CuratedEventPage({ params }) {
   // Throws on a failed read. notFound() is only the honest miss (row
   // absent or not displayable). An outage must not 404 a live event.
   const e = await fetchCuratedEventBySlug(params.slug).then((row) => christmasEventPageRow(row, params.slug)).then(withTampaPassFacts);
+  // A merged research id keeps a valid destination (lib/christmasEventPage.js):
+  // redirect after a successful miss, and only to a listing that resolves.
+  if (!e) await redirectRetiredChristmasEvent(params.slug);
   if (!e) notFound();
 
   const shots = eventPhotos(e.event_id);
