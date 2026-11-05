@@ -8,6 +8,8 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery } from "../lib/christmasBrowse.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
@@ -19,6 +21,16 @@ import {
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
 import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
+
+// Exercise the production entry in CI too, so loading React too early cannot
+// pass CI and then break Vercel's production prebuild again.
+if (process.env.NODE_ENV !== "production") {
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...process.argv.slice(2)], {
+    env: { ...process.env, NODE_ENV: "production" }, stdio: "inherit", timeout: 120000,
+  });
+  if (child.error) throw child.error;
+  process.exit(child.status ?? 1);
+}
 
 // React act() is a test-only API. Vercel invokes this guard with
 // NODE_ENV=production, so choose the test runtime before React or its renderer
