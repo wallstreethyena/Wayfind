@@ -1055,5 +1055,13 @@
    "detail": "A loose host test double-wraps already-wrapped links (unattributed clicks) and turns /api/ticketmaster/go into an open redirect; a missing status gate sends buyers to a sold-out page."
   },
   "owner": "Revenue QA"
+ },
+ "scripts/check-movie-pages.mjs": {
+  "protects": "Movie pages and rail ticket CTAs synchronously attach the selected movie and the same client click_id emitted by commerce_cta_clicked before native navigation, while retaining ordinary and modifier click behavior.",
+  "blastRadius": {
+   "category": "revenue",
+   "detail": "A deferred commerce import lets the browser follow the original href before click attribution is attached; the server then mints a different identifier and the client click cannot join its redirect."
+  },
+  "owner": "Revenue QA"
  }
 }

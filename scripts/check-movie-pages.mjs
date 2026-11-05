@@ -2,7 +2,7 @@
 // scripts/check-movie-pages.mjs: the Wayfind movie page (/movies/<id>) contract.
 // EXECUTES the real pieces: lib/moviePages.js, the page module (generateStaticParams, generateMetadata,
 // the rendered page via scripts/lib/jsxLoad.mjs), the real app/sitemap.js function, the OG share card
-// model, and the rail card source for its tap target / share URL. Off-box is never contacted (global
+// model, the rail card source for its tap target / share URL, and mounted page/rail ticket clicks. Off-box is never contacted (global
 // fetch is a thrower). NOT verified here: the live OG image bytes (see the screenshot step in the PR)
 // and the partner redirect itself.
 import assert from "node:assert/strict";
@@ -125,4 +125,73 @@ ok(SKIP_NEXT(() => page.default({ params: { slug: "not-a-movie" } })) === "NOT_F
   ok(/cta=\{movieCta\(/.test(c) && /href:\s*movie\.ticket\.href/.test(comp), "buy button still carries the /api/commerce/go ticket href");
   ok(/SITE_URL/.test(comp) && /import \{ SITE_URL \} from/.test(comp), "SITE_URL imported");
 }
-console.log(`check-movie-pages: OK, ${pass} assertions over ${registryIds.length} movies (page, metadata, JSON-LD, real sitemap fn, share card model, rail card source). Live OG bytes and the partner redirect are not exercised here.`);
+// 6. The real mounted button must finish attribution before native anchor navigation.
+// flushSync works with both production and development React; act() is test-only.
+{
+  const { JSDOM } = await import("jsdom");
+  const { flushSync } = await import("react-dom");
+  const { createRoot } = await import("react-dom/client");
+  const { commerceHref, emitCommerce, mintClickId } = await import("../lib/commerce.js");
+  const dom = new JSDOM('<div id="movie-click-test"></div>', { url: SITE_URL + "/movies/" + registryIds[0] });
+  const prior = ["window", "document", "CustomEvent"].map((key) => [key, Object.getOwnPropertyDescriptor(globalThis, key)]);
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, CustomEvent: dom.window.CustomEvent });
+  const captured = [];
+  dom.window.posthog = { capture: (event, props) => captured.push({ event, props }) };
+  const { default: Button } = await loadComponent(fileURLToPath(new URL("../app/movies/[slug]/MovieTicketButton.js", import.meta.url)), REPO);
+  const uiRoot = createRoot(document.getElementById("movie-click-test"));
+  const id = registryIds[0];
+  const props = { href: mp.movieBuyHref(id), label: "Tickets at Fandango", movieId: id, provider: "fandango", merchant: "Fandango", offerId: id, surface: "movie_page" };
+  function activate(modifiers = {}) {
+    const anchor = document.querySelector("#movie-click-test a");
+    captured.length = 0;
+    let snapshot;
+    const beforeNavigation = (event) => {
+      snapshot = { href: anchor.href, prevented: event.defaultPrevented, events: captured.slice() };
+      event.preventDefault(); // jsdom cannot navigate; observe first, then stop its default action.
+    };
+    document.getElementById("movie-click-test").addEventListener("click", beforeNavigation, { once: true });
+    anchor.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true, ...modifiers }));
+    return snapshot;
+  }
+  const attributed = (snapshot) => {
+    const url = new URL(snapshot.href);
+    const event = snapshot.events.find((entry) => entry.event === "commerce_cta_clicked");
+    return !snapshot.prevented && !!url.searchParams.get("click_id") && event
+      && event.props.click_id === url.searchParams.get("click_id")
+      && url.searchParams.get("offer") === id && url.searchParams.get("content") === id
+      && event.props.provider === "fandango" && event.props.merchant === "Fandango";
+  };
+  try {
+    // Positive control: the observation point sees synchronous href mutation and real telemetry.
+    flushSync(() => uiRoot.render(createElement("a", { href: props.href, onClick: (event) => {
+      const clickId = mintClickId();
+      event.currentTarget.href = commerceHref({ ...props, contentId: id, clickId });
+      emitCommerce("commerce_cta_clicked", { provider: "fandango", merchant: "Fandango", offer_id: id, content_id: id, surface: "movie_page", click_id: clickId });
+    } }, "Control")));
+    ok(attributed(activate()), "control: the handoff probe observes a synchronous click id matching actual commerce telemetry");
+    flushSync(() => uiRoot.render(createElement(Button, props)));
+    for (const [name, modifiers] of [["plain", {}], ["Control", { ctrlKey: true }], ["Command", { metaKey: true }], ["Shift", { shiftKey: true }]]) {
+      ok(attributed(activate(modifiers)), `${name} movie page click: the native handoff synchronously carries the same per-movie click id as telemetry without preventing native navigation`);
+    }
+    const railModule = await loadComponent(fileURLToPath(new URL("../app/components/SeasonalMoviesRail.js", import.meta.url)), REPO, {
+      onGraph(graph) {
+        const source = fileURLToPath(new URL("../app/components/SeasonalMoviesRail.js", import.meta.url));
+        const emitted = graph.get(source);
+        assert.ok(emitted, "the actual rail module is compiled");
+        fs.appendFileSync(emitted, "\nexport { movieCta as movieCtaForGuard };\n");
+      },
+    });
+    const { default: RailCard } = await loadComponent(fileURLToPath(new URL("../app/components/RailCard.js", import.meta.url)), REPO);
+    const cta = railModule.movieCtaForGuard({ id, title: "Fixture movie", ticket: { href: props.href, provider: "fandango", merchant: "Fandango", offerId: id } }, "fall", null);
+    flushSync(() => uiRoot.render(createElement(RailCard, { title: "Fixture movie", cta })));
+    for (const [name, modifiers] of [["plain", {}], ["Control", { ctrlKey: true }], ["Command", { metaKey: true }], ["Shift", { shiftKey: true }]]) {
+      const snapshot = activate(modifiers);
+      ok(attributed(snapshot) && document.querySelector("#movie-click-test a").target === "_blank" && new URL(snapshot.href).searchParams.get("surface") === "fall_movies_rail", `${name} rail click: the real RailCard CTA synchronously carries matching attribution and keeps native new-tab behavior`);
+    }
+  } finally {
+    flushSync(() => uiRoot.unmount());
+    dom.window.close();
+    for (const [key, descriptor] of prior) { if (descriptor) Object.defineProperty(globalThis, key, descriptor); else delete globalThis[key]; }
+  }
+}
+console.log(`check-movie-pages: OK, ${pass} assertions over ${registryIds.length} movies (page, metadata, JSON-LD, real sitemap fn, share card model, rail card source, mounted page/rail ticket clicks). Live OG bytes and the partner redirect are not exercised here.`);

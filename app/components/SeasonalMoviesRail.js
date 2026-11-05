@@ -4,8 +4,8 @@
 // Data comes from /api/movies/seasonal so the registry stays out of client chunks.
 // Tapping the card body opens the Wayfind movie page (/movies/<id>); Share sends that page's canonical URL.
 // Every card with a buy button goes through /api/commerce/go (ticket.href), never
-// a partner URL. The button sells the live Undercover Tourist movie ticket deal (offer comes
-// from the API payload, so the registry stays out of the client). If ctaLive were ever false
+// a partner URL. The button sells this movie at Fandango (offer comes from the
+// API payload, so the registry stays out of the client). If ctaLive were ever false
 // production renders nothing: an affiliate card without its buy button is not allowed.
 import { useEffect, useMemo, useRef, useState } from "react";
 import RailCard, { RailDots, RailNav } from "./RailCard";
@@ -19,6 +19,7 @@ import { fetchClassifiedPosterJson as fetchRailJson } from "../../lib/posterJson
 import { railRenderState, RAIL_RENDER_STATE } from "../../lib/railVisibility.js";
 import { partnerTicketLabel } from "../../lib/partnerCopy.js";
 import { SITE_URL } from "../../lib/site.js";
+import { commerceHref, emitCommerce, mintClickId } from "../../lib/commerce.js";
 
 export const MOVIES_LOAD_TIMEOUT_MS = 10000;
 const COLORS = { text: "#FFF7ED", muted: "#A99FA8" };
@@ -65,14 +66,12 @@ function movieCta(movie, collection, onTrack) {
       const provider = movie.ticket.provider;
       const offerId = movie.ticket.offerId;
       try { onTrack?.("tickets_out", { kind: surface, id: movie.id, name: movie.title, deal: offerId }); } catch {}
-      import("../../lib/commerce.js").then(({ commerceHref, emitCommerce, mintClickId }) => {
-        try {
-          const clickId = mintClickId();
-          const live = commerceHref({ provider, offerId, surface, contentId: movie.id, clickId });
-          if (live && event && event.currentTarget) event.currentTarget.href = live;
-          emitCommerce("commerce_cta_clicked", { surface, content_id: movie.id, provider, merchant, offer_id: String(offerId), click_id: clickId, disclosure_version: "fall-intent-v2" });
-        } catch {}
-      }).catch(() => {});
+      try {
+        const clickId = mintClickId();
+        const live = commerceHref({ provider, offerId, surface, contentId: movie.id, clickId });
+        if (live && event && event.currentTarget) event.currentTarget.href = live;
+        emitCommerce("commerce_cta_clicked", { surface, content_id: movie.id, provider, merchant, offer_id: String(offerId), click_id: clickId, disclosure_version: "fall-intent-v2" });
+      } catch {}
     },
   };
 }
