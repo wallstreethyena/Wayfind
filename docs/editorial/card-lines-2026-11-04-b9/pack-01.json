@@ -1,0 +1,1970 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 9. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJRdxzRk1-54gRvzuwSgYoDV0",
+   "name": "The Outta Control Magic Dinner Show",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/",
+     "source_name": "The Outta Control Magic Dinner Show \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Outta Control Magic Comedy Dinner Show at WonderWorks Orlando features illusions, tricks and audience participation.",
+      "Dinner includes unlimited fresh, hand-tossed cheese and pepperoni pizza, salad, beer, wine, soda, and dessert.",
+      "The official page lists a show schedule by date."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Magic and comedy with illusions, tricks and audience participation",
+    "why_here": "The Outta Control Magic Comedy Dinner Show at WonderWorks Orlando features illusions, tricks and audience participation during dinner. Dinner includes unlimited fresh, hand-tossed cheese and pepperoni pizza, salad, beer, wine, soda, and dessert served during the show.",
+    "know_before": "The show schedule varies by date, so check the schedule on the official page before booking.",
+    "local_tip": "Choose cheese or pepperoni pizza, since both are included with dinner.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     ],
+     "why_here": [
+      "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     ],
+     "know_before": [
+      "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     ],
+     "local_tip": [
+      "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Outta Control Magic Comedy Dinner Show at WonderWorks Orlando features illusions, tricks and audience participation.",
+      "source": "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     },
+     {
+      "claim": "Dinner includes unlimited fresh, hand-tossed cheese and pepperoni pizza, salad, beer, wine, soda, and dessert.",
+      "source": "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     },
+     {
+      "claim": "The official page lists a show schedule by date.",
+      "source": "https://www.wonderworksonline.com/orlando/the-experience/the-outta-control-magic-comedy-dinner-show/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ31pxWRfa5ogRTvXpxSVrrgc",
+   "name": "LandShark Bar & Grill - Daytona Beach",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://daytona.landsharkbarandgrill.com/",
+     "source_name": "LandShark Bar & Grill - Daytona Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LandShark Bar & Grill Daytona Beach is at 471 South Atlantic Ave., Daytona Beach, FL 32118.",
+      "Seating is 1st come 1st serve.",
+      "The venue offers a full beverage and dining menu online."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront LandShark dining on South Atlantic Avenue in Daytona Beach",
+    "why_here": "LandShark Bar & Grill in Daytona Beach serves food and frozen beverages a short walk from the beach at 471 South Atlantic Avenue. Seating is first come, first served, and the venue promotes its full beverage and dining menu online.",
+    "know_before": "Seating is 1st come 1st serve at this location.",
+    "local_tip": "Arrive with seating in mind, since the venue states seating is first come, first served.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://daytona.landsharkbarandgrill.com/"
+     ],
+     "why_here": [
+      "https://daytona.landsharkbarandgrill.com/"
+     ],
+     "know_before": [
+      "https://daytona.landsharkbarandgrill.com/"
+     ],
+     "local_tip": [
+      "https://daytona.landsharkbarandgrill.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LandShark Bar & Grill Daytona Beach is at 471 South Atlantic Ave., Daytona Beach, FL 32118.",
+      "source": "https://daytona.landsharkbarandgrill.com/"
+     },
+     {
+      "claim": "Seating is 1st come 1st serve.",
+      "source": "https://daytona.landsharkbarandgrill.com/"
+     },
+     {
+      "claim": "The venue offers a full beverage and dining menu online.",
+      "source": "https://daytona.landsharkbarandgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM0xDWJa32YgRJiQDJpJF-LE",
+   "name": "CVI.CHE 105 - Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://reservations.ceviche105.com/menu/dessert.html",
+     "source_name": "CVI.CHE 105 - Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official dessert menu lists Coral Gables among CVI.CHE 105 locations.",
+      "Suspiro Lime\u00f1o is described as Peru's most renowned dessert.",
+      "The dessert menu includes Pie de Lim\u00f3n al Estilo Peruano and Trilog\u00eda Peruana."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Desserts including Suspiro Lime\u00f1o at CVI.CHE 105",
+    "why_here": "The official dessert menu lists Coral Gables among CVI.CHE 105 locations, so dessert is part of the visit here. The menu includes Suspiro Lime\u00f1o, described as Peru's most renowned dessert, plus Pie de Lim\u00f3n al Estilo Peruano and Trilog\u00eda Peruana.",
+    "know_before": "The dessert menu includes Suspiro Lime\u00f1o, Pie de Lim\u00f3n al Estilo Peruano and Trilog\u00eda Peruana.",
+    "local_tip": "Save room for Suspiro Lime\u00f1o from the dessert menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://reservations.ceviche105.com/menu/dessert.html"
+     ],
+     "why_here": [
+      "https://reservations.ceviche105.com/menu/dessert.html"
+     ],
+     "know_before": [
+      "https://reservations.ceviche105.com/menu/dessert.html"
+     ],
+     "local_tip": [
+      "https://reservations.ceviche105.com/menu/dessert.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official dessert menu lists Coral Gables among CVI.CHE 105 locations.",
+      "source": "https://reservations.ceviche105.com/menu/dessert.html"
+     },
+     {
+      "claim": "Suspiro Lime\u00f1o is described as Peru's most renowned dessert.",
+      "source": "https://reservations.ceviche105.com/menu/dessert.html"
+     },
+     {
+      "claim": "The dessert menu includes Pie de Lim\u00f3n al Estilo Peruano and Trilog\u00eda Peruana.",
+      "source": "https://reservations.ceviche105.com/menu/dessert.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpwznMWi32YgRs_iFE7Vok3Y",
+   "name": "Rosa Sky",
+   "category": "nightlife",
+   "metro": "miami-dade",
+   "primary_type": "cocktail_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rosaskyrooftop.com/about-us/",
+     "source_name": "Rosa Sky \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosa Sky is a rooftop lounge on the 22nd floor of the dual-brand AC & Element Hotel Miami Downtown.",
+      "The lounge offers panoramic views of the Miami skyline, hand-crafted cocktails and globally inspired tapas presented for easy sharing.",
+      "Signature cocktails include The Rosa Sky, Tulum Trip & Golden Hour.",
+      "Rosa Sky is at 115 SW 8th St, 22nd Floor, Miami, FL 33130."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 22nd floor rooftop lounge with panoramic views of the Miami skyline",
+    "why_here": "Rosa Sky is on the 22nd floor of the dual-brand AC & Element Hotel Miami Downtown. The lounge offers panoramic views of the Miami skyline, hand-crafted cocktails and globally inspired tapas for sharing throughout the lounge.",
+    "know_before": "Rosa Sky is at 115 SW 8th St, 22nd Floor, Miami, FL 33130.",
+    "local_tip": "Try signature cocktails including The Rosa Sky and Golden Hour.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rosaskyrooftop.com/about-us/"
+     ],
+     "why_here": [
+      "https://rosaskyrooftop.com/about-us/"
+     ],
+     "know_before": [
+      "https://rosaskyrooftop.com/about-us/"
+     ],
+     "local_tip": [
+      "https://rosaskyrooftop.com/about-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosa Sky is a rooftop lounge on the 22nd floor of the dual-brand AC & Element Hotel Miami Downtown.",
+      "source": "https://rosaskyrooftop.com/about-us/"
+     },
+     {
+      "claim": "The lounge offers panoramic views of the Miami skyline, hand-crafted cocktails and globally inspired tapas presented for easy sharing.",
+      "source": "https://rosaskyrooftop.com/about-us/"
+     },
+     {
+      "claim": "Signature cocktails include The Rosa Sky, Tulum Trip & Golden Hour.",
+      "source": "https://rosaskyrooftop.com/about-us/"
+     },
+     {
+      "claim": "Rosa Sky is at 115 SW 8th St, 22nd Floor, Miami, FL 33130.",
+      "source": "https://rosaskyrooftop.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ49PHLfp-54gROjhaaldRMSY",
+   "name": "Best Western Orlando Gateway Hotel",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html",
+     "source_name": "Best Western Orlando Gateway Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Best Western Orlando Gateway Hotel is at 7299 Universal Boulevard, Orlando, Florida.",
+      "Featured amenities include a pool, fitness center, on-site dining and free parking.",
+      "Featured amenities include an EV charger and high speed internet."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A hotel on Universal Boulevard in Orlando with a pool and free parking",
+    "why_here": "The Best Western Orlando Gateway Hotel is at 7299 Universal Boulevard, Orlando, Florida. Featured amenities include a pool, fitness center, on-site dining and free parking, plus an EV charger and high speed internet listed for guests.",
+    "know_before": "Free parking is listed among the featured amenities for this hotel.",
+    "local_tip": "Use the pool and free parking listed among the featured amenities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     ],
+     "why_here": [
+      "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     ],
+     "know_before": [
+      "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     ],
+     "local_tip": [
+      "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Best Western Orlando Gateway Hotel is at 7299 Universal Boulevard, Orlando, Florida.",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     },
+     {
+      "claim": "Featured amenities include a pool, fitness center, on-site dining and free parking.",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     },
+     {
+      "claim": "Featured amenities include an EV charger and high speed internet.",
+      "source": "https://www.bestwestern.com/en_US/book/hotel-rooms.10380.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnzB6oPi32YgRNNmDNezouZY",
+   "name": "Skinny Louie",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "hamburger_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skinnylouie.com/",
+     "source_name": "Skinny Louie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burgers are made with 100% fresh Black Angus beef.",
+      "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles & Louie Sauce.",
+      "The menu includes three smash burgers, three milkshakes, fries, and sodas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Smash burgers made with 100% fresh Black Angus beef",
+    "why_here": "Skinny Louie keeps the menu focused, with burgers made with 100% fresh Black Angus beef. The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles & Louie Sauce, alongside three smash burgers, three milkshakes, fries, and sodas.",
+    "know_before": "The menu includes three smash burgers, three milkshakes, fries, and sodas.",
+    "local_tip": "Order the Skinny Louie Cheeseburger for grilled onions, pickles & Louie Sauce.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.skinnylouie.com/"
+     ],
+     "why_here": [
+      "https://www.skinnylouie.com/"
+     ],
+     "know_before": [
+      "https://www.skinnylouie.com/"
+     ],
+     "local_tip": [
+      "https://www.skinnylouie.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burgers are made with 100% fresh Black Angus beef.",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "The Skinny Louie Cheeseburger includes grilled onions, double American cheese, pickles & Louie Sauce.",
+      "source": "https://www.skinnylouie.com/"
+     },
+     {
+      "claim": "The menu includes three smash burgers, three milkshakes, fries, and sodas.",
+      "source": "https://www.skinnylouie.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYbciV_mr2YgRDvYyQp9GzFg",
+   "name": "Rodizio Grill Brazilian Steakhouse Fort Lauderdale",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brazilian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rodiziogrill.com/ft-lauderdale/",
+     "source_name": "Rodizio Grill Brazilian Steakhouse Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rodizio Grill at Dania Pointe offers a Brazilian Steakhouse experience to the greater Fort Lauderdale area.",
+      "The dining experience features an Unlimited Gourmet Salad Bar and authentic side dishes coupled with unlimited rotisserie-grilled meats carved, tableside, by Rodizio Gauchos.",
+      "The location is at 1817 Pointe Blvd Building J, Dania Beach, FL 33004."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Rotisserie meats carved tableside by Gauchos at Dania Pointe",
+    "why_here": "Rodizio Grill at Dania Pointe offers a Brazilian Steakhouse experience to the greater Fort Lauderdale area. The dining experience features an Unlimited Gourmet Salad Bar and authentic side dishes coupled with unlimited rotisserie-grilled meats carved, tableside, by Rodizio Gauchos.",
+    "know_before": "The location is at 1817 Pointe Blvd Building J, Dania Beach, FL 33004.",
+    "local_tip": "Choose the full dining experience for salads, side dishes and tableside meats together.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rodiziogrill.com/ft-lauderdale/"
+     ],
+     "why_here": [
+      "https://www.rodiziogrill.com/ft-lauderdale/"
+     ],
+     "know_before": [
+      "https://www.rodiziogrill.com/ft-lauderdale/"
+     ],
+     "local_tip": [
+      "https://www.rodiziogrill.com/ft-lauderdale/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rodizio Grill at Dania Pointe offers a Brazilian Steakhouse experience to the greater Fort Lauderdale area.",
+      "source": "https://www.rodiziogrill.com/ft-lauderdale/"
+     },
+     {
+      "claim": "The dining experience features an Unlimited Gourmet Salad Bar and authentic side dishes coupled with unlimited rotisserie-grilled meats carved, tableside, by Rodizio Gauchos.",
+      "source": "https://www.rodiziogrill.com/ft-lauderdale/"
+     },
+     {
+      "claim": "The location is at 1817 Pointe Blvd Building J, Dania Beach, FL 33004.",
+      "source": "https://www.rodiziogrill.com/ft-lauderdale/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTb0TzXet2YgRbgFomJbsBss",
+   "name": "Mister O1 Extraordinary Pizza - Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mistero1.com/",
+     "source_name": "Mister O1 Extraordinary Pizza - Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Mister O1 lists Aventura among its locations on the official site.",
+      "Mister O1 uses only the finest and freshest ingredients and most of them are imported from Italy or locally sourced.",
+      "The artisanal pizza is a delicate thin crust style with very light dough, prepared and rested for a minimum of 72 hours into natural levitation before being served.",
+      "Mister O1 describes Chef Renato Viola's pizzas on its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Thin crust dough rested for a minimum of 72 hours",
+    "why_here": "Mister O1 in Aventura serves artisanal pizza in a delicate thin crust style with very light dough rested for a minimum of 72 hours. Most ingredients are imported from Italy or locally sourced, following Chef Renato Viola's pizzas described on the official site.",
+    "know_before": "Dough rests for a minimum of 72 hours into natural levitation before serving.",
+    "local_tip": "Try the artisanal pizza with dough rested for a minimum of 72 hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mistero1.com/"
+     ],
+     "why_here": [
+      "https://www.mistero1.com/"
+     ],
+     "know_before": [
+      "https://www.mistero1.com/"
+     ],
+     "local_tip": [
+      "https://www.mistero1.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Mister O1 lists Aventura among its locations on the official site.",
+      "source": "https://www.mistero1.com/"
+     },
+     {
+      "claim": "Mister O1 uses only the finest and freshest ingredients and most of them are imported from Italy or locally sourced.",
+      "source": "https://www.mistero1.com/"
+     },
+     {
+      "claim": "The artisanal pizza is a delicate thin crust style with very light dough, prepared and rested for a minimum of 72 hours into natural levitation before being served.",
+      "source": "https://www.mistero1.com/"
+     },
+     {
+      "claim": "Mister O1 describes Chef Renato Viola's pizzas on its official site.",
+      "source": "https://www.mistero1.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLYdJev7Q0IgRV4_jgNt95KE",
+   "name": "Turtle Hospital",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://turtlehospital.org/",
+     "source_name": "Turtle Hospital \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Turtle Hospital is a fully functioning veterinary hospital for sick and injured sea turtles.",
+      "The Turtle Hospital rescues, rehabs, and releases sea turtles in the Florida Keys.",
+      "The Turtle Hospital is located in Marathon, Florida.",
+      "Guests must join a guided educational program to visit the turtles, and reservations are highly recommended as space is limited."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A fully functioning veterinary hospital for sick and injured sea turtles",
+    "why_here": "The Turtle Hospital in Marathon is a fully functioning veterinary hospital for sick and injured sea turtles. It rescues, rehabs, and releases sea turtles in the Florida Keys, with visits through guided educational programs for guests.",
+    "know_before": "Reservations are highly recommended as space is limited; guests must join a guided educational program to visit.",
+    "local_tip": "Join a guided educational program to visit the turtles.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://turtlehospital.org/"
+     ],
+     "why_here": [
+      "https://turtlehospital.org/"
+     ],
+     "know_before": [
+      "https://turtlehospital.org/"
+     ],
+     "local_tip": [
+      "https://turtlehospital.org/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Turtle Hospital is a fully functioning veterinary hospital for sick and injured sea turtles.",
+      "source": "https://turtlehospital.org/"
+     },
+     {
+      "claim": "The Turtle Hospital rescues, rehabs, and releases sea turtles in the Florida Keys.",
+      "source": "https://turtlehospital.org/"
+     },
+     {
+      "claim": "The Turtle Hospital is located in Marathon, Florida.",
+      "source": "https://turtlehospital.org/"
+     },
+     {
+      "claim": "Guests must join a guided educational program to visit the turtles, and reservations are highly recommended as space is limited.",
+      "source": "https://turtlehospital.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ68KQvyDd5ogRp5BhQ62tEfA",
+   "name": "Twin Peaks",
+   "category": "nightlife",
+   "metro": "florida",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.twinpeaksrestaurant.com/",
+     "source_name": "Twin Peaks \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Twin Peaks serves signature draft beer in perfectly-frosted mugs.",
+      "Twin Peaks lodges have wall-to-wall TVs for watching games.",
+      "Twin Peaks offers a scratch menu from lunch to late night.",
+      "Twin Peaks shows UFC fights at its lodges."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Signature draft beer and wall-to-wall TVs in a lodge setting",
+    "why_here": "Twin Peaks offers a scratch menu from lunch to late night, plus signature draft beer served in frosted mugs. Lodges have wall-to-wall TVs for watching games, and UFC fights are shown for fight nights in the lodge setting.",
+    "know_before": "The scratch menu runs from lunch to late night, per the official site.",
+    "local_tip": "Watch games on the wall-to-wall TVs described for the lodges.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.twinpeaksrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.twinpeaksrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.twinpeaksrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.twinpeaksrestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Twin Peaks serves signature draft beer in perfectly-frosted mugs.",
+      "source": "https://www.twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks lodges have wall-to-wall TVs for watching games.",
+      "source": "https://www.twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks offers a scratch menu from lunch to late night.",
+      "source": "https://www.twinpeaksrestaurant.com/"
+     },
+     {
+      "claim": "Twin Peaks shows UFC fights at its lodges.",
+      "source": "https://www.twinpeaksrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ19caPIZ254gRtv8qcl0t4Bg",
+   "name": "Garibaldi (Apopka) Mexican Restaurant & Bar",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.garibaldimxrestaurant.com/",
+     "source_name": "Garibaldi (Apopka) Mexican Restaurant & Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Garibaldi in Apopka dates back to 2000 and is family owned and operated by the Torres Family.",
+      "Garibaldi serves made from scratch authentic Mexican food with margaritas and a full bar.",
+      "Garibaldi hours are 11 a.m. to 10 p.m. Monday through Thursday, 11 a.m. to 10:30 p.m. Friday and Saturday, and 11 a.m. to 10 p.m. Sunday."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned in Apopka since 2000, run by the Torres family",
+    "why_here": "Go for made-from-scratch authentic Mexican food, margaritas and a full bar in a family, fun atmosphere. Garibaldi has been family owned and operated in Apopka since 2000.",
+    "know_before": "Hours are 11 a.m. to 10 p.m. Monday through Thursday and Sunday, and 11 a.m. to 10:30 p.m. Friday and Saturday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.garibaldimxrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.garibaldimxrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.garibaldimxrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Garibaldi in Apopka dates back to 2000 and is family owned and operated by the Torres Family.",
+      "source": "https://www.garibaldimxrestaurant.com/"
+     },
+     {
+      "claim": "Garibaldi serves made from scratch authentic Mexican food with margaritas and a full bar.",
+      "source": "https://www.garibaldimxrestaurant.com/"
+     },
+     {
+      "claim": "Garibaldi hours are 11 a.m. to 10 p.m. Monday through Thursday, 11 a.m. to 10:30 p.m. Friday and Saturday, and 11 a.m. to 10 p.m. Sunday.",
+      "source": "https://www.garibaldimxrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx1ylWdvE5YgRbXbUtGm1u8Q",
+   "name": "Whitey's Fish Camp",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.whiteysfishcamp.com/",
+     "source_name": "Whitey's Fish Camp \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Whitey's Fish Camp has been a North Florida staple since 1963.",
+      "Whitey's serves classic fish camp flavors and fresh seafood, from fried shrimp and catfish to hearty comfort staples.",
+      "Whitey's pairs good food with live music and days on the water."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A North Florida fish camp staple since 1963 with fresh seafood",
+    "why_here": "Whitey's Fish Camp has been a North Florida staple since 1963, serving classic fish camp flavors and fresh seafood. Dishes range from fried shrimp and catfish to hearty comfort staples, paired with live music and days on the water.",
+    "know_before": "Live music is part of the experience; check the official site before visiting.",
+    "local_tip": "Order fried shrimp and catfish, both listed among the classic flavors.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.whiteysfishcamp.com/"
+     ],
+     "why_here": [
+      "https://www.whiteysfishcamp.com/"
+     ],
+     "know_before": [
+      "https://www.whiteysfishcamp.com/"
+     ],
+     "local_tip": [
+      "https://www.whiteysfishcamp.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Whitey's Fish Camp has been a North Florida staple since 1963.",
+      "source": "https://www.whiteysfishcamp.com/"
+     },
+     {
+      "claim": "Whitey's serves classic fish camp flavors and fresh seafood, from fried shrimp and catfish to hearty comfort staples.",
+      "source": "https://www.whiteysfishcamp.com/"
+     },
+     {
+      "claim": "Whitey's pairs good food with live music and days on the water.",
+      "source": "https://www.whiteysfishcamp.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz8lhOdwB2YgRwZvR1zsI-w8",
+   "name": "Hugh Taylor Birch State Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park",
+     "source_name": "Hugh Taylor Birch State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hugh Taylor Birch State Park is tucked between the Atlantic Ocean and Intracoastal Waterway.",
+      "Fort Lauderdale's Central Park was gifted to the city by Hugh Taylor Birch."
+     ]
+    },
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees",
+     "source_name": "Hugh Taylor Birch State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The park is open 8 a.m. to sunset, 365 days a year."
+     ]
+    },
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations",
+     "source_name": "Hugh Taylor Birch State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ranger-guided walks are held every Friday and Saturday starting at 10:30 a.m."
+     ]
+    },
+    {
+     "source": "https://www.floridastateparks.org/HughTaylorBirch",
+     "source_name": "Hugh Taylor Birch State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Visitors can access the beach via the crosswalk on A1A."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coastal wilderness between the Atlantic and Intracoastal Waterway",
+    "why_here": "Go for a slice of coastal wilderness inside Fort Lauderdale, known as the city's Central Park and gifted by Hugh Taylor Birch. Activities range from picnicking and beach-going to hiking and birding, with ranger-guided walks and programs on Fridays and Saturdays.",
+    "know_before": "The park is open 8 a.m. to sunset, 365 days a year.",
+    "local_tip": "Visitors can access the beach via the crosswalk on A1A.",
+    "best_time": "Ranger-guided walks run Fridays and Saturdays at 10:30 a.m.",
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations",
+      "https://www.floridastateparks.org/HughTaylorBirch"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations",
+      "https://www.floridastateparks.org/HughTaylorBirch"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations",
+      "https://www.floridastateparks.org/HughTaylorBirch"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations",
+      "https://www.floridastateparks.org/HughTaylorBirch"
+     ],
+     "best_time": [
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees",
+      "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations",
+      "https://www.floridastateparks.org/HughTaylorBirch"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hugh Taylor Birch State Park is tucked between the Atlantic Ocean and Intracoastal Waterway.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park"
+     },
+     {
+      "claim": "Fort Lauderdale's Central Park was gifted to the city by Hugh Taylor Birch.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park"
+     },
+     {
+      "claim": "The park is open 8 a.m. to sunset, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/hours-fees"
+     },
+     {
+      "claim": "Ranger-guided walks are held every Friday and Saturday starting at 10:30 a.m.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/hugh-taylor-birch-state-park/interpretive-tours-presentations"
+     },
+     {
+      "claim": "Visitors can access the beach via the crosswalk on A1A.",
+      "source": "https://www.floridastateparks.org/HughTaylorBirch"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJK7ZF9rECw4gRjho9s1NRAtg",
+   "name": "St. Pete Beach Access",
+   "category": "beach",
+   "metro": "st-pete",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/beaches/",
+     "source_name": "St. Pete Beach Access \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "St. Pete Beach Access is located at 4700 Gulf Blvd., St. Pete Beach.",
+      "St. Pete Beach Access has 235 parking spaces and a parking fee applies.",
+      "Pinellas County has five beach access sites with parking."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "County beach access on Gulf Boulevard with a large paid parking lot",
+    "why_here": "This is a Pinellas County beach access point in St. Pete Beach. It gives visitors a direct county-managed way onto the beach with on-site parking. The county lists it among its beach access sites with parking.",
+    "know_before": "Parking is available for a fee; the county lists 235 parking spaces at this access.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/beaches/"
+     ],
+     "why_here": [
+      "https://pinellas.gov/beaches/"
+     ],
+     "know_before": [
+      "https://pinellas.gov/beaches/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "St. Pete Beach Access is located at 4700 Gulf Blvd., St. Pete Beach.",
+      "source": "https://pinellas.gov/beaches/"
+     },
+     {
+      "claim": "St. Pete Beach Access has 235 parking spaces and a parking fee applies.",
+      "source": "https://pinellas.gov/beaches/"
+     },
+     {
+      "claim": "Pinellas County has five beach access sites with parking.",
+      "source": "https://pinellas.gov/beaches/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEWuAKIG22YgRPOEUG7BlFsQ",
+   "name": "Novecento",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://novecento.com/locations/brickell/",
+     "source_name": "Novecento \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Novecento's Brickell location is in Miami's financial district and is described as a long-standing favorite among locals.",
+      "The menu includes hand-made empanadas.",
+      "Weekend brunch is Saturday and Sunday from 11 a.m. to 4 p.m.",
+      "Valet parking is available in front of Mary Brickell Village on South Miami Ave."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-made empanadas and weekend brunch in Brickell",
+    "why_here": "Novecento's Brickell location sits in Miami's financial district and is described as a long-standing favorite among locals. The menu includes hand-made empanadas, and weekend brunch runs Saturday and Sunday from 11 a.m. to 4 p.m.",
+    "know_before": "Valet parking is available in front of Mary Brickell Village on South Miami Ave.",
+    "local_tip": "Weekend brunch runs Saturday and Sunday from 11 a.m. to 4 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://novecento.com/locations/brickell/"
+     ],
+     "why_here": [
+      "https://novecento.com/locations/brickell/"
+     ],
+     "know_before": [
+      "https://novecento.com/locations/brickell/"
+     ],
+     "local_tip": [
+      "https://novecento.com/locations/brickell/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Novecento's Brickell location is in Miami's financial district and is described as a long-standing favorite among locals.",
+      "source": "https://novecento.com/locations/brickell/"
+     },
+     {
+      "claim": "The menu includes hand-made empanadas.",
+      "source": "https://novecento.com/locations/brickell/"
+     },
+     {
+      "claim": "Weekend brunch is Saturday and Sunday from 11 a.m. to 4 p.m.",
+      "source": "https://novecento.com/locations/brickell/"
+     },
+     {
+      "claim": "Valet parking is available in front of Mary Brickell Village on South Miami Ave.",
+      "source": "https://novecento.com/locations/brickell/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXzY4yFNBkYgRsH2dgriyu6c",
+   "name": "Brotula's Seafood House & Steamer",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.brotulas.com/",
+     "source_name": "Brotula's Seafood House & Steamer \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Brotula's Seafood House & Steamer is a locally-owned and operated, casual, family friendly seafood restaurant on the Destin Harbor.",
+      "The name Brotula's is derived from the Bearded Brotula or Cusk Eel caught in local waters at depths of 350 feet.",
+      "Popular dishes include the Blackened Snapper, Pecan-Crusted Grouper, and the Family Feast Steamed Seafood Platter.",
+      "Saturday and Sunday brunch is from 10 a.m. to 2 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Locally owned seafood house on the Destin Harbor, named for a local fish",
+    "why_here": "Brotula's is a casual, family-friendly seafood restaurant on the Destin Harbor specializing in fresh, locally sourced seafood and steamed or boiled shellfish platters. The name comes from the Bearded Brotula, caught in local waters. Popular dishes include Blackened Snapper and Pecan-Crusted Grouper.",
+    "know_before": "Saturday and Sunday brunch runs from 10 a.m. to 2 p.m., per the official site.",
+    "local_tip": "Try the Family Feast Steamed Seafood Platter, listed among its most popular dishes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.brotulas.com/"
+     ],
+     "why_here": [
+      "https://www.brotulas.com/"
+     ],
+     "know_before": [
+      "https://www.brotulas.com/"
+     ],
+     "local_tip": [
+      "https://www.brotulas.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Brotula's Seafood House & Steamer is a locally-owned and operated, casual, family friendly seafood restaurant on the Destin Harbor.",
+      "source": "https://www.brotulas.com/"
+     },
+     {
+      "claim": "The name Brotula's is derived from the Bearded Brotula or Cusk Eel caught in local waters at depths of 350 feet.",
+      "source": "https://www.brotulas.com/"
+     },
+     {
+      "claim": "Popular dishes include the Blackened Snapper, Pecan-Crusted Grouper, and the Family Feast Steamed Seafood Platter.",
+      "source": "https://www.brotulas.com/"
+     },
+     {
+      "claim": "Saturday and Sunday brunch is from 10 a.m. to 2 p.m.",
+      "source": "https://www.brotulas.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAXZBREmwwogRA-AvLv9EQfM",
+   "name": "The Grove at Wesley Chapel",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://groveshopping.com/",
+     "source_name": "The Grove at Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Grove at Wesley Chapel has more than 90 stores, unique attractions, and family friendly entertainment in an open-air destination.",
+      "The Grove lists over 472,000 sq ft of retail with brands including Best Buy, TJ Maxx, Ulta, Old Navy, PetSmart, and Michaels.",
+      "KRATE at Grove features shops and restaurants with different artisan products and cuisines.",
+      "The Grove offers more than 3,000 parking spaces."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Open-air destination with more than 90 stores and KRATE shops",
+    "why_here": "The Grove at Wesley Chapel is an open-air destination with more than 90 stores, unique attractions, and family friendly entertainment. KRATE at Grove features shops and restaurants with different artisan products and cuisines.",
+    "know_before": "The Grove offers more than 3,000 parking spaces.",
+    "local_tip": "Check KRATE at Grove for shops and restaurants with artisan products.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://groveshopping.com/"
+     ],
+     "why_here": [
+      "https://groveshopping.com/"
+     ],
+     "know_before": [
+      "https://groveshopping.com/"
+     ],
+     "local_tip": [
+      "https://groveshopping.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Grove at Wesley Chapel has more than 90 stores, unique attractions, and family friendly entertainment in an open-air destination.",
+      "source": "https://groveshopping.com/"
+     },
+     {
+      "claim": "The Grove lists over 472,000 sq ft of retail with brands including Best Buy, TJ Maxx, Ulta, Old Navy, PetSmart, and Michaels.",
+      "source": "https://groveshopping.com/"
+     },
+     {
+      "claim": "KRATE at Grove features shops and restaurants with different artisan products and cuisines.",
+      "source": "https://groveshopping.com/"
+     },
+     {
+      "claim": "The Grove offers more than 3,000 parking spaces.",
+      "source": "https://groveshopping.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJE5F575Un5IgRAgV1FdSIS48",
+   "name": "Medieval Torture Museum St. Augustine",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://medievaltorturemuseum.com/st-augustine/",
+     "source_name": "Medieval Torture Museum St. Augustine \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The museum spans more than 6,000 square feet with over 100 unique implements and devices on display.",
+      "The collection is reconstructed from historical documents and period engravings.",
+      "One ticket includes three experiences: Museum, Audioguide, and Ghost-Hunting.",
+      "Advance ticket purchase is recommended, especially on weekends."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Museum with over 100 devices across more than 6,000 square feet",
+    "why_here": "The museum spans more than 6,000 square feet with over 100 unique implements and devices on display. The collection is reconstructed from historical documents and period engravings.",
+    "know_before": "Advance ticket purchase is recommended, especially on weekends.",
+    "local_tip": "One ticket includes Museum, Audioguide, and Ghost-Hunting experiences.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://medievaltorturemuseum.com/st-augustine/"
+     ],
+     "why_here": [
+      "https://medievaltorturemuseum.com/st-augustine/"
+     ],
+     "know_before": [
+      "https://medievaltorturemuseum.com/st-augustine/"
+     ],
+     "local_tip": [
+      "https://medievaltorturemuseum.com/st-augustine/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The museum spans more than 6,000 square feet with over 100 unique implements and devices on display.",
+      "source": "https://medievaltorturemuseum.com/st-augustine/"
+     },
+     {
+      "claim": "The collection is reconstructed from historical documents and period engravings.",
+      "source": "https://medievaltorturemuseum.com/st-augustine/"
+     },
+     {
+      "claim": "One ticket includes three experiences: Museum, Audioguide, and Ghost-Hunting.",
+      "source": "https://medievaltorturemuseum.com/st-augustine/"
+     },
+     {
+      "claim": "Advance ticket purchase is recommended, especially on weekends.",
+      "source": "https://medievaltorturemuseum.com/st-augustine/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJASDC85ul2YgRKxNMsiU-AEQ",
+   "name": "El Churrascaso Grill - Miramar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elchurrascasogrill.com/",
+     "source_name": "El Churrascaso Grill - Miramar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Churrascaso Grill lists Miramar among its restaurant locations.",
+      "The venue describes itself as a family grill house."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family grill house with a Miramar location",
+    "why_here": "El Churrascaso Grill describes itself as a family grill house and lists Miramar among its restaurant locations. The listing confirms a Miramar location for El Churrascaso Grill as a family grill house.",
+    "know_before": "El Churrascaso Grill lists Miramar among its restaurant locations.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elchurrascasogrill.com/"
+     ],
+     "why_here": [
+      "https://elchurrascasogrill.com/"
+     ],
+     "know_before": [
+      "https://elchurrascasogrill.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Churrascaso Grill lists Miramar among its restaurant locations.",
+      "source": "https://elchurrascasogrill.com/"
+     },
+     {
+      "claim": "The venue describes itself as a family grill house.",
+      "source": "https://elchurrascasogrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxySLtdf2wogRM62DpJN6IVg",
+   "name": "Hyatt Regency Clearwater Beach Resort and Suites",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc",
+     "source_name": "Hyatt Regency Clearwater Beach Resort and Suites \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Eighth-floor outdoor pool is heated and open year-round.",
+      "The resort includes Sandava Spa.",
+      "Dining includes SHOR and Tropico Rooftop Cantina.",
+      "Private poolside cabanas are available 10 a.m. to 8 p.m. for up to five guests.",
+      "Hyatt Regency Clearwater Beach Resort and Spa is in Clearwater Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Eighth-floor pool, Sandava Spa, and Tropico Rooftop Cantina dining",
+    "why_here": "Hyatt Regency Clearwater Beach Resort and Spa is in Clearwater Beach. The Eighth-floor outdoor pool is heated and open year-round, the resort includes Sandava Spa, and dining includes SHOR and Tropico Rooftop Cantina.",
+    "know_before": "Private poolside cabanas are available 10 a.m. to 8 p.m. for up to five guests.",
+    "local_tip": "Try dining at SHOR or Tropico Rooftop Cantina.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     ],
+     "why_here": [
+      "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     ],
+     "know_before": [
+      "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     ],
+     "local_tip": [
+      "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Eighth-floor outdoor pool is heated and open year-round.",
+      "source": "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     },
+     {
+      "claim": "The resort includes Sandava Spa.",
+      "source": "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     },
+     {
+      "claim": "Dining includes SHOR and Tropico Rooftop Cantina.",
+      "source": "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     },
+     {
+      "claim": "Private poolside cabanas are available 10 a.m. to 8 p.m. for up to five guests.",
+      "source": "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     },
+     {
+      "claim": "Hyatt Regency Clearwater Beach Resort and Spa is in Clearwater Beach.",
+      "source": "https://www.hyatt.com/en-US/hotel/florida/hyatt-regency-clearwater-beach-resort-and-spa/pierc"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ37xBu4Gs2YgRj_hh1E0tEe4",
+   "name": "Upper Deck Ale and Sports Grille",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "sports_bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://upperdeckhallandalebeach.com/",
+     "source_name": "Upper Deck Ale and Sports Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Upper Deck is a family-owned and operated establishment.",
+      "The restaurant has over 85 flat-screen TVs.",
+      "The restaurant has a huge outdoor tiki deck and large indoor seating.",
+      "Offerings listed include karaoke, comedy night, and pool tournaments.",
+      "Upper Deck Ale and Sports Grille is in Hallandale Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned sports grille with over 85 flat-screen TVs and a tiki deck",
+    "why_here": "Upper Deck Ale and Sports Grille is in Hallandale Beach and is a family-owned and operated establishment. The restaurant has over 85 flat-screen TVs, a huge outdoor tiki deck, and large indoor seating.",
+    "know_before": "The restaurant has over 85 flat-screen TVs and a huge outdoor tiki deck.",
+    "local_tip": "Try karaoke, comedy night, or pool tournaments listed among offerings.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://upperdeckhallandalebeach.com/"
+     ],
+     "why_here": [
+      "https://upperdeckhallandalebeach.com/"
+     ],
+     "know_before": [
+      "https://upperdeckhallandalebeach.com/"
+     ],
+     "local_tip": [
+      "https://upperdeckhallandalebeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Upper Deck is a family-owned and operated establishment.",
+      "source": "https://upperdeckhallandalebeach.com/"
+     },
+     {
+      "claim": "The restaurant has over 85 flat-screen TVs.",
+      "source": "https://upperdeckhallandalebeach.com/"
+     },
+     {
+      "claim": "The restaurant has a huge outdoor tiki deck and large indoor seating.",
+      "source": "https://upperdeckhallandalebeach.com/"
+     },
+     {
+      "claim": "Offerings listed include karaoke, comedy night, and pool tournaments.",
+      "source": "https://upperdeckhallandalebeach.com/"
+     },
+     {
+      "claim": "Upper Deck Ale and Sports Grille is in Hallandale Beach.",
+      "source": "https://upperdeckhallandalebeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU9EHm1J-54gRjVY_BjtjZZg",
+   "name": "Pirate's Cove Adventure Golf",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "miniature_golf_course",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.piratescove.net/locations/florida/orlando/",
+     "source_name": "Pirate's Cove Adventure Golf \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pirate's Cove Orlando features two 18-hole adventure golf courses.",
+      "Courses include waterfalls, tropical scenery, sunken ships, and pirate dungeons.",
+      "Hours are 9 a.m. to 11:30 p.m. daily, weather permitting.",
+      "The location is open year-round.",
+      "Children age 3 and under play free with a paying adult."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two 18-hole courses with waterfalls, tropical scenery, and sunken ships",
+    "why_here": "Pirate's Cove Orlando features two 18-hole adventure golf courses. Courses include waterfalls, tropical scenery, sunken ships, and pirate dungeons, and the location is open year-round.",
+    "know_before": "Hours are 9 a.m. to 11:30 p.m. daily, weather permitting.",
+    "local_tip": "Children age 3 and under play free with a paying adult.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.piratescove.net/locations/florida/orlando/"
+     ],
+     "why_here": [
+      "https://www.piratescove.net/locations/florida/orlando/"
+     ],
+     "know_before": [
+      "https://www.piratescove.net/locations/florida/orlando/"
+     ],
+     "local_tip": [
+      "https://www.piratescove.net/locations/florida/orlando/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pirate's Cove Orlando features two 18-hole adventure golf courses.",
+      "source": "https://www.piratescove.net/locations/florida/orlando/"
+     },
+     {
+      "claim": "Courses include waterfalls, tropical scenery, sunken ships, and pirate dungeons.",
+      "source": "https://www.piratescove.net/locations/florida/orlando/"
+     },
+     {
+      "claim": "Hours are 9 a.m. to 11:30 p.m. daily, weather permitting.",
+      "source": "https://www.piratescove.net/locations/florida/orlando/"
+     },
+     {
+      "claim": "The location is open year-round.",
+      "source": "https://www.piratescove.net/locations/florida/orlando/"
+     },
+     {
+      "claim": "Children age 3 and under play free with a paying adult.",
+      "source": "https://www.piratescove.net/locations/florida/orlando/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ3_xVvInW2IgR-kVSrdegCuM",
+   "name": "Rocco's Tacos & Tequila Bar",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/",
+     "source_name": "Rocco's Tacos & Tequila Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The West Palm Beach location is at 224 Clematis Street.",
+      "The location serves lunch and dinner daily and weekend brunch on Saturday and Sunday.",
+      "The location offers tableside guacamole, 150+ tequilas, and handmade tacos.",
+      "Happy Hour is 4 p.m. to 7 p.m. at the bar.",
+      "Taco Tuesday is held every week."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clematis Street Mexican spot known for tableside guacamole",
+    "why_here": "Rocco's Tacos & Tequila Bar's West Palm Beach location is on Clematis Street in downtown West Palm Beach. The official location page says it serves lunch and dinner daily, weekend brunch on Saturday and Sunday, and Taco Tuesday every week. It lists tableside guacamole, 150+ tequilas, and handmade tacos.",
+    "know_before": "Happy Hour is 4 p.m. to 7 p.m. at the bar, per the official location page.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     ],
+     "why_here": [
+      "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     ],
+     "know_before": [
+      "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The West Palm Beach location is at 224 Clematis Street.",
+      "source": "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     },
+     {
+      "claim": "The location serves lunch and dinner daily and weekend brunch on Saturday and Sunday.",
+      "source": "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     },
+     {
+      "claim": "The location offers tableside guacamole, 150+ tequilas, and handmade tacos.",
+      "source": "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     },
+     {
+      "claim": "Happy Hour is 4 p.m. to 7 p.m. at the bar.",
+      "source": "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     },
+     {
+      "claim": "Taco Tuesday is held every week.",
+      "source": "https://www.roccostacos.com/location/roccos-tacos-west-palm-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJnwaj_taz2YgRd3ddXoqN0ao",
+   "name": "Moshi Moshi MiMo",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://moshimoshi.fun/",
+     "source_name": "Moshi Moshi MiMo \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Moshi Moshi serves creative sushi rolls, small plates, sake, and Japanese eats.",
+      "Food is available until 5 a.m.",
+      "The site lists sushi, sake, and tapas."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese izakaya-style spot serving sushi and sake until 5 a.m.",
+    "why_here": "Moshi Moshi describes itself on its official site as a cozy hangout for locals with creative sushi rolls, small plates, sake, and Japanese dishes. The homepage says food is available until 5 a.m., covering both late-night and midday visits. Its navigation lists sushi, sake, and tapas.",
+    "know_before": "Food is available until 5 a.m., per the official homepage.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://moshimoshi.fun/"
+     ],
+     "why_here": [
+      "https://moshimoshi.fun/"
+     ],
+     "know_before": [
+      "https://moshimoshi.fun/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Moshi Moshi serves creative sushi rolls, small plates, sake, and Japanese eats.",
+      "source": "https://moshimoshi.fun/"
+     },
+     {
+      "claim": "Food is available until 5 a.m.",
+      "source": "https://moshimoshi.fun/"
+     },
+     {
+      "claim": "The site lists sushi, sake, and tapas.",
+      "source": "https://moshimoshi.fun/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJN6Kh1EWMk4gRdTtvZ1VWW60",
+   "name": "Dave & Buster's Panama City Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach",
+     "source_name": "Dave & Buster's Panama City Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dave & Buster's Panama City Beach is located at 15701 L C Hilton Jr. Drive in Panama City.",
+      "Dave & Buster's Panama City Beach combines a sports bar, restaurant, and arcade.",
+      "Arcade games listed include racing games, shooters, air hockey, and basketball.",
+      "The location page promotes an Eat & Play Combo."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Arcade, sports bar, and restaurant combined with racing games",
+    "why_here": "Dave & Buster's Panama City Beach combines a sports bar, restaurant, and arcade. Arcade games listed include racing games, shooters, air hockey, and basketball, and the location page promotes an Eat & Play Combo.",
+    "know_before": "The location page promotes an Eat & Play Combo.",
+    "local_tip": "Try racing games, shooters, air hockey, or basketball in the arcade.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     ],
+     "why_here": [
+      "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     ],
+     "know_before": [
+      "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     ],
+     "local_tip": [
+      "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dave & Buster's Panama City Beach is located at 15701 L C Hilton Jr. Drive in Panama City.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     },
+     {
+      "claim": "Dave & Buster's Panama City Beach combines a sports bar, restaurant, and arcade.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     },
+     {
+      "claim": "Arcade games listed include racing games, shooters, air hockey, and basketball.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     },
+     {
+      "claim": "The location page promotes an Eat & Play Combo.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/panama-city-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ8ISEdq32YgRKUoI40z8SH8",
+   "name": "The Escape Game Miami",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://theescapegame.com/miami/",
+     "source_name": "The Escape Game Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Escape Game Miami offers 60-minute escape rooms.",
+      "Every game has multiple rooms, with another room opening as play continues.",
+      "Hints are unlimited, with no limits or penalties.",
+      "The Escape Game Miami is at 701 S Miami Avenue, Suite 367-C, Miami, FL 33131.",
+      "The official site recommends parking in the B1 or B2 Blue garages."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "60-minute escape rooms where another room opens as play continues",
+    "why_here": "The Escape Game Miami offers 60-minute escape rooms where every game has multiple rooms, with another room opening as play continues, and hints are unlimited with no limits or penalties.",
+    "know_before": "The official site recommends parking in the B1 or B2 Blue garages.",
+    "local_tip": "Ask for hints freely, with no limits or penalties.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://theescapegame.com/miami/"
+     ],
+     "why_here": [
+      "https://theescapegame.com/miami/"
+     ],
+     "know_before": [
+      "https://theescapegame.com/miami/"
+     ],
+     "local_tip": [
+      "https://theescapegame.com/miami/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Escape Game Miami offers 60-minute escape rooms.",
+      "source": "https://theescapegame.com/miami/"
+     },
+     {
+      "claim": "Every game has multiple rooms, with another room opening as play continues.",
+      "source": "https://theescapegame.com/miami/"
+     },
+     {
+      "claim": "Hints are unlimited, with no limits or penalties.",
+      "source": "https://theescapegame.com/miami/"
+     },
+     {
+      "claim": "The Escape Game Miami is at 701 S Miami Avenue, Suite 367-C, Miami, FL 33131.",
+      "source": "https://theescapegame.com/miami/"
+     },
+     {
+      "claim": "The official site recommends parking in the B1 or B2 Blue garages.",
+      "source": "https://theescapegame.com/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC-tMfyQA2YgRlz_OMKcdGUw",
+   "name": "B Ocean Resort Fort Lauderdale Beach",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.boceanresort.com/resort-details/",
+     "source_name": "B Ocean Resort Fort Lauderdale Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "B Ocean Resort offers exclusive access to a private stretch of Fort Lauderdale Beach.",
+      "The resort has two on-site pools, including a beachfront infinity-edge pool.",
+      "Beach rental services are available daily from 9 a.m. to 6 p.m., weather permitting.",
+      "Complimentary beach yoga and meditation sessions run Saturday and Sunday mornings."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Private beach and two pools on Fort Lauderdale Beach",
+    "why_here": "B Ocean Resort offers exclusive access to a private stretch of Fort Lauderdale Beach, with two on-site pools including a beachfront infinity-edge pool, plus complimentary beach yoga and meditation sessions on Saturday and Sunday mornings.",
+    "know_before": "Beach rental services are available daily from 9 a.m. to 6 p.m., weather permitting.",
+    "local_tip": "Join complimentary beach yoga on Saturday or Sunday mornings.",
+    "best_time": "Saturday and Sunday mornings for complimentary beach yoga, per the resort site.",
+    "citations": {
+     "hook": [
+      "https://www.boceanresort.com/resort-details/"
+     ],
+     "why_here": [
+      "https://www.boceanresort.com/resort-details/"
+     ],
+     "know_before": [
+      "https://www.boceanresort.com/resort-details/"
+     ],
+     "local_tip": [
+      "https://www.boceanresort.com/resort-details/"
+     ],
+     "best_time": [
+      "https://www.boceanresort.com/resort-details/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "B Ocean Resort offers exclusive access to a private stretch of Fort Lauderdale Beach.",
+      "source": "https://www.boceanresort.com/resort-details/"
+     },
+     {
+      "claim": "The resort has two on-site pools, including a beachfront infinity-edge pool.",
+      "source": "https://www.boceanresort.com/resort-details/"
+     },
+     {
+      "claim": "Beach rental services are available daily from 9 a.m. to 6 p.m., weather permitting.",
+      "source": "https://www.boceanresort.com/resort-details/"
+     },
+     {
+      "claim": "Complimentary beach yoga and meditation sessions run Saturday and Sunday mornings.",
+      "source": "https://www.boceanresort.com/resort-details/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIw7wHUAA2YgRflVC4FT1rXE",
+   "name": "15th Street Fisheries",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://15streetfisheries.com/",
+     "source_name": "15th Street Fisheries \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "15th Street Fisheries is situated inside Lauderdale Marina.",
+      "The upstairs restaurant serves dinner nightly, and reservations are recommended but not required.",
+      "Fisheries Dockside is open daily from 11:30 a.m. to 9:30 p.m.",
+      "Upstairs dining is nightly from 5 p.m. to 9:30 p.m.",
+      "No reservations are ever taken for downstairs dockside dining."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront seafood inside Lauderdale Marina, upstairs and dockside",
+    "why_here": "This restaurant is situated inside Lauderdale Marina, with an upstairs restaurant serving dinner nightly and the Dockside open daily, so visitors can choose upstairs dining or downstairs dockside dining during a visit.",
+    "know_before": "Reservations are recommended but not required for upstairs dining; no reservations are ever taken for downstairs dockside dining.",
+    "local_tip": "Fisheries Dockside is open daily from 11:30 a.m. to 9:30 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://15streetfisheries.com/"
+     ],
+     "why_here": [
+      "https://15streetfisheries.com/"
+     ],
+     "know_before": [
+      "https://15streetfisheries.com/"
+     ],
+     "local_tip": [
+      "https://15streetfisheries.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "15th Street Fisheries is situated inside Lauderdale Marina.",
+      "source": "https://15streetfisheries.com/"
+     },
+     {
+      "claim": "The upstairs restaurant serves dinner nightly, and reservations are recommended but not required.",
+      "source": "https://15streetfisheries.com/"
+     },
+     {
+      "claim": "Fisheries Dockside is open daily from 11:30 a.m. to 9:30 p.m.",
+      "source": "https://15streetfisheries.com/"
+     },
+     {
+      "claim": "Upstairs dining is nightly from 5 p.m. to 9:30 p.m.",
+      "source": "https://15streetfisheries.com/"
+     },
+     {
+      "claim": "No reservations are ever taken for downstairs dockside dining.",
+      "source": "https://15streetfisheries.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJj3-B1hU53YgRNU9uhCecPi0",
+   "name": "Lakeside Village",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://shoplakesidevillage.com/",
+     "source_name": "Lakeside Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lakeside Village is located in Lakeland's upscale Grasslands area with beautifully landscaped courts.",
+      "Lakeside Village offers casual eateries and fine dining experiences.",
+      "The center hosts live music and seasonal events.",
+      "Lakeside Village is at 1479 Town Center Dr., Lakeland, FL 33803."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Casual eateries and fine dining in Lakeland's Grasslands area",
+    "why_here": "Lakeside Village is located in Lakeland's upscale Grasslands area with beautifully landscaped courts, offers casual eateries and fine dining experiences, and hosts live music and seasonal events for visitors to enjoy together.",
+    "know_before": "Lakeside Village is at 1479 Town Center Dr., Lakeland, FL 33803.",
+    "local_tip": "Check for live music and seasonal events before visiting.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://shoplakesidevillage.com/"
+     ],
+     "why_here": [
+      "https://shoplakesidevillage.com/"
+     ],
+     "know_before": [
+      "https://shoplakesidevillage.com/"
+     ],
+     "local_tip": [
+      "https://shoplakesidevillage.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lakeside Village is located in Lakeland's upscale Grasslands area with beautifully landscaped courts.",
+      "source": "https://shoplakesidevillage.com/"
+     },
+     {
+      "claim": "Lakeside Village offers casual eateries and fine dining experiences.",
+      "source": "https://shoplakesidevillage.com/"
+     },
+     {
+      "claim": "The center hosts live music and seasonal events.",
+      "source": "https://shoplakesidevillage.com/"
+     },
+     {
+      "claim": "Lakeside Village is at 1479 Town Center Dr., Lakeland, FL 33803.",
+      "source": "https://shoplakesidevillage.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

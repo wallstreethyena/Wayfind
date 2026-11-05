@@ -1,0 +1,2197 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 8. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJDwCh59rH5YgRW9ADvx5X1SY",
+   "name": "J.L.Trent's Seafood & Grill",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jltrents.com/",
+     "source_name": "J.L.Trent's Seafood & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "J.L. Trent's Seafood & Grill has served Southern-style seafood since 1997.",
+      "J.L. Trent's Seafood & Grill is a local favorite on Jacksonville's Westside.",
+      "J.L. Trent's has been serving down-home Southern-style seafood and all the fixings for over 25 years.",
+      "Hours are Monday to Thursday 11 a.m. to 8 p.m., Friday and Saturday 11 a.m. to 9 p.m., and Sunday closed."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern-style seafood on Jacksonville's Westside since 1997",
+    "why_here": "J.L. Trent's Seafood & Grill is a local favorite on Jacksonville's Westside, serving down-home Southern-style seafood and all the fixings for over 25 years.",
+    "know_before": "Hours are Monday to Thursday 11 a.m. to 8 p.m., Friday and Saturday 11 a.m. to 9 p.m.; Sunday is closed.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jltrents.com/"
+     ],
+     "why_here": [
+      "https://jltrents.com/"
+     ],
+     "know_before": [
+      "https://jltrents.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "J.L. Trent's Seafood & Grill has served Southern-style seafood since 1997.",
+      "source": "https://jltrents.com/"
+     },
+     {
+      "claim": "J.L. Trent's Seafood & Grill is a local favorite on Jacksonville's Westside.",
+      "source": "https://jltrents.com/"
+     },
+     {
+      "claim": "J.L. Trent's has been serving down-home Southern-style seafood and all the fixings for over 25 years.",
+      "source": "https://jltrents.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 11 a.m. to 8 p.m., Friday and Saturday 11 a.m. to 9 p.m., and Sunday closed.",
+      "source": "https://jltrents.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJU2u3akkL2YgRofnAkGxBVqw",
+   "name": "Sawgrass Recreation Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tour_agency",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.evergladestours.com/",
+     "source_name": "Sawgrass Recreation Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sawgrass Recreation Park offers guided Everglades tours and airboat rides near Fort Lauderdale, Florida.",
+      "Sawgrass Recreation Park airboat rides are in Weston, FL, just outside Fort Lauderdale.",
+      "Reservations are required for all tours at Sawgrass Recreation Park.",
+      "Tickets can be purchased in advance on the website to hold a reservation time."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Everglades airboat rides from Weston, just outside Fort Lauderdale",
+    "why_here": "Sawgrass Recreation Park runs guided Everglades tours and airboat rides near Fort Lauderdale from Weston, with reservations required for all tours and tickets available in advance on the website.",
+    "know_before": "Reservations are required for all tours; tickets can be purchased in advance on the website.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.evergladestours.com/"
+     ],
+     "why_here": [
+      "https://www.evergladestours.com/"
+     ],
+     "know_before": [
+      "https://www.evergladestours.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sawgrass Recreation Park offers guided Everglades tours and airboat rides near Fort Lauderdale, Florida.",
+      "source": "https://www.evergladestours.com/"
+     },
+     {
+      "claim": "Sawgrass Recreation Park airboat rides are in Weston, FL, just outside Fort Lauderdale.",
+      "source": "https://www.evergladestours.com/"
+     },
+     {
+      "claim": "Reservations are required for all tours at Sawgrass Recreation Park.",
+      "source": "https://www.evergladestours.com/"
+     },
+     {
+      "claim": "Tickets can be purchased in advance on the website to hold a reservation time.",
+      "source": "https://www.evergladestours.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv9tmdumB3YgRxkp-JVAdGN4",
+   "name": "Main Gate Flea Market",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/",
+     "source_name": "Main Gate Flea Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Main Gate Flea Market is in Kissimmee, Florida.",
+      "The Main Gate Flea Market is home to over 400 vendor booths, each offering a distinct variety of goods.",
+      "The market is open seven days a week.",
+      "The market is open daily from 10 a.m. to 6 p.m.",
+      "Admission to the market is free."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 400 vendor booths open seven days a week",
+    "why_here": "Main Gate Flea Market in Kissimmee is home to over 400 vendor booths, each offering a distinct variety of goods, and the market is open seven days a week for shopping and browsing.",
+    "know_before": "The market is open daily from 10 a.m. to 6 p.m. and admission is free.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     ],
+     "why_here": [
+      "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     ],
+     "know_before": [
+      "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Main Gate Flea Market is in Kissimmee, Florida.",
+      "source": "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     },
+     {
+      "claim": "The Main Gate Flea Market is home to over 400 vendor booths, each offering a distinct variety of goods.",
+      "source": "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     },
+     {
+      "claim": "The market is open seven days a week.",
+      "source": "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     },
+     {
+      "claim": "The market is open daily from 10 a.m. to 6 p.m.",
+      "source": "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     },
+     {
+      "claim": "Admission to the market is free.",
+      "source": "https://maingatemarket.com/main-gate-flea-market-in-kissimmee-florida/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVVUNg8JB24gRo5VjblNO_c8",
+   "name": "Edison & Ford Winter Estates",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "history_museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.edisonfordwinterestates.org/",
+     "source_name": "Edison & Ford Winter Estates \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Edison and Ford Winter Estates in Fort Myers, FL, include the winter homes of Thomas Edison and Henry Ford.",
+      "The site has twenty acres of historic gardens.",
+      "The site includes a fully restored botanical laboratory.",
+      "Edison and Ford Winter Estates is open daily 9 a.m. to 5:30 p.m., with last admission at 4:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Winter homes, historic gardens and a botanical laboratory",
+    "why_here": "The Edison and Ford Winter Estates in Fort Myers include the winter homes of Thomas Edison and Henry Ford, plus twenty acres of historic gardens and a fully restored botanical laboratory to explore.",
+    "know_before": "Open daily 9 a.m. to 5:30 p.m., with last admission at 4:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.edisonfordwinterestates.org/"
+     ],
+     "why_here": [
+      "https://www.edisonfordwinterestates.org/"
+     ],
+     "know_before": [
+      "https://www.edisonfordwinterestates.org/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Edison and Ford Winter Estates in Fort Myers, FL, include the winter homes of Thomas Edison and Henry Ford.",
+      "source": "https://www.edisonfordwinterestates.org/"
+     },
+     {
+      "claim": "The site has twenty acres of historic gardens.",
+      "source": "https://www.edisonfordwinterestates.org/"
+     },
+     {
+      "claim": "The site includes a fully restored botanical laboratory.",
+      "source": "https://www.edisonfordwinterestates.org/"
+     },
+     {
+      "claim": "Edison and Ford Winter Estates is open daily 9 a.m. to 5:30 p.m., with last admission at 4:30 p.m.",
+      "source": "https://www.edisonfordwinterestates.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJC2do4JUn5IgRuCCaO-aklds",
+   "name": "Prohibition Kitchen",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "gastropub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pkstaug.com/",
+     "source_name": "Prohibition Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Prohibition Kitchen is a 1920s and Prohibition-era themed pub offering locally-sourced bar food, craft cocktails, and live music every night."
+     ]
+    },
+    {
+     "source": "https://pkstaug.com/our-menus/food-menu/",
+     "source_name": "Prohibition Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The food menu includes craft burgers and sandwiches including the PK Signature Burger, Whiskey BBQ Burger and The Bootlegger Burger."
+     ]
+    },
+    {
+     "source": "https://pkstaug.com/contact-us/",
+     "source_name": "Prohibition Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dinner hours are Monday to Sunday 11 a.m. to 10 p.m. with a late night menu Friday to Saturday 10 p.m. to 1 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 1920s Prohibition-era pub with live music every night",
+    "why_here": "Prohibition Kitchen on St. George Street in St. Augustine is a 1920s and Prohibition-era themed pub serving locally-sourced bar food and craft cocktails. Its food menu is built around craft burgers and sandwiches, including the PK Signature Burger.",
+    "know_before": "Dinner hours are Monday to Sunday 11 a.m. to 10 p.m., with a late-night menu Friday to Saturday 10 p.m. to 1 a.m.",
+    "local_tip": "Stay after dinner on Friday or Saturday for the late-night menu, served 10 p.m. to 1 a.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pkstaug.com/",
+      "https://pkstaug.com/our-menus/food-menu/",
+      "https://pkstaug.com/contact-us/"
+     ],
+     "why_here": [
+      "https://pkstaug.com/",
+      "https://pkstaug.com/our-menus/food-menu/",
+      "https://pkstaug.com/contact-us/"
+     ],
+     "know_before": [
+      "https://pkstaug.com/",
+      "https://pkstaug.com/our-menus/food-menu/",
+      "https://pkstaug.com/contact-us/"
+     ],
+     "local_tip": [
+      "https://pkstaug.com/",
+      "https://pkstaug.com/our-menus/food-menu/",
+      "https://pkstaug.com/contact-us/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Prohibition Kitchen is a 1920s and Prohibition-era themed pub offering locally-sourced bar food, craft cocktails, and live music every night.",
+      "source": "https://pkstaug.com/"
+     },
+     {
+      "claim": "The food menu includes craft burgers and sandwiches including the PK Signature Burger, Whiskey BBQ Burger and The Bootlegger Burger.",
+      "source": "https://pkstaug.com/our-menus/food-menu/"
+     },
+     {
+      "claim": "Dinner hours are Monday to Sunday 11 a.m. to 10 p.m. with a late night menu Friday to Saturday 10 p.m. to 1 a.m.",
+      "source": "https://pkstaug.com/contact-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2f1pZPkA2YgRw01q-hlXoTQ",
+   "name": "Museum of Discovery and Science",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mods.org/visitor-info/",
+     "source_name": "Museum of Discovery and Science \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "For more than 40 years, the Museum of Discovery and Science (MODS) has served as a trusted source for science education in the South Florida community.",
+      "The Museum is open Monday through Saturday 10 a.m. to 5 p.m. and Sunday 12 p.m. to 5 p.m.",
+      "The Museum is open seven days a week, 363 days a year.",
+      "The Museum is located in downtown Fort Lauderdale.",
+      "The AutoNation IMAX Theater is open during Museum operating hours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Science museum open seven days a week in downtown Fort Lauderdale",
+    "why_here": "The Museum of Discovery and Science (MODS) has served South Florida science education for more than 40 years, with a museum in downtown Fort Lauderdale and the AutoNation IMAX Theater open during museum hours.",
+    "know_before": "Museum hours are Monday through Saturday 10 a.m. to 5 p.m. and Sunday 12 p.m. to 5 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mods.org/visitor-info/"
+     ],
+     "why_here": [
+      "https://mods.org/visitor-info/"
+     ],
+     "know_before": [
+      "https://mods.org/visitor-info/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "For more than 40 years, the Museum of Discovery and Science (MODS) has served as a trusted source for science education in the South Florida community.",
+      "source": "https://mods.org/visitor-info/"
+     },
+     {
+      "claim": "The Museum is open Monday through Saturday 10 a.m. to 5 p.m. and Sunday 12 p.m. to 5 p.m.",
+      "source": "https://mods.org/visitor-info/"
+     },
+     {
+      "claim": "The Museum is open seven days a week, 363 days a year.",
+      "source": "https://mods.org/visitor-info/"
+     },
+     {
+      "claim": "The Museum is located in downtown Fort Lauderdale.",
+      "source": "https://mods.org/visitor-info/"
+     },
+     {
+      "claim": "The AutoNation IMAX Theater is open during Museum operating hours.",
+      "source": "https://mods.org/visitor-info/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJuVlvt0AH2YgRfu_VYfCMHck",
+   "name": "Just Spoons Caf\u00e9",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1",
+     "source_name": "Just Spoons Caf\u00e9 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Just Spoons Cafe serves brunch Tuesday to Sunday from 10 a.m. to 4 p.m.",
+      "Created by Owner & Chef Dwight Witherspoon Jr, our menus reflect a balanced mix of different comfort foods, large plates, signature dishes, and seasonal offerings.",
+      "They are Classic Southern dishes with a twist.",
+      "The menu includes Catfish & Grits.",
+      "The menu includes Curry Shrimp & Grits.",
+      "The menu includes Smothered Pork Chops."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Classic Southern dishes with a twist, created by Chef Dwight Witherspoon Jr",
+    "why_here": "Just Spoons Cafe serves Classic Southern dishes with a twist, created by Owner & Chef Dwight Witherspoon Jr, with brunch dishes including Catfish & Grits, Curry Shrimp & Grits and Smothered Pork Chops.",
+    "know_before": "Brunch is served Tuesday to Sunday from 10 a.m. to 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     ],
+     "why_here": [
+      "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     ],
+     "know_before": [
+      "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Just Spoons Cafe serves brunch Tuesday to Sunday from 10 a.m. to 4 p.m.",
+      "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     },
+     {
+      "claim": "Created by Owner & Chef Dwight Witherspoon Jr, our menus reflect a balanced mix of different comfort foods, large plates, signature dishes, and seasonal offerings.",
+      "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     },
+     {
+      "claim": "They are Classic Southern dishes with a twist.",
+      "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     },
+     {
+      "claim": "The menu includes Catfish & Grits.",
+      "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     },
+     {
+      "claim": "The menu includes Curry Shrimp & Grits.",
+      "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     },
+     {
+      "claim": "The menu includes Smothered Pork Chops.",
+      "source": "https://www.justspoonscafe.com/menu-1?menu=brunch-1"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ66FNeGkA2YgRoQiupP7lkiU",
+   "name": "Boatyard",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://boatyard.restaurant/",
+     "source_name": "Boatyard \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Boatyard is a waterfront seafood restaurant in Fort Lauderdale serving coastal-inspired cuisine along the water.",
+      "The menu features fresh daily catches from local waters, premium steakhouse cuts, and signature Bimini Bread.",
+      "Boatyard is located on the Intracoastal Waterway with dock space steps away from your table.",
+      "Boatyard is at 1555 SE 17th St, Fort Lauderdale, FL 33316.",
+      "Monday hours are 11:30 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront seafood dining on the Intracoastal Waterway with dock space",
+    "why_here": "Boatyard is a waterfront seafood restaurant in Fort Lauderdale serving coastal-inspired cuisine along the water. The menu features fresh daily catches from local waters, premium steakhouse cuts, and signature Bimini Bread.",
+    "know_before": "Monday hours are 11:30 a.m. to 11 p.m.; confirm current hours before visiting.",
+    "local_tip": "Arrive by boat and use the dock space steps away from your table.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://boatyard.restaurant/"
+     ],
+     "why_here": [
+      "https://boatyard.restaurant/"
+     ],
+     "know_before": [
+      "https://boatyard.restaurant/"
+     ],
+     "local_tip": [
+      "https://boatyard.restaurant/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Boatyard is a waterfront seafood restaurant in Fort Lauderdale serving coastal-inspired cuisine along the water.",
+      "source": "https://boatyard.restaurant/"
+     },
+     {
+      "claim": "The menu features fresh daily catches from local waters, premium steakhouse cuts, and signature Bimini Bread.",
+      "source": "https://boatyard.restaurant/"
+     },
+     {
+      "claim": "Boatyard is located on the Intracoastal Waterway with dock space steps away from your table.",
+      "source": "https://boatyard.restaurant/"
+     },
+     {
+      "claim": "Boatyard is at 1555 SE 17th St, Fort Lauderdale, FL 33316.",
+      "source": "https://boatyard.restaurant/"
+     },
+     {
+      "claim": "Monday hours are 11:30 a.m. to 11 p.m.",
+      "source": "https://boatyard.restaurant/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBap9MoR_3YgRnzGmE9oTtYE",
+   "name": "House of Blues Orlando",
+   "category": "food",
+   "metro": "orlando",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://orlando.houseofblues.com/restaurant-and-bar",
+     "source_name": "House of Blues Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "House of Blues Orlando is at 1490 East Lake Buena Vista Dr, Orlando, FL 32830.",
+      "House of Blues Orlando has a Music Hall and a Restaurant and Bar.",
+      "Restaurant and Bar hours are Monday to Thursday 11 a.m. to 11 p.m.",
+      "The menu includes Voodoo Shrimp and Gumbo."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Music Hall concerts with a Restaurant and Bar on site",
+    "why_here": "House of Blues Orlando combines a Music Hall with a Restaurant and Bar at 1490 East Lake Buena Vista Dr in Orlando. The menu includes Voodoo Shrimp and Gumbo for a meal alongside a show.",
+    "know_before": "Restaurant and Bar hours are Monday to Thursday 11 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://orlando.houseofblues.com/restaurant-and-bar"
+     ],
+     "why_here": [
+      "https://orlando.houseofblues.com/restaurant-and-bar"
+     ],
+     "know_before": [
+      "https://orlando.houseofblues.com/restaurant-and-bar"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "House of Blues Orlando is at 1490 East Lake Buena Vista Dr, Orlando, FL 32830.",
+      "source": "https://orlando.houseofblues.com/restaurant-and-bar"
+     },
+     {
+      "claim": "House of Blues Orlando has a Music Hall and a Restaurant and Bar.",
+      "source": "https://orlando.houseofblues.com/restaurant-and-bar"
+     },
+     {
+      "claim": "Restaurant and Bar hours are Monday to Thursday 11 a.m. to 11 p.m.",
+      "source": "https://orlando.houseofblues.com/restaurant-and-bar"
+     },
+     {
+      "claim": "The menu includes Voodoo Shrimp and Gumbo.",
+      "source": "https://orlando.houseofblues.com/restaurant-and-bar"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR6vk8bDX2IgR7O6jWpOAeFw",
+   "name": "Drive Shack",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "sports_activity_location",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.driveshack.com/location/west-palm-beach/",
+     "source_name": "Drive Shack \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Drive Shack West Palm Beach is at 1710 Belvedere Rd, West Palm Beach, FL 33406.",
+      "Located next to Palm Beach International Airport on Belvedere Road and just minutes from downtown, Drive Shack is a high-tech golf driving range.",
+      "Drive Shack features TrackMan Technology and Puttery Mini Golf.",
+      "Monday hours are 10 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "High-tech golf driving range next to Palm Beach International Airport",
+    "why_here": "Drive Shack in West Palm Beach is a high-tech golf driving range next to Palm Beach International Airport on Belvedere Road. It features TrackMan Technology and Puttery Mini Golf for play beyond the range.",
+    "know_before": "Monday hours are 10 a.m. to 11 p.m.; confirm current hours before visiting.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.driveshack.com/location/west-palm-beach/"
+     ],
+     "why_here": [
+      "https://www.driveshack.com/location/west-palm-beach/"
+     ],
+     "know_before": [
+      "https://www.driveshack.com/location/west-palm-beach/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Drive Shack West Palm Beach is at 1710 Belvedere Rd, West Palm Beach, FL 33406.",
+      "source": "https://www.driveshack.com/location/west-palm-beach/"
+     },
+     {
+      "claim": "Located next to Palm Beach International Airport on Belvedere Road and just minutes from downtown, Drive Shack is a high-tech golf driving range.",
+      "source": "https://www.driveshack.com/location/west-palm-beach/"
+     },
+     {
+      "claim": "Drive Shack features TrackMan Technology and Puttery Mini Golf.",
+      "source": "https://www.driveshack.com/location/west-palm-beach/"
+     },
+     {
+      "claim": "Monday hours are 10 a.m. to 11 p.m.",
+      "source": "https://www.driveshack.com/location/west-palm-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx2VGL04A2YgR6vFvBouF0v4",
+   "name": "Casa Sensei",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.casasensei.com/",
+     "source_name": "Casa Sensei \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Casa Sensei blends Japanese and Pan-Asian flavors with the dynamic culinary traditions of Latin America.",
+      "The menu includes Pad Thai, Lo Mein, Kimchi Fried Rice, Bulgogi, and Bao Buns.",
+      "Casa Sensei is at 1200 East Las Olas Blvd., Fort Lauderdale, FL 33301.",
+      "Casa Sensei offers a full Omakase sushi bar.",
+      "Monday hours are 4 p.m. to 10:30 p.m.",
+      "Brunch & Bubbles is offered Saturdays and Sundays from 11:30 a.m. to 4:00 p.m. along the New River."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese and Pan-Asian flavors blended with Latin America traditions",
+    "why_here": "Casa Sensei blends Japanese and Pan-Asian flavors with the dynamic culinary traditions of Latin America in Fort Lauderdale. The menu includes Pad Thai, Lo Mein, Kimchi Fried Rice, Bulgogi, and Bao Buns, plus a full Omakase sushi bar.",
+    "know_before": "Monday hours are 4 p.m. to 10:30 p.m.; confirm current hours before visiting.",
+    "local_tip": "Brunch & Bubbles is offered Saturdays and Sundays along the New River.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.casasensei.com/"
+     ],
+     "why_here": [
+      "https://www.casasensei.com/"
+     ],
+     "know_before": [
+      "https://www.casasensei.com/"
+     ],
+     "local_tip": [
+      "https://www.casasensei.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Casa Sensei blends Japanese and Pan-Asian flavors with the dynamic culinary traditions of Latin America.",
+      "source": "https://www.casasensei.com/"
+     },
+     {
+      "claim": "The menu includes Pad Thai, Lo Mein, Kimchi Fried Rice, Bulgogi, and Bao Buns.",
+      "source": "https://www.casasensei.com/"
+     },
+     {
+      "claim": "Casa Sensei is at 1200 East Las Olas Blvd., Fort Lauderdale, FL 33301.",
+      "source": "https://www.casasensei.com/"
+     },
+     {
+      "claim": "Casa Sensei offers a full Omakase sushi bar.",
+      "source": "https://www.casasensei.com/"
+     },
+     {
+      "claim": "Monday hours are 4 p.m. to 10:30 p.m.",
+      "source": "https://www.casasensei.com/"
+     },
+     {
+      "claim": "Brunch & Bubbles is offered Saturdays and Sundays from 11:30 a.m. to 4:00 p.m. along the New River.",
+      "source": "https://www.casasensei.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1499oeOD3YgRgNwtXCblKY0",
+   "name": "Plaza Del Sol",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://plazadelsolkissimmee.com/public/faqs",
+     "source_name": "Plaza Del Sol \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Plaza del Sol is an indoor shopping mall in Kissimmee, Florida, with over 50 specialty shops.",
+      "Major tenants include Ollie's Bargain Outlet, Ross Dress for Less, dd's Discounts, Burlington, and Florida Technical College.",
+      "The mall has a food court offering snacks and full meals.",
+      "Parking is free at the mall.",
+      "The mall is open Monday to Saturday from 10 a.m. to 8 p.m., and on Sunday from 11 a.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor Kissimmee mall with over 50 specialty shops and a food court",
+    "why_here": "Plaza del Sol is an indoor shopping mall in Kissimmee with specialty shops and a food court. Major tenants listed by the mall include Ollie's Bargain Outlet, Ross Dress for Less, dd's Discounts, Burlington, and Florida Technical College.",
+    "know_before": "Parking is free at the mall, and the mall lists 2 electric vehicle charging stations.",
+    "local_tip": "Use the mall directory link on the official site to plan store stops.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://plazadelsolkissimmee.com/public/faqs"
+     ],
+     "why_here": [
+      "https://plazadelsolkissimmee.com/public/faqs"
+     ],
+     "know_before": [
+      "https://plazadelsolkissimmee.com/public/faqs"
+     ],
+     "local_tip": [
+      "https://plazadelsolkissimmee.com/public/faqs"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Plaza del Sol is an indoor shopping mall in Kissimmee, Florida, with over 50 specialty shops.",
+      "source": "https://plazadelsolkissimmee.com/public/faqs"
+     },
+     {
+      "claim": "Major tenants include Ollie's Bargain Outlet, Ross Dress for Less, dd's Discounts, Burlington, and Florida Technical College.",
+      "source": "https://plazadelsolkissimmee.com/public/faqs"
+     },
+     {
+      "claim": "The mall has a food court offering snacks and full meals.",
+      "source": "https://plazadelsolkissimmee.com/public/faqs"
+     },
+     {
+      "claim": "Parking is free at the mall.",
+      "source": "https://plazadelsolkissimmee.com/public/faqs"
+     },
+     {
+      "claim": "The mall is open Monday to Saturday from 10 a.m. to 8 p.m., and on Sunday from 11 a.m. to 7 p.m.",
+      "source": "https://plazadelsolkissimmee.com/public/faqs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqZhP6z1_54gR8PAoaIuhp0w",
+   "name": "Pirates Dinner Adventure",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://piratesdinneradventure.com/orlando/menu/",
+     "source_name": "Pirates Dinner Adventure \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pirates Dinner Adventure is in Orlando, FL.",
+      "The show is set aboard an 18th-century Spanish galleon with 40-foot masts.",
+      "The ship is anchored in a 300,000-gallon indoor lagoon.",
+      "The show features action, romance, music, and aerial stunts.",
+      "Audience members have a chance to come on stage and take part in the action."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner show aboard an 18th-century Spanish galleon",
+    "why_here": "Pirates Dinner Adventure in Orlando stages a show aboard an 18th-century Spanish galleon with 40-foot masts, anchored in a 300,000-gallon indoor lagoon. The show features action, romance, music, and aerial stunts.",
+    "know_before": "Audience members have a chance to come on stage and take part in the action.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://piratesdinneradventure.com/orlando/menu/"
+     ],
+     "why_here": [
+      "https://piratesdinneradventure.com/orlando/menu/"
+     ],
+     "know_before": [
+      "https://piratesdinneradventure.com/orlando/menu/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pirates Dinner Adventure is in Orlando, FL.",
+      "source": "https://piratesdinneradventure.com/orlando/menu/"
+     },
+     {
+      "claim": "The show is set aboard an 18th-century Spanish galleon with 40-foot masts.",
+      "source": "https://piratesdinneradventure.com/orlando/menu/"
+     },
+     {
+      "claim": "The ship is anchored in a 300,000-gallon indoor lagoon.",
+      "source": "https://piratesdinneradventure.com/orlando/menu/"
+     },
+     {
+      "claim": "The show features action, romance, music, and aerial stunts.",
+      "source": "https://piratesdinneradventure.com/orlando/menu/"
+     },
+     {
+      "claim": "Audience members have a chance to come on stage and take part in the action.",
+      "source": "https://piratesdinneradventure.com/orlando/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpe6QtIAN3YgRFMaY___bUv8",
+   "name": "LEGOLAND\u00ae Florida Water Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "water_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.legoland.com/florida/water-park/",
+     "source_name": "LEGOLAND\u00ae Florida Water Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "LEGOLAND Florida Water Park is located inside LEGOLAND Florida.",
+      "Same-day admission to LEGOLAND Florida and LEGOLAND Water Park is required for entry.",
+      "Twin Chasers run 375 feet down intertwining enclosed water slides.",
+      "Attractions include Joker Soaker, LEGO Wave Pool, and Build-A-Raft Lazy River.",
+      "Cabana rentals are offered at the water park."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Build-A-Raft Lazy River and Twin Chasers inside LEGOLAND Florida",
+    "why_here": "LEGOLAND Florida Water Park is located inside LEGOLAND Florida, with attractions including Joker Soaker, LEGO Wave Pool, and Build-A-Raft Lazy River. Twin Chasers run 375 feet down intertwining enclosed water slides.",
+    "know_before": "Same-day admission to LEGOLAND Florida and LEGOLAND Water Park is required for entry.",
+    "local_tip": "Cabana rentals are offered as an upgrade at the water park.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.legoland.com/florida/water-park/"
+     ],
+     "why_here": [
+      "https://www.legoland.com/florida/water-park/"
+     ],
+     "know_before": [
+      "https://www.legoland.com/florida/water-park/"
+     ],
+     "local_tip": [
+      "https://www.legoland.com/florida/water-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "LEGOLAND Florida Water Park is located inside LEGOLAND Florida.",
+      "source": "https://www.legoland.com/florida/water-park/"
+     },
+     {
+      "claim": "Same-day admission to LEGOLAND Florida and LEGOLAND Water Park is required for entry.",
+      "source": "https://www.legoland.com/florida/water-park/"
+     },
+     {
+      "claim": "Twin Chasers run 375 feet down intertwining enclosed water slides.",
+      "source": "https://www.legoland.com/florida/water-park/"
+     },
+     {
+      "claim": "Attractions include Joker Soaker, LEGO Wave Pool, and Build-A-Raft Lazy River.",
+      "source": "https://www.legoland.com/florida/water-park/"
+     },
+     {
+      "claim": "Cabana rentals are offered at the water park.",
+      "source": "https://www.legoland.com/florida/water-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ44sC7V4B2YgRY7AoBR2t48I",
+   "name": "Earls Kitchen + Bar",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://earls.ca/locations/las-olas/menu/",
+     "source_name": "Earls Kitchen + Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Earls Las Olas is located at 1002 East Las Olas Blvd. in Fort Lauderdale.",
+      "The menu includes Spicy California Roll.",
+      "The menu includes Earls Classic Burger.",
+      "The menu includes Cajun Blackened Chicken.",
+      "The menu lists a Seafood Tower described as serving 4-6."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Las Olas menu spans sushi, raw items, handhelds, and mains in Fort Lauderdale",
+    "why_here": "Earls Las Olas in Fort Lauderdale serves a menu organized around starters, sushi and raw items, handhelds, mains, and steaks. Listed dishes include Spicy California Roll, Earls Classic Burger, and Cajun Blackened Chicken.",
+    "know_before": "The Las Olas location is listed at 1002 East Las Olas Blvd. in Fort Lauderdale on the official Earls site.",
+    "local_tip": "The official menu lists a Seafood Tower described as serving 4-6.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://earls.ca/locations/las-olas/menu/"
+     ],
+     "why_here": [
+      "https://earls.ca/locations/las-olas/menu/"
+     ],
+     "know_before": [
+      "https://earls.ca/locations/las-olas/menu/"
+     ],
+     "local_tip": [
+      "https://earls.ca/locations/las-olas/menu/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Earls Las Olas is located at 1002 East Las Olas Blvd. in Fort Lauderdale.",
+      "source": "https://earls.ca/locations/las-olas/menu/"
+     },
+     {
+      "claim": "The menu includes Spicy California Roll.",
+      "source": "https://earls.ca/locations/las-olas/menu/"
+     },
+     {
+      "claim": "The menu includes Earls Classic Burger.",
+      "source": "https://earls.ca/locations/las-olas/menu/"
+     },
+     {
+      "claim": "The menu includes Cajun Blackened Chicken.",
+      "source": "https://earls.ca/locations/las-olas/menu/"
+     },
+     {
+      "claim": "The menu lists a Seafood Tower described as serving 4-6.",
+      "source": "https://earls.ca/locations/las-olas/menu/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu0jFtWc924gRf_9YuPnSc2w",
+   "name": "Lovers Key State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/park/lovers-key",
+     "source_name": "Lovers Key State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lovers Key State Park is open from 8 a.m. until sundown, 365 days a year.",
+      "The Discovery Center serves as the gateway to Lovers Key State Park.",
+      "The Discovery Center is open Tuesday through Saturday from 10 a.m. to 2 p.m.",
+      "The park's canals and lagoons are favorite grazing spots for manatee and shorebirds."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kayak canals and lagoons where manatee and shorebirds are seen",
+    "why_here": "Lovers Key State Park offers beach and estuary recreation, with canals and lagoons described by Florida State Parks as grazing spots for manatee and shorebirds. Its Discovery Center serves as the gateway to the park.",
+    "know_before": "The park is open from 8 a.m. until sundown, 365 days a year.",
+    "local_tip": "The Discovery Center is open Tuesday through Saturday from 10 a.m. to 2 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/park/lovers-key"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/park/lovers-key"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/park/lovers-key"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/park/lovers-key"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lovers Key State Park is open from 8 a.m. until sundown, 365 days a year.",
+      "source": "https://www.floridastateparks.org/park/lovers-key"
+     },
+     {
+      "claim": "The Discovery Center serves as the gateway to Lovers Key State Park.",
+      "source": "https://www.floridastateparks.org/park/lovers-key"
+     },
+     {
+      "claim": "The Discovery Center is open Tuesday through Saturday from 10 a.m. to 2 p.m.",
+      "source": "https://www.floridastateparks.org/park/lovers-key"
+     },
+     {
+      "claim": "The park's canals and lagoons are favorite grazing spots for manatee and shorebirds.",
+      "source": "https://www.floridastateparks.org/park/lovers-key"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbboSIGi32YgRmFVvBCOS50M",
+   "name": "Fiore Caffe Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fiorecaffemiami.com/",
+     "source_name": "Fiore Caffe Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fiore Caffe Miami serves breakfast, brunch, and lunch.",
+      "Fiore Caffe Miami is located at 228 SE 1st St in Miami."
+     ]
+    },
+    {
+     "source": "https://fiorecaffemiami.com/menu",
+     "source_name": "Fiore Caffe Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The menu includes The Matador."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Downtown Miami breakfast spot serving brunch and lunch items",
+    "why_here": "Fiore Caffe Miami serves breakfast, brunch, and lunch in Miami, according to its official site. Its official menu lists breakfast items including The Matador.",
+    "know_before": "The official site lists the location as 228 SE 1st St in Miami.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fiorecaffemiami.com/",
+      "https://fiorecaffemiami.com/menu"
+     ],
+     "why_here": [
+      "https://fiorecaffemiami.com/",
+      "https://fiorecaffemiami.com/menu"
+     ],
+     "know_before": [
+      "https://fiorecaffemiami.com/",
+      "https://fiorecaffemiami.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fiore Caffe Miami serves breakfast, brunch, and lunch.",
+      "source": "https://fiorecaffemiami.com/"
+     },
+     {
+      "claim": "Fiore Caffe Miami is located at 228 SE 1st St in Miami.",
+      "source": "https://fiorecaffemiami.com/"
+     },
+     {
+      "claim": "The menu includes The Matador.",
+      "source": "https://fiorecaffemiami.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJD3pO9kbV54gR4PxTcIt8AWE",
+   "name": "Paddock Mall",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://paddockmall.com/",
+     "source_name": "Paddock Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paddock Mall is located at 3100 SW College Rd, Ocala, FL 34474.",
+      "Paddock Mall is just off I-75.",
+      "Paddock Mall offers a kids' play area.",
+      "Paddock Mall lists spa treatment among its services.",
+      "Paddock Mall offers seasonal events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mall just off I-75 with a kids' play area in Ocala",
+    "why_here": "Paddock Mall in Ocala offers shopping just off I-75, with a kids' play area and spa treatment listed among its services. Seasonal events add another reason to stop beyond shopping alone.",
+    "know_before": "Paddock Mall is located at 3100 SW College Rd, Ocala, FL 34474; confirm current hours before visiting.",
+    "local_tip": "Look for the kids' play area and seasonal events during a visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://paddockmall.com/"
+     ],
+     "why_here": [
+      "https://paddockmall.com/"
+     ],
+     "know_before": [
+      "https://paddockmall.com/"
+     ],
+     "local_tip": [
+      "https://paddockmall.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paddock Mall is located at 3100 SW College Rd, Ocala, FL 34474.",
+      "source": "https://paddockmall.com/"
+     },
+     {
+      "claim": "Paddock Mall is just off I-75.",
+      "source": "https://paddockmall.com/"
+     },
+     {
+      "claim": "Paddock Mall offers a kids' play area.",
+      "source": "https://paddockmall.com/"
+     },
+     {
+      "claim": "Paddock Mall lists spa treatment among its services.",
+      "source": "https://paddockmall.com/"
+     },
+     {
+      "claim": "Paddock Mall offers seasonal events.",
+      "source": "https://paddockmall.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv4vocsW32YgRPxw8nJd0kM4",
+   "name": "Bombay Darbar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "indian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bombaydarbar.com/Menu.pdf",
+     "source_name": "Bombay Darbar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bombay Darbar's Miami location is listed as 2901 Florida Ave, Miami.",
+      "The menu includes Dal Soup.",
+      "The menu includes Mango Lassi.",
+      "The menu includes Vegetable Samosa.",
+      "The menu includes Saag Paneer."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Menu with Dal Soup, Vegetable Samosa, and Saag Paneer",
+    "why_here": "Bombay Darbar in Miami lists Dal Soup, Vegetable Samosa, Saag Paneer, and Mango Lassi on its menu. The Miami location is listed as 2901 Florida Ave, so the menu is the draw for a meal stop.",
+    "know_before": "The Miami location is listed as 2901 Florida Ave, Miami.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bombaydarbar.com/Menu.pdf"
+     ],
+     "why_here": [
+      "https://bombaydarbar.com/Menu.pdf"
+     ],
+     "know_before": [
+      "https://bombaydarbar.com/Menu.pdf"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bombay Darbar's Miami location is listed as 2901 Florida Ave, Miami.",
+      "source": "https://bombaydarbar.com/Menu.pdf"
+     },
+     {
+      "claim": "The menu includes Dal Soup.",
+      "source": "https://bombaydarbar.com/Menu.pdf"
+     },
+     {
+      "claim": "The menu includes Mango Lassi.",
+      "source": "https://bombaydarbar.com/Menu.pdf"
+     },
+     {
+      "claim": "The menu includes Vegetable Samosa.",
+      "source": "https://bombaydarbar.com/Menu.pdf"
+     },
+     {
+      "claim": "The menu includes Saag Paneer.",
+      "source": "https://bombaydarbar.com/Menu.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJz4vF5NO32YgRmVL7Rp1apUI",
+   "name": "La Ca\u00f1ita Bayside",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lacanitamiami.com/bayside/",
+     "source_name": "La Ca\u00f1ita Bayside \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Ca\u00f1ita brings Caribbean and Cuban food, live music, and a celebration of rum culture to Bayside Marketplace.",
+      "La Ca\u00f1ita celebrates food from Cuba, Jamaica, Haiti, Trinidad and Tobago, and Puerto Rico.",
+      "The menu includes Empanadas Criollas.",
+      "The menu includes Ropa Vieja.",
+      "Lunch is available Monday to Thursday from 11 a.m. to 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean and Cuban food with live music at Bayside Marketplace",
+    "why_here": "La Ca\u00f1ita brings Caribbean and Cuban food and live music to Bayside Marketplace, with a menu that celebrates food from Cuba, Jamaica, Haiti, Trinidad and Tobago, and Puerto Rico.",
+    "know_before": "Lunch is available Monday to Thursday from 11 a.m. to 4 p.m.",
+    "local_tip": "Try Empanadas Criollas or Ropa Vieja from the menu.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lacanitamiami.com/bayside/"
+     ],
+     "why_here": [
+      "https://www.lacanitamiami.com/bayside/"
+     ],
+     "know_before": [
+      "https://www.lacanitamiami.com/bayside/"
+     ],
+     "local_tip": [
+      "https://www.lacanitamiami.com/bayside/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Ca\u00f1ita brings Caribbean and Cuban food, live music, and a celebration of rum culture to Bayside Marketplace.",
+      "source": "https://www.lacanitamiami.com/bayside/"
+     },
+     {
+      "claim": "La Ca\u00f1ita celebrates food from Cuba, Jamaica, Haiti, Trinidad and Tobago, and Puerto Rico.",
+      "source": "https://www.lacanitamiami.com/bayside/"
+     },
+     {
+      "claim": "The menu includes Empanadas Criollas.",
+      "source": "https://www.lacanitamiami.com/bayside/"
+     },
+     {
+      "claim": "The menu includes Ropa Vieja.",
+      "source": "https://www.lacanitamiami.com/bayside/"
+     },
+     {
+      "claim": "Lunch is available Monday to Thursday from 11 a.m. to 4 p.m.",
+      "source": "https://www.lacanitamiami.com/bayside/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV5_ogrjA2YgRaNXJgRb9qEQ",
+   "name": "The Original Pancake House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ophfl.com/",
+     "source_name": "The Original Pancake House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The official site lists six locations across South Florida.",
+      "Original specialties include the apple pancake, oven-baked omelettes, and Dutch baby.",
+      "Official hours are Monday to Friday 7 a.m. to 2 p.m. and weekends 7 a.m. to 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oven-baked apple pancake and Dutch baby on the breakfast menu",
+    "why_here": "The official site lists six locations across South Florida and calls out original specialties including the apple pancake, oven-baked omelettes, and Dutch baby for a breakfast-focused stop.",
+    "know_before": "Hours are Monday to Friday 7 a.m. to 2 p.m. and weekends 7 a.m. to 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ophfl.com/"
+     ],
+     "why_here": [
+      "https://www.ophfl.com/"
+     ],
+     "know_before": [
+      "https://www.ophfl.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The official site lists six locations across South Florida.",
+      "source": "https://www.ophfl.com/"
+     },
+     {
+      "claim": "Original specialties include the apple pancake, oven-baked omelettes, and Dutch baby.",
+      "source": "https://www.ophfl.com/"
+     },
+     {
+      "claim": "Official hours are Monday to Friday 7 a.m. to 2 p.m. and weekends 7 a.m. to 3 p.m.",
+      "source": "https://www.ophfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQ-SxSAi92YgRE1QozDBGWQg",
+   "name": "Bonsai Sushi Bar",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "sushi_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bonsaisushius.com/",
+     "source_name": "Bonsai Sushi Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bonsai brings Japanese fusion to Doral and Coral Gables with signature rolls and poke bowls.",
+      "Happy Hour runs Monday to Friday in Doral from 4 p.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese fusion rolls and poke bowls in Doral and Coral Gables",
+    "why_here": "Bonsai brings Japanese fusion to Doral and Coral Gables, pairing signature rolls and poke bowls in a format that works for a weekday meal or an evening visit with friends.",
+    "know_before": "Happy Hour runs Monday to Friday in Doral from 4 p.m. to 7 p.m.",
+    "local_tip": "Visit during Happy Hour in Doral from 4 p.m. to 7 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bonsaisushius.com/"
+     ],
+     "why_here": [
+      "https://bonsaisushius.com/"
+     ],
+     "know_before": [
+      "https://bonsaisushius.com/"
+     ],
+     "local_tip": [
+      "https://bonsaisushius.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bonsai brings Japanese fusion to Doral and Coral Gables with signature rolls and poke bowls.",
+      "source": "https://bonsaisushius.com/"
+     },
+     {
+      "claim": "Happy Hour runs Monday to Friday in Doral from 4 p.m. to 7 p.m.",
+      "source": "https://bonsaisushius.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJx-Y0oZAB2YgRCjB0K5pdPfI",
+   "name": "Colombian Mountains Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "colombian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://colombianmountainscafe.com/",
+     "source_name": "Colombian Mountains Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The caf\u00e9 offers signature Bandeja de la Monta\u00f1a and Colombian coffee.",
+      "Friday is karaoke night and Saturday features live music or DJ."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bandeja de la Monta\u00f1a and Colombian coffee",
+    "why_here": "The caf\u00e9 offers signature Bandeja de la Monta\u00f1a and Colombian coffee, and the weekly calendar adds a karaoke night and a live music night for a longer caf\u00e9 visit.",
+    "know_before": "Friday is karaoke night and Saturday features live music or DJ.",
+    "local_tip": "Come on Friday for karaoke night.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://colombianmountainscafe.com/"
+     ],
+     "why_here": [
+      "https://colombianmountainscafe.com/"
+     ],
+     "know_before": [
+      "https://colombianmountainscafe.com/"
+     ],
+     "local_tip": [
+      "https://colombianmountainscafe.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The caf\u00e9 offers signature Bandeja de la Monta\u00f1a and Colombian coffee.",
+      "source": "https://colombianmountainscafe.com/"
+     },
+     {
+      "claim": "Friday is karaoke night and Saturday features live music or DJ.",
+      "source": "https://colombianmountainscafe.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ6cjuz-p-54gRAc1sHFB_jNo",
+   "name": "Victoria's Secret Outlet",
+   "category": "shopping",
+   "metro": "orlando",
+   "primary_type": "womens_clothing_store",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html",
+     "source_name": "Victoria's Secret Outlet \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The store is the Victoria's Secret & PINK Outlet at 4959 International Drive.",
+      "The outlet offers discounts on pajamas, activewear, and swimwear.",
+      "Store services include Beauty, Gifts, Lingerie, and PINK.",
+      "Store hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 11 a.m. to 7 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outlet pricing on pajamas, activewear, and swimwear on International Drive",
+    "why_here": "The Victoria's Secret & PINK Outlet at 4959 International Drive offers discounts on pajamas, activewear, and swimwear, with store services including Beauty, Gifts, Lingerie, and PINK.",
+    "know_before": "Store hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 11 a.m. to 7 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     ],
+     "why_here": [
+      "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     ],
+     "know_before": [
+      "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The store is the Victoria's Secret & PINK Outlet at 4959 International Drive.",
+      "source": "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     },
+     {
+      "claim": "The outlet offers discounts on pajamas, activewear, and swimwear.",
+      "source": "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     },
+     {
+      "claim": "Store services include Beauty, Gifts, Lingerie, and PINK.",
+      "source": "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     },
+     {
+      "claim": "Store hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 11 a.m. to 7 p.m.",
+      "source": "https://stores.victoriassecret.com/us/fl/orlando/lingerie-1493.html"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS_XQxU7wwogRp3bYLB10A_A",
+   "name": "Rumba Island Bar & Grill",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf",
+     "source_name": "Rumba Island Bar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Clearwater location is at 1800 Gulf to Bay Blvd, Clearwater, FL 33765.",
+      "The menu includes Island Handhelds.",
+      "Part of the menu is served 11:30 a.m. to 5:45 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Caribbean-leaning island handhelds and shrimp bisque on Gulf to Bay Boulevard",
+    "why_here": "Rumba's official menu lists island handhelds and appetizers for its Clearwater location on Gulf to Bay Boulevard. The official dinner menu PDF shows items served from 11:30 a.m. to 5:45 p.m. daily for part of the menu.",
+    "know_before": "The official menu lists the Clearwater address as 1800 Gulf to Bay Blvd, Clearwater, FL 33765.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf"
+     ],
+     "why_here": [
+      "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf"
+     ],
+     "know_before": [
+      "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Clearwater location is at 1800 Gulf to Bay Blvd, Clearwater, FL 33765.",
+      "source": "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf"
+     },
+     {
+      "claim": "The menu includes Island Handhelds.",
+      "source": "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf"
+     },
+     {
+      "claim": "Part of the menu is served 11:30 a.m. to 5:45 p.m. daily.",
+      "source": "https://rumbagrill.com/wp-content/uploads/2025/07/RUMBA_DinnerMenu_7.10.25.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJS0fk0SviwogRVpPveF0qH9w",
+   "name": "Hawkers Asian Street Food",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eathawkers.com/",
+     "source_name": "Hawkers Asian Street Food \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hawkers began in Orlando in 2011 bringing Asian street food flavors.",
+      "Family roots in Malaysia, Hong Kong, and Vietnam inspired the Asian street food.",
+      "The dining menu lists Roti Canai, two Malaysian flatbreads served with signature curry sauce."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Roti Canai and Asian street food flavors from Orlando",
+    "why_here": "Hawkers began in Orlando in 2011 bringing Asian street food flavors, with family roots in Malaysia, Hong Kong, and Vietnam shaping the menu and the dining room offer.",
+    "know_before": "The dining menu lists Roti Canai with signature curry sauce.",
+    "local_tip": "Try two Malaysian flatbreads with signature curry sauce.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eathawkers.com/"
+     ],
+     "why_here": [
+      "https://eathawkers.com/"
+     ],
+     "know_before": [
+      "https://eathawkers.com/"
+     ],
+     "local_tip": [
+      "https://eathawkers.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hawkers began in Orlando in 2011 bringing Asian street food flavors.",
+      "source": "https://eathawkers.com/"
+     },
+     {
+      "claim": "Family roots in Malaysia, Hong Kong, and Vietnam inspired the Asian street food.",
+      "source": "https://eathawkers.com/"
+     },
+     {
+      "claim": "The dining menu lists Roti Canai, two Malaysian flatbreads served with signature curry sauce.",
+      "source": "https://eathawkers.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUbwaEBZAkYgREjm8xEnkM2E",
+   "name": "Air Force Armament Museum",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://afarmamentmuseum.com/plan-your-visit/",
+     "source_name": "Air Force Armament Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Admission to the Museum is free and parking is free.",
+      "The interior of the museum is open 9 a.m. to 5 p.m. seven days a week.",
+      "The outside airpark is open from sunup to sundown."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free museum admission with an outside airpark open from sunup to sundown",
+    "why_here": "Admission to the Museum is free and parking is free, with an interior open seven days a week and an outside airpark that stays open from sunup to sundown each day.",
+    "know_before": "The interior is open 9 a.m. to 5 p.m. seven days a week.",
+    "local_tip": "Visit the outside airpark from sunup to sundown.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://afarmamentmuseum.com/plan-your-visit/"
+     ],
+     "why_here": [
+      "https://afarmamentmuseum.com/plan-your-visit/"
+     ],
+     "know_before": [
+      "https://afarmamentmuseum.com/plan-your-visit/"
+     ],
+     "local_tip": [
+      "https://afarmamentmuseum.com/plan-your-visit/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Admission to the Museum is free and parking is free.",
+      "source": "https://afarmamentmuseum.com/plan-your-visit/"
+     },
+     {
+      "claim": "The interior of the museum is open 9 a.m. to 5 p.m. seven days a week.",
+      "source": "https://afarmamentmuseum.com/plan-your-visit/"
+     },
+     {
+      "claim": "The outside airpark is open from sunup to sundown.",
+      "source": "https://afarmamentmuseum.com/plan-your-visit/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7TYg0QsC2YgR0k7Qv5dRMHY",
+   "name": "Kaluz Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/",
+     "source_name": "Kaluz Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kaluz Fort Lauderdale is located along the Intracoastal Waterway.",
+      "Standout dishes include Chilean Seabass, Filet Mignon, and Fire Grilled Artichoke.",
+      "Reservations are accepted for indoor dining only and patio dining is first come, first serve."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Intracoastal waterfront dining with Chilean seabass and filet mignon",
+    "why_here": "Kaluz's official Fort Lauderdale page says the restaurant sits along the Intracoastal Waterway and blends timeless favorites with innovative flavors. It names standout dishes including Chilean Seabass, Filet Mignon, and Fire Grilled Artichoke, with handcrafted cocktails and a curated wine selection.",
+    "know_before": "Reservations are accepted for indoor dining only, and patio dining is first come, first serve.",
+    "local_tip": "The official page says parties of 4 or less can make reservations directly through the website.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     ],
+     "why_here": [
+      "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     ],
+     "know_before": [
+      "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     ],
+     "local_tip": [
+      "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kaluz Fort Lauderdale is located along the Intracoastal Waterway.",
+      "source": "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     },
+     {
+      "claim": "Standout dishes include Chilean Seabass, Filet Mignon, and Fire Grilled Artichoke.",
+      "source": "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     },
+     {
+      "claim": "Reservations are accepted for indoor dining only and patio dining is first come, first serve.",
+      "source": "https://www.kaluzrestaurant.com/kaluz-fort-lauderdale/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7wS3CF8Y24gRuHTLhvhi0UM",
+   "name": "Coconut Jack's Waterfront Grille",
+   "category": "food",
+   "metro": "immokalee-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://coconutjacks.com/about-us/",
+     "source_name": "Coconut Jack's Waterfront Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Coconut Jack's is a waterfront restaurant overlooking the Back Bay near Bonita Beach.",
+      "The menu emphasis is fresh local seafood."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront dining overlooking the Back Bay near Bonita Beach",
+    "why_here": "Coconut Jack's is a waterfront restaurant overlooking the Back Bay near Bonita Beach, and the menu emphasis is fresh local seafood for lunch or dinner by the water.",
+    "know_before": "The menu emphasis is fresh local seafood.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://coconutjacks.com/about-us/"
+     ],
+     "why_here": [
+      "https://coconutjacks.com/about-us/"
+     ],
+     "know_before": [
+      "https://coconutjacks.com/about-us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Coconut Jack's is a waterfront restaurant overlooking the Back Bay near Bonita Beach.",
+      "source": "https://coconutjacks.com/about-us/"
+     },
+     {
+      "claim": "The menu emphasis is fresh local seafood.",
+      "source": "https://coconutjacks.com/about-us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfW8fEnWt2YgRpLHVb4Wf_Hg",
+   "name": "Oleta River State Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park",
+     "source_name": "Oleta River State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Park hours are 8 a.m. until sundown, 365 days a year.",
+      "Oleta River State Park has 1,043 acres.",
+      "Canoeing, kayaking and paddleboarding are popular at Oleta, with Biscayne Bay, mangrove trails and the Oleta River."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Kayaking and paddleboarding on the Oleta River and Biscayne Bay",
+    "why_here": "Oleta River State Park has 1,043 acres, offering canoeing, kayaking and paddleboarding toward Biscayne Bay, mangrove trails and the Oleta River for a day outdoors.",
+    "know_before": "Park hours are 8 a.m. until sundown, 365 days a year.",
+    "local_tip": "Try kayaking toward Biscayne Bay or the mangrove trails.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Park hours are 8 a.m. until sundown, 365 days a year.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     },
+     {
+      "claim": "Oleta River State Park has 1,043 acres.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     },
+     {
+      "claim": "Canoeing, kayaking and paddleboarding are popular at Oleta, with Biscayne Bay, mangrove trails and the Oleta River.",
+      "source": "https://www.floridastateparks.org/parks-and-trails/oleta-river-state-park"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvwS00mgn5IgRdR5IlMxNUp0",
+   "name": "Anastasia State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/anastasia",
+     "source_name": "Anastasia State Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Anastasia State Park covers 1,600 acres of beaches, tidal marshes and nature trails.",
+      "Anastasia State Park includes maritime hammocks, ancient sand dunes and a historic coquina quarry.",
+      "Wading birds hunt for food along Salt Run, including roseate spoonbills.",
+      "The park has 4 miles of shoreline beach and Atlantic waters.",
+      "Park hours are 8 a.m. to sunset.",
+      "Anastasia State Park is at 300 Anastasia Park Road, St. Augustine, FL 32080."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "1,600 acres of beaches, tidal marshes and nature trails",
+    "why_here": "Anastasia State Park covers 1,600 acres of beaches, tidal marshes and nature trails, with maritime hammocks, ancient sand dunes and a historic coquina quarry. Wading birds hunt along Salt Run, including roseate spoonbills.",
+    "know_before": "Park hours are 8 a.m. to sunset at 300 Anastasia Park Road, St. Augustine, FL 32080.",
+    "local_tip": "Walk the 4 miles of shoreline beach by the Atlantic waters.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/anastasia"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/anastasia"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/anastasia"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/anastasia"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Anastasia State Park covers 1,600 acres of beaches, tidal marshes and nature trails.",
+      "source": "https://www.floridastateparks.org/anastasia"
+     },
+     {
+      "claim": "Anastasia State Park includes maritime hammocks, ancient sand dunes and a historic coquina quarry.",
+      "source": "https://www.floridastateparks.org/anastasia"
+     },
+     {
+      "claim": "Wading birds hunt for food along Salt Run, including roseate spoonbills.",
+      "source": "https://www.floridastateparks.org/anastasia"
+     },
+     {
+      "claim": "The park has 4 miles of shoreline beach and Atlantic waters.",
+      "source": "https://www.floridastateparks.org/anastasia"
+     },
+     {
+      "claim": "Park hours are 8 a.m. to sunset.",
+      "source": "https://www.floridastateparks.org/anastasia"
+     },
+     {
+      "claim": "Anastasia State Park is at 300 Anastasia Park Road, St. Augustine, FL 32080.",
+      "source": "https://www.floridastateparks.org/anastasia"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTXzs98y-2YgRyh7W8MCcT-Y",
+   "name": "Dave & Buster's Miami",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daveandbusters.com/us/en/about/locations/miami",
+     "source_name": "Dave & Buster's Miami \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dave & Buster's Miami is located at 11481 NW 12th St., Miami.",
+      "Dave & Buster's Miami offers an arcade, a sports bar and a restaurant.",
+      "The menu includes burgers, steaks, salads and desserts.",
+      "The Eat & Play Combo pairs an entr\u00e9e with a $10 Power Card.",
+      "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m.",
+      "Screens show football, basketball and hockey games."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Arcade games, a sports bar and a restaurant in one venue",
+    "why_here": "Dave & Buster's Miami combines an arcade, a sports bar and a restaurant in Miami. The menu includes burgers, steaks, salads and desserts, with screens showing football, basketball and hockey games.",
+    "know_before": "Dave & Buster's Miami is located at 11481 NW 12th St., Miami.",
+    "local_tip": "The Eat & Play Combo pairs an entr\u00e9e with a $10 Power Card.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.daveandbusters.com/us/en/about/locations/miami"
+     ],
+     "why_here": [
+      "https://www.daveandbusters.com/us/en/about/locations/miami"
+     ],
+     "know_before": [
+      "https://www.daveandbusters.com/us/en/about/locations/miami"
+     ],
+     "local_tip": [
+      "https://www.daveandbusters.com/us/en/about/locations/miami"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dave & Buster's Miami is located at 11481 NW 12th St., Miami.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/miami"
+     },
+     {
+      "claim": "Dave & Buster's Miami offers an arcade, a sports bar and a restaurant.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/miami"
+     },
+     {
+      "claim": "The menu includes burgers, steaks, salads and desserts.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/miami"
+     },
+     {
+      "claim": "The Eat & Play Combo pairs an entr\u00e9e with a $10 Power Card.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/miami"
+     },
+     {
+      "claim": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/miami"
+     },
+     {
+      "claim": "Screens show football, basketball and hockey games.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/miami"
+     }
+    ]
+   }
+  }
+ ]
+}
