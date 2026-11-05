@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped, effectiveCap, gateMode } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -71,7 +71,7 @@ import { sbEnv } from "../../../../lib/serverCache";
 import { recordPulse, budgetLimitNote, readLedgerUsage } from "../../../../lib/jobPulse";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../../../../lib/promoteIndex";
 import { clampBatchLimit, nextBatchLimit } from "../../../../lib/promoteThrottle";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../../../../lib/promoteDetails";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../../../../lib/promoteDetails";
 import { jobFailed } from "../../../../lib/jobFail";
 
 export const runtime = "nodejs";
@@ -353,8 +353,13 @@ export async function GET(req) {
   let quotaKind = null;     // "quota_daily" | "rate_limited" once Google says no
 
   let budgetExhausted = false;
-  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, its own free allowance)
-  let ratingSkipped = 0; // ... and could not (Enterprise ledger said no) — promoted from CORE, no stars yet
+  let ratingBought = 0; // places that had no index rating and bought it (Enterprise, within promotion's half of the line)
+  let ratingSkipped = 0; // ... and could not (promotion's share spent, or the Enterprise ledger said no) — promoted from CORE, no stars yet
+  // Promotion's share of the shared Enterprise line (lib/promoteDetails.js
+  // PROMOTE_RATING_SHARE): read the month's usage ONCE per run; past the share,
+  // no rating buys this run. The ledger's own cap still applies underneath.
+  const ratingUsage = await readLedgerUsage(RATING_SKU);
+  const ratingFreeLine = effectiveCap(RATING_SKU, monthCap);
   for (const item of claimed) {
     if (budgetExhausted) { released.push(item.place_id); continue; }
     if (quotaKind) { quotaReleased.push(item.place_id); continue; }
@@ -368,7 +373,7 @@ export async function GET(req) {
     // place in this batch would be refused too, so stop asking and hand them back.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, monthCap))) {
+    if (!hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine) && (await spendAllowCapped(RATING_SKU, monthCap))) {
       mask = RATING_DETAILS_MASK; ratingBought++;
     } else {
       if (!hasIndexRating(sig)) ratingSkipped++;
@@ -389,8 +394,18 @@ export async function GET(req) {
       if (d.quota) {
         // Google's quota, not the place. Park this one and the rest of the
         // batch with the attempt refunded, instead of burning toward a reject.
+        // THE LEDGER GRANT IS REFUNDED TOO (2026-11-03). The grant above was
+        // taken before the call; Google bills OK / NOT_FOUND / INVALID_REQUEST
+        // only, never a 429 (lib/spendGate.js refund note). Leaving it counted
+        // is how details_enterprise read 950/950 and details_pro 5,6xx within
+        // the first hours of 2026-11-01 (promote ramped 5->50 places per 5-min
+        // run into the daily-quota 429, each unbilled answer keeping its
+        // grant), which starved user-facing enrichment (lib/placeDetails.js)
+        // and the inventory refresh for the rest of the month and paged
+        // spend-pacing with "capped by day 2".
         quotaKind = d.quota;
         quotaReleased.push(item.place_id);
+        await refundToLedger(requestSku, 1);
         continue;
       }
       (d.terminal ? rejects : retries).push({ place_id: item.place_id, name: item.name, error: d.error });

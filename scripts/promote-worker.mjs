@@ -38,7 +38,7 @@
 import { readFileSync, appendFileSync } from "node:fs";
 import { decidePromotion, dedupeById, partitionSplitVenues, PROMOTE_METROS, metrosFromRows } from "../lib/promoteIndex.js";
 import { clampBatchLimit } from "../lib/promoteThrottle.js";
-import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset } from "../lib/promoteDetails.js";
+import { CORE_DETAILS_MASK, RATING_DETAILS_MASK, PROMOTE_SKU, RATING_SKU, withIndexSignals, hasIndexRating, classifyDetailsFailure, minutesUntilQuotaReset, ratingBuyAllowed } from "../lib/promoteDetails.js";
 
 // ── env (never logged) ──────────────────────────────────────────────────────
 const ENV = {};
@@ -91,7 +91,7 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // exactly the two names it needs, then import it. WAYFIND_GATE must be set
 // explicitly to free or open; an unset or mistyped value shuts spend down.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
-const { spendAllowCapped, effectiveCap, gateMode } = await import("../lib/spendGate.js");
+const { spendAllowCapped, effectiveCap, gateMode, refundToLedger } = await import("../lib/spendGate.js");
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -238,6 +238,12 @@ while (T.claimed < TOTAL) {
   const indexSignals = await fetchIndexSignals(claimed.map((c) => c.place_id));
   let budgetExhausted = false;
   let quotaKind = null;
+  // Promotion's share of the shared Enterprise line (lib/promoteDetails.js
+  // PROMOTE_RATING_SHARE), same rule as the cron: one ledger read per batch.
+  const { readLedgerUsage } = await import("../lib/jobPulse.js");
+  const ratingUsage = await readLedgerUsage(RATING_SKU);
+  const ratingFreeLine = effectiveCap(RATING_SKU, MONTH_CAP);
+  let ratingBought = 0;
   const results = await pmap(claimed, CONC, async (item) => {
     if (budgetExhausted) return { item, kind: "release" };
     if (quotaKind) return { item, kind: "quota" };
@@ -248,14 +254,15 @@ while (T.claimed < TOTAL) {
     // promotion budget running out; stop asking.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
-      mask = RATING_DETAILS_MASK;
+    if (!hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
+      mask = RATING_DETAILS_MASK; ratingBought++;
     } else if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
       budgetExhausted = true;
       return { item, kind: "release" };
     }
     const d = await details(item.place_id, mask);
-    if (!d.ok && d.quota) { quotaKind = d.quota; return { item, kind: "quota", error: d.error }; }
+    // A 429 is unbilled by Google: give the pre-call ledger grant back (same rule as the cron, 2026-11-03).
+    if (!d.ok && d.quota) { quotaKind = d.quota; await refundToLedger(mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU, 1); return { item, kind: "quota", error: d.error }; }
     if (!d.ok) return { item, kind: d.terminal ? "reject" : "retry", error: d.error };
     const place = withIndexSignals(d.place, sig);
     const v = decidePromotion(place, item.metro, new Date().toISOString(), null, METROS);
