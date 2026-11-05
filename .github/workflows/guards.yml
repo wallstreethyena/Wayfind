@@ -35,7 +35,11 @@ jobs:
   guards:
     name: guards
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 2026-11-05: 96 runs since 11-03 had p50 15.5 min and p90 17.9 min against
+    # the old 20-minute ceiling; PR #2253 was cancelled at 20m15s with the suite
+    # at guard 1014/1049 (no single guard hung). 30 restores headroom without
+    # skipping or weakening any guard; a real hang still fails at 30.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
