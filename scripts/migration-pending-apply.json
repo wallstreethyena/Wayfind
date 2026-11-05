@@ -54,12 +54,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 held event recheck guard (owner approved 2026-11-05)",
     "reason": "Write-time guard for held events (postponed / uncertain / unannounced with a start_date today or later): a write leaving no recheck_on sets today (ET) + 2 in the same statement, and a still-future recheck_on can be moved earlier but never later or cleared. Owner approved applying it 2026-11-05; this session's apply_migration call was refused by its automatic permission check ([Production Deploy]) and the session has no Management API credential for scripts/apply-migration.mjs, so it is declared pending until applied with the runner."
-  },
-  {
-    "file": "supabase/migrations/20261105120000_wf_inventory_postal_city_orpheum.sql",
-    "sha256": "832199d1c5e39996f875a5823ae6d10d4def79e910fab8088c80bf844fa7768e",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2170 postal_city model: CDP backfill (owner approve all 2026-11-05)",
-    "reason": "NOT APPLIED. Data only, 1 wf_inventory row: postal_city Tampa for The Orpheum (Census locality University CDP), from its wf_events listing address agreeing with the US Census address match TAMPA 33613. Survey found no other row with owned address evidence of a differing mailing city. Reverse supabase/data-fixes/20261105120000_wf_inventory_postal_city_orpheum_REVERSE.sql."
   }
 ]
