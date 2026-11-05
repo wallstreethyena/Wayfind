@@ -24,8 +24,9 @@ import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christ
 
 // Exercise the production entry in CI too, so loading React too early cannot
 // pass CI and then break Vercel's production prebuild again.
-if (process.env.NODE_ENV !== "production") {
-  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...process.argv.slice(2)], {
+const PRODUCTION_WORKER = "--production-env-worker";
+if (!process.argv.includes(PRODUCTION_WORKER)) {
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), ...process.argv.slice(2), PRODUCTION_WORKER], {
     env: { ...process.env, NODE_ENV: "production" }, stdio: "inherit", timeout: 120000,
   });
   if (child.error) throw child.error;
