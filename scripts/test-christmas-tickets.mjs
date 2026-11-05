@@ -41,9 +41,19 @@ const read = (f) => readFileSync(path.join(root, f), "utf8");
 // A public image path and a 200 response are insufficient: an empty binary upload
 // previously shipped with both. Lock the actual deployable bytes to the review.
 for (const photo of JSON.parse(read("docs/curation/christmas-venue-photos-2026-11-04.json")).images) {
-  const bytes = readFileSync(path.join(root, "public", photo.local_path.slice(1)));
-  ok(bytes.length === photo.bytes && createHash("sha256").update(bytes).digest("hex") === photo.sha256,
-    "Christmas venue photo contains the exact reviewed bytes: " + photo.local_path);
+  for (const assetPath of [photo.local_path, ...(photo.legacy_paths || [])]) {
+    const bytes = readFileSync(path.join(root, "public", assetPath.slice(1)));
+    ok(bytes.length === photo.bytes && createHash("sha256").update(bytes).digest("hex") === photo.sha256,
+      "Christmas venue photo contains the exact reviewed bytes: " + assetPath);
+  }
+  if (photo.legacy_paths?.length) {
+    ok(path.basename(photo.local_path) === "venue-" + photo.sha256.slice(0, 16) + ".webp" && !photo.legacy_paths.includes(photo.local_path),
+      "a repaired photo gets a fresh content-addressed URL for returning browsers: " + photo.local_path);
+  }
+  for (const id of photo.event_ids) {
+    ok(christmasStaticPhotos(id).some((p) => p.src === photo.local_path && p.context === "venue"),
+      "the event gallery serves its reviewed venue photo URL: " + id);
+  }
 }
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
