@@ -458,7 +458,7 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         const c = map.getCenter();
         const here = { lat: c.lat, lng: c.lng };
         // MapLibre sets originalEvent only on a user gesture; a fitBounds settle has none.
-        cb(fitSettleRef.current.settle(here, searchOriginRef.current, !!(e && e.originalEvent)));
+        cb(fitSettleRef.current.afterMove(here, searchOriginRef.current, !!(e && e.originalEvent)));
       } catch (err) {}
     });
     map.on("click", "wf-place-clusters", (event) => {
