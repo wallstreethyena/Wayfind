@@ -40,24 +40,6 @@
    "bytes": 158662
   },
   {
-   "event_id": "lake-nona-oh-what-fun-2026",
-   "slug": "lake-nona-oh-what-fun-2026",
-   "file": "/place-photos/batch-2026-11p/lake-nona-oh-what-fun-2026/xm_2d1c14ca5a3494b7.jpg",
-   "commons_file": "File:Lakenonatowncenter.jpg",
-   "commons_sha1": "b6ea5b9ee2b9c28ce24b72f95183c0fe061b777a",
-   "source_url": "https://commons.wikimedia.org/wiki/File:Lakenonatowncenter.jpg",
-   "original_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Lakenonatowncenter.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "license": "CC BY-SA 4.0",
-   "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
-   "author": "PoultrySaga",
-   "photo_year": 2024,
-   "subject_match": "venue",
-   "notes": "Lake Nona Town Center looking toward the Disco Dog statue; daytime exact venue. Alt: Lake Nona Town Center - panoramio.jpg (CC BY 3.0, East Park).",
-   "verified_at": "2026-11-04",
-   "size": "1280x859",
-   "bytes": 157832
-  },
-  {
    "event_id": "light-up-clermont-2026",
    "slug": "light-up-clermont-2026",
    "file": "/place-photos/batch-2026-11p/light-up-clermont-2026/xm_7c8f3ed47925c4e5.jpg",
@@ -92,24 +74,6 @@
    "verified_at": "2026-11-04",
    "size": "1280x915",
    "bytes": 162483
-  },
-  {
-   "event_id": "lakeland-snowfest-2026",
-   "slug": "lakeland-snowfest-2026",
-   "file": "/place-photos/batch-2026-11p/lakeland-snowfest-2026/xm_18e992c1422ef749.jpg",
-   "commons_file": "File:Lake_Mirror_Lakeland_Florida_September_2024.jpg",
-   "commons_sha1": "7e5b45ed3bbac0d510a307cae9860b8e744aabd5",
-   "source_url": "https://commons.wikimedia.org/wiki/File:Lake_Mirror_Lakeland_Florida_September_2024.jpg",
-   "original_url": "https://upload.wikimedia.org/wikipedia/commons/8/88/Lake_Mirror_Lakeland_Florida_September_2024.jpg?utm_source=commons.wikimedia.org&utm_campaign=imageinfo&utm_content=original",
-   "license": "CC BY 4.0",
-   "license_url": "https://creativecommons.org/licenses/by/4.0",
-   "author": "Trevorrrrvalent",
-   "photo_year": 2024,
-   "subject_match": "venue",
-   "notes": "Lake Mirror, Lakeland, daytime; Frances Langford Promenade is on its shore. Venue by day, not the event.",
-   "verified_at": "2026-11-04",
-   "size": "1280x853",
-   "bytes": 191851
   },
   {
    "event_id": "brooksville-christmas-on-main-2026",
@@ -237,5 +201,6 @@
    "size": "1280x960",
    "bytes": 269531
   }
- ]
+ ],
+ "note": "lake-nona-oh-what-fun-2026 and lakeland-snowfest-2026 were dropped from this batch: batch-2026-11o (#2207) shipped Commons venue photos for them first."
 }

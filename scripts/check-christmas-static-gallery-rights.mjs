@@ -21,12 +21,12 @@ ok(FREE.test("CC BY-SA 4.0") && FREE.test("CC0") && FREE.test("CC BY 2.0"), "lic
 ok(!FREE.test("CC BY-NC 4.0") && !FREE.test("CC BY-ND 2.0") && !FREE.test("All rights reserved"), "licence pattern rejects NC, ND and all rights reserved (control)");
 
 const prov = JSON.parse(fs.readFileSync(path.join(root, "data/christmas-static-gallery-provenance.json"), "utf8"));
-ok(Array.isArray(prov.photos) && prov.photos.length >= 13, "provenance file lists the batch (" + (prov.photos || []).length + " rows)");
+ok(Array.isArray(prov.photos) && prov.photos.length >= 11, "provenance file lists the batch (" + (prov.photos || []).length + " rows)");
 const provByFile = new Map(prov.photos.map((p) => [p.file, p]));
 
 const licensed = [];
 for (const [id, list] of Object.entries(CHRISTMAS_STATIC_GALLERY)) for (const e of list) if ("license" in e) licensed.push({ id, ...e });
-ok(licensed.length >= 13, "licensed gallery entries exist (" + licensed.length + ")");
+ok(licensed.length >= 11, "licensed gallery entries exist (" + licensed.length + ")");
 const bad = [];
 const seen = new Map();
 for (const e of licensed) {

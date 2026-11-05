@@ -7,9 +7,16 @@
 // partner or the commission.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
-import { createElement } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
+// act() is a test-only React API. Vercel invokes guards with NODE_ENV=production;
+// select the test runtime before React loads, as the coupon and reanchor guards do.
+// This only changes this guard process, never the build process that launched it.
+process.env.NODE_ENV = "test";
+const { act, createElement, useState } = await import("react");
+const { renderToStaticMarkup } = await import("react-dom/server");
 import { loadComponent } from "./lib/jsxLoad.mjs";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery } from "../lib/christmasBrowse.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
@@ -30,6 +37,14 @@ const ok = (c, m) => { assert.ok(c, m); checks += 1; };
 const DASH = /[–—]|\s-\s|\d\s*-\s*\d/;
 const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const read = (f) => readFileSync(path.join(root, f), "utf8");
+
+// A public image path and a 200 response are insufficient: an empty binary upload
+// previously shipped with both. Lock the actual deployable bytes to the review.
+for (const photo of JSON.parse(read("docs/curation/christmas-venue-photos-2026-11-04.json")).images) {
+  const bytes = readFileSync(path.join(root, "public", photo.local_path.slice(1)));
+  ok(bytes.length === photo.bytes && createHash("sha256").update(bytes).digest("hex") === photo.sha256,
+    "Christmas venue photo contains the exact reviewed bytes: " + photo.local_path);
+}
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 const TODAY = "2026-11-20";
@@ -325,19 +340,19 @@ ok(!html.includes("xm-bloom") && html.includes('data-pattern="twinkle"') && html
 // off the page. The header is the logo plus one way back to Wayfind, nothing else.
 ok(html.includes('class="xm-goto" href="/"') && html.includes('class="wf-wordmark') && !/wf-navtab|wf-search-row|wf-dest/.test(html), "the header is only the logo and Go to Wayfind: no category tabs, search bar or shortcut row");
 ok(/<canvas[^>]*class="xm-snow"[^>]*aria-hidden="true"/.test(html) && /\.xm-snow\{[^}]*pointer-events:none/.test(html) && /\.xm-snow\{[^}]*z-index:1/.test(html) && /\.xm-main\{[^}]*z-index:2/.test(html), "the snow is hidden from assistive tech, ignores pointer events and sits behind the content");
-ok(html.indexOf('class="xm-filters"') > 0 && html.indexOf('class="xm-filters"') < html.indexOf('data-ticket-id="'), "the pill menu comes before every card");
-ok(/aria-pressed="true"[^>]*>All</.test(html) && html.includes(">Light shows<") && html.includes(">Theme parks<"), "the pill row starts on All and offers Light shows and Theme parks");
-const pillLabels = [...html.matchAll(/<button type="button" aria-pressed="(?:true|false)">([^<]+)<\/button>/g)].map((m) => m[1]);
-ok(pillLabels[0] === "All" && pillLabels.length === 1 + pillsOf(partnerList).length, "only pills for categories that have listings render (" + pillLabels.join(", ") + ")");
-ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"') && html.includes('aria-label="Search by name or city"'), "the dropdown clutter is gone; search remains");
+ok(html.indexOf('class="xm-controls"') > 0 && html.indexOf('class="xm-controls"') < html.indexOf('data-ticket-id="'), "one compact control precedes the ticket cards");
+ok(!html.includes('class="xm-filters"'), "the hidden horizontal category rail is removed");
+ok(!html.includes('type="search"') && !html.includes('role="search"') && !html.includes('Search by name or city'), "search is absent from the rendered Christmas menu");
+ok(!html.includes('type="date"') && !html.includes('aria-label="Price"') && !html.includes('aria-label="Who it is for"'), "extra dropdown clutter stays removed");
 // Owner 2026-11-01 ("Why dint we use this filter? … Please fix it"): the list
 // uses the site's one filter pill (CollectionFilter look), not its own region
 // <select> and "Nearest to me" button.
-ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
+ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.includes('aria-haspopup="dialog"') && !html.includes('aria-label="Region"') && !html.includes("Nearest to me"), "the list is filtered by the standard filter pill, with no region select or nearest button beside it");
 {
   const f = strip(read("app/components/ChristmasFilter.js"));
-  ok(/"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /stroke="#F97316"/.test(f) && /background: "#161D2B"/.test(f),
-    "the filter offers order (tickets first, closest), when and region, in the CollectionFilter pill style");
+  ok(/"Tickets"/.test(f) && /"Tickets first"/.test(f) && /"Closest first"/.test(f) && /onSet\("when"/.test(f) && /onSet\("region"/.test(f) && /onSet\("category"/.test(f),
+    "Tickets is the default and the one menu offers categories, date, region and optional distance");
+  ok(/createPortal/.test(f) && /aria-modal="true"/.test(f) && /Escape/.test(f) && /event.shiftKey/.test(f) && /#E8B48A/.test(f) && /#3E0C19/.test(f), "the holiday menu is a burgundy and gold modal with Escape, a focus trap and a body portal");
 }
 {
   const cardsHtml = html.slice(html.indexOf('data-ticket-id="'));
@@ -359,7 +374,7 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   ok(!/\.ticket\b|commission|cpa|payout|rate/i.test(lib.slice(lib.indexOf("function merit"), lib.indexOf("export function christmasTicketsModel"))), "the merit sort reads no ticket, commission or payout field");
   const page = strip(read("app/christmas-in-florida/page.js"));
   ok(/export const revalidate = 3600/.test(page) && /canonical: SITE_URL \+ "\/christmas-in-florida"/.test(page), "the page keeps revalidate and the canonical URL");
-  ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && /id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders the tickets with the browse, the watchlist and the existing ItemList");
+  ok(/<ChristmasTickets /.test(page) && /browse=\{/.test(page) && /<ChristmasBrowse /.test(page) && !/id="watchlist"/.test(page) && /"@type": "ItemList"/.test(page), "the page renders tickets and browse without the internal research watchlist, preserving ItemList");
   ok(/<SeasonalSearchHub slug="christmas-in-florida" today=\{today\} seoOnly/.test(page), "the SEO guide content stays on the page");
   const strings = (page.match(/"[^"\n]{3,}"|`[^`\n]{3,}`|>[^<>{}\n]{3,}</g) || []).filter((t) => /[–—]| - /.test(t) && !/RX|regex|replace/.test(t));
   ok(strings.length === 0, "the page copy has no punctuation dash");
@@ -376,7 +391,7 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   const clearBodies = (html.match(/<div class="xm-body" data-boo-clear="">/g) || []).length;
   ok(cards > 0 && clearBodies === cards, "every card text column is marked data-boo-clear (" + clearBodies + "/" + cards + ")");
   ok(/<div class="xm-hero" id="xm-hero" data-boo-clear="">/.test(html), "the hero is marked data-boo-clear");
-  ok(/<div class="xm-filters" data-boo-clear=""/.test(html), "the filter pill row is marked data-boo-clear");
+  ok(/<div class="xm-controls" data-boo-clear=""/.test(html), "the compact menu is marked data-boo-clear");
   const boo = read("app/components/BooCompanion.js");
   const rs = boo.match(/const READ_SEL = "([^"]+)"/);
   ok(rs && rs[1].split(",").includes("[data-boo-clear]"), "BooCompanion READ_SEL still honours [data-boo-clear]");
@@ -486,6 +501,15 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   ok(flags.slice(0, 8).filter(Boolean).length >= 1 && (firstNo < 0 || !flags.slice(firstNo).includes(true)), "events with a real way in come first on the first page, then the rest in date order");
   const src = strip(read("lib/christmasBrowse.js"));
   ok(!/commission|payout|\bcpa\b/i.test(src.slice(src.indexOf("function ticketTier"), src.indexOf("export function sortChristmasBrowse"))), "the ticket tier reads no commission, payout or partner rate");
+  const popular = base({ id: "popular", popularity_score: 9, start_date: "2026-12-10" });
+  const quieter = base({ id: "quieter", popularity_score: 3, start_date: "2026-12-01" });
+  const unknown = base({ id: "unknown", popularity_score: null });
+  const noTicket = base({ id: "no-ticket", official_ticket_url: "", popularity_score: 10 });
+  const ranked = b.sortChristmasBrowse([unknown, quieter, noTicket, popular], b.parseChristmasBrowseQuery({}), day);
+  ok(ranked.map((c) => c.id).join(",") === "popular,quieter,unknown,no-ticket", "default ranking puts ticketed choices first and popularity ahead of date within the ticket tier");
+  ok(b.sortChristmasBrowse([unknown, base({ id: "zero", popularity_score: 0, local_rank: 0 })], b.parseChristmasBrowseQuery({}), day)[0].id === "zero", "measured PredictHQ zero remains distinct from unknown demand");
+  ok(!/storedPinFresh|wf_center|maximumAge/.test(strip(read("app/components/ChristmasBrowse.js"))), "saved location cannot automatically override Tickets");
+  ok(b.sortChristmasBrowse([unknown, base({ id: "zero-default", popularity_score: 0, start_date: "2026-12-20" })], b.parseChristmasBrowseQuery({}), day)[0].id === "unknown", "the database default curated zero is unassessed and uses the date fallback");
   // ticketed cards keep their photo galleries inside the one list
   {
     const { withBrowseTicketPhotos: withPhotos, attachBrowseTickets: attach } = await import("../lib/christmasTickets.js");
@@ -495,6 +519,9 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
     const shotsFor = (n) => Array.from({ length: n }, (_, i) => ({ src: "/events/christmas/g" + i + ".jpg", alt: "Photo of Fixture Park", credit: "Photo by Fixture " + i, creditHref: "https://example.org/" + i }));
     const out = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async (id) => (id === "gal-1" ? shotsFor(3) : []), readGoogle: async () => null, readVault: async () => [] });
     ok(out.cards[0].ticketRow.photos.length === 3 && out.cards[1].ticketRow.cta === null && !out.cards[1].ticketRow.photos, "a ticketed card carries its photo gallery; a card whose reader returns nothing keeps its own photo");
+    const singleton = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async (id) => id === "gal-2" ? [{ ...shotsFor(1)[0], context: "venue" }] : [], readGoogle: async () => null, readVault: async () => [] });
+    ok(singleton.cards[1].photos?.length === 1 && singleton.cards[1].ticketRow.photos?.length === 1 && singleton.cards[1].photos[0].context === "venue", "a local event with one exact tagged venue photo keeps it in the browse and ticket row");
+    ok(!pageIn.cards[1].photos && !pageIn.cards[1].ticketRow.photos, "attaching a single venue photo does not mutate the cached browse page");
     const tropical = base({ id: "christmas-wonderland-miami-2026", slug: "christmas-wonderland-miami-2026", official_ticket_url: "", place_id: "ChIJcxJRMYe42YgRDSlj6Z_CDxk", image: "/api/photo?place=ChIJcxJRMYe42YgRDSlj6Z_CDxk&g=2&w=640", detailHref: "/florida-events/christmas-wonderland-miami-2026" });
     const six = shotsFor(6);
     const legoland = base({ id: "legoland-fl-holidays-2026", slug: "holidays-at-legoland-florida-2026", official_ticket_url: "", place_id: "wfadd_legoland_florida", image: "/events/christmas/legoland-christmas-bricktacular-2026.webp", photoAttr: "A. Heneen · CC BY-SA", detailHref: "/florida-events/holidays-at-legoland-florida-2026" });
@@ -513,6 +540,8 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
     const { ChristmasBrowseCard: Card } = await loadComponent(path.join(root, "app/components/ChristmasBrowse.js"), root);
     const tropicalHtml = renderToStaticMarkup(createElement(Card, { card: tropicalOut, rank: 1, today: TODAY }));
     ok((tropicalHtml.match(/class="xm-slide"/g) || []).length === 6, "the guide card renders all 6 Tropical Park photos");
+    const venueHtml = renderToStaticMarkup(createElement(Card, { card: singleton.cards[1], rank: 1, today: TODAY }));
+    ok(venueHtml.includes("Venue photo") && venueHtml.includes(shotsFor(1)[0].src) && !venueHtml.includes('class="xm-dots"'), "one venue photo renders with honest context and no empty swipe control");
     const galleryHtml = renderToStaticMarkup(createElement(Card, { card: out.cards[0], rank: 1, today: TODAY }));
     ok((galleryHtml.match(/class="xm-slide"/g) || []).length === 3 && galleryHtml.includes('class="xm-dots"'), "the gallery renders as the swipeable photo strip with dots on the one card");
     const failed = await withPhotos(pageIn, [ev, noTicket], TODAY, new Map(), { noMemo: true, readTagged: async () => { throw new Error("down"); }, readGoogle: async () => { throw new Error("down"); }, readVault: async () => { throw new Error("down"); } });
@@ -535,6 +564,57 @@ ok(html.includes("data-christmas-filter") && html.includes("Tickets first") && h
   ok(/wf_photo_url_dedupe_backup_20261101c/.test(dedupe) && /enable row level security/.test(dedupe) && /on conflict \(place_id\) do nothing/.test(dedupe), "the dedupe snapshots the rows once and locks the backup table");
   ok(/jsonb_set/.test(dedupe) && dedupe.includes("'{photos}'") && dedupe.includes("'{photo_gallery}'") && /distinct on \(s\.key\)/.test(dedupe), "the dedupe removes a repeated url from photos and photo_gallery");
   ok(/wf_photo_url_dedupe_backup_20261101c/.test(undo) && undo.includes("'{photos}'") && undo.includes("'{photo_gallery}'") && !/drop table/i.test(undo), "undo copies both arrays back and leaves the snapshot table");
+}
+
+// Exercise the actual holiday sheet, including keyboard and touch-style choices.
+{
+  const { JSDOM } = await import("jsdom");
+  const { createRoot } = await import("react-dom/client");
+  const { default: Filter } = await loadComponent(path.join(root, "app/components/ChristmasFilter.js"), root);
+  const prior = Object.fromEntries(["window", "document", "CustomEvent", "IS_REACT_ACT_ENVIRONMENT"].map((k) => [k, globalThis[k]]));
+  const dom = new JSDOM('<div id="menu-test"></div>', { url: "https://example.org/christmas-in-florida" });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, CustomEvent: dom.window.CustomEvent, IS_REACT_ACT_ENVIRONMENT: true });
+  let queryNow;
+  function Harness() {
+    const [query, set] = useState({}); queryNow = query;
+    return createElement(Filter, { query, facets: { pills: [{ id: "lights", label: "Light shows" }], dates: [{ id: "weekend", label: "This weekend" }], regions: ["Tampa Bay"] }, onSet: (k, v) => set((q) => ({ ...q, [k]: v })), onNear: () => set((q) => ({ ...q, lat: 27.9, lng: -82.4 })), onClearNear: () => set((q) => ({ ...q, lat: "", lng: "" })), onReset: () => set({}) });
+  }
+  const uiRoot = createRoot(document.getElementById("menu-test"));
+  const click = async (selector) => act(async () => document.querySelector(selector).click());
+  const pick = async (text) => act(async () => [...document.querySelectorAll("button")].find((b) => b.textContent === text).click());
+  try {
+    await act(async () => uiRoot.render(createElement(Harness)));
+    ok(/Tickets/.test(document.querySelector(".xm-filter-trigger").textContent) && !document.querySelector("input"), "interactive default is Tickets with no search field");
+    await click(".xm-filter-trigger");
+    ok(document.querySelector('[role="dialog"]').getAttribute("aria-modal") === "true" && document.querySelector(".xm-menu-overlay").parentNode === document.body, "the sheet is a body-level modal above page stacking contexts");
+    ok(document.activeElement.className === "xm-menu-close" && document.body.style.overflow === "hidden", "opening focuses Close and locks background scrolling");
+    await pick("Light shows"); await pick("This weekend");
+    await act(async () => { const select = document.querySelector("select"); select.value = "Tampa Bay"; select.dispatchEvent(new window.Event("change", { bubbles: true })); });
+    ok(queryNow.category === "lights" && queryNow.when === "weekend" && queryNow.region === "Tampa Bay" && document.querySelector('[role="dialog"]'), "category, date and region can be combined without repeatedly reopening the sheet");
+    await pick("Closest first"); ok(queryNow.lat === 27.9, "distance requires an explicit choice");
+    await pick("Tickets first"); ok(queryNow.lat === "", "Tickets restores popularity ordering");
+    document.querySelector(".xm-menu-done").focus();
+    await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", bubbles: true, cancelable: true })));
+    ok(document.activeElement.className === "xm-menu-close", "Tab wraps within the modal");
+    await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true, cancelable: true })));
+    ok(document.activeElement.className === "xm-menu-done", "Shift Tab wraps within the modal");
+    await act(async () => document.dispatchEvent(new window.KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+    ok(!document.querySelector('[role="dialog"]') && document.activeElement.className === "xm-filter-trigger" && document.body.style.overflow === "", "Escape closes, restores focus and releases background scrolling");
+    await click(".xm-filter-trigger"); await click(".xm-menu-reset");
+    ok(Object.keys(queryNow).length === 0, "Reset clears every active filter");
+    await click(".xm-menu-done"); ok(!document.querySelector('[role="dialog"]'), "Show Christmas plans closes the sheet");
+  } finally { await act(async () => uiRoot.unmount()); dom.window.close(); Object.assign(globalThis, prior); }
+}
+
+// Exercise the deployment invocation even when a developer runs this guard without
+// NODE_ENV. The child runs the entire same contract; the marker only prevents recursion.
+if (!process.argv.includes("--production-runtime-probe")) {
+  const expected = `test-christmas-tickets: ${checks} assertions OK (`;
+  const child = spawnSync(process.execPath, [fileURLToPath(import.meta.url), "--production-runtime-probe"], {
+    cwd: root, env: { ...process.env, NODE_ENV: "production" }, encoding: "utf8", timeout: 60000,
+  });
+  ok(child.status === 0 && child.stdout.includes(expected),
+    `production invocation executes all ${checks} assertions, including the interactive modal: ${child.error || ""}\n${child.stdout}\n${child.stderr}`);
 }
 
 console.log("test-christmas-tickets: " + checks + " assertions OK (" + model.rows.length + " featured cards on 2026-10-30)");

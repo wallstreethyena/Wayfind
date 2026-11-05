@@ -1,0 +1,557 @@
+{
+  "review_date": "2026-11-04",
+  "scope": "Exact venue context for Christmas local event cards with no saved photograph",
+  "image_count": 21,
+  "event_bindings": 23,
+  "rights": "All assets CC BY, CC BY-SA, CC0, or documented public domain. Source file page, author, license, and modifications retained. ShareAlike derivatives retain original image license.",
+  "images": [
+    {
+      "event_ids": [
+        "naples-ballet-nutcracker-artis-2026",
+        "artis-naples-holiday-pops-2026"
+      ],
+      "venue": "Hayes Hall",
+      "city": "Naples",
+      "local_path": "/place-photos/batch-2026-11o/venue-28cd43298efe64ef.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Naples-Philharmonic.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/6/6c/Naples-Philharmonic.jpg",
+      "author": "Dfilner",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        6521,
+        4347
+      ],
+      "output_dimensions": [
+        1280,
+        853
+      ],
+      "bytes": 135552,
+      "sha256": "8134ef7dd1d524142554f130d62cd7b25a3e1846d68b616b34fdbbbe038eb23f",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "miami-city-ballet-nutcracker-2026"
+      ],
+      "venue": "Ziff Ballet Opera House",
+      "city": "Miami",
+      "local_path": "/place-photos/batch-2026-11o/venue-4981a2501c04548e.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Adrienne_Arsht_Center_for_the_Performing_Arts_of_Miami-Dade_County_-_Flickr_-_Phillip_Pessar.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/5/58/Adrienne_Arsht_Center_for_the_Performing_Arts_of_Miami-Dade_County_-_Flickr_-_Phillip_Pessar.jpg",
+      "author": "Phillip Pessar",
+      "license": "CC BY 2.0",
+      "license_url": "https://creativecommons.org/licenses/by/2.0",
+      "original_dimensions": [
+        3782,
+        2836
+      ],
+      "output_dimensions": [
+        1280,
+        960
+      ],
+      "bytes": 315030,
+      "sha256": "2f565e934952f812cb06d8fbaf6daf2b5c57ef390309f34c1ac884dd451b546d",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "firstcoastnutcracker-jaxsymphony-2026"
+      ],
+      "venue": "Moran Theater",
+      "city": "Jacksonville",
+      "local_path": "/place-photos/batch-2026-11o/venue-c83c32ccc64678ea.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:CSX_and_Time-Union_Center.JPG",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ad/CSX_and_Time-Union_Center.JPG",
+      "author": "Mathew105601",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "original_dimensions": [
+        4976,
+        2504
+      ],
+      "output_dimensions": [
+        1280,
+        644
+      ],
+      "bytes": 97802,
+      "sha256": "28a7b2a7c20343138e232556a1a39e3c221c91201206ae179a507417aba43070",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "gainesville-nutcracker-phillips-center-2026"
+      ],
+      "venue": "Phillips Center for the Performing Arts",
+      "city": "Gainesville",
+      "local_path": "/place-photos/batch-2026-11o/venue-2e52595b06f78144.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Chris_M._Phillips_Center_for_the_Performing_Arts.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/8/89/Chris_M._Phillips_Center_for_the_Performing_Arts.jpg",
+      "author": "Michael Rivera",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        5184,
+        3456
+      ],
+      "output_dimensions": [
+        1280,
+        853
+      ],
+      "bytes": 126646,
+      "sha256": "1ee7e84d88616bd969591e0071949b67df13e536d3c2437a94916a6ea46598ba",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "st-johns-town-center-holiday-spectacular-2026"
+      ],
+      "venue": "St. Johns Town Center",
+      "city": "Jacksonville",
+      "local_path": "/place-photos/batch-2026-11o/venue-e0dae1d2956cea30.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:StJohnsTCJax.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ae/StJohnsTCJax.jpg",
+      "author": "Excel23",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        1273,
+        655
+      ],
+      "output_dimensions": [
+        1273,
+        655
+      ],
+      "bytes": 129114,
+      "sha256": "e647a9858e8bcf58b5215125804e2d9db23eca87338a041d984697061a680bcd",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "cityplace-wpb-nightly-snowfall-2026"
+      ],
+      "venue": "CityPlace",
+      "city": "West Palm Beach",
+      "local_path": "/place-photos/batch-2026-11o/venue-7f9c1c9a4b70044d.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:CityPlace_Live_Stage_2.JPG",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8a/CityPlace_Live_Stage_2.JPG",
+      "author": "Andyxox",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Commons:Copyright_tags#Public_domain",
+      "original_dimensions": [
+        2816,
+        2112
+      ],
+      "output_dimensions": [
+        1280,
+        960
+      ],
+      "bytes": 94404,
+      "sha256": "6723cb06a0da9ad4a29d3e46e1b375206d8ab9f8eb7a9e508d76a01289dbe24c",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "melbourne-holiday-market-2026"
+      ],
+      "venue": "Melbourne Auditorium",
+      "city": "Melbourne",
+      "local_path": "/place-photos/batch-2026-11o/venue-0c615bf92380f75f.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Melbourne_Auditorium_(Melbourne,_Florida)_002.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8b/Melbourne_Auditorium_%28Melbourne%2C_Florida%29_002.jpg",
+      "author": "Leonard J. DeFrancisci",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "original_dimensions": [
+        3648,
+        2736
+      ],
+      "output_dimensions": [
+        1280,
+        960
+      ],
+      "bytes": 142730,
+      "sha256": "ad564bf2cf6857f3c1c0216e80744d8ce00f2cd60f4afa1765f6e0d73a884cb8",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "deck-the-chairs-2026"
+      ],
+      "venue": "Seawalk Pavilion",
+      "city": "Jacksonville Beach",
+      "local_path": "/place-photos/batch-2026-11o/venue-5bdd2cd222ea7b02.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Seawalk_Pavilion,_Jacksonville_Beach.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/6/65/Seawalk_Pavilion%2C_Jacksonville_Beach.jpg",
+      "author": "Jud McCranie",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        6000,
+        4000
+      ],
+      "output_dimensions": [
+        1280,
+        853
+      ],
+      "bytes": 111530,
+      "sha256": "73d577d6cce4c657644bc4fbbc2bc1e3dd367a4367ceb1864cb331fed4cdca8c",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "studios-of-key-west-holiday-makers-market-2026"
+      ],
+      "venue": "The Studios of Key West",
+      "city": "Key West",
+      "local_path": "/place-photos/batch-2026-11o/venue-541a02ee645369fb.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:TSKW_New_Sign_Night_FIXED_TALL_rgb.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/e/ed/TSKW_New_Sign_Night_FIXED_TALL_rgb.jpg",
+      "author": "Kimalanpederson",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        1021,
+        810
+      ],
+      "output_dimensions": [
+        1021,
+        810
+      ],
+      "bytes": 120652,
+      "sha256": "74505c1a24eb23aacfb23b7af46f905b1aae50f2b61033e63df38b525184a16d",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "green-cove-parade-of-trees-2026"
+      ],
+      "venue": "Spring Park",
+      "city": "Green Cove Springs",
+      "local_path": "/place-photos/batch-2026-11o/venue-45b550a7a96af346.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:BridgeGCS.JPG",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/9/93/BridgeGCS.JPG",
+      "author": "Excel23",
+      "license": "CC0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "original_dimensions": [
+        3872,
+        2592
+      ],
+      "output_dimensions": [
+        1280,
+        857
+      ],
+      "bytes": 327028,
+      "sha256": "52e64b2d15146ea5139525cd082494e0ec5d36adaa94b5e711a710591a62a68a",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "lake-nona-oh-what-fun-2026"
+      ],
+      "venue": "Lake Nona Town Center",
+      "city": "Orlando",
+      "local_path": "/place-photos/batch-2026-11o/venue-c72ac597612685af.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lakenonatowncenter.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/f/f8/Lakenonatowncenter.jpg",
+      "author": "PoultrySaga",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        2896,
+        1944
+      ],
+      "output_dimensions": [
+        1280,
+        859
+      ],
+      "bytes": 145150,
+      "sha256": "808edf4f13ff663acae1fff3b5db179b58d567bf8b40febe72fb45939732baad",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "san-marco-tree-lighting-2026"
+      ],
+      "venue": "Balis Park",
+      "city": "Jacksonville",
+      "local_path": "/place-photos/batch-2026-11o/venue-0555f60b370040c8.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Balis_Park_(Jacksonville,_Florida).jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/a/ab/Balis_Park_%28Jacksonville%2C_Florida%29.jpg",
+      "author": "PicoOrdinalo",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        6000,
+        4000
+      ],
+      "output_dimensions": [
+        1280,
+        853
+      ],
+      "bytes": 340122,
+      "sha256": "74d17b5232f20864366b9a53f27f61dba492004b66fe4846834bf02537c6f855",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "tradition-tree-lighting-2026"
+      ],
+      "venue": "Tradition Square",
+      "city": "Port St. Lucie",
+      "local_path": "/place-photos/batch-2026-11o/venue-296d7a9e2ddcb739.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Tradition_Square_in_Port_St_Lucie_FL.jpeg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/e/e6/Tradition_Square_in_Port_St_Lucie_FL.jpeg",
+      "author": "Dough4872",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        5712,
+        4284
+      ],
+      "output_dimensions": [
+        1280,
+        960
+      ],
+      "bytes": 284834,
+      "sha256": "73af19e509d8715dfb6422282bf0943bec23ddd435a42694c8a9d3d520fb658d",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "fort-pierce-sunrise-nutcracker-2026"
+      ],
+      "venue": "Sunrise Theatre",
+      "city": "Fort Pierce",
+      "local_path": "/place-photos/batch-2026-11o/venue-0ac23bb0e9fb0615.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Ft_Pierce_FL_Sunrise_Theater01.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/8/8c/Ft_Pierce_FL_Sunrise_Theater01.jpg",
+      "author": "Ebyabe",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "original_dimensions": [
+        3264,
+        2448
+      ],
+      "output_dimensions": [
+        1280,
+        960
+      ],
+      "bytes": 199456,
+      "sha256": "e485e701dbe5470faef02db85b96fbd2ff7cd03b207b1b8f235eacfb06aeb319",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "eden-gardens-christmas-luminaries-2026"
+      ],
+      "venue": "Eden Gardens State Park",
+      "city": "Santa Rosa Beach",
+      "local_path": "/place-photos/batch-2026-11o/venue-b35837f439f9ecd1.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:WesleyHsEdenGrdnsStPk.JPG",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/1/1e/WesleyHsEdenGrdnsStPk.JPG",
+      "author": "Tim Ross",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Commons:Copyright_tags#Public_domain",
+      "original_dimensions": [
+        2479,
+        1159
+      ],
+      "output_dimensions": [
+        1280,
+        598
+      ],
+      "bytes": 242094,
+      "sha256": "91192cffb757e614d4c67320314aea717b2a934c8e03510a6dd4c0dce6b38c41",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "lakeland-snowfest-2026"
+      ],
+      "venue": "Frances Langford Promenade",
+      "city": "Lakeland",
+      "local_path": "/place-photos/batch-2026-11o/venue-9f3fdf34f4b74f9e.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lake_Mirror_Promenade_with_Lakeland_Electric_Building_in_the_background_03.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/7/7b/Lake_Mirror_Promenade_with_Lakeland_Electric_Building_in_the_background_03.jpg",
+      "author": "Kiran891",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        4032,
+        2268
+      ],
+      "output_dimensions": [
+        1280,
+        720
+      ],
+      "bytes": 208164,
+      "sha256": "f6f56c49540f42197c879f7c2f3373b05f4863687efa3d6be67cd0a49941fd9f",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "merry-in-mizner-2026"
+      ],
+      "venue": "Mizner Park",
+      "city": "Boca Raton",
+      "local_path": "/place-photos/batch-2026-11o/venue-ffe8c00d9baef0e6.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Mizner_Park.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/5/54/Mizner_Park.jpg",
+      "author": "Elfguy at English Wikipedia",
+      "license": "Public domain",
+      "license_url": "https://commons.wikimedia.org/wiki/Commons:Copyright_tags#Public_domain",
+      "original_dimensions": [
+        2272,
+        1704
+      ],
+      "output_dimensions": [
+        1280,
+        960
+      ],
+      "bytes": 184784,
+      "sha256": "6959ccda30aa2430e196c6369393b1fa4796b990959ef36e4fd07e2466befb7e",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "key-west-custom-house-concert-bazaar-2026"
+      ],
+      "venue": "Key West Museum of Art & History",
+      "city": "Key West",
+      "local_path": "/place-photos/batch-2026-11o/venue-bd2cccb4a5f0d078.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Customshouse_98.JPG",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/7/75/Customshouse_98.JPG",
+      "author": "Gillfoto from Juneau, Alaska, United States",
+      "license": "CC BY-SA 3.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/3.0",
+      "original_dimensions": [
+        1200,
+        900
+      ],
+      "output_dimensions": [
+        1200,
+        900
+      ],
+      "bytes": 263324,
+      "sha256": "b5b7eedb8af9b1d593fefabac3b2573331ca9e84a32aacbffc5c2ebbfd28c0c6",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "tallahassee-cascades-holiday-stroll-2026"
+      ],
+      "venue": "Cascades Park",
+      "city": "Tallahassee",
+      "local_path": "/place-photos/batch-2026-11o/venue-3ede5331355c8695.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cascades_sign_and_outdoor_stairs.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/d/d5/Cascades_sign_and_outdoor_stairs.jpg",
+      "author": "Michael Rivera",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        5184,
+        3456
+      ],
+      "output_dimensions": [
+        1280,
+        853
+      ],
+      "bytes": 96286,
+      "sha256": "e2268925988d95a6e9d268cdba034819575727f73472b2f6f6e62ec0abac29ec",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "bach-classic-christmas-2026"
+      ],
+      "venue": "Knowles Memorial Chapel",
+      "city": "Winter Park",
+      "local_path": "/place-photos/batch-2026-11o/venue-49961b05a7fdaa56.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Rollins_College_Knowles_Chapel04.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/c/cb/Rollins_College_Knowles_Chapel04.jpg",
+      "author": "Ebyabe",
+      "license": "CC BY-SA 2.5",
+      "license_url": "https://creativecommons.org/licenses/by-sa/2.5",
+      "original_dimensions": [
+        2365,
+        2419
+      ],
+      "output_dimensions": [
+        1251,
+        1280
+      ],
+      "bytes": 157254,
+      "sha256": "bb06949e7121803596fc7982cfac4879f6f839838b3f1222f2c389b38fdd897f",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    },
+    {
+      "event_ids": [
+        "stuart-fadc-nutcracker-2026",
+        "stuart-lyric-nutcracker-2026"
+      ],
+      "venue": "The Lyric Theatre",
+      "city": "Stuart",
+      "local_path": "/place-photos/batch-2026-11o/venue-e0988d53552e221f.webp",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Lyric_Theatre_Stuart,_FL_05.jpg",
+      "original_image_url": "https://upload.wikimedia.org/wikipedia/commons/c/c1/Lyric_Theatre_Stuart%2C_FL_05.jpg",
+      "author": "Lovehistory269 Aimee Beth Grace",
+      "license": "CC BY-SA 4.0",
+      "license_url": "https://creativecommons.org/licenses/by-sa/4.0",
+      "original_dimensions": [
+        3586,
+        5271
+      ],
+      "output_dimensions": [
+        871,
+        1280
+      ],
+      "bytes": 91218,
+      "sha256": "1055ce3c796f317d876602ef8c54e8f8521796460f46061e27287c7db9b9832b",
+      "changes": "Resized within 1280px and converted to WebP; no retouching. Display may crop with object-fit:cover.",
+      "review": "Exact named venue and city checked against file metadata and event record; image visually reviewed. Context labeled Venue photo, not the current holiday production.",
+      "checked_at": "2026-11-04"
+    }
+  ]
+}

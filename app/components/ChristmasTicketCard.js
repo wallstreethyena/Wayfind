@@ -31,7 +31,7 @@ export const XM_CARD_CSS = `
 .xm-ph::before{content:"\\2728";font-size:30px;line-height:1;opacity:.85}
 .xm-ph span{font-size:12px;font-weight:600;line-height:1.3;color:var(--xm-warm)}
 .xm-tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;text-align:center}
-.xm-tile i{font-style:normal;font-size:34px;line-height:1;opacity:.9}
+.xm-tile{background:radial-gradient(ellipse at 50% 30%,#74213944,transparent 65%),linear-gradient(145deg,#3F0C18,#1F060D);color:var(--xm-rose)}.xm-tile::after{content:"";position:absolute;inset:10px;border:1px solid #E8B48A26;border-radius:7px;pointer-events:none}.xm-tile svg{width:42px;height:42px;margin-bottom:8px;opacity:.75}.xm-tile small{font-size:9px;line-height:1.4;color:#C9B8B0;letter-spacing:.5px}.xm-photo-context{position:absolute;top:9px;left:9px;z-index:2;padding:4px 7px;border:1px solid #E8B48A66;border-radius:999px;background:#230710CC;color:#FFF7ED;font-size:9px;line-height:1.2;pointer-events:none}
 .xm-tile b{font-size:12px;font-weight:600;line-height:1.3;color:var(--xm-warm)}
 .xm-dots{position:absolute;left:0;right:0;bottom:8px;z-index:3;display:flex;justify-content:center;gap:5px;pointer-events:none}
 .xm-dots i{width:6px;height:6px;border-radius:50%;background:rgba(255,248,238,.45)}
@@ -86,9 +86,10 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
     const tile = row.placeholder || { icon: "✨", label: "Christmas event" };
     return (
       <div className="xm-photo" data-photo-count="0">
-        <div className="xm-tile" data-event-tile="" role="img" aria-label={tile.label}>
-          <i aria-hidden="true">{tile.icon}</i>
+        <div className="xm-tile" data-event-tile="" role="img" aria-label={tile.label + ": photo unavailable"}>
+          <svg aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.2"><path d="M24 5l4.5 14.5L43 24l-14.5 4.5L24 43l-4.5-14.5L5 24l14.5-4.5L24 5Z"/><path d="M39 5v8m-4-4h8M8 36v7m-3-3.5h6"/></svg>
           <b>{tile.label}</b>
+          <small>Photo unavailable</small>
         </div>
       </div>
     );
@@ -110,6 +111,7 @@ function PhotoStrip({ row, priority, failed = new Set(), onPhotoState }) {
               onFailure={() => onPhotoState?.(photo.src, false)}
               onLoaded={() => onPhotoState?.(photo.src, true)}
             />
+            {photo.context === "venue" ? <span className="xm-photo-context">Venue photo</span> : null}
             {photo.credit ? (
               <p className="xm-credit">
                 {photo.creditHref ? <PhotoCreditLink href={photo.creditHref} rel="nofollow">{photo.credit}</PhotoCreditLink> : photo.credit}

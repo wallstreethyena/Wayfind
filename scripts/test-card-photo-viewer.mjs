@@ -54,7 +54,7 @@ try {
     const page = await browser.newPage({ viewport: { width, height: 900 } });
     const errors = [];
     page.on("pageerror", (e) => errors.push(e.message));
-    let photoCalls = 0, paidCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set(); const storedFailures = new Map(); let resavedVersion = "old";
+    let photoCalls = 0, paidCalls = 0, responseMode = "success", lastPhotoRequest = null; const deniedSeen = new Set(); const storedFailures = new Map(); let resavedVersion = "old", staleVersionRejects = 0;
     const photo = { src: "https://photo.test/exact.jpg", source: "google", credit: { mapsUri: "https://maps.google.com/photo/exact", authors: [{ name: "First Author", uri: "https://maps.google.com/contrib/first", photoUri: "https://photo.test/avatar.jpg" }, { name: "Second Author", uri: "https://maps.google.com/contrib/second" }] } };
     await page.route("**/*", async (route) => {
       const u = new URL(route.request().url());
@@ -74,7 +74,7 @@ try {
       if (u.pathname === "/broken.jpg") return route.fulfill({ status: 404, body: "Unavailable" });
       // Saved-photo route: a scripted number of 404 blips per path, and a stale version after a re-save.
       if (u.pathname.startsWith("/api/photo/stored/") && (storedFailures.get(u.pathname) || 0) > 0) { storedFailures.set(u.pathname, storedFailures.get(u.pathname) - 1); return route.fulfill({ status: 404, body: "" }); }
-      if (u.pathname.startsWith("/api/photo/stored/") && u.searchParams.get("v") === "old" && resavedVersion !== "old") return route.fulfill({ status: 404, body: "" });
+      if (u.pathname.startsWith("/api/photo/stored/") && u.searchParams.get("v") === "old" && resavedVersion !== "old") { staleVersionRejects++; return route.fulfill({ status: 404, body: "" }); }
       if (u.hostname === "photo.test" || u.pathname.startsWith("/api/photo/stored/")) return route.fulfill({ contentType: "image/svg+xml", body: '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800"><rect width="1200" height="800" fill="#446655"/></svg>' });
       return route.fulfill({ contentType: "text/html", body: `<style>${WF_PLACE_CARD_CSS}</style><div style="height:1400px"></div><article class="wf-place-card" style="position:relative"><button type="button" class="wf-place-card-open" aria-label="Open test venue" style="position:absolute;inset:0;z-index:0;width:100%;height:100%;opacity:0;border:0;padding:0;cursor:pointer;background:transparent"></button><div class="wf-place-card-layout" style="position:relative;z-index:1;pointer-events:none"><div class="wf-place-card-media"><div id="root" style="position:relative;overflow:hidden"></div></div><div id="card-content">Test venue</div></div></article>` });
     });
@@ -239,8 +239,17 @@ try {
     await render("ChIJCardPhotoBlip0007", "Blip photo again");
     await page.locator('#root > img[alt="Blip photo again"]').waitFor();
     await render("ChIJCardPhotoResave08", "Resaved photo again"); // remount: the kept answer still says v=old
+    // Blink may retain the already decoded old image across remounts, even
+    // with routing/HTTP caching disabled. Force a fresh stale-version request
+    // only in that case so this fixture actually exercises its intended 404.
+    await page.locator('#root > img[alt="Resaved photo again"]').waitFor();
+    await page.evaluate(() => {
+      const img = document.querySelector('#root > img[alt="Resaved photo again"]');
+      if (img?.complete && img.naturalWidth > 0 && img.getAttribute("src") === "/api/photo/stored/ChIJCardPhotoResave08?v=old") img.src += "&stale_probe=1";
+    });
     const resavedSeen = await page.evaluate(async () => { for (let i = 0; i < 80; i++) { const img = document.querySelector("#root > img"); if (img && img.complete && img.naturalWidth > 0 && img.getAttribute("src").includes("v=new")) return img.getAttribute("src"); if (document.body.innerText.includes("Photo unavailable")) return "UNAVAILABLE"; await new Promise((r) => setTimeout(r, 100)); } return "TIMEOUT"; });
     assert.equal(resavedSeen, "/api/photo/stored/ChIJCardPhotoResave08?v=new", "a re-saved photo is picked up instead of 'Photo unavailable'");
+    assert.equal(staleVersionRejects, 1, "the stale version really returned 404 before recovery, including a decoded-image cache hit");
     // Temporary refusal (budget/quota): one delayed retry recovers; a persistent refusal stops after exactly 2 requests.
     await page.clock.install();
     responseMode = "denied-once";

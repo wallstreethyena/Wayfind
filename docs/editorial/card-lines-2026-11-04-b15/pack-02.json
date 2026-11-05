@@ -1,0 +1,565 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 15. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJ7_yFpQu7wogR7x0sqwI70uA",
+   "name": "Main Event Wesley Chapel",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.mainevent.com/locations/florida/wesley-chapel",
+     "source_name": "Main Event Wesley Chapel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Main Event Wesley Chapel is located at 2839 Creek Grass Way, Lutz, FL 33559.",
+      "Activities at this location include Bowling, Arcade, Laser Tag, Gravity Ropes, Billiards, and Miniature Golf.",
+      "The center has an in-center restaurant.",
+      "Hours include Monday 11 a.m. to 1 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Bowling, Arcade, Laser Tag, and Gravity Ropes under one roof",
+    "why_here": "Main Event Wesley Chapel is located at 2839 Creek Grass Way, Lutz, FL 33559. Activities at this location include Bowling, Arcade, Laser Tag, Gravity Ropes, Billiards, and Miniature Golf.",
+    "know_before": "Hours include Monday 11 a.m. to 1 a.m. and the center has an in-center restaurant.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.mainevent.com/locations/florida/wesley-chapel"
+     ],
+     "why_here": [
+      "https://www.mainevent.com/locations/florida/wesley-chapel"
+     ],
+     "know_before": [
+      "https://www.mainevent.com/locations/florida/wesley-chapel"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Main Event Wesley Chapel is located at 2839 Creek Grass Way, Lutz, FL 33559.",
+      "source": "https://www.mainevent.com/locations/florida/wesley-chapel"
+     },
+     {
+      "claim": "Activities at this location include Bowling, Arcade, Laser Tag, Gravity Ropes, Billiards, and Miniature Golf.",
+      "source": "https://www.mainevent.com/locations/florida/wesley-chapel"
+     },
+     {
+      "claim": "The center has an in-center restaurant.",
+      "source": "https://www.mainevent.com/locations/florida/wesley-chapel"
+     },
+     {
+      "claim": "Hours include Monday 11 a.m. to 1 a.m.",
+      "source": "https://www.mainevent.com/locations/florida/wesley-chapel"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ4bnqcye6wogRV2lmKsWzgEU",
+   "name": "Rice n Beans Puerto Rico",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://ricenbeans.com/",
+     "source_name": "Rice n Beans Puerto Rico \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rice n Beans PR is located at 27405 Wesley Chapel Blvd, Wesley Chapel, FL 33544.",
+      "The restaurant's stated mission is to offer dishes in a familiar and cultural atmosphere which allows guests to experience the traditions of Puerto Rico.",
+      "In 2016 the owner acquired a small location in Lutz, FL and opened the first restaurant to the public."
+     ]
+    },
+    {
+     "source": "https://www.ricenbeans.com/menu?menu=full-menu",
+     "source_name": "Rice n Beans Puerto Rico \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu includes Mofongos Rellenos, described as a savory base of twice-fried, garlic-infused mashed plantains stuffed with a choice of filling."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Mofongos rellenos built on twice-fried, garlic-infused mashed plantains",
+    "why_here": "Rice n Beans PR in Wesley Chapel serves Puerto Rican dishes in what its site calls a familiar and cultural atmosphere. Its menu features mofongos rellenos, and the restaurant traces its first Florida location to a small spot acquired in Lutz in 2016.",
+    "know_before": "The official site recommends making a reservation ahead of time.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://ricenbeans.com/",
+      "https://www.ricenbeans.com/menu?menu=full-menu"
+     ],
+     "why_here": [
+      "https://ricenbeans.com/",
+      "https://www.ricenbeans.com/menu?menu=full-menu"
+     ],
+     "know_before": [
+      "https://ricenbeans.com/",
+      "https://www.ricenbeans.com/menu?menu=full-menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rice n Beans PR is located at 27405 Wesley Chapel Blvd, Wesley Chapel, FL 33544.",
+      "source": "https://ricenbeans.com/"
+     },
+     {
+      "claim": "The restaurant's stated mission is to offer dishes in a familiar and cultural atmosphere which allows guests to experience the traditions of Puerto Rico.",
+      "source": "https://ricenbeans.com/"
+     },
+     {
+      "claim": "Menu includes Mofongos Rellenos, described as a savory base of twice-fried, garlic-infused mashed plantains stuffed with a choice of filling.",
+      "source": "https://www.ricenbeans.com/menu?menu=full-menu"
+     },
+     {
+      "claim": "In 2016 the owner acquired a small location in Lutz, FL and opened the first restaurant to the public.",
+      "source": "https://ricenbeans.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2V31jKcc2YgRuLavzBeeSdU",
+   "name": "Bar Louie - Coconut Creek",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "bar_and_grill",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.barlouie.com/locations/states/florida/coconut-creek",
+     "source_name": "Bar Louie - Coconut Creek \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bar Louie Coconut Creek is located at 4443 Lyons Rd Suite D-101, Coconut Creek, FL 33073.",
+      "The location lists a Late Night Happy Hour Sunday through Thursday from 10 p.m. to close.",
+      "The location lists a Friday lunch offer until 3 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Late Night Happy Hour Sunday through Thursday at the Coconut Creek location",
+    "why_here": "Bar Louie Coconut Creek is at 4443 Lyons Rd Suite D-101 in Coconut Creek. Its official location page lists weekly specials including a Late Night Happy Hour and a Friday lunch offer.",
+    "know_before": "Official page lists a Friday lunch menu until 3 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.barlouie.com/locations/states/florida/coconut-creek"
+     ],
+     "why_here": [
+      "https://www.barlouie.com/locations/states/florida/coconut-creek"
+     ],
+     "know_before": [
+      "https://www.barlouie.com/locations/states/florida/coconut-creek"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bar Louie Coconut Creek is located at 4443 Lyons Rd Suite D-101, Coconut Creek, FL 33073.",
+      "source": "https://www.barlouie.com/locations/states/florida/coconut-creek"
+     },
+     {
+      "claim": "The location lists a Late Night Happy Hour Sunday through Thursday from 10 p.m. to close.",
+      "source": "https://www.barlouie.com/locations/states/florida/coconut-creek"
+     },
+     {
+      "claim": "The location lists a Friday lunch offer until 3 p.m.",
+      "source": "https://www.barlouie.com/locations/states/florida/coconut-creek"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIcmrJomA3YgRmvcA4UbxG5g",
+   "name": "Escapology Escape Rooms Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.escapology.com/en/orlando-i-drive-fl/escape-games",
+     "source_name": "Escapology Escape Rooms Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Escapology Orlando games are listed as 60 minutes.",
+      "Escapology describes its Orlando venue as the premier, always-private escape game.",
+      "Games listed include Scooby-Doo and the Spooky Castle Adventure.",
+      "Games listed include Antidote: Chemical Warfare.",
+      "Kids Mode is listed on the games page."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Always-private 60-minute escape games in Orlando",
+    "why_here": "Escapology describes its Orlando venue as the premier, always-private escape game. Games listed include Scooby-Doo and the Spooky Castle Adventure and Antidote: Chemical Warfare.",
+    "know_before": "Escapology Orlando games are listed as 60 minutes.",
+    "local_tip": "Kids Mode is listed on the games page for younger players.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     ],
+     "why_here": [
+      "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     ],
+     "know_before": [
+      "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     ],
+     "local_tip": [
+      "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Escapology Orlando games are listed as 60 minutes.",
+      "source": "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     },
+     {
+      "claim": "Escapology describes its Orlando venue as the premier, always-private escape game.",
+      "source": "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     },
+     {
+      "claim": "Games listed include Scooby-Doo and the Spooky Castle Adventure.",
+      "source": "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     },
+     {
+      "claim": "Games listed include Antidote: Chemical Warfare.",
+      "source": "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     },
+     {
+      "claim": "Kids Mode is listed on the games page.",
+      "source": "https://www.escapology.com/en/orlando-i-drive-fl/escape-games"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJ295kFhDkYgRvSJuvOGBCNE",
+   "name": "Gator Beach",
+   "category": "beach",
+   "metro": "florida",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://gatorbeach.com/",
+     "source_name": "Gator Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gator Beach is an alligator park in Destin with over 200 alligators.",
+      "Admission is free and the park opens every day at 11 a.m.",
+      "Daily gator shows start at noon.",
+      "The park is at Fudpucker's Beachside Bar & Grill with exhibits, gator shows, and gator tours."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free-admission alligator park with over 200 alligators in Destin",
+    "why_here": "Gator Beach in Destin holds over 200 alligators at Fudpucker's Beachside Bar & Grill, with exhibits, gator shows, and gator tours for visitors looking for a hands-on wildlife stop.",
+    "know_before": "Admission is free and the park opens every day at 11 a.m.",
+    "local_tip": null,
+    "best_time": "Daily gator shows start at noon, per the official site.",
+    "citations": {
+     "hook": [
+      "https://gatorbeach.com/"
+     ],
+     "why_here": [
+      "https://gatorbeach.com/"
+     ],
+     "know_before": [
+      "https://gatorbeach.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://gatorbeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gator Beach is an alligator park in Destin with over 200 alligators.",
+      "source": "https://gatorbeach.com/"
+     },
+     {
+      "claim": "Admission is free and the park opens every day at 11 a.m.",
+      "source": "https://gatorbeach.com/"
+     },
+     {
+      "claim": "Daily gator shows start at noon.",
+      "source": "https://gatorbeach.com/"
+     },
+     {
+      "claim": "The park is at Fudpucker's Beachside Bar & Grill with exhibits, gator shows, and gator tours.",
+      "source": "https://gatorbeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJoVWX_Rm02YgRllHsIZGN16c",
+   "name": "Miami Children's Museum",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamichildrensmuseum.org/plan-your-visit",
+     "source_name": "Miami Children's Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miami Children's Museum is open daily from 10 a.m. to 6 p.m.",
+      "The Miami Parking Authority lot by the museum has 343 spaces and rates are $2 per hour, seven days a week.",
+      "Most families spend between 2 and 4 hours at Miami Children's Museum.",
+      "Miami Children's Museum is at 980 MacArthur Causeway, Miami, FL 33132."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Interactive exhibits and activities for children of all ages",
+    "why_here": "Miami Children's Museum offers interactive exhibits, activities, and special programs, and most families spend between 2 and 4 hours exploring the exhibits and participating in activities during a visit.",
+    "know_before": "Open daily from 10 a.m. to 6 p.m.; parking is $2 per hour.",
+    "local_tip": "Plan for 2 to 4 hours to explore the exhibits and activities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamichildrensmuseum.org/plan-your-visit"
+     ],
+     "why_here": [
+      "https://www.miamichildrensmuseum.org/plan-your-visit"
+     ],
+     "know_before": [
+      "https://www.miamichildrensmuseum.org/plan-your-visit"
+     ],
+     "local_tip": [
+      "https://www.miamichildrensmuseum.org/plan-your-visit"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miami Children's Museum is open daily from 10 a.m. to 6 p.m.",
+      "source": "https://www.miamichildrensmuseum.org/plan-your-visit"
+     },
+     {
+      "claim": "The Miami Parking Authority lot by the museum has 343 spaces and rates are $2 per hour, seven days a week.",
+      "source": "https://www.miamichildrensmuseum.org/plan-your-visit"
+     },
+     {
+      "claim": "Most families spend between 2 and 4 hours at Miami Children's Museum.",
+      "source": "https://www.miamichildrensmuseum.org/plan-your-visit"
+     },
+     {
+      "claim": "Miami Children's Museum is at 980 MacArthur Causeway, Miami, FL 33132.",
+      "source": "https://www.miamichildrensmuseum.org/plan-your-visit"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq7O30du42YgR5HkoPCsiZe8",
+   "name": "Lo D' Alex",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.lodalex.com/",
+     "source_name": "Lo D' Alex \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lo D'Alex opened in November 2024 on SW 8th Street (Calle 8) in Little Havana, Miami.",
+      "Lo D'Alex was founded by Alexander Delgado, co-founder of Gente de Zona.",
+      "Signature dishes include braised lamb in red wine sauce and lobster and shrimp risotto.",
+      "Hours are Monday to Sunday from 7 p.m. to 6 a.m. at 9610 SW 8th St, Miami, FL 33174."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fine dining on Calle 8 in Little Havana, opened in November 2024",
+    "why_here": "Lo D'Alex in Little Havana was founded by Alexander Delgado of Gente de Zona and opened in November 2024, serving signature dishes including braised lamb in red wine sauce and lobster and shrimp risotto.",
+    "know_before": "Hours are Monday to Sunday from 7 p.m. to 6 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.lodalex.com/"
+     ],
+     "why_here": [
+      "https://www.lodalex.com/"
+     ],
+     "know_before": [
+      "https://www.lodalex.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lo D'Alex opened in November 2024 on SW 8th Street (Calle 8) in Little Havana, Miami.",
+      "source": "https://www.lodalex.com/"
+     },
+     {
+      "claim": "Lo D'Alex was founded by Alexander Delgado, co-founder of Gente de Zona.",
+      "source": "https://www.lodalex.com/"
+     },
+     {
+      "claim": "Signature dishes include braised lamb in red wine sauce and lobster and shrimp risotto.",
+      "source": "https://www.lodalex.com/"
+     },
+     {
+      "claim": "Hours are Monday to Sunday from 7 p.m. to 6 a.m. at 9610 SW 8th St, Miami, FL 33174.",
+      "source": "https://www.lodalex.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-YtoauLa5ogRfJ7iU4ASusM",
+   "name": "Charlie Horse Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://charliehorserestaurant.com/",
+     "source_name": "Charlie Horse Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Charlie Horse serves all-you-can-eat Alaskan snow crab every day.",
+      "Charlie Horse is family owned and operated and open daily from 11 a.m.",
+      "Charlie Horse specializes in charbroiled steaks, fresh seafood, hot wings, and baby back ribs.",
+      "Charlie Horse is across from Andy Romano Park in Ormond Beach.",
+      "Lunch specials are available from 11 a.m. to 4 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-you-can-eat Alaskan snow crab served every day in Ormond Beach",
+    "why_here": "Charlie Horse is a family owned and operated restaurant in Ormond Beach specializing in charbroiled steaks, fresh seafood, hot wings, and baby back ribs, with all-you-can-eat Alaskan snow crab served every day.",
+    "know_before": "Open daily from 11 a.m.",
+    "local_tip": "Lunch specials run from 11 a.m. to 4 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://charliehorserestaurant.com/"
+     ],
+     "why_here": [
+      "https://charliehorserestaurant.com/"
+     ],
+     "know_before": [
+      "https://charliehorserestaurant.com/"
+     ],
+     "local_tip": [
+      "https://charliehorserestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Charlie Horse serves all-you-can-eat Alaskan snow crab every day.",
+      "source": "https://charliehorserestaurant.com/"
+     },
+     {
+      "claim": "Charlie Horse is family owned and operated and open daily from 11 a.m.",
+      "source": "https://charliehorserestaurant.com/"
+     },
+     {
+      "claim": "Charlie Horse specializes in charbroiled steaks, fresh seafood, hot wings, and baby back ribs.",
+      "source": "https://charliehorserestaurant.com/"
+     },
+     {
+      "claim": "Charlie Horse is across from Andy Romano Park in Ormond Beach.",
+      "source": "https://charliehorserestaurant.com/"
+     },
+     {
+      "claim": "Lunch specials are available from 11 a.m. to 4 p.m.",
+      "source": "https://charliehorserestaurant.com/"
+     }
+    ]
+   }
+  }
+ ]
+}

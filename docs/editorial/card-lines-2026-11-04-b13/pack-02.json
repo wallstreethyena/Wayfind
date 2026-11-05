@@ -1,0 +1,586 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 13. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJKfrj2fa62YgR00YMebLObEQ",
+   "name": "Cuba Lives Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cubalivesbuffet.com/",
+     "source_name": "Cuba Lives Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cuba Lives opened its doors in 2016 using fresh ingredients.",
+      "The restaurant combines chef experience with grandmothers' recipes and traditions of Cuban and international cuisine.",
+      "The restaurant is at 4590 W 12th Ave, Hialeah, FL 33012.",
+      "Sunday hours are 10 a.m. to 10 p.m.",
+      "Tuesday to Thursday hours are 11 a.m. to 10 p.m.",
+      "Cuba Lives Restaurant Buffet is in Hialeah and serves Cuban cuisine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban buffet in Hialeah built on grandmothers' recipes, open since 2016",
+    "why_here": "Cuba Lives Restaurant Buffet in Hialeah serves Cuban and international cuisine using fresh ingredients and grandmothers' recipes. The restaurant opened its doors in 2016 at 4590 W 12th Ave.",
+    "know_before": "Sunday hours are 10 a.m. to 10 p.m. and Tuesday to Thursday hours are 11 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cubalivesbuffet.com/"
+     ],
+     "why_here": [
+      "https://www.cubalivesbuffet.com/"
+     ],
+     "know_before": [
+      "https://www.cubalivesbuffet.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cuba Lives opened its doors in 2016 using fresh ingredients.",
+      "source": "https://www.cubalivesbuffet.com/"
+     },
+     {
+      "claim": "The restaurant combines chef experience with grandmothers' recipes and traditions of Cuban and international cuisine.",
+      "source": "https://www.cubalivesbuffet.com/"
+     },
+     {
+      "claim": "The restaurant is at 4590 W 12th Ave, Hialeah, FL 33012.",
+      "source": "https://www.cubalivesbuffet.com/"
+     },
+     {
+      "claim": "Sunday hours are 10 a.m. to 10 p.m.",
+      "source": "https://www.cubalivesbuffet.com/"
+     },
+     {
+      "claim": "Tuesday to Thursday hours are 11 a.m. to 10 p.m.",
+      "source": "https://www.cubalivesbuffet.com/"
+     },
+     {
+      "claim": "Cuba Lives Restaurant Buffet is in Hialeah and serves Cuban cuisine.",
+      "source": "https://www.cubalivesbuffet.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ397jMJLG2YgRd_H10d_4Wlw",
+   "name": "Samurai",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://samurairestaurant.com/locations/miami/",
+     "source_name": "Samurai \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "A personal chef cooks steak, chicken, seafood and fresh vegetables in traditional Japanese style on a hibachi table.",
+      "Samurai does not accept reservations.",
+      "Happy Hour is Monday-Friday, 3 p.m.-6 p.m.",
+      "The Miami restaurant is at 8717 SW 136 Street, Miami, FL 33176."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Personal hibachi chef cooking steak, chicken and seafood at your table",
+    "why_here": "Samurai Miami is a Japanese teppanyaki and sushi restaurant where a personal chef cooks at a hibachi table. Favorites listed include steak, chicken, seafood and fresh vegetables in traditional Japanese style.",
+    "know_before": "Samurai does not accept reservations; complimentary valet parking is offered on listed dinner and lunch services.",
+    "local_tip": "Happy Hour runs Monday to Friday from 3 p.m. to 6 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://samurairestaurant.com/locations/miami/"
+     ],
+     "why_here": [
+      "https://samurairestaurant.com/locations/miami/"
+     ],
+     "know_before": [
+      "https://samurairestaurant.com/locations/miami/"
+     ],
+     "local_tip": [
+      "https://samurairestaurant.com/locations/miami/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "A personal chef cooks steak, chicken, seafood and fresh vegetables in traditional Japanese style on a hibachi table.",
+      "source": "https://samurairestaurant.com/locations/miami/"
+     },
+     {
+      "claim": "Samurai does not accept reservations.",
+      "source": "https://samurairestaurant.com/locations/miami/"
+     },
+     {
+      "claim": "Happy Hour is Monday-Friday, 3 p.m.-6 p.m.",
+      "source": "https://samurairestaurant.com/locations/miami/"
+     },
+     {
+      "claim": "The Miami restaurant is at 8717 SW 136 Street, Miami, FL 33176.",
+      "source": "https://samurairestaurant.com/locations/miami/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDzyf16gC2YgRVAa8uNmODGU",
+   "name": "Pompano Citi Centre",
+   "category": "shopping",
+   "metro": "broward",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pompanociticentre.com/",
+     "source_name": "Pompano Citi Centre \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Pompano Citi Centre is an outdoor mall at 1955 N Federal Hwy, Pompano Beach, FL 33062.",
+      "Centre hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 12 p.m. to 6 p.m.",
+      "The centre is designed for morning workouts, after-school stops, weekend errands, dinner with friends, and community events.",
+      "Please visit the Directory page for links to individual store websites."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outdoor mall in Pompano Beach for everyday shopping and community events",
+    "why_here": "Pompano Citi Centre is an outdoor mall designed for morning workouts, after-school stops, weekend errands, dinner with friends, and community events that bring neighbors together.",
+    "know_before": "Centre hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 12 p.m. to 6 p.m.",
+    "local_tip": "Check the Directory page for links to individual store websites before visiting a specific shop.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pompanociticentre.com/"
+     ],
+     "why_here": [
+      "https://pompanociticentre.com/"
+     ],
+     "know_before": [
+      "https://pompanociticentre.com/"
+     ],
+     "local_tip": [
+      "https://pompanociticentre.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Pompano Citi Centre is an outdoor mall at 1955 N Federal Hwy, Pompano Beach, FL 33062.",
+      "source": "https://pompanociticentre.com/"
+     },
+     {
+      "claim": "Centre hours are Monday to Saturday 10 a.m. to 9 p.m. and Sunday 12 p.m. to 6 p.m.",
+      "source": "https://pompanociticentre.com/"
+     },
+     {
+      "claim": "The centre is designed for morning workouts, after-school stops, weekend errands, dinner with friends, and community events.",
+      "source": "https://pompanociticentre.com/"
+     },
+     {
+      "claim": "Please visit the Directory page for links to individual store websites.",
+      "source": "https://pompanociticentre.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgxKBi5202YgR4O37_FqQx_M",
+   "name": "1 Hotel South Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.1hotels.com/south-beach",
+     "source_name": "1 Hotel South Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "1 Hotel South Beach is at 2341 Collins Avenue, Miami Beach, FL 33139.",
+      "The hotel is set along a 600-foot stretch of shoreline.",
+      "Dining options include AVIV Restaurant and Watr Rooftop Restaurant.",
+      "The hotel has 4 Pools.",
+      "The hotel is a beachfront, pet friendly hotel.",
+      "Watr on the Rooftop offers Japanese-inspired cuisine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront hotel on Collins Avenue with 4 pools in Miami Beach",
+    "why_here": "1 Hotel South Beach sits on Collins Avenue in Miami Beach along a 600-foot stretch of shoreline, with 4 pools and dining that includes AVIV Restaurant and Watr Rooftop Restaurant.",
+    "know_before": "The hotel is at 2341 Collins Avenue, Miami Beach, FL 33139.",
+    "local_tip": "Try Watr on the Rooftop for Japanese-inspired cuisine.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.1hotels.com/south-beach"
+     ],
+     "why_here": [
+      "https://www.1hotels.com/south-beach"
+     ],
+     "know_before": [
+      "https://www.1hotels.com/south-beach"
+     ],
+     "local_tip": [
+      "https://www.1hotels.com/south-beach"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "1 Hotel South Beach is at 2341 Collins Avenue, Miami Beach, FL 33139.",
+      "source": "https://www.1hotels.com/south-beach"
+     },
+     {
+      "claim": "The hotel is set along a 600-foot stretch of shoreline.",
+      "source": "https://www.1hotels.com/south-beach"
+     },
+     {
+      "claim": "Dining options include AVIV Restaurant and Watr Rooftop Restaurant.",
+      "source": "https://www.1hotels.com/south-beach"
+     },
+     {
+      "claim": "The hotel has 4 Pools.",
+      "source": "https://www.1hotels.com/south-beach"
+     },
+     {
+      "claim": "The hotel is a beachfront, pet friendly hotel.",
+      "source": "https://www.1hotels.com/south-beach"
+     },
+     {
+      "claim": "Watr on the Rooftop offers Japanese-inspired cuisine.",
+      "source": "https://www.1hotels.com/south-beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJeU7uMTW32YgRjmffReuy-rc",
+   "name": "Tanuki River Landing",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "fine_dining_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tanukimiami.com/location/river-landing/",
+     "source_name": "Tanuki River Landing \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tanuki River Landing is at 1420 NW North River Dr, Miami, FL 33125.",
+      "Hours are Sunday to Thursday 12 p.m. to 10 p.m. and Friday to Saturday 12 p.m. to 11 p.m.",
+      "Tanuki River Landing is a waterfront location at River Landing Mall.",
+      "The restaurant offers Asian fusion dishes with high-quality ingredients in Miami."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Asian fusion at River Landing on the waterfront in Miami",
+    "why_here": "Tanuki River Landing is a waterfront restaurant at River Landing Mall in Miami, serving Asian fusion dishes made with high-quality ingredients for lunch and dinner service.",
+    "know_before": "Hours are Sunday to Thursday 12 p.m. to 10 p.m. and Friday to Saturday 12 p.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tanukimiami.com/location/river-landing/"
+     ],
+     "why_here": [
+      "https://www.tanukimiami.com/location/river-landing/"
+     ],
+     "know_before": [
+      "https://www.tanukimiami.com/location/river-landing/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tanuki River Landing is at 1420 NW North River Dr, Miami, FL 33125.",
+      "source": "https://www.tanukimiami.com/location/river-landing/"
+     },
+     {
+      "claim": "Hours are Sunday to Thursday 12 p.m. to 10 p.m. and Friday to Saturday 12 p.m. to 11 p.m.",
+      "source": "https://www.tanukimiami.com/location/river-landing/"
+     },
+     {
+      "claim": "Tanuki River Landing is a waterfront location at River Landing Mall.",
+      "source": "https://www.tanukimiami.com/location/river-landing/"
+     },
+     {
+      "claim": "The restaurant offers Asian fusion dishes with high-quality ingredients in Miami.",
+      "source": "https://www.tanukimiami.com/location/river-landing/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKTbk3Zu52YgR5dAiGHTyqcQ",
+   "name": "The Fatty Crab - Doral",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thefattycrab.com/",
+     "source_name": "The Fatty Crab - Doral \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Fatty Crab Doral is at 2000 NW 87th Ave Ste 7.",
+      "Endless Cajun Tuesday offers $25 all-you-can-eat Cajun seafood every Tuesday at Doral.",
+      "The $39 Weekend AYCE Brunch runs Saturdays and Sundays 12 p.m. to 4 p.m. at Doral.",
+      "The menu centres on bold Cajun boils, shrimp, and crab, where Miami meets Louisiana spice.",
+      "Right here in Doral, the restaurant is a spot for family dinners, birthday parties, or weekend brunch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cajun seafood boils where Miami meets Louisiana spice in Doral",
+    "why_here": "The Fatty Crab in Doral serves bold Cajun boils with shrimp and crab, and the site calls it a spot for family dinners, birthday parties, or weekend brunch.",
+    "know_before": "The $39 Weekend AYCE Brunch runs Saturdays and Sundays 12 p.m. to 4 p.m. at Doral.",
+    "local_tip": "Endless Cajun Tuesday offers $25 all-you-can-eat Cajun seafood every Tuesday at Doral.",
+    "best_time": "Tuesdays bring Endless Cajun Tuesday at the Doral location.",
+    "citations": {
+     "hook": [
+      "https://thefattycrab.com/"
+     ],
+     "why_here": [
+      "https://thefattycrab.com/"
+     ],
+     "know_before": [
+      "https://thefattycrab.com/"
+     ],
+     "local_tip": [
+      "https://thefattycrab.com/"
+     ],
+     "best_time": [
+      "https://thefattycrab.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Fatty Crab Doral is at 2000 NW 87th Ave Ste 7.",
+      "source": "https://thefattycrab.com/"
+     },
+     {
+      "claim": "Endless Cajun Tuesday offers $25 all-you-can-eat Cajun seafood every Tuesday at Doral.",
+      "source": "https://thefattycrab.com/"
+     },
+     {
+      "claim": "The $39 Weekend AYCE Brunch runs Saturdays and Sundays 12 p.m. to 4 p.m. at Doral.",
+      "source": "https://thefattycrab.com/"
+     },
+     {
+      "claim": "The menu centres on bold Cajun boils, shrimp, and crab, where Miami meets Louisiana spice.",
+      "source": "https://thefattycrab.com/"
+     },
+     {
+      "claim": "Right here in Doral, the restaurant is a spot for family dinners, birthday parties, or weekend brunch.",
+      "source": "https://thefattycrab.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJH9kx0J0p54gRctG_La3j85w",
+   "name": "Smyrna Dunes Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml",
+     "source_name": "Smyrna Dunes Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Smyrna Dunes Park is a 184-acre inlet park along the southern shoreline of Ponce de Leon Inlet.",
+      "The park has over 2 miles of wide, elevated, handicapped-accessible boardwalk.",
+      "Multiple scenic overlooks allow views of the Atlantic Ocean, the Indian River and Ponce de Leon Inlet.",
+      "Park features include a 300-foot handicapped accessible fishing pier and dog-friendly swimming beach areas.",
+      "Admission is $10 per vehicle.",
+      "The park is at 2995 N. Peninsula Ave., New Smyrna Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "184-acre inlet park with over 2 miles of elevated boardwalk",
+    "why_here": "Smyrna Dunes Park is a 184-acre inlet park along the southern shoreline of Ponce de Leon Inlet, with over 2 miles of boardwalk, scenic overlooks, a fishing pier and dog-friendly swimming beach areas.",
+    "know_before": "Admission is $10 per vehicle.",
+    "local_tip": "Use the scenic overlooks for views of the Atlantic Ocean, Indian River and Ponce de Leon Inlet.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     ],
+     "why_here": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     ],
+     "know_before": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     ],
+     "local_tip": [
+      "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Smyrna Dunes Park is a 184-acre inlet park along the southern shoreline of Ponce de Leon Inlet.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     },
+     {
+      "claim": "The park has over 2 miles of wide, elevated, handicapped-accessible boardwalk.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     },
+     {
+      "claim": "Multiple scenic overlooks allow views of the Atlantic Ocean, the Indian River and Ponce de Leon Inlet.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     },
+     {
+      "claim": "Park features include a 300-foot handicapped accessible fishing pier and dog-friendly swimming beach areas.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     },
+     {
+      "claim": "Admission is $10 per vehicle.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     },
+     {
+      "claim": "The park is at 2995 N. Peninsula Ave., New Smyrna Beach.",
+      "source": "https://www.volusia.org/services/public-works/coastal-division/coastal-parks/smyrna-dunes-park.stml"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBZZlX9H2wogRk43J2wEXsl4",
+   "name": "Frenchy's Saltwater Cafe",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://frenchysonline.com/frenchys-saltwater-cafe/",
+     "source_name": "Frenchy's Saltwater Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frenchy's Saltwater Cafe is at 419 Poinsettia Ave, Clearwater, FL 33767.",
+      "The cafe features smoked fish spread, seafood gumbo, boiled shrimp and Greek salad.",
+      "The Super Grouper sandwich made its debut at this cafe.",
+      "It is open daily 11 a.m. to 10 p.m.",
+      "Frenchy's restaurants are on Clearwater Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Clearwater Beach cafe where the Super Grouper sandwich made its debut",
+    "why_here": "Frenchy's Saltwater Cafe in Clearwater Beach serves smoked fish spread, seafood gumbo, boiled shrimp and Greek salad, and it is where the Super Grouper sandwich made its debut.",
+    "know_before": "It is open daily 11 a.m. to 10 p.m.",
+    "local_tip": "Order the Super Grouper sandwich where it made its debut.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     ],
+     "why_here": [
+      "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     ],
+     "know_before": [
+      "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     ],
+     "local_tip": [
+      "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frenchy's Saltwater Cafe is at 419 Poinsettia Ave, Clearwater, FL 33767.",
+      "source": "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     },
+     {
+      "claim": "The cafe features smoked fish spread, seafood gumbo, boiled shrimp and Greek salad.",
+      "source": "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     },
+     {
+      "claim": "The Super Grouper sandwich made its debut at this cafe.",
+      "source": "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     },
+     {
+      "claim": "It is open daily 11 a.m. to 10 p.m.",
+      "source": "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     },
+     {
+      "claim": "Frenchy's restaurants are on Clearwater Beach.",
+      "source": "https://frenchysonline.com/frenchys-saltwater-cafe/"
+     }
+    ]
+   }
+  }
+ ]
+}

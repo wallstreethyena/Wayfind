@@ -1,0 +1,829 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 12. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJC3cAVaG-2YgRMrKmfIRIt9M",
+   "name": "Layali Miami Lebanese Restaurant & lounge",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "lebanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://layalimiami.com/",
+     "source_name": "Layali Miami Lebanese Restaurant & lounge \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Layali Miami serves authentic Lebanese cuisine, signature cocktails and live entertainment in Doral, Miami.",
+      "Happy hour at Layali Miami runs Monday to Friday from 5 p.m. to 8 p.m.",
+      "Layali Miami offers table reservations through its official site.",
+      "Layali Miami serves Mediterranean classics, signature cocktails and desserts in Doral."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Lebanese cuisine, signature cocktails and live entertainment in Doral",
+    "why_here": "Layali Miami serves authentic Lebanese cuisine with signature cocktails and live entertainment in Doral, Miami, built around generous plates, Mediterranean classics and desserts for a full evening out.",
+    "know_before": "Happy hour runs Monday to Friday from 5 p.m. to 8 p.m.; reserve a table ahead through the official site.",
+    "local_tip": "Book a table through the official site before an evening visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://layalimiami.com/"
+     ],
+     "why_here": [
+      "https://layalimiami.com/"
+     ],
+     "know_before": [
+      "https://layalimiami.com/"
+     ],
+     "local_tip": [
+      "https://layalimiami.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Layali Miami serves authentic Lebanese cuisine, signature cocktails and live entertainment in Doral, Miami.",
+      "source": "https://layalimiami.com/"
+     },
+     {
+      "claim": "Happy hour at Layali Miami runs Monday to Friday from 5 p.m. to 8 p.m.",
+      "source": "https://layalimiami.com/"
+     },
+     {
+      "claim": "Layali Miami offers table reservations through its official site.",
+      "source": "https://layalimiami.com/"
+     },
+     {
+      "claim": "Layali Miami serves Mediterranean classics, signature cocktails and desserts in Doral.",
+      "source": "https://layalimiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfY572r7e0IgRfaNJK1BbCnU",
+   "name": "Keys Fisheries",
+   "category": "food",
+   "metro": "keys",
+   "primary_type": "fish_and_chips_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keysfisheries.com/restaurant-information/",
+     "source_name": "Keys Fisheries \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Keys Fisheries Restaurant is centrally located in Marathon, serving fresh, local seafood for lunch and dinner.",
+      "The Keys Fisheries Restaurant is open daily from 11 a.m. to 9 p.m.",
+      "The Keys Fisheries Restaurant is around Keys Fisheries Marina, Florida Bay and the Gulf of Mexico in Marathon.",
+      "The menu at Keys Fisheries includes Conch Fritters, Lobster Reuben and Florida Keys Key Lime Pie.",
+      "Keys Fisheries offers sit-down service and take-out, with a full service bar serving cold beer, cocktails, and wine."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh local seafood beside the marina on Florida Bay in Marathon",
+    "why_here": "Keys the market Restaurant in Marathon serves fresh, local seafood for lunch and dinner beside Keys the market Marina on Florida Bay, with take-out available and a full service bar on site.",
+    "know_before": "The restaurant is open daily from 11 a.m. to 9 p.m., serving lunch and dinner.",
+    "local_tip": "Start with Conch Fritters and finish with Florida Keys Key Lime Pie.",
+    "best_time": "Evening for sunset over Florida Bay.",
+    "citations": {
+     "hook": [
+      "https://www.keysfisheries.com/restaurant-information/"
+     ],
+     "why_here": [
+      "https://www.keysfisheries.com/restaurant-information/"
+     ],
+     "know_before": [
+      "https://www.keysfisheries.com/restaurant-information/"
+     ],
+     "local_tip": [
+      "https://www.keysfisheries.com/restaurant-information/"
+     ],
+     "best_time": [
+      "https://www.keysfisheries.com/restaurant-information/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Keys Fisheries Restaurant is centrally located in Marathon, serving fresh, local seafood for lunch and dinner.",
+      "source": "https://www.keysfisheries.com/restaurant-information/"
+     },
+     {
+      "claim": "The Keys Fisheries Restaurant is open daily from 11 a.m. to 9 p.m.",
+      "source": "https://www.keysfisheries.com/restaurant-information/"
+     },
+     {
+      "claim": "The Keys Fisheries Restaurant is around Keys Fisheries Marina, Florida Bay and the Gulf of Mexico in Marathon.",
+      "source": "https://www.keysfisheries.com/restaurant-information/"
+     },
+     {
+      "claim": "The menu at Keys Fisheries includes Conch Fritters, Lobster Reuben and Florida Keys Key Lime Pie.",
+      "source": "https://www.keysfisheries.com/restaurant-information/"
+     },
+     {
+      "claim": "Keys Fisheries offers sit-down service and take-out, with a full service bar serving cold beer, cocktails, and wine.",
+      "source": "https://www.keysfisheries.com/restaurant-information/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf6DWUcPlwogRrTDU70dy8PE",
+   "name": "OCC Road House & Museum",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.occroadhouse.com/",
+     "source_name": "OCC Road House & Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "OCC Road House & Museum is a restaurant, bar, live music and entertainment venue in Clearwater, Florida.",
+      "The on-site museum at OCC Road House showcases Orange County Choppers custom motorcycles from the Teutul family workshop.",
+      "OCC Road House & Museum is at 10575 49th Street North, Clearwater, FL 33762.",
+      "OCC Road House & Museum serves the Clearwater and St. Petersburg area.",
+      "OCC Road House & Museum lists live music and events on its official site."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dinner beside custom Orange County Choppers motorcycles in Clearwater",
+    "why_here": "OCC Road House & Museum in Clearwater combines a restaurant, bar and live music venue with a museum showcasing Orange County Choppers custom motorcycles from the Teutul family workshop.",
+    "know_before": "The venue is at 10575 49th Street North in Clearwater; check the official events calendar before visiting.",
+    "local_tip": "Allow time to see the custom motorcycles in the museum before or after eating.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.occroadhouse.com/"
+     ],
+     "why_here": [
+      "https://www.occroadhouse.com/"
+     ],
+     "know_before": [
+      "https://www.occroadhouse.com/"
+     ],
+     "local_tip": [
+      "https://www.occroadhouse.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "OCC Road House & Museum is a restaurant, bar, live music and entertainment venue in Clearwater, Florida.",
+      "source": "https://www.occroadhouse.com/"
+     },
+     {
+      "claim": "The on-site museum at OCC Road House showcases Orange County Choppers custom motorcycles from the Teutul family workshop.",
+      "source": "https://www.occroadhouse.com/"
+     },
+     {
+      "claim": "OCC Road House & Museum is at 10575 49th Street North, Clearwater, FL 33762.",
+      "source": "https://www.occroadhouse.com/"
+     },
+     {
+      "claim": "OCC Road House & Museum serves the Clearwater and St. Petersburg area.",
+      "source": "https://www.occroadhouse.com/"
+     },
+     {
+      "claim": "OCC Road House & Museum lists live music and events on its official site.",
+      "source": "https://www.occroadhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0yxqcY1bkYgRT8fk-kb7Tac",
+   "name": "Outcast Seafood Miramar Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.outcastseafood.com/items/fried-shrimp-2",
+     "source_name": "Outcast Seafood Miramar Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Outcast Seafood is in Miramar Beach.",
+      "Fried Shrimp includes 10 large shrimp hand-breaded in signature outcast breading.",
+      "Outcast Seafood serves Fried Shrimp with cocktail sauce or tartar."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hand-breaded Fried Shrimp in Miramar Beach",
+    "why_here": "Outcast Seafood in Miramar Beach serves Fried Shrimp with 10 large shrimp hand-breaded in signature outcast breading. The dish comes with cocktail sauce or tartar, keeping the focus on a simple seafood order.",
+    "know_before": "Check the current menu before going, because items and hours can change.",
+    "local_tip": "Order the Fried Shrimp with 10 large shrimp.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.outcastseafood.com/items/fried-shrimp-2"
+     ],
+     "why_here": [
+      "https://www.outcastseafood.com/items/fried-shrimp-2"
+     ],
+     "know_before": [
+      "https://www.outcastseafood.com/items/fried-shrimp-2"
+     ],
+     "local_tip": [
+      "https://www.outcastseafood.com/items/fried-shrimp-2"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Outcast Seafood is in Miramar Beach.",
+      "source": "https://www.outcastseafood.com/items/fried-shrimp-2"
+     },
+     {
+      "claim": "Fried Shrimp includes 10 large shrimp hand-breaded in signature outcast breading.",
+      "source": "https://www.outcastseafood.com/items/fried-shrimp-2"
+     },
+     {
+      "claim": "Outcast Seafood serves Fried Shrimp with cocktail sauce or tartar.",
+      "source": "https://www.outcastseafood.com/items/fried-shrimp-2"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJIyCdCXfhwogRH8MxhxaUGgs",
+   "name": "Doc Ford's Rum Bar and Grille St Pete Pier",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.docfords.com/st-pete-pier/",
+     "source_name": "Doc Ford's Rum Bar and Grille St Pete Pier \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Doc Ford's St. Pete is located at the base of the downtown St. Pete Pier.",
+      "Doc Ford's serves Yucatan Shrimp and Doc Ford's Mojitos.",
+      "Doc Ford's St. Pete is open from 11 a.m. to 10 p.m.",
+      "Doc Ford's St. Pete has inside and outside views of downtown St. Pete."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Yucatan Shrimp and mojitos at the St. Pete Pier",
+    "why_here": "Doc Ford's St. Pete sits at the base of the downtown St. Pete Pier, with inside and outside views of downtown St. Pete. Order Yucatan Shrimp and Doc Ford's Mojitos while taking in the pier setting.",
+    "know_before": "Open from 11 a.m. to 10 p.m.",
+    "local_tip": "Order Yucatan Shrimp and Doc Ford's Mojitos.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.docfords.com/st-pete-pier/"
+     ],
+     "why_here": [
+      "https://www.docfords.com/st-pete-pier/"
+     ],
+     "know_before": [
+      "https://www.docfords.com/st-pete-pier/"
+     ],
+     "local_tip": [
+      "https://www.docfords.com/st-pete-pier/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Doc Ford's St. Pete is located at the base of the downtown St. Pete Pier.",
+      "source": "https://www.docfords.com/st-pete-pier/"
+     },
+     {
+      "claim": "Doc Ford's serves Yucatan Shrimp and Doc Ford's Mojitos.",
+      "source": "https://www.docfords.com/st-pete-pier/"
+     },
+     {
+      "claim": "Doc Ford's St. Pete is open from 11 a.m. to 10 p.m.",
+      "source": "https://www.docfords.com/st-pete-pier/"
+     },
+     {
+      "claim": "Doc Ford's St. Pete has inside and outside views of downtown St. Pete.",
+      "source": "https://www.docfords.com/st-pete-pier/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJxJjJib90IgRiR19W2agl3Y",
+   "name": "No Name Pub",
+   "category": "nightlife",
+   "metro": "keys",
+   "primary_type": "pub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://nonamepub.com/",
+     "source_name": "No Name Pub \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The history of the No Name Pub goes back to 1931 when we were a general store and bait and tackle shop.",
+      "No Name Pub is on Big Pine Key.",
+      "No Name Pub is known best for pizza and fish dip.",
+      "No Name Pub is open Monday to Sunday from 11 a.m. to 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 1931 general store turned pub on Big Pine Key",
+    "why_here": "No Name Pub on Big Pine Key goes back to 1931 as a general store and bait and tackle shop. Today the pub is known best for pizza and fish dip, and it is open Monday to Sunday from 11 a.m. to 10 p.m.",
+    "know_before": "Open Monday to Sunday from 11 a.m. to 10 p.m.",
+    "local_tip": "Order the pizza and fish dip.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://nonamepub.com/"
+     ],
+     "why_here": [
+      "https://nonamepub.com/"
+     ],
+     "know_before": [
+      "https://nonamepub.com/"
+     ],
+     "local_tip": [
+      "https://nonamepub.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The history of the No Name Pub goes back to 1931 when we were a general store and bait and tackle shop.",
+      "source": "https://nonamepub.com/"
+     },
+     {
+      "claim": "No Name Pub is on Big Pine Key.",
+      "source": "https://nonamepub.com/"
+     },
+     {
+      "claim": "No Name Pub is known best for pizza and fish dip.",
+      "source": "https://nonamepub.com/"
+     },
+     {
+      "claim": "No Name Pub is open Monday to Sunday from 11 a.m. to 10 p.m.",
+      "source": "https://nonamepub.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJSaQDBuNB24gR9p9LdqtWEe0",
+   "name": "Downtown House of Pizza",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/",
+     "source_name": "Downtown House of Pizza \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Downtown House of Pizza began in 2005 in Downtown Fort Myers.",
+      "The restaurant's vision was to bring New York Style Pizza to the community.",
+      "The restaurant says it has served over a million pizzas since opening.",
+      "Build-your-own pizzas start with freshly made and hand-tossed dough."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New York-style pizza in downtown Fort Myers since 2005",
+    "why_here": "Downtown House of Pizza serves New York-style pizza in the heart of Downtown Fort Myers. The shop says it has served over a million pizzas since opening, using fresh ingredients and traditional methods.",
+    "know_before": "The menu lists vegan, gluten-free and vegetarian options, per the official site.",
+    "local_tip": "Build-your-own pizzas start with freshly made, hand-tossed dough, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     ],
+     "why_here": [
+      "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     ],
+     "know_before": [
+      "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     ],
+     "local_tip": [
+      "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Downtown House of Pizza began in 2005 in Downtown Fort Myers.",
+      "source": "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     },
+     {
+      "claim": "The restaurant's vision was to bring New York Style Pizza to the community.",
+      "source": "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     },
+     {
+      "claim": "The restaurant says it has served over a million pizzas since opening.",
+      "source": "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     },
+     {
+      "claim": "Build-your-own pizzas start with freshly made and hand-tossed dough.",
+      "source": "https://downtownhouseofpizza.com/about-downtown-house-of-pizza/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9Zt07nKm2YgRDGJx-CGRaWo",
+   "name": "Olive Garden Italian Restaurant",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013",
+     "source_name": "Olive Garden Italian Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The weekday lunch special includes the house salad, a choice of homemade soup and warm garlic breadsticks.",
+      "The weekday lunch special is available Monday through Friday from 11 a.m. to 2:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "House salad, homemade soup and warm garlic breadsticks at lunch",
+    "why_here": "Olive Garden is an Italian restaurant chain whose official menu centers on pasta, soups, salads and breadsticks. Its weekday lunch special pairs the house salad with a choice of homemade soup and warm garlic breadsticks.",
+    "know_before": "The weekday lunch special is listed Monday through Friday from 11 a.m. to 2:30 p.m. on the official menu.",
+    "local_tip": null,
+    "best_time": "Weekday lunch, when the soup, salad and breadsticks special is available.",
+    "citations": {
+     "hook": [
+      "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013"
+     ],
+     "why_here": [
+      "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013"
+     ],
+     "know_before": [
+      "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The weekday lunch special includes the house salad, a choice of homemade soup and warm garlic breadsticks.",
+      "source": "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013"
+     },
+     {
+      "claim": "The weekday lunch special is available Monday through Friday from 11 a.m. to 2:30 p.m.",
+      "source": "https://www.olivegarden.com/menu/weekday-lunch-special-soup-and-salad-and-breadsticks-mon-fri-11-230pm/prod7810013"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-y-xwWtN3YgR3ZjuWKrgLE8",
+   "name": "Sunrise Eatery",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunriseeateryfl.com/",
+     "source_name": "Sunrise Eatery \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sunrise Eatery is in Zephyrhills.",
+      "Sunrise Eatery serves Breakfast, Lunch and Dinner.",
+      "Sunrise Eatery serves Homemade Desserts, Ice-cream, Milkshakes and Sundaes.",
+      "Sunrise Eatery has a Pet Friendly patio.",
+      "Sunrise Eatery posts fresh specials every morning on our Facebook page."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Breakfast, lunch and dinner with homemade desserts in Zephyrhills",
+    "why_here": "Sunrise Eatery in Zephyrhills serves Breakfast, Lunch and Dinner, plus Homemade Desserts, Ice-cream, Milkshakes and Sundaes. The Pet Friendly patio adds an outdoor option, and fresh specials are posted every morning.",
+    "know_before": "Sunrise Eatery has a Pet Friendly patio.",
+    "local_tip": "Check the Facebook page for fresh specials posted every morning.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunriseeateryfl.com/"
+     ],
+     "why_here": [
+      "https://sunriseeateryfl.com/"
+     ],
+     "know_before": [
+      "https://sunriseeateryfl.com/"
+     ],
+     "local_tip": [
+      "https://sunriseeateryfl.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sunrise Eatery is in Zephyrhills.",
+      "source": "https://sunriseeateryfl.com/"
+     },
+     {
+      "claim": "Sunrise Eatery serves Breakfast, Lunch and Dinner.",
+      "source": "https://sunriseeateryfl.com/"
+     },
+     {
+      "claim": "Sunrise Eatery serves Homemade Desserts, Ice-cream, Milkshakes and Sundaes.",
+      "source": "https://sunriseeateryfl.com/"
+     },
+     {
+      "claim": "Sunrise Eatery has a Pet Friendly patio.",
+      "source": "https://sunriseeateryfl.com/"
+     },
+     {
+      "claim": "Sunrise Eatery posts fresh specials every morning on our Facebook page.",
+      "source": "https://sunriseeateryfl.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJlUPix_7vwogRutSwzpLLH0Q",
+   "name": "Banana Boat",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bananaboatboynton.com/",
+     "source_name": "Banana Boat \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Banana Boat is at 739 East Ocean Avenue, Boynton Beach, FL 33435.",
+      "Banana Boat is a family owned restaurant in Boynton Beach.",
+      "Banana Boat is open for lunch and dinner daily.",
+      "Sunday brunch is offered every Sunday from 11 a.m. to 3 p.m.",
+      "Happy hour is Monday through Saturday from 3 p.m. to 7 p.m. at the bar.",
+      "Banana Boat has indoor and outdoor waterfront bars."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront bars and Sunday brunch on Ocean Avenue in Boynton Beach",
+    "why_here": "Banana Boat is a family owned restaurant in Boynton Beach, open for lunch and dinner daily on East Ocean Avenue. Come for Sunday brunch or happy hour at the bar, with waterfront bars indoors and outdoors.",
+    "know_before": "Sunday brunch is offered every Sunday from 11 a.m. to 3 p.m.",
+    "local_tip": "Happy hour is Monday through Saturday from 3 p.m. to 7 p.m. at the bar.",
+    "best_time": "Sunday from 11 a.m. to 3 p.m. for brunch, per the official site.",
+    "citations": {
+     "hook": [
+      "https://www.bananaboatboynton.com/"
+     ],
+     "why_here": [
+      "https://www.bananaboatboynton.com/"
+     ],
+     "know_before": [
+      "https://www.bananaboatboynton.com/"
+     ],
+     "local_tip": [
+      "https://www.bananaboatboynton.com/"
+     ],
+     "best_time": [
+      "https://www.bananaboatboynton.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Banana Boat is at 739 East Ocean Avenue, Boynton Beach, FL 33435.",
+      "source": "https://www.bananaboatboynton.com/"
+     },
+     {
+      "claim": "Banana Boat is a family owned restaurant in Boynton Beach.",
+      "source": "https://www.bananaboatboynton.com/"
+     },
+     {
+      "claim": "Banana Boat is open for lunch and dinner daily.",
+      "source": "https://www.bananaboatboynton.com/"
+     },
+     {
+      "claim": "Sunday brunch is offered every Sunday from 11 a.m. to 3 p.m.",
+      "source": "https://www.bananaboatboynton.com/"
+     },
+     {
+      "claim": "Happy hour is Monday through Saturday from 3 p.m. to 7 p.m. at the bar.",
+      "source": "https://www.bananaboatboynton.com/"
+     },
+     {
+      "claim": "Banana Boat has indoor and outdoor waterfront bars.",
+      "source": "https://www.bananaboatboynton.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJszilh2z9wogRQu9qfVlj_JA",
+   "name": "Sea Dog Brewing Co.",
+   "category": "nightlife",
+   "metro": "st-pete",
+   "primary_type": "brewpub",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.seadogbrewing.com/location/treasure-island/",
+     "source_name": "Sea Dog Brewing Co. \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sea Dog Brewing Co. is at 9610 Gulf Blvd, Treasure Island, FL 33706.",
+      "Hours are Monday through Friday from 11 a.m. to 10 p.m. and Saturday and Sunday from 10 a.m. to 10 p.m.",
+      "Brunch is served Saturday and Sunday from 10 a.m. to 2 p.m.",
+      "The menu includes New England clam chowder made with a 30-year-old recipe.",
+      "The menu includes Maine lobster bisque and Brewhaus pretzels."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "New England clam chowder and brunch in Treasure Island",
+    "why_here": "Sea Dog Brewing Co. in Treasure Island serves New England clam chowder made with a 30-year-old recipe, plus Maine lobster bisque and Brewhaus pretzels. Brunch is served Saturday and Sunday, adding a weekend daytime option.",
+    "know_before": "Brunch is served Saturday and Sunday from 10 a.m. to 2 p.m.",
+    "local_tip": "Try the New England clam chowder and Brewhaus pretzels.",
+    "best_time": "Saturday or Sunday from 10 a.m. to 2 p.m. for brunch, per the official location page.",
+    "citations": {
+     "hook": [
+      "https://www.seadogbrewing.com/location/treasure-island/"
+     ],
+     "why_here": [
+      "https://www.seadogbrewing.com/location/treasure-island/"
+     ],
+     "know_before": [
+      "https://www.seadogbrewing.com/location/treasure-island/"
+     ],
+     "local_tip": [
+      "https://www.seadogbrewing.com/location/treasure-island/"
+     ],
+     "best_time": [
+      "https://www.seadogbrewing.com/location/treasure-island/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sea Dog Brewing Co. is at 9610 Gulf Blvd, Treasure Island, FL 33706.",
+      "source": "https://www.seadogbrewing.com/location/treasure-island/"
+     },
+     {
+      "claim": "Hours are Monday through Friday from 11 a.m. to 10 p.m. and Saturday and Sunday from 10 a.m. to 10 p.m.",
+      "source": "https://www.seadogbrewing.com/location/treasure-island/"
+     },
+     {
+      "claim": "Brunch is served Saturday and Sunday from 10 a.m. to 2 p.m.",
+      "source": "https://www.seadogbrewing.com/location/treasure-island/"
+     },
+     {
+      "claim": "The menu includes New England clam chowder made with a 30-year-old recipe.",
+      "source": "https://www.seadogbrewing.com/location/treasure-island/"
+     },
+     {
+      "claim": "The menu includes Maine lobster bisque and Brewhaus pretzels.",
+      "source": "https://www.seadogbrewing.com/location/treasure-island/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJHarknU0_kYgR6WNepLDpQ8c",
+   "name": "Crab Trap, Fort Walton Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.crabtrapflorida.com/menus/main-menu",
+     "source_name": "Crab Trap, Fort Walton Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Crab Trap, Fort Walton Beach is at 1450 Miracle Strip Parkway, Fort Walton Beach, FL 32548.",
+      "Alaska Dungeness Crab includes wild Alaska dungeness crab served with corn and new potatoes.",
+      "The Crab Trap menu lists Alaska Dungeness Crab in Fort Walton Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Alaska Dungeness crab with corn and new potatoes in Fort Walton Beach",
+    "why_here": "The Crab Trap in Fort Walton Beach serves Alaska Dungeness Crab with corn and new potatoes on Miracle Strip Parkway. The wild Alaska dungeness crab anchors a seafood menu built around crab served simply with classic sides.",
+    "know_before": "The Crab Trap is at 1450 Miracle Strip Parkway in Fort Walton Beach.",
+    "local_tip": "Order Alaska Dungeness Crab with corn and new potatoes.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.crabtrapflorida.com/menus/main-menu"
+     ],
+     "why_here": [
+      "https://www.crabtrapflorida.com/menus/main-menu"
+     ],
+     "know_before": [
+      "https://www.crabtrapflorida.com/menus/main-menu"
+     ],
+     "local_tip": [
+      "https://www.crabtrapflorida.com/menus/main-menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Crab Trap, Fort Walton Beach is at 1450 Miracle Strip Parkway, Fort Walton Beach, FL 32548.",
+      "source": "https://www.crabtrapflorida.com/menus/main-menu"
+     },
+     {
+      "claim": "Alaska Dungeness Crab includes wild Alaska dungeness crab served with corn and new potatoes.",
+      "source": "https://www.crabtrapflorida.com/menus/main-menu"
+     },
+     {
+      "claim": "The Crab Trap menu lists Alaska Dungeness Crab in Fort Walton Beach.",
+      "source": "https://www.crabtrapflorida.com/menus/main-menu"
+     }
+    ]
+   }
+  }
+ ]
+}
