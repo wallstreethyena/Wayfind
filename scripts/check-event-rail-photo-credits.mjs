@@ -40,6 +40,9 @@ ok(bare.length === 0, "every gallery photo renders a credit line: " + bare.slice
 // Venue knowledge comes from the batch record: #2151 published batch 2026-11j as host venue photos.
 const j = Object.values(CHRISTMAS_STATIC_GALLERY).flat().filter((e) => /\/batch-2026-11j\//.test(e.src));
 ok(j.length === 79 && j.every((e) => e.context === "venue"), "all 79 batch 2026-11j photos are marked context: venue (" + j.filter((e) => e.context === "venue").length + "/" + j.length + ")");
+// A batch that records each photo's subject: subject venue always carries the venue mark.
+const declared = Object.values(CHRISTMAS_STATIC_GALLERY).flat().filter((e) => e.subject === "venue" || e.subject === "event");
+ok(declared.length >= 11 && declared.every((e) => (e.subject === "venue") === (e.context === "venue")), "every entry declaring subject venue carries context venue, and no event photo does (" + declared.length + " declared)");
 const ballet = eventRailPhotoCredit(christmasStaticPhotos("orlando-ballet-nutcracker-2026")[0]);
 ok(ballet && ballet.text.startsWith("Venue photo · Photo: Farragutful"), "the Orlando Ballet cover is credited and identified as a venue photo, got " + JSON.stringify(ballet));
 const wec = christmasStaticPhotos("wec-winter-wonderland-2026");
