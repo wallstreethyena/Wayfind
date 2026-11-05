@@ -32,7 +32,10 @@ import { guideFinalRung, guideUsesNeutralFallback } from "../lib/guideNeutralFal
 import { loadComponent } from "./lib/jsxLoad.mjs";
 
 const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const SLUGS = ["tampa-bay-rainy-day", "sarasota-rainy-day"];
+const RAINY = ["tampa-bay-rainy-day", "sarasota-rainy-day"];
+// 2026-11-05: every guide that opts in is covered, the eight holiday guides included.
+const HOLIDAY = Object.keys(GUIDES).filter((s) => GUIDES[s].cluster === "holidays-florida-2026");
+const SLUGS = Object.keys(GUIDES).filter((s) => guideUsesNeutralFallback(GUIDES[s]));
 let checks = 0;
 const ok = (cond, msg) => { assert.ok(cond, msg); checks++; };
 const text = (html) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
@@ -40,10 +43,12 @@ const text = (html) => html.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim()
 const { default: GuideFigure } = await loadComponent(path.join(REPO, "app/components/GuideFigure.js"), REPO);
 const { default: GuideNeutralFigure } = await loadComponent(path.join(REPO, "app/components/GuideNeutralFigure.js"), REPO);
 
-let exact = 0, neutral = 0;
+ok(RAINY.every((s) => SLUGS.includes(s)) && HOLIDAY.length === 8 && HOLIDAY.every((s) => SLUGS.includes(s)), "the two rainy day guides and all eight holiday guides use the neutral fallback");
+let exact = 0, neutral = 0, holidayExact = 0, total = 0;
 for (const slug of SLUGS) {
   const guide = GUIDES[slug];
-  ok(guide && guide.picks.length === 12, `${slug}: twelve picks`);
+  if (RAINY.includes(slug)) ok(guide && guide.picks.length === 12, `${slug}: twelve picks`);
+  total += guide.picks.length;
   ok(guideUsesNeutralFallback(guide), `${slug}: opted into the neutral fallback`);
   const gaps = JSON.parse(readFileSync(path.join(REPO, "data/guide-pick-photos", slug + ".json"), "utf8")).gaps || {};
   for (const pick of guide.picks) {
@@ -52,6 +57,7 @@ for (const slug of SLUGS) {
     ok(Boolean(own) !== Boolean(gaps[pick.name]), `${slug} / ${pick.name}: exactly one of photographed or recorded gap`);
     if (own) {
       exact++;
+      if (HOLIDAY.includes(slug)) holidayExact++;
       ok(typeof own.src === "string" && own.src.startsWith("/guides/picks/") && own.license && own.credit && own.sourceUrl, `${slug} / ${pick.name}: exact photo is local, licensed and credited`);
       ok(!own.contextual && own.kind !== "illustrative" && !/illustrative/i.test(own.caption || "") && !/not a photograph of/i.test(own.alt || ""), `${slug} / ${pick.name}: exact photo is not a context record`);
       const html = renderToStaticMarkup(React.createElement(GuideFigure, { role: "pick", image: own }));
@@ -68,7 +74,8 @@ for (const slug of SLUGS) {
     }
   }
 }
-ok(exact + neutral === 24, "all 24 picks classified");
+ok(exact + neutral === total && total >= 24 + 74, `all ${total} picks classified`);
+ok(holidayExact >= 41, `the holiday guides keep their 41 exact venue photos (found ${holidayExact})`);
 ok(exact >= 9, "the nine photographed picks from the earlier pass are still photographed");
 
 // Controls: without the flag the old behaviour (labelled context photo) is unchanged,
