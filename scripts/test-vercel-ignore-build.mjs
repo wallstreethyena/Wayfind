@@ -35,6 +35,9 @@ git(["config", "user.name", "fixture"]);
 git(["config", "user.email", "fixture@example.com"]);
 git(["config", "commit.gpgsign", "false"]);
 for (const f of ["app/page.js", "lib/a.js", "scripts/check-x.mjs", "public/logo.svg", "docs/a.md", "package.json", "middleware.js", "next.config.js"]) put(f, "base\n");
+// The running code names this doc (like lib/atlasCache.js does), so changing it must build.
+put("lib/atlas.js", "const STANDARD = path.resolve(process.cwd(), \"docs/WAYFIND_CARD_STANDARD.md\");\n");
+put("docs/WAYFIND_CARD_STANDARD.md", "base\n");
 git(["add", "-A"]);
 git(["commit", "-q", "-m", "base"]);
 const BASE = git(["rev-parse", "HEAD"]);
@@ -112,9 +115,27 @@ try {
   expectBuild("an unreachable remote falls through to the code rule (build)", run({ cur: older, env: { ...R, WAYFIND_IGNORE_REMOTE: path.join(root, "no-such-remote") } }));
   expectBuild("a branch the remote does not have falls through (build)", run({ cur: older, env: { ...R, VERCEL_GIT_COMMIT_REF: "lane/missing" } }));
   expectBuild("no branch name falls through (build)", run({ cur: older, env: { WAYFIND_IGNORE_REMOTE: root, VERCEL_ENV: "preview" } }));
+
+  // 2026-11-05 audit: production compares with the last deployed commit and skips only
+  // docs the running site never reads; runtime-read docs and photos always build.
+  const docsOnly = commitOf(["docs/new-lesson.md"]);
+  expectSkip("production, docs-only change the site never reads", run({ cur: docsOnly, env: { VERCEL_ENV: "production" } }));
+  const stdDoc = commitOf(["docs/WAYFIND_CARD_STANDARD.md"]);
+  const stdProd = run({ cur: stdDoc, env: { VERCEL_ENV: "production" } });
+  expectBuild("production, a doc the running code reads (lib names it)", stdProd);
+  ok(/runtime-read doc changed: docs\/WAYFIND_CARD_STANDARD\.md/.test(stdProd.out), "the build names the runtime-read doc: " + stdProd.out.trim());
+  expectBuild("preview, a doc the running code reads", run({ cur: stdDoc, env: { VERCEL_ENV: "preview" } }));
+  expectBuild("production, no previous deployment SHA", run({ cur: docsOnly, prev: null, env: { VERCEL_ENV: "production" } }));
+  // A code commit whose production deploy was superseded, then a docs-only commit: compared
+  // with the last DEPLOYED commit (BASE), the code change is still in the diff and builds.
+  git(["checkout", "-q", "--detach", BASE]);
+  put("lib/a.js", "code " + Math.random() + "\n"); git(["add", "-A"]); git(["commit", "-q", "-m", "code"]);
+  put("docs/later.md", "x\n"); git(["add", "-A"]); git(["commit", "-q", "-m", "docs"]);
+  const stacked = git(["rev-parse", "HEAD"]);
+  expectBuild("production, docs commit on top of an undeployed code commit (diff from last deploy)", run({ cur: stacked, prev: BASE, env: { VERCEL_ENV: "production" } }));
 } finally {
   rmSync(root, { recursive: true, force: true });
 }
 
 if (fails) { console.error(`test-vercel-ignore-build: ${fails} failure(s)`); process.exit(1); }
-console.log(`test-vercel-ignore-build: OK - ${asserts} assertions (6 skip cases, 10 code-change build cases, 5 fail-closed build cases, 6 superseded-preview cases) against a temp git fixture`);
+console.log(`test-vercel-ignore-build: OK - ${asserts} assertions (6 skip cases, 10 code-change build cases, 5 fail-closed build cases, 6 superseded-preview cases, 5 production/runtime-doc cases) against a temp git fixture`);
