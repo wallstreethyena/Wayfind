@@ -530,6 +530,7 @@ node scripts/test-guide-inline-book.mjs --red-prove
 node scripts/test-guide-park-ticket-cta.mjs
 node scripts/test-guide-pick-offers.mjs
 node scripts/test-guide-pick-offers.mjs --red-prove
+node scripts/test-guide-pick-facts.mjs
 node scripts/check-guide-teasers.mjs
 node scripts/test-guide-editorial-mode.mjs
 node scripts/test-guide-lovebug-rail.mjs
@@ -681,6 +682,7 @@ node scripts/check-creator-avatars.mjs
 # properties of the OUTPUT and cannot be read off the source.
 node scripts/test-creator-card-mark.mjs
 node scripts/test-creator-pages.mjs
+node scripts/test-creator-taxonomy.mjs
 node scripts/check-creator-tile-navigates.mjs
 node scripts/check-creator-summary-counts.mjs
 node scripts/check-rail-seed-not-frozen.mjs
@@ -754,6 +756,8 @@ node scripts/test-daily-trend-intelligence.mjs
 node scripts/check-quick-bite-identity.mjs
 node scripts/check-map-search-area.mjs
 node scripts/test-map-render-smoke.mjs
+# The on-screen unpinned count equals the accounting even while the Search-this-area pill is up (synthetic surface-parity-parrish-cafes: expected 19, got 0).
+node scripts/test-map-unpinned-note-render.mjs
 node scripts/check-rail-dots.mjs
 node scripts/check-awin-links.mjs
 node scripts/check-no-sideways-scroll.mjs
@@ -2352,6 +2356,12 @@ node scripts/test-db-cursor-collation.mjs --red-prove
 # local context photograph after exact-place media, including source failures.
 node scripts/test-guide-context-photos.mjs
 
+# 2026-11-04: the two rainy day guides show either a pick's own approved photo or
+# Wayfind's neutral "Photo unavailable" tile, never a photograph of another place
+# and never an "Illustrative" caption on an exact photo. Calls the page's resolver
+# and renders the real figures for all 24 picks; red-proven by mutation.
+node scripts/check-guide-neutral-fallback.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
@@ -2433,6 +2443,7 @@ node scripts/test-richness-loading-path.mjs
 node scripts/check-santa-companion.mjs
 node scripts/check-boo-companion.mjs
 node scripts/test-santa-companion.mjs
+node scripts/test-santa-dock.mjs
 # 2026-10-27 (fix-affiliate-synthetic-traffic) - prefetch, QA opt-in and burst traffic never follow a
 # partner redirect; real Chrome/Firefox/Safari clicks, Node-fetch probes and the synthetic monitor
 # still do. Drives all four go handlers with the PostHog capture intercepted.
@@ -2477,6 +2488,15 @@ node scripts/test-locality-backfill-evidence.mjs
 
 # Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
 node scripts/test-refresh-selector-trap.mjs
+node scripts/test-refresh-reserve.mjs
 # Editorial hydration precedence: verified wf_editorial line outranks inventory text on rails/served cards.
 node scripts/test-hydrate-editorial-precedence.mjs
 node scripts/check-this-week-events.mjs
+node scripts/check-schedule-note-days.mjs
+node scripts/check-event-assessment-policy.mjs
+# Place city ladder: one placeCity() for title/share/PostalAddress/headers; postal_city > Census locality; never a state/county/slug/street.
+node scripts/check-place-city.mjs
+# 2026-11-01: Vercel Ignored Build Step skips ONLY data/docs-only commits (photo batches); code PR previews, production and any doubt always build. Runs the real script against a temp git repo.
+node scripts/test-vercel-ignore-build.mjs
+# 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
+node scripts/test-ticketmaster-gating.mjs

@@ -3,17 +3,17 @@
   "verifiedAt": "2026-11-03",
   "rule": "Every photo added by the guide pick-photo pipeline, re-checked at its source. commercialUse is true only for CC0, CC BY and CC BY-SA (2.0 to 4.0); NC and ND never pass.",
   "summary": {
-    "files": 309,
-    "usages": 332,
-    "verified": 309,
+    "files": 316,
+    "usages": 341,
+    "verified": 316,
     "needsReview": [],
     "authorDiffers": [],
     "byLicence": {
-      "CC BY-SA 4.0": 72,
-      "CC BY-SA 3.0": 72,
+      "CC BY-SA 4.0": 75,
+      "CC BY-SA 3.0": 75,
       "CC BY 4.0": 19,
       "CC BY 3.0": 16,
-      "CC BY 2.0": 75,
+      "CC BY 2.0": 76,
       "CC0 1.0 Universal": 25,
       "Unsplash License": 5,
       "CC BY-SA 2.0": 25
@@ -1573,6 +1573,36 @@
         "license": "CC BY 2.0",
         "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
         "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-03"
+    },
+    {
+      "src": "/guides/picks/florida-thanksgiving-weekend-2026/daytona-speedway-frontstretch.webp",
+      "usedBy": [
+        {
+          "slug": "florida-thanksgiving-weekend-2026",
+          "role": "pick",
+          "pick": "Daytona Turkey Run"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+        "title": "2018 Coke Zero Sugar 400 fireworks from frontstretch",
+        "author": "Dough4872",
+        "dateTaken": "7 July 2018 (according to Exif data)",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Dough4872",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
       },
       "commercialUse": true,
       "authorMatchesCredit": true,
@@ -3350,6 +3380,96 @@
       "verifiedAt": "2026-11-03"
     },
     {
+      "src": "/guides/picks/sarasota-rainy-day/florida-studio-theatre.webp",
+      "usedBy": [
+        {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "Florida Studio Theatre"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:FST%27s_Hegner_Theatre_Wing_Greg_Wilson.jpg",
+        "title": "FST's Hegner Theatre Wing Greg Wilson",
+        "author": "Kander Hopkins (FST)",
+        "dateTaken": "2013-10-31 03:11:02",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Kander Hopkins (FST)",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:FST%27s_Hegner_Theatre_Wing_Greg_Wilson.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/sarasota-rainy-day/sarasota-art-museum.webp",
+      "usedBy": [
+        {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "Sarasota Art Museum"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_Art_Museum.jpg",
+        "title": "Sarasota Art Museum",
+        "author": "Brycesrq",
+        "dateTaken": "2021-04-21",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Brycesrq",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_Art_Museum.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/sarasota-rainy-day/van-wezel-performing-arts-hall.webp",
+      "usedBy": [
+        {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "Van Wezel Performing Arts Hall"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg",
+        "title": "Sarasota FL Van Wezel Arts Center01",
+        "author": "Ebyabe",
+        "dateTaken": "2011-06-19 14:39:03",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Ebyabe",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized to WebP"
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-03"
+    },
+    {
       "src": "/guides/picks/siesta-key-drum-circle/parking-without-the-meltdown.webp",
       "usedBy": [
         {
@@ -3857,6 +3977,96 @@
       "authorMatchesCredit": true,
       "status": "verified",
       "verifiedAt": "2026-11-03"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-rainy-day/glazer-children-s-museum.webp",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "Glazer Children's Museum"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Glazer_Childrens_Museum_Tampa_2012.jpg",
+        "title": "Glazer Childrens Museum Tampa 2012",
+        "author": "Walter",
+        "dateTaken": "2012-08-04 11:46:31",
+        "licence": "CC BY 2.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by/2.0"
+      },
+      "wayfind": {
+        "credit": "Walter",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Glazer_Childrens_Museum_Tampa_2012.jpg",
+        "license": "CC BY 2.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by/2.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-rainy-day/imagine-museum.webp",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "Imagine Museum"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Imagine_Museum_St._Petersburg_front.jpg",
+        "title": "Imagine Museum St. Petersburg front",
+        "author": "Adog",
+        "dateTaken": "2023-05-28 16:15:33",
+        "licence": "CC BY-SA 4.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0"
+      },
+      "wayfind": {
+        "credit": "Adog",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Imagine_Museum_St._Petersburg_front.jpg",
+        "license": "CC BY-SA 4.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
+    },
+    {
+      "src": "/guides/picks/tampa-bay-rainy-day/straz-center-for-the-performing-arts.webp",
+      "usedBy": [
+        {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "Straz Center for the Performing Arts"
+        }
+      ],
+      "source": {
+        "kind": "commons",
+        "url": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg",
+        "title": "Tampa architectural photos 257",
+        "author": "Barbthebuilder",
+        "dateTaken": "2012-02-23",
+        "licence": "CC BY-SA 3.0",
+        "licenceUrl": "https://creativecommons.org/licenses/by-sa/3.0"
+      },
+      "wayfind": {
+        "credit": "Barbthebuilder",
+        "creditHref": "https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg",
+        "license": "CC BY-SA 3.0",
+        "licenseUrl": "https://creativecommons.org/licenses/by-sa/3.0/",
+        "modificationNotice": "Resized, cropped for display and converted to WebP. The adaptation is released under the same licence."
+      },
+      "commercialUse": true,
+      "authorMatchesCredit": true,
+      "status": "verified",
+      "verifiedAt": "2026-11-04"
     },
     {
       "src": "/guides/picks/tampa-restaurants/oxford-exchange-exterior.webp",
@@ -8023,6 +8233,11 @@
       "src": "/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp",
       "usedBy": [
         {
+          "slug": "sarasota-rainy-day",
+          "role": "pick",
+          "pick": "Mote Marine Laboratory"
+        },
+        {
           "slug": "things-to-do-sarasota",
           "role": "pick",
           "pick": "Mote Marine Laboratory"
@@ -8047,7 +8262,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-03"
+      "verifiedAt": "2026-11-04"
     },
     {
       "src": "/guides/picks/things-to-do-sarasota/myakka-alligators.webp",
@@ -8539,6 +8754,11 @@
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/dali-museum-exterior.webp",
       "usedBy": [
         {
+          "slug": "tampa-bay-rainy-day",
+          "role": "pick",
+          "pick": "The Dalí Museum"
+        },
+        {
           "slug": "things-to-do-st-petersburg-clearwater-summer-2026",
           "role": "pick",
           "pick": "The Dalí Museum"
@@ -8563,7 +8783,7 @@
       "commercialUse": true,
       "authorMatchesCredit": true,
       "status": "verified",
-      "verifiedAt": "2026-11-03"
+      "verifiedAt": "2026-11-04"
     },
     {
       "src": "/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/fort-de-soto-cannon.webp",

@@ -42,7 +42,8 @@ for (const [slug, guide] of Object.entries(GUIDES)) {
   for (const pick of guide.picks || []) {
     const photo = guideContextPhoto(slug, pick, guide, { usedSrc });
     assert.ok(photo.src.startsWith("/guides/context/"), slug + " / " + pick.name + " has a local final rung");
-    assert.match(photo.caption, /^Illustrative .+ photo\.$/);
+    assert.match(photo.caption, /^Illustrative .+ photo, not .+\.$/);
+    assert.ok(photo.caption.endsWith(", not " + String(pick.name || pick.title || pick.event_name || "this section") + "."), "visible caption names the pick it is not a photo of");
     assert.ok(photo.alt.includes("not a photograph of " + pick.name), "context is never represented as the named venue");
     assert.equal(photo.placeId, null, "context never acquires a venue identity");
     picks++;
@@ -139,5 +140,22 @@ const { default: Figure } = await loadComponent(path.join(REPO, "app/components/
 const html = renderToStaticMarkup(React.createElement(Figure, { image: recovery.recovered }));
 assert.ok(html.includes("Illustrative beach photo.") && html.includes("Context author") && !html.includes("Venue author"), "recovered figure renders only the fallback's caption and credit");
 
-console.log(`test-guide-context-photos: OK — ${Object.keys(GUIDES).length} guides / ${picks} picks, ${EDITORIAL_CONTEXT_PHOTOS.length} decoded licensed local assets; 7 regression cases verified`);
+// Case 8: Fall Guide provenance, manifest fallback guard, and primary-first usedSrc reservation.
+const fallProvenance = JSON.parse(readFileSync(path.join(REPO, "data/fall-festival-photo-provenance.json"), "utf8"));
+const goatsProvenance = fallProvenance["hunsader-farms-goats.webp"];
+assert.equal(goatsProvenance?.classification, "local_contextual", "hunsader-farms-goats.webp is classified as contextual rather than exact venue");
+const fallGuidePageCode = readFileSync(path.join(REPO, "app/guides/florida-fall-festivals-2026/page.js"), "utf8");
+assert.ok(
+  fallGuidePageCode.includes('credit: "Ebyabe"') &&
+  fallGuidePageCode.includes('contextual: true') &&
+  fallGuidePageCode.includes("const hasManifestImg = Boolean(manifest && guidePickPhoto(manifest.slug, manifest.name));") &&
+  fallGuidePageCode.includes("usedSrc: primaryImage ? new Set(usedSrc) : usedSrc"),
+  "Fall Guide page enforces Ebyabe Commons credit, contextual goats classification, active-manifest check, and primary-first usedSrc reservation"
+);
+const slugGuidePageCode = readFileSync(path.join(REPO, "app/guides/[slug]/page.js"), "utf8");
+assert.ok(
+  slugGuidePageCode.includes("fallbackPickImages[i] = guideContextPhoto(params.slug, pick, g, { usedSrc: new Set(usedSrc) });"),
+  "Standard guide page reserves primary contextual picks in usedSrc before computing backup runtime fallbackPickImages"
+);
 
+console.log(`test-guide-context-photos: OK — ${Object.keys(GUIDES).length} guides / ${picks} picks, ${EDITORIAL_CONTEXT_PHOTOS.length} decoded licensed local assets; 8 regression cases verified`);

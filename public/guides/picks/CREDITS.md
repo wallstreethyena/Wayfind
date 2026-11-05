@@ -90,6 +90,10 @@ Each photo uses the license named below; images may be resized, cropped and conv
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-license-and-the-limits.webp` — florida-scalloping-crystal-river-homosassa: The license and the limits. [ChrisNovak](https://commons.wikimedia.org/wiki/File:Monkey_Island_on_Homosassa_River,_Florida_USA,_Jan_2013.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/florida-scalloping-crystal-river-homosassa/the-season-and-why-you-check-the-exact-dates.webp` — florida-scalloping-crystal-river-homosassa: The season, and why you check the exact dates. [eutrophication&hypoxia](https://www.flickr.com/photos/48722974@N07/5686916873); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 
+## florida-thanksgiving-weekend-2026
+
+- `/guides/picks/florida-thanksgiving-weekend-2026/daytona-speedway-frontstretch.webp` — florida-thanksgiving-weekend-2026: Daytona Turkey Run. [Dough4872](https://commons.wikimedia.org/wiki/File:2018_Coke_Zero_Sugar_400_fireworks_from_frontstretch.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+
 ## florida-winter-beaches-2026
 
 - `/guides/picks/florida-winter-beaches-2026/bahia-honda-matthew-wu-unsplash.webp` — florida-winter-beaches-2026: Bahia Honda State Park. [Matthew Wu](https://unsplash.com/photos/sea-waves-crashing-on-shore-under-blue-and-white-cloudy-sky-during-daytime-PGZAf5W-Sa8); [Unsplash License](https://unsplash.com/license).
@@ -195,8 +199,12 @@ Each photo uses the license named below; images may be resized, cropped and conv
 ## sarasota-rainy-day
 
 - `/guides/picks/things-to-do-in-parrish-florida/florida-railroad-museum.webp` — sarasota-rainy-day: Florida Railroad Museum. [Ebyabe](https://commons.wikimedia.org/wiki/File:Parrish_FL_Florida_Railroad_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/sarasota-rainy-day/florida-studio-theatre.webp` — sarasota-rainy-day: Florida Studio Theatre. [Kander Hopkins (FST)](https://commons.wikimedia.org/wiki/File:FST%27s_Hegner_Theatre_Wing_Greg_Wilson.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-sarasota/mote-marine-laboratory.webp` — sarasota-rainy-day: Mote Marine Laboratory. [Ebyabe](https://commons.wikimedia.org/wiki/File:FL_Sarasota_Mote_Marine_Lab01.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/sarasota-rainy-day/sarasota-art-museum.webp` — sarasota-rainy-day: Sarasota Art Museum. [Brycesrq](https://commons.wikimedia.org/wiki/File:Sarasota_Art_Museum.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-bradenton-florida/bishop-museum-entrance.webp` — sarasota-rainy-day: The Bishop Museum of Science and Nature. [Ebyabe](https://commons.wikimedia.org/wiki/File:Bradenton_FL_South_Florida_Museum01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-sarasota-florida/the-ringling-entrance.webp` — sarasota-rainy-day: The John and Mable Ringling Museum of Art. [Wolfgang Moroder](https://commons.wikimedia.org/wiki/File:Ringling_Museum_main_entrance_Sarasota_Florida.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/sarasota-rainy-day/van-wezel-performing-arts-hall.webp` — sarasota-rainy-day: Van Wezel Performing Arts Hall. [Ebyabe](https://commons.wikimedia.org/wiki/File:Sarasota_FL_Van_Wezel_Arts_Center01.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## siesta-key-drum-circle
 
@@ -232,8 +240,12 @@ Each photo uses the license named below; images may be resized, cropped and conv
 
 ## tampa-bay-rainy-day
 
+- `/guides/picks/tampa-bay-rainy-day/glazer-children-s-museum.webp` — tampa-bay-rainy-day: Glazer Children's Museum. [Walter](https://commons.wikimedia.org/wiki/File:Glazer_Childrens_Museum_Tampa_2012.jpg); [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `/guides/picks/tampa-bay-rainy-day/imagine-museum.webp` — tampa-bay-rainy-day: Imagine Museum. [Adog](https://commons.wikimedia.org/wiki/File:Imagine_Museum_St._Petersburg_front.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/tampa-bay-rainy-day/straz-center-for-the-performing-arts.webp` — tampa-bay-rainy-day: Straz Center for the Performing Arts. [Barbthebuilder](https://commons.wikimedia.org/wiki/File:Tampa_architectural_photos_257.jpg); [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-tampa-florida/tampa-bay-history-center.webp` — tampa-bay-rainy-day: Tampa Bay History Center. [James E. Scholz](https://commons.wikimedia.org/wiki/File:Tampa_Bay_History_Center_1.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 - `/guides/picks/things-to-do-in-tampa-florida/tampa-theatre.webp` — tampa-bay-rainy-day: Tampa Theatre. [MatthewHoobin](https://commons.wikimedia.org/wiki/File:Tampa_Theatre_in_Tampa,_Florida,_US,_on_23_March_2021.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
+- `/guides/picks/things-to-do-st-petersburg-clearwater-summer-2026/dali-museum-exterior.webp` — tampa-bay-rainy-day: The Dalí Museum. [Taty2007](https://commons.wikimedia.org/wiki/File:Salvador_Dal%C3%AD_Museum.JPG); [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
 - `/guides/picks/things-to-do-in-tampa-florida/florida-aquarium.webp` — tampa-bay-rainy-day: The Florida Aquarium. [James E. Scholz](https://commons.wikimedia.org/wiki/File:Florida_Aquarium_Channelside.jpg); [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Adaptation (resized, cropped, WebP) released under the same licence.
 
 ## tampa-restaurants
