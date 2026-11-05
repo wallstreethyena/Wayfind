@@ -2500,3 +2500,5 @@ node scripts/check-place-city.mjs
 node scripts/test-vercel-ignore-build.mjs
 # 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
 node scripts/test-ticketmaster-gating.mjs
+# 2026-11-03: Viator per-click opaque attribution, stale-attribution merge prevention, booking ingestion/reconciliation, 4-way financial separation, and Google Data Manager offline conversion pipeline.
+node scripts/test-viator-booking-attribution.mjs
