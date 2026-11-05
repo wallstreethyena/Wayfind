@@ -7,6 +7,7 @@
 // partner or the commission.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -36,6 +37,14 @@ const ok = (c, m) => { assert.ok(c, m); checks += 1; };
 const DASH = /[–—]|\s-\s|\d\s*-\s*\d/;
 const strip = (src) => src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
 const read = (f) => readFileSync(path.join(root, f), "utf8");
+
+// A public image path and a 200 response are insufficient: an empty binary upload
+// previously shipped with both. Lock the actual deployable bytes to the review.
+for (const photo of JSON.parse(read("docs/curation/christmas-venue-photos-2026-11-04.json")).images) {
+  const bytes = readFileSync(path.join(root, "public", photo.local_path.slice(1)));
+  ok(bytes.length === photo.bytes && createHash("sha256").update(bytes).digest("hex") === photo.sha256,
+    "Christmas venue photo contains the exact reviewed bytes: " + photo.local_path);
+}
 
 // ── Fixtures ─────────────────────────────────────────────────────────────────
 const TODAY = "2026-11-20";
