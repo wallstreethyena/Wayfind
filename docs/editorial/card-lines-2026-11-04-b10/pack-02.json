@@ -1,0 +1,833 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 10. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJGb-X09iq2YgRaqjKsvnN9Ds",
+   "name": "Hollywood North Beach Park",
+   "category": "beach",
+   "metro": "broward",
+   "primary_type": "beach",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf",
+     "source_name": "Hollywood North Beach Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hollywood North Beach Park is a 56-acre park that provides parking and access to the Atlantic Ocean.",
+      "five pocket parks feature picnic areas, fishing piers, and restrooms near Hollywood North Beach Park.",
+      "Broward County acquired the Carpenter House Marine Environmental Education Center in 2004."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "56-acre park providing parking and access to the Atlantic Ocean",
+    "why_here": "Hollywood North Beach Park is a 56-acre park that provides parking and access to the Atlantic Ocean, and five pocket parks nearby feature picnic areas, fishing piers, and restrooms for a longer beach day.",
+    "know_before": "the 56-acre park provides parking and access to the Atlantic Ocean.",
+    "local_tip": "use the five pocket parks for picnic areas, fishing piers, and restrooms.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     ],
+     "why_here": [
+      "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     ],
+     "know_before": [
+      "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     ],
+     "local_tip": [
+      "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hollywood North Beach Park is a 56-acre park that provides parking and access to the Atlantic Ocean.",
+      "source": "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     },
+     {
+      "claim": "five pocket parks feature picnic areas, fishing piers, and restrooms near Hollywood North Beach Park.",
+      "source": "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     },
+     {
+      "claim": "Broward County acquired the Carpenter House Marine Environmental Education Center in 2004.",
+      "source": "https://www.broward.org/Parks/Support/Documents/DraftMinutes5.30.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJr8kmLL2p2YgRrL-PxRBBOb8",
+   "name": "Hard Rock Cafe",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cafe.hardrock.com/hollywood-fl/",
+     "source_name": "Hard Rock Cafe \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hard Rock Cafe Hollywood, Florida was established May 11, 2004.",
+      "Hard Rock Cafe Hollywood is inside the Seminole Hard Rock Hotel & Casino.",
+      "Hard Rock Cafe Hollywood offers two rock shops."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "cafe inside the Seminole Hard Rock Hotel & Casino, established May 11, 2004",
+    "why_here": "Hard Rock Cafe Hollywood is inside the Seminole Hard Rock Hotel & Casino and was established May 11, 2004, making it a dining stop set within the casino property rather than a standalone restaurant.",
+    "know_before": "the cafe is inside the Seminole Hard Rock Hotel & Casino.",
+    "local_tip": "browse the two rock shops during the visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cafe.hardrock.com/hollywood-fl/"
+     ],
+     "why_here": [
+      "https://cafe.hardrock.com/hollywood-fl/"
+     ],
+     "know_before": [
+      "https://cafe.hardrock.com/hollywood-fl/"
+     ],
+     "local_tip": [
+      "https://cafe.hardrock.com/hollywood-fl/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hard Rock Cafe Hollywood, Florida was established May 11, 2004.",
+      "source": "https://cafe.hardrock.com/hollywood-fl/"
+     },
+     {
+      "claim": "Hard Rock Cafe Hollywood is inside the Seminole Hard Rock Hotel & Casino.",
+      "source": "https://cafe.hardrock.com/hollywood-fl/"
+     },
+     {
+      "claim": "Hard Rock Cafe Hollywood offers two rock shops.",
+      "source": "https://cafe.hardrock.com/hollywood-fl/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7e24kaOp2YgRQamXKGCVlnU",
+   "name": "JZ Steakhouse",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://jzsteakhouse.com/menu",
+     "source_name": "JZ Steakhouse \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JZ Steakhouse menu includes Brisket Tacos.",
+      "JZ Steakhouse menu includes Pastrami Egg Roll served with House Sauce and Pickles.",
+      "JZ Steakhouse menu includes Lamb Skewer and Ribeye Skewer.",
+      "JZ Steakhouse is a kosher steakhouse in South Florida."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "kosher steakhouse menu with Brisket Tacos and Pastrami Egg Roll",
+    "why_here": "JZ Steakhouse is a kosher steakhouse in South Florida, and its menu includes Brisket Tacos, a Pastrami Egg Roll with House Sauce and Pickles, and skewers for a varied steakhouse meal.",
+    "know_before": "the menu includes Lamb Skewer and Ribeye Skewer.",
+    "local_tip": "start with Brisket Tacos or the Pastrami Egg Roll.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://jzsteakhouse.com/menu"
+     ],
+     "why_here": [
+      "https://jzsteakhouse.com/menu"
+     ],
+     "know_before": [
+      "https://jzsteakhouse.com/menu"
+     ],
+     "local_tip": [
+      "https://jzsteakhouse.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JZ Steakhouse menu includes Brisket Tacos.",
+      "source": "https://jzsteakhouse.com/menu"
+     },
+     {
+      "claim": "JZ Steakhouse menu includes Pastrami Egg Roll served with House Sauce and Pickles.",
+      "source": "https://jzsteakhouse.com/menu"
+     },
+     {
+      "claim": "JZ Steakhouse menu includes Lamb Skewer and Ribeye Skewer.",
+      "source": "https://jzsteakhouse.com/menu"
+     },
+     {
+      "claim": "JZ Steakhouse is a kosher steakhouse in South Florida.",
+      "source": "https://jzsteakhouse.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJu-GpStH2wogRqXB7I7FzOjg",
+   "name": "Hilton Clearwater Beach Resort & Spa",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/",
+     "source_name": "Hilton Clearwater Beach Resort & Spa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "the resort is in the heart of Clearwater on 10 acres of beach property.",
+      "the resort is located on 10 acres of sugar sand white beach on the Gulf of Mexico.",
+      "amenities include an outdoor pool, on-site restaurant, fitness center, and spa.",
+      "the spa offers massages, Hydrafacials, facials, body treatments, nails, hair, waxing, and makeup."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "resort on 10 acres of white beach on the Gulf of Mexico",
+    "why_here": "the resort sits in the heart of Clearwater on 10 acres of beach property on the Gulf of Mexico, with an outdoor pool, on-site restaurant, fitness center, and spa listed among its amenities.",
+    "know_before": "amenities include an outdoor pool, on-site restaurant, fitness center, and spa.",
+    "local_tip": "the spa offers massages and Hydrafacials among its treatments.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     ],
+     "local_tip": [
+      "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "the resort is in the heart of Clearwater on 10 acres of beach property.",
+      "source": "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     },
+     {
+      "claim": "the resort is located on 10 acres of sugar sand white beach on the Gulf of Mexico.",
+      "source": "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     },
+     {
+      "claim": "amenities include an outdoor pool, on-site restaurant, fitness center, and spa.",
+      "source": "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     },
+     {
+      "claim": "the spa offers massages, Hydrafacials, facials, body treatments, nails, hair, waxing, and makeup.",
+      "source": "https://www.hilton.com/en/hotels/piecbhf-hilton-clearwater-beach-resort-and-spa/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsx5kLqKt2YgRtWH2sru1V_Y",
+   "name": "JOEY Aventura",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://joeyrestaurants.com/location/joey-aventura/",
+     "source_name": "JOEY Aventura \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "JOEY Aventura is located at The Abbey at Aventura.",
+      "JOEY Aventura spans two levels indoors and features a large patio.",
+      "the dining room at JOEY Aventura has 241 seats and floor-to-ceiling windows.",
+      "JOEY Aventura is the first JOEY Restaurants location in the Sunshine State.",
+      "location features include Private Dining, Patio Seating, and Wheelchair Accessible access."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "first JOEY Restaurants location in the Sunshine State, with two levels and a large patio",
+    "why_here": "JOEY Aventura is located at The Abbey at Aventura and spans two levels indoors with a large patio, and its dining room has 241 seats and floor-to-ceiling windows for groups and casual meals.",
+    "know_before": "location features include Private Dining, Patio Seating, and Wheelchair Accessible access.",
+    "local_tip": "sit on the large patio for an outdoor meal.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://joeyrestaurants.com/location/joey-aventura/"
+     ],
+     "why_here": [
+      "https://joeyrestaurants.com/location/joey-aventura/"
+     ],
+     "know_before": [
+      "https://joeyrestaurants.com/location/joey-aventura/"
+     ],
+     "local_tip": [
+      "https://joeyrestaurants.com/location/joey-aventura/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "JOEY Aventura is located at The Abbey at Aventura.",
+      "source": "https://joeyrestaurants.com/location/joey-aventura/"
+     },
+     {
+      "claim": "JOEY Aventura spans two levels indoors and features a large patio.",
+      "source": "https://joeyrestaurants.com/location/joey-aventura/"
+     },
+     {
+      "claim": "the dining room at JOEY Aventura has 241 seats and floor-to-ceiling windows.",
+      "source": "https://joeyrestaurants.com/location/joey-aventura/"
+     },
+     {
+      "claim": "JOEY Aventura is the first JOEY Restaurants location in the Sunshine State.",
+      "source": "https://joeyrestaurants.com/location/joey-aventura/"
+     },
+     {
+      "claim": "location features include Private Dining, Patio Seating, and Wheelchair Accessible access.",
+      "source": "https://joeyrestaurants.com/location/joey-aventura/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJJQpZe3y72YgRFEgIQxeV8Ts",
+   "name": "Sufrat Mediterranean Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sufratgrill.com/",
+     "source_name": "Sufrat Mediterranean Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sufrat Mediterranean Grill is in Pembroke Pines at 10430 Pines Boulevard.",
+      "The Family Combo includes a Large Greek Salad, Basmati rice, chicken kebab skewers, beef kebab skewers, kafta skewers, and chicken shawarma.",
+      "Sufrat Mediterranean Grill hours on Sunday are from 12 p.m. to 9 p.m.",
+      "The Sufrat Combo includes Greek Salad, chicken kebab skewers, beef kebab skewers, kofta kebab skewers, lamb kebab skewers, lamb chops, chicken shawarma, and beef shawarma."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family Combo with Greek Salad, kebab skewers, and chicken shawarma",
+    "why_here": "Sufrat Mediterranean Grill serves a Family Combo with a Large Greek Salad, Basmati rice, chicken kebab skewers, beef kebab skewers, kafta skewers, and chicken shawarma for sharing at the table.",
+    "know_before": "Hours on Sunday are from 12 p.m. to 9 p.m. in Pembroke Pines.",
+    "local_tip": "Share the Family Combo with Greek Salad and chicken shawarma.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sufratgrill.com/"
+     ],
+     "why_here": [
+      "https://sufratgrill.com/"
+     ],
+     "know_before": [
+      "https://sufratgrill.com/"
+     ],
+     "local_tip": [
+      "https://sufratgrill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sufrat Mediterranean Grill is in Pembroke Pines at 10430 Pines Boulevard.",
+      "source": "https://sufratgrill.com/"
+     },
+     {
+      "claim": "The Family Combo includes a Large Greek Salad, Basmati rice, chicken kebab skewers, beef kebab skewers, kafta skewers, and chicken shawarma.",
+      "source": "https://sufratgrill.com/"
+     },
+     {
+      "claim": "Sufrat Mediterranean Grill hours on Sunday are from 12 p.m. to 9 p.m.",
+      "source": "https://sufratgrill.com/"
+     },
+     {
+      "claim": "The Sufrat Combo includes Greek Salad, chicken kebab skewers, beef kebab skewers, kofta kebab skewers, lamb kebab skewers, lamb chops, chicken shawarma, and beef shawarma.",
+      "source": "https://sufratgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX42RYQ2k2YgR8qb2wqVMbVk",
+   "name": "Benihana - Miramar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.benihana.com/locations/miramar/",
+     "source_name": "Benihana - Miramar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Benihana Miramar is at the Fountains of Miramar, right off I-75 and Miramar Parkway.",
+      "Benihana Miramar chefs cook filet mignon, colossal shrimp, and Hokkaido scallops on the teppanyaki grill in front of guests.",
+      "Restaurant dining at Benihana Miramar is from 11 a.m. to 10 p.m. Sunday through Wednesday.",
+      "Happy Hour at Benihana Miramar is Monday through Friday from 3 p.m. to 6 p.m.",
+      "Benihana Miramar has private dining rooms and a sushi bar."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Chefs cook on the teppanyaki grill in front of guests",
+    "why_here": "Benihana Miramar is at the Fountains of Miramar, right off I-75 and Miramar Parkway, where chefs cook filet mignon, colossal shrimp, and Hokkaido scallops on the teppanyaki grill in front of guests, with private dining rooms and a sushi bar.",
+    "know_before": "Restaurant dining is from 11 a.m. to 10 p.m. Sunday through Wednesday.",
+    "local_tip": "Try Happy Hour Monday through Friday from 3 p.m. to 6 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.benihana.com/locations/miramar/"
+     ],
+     "why_here": [
+      "https://www.benihana.com/locations/miramar/"
+     ],
+     "know_before": [
+      "https://www.benihana.com/locations/miramar/"
+     ],
+     "local_tip": [
+      "https://www.benihana.com/locations/miramar/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Benihana Miramar is at the Fountains of Miramar, right off I-75 and Miramar Parkway.",
+      "source": "https://www.benihana.com/locations/miramar/"
+     },
+     {
+      "claim": "Benihana Miramar chefs cook filet mignon, colossal shrimp, and Hokkaido scallops on the teppanyaki grill in front of guests.",
+      "source": "https://www.benihana.com/locations/miramar/"
+     },
+     {
+      "claim": "Restaurant dining at Benihana Miramar is from 11 a.m. to 10 p.m. Sunday through Wednesday.",
+      "source": "https://www.benihana.com/locations/miramar/"
+     },
+     {
+      "claim": "Happy Hour at Benihana Miramar is Monday through Friday from 3 p.m. to 6 p.m.",
+      "source": "https://www.benihana.com/locations/miramar/"
+     },
+     {
+      "claim": "Benihana Miramar has private dining rooms and a sushi bar.",
+      "source": "https://www.benihana.com/locations/miramar/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf7msv0p-54gRJKh5Vxdj6_A",
+   "name": "Rosen Plaza Hotel",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.rosenplaza.com/about-us/fact-sheet/",
+     "source_name": "Rosen Plaza Hotel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosen Plaza is a 799-room, 14-story hotel.",
+      "Rosen Plaza has over 60,000 square feet of meeting space.",
+      "Rosen Plaza is located on International Drive, adjacent to the Orange County Convention Center.",
+      "Rosen Plaza is across the street from Pointe Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A 14-story International Drive hotel beside the convention center",
+    "why_here": "Rosen Plaza is a 799-room hotel on International Drive, adjacent to the Orange County Convention Center. It pairs meeting facilities with resort-style amenities in Orlando's theme-park corridor.",
+    "know_before": "The hotel is across the street from Pointe Orlando shopping, dining and entertainment.",
+    "local_tip": "Use the hotel's convention-center adjacency if you are attending an event there.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.rosenplaza.com/about-us/fact-sheet/"
+     ],
+     "why_here": [
+      "https://www.rosenplaza.com/about-us/fact-sheet/"
+     ],
+     "know_before": [
+      "https://www.rosenplaza.com/about-us/fact-sheet/"
+     ],
+     "local_tip": [
+      "https://www.rosenplaza.com/about-us/fact-sheet/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosen Plaza is a 799-room, 14-story hotel.",
+      "source": "https://www.rosenplaza.com/about-us/fact-sheet/"
+     },
+     {
+      "claim": "Rosen Plaza has over 60,000 square feet of meeting space.",
+      "source": "https://www.rosenplaza.com/about-us/fact-sheet/"
+     },
+     {
+      "claim": "Rosen Plaza is located on International Drive, adjacent to the Orange County Convention Center.",
+      "source": "https://www.rosenplaza.com/about-us/fact-sheet/"
+     },
+     {
+      "claim": "Rosen Plaza is across the street from Pointe Orlando.",
+      "source": "https://www.rosenplaza.com/about-us/fact-sheet/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEeqmR7a_2YgRwFZhZiIOMT0",
+   "name": "Kids Empire Miami Dolphin Mall",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "indoor_playground",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.kidsempire.com/park/miami",
+     "source_name": "Kids Empire Miami Dolphin Mall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Kids Empire Miami Dolphin Mall is located inside Dolphin Mall.",
+      "Children ages 1 to 12 can play at Kids Empire Miami Dolphin Mall.",
+      "Hours Monday through Thursday are from 10:00 a.m. to 8:00 p.m.",
+      "Hours Friday through Sunday are from 10:00 a.m. to 10:00 p.m.",
+      "Admission is valid all day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "A padded indoor maze with slides, ball pits, and a soccer field",
+    "why_here": "Kids Empire Miami Dolphin Mall is an indoor playground inside Dolphin Mall for children ages 1 to 12. The multi-level play maze includes slides, jungle gym passages, ball pits, and a dedicated toddler area.",
+    "know_before": "Admission is valid all day, so families can leave and return later the same day.",
+    "local_tip": "Younger children ages 1 to 3 have a dedicated toddler area with mini slides and soft blocks.",
+    "best_time": "Monday through Thursday, when hours run from 10:00 a.m. to 8 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.kidsempire.com/park/miami"
+     ],
+     "why_here": [
+      "https://www.kidsempire.com/park/miami"
+     ],
+     "know_before": [
+      "https://www.kidsempire.com/park/miami"
+     ],
+     "local_tip": [
+      "https://www.kidsempire.com/park/miami"
+     ],
+     "best_time": [
+      "https://www.kidsempire.com/park/miami"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Kids Empire Miami Dolphin Mall is located inside Dolphin Mall.",
+      "source": "https://www.kidsempire.com/park/miami"
+     },
+     {
+      "claim": "Children ages 1 to 12 can play at Kids Empire Miami Dolphin Mall.",
+      "source": "https://www.kidsempire.com/park/miami"
+     },
+     {
+      "claim": "Hours Monday through Thursday are from 10:00 a.m. to 8:00 p.m.",
+      "source": "https://www.kidsempire.com/park/miami"
+     },
+     {
+      "claim": "Hours Friday through Sunday are from 10:00 a.m. to 10:00 p.m.",
+      "source": "https://www.kidsempire.com/park/miami"
+     },
+     {
+      "claim": "Admission is valid all day.",
+      "source": "https://www.kidsempire.com/park/miami"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxQzA3a4Cw4gRFLT5tUDXjP4",
+   "name": "Sirata St. Pete Beach Resort, Tapestry Collection by Hilton",
+   "category": "hotels",
+   "metro": "st-pete",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/",
+     "source_name": "Sirata St. Pete Beach Resort, Tapestry Collection by Hilton \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sirata St. Pete Beach Resort has a beachfront restaurant and a private beach.",
+      "Sirata St. Pete Beach Resort has an outdoor pool and an on-site restaurant.",
+      "Sirata St. Pete Beach Resort offers onsite watersports and weekly family-friendly activities.",
+      "Guests can enjoy views of the sunset on the private beach at Sirata St. Pete Beach Resort.",
+      "Sirata St. Pete Beach Resort offers Free WiFi."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront restaurant and a private beach with an outdoor pool",
+    "why_here": "Sirata St. Pete Beach Resort has a beachfront restaurant, a private beach, and an outdoor pool for a beach stay. Onsite watersports and weekly family-friendly activities add options beyond the sand and the pool during a visit.",
+    "know_before": "The resort offers Free WiFi and an on-site restaurant.",
+    "local_tip": "Enjoy views of the sunset on the private beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     ],
+     "local_tip": [
+      "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sirata St. Pete Beach Resort has a beachfront restaurant and a private beach.",
+      "source": "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     },
+     {
+      "claim": "Sirata St. Pete Beach Resort has an outdoor pool and an on-site restaurant.",
+      "source": "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     },
+     {
+      "claim": "Sirata St. Pete Beach Resort offers onsite watersports and weekly family-friendly activities.",
+      "source": "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     },
+     {
+      "claim": "Guests can enjoy views of the sunset on the private beach at Sirata St. Pete Beach Resort.",
+      "source": "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     },
+     {
+      "claim": "Sirata St. Pete Beach Resort offers Free WiFi.",
+      "source": "https://www.hilton.com/en/hotels/piepbup-sirata-st-pete-beach-resort/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9cxqwM635YgR6xY7CNCwHgI",
+   "name": "Tulua Bistro Springfield",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "brunch_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/",
+     "source_name": "Tulua Bistro Springfield \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tulua Bistro Springfield is a second location in historic Springfield.",
+      "Tulua Bistro Springfield serves from-scratch brunch fare amid vibrant murals.",
+      "Tulua Bistro Springfield is known for breakfast charcuterie boards and bottomless mimosas.",
+      "Tulua Bistro Springfield lists American and Breakfast cuisines, with brunch served and a full bar.",
+      "Tulua Bistro Springfield also has after-dark, upscale drag shows."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "From-scratch brunch fare and breakfast boards in historic Springfield",
+    "why_here": "Tulua Bistro Springfield is a second location in historic Springfield serving from-scratch brunch fare amid vibrant murals. It is known for breakfast charcuterie boards and bottomless mimosas, with after-dark, upscale drag shows also listed.",
+    "know_before": "Listed cuisines are American and Breakfast, with brunch served and a full bar.",
+    "local_tip": "Order the breakfast charcuterie boards with bottomless mimosas.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     ],
+     "why_here": [
+      "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     ],
+     "know_before": [
+      "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     ],
+     "local_tip": [
+      "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tulua Bistro Springfield is a second location in historic Springfield.",
+      "source": "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     },
+     {
+      "claim": "Tulua Bistro Springfield serves from-scratch brunch fare amid vibrant murals.",
+      "source": "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     },
+     {
+      "claim": "Tulua Bistro Springfield is known for breakfast charcuterie boards and bottomless mimosas.",
+      "source": "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     },
+     {
+      "claim": "Tulua Bistro Springfield lists American and Breakfast cuisines, with brunch served and a full bar.",
+      "source": "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     },
+     {
+      "claim": "Tulua Bistro Springfield also has after-dark, upscale drag shows.",
+      "source": "https://www.visitjacksonville.com/directory/tulua-bistro-springfield/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ9929-6Eo2YgRmS4cjSjIrvI",
+   "name": "Okeeheelee Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx",
+     "source_name": "Okeeheelee Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Okeeheelee Park is a regional park covering 1659.84 acres west of West Palm Beach.",
+      "Okeeheelee Park hours are sunrise to sunset, and lighted court facilities are open until 10 p.m.",
+      "Okeeheelee Park has an 8-mile bicycle path and 8 miles of walking paths.",
+      "Okeeheelee Golf Course at Okeeheelee Park has 27 holes in 3 nine-hole courses.",
+      "Okeeheelee Park has an 18-hole disc golf course and a mountain bike trail."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "An 18-hole disc golf course, trails, and golf in a regional park",
+    "why_here": "Okeeheelee Park is a regional park west of West Palm Beach with an 8-mile bicycle path, 8 miles of walking paths, and an 18-hole disc golf course. Okeeheelee Golf Course adds 27 holes in 3 nine-hole courses inside the park.",
+    "know_before": "Park hours are sunrise to sunset, and lighted court facilities are open until 10 p.m.",
+    "local_tip": "Try the mountain bike trail or the 18-hole disc golf course.",
+    "best_time": "Early morning, within the park's sunrise-to-sunset hours, for trails and lakes.",
+    "citations": {
+     "hook": [
+      "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     ],
+     "why_here": [
+      "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     ],
+     "know_before": [
+      "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     ],
+     "local_tip": [
+      "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     ],
+     "best_time": [
+      "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Okeeheelee Park is a regional park covering 1659.84 acres west of West Palm Beach.",
+      "source": "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     },
+     {
+      "claim": "Okeeheelee Park hours are sunrise to sunset, and lighted court facilities are open until 10 p.m.",
+      "source": "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     },
+     {
+      "claim": "Okeeheelee Park has an 8-mile bicycle path and 8 miles of walking paths.",
+      "source": "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     },
+     {
+      "claim": "Okeeheelee Golf Course at Okeeheelee Park has 27 holes in 3 nine-hole courses.",
+      "source": "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     },
+     {
+      "claim": "Okeeheelee Park has an 18-hole disc golf course and a mountain bike trail.",
+      "source": "https://discover.pbcgov.org/parks/Locations/Okeeheelee.aspx"
+     }
+    ]
+   }
+  }
+ ]
+}

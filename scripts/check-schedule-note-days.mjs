@@ -95,5 +95,21 @@ ok(nextOpenDay(R("Daily"), "2026-11-04", "2026-11-03") === null && nextOpenDay({
   ok(compactDayRule({ start_date: "2026-11-13", end_date: "2026-12-01", schedule_note: "Nightly" }) === null && compactRuleAllows(null, "2026-11-20", "2026-11-13"), "an every-day run carries no rule and is allowed every day");
 }
 
+
+/* ---- a CACHED /api/events feed (21 day cache) is re-derived at serve time */
+{
+  const { refreshCuratedDayFields } = await import("../lib/curatedEvents.js");
+  const { readFileSync } = await import("node:fs");
+  const stale = { id: "wfc:guard-fixture-thu-sun-farm", curated: true, date: "2026-09-19", endDate: "2026-11-08", selectNights: false, scheduleNote: "Thursdays and Fridays run 2–7 PM; Saturdays and Sundays run 9 AM–7 PM.", occurrences: null };
+  const fresh = refreshCuratedDayFields(stale);
+  ok(fresh.dayRule && fresh.dayRule.k === "w" && fresh.dayRule.d.join("") === "0456" && stale.dayRule === undefined, "a cached curated event without a dayRule gets the note's rule at serve time (Thu to Sun), without mutating the cached object");
+  const kw = refreshCuratedDayFields({ id: "wfc:key-west-offshore-worlds-2026", curated: true, date: "2026-11-01", endDate: "2026-11-08", scheduleNote: "Race days are not every day of the window.", occurrences: null });
+  ok(Array.isArray(kw.occurrences) && kw.occurrences.join() === "2026-11-04,2026-11-06,2026-11-08" && kw.dayRule === null, "a cached curated event picks up its verified day list at serve time");
+  const tm = { id: "tm:1", date: "2026-11-07", name: "x" };
+  ok(refreshCuratedDayFields(tm) === tm, "a non-curated event passes through untouched");
+  const route = readFileSync(new URL("../app/api/events/route.js", import.meta.url), "utf8").replace(/\/\*[\s\S]*?\*\//g, "").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(/const upcoming = \(evs\) => \(evs \|\| \[\]\)\.map\(refreshCuratedDayFields\)/.test(route), "/api/events applies refreshCuratedDayFields in upcoming(), the filter every cached and fresh return passes through");
+}
+
 if (fail.length) { console.error("check-schedule-note-days: FAIL"); for (const f of fail) console.error("  - " + f); process.exit(1); }
 console.log(`check-schedule-note-days: OK - ${pass} assertions; weekday names and explicit date lists read by CALL from 33 real schedule notes, 9 negative controls invent nothing; every row (select or not) is placed by its stated rule`);

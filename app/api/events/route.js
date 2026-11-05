@@ -17,7 +17,7 @@ import { localStaplesFor, parseLibCalICS, parseICSDate, libcalId, LIBCAL_FEED } 
 import { getBusinessFeeds, businessEventsFrom } from "../../../lib/businessFeeds.js";
 import { creatorEventsFor } from "../../../lib/creatorEvents.js";
 import { curatedFeedEventsWithFall, FALL_FEED_CACHE_VERSION } from "../../../lib/curatedFallFeed.js";
-import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE } from "../../../lib/curatedEvents.js";
+import { fetchCuratedEvents, CURATED_REACH_MI, CURATED_SOURCE, refreshCuratedDayFields } from "../../../lib/curatedEvents.js";
 import { cget, cset, DAY } from "../../../lib/serverCache";
 import { breakerOpen, tripBreaker, classifyProviderFailure, BREAKER_COOLDOWN_MS } from "../../../lib/providerHealth.js";
 import { eventProviderCap, eventProviderSpendAllow } from "../../../lib/eventProviderSpend.js";
@@ -816,7 +816,9 @@ async function aggregateEventsRaw({ lat, lng, keyword, radius, city }) {
   let evK = null;
   const todayStr = today();
   // Same rule as validateEvent: a running event stays until its LAST day.
-  const upcoming = (evs) => (evs || []).filter((e) => e && (!e.date || lastEventDay(e) >= todayStr));
+  // Curated rows get their day fields re-derived at serve time (lib/curatedEvents.js
+  // refreshCuratedDayFields), so a cached feed never serves a stale day rule.
+  const upcoming = (evs) => (evs || []).map(refreshCuratedDayFields).filter((e) => e && (!e.date || lastEventDay(e) >= todayStr));
   const staleEvents = async () => {
     if (!evK) return null;
     const s = await cget(evK, { staleMs: 30 * DAY });

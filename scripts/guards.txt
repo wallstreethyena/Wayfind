@@ -2363,6 +2363,12 @@ node scripts/test-db-cursor-collation.mjs --red-prove
 # local context photograph after exact-place media, including source failures.
 node scripts/test-guide-context-photos.mjs
 
+# 2026-11-04: the two rainy day guides show either a pick's own approved photo or
+# Wayfind's neutral "Photo unavailable" tile, never a photograph of another place
+# and never an "Illustrative" caption on an exact photo. Calls the page's resolver
+# and renders the real figures for all 24 picks; red-proven by mutation.
+node scripts/check-guide-neutral-fallback.mjs
+
 # Shared retained Google bytes, exact attribution, lease/cost and removal behavior.
 node scripts/test-google-photo-store.mjs
 node scripts/test-shared-google-photo-serving.mjs
@@ -2497,5 +2503,7 @@ node scripts/check-schedule-note-days.mjs
 node scripts/check-event-assessment-policy.mjs
 # Place city ladder: one placeCity() for title/share/PostalAddress/headers; postal_city > Census locality; never a state/county/slug/street.
 node scripts/check-place-city.mjs
+# 2026-11-01: Vercel Ignored Build Step skips ONLY data/docs-only commits (photo batches); code PR previews, production and any doubt always build. Runs the real script against a temp git repo.
+node scripts/test-vercel-ignore-build.mjs
 # 2026-11-04: Ticketmaster earning link: only real TM/Live Nation/TicketWeb hosts (no double wrap via our Impact host, no open redirect), one /go link with the exact event URL, no buy button when sold out/off sale/cancelled.
 node scripts/test-ticketmaster-gating.mjs
