@@ -76,9 +76,20 @@ jobs:
       # "no executable is available" instead of a real result.
       - name: Install Chromium for rendered guards
         if: always()
+        # 2026-11-05: on a cache hit, install-deps still ran apt-get against the
+        # Ubuntu mirrors; on PRs #2253 and #2260 that download crawled ("Fetched
+        # 21.1 MB in 8min 33s (41.1 kB/s)") and the job hit its timeout with
+        # every guard green. The runner image usually has Chromium's system
+        # libraries already, so launch the cached browser first and reach for
+        # apt only when it cannot start. A browser that still cannot launch
+        # fails the required rendered guard below, as before.
         run: |
           if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
-            npx playwright install-deps chromium
+            if node -e "require('playwright').chromium.launch().then((b) => b.close()).catch((e) => { console.error(e.message); process.exit(1); })"; then
+              echo "cached Chromium launches: system dependencies already present, apt skipped"
+            else
+              npx playwright install-deps chromium
+            fi
           else
             npx playwright install --with-deps chromium
           fi
