@@ -150,4 +150,83 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
 }
 eq(pass, 16, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
 
-console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call)`);
+// ── PROMOTION'S HALF OF THE ENTERPRISE LINE (#2131), on the CALL ─────────────
+// 950 free line -> promotion stops at 475 used. Unrated places past the share
+// promote from CORE (Pro), never Enterprise.
+const unrated = (n, p = "u") => Array.from({ length: n }, (_, i) => ({ id: p + i, rated: false }));
+const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
+// 6. Remaining allowance: 470 used, 10 unrated places -> exactly 5 rating buys, 5 CORE.
+{
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 }, [M + "|details_pro"]: { used: 0, cap: 4800 } }, places: unrated(10), google: {} });
+  await runCron(w, "free");
+  eq(ent(w), 475, "6: promotion buys up to the share and stops at 475 used");
+  eq(w.googleCalls.filter((c) => c.mask.includes("rating")).length, 5, "6: five rating-mask calls");
+  eq(w.row("details_pro").used, 5, "6: the other five promote from CORE on Pro");
+}
+// 7. Exhausted share: 475 used -> no Enterprise take at all.
+{
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 475, cap: 950 } }, places: unrated(4), google: {} });
+  await runCron(w, "free");
+  eq(w.takes.filter((t) => t.sku === "details_enterprise").length, 0, "7: at the share the Enterprise ledger is not even asked");
+  eq(ent(w), 475, "7: the refresh's half is untouched");
+}
+// 8. OPEN gate mode, month_cap 7,500: the share is still half the FREE line (475), not half of 7,500.
+//    Red-proved: with ratingFreeLine = effectiveCap(RATING_SKU, monthCap) all 10 buy (480 used).
+{
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 } }, places: unrated(10), google: {}, monthCap: 7500 });
+  await runCron(w, "open");
+  eq(ent(w), 475, "8: open mode stops at 475 too (the share comes from the free line, never month_cap)");
+}
+// 9. Retries: a rating buy that 5xx's twice takes three grants; they count toward the share,
+//    so the next unrated place cannot buy past it.
+{
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 472, cap: 950 } },
+    places: [{ id: "r0", rated: false }, { id: "r1", rated: false }, { id: "r2", rated: false }], google: { r0: [503, 503, 200] } });
+  await runCron(w, "free");
+  eq(ent(w), 475, "9: 472 + three grants for one retried call = 475; no further rating buys");
+  eq(w.googleCalls.filter((c) => c.mask.includes("rating")).length, 3, "9: only the retried place used the rating mask");
+}
+// 10. Month boundary, database first: the DB has rolled to the next month while the app
+//     clock has not. The run reads this month's 470 (a stale, higher number) and buys 5;
+//     the grants land on the new month's row. Bounded and never over the share.
+{
+  const next = new Date(Date.UTC(+M.slice(0, 4), +M.slice(5, 7), 1)).toISOString().slice(0, 7);
+  const w = makeWorld({ dbMonth: next, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 } }, places: unrated(10), google: {} });
+  await runCron(w, "free");
+  eq([ent(w, M), ent(w, next)], [470, 5], "10: the old month is untouched; the new month gets the 5 the stale read allowed");
+}
+// 11. Month boundary, fresh month with no row yet: the usage read finds nothing and the
+//     buy FAILS CLOSED (no stars bought, places promote from CORE) until another caller
+//     creates the row. Conservative by design; spends nothing on Enterprise.
+{
+  const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_pro"]: { used: 0, cap: 4800 } }, places: unrated(3), google: {} });
+  await runCron(w, "free");
+  eq([ent(w), w.row("details_pro").used], [0, 3], "11: no ledger row -> no rating buy, three CORE promotions");
+}
+// 12. Concurrency (scripts/promote-worker.mjs runs items through pmap). The worker is a
+//     CLI, not importable, so this drives the REAL ratingBuyAllowed through the worker's
+//     exact pattern with an async ledger, and asserts the worker source uses that pattern.
+{
+  const { ratingBuyAllowed } = await import("../lib/promoteDetails.js");
+  const sim = async (reserveFirst) => {
+    let bought = 0, used = 470; const usage = { used: 470, cap: 950 };
+    const take = async () => { await new Promise((r) => setTimeout(r, 5)); if (used + 1 > 950) return false; used++; return true; };
+    await Promise.all(Array.from({ length: 8 }, async () => {
+      if (reserveFirst) {
+        const reserved = ratingBuyAllowed(usage, bought, 950); if (reserved) bought++;
+        if (reserved && !(await take())) bought--;
+      } else if (ratingBuyAllowed(usage, bought, 950) && (await take())) bought++;
+    }));
+    return used;
+  };
+  eq(await sim(false), 478, "12: control — check-then-increment across an await lets all 8 concurrent buys through (478)");
+  eq(await sim(true), 475, "12: reserve-before-await stops at the share (475) with 8 in flight");
+  const { readFileSync } = await import("node:fs");
+  const wsrc = readFileSync(new URL("./promote-worker.mjs", import.meta.url), "utf8").replace(/(^|[^:])\/\/.*$/gm, "$1");
+  ok(/const reserved = !hasIndexRating\(sig\) && ratingBuyAllowed\(ratingUsage, ratingBought, ratingFreeLine\);\s*if \(reserved\) ratingBought\+\+;\s*if \(reserved && \(await spendAllowCapped\(RATING_SKU/.test(wsrc),
+    "12: STRUCTURAL (the worker is a CLI): the worker reserves the share slot before awaiting the ledger");
+  ok(/const ratingFreeLine = freeTierLine\(RATING_SKU\);/.test(wsrc), "12: STRUCTURAL: the worker computes the share from the free line");
+}
+eq(pass, 31, "every share case ran");
+
+console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call; promotion's Enterprise share holds at remaining/exhausted/open-mode/retries/both month-boundary directions/8-way concurrency)`);

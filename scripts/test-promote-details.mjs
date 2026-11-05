@@ -168,8 +168,9 @@ eq(minutesUntilQuotaReset(NaN), 60, "a bad clock falls back to an hour, never 0 
   const worker = strip(readFileSync(new URL("./promote-worker.mjs", import.meta.url), "utf8"));
   ok(/!hasIndexRating\(sig\) && ratingBuyAllowed\(ratingUsage, ratingBought, ratingFreeLine\) && \(await spendAllowCapped\(RATING_SKU, monthCap\)\)/.test(route), "cron: the share check runs before the Enterprise ledger take");
   ok(/const ratingUsage = await readLedgerUsage\(RATING_SKU\)/.test(route), "cron: the ledger row is read once per run, not per place");
-  ok(/!hasIndexRating\(sig\) && ratingBuyAllowed\(ratingUsage, ratingBought, ratingFreeLine\) && \(await spendAllowCapped\(RATING_SKU, MONTH_CAP\)\)/.test(worker), "worker: the share check runs before the Enterprise ledger take");
-  ok(/mask = RATING_DETAILS_MASK; ratingBought\+\+;/.test(worker) && /mask = RATING_DETAILS_MASK; ratingBought\+\+;/.test(route), "both callers count their own buys toward the share");
+  // 2026-11-05: the worker reserves the slot synchronously (pmap concurrency), then takes.
+  ok(/const reserved = !hasIndexRating\(sig\) && ratingBuyAllowed\(ratingUsage, ratingBought, ratingFreeLine\);\s*if \(reserved\) ratingBought\+\+;\s*if \(reserved && \(await spendAllowCapped\(RATING_SKU, MONTH_CAP\)\)\)/.test(worker), "worker: the share check (and its reservation) runs before the Enterprise ledger take");
+  ok(/if \(reserved\) ratingBought\+\+;/.test(worker) && /if \(reserved\) ratingBought--;/.test(worker) && /mask = RATING_DETAILS_MASK; ratingBought\+\+;/.test(route), "both callers count their own buys toward the share (the worker reserves, and returns a refused slot)");
 }
 
 console.log(`test-promote-details: OK (${pass} checks)`);

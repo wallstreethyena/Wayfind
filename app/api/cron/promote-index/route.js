@@ -1,4 +1,4 @@
-import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger } from "../../../../lib/spendGate";
+import { gateShut, spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine } from "../../../../lib/spendGate";
 // app/api/cron/promote-index/route.js — drains wf_promotion_queue: index places
 // (wf_place_ids) become owned cards (wf_inventory), a bounded batch at a time.
 //
@@ -107,13 +107,14 @@ function isTerminalStatus(status) {
   return status >= 400 && status < 500 && status !== 429;
 }
 
-async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800) {
+async function details(key, placeId, mask = DETAILS_MASK, sku = PROMOTE_SKU, monthCap = 4800, onRetryGrant = null) {
   for (let attempt = 0; attempt < 3; attempt++) {
     // Attempt zero was granted by the caller. Every subsequent provider
     // request must obtain its own grant under that same SKU and ceiling.
     if (attempt > 0 && !(await spendAllowCapped(sku, monthCap))) {
       return { ok: false, budget: true, terminal: false, error: `details retry budget unavailable (${sku})` };
     }
+    if (attempt > 0 && onRetryGrant) onRetryGrant(); // a retry grant counts toward the caller's share too
     const r = await fetch(`https://places.googleapis.com/v1/places/${encodeURIComponent(placeId)}`, {
       cache: "no-store", // a cached 200 here would mean promoting a place from a stale snapshot
       headers: { "X-Goog-Api-Key": key, "X-Goog-FieldMask": mask },
@@ -359,7 +360,7 @@ export async function GET(req) {
   // PROMOTE_RATING_SHARE): read the month's usage ONCE per run; past the share,
   // no rating buys this run. The ledger's own cap still applies underneath.
   const ratingUsage = await readLedgerUsage(RATING_SKU);
-  const ratingFreeLine = effectiveCap(RATING_SKU, monthCap);
+  const ratingFreeLine = freeTierLine(RATING_SKU); // the free line itself, in every gate mode (never effectiveCap: open mode returns month_cap)
   for (const item of claimed) {
     if (budgetExhausted) { released.push(item.place_id); continue; }
     if (quotaKind) { quotaReleased.push(item.place_id); continue; }
@@ -384,7 +385,7 @@ export async function GET(req) {
       }
     }
     const requestSku = mask === RATING_DETAILS_MASK ? RATING_SKU : PROMOTE_SKU;
-    const d = await details(gkey, item.place_id, mask, requestSku, monthCap);
+    const d = await details(gkey, item.place_id, mask, requestSku, monthCap, requestSku === RATING_SKU ? () => { ratingBought++; } : null);
     if (!d.ok) {
       if (d.budget) {
         budgetExhausted = true;

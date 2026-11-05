@@ -91,7 +91,7 @@ const DETAILS_MASK = CORE_DETAILS_MASK;
 // exactly the two names it needs, then import it. WAYFIND_GATE must be set
 // explicitly to free or open; an unset or mistyped value shuts spend down.
 for (const k of ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"]) if (!process.env[k]) process.env[k] = k === "SUPABASE_URL" ? SB_URL : SB_KEY;
-const { spendAllowCapped, effectiveCap, gateMode, refundToLedger } = await import("../lib/spendGate.js");
+const { spendAllowCapped, effectiveCap, gateMode, refundToLedger, freeTierLine } = await import("../lib/spendGate.js");
 
 const H = { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`, "Content-Type": "application/json" };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -242,7 +242,7 @@ while (T.claimed < TOTAL) {
   // PROMOTE_RATING_SHARE), same rule as the cron: one ledger read per batch.
   const { readLedgerUsage } = await import("../lib/jobPulse.js");
   const ratingUsage = await readLedgerUsage(RATING_SKU);
-  const ratingFreeLine = effectiveCap(RATING_SKU, MONTH_CAP);
+  const ratingFreeLine = freeTierLine(RATING_SKU); // the free line in every gate mode, same as the cron
   let ratingBought = 0;
   const results = await pmap(claimed, CONC, async (item) => {
     if (budgetExhausted) return { item, kind: "release" };
@@ -254,11 +254,19 @@ while (T.claimed < TOTAL) {
     // promotion budget running out; stop asking.
     const sig = indexSignals.get(item.place_id);
     let mask = DETAILS_MASK;
-    if (!hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine) && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
-      mask = RATING_DETAILS_MASK; ratingBought++;
-    } else if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
-      budgetExhausted = true;
-      return { item, kind: "release" };
+    // pmap runs CONC items at once: reserve the share slot synchronously,
+    // BEFORE the ledger await, and give it back if the grant is refused —
+    // check-then-increment across an await let CONC-1 extra buys through.
+    const reserved = !hasIndexRating(sig) && ratingBuyAllowed(ratingUsage, ratingBought, ratingFreeLine);
+    if (reserved) ratingBought++;
+    if (reserved && (await spendAllowCapped(RATING_SKU, MONTH_CAP))) {
+      mask = RATING_DETAILS_MASK;
+    } else {
+      if (reserved) ratingBought--; // the Enterprise ledger said no: the slot goes back, the place promotes from CORE
+      if (!(await spendAllowCapped(PROMOTE_SKU, MONTH_CAP))) {
+        budgetExhausted = true;
+        return { item, kind: "release" };
+      }
     }
     const d = await details(item.place_id, mask);
     // A 429 is unbilled by Google: give the pre-call ledger grant back (same rule as the cron, 2026-11-03).
