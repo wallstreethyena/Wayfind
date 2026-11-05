@@ -8,9 +8,6 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import path from "node:path";
-import { act, createElement, useState } from "react";
-import { renderToStaticMarkup } from "react-dom/server";
-import { loadComponent } from "./lib/jsxLoad.mjs";
 import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery } from "../lib/christmasBrowse.js";
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
@@ -22,6 +19,15 @@ import {
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
 import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
+
+// React act() is a test-only API. Vercel invokes this guard with
+// NODE_ENV=production, so choose the test runtime before React or its renderer
+// loads. Every SSR and interaction assertion still runs in this guard process;
+// the parent application build retains its production environment.
+process.env.NODE_ENV = "test";
+const { act, createElement, useState } = await import("react");
+const { renderToStaticMarkup } = await import("react-dom/server");
+const { loadComponent } = await import("./lib/jsxLoad.mjs");
 
 const root = process.cwd();
 let checks = 0;
