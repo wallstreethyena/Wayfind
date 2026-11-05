@@ -100,13 +100,22 @@ export async function runCron(w, mode = "free") {
   } finally { globalThis.fetch = realFetch; console.warn = warn; console.log = log; delete process.env.WAYFIND_GATE; }
 }
 const M = new Date().toISOString().slice(0, 7);
+// 0. Control: the real handler's auth gate. No secret -> 401, and no grant or Google call happens.
+{
+  const w = makeWorld({ dbMonth: M, ledger: {}, places: [{ id: "z", rated: true }], google: {} });
+  process.env.WAYFIND_GATE = "free"; const realFetch = globalThis.fetch; globalThis.fetch = w.fetch;
+  const res = await GET(new Request("https://wayfind.test/api/cron/promote-index"));
+  globalThis.fetch = realFetch; delete process.env.WAYFIND_GATE;
+  eq([res.status, w.takes.length, w.googleCalls.length], [401, 0, 0], "0: an unauthorized call is refused before any ledger grant or Google request");
+}
 const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === undefined || x.granted)).reduce((a, x) => a + (x.n || 1), 0);
 
 // 1. Rated place, 429 on the first call: one Pro grant taken, one Pro refund, the rest parked with no grant.
 {
   const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_pro"]: { used: 100, cap: 4800 } },
     places: [{ id: "a", rated: true }, { id: "b", rated: true }, { id: "c", rated: false }], google: { a: [429] } });
-  await runCron(w);
+  const out = await runCron(w);
+  eq([out.quota, out.quotaParked], ["quota_daily", 3], "1: the route's own response reports the daily quota and parks all three places");
   eq(w.googleCalls.map((c) => c.id), ["a"], "1: only the first place reaches Google; the rest are parked after the 429");
   eq(sum(w.takes, "details_pro"), 1, "1: exactly one Pro grant was taken");
   eq(w.refunds, [{ sku: "details_pro", n: 1 }], "1: exactly one Pro refund, nothing for the parked places");
@@ -148,6 +157,6 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
   eq(w.refunds.length, 0, "5: a refused grant is never refunded");
   eq(w.row("details_pro").used, 4800, "5: the row never goes past its cap");
 }
-eq(pass, 16, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
+eq(pass, 18, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
 
 console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call)`);
