@@ -100,13 +100,22 @@ export async function runCron(w, mode = "free") {
   } finally { globalThis.fetch = realFetch; console.warn = warn; console.log = log; delete process.env.WAYFIND_GATE; }
 }
 const M = new Date().toISOString().slice(0, 7);
+// 0. Control: the real handler's auth gate. No secret -> 401, and no grant or Google call happens.
+{
+  const w = makeWorld({ dbMonth: M, ledger: {}, places: [{ id: "z", rated: true }], google: {} });
+  process.env.WAYFIND_GATE = "free"; const realFetch = globalThis.fetch; globalThis.fetch = w.fetch;
+  const res = await GET(new Request("https://wayfind.test/api/cron/promote-index"));
+  globalThis.fetch = realFetch; delete process.env.WAYFIND_GATE;
+  eq([res.status, w.takes.length, w.googleCalls.length], [401, 0, 0], "0: an unauthorized call is refused before any ledger grant or Google request");
+}
 const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === undefined || x.granted)).reduce((a, x) => a + (x.n || 1), 0);
 
 // 1. Rated place, 429 on the first call: one Pro grant taken, one Pro refund, the rest parked with no grant.
 {
   const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_pro"]: { used: 100, cap: 4800 } },
     places: [{ id: "a", rated: true }, { id: "b", rated: true }, { id: "c", rated: false }], google: { a: [429] } });
-  await runCron(w);
+  const out = await runCron(w);
+  eq([out.quota, out.quotaParked], ["quota_daily", 3], "1: the route's own response reports the daily quota and parks all three places");
   eq(w.googleCalls.map((c) => c.id), ["a"], "1: only the first place reaches Google; the rest are parked after the 429");
   eq(sum(w.takes, "details_pro"), 1, "1: exactly one Pro grant was taken");
   eq(w.refunds, [{ sku: "details_pro", n: 1 }], "1: exactly one Pro refund, nothing for the parked places");
@@ -148,7 +157,7 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
   eq(w.refunds.length, 0, "5: a refused grant is never refunded");
   eq(w.row("details_pro").used, 4800, "5: the row never goes past its cap");
 }
-eq(pass, 16, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
+eq(pass, 18, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
 
 // ── PROMOTION'S HALF OF THE ENTERPRISE LINE (#2131), on the CALL ─────────────
 // 950 free line -> promotion stops at 475 used. Unrated places past the share
@@ -158,7 +167,8 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
 // 6. Remaining allowance: 470 used, 10 unrated places -> exactly 5 rating buys, 5 CORE.
 {
   const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 }, [M + "|details_pro"]: { used: 0, cap: 4800 } }, places: unrated(10), google: {} });
-  await runCron(w, "free");
+  const out = await runCron(w, "free");
+  eq(out.ratingBought, 5, "6: the route's response counts exactly 5 rating buys");
   eq(ent(w), 475, "6: promotion buys up to the share and stops at 475 used");
   eq(w.googleCalls.filter((c) => c.mask.includes("rating")).length, 5, "6: five rating-mask calls");
   eq(w.row("details_pro").used, 5, "6: the other five promote from CORE on Pro");
@@ -174,7 +184,8 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
 //    Red-proved: with ratingFreeLine = effectiveCap(RATING_SKU, monthCap) all 10 buy (480 used).
 {
   const w = makeWorld({ dbMonth: M, ledger: { [M + "|details_enterprise"]: { used: 470, cap: 950 } }, places: unrated(10), google: {}, monthCap: 7500 });
-  await runCron(w, "open");
+  const out = await runCron(w, "open");
+  eq(out.ratingBought, 5, "8: open mode: the route's response counts 5 rating buys, not 10");
   eq(ent(w), 475, "8: open mode stops at 475 too (the share comes from the free line, never month_cap)");
 }
 // 9. Retries: a rating buy that 5xx's twice takes three grants; they count toward the share,
@@ -227,6 +238,6 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
     "12: STRUCTURAL (the worker is a CLI): the worker reserves the share slot before awaiting the ledger");
   ok(/const ratingFreeLine = freeTierLine\(RATING_SKU\);/.test(wsrc), "12: STRUCTURAL: the worker computes the share from the free line");
 }
-eq(pass, 31, "every share case ran");
+eq(pass, 35, "every share case ran");
 
 console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call; promotion's Enterprise share holds at remaining/exhausted/open-mode/retries/both month-boundary directions/8-way concurrency)`);
