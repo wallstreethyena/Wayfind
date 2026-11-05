@@ -7,7 +7,7 @@ import { eventMapPoint } from "../../lib/eventLocation.js";
 import { useEffect, useRef, useState } from "react";
 import { LngLatBounds, Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from "maplibre-gl";
 import { pinImageKey } from "../../lib/mapPinGlyph.js";
-import { areaMoved, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
+import { createFitSettleTracker, distanceRingData, MAP_RING_MILES } from "../../lib/mapExplorer";
 import { safeRemoveMap } from "../../lib/mapTeardown";
 
 // v8.23.3 — RING_EXPAND_ZOOM_THRESHOLD is GONE with the second ring set. See
@@ -174,6 +174,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
   // v7.17 — "Search this area": the moveend listener is registered once, so
   // the live origin and callback ride refs rather than stale closures.
   const searchOriginRef = useRef(null);
+  const fitSettleRef = useRef(null); // lib/mapExplorer.js createFitSettleTracker — a list fit is not a pan
+  if (!fitSettleRef.current) fitSettleRef.current = createFitSettleTracker();
   const onAreaChangeRef = useRef(null);
   const onViewportChangeRef = useRef(null);
   const placesByIdRef = useRef(new Map());
@@ -282,7 +284,8 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
     const ringData = origin && rings ? distanceRingData(origin, MAP_RING_MILES) : { type: "FeatureCollection", features: [] };
     if (ringSource) ringSource.setData(ringData);
 
-    if (fit && !bounds.isEmpty()) map.fitBounds(bounds, { padding: { top: 64, right: 36, bottom: 92, left: 36 }, maxZoom: ranked.length <= 1 ? 14 : 12, duration: 550 });
+    if (!fit) fitSettleRef.current.endFit();
+    if (fit && !bounds.isEmpty()) { fitSettleRef.current.beginFit(); map.fitBounds(bounds, { padding: { top: 64, right: 36, bottom: 92, left: 36 }, maxZoom: ranked.length <= 1 ? 14 : 12, duration: 550 }); }
     else if (origin) {
       const originKey = `${Number(origin.lat).toFixed(5)}|${Number(origin.lng).toFixed(5)}`;
       if (originKey !== lastOriginRef.current) {
@@ -447,15 +450,16 @@ export default function MapView({ places, center, category, deviceLoc, onSelect,
         cb({ north: b.getNorth(), south: b.getSouth(), east: b.getEast(), west: b.getWest() });
       } catch (e) {}
     };
-    map.on("moveend", () => {
+    map.on("moveend", (e) => {
       emitViewport();
       const cb = onAreaChangeRef.current;
       if (!cb) return;
       try {
         const c = map.getCenter();
         const here = { lat: c.lat, lng: c.lng };
-        cb(areaMoved(searchOriginRef.current, here) ? here : null);
-      } catch (e) {}
+        // MapLibre sets originalEvent only on a user gesture; a fitBounds settle has none.
+        cb(fitSettleRef.current.settle(here, searchOriginRef.current, !!(e && e.originalEvent)));
+      } catch (err) {}
     });
     map.on("click", "wf-place-clusters", (event) => {
       const feature = event.features && event.features[0];
