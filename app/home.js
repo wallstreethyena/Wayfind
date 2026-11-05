@@ -258,7 +258,7 @@ const ViatorRail = nextDynamic(() => import("./components/ViatorRail"), { ssr: f
 import { nowContext, siteHourFloat, tzForPoint, bucketForHour, mealForHour, greetingForHour, BUCKET_PHRASE } from "../lib/nowContext";
 import { condCtxFromNow } from "../lib/ranking";
 import * as Tags from "../lib/tags";
-import * as Culture from "../lib/culture";
+import { resolveMetro, CULTURE_TITLES } from "../lib/culture";
 import * as WCC from "../lib/wc";
 import * as Gems from "../lib/gems";
 import * as Aff from "../lib/affiliates";
@@ -316,6 +316,7 @@ import { BEST_OF_NAMES, LOCAL_FAVE_EXTRA, WAYFIND_PHOTOS, WAYFIND_NOTES, WAYFIND
 // /best-of place card at rail width, not a second card shape. See RailCard.js.
 import RailCard, { RailNav, RailDots } from "./components/RailCard";
 import LocalEdit from "./components/LocalEdit";
+import ThisWeekEvents from "./components/ThisWeekEvents";
 import { MARKETS, marketForLocation } from "../lib/destinations";
 // v9 (2026-09-02, WO9 bundle fix) — from lib/creatorSignals.js, not
 // lib/creatorVideos.js. Both remaining call sites (hasCreatorVideo() at the
@@ -2149,6 +2150,14 @@ async function verifyCulturePlaces(items, center) {
 function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
   const [openIt, setOpenIt] = useState(false);
   const [grounded, setGrounded] = useState({});
+  // The researched notes are a separate chunk. They load when a category
+  // browse opens, not with the first homepage paint.
+  const [pack, setPack] = useState(null);
+  useEffect(() => {
+    let live = true;
+    import("../lib/cultureNotes.js").then((m) => { if (live) setPack(m); }).catch(() => {});
+    return () => { live = false; };
+  }, []);
   // v4.84 — the culture card renders on ALL SIX categories. Root cause of it
   // only showing on Food and Beach day: the category menu passes Google
   // category ids (nightlife, attractions, hotels, shopping) but this map only
@@ -2159,10 +2168,10 @@ function AreaInsight({ metro, cat, town, center, onFind, onLog = NOLOG }) {
   // v4.82: town notes come from TOWN_PROFILES via townNotesFor (alias-aware —
   // "Holmes Beach" lands on Anna Maria Island). Beach browses prefer the
   // town's real beach note over its things-to-do note.
-  const tn = town && Culture.townNotesFor ? Culture.townNotesFor(town) : null;
+  const tn = pack && town && pack.townNotesFor ? pack.townNotesFor(town) : null;
   const townNote = tn ? ((cat === "beach" && tn.beach) || (key && tn[key]) || null) : null;
-  const notes = townNote || (metro && key && Culture.CAT_NOTES[metro] ? Culture.CAT_NOTES[metro][key] : null);
-  const cTitle = metro ? Culture.CULTURE_TITLES[metro] : null;
+  const notes = townNote || (pack && metro && key && pack.CAT_NOTES[metro] ? pack.CAT_NOTES[metro][key] : null);
+  const cTitle = metro ? CULTURE_TITLES[metro] : null;
   const isTown = !!townNote;
   const named = isTown && notes ? (notes.items || []).filter((x) => x.place) : [];
   const namedKey = named.map((x) => x.place).join("|");
@@ -2793,7 +2802,7 @@ function EventHeroBg({ image: imageProp, acc, venue, near }) {
   if (src) {
     return (<>
       <img src={src} alt="" fetchPriority="high" decoding="async" draggable={false} onError={() => { if (image && !bad) setBad(true); else setAlt(""); }} onLoad={(ev) => { try { if (image && !bad) { const w = ev.target && ev.target.naturalWidth; if (w && w < 640) setBad(true); } } catch (e) {} }} style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      {usingAlt && altBy && <PhotoCredit credit={altBy} style={{ left: 8, right: 8, bottom: 6 }} />}
+      {usingAlt && altBy && <PhotoCredit onPhoto credit={altBy} />}
     </>);
   }
   return <div style={{ position: "absolute", inset: 0, background: `linear-gradient(135deg, ${acc}55 0%, #0D1117 100%)` }} />;
@@ -3940,7 +3949,7 @@ function MoreSpotsButton({ onClick }) {
   );
 }
 
-function PageInner({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   const [supabaseReady, setSupabaseReady] = useState(false);
   // PERF 2026-09-08: Supabase is not part of the homepage eager graph. Load it
   // after hydration, then rerun only effects whose dependency lists were
@@ -6314,7 +6323,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
   // tap into an Orlando detail sheet whose Viator links were Orlando products
   // ("Explore Orlando"). It now renders only inside the Orlando metro.
   const renderUniqueFinds = () => {
-    if (Culture.resolveMetro(locName) !== "orlando") return null;
+    if (resolveMetro(locName) !== "orlando") return null;
     return (
     <div style={{ margin: "14px 0 4px" }}>
       <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 8 }}>
@@ -6921,7 +6930,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const q = detail.name + (placeCity ? " " + placeCity : "");
     let cancelled = false;
     setViaTours((m) => ({ ...m, [detail.id]: { loading: true, items: [] } }));
-    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = Culture.resolveMetro(locName); return [placeCity, _m && Culture.CULTURE_TITLES[_m] ? Culture.CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
+    fetch("/api/viator/tours?q=" + encodeURIComponent(q) + "&name=" + encodeURIComponent(detail.name) + "&kind=" + encodeURIComponent(placeKind(detail) || "") + "&placeId=" + encodeURIComponent(detail.id) + "&count=3&region=" + encodeURIComponent((() => { try { const _m = resolveMetro(locName); return [placeCity, _m && CULTURE_TITLES[_m] ? CULTURE_TITLES[_m] : ""].filter(Boolean).join(","); } catch { return placeCity || ""; } })()))
       .then((r) => r.json())
       .then((d) => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: (d && d.items) || [] } })); })
       .catch(() => { if (!cancelled) setViaTours((m) => ({ ...m, [detail.id]: { loading: false, items: [] } })); });
@@ -7951,8 +7960,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let cancelled = false;
     (async () => {
       try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
+        const _m = resolveMetro(locName);
+        const cityQ = (_m && CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
@@ -7996,8 +8005,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     let cancelled = false;
     (async () => {
       try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
+        const _m = resolveMetro(locName);
+        const cityQ = (_m && CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         if (!cityQ) return;
         const r = await fetch("/api/viator/tours?q=" + encodeURIComponent(cityQ) + "&count=20" + _viatorCityParams(cityQ, center));
         const d = await r.json();
@@ -8023,8 +8032,8 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
     const _watch = setTimeout(() => { if (!cancelled) setEventsTours((cur) => (cur == null ? [] : cur)); }, 9000);
     (async () => {
       try {
-        const _m = Culture.resolveMetro(locName);
-        const cityQ = (_m && Culture.CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
+        const _m = resolveMetro(locName);
+        const cityQ = (_m && CULTURE_TITLES[_m]) || (locName ? locName.split(",")[0] : "");
         // No city resolved yet (reverse-geocode still in flight): stay in the
         // loading state and let this effect re-fire when locName lands — never
         // flash "no tours" before we've even asked. Deps include locName.
@@ -8227,7 +8236,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
         coupons: "Local coupons & deals · Wayfind",
         map: "Map · Wayfind",
       };
-      document.title = titles[screen] || "Wayfind — Find the Best Things to Do Near You, Right Now";
+      document.title = titles[screen] || "Wayfind: Find the Best Things to Do Near You, Right Now";
     } catch (e) {}
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screen, eventDate, eventCat]);
@@ -11296,6 +11305,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                   dead-ends there, because nothing on the home screen has ever linked
                   to one. Renders only where a guide genuinely covers the reader's
                   area — see LOCAL_EDIT_RADIUS_MI — so "local" stays a fact. */}
+              {!browseCat && <ThisWeekEvents events={thisWeekEvents} />}
               {!browseCat && <LocalEdit center={locResolved ? center : null} guides={localEditGuides} onLog={(a, p, extra) => { try { logEvent(a, p, extra); } catch (e) {} }} />}
               {a2hs && (
                 <div style={{ marginBottom: 12, display: "flex", alignItems: "center", gap: 10, background: C.card, border: `1px solid ${C.border}`, borderRadius: 14, padding: "10px 12px" }}>
@@ -11320,13 +11330,13 @@ function PageInner({ initialEvents = null, localEditGuides = null, railMenu = nu
                     <div onClick={closeBrowse} style={{ display: "inline-flex", alignItems: "center", gap: 6, background: C.card, border: `1px solid ${C.border}`, borderRadius: 999, color: C.accent, fontWeight: 800, fontSize: 14, cursor: "pointer", padding: "8px 15px" }}>‹ Back</div>
                     {browseCat !== "attractions" && <SortControl sortBy={sortBy} onSort={(k) => setSortBy(k)} mi={sliderMi} onMi={(m) => { autoRadiusRef.current = false; setSliderMi(m); const mm = Math.round(m * 1609.34); if (mm > (searchRadius || 0)) setSearchRadius(mm); }} where={locName ? locName.split(",")[0] : ""} dealsAvailable={Object.keys(offers).length > 0} dealsOnly={dealsOnly} onDeals={setDealsOnly} />}
                   </div>
-                  {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
+                  {(() => { const _cm = resolveMetro(locName); return _cm ? <AreaInsight onLog={logEvent} metro={_cm} cat={browseCat} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /> : null; })()}
                   {/* v6.47 (owner via Cowork spec): the attractions browse is ONE ranked
                       list (wf_things_to_do) — the stacked Viator rail + Bookable
                       Experiences chips are gone from this page; tours interleave and
                       earn their rank. Family keeps its bookable rail. */}
                   {browseCat === "family" && <ThemeParkRail mode="family" familyContext={{ lat: center?.lat, lng: center?.lng, radiusMi: sliderMi, ready: !!center }} onOpenPlace={(place) => openDetail(place, "theme_park_family")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
-                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={Culture.resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
+                  {browseCat === "attractions" && (!sub || sub === "all" || sub === "themeparks") && <ThemeParkRail mode={resolveMetro(locName) === "orlando" ? "orlando" : "flagship"} onOpenPlace={(place) => openDetail(place, "theme_park_activities")} isSaved={isSaved} isOnTrip={isOnTrip} liked={liked} disliked={disliked} onSave={(event, place) => quickSaveFavorite(place)} onItinerary={(event, place) => addToItinerary(place)} onLike={(event, place) => toggleLike(event, place)} onDislike={(event, place) => toggleDislike(event, place)} onShare={(place) => shareLink(place.name + " — found on Wayfind", originUrl("/p/" + encodeURIComponent(place.id)), () => showToast("Link copied"))} />}
                   {browseCat === "family" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="family" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "attractions" && center && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="attractions" sub={sub} initialExperiences={!sub || sub === "all" ? (browseTours?.key === browseTourKey ? browseTours.items : null) : undefined} categories={["attractions", "more"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
                   {browseCat === "hotels" && center && view.length > 0 && <UnifiedBrowseCommerceRail places={view} key={[browseCat, sub, center.lat, center.lng].join(":")} cat="hotels" sub={sub} categories={["stays"]} onSave={saveMonetizedItem} lat={center.lat} lng={center.lng} city={locName ? locName.split(",")[0] : ""} region={locName && locName.split(",").length > 1 ? locName.split(",").pop().trim() : ""} onLog={logEvent} />}
@@ -12783,10 +12793,10 @@ const EV_RAIL_MIN_H = PLACE_CARD_HEIGHT_PX; // Loading and loaded cards share th
 const shell = { background: C.bg, height: "100dvh", minHeight: "100dvh", display: "flex", justifyContent: "center" };
 const wrap = { background: C.bg, color: C.text, height: "100dvh", width: "100%", maxWidth: 480, fontFamily: "var(--wf-sans)", display: "flex", flexDirection: "column", overflow: "hidden", position: "relative", touchAction: "pan-y", overscrollBehavior: "none" };
 
-export default function Page({ initialEvents = null, localEditGuides = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
+export default function Page({ initialEvents = null, localEditGuides = null, thisWeekEvents = null, railMenu = null, initialPlaceId = null, initialPlaceAction = null }) {
   return (
     <ErrorBoundary>
-      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
+      <PageInner initialEvents={initialEvents} localEditGuides={localEditGuides} thisWeekEvents={thisWeekEvents} railMenu={railMenu} initialPlaceId={initialPlaceId} initialPlaceAction={initialPlaceAction} />
     </ErrorBoundary>
   );
 }

@@ -4,7 +4,7 @@
 // they use stay in home.js — other surfaces share them — and arrive via ctx.
 import { useEffect, useRef, useState } from "react";
 import { C, TARGET } from "../kit";
-import * as Culture from "../../../lib/culture";
+import { resolveMetro } from "../../../lib/culture";
 import { eventPlaceholder } from "../../../lib/eventPlaceholder.js";
 import { eventPriceFact } from "../../../lib/eventPriceFact.js";
 import { fallSkinLive } from "../../../lib/fallSkin.js";
@@ -132,10 +132,27 @@ export function eventLastDay(e) {
   const end = String((e && e.endDate) || "");
   return ISO_DAY.test(end) && end > start ? end : start;
 }
+// A curated row carries its note's day rule (lib/scheduleNoteDays.js compactDayRule, read
+// on the server): weekdays it runs, dates it is closed, or "restricted" when the note says
+// it is not open every day without naming the days. Inlined here so the client never ships
+// the note parser. Keep in step with compactRuleAllows in that module.
+function dayRuleAllows(e, day) {
+  const r = e && e.dayRule;
+  if (!r) return true;
+  if (r.k === "l") return Array.isArray(r.days) && r.days.includes(day);
+  if (Array.isArray(r.x) && r.x.includes(day)) return false;
+  if (r.k === "r") return day === e.date;
+  if (r.k === "w") {
+    const [y, m, d] = day.split("-").map(Number);
+    return Array.isArray(r.d) && r.d.includes(new Date(Date.UTC(y, m - 1, d)).getUTCDay());
+  }
+  return true;
+}
 export function eventRunsOn(e, day) {
   if (!e || !day) return false;
   const occ = occurrenceList(e);
   if (occ) return occ.includes(day);
+  if (e.dayRule) return !!e.date && e.date <= day && eventLastDay(e) >= day && dayRuleAllows(e, day);
   if (e.date === day) return true;
   if (e.selectNights) return false;
   return !!e.date && e.date < day && eventLastDay(e) >= day;
@@ -146,7 +163,19 @@ export function effectiveEventDate(e, today) {
   if (!e || !e.date) return "9999-12-31";
   const occ = occurrenceList(e);
   if (occ) return occ.find((d) => d >= today) || occ[occ.length - 1];
-  return e.date < today && eventLastDay(e) >= today ? today : e.date;
+  if (e.date < today && eventLastDay(e) >= today) {
+    if (!e.dayRule) return today;
+    // A running event with a day rule sorts to its next real day (two weeks ahead at most).
+    const [y, m, d] = today.split("-").map(Number);
+    for (let i = 0; i < 14; i++) {
+      const t = new Date(Date.UTC(y, m - 1, d + i));
+      const day = t.getUTCFullYear() + "-" + String(t.getUTCMonth() + 1).padStart(2, "0") + "-" + String(t.getUTCDate()).padStart(2, "0");
+      if (day > eventLastDay(e)) break;
+      if (dayRuleAllows(e, day)) return day;
+    }
+    return eventLastDay(e);
+  }
+  return e.date;
 }
 // One ordering for every event list on this screen: soonest day first; within
 // a day, events inside the feed's own radius before the wider curated reach,
@@ -275,7 +304,7 @@ export default function EventsScreen({ ctx }) {
     <div>
       <div style={{ paddingTop: 4, marginBottom: 12 }}>
         <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
-        {(() => { const _cm = Culture.resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
+        {(() => { const _cm = resolveMetro(locName); return _cm ? <div style={{ marginTop: 10 }}><AreaInsight metro={_cm} cat={"events"} town={locName ? locName.split(",")[0] : null} center={center} onFind={(q) => submitSearch(q, { miles: 45 })} /></div> : null; })()}
         <div style={{ fontSize: 12.5, color: C.muted, marginTop: 2 }}>{seasonLive ? "Fall and Halloween plans, bookable tours, concerts, comedy, theater, sports, and local happenings near you" : "Bookable tours, concerts, comedy, theater, sports, and local happenings near you"}</div>
       </div>
 

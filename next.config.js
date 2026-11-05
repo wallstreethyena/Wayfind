@@ -258,8 +258,23 @@ const nextConfig = {
     // reviewed before merge. They still publish canonical metadata pointing at
     // gowayfind.com; only the navigation bounce is skipped. Production builds
     // keep the stale *.vercel.app protection below.
-    if (process.env.VERCEL_ENV === "preview") return [];
+    // Bare category URLs that used to 404 fold into the hub that serves them.
+    // Kept in preview too: they are plain path redirects with no host condition.
+    const categoryRedirects = [
+      { source: "/eat", destination: "/restaurants", permanent: true },
+      { source: "/go-out", destination: "/nightlife", permanent: true },
+      { source: "/shows", destination: "/florida-events", permanent: true },
+      { source: "/concerts", destination: "/florida-events", permanent: true },
+      // 2026-11-04 audit: /christmas 404s; the hub is /christmas-in-florida.
+      // Temporary (307): a seasonal hub URL may become its own page later.
+      { source: "/christmas", destination: "/christmas-in-florida", permanent: false },
+      { source: "/tours", destination: "/things-to-do", permanent: true },
+      { source: "/stay", destination: "/things-to-do", permanent: true },
+      { source: "/shop", destination: "/things-to-do", permanent: true },
+    ];
+    if (process.env.VERCEL_ENV === "preview") return categoryRedirects;
     return [
+      ...categoryRedirects,
       {
         source: "/:path((?!api/cron|api/hooks).*)",
         has: [{ type: "host", value: "(?<sub>.*)\\.vercel\\.app" }],

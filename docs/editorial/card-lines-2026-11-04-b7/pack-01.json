@@ -1,0 +1,2120 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 7. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJx_8X5wzE54gRHX6fEzD0HcU",
+   "name": "Lake Sumter Landing",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "live_music_venue",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/",
+     "source_name": "Lake Sumter Landing \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Lake Sumter Landing Market Square is in The Villages.",
+      "Lake Sumter Landing Market Square offers shopping, dining, and free nightly entertainment.",
+      "Visitors can stroll along the boardwalk for sunrise and sunset views along the waterfront.",
+      "Lake Sumter Landing is open 8:00 a.m. to 10:00 p.m. daily."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Free nightly entertainment with shopping and dining on the boardwalk",
+    "why_here": "Lake Sumter Landing Market Square in The Villages pairs shopping and dining with free nightly entertainment. Visitors stroll the boardwalk for sunrise and sunset views along the waterfront.",
+    "know_before": "Lake Sumter Landing is open 8:00 a.m. to 10:00 p.m. daily.",
+    "local_tip": "Stroll the boardwalk for sunrise or sunset views along the waterfront.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     ],
+     "why_here": [
+      "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     ],
+     "know_before": [
+      "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     ],
+     "local_tip": [
+      "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Lake Sumter Landing Market Square is in The Villages.",
+      "source": "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     },
+     {
+      "claim": "Lake Sumter Landing Market Square offers shopping, dining, and free nightly entertainment.",
+      "source": "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     },
+     {
+      "claim": "Visitors can stroll along the boardwalk for sunrise and sunset views along the waterfront.",
+      "source": "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     },
+     {
+      "claim": "Lake Sumter Landing is open 8:00 a.m. to 10:00 p.m. daily.",
+      "source": "https://www.thevillages.com/entertainment/live-entertainment/lake-sumter-landing-market-square/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ7_PseA9n54gRpWhEjEiG3uo",
+   "name": "KEG SOCIAL ORLANDO - Dining & Entertainment",
+   "category": "nightlife",
+   "metro": "orlando",
+   "primary_type": "bar",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://keg.social/",
+     "source_name": "KEG SOCIAL ORLANDO - Dining & Entertainment \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Keg Social Orlando has 28 blacklight bowling lanes.",
+      "Keg Social Orlando offers bowling, karaoke, billiards, and arcade activities.",
+      "Keg Social Orlando has four bars and dining.",
+      "Keg Social does not take standard reservations, only pre-planned and contracted events."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "28 blacklight bowling lanes plus karaoke, axe throwing, and arcade under one roof",
+    "why_here": "Keg Social Orlando combines dining and bars with multiple activities in one venue. It is known for blacklight bowling, private karaoke lounges, instructor-led axe throwing, billiards, and arcade play.",
+    "know_before": "Keg Social does not take standard reservations, only pre-planned and contracted events.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://keg.social/"
+     ],
+     "why_here": [
+      "https://keg.social/"
+     ],
+     "know_before": [
+      "https://keg.social/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Keg Social Orlando has 28 blacklight bowling lanes.",
+      "source": "https://keg.social/"
+     },
+     {
+      "claim": "Keg Social Orlando offers bowling, karaoke, billiards, and arcade activities.",
+      "source": "https://keg.social/"
+     },
+     {
+      "claim": "Keg Social Orlando has four bars and dining.",
+      "source": "https://keg.social/"
+     },
+     {
+      "claim": "Keg Social does not take standard reservations, only pre-planned and contracted events.",
+      "source": "https://keg.social/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ411Zhrcn5IgRYE_XYdj5Hbs",
+   "name": "Ponce de Leon's Fountain of Youth Archaeological Park",
+   "category": "attractions",
+   "metro": "st-augustine-fl",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fountainofyouthflorida.com/",
+     "source_name": "Ponce de Leon's Fountain of Youth Archaeological Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ponce de Leon's Fountain of Youth Archaeological Park is in St. Augustine.",
+      "The Fountain of Youth is open 9 a.m. to 6 p.m. daily.",
+      "Last entry at the Fountain of Youth is at 5 p.m.",
+      "The Spring House holds Ponce de Leon's Spring of Eternal Hope.",
+      "The Fountain of Youth park covers 15 acres.",
+      "The Fountain of Youth is dog friendly."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Spring House holding Ponce de Leon's Spring of Eternal Hope in St. Augustine",
+    "why_here": "The Fountain of Youth park covers 15 acres in St. Augustine, centered on the Spring House. The Spring House holds Ponce de Leon's Spring of Eternal Hope, and the park is dog friendly.",
+    "know_before": "The park is open 9 a.m. to 6 p.m. daily, with last entry at 5 p.m.",
+    "local_tip": "The park is dog friendly.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fountainofyouthflorida.com/"
+     ],
+     "why_here": [
+      "https://www.fountainofyouthflorida.com/"
+     ],
+     "know_before": [
+      "https://www.fountainofyouthflorida.com/"
+     ],
+     "local_tip": [
+      "https://www.fountainofyouthflorida.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ponce de Leon's Fountain of Youth Archaeological Park is in St. Augustine.",
+      "source": "https://www.fountainofyouthflorida.com/"
+     },
+     {
+      "claim": "The Fountain of Youth is open 9 a.m. to 6 p.m. daily.",
+      "source": "https://www.fountainofyouthflorida.com/"
+     },
+     {
+      "claim": "Last entry at the Fountain of Youth is at 5 p.m.",
+      "source": "https://www.fountainofyouthflorida.com/"
+     },
+     {
+      "claim": "The Spring House holds Ponce de Leon's Spring of Eternal Hope.",
+      "source": "https://www.fountainofyouthflorida.com/"
+     },
+     {
+      "claim": "The Fountain of Youth park covers 15 acres.",
+      "source": "https://www.fountainofyouthflorida.com/"
+     },
+     {
+      "claim": "The Fountain of Youth is dog friendly.",
+      "source": "https://www.fountainofyouthflorida.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLX6ew05_54gR-Cc2qnzwIys",
+   "name": "Dezerland Park Orlando",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dezerlandpark.com/",
+     "source_name": "Dezerland Park Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Orlando Auto Museum at Dezerland Park has a collection of more than 2,000 vehicles.",
+      "Dezerland Park attractions include the Orlando Auto Museum, Pinball Palace, Toxic Blast, axe throwing, and VR escape rooms.",
+      "Dezerland Park offers go-karts, bowling, arcade, and mini golf.",
+      "Dezerland Park is on International Drive in Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Indoor park anchored by an auto museum with more than 2,000 vehicles",
+    "why_here": "Dezerland Park is an indoor entertainment complex on International Drive in Orlando. It is known for the Orlando Auto Museum and attractions including Pinball Palace, Toxic Blast, axe throwing, and VR escape rooms.",
+    "know_before": "Dezerland Park is on International Drive in Orlando.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dezerlandpark.com/"
+     ],
+     "why_here": [
+      "https://dezerlandpark.com/"
+     ],
+     "know_before": [
+      "https://dezerlandpark.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Orlando Auto Museum at Dezerland Park has a collection of more than 2,000 vehicles.",
+      "source": "https://dezerlandpark.com/"
+     },
+     {
+      "claim": "Dezerland Park attractions include the Orlando Auto Museum, Pinball Palace, Toxic Blast, axe throwing, and VR escape rooms.",
+      "source": "https://dezerlandpark.com/"
+     },
+     {
+      "claim": "Dezerland Park offers go-karts, bowling, arcade, and mini golf.",
+      "source": "https://dezerlandpark.com/"
+     },
+     {
+      "claim": "Dezerland Park is on International Drive in Orlando.",
+      "source": "https://dezerlandpark.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbRZyYvRbkYgRvkAfdU9nQl4",
+   "name": "Silver Sands Premium Outlets",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.premiumoutlets.com/outlet/silver-sands",
+     "source_name": "Silver Sands Premium Outlets \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Silver Sands Premium Outlets is home to 100+ designer and name-brand outlet stores.",
+      "Silver Sands Premium Outlets is a shopping center in Destin.",
+      "Silver Sands Premium Outlets is open Monday to Saturday from 10:00 a.m. to 8:00 p.m.",
+      "Silver Sands Premium Outlets is open Sunday from 11:00 a.m. to 7:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outlet center in Destin with more than 100 stores",
+    "why_here": "Silver Sands Premium Outlets is a shopping center in Destin, home to 100+ designer and name-brand outlet stores. Shoppers come for designer and name-brand outlet stores under one outlet center roof.",
+    "know_before": "Silver Sands Premium Outlets is open Monday to Saturday from 10:00 a.m. to 8:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.premiumoutlets.com/outlet/silver-sands"
+     ],
+     "why_here": [
+      "https://www.premiumoutlets.com/outlet/silver-sands"
+     ],
+     "know_before": [
+      "https://www.premiumoutlets.com/outlet/silver-sands"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Silver Sands Premium Outlets is home to 100+ designer and name-brand outlet stores.",
+      "source": "https://www.premiumoutlets.com/outlet/silver-sands"
+     },
+     {
+      "claim": "Silver Sands Premium Outlets is a shopping center in Destin.",
+      "source": "https://www.premiumoutlets.com/outlet/silver-sands"
+     },
+     {
+      "claim": "Silver Sands Premium Outlets is open Monday to Saturday from 10:00 a.m. to 8:00 p.m.",
+      "source": "https://www.premiumoutlets.com/outlet/silver-sands"
+     },
+     {
+      "claim": "Silver Sands Premium Outlets is open Sunday from 11:00 a.m. to 7:00 p.m.",
+      "source": "https://www.premiumoutlets.com/outlet/silver-sands"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrRCdX5en2YgRJzCRjgTWb-A",
+   "name": "Flamingo Gardens",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "botanical_garden",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://flamingogardens.org/",
+     "source_name": "Flamingo Gardens \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Established in 1927, Flamingo Gardens is one of the oldest botanical gardens and attractions in South Florida.",
+      "Flamingo Gardens covers 60 acres of gardens and wildlife.",
+      "Flamingo Gardens is open every day 9:30 a.m. to 5:00 p.m., with last entry at 4 p.m.",
+      "Flamingo Gardens is the premier Everglades Learning Center and South Florida Wildlife and Botanical Sanctuary.",
+      "Flamingo Gardens is in Davie."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Established in 1927, a 60-acre botanical garden and wildlife sanctuary in Davie",
+    "why_here": "Flamingo Gardens in Davie is a botanical garden and wildlife sanctuary covering 60 acres. Established in 1927, it describes itself as the premier Everglades Learning Center and South Florida Wildlife and Botanical Sanctuary.",
+    "know_before": "Flamingo Gardens is open every day 9:30 a.m. to 5:00 p.m., with last entry at 4 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://flamingogardens.org/"
+     ],
+     "why_here": [
+      "https://flamingogardens.org/"
+     ],
+     "know_before": [
+      "https://flamingogardens.org/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Established in 1927, Flamingo Gardens is one of the oldest botanical gardens and attractions in South Florida.",
+      "source": "https://flamingogardens.org/"
+     },
+     {
+      "claim": "Flamingo Gardens covers 60 acres of gardens and wildlife.",
+      "source": "https://flamingogardens.org/"
+     },
+     {
+      "claim": "Flamingo Gardens is open every day 9:30 a.m. to 5:00 p.m., with last entry at 4 p.m.",
+      "source": "https://flamingogardens.org/"
+     },
+     {
+      "claim": "Flamingo Gardens is the premier Everglades Learning Center and South Florida Wildlife and Botanical Sanctuary.",
+      "source": "https://flamingogardens.org/"
+     },
+     {
+      "claim": "Flamingo Gardens is in Davie.",
+      "source": "https://flamingogardens.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-Zo-BdWIk4gRbWAaDLzlEMI",
+   "name": "The Wicked Wheel",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thewickedwheel.com",
+     "source_name": "The Wicked Wheel \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Wicked Wheel is a southern bar and grill that combines a love for grease, gears and rust with a family-friendly environment.",
+      "Its fried chicken is brined, hand-battered, and deep-fried.",
+      "Full Throttle Lunch Specials run Monday to Friday from 11 a.m. to 4 p.m. at $14 per lunch special.",
+      "The restaurant is open 7 days a week from 11 a.m. to 9 p.m. and takes no reservations.",
+      "The Wicked Wheel is in Panama City Beach."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern bar and grill built around grease, gears and rust in Panama City Beach",
+    "why_here": "The Wicked Wheel in Panama City Beach pairs southern-style cooking with a family-friendly environment built around grease, gears and rust. Its fried chicken is brined, hand-battered and deep-fried, served daily.",
+    "know_before": "The restaurant takes no reservations.",
+    "local_tip": "Full Throttle Lunch Specials run Monday to Friday from 11 a.m. to 4 p.m. at $14 per lunch special.",
+    "best_time": "Weekday lunch for the Full Throttle Lunch Specials, served Monday to Friday from 11 a.m. to 4 p.m.",
+    "citations": {
+     "hook": [
+      "https://thewickedwheel.com"
+     ],
+     "why_here": [
+      "https://thewickedwheel.com"
+     ],
+     "know_before": [
+      "https://thewickedwheel.com"
+     ],
+     "local_tip": [
+      "https://thewickedwheel.com"
+     ],
+     "best_time": [
+      "https://thewickedwheel.com"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Wicked Wheel is a southern bar and grill that combines a love for grease, gears and rust with a family-friendly environment.",
+      "source": "https://thewickedwheel.com"
+     },
+     {
+      "claim": "Its fried chicken is brined, hand-battered, and deep-fried.",
+      "source": "https://thewickedwheel.com"
+     },
+     {
+      "claim": "Full Throttle Lunch Specials run Monday to Friday from 11 a.m. to 4 p.m. at $14 per lunch special.",
+      "source": "https://thewickedwheel.com"
+     },
+     {
+      "claim": "The restaurant is open 7 days a week from 11 a.m. to 9 p.m. and takes no reservations.",
+      "source": "https://thewickedwheel.com"
+     },
+     {
+      "claim": "The Wicked Wheel is in Panama City Beach.",
+      "source": "https://thewickedwheel.com"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxyNOpcN-54gRhA1hkADQIlI",
+   "name": "DoubleTree by Hilton Hotel at the Entrance to Universal Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/",
+     "source_name": "DoubleTree by Hilton Hotel at the Entrance to Universal Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel is a Universal Orlando Partner Hotel.",
+      "The hotel is a short walk from Universal Orlando Resort, Universal Studios Florida, and Universal's Islands of Adventure."
+     ]
+    },
+    {
+     "source": "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/hotel-info/",
+     "source_name": "DoubleTree by Hilton Hotel at the Entrance to Universal Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The hotel has an outdoor pool.",
+      "Self-parking is $34 per night for overnight parking, and valet parking is $44 per night."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Universal Orlando Partner Hotel a short walk from the resort entrance",
+    "why_here": "This DoubleTree is positioned for Universal trips, describing itself as a short walk from Universal Orlando Resort, Universal Studios Florida and Islands of Adventure. It has an outdoor pool for downtime between park days.",
+    "know_before": "Self-parking is $34 per night for overnight parking, and valet parking is $44 per night.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/",
+      "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/hotel-info/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/",
+      "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/hotel-info/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/",
+      "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/hotel-info/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The hotel is a Universal Orlando Partner Hotel.",
+      "source": "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/"
+     },
+     {
+      "claim": "The hotel is a short walk from Universal Orlando Resort, Universal Studios Florida, and Universal's Islands of Adventure.",
+      "source": "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/"
+     },
+     {
+      "claim": "The hotel has an outdoor pool.",
+      "source": "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/hotel-info/"
+     },
+     {
+      "claim": "Self-parking is $34 per night for overnight parking, and valet parking is $44 per night.",
+      "source": "https://www.hilton.com/en/hotels/mcoundt-doubletree-at-the-entrance-to-universal-orlando/hotel-info/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi1oatUuq2YgRaF07fWt3dmo",
+   "name": "Dave & Buster's Hollywood",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood",
+     "source_name": "Dave & Buster's Hollywood \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dave & Buster's Hollywood is located at 3000 Oakwood Blvd, Hollywood, FL 33020.",
+      "Happy Hour is available Monday to Friday from 4 p.m. to 7 p.m. and Sunday to Thursday from 9 p.m. to close.",
+      "The menu includes burgers, steaks, salads and desserts.",
+      "The arcade includes racing games, shooters, air hockey and basketball games.",
+      "The Eat & Play Combo pairs an entree with a $10 Power Card."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Restaurant, sports bar and arcade with racing games, shooters and air hockey",
+    "why_here": "Dave & Buster's Hollywood combines a restaurant, sports bar and arcade in one venue. The arcade mixes racing games, shooters, air hockey and basketball games, while the menu includes burgers, steaks, salads and desserts.",
+    "know_before": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m. and Sunday to Thursday from 9 p.m. to close.",
+    "local_tip": "The Eat & Play Combo pairs an entree with a $10 Power Card.",
+    "best_time": "Weekday Happy Hour, Monday to Friday from 4 p.m. to 7 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     ],
+     "why_here": [
+      "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     ],
+     "know_before": [
+      "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     ],
+     "local_tip": [
+      "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     ],
+     "best_time": [
+      "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dave & Buster's Hollywood is located at 3000 Oakwood Blvd, Hollywood, FL 33020.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     },
+     {
+      "claim": "Happy Hour is available Monday to Friday from 4 p.m. to 7 p.m. and Sunday to Thursday from 9 p.m. to close.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     },
+     {
+      "claim": "The menu includes burgers, steaks, salads and desserts.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     },
+     {
+      "claim": "The arcade includes racing games, shooters, air hockey and basketball games.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     },
+     {
+      "claim": "The Eat & Play Combo pairs an entree with a $10 Power Card.",
+      "source": "https://www.daveandbusters.com/us/en/about/locations/florida-hollywood"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqanFjjd-54gRWyzSHifJ7i8",
+   "name": "Orange County Convention Center",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "convention_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.occc.net/About-Us-FAQs",
+     "source_name": "Orange County Convention Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Orange County Convention Center is approximately 7 million square feet.",
+      "The Orange County Convention Center has 3 buildings located on International Drive and Universal Boulevard in Orlando, Florida.",
+      "Free Wi-Fi is available across all public spaces and meeting rooms under the network name OCCC Free Wifi.",
+      "The Orange County Convention Center hosts conventions, trade shows and sporting events.",
+      "The Orange County Convention Center is approximately 12 miles from the Orlando International Airport."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Convention center of approximately 7 million square feet on International Drive",
+    "why_here": "The Orange County Convention Center hosts conventions, trade shows and sporting events across 3 buildings on International Drive and Universal Boulevard in Orlando, Florida.",
+    "know_before": "Free Wi-Fi is available across all public spaces and meeting rooms under the network name OCCC Free Wifi.",
+    "local_tip": "The Orange County Convention Center is approximately 12 miles from the Orlando International Airport.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.occc.net/About-Us-FAQs"
+     ],
+     "why_here": [
+      "https://www.occc.net/About-Us-FAQs"
+     ],
+     "know_before": [
+      "https://www.occc.net/About-Us-FAQs"
+     ],
+     "local_tip": [
+      "https://www.occc.net/About-Us-FAQs"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Orange County Convention Center is approximately 7 million square feet.",
+      "source": "https://www.occc.net/About-Us-FAQs"
+     },
+     {
+      "claim": "The Orange County Convention Center has 3 buildings located on International Drive and Universal Boulevard in Orlando, Florida.",
+      "source": "https://www.occc.net/About-Us-FAQs"
+     },
+     {
+      "claim": "Free Wi-Fi is available across all public spaces and meeting rooms under the network name OCCC Free Wifi.",
+      "source": "https://www.occc.net/About-Us-FAQs"
+     },
+     {
+      "claim": "The Orange County Convention Center hosts conventions, trade shows and sporting events.",
+      "source": "https://www.occc.net/About-Us-FAQs"
+     },
+     {
+      "claim": "The Orange County Convention Center is approximately 12 miles from the Orlando International Airport.",
+      "source": "https://www.occc.net/About-Us-FAQs"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdXMA2yoo54gReCYqSM1YYrA",
+   "name": "Racing's North Turn",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/",
+     "source_name": "Racing's North Turn \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Racing's North Turn sits directly on the sand where beach racing began.",
+      "Racing's North Turn offers indoor and outdoor seating with live entertainment.",
+      "Racing's North Turn is at 4511 South Atlantic Avenue, Ponce Inlet, FL 32127.",
+      "Racing's North Turn is open 7 days a week from 11 a.m. to 10 p.m. Sunday to Thursday and 11 a.m. to 11 p.m. Friday and Saturday.",
+      "No take-outs after 4 p.m. at Racing's North Turn."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Racing's North Turn sitting directly on the sand where beach racing began",
+    "why_here": "Racing's North Turn sits directly on the sand where beach racing began, with indoor and outdoor seating and live entertainment at 4511 South Atlantic Avenue in Ponce Inlet.",
+    "know_before": "Racing's North Turn is open 7 days a week from 11 a.m. to 10 p.m. Sunday to Thursday and 11 a.m. to 11 p.m. Friday and Saturday.",
+    "local_tip": "No take-outs after 4 p.m. at Racing's North Turn.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     ],
+     "why_here": [
+      "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     ],
+     "know_before": [
+      "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     ],
+     "local_tip": [
+      "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Racing's North Turn sits directly on the sand where beach racing began.",
+      "source": "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     },
+     {
+      "claim": "Racing's North Turn offers indoor and outdoor seating with live entertainment.",
+      "source": "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     },
+     {
+      "claim": "Racing's North Turn is at 4511 South Atlantic Avenue, Ponce Inlet, FL 32127.",
+      "source": "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     },
+     {
+      "claim": "Racing's North Turn is open 7 days a week from 11 a.m. to 10 p.m. Sunday to Thursday and 11 a.m. to 11 p.m. Friday and Saturday.",
+      "source": "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     },
+     {
+      "claim": "No take-outs after 4 p.m. at Racing's North Turn.",
+      "source": "https://www.racingsnorthturn.com/location/racings-north-turn-beach-bar-grille/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJc1rNXrN_54gRiv-fmvQQR00",
+   "name": "Rosen Inn at Pointe Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.roseninn9000.com/",
+     "source_name": "Rosen Inn at Pointe Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Rosen Inn at Pointe Orlando does not charge resort fees.",
+      "The hotel offers free scheduled shuttle service to Universal Orlando Resort and SeaWorld.",
+      "The hotel has three pools, two heated seasonally.",
+      "Gated self-parking is $10 per night per car, with a maximum charge of five nights or $50 per car.",
+      "The hotel is located across International Drive from Pointe Orlando."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "International Drive hotel across from Pointe Orlando with no resort fees",
+    "why_here": "Rosen Inn at Pointe Orlando sits across International Drive from Pointe Orlando's restaurants, shops and attractions. It offers three pools, four dining options and scheduled shuttle service to Universal Orlando and SeaWorld.",
+    "know_before": "Gated self-parking is $10 per night per car, with a maximum charge of five nights or $50 per car; the hotel charges no resort fees.",
+    "local_tip": "Use the free scheduled shuttle to Universal Orlando Resort instead of driving and parking at the parks.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.roseninn9000.com/"
+     ],
+     "why_here": [
+      "https://www.roseninn9000.com/"
+     ],
+     "know_before": [
+      "https://www.roseninn9000.com/"
+     ],
+     "local_tip": [
+      "https://www.roseninn9000.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Rosen Inn at Pointe Orlando does not charge resort fees.",
+      "source": "https://www.roseninn9000.com/"
+     },
+     {
+      "claim": "The hotel offers free scheduled shuttle service to Universal Orlando Resort and SeaWorld.",
+      "source": "https://www.roseninn9000.com/"
+     },
+     {
+      "claim": "The hotel has three pools, two heated seasonally.",
+      "source": "https://www.roseninn9000.com/"
+     },
+     {
+      "claim": "Gated self-parking is $10 per night per car, with a maximum charge of five nights or $50 per car.",
+      "source": "https://www.roseninn9000.com/"
+     },
+     {
+      "claim": "The hotel is located across International Drive from Pointe Orlando.",
+      "source": "https://www.roseninn9000.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJbYrWIza12YgRkWYCIvvK6cY",
+   "name": "Sola Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "mexican_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://solamiami.com/",
+     "source_name": "Sola Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sola is at 1000 Collins Avenue, Miami Beach, FL 33139.",
+      "Chef Juan Onate's cuisine fuses fresh local seafood with international flavors and handcrafted cocktails at Sola.",
+      "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m. with 2-for-1 offers at Sola.",
+      "Brunch Party with Show runs Saturday and Sunday from 12 p.m. to 3 p.m. at Sola.",
+      "Sola is open Sunday to Thursday from 10 a.m. to 11 p.m. and Friday and Saturday from 10 a.m. to midnight."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sola with fresh local seafood, international flavors and handcrafted cocktails",
+    "why_here": "Sola in Miami Beach serves Chef Juan Onate's cuisine fusing fresh local seafood with international flavors, alongside handcrafted cocktails and a Brunch Party with Show on Saturday and Sunday.",
+    "know_before": "Sola is open Sunday to Thursday from 10 a.m. to 11 p.m. and Friday and Saturday from 10 a.m. to midnight.",
+    "local_tip": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m. with 2-for-1 offers.",
+    "best_time": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m.",
+    "citations": {
+     "hook": [
+      "https://solamiami.com/"
+     ],
+     "why_here": [
+      "https://solamiami.com/"
+     ],
+     "know_before": [
+      "https://solamiami.com/"
+     ],
+     "local_tip": [
+      "https://solamiami.com/"
+     ],
+     "best_time": [
+      "https://solamiami.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sola is at 1000 Collins Avenue, Miami Beach, FL 33139.",
+      "source": "https://solamiami.com/"
+     },
+     {
+      "claim": "Chef Juan Onate's cuisine fuses fresh local seafood with international flavors and handcrafted cocktails at Sola.",
+      "source": "https://solamiami.com/"
+     },
+     {
+      "claim": "Happy Hour runs Monday to Friday from 4 p.m. to 7 p.m. with 2-for-1 offers at Sola.",
+      "source": "https://solamiami.com/"
+     },
+     {
+      "claim": "Brunch Party with Show runs Saturday and Sunday from 12 p.m. to 3 p.m. at Sola.",
+      "source": "https://solamiami.com/"
+     },
+     {
+      "claim": "Sola is open Sunday to Thursday from 10 a.m. to 11 p.m. and Friday and Saturday from 10 a.m. to midnight.",
+      "source": "https://solamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJfUWpvtb2wogRTapRUXxZVbo",
+   "name": "Crabby's Dockside Clearwater",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://crabbysdocksideclearwater.com/",
+     "source_name": "Crabby's Dockside Clearwater \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crabby's Dockside serves fresh Florida Grouper.",
+      "Crabby's Dockside offers a panoramic view of Clearwater Beach.",
+      "Crabby's Dockside is at 37 Causeway Blvd., Clearwater Beach, FL 33767.",
+      "Hours at Crabby's Dockside are Sunday to Thursday from 11:00 a.m. to 10:00 p.m. and Friday to Saturday from 11:00 a.m. to 11:00 p.m.",
+      "Crabby's Dockside serves the Dockside Punch."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Crabby's Dockside with fresh Florida Grouper and a panoramic view of Clearwater Beach",
+    "why_here": "Crabby's Dockside serves fresh Florida Grouper and the Dockside Punch, with a panoramic view of Clearwater Beach from 37 Causeway Blvd. in Clearwater Beach.",
+    "know_before": "Hours at Crabby's Dockside are Sunday to Thursday from 11:00 a.m. to 10:00 p.m. and Friday to Saturday from 11:00 a.m. to 11:00 p.m.",
+    "local_tip": "Crabby's Dockside serves fresh Florida Grouper.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://crabbysdocksideclearwater.com/"
+     ],
+     "why_here": [
+      "https://crabbysdocksideclearwater.com/"
+     ],
+     "know_before": [
+      "https://crabbysdocksideclearwater.com/"
+     ],
+     "local_tip": [
+      "https://crabbysdocksideclearwater.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crabby's Dockside serves fresh Florida Grouper.",
+      "source": "https://crabbysdocksideclearwater.com/"
+     },
+     {
+      "claim": "Crabby's Dockside offers a panoramic view of Clearwater Beach.",
+      "source": "https://crabbysdocksideclearwater.com/"
+     },
+     {
+      "claim": "Crabby's Dockside is at 37 Causeway Blvd., Clearwater Beach, FL 33767.",
+      "source": "https://crabbysdocksideclearwater.com/"
+     },
+     {
+      "claim": "Hours at Crabby's Dockside are Sunday to Thursday from 11:00 a.m. to 10:00 p.m. and Friday to Saturday from 11:00 a.m. to 11:00 p.m.",
+      "source": "https://crabbysdocksideclearwater.com/"
+     },
+     {
+      "claim": "Crabby's Dockside serves the Dockside Punch.",
+      "source": "https://crabbysdocksideclearwater.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJPYAZtR9_54gR15yvE8YK9QU",
+   "name": "The Wizarding World of Harry Potter - Hogsmeade",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey",
+     "source_name": "The Wizarding World of Harry Potter - Hogsmeade \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Harry Potter and the Forbidden Journey enters through the towering castle gates of Hogwarts.",
+      "Harry Potter and the Forbidden Journey makes its way through the passageways and corridors of Hogwarts School of Witchcraft and Wizardry.",
+      "The minimum height for Harry Potter and the Forbidden Journey is 48 inches (122 cm)."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hogwarts towering castle gates for Harry Potter and the Forbidden Journey",
+    "why_here": "Harry Potter and the Forbidden Journey enters through the towering castle gates of Hogwarts and makes its way through the passageways and corridors of Hogwarts School of Witchcraft and Wizardry.",
+    "know_before": "The minimum height for Harry Potter and the Forbidden Journey is 48 inches (122 cm).",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Harry Potter and the Forbidden Journey enters through the towering castle gates of Hogwarts.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     },
+     {
+      "claim": "Harry Potter and the Forbidden Journey makes its way through the passageways and corridors of Hogwarts School of Witchcraft and Wizardry.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     },
+     {
+      "claim": "The minimum height for Harry Potter and the Forbidden Journey is 48 inches (122 cm).",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/harry-potter-and-the-forbidden-journey"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJl_6q6zFq24gRlLo7J30tYGo",
+   "name": "Fleamasters Flea Market",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "flea_market",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fleamastersfleamarket.com/about",
+     "source_name": "Fleamasters Flea Market \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fleamasters Flea Market opened in 1986.",
+      "Fleamasters Flea Market has over 400,000 square feet of shopping.",
+      "Fleamasters Flea Market has 20 snack bars.",
+      "Fleamasters Flea Market is open every Friday, Saturday and Sunday year round from 9 a.m. to 5 p.m.",
+      "Fleamasters Flea Market sells fresh produce, arts and crafts, antiques and collectibles.",
+      "Fleamasters Flea Market is at 4135 Dr Martin Luther King Jr Blvd, Fort Myers, FL 33916."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Market with over 400,000 square feet of shopping, open since 1986",
+    "why_here": "Fleamasters Flea Market in Fort Myers has over 400,000 square feet of shopping with fresh produce, arts and crafts, antiques and collectibles alongside 20 snack bars.",
+    "know_before": "Fleamasters Flea Market is open every Friday, Saturday and Sunday year round from 9 a.m. to 5 p.m.",
+    "local_tip": null,
+    "best_time": "Friday to Sunday, when the market is open 9:00 a.m. to 5:00 p.m.",
+    "citations": {
+     "hook": [
+      "https://www.fleamastersfleamarket.com/about"
+     ],
+     "why_here": [
+      "https://www.fleamastersfleamarket.com/about"
+     ],
+     "know_before": [
+      "https://www.fleamastersfleamarket.com/about"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      "https://www.fleamastersfleamarket.com/about"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fleamasters Flea Market opened in 1986.",
+      "source": "https://www.fleamastersfleamarket.com/about"
+     },
+     {
+      "claim": "Fleamasters Flea Market has over 400,000 square feet of shopping.",
+      "source": "https://www.fleamastersfleamarket.com/about"
+     },
+     {
+      "claim": "Fleamasters Flea Market has 20 snack bars.",
+      "source": "https://www.fleamastersfleamarket.com/about"
+     },
+     {
+      "claim": "Fleamasters Flea Market is open every Friday, Saturday and Sunday year round from 9 a.m. to 5 p.m.",
+      "source": "https://www.fleamastersfleamarket.com/about"
+     },
+     {
+      "claim": "Fleamasters Flea Market sells fresh produce, arts and crafts, antiques and collectibles.",
+      "source": "https://www.fleamastersfleamarket.com/about"
+     },
+     {
+      "claim": "Fleamasters Flea Market is at 4135 Dr Martin Luther King Jr Blvd, Fort Myers, FL 33916.",
+      "source": "https://www.fleamastersfleamarket.com/about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ-7QCIgJ754gRcfF7EG3N1Xs",
+   "name": "Dr. Phillips Center for the Performing Arts",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "performing_arts_theater",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.drphillipscenter.org/venues-and-specs-r487",
+     "source_name": "Dr. Phillips Center for the Performing Arts \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dr. Phillips Center for the Performing Arts includes the Walt Disney Theater and Steinmetz Hall.",
+      "The Walt Disney Theater hosts Broadway shows, award ceremonies and conferences.",
+      "Steinmetz Hall transforms in shape and seating to accommodate productions, private events and dinners."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Steinmetz Hall transforms in shape and seating for productions",
+    "why_here": "Dr. Phillips Center for the Performing Arts hosts Broadway shows in the Walt Disney Theater, while Steinmetz Hall transforms in shape and seating to accommodate productions and private events.",
+    "know_before": "Steinmetz Hall transforms in shape and seating to accommodate productions, private events and dinners.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.drphillipscenter.org/venues-and-specs-r487"
+     ],
+     "why_here": [
+      "https://www.drphillipscenter.org/venues-and-specs-r487"
+     ],
+     "know_before": [
+      "https://www.drphillipscenter.org/venues-and-specs-r487"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dr. Phillips Center for the Performing Arts includes the Walt Disney Theater and Steinmetz Hall.",
+      "source": "https://www.drphillipscenter.org/venues-and-specs-r487"
+     },
+     {
+      "claim": "The Walt Disney Theater hosts Broadway shows, award ceremonies and conferences.",
+      "source": "https://www.drphillipscenter.org/venues-and-specs-r487"
+     },
+     {
+      "claim": "Steinmetz Hall transforms in shape and seating to accommodate productions, private events and dinners.",
+      "source": "https://www.drphillipscenter.org/venues-and-specs-r487"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJW90b3LLjwogRae2aPFYmYpQ",
+   "name": "KPOT Korean BBQ & Hot Pot",
+   "category": "food",
+   "metro": "st-pete",
+   "primary_type": "korean_barbecue_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thekpot.com/location/st-petersburg/",
+     "source_name": "KPOT Korean BBQ & Hot Pot \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "KPOT offers all you can eat Korean BBQ, hot pot or both.",
+      "The entire table must select KBBQ, Hot Pot, or both.",
+      "There is a 2-hour limit."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "All-you-can-eat Korean BBQ, hot pot, or both at one table",
+    "why_here": "KPOT St. Petersburg offers all-you-can-eat Korean BBQ, hot pot or both, with the entire table selecting the same option. Lunch and dinner pricing differs, and there is a 2-hour limit.",
+    "know_before": "Last seating is one hour before closing time.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thekpot.com/location/st-petersburg/"
+     ],
+     "why_here": [
+      "https://thekpot.com/location/st-petersburg/"
+     ],
+     "know_before": [
+      "https://thekpot.com/location/st-petersburg/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "KPOT offers all you can eat Korean BBQ, hot pot or both.",
+      "source": "https://thekpot.com/location/st-petersburg/"
+     },
+     {
+      "claim": "The entire table must select KBBQ, Hot Pot, or both.",
+      "source": "https://thekpot.com/location/st-petersburg/"
+     },
+     {
+      "claim": "There is a 2-hour limit.",
+      "source": "https://thekpot.com/location/st-petersburg/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJL0bExYvEwogRWA4X9n0d7MA",
+   "name": "The Great Escape Room Tampa",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thegreatescaperoom.com/tampa",
+     "source_name": "The Great Escape Room Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Haunted Hotel is a 60-minute escape room for 2-8 players at The Great Escape Room Tampa.",
+      "All escape room experiences at The Great Escape Room Tampa are 100% private.",
+      "The Great Escape Room Tampa is located at 300 E Madison St in downtown Tampa.",
+      "Escape the Colosseum is an escape room at The Great Escape Room Tampa for 2-10 players and 120 minutes.",
+      "The Great Escape Room Tampa offers themed rooms including The Haunted Hotel and Escape the Colosseum."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The Haunted Hotel and private escape rooms in downtown Tampa",
+    "why_here": "The Great Escape Room Tampa in downtown Tampa offers themed rooms including The Haunted Hotel and Escape the Colosseum, and all escape room experiences at The Great Escape Room Tampa are 100% private.",
+    "know_before": "All escape room experiences at The Great Escape Room Tampa are 100% private.",
+    "local_tip": "The Haunted Hotel is a 60-minute escape room for 2-8 players.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thegreatescaperoom.com/tampa"
+     ],
+     "why_here": [
+      "https://thegreatescaperoom.com/tampa"
+     ],
+     "know_before": [
+      "https://thegreatescaperoom.com/tampa"
+     ],
+     "local_tip": [
+      "https://thegreatescaperoom.com/tampa"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Haunted Hotel is a 60-minute escape room for 2-8 players at The Great Escape Room Tampa.",
+      "source": "https://thegreatescaperoom.com/tampa"
+     },
+     {
+      "claim": "All escape room experiences at The Great Escape Room Tampa are 100% private.",
+      "source": "https://thegreatescaperoom.com/tampa"
+     },
+     {
+      "claim": "The Great Escape Room Tampa is located at 300 E Madison St in downtown Tampa.",
+      "source": "https://thegreatescaperoom.com/tampa"
+     },
+     {
+      "claim": "Escape the Colosseum is an escape room at The Great Escape Room Tampa for 2-10 players and 120 minutes.",
+      "source": "https://thegreatescaperoom.com/tampa"
+     },
+     {
+      "claim": "The Great Escape Room Tampa offers themed rooms including The Haunted Hotel and Escape the Colosseum.",
+      "source": "https://thegreatescaperoom.com/tampa"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJf2LdW-W02YgR4q0vx7_GK18",
+   "name": "South Pointe Park Pier",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "fishing_pier",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966",
+     "source_name": "South Pointe Park Pier \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "South Pointe Park is at the southern tip of Miami Beach.",
+      "South Pointe Park has direct access to the beach.",
+      "The park promenade is 20-foot wide and continues to South Pointe Pier.",
+      "South Pointe Pier is a 450-foot pier.",
+      "South Pointe Park covers 17 acres."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Pier at the southern tip of Miami Beach by South Pointe Park",
+    "why_here": "South Pointe Park sits at the southern tip of Miami Beach with direct access to the beach, and its 20-foot wide promenade continues to South Pointe Pier across 17 acres of waterfront parkland.",
+    "know_before": "South Pointe Park covers 17 acres at the southern tip of Miami Beach.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     ],
+     "why_here": [
+      "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     ],
+     "know_before": [
+      "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "South Pointe Park is at the southern tip of Miami Beach.",
+      "source": "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     },
+     {
+      "claim": "South Pointe Park has direct access to the beach.",
+      "source": "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     },
+     {
+      "claim": "The park promenade is 20-foot wide and continues to South Pointe Pier.",
+      "source": "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     },
+     {
+      "claim": "South Pointe Pier is a 450-foot pier.",
+      "source": "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     },
+     {
+      "claim": "South Pointe Park covers 17 acres.",
+      "source": "https://www.miamiandbeaches.com/l/parks-and-recreation/south-pointe-park/2966"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi-gPjmOm2YgR_Lzi7WLxlaY",
+   "name": "C.B. Smith Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove",
+     "source_name": "C.B. Smith Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Paradise Pipeline features four five-story-tall waterslides exiting into a four-foot-deep plunge pool.",
+      "C.B. Smith Park is located at 900 N. Flamingo Rd., Pembroke Pines, FL 33028.",
+      "Paradise Pipeline is at Paradise Cove, the water park at C.B. Smith Park in Pembroke Pines.",
+      "Paradise Pipeline riders must be 42 inches tall and be able to swim.",
+      "The slides vary in length from 395 feet to 430 feet."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Paradise Pipeline drops riders down four five-story waterslides",
+    "why_here": "Paradise Pipeline at Paradise Cove sends riders down four five-story-tall waterslides into a four-foot-deep plunge pool, with slides that vary in length from 395 feet to 430 feet at C.B. Smith Park.",
+    "know_before": "Paradise Pipeline riders must be 42 inches tall and be able to swim.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     ],
+     "why_here": [
+      "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     ],
+     "know_before": [
+      "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Paradise Pipeline features four five-story-tall waterslides exiting into a four-foot-deep plunge pool.",
+      "source": "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     },
+     {
+      "claim": "C.B. Smith Park is located at 900 N. Flamingo Rd., Pembroke Pines, FL 33028.",
+      "source": "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     },
+     {
+      "claim": "Paradise Pipeline is at Paradise Cove, the water park at C.B. Smith Park in Pembroke Pines.",
+      "source": "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     },
+     {
+      "claim": "Paradise Pipeline riders must be 42 inches tall and be able to swim.",
+      "source": "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     },
+     {
+      "claim": "The slides vary in length from 395 feet to 430 feet.",
+      "source": "https://www.broward.org/parks/thingstodo/Waterparks/ParadiseCove"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJM7Cwje6d5ogR3dlzm0paYc8",
+   "name": "Sunset Grille",
+   "category": "food",
+   "metro": "st-augustine-fl",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sunsetgrillea1a.com/",
+     "source_name": "Sunset Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The upstairs features open-air dining with large fans during summer and heaters during winter.",
+      "Menu highlights include Peel 'n Eat Shrimp and Ahi Tuna.",
+      "The full-service bar features handcrafted specialties from St. Augustine Distillery and Ancient City Brewery.",
+      "Sunset Grille does not take reservations.",
+      "Sunset Grille is at 421 A1A Beach Blvd, St. Augustine, FL.",
+      "Individual booths accommodate up to 4-12 guests."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Upstairs open-air dining with a full-service bar on A1A",
+    "why_here": "Sunset Grille pairs upstairs open-air dining with a full-service bar pouring handcrafted specialties from St. Augustine Distillery and Ancient City Brewery, while the menu highlights Peel 'n Eat Shrimp and Ahi Tuna.",
+    "know_before": "Sunset Grille does not take reservations.",
+    "local_tip": "Individual booths accommodate up to 4-12 guests upstairs.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sunsetgrillea1a.com/"
+     ],
+     "why_here": [
+      "https://sunsetgrillea1a.com/"
+     ],
+     "know_before": [
+      "https://sunsetgrillea1a.com/"
+     ],
+     "local_tip": [
+      "https://sunsetgrillea1a.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The upstairs features open-air dining with large fans during summer and heaters during winter.",
+      "source": "https://sunsetgrillea1a.com/"
+     },
+     {
+      "claim": "Menu highlights include Peel 'n Eat Shrimp and Ahi Tuna.",
+      "source": "https://sunsetgrillea1a.com/"
+     },
+     {
+      "claim": "The full-service bar features handcrafted specialties from St. Augustine Distillery and Ancient City Brewery.",
+      "source": "https://sunsetgrillea1a.com/"
+     },
+     {
+      "claim": "Sunset Grille does not take reservations.",
+      "source": "https://sunsetgrillea1a.com/"
+     },
+     {
+      "claim": "Sunset Grille is at 421 A1A Beach Blvd, St. Augustine, FL.",
+      "source": "https://sunsetgrillea1a.com/"
+     },
+     {
+      "claim": "Individual booths accommodate up to 4-12 guests.",
+      "source": "https://sunsetgrillea1a.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJab3yr6C22YgRdh8TY4oVu_w",
+   "name": "Phillip & Patricia Frost Museum of Science",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.frostscience.org/about-us/",
+     "source_name": "Phillip & Patricia Frost Museum of Science \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Frost Science is divided into four buildings: the Frost Planetarium, Aquarium, and North and West Wings.",
+      "It is located in Downtown Miami's waterfront Maurice A. Ferr\u00e9 Park."
+     ]
+    },
+    {
+     "source": "https://www.frostscience.org/plan-your-day/",
+     "source_name": "Phillip & Patricia Frost Museum of Science \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "One Explorer ticket includes access to all museum exhibitions, aquarium and your choice of one Frost Planetarium show."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Planetarium, aquarium and science wings on Downtown Miami's waterfront",
+    "why_here": "Frost Science in Maurice A. Ferr\u00e9 Park is divided into four buildings: the Frost Planetarium, Aquarium, and North and West Wings. Guests explore living systems, the solar system, flight, light and the human body through interactive exhibitions.",
+    "know_before": "The museum is open daily, per its Plan Your Day page; advance tickets are recommended.",
+    "local_tip": "One Explorer ticket includes all exhibitions, the aquarium and one Frost Planetarium show, per the official site.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.frostscience.org/about-us/",
+      "https://www.frostscience.org/plan-your-day/"
+     ],
+     "why_here": [
+      "https://www.frostscience.org/about-us/",
+      "https://www.frostscience.org/plan-your-day/"
+     ],
+     "know_before": [
+      "https://www.frostscience.org/about-us/",
+      "https://www.frostscience.org/plan-your-day/"
+     ],
+     "local_tip": [
+      "https://www.frostscience.org/about-us/",
+      "https://www.frostscience.org/plan-your-day/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Frost Science is divided into four buildings: the Frost Planetarium, Aquarium, and North and West Wings.",
+      "source": "https://www.frostscience.org/about-us/"
+     },
+     {
+      "claim": "It is located in Downtown Miami's waterfront Maurice A. Ferr\u00e9 Park.",
+      "source": "https://www.frostscience.org/about-us/"
+     },
+     {
+      "claim": "One Explorer ticket includes access to all museum exhibitions, aquarium and your choice of one Frost Planetarium show.",
+      "source": "https://www.frostscience.org/plan-your-day/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy31_AYNJ5IgRw3p7yjjsjPo",
+   "name": "Dockside Seafood Restaurant Jax Beach",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://docksideseafoodrestaurant.com/menu",
+     "source_name": "Dockside Seafood Restaurant Jax Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Menu starters include Chilled Smoked Fish Dip and Fried Conch Fritters.",
+      "Baskets are served with fries, slaw and hush puppies with a choice of sauce.",
+      "Dockside Combos offer a combo of 2 or a combo of 3 selections.",
+      "Dockside Seafood Restaurant is at 2510 2nd Ave North, Jacksonville Beach, FL 32250.",
+      "Dockside Seafood Restaurant is open from 10:30 a.m. to 9 p.m. every day."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Dockside Combos pair seafood baskets with fries, slaw and hush puppies",
+    "why_here": "Dockside Seafood Restaurant in Jacksonville Beach serves seafood baskets with fries, slaw and hush puppies, and starters include Chilled Smoked Fish Dip and Fried Conch Fritters to begin the meal at the table.",
+    "know_before": "Dockside Seafood Restaurant is open from 10:30 a.m. to 9 p.m. every day.",
+    "local_tip": "Choose a Dockside Combos combo of 2 or a combo of 3 selections.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://docksideseafoodrestaurant.com/menu"
+     ],
+     "why_here": [
+      "https://docksideseafoodrestaurant.com/menu"
+     ],
+     "know_before": [
+      "https://docksideseafoodrestaurant.com/menu"
+     ],
+     "local_tip": [
+      "https://docksideseafoodrestaurant.com/menu"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Menu starters include Chilled Smoked Fish Dip and Fried Conch Fritters.",
+      "source": "https://docksideseafoodrestaurant.com/menu"
+     },
+     {
+      "claim": "Baskets are served with fries, slaw and hush puppies with a choice of sauce.",
+      "source": "https://docksideseafoodrestaurant.com/menu"
+     },
+     {
+      "claim": "Dockside Combos offer a combo of 2 or a combo of 3 selections.",
+      "source": "https://docksideseafoodrestaurant.com/menu"
+     },
+     {
+      "claim": "Dockside Seafood Restaurant is at 2510 2nd Ave North, Jacksonville Beach, FL 32250.",
+      "source": "https://docksideseafoodrestaurant.com/menu"
+     },
+     {
+      "claim": "Dockside Seafood Restaurant is open from 10:30 a.m. to 9 p.m. every day.",
+      "source": "https://docksideseafoodrestaurant.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqQ1Avv5DkYgR19YWeQV8UiQ",
+   "name": "HarborWalk Village",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://harborwalkevents.com/",
+     "source_name": "HarborWalk Village \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "HarborWalk Village is located at 10 Harbor Blvd, Destin, FL 32541.",
+      "Blues, Brews & BBQ offers unlimited tastings, local craft drinks and live blues on the Main Stage.",
+      "The event takes place on the Destin Harbor with waterfront views."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterfront village on Destin Harbor hosting live music and tastings",
+    "why_here": "HarborWalk Village sits on the Destin Harbor at 10 Harbor Boulevard. Its official events site promotes gatherings with waterfront views, live music on the Main Stage and local food and drink tastings.",
+    "know_before": "For the Blues, Brews & BBQ event, parking is free for ticket holders, per the official events site.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://harborwalkevents.com/"
+     ],
+     "why_here": [
+      "https://harborwalkevents.com/"
+     ],
+     "know_before": [
+      "https://harborwalkevents.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "HarborWalk Village is located at 10 Harbor Blvd, Destin, FL 32541.",
+      "source": "https://harborwalkevents.com/"
+     },
+     {
+      "claim": "Blues, Brews & BBQ offers unlimited tastings, local craft drinks and live blues on the Main Stage.",
+      "source": "https://harborwalkevents.com/"
+     },
+     {
+      "claim": "The event takes place on the Destin Harbor with waterfront views.",
+      "source": "https://harborwalkevents.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJX_TbJvK02YgROtsh5jIAT3E",
+   "name": "Big Pink",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/",
+     "source_name": "Big Pink \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Big Pink opened in December 1996.",
+      "Big Pink is Myles Chefetz's take on the retro diner experience.",
+      "Big Pink has more than 200 menu items, including the Big Pink TV Dinner with daily specials served on a stainless steel tray.",
+      "Signature pink Volkswagen Beetles are parked outside Big Pink.",
+      "Big Pink serves the breakfast crowd and South Beach socialites.",
+      "Big Pink is open Thursday to Saturday from 8 a.m. to 5:30 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Retro diner opened in December 1996 with more than 200 menu items",
+    "why_here": "Big Pink is Myles Chefetz's take on the retro diner experience. The menu includes the Big Pink TV Dinner with daily specials served on a stainless steel tray, for the breakfast crowd and South Beach socialites.",
+    "know_before": "Big Pink is open Thursday to Saturday from 8 a.m. to 5:30 a.m.",
+    "local_tip": "Look for the signature pink Volkswagen Beetles parked outside.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     ],
+     "why_here": [
+      "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     ],
+     "know_before": [
+      "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     ],
+     "local_tip": [
+      "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Big Pink opened in December 1996.",
+      "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     },
+     {
+      "claim": "Big Pink is Myles Chefetz's take on the retro diner experience.",
+      "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     },
+     {
+      "claim": "Big Pink has more than 200 menu items, including the Big Pink TV Dinner with daily specials served on a stainless steel tray.",
+      "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     },
+     {
+      "claim": "Signature pink Volkswagen Beetles are parked outside Big Pink.",
+      "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     },
+     {
+      "claim": "Big Pink serves the breakfast crowd and South Beach socialites.",
+      "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     },
+     {
+      "claim": "Big Pink is open Thursday to Saturday from 8 a.m. to 5:30 a.m.",
+      "source": "https://mylesrestaurantgroup.com/restaurants/big-pink/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBbLLplW12YgRj9v5fTb-pNE",
+   "name": "La Trattoria Ocean Drive",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://latrattoriamiami.com/",
+     "source_name": "La Trattoria Ocean Drive \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "La Trattoria is at 1244 Ocean Dr, Miami Beach, FL 33139.",
+      "La Trattoria dates to 2018.",
+      "The menu combines Italian-inspired dishes with Miami flavors.",
+      "The menu includes seafood, pastas, pizzas, salads and meats."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Italian-inspired dishes meet Miami flavors on Ocean Drive since 2018",
+    "why_here": "La Trattoria is an Ocean Drive restaurant in Miami Beach serving Italian-inspired dishes with Miami flavors. Its menu spans fresh pasta and seafood alongside pizzas, salads and meats.",
+    "know_before": "La Trattoria is at 1244 Ocean Drive, Miami Beach, and the official site says it is open daily.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://latrattoriamiami.com/"
+     ],
+     "why_here": [
+      "https://latrattoriamiami.com/"
+     ],
+     "know_before": [
+      "https://latrattoriamiami.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "La Trattoria is at 1244 Ocean Dr, Miami Beach, FL 33139.",
+      "source": "https://latrattoriamiami.com/"
+     },
+     {
+      "claim": "La Trattoria dates to 2018.",
+      "source": "https://latrattoriamiami.com/"
+     },
+     {
+      "claim": "The menu combines Italian-inspired dishes with Miami flavors.",
+      "source": "https://latrattoriamiami.com/"
+     },
+     {
+      "claim": "The menu includes seafood, pastas, pizzas, salads and meats.",
+      "source": "https://latrattoriamiami.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJy_SBSU0J2YgRuyYi6B0Cozc",
+   "name": "Cilantro Asian Bistro in Davie",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "asian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cilantroasianbistro.com/",
+     "source_name": "Cilantro Asian Bistro in Davie \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cilantro Asian Bistro's Davie location is at 11590 W State Rd 84, Davie, FL 33325.",
+      "Cilantro Asian Bistro serves Thai and Japanese cuisine.",
+      "Traditional Thai dishes at Cilantro include Pad Thai and curries.",
+      "Cilantro serves sushi rolls.",
+      "The Davie location is open Sunday to Thursday from 11:30 a.m. to 10:30 p.m. and Friday to Saturday from 11:30 a.m. to 11 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Thai and Japanese bistro in Davie serving sushi, Pad Thai and curries",
+    "why_here": "Cilantro Asian Bistro serves Thai and Japanese cuisine at its Davie location at 11590 W State Rd 84. The menu covers sushi rolls, traditional Thai dishes such as Pad Thai, and curries.",
+    "know_before": "The Davie location is open Sunday to Thursday from 11:30 a.m. to 10:30 p.m. and Friday to Saturday from 11:30 a.m. to 11 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cilantroasianbistro.com/"
+     ],
+     "why_here": [
+      "https://cilantroasianbistro.com/"
+     ],
+     "know_before": [
+      "https://cilantroasianbistro.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cilantro Asian Bistro's Davie location is at 11590 W State Rd 84, Davie, FL 33325.",
+      "source": "https://cilantroasianbistro.com/"
+     },
+     {
+      "claim": "Cilantro Asian Bistro serves Thai and Japanese cuisine.",
+      "source": "https://cilantroasianbistro.com/"
+     },
+     {
+      "claim": "Traditional Thai dishes at Cilantro include Pad Thai and curries.",
+      "source": "https://cilantroasianbistro.com/"
+     },
+     {
+      "claim": "Cilantro serves sushi rolls.",
+      "source": "https://cilantroasianbistro.com/"
+     },
+     {
+      "claim": "The Davie location is open Sunday to Thursday from 11:30 a.m. to 10:30 p.m. and Friday to Saturday from 11:30 a.m. to 11 p.m.",
+      "source": "https://cilantroasianbistro.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVzWobH232YgRNV1u-zsJi2c",
+   "name": "Motek Coral Gables",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://motek.com/coral-gables/",
+     "source_name": "Motek Coral Gables \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Coral Gables location of Motek is situated at 45 Miracle Mile, Miami, FL 33134.",
+      "Motek Coral Gables offers a full bar and a wood-fire oven.",
+      "Motek Coral Gables serves lunch and dinner daily.",
+      "Motek Coral Gables is open Monday to Thursday from 11 a.m. to 10 p.m.",
+      "Happy Hour at Motek Coral Gables runs Monday to Friday from 2 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coral Gables location at 45 Miracle Mile with a full bar and wood-fire oven",
+    "why_here": "The Coral Gables location of Motek is situated at 45 Miracle Mile, Miami, FL 33134. Motek Coral Gables offers a full bar and a wood-fire oven, and serves lunch and dinner daily.",
+    "know_before": "Happy Hour at Motek Coral Gables runs Monday to Friday from 2 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://motek.com/coral-gables/"
+     ],
+     "why_here": [
+      "https://motek.com/coral-gables/"
+     ],
+     "know_before": [
+      "https://motek.com/coral-gables/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Coral Gables location of Motek is situated at 45 Miracle Mile, Miami, FL 33134.",
+      "source": "https://motek.com/coral-gables/"
+     },
+     {
+      "claim": "Motek Coral Gables offers a full bar and a wood-fire oven.",
+      "source": "https://motek.com/coral-gables/"
+     },
+     {
+      "claim": "Motek Coral Gables serves lunch and dinner daily.",
+      "source": "https://motek.com/coral-gables/"
+     },
+     {
+      "claim": "Motek Coral Gables is open Monday to Thursday from 11 a.m. to 10 p.m.",
+      "source": "https://motek.com/coral-gables/"
+     },
+     {
+      "claim": "Happy Hour at Motek Coral Gables runs Monday to Friday from 2 p.m. to 6 p.m.",
+      "source": "https://motek.com/coral-gables/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp46HeJ_I54gRcJWo_R-Ln7M",
+   "name": "Eaton's Beach Sandbar & Grill",
+   "category": "food",
+   "metro": "ocala-fl",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://eatonsbeach.com/story",
+     "source_name": "Eaton's Beach Sandbar & Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eaton's Beach offers a Florisiana menu crafted by Chef Dave Del Rio, blending flavors of Florida and Louisiana.",
+      "Eaton's Beach is at 15790 Southeast 134th Avenue, Weirsdale, FL 32195."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florisiana menu blending Florida and Louisiana flavors in Weirsdale",
+    "why_here": "Eaton's Beach offers a Florisiana menu crafted by Chef Dave Del Rio, blending flavors of Florida and Louisiana. Eaton's Beach is at 15790 Southeast 134th Avenue, Weirsdale, FL 32195.",
+    "know_before": "Eaton's Beach is at 15790 Southeast 134th Avenue, Weirsdale, FL 32195.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://eatonsbeach.com/story"
+     ],
+     "why_here": [
+      "https://eatonsbeach.com/story"
+     ],
+     "know_before": [
+      "https://eatonsbeach.com/story"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eaton's Beach offers a Florisiana menu crafted by Chef Dave Del Rio, blending flavors of Florida and Louisiana.",
+      "source": "https://eatonsbeach.com/story"
+     },
+     {
+      "claim": "Eaton's Beach is at 15790 Southeast 134th Avenue, Weirsdale, FL 32195.",
+      "source": "https://eatonsbeach.com/story"
+     }
+    ]
+   }
+  }
+ ]
+}

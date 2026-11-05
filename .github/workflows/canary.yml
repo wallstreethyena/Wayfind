@@ -34,12 +34,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # CHECKOUT SKIPS public/ (2026-11-03). No canary check reads public/ (the
+  # route contract hits production; the RPC scan walks app/ and lib/). public/
+  # is ~580 MB of the ~640 MB tree. From ~17:10Z on 2026-11-03 the same
+  # depth-1 fetch went from 6-24 s (72 jobs, Nov 1-3) to 100-300+ s, and
+  # run 41684161308 lost promote-metros (5 min cap) and heartbeat (3 min cap)
+  # inside checkout before their checks ran; the rerun lost heartbeat again
+  # at 225 s. Timeouts are unchanged: a canary that stalls must still go red.
   incident-delivery:
     name: production incident delivery
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       # Independent of the email/Sentry credentials used by the watcher.
@@ -55,6 +63,7 @@ jobs:
     timeout-minutes: 12
     steps:
       - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci --no-audit --no-fund
@@ -72,6 +81,7 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci --no-audit --no-fund
@@ -97,6 +107,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci --no-audit --no-fund
@@ -124,6 +135,7 @@ jobs:
     timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: npm }
       - run: npm ci --no-audit --no-fund
@@ -171,6 +183,7 @@ jobs:
     timeout-minutes: 3
     steps:
       - uses: actions/checkout@v4
+        with: { sparse-checkout: "/*\n!/public/\n", sparse-checkout-cone-mode: false }
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
       - name: Record canary heartbeat

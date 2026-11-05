@@ -1,0 +1,1967 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJdXCZ0Sar2YgRKGhR0_LPvqo",
+   "name": "Hollywood Beach Broadwalk",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109",
+     "source_name": "Hollywood Beach Broadwalk \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hollywood Beach Broadwalk is a promenade that stretches nearly 2.5 miles along the Atlantic Ocean.",
+      "The brick-paved thoroughfare hosts pedestrians, joggers, bicyclists, and rollerbladers.",
+      "The promenade features the Hollywood Beach Theatre and a children's water playground at Charnow Park.",
+      "City of Hollywood Parks are open from sunrise to sunset.",
+      "The Hollywood Beach Broadwalk is located on A1A between Dania Beach Blvd and Hallandale Beach in Hollywood, FL 33019."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brick promenade stretching nearly 2.5 miles along the Atlantic Ocean",
+    "why_here": "Walk, jog, or ride along a brick promenade beside the Atlantic Ocean, with the Hollywood Beach Theatre and a children's water playground at Charnow Park along the way.",
+    "know_before": "City of Hollywood Parks are open from sunrise to sunset.",
+    "local_tip": "Use the promenade for pedestrians, joggers, bicyclists, and rollerbladers.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     ],
+     "why_here": [
+      "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     ],
+     "know_before": [
+      "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     ],
+     "local_tip": [
+      "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hollywood Beach Broadwalk is a promenade that stretches nearly 2.5 miles along the Atlantic Ocean.",
+      "source": "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     },
+     {
+      "claim": "The brick-paved thoroughfare hosts pedestrians, joggers, bicyclists, and rollerbladers.",
+      "source": "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     },
+     {
+      "claim": "The promenade features the Hollywood Beach Theatre and a children's water playground at Charnow Park.",
+      "source": "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     },
+     {
+      "claim": "City of Hollywood Parks are open from sunrise to sunset.",
+      "source": "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     },
+     {
+      "claim": "The Hollywood Beach Broadwalk is located on A1A between Dania Beach Blvd and Hallandale Beach in Hollywood, FL 33019.",
+      "source": "https://www.hollywoodfl.org/facilities/facility/details/Hollywood-Beach-Broadwalk-109"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJVw5hczQR24gRYBN31K3a81A",
+   "name": "Miromar Outlets",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://miromaroutlets.com/amenities/",
+     "source_name": "Miromar Outlets \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Miromar Outlets is located at 10801 Corkscrew Road, Estero, FL 33928.",
+      "Miromar Outlets is located at exit 123 off I-75 in Estero between Naples and Fort Myers.",
+      "Miromar Outlets offers free surface parking throughout the property.",
+      "Miromar Outlets has covered walkways, stroller rentals, and a dedicated playground.",
+      "Leashed dogs are welcome throughout most of Miromar Outlets."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Outlet shopping in Estero between Naples and Fort Myers, off I-75 exit 123",
+    "why_here": "Shop outlet stores in Estero between Naples and Fort Myers, using covered walkways and free surface parking, with a dedicated playground for families visiting together.",
+    "know_before": "Free surface parking is offered throughout the property at Miromar Outlets.",
+    "local_tip": "Leashed dogs are welcome throughout most of Miromar Outlets.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://miromaroutlets.com/amenities/"
+     ],
+     "why_here": [
+      "https://miromaroutlets.com/amenities/"
+     ],
+     "know_before": [
+      "https://miromaroutlets.com/amenities/"
+     ],
+     "local_tip": [
+      "https://miromaroutlets.com/amenities/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Miromar Outlets is located at 10801 Corkscrew Road, Estero, FL 33928.",
+      "source": "https://miromaroutlets.com/amenities/"
+     },
+     {
+      "claim": "Miromar Outlets is located at exit 123 off I-75 in Estero between Naples and Fort Myers.",
+      "source": "https://miromaroutlets.com/amenities/"
+     },
+     {
+      "claim": "Miromar Outlets offers free surface parking throughout the property.",
+      "source": "https://miromaroutlets.com/amenities/"
+     },
+     {
+      "claim": "Miromar Outlets has covered walkways, stroller rentals, and a dedicated playground.",
+      "source": "https://miromaroutlets.com/amenities/"
+     },
+     {
+      "claim": "Leashed dogs are welcome throughout most of Miromar Outlets.",
+      "source": "https://miromaroutlets.com/amenities/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJAf8qlDAEmogROxDShN5jCUY",
+   "name": "Gulf State Park",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.alapark.com/parks/gulf-state-park/beaches",
+     "source_name": "Gulf State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Gulf State Park has over 3.5 miles of white sand beaches in Gulf Shores and Orange Beach, Alabama.",
+      "Beach access points include the Beach Pavilion in Gulf Shores and Romar Beach in Orange Beach.",
+      "Beach access points list parking and restrooms.",
+      "Daily parking is $15 for a personal vehicle for all day.",
+      "At each beach access point, a flag indicates water conditions."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 3.5 miles of white sand beaches in Gulf Shores and Orange Beach",
+    "why_here": "Go for white sand beaches across Gulf Shores and Orange Beach, with access points including the Beach Pavilion and Romar Beach, plus parking and restrooms at access points.",
+    "know_before": "Daily parking is $15 for a personal vehicle for all day.",
+    "local_tip": "Check the flag at each beach access point for water conditions.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.alapark.com/parks/gulf-state-park/beaches"
+     ],
+     "why_here": [
+      "https://www.alapark.com/parks/gulf-state-park/beaches"
+     ],
+     "know_before": [
+      "https://www.alapark.com/parks/gulf-state-park/beaches"
+     ],
+     "local_tip": [
+      "https://www.alapark.com/parks/gulf-state-park/beaches"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Gulf State Park has over 3.5 miles of white sand beaches in Gulf Shores and Orange Beach, Alabama.",
+      "source": "https://www.alapark.com/parks/gulf-state-park/beaches"
+     },
+     {
+      "claim": "Beach access points include the Beach Pavilion in Gulf Shores and Romar Beach in Orange Beach.",
+      "source": "https://www.alapark.com/parks/gulf-state-park/beaches"
+     },
+     {
+      "claim": "Beach access points list parking and restrooms.",
+      "source": "https://www.alapark.com/parks/gulf-state-park/beaches"
+     },
+     {
+      "claim": "Daily parking is $15 for a personal vehicle for all day.",
+      "source": "https://www.alapark.com/parks/gulf-state-park/beaches"
+     },
+     {
+      "claim": "At each beach access point, a flag indicates water conditions.",
+      "source": "https://www.alapark.com/parks/gulf-state-park/beaches"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJFWLtdTy12YgRe4CXe3fIHxI",
+   "name": "Alma Cubana - Cuban restaurant in Miami Beach",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://almacubanamiamibeach.com/",
+     "source_name": "Alma Cubana - Cuban restaurant in Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Alma Cubana is a Cuban restaurant in Miami Beach located at 650 Ocean Drive, Miami Beach, FL 33139.",
+      "Alma Cubana is located at The Gabriel Hotel on Ocean Drive.",
+      "Alma Cubana blends chic, modern dining with authentic flavors of Cuba.",
+      "Alma Cubana is available for delivery or pickup through online ordering.",
+      "The phone number for Alma Cubana is (786) 278-4198."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban restaurant on Ocean Drive in Miami Beach, at The Gabriel Hotel",
+    "why_here": "Go for authentic flavors of Cuba in a chic, modern dining setting on Ocean Drive in Miami Beach, with delivery or pickup available through online ordering.",
+    "know_before": "Alma Cubana is at 650 Ocean Drive, Miami Beach, FL 33139.",
+    "local_tip": "Call (786) 278-4198 or order online for delivery or pickup.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://almacubanamiamibeach.com/"
+     ],
+     "why_here": [
+      "https://almacubanamiamibeach.com/"
+     ],
+     "know_before": [
+      "https://almacubanamiamibeach.com/"
+     ],
+     "local_tip": [
+      "https://almacubanamiamibeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Alma Cubana is a Cuban restaurant in Miami Beach located at 650 Ocean Drive, Miami Beach, FL 33139.",
+      "source": "https://almacubanamiamibeach.com/"
+     },
+     {
+      "claim": "Alma Cubana is located at The Gabriel Hotel on Ocean Drive.",
+      "source": "https://almacubanamiamibeach.com/"
+     },
+     {
+      "claim": "Alma Cubana blends chic, modern dining with authentic flavors of Cuba.",
+      "source": "https://almacubanamiamibeach.com/"
+     },
+     {
+      "claim": "Alma Cubana is available for delivery or pickup through online ordering.",
+      "source": "https://almacubanamiamibeach.com/"
+     },
+     {
+      "claim": "The phone number for Alma Cubana is (786) 278-4198.",
+      "source": "https://almacubanamiamibeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKcTI6I-02YgRDfnmFGKRvf0",
+   "name": "Hosteria Romana",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://hosteriaromana.com/",
+     "source_name": "Hosteria Romana \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Hosteria Romana is at 429 Espanola Way, Miami Beach, FL 33139.",
+      "Hosteria Romana is open Monday-Sunday 12pm - 1am.",
+      "Hosteria Romana brings the culture and traditions of Centro Storico (Trastevere), Rome, Italy to South Beach.",
+      "The phone number for Hosteria Romana is (305) 532-4299.",
+      "Hosteria Romana menus include Dinner, Desserts, Drinks, and Wines."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Trastevere traditions, Dinner and Wines in South Beach",
+    "why_here": "Go for the culture and traditions of Centro Storico and Trastevere from Rome, with Dinner, Desserts, Drinks, and Wines menus at Hosteria Romana in South Beach on Espanola Way.",
+    "know_before": "Hosteria Romana is open Monday-Sunday 12pm - 1am at 429 Espanola Way.",
+    "local_tip": "Call (305) 532-4299 to reserve at Hosteria Romana.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://hosteriaromana.com/"
+     ],
+     "why_here": [
+      "https://hosteriaromana.com/"
+     ],
+     "know_before": [
+      "https://hosteriaromana.com/"
+     ],
+     "local_tip": [
+      "https://hosteriaromana.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Hosteria Romana is at 429 Espanola Way, Miami Beach, FL 33139.",
+      "source": "https://hosteriaromana.com/"
+     },
+     {
+      "claim": "Hosteria Romana is open Monday-Sunday 12pm - 1am.",
+      "source": "https://hosteriaromana.com/"
+     },
+     {
+      "claim": "Hosteria Romana brings the culture and traditions of Centro Storico (Trastevere), Rome, Italy to South Beach.",
+      "source": "https://hosteriaromana.com/"
+     },
+     {
+      "claim": "The phone number for Hosteria Romana is (305) 532-4299.",
+      "source": "https://hosteriaromana.com/"
+     },
+     {
+      "claim": "Hosteria Romana menus include Dinner, Desserts, Drinks, and Wines.",
+      "source": "https://hosteriaromana.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJXX-rA1JBkYgRLHmV06Fj5QI",
+   "name": "Destin Harbor Boardwalk",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk",
+     "source_name": "Destin Harbor Boardwalk \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The City of Destin's Harbor Boardwalk stretches nearly a quarter of a mile along Destin Harbor.",
+      "The boardwalk project was completed in June 2012.",
+      "The boardwalk includes new decking and pavers, landscaping, lighting and seating.",
+      "The boardwalk provides access to local fishing charter boats, restaurants and water activities.",
+      "The boardwalk project is the vision of the 2003 Harbor Community Redevelopment Area Plan."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Nearly a quarter of a mile along Destin Harbor, completed in June 2012",
+    "why_here": "Walk nearly a quarter of a mile along Destin Harbor on decking and pavers with landscaping, lighting and seating, with access to fishing charter boats and water activities.",
+    "know_before": "The boardwalk project was completed in June 2012.",
+    "local_tip": "Use the boardwalk for access to local fishing charter boats and water activities.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     ],
+     "why_here": [
+      "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     ],
+     "know_before": [
+      "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     ],
+     "local_tip": [
+      "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The City of Destin's Harbor Boardwalk stretches nearly a quarter of a mile along Destin Harbor.",
+      "source": "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     },
+     {
+      "claim": "The boardwalk project was completed in June 2012.",
+      "source": "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     },
+     {
+      "claim": "The boardwalk includes new decking and pavers, landscaping, lighting and seating.",
+      "source": "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     },
+     {
+      "claim": "The boardwalk provides access to local fishing charter boats, restaurants and water activities.",
+      "source": "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     },
+     {
+      "claim": "The boardwalk project is the vision of the 2003 Harbor Community Redevelopment Area Plan.",
+      "source": "https://www.cityofdestin.com/376/Destin-Harbor-Boardwalk"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjTKm-wUd2YgRgSxiEDzZA38",
+   "name": "The Hen and Hog Breakfast & Brunch in Pompano Beach, Florida",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.thehenhog.com/",
+     "source_name": "The Hen and Hog Breakfast & Brunch in Pompano Beach, Florida \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Hen and the Hog serves Southern comfort food in Pompano Beach and Boca Raton.",
+      "The Hen and the Hog offers all-day breakfast and brunch specials.",
+      "The Hen and the Hog menu includes classic breakfast dishes and hearty lunch options.",
+      "The Hen and the Hog lists a mimosa tower for sharing with friends.",
+      "The Pompano Beach location phone number is +1 (954)-366-1572."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Southern comfort food with all-day breakfast and brunch specials in Pompano Beach",
+    "why_here": "Go for Southern comfort food in Pompano Beach, from classic breakfast dishes to hearty lunch options, with all-day breakfast and brunch specials on the menu.",
+    "know_before": "The Hen and the Hog has locations in Pompano Beach and Boca Raton.",
+    "local_tip": "Try the mimosa tower, listed for sharing with friends.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.thehenhog.com/"
+     ],
+     "why_here": [
+      "https://www.thehenhog.com/"
+     ],
+     "know_before": [
+      "https://www.thehenhog.com/"
+     ],
+     "local_tip": [
+      "https://www.thehenhog.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Hen and the Hog serves Southern comfort food in Pompano Beach and Boca Raton.",
+      "source": "https://www.thehenhog.com/"
+     },
+     {
+      "claim": "The Hen and the Hog offers all-day breakfast and brunch specials.",
+      "source": "https://www.thehenhog.com/"
+     },
+     {
+      "claim": "The Hen and the Hog menu includes classic breakfast dishes and hearty lunch options.",
+      "source": "https://www.thehenhog.com/"
+     },
+     {
+      "claim": "The Hen and the Hog lists a mimosa tower for sharing with friends.",
+      "source": "https://www.thehenhog.com/"
+     },
+     {
+      "claim": "The Pompano Beach location phone number is +1 (954)-366-1572.",
+      "source": "https://www.thehenhog.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjaFr9Qe52YgRzvz9t-J9Dlc",
+   "name": "Keik Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keikrestaurant.com/",
+     "source_name": "Keik Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Keik Restaurant is a Pink Restaurant in South Florida serving Brunch, burgers, coffee and viral cakes in Kendall, Doral and Pembroke Pines.",
+      "Keik Restaurant is a full pink restaurant that also serves cakes and desserts.",
+      "Keik Restaurant began as a bakery concept and today offers an all-day restaurant menu with brunch, lunch, dinner, burgers and viral cakes.",
+      "Keik Restaurant locations include Doral at 1450 NW 87th Ave, Kendall at 11735 SW 147th Ave, and Pembroke Pines at 11033 Pines Blvd.",
+      "Keik Restaurant all-day menu is available from open to close at every location for breakfast, brunch, lunch and dinner."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Brunch, burgers, coffee and viral cakes in a full pink restaurant",
+    "why_here": "Go for brunch, burgers, coffee and viral cakes served from open to close, with breakfast, lunch and dinner on one all-day menu in a full pink restaurant setting for a meal at any time of day.",
+    "know_before": "All-day menu is available from open to close at every location.",
+    "local_tip": "Order cakes or desserts to take away from any location.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.keikrestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.keikrestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Keik Restaurant is a Pink Restaurant in South Florida serving Brunch, burgers, coffee and viral cakes in Kendall, Doral and Pembroke Pines.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "Keik Restaurant is a full pink restaurant that also serves cakes and desserts.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "Keik Restaurant began as a bakery concept and today offers an all-day restaurant menu with brunch, lunch, dinner, burgers and viral cakes.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "Keik Restaurant locations include Doral at 1450 NW 87th Ave, Kendall at 11735 SW 147th Ave, and Pembroke Pines at 11033 Pines Blvd.",
+      "source": "https://www.keikrestaurant.com/"
+     },
+     {
+      "claim": "Keik Restaurant all-day menu is available from open to close at every location for breakfast, brunch, lunch and dinner.",
+      "source": "https://www.keikrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrRH3g7WB3YgRalBdlspTvgI",
+   "name": "Caribe Royale Orlando",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.cariberoyale.com/",
+     "source_name": "Caribe Royale Orlando \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Caribe Royale Orlando is located at 8101 World Center Drive, Orlando, Florida 32821.",
+      "Caribe Royale Orlando is an all-suite resort located 1.5 miles from Walt Disney World Resort in Orlando, Florida.",
+      "Caribe Royale Orlando offers one-bedroom suites and two-bedroom villas.",
+      "Caribe Royale Orlando main pool is home to a 75-foot waterslide, waterfall, and private cabanas.",
+      "Caribe Royale Orlando Island Spa offers massages, facials and salon services.",
+      "Caribe Royale Orlando offers two pools, private cabanas and a 75-foot water slide."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Waterslide, waterfall and private cabanas at the main pool",
+    "why_here": "Stay in one-bedroom suites or two-bedroom villas, swim at the main pool with a waterfall and private cabanas, and visit Island Spa for massages, facials and salon services in Orlando, Florida.",
+    "know_before": "Caribe Royale Orlando is located 1.5 miles from Walt Disney World Resort.",
+    "local_tip": "Guests in two-bedroom villas can use private cabanas by the main pool.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.cariberoyale.com/"
+     ],
+     "why_here": [
+      "https://www.cariberoyale.com/"
+     ],
+     "know_before": [
+      "https://www.cariberoyale.com/"
+     ],
+     "local_tip": [
+      "https://www.cariberoyale.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Caribe Royale Orlando is located at 8101 World Center Drive, Orlando, Florida 32821.",
+      "source": "https://www.cariberoyale.com/"
+     },
+     {
+      "claim": "Caribe Royale Orlando is an all-suite resort located 1.5 miles from Walt Disney World Resort in Orlando, Florida.",
+      "source": "https://www.cariberoyale.com/"
+     },
+     {
+      "claim": "Caribe Royale Orlando offers one-bedroom suites and two-bedroom villas.",
+      "source": "https://www.cariberoyale.com/"
+     },
+     {
+      "claim": "Caribe Royale Orlando main pool is home to a 75-foot waterslide, waterfall, and private cabanas.",
+      "source": "https://www.cariberoyale.com/"
+     },
+     {
+      "claim": "Caribe Royale Orlando Island Spa offers massages, facials and salon services.",
+      "source": "https://www.cariberoyale.com/"
+     },
+     {
+      "claim": "Caribe Royale Orlando offers two pools, private cabanas and a 75-foot water slide.",
+      "source": "https://www.cariberoyale.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJw2VLy7sp54gRE6a7GJmmDaY",
+   "name": "Ponce de Leon Inlet Lighthouse & Museum",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ponceinlet.org/",
+     "source_name": "Ponce de Leon Inlet Lighthouse & Museum \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ponce Inlet Lighthouse is the tallest lighthouse in Florida at 175 feet high.",
+      "Visitors can climb 203 steps to the top of Florida's tallest lighthouse.",
+      "Ponce Inlet Lighthouse and Museum is located at 4931 South Peninsula Drive.",
+      "Ponce Inlet Lighthouse Museum is open daily to the public at 10:00 AM except for Thanksgiving Day and Christmas Day.",
+      "Ponce Inlet Lighthouse Museum regular hours are 10:00 AM to 6:00 PM.",
+      "Visitors can explore historic keeper dwellings, the Lens Museum, and the Pacetti Hotel Museum with regular admission."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Florida's tallest lighthouse at 175 feet, with 203 steps to the top",
+    "why_here": "Climb 203 steps to the top of a 175 feet lighthouse, explore historic keeper dwellings, and visit the Lens Museum and the Pacetti Hotel Museum in one visit focused on local history and coastal views.",
+    "know_before": "Open daily to the public at 10:00 AM except for Thanksgiving Day and Christmas Day.",
+    "local_tip": "Plan to climb 203 steps to the top of the lighthouse.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ponceinlet.org/"
+     ],
+     "why_here": [
+      "https://www.ponceinlet.org/"
+     ],
+     "know_before": [
+      "https://www.ponceinlet.org/"
+     ],
+     "local_tip": [
+      "https://www.ponceinlet.org/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ponce Inlet Lighthouse is the tallest lighthouse in Florida at 175 feet high.",
+      "source": "https://www.ponceinlet.org/"
+     },
+     {
+      "claim": "Visitors can climb 203 steps to the top of Florida's tallest lighthouse.",
+      "source": "https://www.ponceinlet.org/"
+     },
+     {
+      "claim": "Ponce Inlet Lighthouse and Museum is located at 4931 South Peninsula Drive.",
+      "source": "https://www.ponceinlet.org/"
+     },
+     {
+      "claim": "Ponce Inlet Lighthouse Museum is open daily to the public at 10:00 AM except for Thanksgiving Day and Christmas Day.",
+      "source": "https://www.ponceinlet.org/"
+     },
+     {
+      "claim": "Ponce Inlet Lighthouse Museum regular hours are 10:00 AM to 6:00 PM.",
+      "source": "https://www.ponceinlet.org/"
+     },
+     {
+      "claim": "Visitors can explore historic keeper dwellings, the Lens Museum, and the Pacetti Hotel Museum with regular admission.",
+      "source": "https://www.ponceinlet.org/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ2eHmGzqm4IgRvvync30_u0s",
+   "name": "Grills Seafood Deck & Tiki Bar",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://grillsseafood.com/port-canaveral/",
+     "source_name": "Grills Seafood Deck & Tiki Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Grills Seafood Deck in Port Canaveral opened in 1997.",
+      "Grills Seafood Deck serves seafood, steaks, ribs and chicken.",
+      "Grills Seafood Deck hours are Sunday through Thursday 7 am to 9 pm and Friday and Saturday 7 am to 10 pm, with breakfast every day from 7 am to 10:30 am.",
+      "Grills Seafood Deck has live entertainment and a unique island atmosphere.",
+      "Grills Seafood Deck offers a view of rocket launches and cruise ships going by.",
+      "Grills Seafood Deck in Port Canaveral underwent a major renovation in 2014 including a new kitchen and expanded dining room."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood, steaks, ribs and chicken with live entertainment since 1997",
+    "why_here": "Eat seafood, steaks, ribs and chicken beside the water, hear live entertainment, and watch rocket launches and cruise ships going by during breakfast, lunch or dinner in Port Canaveral.",
+    "know_before": "Breakfast is served every day from 7 am to 10:30 am.",
+    "local_tip": "Come for breakfast from 7 am and stay for waterside views.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://grillsseafood.com/port-canaveral/"
+     ],
+     "why_here": [
+      "https://grillsseafood.com/port-canaveral/"
+     ],
+     "know_before": [
+      "https://grillsseafood.com/port-canaveral/"
+     ],
+     "local_tip": [
+      "https://grillsseafood.com/port-canaveral/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Grills Seafood Deck in Port Canaveral opened in 1997.",
+      "source": "https://grillsseafood.com/port-canaveral/"
+     },
+     {
+      "claim": "Grills Seafood Deck serves seafood, steaks, ribs and chicken.",
+      "source": "https://grillsseafood.com/port-canaveral/"
+     },
+     {
+      "claim": "Grills Seafood Deck hours are Sunday through Thursday 7 am to 9 pm and Friday and Saturday 7 am to 10 pm, with breakfast every day from 7 am to 10:30 am.",
+      "source": "https://grillsseafood.com/port-canaveral/"
+     },
+     {
+      "claim": "Grills Seafood Deck has live entertainment and a unique island atmosphere.",
+      "source": "https://grillsseafood.com/port-canaveral/"
+     },
+     {
+      "claim": "Grills Seafood Deck offers a view of rocket launches and cruise ships going by.",
+      "source": "https://grillsseafood.com/port-canaveral/"
+     },
+     {
+      "claim": "Grills Seafood Deck in Port Canaveral underwent a major renovation in 2014 including a new kitchen and expanded dining room.",
+      "source": "https://grillsseafood.com/port-canaveral/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJARLTeoy12YgRWrhf9BwKLXU",
+   "name": "Crandon Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page",
+     "source_name": "Crandon Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Crandon Park has golf and tennis facilities, unique eco-adventures and a two-mile beach.",
+      "Crandon Park's two-mile beach is consistently named among the top 10 beaches in the nation, with pristine sand, calm water, a winding promenade, concession stands and picnic areas with tables and grills.",
+      "Crandon Park parking fees are Monday through Thursday $7 plus tax and Friday through Sunday $10 plus tax.",
+      "Crandon Park main park office hours are seven days a week from 8 a.m. to 5 p.m.",
+      "Crandon Golf at Key Biscayne is a championship 18-hole golf course and a par-72 course.",
+      "Crandon Park does not permit glass containers, and pets are prohibited with the exception of service animals."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Two-mile beach with golf, tennis facilities and eco-adventures",
+    "why_here": "Spend the day on a two-mile beach with calm water and a winding promenade, use picnic areas with tables and grills, and add golf or tennis facilities and eco-adventures in one park visit.",
+    "know_before": "Parking fees are Monday through Thursday $7 plus tax and Friday through Sunday $10 plus tax.",
+    "local_tip": "Use picnic areas with tables and grills near the two-mile beach.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     ],
+     "local_tip": [
+      "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Crandon Park has golf and tennis facilities, unique eco-adventures and a two-mile beach.",
+      "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     },
+     {
+      "claim": "Crandon Park's two-mile beach is consistently named among the top 10 beaches in the nation, with pristine sand, calm water, a winding promenade, concession stands and picnic areas with tables and grills.",
+      "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     },
+     {
+      "claim": "Crandon Park parking fees are Monday through Thursday $7 plus tax and Friday through Sunday $10 plus tax.",
+      "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     },
+     {
+      "claim": "Crandon Park main park office hours are seven days a week from 8 a.m. to 5 p.m.",
+      "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     },
+     {
+      "claim": "Crandon Golf at Key Biscayne is a championship 18-hole golf course and a par-72 course.",
+      "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     },
+     {
+      "claim": "Crandon Park does not permit glass containers, and pets are prohibited with the exception of service animals.",
+      "source": "https://www.miamidade.gov/global/recreation/park/crandon-park.page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJLTtfZ-bA2YgRY72btBGfZEY",
+   "name": "Bocas Grill Kendall",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "latin_american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bocasgrill.com/menu/kendall",
+     "source_name": "Bocas Grill Kendall \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bocas Grill Kendall menu includes Fosforera, a Venezuelan traditional soup served with calamaris, shrimp, mussels and fish with arepa, lime and hot sauce.",
+      "Bocas Grill Kendall menu includes Hervido Criollo, a Venezuelan traditional soup with arepa, lime and spicy sauce.",
+      "Bocas Grill menu includes Pabellon Criollo Venezolano and Venezuelan Burger.",
+      "Bocas Grill brings together Venezuelan and Peruvian cuisines and other Latin traditions.",
+      "Bocas Grill popular dishes include Pabellon Criollo Venezolano, Tostones Simon Bolivar, and Special Fried Rice Wok with Smoked Shrimp."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fosforera, Hervido Criollo and Pabellon Criollo Venezolano",
+    "why_here": "Eat Venezuelan and Peruvian dishes including Fosforera with shrimp, mussels and fish, Hervido Criollo, and Pabellon Criollo Venezolano, with arepa, lime and hot sauce served alongside traditional soups.",
+    "know_before": "Fosforera is served with arepa, lime and hot sauce at Bocas Grill Kendall.",
+    "local_tip": "Try Fosforera with arepa, lime and hot sauce.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bocasgrill.com/menu/kendall"
+     ],
+     "why_here": [
+      "https://bocasgrill.com/menu/kendall"
+     ],
+     "know_before": [
+      "https://bocasgrill.com/menu/kendall"
+     ],
+     "local_tip": [
+      "https://bocasgrill.com/menu/kendall"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bocas Grill Kendall menu includes Fosforera, a Venezuelan traditional soup served with calamaris, shrimp, mussels and fish with arepa, lime and hot sauce.",
+      "source": "https://bocasgrill.com/menu/kendall"
+     },
+     {
+      "claim": "Bocas Grill Kendall menu includes Hervido Criollo, a Venezuelan traditional soup with arepa, lime and spicy sauce.",
+      "source": "https://bocasgrill.com/menu/kendall"
+     },
+     {
+      "claim": "Bocas Grill menu includes Pabellon Criollo Venezolano and Venezuelan Burger.",
+      "source": "https://bocasgrill.com/menu/kendall"
+     },
+     {
+      "claim": "Bocas Grill brings together Venezuelan and Peruvian cuisines and other Latin traditions.",
+      "source": "https://bocasgrill.com/menu/kendall"
+     },
+     {
+      "claim": "Bocas Grill popular dishes include Pabellon Criollo Venezolano, Tostones Simon Bolivar, and Special Fried Rice Wok with Smoked Shrimp.",
+      "source": "https://bocasgrill.com/menu/kendall"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJp-JjIpTG2YgR6kV-FXPn1xc",
+   "name": "Sokai Sushi Bar The Falls",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "japanese_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://sokaisushi.com/",
+     "source_name": "Sokai Sushi Bar The Falls \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sokai Sushi Bar has a location at The Falls among locations in Downtown Miami, Doral, Flagler, Kendall and Hallandale",
+      "Sokai Sushi Bar blends traditional Japanese cuisine with vibrant Peruvian traditions",
+      "The menu features fresh sashimi, classic sushi, ceviche, signature fusion rolls and wok-fired specialties",
+      "Sokai Sushi Bar has operated since 2013",
+      "Hours are Monday to Thursday 12:00 PM to 10:30 PM, Friday to Saturday 12:00 PM to 11:30 PM, and Sunday 12:00 PM to 10:00 PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Japanese-Peruvian fusion with sushi, ceviche and fusion rolls at The Falls",
+    "why_here": "Go for Japanese-Peruvian fusion in one meal, with fresh sashimi, classic sushi and ceviche alongside wok-fired specialties. The menu covers raw, cooked and shared plates for mixed tastes.",
+    "know_before": "Hours are Monday to Thursday 12:00 PM to 10:30 PM and Sunday 12:00 PM to 10:00 PM.",
+    "local_tip": "Order ceviche with a signature fusion roll to taste both traditions.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://sokaisushi.com/"
+     ],
+     "why_here": [
+      "https://sokaisushi.com/"
+     ],
+     "know_before": [
+      "https://sokaisushi.com/"
+     ],
+     "local_tip": [
+      "https://sokaisushi.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sokai Sushi Bar has a location at The Falls among locations in Downtown Miami, Doral, Flagler, Kendall and Hallandale",
+      "source": "https://sokaisushi.com/"
+     },
+     {
+      "claim": "Sokai Sushi Bar blends traditional Japanese cuisine with vibrant Peruvian traditions",
+      "source": "https://sokaisushi.com/"
+     },
+     {
+      "claim": "The menu features fresh sashimi, classic sushi, ceviche, signature fusion rolls and wok-fired specialties",
+      "source": "https://sokaisushi.com/"
+     },
+     {
+      "claim": "Sokai Sushi Bar has operated since 2013",
+      "source": "https://sokaisushi.com/"
+     },
+     {
+      "claim": "Hours are Monday to Thursday 12:00 PM to 10:30 PM, Friday to Saturday 12:00 PM to 11:30 PM, and Sunday 12:00 PM to 10:00 PM",
+      "source": "https://sokaisushi.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQYywirG12YgRbC9kEcdoId4",
+   "name": "Osteria Positano",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "italian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://osteriapositano.com/",
+     "source_name": "Osteria Positano \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Osteria Positano is at 1200 Collins Ave, Miami Beach, FL 33139.",
+      "Osteria Positano presents flavors and traditions of the Amalfi Coast.",
+      "Osteria Positano offers homemade pasta.",
+      "Special Alfredo Truffle is homemade pasta in a creamy white sauce, prepared at the table inside a giant cheese wheel."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Homemade pasta and Amalfi Coast flavors, prepared at the table",
+    "why_here": "Go for homemade pasta and the flavors and traditions of the Amalfi Coast in Miami Beach, including Special Alfredo Truffle prepared at the table inside a giant cheese wheel for dinner.",
+    "know_before": "Osteria Positano is at 1200 Collins Ave, Miami Beach, FL 33139.",
+    "local_tip": "Try Special Alfredo Truffle, prepared at the table inside a giant cheese wheel.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://osteriapositano.com/"
+     ],
+     "why_here": [
+      "https://osteriapositano.com/"
+     ],
+     "know_before": [
+      "https://osteriapositano.com/"
+     ],
+     "local_tip": [
+      "https://osteriapositano.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Osteria Positano is at 1200 Collins Ave, Miami Beach, FL 33139.",
+      "source": "https://osteriapositano.com/"
+     },
+     {
+      "claim": "Osteria Positano presents flavors and traditions of the Amalfi Coast.",
+      "source": "https://osteriapositano.com/"
+     },
+     {
+      "claim": "Osteria Positano offers homemade pasta.",
+      "source": "https://osteriapositano.com/"
+     },
+     {
+      "claim": "Special Alfredo Truffle is homemade pasta in a creamy white sauce, prepared at the table inside a giant cheese wheel.",
+      "source": "https://osteriapositano.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJd_yTxUh054gR9cGD0gI_yHw",
+   "name": "Wekiwa Springs State Park",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities",
+     "source_name": "Wekiwa Springs State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Wekiwa Springs State Park has emerald springs feeding the Wekiva River and lush tropical hammocks",
+      "Trails range in length from 0.8 to 13.5 miles for hiking, bicycling and horseback riding",
+      "The park has 60 spacious campsites with water and electrical hook-up, a fire ring with grill, and a picnic table",
+      "Canoes and kayaks are available on-site",
+      "The park is just minutes from downtown Orlando and is good for cooling off on a summer day"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Emerald springs, Wekiva River trails and kayaks minutes from downtown Orlando",
+    "why_here": "Go to cool off by emerald springs feeding the Wekiva River, then walk lush tropical hammocks on trails from 0.8 to 13.5 miles. Canoes and kayaks are available on-site for time on the water.",
+    "know_before": "Campsites have water and electrical hook-up, a fire ring with grill, and a picnic table.",
+    "local_tip": "Bring both swim and trail gear to use springs and trails in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     ],
+     "local_tip": [
+      "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Wekiwa Springs State Park has emerald springs feeding the Wekiva River and lush tropical hammocks",
+      "source": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Trails range in length from 0.8 to 13.5 miles for hiking, bicycling and horseback riding",
+      "source": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     },
+     {
+      "claim": "The park has 60 spacious campsites with water and electrical hook-up, a fire ring with grill, and a picnic table",
+      "source": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     },
+     {
+      "claim": "Canoes and kayaks are available on-site",
+      "source": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     },
+     {
+      "claim": "The park is just minutes from downtown Orlando and is good for cooling off on a summer day",
+      "source": "https://www.floridastateparks.org/parks-and-trails/wekiwa-springs-state-park/experiences-amenities"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJqQ9d-cDF2YgRT94W2Yh9anA",
+   "name": "Aromas Del Peru",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://aromasperu.com/coral-gables",
+     "source_name": "Aromas Del Peru \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Aromas del Peru Coral Gables is at 110-112 Giralda Avenue, Coral Gables 33134",
+      "Since 2003, Aromas del Peru has brought the flavour of the Andes, the Pacific, and the heart of Lima to Miami",
+      "The Coral Gables menu includes Nuestra Barra Cevichera with Ceviche Classico",
+      "The menu also lists Ceviche Cholo power and Ceviche Citrico"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian ceviche and Lima flavours in Coral Gables since 2003",
+    "why_here": "Go for Peruvian cooking shaped by the Andes, the Pacific and Lima, with a ceviche bar as the starting point. Ceviche Classico, Ceviche Cholo power and Ceviche Citrico give clear first orders.",
+    "know_before": "Aromas del Peru Coral Gables is at 110-112 Giralda Avenue, Coral Gables 33134.",
+    "local_tip": "Start with Ceviche Classico from Nuestra Barra Cevichera.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://aromasperu.com/coral-gables"
+     ],
+     "why_here": [
+      "https://aromasperu.com/coral-gables"
+     ],
+     "know_before": [
+      "https://aromasperu.com/coral-gables"
+     ],
+     "local_tip": [
+      "https://aromasperu.com/coral-gables"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Aromas del Peru Coral Gables is at 110-112 Giralda Avenue, Coral Gables 33134",
+      "source": "https://aromasperu.com/coral-gables"
+     },
+     {
+      "claim": "Since 2003, Aromas del Peru has brought the flavour of the Andes, the Pacific, and the heart of Lima to Miami",
+      "source": "https://aromasperu.com/coral-gables"
+     },
+     {
+      "claim": "The Coral Gables menu includes Nuestra Barra Cevichera with Ceviche Classico",
+      "source": "https://aromasperu.com/coral-gables"
+     },
+     {
+      "claim": "The menu also lists Ceviche Cholo power and Ceviche Citrico",
+      "source": "https://aromasperu.com/coral-gables"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJsySKv95-54gR8Z_yRW7-51Q",
+   "name": "The Simpsons Ride",
+   "category": "attractions",
+   "metro": "orlando",
+   "primary_type": "tourist_attraction",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride",
+     "source_name": "The Simpsons Ride \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Simpsons Ride is at Universal Studios Florida in Springfield, U.S.A.",
+      "Guests crash through Krustyland on The Simpsons Ride with Homer, Marge, Bart, Lisa and Maggie Simpson",
+      "The Universal Studios Florida park map lists The Simpsons Ride at 40 inches / 102cm",
+      "Back to the Future - The Ride left in 2007 to make way for The Simpsons Ride"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Crash through Krustyland with the Simpson family at Universal Studios Florida",
+    "why_here": "Go to ride through Krustyland with Homer, Marge, Bart, Lisa and Maggie Simpson in Springfield, U.S.A. It is the Simpsons centrepiece at Universal Studios Florida and a clear stop for fans of the family.",
+    "know_before": "The park map lists The Simpsons Ride at 40 inches / 102cm.",
+    "local_tip": "Head to Springfield, U.S.A. and check the 40 inches / 102cm listing first.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     ],
+     "why_here": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     ],
+     "know_before": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     ],
+     "local_tip": [
+      "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Simpsons Ride is at Universal Studios Florida in Springfield, U.S.A.",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     },
+     {
+      "claim": "Guests crash through Krustyland on The Simpsons Ride with Homer, Marge, Bart, Lisa and Maggie Simpson",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     },
+     {
+      "claim": "The Universal Studios Florida park map lists The Simpsons Ride at 40 inches / 102cm",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     },
+     {
+      "claim": "Back to the Future - The Ride left in 2007 to make way for The Simpsons Ride",
+      "source": "https://www.universalorlando.com/web/en/us/things-to-do/rides-attractions/the-simpsons-ride"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJg8Z6yxjc5ogRgdYAlFKTxIc",
+   "name": "Tanger Outlets Daytona Beach",
+   "category": "shopping",
+   "metro": "florida",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tanger.com/daytona",
+     "source_name": "Tanger Outlets Daytona Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tanger Daytona Beach is at 1100 Cornerstone Blvd, Daytona Beach, Florida 32117.",
+      "Store hours listed for Daytona Beach stores include 10AM - 9PM.",
+      "Stores at Daytona Beach include Nike Factory Store and Kay Jewelers Outlet."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Nike Factory Store, Kay Jewelers Outlet and outlet shopping in Daytona Beach",
+    "why_here": "Go for outlet shopping in Daytona Beach with stores including Nike Factory Store and Kay Jewelers Outlet in one place, with store hours listed as 10AM - 9PM for a full day of browsing.",
+    "know_before": "Tanger Daytona Beach is at 1100 Cornerstone Blvd, Daytona Beach, Florida 32117.",
+    "local_tip": "Plan shopping around listed store hours of 10AM - 9PM.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tanger.com/daytona"
+     ],
+     "why_here": [
+      "https://www.tanger.com/daytona"
+     ],
+     "know_before": [
+      "https://www.tanger.com/daytona"
+     ],
+     "local_tip": [
+      "https://www.tanger.com/daytona"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tanger Daytona Beach is at 1100 Cornerstone Blvd, Daytona Beach, Florida 32117.",
+      "source": "https://www.tanger.com/daytona"
+     },
+     {
+      "claim": "Store hours listed for Daytona Beach stores include 10AM - 9PM.",
+      "source": "https://www.tanger.com/daytona"
+     },
+     {
+      "claim": "Stores at Daytona Beach include Nike Factory Store and Kay Jewelers Outlet.",
+      "source": "https://www.tanger.com/daytona"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJKYwJVy0jw4gRkXnEq-Or48M",
+   "name": "Ellenton Premium Outlets",
+   "category": "shopping",
+   "metro": "manatee-sarasota",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.premiumoutlets.com/outlet/ellenton",
+     "source_name": "Ellenton Premium Outlets \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Ellenton Premium Outlets is at 5461 Factory Shops Blvd, Ellenton, FL 34222",
+      "Ellenton Premium Outlets is home to 130 designer and brand outlet stores",
+      "Ellenton Premium Outlets is located off I-75 and US-301 in Ellenton, Florida",
+      "The centre is described as the largest shopping destination on Florida's West Coast with 120+ stores"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "130 designer and brand outlet stores off I-75 and US-301 in Ellenton",
+    "why_here": "Go for designer and brand outlet shopping at 5461 Factory Shops Blvd, with 130 designer and brand outlet stores in one stop off I-75 and US-301. It works as a single large outlet run.",
+    "know_before": "Ellenton Premium Outlets is at 5461 Factory Shops Blvd, Ellenton, FL 34222, off I-75 and US-301.",
+    "local_tip": "Use I-75 and US-301 access and plan for 120+ stores in one visit.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.premiumoutlets.com/outlet/ellenton"
+     ],
+     "why_here": [
+      "https://www.premiumoutlets.com/outlet/ellenton"
+     ],
+     "know_before": [
+      "https://www.premiumoutlets.com/outlet/ellenton"
+     ],
+     "local_tip": [
+      "https://www.premiumoutlets.com/outlet/ellenton"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Ellenton Premium Outlets is at 5461 Factory Shops Blvd, Ellenton, FL 34222",
+      "source": "https://www.premiumoutlets.com/outlet/ellenton"
+     },
+     {
+      "claim": "Ellenton Premium Outlets is home to 130 designer and brand outlet stores",
+      "source": "https://www.premiumoutlets.com/outlet/ellenton"
+     },
+     {
+      "claim": "Ellenton Premium Outlets is located off I-75 and US-301 in Ellenton, Florida",
+      "source": "https://www.premiumoutlets.com/outlet/ellenton"
+     },
+     {
+      "claim": "The centre is described as the largest shopping destination on Florida's West Coast with 120+ stores",
+      "source": "https://www.premiumoutlets.com/outlet/ellenton"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOx8kLAiw2YgRgaWJcTwN1l8",
+   "name": "Amelia Earhart Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page",
+     "source_name": "Amelia Earhart Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amelia Earhart Park features 515 acres, five lakes and many amenities",
+      "Parking is free Monday through Thursday and $8 Friday through Sunday and Holidays",
+      "The five-acre Bark Park is completely fenced with a separate section for smaller dogs and admission is free",
+      "Mountain biking offers 5.5 miles of woodland trails for beginners, intermediate and advanced riders, free sunrise to sunset",
+      "Office hours are Monday to Friday from 8:30 a.m. to 4:30 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "515 acres, five lakes, Bark Park and mountain bike trails in one county park",
+    "why_here": "Go for 515 acres and five lakes with room to spread out, from the five-acre Bark Park to 5.5 miles of woodland mountain bike trails. Riders from beginners to advanced riders are covered.",
+    "know_before": "Parking is free Monday through Thursday and $8 Friday through Sunday and Holidays.",
+    "local_tip": "Visit Monday through Thursday for free parking.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     ],
+     "why_here": [
+      "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     ],
+     "know_before": [
+      "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     ],
+     "local_tip": [
+      "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amelia Earhart Park features 515 acres, five lakes and many amenities",
+      "source": "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     },
+     {
+      "claim": "Parking is free Monday through Thursday and $8 Friday through Sunday and Holidays",
+      "source": "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     },
+     {
+      "claim": "The five-acre Bark Park is completely fenced with a separate section for smaller dogs and admission is free",
+      "source": "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     },
+     {
+      "claim": "Mountain biking offers 5.5 miles of woodland trails for beginners, intermediate and advanced riders, free sunrise to sunset",
+      "source": "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     },
+     {
+      "claim": "Office hours are Monday to Friday from 8:30 a.m. to 4:30 p.m.",
+      "source": "https://www.miamidade.gov/global/recreation/park/amelia-earhart-park.page"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJe09Qgem32YgRB2TzZpJ4k3o",
+   "name": "Marabu Restaurant",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.maraburestaurant.com/",
+     "source_name": "Marabu Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Marab\u00fa is at Brickell City Centre, 701 S Miami Ave, 4th Floor, Miami, FL 33131",
+      "Marab\u00fa serves coal-fired Cuban cuisine through charcoal cooking",
+      "Dishes are inspired by Pinar del R\u00edo and Camag\u00fcey in Cuba",
+      "Concept Chef Jorge Cabrera leads the kitchen with a Josper Oven",
+      "The menu includes charcoal-grilled meats and vegetables with smoky flavor",
+      "Hours are Sunday through Thursday 11:30AM to 10:00PM and Friday through Saturday 11:30AM to 11:00PM"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Coal-fired Cuban cuisine with a Josper Oven in Brickell City Centre",
+    "why_here": "Go for coal-fired Cuban cuisine where charcoal-grilled meats and vegetables carry smoky flavor from the Josper Oven at Brickell City Centre.",
+    "know_before": "Hours are Sunday through Thursday 11:30AM to 10:00PM and Friday through Saturday 11:30AM to 11:00PM.",
+    "local_tip": "Try charcoal-grilled meats to taste the smoky flavor from the Josper Oven.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.maraburestaurant.com/"
+     ],
+     "why_here": [
+      "https://www.maraburestaurant.com/"
+     ],
+     "know_before": [
+      "https://www.maraburestaurant.com/"
+     ],
+     "local_tip": [
+      "https://www.maraburestaurant.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Marab\u00fa is at Brickell City Centre, 701 S Miami Ave, 4th Floor, Miami, FL 33131",
+      "source": "https://www.maraburestaurant.com/"
+     },
+     {
+      "claim": "Marab\u00fa serves coal-fired Cuban cuisine through charcoal cooking",
+      "source": "https://www.maraburestaurant.com/"
+     },
+     {
+      "claim": "Dishes are inspired by Pinar del R\u00edo and Camag\u00fcey in Cuba",
+      "source": "https://www.maraburestaurant.com/"
+     },
+     {
+      "claim": "Concept Chef Jorge Cabrera leads the kitchen with a Josper Oven",
+      "source": "https://www.maraburestaurant.com/"
+     },
+     {
+      "claim": "The menu includes charcoal-grilled meats and vegetables with smoky flavor",
+      "source": "https://www.maraburestaurant.com/"
+     },
+     {
+      "claim": "Hours are Sunday through Thursday 11:30AM to 10:00PM and Friday through Saturday 11:30AM to 11:00PM",
+      "source": "https://www.maraburestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrfjUyddl14gRpyfE65Uk9ug",
+   "name": "John Pennekamp Coral Reef State Park",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "state_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.floridastateparks.org/park/pennekamp",
+     "source_name": "John Pennekamp Coral Reef State Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "John Pennekamp Coral Reef State Park is renowned for being the country's first undersea park",
+      "The park encompasses 70 nautical square miles",
+      "The park is at Mile Marker 102.5 Overseas Highway, Key Largo, FL 33037"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "The country's first undersea park, covering 70 nautical square miles",
+    "why_here": "Go to see the country's first undersea park, encompassing 70 nautical square miles at Mile Marker 102.5 Overseas Highway in Key Largo.",
+    "know_before": "The park is at Mile Marker 102.5 Overseas Highway, Key Largo, FL 33037.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.floridastateparks.org/park/pennekamp"
+     ],
+     "why_here": [
+      "https://www.floridastateparks.org/park/pennekamp"
+     ],
+     "know_before": [
+      "https://www.floridastateparks.org/park/pennekamp"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "John Pennekamp Coral Reef State Park is renowned for being the country's first undersea park",
+      "source": "https://www.floridastateparks.org/park/pennekamp"
+     },
+     {
+      "claim": "The park encompasses 70 nautical square miles",
+      "source": "https://www.floridastateparks.org/park/pennekamp"
+     },
+     {
+      "claim": "The park is at Mile Marker 102.5 Overseas Highway, Key Largo, FL 33037",
+      "source": "https://www.floridastateparks.org/park/pennekamp"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi6nvbMfZ2IgRZIVQc2Te8sw",
+   "name": "Benny's On The Beach",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://bennysonthebeach.com/",
+     "source_name": "Benny's On The Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Benny's on the Beach is at 10 S Ocean Blvd, Lake Worth Beach, FL 33460",
+      "Benny's on the Beach serves Breakfast, Lunch, Dinner and Brunch menus",
+      "Pier hours include Monday 7AM to 9PM and Friday to Saturday 7AM to 10PM",
+      "Weekly events include Live Music Friday 4:00 p.m. to 8:00 p.m. and Saturday and Sunday 12:00 p.m. to 8:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront menus for Breakfast, Lunch, Dinner and Brunch",
+    "why_here": "Go for Breakfast, Lunch, Dinner and Brunch menus at 10 S Ocean Blvd in Lake Worth Beach, with a Pier location serving from 7AM.",
+    "know_before": "Pier hours include Monday 7AM to 9PM and Friday to Saturday 7AM to 10PM.",
+    "local_tip": "Check Weekly events, including Live Music Friday 4:00 p.m. to 8:00 p.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://bennysonthebeach.com/"
+     ],
+     "why_here": [
+      "https://bennysonthebeach.com/"
+     ],
+     "know_before": [
+      "https://bennysonthebeach.com/"
+     ],
+     "local_tip": [
+      "https://bennysonthebeach.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Benny's on the Beach is at 10 S Ocean Blvd, Lake Worth Beach, FL 33460",
+      "source": "https://bennysonthebeach.com/"
+     },
+     {
+      "claim": "Benny's on the Beach serves Breakfast, Lunch, Dinner and Brunch menus",
+      "source": "https://bennysonthebeach.com/"
+     },
+     {
+      "claim": "Pier hours include Monday 7AM to 9PM and Friday to Saturday 7AM to 10PM",
+      "source": "https://bennysonthebeach.com/"
+     },
+     {
+      "claim": "Weekly events include Live Music Friday 4:00 p.m. to 8:00 p.m. and Saturday and Sunday 12:00 p.m. to 8:00 p.m.",
+      "source": "https://bennysonthebeach.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJcZJcKfG02YgRpzq_bjkv3vc",
+   "name": "South Pointe Park",
+   "category": "attractions",
+   "metro": "miami-dade",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/",
+     "source_name": "South Pointe Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "South Pointe Park is in the South Beach Neighborhood at 1 Washington Avenue",
+      "Hours are Monday to Sunday, Sunrise to Sunset",
+      "Amenities include Beach Access, Paid Parking, Seating and a Water Fountain",
+      "The Playground is for Ages 2-5 and 5-12 with slides, climbing components and a splash spray zone area",
+      "Features include a Bark Park and a Water Feature"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach Access and a splash spray zone at 1 Washington Avenue",
+    "why_here": "Go for Beach Access at 1 Washington Avenue, with Seating, a Water Fountain, a Bark Park and a Water Feature in the South Beach Neighborhood.",
+    "know_before": "Hours are Monday to Sunday, Sunrise to Sunset, and Parking is Paid Parking.",
+    "local_tip": "The Playground is for Ages 2-5 and 5-12 with a splash spray zone area.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     ],
+     "why_here": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     ],
+     "know_before": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     ],
+     "local_tip": [
+      "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "South Pointe Park is in the South Beach Neighborhood at 1 Washington Avenue",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     },
+     {
+      "claim": "Hours are Monday to Sunday, Sunrise to Sunset",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     },
+     {
+      "claim": "Amenities include Beach Access, Paid Parking, Seating and a Water Fountain",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     },
+     {
+      "claim": "The Playground is for Ages 2-5 and 5-12 with slides, climbing components and a splash spray zone area",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     },
+     {
+      "claim": "Features include a Bark Park and a Water Feature",
+      "source": "https://www.miamibeachfl.gov/city-hall/parks-and-recreation/parks-facilities-directory/south-pointe-park/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJDZ-BozLjwogRb8KqIuVFWig",
+   "name": "Tyrone Square",
+   "category": "shopping",
+   "metro": "st-pete",
+   "primary_type": "shopping_mall",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.simon.com/mall/tyrone-square",
+     "source_name": "Tyrone Square \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tyrone Square is a shopping center in St Petersburg, FL",
+      "Tyrone Square is at 6901 22nd Ave N, St Petersburg, FL 33710",
+      "Tyrone Square has 55+ Stores and 10+ Restaurants",
+      "Tyrone Square is St. Petersburg's Family-Favorite Shopping Destination"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "55+ stores and 10+ restaurants for family-favorite shopping",
+    "why_here": "Go for 55+ Stores and 10+ Restaurants at a family-favorite shopping destination, with stores and dining in one center for a full trip of browsing and eating together in one place.",
+    "know_before": "Tyrone Square is at 6901 22nd Ave N, St Petersburg, FL 33710.",
+    "local_tip": "Browse stores and restaurants in one center before you go.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.simon.com/mall/tyrone-square"
+     ],
+     "why_here": [
+      "https://www.simon.com/mall/tyrone-square"
+     ],
+     "know_before": [
+      "https://www.simon.com/mall/tyrone-square"
+     ],
+     "local_tip": [
+      "https://www.simon.com/mall/tyrone-square"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tyrone Square is a shopping center in St Petersburg, FL",
+      "source": "https://www.simon.com/mall/tyrone-square"
+     },
+     {
+      "claim": "Tyrone Square is at 6901 22nd Ave N, St Petersburg, FL 33710",
+      "source": "https://www.simon.com/mall/tyrone-square"
+     },
+     {
+      "claim": "Tyrone Square has 55+ Stores and 10+ Restaurants",
+      "source": "https://www.simon.com/mall/tyrone-square"
+     },
+     {
+      "claim": "Tyrone Square is St. Petersburg's Family-Favorite Shopping Destination",
+      "source": "https://www.simon.com/mall/tyrone-square"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJk56jVSZ-3YgRn_VPMtC9CdI",
+   "name": "Disney's Wilderness Lodge",
+   "category": "hotels",
+   "metro": "orlando",
+   "primary_type": "resort_hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/",
+     "source_name": "Disney's Wilderness Lodge \u2014 official source",
+     "source_class": "tourism_dmo",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Disney's Wilderness Lodge is at 901 Timberline Drive, Lake Buena Vista, FL 32830",
+      "Inspired by turn-of-the-century National Park lodges, Disney's Wilderness Lodge celebrates American craftsmanship and honors the beauty of the untamed wilderness",
+      "Disney's Wilderness Lodge is listed under Hotels & Resorts"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "National Park lodge styling in Lake Buena Vista",
+    "why_here": "Go for the National Park lodge design and the untamed wilderness theme at 901 Timberline Drive. The setting celebrates American craftsmanship in a resort setting in Lake Buena Vista.",
+    "know_before": "Address is 901 Timberline Drive, Lake Buena Vista, FL 32830.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/"
+     ],
+     "why_here": [
+      "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/"
+     ],
+     "know_before": [
+      "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Disney's Wilderness Lodge is at 901 Timberline Drive, Lake Buena Vista, FL 32830",
+      "source": "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/"
+     },
+     {
+      "claim": "Inspired by turn-of-the-century National Park lodges, Disney's Wilderness Lodge celebrates American craftsmanship and honors the beauty of the untamed wilderness",
+      "source": "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/"
+     },
+     {
+      "claim": "Disney's Wilderness Lodge is listed under Hotels & Resorts",
+      "source": "https://www.visitorlando.com/listing/disneys-wilderness-lodge/31040/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJpUJtM-_ZwogROGyfAWFNelo",
+   "name": "Manatee Viewing Center",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "nature_preserve",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.tampaelectric.com/company/mvc",
+     "source_name": "Manatee Viewing Center \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Location: 6990 Dickman Rd., Apollo Beach, FL 33572",
+      "Hours: Open daily from November 1 - April 15, 10 a.m. to 5 p.m. Trails close at 4 p.m.",
+      "Our Big Bend Power Station in Apollo Beach circulates water from Tampa Bay for cooling, then sends the water flowing clean and warm back into the bay",
+      "In the winter months the manatees leave colder waters to return to this warm and welcoming refuge",
+      "Tampa Electric proudly offers free parking and admission to all who visit",
+      "Visitors can wander along boardwalks overlooking the warm-water area where manatees gather"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Manatees gather in warm water at Apollo Beach in winter months",
+    "why_here": "Go to wander along boardwalks overlooking the warm-water area where manatees gather in the winter months. The Big Bend Power Station circulates water from Tampa Bay and sends clean and warm water back into the bay at Apollo Beach.",
+    "know_before": "Open daily from November 1 - April 15, 10 a.m. to 5 p.m. Trails close at 4 p.m.",
+    "local_tip": "Free parking and admission are offered at 6990 Dickman Rd., Apollo Beach, FL 33572.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.tampaelectric.com/company/mvc"
+     ],
+     "why_here": [
+      "https://www.tampaelectric.com/company/mvc"
+     ],
+     "know_before": [
+      "https://www.tampaelectric.com/company/mvc"
+     ],
+     "local_tip": [
+      "https://www.tampaelectric.com/company/mvc"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Location: 6990 Dickman Rd., Apollo Beach, FL 33572",
+      "source": "https://www.tampaelectric.com/company/mvc"
+     },
+     {
+      "claim": "Hours: Open daily from November 1 - April 15, 10 a.m. to 5 p.m. Trails close at 4 p.m.",
+      "source": "https://www.tampaelectric.com/company/mvc"
+     },
+     {
+      "claim": "Our Big Bend Power Station in Apollo Beach circulates water from Tampa Bay for cooling, then sends the water flowing clean and warm back into the bay",
+      "source": "https://www.tampaelectric.com/company/mvc"
+     },
+     {
+      "claim": "In the winter months the manatees leave colder waters to return to this warm and welcoming refuge",
+      "source": "https://www.tampaelectric.com/company/mvc"
+     },
+     {
+      "claim": "Tampa Electric proudly offers free parking and admission to all who visit",
+      "source": "https://www.tampaelectric.com/company/mvc"
+     },
+     {
+      "claim": "Visitors can wander along boardwalks overlooking the warm-water area where manatees gather",
+      "source": "https://www.tampaelectric.com/company/mvc"
+     }
+    ]
+   }
+  }
+ ]
+}
