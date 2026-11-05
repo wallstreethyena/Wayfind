@@ -87,7 +87,7 @@
     "file": "supabase/migrations/20261105120000_event_truth_held_recheck_guard.sql",
     "sha256": "8e3a3a2935209d28357320449a96b85db797af1fc0f2288a2335fb8d6e340049",
     "decision_owner": "wallstreethyena",
-    "tracking": "held event recheck guard (owner approved 2026-11-05)",
+    "tracking": "#2245 held event recheck guard (owner approved 2026-11-05)",
     "reason": "Write-time guard for held events (postponed / uncertain / unannounced with a start_date today or later): a write leaving no recheck_on sets today (ET) + 2 in the same statement, and a still-future recheck_on can be moved earlier but never later or cleared. Owner approved applying it 2026-11-05; this session's apply_migration call was refused by its automatic permission check ([Production Deploy]) and the session has no Management API credential for scripts/apply-migration.mjs, so it is declared pending until applied with the runner."
   }
 ]
