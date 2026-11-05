@@ -83,6 +83,7 @@ const STANDARD = {
   "app/nightlife/[city]/page.js": "lib/landingShare.js#landingShareAction",
   "app/florida/[town]/page.js": "app/florida/[town]/page.js",
   "app/events/[city]/[slug]/page.js": "app/events/[city]/[slug]/page.js",
+  "app/movies/[slug]/page.js": "app/movies/[slug]/page.js",
   "app/culture/[metro]/page.js": "app/culture/[metro]/page.js",
   "app/trending/page.js": "lib/trending.js#TrendingIndexPage",
   "app/trending/[city]/page.js": "lib/trending.js#TrendingCityPage",
@@ -96,6 +97,8 @@ const STANDARD = {
   "app/l/[key]/page.js": "app/l/[key]/page.js",
   "app/summer-picks/page.js": "app/summer-picks/client.js",
   "app/beach-conditions/page.js": "app/beach-conditions/Conditions.js",
+  // 2026-11-03: linkable best-of pages (sunset spots, free this weekend).
+  "app/best/[topic]/[city]/page.js": "app/best/BestOfArticle.js",
 };
 
 // EQUIVALENT: page-level share controls that existed before this audit. Each
