@@ -415,8 +415,8 @@ export default async function CuratedEventPage({ params }) {
           isVenue={eventImageIsVenue(e, heroSrc)}
           registryCredit={shots && shots.credit ? shots.credit : null}
           registryCreditHref={shots && shots.credit && shots.creditUrl ? shots.creditUrl : null}
-          attr={e.photoAttr || null}
-          attrHref={e.photoAttrHref || null}
+          attr={e.photoAttr && heroSrc === e.hero_image ? e.photoAttr : null}
+          attrHref={e.photoAttrHref && heroSrc === e.hero_image ? e.photoAttrHref : null}
           style={S.credit}
           linkStyle={S.link}
         />}
