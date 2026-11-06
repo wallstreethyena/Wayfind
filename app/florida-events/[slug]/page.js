@@ -29,6 +29,7 @@ import RemindMe from "../../components/RemindMe.js";
 import { addressLine, appleDirectionsUrl } from "../../../lib/placeWhere";
 import { eventTitleWithYear } from "../../../lib/eventTitle.js";
 import { partnerAvailabilityNote } from "../../../lib/eventTicketDeals.js";
+import { secondaryEventTicketAction } from "../../../lib/secondaryEventTickets.js";
 import { eventMapPoint, isApproximateLocation } from "../../../lib/eventLocation";
 import ShareButton from "../../components/ShareButton";
 import SaveEventButton from "./SaveEventButton.js";
@@ -228,6 +229,7 @@ export default async function CuratedEventPage({ params }) {
   // organiser's own verified ticket link (rel nofollow, not sponsored). Same
   // gates the card uses (lib/curatedEvents.eventDetailTicketAction).
   const ticket = eventDetailTicketAction(e, { surface: "florida_event_page" });
+  const resaleTicket = ticket?.kind === "organizer" ? secondaryEventTicketAction(e, { surface: "florida_event_page" }) : null;
   // Partner tickets gone (NO_EXACT_AFFILIATE_PRODUCT visitorNote): say so plainly
   // and offer the bookable alternatives, instead of a silent organizer fallback.
   const availability = partnerAvailabilityNote(e.event_id);
@@ -323,6 +325,12 @@ export default async function CuratedEventPage({ params }) {
             {"🎟️ " + ticket.label}
           </a>
           {ticket.kind === "affiliate" ? <p style={S.disclosure}>We may earn a commission when you book through partner links. It never changes our rankings.</p> : null}
+          {resaleTicket ? <p style={S.disclosure} data-secondary-resale="">
+            <a href={resaleTicket.href} target="_blank" rel="sponsored nofollow noopener" style={S.link}>
+              {resaleTicket.label} at TicketSmarter
+            </a>
+            {" · "}{resaleTicket.via}
+          </p> : null}
         </div>
       ) : null}
       {availability ? (
