@@ -513,7 +513,7 @@ function CITIES() {
   // The data is read with fs at runtime: every route that reaches lib/christmasResearch.js
   // must trace the file (next.config.js outputFileTracingIncludes), or the deployed lambda has none.
   const cfg = read("next.config.js");
-  for (const route of ["/api/events/christmas", "/api/christmas/browse", "/christmas-in-florida", "/florida-events/[slug]", "/sitemap.xml"]) {
+  for (const route of ["/api/events", "/api/events/christmas", "/api/christmas/browse", "/christmas-in-florida", "/florida-events/[slug]", "/sitemap.xml"]) {
     ok(cfg.includes(JSON.stringify(route) + ': ["./data/christmas-2026-research.json"]'), `next.config.js traces the research data into ${route}`);
   }
   ok(/readFileSync\(path\.join\(process\.cwd\(\), CHRISTMAS_RESEARCH_FILE\)/.test(read("lib/christmasResearch.js")) && !/christmas-2026-research\.json" with/.test(read("lib/christmasResearch.js")), "the module reads the file with fs (jsxLoad safe), never a JSON import");

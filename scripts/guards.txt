@@ -2504,3 +2504,5 @@ node scripts/test-vercel-ignore-build.mjs
 node scripts/test-ticketmaster-gating.mjs
 # /christmas and the bare category paths land on real pages (next.config.js redirects(), 2026-11-04 audit).
 node scripts/check-bare-path-redirects.mjs
+
+node scripts/test-events-expanded-rails.mjs
