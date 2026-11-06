@@ -61,6 +61,7 @@ export function browseRowFor(card) {
     photos: Array.isArray(card.photos) && card.photos.length ? card.photos.slice(0, 14) : (ticket && Array.isArray(ticket.photos) && ticket.photos.length ? ticket.photos.slice(0, 14) : browsePhotos(card)),
     placeholder: card.placeholder || null,
     cta: ticket ? ticket.cta : null,
+    secondaryCta: ticket ? ticket.secondaryCta : null,
     eventHref: card.detailHref || null,
     pageLabel: isPlace ? "View place" : null,
     sourceHref: !card.detailHref && /^https:\/\//.test(card.url || card.sourceUrl || "") ? (card.url || card.sourceUrl) : null,
