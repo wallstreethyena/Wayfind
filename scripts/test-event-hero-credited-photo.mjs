@@ -80,6 +80,12 @@ const credMod = await loadComponent(path.join(REPO, "app/components/EventHeroPho
   ok(/Photos: .*Studio X.*shared with Wayfind for this listing\./.test(registry) && /rel="nofollow noopener"/.test(registry), "the consent-gated registry credit is unchanged for owned photos");
   const notVenue = render(createElement(EventHeroPhotoProvider, { src: "/events/a.jpg" }, credit({ isVenue: false })));
   eq(notVenue, "", "an event (not venue) photo with no registry credit prints no venue note");
+  // Owner 2026-11-06: a licensed photo OF the event (lib/licensedEventCovers.js,
+  // kind "event") must still show its credit, which also names the past edition.
+  const eventLicensed = render(createElement(EventHeroPhotoProvider, { src: "/events/a.jpg" }, credit({ isVenue: false, attr: "2014 Homecoming show · U.S. Navy photo · Public domain", attrHref: "https://commons.wikimedia.org/wiki/File:X.jpg" })));
+  ok(/Photo: .*2014 Homecoming show · U\.S\. Navy photo · Public domain.*\./.test(eventLicensed) && /href="https:\/\/commons\.wikimedia\.org\/wiki\/File:X\.jpg"/.test(eventLicensed) && !/Venue photo/.test(eventLicensed), "a licensed event photo shows its credit (with the edition it shows) and no venue note");
+  const eventLicensedPending = render(createElement(EventHeroPhotoProvider, { src: GOOGLE_SRC }, credit({ isVenue: false, attr: "Navy" })));
+  eq(eventLicensedPending, "", "a licensed event photo credit still waits until a photo is visible");
 }
 {
   const { eventJsonLd } = await import("../lib/curatedEvents.js");
