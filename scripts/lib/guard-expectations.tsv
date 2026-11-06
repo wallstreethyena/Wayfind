@@ -152,7 +152,7 @@ scripts/check-events-feed-upcoming.mjs	0	CALL	blocks-ci-and-deploy	1	-	17	0	0	04
 scripts/check-events-paged-list.mjs	0	RENDER	blocks-ci-and-deploy	1	-	15	0	0	ee0241378e7b9db35ee7a4c44fc7eedccae185cf95a237d5c79b9dd83487347d
 scripts/check-events-rail-renders.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	f65a588601579de8281a5e396f6a3e675ade8f840f69b32baa8ca116dfdbd097
 scripts/check-events-running-order.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	5363248fdc5d3cabb4d90ccb5e7f200b37b64315be9b12ed9bd598ed632ce20b
-scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	53	0	0	ebf7862dbf5898058d0c60b162294d8935be4d7ecf4d17e99029c379ce377286
+scripts/check-events.mjs	0	RENDER	blocks-ci-and-deploy	1	-	38	0	0	f79aca6fb188571091037e79797d06b00a3c4b7ddb2109ca11968fa1b952d43e
 scripts/check-evergreen-landing-zero-spend.mjs	1	RENDER	blocks-ci-and-deploy	1	claude.exe (Wayfind lane)	61	0	0	3a70e992e93fdfd28e6d4d96d534633f3f69d13450a3237214f538cf9b586de8
 scripts/check-experiences-link-health.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	105	0	0	e712192844da02d2f2b54657f336e8e0e985036ac91d7610525180c5648cb271
 scripts/check-exploding-nearby-floor.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	1	1	3f2a8f206a514832c5b1fd1ce498e29d21a27b75cf1b5848d03b2502c26de7b2
@@ -672,7 +672,8 @@ scripts/test-event-source-corrections-20261021.mjs	0	CALL	blocks-ci-and-deploy	1
 scripts/test-event-stays.mjs	0	CALL	blocks-ci-and-deploy	1	-	62	0	0	fb81dd5fe3a9013daba42feef5d7e71abcbbf1b320dd72d744c031bcaac7e6fc
 scripts/test-event-venue-nearby-api.mjs	0	RENDER	blocks-ci-and-deploy	1	-	56	0	0	03707b6cfebe370a788cc5d3cb79a9632d6b140eb1fb840365b2d491b70f6a62
 scripts/test-events-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	76d4ae1541593922dd4bea6e0b8dffc6cebb115178d074a9534e0153cdd0abae
-scripts/test-events-fall-feed-image.mjs	0	CALL	blocks-ci-and-deploy	1	-	49	0	0	8825490e86ef4af732c9acd7155b86cf5a30a366da3d4eb6b43eb2ae71e1178f
+scripts/test-events-expanded-rails.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	3ab176001e5a5e12fc8623c9a3d7fa574465bae37f932a0900fb210f936af297
+scripts/test-events-fall-feed-image.mjs	0	CALL	blocks-ci-and-deploy	1	-	50	0	0	a47e6406cc56ebd0602d4c419d058c431fdd856e58da015376b0d32594211975
 scripts/test-events-list.mjs	0	CALL	blocks-ci-and-deploy	1	-	21	0	0	54d251bfda892c3afdf3ad2cb35620830a44a85033d005d190c6ef0acefa2c65
 scripts/test-events-prime.mjs	0	CALL	blocks-ci-and-deploy	1	-	30	0	0	a8576b5ff45ebec340f3e6c73c57dd66144bdae468eecd2ce91d16ef35e2d036
 scripts/test-events-spend.mjs	1	CALL	blocks-ci-and-deploy	1	Revenue QA	24	0	0	70873125f6f918b07c1b0fbf5868caa0d296e575254aed225974cad92d0af93b

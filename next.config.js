@@ -135,6 +135,7 @@ const nextConfig = {
     // data/christmas-2026-research.json with fs at runtime, which the tracer
     // cannot see; every route that reaches that module lists it here
     // (scripts/check-christmas-research.mjs locks the list).
+    "/api/events": ["./data/christmas-2026-research.json"],
     "/api/events/christmas": ["./data/christmas-2026-research.json"],
     "/api/christmas/browse": ["./data/christmas-2026-research.json"],
     "/christmas-in-florida": ["./data/christmas-2026-research.json"],
