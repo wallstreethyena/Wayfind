@@ -32,7 +32,10 @@ delete process.env.PROMOTE_DETAILS_MONTH_CAP;
 
 // ── the world ───────────────────────────────────────────────────────────────
 export function makeWorld({ dbMonth, ledger = {}, places, google, monthCap = 7500, batchLimit = 50 }) {
-  const w = { dbMonth, ledger: new Map(Object.entries(ledger)), googleCalls: [], takes: [], refunds: [], places, google, monthCap, batchLimit };
+  // A world is an independent fixture, including the shared provider cache.
+  // Consecutive runs within one world retain its breaker, as production does.
+  globalThis.__wfServerCacheMem?.clear();
+  const w = { dbMonth, ledger: new Map(Object.entries(ledger)), googleCalls: [], takes: [], refunds: [], claims: 0, places, google, monthCap, batchLimit };
   w.row = (sku, month = w.dbMonth) => w.ledger.get(month + "|" + sku) || null;
   w.fetch = async (url, init = {}) => {
     const u = String(url);
@@ -66,6 +69,7 @@ export function makeWorld({ dbMonth, ledger = {}, places, google, monthCap = 750
       return json(true);
     }
     if (u.includes("/rest/v1/rpc/wf_promotion_claim")) {
+      w.claims++;
       const out = w.places.splice(0, JSON.parse(init.body).p_limit);
       return json(out.map((p) => ({ place_id: p.id, metro: "tampa", name: "Place " + p.id })));
     }
@@ -120,6 +124,9 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
   eq(sum(w.takes, "details_pro"), 1, "1: exactly one Pro grant was taken");
   eq(w.refunds, [{ sku: "details_pro", n: 1 }], "1: exactly one Pro refund, nothing for the parked places");
   eq(w.row("details_pro").used, 100, "1: the Pro row is back where it started (the 429 was unbilled)");
+  const again = await runCron(w);
+  eq([again.skipped, again.claimed], ["breaker open", 0], "1: a later run in the same world skips while the daily breaker holds");
+  eq([w.claims, w.googleCalls.length, w.takes.length, w.refunds.length], [1, 1, 1, 1], "1: the later run adds no claim, provider call, grant or refund");
 }
 // 2. Unrated place buys the rating mask, 429: the refund goes to details_enterprise, not Pro.
 {
@@ -157,7 +164,7 @@ const sum = (arr, sku) => arr.filter((x) => x.sku === sku && (x.granted === unde
   eq(w.refunds.length, 0, "5: a refused grant is never refunded");
   eq(w.row("details_pro").used, 4800, "5: the row never goes past its cap");
 }
-eq(pass, 18, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
+eq(pass, 20, "every case ran (red-proved 2026-11-05: deleting `await refundToLedger(requestSku, 1)` from the route fails case 1)");
 
 // ── PROMOTION'S HALF OF THE ENTERPRISE LINE (#2131), on the CALL ─────────────
 // 950 free line -> promotion stops at 475 used. Unrated places past the share
@@ -238,6 +245,6 @@ const ent = (w, m = M) => (w.row("details_enterprise", m) || { used: 0 }).used;
     "12: STRUCTURAL (the worker is a CLI): the worker reserves the share slot before awaiting the ledger");
   ok(/const ratingFreeLine = freeTierLine\(RATING_SKU\);/.test(wsrc), "12: STRUCTURAL: the worker computes the share from the free line");
 }
-eq(pass, 35, "every share case ran");
+eq(pass, 37, "every share case ran");
 
 console.log(`test-promote-ledger-sim: OK (${pass} checks: 429 refunds by SKU, retry 429 refunds once, parked places take no grant, billed answers keep their grant, refused grants make no call; promotion's Enterprise share holds at remaining/exhausted/open-mode/retries/both month-boundary directions/8-way concurrency)`);

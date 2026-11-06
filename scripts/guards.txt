@@ -2114,7 +2114,7 @@ node scripts/test-image-health.mjs
 node scripts/test-image-health-report.mjs
 # The event hero photo goes through the CREDITED lane (never a bare /api/photo <img>), its caption exists only while a photo is
 # visible, and no app/ file builds a raw <img>/background from an /api/photo string (server render + Chromium + AST scan, 2026-10-14).
-node scripts/test-event-hero-credited-photo.mjs
+node scripts/test-event-hero-credited-photo.mjs ${GITHUB_ACTIONS:+--require-browser}
 node scripts/test-photo-answers.mjs
 # Every external photo-attribution link opens in a new tab (noopener, announced to
 # screen readers) with attribution byte-identical; a click on a credit inside a card
@@ -2489,6 +2489,8 @@ node scripts/test-fall-offering-retirement.mjs
 # Locality backfill: a street name never corroborates a city; Census-resolved empties are never filled.
 node scripts/test-locality-backfill-evidence.mjs
 
+# Global fetch retries ONCE on the idle keep-alive socket drop (idempotent, transport errors only); executed against a local server.
+node scripts/test-fetch-socket-retry.mjs
 # Refresh selector trap: a cheap-tier check must not block the enterprise content refresh (#1893).
 node scripts/test-refresh-selector-trap.mjs
 node scripts/test-refresh-reserve.mjs
@@ -2510,3 +2512,9 @@ node scripts/check-bare-path-redirects.mjs
 
 node scripts/test-events-expanded-rails.mjs
 node scripts/test-licensed-event-covers.mjs
+
+node scripts/test-event-publication-hold.mjs
+
+node scripts/test-google-daily-quota-breaker.mjs
+
+node scripts/check-homepage-events-deadline.mjs
