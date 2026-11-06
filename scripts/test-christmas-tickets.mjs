@@ -22,6 +22,7 @@ import { christmasBrowseListings, christmasBrowsePage, parseChristmasBrowseQuery
 import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
+import { secondaryEventTicketAction } from "../lib/secondaryEventTickets.js";
 import { CJ_PID } from "../lib/deals.js";
 import {
   CHRISTMAS_TICKETS_MAX, CHRISTMAS_TICKETS_MAX_PHOTOS, CHRISTMAS_TICKET_FILTERS, christmasTicketsModel, christmasTicketsSchema,
@@ -97,6 +98,34 @@ const allDeals = new Map(CHRISTMAS_TICKET_DEAL_IDS.map((id) => [id, liveDeal(id)
   const edge = christmasTicketsModel([base({ id: "ends-today", end_date: TODAY, start_date: "2026-11-01" }), base({ id: "ended-yday", end_date: "2026-11-19", start_date: "2026-11-01" })], TODAY).rows.map((r) => r.id);
   ok(edge.includes("ends-today") && !edge.includes("ended-yday"), "a run ending today is on, one ended yesterday is not");
   void ids;
+}
+
+// Enchant is an official FIRST checkout, with one labeled CJ-attributed
+// SECONDARY resale browser. The listing is NOT an event/date ticket promise.
+{
+  const enchant = base({
+    id: "enchant-stpete-2026", title: "Enchant Christmas St. Petersburg",
+    official_ticket_url: "https://www.enchantchristmas.com/st-petersburg/",
+    start_date: "2026-11-20", end_date: "2026-12-27",
+  });
+  const m = christmasTicketsModel([enchant], "2026-11-20");
+  const row = m.rows[0];
+  ok(row.cta.kind === "organizer" && row.cta.label === "Official Tickets" && row.cta.href === enchant.official_ticket_url,
+    "Enchant official ticket checkout remains primary");
+  ok(row.secondaryCta?.kind === "affiliate" && /^\/api\/commerce\/go\?/.test(row.secondaryCta.href)
+    && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("provider") === "ticketsmarter"
+    && new URL(row.secondaryCta.href, "https://www.gowayfind.com").searchParams.get("offer") === "enchant-stpete-ticketsmarter",
+    "Enchant secondary resale link earns through the approved CJ provider and offer");
+  ok(/resale/i.test(row.secondaryCta.label + " " + row.secondaryCta.via) && /fees vary/i.test(row.secondaryCta.via)
+    && /commission/i.test(row.secondaryCta.via), "resale, variable fees and earning disclosure are explicit");
+  ok(secondaryEventTicketAction({ ...enchant, is_free: true }, { today: "2026-11-20" }) === null
+    && secondaryEventTicketAction({ ...enchant, ticket_status: "sold_out" }, { today: "2026-11-20" }) === null
+    && secondaryEventTicketAction({ ...enchant, official_ticket_url: "https://www.enchantchristmas.com/other-city/" }, { today: "2026-11-20" }) === null
+    && secondaryEventTicketAction(enchant, { today: "2026-12-28" }) === null
+    && secondaryEventTicketAction({ ...enchant, id: "different-event" }, { today: "2026-11-20" }) === null,
+    "no resale for free, sold-out, wrong city, ended or unreviewed events");
+  ok(christmasTicketsModel([base({ id: "zootampa-christmas-wild-2026" })], "2026-11-20").rows[0].secondaryCta == null,
+    "unavailable ZooTampa Christmas tickets never receive a speculative resale offer");
 }
 
 // Price honesty
