@@ -14,7 +14,9 @@ globalThis.fetch = async () => { throw new Error("Static earning routes must not
 try {
   const expected = { ticketsmarter: "15735296", epicpass: "17171490", vrbo: "10697641" };
   ok(Object.keys(CJ_PARTNERS).length === 3, "all three verified CJ advertisers registered");
-  ok(Object.keys(CJ_PARTNER_OFFERS).length === 7, "all verified CJ offers exercised");
+  ok(Object.keys(CJ_PARTNER_OFFERS).length === 8, "all eight verified CJ offers exercised");
+  ok(CJ_PARTNER_OFFERS["enchant-stpete-ticketsmarter"]?.destination === "https://www.ticketsmarter.com/venues/tropicana-field",
+    "Enchant resale browse points to the verified St Petersburg venue, not a fabricated ticket/date URL");
   for (const [id, row] of Object.entries(CJ_PARTNER_OFFERS)) {
     const cfg = PROVIDERS[row.provider];
     ok(cfg?.requireTracking === true, `${id}: tracking mandatory`);
