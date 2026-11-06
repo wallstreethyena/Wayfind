@@ -43,6 +43,18 @@
       "placeId": "ChIJl0CYCGZ_3YgRL05pG5wZSsE",
       "needsPermissionFrom": null,
       "note": "No licensed photo is filed under this guide's own entry. The page reuses the reviewed, credited licensed photo of this same place (same Google place id) from another guide via lib/guidePickPhotos.js guidePhotoForPlace; no Google photo is stored or cached (#1697)."
+    },
+    "Holidays at Universal Orlando": {
+      "reason": "no-verified-source",
+      "placeId": "ChIJvRBCrN9-54gRGZuuaCLGrQE",
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this specific holiday program has been approved for this guide. Existing licensed Epic Universe and Disney Springs venue images were visually reviewed on 2026-11-06: they show daytime venues, without the advertised holiday program, so they were not presented as Christmas event photos. Use the existing credited, visibly illustrative holiday fallback until an exact licensed seasonal image is verified."
+    },
+    "Disney Springs Christmas Tree Stroll and Santa": {
+      "reason": "no-verified-source",
+      "placeId": null,
+      "needsPermissionFrom": null,
+      "note": "No licensed photo of this specific holiday program has been approved for this guide. Existing licensed Epic Universe and Disney Springs venue images were visually reviewed on 2026-11-06: they show daytime venues, without the advertised holiday program, so they were not presented as Christmas event photos. Use the existing credited, visibly illustrative holiday fallback until an exact licensed seasonal image is verified."
     }
   }
 }

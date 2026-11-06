@@ -23,10 +23,12 @@ import { christmasEventCard } from "../lib/christmasCards.js";
 import { CHRISTMAS_TICKET_DEAL_IDS } from "../lib/christmasPool.js";
 import { EVENT_TICKET_DEALS } from "../lib/eventTicketDeals.js";
 import { secondaryEventTicketAction } from "../lib/secondaryEventTickets.js";
+import { CHRISTMAS_2026_GUIDES } from "../lib/guidesChristmas2026.js";
+import { guidePickTicket } from "../lib/guidePickTicket.js";
 import { CJ_PID } from "../lib/deals.js";
 import {
   CHRISTMAS_TICKETS_MAX, CHRISTMAS_TICKETS_MAX_PHOTOS, CHRISTMAS_TICKET_FILTERS, christmasTicketsModel, christmasTicketsSchema,
-  ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
+  ticketAction, ticketDatesText, ticketPrice, withChristmasTicketPhotos, christmasVaultPhoto, christmasGooglePhoto,
 } from "../lib/christmasTickets.js";
 import { existsSync } from "node:fs";
 import { CHRISTMAS_EVENT_PLACE, CHRISTMAS_MAX_PHOTOS, LEGOLAND_ARCH_FILE, christmasCardRail, christmasPlaceFor, christmasStaticPhotos, christmasTaggedPhotos, readChristmasEventPhotos } from "../lib/christmasPlacePhotos.js";
@@ -69,6 +71,28 @@ const base = (over) => ({
 });
 const liveDeal = (id) => ({ id, affiliate_url: "https://www.anrdoezrs.net/click-" + CJ_PID + "-1", active: true, link_ok: null, provider: "undercover_tourist" });
 const allDeals = new Map(CHRISTMAS_TICKET_DEAL_IDS.map((id) => [id, liveDeal(id)]));
+
+{
+  const url = "https://www.livenation.com/event/G5viZ_on0-j6v/christmas-with-chris-tomlin";
+  const tm = base({ id: "christmas-with-chris-tomlin-pensacola-2026", official_ticket_url: url });
+  const cta = ticketAction(tm);
+  const u = new URL(cta.href, "https://www.gowayfind.com");
+  ok(cta.kind === "affiliate" && u.pathname === "/api/ticketmaster/go" && u.searchParams.get("url") === url, "Christmas Live Nation cards use the shared tracked resolver, not a raw organizer link");
+  ok(u.searchParams.get("content") === tm.id && u.searchParams.get("surface") === "christmas_tickets", "the original event and Christmas placement survive the tracked handoff");
+  ok(ticketAction({ ...tm, is_free: true }) === null && ticketAction({ ...tm, ticket_status: "sold_out" }) === null, "free and unavailable Christmas cards never advertise a buy link");
+  const lookalike = ticketAction({ ...tm, official_ticket_url: "https://livenation.com.evil.example/buy" });
+  ok(lookalike?.kind !== "affiliate", "a deceptive Live Nation host never becomes a Ticketmaster affiliate destination");
+  ok(ticketAction(base({ id: "mvmcp-2026", ticket_status: "sold_out" }), allDeals) === null, "a mapped party cannot bypass sold-out gating");
+  const zooTicket = ticketAction(base({ id: "zootampa-christmas-wild-2026" }));
+  ok(zooTicket?.provider === "viator" && zooTicket.via === "Event tickets at Viator" && new URL(zooTicket.href, "https://www.gowayfind.com").searchParams.get("offer") === "28841P3", "the published ZooTampa card now sells the exact evening event, without adding a recommended tour or substituting daytime admission");
+  const guide = CHRISTMAS_2026_GUIDES["florida-theme-park-christmas-2026"];
+  for (const [name, offer] of [["Mickey's Very Merry Christmas Party", "38"], ["Disney Jollywood Nights", "39"], ["Holidays at Universal Orlando", "6"]]) {
+    const pick = guide.picks.find((p) => p.name === name);
+    const ticket = guidePickTicket(pick?.ticket);
+    ok(ticket?.affiliate === true && new URL(ticket.href, "https://www.gowayfind.com").searchParams.get("offer") === offer, `${name}: the real guide pick carries the right ticket product`);
+  }
+  ok(guide.picks.some((p) => /Disney Springs/.test(p.name) && !p.ticket) && !/could not confirm/i.test(guide.intro), "free Springs has no paid ticket and the obsolete Universal omission is removed");
+}
 
 {
   const ids = ["a-lights", "b-past", "c-undated", "d-nolink", "e-free", "f-unknown", "g-park", "h-ended-nights"];
@@ -164,7 +188,7 @@ const allDeals = new Map(CHRISTMAS_TICKET_DEAL_IDS.map((id) => [id, liveDeal(id)
     ok(row.cta.kind === "affiliate" && /^\/api\/[a-z0-9/_-]+\/go\?/i.test(row.cta.href), row.id + " partner link is our /api/*/go route");
     ok(!/https?:\/\/|anrdoezrs|cj\.com|jdoqocy|tkqlhce/i.test(row.cta.href), row.id + " href is not a partner URL");
     ok(["Get Tickets", "Book Now & Save", "See availability ↗"].includes(row.cta.label), row.id + " label is one of the approved partner labels: " + row.cta.label);
-    ok(/^(?:Park|Event) tickets at \S/.test(row.cta.via) || row.cta.via === "Tour tickets at Viator", row.id + " carries the partner line: " + row.cta.via);
+    ok(/^(?:Admission|Event) tickets at \S/.test(row.cta.via) || row.cta.via === "Tour tickets at Viator", row.id + " carries the partner line: " + row.cta.via);
     eventTicketHrefs.set(row.id, row.cta.href);
     ok(row.cta.label === (row.cta.product === "park-admission" ? "Book Now & Save" : "Get Tickets"), row.id + " label follows the registry product (" + row.cta.product + ")");
   }
