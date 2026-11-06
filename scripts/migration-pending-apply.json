@@ -54,12 +54,5 @@
     "decision_owner": "wallstreethyena",
     "tracking": "#2245 held event recheck guard (owner approved 2026-11-05)",
     "reason": "Write-time guard for held events (postponed / uncertain / unannounced with a start_date today or later): a write leaving no recheck_on sets today (ET) + 2 in the same statement, and a still-future recheck_on can be moved earlier but never later or cleared. Owner approved applying it 2026-11-05; this session's apply_migration call was refused by its automatic permission check ([Production Deploy]) and the session has no Management API credential for scripts/apply-migration.mjs, so it is declared pending until applied with the runner."
-  },
-  {
-    "file": "supabase/migrations/20261106233000_santas_wonderland_dates_unconfirmed.sql",
-    "sha256": "00c55ac5b5538c7f0c843c391094ec1aa995c90eba8305ad44f5f00c0bd36ead",
-    "decision_owner": "wallstreethyena",
-    "tracking": "#2252 follow-up: Santa publication hold (2026-11-06 reliability closeout)",
-    "reason": "NOT APPLIED. One guarded row correction: unannounced/low, null dates/times, pending copy; preserves prior verification evidence and Nov8 recheck. Deploy explicit pending-page support first. Root reviews and applies through scripts/apply-migration.mjs after commit; fresh date/source drift or replay raises. Cancellation is not inferred."
   }
 ]

@@ -55,13 +55,26 @@ import { TP_PROGRAMS, isTpProgramLive } from "../lib/travelpayouts.js";
 import { partnerTicketLabel } from "../lib/partnerCopy.js";
 import { venueOfferFor } from "../lib/venueOffers.js";
 import { bookItTarget } from "../lib/monetize.js";
-import { AFFILIATE_MERCHANTS, MERCHANT_HOSTS, affiliateMerchantForUrl, eventAffiliateCoverage, unmappedSellableEvents, COVERAGE } from "../lib/affiliateLibrary.js";
+import { AFFILIATE_MERCHANTS, MERCHANT_HOSTS, affiliateMerchantForUrl, eventAffiliateCoverage, unmappedSellableEvents, affiliateCoverageCandidates, COVERAGE } from "../lib/affiliateLibrary.js";
+import { mergeChristmasResearch } from "../lib/christmasResearch.js";
 import { coveragePulseRow, tallyCoverage } from "../app/api/cron/affiliate-coverage/route.js";
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), "..");
 const read = (p) => readFileSync(path.join(ROOT, p), "utf8");
 let pass = 0, fail = 0;
 const ok = (c, m) => { c ? pass++ : (fail++, console.log("  FAIL:", m)); };
+
+// The deployed catalog includes research-only events. A DB-only watch missed
+// the actual Grinchmas/parade/Gatorland cards while reporting clean coverage.
+const researchCoverage = affiliateCoverageCandidates(mergeChristmasResearch([]), "2026-11-06");
+for (const id of ["islands-adventure-grinchmas-2026", "universal-studios-holiday-parade-2026", "gatorland-holiday-ho-down-2026", "wdw-holidays-2026", "wdw-holiday-season-2026", "epcot-candlelight-2026", "mosi-santa-in-space-2026"]) {
+  const row = researchCoverage.find((r) => r.event_id === id);
+  ok(!!row && eventAffiliateCoverage(row).status === COVERAGE.MAPPED, `${id}: the published research card is monitored and mapped`);
+}
+const monitorFixture = (patch) => ({ event_id: "fixture", event_status: "scheduled", start_date: "2026-11-01", end_date: "2026-12-01", ...patch });
+ok(affiliateCoverageCandidates([monitorFixture({}), monitorFixture({ event_status: "needs_review" }), monitorFixture({ christmas_excluded: true }), monitorFixture({ end_date: "2026-11-05" })], "2026-11-06").length === 1, "held, excluded and ended rows cannot inflate the monitor's coverage");
+ok(read("app/api/cron/affiliate-coverage/route.js").includes("affiliateCoverageCandidates(mergeChristmasResearch("), "the real cron merges the published research source before classifying coverage");
+ok(read("next.config.js").includes('"/api/cron/affiliate-coverage": ["./data/christmas-2026-research.json"]'), "production coverage lambda receives its research file");
 
 // ── 1. unknown is not dead, executed on the shipped row shape ──────────────
 const tracked = `https://www.anrdoezrs.net/links/${CJ_PID}/type/dlg/sid/coupon_hos_tampa/https://www.undercovertourist.com/orlando/busch-gardens-tampa-howl-o-scream/`;
@@ -231,7 +244,7 @@ const statuses = fx.map((e) => eventAffiliateCoverage(e, { today: FIXTURE_TODAY 
 ok(statuses.slice(0, 5).every((x) => x === COVERAGE.MAPPED), "verified event-ticket and included-with-admission cases all classify mapped");
 ok(statuses[5] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Sideshow Obscura (a store, not a ticketed event) is a current reviewed no-product decision");
 ok(statuses[6] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "Asian Lantern is a current reviewed no-exact-product decision, not a silent leak");
-ok(statuses[7] === COVERAGE.DECIDED_NO_EXACT_PRODUCT, "ZooTampa Christmas is a current reviewed no-exact-product decision until partner entitlement is proven");
+ok(statuses[7] === COVERAGE.MAPPED, "ZooTampa Christmas maps to its verified bookable evening-event SKU, replacing the obsolete Tiqets availability decision");
 ok(statuses[8] === COVERAGE.UNMAPPED, "a new event at an affiliate merchant with no mapping or current decision is a revenue leak");
 ok(statuses[9] === COVERAGE.NO_PARTNER && statuses[10] === COVERAGE.NO_URL, "a merchant nobody sells → no-partner; no URL → no-url");
 ok(statuses[11] === COVERAGE.MAPPED, "Zoo Boo, mapped to Tiqets' Zoo Miami admission offer → mapped");
@@ -281,15 +294,15 @@ const cleanTally = tallyCoverage(fx.filter((e) => e.event_id !== "new-central-fl
 const leakTally = tallyCoverage(fx, { today: FIXTURE_TODAY });
 const cleanRow = coveragePulseRow(cleanTally);
 const leakRow = coveragePulseRow(leakTally);
-ok(cleanTally.decidedNoExactProduct === 4 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
-  "tally counts all four reviewed no-exact-product decisions, including Zoo Lights and the Sideshow Obscura store");
-ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 6,
+ok(cleanTally.decidedNoExactProduct === 3 && cleanTally.decidedNoExactProductIds.includes(zooLights.event_id),
+  "tally counts the three remaining reviewed no-exact-product decisions, including Zoo Lights and the Sideshow Obscura store");
+ok(cleanTally.noUrl === 1 && cleanTally.noPartner === 1 && cleanTally.mapped === 7,
   "reviewed decisions do not inflate the missing-URL bucket; mapped and no-partner controls stay distinct");
 ok(cleanTally.mapped + cleanTally.decidedNoExactProduct + cleanTally.noPartner + cleanTally.noUrl + cleanTally.unmapped.length === fx.length - 1,
   "coverage buckets account for every scanned row exactly once");
 ok(cleanTally.decidedSeparatelyTicketed === cleanTally.decidedNoExactProduct && cleanTally.decidedSeparatelyTicketedIds === cleanTally.decidedNoExactProductIds,
   "legacy tally aliases preserve compatibility with the corrected reviewed decision count");
-ok(/4 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
+ok(/3 reviewed-no-exact-product/.test(cleanRow.note), "clean pulse names and counts the actual reviewed no-exact-product state");
 ok(cleanRow.attempted === 1 && cleanRow.succeeded === 1 && cleanRow.failed === 0 && /^clean:/.test(cleanRow.note), "a run with no leak pulses succeeded=1");
 ok(leakRow.attempted === 1 && leakRow.succeeded === 0 && leakRow.failed === 1 && /new-central-florida-zoo-special-2026/.test(leakRow.note), "a run with a leak pulses succeeded=0 and NAMES the event, so job-watch's email says what to map");
 ok(leakRow.note.length <= 200, "the note fits the pulse column");

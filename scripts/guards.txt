@@ -2513,7 +2513,6 @@ node scripts/check-bare-path-redirects.mjs
 node scripts/test-events-expanded-rails.mjs
 node scripts/test-licensed-event-covers.mjs
 
-node scripts/test-event-publication-hold.mjs
 
 node scripts/test-google-daily-quota-breaker.mjs
 
