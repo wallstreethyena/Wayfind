@@ -3,8 +3,10 @@
 import assert from 'node:assert/strict';
 import { fileURLToPath } from 'node:url';
 import { readFileSync } from 'node:fs';
-import React, { act } from 'react';
+import React from 'react';
 import { createRoot } from 'react-dom/client';
+import { flushSync } from 'react-dom';
+import { spawnSync } from 'node:child_process';
 import { JSDOM } from 'jsdom';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { mock } from 'node:test';
@@ -96,12 +98,12 @@ globalThis.window = dom.window;
 globalThis.document = dom.window.document;
 globalThis.localStorage = dom.window.localStorage;
 globalThis.sessionStorage = dom.window.sessionStorage;
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
+globalThis.IS_REACT_ACT_ENVIRONMENT = false;
 window.matchMedia = () => ({ matches: false, addEventListener() {}, removeEventListener() {} });
 const root = createRoot(document.getElementById('root'));
 try {
-  await act(async () => root.render(React.createElement(mod.default, { ctx })));
-  const click = async (element) => act(async () => element.dispatchEvent(new window.MouseEvent('click', { bubbles: true })));
+  flushSync(() => root.render(React.createElement(mod.default, { ctx })));
+  const click = (element) => flushSync(() => element.dispatchEvent(new window.MouseEvent('click', { bubbles: true })));
   await click(document.querySelector('[aria-label="Sort events"]'));
   const choices = [...document.querySelectorAll('[role="option"]')];
   assert.deepEqual(choices.map((el) => el.textContent), ['Best', 'Distance']);
@@ -110,7 +112,7 @@ try {
   assert(!document.querySelector('[role="listbox"]'));
   for (const key of ['concerts', 'comedy', 'theater', 'sports', 'local', 'business']) assert(document.querySelector(`[data-rail="events-${key}"]`), `Distance preserves ${key}`);
 } finally {
-  await act(async () => root.unmount());
+  flushSync(() => root.unmount());
   dom.window.close();
   for (const [key, descriptor] of savedGlobals) {
     if (descriptor) Object.defineProperty(globalThis, key, descriptor);
@@ -119,4 +121,11 @@ try {
 }
 const src = readFileSync(new URL('../app/api/events/route.js', import.meta.url), 'utf8');
 assert(src.includes('replaceCachedCurated(payload.events, current.events)'), 'cached aggregator feed cannot freeze curated inventory');
+// CI normally starts guards without NODE_ENV, while Vercel's prebuild uses
+// production. Exercise that exact mode too so a dev-only React API cannot
+// pass CI and then block deployment again. The child runs every check above.
+if (!process.argv.includes('--production-child')) {
+  const production = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--production-child'], { env: { ...process.env, NODE_ENV: 'production' }, encoding: 'utf8' });
+  assert.equal(production.status, 0, `production-mode event guard must pass: ${production.stdout}\n${production.stderr}`);
+}
 console.log('test-events-expanded-rails: OK — complete category rendering, demand/distance order, all 181 cards reachable, same-show images, confirmed holidays, cache replacement and seasonal retirement');
