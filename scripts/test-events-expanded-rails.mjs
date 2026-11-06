@@ -124,8 +124,8 @@ assert(src.includes('replaceCachedCurated(payload.events, current.events)'), 'ca
 // CI normally starts guards without NODE_ENV, while Vercel's prebuild uses
 // production. Exercise that exact mode too so a dev-only React API cannot
 // pass CI and then block deployment again. The child runs every check above.
-if (process.env.NODE_ENV !== 'production') {
-  const production = spawnSync(process.execPath, [fileURLToPath(import.meta.url)], { env: { ...process.env, NODE_ENV: 'production' }, encoding: 'utf8' });
+if (!process.argv.includes('--production-child')) {
+  const production = spawnSync(process.execPath, [fileURLToPath(import.meta.url), '--production-child'], { env: { ...process.env, NODE_ENV: 'production' }, encoding: 'utf8' });
   assert.equal(production.status, 0, `production-mode event guard must pass: ${production.stdout}\n${production.stderr}`);
 }
 console.log('test-events-expanded-rails: OK — complete category rendering, demand/distance order, all 181 cards reachable, same-show images, confirmed holidays, cache replacement and seasonal retirement');
