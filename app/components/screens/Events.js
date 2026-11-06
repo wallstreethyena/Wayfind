@@ -211,10 +211,25 @@ function RailMore({ remaining, onMore }) {
   );
 }
 
-// Apply the chosen order before paging. Both modes preserve every row.
+// Venue-local calendar weeks run Monday through Sunday, keeping the whole
+// weekend together. Dates are ET calendar strings; UTC math avoids DST shifts.
+function eventWeek(day) {
+  if (!ISO_DAY.test(day)) return Infinity;
+  const [y, m, d] = day.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.getTime() - ((date.getUTCDay() + 6) % 7) * 86400000;
+}
+// Best: upcoming weeks first, demand/quality within a week, then next date.
+// Apply the order to the full inventory before paging; never remove a row.
 export function orderEventRail(rows, { sort = "best", today, distMi = () => Infinity, eventBucket } = {}) {
-  if (sort !== "distance") return rankIntentEvents(rows, eventBucket);
-  const chronological = sortEventsForList(rows, { today, distMi });
+  const anchor = today || siteTodayStr();
+  const chronological = sortEventsForList(rows, { today: anchor, distMi });
+  if (sort !== "distance") {
+    const dates = new Map(chronological.map((e) => [e, effectiveEventDate(e, anchor)]));
+    const weeks = new Map(chronological.map((e) => [e, eventWeek(dates.get(e))]));
+    return rankIntentEvents(chronological, eventBucket, { dateOf: (e) => dates.get(e) })
+      .sort((a, b) => weeks.get(a) - weeks.get(b) || 0);
+  }
   return chronological.sort((a, b) => {
     const da = distMi(a), db = distMi(b);
     return (Number.isFinite(da) ? da : Infinity) - (Number.isFinite(db) ? db : Infinity) || 0;
@@ -276,7 +291,7 @@ export default function EventsScreen({ ctx }) {
   const halloweenChip = halloweenChipFor(eventDateChips, siteTodayStr(), seasonLive);
   if (halloweenChip) eventDateChips.push(halloweenChip);
   const dchip = (on) => ({ flexShrink: 0, minWidth: 46, padding: "6px 9px", borderRadius: 12, border: `1px solid ${on ? C.light : C.border}`, cursor: "pointer", textAlign: "center", background: on ? C.light : C.panel, color: on ? "#0D1117" : C.light, fontWeight: 700 });
-  const orderDescription = sort === "distance" ? (device ? "Closest to your current location first" : "Closest to your selected area first") : "Ranked by verified demand and event quality";
+  const orderDescription = sort === "distance" ? (device ? "Closest to your current location first" : "Closest to your selected area first") : "Upcoming weeks first. Popularity and quality within each week";
   return <div style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 24px)" }}>
     <div style={{ paddingTop: 4, marginBottom: 12 }}>
       <h1 style={{ fontSize: 20, fontWeight: 800, color: C.text, margin: 0 }}>Events near you</h1>
