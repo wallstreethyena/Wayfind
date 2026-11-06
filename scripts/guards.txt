@@ -343,6 +343,7 @@ node scripts/check-promote-batch-clamp.mjs
 # core mask (lib/promoteDetails.js), and RELEASES a budget-refused place instead
 # of failing it. #1054 shipped a 600/hour ceiling with none of that.
 node scripts/test-promote-details.mjs
+node scripts/test-promote-ledger-sim.mjs
 node scripts/check-promote-spend-gate.mjs
 node scripts/test-prominence.mjs
 node scripts/test-idle-defer.mjs
