@@ -10205,7 +10205,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // this dependency out of home's eager imports protects first-load JS.
   const eventsRailSlot = (mode = "events", selectPosterEvents = null) => {
     if (foryouEvents === null) {
-      if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) return { pending: true, byRail: {} };
+      if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) return { pending: true, byRail: {} };
       return (
         <div className="wf-rail wf-rail-events" aria-hidden="true" role="status" aria-busy="true" style={{ minHeight: EV_RAIL_MIN_H, overflow: "hidden" }}>
           <PlaceCardSkeleton count={2} as="div" />
@@ -10235,7 +10235,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         onCopied={() => showToast("Event link copied")}
       />
     );
-    if (["night-out", "date-night", "summer-sports", "today-entertainment"].includes(mode)) {
+    if (["night-out", "date-night", "summer-sports", "today-entertainment", "trending"].includes(mode)) {
       const rows = selectPosterEvents(fp.usable.filter((event) => eventSignals.disliked[event.id] !== true), { mode, center, bucketOf: eventBucket });
       return {
         pending: false,
