@@ -81,7 +81,9 @@ for (const band of DAYPART_IDS) {
   ok(!nov.includes("halloween") && nov.includes("augtober") && nov.includes("christmas"), `${band}: halloween absent Nov 1, fall and christmas present`);
   // Owner, 2026-11-05: TRENDING NOW is the second poster, right next to
   // Christmas; Fall stays visible immediately after it through Thanksgiving.
-  ok(nov[0] === "christmas" && nov[1] === "trending" && nov[2] === "augtober", `${band} Nov 1: Christmas first, Trending Now second, Fall still visible right after (got ${nov.slice(0, 4).join(", ")})`);
+  ok(nov[0] === "christmas" && nov[1] === "augtober" && nov[2] === "trending", `${band} Nov 1: Christmas first, Fall second, Trending Now immediately right of Fall (got ${nov.slice(0, 4).join(", ")})`);
+  const late = track(band, "2026-11-27");
+  ok(late[0] === "christmas" && late[1] === "trending", `${band} Nov 27: Fall gone, Trending Now right next to Christmas (got ${late.slice(0, 3).join(", ")})`);
   ok(track(band, "2026-11-27")[0] === "christmas" && !track(band, "2026-11-27").includes("augtober"), `${band}: Christmas first all day Nov 27 2026, Fall gone`);
   ok(track(band, "2026-12-31")[0] === "christmas", `${band}: Christmas first Dec 31`);
   ok(track(band, "2027-01-01")[0] === "christmas", `${band}: Christmas still first Jan 1 2027`);
