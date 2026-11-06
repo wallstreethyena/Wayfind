@@ -29,9 +29,32 @@ const winter = mod.expandedEventRails(rows, { ...options, today: '2026-12-01' })
 assert(!winter.some((r) => r.key === 'fall'));
 assert(winter.find((r) => r.key === 'local').items.some((r) => r.id === 'farm'), 'season labels cannot make real events disappear');
 const ranked = [e('near-small', 'concerts', { popularity_score: 1, miles: 1 }), e('big', 'concerts', { popularity_score: 9, miles: 30 })];
-assert.equal(mod.orderEventRail(ranked, options)[0].id, 'big', 'Best uses demand, not the soonest category default');
+assert.equal(mod.orderEventRail(ranked, options)[0].id, 'big', 'Best uses demand within the same week');
 assert.equal(mod.orderEventRail(ranked, { ...options, sort: 'distance' })[0].id, 'near-small');
 assert.equal(mod.orderEventRail(ranked, { ...options, sort: 'distance', distMi: () => Infinity }).length, 2, 'unknown distance retains inventory');
+const weekly = [
+  e('january-headliner', 'concerts', { date: '2027-01-30', popularity_score: 10 }),
+  e('friday-local', 'concerts', { date: '2026-11-06', popularity_score: 2 }),
+  e('saturday-headliner', 'concerts', { date: '2026-11-07', popularity_score: 8 }),
+  e('next-monday', 'concerts', { date: '2026-11-09', popularity_score: 10 }),
+  e('sunday-show', 'concerts', { date: '2026-11-08', popularity_score: 5 }),
+  e('select-dates', 'concerts', { date: '2026-10-01', occurrences: ['2026-10-01', '2026-11-14'], popularity_score: 9 }),
+  e('undated', 'concerts', { date: 'TBA', popularity_score: 10 }),
+];
+assert.deepEqual(mod.orderEventRail(weekly, options).map(e => e.id), ['saturday-headliner', 'sunday-show', 'friday-local', 'next-monday', 'select-dates', 'january-headliner', 'undated'], 'nearer weeks win; a better event can lead only within its own Monday-Sunday week');
+assert.deepEqual(weekly.map(e => e.id), ['january-headliner', 'friday-local', 'saturday-headliner', 'next-monday', 'sunday-show', 'select-dates', 'undated'], 'ordering does not mutate source inventory');
+const tied = [e('later', 'concerts', { date: '2026-11-08' }), e('earlier', 'concerts', { date: '2026-11-06' })];
+assert.deepEqual(mod.orderEventRail(tied, options).map(e => e.id), ['earlier', 'later'], 'equal quality and popularity fall back to the next date');
+const quality = [e('plain', 'concerts', { date: '2026-11-06' }), e('curated', 'concerts', { date: '2026-11-08', curated: true })];
+assert.equal(mod.orderEventRail(quality, options)[0].id, 'curated', 'higher assessed stature can lead within the same week when demand is unknown');
+const running = [e('opened-earlier-next-week', 'concerts', { date: '2026-10-01', occurrences: ['2026-10-01', '2026-11-14'] }), e('tomorrow', 'concerts', { date: '2026-11-06' })];
+assert.equal(mod.orderEventRail(running, options)[0].id, 'tomorrow', 'an old opening date cannot pull a later occurrence into this week');
+const ongoing = [e('running', 'concerts', { date: '2026-10-01', endDate: '2026-11-30' }), e('tomorrow', 'concerts', { date: '2026-11-06' })];
+assert.equal(mod.orderEventRail(ongoing, options)[0].id, 'running', 'a continuous run uses today as its effective date');
+const yearBoundary = [e('next-year-week', 'concerts', { date: '2027-01-04', popularity_score: 10 }), e('new-years-day', 'concerts', { date: '2027-01-01', popularity_score: 9 }), e('december', 'concerts', { date: '2026-12-30', popularity_score: 3 })];
+assert.deepEqual(mod.orderEventRail(yearBoundary, { ...options, today: '2026-12-29' }).map(e => e.id), ['new-years-day', 'december', 'next-year-week'], 'calendar weeks remain correct across a year boundary');
+const dst = [e('monday-after-dst', 'concerts', { date: '2026-11-02', popularity_score: 10 }), e('sunday-dst', 'concerts', { date: '2026-11-01', popularity_score: 2 })];
+assert.equal(mod.orderEventRail(dst, { ...options, today: '2026-10-31' })[0].id, 'sunday-dst', 'DST Sunday stays before the following calendar week');
 const many = Array.from({ length: 181 }, (_, i) => e('show-' + i, 'concerts'));
 assert.equal(mod.expandedEventRails(many, options)[0].items.length, 181);
 assert.equal(mod.pageOfEvents(many, 192).items.length, 181);
