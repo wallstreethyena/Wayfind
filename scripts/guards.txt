@@ -27,6 +27,13 @@ node scripts/check-guard-hermeticity.mjs
 # `npx next build` only, so a homepage JS overage shipped green and died on
 # deploy (#949, 2026-08-26). This lock is source-level and cheap.
 node scripts/check-build-lifecycle.mjs
+# 2026-11-03: main's guards job hit timeout-minutes 20 after checkout of the
+# full 689MB history spiked (241s to 682s) while the suite itself stayed ~12 min.
+# The workflow must keep the suite, the rendered browser gates, and the
+# production build, and the required `guards` check must exit non-zero unless
+# every one of those jobs succeeded. A cancelled run is not a green run.
+node scripts/check-guards-ci.mjs
+node scripts/test-guards-ci.mjs
 npm run check:version
 npm run check:jsx
 node scripts/check-hydration-style.mjs

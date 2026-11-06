@@ -13,11 +13,50 @@
 #
 # The suite is the SAME `npm run prebuild` every lane already runs — no new
 # rules, just nowhere left to skip them.
+#
+# 2026-11-03 TIMEOUT, NOT A SUITE REGRESSION AND NOT CONCURRENCY.
+# timeout-minutes was 20 on one job that ran checkout + Chromium + the suite
+# + `next build` in series. The last green main push (run 41674809734,
+# ad063490da, 16:30Z) took 1040s: checkout 76s, suite 716s, build 130s.
+# The next four main pushes were cancelled at 20m15s–20m30s, which is this
+# cap plus GitHub's kill grace. Their logs say "The operation was canceled"
+# and do not contain "Canceling since a higher priority waiting request".
+# The following main push was created after each cancel, so concurrency
+# did not supersede them. (An earlier same-day cancel, run 41653347137,
+# died at 16.5 min when the next main push arrived. That one was concurrency.
+# These four were the clock.)
+#
+#   run          sha        checkout  suite                         build
+#   41677811483  6bf7966e   241s      744s finished                 killed at 126s
+#   41681539352  3961d612   682s      killed at 444s of ~720s       not started
+#   41686471471  50f70f3b   330s      killed at 574s; Chromium 218s not started
+#   41707605417  e3adc6d9   375s      704s finished                 killed at 33s
+#
+# The suite wall time on the runs that finished it (704–744s) matches the
+# green runs (716–737s). The pack is 689MB because fetch-depth: 0 downloads
+# every historical blob; runner network variance turned a ~1 minute fetch
+# into 4–11 minutes and ate the only slack the 20 minute cap had.
+#
+# What changed, without dropping a check:
+#   - guard-suite, rendered-guards, and production-build run in parallel.
+#     The critical path is no longer checkout + suite + build.
+#   - guard-suite keeps fetch-depth: 0 so check-doc-ownership can read
+#     origin/main (the #1197 shallow-checkout hole). filter: blob:none
+#     keeps that history non-shallow and does not download every historical
+#     blob up front. Rendered and build checks do not need history, so they
+#     fetch depth 1.
+#   - guard-suite timeout is 30 minutes. Measured worst case of the thing
+#     that job still does: checkout 682s + setup ~60s + suite 744s = 1486s
+#     (24.8 min). 30 leaves margin. It is not a substitute for the split.
+#   - The job NAMED `guards` is the required check. It runs if: always()
+#     and exits 1 unless every dependency result is exactly success.
+#     cancelled, skipped, and failure are not success. A skipped aggregator
+#     would be the GitHub footgun where a required check never goes red.
 name: guards
 on:
   # Recovery path when the normal pull_request event cannot produce a runnable
   # check (for example a bot-written head commit or a previously blocked run).
-  # This executes the exact same `guards` job below; it is not a bypass.
+  # This executes the exact same jobs below; it is not a bypass.
   workflow_dispatch:
   pull_request:
   push:
@@ -32,17 +71,25 @@ permissions:
   pull-requests: read
   issues: read
 jobs:
-  guards:
-    name: guards
+  guard-suite:
+    name: guard-suite
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # 30 min covers the 2026-11-03 worst measured checkout (682s) plus the
+    # measured suite (744s) plus setup. See the header. Do not lower this
+    # below 30 without a new measurement; scripts/check-guards-ci.mjs locks it.
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
         with:
           # 2026-09-09: the default depth 1 made origin/main unreadable, and
           # check-doc-ownership answered SKIP on the one run that gates merge.
           # PR #1197 merged an AGENTS.md edit by a lane through that gap.
+          # fetch-depth: 0 keeps the clone non-shallow. filter: blob:none
+          # still fetches every commit and tree (merge-base and name-only
+          # diffs work) without packing every historical blob into the
+          # 689MB full clone that blew the old 20 minute cap.
           fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-node@v4
         with:
           node-version: 22
@@ -66,10 +113,52 @@ jobs:
           key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-playwright-
-      # if: always() — the rendered checks below also run with if: always()
-      # so they produce evidence even when an earlier step (e.g. the audit)
-      # failed; skipping this install in that case made them fail with
+      # if: always() — a later rendered check also runs with if: always()
+      # so it produces evidence even when an earlier step (e.g. the audit)
+      # failed; skipping this install in that case made it fail with
       # "no executable is available" instead of a real result.
+      - name: Install Chromium for rendered guards
+        if: always()
+        run: |
+          if [ "${{ steps.playwright-cache.outputs.cache-hit }}" = "true" ]; then
+            npx playwright install-deps chromium
+          else
+            npx playwright install --with-deps chromium
+          fi
+      - name: Guard suite (all of scripts/guards.txt)
+        env:
+          # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/run-guards.mjs
+
+  rendered-guards:
+    name: rendered-guards
+    runs-on: ubuntu-latest
+    # Depth-1 checkout plus Chromium plus the two required browser gates.
+    # Worst full-history checkout observed was 682s; depth 1 is smaller, and
+    # 20 minutes still covers a slow runner plus install-deps (218s observed
+    # once on 2026-11-03) plus the card and pin measurements (~70s).
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
+      - name: Cache Playwright Chromium
+        uses: actions/cache@v4
+        id: playwright-cache
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-playwright-
       - name: Install Chromium for rendered guards
         if: always()
         run: |
@@ -80,7 +169,8 @@ jobs:
           fi
       # The regular suite remains runnable in browser-free deploy images. Merge
       # CI has installed Chromium above, so absence/launch failure is fatal here.
-      # Run this first so layout failures always have reviewable evidence.
+      # This job is off the suite's critical path so a layout failure has
+      # evidence without waiting out the 12 minute suite.
       - name: Required rendered place-card standard
         if: always()
         run: node scripts/check-place-card-standard.mjs --require-browser
@@ -94,11 +184,26 @@ jobs:
           retention-days: 14
       - name: Required rendered map pin standard
         run: node scripts/test-map-pin-standard.mjs --require-browser
-      - name: Guard suite (all of scripts/guards.txt)
-        env:
-          # Evidence for check-doc-ownership's owner approval; read-only (see permissions above).
-          GITHUB_TOKEN: ${{ github.token }}
-        run: node scripts/run-guards.mjs
+
+  production-build:
+    name: production-build
+    runs-on: ubuntu-latest
+    # Depth-1 checkout + npm ci + next build (~130s when the suite runs were
+    # green) + the homepage ratchet. 20 minutes covers a slow checkout of
+    # the working tree without sharing the suite's clock.
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install
+        run: npm ci --no-audit --no-fund
+      - name: Dependency security audit
+        run: npm audit --audit-level=moderate
       - name: Production build
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
@@ -108,3 +213,36 @@ jobs:
       # Vercel — 67 gzipped bytes over the 500KB homepage ratchet.
       - name: Homepage bundle ratchet
         run: node scripts/check-bundle.mjs
+
+  # Required status check. The name stays `guards` so branch protection that
+  # requires that check still points at a job which cannot go green unless
+  # the suite, the rendered gates, and the production build all succeeded.
+  # if: always() is mandatory: without it, a cancelled dependency SKIPS this
+  # job, and a skipped required check is not a failed one.
+  guards:
+    name: guards
+    needs: [guard-suite, rendered-guards, production-build]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancelled or incomplete jobs are not success
+        env:
+          GUARD_SUITE: ${{ needs.guard-suite.result }}
+          RENDERED_GUARDS: ${{ needs.rendered-guards.result }}
+          PRODUCTION_BUILD: ${{ needs.production-build.result }}
+        run: |
+          node --input-type=module <<'EOF'
+          const results = {
+            "guard-suite": process.env.GUARD_SUITE,
+            "rendered-guards": process.env.RENDERED_GUARDS,
+            "production-build": process.env.PRODUCTION_BUILD,
+          };
+          const bad = Object.entries(results).filter(([, value]) => value !== "success");
+          if (bad.length) {
+            console.error("guards: FAIL — a cancelled, skipped, or failed job is not success");
+            for (const [name, value] of bad) console.error(`  ${name}=${value}`);
+            process.exit(1);
+          }
+          console.log("guards: OK — guard-suite, rendered-guards, and production-build succeeded");
+          EOF
