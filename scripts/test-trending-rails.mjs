@@ -48,7 +48,9 @@ ok(split.parties.length === 1 && split.food.length === 1 && split.shows.length =
 ok(trendingPlaceRail({ types: ["restaurant", "bar"] }) === "parties", "a bar restaurant reads as nightlife");
 
 const order = orderFor("afternoon", ["augtober", "christmas", "break", "trending", "season"], "2026-11-05");
-ok(order[0] === "christmas" && order[1] === "trending", `Trending Now is the second poster, next to Christmas (got ${order.slice(0, 3)})`);
+ok(order[0] === "christmas" && order[1] === "augtober" && order[2] === "trending", `Trending Now sits immediately right of Fall in Florida, Christmas first (got ${order.slice(0, 3)})`);
+const noFall = orderFor("afternoon", ["christmas", "break", "trending", "season"], "2026-11-30");
+ok(noFall[0] === "christmas" && noFall[1] === "trending", `with Fall off the track Trending Now is right next to Christmas (got ${noFall.slice(0, 3)})`);
 const summer = orderFor("afternoon", ["augtober", "christmas", "break", "trending", "season"], "2026-07-05");
 ok(summer[0] !== "christmas", "outside the Christmas window the static order is untouched");
 
