@@ -1,5 +1,14 @@
 # "-" is only for unavailable numeric metadata or absent ownership; critical guards require owners.
 # For an intentional guard change, review its diff and use --suggest <path> to update its row.
+# Before committing changed assertions or wiring:
+# 1. Run each changed guard; inspect its positive and negative cases, not only its count.
+# 2. Derive reviewed rows with: node scripts/check-guard-registry.mjs --suggest <changed guard paths>
+# 3. Replace only those rows in this file in the same commit as the guard changes.
+#    Review every column and digest; never lower a ratchet just to clear a failure.
+#    The recorded count is static assertion sites, not the loop-expanded runtime total.
+# 4. Run node scripts/check-guard-registry.mjs, then npm run prebuild, npm run check:jsx,
+#    and the production build on the final commit. Generating the JSON alone is insufficient.
+#    Keep registry drift merge-blocking; --suggest prints rows and never approves or writes them.
 # Numeric fields match exactly in both directions, preserving assertion/honesty ratchets.
 # Object key order and registry entry order are non-semantic; nested array order is semantic.
 # Reviewed guard expectations: one line per guard, sorted by path.
