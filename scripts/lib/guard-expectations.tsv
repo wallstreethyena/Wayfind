@@ -327,6 +327,7 @@ scripts/check-one-main.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	18	1	0	f343534a
 scripts/check-one-nav-per-screen.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	11	1	0	e6e87b0dc181df8fb584e61606f2aa5f1be3cd7b93af55d464c2b8364648c1f5
 scripts/check-one-price-source.mjs	0	CALL	blocks-ci-and-deploy	1	-	11	0	0	2fd8c10d57adeaa46812dc43523c26b355e2b9c06f55a67f07983ead67338c08
 scripts/check-os-state.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	14	2	1	2e29a702259f8bdad51e7c851c8079fa536280e5cf510d294c156b0a4808b567
+scripts/check-osm-warm-lands.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	801bc4880afe962d3565249516c8bf116836ada0efac85aa4d18524296891c59
 scripts/check-outdoors-cache-first.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	16	2	1	ac5693299cfebc393f4408fadce26958aa73e315c7f765c5c01c53d71bd9919b
 scripts/check-outing-identity.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	0	0	8ced1ab6efb1cf66c2b7b6a91d77085f012b1429ac884f32249f672d273cbc5a
 scripts/check-overscroll-containment.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	6	1	0	8450515e63d5d3e0427ea04be65d24cf98df0b8e03352a05195e761e3f11a202
