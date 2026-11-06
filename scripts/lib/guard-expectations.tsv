@@ -1051,7 +1051,7 @@ scripts/test-trend-order.mjs	0	CALL	blocks-ci-and-deploy	1	-	81	0	0	05529853cee9
 scripts/test-trend-rights.mjs	0	CALL	blocks-ci-and-deploy	1	-	18	1	2	f6c5d94eb0fe66f363bc43dbddc46ac28701aed4e4af6b6e1b94a3eb6edc7217
 scripts/test-trend-vocab.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	1	3	cc06ea5948730f2fd3d09ce66bad1fea721b6329235b6f3fa9b3bb6fb2ed689d
 scripts/test-trending-page.mjs	0	STRUCTURAL	blocks-ci-and-deploy	1	-	9	1	0	699dde9cc1f188bf916fa99bbee212dd7714047498005e9bfce69d6cf0c849aa
-scripts/test-trending-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	23	0	0	892830382387109b58bbd5345083c9f8e4610095a6b5394168e474f90f5919f0
+scripts/test-trending-rails.mjs	0	CALL	blocks-ci-and-deploy	1	-	40	0	0	acd3c02c3d09943e0b848c66801b7be43f2b3e60b719d95886bd2712d027a8ed
 scripts/test-trending-time.mjs	0	CALL	blocks-ci-and-deploy	1	-	20	0	0	f09692794ca88e16f8e42aa820145034722fc51a0785fbaeeb190a14974a778d
 scripts/test-trip-connections.mjs	0	RENDER	blocks-ci-and-deploy	1	-	61	0	0	413f6ce0353bab239f53a94dbfbd32ecb9d1d0db414900575e223f6caf0b2a4b
 scripts/test-unified-search.mjs	0	CALL	blocks-ci-and-deploy	1	-	53	0	0	1208d48586230b3046d5c8be69d1b5f33ad20b1a4ec97dc1dce1551819de528a

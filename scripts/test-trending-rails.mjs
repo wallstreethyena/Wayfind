@@ -22,6 +22,15 @@ const events = [
   ev("d", "Quiet Library Talk", { segment: "Community" }),
   ev("e", "Rooftop Silent Disco Party", { segment: "", tags: ["wf-trending"] }),
   ev("f", "Far Future Fest", { segment: "Festival", tags: ["wf-trending"], date: "2026-12-20" }),
+  ev("g", "Doja Cat - Tour Ma Vie World Tour", { segment: "Music", venue: "Benchmark International Arena" }),
+  ev("h", "Tampa Bay Lightning vs. Detroit Red Wings", { segment: "Sports", venue: "Benchmark International Arena" }),
+  ev("i", "Open Mic Songwriters", { segment: "Music", venue: "Corner Coffee Bar" }),
+  ev("j", "Luxury & Suites: Miami Dolphins v Detroit Lions", { segment: "Sports", venue: "Hard Rock Stadium" }),
+  ev("k", "Ride and Dine with Us! Speedboat Tours", { segment: "Miscellaneous", venue: "Hard Rock Cafe Miami" }),
+  ev("l", "Trap Karaoke: Tampa", { segment: "Music", venue: "The Ritz Ybor" }),
+  ev("m", "Lenny Pearce - Toddler Rave World Tour", { segment: "Music", venue: "Mahaffey Theater" }),
+  ev("n1", "Rod Wave: Don't Look Down Tour", { segment: "Music", venue: "Kia Center" }),
+  ev("n2", "Rod Wave: Don't Look Down Tour", { segment: "Music", venue: "Kia Center", date: "2026-11-08" }),
 ];
 const rails = selectPosterEvents(events, { mode: "trending", center: { lat: 27.95, lng: -82.46 }, now });
 const where = (id) => Object.keys(rails).find((k) => rails[k].some((e) => e.id === id)) || null;
@@ -33,6 +42,14 @@ ok(where("c") === "shows", "a concert with a measured demand signal lands on Sho
 ok(where("d") === null, "a happening with no scout tag and no demand signal is NOT called trending");
 ok(where("e") === "parties", "a party lands on Parties");
 ok(where("f") === null, "a happening outside the 10-day window is not on this week's shelves");
+ok(where("g") === "shows", `an arena concert with no score is trending on Shows (got ${where("g")})`);
+ok(where("h") === "shows", `a pro game in an arena is trending on Shows (got ${where("h")})`);
+ok(where("i") === null, "a small-room show with no tag and no score is NOT trending");
+ok(where("j") === null, "a suite upsell at a stadium is not the event and is NOT trending");
+ok(where("k") === null, "a cafe tour package at a Hard Rock is NOT trending");
+ok(where("m") === "shows", `a toddler rave is a family show, not nightlife (got ${where("m")})`);
+ok(where("n1") === "shows" && where("n2") === null, "a two-night run shows once, its first night");
+ok(where("l") === "parties", `a karaoke night in a marquee club lands on Parties (got ${where("l")})`);
 
 ok(trendRailFromTags(["trend-shows"]) === "shows" && trendRailFromTags(["trend-bogus"]) === null, "only real shelf ids can be pinned by tag");
 ok(trendingEventRail({ name: "Badass Beer Fest" }) === "festivals", "a beer fest is a festival");
@@ -56,4 +73,4 @@ ok(summer[0] !== "christmas", "outside the Christmas window the static order is 
 
 const dpr = readFileSync("app/components/DaypartRail.js", "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
 ok(/selRail\.id === "trending" \? \(\s*<TrendingRails[\s/>]/.test(dpr), "the trending drop mounts TrendingRails");
-console.log(`test-trending-rails: OK — ${pass} assertions (shelf routing, evidence gate, window, place split, poster order) by CALL`);
+console.log(`test-trending-rails: OK — ${pass} assertions (shelf routing, evidence gate incl. marquee venues, window, place split, poster order) by CALL`);
