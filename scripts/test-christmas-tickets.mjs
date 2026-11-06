@@ -463,6 +463,36 @@ ok(html.includes("data-christmas-filter") && html.includes(">Tickets<") && html.
   const text = (h) => h.replace(/<style[\s\S]*?<\/style>/g, " ").replace(/<[^>]+>/g, " ").replace(/&amp;/g, "&").replace(/\s+/g, " ");
   const through = (cards, dealsById = new Map()) => attachBrowseTickets({ cards: cards.map(christmasBrowseCardJson) }, cards, TODAY, dealsById).cards;
 
+  // Exercise the real browse-to-TicketCard path: a correct model alone cannot
+  // catch a dropped secondaryCta prop, missing markup or missing disclosure.
+  const enchant = base({ id: "enchant-stpete-2026", title: "Enchant Christmas St. Petersburg",
+    official_ticket_url: "https://www.enchantchristmas.com/st-petersburg/",
+    start_date: "2026-11-20", end_date: "2026-12-27", detailHref: "/florida-events/enchant-christmas-st-petersburg-2026" });
+  const enchantCard = through([enchant])[0];
+  const enchantHtml = draw(enchantCard);
+  const resale = /<p[^>]*data-secondary-resale=""[^>]*>([\s\S]*?)<\/p>/.exec(enchantHtml)?.[1] || "";
+  const resaleHref = enchantCard.ticketRow.secondaryCta.href.replace(/&/g, "&amp;");
+  ok(resale.includes('href="' + resaleHref + '"') && resale.includes('rel="sponsored nofollow noopener"')
+    && resale.includes('target="_blank"'), "Enchant renders the exact attributed resale link with sponsored external-link semantics");
+  ok(text(resale).includes("Browse resale tickets at TicketSmarter") && text(resale).includes("Dates, prices and fees vary.")
+    && text(resale).includes("We may earn a commission."), "Enchant's rendered resale choice discloses marketplace, variable fees and commission");
+  ok(enchantHtml.includes('href="' + enchant.official_ticket_url + '"') && enchantHtml.indexOf("Official Tickets") >= 0
+    && enchantHtml.indexOf("Official Tickets") < enchantHtml.indexOf("data-secondary-resale"), "Enchant's real official checkout renders before the secondary resale choice");
+  ok(enchantHtml.includes('href="' + enchant.detailHref + '"'), "Enchant keeps its event detail link alongside the resale choice");
+  for (const [label, patch] of [
+    ["free", { is_free: true }], ["sold out", { ticket_status: "sold_out" }],
+    ["missing official checkout", { official_ticket_url: "" }],
+    ["wrong city", { official_ticket_url: "https://www.enchantchristmas.com/other-city/" }],
+    ["unreviewed event", { id: "zootampa-christmas-wild-2026" }],
+  ]) {
+    ok(!draw(through([{ ...enchant, ...patch }])[0]).includes("data-secondary-resale"),
+      "the real card omits resale for " + label);
+  }
+  for (const cta of [null, { kind: "affiliate", href: "/api/commerce/go?provider=fixture", label: "Partner tickets", via: "Partner" }]) {
+    ok(!draw({ ...enchantCard, ticketRow: { ...enchantCard.ticketRow, cta } }).includes("data-secondary-resale"),
+      "a stale secondary resale choice cannot render without an organizer primary: " + (cta?.kind || "none"));
+  }
+
   // (a) a ticketed event: the real ticket button, price, official line and the event page link
   const ticketed = base({ id: "bx-ticketed", detailHref: "/florida-events/bx-ticketed", when: "Dec 1 to Dec 20" });
   const a = draw(through([ticketed])[0]);
