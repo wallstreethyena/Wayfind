@@ -256,6 +256,7 @@ node scripts/test-red-tide.mjs
 node scripts/test-brand.mjs
 node scripts/test-beaches-page.mjs
 node scripts/test-buzz.mjs
+node scripts/test-trending-rails.mjs
 node scripts/test-trend-vocab.mjs
 node scripts/test-taste.mjs
 node scripts/test-device-id.mjs

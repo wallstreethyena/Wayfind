@@ -775,7 +775,8 @@ async function withDeadline(provider, promise, ms = PROVIDER_TIMEOUT_MS) {
 // florida-v1 (2026-10-15): lib/floridaVenue.js — only Florida venues leave this
 // feed (the Columbus, OH poster). Cached payloads built before the rule may hold
 // out-of-state rows, so the key moves.
-const EVENTS_FEED_RULES = "florida-v3-holiday-photos-20261105";
+// trending-20261105: curated rows now carry `tags` (Trending Now shelves), so no cached feed may lack them.
+const EVENTS_FEED_RULES = "florida-v3-holiday-photos-trending-20261105";
 // One Discovery re-read per geo cell. Not the 21-day feed cache, and not a
 // place/photo TTL: those rules stay where they are.
 function ticketmasterStartKey(lat, lng, radius) {
