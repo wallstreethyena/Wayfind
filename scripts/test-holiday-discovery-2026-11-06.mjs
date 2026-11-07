@@ -3,7 +3,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { currentCuratedFeed } from "../lib/curatedEventsFeed.js";
-import { mergeChristmasResearch, CHRISTMAS_PUBLISHED_RESEARCH } from "../lib/christmasResearch.js";
+import { mergeChristmasResearch, CHRISTMAS_PUBLISHED_RESEARCH, christmasResearchSitemapRows, isDbClaimedResearchId } from "../lib/christmasResearch.js";
 import { christmasEventRail } from "../lib/christmasIntentRails.js";
 import { isFamilyDayEvent } from "../lib/familyDayEvents.js";
 import { selectPosterEvents } from "../lib/posterEvents.js";
@@ -18,6 +18,7 @@ const now = new Date("2026-11-06T17:00:00Z");
 ok(rows.length === 14 && new Set(rows.map((row) => row.event_id)).size === 14, "fourteen distinct reviewed event identities");
 const merged = mergeChristmasResearch(rows);
 const feed = currentCuratedFeed(rows, { now });
+const extraSitemap = christmasResearchSitemapRows("https://www.gowayfind.com", "2026-11-06", new Set(rows.map((row) => row.slug)));
 const nonHoliday = new Set(["sarasota-medieval-fair-2026", "ferraris-on-the-circle-2026", "crystal-classic-2026", "st-armands-circle-art-festival-2026", "suncoast-largest-food-truck-festival-10-2026"]);
 for (const row of rows) {
   const hits = feed.filter((event) => event.id === "wfc:" + row.event_id);
@@ -25,6 +26,10 @@ for (const row of rows) {
   const event = hits[0];
   const christmasRow = merged.find((candidate) => candidate.event_id === row.event_id);
   ok(Boolean(christmasEventRail(christmasRow)) === !nonHoliday.has(row.event_id), `${row.event_id}: correct Christmas membership`);
+  if (!nonHoliday.has(row.event_id)) {
+    const researchId = christmasRow.christmas_research_id;
+    ok(isDbClaimedResearchId(researchId) && !extraSitemap.some((entry) => entry.url.endsWith("/" + researchId + "-christmas")), `${row.event_id}: one database page, no duplicate suffixed research sitemap URL`);
+  }
   ok(isFamilyDayEvent(row, { now }), `${row.event_id}: reviewed family audience is usable by Family Day`);
   ok(event.curatedSlug === row.slug, `${row.event_id}: canonical detail route survives projection`);
   // Trending keeps the ten-day horizon. Test each event near its own date.
