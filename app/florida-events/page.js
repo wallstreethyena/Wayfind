@@ -12,6 +12,7 @@ import CardPhoto from "../components/CardPhoto.js";
 import CommerceClickBeacon from "../components/CommerceClickBeacon";
 import { SITE_URL } from "../../lib/site";
 import { eventVenueImageSrc } from "../../lib/eventPageImage.js";
+import { eventStaticCover } from "../../lib/christmasPlacePhotos.js";
 import { pageShareUrl } from "../../lib/pageShareUrl";
 import { isSsgBuild } from "../../lib/landingInventory";
 import { unstable_noStore as noStore } from "next/cache";
@@ -29,7 +30,7 @@ export const revalidate = 3600;
 // Packed + scrubbed (lib/curatedEventsCache.js): the raw row list passed
 // Next's 2 MB data-cache limit, so the hourly refresh never saved and one old
 // entry was served for good. New key retires that pinned entry.
-const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v2"]);
+const fetchHubEvents = cachedCuratedEventList("fetchHubEvents", ["florida-events-hub-packed-v3-holiday-discovery"]);
 
 const TITLE = "Florida Events 2026: What's Actually Worth Going To";
 const DESC = "Verified Florida festival dates, checked against official sources: Halloween Horror Nights, Fantasy Fest, Hulaween, EDC, Gasparilla.";
@@ -46,7 +47,7 @@ export const metadata = {
 // The same picture the event's own page and Fall rail card show: the stored
 // hero, else the venue's own photo by exact place_id (lib/eventPageImage.js).
 function cardImage(e) {
-  return e.hero_image || eventVenueImageSrc(e) || "";
+  return eventStaticCover(e) || e.hero_image || eventVenueImageSrc(e) || "";
 }
 
 const S = {

@@ -52,6 +52,12 @@ ok(!/(?:export const)\s+CULTURE\s*=/.test(culture),
   "lib/culture.js must not declare CULTURE — that object is cultureCorpus.js so the homepage client does not ship every metro card");
 ok(/(?:export const)\s+CULTURE_TITLES\s*=/.test(culture),
   "lib/culture.js declares CULTURE_TITLES — the only culture field AreaInsight reads on the client");
+ok(!/from\s*["']\.\/cultureNotes\.js["']/.test(culture),
+  "lib/culture.js must not import or re-export cultureNotes — a re-export rides the homepage client import and puts the notes back on the ratchet");
+ok(/import\s*\(\s*["'][^"']*cultureNotes\.js["']\s*\)/.test(home),
+  "app/home.js defers culture notes with import(), so the prose is not in the first homepage graph");
+ok(!/from\s*["'][^"']*cultureNotes(?:\.js)?["']/.test(home),
+  "app/home.js must not statically import cultureNotes");
 
 if (fail.length) {
   console.error("check-build-lifecycle: FAIL — " + fail.join("; "));

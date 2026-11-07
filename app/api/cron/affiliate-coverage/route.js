@@ -38,7 +38,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 import { createClient } from "@supabase/supabase-js";
-import { eventAffiliateCoverage, COVERAGE } from "../../../../lib/affiliateLibrary.js";
+import { eventAffiliateCoverage, COVERAGE, affiliateCoverageCandidates } from "../../../../lib/affiliateLibrary.js";
+import { mergeChristmasResearch } from "../../../../lib/christmasResearch.js";
 import { recordPulse } from "../../../../lib/jobPulse.js";
 import { jobCannotRun, jobFailed } from "../../../../lib/jobFail.js";
 import { siteTodayStr } from "../../../../lib/siteTime.js";
@@ -97,8 +98,10 @@ export async function GET(req) {
     .limit(5000);
   if (error) return jobFailed(JOB, "wf_events read failed: " + String(error.message || error).slice(0, 120));
 
-  const rows = Array.isArray(data) ? data : [];
-  const tally = tallyCoverage(rows);
+  if (!Array.isArray(data)) return jobFailed(JOB, "wf_events coverage read returned a malformed census");
+  if (data.length >= 5000) return jobFailed(JOB, "wf_events coverage read reached its 5000-row cap; incomplete census");
+  const rows = affiliateCoverageCandidates(mergeChristmasResearch(data), today);
+  const tally = tallyCoverage(rows, { today });
   const pulseRow = coveragePulseRow(tally);
   const pulsed = await recordPulse(JOB, pulseRow);
 
