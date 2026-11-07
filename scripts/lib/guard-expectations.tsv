@@ -942,7 +942,7 @@ scripts/test-poster-json.mjs	0	CALL	blocks-ci-and-deploy	1	-	36	0	0	fdde8d17ee26
 scripts/test-poster-performance.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	16a1bb6fe762b6eb0b792b5d193d40e9e1415267923a0ac743426eb82da02b5f
 scripts/test-poster-pool-parallel.mjs	0	RENDER	blocks-ci-and-deploy	1	-	27	0	0	abfc3ebbd7b4a8b1cabab27faafa58d999d4e34409d825abf6fdb9d5d826f189
 scripts/test-poster-recovery.mjs	0	CALL	blocks-ci-and-deploy	1	-	37	0	0	e09b852a9b3589f74c4cde20e53c470dcc9f7a0ad1f2bf6173ca408b61891c83
-scripts/test-posthog-timeout-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	15	0	0	25abc3d373f3f14849691559dacda94bf901b05e950de7edaad11011c02cacf8
+scripts/test-posthog-timeout-retry.mjs	0	CALL	blocks-ci-and-deploy	1	-	28	0	0	dcbd93054dc45c2404fd5141d1af648aa8a488955f78bbf9ee0eb31a27571aa6
 scripts/test-price.mjs	0	CALL	blocks-ci-and-deploy	1	-	19	0	0	f383792345d3a5c88cf0fe6729d8fe0a3adae15c1a68e7224b1cced23c927d7b
 scripts/test-privileged-rpc-contract.mjs	0	CALL	blocks-ci-and-deploy	1	-	10	0	0	9a0dfa88b7d2cd22d5958e8d5a7768d0f9ffa3389ddc986ea760f383734ffa01
 scripts/test-prominence.mjs	0	CALL	blocks-ci-and-deploy	1	-	43	0	0	3cd01c672c24f10ec374cbfc6af7a74cd99b65e0d8ef59c78868c9dd9bd16836
