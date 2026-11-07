@@ -39,7 +39,7 @@ import { cuisineMetroFor } from "../lib/cuisine";
 // v6.15: the ONE shared place classifier (labels + the junk gate now agree).
 import { primaryCategory, catOfType } from "../lib/placeCategory";
 import { deviceId } from "../lib/deviceId";
-import { analyticsSuppressionReason, captureOrQueue } from "../lib/browserAnalytics";
+import { analyticsSuppressionReason, captureOrQueue, safePagePath } from "../lib/browserAnalytics";
 import { markIntroSeen } from "../lib/introGate";
 import { isNative, nativeAppleCredential, nativeOAuthSignIn } from "../lib/native";
 import { noteHighPointAndMaybeAsk } from "../lib/appRating";
@@ -1021,6 +1021,32 @@ function withMemberSignal(list, sig) {
 // already carry a memoised sort key; restamp so the rank follows the chip.
 function withSignalFields(row, next) {
   return restampGoverned(row, { ...row, wfScore: next.wfScore, _members: next._members, _wfScoreRaw: next._wfScoreRaw });
+}
+// Photo recovery can also return live hours. Those affect ranking, unlike the
+// image itself. Compare values so an equivalent hours response is not a refresh.
+function sameHealedHours(a, b) {
+  return a.openNow === b.openNow && a.utcOffset === b.utcOffset
+    && a.hoursAsOf === b.hoursAsOf && JSON.stringify(a.oh) === JSON.stringify(b.oh);
+}
+function mergeBrowseEnrichment(rows, source, patch) {
+  let changed = false;
+  const next = rows.map((row) => {
+    if (!row || row.id !== source.id || row.lat !== source.lat || row.lng !== source.lng
+      || !sameHealedHours(row, source) || sameHealedHours(row, patch)
+      || (Number.isFinite(row.hoursAsOf) && Number.isFinite(patch.hoursAsOf) && patch.hoursAsOf < row.hoursAsOf)) return row;
+    changed = true;
+    // Merge only the recovery fields into the CURRENT row: a concurrent like,
+    // score update or distance correction must survive the delayed response.
+    const image = !row.photo || row.photo === source.photo || row.photo === patch.photo ? patch : row;
+    const enriched = { ...row, photo: image.photo, photos: image.photos, photoAttr: image.photoAttr,
+      oh: patch.oh, openNow: patch.openNow, utcOffset: patch.utcOffset, hoursAsOf: patch.hoursAsOf };
+    // byTopRated uses this private fingerprint to refresh its cached score
+    // when a later trend signal arrives. A spread alone drops the descriptor.
+    const fingerprint = Object.getOwnPropertyDescriptor(row, "__gsInputs");
+    if (fingerprint) Object.defineProperty(enriched, "__gsInputs", fingerprint);
+    return enriched;
+  });
+  return changed ? next : rows;
 }
 // v4.95: the old mapsRouteUrl (Google-Maps directions to ALL places at once)
 // is gone by product direction — a list's map icon opens Wayfind's own map.
@@ -6640,6 +6666,11 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   useEffect(() => {
     if (typeof window === "undefined" || window._wfVitals) return;
     window._wfVitals = true;
+    // Identify the page lifecycle and exact shipped code without changing the
+    // existing event population, sampling, consent or measurement history.
+    const vitalsPageRoute = safePagePath(window.location.pathname);
+    const vitalsPageStartedAt = Number.isFinite(window.performance?.timeOrigin)
+      ? new Date(window.performance.timeOrigin).toISOString() : null;
     import("web-vitals/attribution").then(({ onLCP, onCLS, onINP, onTTFB, onFCP }) => {
       // The ATTRIBUTION build. Same metrics, same event name, same base
       // properties as before (the command-center panel keeps reading them) —
@@ -6655,7 +6686,9 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
         try {
           const ctx = window.__WF_CTX || {};
           const a = m.attribution || {};
-          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID };
+          const props = { metric: m.name, value: Math.round(m.name === "CLS" ? m.value * 1000 : m.value), rating: m.rating, route: window.location.pathname, device: window.innerWidth < 768 ? "mobile" : "desktop", loc_permission: ctx.locPermission || "unknown", signed_in: !!ctx.signedIn, build: BUILD_ID,
+            release: process.env.NEXT_PUBLIC_WF_BUILD || null, metric_id: str(m.id, 100),
+            page_route: vitalsPageRoute, page_started_at: vitalsPageStartedAt };
           if (m.name === "LCP") {
             // the four sub-parts sum to LCP — they say whether to fix the server,
             // the discovery of the image, its download, or the render that follows.
@@ -9748,6 +9781,17 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // Re-ranking its unchanged inventory synchronously on every such update
   // blocks the tap. Reuse the browse result until an actual ranking input
   // changes; keep time-sensitive meal/weather rules fresh on the next render.
+  // A recovery begun in another search must not update this browse inventory.
+  const browseEnrichmentScope = [cat, sub, vibe, center?.lat, center?.lng, searchMode].join("|");
+  const browseEnrichmentScopeRef = useRef(browseEnrichmentScope);
+  browseEnrichmentScopeRef.current = browseEnrichmentScope;
+  const onBrowsePlaceEnriched = (source, patch) => {
+    setPlaces((current) => browseEnrichmentScopeRef.current === browseEnrichmentScope
+      ? mergeBrowseEnrichment(current, source, patch) : current);
+  };
+  // The async trend decorator mutates existing rows. Its completion is a real
+  // ranking input even when the places array and current minute are unchanged.
+  const [trendTick, setTrendTick] = useState(0);
   const browseMinute = Math.floor(Date.now() / 60000);
   const view = useMemo(() => {
     const _viewCtx = condCtxFromNow(nowContext({ weather }));
@@ -9791,7 +9835,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
     // longer look like a broken page.
     const view = viewBase.filter(cardComplete);
     return view;
-  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute]);
+  }, [places, cat, sub, sliderMi, dealsOnly, offers, searchMode, sortBy, weather, browseMinute, trendTick]);
   // 2026-10-06 (richer cards): ask /api/known-for for the cards the user can actually
   // SEE first. loadBlurbs only ever requested the first 40 ids of the UNSORTED fetch
   // order, so the top-ranked rows often got no why line. Keyed on the sorted ids.
@@ -9885,21 +9929,22 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
   // it, displayedWfScore shows it (shown == sorted), and the card renders the
   // 🔥 reason. The tick only forces that re-render once decoration lands;
   // everything fails soft to "nothing trends".
-  const [, setTrendTick] = useState(0);
-  const _trendIdsKey = (places || []).slice(0, 150).map((p) => p && p.id).join(",");
+  // Same IDs can have new row objects after hours/member enrichment. Decorate
+  // those current objects, and cancel the completion of any abandoned pool.
+  const _trendEvents = foryouEvents && foryouEvents.length ? foryouEvents : events;
   useEffect(() => {
     const pool = (places || []).slice(0, 150).filter((p) => p && p.id);
     if (!pool.length) return;
     let dead = false;
     (async () => {
       try {
-        await attachTrendSignals(pool, { events: (foryouEvents && foryouEvents.length ? foryouEvents : events) || [] });
+        await attachTrendSignals(pool, { events: _trendEvents || [] });
         if (!dead) setTrendTick((t) => t + 1);
       } catch (e) {}
     })();
     return () => { dead = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [_trendIdsKey]);
+  }, [places, _trendEvents]);
 
   // v6.57: one batched read of water quality + popularity for every beach
   // card currently on screen, instead of a fetch per card. Both signals are
@@ -10018,7 +10063,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       )}
       <div className="wf-place-card-list">
       {restView.slice(0, 3).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
       {restView.length > 3 && hookCards.length > 0 && (
@@ -10034,7 +10079,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
       )}
       <div className="wf-place-card-list">
       {restView.slice(3, visibleCount).map((p, i) => (
-        <PlaceCard key={p.id} p={p} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 4} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
       ))}
       </div>
       {!loading && (restView.length > visibleCount || invMoreCanContinue) && (
@@ -11394,7 +11439,7 @@ function PageInner({ initialEvents = null, localEditGuides = null, thisWeekEvent
                     <>
                       <div className="wf-place-card-list">
                       {view.map((p, i) => (
-                        <PlaceCard key={p.id} p={p} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
+                        <PlaceCard key={p.id} p={p} onPlaceEnriched={onBrowsePlaceEnriched} rank={i + 1} saved={isSaved(p.id)} liked={!!liked[p.id]} disliked={!!disliked[p.id]} onDetail={() => openDetail(p)} onSave={() => quickSaveFavorite(p)} onLike={(e) => toggleLike(e, p)} onDislike={(e) => toggleDislike(e, p)} onShareCard={(pl) => { try { addShared(pl); giveawayMark(pl.id); } catch (e) {} }} line={blurbs[p.id]} onBadge={openExperience} onCuisineTap={openCuisine} beachSignal={beachSignals[p.id]} city={cityNow} />
                       ))}
                       </div>
                       {/* 2026-09-23 (fix round, item 1) — a capped first page is only
@@ -12350,7 +12395,7 @@ function UTDealsRail({ category, onSave, lat, lng, onLog = NOLOG }) {
 // (gated on Aff.isTicketyPlace so it only appears on ticketed venues, never free
 // parks/beaches). The /go route still upgrades to the exact product at click time when
 // one clears the geo-gated resolver; otherwise it's an honest Viator search.
-function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city }) {
+function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, onDislike, onShareCard, line, onBadge, selectedBadge, onCuisineTap, beachSignal, city, onPlaceEnriched }) {
   const siteDay = useSiteToday(); // re-renders at midnight Eastern so the season skin flips without a reload
   // v6.86: vision-scored, people-free card photo — must run BEFORE the
   // cardComplete early return below (rules of hooks: this hook must run on
@@ -12380,15 +12425,28 @@ function PlaceCard({ p, rank, saved, liked, disliked, onDetail, onSave, onLike, 
   useEffect(() => {
     if (!p || p.photo || !/^(fsq|osm|ridb|nps):/.test(String(p.id || "")) || p._noPhoto) return;
     let c = false;
+    const source = { ...p };
     findPlace(p.name, { lat: p.lat, lng: p.lng }).then((g) => {
       const ok = g && g.photo && (_wfNorm(g.name).includes(_wfNorm(p.name)) || _wfNorm(p.name).includes(_wfNorm(g.name)));
       if (c) return;
-      if (ok) { p.photo = g.photo; p.photos = g.photos || []; p.photoAttr = g.photoAttr || ""; if (g.oh) { p.oh = g.oh; p.openNow = g.openNow; p.utcOffset = g.utcOffset; if (g.hoursAsOf != null) p.hoursAsOf = g.hoursAsOf; /* v6.34: the freshness stamp travels with the bundle */ } _photoBump((x) => x + 1); }
+      if (ok) {
+        const patch = { photo: g.photo, photos: g.photos || [], photoAttr: g.photoAttr || "" };
+        // Photos do not affect ranking and keep their existing local update.
+        if (!p.photo || p.photo === source.photo) Object.assign(p, patch);
+        if (g.oh) {
+          const hours = { oh: g.oh, openNow: g.openNow, utcOffset: g.utcOffset,
+            hoursAsOf: g.hoursAsOf != null ? g.hoursAsOf : source.hoursAsOf };
+          if (onPlaceEnriched) {
+            if (!sameHealedHours(source, hours)) onPlaceEnriched(source, { ...patch, ...hours });
+          } else Object.assign(p, hours); // Other card surfaces retain their own update path.
+        }
+        _photoBump((x) => x + 1);
+      }
       else p._noPhoto = true; // remember the miss so we never refetch
     }).catch(() => {});
     return () => { c = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [p && p.id]);
+  }, [p && p.id, p && p.lat, p && p.lng]);
   const cardProduct = usePlaceProduct(p && p.id);
   const tapIntent = useCardTapIntent();
   // THE GATE COMES LAST. Every hook above runs on every render; `cardComplete`
