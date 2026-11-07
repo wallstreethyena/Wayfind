@@ -2518,3 +2518,4 @@ node scripts/test-licensed-event-covers.mjs
 node scripts/test-google-daily-quota-breaker.mjs
 
 node scripts/check-homepage-events-deadline.mjs
+node scripts/test-holiday-discovery-2026-11-06.mjs

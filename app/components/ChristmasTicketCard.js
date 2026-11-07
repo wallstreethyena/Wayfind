@@ -4,6 +4,7 @@ import { useState } from "react";
 import GuidePhoto from "./GuidePhoto.js";
 import PhotoCreditLink from "./PhotoCreditLink.js";
 import { emitCommerce } from "../../lib/commerce.js";
+import { secondaryTicketPrimaryMatches } from "../../lib/secondaryTicketPrimary.js";
 
 // THE one Christmas card on /christmas-in-florida (owner direction 2026-11-01:
 // "I like the one from image 1 better but add the background similar to image
@@ -191,7 +192,7 @@ export function TicketCard({ row, chrome, priority = false, idPrefix = "xm-", he
                 onClick={affiliate ? undefined : () => organizerTap(row)}
               >{cta.label}</a>
               <p className="xm-via">{cta.via}</p>
-              {secondaryCta && cta.kind === "organizer" ? (
+              {secondaryTicketPrimaryMatches(cta, secondaryCta) ? (
                 <p className="xm-via" data-secondary-resale="">
                   <a href={secondaryCta.href} target="_blank" rel="sponsored nofollow noopener">
                     {secondaryCta.label} at TicketSmarter
