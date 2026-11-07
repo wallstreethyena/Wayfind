@@ -27,7 +27,9 @@ try {
     writeFileSync(path.join(dir, 'scripts/migration-historical-exceptions.json'), JSON.stringify(pins));
     writeFileSync(path.join(dir, 'scripts/migration-pending-apply.json'), JSON.stringify(pending));
     writeFileSync(path.join(dir, 'scripts/migration-content-baseline.json'), JSON.stringify(baseline));
-    writeFileSync(preload, `globalThis.fetch = async url => ({ok:true,json:async()=>String(url).endsWith('/wf_migration_ledger_hashes')?${JSON.stringify(rows)}:[]});`);
+    // PostgREST-shaped: the rpc URL carries ?order=..., and every response
+    // states its exact count in Content-Range (the check fails closed without it).
+    writeFileSync(preload, `globalThis.fetch = async url => { const body = String(url).includes('/rpc/wf_migration_ledger_hashes') ? ${JSON.stringify(rows)} : []; return {ok:true,status:200,json:async()=>body,headers:{get:h=>h.toLowerCase()==='content-range'?(body.length?'0-'+(body.length-1):'*')+'/'+body.length:null}}; };`);
     const r = spawnSync(process.execPath, ['--import', preload, path.join(dir, 'scripts/check-migration-reconciliation.mjs')], {
       encoding: 'utf8', env: { SUPABASE_URL: 'https://fixture.invalid', SUPABASE_SERVICE_ROLE_KEY: 'fixture-only' },
     });

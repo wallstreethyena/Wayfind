@@ -24,8 +24,8 @@
 .photoStory strong { font-family:var(--wf-display); font-size:29px; font-weight:500; line-height:1.2; }
 .photoStory>span:last-child { font-size:12px; }
 .heroFigure figcaption,.coastFigure figcaption { font-size:10px; color:var(--fl-muted); padding-top:10px; line-height:1.6; }
-.credit { opacity:.9; }
-.credit a { text-decoration:underline; text-underline-offset:2px; }
+.media .credit { position:absolute; left:6px; right:8px; bottom:6px; z-index:2; margin:0; color:rgba(255,255,255,.6); font-size:9.5px; font-weight:500; line-height:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 2px rgba(0,0,0,.65); opacity:1; }
+.media .credit a { color:inherit; text-decoration:none; }
 .interests { display:grid; grid-template-columns:repeat(6,1fr); border-block:1px solid var(--fl-line); }
 .interests a { padding:23px 16px; display:flex; flex-direction:column; gap:5px; min-width:0; }
 .interests a+a { border-left:1px solid var(--fl-line); }
@@ -182,10 +182,10 @@
   .interests a:hover,.interests a:focus-visible { background:#30231d; border-color:var(--fl-orange); text-decoration:none; }
 }
 
-.photoCaption { position:absolute; z-index:1; inset:auto 0 0; padding:24px 12px 10px; background:linear-gradient(transparent,rgba(4,12,18,.9) 45%); color:#f5f3ec; font-size:10px; line-height:1.5; }
-.photoCaption a { color:inherit; text-decoration:underline; text-underline-offset:2px; }
+.photoCaption { position:absolute; z-index:1; left:6px; right:8px; bottom:6px; padding:0; background:transparent; color:rgba(255,255,255,.6); font-size:9.5px; font-weight:500; line-height:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 2px rgba(0,0,0,.65); }
+.photoCaption a { color:inherit; text-decoration:none; }
 .rentalPhoto,.coastFigure { position:relative; }
-.rentalPhoto figcaption,.coastFigure figcaption { position:absolute; inset:auto 0 0; padding:24px 12px 10px; border-radius:0 0 12px 12px; background:linear-gradient(transparent,rgba(4,12,18,.9) 45%); color:#f5f3ec; }
+.rentalPhoto figcaption,.coastFigure figcaption { position:absolute; left:6px; right:8px; bottom:6px; padding:0; border-radius:0; background:transparent; color:rgba(255,255,255,.6); font-size:9.5px; font-weight:500; line-height:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 2px rgba(0,0,0,.65); }
 
 @media(max-width:700px) {
   .section[data-location-selected="false"] { padding-bottom:20px; }

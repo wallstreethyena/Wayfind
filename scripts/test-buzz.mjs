@@ -92,7 +92,17 @@ const home = readFileSync(new URL("../app/home.js", import.meta.url), "utf8");
     // away while the copy still claims a spike, this fails again.
     const gatesOnSpike = /pick: \(p(?:, ctx)?\) => !!p\.trending/.test(cfg);
     const dpr = readFileSync("app/components/DaypartRail.js", "utf8");
-    const trendsLeadTheDrop = /selRail\.id === "trending" \? \(\s*<ExplodingNearby/.test(dpr.replace(/\/\*[\s\S]*?\*\//g, ""));
+    // v31 RE-POINT (owner, 2026-11-05: "the one we have now is outdated and
+    // no longer the trend"). The drop is now TrendingRails (five shelves).
+    // Backing (2) moves with it and is asserted, not assumed: the drop mounts
+    // TrendingRails, and the event half of every shelf admits a happening only
+    // with trend evidence — the scout's verified `wf-trending` tag or a
+    // measured demand signal at the TRENDING_EVENT_MIN_SIGNAL floor.
+    const dprCode = dpr.replace(/\/\*[\s\S]*?\*\//g, "");
+    const posterSrc = readFileSync("lib/posterEvents.js", "utf8");
+    const trendsLeadTheDrop = /selRail\.id === "trending" \? \(\s*<TrendingRails[\s/>]/.test(dprCode)
+      && /isScoutTrending\(event\.tags\)/.test(posterSrc)
+      && /eventPopularitySignal\(event\)[\s\S]{0,60}>= TRENDING_EVENT_MIN_SIGNAL/.test(posterSrc);
     const railsSrc = readFileSync("lib/rails.js", "utf8");
     const railRow = (railsSrc.match(/\{ id: "trending",[\s\S]*?\},/) || [""])[0];
     const SPIKE_WORDS = /exploding|spiking|spike|trending now|everyone'?s searching|blowing up/i;
