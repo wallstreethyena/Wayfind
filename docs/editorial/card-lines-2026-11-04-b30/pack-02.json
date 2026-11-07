@@ -1,0 +1,596 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 30. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJIXdIu9PDwogRwhs_pBFr3ZU",
+   "name": "Altitude Trampoline Park Tampa",
+   "category": "attractions",
+   "metro": "tampa",
+   "primary_type": "amusement_center",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/",
+     "source_name": "Altitude Trampoline Park Tampa \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Altitude offers gravity-defying trampolines, epic air bags, and awesome party packages",
+      "From dodgeball to battle beam, digital experiences and more, there is a type of play at Altitude",
+      "Altitude Trampoline Park Tampa is located at 4340 West Hillsborough Ave, Tampa, Florida 33614",
+      "Altitude Tampa hours include Monday from 10:00 a.m. to 10:00 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Trampolines, air bags, dodgeball and battle beam in Tampa",
+    "why_here": "Jump on gravity-defying trampolines, land in air bags, and choose play from dodgeball to battle beam and digital experiences, with party packages also offered at Altitude in Tampa.",
+    "know_before": "Altitude Tampa hours include Monday from 10:00 a.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     ],
+     "why_here": [
+      "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     ],
+     "know_before": [
+      "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Altitude offers gravity-defying trampolines, epic air bags, and awesome party packages",
+      "source": "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     },
+     {
+      "claim": "From dodgeball to battle beam, digital experiences and more, there is a type of play at Altitude",
+      "source": "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     },
+     {
+      "claim": "Altitude Trampoline Park Tampa is located at 4340 West Hillsborough Ave, Tampa, Florida 33614",
+      "source": "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     },
+     {
+      "claim": "Altitude Tampa hours include Monday from 10:00 a.m. to 10:00 p.m.",
+      "source": "https://www.altitudetrampolinepark.com/locations/florida/tampa/4340-west-hillsborough-ave/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ_wd25AMD2YgR3Zc7j50d0qo",
+   "name": "Sky Zone Fort Lauderdale",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "amusement_park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.skyzone.com/fortlauderdale/attractions/",
+     "source_name": "Sky Zone Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Sky Zone attractions include Freestyle Jump, SkySlam, Ultimate Dodgeball and Foam Zone",
+      "Sky Zone attractions include Toddler Zone, Air Court, Mega Launch and Grand Prix",
+      "Sky Zone is a trampoline park"
+     ]
+    },
+    {
+     "source": "https://www.skyzone.com/fortlauderdale/programs/little-leapers/",
+     "source_name": "Sky Zone Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Little Leapers is on Sunday mornings from 9:00 a.m. to 11:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Freestyle Jump, SkySlam, Ultimate Dodgeball and Foam Zone",
+    "why_here": "Jump, spin and flip through attractions including Freestyle Jump, SkySlam, Ultimate Dodgeball, Foam Zone, Toddler Zone, Air Court, Mega Launch and Grand Prix at this trampoline park.",
+    "know_before": "Little Leapers is on Sunday mornings from 9:00 a.m. to 11:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.skyzone.com/fortlauderdale/attractions/",
+      "https://www.skyzone.com/fortlauderdale/programs/little-leapers/"
+     ],
+     "why_here": [
+      "https://www.skyzone.com/fortlauderdale/attractions/",
+      "https://www.skyzone.com/fortlauderdale/programs/little-leapers/"
+     ],
+     "know_before": [
+      "https://www.skyzone.com/fortlauderdale/attractions/",
+      "https://www.skyzone.com/fortlauderdale/programs/little-leapers/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Sky Zone attractions include Freestyle Jump, SkySlam, Ultimate Dodgeball and Foam Zone",
+      "source": "https://www.skyzone.com/fortlauderdale/attractions/"
+     },
+     {
+      "claim": "Sky Zone attractions include Toddler Zone, Air Court, Mega Launch and Grand Prix",
+      "source": "https://www.skyzone.com/fortlauderdale/attractions/"
+     },
+     {
+      "claim": "Sky Zone is a trampoline park",
+      "source": "https://www.skyzone.com/fortlauderdale/attractions/"
+     },
+     {
+      "claim": "Little Leapers is on Sunday mornings from 9:00 a.m. to 11:00 a.m.",
+      "source": "https://www.skyzone.com/fortlauderdale/programs/little-leapers/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJOWpCGqb-wogRn4TFoVfSn9E",
+   "name": "DoubleTree Beach Resort by Hilton Hotel Tampa Bay - North Redington Beach",
+   "category": "hotels",
+   "metro": "florida",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/",
+     "source_name": "DoubleTree Beach Resort by Hilton Hotel Tampa Bay - North Redington Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Overlooking the Gulf of Mexico, the hotel sits on the shore of North Redington Beach between Clearwater Beach and St. Pete Beach",
+      "Enjoy cabanas and water sports on our semi-private beach and relax at our outdoor pool and Tiki bar",
+      "The hotel is a beachfront stay with Gulf of Mexico views"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront stay overlooking the Gulf of Mexico",
+    "why_here": "Stay on the shore of North Redington Beach between Clearwater Beach and St. Pete Beach, with cabanas and water sports on a semi-private beach plus an outdoor pool and Tiki bar.",
+    "know_before": "The semi-private beach has cabanas and water sports, with an outdoor pool and Tiki bar.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/"
+     ],
+     "why_here": [
+      "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/"
+     ],
+     "know_before": [
+      "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Overlooking the Gulf of Mexico, the hotel sits on the shore of North Redington Beach between Clearwater Beach and St. Pete Beach",
+      "source": "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/"
+     },
+     {
+      "claim": "Enjoy cabanas and water sports on our semi-private beach and relax at our outdoor pool and Tiki bar",
+      "source": "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/"
+     },
+     {
+      "claim": "The hotel is a beachfront stay with Gulf of Mexico views",
+      "source": "https://www.hilton.com/en/hotels/nornhdt-doubletree-beach-resort-tampa-bay-north-redington-beach/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJP7Zy8Sm32YgRft46Ry2v194",
+   "name": "MAYU",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "peruvian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://mayumiami.com/menu",
+     "source_name": "MAYU \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "MAYU's online menu is presented as Peruvian food in Miami",
+      "The menu has a Ceviches & Rawbar section",
+      "Ceviche Classico is the signature Ceviche de corvina with leche de tigre and fresh lime",
+      "Ceviche Classico is accompanied with sweet potato, choclo, and cancha"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian food in Miami centered on Ceviches & Rawbar",
+    "why_here": "Go to try Ceviche Classico, the signature Ceviche de corvina with leche de tigre and fresh lime, accompanied with sweet potato, choclo, and cancha on the Peruvian menu.",
+    "know_before": "Ceviche Classico is accompanied with sweet potato, choclo, and cancha.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://mayumiami.com/menu"
+     ],
+     "why_here": [
+      "https://mayumiami.com/menu"
+     ],
+     "know_before": [
+      "https://mayumiami.com/menu"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "MAYU's online menu is presented as Peruvian food in Miami",
+      "source": "https://mayumiami.com/menu"
+     },
+     {
+      "claim": "The menu has a Ceviches & Rawbar section",
+      "source": "https://mayumiami.com/menu"
+     },
+     {
+      "claim": "Ceviche Classico is the signature Ceviche de corvina with leche de tigre and fresh lime",
+      "source": "https://mayumiami.com/menu"
+     },
+     {
+      "claim": "Ceviche Classico is accompanied with sweet potato, choclo, and cancha",
+      "source": "https://mayumiami.com/menu"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv7BTO4-t2YgRqNxbUEldJjE",
+   "name": "Barra Callao",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://barracallao.com/",
+     "source_name": "Barra Callao \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Barra Callao is a Peruvian Nikkei chef counter in North Miami Beach, Florida",
+      "Barra Callao blends Japanese technique with Peruvian ingredients to create seasonally-driven dishes",
+      "Barra Callao has 12 seats at its counter",
+      "The menu lists the ceviche with fresh catch of the day, lime juice, and aj\u00ed limo",
+      "Barra Callao was recognized with Michelin Bib Gourmand 2026",
+      "Tuesday through Friday hours are 12:00 p.m. to 3:00 p.m. and 5:00 p.m. to 10:00 p.m., Saturday is 12:00 p.m. to 10:00 p.m., and Sunday and Monday are Closed"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Peruvian Nikkei chef counter with 12 seats in North Miami Beach",
+    "why_here": "Sit at a counter with 12 seats for dishes blending Japanese technique with Peruvian ingredients, including the ceviche with fresh catch of the day, lime juice, and aj\u00ed limo.",
+    "know_before": "Sunday and Monday are Closed; Tuesday through Friday includes 5:00 p.m. to 10:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://barracallao.com/"
+     ],
+     "why_here": [
+      "https://barracallao.com/"
+     ],
+     "know_before": [
+      "https://barracallao.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Barra Callao is a Peruvian Nikkei chef counter in North Miami Beach, Florida",
+      "source": "https://barracallao.com/"
+     },
+     {
+      "claim": "Barra Callao blends Japanese technique with Peruvian ingredients to create seasonally-driven dishes",
+      "source": "https://barracallao.com/"
+     },
+     {
+      "claim": "Barra Callao has 12 seats at its counter",
+      "source": "https://barracallao.com/"
+     },
+     {
+      "claim": "The menu lists the ceviche with fresh catch of the day, lime juice, and aj\u00ed limo",
+      "source": "https://barracallao.com/"
+     },
+     {
+      "claim": "Barra Callao was recognized with Michelin Bib Gourmand 2026",
+      "source": "https://barracallao.com/"
+     },
+     {
+      "claim": "Tuesday through Friday hours are 12:00 p.m. to 3:00 p.m. and 5:00 p.m. to 10:00 p.m., Saturday is 12:00 p.m. to 10:00 p.m., and Sunday and Monday are Closed",
+      "source": "https://barracallao.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR1A4y1Qf2YgRM5PCfH0qnn0",
+   "name": "Burt & Max's",
+   "category": "food",
+   "metro": "palm-beach",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://burtandmaxs.com/story",
+     "source_name": "Burt & Max's \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Burt & Max's opened at Delray Marketplace in February 2013",
+      "Burt & Max's is led by Executive Chef Luis Ortiz",
+      "The kitchen sources locally whenever possible and makes sauces and dressings from scratch",
+      "Burt & Max's has a kids menu and a dog menu",
+      "Favorites include burgers, brick-oven pizza, seafood and salads"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Delray Marketplace restaurant opened in February 2013",
+    "why_here": "Go for burgers, brick-oven pizza, seafood and salads from a kitchen led by Executive Chef Luis Ortiz that sources locally whenever possible and makes sauces and dressings from scratch.",
+    "know_before": "Burt & Max's has a kids menu and a dog menu.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://burtandmaxs.com/story"
+     ],
+     "why_here": [
+      "https://burtandmaxs.com/story"
+     ],
+     "know_before": [
+      "https://burtandmaxs.com/story"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Burt & Max's opened at Delray Marketplace in February 2013",
+      "source": "https://burtandmaxs.com/story"
+     },
+     {
+      "claim": "Burt & Max's is led by Executive Chef Luis Ortiz",
+      "source": "https://burtandmaxs.com/story"
+     },
+     {
+      "claim": "The kitchen sources locally whenever possible and makes sauces and dressings from scratch",
+      "source": "https://burtandmaxs.com/story"
+     },
+     {
+      "claim": "Burt & Max's has a kids menu and a dog menu",
+      "source": "https://burtandmaxs.com/story"
+     },
+     {
+      "claim": "Favorites include burgers, brick-oven pizza, seafood and salads",
+      "source": "https://burtandmaxs.com/story"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJF6oQdvat2YgR9Wz2Y7KyYDQ",
+   "name": "Amsterdam Night Club Hallandale",
+   "category": "nightlife",
+   "metro": "broward",
+   "primary_type": "night_club",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://amsterdamhallandale.com/",
+     "source_name": "Amsterdam Night Club Hallandale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Amsterdam is a night club in Hallandale Beach, Florida at 100 South Federal Highway, Hallandale Beach, FL 33009",
+      "Amsterdam offers Latin fare and hookah in casual, neon-lit surrounds with a lounge and sidewalk seats",
+      "Services include Food, Drinks and Hookah",
+      "Amsterdam lists DJ & Live Entertainment",
+      "Business Hours are Monday - Saturday 9:00 p.m. \u2013 6:00 a.m. and Sunday 3:00 p.m. \u2013 6:00 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Latin fare and hookah in neon-lit surrounds in Hallandale Beach",
+    "why_here": "Go for Latin fare and hookah with Food and Drinks, DJ & Live Entertainment, a lounge and sidewalk seats at a night club in Hallandale Beach, Florida.",
+    "know_before": "Amsterdam is at 100 South Federal Highway, Hallandale Beach, FL 33009.",
+    "local_tip": "Business Hours Monday - Saturday run 9:00 p.m. \u2013 6:00 a.m.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://amsterdamhallandale.com/"
+     ],
+     "why_here": [
+      "https://amsterdamhallandale.com/"
+     ],
+     "know_before": [
+      "https://amsterdamhallandale.com/"
+     ],
+     "local_tip": [
+      "https://amsterdamhallandale.com/"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Amsterdam is a night club in Hallandale Beach, Florida at 100 South Federal Highway, Hallandale Beach, FL 33009",
+      "source": "https://amsterdamhallandale.com/"
+     },
+     {
+      "claim": "Amsterdam offers Latin fare and hookah in casual, neon-lit surrounds with a lounge and sidewalk seats",
+      "source": "https://amsterdamhallandale.com/"
+     },
+     {
+      "claim": "Services include Food, Drinks and Hookah",
+      "source": "https://amsterdamhallandale.com/"
+     },
+     {
+      "claim": "Amsterdam lists DJ & Live Entertainment",
+      "source": "https://amsterdamhallandale.com/"
+     },
+     {
+      "claim": "Business Hours are Monday - Saturday 9:00 p.m. \u2013 6:00 a.m. and Sunday 3:00 p.m. \u2013 6:00 a.m.",
+      "source": "https://amsterdamhallandale.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJrRtWuMSi2YgRuAE54LmpSC4",
+   "name": "El Rancho Okeechobee",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60",
+     "source_name": "El Rancho Okeechobee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "El Rancho Okeechobee is at 17015 W Okeechobee Rd, Hialeah, FL",
+      "El Rancho Okeechobee opens at 11 a.m.",
+      "The drinks menu lists CAFE CUBANO (espresso)"
+     ]
+    },
+    {
+     "source": "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd",
+     "source_name": "El Rancho Okeechobee \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The food menu lists ROPA VIEJA DE RES (Shreded beef)",
+      "The food menu lists AJIACO DEL RANCHO (Cuban soup)",
+      "The menu lists TOSTONES RELLENOS (stuffed plantain) with ropa vieja"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban soup, ropa vieja and CAFE CUBANO in Hialeah",
+    "why_here": "Go for AJIACO DEL RANCHO (Cuban soup), ROPA VIEJA DE RES, and TOSTONES RELLENOS (stuffed plantain) with ropa vieja, then finish with CAFE CUBANO (espresso) in Hialeah.",
+    "know_before": "El Rancho Okeechobee is at 17015 W Okeechobee Rd, Hialeah, FL and opens at 11 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60",
+      "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd"
+     ],
+     "why_here": [
+      "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60",
+      "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd"
+     ],
+     "know_before": [
+      "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60",
+      "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "El Rancho Okeechobee is at 17015 W Okeechobee Rd, Hialeah, FL",
+      "source": "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60"
+     },
+     {
+      "claim": "El Rancho Okeechobee opens at 11 a.m.",
+      "source": "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60"
+     },
+     {
+      "claim": "The drinks menu lists CAFE CUBANO (espresso)",
+      "source": "https://elranchookeechobee.com/order/rancho-okeechobee-17015-w-okeechobee-rd/item-crema-de-queso_01f6df1f-79da-4792-9023-f331b37a5f60"
+     },
+     {
+      "claim": "The food menu lists ROPA VIEJA DE RES (Shreded beef)",
+      "source": "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd"
+     },
+     {
+      "claim": "The food menu lists AJIACO DEL RANCHO (Cuban soup)",
+      "source": "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd"
+     },
+     {
+      "claim": "The menu lists TOSTONES RELLENOS (stuffed plantain) with ropa vieja",
+      "source": "https://elranchookeechobee.com/menu/rancho-okeechobee-17015-w-okeechobee-rd"
+     }
+    ]
+   }
+  }
+ ]
+}
