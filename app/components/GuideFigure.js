@@ -80,33 +80,38 @@ export function guideFigureCaptionParts(media) {
   return { caption: full.replace(pattern, "").trim(), notice };
 }
 
-export function GuideFigureCredit({ image, as: As = "div", className }) {
+export function GuideFigureCredit({ image, as: As = "div", className, part = "all" }) {
   const media = guideFigureMedia(image);
   if (!media) return null;
   const license = compactGuideLicense(media.license);
   const caption = guideFigureCaptionParts(media);
   const genericGoogle = isNoSpendCachedMedia(media) && !media.credit;
-  const hasCaption = Boolean(caption.caption || caption.notice || media.credit || license || media.providerHref || genericGoogle);
-  if (!hasCaption) return null;
+  const hasCredit = Boolean(media.credit || license || media.providerHref || genericGoogle);
+  const hasWords = Boolean(caption.caption || caption.notice || hasCredit);
+  if (!hasWords) return null;
+  if (part === "caption" && !caption.caption && !caption.notice) return null;
+  if (part === "credit" && !hasCredit) return null;
   const creditHref = media.creditHref || (media.source !== "google" ? media.source : null) || null;
   const licenseHref = media.licenseUrl || media.licenseURL || media.license?.url || media.source || null;
+  const creditNode = hasCredit ? (
+    <span className={part === "credit" ? undefined : styles.creditText}>
+      {genericGoogle ? <>Photo: Google Maps</> : null}
+      {media.source === "google" && media.authors?.some((a) => a.name) ? <>{media.authors.filter((a) => a.name).map((a, i) => <span key={i}>{i ? ", " : "Photo: "}{/^https:\/\//.test(a.uri || "") ? <PhotoCreditLink href={a.uri}>{a.name}</PhotoCreditLink> : a.name}</span>)}</> : media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
+      {media.credit && license ? <span aria-hidden="true"> · </span> : null}
+      {license ? (licenseHref ? <PhotoCreditLink href={licenseHref}>{license}</PhotoCreditLink> : <>{license}</>) : null}
+      {media.providerHref ? <><span aria-hidden="true"> · </span><PhotoCreditLink href={media.providerHref}>Google Maps</PhotoCreditLink></> : null}
+    </span>
+  ) : null;
+  if (part === "credit") return <As className={className}>{creditNode}</As>;
   return (
     <As className={className}>
-      {caption.caption ? (
+      {part !== "credit" && caption.caption ? (
         <span className={styles.captionText}>
           {caption.caption}
         </span>
       ) : null}
-      {media.credit || license || media.providerHref || genericGoogle ? (
-        <span className={styles.creditText}>
-          {genericGoogle ? <>Photo: Google Maps</> : null}
-          {media.source === "google" && media.authors?.some((a) => a.name) ? <>{media.authors.filter((a) => a.name).map((a, i) => <span key={i}>{i ? ", " : "Photo: "}{/^https:\/\//.test(a.uri || "") ? <PhotoCreditLink href={a.uri}>{a.name}</PhotoCreditLink> : a.name}</span>)}</> : media.credit ? (creditHref ? <PhotoCreditLink href={creditHref}>Photo: {media.credit}</PhotoCreditLink> : <>Photo: {media.credit}</>) : null}
-          {media.credit && license ? <span aria-hidden="true"> · </span> : null}
-          {license ? (licenseHref ? <PhotoCreditLink href={licenseHref}>{license}</PhotoCreditLink> : <>{license}</>) : null}
-          {media.providerHref ? <><span aria-hidden="true"> · </span><PhotoCreditLink href={media.providerHref}>Google Maps</PhotoCreditLink></> : null}
-        </span>
-      ) : null}
-      {caption.notice ? (
+      {part === "all" ? creditNode : null}
+      {part !== "credit" && caption.notice ? (
         <details className={styles.photoDetails}>
           <summary>Photo details</summary>
           <p>{caption.notice}</p>
@@ -167,10 +172,14 @@ export default function GuideFigure({
           onFailure={onPhotoError}
           style={media.position ? { objectPosition: media.position } : undefined}
         />
+        {showCaption ? (
+          <GuideFigureCredit image={media} part="credit" as="div" className={styles.photoCredit} />
+        ) : null}
       </div>
       {showCaption ? (
         <GuideFigureCredit
           image={media}
+          part="caption"
           as="figcaption"
           className={[styles.caption, captionClassName].filter(Boolean).join(" ")}
         />

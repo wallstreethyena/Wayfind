@@ -197,7 +197,7 @@ function GuideCard({ slug, title, blurb, rank }) {
   if (!GUIDES[slug]) return null;
   const art = guideHero(slug);
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`}>
-    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} /></div><figcaption className={styles.cardCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : null}</figcaption></figure> : null}
+    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><LicensedPhoto {...art} sizes="(max-width:700px) 100vw, 400px" className={styles.offerImage} />{art.source ? <PhotoCredit art={art} /> : null}</div>{art.cardCaption || art.caption ? <figcaption className={styles.cardCaption}>{art.cardCaption || art.caption}</figcaption> : null}</figure> : null}
     <div className={styles.cardBody}>
     {rank ? <span className={styles.rank} aria-label={"Reader rank " + rank}>{String(rank).padStart(2, "0")}</span> : <span className={styles.editorialLabel}>The local guide</span>}
     <h3><a href={"/guides/" + slug}>{title}</a></h3>
@@ -251,7 +251,7 @@ function SearchIntentCard({ item }) {
   const art = floridaSearchPhoto(item);
   if (!href) return null;
   return <article className={styles.offerCard}>
-    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><GuidePhoto {...art} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={item.title} /></div><figcaption className={styles.cardCaption}>{art.cardCaption || art.caption} {art.source ? <PhotoCredit art={art} /> : art.credit}</figcaption></figure> : null}
+    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><GuidePhoto {...art} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={item.title} />{art.source ? <PhotoCredit art={art} /> : art.credit ? <span className={styles.credit}>{art.credit}</span> : null}</div>{art.cardCaption || art.caption ? <figcaption className={styles.cardCaption}>{art.cardCaption || art.caption}</figcaption> : null}</figure> : null}
     <div className={styles.cardBody}><p className={styles.meta}>{item.city}</p><h3>{item.title}</h3><p className={styles.cardBlurb}>{item.blurb}</p>
       <span className={styles.editorialLabel}>Compare tour options</span>
       <a className={styles.textLink} href={href} rel="sponsored noopener" target="_blank">{AVAILABILITY_CTA_LABEL}<span className={styles.srOnly}> for {item.title}, opens a new tab</span></a>
@@ -267,7 +267,7 @@ function BoatRentalChoices({ offers }) {
 function EventCard({ event, cta }) {
   const art = floridaEventPhoto(event);
   return <article className={`${styles.guideCard} ${styles.photoGuideCard}`} data-event-id={event.event_id}>
-    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><GuidePhoto {...art} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={event.event_name} /></div>{art.caption ? <figcaption className={styles.cardCaption}>{art.caption} {art.source ? <PhotoCredit art={art} /> : art.credit}</figcaption> : null}</figure> : null}
+    {art?.src ? <figure className={styles.cardFigure}><div className={styles.media}><GuidePhoto {...art} loading="lazy" className={styles.offerImage} fallbackClassName={styles.photoFallback} fallbackText={event.event_name} />{art.source ? <PhotoCredit art={art} /> : art.credit ? <span className={styles.credit}>{art.credit}</span> : null}</div>{art.caption ? <figcaption className={styles.cardCaption}>{art.caption}</figcaption> : null}</figure> : null}
     <div className={styles.cardBody}>
     <p className={styles.meta}>{dateRangeLabel(event)} · {event.city}</p>
     <h3>{event.event_name}</h3>
