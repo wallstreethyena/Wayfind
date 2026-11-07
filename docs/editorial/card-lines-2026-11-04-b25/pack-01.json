@@ -1,0 +1,1794 @@
+{
+ "schema_version": "owned-editorial-review-v1",
+ "researched_at": "2026-11-04",
+ "scope_note": "Card-pool editorial batch 25. Researched from official venue/DMO/government sources only; no paid APIs.",
+ "paid_provider_calls": 0,
+ "paid_provider_cost_usd": 0,
+ "candidates": [
+  {
+   "place_id": "ChIJrx5EmI7h2IgRO4wUwFiZH5c",
+   "name": "Red Reef Park",
+   "category": "attractions",
+   "metro": "palm-beach",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://myboca.us/2871/Red-Reef-Park-Beach",
+     "source_name": "Red Reef Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Red Reef Park Beach is located at 1400 N Ocean Blvd, Boca Raton, FL, 33432",
+      "Hours are 8 a.m. to 10 p.m.",
+      "Red Reef Park Beach features snorkeling pods",
+      "Red Reef Park Beach features a boardwalk",
+      "Red Reef Park Beach has parking spots (230)"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beach park with snorkeling pods and a boardwalk",
+    "why_here": "Go for snorkeling pods and a boardwalk at Red Reef Park Beach in Boca Raton, with beach access during hours from 8 a.m. to 10 p.m. for a daytime visit.",
+    "know_before": "Hours are 8 a.m. to 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://myboca.us/2871/Red-Reef-Park-Beach"
+     ],
+     "why_here": [
+      "https://myboca.us/2871/Red-Reef-Park-Beach"
+     ],
+     "know_before": [
+      "https://myboca.us/2871/Red-Reef-Park-Beach"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Red Reef Park Beach is located at 1400 N Ocean Blvd, Boca Raton, FL, 33432",
+      "source": "https://myboca.us/2871/Red-Reef-Park-Beach"
+     },
+     {
+      "claim": "Hours are 8 a.m. to 10 p.m.",
+      "source": "https://myboca.us/2871/Red-Reef-Park-Beach"
+     },
+     {
+      "claim": "Red Reef Park Beach features snorkeling pods",
+      "source": "https://myboca.us/2871/Red-Reef-Park-Beach"
+     },
+     {
+      "claim": "Red Reef Park Beach features a boardwalk",
+      "source": "https://myboca.us/2871/Red-Reef-Park-Beach"
+     },
+     {
+      "claim": "Red Reef Park Beach has parking spots (230)",
+      "source": "https://myboca.us/2871/Red-Reef-Park-Beach"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJq4wvoe632YgRSGxds7WerJg",
+   "name": "Yard House",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.yardhouse.com/",
+     "source_name": "Yard House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Yard House has over 100 drafts on tap",
+      "Yard House has a diverse menu inspired by California roots",
+      "Yard House has a passion for great beer, great food and great music"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Over 100 drafts on tap with a diverse menu",
+    "why_here": "Come for over 100 drafts on tap and a diverse menu inspired by California roots, with a passion for great beer, great food and great music on the menu side.",
+    "know_before": "Yard House has over 100 drafts on tap.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.yardhouse.com/"
+     ],
+     "why_here": [
+      "https://www.yardhouse.com/"
+     ],
+     "know_before": [
+      "https://www.yardhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Yard House has over 100 drafts on tap",
+      "source": "https://www.yardhouse.com/"
+     },
+     {
+      "claim": "Yard House has a diverse menu inspired by California roots",
+      "source": "https://www.yardhouse.com/"
+     },
+     {
+      "claim": "Yard House has a passion for great beer, great food and great music",
+      "source": "https://www.yardhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJm2X0V0FDkYgR089h4atdFq8",
+   "name": "Cafe Destin",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "breakfast_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://cafedestin.com/",
+     "source_name": "Cafe Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Cafe Destin is a full-service breakfast, brunch, and lunch cafe near the beach in Destin, Florida",
+      "Cafe Destin is open from 7:00 a.m. to 2:00 p.m.",
+      "Enjoy our breakfast, lunch, and espresso menu served all day long",
+      "Cafe Destin is at 985 Highway 98 E, Destin, FL"
+     ]
+    },
+    {
+     "source": "https://cafedestin.com/menu",
+     "source_name": "Cafe Destin \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The breakfast menu includes southern breakfast and Classic benedict"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Full-service breakfast, brunch, and lunch cafe near the beach in Destin, Florida",
+    "why_here": "Come for breakfast, brunch, and lunch near the beach in Destin, Florida, with an espresso menu served all day long and cafe classics including southern breakfast and Classic benedict on the menu.",
+    "know_before": "Cafe Destin is open from 7:00 a.m. to 2:00 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://cafedestin.com/",
+      "https://cafedestin.com/menu"
+     ],
+     "why_here": [
+      "https://cafedestin.com/",
+      "https://cafedestin.com/menu"
+     ],
+     "know_before": [
+      "https://cafedestin.com/",
+      "https://cafedestin.com/menu"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Cafe Destin is a full-service breakfast, brunch, and lunch cafe near the beach in Destin, Florida",
+      "source": "https://cafedestin.com/"
+     },
+     {
+      "claim": "Cafe Destin is open from 7:00 a.m. to 2:00 p.m.",
+      "source": "https://cafedestin.com/"
+     },
+     {
+      "claim": "Enjoy our breakfast, lunch, and espresso menu served all day long",
+      "source": "https://cafedestin.com/"
+     },
+     {
+      "claim": "The breakfast menu includes southern breakfast and Classic benedict",
+      "source": "https://cafedestin.com/menu"
+     },
+     {
+      "claim": "Cafe Destin is at 985 Highway 98 E, Destin, FL",
+      "source": "https://cafedestin.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJR8SMCwK72YgR1v0V7WYGm_s",
+   "name": "Days Inn by Wyndham Miami Airport North",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview",
+     "source_name": "Days Inn by Wyndham Miami Airport North \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Days Inn by Wyndham Miami Airport North is at 4767 Northwest 36th Street, Miami, Florida 33166, United States",
+      "Take advantage of our free cruise port shuttle and free airport shuttle to Miami International Airport (MIA)",
+      "The hotel offers free parking for cars and SUVs for registered guests"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Hotel at 4767 Northwest 36th Street with a free airport shuttle to Miami International Airport (MIA)",
+    "why_here": "Stay for a free airport shuttle to Miami International Airport (MIA), a free cruise port shuttle, and free parking at 4767 Northwest 36th Street, Miami, Florida 33166, United States.",
+    "know_before": "The hotel offers free parking for cars and SUVs for registered guests",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview"
+     ],
+     "why_here": [
+      "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview"
+     ],
+     "know_before": [
+      "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Days Inn by Wyndham Miami Airport North is at 4767 Northwest 36th Street, Miami, Florida 33166, United States",
+      "source": "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview"
+     },
+     {
+      "claim": "Take advantage of our free cruise port shuttle and free airport shuttle to Miami International Airport (MIA)",
+      "source": "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview"
+     },
+     {
+      "claim": "The hotel offers free parking for cars and SUVs for registered guests",
+      "source": "https://www.wyndhamhotels.com/days-inn/miami-florida/days-inn-miami-airport-north/overview"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvdjk1YBw3YgRCeT7e0Yq2-M",
+   "name": "DAVENPORT'S SPORTS BAR & GRILL",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://davenportsportsbarandgrill.com/",
+     "source_name": "DAVENPORT'S SPORTS BAR & GRILL \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Davenport's Sports Bar & Grill is at 1260 Posner Blvd, Davenport, FL 33837",
+      "Hours are Sunday - Thursday: 11:00 a.m. - 12:00 a.m.",
+      "Hours are Friday - Saturday: 11:00 a.m. - 2:00 a.m.",
+      "Davenport's Sports Bar & Grill has over 40 TVs and a full liquor bar",
+      "Davenport's Sports Bar & Grill has a large outside patio"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sports bar with over 40 TVs and a full liquor bar",
+    "why_here": "Go for over 40 TVs and a full liquor bar at Davenport's Sports Bar & Grill in Davenport, with a large outside patio and service on Friday to 2:00 a.m.",
+    "know_before": "Hours are Friday - Saturday: 11:00 a.m. - 2:00 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://davenportsportsbarandgrill.com/"
+     ],
+     "why_here": [
+      "https://davenportsportsbarandgrill.com/"
+     ],
+     "know_before": [
+      "https://davenportsportsbarandgrill.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Davenport's Sports Bar & Grill is at 1260 Posner Blvd, Davenport, FL 33837",
+      "source": "https://davenportsportsbarandgrill.com/"
+     },
+     {
+      "claim": "Hours are Sunday - Thursday: 11:00 a.m. - 12:00 a.m.",
+      "source": "https://davenportsportsbarandgrill.com/"
+     },
+     {
+      "claim": "Hours are Friday - Saturday: 11:00 a.m. - 2:00 a.m.",
+      "source": "https://davenportsportsbarandgrill.com/"
+     },
+     {
+      "claim": "Davenport's Sports Bar & Grill has over 40 TVs and a full liquor bar",
+      "source": "https://davenportsportsbarandgrill.com/"
+     },
+     {
+      "claim": "Davenport's Sports Bar & Grill has a large outside patio",
+      "source": "https://davenportsportsbarandgrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJV75h9OzE54gRKeAFTsHmIzk",
+   "name": "Culver\u2019s",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.culvers.com/about-culvers",
+     "source_name": "Culver\u2019s \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Culver's uses fresh, never frozen beef",
+      "ButterBurgers are cooked to order and topped with a lightly buttered, toasted bun",
+      "Fresh Frozen Custard is made in small batches right in the restaurant all day, every day",
+      "Every Cheese Curd served has come from a Wisconsin dairy farm"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "ButterBurgers cooked to order with Fresh Frozen Custard",
+    "why_here": "Try ButterBurgers cooked to order with a lightly buttered, toasted bun, plus Fresh Frozen Custard made in small batches right in the restaurant all day, every day.",
+    "know_before": "Culver's uses fresh, never frozen beef.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.culvers.com/about-culvers"
+     ],
+     "why_here": [
+      "https://www.culvers.com/about-culvers"
+     ],
+     "know_before": [
+      "https://www.culvers.com/about-culvers"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Culver's uses fresh, never frozen beef",
+      "source": "https://www.culvers.com/about-culvers"
+     },
+     {
+      "claim": "ButterBurgers are cooked to order and topped with a lightly buttered, toasted bun",
+      "source": "https://www.culvers.com/about-culvers"
+     },
+     {
+      "claim": "Fresh Frozen Custard is made in small batches right in the restaurant all day, every day",
+      "source": "https://www.culvers.com/about-culvers"
+     },
+     {
+      "claim": "Every Cheese Curd served has come from a Wisconsin dairy farm",
+      "source": "https://www.culvers.com/about-culvers"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ0wVCGeHW54gRNAxvOilMJYY",
+   "name": "Don Garlits Museum of Drag Racing",
+   "category": "attractions",
+   "metro": "florida",
+   "primary_type": "museum",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://garlits.com/",
+     "source_name": "Don Garlits Museum of Drag Racing \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Don Garlits Museum of Drag Racing is at 13700 SW 16th Avenue, Ocala, FL 34473",
+      "We are open Monday - Sunday, 9 a.m. - 5 p.m.",
+      "Closed Thanksgiving & Christmas",
+      "The museum preserves the history of Drag Racing"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Drag Racing history museum open Monday to Sunday",
+    "why_here": "Visit Don Garlits Museum of Drag Racing in Ocala to explore the history of Drag Racing, open Monday - Sunday from 9 a.m. to 5 p.m. for visitors.",
+    "know_before": "Closed Thanksgiving & Christmas.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://garlits.com/"
+     ],
+     "why_here": [
+      "https://garlits.com/"
+     ],
+     "know_before": [
+      "https://garlits.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Don Garlits Museum of Drag Racing is at 13700 SW 16th Avenue, Ocala, FL 34473",
+      "source": "https://garlits.com/"
+     },
+     {
+      "claim": "We are open Monday - Sunday, 9 a.m. - 5 p.m.",
+      "source": "https://garlits.com/"
+     },
+     {
+      "claim": "Closed Thanksgiving & Christmas",
+      "source": "https://garlits.com/"
+     },
+     {
+      "claim": "The museum preserves the history of Drag Racing",
+      "source": "https://garlits.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJdfgn-DiGk4gR6KU4YqUB4VQ",
+   "name": "J. Michael's Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.jmichaelspcb.com/",
+     "source_name": "J. Michael's Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "J. Michael's Restaurant is a family-owned establishment located on the East End of the beach of Panama City, FL",
+      "Since opening in 1976, J. Michael's has been serving up delicious dishes like local boiled shrimp and red beans & rice",
+      "Menu items featuring smoked pork chops, cheeseburgers, gumbo, an array of oysters, plenty of seafood",
+      "Open Monday through Sunday from 11 a.m. to 9 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned restaurant on the East End of the beach of Panama City, FL",
+    "why_here": "Go for local boiled shrimp and red beans & rice, plus smoked pork chops, cheeseburgers, gumbo, oysters and seafood served since opening in 1976 at this family-owned establishment.",
+    "know_before": "Open Monday through Sunday from 11 a.m. to 9 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.jmichaelspcb.com/"
+     ],
+     "why_here": [
+      "https://www.jmichaelspcb.com/"
+     ],
+     "know_before": [
+      "https://www.jmichaelspcb.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "J. Michael's Restaurant is a family-owned establishment located on the East End of the beach of Panama City, FL",
+      "source": "https://www.jmichaelspcb.com/"
+     },
+     {
+      "claim": "Since opening in 1976, J. Michael's has been serving up delicious dishes like local boiled shrimp and red beans & rice",
+      "source": "https://www.jmichaelspcb.com/"
+     },
+     {
+      "claim": "Menu items featuring smoked pork chops, cheeseburgers, gumbo, an array of oysters, plenty of seafood",
+      "source": "https://www.jmichaelspcb.com/"
+     },
+     {
+      "claim": "Open Monday through Sunday from 11 a.m. to 9 p.m.",
+      "source": "https://www.jmichaelspcb.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEfrdKS6Gk4gRVX0BN9dYlFo",
+   "name": "C Level - Seafood & Steakhouse Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "steak_house",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://clevelrestaurant.com/",
+     "source_name": "C Level - Seafood & Steakhouse Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "C Level - Seafood & Steakhouse Restaurant is located in the heart of Panama City Beach, FL",
+      "Prime rib is one of the signature dishes at C Level",
+      "The menu features fresh seafood such as grouper, shrimp, and tuna as well as USDA steaks such as prime rib, sirloins and ribeyes",
+      "C Level offers wine, a full bar and specialty drinks"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Seafood and steakhouse in Panama City Beach serving grouper, shrimp and tuna",
+    "why_here": "Try prime rib, one of the signature dishes, alongside USDA steaks such as sirloins and ribeyes and fresh seafood such as grouper, shrimp and tuna in Panama City Beach, FL.",
+    "know_before": "C Level offers wine, a full bar and specialty drinks.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://clevelrestaurant.com/"
+     ],
+     "why_here": [
+      "https://clevelrestaurant.com/"
+     ],
+     "know_before": [
+      "https://clevelrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "C Level - Seafood & Steakhouse Restaurant is located in the heart of Panama City Beach, FL",
+      "source": "https://clevelrestaurant.com/"
+     },
+     {
+      "claim": "Prime rib is one of the signature dishes at C Level",
+      "source": "https://clevelrestaurant.com/"
+     },
+     {
+      "claim": "The menu features fresh seafood such as grouper, shrimp, and tuna as well as USDA steaks such as prime rib, sirloins and ribeyes",
+      "source": "https://clevelrestaurant.com/"
+     },
+     {
+      "claim": "C Level offers wine, a full bar and specialty drinks",
+      "source": "https://clevelrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJZUNtE5ym2YgRuYCBZAox5BA",
+   "name": "Firebirds Wood Fired Grill",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://firebirdsrestaurants.com/menu/dinner",
+     "source_name": "Firebirds Wood Fired Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Firebirds Wood Fired Grill serves 21-day-aged steaks",
+      "Our 21-day-aged steaks are butchered in house, hand-trimmed and hardwood grilled",
+      "The dinner menu includes Wood Grilled Salmon and Wood Grilled Jumbo Shrimp",
+      "Slow Roasted Prime Rib is available Friday through Sunday"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Wood Fired Grill serving 21-day-aged steaks butchered in house and hardwood grilled",
+    "why_here": "Go for 21-day-aged steaks that are butchered in house, hand-trimmed and hardwood grilled, plus Wood Grilled Salmon and Wood Grilled Jumbo Shrimp on the dinner menu.",
+    "know_before": "Slow Roasted Prime Rib is available Friday through Sunday.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ],
+     "why_here": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ],
+     "know_before": [
+      "https://firebirdsrestaurants.com/menu/dinner"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Firebirds Wood Fired Grill serves 21-day-aged steaks",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     },
+     {
+      "claim": "Our 21-day-aged steaks are butchered in house, hand-trimmed and hardwood grilled",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     },
+     {
+      "claim": "The dinner menu includes Wood Grilled Salmon and Wood Grilled Jumbo Shrimp",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     },
+     {
+      "claim": "Slow Roasted Prime Rib is available Friday through Sunday",
+      "source": "https://firebirdsrestaurants.com/menu/dinner"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJvUT0gv3F5YgRD6uHAB4o56U",
+   "name": "OP Fish House and Oyster Bar",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://opfishhouse.com/",
+     "source_name": "OP Fish House and Oyster Bar \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Orange Park Fish House & Oyster Co. offers fresh, local seafood in North Florida",
+      "Saturday and Sunday brunch is 10:30 a.m. to 2:00 p.m.",
+      "Wednesday offers oysters raw or steamed",
+      "Happy Hour is Monday through Friday from 2 p.m. to 6 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh, local seafood restaurant in North Florida with Saturday and Sunday brunch",
+    "why_here": "Go for fresh, local seafood in North Florida, try oysters raw or steamed on Wednesday, and visit Saturday and Sunday brunch from 10:30 a.m. to 2:00 p.m. at Orange Park Fish House.",
+    "know_before": "Happy Hour is Monday through Friday from 2 p.m. to 6 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://opfishhouse.com/"
+     ],
+     "why_here": [
+      "https://opfishhouse.com/"
+     ],
+     "know_before": [
+      "https://opfishhouse.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Orange Park Fish House & Oyster Co. offers fresh, local seafood in North Florida",
+      "source": "https://opfishhouse.com/"
+     },
+     {
+      "claim": "Saturday and Sunday brunch is 10:30 a.m. to 2:00 p.m.",
+      "source": "https://opfishhouse.com/"
+     },
+     {
+      "claim": "Wednesday offers oysters raw or steamed",
+      "source": "https://opfishhouse.com/"
+     },
+     {
+      "claim": "Happy Hour is Monday through Friday from 2 p.m. to 6 p.m.",
+      "source": "https://opfishhouse.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTfLNEfG62YgRI3g_Kc1xgJE",
+   "name": "Latin Cafe 2000",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "cuban_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.latincafe.com/locations/brickell-cuban-restaurant",
+     "source_name": "Latin Cafe 2000 \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Latin Cafe 2000 Brickell serves Cuban Sandwiches, Cortadito, Tres Leches Cake, and Empanadas",
+      "Latin Cafe 2000 Brickell is open Monday - Sunday: 7:00 a.m. - 10:00 p.m.",
+      "Latin Cafe 2000 Brickell offers Dine-in, Takeout, and Delivery",
+      "Latin Cafe 2000 is walk-in only",
+      "Latin Cafe 2000 Brickell offers free valet parking for the first 2 hours"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Cuban Sandwiches, Cortadito, Tres Leches Cake, and Empanadas in Brickell",
+    "why_here": "Order Cuban Sandwiches, Cortadito, Tres Leches Cake, and Empanadas at Latin Cafe 2000 Brickell. Latin Cafe 2000 Brickell is open Monday - Sunday: 7:00 a.m. - 10:00 p.m. for Dine-in, Takeout, and Delivery.",
+    "know_before": "Latin Cafe 2000 is walk-in only.",
+    "local_tip": "Brickell offers free valet parking for the first 2 hours.",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     ],
+     "why_here": [
+      "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     ],
+     "know_before": [
+      "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     ],
+     "local_tip": [
+      "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Latin Cafe 2000 Brickell serves Cuban Sandwiches, Cortadito, Tres Leches Cake, and Empanadas",
+      "source": "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     },
+     {
+      "claim": "Latin Cafe 2000 Brickell is open Monday - Sunday: 7:00 a.m. - 10:00 p.m.",
+      "source": "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     },
+     {
+      "claim": "Latin Cafe 2000 Brickell offers Dine-in, Takeout, and Delivery",
+      "source": "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     },
+     {
+      "claim": "Latin Cafe 2000 is walk-in only",
+      "source": "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     },
+     {
+      "claim": "Latin Cafe 2000 Brickell offers free valet parking for the first 2 hours",
+      "source": "https://www.latincafe.com/locations/brickell-cuban-restaurant"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJTZF50HJq24gRI5hOuZZDZx4",
+   "name": "Farmer's Market Restaurant",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "american_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://farmersmarketrestaurant.com/",
+     "source_name": "Farmer's Market Restaurant \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Farmer's Market Restaurant has been Serving SouthWest Florida since 1952",
+      "Farmer's Market Restaurant is open Monday - Saturday 7:00 a.m. - 7:00 p.m.",
+      "Farmer's Market Restaurant is open Sunday 11:00 a.m. - 4:00 p.m. for dine in and take out",
+      "breakfast served until 10:30 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Serving SouthWest Florida since 1952",
+    "why_here": "Farmer's Market Restaurant has been Serving SouthWest Florida since 1952. Farmer's Market Restaurant is open Monday - Saturday 7:00 a.m. - 7:00 p.m. and Sunday 11:00 a.m. - 4:00 p.m. for dine in and take out.",
+    "know_before": "breakfast served until 10:30 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://farmersmarketrestaurant.com/"
+     ],
+     "why_here": [
+      "https://farmersmarketrestaurant.com/"
+     ],
+     "know_before": [
+      "https://farmersmarketrestaurant.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Farmer's Market Restaurant has been Serving SouthWest Florida since 1952",
+      "source": "https://farmersmarketrestaurant.com/"
+     },
+     {
+      "claim": "Farmer's Market Restaurant is open Monday - Saturday 7:00 a.m. - 7:00 p.m.",
+      "source": "https://farmersmarketrestaurant.com/"
+     },
+     {
+      "claim": "Farmer's Market Restaurant is open Sunday 11:00 a.m. - 4:00 p.m. for dine in and take out",
+      "source": "https://farmersmarketrestaurant.com/"
+     },
+     {
+      "claim": "breakfast served until 10:30 a.m.",
+      "source": "https://farmersmarketrestaurant.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJtc0sYey20YgRt9r1pota7KQ",
+   "name": "Key West Aquarium",
+   "category": "attractions",
+   "metro": "keys",
+   "primary_type": "aquarium",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.keywestaquarium.com/admission-tickets",
+     "source_name": "Key West Aquarium \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Key West Aquarium Hours of Operation 9 a.m. to 6 p.m.",
+      "Last entrance is at 5:30 p.m.",
+      "The 50,000-gallon Atlantic Shores exhibit houses nurse sharks, tarpon, grouper, and jacks",
+      "Key West Aquarium is home to four rescued sea turtles: Rocky, Lola, Spike, and Hector"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "50,000-gallon Atlantic Shores exhibit with nurse sharks, tarpon, grouper, and jacks",
+    "why_here": "See the 50,000-gallon Atlantic Shores exhibit with nurse sharks, tarpon, grouper, and jacks at Key West Aquarium. Key West Aquarium is home to four rescued sea turtles: Rocky, Lola, Spike, and Hector.",
+    "know_before": "Last entrance is at 5:30 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.keywestaquarium.com/admission-tickets"
+     ],
+     "why_here": [
+      "https://www.keywestaquarium.com/admission-tickets"
+     ],
+     "know_before": [
+      "https://www.keywestaquarium.com/admission-tickets"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Key West Aquarium Hours of Operation 9 a.m. to 6 p.m.",
+      "source": "https://www.keywestaquarium.com/admission-tickets"
+     },
+     {
+      "claim": "Last entrance is at 5:30 p.m.",
+      "source": "https://www.keywestaquarium.com/admission-tickets"
+     },
+     {
+      "claim": "The 50,000-gallon Atlantic Shores exhibit houses nurse sharks, tarpon, grouper, and jacks",
+      "source": "https://www.keywestaquarium.com/admission-tickets"
+     },
+     {
+      "claim": "Key West Aquarium is home to four rescued sea turtles: Rocky, Lola, Spike, and Hector",
+      "source": "https://www.keywestaquarium.com/admission-tickets"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJv6M5H1cA2YgRid-mKKE1_7w",
+   "name": "Lobster Bar Sea Grille",
+   "category": "food",
+   "metro": "broward",
+   "primary_type": "seafood_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf",
+     "source_name": "Lobster Bar Sea Grille \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Maine Lobster Bisque Au Cognac is served with steamed lobster morsels",
+      "Whole Lobsters are Steamed & Cracked for ease and enjoyment",
+      "Jumbo Key West Stone Crab Claws are served on ice",
+      "Twin South African Cold Water Lobster Tails are lightly fried and served with lemon and drawn butter",
+      "Shellfish Tower includes Whole Maine lobster, Cold water oysters, and Jumbo Florida shrimp and serves 2 - 4"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Maine Lobster Bisque Au Cognac with steamed lobster morsels",
+    "why_here": "Go for Maine Lobster Bisque Au Cognac with steamed lobster morsels, Jumbo Key West Stone Crab Claws served on ice, and Twin South African Cold Water Lobster Tails lightly fried with lemon and drawn butter.",
+    "know_before": "Shellfish Tower serves 2 - 4.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     ],
+     "why_here": [
+      "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     ],
+     "know_before": [
+      "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Maine Lobster Bisque Au Cognac is served with steamed lobster morsels",
+      "source": "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     },
+     {
+      "claim": "Whole Lobsters are Steamed & Cracked for ease and enjoyment",
+      "source": "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     },
+     {
+      "claim": "Jumbo Key West Stone Crab Claws are served on ice",
+      "source": "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     },
+     {
+      "claim": "Twin South African Cold Water Lobster Tails are lightly fried and served with lemon and drawn butter",
+      "source": "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     },
+     {
+      "claim": "Shellfish Tower includes Whole Maine lobster, Cold water oysters, and Jumbo Florida shrimp and serves 2 - 4",
+      "source": "https://lobsterbarseagrille.com/wp-content/uploads/2024/11/000-LBSG-FLL-DINNER-11.11.24-FINAL.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJGfieX6a32YgRC4kEUL-Vpss",
+   "name": "CRAFT Brickell",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "pizza_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.craftmiami.us/",
+     "source_name": "CRAFT Brickell \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "CRAFT Brickell is listed among CRAFT Miami locations",
+      "CRAFT offers comfort food",
+      "CRAFT seeks to offer a modern and casual atmosphere",
+      "CRAFT is ideal for breakfast, lunch meetings, a bite after work or a family get together for brunch",
+      "CRAFT makes everyone feel like regulars, welcoming them warmly"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Comfort food served in a modern and casual atmosphere",
+    "why_here": "Come for comfort food at breakfast, lunch, or a family get together for brunch, in a modern and casual atmosphere where regulars are welcomed warmly at CRAFT Brickell.",
+    "know_before": "CRAFT is ideal for breakfast, lunch meetings, a bite after work or a family get together for brunch.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.craftmiami.us/"
+     ],
+     "why_here": [
+      "https://www.craftmiami.us/"
+     ],
+     "know_before": [
+      "https://www.craftmiami.us/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "CRAFT Brickell is listed among CRAFT Miami locations",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT offers comfort food",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT seeks to offer a modern and casual atmosphere",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT is ideal for breakfast, lunch meetings, a bite after work or a family get together for brunch",
+      "source": "https://www.craftmiami.us/"
+     },
+     {
+      "claim": "CRAFT makes everyone feel like regulars, welcoming them warmly",
+      "source": "https://www.craftmiami.us/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJYYKQBWHyk4gR9QoDHYPzLdE",
+   "name": "Bayou Bill's Crab House",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "oyster_bar_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.bayoubills.com/",
+     "source_name": "Bayou Bill's Crab House \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Bayou Bill's Crab House has been serving since 1986",
+      "Bayou Bill's serves Fresh Gulf seafood and Southern flavors",
+      "Bayou Bill's is known for famous crab legs and fresh oysters",
+      "Bayou Bill's Crab House is in Panama City Beach",
+      "Seating is on a first come first serve basis including large parties"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Fresh Gulf seafood and Southern flavors served since 1986",
+    "why_here": "Go since 1986 for Fresh Gulf seafood and Southern flavors, including famous crab legs and fresh oysters, served in Panama City Beach as part of a seafood meal.",
+    "know_before": "Seating is on a first come first serve basis including large parties.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.bayoubills.com/"
+     ],
+     "why_here": [
+      "https://www.bayoubills.com/"
+     ],
+     "know_before": [
+      "https://www.bayoubills.com/"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Bayou Bill's Crab House has been serving since 1986",
+      "source": "https://www.bayoubills.com/"
+     },
+     {
+      "claim": "Bayou Bill's serves Fresh Gulf seafood and Southern flavors",
+      "source": "https://www.bayoubills.com/"
+     },
+     {
+      "claim": "Bayou Bill's is known for famous crab legs and fresh oysters",
+      "source": "https://www.bayoubills.com/"
+     },
+     {
+      "claim": "Bayou Bill's Crab House is in Panama City Beach",
+      "source": "https://www.bayoubills.com/"
+     },
+     {
+      "claim": "Seating is on a first come first serve basis including large parties",
+      "source": "https://www.bayoubills.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJBVShAmez2YgRvNWv6nIzzzY",
+   "name": "Faena Miami Beach",
+   "category": "hotels",
+   "metro": "miami-dade",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.faena.com/miami-beach/accommodations",
+     "source_name": "Faena Miami Beach \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Faena Miami Beach is at 3201 Collins Ave, Miami Beach, FL 33140",
+      "Faena Miami Beach offers rooms and suites",
+      "Faena Miami Beach is Oceanfront with a Pool",
+      "Hotel amenities include Holistic Healing Spa, Fitness Center and Pool"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Oceanfront rooms and suites with a Pool in Miami Beach",
+    "why_here": "Stay for rooms and suites at Faena Miami Beach, with a Pool, Holistic Healing Spa and Fitness Center among the hotel amenities for an Oceanfront stay.",
+    "know_before": "Faena Miami Beach is at 3201 Collins Ave, Miami Beach, FL 33140.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.faena.com/miami-beach/accommodations"
+     ],
+     "why_here": [
+      "https://www.faena.com/miami-beach/accommodations"
+     ],
+     "know_before": [
+      "https://www.faena.com/miami-beach/accommodations"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Faena Miami Beach is at 3201 Collins Ave, Miami Beach, FL 33140",
+      "source": "https://www.faena.com/miami-beach/accommodations"
+     },
+     {
+      "claim": "Faena Miami Beach offers rooms and suites",
+      "source": "https://www.faena.com/miami-beach/accommodations"
+     },
+     {
+      "claim": "Faena Miami Beach is Oceanfront with a Pool",
+      "source": "https://www.faena.com/miami-beach/accommodations"
+     },
+     {
+      "claim": "Hotel amenities include Holistic Healing Spa, Fitness Center and Pool",
+      "source": "https://www.faena.com/miami-beach/accommodations"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJxW8If1CO3YgRS9fO02_UQaA",
+   "name": "The Cup Diner",
+   "category": "food",
+   "metro": "florida",
+   "primary_type": "diner",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf",
+     "source_name": "The Cup Diner \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Cup Diner menu includes specialty breakfast",
+      "Omelettes are served with Hash Browns, Home Fries or Grits & Toast",
+      "Menu includes pancakes and French toast",
+      "Desserts include pie, cake and ice cream",
+      "Menu includes Specialty Burgers served with French fries"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Diner menu with specialty breakfast, omelettes, pancakes and French toast",
+    "why_here": "Go for specialty breakfast and omelettes served with Hash Browns, Home sides or Grits & Toast, plus pancakes and French toast and pie, cake and ice cream for dessert.",
+    "know_before": "Omelettes are served with Hash Browns, Home sides or Grits & Toast.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     ],
+     "why_here": [
+      "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     ],
+     "know_before": [
+      "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Cup Diner menu includes specialty breakfast",
+      "source": "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     },
+     {
+      "claim": "Omelettes are served with Hash Browns, Home Fries or Grits & Toast",
+      "source": "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     },
+     {
+      "claim": "Menu includes pancakes and French toast",
+      "source": "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     },
+     {
+      "claim": "Desserts include pie, cake and ice cream",
+      "source": "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     },
+     {
+      "claim": "Menu includes Specialty Burgers served with French fries",
+      "source": "https://thecupdiner.com/wp-content/uploads/2025/12/The_Cup_Diner_Menu_102025.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJUSThYisA2YgR3FTxvBX6Qzk",
+   "name": "The Ritz-Carlton, Fort Lauderdale",
+   "category": "hotels",
+   "metro": "broward",
+   "primary_type": "hotel",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/",
+     "source_name": "The Ritz-Carlton, Fort Lauderdale \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "The Ritz-Carlton, Fort Lauderdale is a beachfront hotel on Fort Lauderdale Beach",
+      "The hotel offers a Club Lounge and Spa",
+      "The Ritz-Carlton, Fort Lauderdale is at 1 North Fort Lauderdale Beach Boulevard, Fort Lauderdale, Florida, USA, 33304",
+      "Suites offer views of the Atlantic Ocean and Intracoastal Waterway"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Beachfront hotel with a Club Lounge and Spa in Fort Lauderdale",
+    "why_here": "Stay at this beachfront hotel in Fort Lauderdale for Suites with views of the Atlantic Ocean and Intracoastal Waterway, plus a Club Lounge and Spa on Fort Lauderdale Beach.",
+    "know_before": "The Ritz-Carlton, Fort Lauderdale is at 1 North Fort Lauderdale Beach Boulevard, Fort Lauderdale, Florida, USA, 33304.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     ],
+     "why_here": [
+      "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     ],
+     "know_before": [
+      "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "The Ritz-Carlton, Fort Lauderdale is a beachfront hotel on Fort Lauderdale Beach",
+      "source": "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     },
+     {
+      "claim": "The hotel offers a Club Lounge and Spa",
+      "source": "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     },
+     {
+      "claim": "The Ritz-Carlton, Fort Lauderdale is at 1 North Fort Lauderdale Beach Boulevard, Fort Lauderdale, Florida, USA, 33304",
+      "source": "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     },
+     {
+      "claim": "Suites offer views of the Atlantic Ocean and Intracoastal Waterway",
+      "source": "https://www.ritzcarlton.com/en/hotels/fllrz-the-ritz-carlton-fort-lauderdale/overview/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJQcqBH16x2YgRF0ooHnjV9Fw",
+   "name": "Fiorito",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "argentinian_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://fioritomiami.com/miami-fiorito-about",
+     "source_name": "Fiorito \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Fiorito is a family-owned spot offering Argentinean cuts of certified Angus beef",
+      "Brothers Maximiliano and Cristian Alvarez opened Fiorito in 2012",
+      "Fiorito offers Italian fare and Spanish fare",
+      "The name Fiorito is a nod to Villa Fiorito, a suburb of Buenos Aires"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Family-owned Argentinean spot serving certified Angus beef",
+    "why_here": "Go for Argentinean cuts of certified Angus beef at a family-owned spot opened in 2012 by brothers Maximiliano and Cristian Alvarez, with Italian fare and Spanish fare also offered.",
+    "know_before": "The name Fiorito is a nod to Villa Fiorito, a suburb of Buenos Aires.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://fioritomiami.com/miami-fiorito-about"
+     ],
+     "why_here": [
+      "https://fioritomiami.com/miami-fiorito-about"
+     ],
+     "know_before": [
+      "https://fioritomiami.com/miami-fiorito-about"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Fiorito is a family-owned spot offering Argentinean cuts of certified Angus beef",
+      "source": "https://fioritomiami.com/miami-fiorito-about"
+     },
+     {
+      "claim": "Brothers Maximiliano and Cristian Alvarez opened Fiorito in 2012",
+      "source": "https://fioritomiami.com/miami-fiorito-about"
+     },
+     {
+      "claim": "Fiorito offers Italian fare and Spanish fare",
+      "source": "https://fioritomiami.com/miami-fiorito-about"
+     },
+     {
+      "claim": "The name Fiorito is a nod to Villa Fiorito, a suburb of Buenos Aires",
+      "source": "https://fioritomiami.com/miami-fiorito-about"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJ1Vg-X9KOk4gRAAppIMuqvZ8",
+   "name": "Firefly",
+   "category": "food",
+   "metro": "panama-city-florida",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.fireflypcb.com/items/surf-and-turf-sushi",
+     "source_name": "Firefly \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Firefly is at 535 Richard Jackson Blvd, Panama City Beach, FL 32407",
+      "Firefly serves Surf and Turf Sushi with Tempura Shrimp, Green Onion, Sweet Mayo, Cream Cheese, and Sliced Kobe Beef",
+      "Firefly hours include Sunday 5 p.m. - 10 p.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Sushi rolls including Surf and Turf Sushi with Sliced Kobe Beef",
+    "why_here": "Try the Surf and Turf Sushi, made with Tempura Shrimp, Green Onion, Sweet Mayo, Cream Cheese, and Sliced Kobe Beef, at this Panama City Beach restaurant on Richard Jackson Blvd.",
+    "know_before": "Sunday hours are 5 p.m. - 10 p.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.fireflypcb.com/items/surf-and-turf-sushi"
+     ],
+     "why_here": [
+      "https://www.fireflypcb.com/items/surf-and-turf-sushi"
+     ],
+     "know_before": [
+      "https://www.fireflypcb.com/items/surf-and-turf-sushi"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Firefly is at 535 Richard Jackson Blvd, Panama City Beach, FL 32407",
+      "source": "https://www.fireflypcb.com/items/surf-and-turf-sushi"
+     },
+     {
+      "claim": "Firefly serves Surf and Turf Sushi with Tempura Shrimp, Green Onion, Sweet Mayo, Cream Cheese, and Sliced Kobe Beef",
+      "source": "https://www.fireflypcb.com/items/surf-and-turf-sushi"
+     },
+     {
+      "claim": "Firefly hours include Sunday 5 p.m. - 10 p.m.",
+      "source": "https://www.fireflypcb.com/items/surf-and-turf-sushi"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJEUL1Zgqo2YgRruXJPFZpY1Y",
+   "name": "Tree Tops Park",
+   "category": "attractions",
+   "metro": "broward",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx",
+     "source_name": "Tree Tops Park \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Tree Tops Park sits on 243 acres",
+      "Tree Tops Park has a boardwalk through 23 acres of restored freshwater marsh",
+      "Tree Tops Park has nature trails and an equestrian center"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "243 acres with a boardwalk through restored freshwater marsh",
+    "why_here": "Walk the boardwalk through 23 acres of restored freshwater marsh, follow nature trails, or visit the equestrian center across 243 acres at Tree Tops Park.",
+    "know_before": "Tree Tops Park has nature trails and an equestrian center.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx"
+     ],
+     "why_here": [
+      "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx"
+     ],
+     "know_before": [
+      "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx"
+     ],
+     "local_tip": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Tree Tops Park sits on 243 acres",
+      "source": "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx"
+     },
+     {
+      "claim": "Tree Tops Park has a boardwalk through 23 acres of restored freshwater marsh",
+      "source": "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx"
+     },
+     {
+      "claim": "Tree Tops Park has nature trails and an equestrian center",
+      "source": "https://www.broward.org/Parks/TreeTopsPark/Pages/Default.aspx"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJgRKzrbG32YgRK_8YtvRAO_o",
+   "name": "Dukunoo Jamaican Kitchen",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf",
+     "source_name": "Dukunoo Jamaican Kitchen \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Dukunoo Jamaican Kitchen is at 316 NW 24th St, Miami, Florida",
+      "Dukunoo Jamaican Kitchen serves Jerk Chicken",
+      "Dukunoo Jamaican Kitchen hours include Monday 5 p.m. - 1 a.m."
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Jamaican kitchen serving Jerk Chicken in Miami",
+    "why_here": "Try Jerk Chicken at Dukunoo Jamaican Kitchen at 316 NW 24th St, Miami, Florida, a Jamaican kitchen with dinner service extending late into the evening on multiple nights.",
+    "know_before": "Monday hours are 5 p.m. - 1 a.m.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf"
+     ],
+     "why_here": [
+      "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf"
+     ],
+     "know_before": [
+      "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Dukunoo Jamaican Kitchen is at 316 NW 24th St, Miami, Florida",
+      "source": "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf"
+     },
+     {
+      "claim": "Dukunoo Jamaican Kitchen serves Jerk Chicken",
+      "source": "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf"
+     },
+     {
+      "claim": "Dukunoo Jamaican Kitchen hours include Monday 5 p.m. - 1 a.m.",
+      "source": "https://dukunoowynwood.com/wp-content/uploads/2024/12/11-2024-DUKUNOO-MAIN-MENUVEG.pdf"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJi35l74202YgROglJy6msvoI",
+   "name": "Safron Grill",
+   "category": "food",
+   "metro": "miami-dade",
+   "primary_type": "turkish_restaurant",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": false,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://www.safrongrill.com/",
+     "source_name": "Safron Grill \u2014 official source",
+     "source_class": "official_venue",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Safron Grill was established in 2015",
+      "Safron Grill is located at 1049 Washington Ave., Miami Beach, FL 33139",
+      "Safron Grill offers grilled Adana kebabs and lamb chops",
+      "Safron Grill offers falafel in South Beach",
+      "Safron Grill offers hummus, baba ghanoush and gyro wraps",
+      "Safron Grill offers vegetarian and vegan options"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "Grilled Adana kebabs, lamb chops and falafel in South Beach",
+    "why_here": "Go for grilled Adana kebabs and lamb chops, plus falafel in South Beach, with hummus, baba ghanoush and gyro wraps and vegetarian and vegan options at Safron Grill.",
+    "know_before": "Safron Grill was established in 2015 at 1049 Washington Ave., Miami Beach, FL 33139.",
+    "local_tip": "Try falafel in South Beach with hummus and baba ghanoush",
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://www.safrongrill.com/"
+     ],
+     "why_here": [
+      "https://www.safrongrill.com/"
+     ],
+     "know_before": [
+      "https://www.safrongrill.com/"
+     ],
+     "local_tip": [
+      "https://www.safrongrill.com/"
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Safron Grill was established in 2015",
+      "source": "https://www.safrongrill.com/"
+     },
+     {
+      "claim": "Safron Grill is located at 1049 Washington Ave., Miami Beach, FL 33139",
+      "source": "https://www.safrongrill.com/"
+     },
+     {
+      "claim": "Safron Grill offers grilled Adana kebabs and lamb chops",
+      "source": "https://www.safrongrill.com/"
+     },
+     {
+      "claim": "Safron Grill offers falafel in South Beach",
+      "source": "https://www.safrongrill.com/"
+     },
+     {
+      "claim": "Safron Grill offers hummus, baba ghanoush and gyro wraps",
+      "source": "https://www.safrongrill.com/"
+     },
+     {
+      "claim": "Safron Grill offers vegetarian and vegan options",
+      "source": "https://www.safrongrill.com/"
+     }
+    ]
+   }
+  },
+  {
+   "place_id": "ChIJjXM0sHbwwogRMgVlNqaj4us",
+   "name": "Eagle Lake Park",
+   "category": "attractions",
+   "metro": "st-pete",
+   "primary_type": "park",
+   "inventory_snapshot": {
+    "wf_editorial_present": false,
+    "inventory_editorial_present": true,
+    "inventory_editorial_disposition": "owner-row-supersedes",
+    "inventory_editorial_card_present": false
+   },
+   "evidence": [
+    {
+     "source": "https://pinellas.gov/parks/eagle-lake-park",
+     "source_name": "Eagle Lake Park \u2014 official source",
+     "source_class": "government",
+     "checked_at": "2026-11-04",
+     "supports": [
+      "Eagle Lake Park is 162 acres set in the heart of Largo",
+      "Eagle Lake Park provides a wetlands section restored with native plants",
+      "Eagle Lake Park is open 7 days a week, 7 a.m. to sunset",
+      "Eagle Lake Park has a Playground and a Paved 12-Foot Wide Recreation Trail"
+     ]
+    }
+   ],
+   "editorial": {
+    "hook": "162 acres in Largo with wetlands restored with native plants",
+    "why_here": "Explore 162 acres in the heart of Largo, with a wetlands section restored with native plants, a Playground, and a Paved 12-Foot Wide Recreation Trail at Eagle Lake Park.",
+    "know_before": "Open 7 days a week, 7 a.m. to sunset.",
+    "local_tip": null,
+    "best_time": null,
+    "citations": {
+     "hook": [
+      "https://pinellas.gov/parks/eagle-lake-park"
+     ],
+     "why_here": [
+      "https://pinellas.gov/parks/eagle-lake-park"
+     ],
+     "know_before": [
+      "https://pinellas.gov/parks/eagle-lake-park"
+     ],
+     "local_tip": [
+      null
+     ],
+     "best_time": [
+      null
+     ]
+    },
+    "facts": [
+     {
+      "claim": "Eagle Lake Park is 162 acres set in the heart of Largo",
+      "source": "https://pinellas.gov/parks/eagle-lake-park"
+     },
+     {
+      "claim": "Eagle Lake Park provides a wetlands section restored with native plants",
+      "source": "https://pinellas.gov/parks/eagle-lake-park"
+     },
+     {
+      "claim": "Eagle Lake Park is open 7 days a week, 7 a.m. to sunset",
+      "source": "https://pinellas.gov/parks/eagle-lake-park"
+     },
+     {
+      "claim": "Eagle Lake Park has a Playground and a Paved 12-Foot Wide Recreation Trail",
+      "source": "https://pinellas.gov/parks/eagle-lake-park"
+     }
+    ]
+   }
+  }
+ ]
+}
