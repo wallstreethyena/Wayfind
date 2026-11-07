@@ -32,9 +32,9 @@ import { toDisplayScore } from "../../lib/score";
 import ViatorCommerceLink from "./ViatorCommerceLink";
 import RailCard, { RailDots, RailNav } from "./RailCard";
 
-export default function ViatorRail({ title, items, theme, onLog, onOpenExternal }) {
+export default function ViatorRail({ title, items, theme, onLog, onOpenExternal, preserveOrder = false }) {
   if (!Array.isArray(items) || !items.length) return null;
-  const rankedItems = rankExperiences(items);
+  const rankedItems = preserveOrder ? (Array.isArray(items) ? items : []) : rankExperiences(items);
   const categoryImage = theme === "events-tours" ? eventCategoryArt("tours") : "";
   const railId = `viator-${String(theme || title || "experiences").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}`;
   return (

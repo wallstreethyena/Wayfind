@@ -115,9 +115,9 @@ ok(/data-rail=\{railId\}/.test(comp) && /"-intent-movies"/.test(comp), "rail wra
 ok(/movies_rail_hidden/.test(comp) && /ticket_cta_pending/.test(comp), "defensive pending CTA hides the rail and tracks movies_rail_hidden");
 ok(/NODE_ENV\s*!==\s*["']production["']/.test(comp), "dev-only preview path exists so the layout can be checked before the link is live");
 
-// 3b. Posters: credit sits under the headline as a facts line, never as RailCard's photoAttr chip on the picture.
-ok(!/\bphotoAttr\b/.test(comp), "component never passes photoAttr (RailCard paints that as a (c) chip ON the picture)");
-ok(/art\.credit/.test(comp) && /facts=\{\[/.test(comp), "poster credit is carried in the facts line under the headline");
+// 3b. Posters: credit is the tiny line on the photo, not a facts row under the title.
+ok(/photoAttr=\{art && art\.credit \? art\.credit : null\}/.test(comp), "poster credit is photoAttr, painted on the photo");
+ok(!/facts=\{\[[^\]]*art\.credit/.test(comp), "poster credit is not a facts line under the headline");
 ok(/wf-movie-card/.test(comp), "cards carry wf-movie-card (wider photo column so the whole poster shows)");
 
 // 4. Commission text never appears on a card.
